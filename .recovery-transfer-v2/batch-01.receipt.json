@@ -1,0 +1,27 @@
+{
+  "source": "eeca9ad782640f97bc15423e72319acea310d36f",
+  "verified": [
+    "package.json",
+    "native/third_party/occt.manifest.json"
+  ],
+  "failed": [
+    "packages/geometry-contracts/tsconfig.json",
+    "tools/build-native/bootstrap.py",
+    "tools/build-native/build.py",
+    "tools/build-native/format.py",
+    "tools/build-native/manifest.json",
+    "tools/build-native/native_tooling.py",
+    "tools/build-native/run-python.mjs",
+    "tools/build-native/test.py",
+    "tools/build-native/test_electron.py",
+    "tools/build-native/with-msvc.ps1",
+    "PROJECT_STATE.md",
+    "README.md",
+    "RESEARCH.md",
+    "pnpm-workspace.yaml",
+    "turbo.json",
+    "pnpm-lock.yaml",
+    "tsconfig.json",
+    ".clang-format"
+  ]
+}
