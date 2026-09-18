@@ -68,3 +68,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "archive: recover pre-VibeCAD Aethalgard snapshot"
           git push origin HEAD:main
+
+# manual recovery trigger 2026-09-18
