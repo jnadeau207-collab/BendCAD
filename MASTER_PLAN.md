@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 1 — September 18, 2026**
+**Revision 2 — September 18, 2026**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend.
 
@@ -10,7 +10,7 @@
 
 Production Aethalgard remains the existing Electron/React/Three.js, Engineering Core, and headless FreeCAD/OCCT product. It receives no experimental Bend dependency and is not rewritten or replaced by this program.
 
-The user's Bend fork owns generic language work: U64/F64, numeric semantics, compiler/runtime integration, Metal software arithmetic, other backend implementations, conformance tests, and upstreamable documentation. Pin the fork URL and exact commit when it exists. The inspected upstream baseline is `bendlang/bend` at `0b7e2b11c1054f5d0f4eb955cadb47997ef1115d`; re-audit any delta before implementation. Do not silently substitute another Bend generation or HVM project.
+The Bend language fork is `jnadeau207-collab/bend`. BendCAD's authoritative dependency is the exact commit in root `BEND_PIN`; the initial audited pin is `0b7e2b11c1054f5d0f4eb955cadb47997ef1115d`. Generic scalar representation, U64/F64, compiler/runtime integration, Metal software binary64, backend identity, and conformance work live in that repository. BendCAD does not carry a competing F64 RFC. Advance `BEND_PIN` only to an exact Bend commit that has satisfied the required numeric gate.
 
 `jnadeau207-collab/BendCAD` owns the new CAD kernel, its laws and proofs, professional geometry algorithms, command-line interface, SDK, interchange, and qualification corpus. Its runtime geometry must not depend on FreeCAD, OCCT, PlaneGCS, or another existing CAD kernel.
 
@@ -43,97 +43,57 @@ Preserve original notices and third-party provenance. Do not place a new blanket
 
 Three recoverable references remain useful for subsequent archaeology, but are not interchangeable baselines: local-worktree snapshot `1eab12971dcb22c0b75f9d3714ba377d86ab36b5`, archive manifest `213180dd5b2d0c805ae9610bf88be5cd82111b0f`, and the selected tip above. Any additional branch recovery gets its own provenance, not silent mixing.
 
-## 3. The numerical contract comes before implementation
+## 3. Bend is a pinned prerequisite, not part of the CAD kernel
 
-Bend's existing `w64` layout and Metal `ulong` support are useful foundations, not proof that arbitrary binary64 values can already pass safely through every runtime path. The inspected runtime also has tagged terms, a reference-count bit, sentinel values, and a 48-bit immediate Nat limit. Audit their interaction before adding `F64: W64`. [1]
+The canonical numeric contract and execution order live in the Bend fork:
 
-### 3.1 Representation and observable behavior
+- `bend2/docs/F64_CONTRACT.md`
+- `bend2/docs/F64_IMPLEMENTATION.md`
 
-Define `U64` and `F64` over `Word(64n)` at the language level. U64 arithmetic is explicitly modulo 2^64 where declared; checked conversions never silently pass through the restricted Nat representation. Shift counts at or beyond the width have a defined result, not backend undefined behavior. Division by zero has one documented cross-backend policy.
+This plan does not duplicate them. If Bend's numeric contract changes, change it there first, qualify it there, then advance `BEND_PIN`.
 
-F64 stores the IEEE binary64 encoding. `bits(from_bits(x)) == x` must hold for every U64 encoding, including negative zero and NaN payloads. Storage, copying, serialization, and arithmetic are separate contracts: ordinary arithmetic may produce a specified canonical quiet NaN, but merely transporting a supplied NaN must not alter its bits.
+The initial blocker is upstream `bendlang/bend#797`: Bend can currently prove an F32 bit-roundtrip equality that optimized JS violates by quieting a signaling NaN. This is a language/compiler soundness defect, not a CAD tolerance issue. BendCAD must not build F64 geometry over that representation model.
 
-The default arithmetic profile is correctly rounded round-to-nearest, ties-to-even for addition, subtraction, multiplication, division, square root, and explicit fused multiply-add. Preserve signed zero, infinities, and gradual underflow. Do not flush subnormals or allow reassociation. `a*b+c` retains two roundings; `fma(a,b,c)` has one. Numeric equality, bit equality, unordered comparisons, and total ordering are distinct APIs.
+## 4. Required Bend handoff gate
 
-Add classification, sign operations, `next_up`, `next_down`, floor/ceil/truncation, scaling by powers of two, and defined float/integer conversions. Distinguish truncating `fmod` from IEEE remainder. Document exceptional integer conversions instead of inheriting C undefined behavior.
+Serious BendCAD geometry numerics may begin only after the pinned Bend commit has all of the following:
 
-### 3.2 Rounding and exceptions without hidden global state
+1. the #797 class fixed without weakening the theorem;
+2. optimized F32/F64 storage bit-authoritative on JS;
+3. raw `w64` distinguished from tagged runtime `Term`;
+4. arbitrary U64 transport through constructors, arrays, closures, scheduling and host execution;
+5. exact F64 `from_bits/bits` transport;
+6. qualified add/sub/mul/div/sqrt/FMA and required conversions on host lanes;
+7. strict backend identity so a requested Metal/CUDA run cannot silently fall back;
+8. genuine Metal binary64 executed as GPU-resident integer software arithmetic over `ulong`.
 
-Provide a checked numeric layer that takes a rounding mode and returns a value plus exception flags. Initial modes are nearest-even, toward zero, toward positive infinity, and toward negative infinity. Additional modes are named additions, not implied by the phrase “all rounding modes.”
+Device qualification is a gate for device claims, not a reason to freeze host representation work when hardware is unavailable.
 
-Track invalid operation, division by zero, overflow, underflow, and inexact explicitly. Choose and test tininess-after-rounding semantics. Signaling NaN consumption raises invalid in this checked profile; ordinary arithmetic uses the declared canonical result policy. Never implement parallel Bend semantics using one shared process-global rounding mode or sticky-flag variable.
+## 5. What belongs in BendCAD
 
-A backend can first qualify value-only nearest-even operations, but that is not qualification of the checked API or full IEEE behavior. SoftFloat provides a practical executable reference for these distinctions. [2]
+After the Bend handoff, BendCAD owns the CAD-specific numerical layer:
 
-### 3.3 Literals and persistence
+- Vec2/Vec3, matrices, frames and transforms;
+- stable norms and `hypot`;
+- CAD-specific trigonometric/range-reduction policy;
+- adaptive/exact predicates;
+- certified intervals and root isolation where required;
+- curve/surface evaluation and conditioning;
+- topology, intersections, booleans, features, queries and tessellation.
 
-Keep existing F32 literals compatible. Proposed explicit new spellings are `1.5f64` and `42u64`; finalize grammar in the numeric RFC rather than scattering provisional suffixes through CAD code. Include hexadecimal U64 and bit-exact F64 construction for fixtures.
+Generic improvements may later move upstream. They are not prerequisites for closing Bend's scalar contract.
 
-Parse decimal F64 without an F32 intermediate. Use a defined, locale-independent grammar and correctly rounded conversion. Printing should provide shortest round-trip finite values, preserve negative zero where required, and specify infinity/NaN text. Binary serialization is explicitly little-endian; lossless NaN payload transport uses binary or hex, not ordinary JSON numbers.
+## 6. Legacy Aethalgard is oracle material, never the runtime
 
-Geometric input policy may reject NaNs, infinities, or excessive coordinates. That policy must not narrow the language's binary64 implementation.
+Mine `legacy/aethalgard/` for contracts, failure cases, topology behavior, selector/ref behavior, tolerance policy, fixtures and comparison outputs. Reconstruct a separate pinned oracle harness as needed.
 
-## 4. How F64 will actually run on Metal
+FreeCAD, OCCT and PlaneGCS may be test comparators only. No BendCAD runtime geometry algorithm may delegate its implementation to them.
 
-The baseline Metal implementation uses integer software arithmetic over a 64-bit encoding. It is not two F32 values and not a hidden CPU callback.
+## 7. Dependency discipline
 
-Unpack sign, exponent, and significand; classify special values; compute with sufficient integer precision; normalize; retain guard/round/sticky information; round exactly once; encode the result and flags. Multiplication needs the full product of two 53-bit significands. Implement wide arithmetic using tested 64-bit limbs or 32-bit limbs, including carry, borrow, wide multiply, and shift-right-with-jam. Native 128-bit integers are not a prerequisite.
+`BEND_PIN` is authoritative.
 
-Division and square root must retain enough remainder information for correct rounding. FMA must not round the product before adding the third operand. Cancellation and subnormal boundaries receive dedicated algorithms and tests, not epsilon patches.
-
-Treat `metal-softfloat` as candidate implementation/prior art. Its author-reported TestFloat results are useful, but are not our own qualification; its documented value-only coverage does not establish exception-flag behavior. Pin and inspect its source and license before reuse, and reproduce relevant tests on our generated Bend path. [3]
-
-Prefer one portable software semantic implementation that is directly testable on the CPU and can be compiled for Metal. Native CPU/CUDA instructions are optional optimized implementations of that contract. An independently maintained SoftFloat build and high-precision oracle are needed so the port is not its own sole judge.
-
-Expose actual backend selection and require-device execution. A requested Metal qualification run with no functioning GPU must fail or report NOT RUN. A successful CPU fallback is not Metal evidence.
-
-## 5. Exact Bend integration work
-
-| Area | Required change |
-|---|---|
-| `bend2/base.bend` | U64/F64 types, bit conversions, numeric API, explicit rounding/flag types, documentation of trusted primitives. |
-| `bend2/bend.ts` | Width-aware Word construction, parser/printer support, literal validation, constant handling, and checker-visible representation. Keep 64-bit integers out of lossy JS Number paths. |
-| `bend2/comp.ts` | Audit `WORDS`, `OPTIMIZED`, `OPERATIONS`, `NATIVE`, layouts, constructors/destructors, constant folding, and C/JS/device lowering. |
-| Native runtime | Untagged payload versus boxed value handling, function arguments/returns, closure captures, arrays, ownership/refcounts, scheduler frames, and CPU/GPU transport. |
-| Driver and backend setup | Pin toolchains, strict numeric compiler options, Metal language/SDK requirements, device identity, and no-fallback qualification mode. |
-| Tests | Parser, checker, layout, generic-container, ABI, arithmetic, text/binary round-trip, scheduling, and actual-device suites. |
-
-Exercise F64 inside records, generic lists, arrays, optional values, captured closures, fork/join continuations, foreign returns, and serialized packets. A scalar `1.0 + 2.0` test cannot expose most representation defects.
-
-C/CPU and CUDA may use native doubles only for operations that meet the contract under controlled settings. Disable fast-math, reassociation, unwanted contraction, and subnormal flushing. Verify the actual generated code and observable results.
-
-JavaScript may use Number for qualified arithmetic, but U64 uses BigInt and bit conversion uses DataView. Raw NaN payload preservation requires an appropriate raw/boxed representation. Explicit FMA, directed rounding, and flags need software support where JavaScript does not expose the required operation. “JS already has doubles” is not sufficient.
-
-The initial formal trust boundary may include opaque F64 primitives. Do not invent arithmetic theorems for them. Later, define a bit-level model and prove software operations/refinements incrementally. Floating-point reasoning is possible; it is not obtained merely by copying F32 declarations.
-
-## 6. Qualification and performance
-
-Use Berkeley TestFloat/SoftFloat for core operations, hand-derived boundary cases, and MPFR-backed references for wider numerical functions. A finite fuzz run is evidence, not a proof over all inputs. MPFR has different default exponent/subnormal behavior, so configure binary64 emulation or compute increasing-precision enclosures until the target rounding is unambiguous; blindly rounding one high-precision value twice is not a sound universal oracle. [2][4][5]
-
-Every promised basic operation requires zero mismatches against its declared value/flag/NaN policy on the admitted suite. Include both signs, every exponent class, halfway cases, exact cancellation, overflow thresholds, gradual underflow, signaling/quiet NaNs, F32 conversions, U64 values above 2^53, and encodings resembling runtime tags or sentinels.
-
-Run vectors through compiled Bend, not just an isolated C or Metal library. Save source/compiler commits, generated-kernel digest, device and driver, OS/SDK, compiler flags, rounding profile, vector counts by operation, seeds, failures, and actual execution backend. Never substitute another commit's receipt.
-
-GPU speed is measured, not assumed. Benchmark per-operation latency, batched throughput, register pressure, divergence, allocation cost, dispatch overhead, memory traffic, compiler time, and end-to-end geometry workloads. Compare equivalent algorithms and numeric contracts. Keep deterministic reduction trees; parallel scheduling does not make floating-point addition associative.
-
-Initial target matrix: Linux CPU, macOS CPU, macOS Metal on real Apple hardware, NVIDIA CUDA on an explicitly supported host, and JavaScript. Windows-native support gets a separate runtime/toolchain gate; WSL results are not relabeled native Windows. No advertised platform is qualified through another platform's tests.
-
-## 7. Ordered numeric work packets
-
-| Packet | Deliverable and exit criterion |
-|---|---|
-| N00 | Pin the Bend fork/baseline; reproduce existing tests; write the numeric RFC and backend support matrix; inventory known failures and trusted boundaries. |
-| N01 | U64 plus raw F64 representation, literals, containers, and ABI. Full-width round trips work without Nat truncation, tag collision, or NaN payload loss. |
-| N02 | Portable software core: wide integer helpers, basic binary64 operations, FMA, conversions, rounding and flags. Independent differential suite passes. |
-| N03 | C/CPU and JavaScript integration, constant handling, text/binary I/O. Compiled Bend results match the pinned contract. |
-| N04 | Metal integration through the real Bend GPU route. Required-device conformance passes; no F32 emulation or CPU substitution. |
-| N05 | CUDA integration and cross-backend conformance, including explicit FMA and subnormal behavior. |
-| N06 | CAD numeric library: qualified trigonometry, inverse trigonometry, `atan2`, `hypot`, exponential/logarithmic functions and powers, stable linear algebra, outward-rounded intervals. |
-| N07 | Performance work, compiler regression controls, packaging, documentation, and reviewable upstream contributions. No optimization weakens semantics. |
-
-N02 and backend harness work can overlap after N00/N01. The immediate first release is qualified numeric infrastructure, not a CAD demo. Archive qualification and oracle design can proceed in parallel; numerical CAD implementation starts after the relevant numeric gates, including genuine Metal execution, pass.
-
-Transcendentals are a separate work package, not silently included in “SoftFloat works.” Use algorithms with documented argument reduction, domain behavior, and error bounds. Correct rounding is required where claimed; otherwise publish a proven or measured bound with its status and domain. Large-angle trigonometry must not narrow through F32.
+Do not track Bend `main` implicitly. Do not copy Bend numeric implementations into BendCAD. Do not maintain two numeric RFCs. A Bend upgrade is an explicit change with a receipt against the new exact SHA.
 
 ## 8. BendCAD architecture and numerical policy
 
@@ -280,21 +240,24 @@ One work packet has a contract, implementation, negative tests, relevant laws, a
 
 Use ordinary incremental commits; preserve existing work and do not force-reset branches. Keep generic numerical improvements upstreamable instead of embedding CAD names in Bend's compiler. Do not change production Aethalgard for this side project.
 
-## 13. The first execution packet
+## 13. First execution packet
 
-**N00/N01: establish the numeric contract and prove full-width representation before arithmetic optimization.**
+Until the Bend prerequisite gate in section 4 closes, BendCAD does not implement production geometry on an unqualified F64 substrate.
 
-After the fork is identified, pin it and record baseline checks. Add the U64/F64 surface with explicit literals and bit conversion, implement the native/JS representation changes, and test full-width values through all generic storage and execution paths.
+Work allowed in parallel:
 
-The acceptance set must distinguish `1 + 2^-52` from 1, preserve the smallest binary64 subnormal, round halfway values correctly, transport `0xffffffffffffffff` without confusing it with a runtime sentinel, preserve negative zero and supplied NaN payload bits, reject overflowing U64 literals, and expose the actual execution backend. Scalar arithmetic acceptance belongs to N02/N03; real Metal arithmetic acceptance belongs to N04.
+- preserve and verify the immutable Aethalgard reference corpus;
+- build oracle adapters outside `legacy/`;
+- inventory operation semantics and adversarial fixtures;
+- specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-The next packet is the qualified software arithmetic core, not an OCCT bridge, a viewer redesign, or a box demo.
+After `BEND_PIN` advances to a qualified numeric commit, BendCAD starts at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates. It does not start with an OCCT bridge or a box demo.
 
-**Dependency order:** immutable recovery and baseline → full-width representation → specified software binary64 → compiled CPU/JS and actual Metal qualification → CUDA and CAD math → robust predicates and B-rep foundations → intersections/booleans/features → interchange and professional qualification.
+**Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 and actual Metal execution → pinned Bend handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification.
 
 ## Primary references
 
-[1] Bend inspected compiler/runtime: https://github.com/bendlang/bend/blob/0b7e2b11c1054f5d0f4eb955cadb47997ef1115d/bend2/comp.ts ; language/base files and guide in the same pinned tree.
+[1] Bend fork and initial audited baseline: https://github.com/jnadeau207-collab/bend/tree/0b7e2b11c1054f5d0f4eb955cadb47997ef1115d ; canonical numeric contract and implementation program live in the fork.
 
 [2] Berkeley SoftFloat interface and arithmetic semantics: https://www.jhauser.us/arithmetic/SoftFloat-3/doc/SoftFloat.html
 
@@ -305,5 +268,7 @@ The next packet is the qualified software arithmetic core, not an OCCT bridge, a
 [5] MPFR manual and binary64 emulation considerations: https://www.mpfr.org/mpfr-4.2.2/mpfr.html
 
 [6] Shewchuk, adaptive-precision geometric predicates: https://www.cs.cmu.edu/~quake/robust.html
+
+[7] Bend F32 JS representation soundness defect: https://github.com/bendlang/bend/issues/797
 
 These references motivate the design. No cited external test result is presented as a BendCAD test run.
