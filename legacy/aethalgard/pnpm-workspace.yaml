@@ -1,0 +1,25 @@
+packages:
+  - apps/*
+  - packages/*
+  - tools/*
+
+allowBuilds:
+  electron: true
+  esbuild: true
+
+# electron-builder 25.1.8 declares its Squirrel.Windows backend as a peer even
+# when the application targets only ZIP and NSIS. Keep strict peer enforcement
+# globally and scope the optionality correction to the exact affected package.
+packageExtensions:
+  app-builder-lib@25.1.8:
+    peerDependenciesMeta:
+      electron-builder-squirrel-windows:
+        optional: true
+
+autoInstallPeers: false
+engineStrict: true
+minimumReleaseAge: 4320
+preferWorkspacePackages: true
+saveExact: true
+sharedWorkspaceLockfile: true
+strictPeerDependencies: true

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "../../tools/tsconfig/*.json"],
+      "outputs": ["dist/**", "out/**"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "test/**", "package.json", "vitest.config.ts"],
+      "env": [
+        "AETH_ALLOW_MISSING_ASSEMBLY_HOST",
+        "AETH_ALLOW_MISSING_KERNEL",
+        "AETH_ASSEMBLY_HOST_PATH",
+        "AETH_KERNEL_HOST_PATH",
+        "AETH_REPLAY_CACHE",
+        "AETH_REQUIRE_NATIVE",
+        "CASROOT",
+        "CSF_OCCTResourcePath",
+        "DYLD_LIBRARY_PATH",
+        "LD_LIBRARY_PATH"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "inputs": [
+        "src/**",
+        "package.json",
+        "tsconfig.json",
+        "../../tools/tsconfig/*.json"
+      ],
+      "outputs": [".tsbuildinfo"]
+    }
+  }
+}

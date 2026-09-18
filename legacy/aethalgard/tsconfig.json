@@ -1,0 +1,25 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/geometry-contracts" },
+    { "path": "packages/ipc" },
+    { "path": "packages/child-process-env" },
+    { "path": "packages/document-model" },
+    { "path": "packages/zip-container" },
+    { "path": "packages/project-file" },
+    { "path": "packages/interchange" },
+    { "path": "packages/preflight" },
+    { "path": "packages/agent-contracts" },
+    { "path": "packages/agent-orchestrator" },
+    { "path": "packages/kernel-client" },
+    { "path": "packages/mcp-server" },
+    { "path": "packages/assembly" },
+    { "path": "packages/assembly-client" },
+    { "path": "packages/model-runtime" },
+    { "path": "packages/viewport" },
+    { "path": "packages/ui" },
+    { "path": "apps/desktop" },
+    { "path": "tools/reference-tournament" },
+    { "path": "packages/slicer-bridge" }
+  ]
+}
