@@ -254,13 +254,6 @@ add_executable(aeth-sweep-associative-test
 aeth_configure_native_test(aeth-sweep-associative-test)
 add_test(NAME sweep-associative COMMAND aeth-sweep-associative-test)
 
-add_executable(aeth-loft-professional-test
-  ${AETH_KERNEL_GEOMETRY_SOURCES}
-  test/loft_professional_test.cpp
-)
-aeth_configure_native_test(aeth-loft-professional-test)
-add_test(NAME loft-professional COMMAND aeth-loft-professional-test)
-
 add_executable(aeth-catalog-wave2-test
   ${AETH_KERNEL_GEOMETRY_SOURCES}
   test/catalog_wave2_test.cpp

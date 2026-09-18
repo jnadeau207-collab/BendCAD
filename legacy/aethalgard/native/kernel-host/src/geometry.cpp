@@ -29,7 +29,6 @@
 #include <unistd.h>
 #endif
 
-#include <BRepAdaptor_CompCurve.hxx>
 #include <BRepAdaptor_Curve.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepAlgoAPI_BooleanOperation.hxx>
@@ -213,24 +212,6 @@ EvaluatedBody FinishBodyShape(const nlohmann::json& operation, TopoDS_Shape shap
 EvaluatedBody FinishSolidBody(const nlohmann::json& operation, TopoDS_Solid solid,
                               const char* primitiveName) {
   return FinishBodyShape(operation, solid, primitiveName);
-}
-
-/**
- * Finishes a SHEET body. `FinishBodyShape` demands at least one solid, which is
- * correct for every solid feature and wrong for a surface result: a surface
- * loft encloses no volume by definition, so requiring one would refuse exactly
- * the geometry the author asked for.
- */
-EvaluatedBody FinishSheetBody(const nlohmann::json& operation, TopoDS_Shape shape,
-                              const char* primitiveName) {
-  if (shape.IsNull())
-    throw std::runtime_error(std::string("OCCT produced no ") + primitiveName + " surface");
-  EvaluatedBody body;
-  body.bodyId = operation.at("outputBodyId").get<std::string>();
-  body.operationId = operation.at("id").get<std::string>();
-  body.shape = std::move(shape);
-  body.probes = ProbeShape(body.shape);
-  return body;
 }
 
 EvaluatedBody EvaluateBox(const nlohmann::json& operation, const std::atomic_bool& cancelled) {
@@ -3591,452 +3572,6 @@ EvaluatedBody EvaluateLoft(const nlohmann::json& operation,
   return FinishSolidBody(operation, TopoDS::Solid(result), "loft");
 }
 
-// ── Loft v2 — professional multi-section authoring (issue #141) ─────────────
-//
-// v1 threads profile operations in order with a single `ruled` flag. v2 adds
-// ordered sections that may be profiles, model faces, closed edge loops or
-// point tips; deterministic seam mapping; continuity; closed form; a surface
-// result; and rail/centerline control.
-//
-// Seam mapping is explicit because OCCT pairs section wires by their topology
-// enumeration: a rebuild that renumbers a section would otherwise twist the
-// solid silently. `seamDirection` and `explicit` both resolve to a target
-// POINT per section, and each wire is rotated to start at the vertex nearest
-// that point, so the correspondence survives renumbering.
-//
-// Rails and the centerline are honoured by inserting fitted intermediate
-// sections between the authored ones: at each sample the bracketing section is
-// copied and moved by the similarity (translation, rotation about the section
-// normal, uniform scale) that least-squares maps its anchor points onto the
-// guide points at that parameter. One rail or a centerline therefore yields a
-// translation; several rails additionally rotate and scale the section. This
-// is an approximation of a Gordon surface, not a Gordon surface — it is
-// deterministic and measurable, and the packet records the limitation.
-namespace {
-
-constexpr int kLoftRailSamplesPerSpan = 8;
-constexpr double kLoftSeamTolerance = 1.0e-9;
-/** How near a rail/centerline must pass to each section to control it. */
-constexpr double kLoftGuideAttachToleranceMm = 1.0e-3;
-
-struct LoftSection {
-  TopoDS_Wire wire;
-  TopoDS_Vertex vertex;
-  bool isPoint = false;
-  gp_Pnt origin;
-  gp_Dir normal{0.0, 0.0, 1.0};
-};
-
-/** Centroid + Newell normal of a closed wire, independent of edge order. */
-gp_Ax2 LoftWireFrame(const TopoDS_Wire& wire) {
-  std::vector<gp_Pnt> points;
-  for (BRepTools_WireExplorer explorer(wire); explorer.More(); explorer.Next())
-    points.push_back(BRep_Tool::Pnt(explorer.CurrentVertex()));
-  if (points.size() < 3)
-    throw std::invalid_argument("loft section wire has fewer than three vertices");
-  gp_XYZ centroid(0.0, 0.0, 0.0);
-  for (const gp_Pnt& point : points)
-    centroid += point.XYZ();
-  centroid /= static_cast<double>(points.size());
-  gp_XYZ normal(0.0, 0.0, 0.0);
-  for (std::size_t index = 0; index < points.size(); ++index) {
-    const gp_XYZ& current = points[index].XYZ();
-    const gp_XYZ& next = points[(index + 1) % points.size()].XYZ();
-    normal += gp_XYZ((current.Y() - next.Y()) * (current.Z() + next.Z()),
-                     (current.Z() - next.Z()) * (current.X() + next.X()),
-                     (current.X() - next.X()) * (current.Y() + next.Y()));
-  }
-  if (normal.Modulus() <= 1.0e-12)
-    throw std::invalid_argument("loft section wire is degenerate and has no plane");
-  return gp_Ax2(gp_Pnt(centroid), gp_Dir(normal));
-}
-
-/** Rebuilds `wire` so it starts at the vertex nearest `target`. */
-TopoDS_Wire RotateWireToSeam(const TopoDS_Wire& wire, const gp_Pnt& target) {
-  std::vector<TopoDS_Edge> edges;
-  std::vector<gp_Pnt> starts;
-  for (BRepTools_WireExplorer explorer(wire); explorer.More(); explorer.Next()) {
-    edges.push_back(explorer.Current());
-    starts.push_back(BRep_Tool::Pnt(explorer.CurrentVertex()));
-  }
-  if (edges.size() < 2)
-    return wire;
-  std::size_t best = 0;
-  double bestDistance = starts[0].Distance(target);
-  for (std::size_t index = 1; index < starts.size(); ++index) {
-    const double distance = starts[index].Distance(target);
-    if (distance + kLoftSeamTolerance < bestDistance) {
-      bestDistance = distance;
-      best = index;
-    }
-  }
-  if (best == 0)
-    return wire;
-  BRepBuilderAPI_MakeWire rebuilt;
-  for (std::size_t offset = 0; offset < edges.size(); ++offset)
-    rebuilt.Add(edges[(best + offset) % edges.size()]);
-  if (!rebuilt.IsDone())
-    throw Standard_Failure("loft could not re-seam a section wire");
-  return rebuilt.Wire();
-}
-
-/** The wire vertex closest to `target` — the point a guide attaches to. */
-gp_Pnt NearestWireVertex(const TopoDS_Wire& wire, const gp_Pnt& target) {
-  gp_Pnt best;
-  double bestDistance = -1.0;
-  for (BRepTools_WireExplorer explorer(wire); explorer.More(); explorer.Next()) {
-    const gp_Pnt point = BRep_Tool::Pnt(explorer.CurrentVertex());
-    const double distance = point.Distance(target);
-    if (bestDistance < 0.0 || distance < bestDistance) {
-      bestDistance = distance;
-      best = point;
-    }
-  }
-  if (bestDistance < 0.0)
-    throw std::invalid_argument("loft guide has no section vertex to attach to");
-  return best;
-}
-
-GeomAbs_Shape LoftContinuity(const std::string& continuity) {
-  if (continuity == "g0")
-    return GeomAbs_C0;
-  if (continuity == "g1")
-    return GeomAbs_G1;
-  if (continuity == "g2")
-    return GeomAbs_G2;
-  throw std::invalid_argument("unsupported loft continuity: " + continuity);
-}
-
-/** Evenly-spaced points along a guide wire, parameter 0..1 by arc length. */
-std::vector<gp_Pnt> SampleGuide(const TopoDS_Wire& guide, int samples) {
-  BRepAdaptor_CompCurve curve(guide);
-  const double first = curve.FirstParameter();
-  const double last = curve.LastParameter();
-  std::vector<gp_Pnt> points;
-  points.reserve(static_cast<std::size_t>(samples) + 1);
-  for (int index = 0; index <= samples; ++index) {
-    const double fraction = static_cast<double>(index) / static_cast<double>(samples);
-    points.push_back(curve.Value(first + (last - first) * fraction));
-  }
-  return points;
-}
-
-/**
- * Least-squares similarity taking `from` onto `to` within the plane whose
- * normal is `normal`. One pair is a translation; more pairs add a rotation
- * about the normal and a uniform scale (2-D Procrustes in that plane).
- */
-gp_Trsf LoftGuideFit(const std::vector<gp_Pnt>& from, const std::vector<gp_Pnt>& to,
-                     const gp_Dir& normal) {
-  if (from.size() != to.size() || from.empty())
-    throw std::invalid_argument("loft guide fit needs matching anchor and target points");
-  gp_XYZ fromCentre(0.0, 0.0, 0.0);
-  gp_XYZ toCentre(0.0, 0.0, 0.0);
-  for (std::size_t index = 0; index < from.size(); ++index) {
-    fromCentre += from[index].XYZ();
-    toCentre += to[index].XYZ();
-  }
-  fromCentre /= static_cast<double>(from.size());
-  toCentre /= static_cast<double>(to.size());
-  gp_Trsf translation;
-  translation.SetTranslation(gp_Vec(gp_Pnt(fromCentre), gp_Pnt(toCentre)));
-  if (from.size() < 2)
-    return translation;
-
-  const gp_Ax2 plane(gp_Pnt(fromCentre), normal);
-  const gp_Dir xDir = plane.XDirection();
-  const gp_Dir yDir = plane.YDirection();
-  double sinSum = 0.0;
-  double cosSum = 0.0;
-  double fromNorm = 0.0;
-  double dotSum = 0.0;
-  for (std::size_t index = 0; index < from.size(); ++index) {
-    const gp_Vec a(gp_Pnt(fromCentre), from[index]);
-    const gp_Vec b(gp_Pnt(toCentre), to[index]);
-    const double ax = a.Dot(gp_Vec(xDir));
-    const double ay = a.Dot(gp_Vec(yDir));
-    const double bx = b.Dot(gp_Vec(xDir));
-    const double by = b.Dot(gp_Vec(yDir));
-    sinSum += ax * by - ay * bx;
-    cosSum += ax * bx + ay * by;
-    fromNorm += ax * ax + ay * ay;
-    dotSum += std::sqrt(bx * bx + by * by) * std::sqrt(ax * ax + ay * ay);
-  }
-  gp_Trsf result = translation;
-  if (std::abs(sinSum) > 1.0e-12 || std::abs(cosSum) > 1.0e-12) {
-    gp_Trsf rotation;
-    rotation.SetRotation(gp_Ax1(gp_Pnt(toCentre), normal), std::atan2(sinSum, cosSum));
-    result = rotation * result;
-  }
-  if (fromNorm > 1.0e-12 && dotSum > 1.0e-12) {
-    const double scale = dotSum / fromNorm;
-    if (scale > 1.0e-6 && std::abs(scale - 1.0) > 1.0e-9) {
-      gp_Trsf scaling;
-      scaling.SetScale(gp_Pnt(toCentre), scale);
-      result = scaling * result;
-    }
-  }
-  return result;
-}
-
-} // namespace
-EvaluatedBody EvaluateLoftV2(const nlohmann::json& operation,
-                             const std::map<std::string, EvaluatedProfile>& profiles,
-                             const BodyPool& pool, NamingRegistry* registry,
-                             const std::atomic_bool& cancelled) {
-  const std::string operationId = operation.at("id").get<std::string>();
-  const auto& parameters = operation.at("parameters");
-  const auto& sectionsJson = parameters.at("sections");
-  if (!sectionsJson.is_array() || sectionsJson.size() < 2)
-    throw std::invalid_argument("loft requires at least two sections");
-  if (parameters.value("closed", false) && sectionsJson.size() < 3)
-    throw std::invalid_argument(
-        "a closed loft needs at least three sections; two would fold back on themselves");
-  const bool ruled = parameters.value("ruled", false);
-  const bool closed = parameters.value("closed", false);
-  const bool solid = parameters.value("result", std::string("solid")) == "solid";
-  const GeomAbs_Shape continuity =
-      LoftContinuity(parameters.value("continuity", std::string("g2")));
-  const nlohmann::json mapping = parameters.value("mapping", nlohmann::json{{"mode", "default"}});
-  const std::string mappingMode = mapping.value("mode", std::string("default"));
-  const std::vector<EvaluatedBody> visible = pool.PeekVisibleBodies();
-  const nlohmann::json rails = parameters.value("rails", nlohmann::json::array());
-  const bool hasCenterline =
-      parameters.contains("centerline") && !parameters.at("centerline").is_null();
-  const bool needsRegistry =
-      !rails.empty() || hasCenterline ||
-      std::any_of(sectionsJson.begin(), sectionsJson.end(), [](const nlohmann::json& section) {
-        return section.value("kind", std::string("profile")) != "profile";
-      });
-  if (needsRegistry && registry == nullptr)
-    throw std::invalid_argument(
-        "loft sections, rails or centerline reference model topology; evaluate with selector "
-        "resolution enabled");
-
-  std::vector<LoftSection> sections;
-  sections.reserve(sectionsJson.size());
-  for (std::size_t index = 0; index < sectionsJson.size(); ++index) {
-    CheckCancellation(cancelled);
-    const nlohmann::json& sectionJson = sectionsJson.at(index);
-    const std::string slot = "sections[" + std::to_string(index) + "]";
-    const std::string kind = sectionJson.value("kind", std::string("profile"));
-    LoftSection section;
-    if (kind == "profile") {
-      const std::string profileOperationId = sectionJson.at("operationId").get<std::string>();
-      const auto profile = profiles.find(profileOperationId);
-      if (profile == profiles.end())
-        throw ReferenceMissing(operationId, "loft " + slot + ": references operation " +
-                                                profileOperationId +
-                                                ", which is not an evaluated profile operation "
-                                                "earlier in the document");
-      const TopoDS_Wire outer = BRepTools::OuterWire(profile->second.face);
-      if (outer.IsNull())
-        throw Standard_Failure("loft section profile has no boundary wire");
-      section.wire = TopoDS::Wire(BRepBuilderAPI_Copy(outer).Shape());
-      section.origin = profile->second.frame.Location();
-      section.normal = profile->second.frame.Direction();
-    } else if (kind == "point") {
-      const RefResolution resolution = ResolveRefSlotStrict(
-          operationId, "loft", slot.c_str(), sectionJson.at("ref"), visible, *registry, cancelled);
-      const QueryEntity& entity = SingleResolvedEntity("loft", slot.c_str(), 'v', resolution);
-      section.vertex = TopoDS::Vertex(entity.shape);
-      section.isPoint = true;
-      section.origin = BRep_Tool::Pnt(section.vertex);
-    } else if (kind == "face" || kind == "edgeLoop") {
-      const char expected = kind == "face" ? 'f' : 'e';
-      const RefResolution resolution = ResolveRefSlotStrict(
-          operationId, "loft", slot.c_str(), sectionJson.at("ref"), visible, *registry, cancelled);
-      const QueryEntity& entity = SingleResolvedEntity("loft", slot.c_str(), expected, resolution);
-      TopoDS_Wire wire;
-      if (kind == "face") {
-        const TopoDS_Wire outer = BRepTools::OuterWire(TopoDS::Face(entity.shape));
-        if (outer.IsNull())
-          throw Standard_Failure("loft section face has no outer wire");
-        wire = TopoDS::Wire(BRepBuilderAPI_Copy(outer).Shape());
-      } else {
-        BRepBuilderAPI_MakeWire builder(TopoDS::Edge(entity.shape));
-        if (!builder.IsDone())
-          throw Standard_Failure("loft edge-loop section is not a usable loop");
-        wire = builder.Wire();
-        if (!wire.Closed())
-          throw OperationFailure(operationId, "INVALID_REQUEST",
-                                 "loft " + slot + ": an edge-loop section must be a closed loop",
-                                 {{"code", "E_LOFT_SECTION_NOT_CLOSED"}});
-      }
-      section.wire = wire;
-      const gp_Ax2 frame = LoftWireFrame(wire);
-      section.origin = frame.Location();
-      section.normal = frame.Direction();
-    } else {
-      throw std::invalid_argument("unsupported loft section kind: " + kind);
-    }
-    if (!section.isPoint && sectionJson.value("flip", false))
-      section.wire = TopoDS::Wire(section.wire.Reversed());
-    sections.push_back(section);
-  }
-
-  // Deterministic seam correspondence, so a renumbered section cannot twist
-  // the solid on rebuild.
-  if (mappingMode != "default") {
-    for (std::size_t index = 0; index < sections.size(); ++index) {
-      LoftSection& section = sections[index];
-      if (section.isPoint)
-        continue;
-      gp_Pnt target;
-      if (mappingMode == "seamDirection") {
-        const auto& direction = mapping.at("direction");
-        const gp_Vec offset(direction.at(0).get<double>(), direction.at(1).get<double>(),
-                            direction.at(2).get<double>());
-        if (offset.Magnitude() <= 1.0e-12)
-          throw std::invalid_argument("loft seam direction must not be the zero vector");
-        target = section.origin.Translated(gp_Vec(gp_Dir(offset)) * 1.0e6);
-      } else {
-        const std::string slot = "sections[" + std::to_string(index) + "].seamVertexRef";
-        const RefResolution resolution = ResolveRefSlotStrict(
-            operationId, "loft", slot.c_str(), sectionsJson.at(index).at("seamVertexRef"), visible,
-            *registry, cancelled);
-        const QueryEntity& entity = SingleResolvedEntity("loft", slot.c_str(), 'v', resolution);
-        target = BRep_Tool::Pnt(TopoDS::Vertex(entity.shape));
-      }
-      section.wire = RotateWireToSeam(section.wire, target);
-    }
-  }
-
-  std::vector<TopoDS_Wire> guides;
-  const auto addGuide = [&](const nlohmann::json& ref, const std::string& slot) {
-    const RefResolution resolution =
-        ResolveRefSlotStrict(operationId, "loft", slot.c_str(), ref, visible, *registry, cancelled);
-    const QueryEntity& entity = SingleResolvedEntity("loft", slot.c_str(), 'e', resolution);
-    BRepBuilderAPI_MakeWire builder(TopoDS::Edge(entity.shape));
-    if (!builder.IsDone())
-      throw Standard_Failure("loft guide edge is not a usable curve");
-    guides.push_back(builder.Wire());
-  };
-  for (std::size_t index = 0; index < rails.size(); ++index)
-    addGuide(rails.at(index), "rails[" + std::to_string(index) + "]");
-  if (hasCenterline)
-    addGuide(parameters.at("centerline"), "centerline");
-
-  const occ::handle<CancellationProgress> progress = MakeCancellationProgress(cancelled);
-  BRepOffsetAPI_ThruSections maker(/*isSolid=*/solid,
-                                   /*ruled=*/ruled || continuity == GeomAbs_C0);
-  // G0 means position continuity only: the honest geometry for that is a
-  // faceted, straight transition between sections, which is exactly what
-  // `ruled` builds. G1/G2 keep the smooth interpolated surface. OCCT's own
-  // continuity setter is consulted only while APPROXIMATING, so setting it
-  // alone would have made g0/g1/g2 a stored flag that changed nothing —
-  // and forcing the approximation on instead broke multi-section lofts.
-  maker.SetContinuity(continuity);
-  // An explicit seam mapping is a user decision. OCCT's compatibility pass
-  // re-seams and re-parameterises the wires itself, which silently discarded
-  // that decision — so authored mapping turns it off and uses the wires as
-  // given (the sections must then share an edge count, which is what a
-  // deterministic correspondence means in the first place).
-  if (mappingMode != "default")
-    maker.CheckCompatibility(false);
-
-  const std::size_t spans = sections.size() - 1;
-  std::vector<std::vector<gp_Pnt>> guideSamples;
-  for (const TopoDS_Wire& guide : guides) {
-    std::vector<gp_Pnt> samples =
-        SampleGuide(guide, static_cast<int>(spans) * kLoftRailSamplesPerSpan);
-    // A guide edge carries OCCT's arbitrary internal direction, not the
-    // author's. Sampled backwards, the fitted intermediate sections march AWAY
-    // from the loft and fold it into a self-intersecting solid that
-    // BRepCheck_Analyzer still accepts. Orient every guide so its start is the
-    // end nearest the FIRST section, exactly as the associative sweep path
-    // normalizes its first edge.
-    if (!samples.empty() && samples.front().Distance(sections.front().origin) >
-                                samples.back().Distance(sections.front().origin))
-      std::reverse(samples.begin(), samples.end());
-    guideSamples.push_back(std::move(samples));
-  }
-
-  // A guide that does not pass through the authored sections cannot control
-  // them: attaching a section to a distant rail introduces a step at the first
-  // sample, and the smooth surface then overshoots the sections' own extent.
-  // Fusion requires a rail to intersect every section; so do we, and we say
-  // which rail and which section rather than emitting bent geometry.
-  for (std::size_t guideIndex = 0; guideIndex < guideSamples.size(); ++guideIndex) {
-    const std::string slot = guideIndex < rails.size() ? "rails[" + std::to_string(guideIndex) + "]"
-                                                       : std::string("centerline");
-    for (std::size_t sectionIndex = 0; sectionIndex < sections.size(); ++sectionIndex) {
-      const LoftSection& section = sections[sectionIndex];
-      if (section.isPoint)
-        continue;
-      double nearest = -1.0;
-      for (const gp_Pnt& sample : guideSamples[guideIndex]) {
-        const double distance = NearestWireVertex(section.wire, sample).Distance(sample);
-        if (nearest < 0.0 || distance < nearest)
-          nearest = distance;
-      }
-      if (nearest > kLoftGuideAttachToleranceMm)
-        throw OperationFailure(operationId, "INVALID_REQUEST",
-                               "loft " + slot +
-                                   ": the guide must pass through every section, but it misses " +
-                                   "sections[" + std::to_string(sectionIndex) + "] by " +
-                                   std::to_string(nearest) + " mm",
-                               {{"code", "E_LOFT_GUIDE_MISSES_SECTION"}});
-    }
-  }
-
-  const auto addSection = [&](const LoftSection& section) {
-    if (section.isPoint)
-      maker.AddVertex(section.vertex);
-    else
-      maker.AddWire(section.wire);
-  };
-
-  for (std::size_t index = 0; index < sections.size(); ++index) {
-    CheckCancellation(cancelled);
-    addSection(sections[index]);
-    if (guides.empty() || index + 1 >= sections.size() || sections[index].isPoint)
-      continue;
-    const LoftSection& base = sections[index];
-    for (int step = 1; step < kLoftRailSamplesPerSpan; ++step) {
-      const std::size_t anchorIndex = index * static_cast<std::size_t>(kLoftRailSamplesPerSpan);
-      const std::size_t sampleIndex = anchorIndex + static_cast<std::size_t>(step);
-      std::vector<gp_Pnt> anchors;
-      std::vector<gp_Pnt> targets;
-      for (const std::vector<gp_Pnt>& samples : guideSamples) {
-        // Attach the section to the guide: the anchor is the section's own
-        // nearest vertex, not the guide point. Using the guide point made the
-        // fit a pure copy of the guide's delta, which pinned every
-        // intermediate section at the first section's position and forced a
-        // violent kink the smooth surface then overshot.
-        anchors.push_back(NearestWireVertex(base.wire, samples[anchorIndex]));
-        targets.push_back(samples[sampleIndex]);
-      }
-      const gp_Trsf fit = LoftGuideFit(anchors, targets, base.normal);
-      BRepBuilderAPI_Transform moved(base.wire, fit, /*Copy=*/true);
-      if (!moved.IsDone())
-        throw Standard_Failure("loft could not place a guided intermediate section");
-      maker.AddWire(TopoDS::Wire(moved.Shape()));
-    }
-  }
-  if (closed)
-    addSection(sections.front());
-
-  maker.Build(progress->Start());
-  CheckCancellation(cancelled);
-  if (!maker.IsDone())
-    throw OperationFailure(operationId, "GEOMETRY_FAILED",
-                           "loft through-sections construction failed; the sections may be "
-                           "incompatible, self-intersecting, or twisted by their seam mapping",
-                           {{"code", "E_LOFT_BUILD_FAILED"}});
-  const TopoDS_Shape result = maker.Shape();
-  if (result.IsNull())
-    throw Standard_Failure("loft produced no shape");
-  if (!solid)
-    return FinishSheetBody(operation, result, "loft");
-  if (result.ShapeType() != TopAbs_SOLID)
-    throw Standard_Failure("loft did not produce a single solid body");
-  if (!BRepCheck_Analyzer(result, false).IsValid())
-    throw Standard_Failure(
-        "loft produced an invalid solid; the section profiles must be compatible and disjoint");
-  return FinishSolidBody(operation, TopoDS::Solid(result), "loft");
-}
-
 std::vector<TopoDS_Edge> ResolveAssociativeSweepPath(const nlohmann::json& operation,
                                                      const BodyPool& pool, NamingRegistry* registry,
                                                      const std::atomic_bool& cancelled,
@@ -4657,58 +4192,6 @@ EvaluatedBody EvaluateSweepV2(const nlohmann::json& operation,
   return FinishSolidBody(operation, TopoDS::Solid(result), "associative sweep");
 }
 
-EvaluatedBody EvaluateLoftBoolean(const nlohmann::json& operation,
-                                  const std::map<std::string, EvaluatedProfile>& profiles,
-                                  BodyPool& pool, ElementNameBook* elementNames,
-                                  NamingRegistry* registry, const std::atomic_bool& cancelled) {
-  (void)elementNames;
-  const auto& boolean = operation.at("parameters").at("boolean");
-  const std::string mode = boolean.at("mode").get<std::string>();
-  if (mode == "newBody")
-    return EvaluateLoftV2(operation, profiles, pool, registry, cancelled);
-  const std::string operationId = operation.at("id").get<std::string>();
-  const std::string targetId = boolean.at("targetOperationId").get<std::string>();
-
-  // Evaluate the loft as an independent tool first; only the boolean mode is
-  // replaced in this ephemeral copy so the tool cannot consume its own target.
-  nlohmann::json toolOperation = operation;
-  toolOperation["parameters"]["boolean"] = {{"mode", "newBody"}};
-  const EvaluatedBody tool = EvaluateLoftV2(toolOperation, profiles, pool, registry, cancelled);
-  const TopoDS_Shape target = pool.Consume(operationId, "loft " + mode, "target", targetId);
-  if (mode == "cut" && !ToolRemovesMaterial(target, tool.shape, cancelled))
-    throw Standard_Failure(
-        "loft cut removed no material: the lofted tool does not overlap the target body");
-
-  std::unique_ptr<BRepAlgoAPI_BooleanOperation> algorithm;
-  if (mode == "join")
-    algorithm = std::make_unique<BRepAlgoAPI_Fuse>();
-  else if (mode == "cut")
-    algorithm = std::make_unique<BRepAlgoAPI_Cut>();
-  else if (mode == "intersect")
-    algorithm = std::make_unique<BRepAlgoAPI_Common>();
-  else
-    throw std::invalid_argument("unsupported loft boolean mode: " + mode);
-
-  NCollection_List<TopoDS_Shape> objects;
-  objects.Append(target);
-  NCollection_List<TopoDS_Shape> tools;
-  tools.Append(tool.shape);
-  algorithm->SetArguments(objects);
-  algorithm->SetTools(tools);
-  algorithm->SetRunParallel(false);
-  const occ::handle<CancellationProgress> progress = MakeCancellationProgress(cancelled);
-  algorithm->Build(progress->Start());
-  CheckCancellation(cancelled);
-  if (!algorithm->IsDone())
-    throw OperationFailure(operationId, "GEOMETRY_FAILED",
-                           "loft " + mode + " failed against its target body",
-                           {{"code", "E_LOFT_BOOLEAN_FAILED"}});
-  const TopoDS_Shape shape = algorithm->Shape();
-  if (shape.IsNull())
-    throw Standard_Failure("loft boolean produced no shape");
-  return FinishBodyShape(operation, shape, "loft");
-}
-
 EvaluatedBody
 EvaluateAssociativeSweepBoolean(const nlohmann::json& operation,
                                 const std::map<std::string, EvaluatedProfile>& profiles,
@@ -4923,17 +4406,18 @@ NamingRegistry::BirthSpec NamingBirthSpec(const nlohmann::json& operation,
       edges = LimitAssociativeSweepPathToReference(operation, edges, pool, registry, cancelled);
     if (edges.empty())
       throw std::invalid_argument("associative sweep naming requires a non-empty path");
-    // Take the chain's ENDS with orientation. TopExp_Explorer walks an edge's
-    // vertices in raw topology order, which ignores the direction
-    // ResolveAssociativeSweepPath already normalized — on a two-edge chain it
-    // returned the SHARED corner from both ends, so the path looked
-    // zero-length and the birth boundary landed on the wrong face.
     TopoDS_Vertex firstVertex;
-    TopoDS_Vertex firstTrailing;
-    TopExp::Vertices(edges.front(), firstVertex, firstTrailing, /*CumOri=*/true);
-    TopoDS_Vertex lastLeading;
+    TopExp_Explorer firstVertices(edges.front(), TopAbs_VERTEX);
+    if (firstVertices.More())
+      firstVertex = TopoDS::Vertex(firstVertices.Current());
     TopoDS_Vertex lastVertex;
-    TopExp::Vertices(edges.back(), lastLeading, lastVertex, /*CumOri=*/true);
+    TopExp_Explorer lastVertices(edges.back(), TopAbs_VERTEX);
+    if (lastVertices.More()) {
+      lastVertex = TopoDS::Vertex(lastVertices.Current());
+      lastVertices.Next();
+    }
+    if (lastVertices.More())
+      lastVertex = TopoDS::Vertex(lastVertices.Current());
     if (firstVertex.IsNull() || lastVertex.IsNull())
       throw std::invalid_argument("associative sweep naming requires path endpoints");
     const gp_Pnt start = BRep_Tool::Pnt(firstVertex);
@@ -5028,54 +4512,14 @@ NamingRegistry::BirthSpec NamingBirthSpec(const nlohmann::json& operation,
     };
   }
   if (type == "loft") {
-    if (operation.value("schemaVersion", 1) < 2) {
-      const nlohmann::json& profileIds = parameters.at("profileOperationIds");
-      const EvaluatedProfile& first = requireProfile(profileIds.front().get<std::string>());
-      const EvaluatedProfile& last = requireProfile(profileIds.back().get<std::string>());
-      return {
-          BirthClass::Loft,
-          BirthBoundary{first.origin, first.normal, true},
-          BirthBoundary{last.origin, last.normal, true},
-      };
-    }
-    // v2: a boundary section may be a profile, a model face, an edge loop or a
-    // point tip, so resolve it the same way the evaluator does. A closed or
-    // surface loft has no caps at all and must declare that rather than making
-    // the cap-count invariant demand faces that cannot exist.
-    const nlohmann::json& sections = parameters.at("sections");
-    const bool capped = parameters.value("result", std::string("solid")) == "solid" &&
-                        !parameters.value("closed", false);
-    const std::vector<EvaluatedBody> visible = pool.PeekVisibleBodies();
-    const auto boundary = [&](const std::size_t index) {
-      const nlohmann::json& section = sections.at(index);
-      const std::string kind = section.value("kind", std::string("profile"));
-      const std::string slot = "sections[" + std::to_string(index) + "]";
-      if (kind == "profile") {
-        const EvaluatedProfile& profile =
-            requireProfile(section.at("operationId").get<std::string>());
-        return BirthBoundary{profile.origin, profile.normal, capped};
-      }
-      if (registry == nullptr)
-        throw std::invalid_argument("loft naming requires selector resolution for a ref section");
-      const char expected = kind == "point" ? 'v' : (kind == "face" ? 'f' : 'e');
-      const RefResolution resolution =
-          ResolveRefSlotStrict(operation.at("id").get<std::string>(), "loft", slot.c_str(),
-                               section.at("ref"), visible, *registry, cancelled);
-      const QueryEntity& entity = SingleResolvedEntity("loft", slot.c_str(), expected, resolution);
-      if (kind == "point") {
-        // A tip contributes no cap face regardless of the result mode.
-        return BirthBoundary{BRep_Tool::Pnt(TopoDS::Vertex(entity.shape)), gp_Dir(0.0, 0.0, 1.0),
-                             false};
-      }
-      TopoDS_Wire wire;
-      if (kind == "face")
-        wire = BRepTools::OuterWire(TopoDS::Face(entity.shape));
-      else
-        wire = BRepBuilderAPI_MakeWire(TopoDS::Edge(entity.shape)).Wire();
-      const gp_Ax2 frame = LoftWireFrame(wire);
-      return BirthBoundary{frame.Location(), frame.Direction(), capped};
+    const nlohmann::json& profileIds = parameters.at("profileOperationIds");
+    const EvaluatedProfile& first = requireProfile(profileIds.front().get<std::string>());
+    const EvaluatedProfile& last = requireProfile(profileIds.back().get<std::string>());
+    return {
+        BirthClass::Loft,
+        BirthBoundary{first.origin, first.normal, true},
+        BirthBoundary{last.origin, last.normal, true},
     };
-    return {BirthClass::Loft, boundary(0), boundary(sections.size() - 1)};
   }
   if (type == "sweep") {
     gp_Pnt start;
@@ -6882,19 +6326,7 @@ void ExecuteOperation(const nlohmann::json& operation, const nlohmann::json& all
         produceRoot(operation, type, EvaluateRevolveV1(operation, profiles, cancelled));
       }
     } else if (type == "loft") {
-      if (operation.value("schemaVersion", 1) >= 2) {
-        if (operation.at("parameters")
-                .value("boolean", nlohmann::json{{"mode", "newBody"}})
-                .value("mode", "newBody") != "newBody") {
-          pool.Produce(
-              EvaluateLoftBoolean(operation, profiles, pool, book, namingRegistry, cancelled));
-        } else {
-          produceRoot(operation, type,
-                      EvaluateLoftV2(operation, profiles, pool, namingRegistry, cancelled));
-        }
-      } else {
-        produceRoot(operation, type, EvaluateLoft(operation, profiles, cancelled));
-      }
+      produceRoot(operation, type, EvaluateLoft(operation, profiles, cancelled));
     } else if (type == "sweep") {
       if (operation.value("schemaVersion", 1) >= 2 &&
           operation.at("parameters").at("boolean").value("mode", "newBody") != "newBody") {
