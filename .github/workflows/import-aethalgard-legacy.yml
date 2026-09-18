@@ -22,17 +22,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          rm -rf /tmp/bendcad /tmp/aethalgard /tmp/aethalgard.tar.gz
+          rm -rf /tmp/bendcad /tmp/aethalgard
           git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" /tmp/bendcad
 
-          curl -fL "https://codeload.github.com/jnadeau207-collab/reepo/tar.gz/${SOURCE_SHA}" -o /tmp/aethalgard.tar.gz
-          mkdir -p /tmp/aethalgard
-          tar -xzf /tmp/aethalgard.tar.gz --strip-components=1 -C /tmp/aethalgard
+          git init /tmp/aethalgard
+          git -C /tmp/aethalgard remote add origin https://github.com/jnadeau207-collab/reepo.git
+          git -C /tmp/aethalgard fetch --depth=1 origin "${SOURCE_SHA}"
+          test "$(git -C /tmp/aethalgard rev-parse FETCH_HEAD)" = "${SOURCE_SHA}"
 
           cd /tmp/bendcad
           rm -rf legacy/aethalgard
           mkdir -p legacy/aethalgard
-          cp -a /tmp/aethalgard/. legacy/aethalgard/
+          git -C /tmp/aethalgard archive FETCH_HEAD | tar -x -C legacy/aethalgard
 
           mkdir -p legacy
           cat > legacy/AETHALGARD_RECOVERY.md <<'EOF'
