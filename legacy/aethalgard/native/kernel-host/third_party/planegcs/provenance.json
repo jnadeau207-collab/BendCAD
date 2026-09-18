@@ -1,0 +1,37 @@
+{
+  "component": "planegcs",
+  "description": "FreeCAD's PlaneGCS 2D variational constraint solver, vendored per ADR-016. LGPL-2.1-or-later; see LICENSE. Only native/kernel-host/src/sketch_solver.cpp may include these headers (ADR-016 seam law).",
+  "upstream": {
+    "repository": "https://github.com/FreeCAD/FreeCAD",
+    "commit": "334aa4c7287491cc05905bcea35a32fc9378bb36",
+    "subtrees": [
+      "src/Mod/Sketcher/App/planegcs -> upstream/App/planegcs",
+      "src/Mod/Sketcher/SketcherGlobal.h -> upstream/SketcherGlobal.h"
+    ],
+    "license": "LGPL-2.1-or-later",
+    "licenseFile": "LICENSE"
+  },
+  "vendoredAt": "2026-07-27",
+  "notes": [
+    "upstream/ is UPSTREAM and unmodified; sha256 pinned below so an edit or a re-vendor drift is detectable.",
+    "The DIRECTORY DEPTH of upstream/ is load-bearing: the vendored headers include \"../../SketcherGlobal.h\" by relative path, so App/planegcs/ must sit two levels under the file that satisfies it. Flattening the tree breaks the build.",
+    "ADR-016 says '11 files'. It is TWELVE: SketcherGlobal.h is reached by that relative include and is upstream LGPL code too. Recorded rather than quietly rounded.",
+    "shim/ is OURS, not upstream: FreeCAD's export macros, a minimal Base/Console.h, and three boost includes.",
+    "TWO of the three boost includes are genuinely dead (graph_concepts -> <cassert>, math/constants -> <cmath>). The THIRD IS NOT: GCS.cpp:1783-1801 calls add_vertex/add_edge/num_vertices/connected_components inside diagnose(), so shim/boost_graph_adjacency_list.hpp is a live union-find on the DoF/redundancy path and carries its own tests in the solver gate."
+  ],
+  "files": {
+    "App/planegcs/Constraints.cpp": "023f2f7753aff95ded246f41521527a07a1b82ba8815da327ad692e864156d7f",
+    "App/planegcs/Constraints.h": "e088865959562632c27ce5c29d67933f4f543dc716679e696d8473eb60a198d6",
+    "App/planegcs/GCS.cpp": "4ce413be489276e228160fa52f3aa533dd6b31136d41c36f7f0a9f34f9e8fab2",
+    "App/planegcs/GCS.h": "20d89779bbc17af5e3b3e4f070cb6efaacac5e3c08fea393cbffcc0522060b16",
+    "App/planegcs/Geo.cpp": "169aad09829b81288d3a81d81cd00fdb5ce9723a4ee34450fb0ac8667b8e9e2b",
+    "App/planegcs/Geo.h": "20c2de0ed0b5b6e2aa6e7f7f302ec11ce798bcb653b051d44cf5de7b60590af5",
+    "App/planegcs/qp_eq.cpp": "dc71350766c1a4edf7024d593cb5d55b0736a4f43d319d25a9c961e8342ca11c",
+    "App/planegcs/qp_eq.h": "34e373d9b3b0f5938c849ea7489a8405617692a5062198e8ae0f0c6ac5e4d468",
+    "App/planegcs/SubSystem.cpp": "28c94e84ff50187ec9b6060ac72e05fb6671a51fae2be40f479d2b4dd151e393",
+    "App/planegcs/SubSystem.h": "99e1380a0a08d9fd7ee0fd69e26d3d9dcb46fdf033f4c397c9a05e8df8c53dc4",
+    "App/planegcs/Util.h": "33aee54b020e565faf96629a6d4a57a75a3699acb2336aa96d3663cd70c7e53e",
+    "SketcherGlobal.h": "cafc58089fffb390a4e2a9a53be2ffd720702748de1f9d8432ae62988e1142b2"
+  },
+  "lineCount": 13357
+}
