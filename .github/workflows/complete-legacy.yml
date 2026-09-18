@@ -1,0 +1,19 @@
+name: Complete legacy source recovery
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/complete-legacy.yml]
+permissions:
+  contents: write
+concurrency:
+  group: complete-legacy-source
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - run: python3 tools/recovery_transfer.py
