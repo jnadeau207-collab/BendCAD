@@ -1,0 +1,79 @@
+name: Recover legacy Aethalgard snapshot
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-aethalgard-legacy.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    if: github.event.head_commit.message == 'chore: add one-shot Aethalgard recovery workflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out BendCAD
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch preserved Aethalgard snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/aethalgard
+          git init /tmp/aethalgard
+          git -C /tmp/aethalgard remote add origin https://github.com/jnadeau207-collab/reepo.git
+          git -C /tmp/aethalgard fetch --depth 1 origin 1eab12971dcb22c0b75f9d3714ba377d86ab36b5
+          test "$(git -C /tmp/aethalgard rev-parse FETCH_HEAD)" = "1eab12971dcb22c0b75f9d3714ba377d86ab36b5"
+
+      - name: Materialize exact source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf legacy/aethalgard
+          mkdir -p legacy/aethalgard
+          git -C /tmp/aethalgard archive 1eab12971dcb22c0b75f9d3714ba377d86ab36b5 | tar -x -C legacy/aethalgard
+
+          cat > legacy/AETHALGARD_RECOVERY.md <<'EOF'
+          # Recovered Aethalgard source
+
+          This directory preserves the final pre-VibeCAD Aethalgard working-tree snapshot as reference/oracle material for BendCAD.
+
+          - Original repository: `jnadeau207-collab/reepo`
+          - Recovered snapshot: `1eab12971dcb22c0b75f9d3714ba377d86ab36b5`
+          - Snapshot message: `archive: preserve local worktree before VibeCAD migration`
+          - Preserved legacy branch tip: `eeca9ad782640f97bc15423e72319acea310d36f`
+          - Consolidated archive manifest: `213180dd5b2d0c805ae9610bf88be5cd82111b0f`
+
+          The tree under `legacy/aethalgard/` is an archive, not BendCAD's implementation.
+
+          BendCAD must not silently call OCCT/FreeCAD and claim that the resulting geometry kernel is Bend-native. The archived implementation is retained for requirements, regression fixtures, topology/reference semantics, test cases, and differential/oracle comparison while equivalent native Bend functionality is developed.
+          EOF
+
+      - name: Verify important recovered paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f legacy/aethalgard/native/kernel-host/src/geometry.cpp
+          test -f legacy/aethalgard/native/kernel-host/src/topology.cpp
+          test -f legacy/aethalgard/native/kernel-host/src/ref_resolution.cpp
+          test -f legacy/aethalgard/native/kernel-host/src/sketch_solver.cpp
+          test -f legacy/aethalgard/native/kernel-host/src/tessellate.cpp
+          test -f legacy/aethalgard/packages/geometry-contracts/src/index.ts
+          test -f legacy/aethalgard/packages/kernel-client/src/index.ts
+          test -f legacy/aethalgard/tools/reference-tournament/src/index.ts
+          test -f legacy/aethalgard/MASTER_PLAN.md
+
+      - name: Commit recovered archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "BendCAD Archive Bot"
+          git config user.email "bendcad-archive@users.noreply.github.com"
+          git add legacy
+          git diff --cached --quiet && exit 0
+          git commit -m "archive: recover pre-VibeCAD Aethalgard snapshot"
+          git push origin HEAD:main
