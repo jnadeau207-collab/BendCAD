@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "cmake": {
+    "pythonPackage": "cmake",
+    "version": "4.1.0"
+  },
+  "ninja": {
+    "pythonPackage": "ninja",
+    "version": "1.13.0"
+  },
+  "clangFormat": {
+    "pythonPackage": "clang-format",
+    "version": "22.1.8"
+  },
+  "kernelHost": {
+    "version": "0.1.0",
+    "protocolVersion": 3
+  }
+}

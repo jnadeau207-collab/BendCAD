@@ -1,0 +1,15 @@
+{
+  "source": "eeca9ad782640f97bc15423e72319acea310d36f",
+  "verified": [
+    "tools/build-native/bootstrap.py",
+    "tools/build-native/build.py",
+    "tools/build-native/format.py",
+    "tools/build-native/manifest.json",
+    "tools/build-native/native_tooling.py",
+    "tools/build-native/run-python.mjs",
+    "tools/build-native/test.py",
+    "tools/build-native/test_electron.py",
+    "tools/build-native/with-msvc.ps1"
+  ],
+  "failed": []
+}
