@@ -1,0 +1,21 @@
+{
+  "source": "eeca9ad782640f97bc15423e72319acea310d36f",
+  "verified": [
+    "packages/geometry-contracts/test/operations.test.ts",
+    "packages/geometry-contracts/test/query-protocol.test.ts",
+    "packages/geometry-contracts/test/revolve-v2.test.ts",
+    "packages/geometry-contracts/test/sheet-metal-operations.test.ts",
+    "packages/geometry-contracts/test/simulation-protocol.test.ts",
+    "packages/geometry-contracts/test/sketch.test.ts",
+    "packages/geometry-contracts/test/surfacing-operations.test.ts",
+    "packages/geometry-contracts/test/sweep-professional-constraints.test.ts",
+    "packages/geometry-contracts/test/sweep-v2.test.ts",
+    "packages/geometry-contracts/test/tessellation-quality.test.ts",
+    "packages/geometry-contracts/test/topology-adjacency-contract.test.ts",
+    "packages/geometry-contracts/test/topology-durable-boundary.test.ts",
+    "packages/geometry-contracts/test/topology-radius.test.ts",
+    "packages/geometry-contracts/test/topology-snapshot-integrity.test.ts",
+    "packages/geometry-contracts/test/topology-token-output-index.test.ts"
+  ],
+  "failed": []
+}
