@@ -1,0 +1,14 @@
+{
+  "extends": "../../tools/tsconfig/node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "tsBuildInfoFile": ".tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../child-process-env" },
+    { "path": "../geometry-contracts" },
+    { "path": "../ipc" }
+  ]
+}
