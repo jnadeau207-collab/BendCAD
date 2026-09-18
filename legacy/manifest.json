@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "source_repository": "jnadeau207-collab/reepo",
+  "source_commit": "eeca9ad782640f97bc15423e72319acea310d36f",
+  "source_root_tree": "6054dcc30c440bae1aa584c0bae871301e930a4d",
+  "destination": "legacy/aethalgard",
+  "recovered_archive_tree": "72f10b0a7516b05bed413b65cecd70a6fc1f605e",
+  "core_file_count": 249,
+  "core_byte_count": 4161578,
+  "trees": {
+    "native/kernel-host": "4b6e7b33552772c4fcdd7ca09944e9fbbfe86f45",
+    "packages/geometry-contracts": "4af260ff34b672aa28a47cac471dd58287d4c976",
+    "packages/kernel-client": "5376774b22c999feab935c519e945c1987f063b2",
+    "fixtures/geometry": "4d036fb38b9fc28042e708d91aab671a8f3b34b9",
+    "fixtures/golden": "6aa7ba70be35e0c5cc08f68aebc1a976be733603",
+    "tools/build-native": "e07dd2c2e5f02621424630b29e8c07aad440af29"
+  },
+  "blobs": {
+    "MASTER_PLAN.md": "9c75305b3c1df6f627d41a89a7a9ca074709200b",
+    "PROJECT_STATE.md": "d96177f099351a57c71566148de3a6e624594166",
+    "README.md": "38efd1d721c0cc8d25c721268597ba8c90f025cf",
+    "RESEARCH.md": "cddab135782ef991ee554dcf77b884d5ef196853",
+    "package.json": "cb871311b8bc6956fde21d03f08d818bde54a8ec",
+    "pnpm-workspace.yaml": "d8bfcff41830c04db48a2c39c0d79fcdb2774db8",
+    "turbo.json": "b3948ae7feac71e12b0382c82b3a58c7ae79618a",
+    "native/third_party/occt.manifest.json": "4260cb07f13fa8d74e49c696cab53384ab53a6a9"
+  },
+  "verification_scope": "Source identity only; native build and runtime tests have not been executed by this recovery."
+}

@@ -1,0 +1,14 @@
+name: Verify recovered legacy source
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  source-integrity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify original source identities and core inventory
+        run: python3 tools/verify_legacy.py
