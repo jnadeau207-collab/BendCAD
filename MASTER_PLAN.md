@@ -35,7 +35,7 @@ Whole-directory Git tree identities provide the strongest recovery check:
 | `packages/kernel-client` | `5376774b22c999feab935c519e945c1987f063b2` |
 | `fixtures/geometry` | `4d036fb38b9fc28042e708d91aab671a8f3b34b9` |
 | `fixtures/golden` | `6aa7ba70be35e0c5cc08f68aebc1a976be733603` |
-| `tools/build-native` | `e07dd2c2e5f02621424630b29e8c07aad440af29` |
+| `tools/build-native` | `1a0c85d07ec1ac1e35cb4c69ee7e2a653fd6c4c5` |
 
 The archive is immutable reference material. Its old plans, completion statements, and test receipts are historical, not evidence that its code builds or passes today. Source integrity and runtime qualification are different gates. The subset's original workspace scripts reference omitted packages and the old desktop; build a dedicated oracle harness outside the archive rather than declaring the subset a standalone application.
 

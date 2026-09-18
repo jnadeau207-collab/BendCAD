@@ -13,7 +13,7 @@
     "packages/kernel-client": "5376774b22c999feab935c519e945c1987f063b2",
     "fixtures/geometry": "4d036fb38b9fc28042e708d91aab671a8f3b34b9",
     "fixtures/golden": "6aa7ba70be35e0c5cc08f68aebc1a976be733603",
-    "tools/build-native": "e07dd2c2e5f02621424630b29e8c07aad440af29"
+    "tools/build-native": "1a0c85d07ec1ac1e35cb4c69ee7e2a653fd6c4c5"
   },
   "blobs": {
     "MASTER_PLAN.md": "9c75305b3c1df6f627d41a89a7a9ca074709200b",
