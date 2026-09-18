@@ -1,0 +1,1188 @@
+{
+  "description": "Cross-language pin for the operation content-hash contract (JCS + cumulative prefix hash). See docs/design/2026-07-17-op-hash-contract.md. Both the TS (@aeth/geometry-contracts) and native (aeth-canonical-hash-test) suites reproduce every value here; mutual agreement is the pin.",
+  "operationHashVersion": "aeth-op-hash-v1",
+  "numberVectors": [
+    {
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "value": 1,
+      "expected": "1"
+    },
+    {
+      "value": -1,
+      "expected": "-1"
+    },
+    {
+      "value": 100,
+      "expected": "100"
+    },
+    {
+      "value": 1.5,
+      "expected": "1.5"
+    },
+    {
+      "value": -2.5,
+      "expected": "-2.5"
+    },
+    {
+      "value": 0.1,
+      "expected": "0.1"
+    },
+    {
+      "value": 0.5,
+      "expected": "0.5"
+    },
+    {
+      "value": 3.14159,
+      "expected": "3.14159"
+    },
+    {
+      "value": 12345.6789,
+      "expected": "12345.6789"
+    },
+    {
+      "value": 1000000,
+      "expected": "1000000"
+    },
+    {
+      "value": 10000000,
+      "expected": "10000000"
+    },
+    {
+      "value": 0.000001,
+      "expected": "0.000001"
+    },
+    {
+      "value": 0.0000015,
+      "expected": "0.0000015"
+    },
+    {
+      "value": 0.0001234,
+      "expected": "0.0001234"
+    },
+    {
+      "value": 123.456,
+      "expected": "123.456"
+    },
+    {
+      "value": 90,
+      "expected": "90"
+    },
+    {
+      "value": 360,
+      "expected": "360"
+    },
+    {
+      "value": 64,
+      "expected": "64"
+    },
+    {
+      "value": 3,
+      "expected": "3"
+    },
+    {
+      "value": 2,
+      "expected": "2"
+    },
+    {
+      "value": 1e-7,
+      "expected": "1e-7"
+    },
+    {
+      "value": 5e-7,
+      "expected": "5e-7"
+    },
+    {
+      "value": 9.999999e-7,
+      "expected": "9.999999e-7"
+    },
+    {
+      "value": 1e21,
+      "expected": "1e+21"
+    },
+    {
+      "value": 1e-8,
+      "expected": "1e-8"
+    },
+    {
+      "value": 1.7976931348623157e308,
+      "expected": "1.7976931348623157e+308"
+    },
+    {
+      "value": 5e-324,
+      "expected": "5e-324"
+    },
+    {
+      "value": 9007199254740991,
+      "expected": "9007199254740991"
+    },
+    {
+      "value": 123456789012345,
+      "expected": "123456789012345"
+    },
+    {
+      "value": 0.30000000000000004,
+      "expected": "0.30000000000000004"
+    },
+    {
+      "value": 100.1,
+      "expected": "100.1"
+    }
+  ],
+  "operationVectors": [
+    {
+      "description": "create_box (name + metadata excluded)",
+      "operation": {
+        "id": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+        "type": "create_box",
+        "schemaVersion": 1,
+        "name": "Base Block",
+        "outputBodyId": "00000000-0000-4000-8000-00000000000b",
+        "parameters": {
+          "width": 80,
+          "depth": 50,
+          "height": 15,
+          "placement": {
+            "origin": [0, 0, 0],
+            "zDirection": [0, 0, 1],
+            "xDirection": [1, 0, 0]
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-17T12:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa\",\"outputBodyId\":\"00000000-0000-4000-8000-00000000000b\",\"parameters\":{\"depth\":50,\"height\":15,\"placement\":{\"origin\":[0,0,0],\"xDirection\":[1,0,0],\"zDirection\":[0,0,1]},\"width\":80},\"schemaVersion\":1,\"type\":\"create_box\"}",
+      "canonicalSha256": "dc5de5c1de204cef44b0f17bc51328d6da6d2fa7981f16d9122ee22c87518e48"
+    },
+    {
+      "description": "hole (agent metadata excluded, refs kept)",
+      "operation": {
+        "id": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+        "type": "hole",
+        "schemaVersion": 1,
+        "name": "Ø8 bore",
+        "outputBodyId": "00000000-0000-4000-8000-00000000000c",
+        "parameters": {
+          "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "placement": {
+            "origin": [15, 0, 15],
+            "zDirection": [0, 0, -1],
+            "xDirection": [1, 0, 0]
+          },
+          "size": {
+            "kind": "radius",
+            "radius": 4
+          },
+          "depth": 10,
+          "throughAll": false
+        },
+        "metadata": {
+          "createdAt": "2026-07-17T12:05:30.250Z",
+          "createdBy": {
+            "kind": "agent",
+            "runId": "99999999-9999-4999-8999-999999999999",
+            "toolCallId": "call_7"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb\",\"outputBodyId\":\"00000000-0000-4000-8000-00000000000c\",\"parameters\":{\"depth\":10,\"placement\":{\"origin\":[15,0,15],\"xDirection\":[1,0,0],\"zDirection\":[0,0,-1]},\"size\":{\"kind\":\"radius\",\"radius\":4},\"targetOperationId\":\"aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa\",\"throughAll\":false},\"schemaVersion\":1,\"type\":\"hole\"}",
+      "canonicalSha256": "5da0e67ee739504dc77803aca1a2db86b436e4b1af93911ba6196914500a5e5b"
+    },
+    {
+      "description": "fillet v2 (edges query kept, anchors excluded)",
+      "operation": {
+        "id": "eeeeeeee-5555-4e55-8e55-eeeeeeeeeeee",
+        "type": "fillet",
+        "schemaVersion": 2,
+        "name": "Edge round",
+        "outputBodyId": "00000000-0000-4000-8000-00000000000e",
+        "parameters": {
+          "targetOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "radius": 1.5,
+          "edges": {
+            "query": "edges(op(bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb)).convex()",
+            "arity": "any",
+            "anchors": [
+              {
+                "token": "t:xyz",
+                "note": "should be excluded from the hash"
+              }
+            ],
+            "onEmpty": "error"
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-17T12:10:00Z",
+          "createdBy": {
+            "kind": "import",
+            "sourceName": "legacy.step"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "eeeeeeee-5555-4e55-8e55-eeeeeeeeeeee",
+        "type": "fillet",
+        "schemaVersion": 2,
+        "name": "Edge round",
+        "outputBodyId": "00000000-0000-4000-8000-00000000000e",
+        "parameters": {
+          "targetOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "radius": 1.5,
+          "edges": {
+            "ast": {
+              "kind": "edges",
+              "scope": [
+                {
+                  "source": "op",
+                  "opId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb"
+                }
+              ],
+              "filters": [
+                {
+                  "name": "convex",
+                  "args": []
+                }
+              ]
+            },
+            "arity": "any",
+            "onEmpty": "error",
+            "anchors": [
+              {
+                "token": "t:xyz",
+                "note": "should be excluded from the hash"
+              }
+            ]
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-17T12:10:00Z",
+          "createdBy": {
+            "kind": "import",
+            "sourceName": "legacy.step"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"eeeeeeee-5555-4e55-8e55-eeeeeeeeeeee\",\"outputBodyId\":\"00000000-0000-4000-8000-00000000000e\",\"parameters\":{\"edges\":{\"arity\":\"any\",\"onEmpty\":\"error\",\"query\":\"edges(op(bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb)).convex()\"},\"radius\":1.5,\"targetOperationId\":\"bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb\"},\"schemaVersion\":2,\"type\":\"fillet\"}",
+      "canonicalSha256": "94e74a3d228bcd4b29e3a3bb398fab677cdd8b8fc55444aeb26001a8d82c251c"
+    },
+    {
+      "description": "datum_plane angled (mode union, two ref slots, anchors excluded)",
+      "operation": {
+        "id": "11111111-aaaa-4aaa-8aaa-111111111111",
+        "type": "datum_plane",
+        "schemaVersion": 1,
+        "name": "Tilted lid plane",
+        "parameters": {
+          "mode": "angled",
+          "angle": -30.25,
+          "base": {
+            "query": "faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).planar()",
+            "arity": "one",
+            "anchors": [
+              {
+                "token": "t:aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa/top/0"
+              }
+            ],
+            "onEmpty": "error"
+          },
+          "axis": {
+            "query": "edges(world(x))",
+            "arity": "one",
+            "anchors": [],
+            "onEmpty": "error"
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "11111111-aaaa-4aaa-8aaa-111111111111",
+        "type": "datum_plane",
+        "schemaVersion": 1,
+        "name": "Tilted lid plane",
+        "parameters": {
+          "mode": "angled",
+          "angle": -30.25,
+          "base": {
+            "ast": {
+              "kind": "faces",
+              "scope": [
+                {
+                  "source": "op",
+                  "opId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa"
+                }
+              ],
+              "filters": [
+                {
+                  "name": "planar",
+                  "args": []
+                }
+              ]
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": [
+              {
+                "token": "t:aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa/top/0"
+              }
+            ]
+          },
+          "axis": {
+            "ast": {
+              "kind": "edges",
+              "scope": [
+                {
+                  "source": "world",
+                  "world": "x"
+                }
+              ],
+              "filters": []
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": []
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"11111111-aaaa-4aaa-8aaa-111111111111\",\"parameters\":{\"angle\":-30.25,\"axis\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"edges(world(x))\"},\"base\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).planar()\"},\"mode\":\"angled\"},\"schemaVersion\":1,\"type\":\"datum_plane\"}",
+      "canonicalSha256": "6708a3ac442ee44eca799eff731bf99fc7b9aba54fd353fef61b0685923050c9"
+    },
+    {
+      "description": "datum_axis faceNormal (point3 slot, no output ids)",
+      "operation": {
+        "id": "22222222-bbbb-4bbb-8bbb-222222222222",
+        "type": "datum_axis",
+        "schemaVersion": 1,
+        "name": "Up through the pad",
+        "parameters": {
+          "mode": "faceNormal",
+          "position": [10, -5.5, 0],
+          "face": {
+            "query": "faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).planar()",
+            "arity": "one",
+            "anchors": [],
+            "onEmpty": "error"
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "22222222-bbbb-4bbb-8bbb-222222222222",
+        "type": "datum_axis",
+        "schemaVersion": 1,
+        "name": "Up through the pad",
+        "parameters": {
+          "mode": "faceNormal",
+          "position": [10, -5.5, 0],
+          "face": {
+            "ast": {
+              "kind": "faces",
+              "scope": [
+                {
+                  "source": "op",
+                  "opId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa"
+                }
+              ],
+              "filters": [
+                {
+                  "name": "planar",
+                  "args": []
+                }
+              ]
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": []
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"22222222-bbbb-4bbb-8bbb-222222222222\",\"parameters\":{\"face\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).planar()\"},\"mode\":\"faceNormal\",\"position\":[10,-5.5,0]},\"schemaVersion\":1,\"type\":\"datum_axis\"}",
+      "canonicalSha256": "f672b417bc2b34710c28d779130781e33bfc9b56d308e916b273195b062dad7c"
+    },
+    {
+      "description": "shell (defaulted direction, openFaces ref envelope)",
+      "operation": {
+        "id": "33333333-cccc-4ccc-8ccc-333333333333",
+        "type": "shell",
+        "schemaVersion": 1,
+        "name": "Hollow the block",
+        "outputBodyId": "00000000-0000-4000-8000-000000000010",
+        "parameters": {
+          "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "thickness": 1.6,
+          "direction": "inward",
+          "openFaces": {
+            "query": "faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).normal(+z)",
+            "arity": "any",
+            "anchors": [],
+            "onEmpty": "empty-ok"
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "33333333-cccc-4ccc-8ccc-333333333333",
+        "type": "shell",
+        "schemaVersion": 1,
+        "name": "Hollow the block",
+        "outputBodyId": "00000000-0000-4000-8000-000000000010",
+        "parameters": {
+          "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "thickness": 1.6,
+          "direction": "inward",
+          "openFaces": {
+            "ast": {
+              "kind": "faces",
+              "scope": [
+                {
+                  "source": "op",
+                  "opId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa"
+                }
+              ],
+              "filters": [
+                {
+                  "name": "normal",
+                  "args": [
+                    {
+                      "arg": "direction",
+                      "value": {
+                        "form": "axis",
+                        "sign": 1,
+                        "axis": "z"
+                      }
+                    },
+                    {
+                      "arg": "number",
+                      "value": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "arity": "any",
+            "onEmpty": "empty-ok",
+            "anchors": []
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"33333333-cccc-4ccc-8ccc-333333333333\",\"outputBodyId\":\"00000000-0000-4000-8000-000000000010\",\"parameters\":{\"direction\":\"inward\",\"openFaces\":{\"arity\":\"any\",\"onEmpty\":\"empty-ok\",\"query\":\"faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).normal(+z)\"},\"targetOperationId\":\"aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa\",\"thickness\":1.6},\"schemaVersion\":1,\"type\":\"shell\"}",
+      "canonicalSha256": "664a3857fc945593f0068231a2d590e33d228707986262047262364aff8d9cb6"
+    },
+    {
+      "description": "mirror (defaulted merge false, world-plane ref)",
+      "operation": {
+        "id": "44444444-dddd-4ddd-8ddd-444444444444",
+        "type": "mirror",
+        "schemaVersion": 1,
+        "name": "Mirror to full bracket",
+        "outputBodyId": "00000000-0000-4000-8000-000000000011",
+        "parameters": {
+          "sourceOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "plane": {
+            "query": "faces(world(yz))",
+            "arity": "one",
+            "anchors": [],
+            "onEmpty": "error"
+          },
+          "merge": false
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "44444444-dddd-4ddd-8ddd-444444444444",
+        "type": "mirror",
+        "schemaVersion": 1,
+        "name": "Mirror to full bracket",
+        "outputBodyId": "00000000-0000-4000-8000-000000000011",
+        "parameters": {
+          "sourceOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "plane": {
+            "ast": {
+              "kind": "faces",
+              "scope": [
+                {
+                  "source": "world",
+                  "world": "yz"
+                }
+              ],
+              "filters": []
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": []
+          },
+          "merge": false
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"44444444-dddd-4ddd-8ddd-444444444444\",\"outputBodyId\":\"00000000-0000-4000-8000-000000000011\",\"parameters\":{\"merge\":false,\"plane\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"faces(world(yz))\"},\"sourceOperationId\":\"aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa\"},\"schemaVersion\":1,\"type\":\"mirror\"}",
+      "canonicalSha256": "dae8c4519c16f441eb6448a6e739141160a9d15f41396fc898c08ca7f0ff27b7"
+    },
+    {
+      "description": "pattern_linear 2D subtract grid (defaulted consumeSeed)",
+      "operation": {
+        "id": "55555555-eeee-4eee-8eee-555555555555",
+        "type": "pattern_linear",
+        "schemaVersion": 1,
+        "name": "Vent grid",
+        "outputBodyId": "00000000-0000-4000-8000-000000000012",
+        "parameters": {
+          "seedOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "count": 4,
+          "spacing": 12.5,
+          "direction": [1, 0, 0],
+          "count2": 2,
+          "spacing2": -7.25,
+          "direction2": [0, 1, 0],
+          "op": "subtract",
+          "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "consumeSeed": true
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"55555555-eeee-4eee-8eee-555555555555\",\"outputBodyId\":\"00000000-0000-4000-8000-000000000012\",\"parameters\":{\"consumeSeed\":true,\"count\":4,\"count2\":2,\"direction\":[1,0,0],\"direction2\":[0,1,0],\"op\":\"subtract\",\"seedOperationId\":\"bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb\",\"spacing\":12.5,\"spacing2\":-7.25,\"targetOperationId\":\"aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa\"},\"schemaVersion\":1,\"type\":\"pattern_linear\"}",
+      "canonicalSha256": "a24ab4171a24fdced15e5e80a45c8400f6ad47cee3024a2c829cbfe36886ac3e"
+    },
+    {
+      "description": "pattern_circular fuse (defaulted totalAngle/rotateInstances/op)",
+      "operation": {
+        "id": "66666666-ffff-4fff-8fff-666666666666",
+        "type": "pattern_circular",
+        "schemaVersion": 1,
+        "name": "Bolt circle",
+        "outputBodyId": "00000000-0000-4000-8000-000000000013",
+        "parameters": {
+          "seedOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "axis": {
+            "query": "edges(world(z))",
+            "arity": "one",
+            "anchors": [],
+            "onEmpty": "error"
+          },
+          "count": 6,
+          "totalAngle": 360,
+          "rotateInstances": true,
+          "op": "fuseInstances",
+          "consumeSeed": true
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "66666666-ffff-4fff-8fff-666666666666",
+        "type": "pattern_circular",
+        "schemaVersion": 1,
+        "name": "Bolt circle",
+        "outputBodyId": "00000000-0000-4000-8000-000000000013",
+        "parameters": {
+          "seedOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "axis": {
+            "ast": {
+              "kind": "edges",
+              "scope": [
+                {
+                  "source": "world",
+                  "world": "z"
+                }
+              ],
+              "filters": []
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": []
+          },
+          "count": 6,
+          "totalAngle": 360,
+          "rotateInstances": true,
+          "op": "fuseInstances",
+          "consumeSeed": true
+        },
+        "metadata": {
+          "createdAt": "2026-07-19T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"66666666-ffff-4fff-8fff-666666666666\",\"outputBodyId\":\"00000000-0000-4000-8000-000000000013\",\"parameters\":{\"axis\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"edges(world(z))\"},\"consumeSeed\":true,\"count\":6,\"op\":\"fuseInstances\",\"rotateInstances\":true,\"seedOperationId\":\"bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb\",\"totalAngle\":360},\"schemaVersion\":1,\"type\":\"pattern_circular\"}",
+      "canonicalSha256": "33c1f03dc431ebe21b3a48e5c4155001387e95e43617a55b0c0a9c701c5b115c"
+    },
+    {
+      "description": "sketch (snapHints excluded, solution kept, plane ref projected)",
+      "operation": {
+        "id": "77777777-aaaa-4aaa-8aaa-777777777777",
+        "type": "sketch",
+        "schemaVersion": 1,
+        "name": "Top sketch",
+        "parameters": {
+          "plane": {
+            "query": "faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).role(top)",
+            "arity": "one",
+            "anchors": [],
+            "onEmpty": "error"
+          },
+          "entities": [
+            {
+              "eid": "ent_A0000000000000000000000000",
+              "kind": "line",
+              "p1": [0, 0],
+              "p2": [40, 0],
+              "construction": false,
+              "snapHints": [
+                {
+                  "kind": "horizontal",
+                  "targets": ["ent_B0000000000000000000000000"]
+                }
+              ]
+            },
+            {
+              "eid": "ent_B0000000000000000000000000",
+              "kind": "circle",
+              "center": [20, 15],
+              "radius": 6,
+              "construction": false
+            }
+          ],
+          "constraints": [],
+          "solution": {
+            "entities": [
+              {
+                "eid": "ent_A0000000000000000000000000",
+                "values": [0, 0, 40, 0]
+              },
+              {
+                "eid": "ent_B0000000000000000000000000",
+                "values": [20, 15, 6]
+              }
+            ],
+            "degreesOfFreedom": 0
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-27T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "operationWire": {
+        "id": "77777777-aaaa-4aaa-8aaa-777777777777",
+        "type": "sketch",
+        "schemaVersion": 1,
+        "name": "Top sketch",
+        "parameters": {
+          "plane": {
+            "ast": {
+              "kind": "faces",
+              "scope": [
+                {
+                  "source": "op",
+                  "opId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa"
+                }
+              ],
+              "filters": [
+                {
+                  "name": "role",
+                  "args": [
+                    {
+                      "arg": "ident",
+                      "value": "top"
+                    }
+                  ]
+                }
+              ]
+            },
+            "arity": "one",
+            "onEmpty": "error",
+            "anchors": []
+          },
+          "entities": [
+            {
+              "eid": "ent_A0000000000000000000000000",
+              "kind": "line",
+              "p1": [0, 0],
+              "p2": [40, 0],
+              "construction": false,
+              "snapHints": [
+                {
+                  "kind": "horizontal",
+                  "targets": ["ent_B0000000000000000000000000"]
+                }
+              ]
+            },
+            {
+              "eid": "ent_B0000000000000000000000000",
+              "kind": "circle",
+              "center": [20, 15],
+              "radius": 6,
+              "construction": false
+            }
+          ],
+          "constraints": [],
+          "solution": {
+            "entities": [
+              {
+                "eid": "ent_A0000000000000000000000000",
+                "values": [0, 0, 40, 0]
+              },
+              {
+                "eid": "ent_B0000000000000000000000000",
+                "values": [20, 15, 6]
+              }
+            ],
+            "degreesOfFreedom": 0
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-07-27T09:00:00Z",
+          "createdBy": {
+            "kind": "user"
+          }
+        }
+      },
+      "canonicalJson": "{\"id\":\"77777777-aaaa-4aaa-8aaa-777777777777\",\"parameters\":{\"constraints\":[],\"entities\":[{\"construction\":false,\"eid\":\"ent_A0000000000000000000000000\",\"kind\":\"line\",\"p1\":[0,0],\"p2\":[40,0]},{\"center\":[20,15],\"construction\":false,\"eid\":\"ent_B0000000000000000000000000\",\"kind\":\"circle\",\"radius\":6}],\"plane\":{\"arity\":\"one\",\"onEmpty\":\"error\",\"query\":\"faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).role(top)\"},\"solution\":{\"degreesOfFreedom\":0,\"entities\":[{\"eid\":\"ent_A0000000000000000000000000\",\"values\":[0,0,40,0]},{\"eid\":\"ent_B0000000000000000000000000\",\"values\":[20,15,6]}]}},\"schemaVersion\":1,\"type\":\"sketch\"}",
+      "canonicalSha256": "087bb05afc5c5d857b8b50ef0c6651471115f9ff09e992c321fbdf320a4de853"
+    }
+  ],
+  "cumulativeVectors": [
+    {
+      "description": "box -> hole -> fillet prefix chain",
+      "operationsWire": [
+        {
+          "id": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "type": "create_box",
+          "schemaVersion": 1,
+          "name": "Base Block",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000b",
+          "parameters": {
+            "width": 80,
+            "depth": 50,
+            "height": 15,
+            "placement": {
+              "origin": [0, 0, 0],
+              "zDirection": [0, 0, 1],
+              "xDirection": [1, 0, 0]
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "type": "hole",
+          "schemaVersion": 1,
+          "name": "Ø8 bore",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000c",
+          "parameters": {
+            "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "placement": {
+              "origin": [15, 0, 15],
+              "zDirection": [0, 0, -1],
+              "xDirection": [1, 0, 0]
+            },
+            "size": {
+              "kind": "radius",
+              "radius": 4
+            },
+            "depth": 10,
+            "throughAll": false
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:05:30.250Z",
+            "createdBy": {
+              "kind": "agent",
+              "runId": "99999999-9999-4999-8999-999999999999",
+              "toolCallId": "call_7"
+            }
+          }
+        },
+        {
+          "id": "eeeeeeee-5555-4e55-8e55-eeeeeeeeeeee",
+          "type": "fillet",
+          "schemaVersion": 2,
+          "name": "Edge round",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000e",
+          "parameters": {
+            "targetOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+            "radius": 1.5,
+            "edges": {
+              "ast": {
+                "kind": "edges",
+                "scope": [
+                  {
+                    "source": "op",
+                    "opId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb"
+                  }
+                ],
+                "filters": [
+                  {
+                    "name": "convex",
+                    "args": []
+                  }
+                ]
+              },
+              "arity": "any",
+              "onEmpty": "error",
+              "anchors": [
+                {
+                  "token": "t:xyz",
+                  "note": "should be excluded from the hash"
+                }
+              ]
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:10:00Z",
+            "createdBy": {
+              "kind": "import",
+              "sourceName": "legacy.step"
+            }
+          }
+        }
+      ],
+      "documentId": "dddddddd-0000-4d00-8d00-dddddddddddd",
+      "kernelGeomVersion": "occt-8.0.0+aeth.3",
+      "operations": [
+        {
+          "id": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "type": "create_box",
+          "schemaVersion": 1,
+          "name": "Base Block",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000b",
+          "parameters": {
+            "width": 80,
+            "depth": 50,
+            "height": 15,
+            "placement": {
+              "origin": [0, 0, 0],
+              "zDirection": [0, 0, 1],
+              "xDirection": [1, 0, 0]
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+          "type": "hole",
+          "schemaVersion": 1,
+          "name": "Ø8 bore",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000c",
+          "parameters": {
+            "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "placement": {
+              "origin": [15, 0, 15],
+              "zDirection": [0, 0, -1],
+              "xDirection": [1, 0, 0]
+            },
+            "size": {
+              "kind": "radius",
+              "radius": 4
+            },
+            "depth": 10,
+            "throughAll": false
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:05:30.250Z",
+            "createdBy": {
+              "kind": "agent",
+              "runId": "99999999-9999-4999-8999-999999999999",
+              "toolCallId": "call_7"
+            }
+          }
+        },
+        {
+          "id": "eeeeeeee-5555-4e55-8e55-eeeeeeeeeeee",
+          "type": "fillet",
+          "schemaVersion": 2,
+          "name": "Edge round",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000e",
+          "parameters": {
+            "targetOperationId": "bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb",
+            "radius": 1.5,
+            "edges": {
+              "query": "edges(op(bbbbbbbb-2222-4b22-8b22-bbbbbbbbbbbb)).convex()",
+              "arity": "any",
+              "anchors": [
+                {
+                  "token": "t:xyz",
+                  "note": "should be excluded from the hash"
+                }
+              ],
+              "onEmpty": "error"
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:10:00Z",
+            "createdBy": {
+              "kind": "import",
+              "sourceName": "legacy.step"
+            }
+          }
+        }
+      ],
+      "prefixHashes": [
+        "8b04bfa19e16f49b42a65e97d08887fda64af746511cc170b879b6930235e901",
+        "c7b5b99deda00126af3c0c85811822941c3cf351298b35cab614982b170f8a32",
+        "2be376657bad4899e402b538e29d1f0c44b3ae6f2576c99cc6faa9ee92eeb82f",
+        "2ac7e621b9b4cf61a0c4c2b94192b448b7053a63c22ba021a55df621dd51fc9f"
+      ]
+    },
+    {
+      "description": "box -> shell -> mirror prefix chain (catalog wave 1)",
+      "operationsWire": [
+        {
+          "id": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "type": "create_box",
+          "schemaVersion": 1,
+          "name": "Base Block",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000b",
+          "parameters": {
+            "width": 80,
+            "depth": 50,
+            "height": 15,
+            "placement": {
+              "origin": [0, 0, 0],
+              "zDirection": [0, 0, 1],
+              "xDirection": [1, 0, 0]
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "33333333-cccc-4ccc-8ccc-333333333333",
+          "type": "shell",
+          "schemaVersion": 1,
+          "name": "Hollow the block",
+          "outputBodyId": "00000000-0000-4000-8000-000000000010",
+          "parameters": {
+            "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "thickness": 1.6,
+            "direction": "inward",
+            "openFaces": {
+              "ast": {
+                "kind": "faces",
+                "scope": [
+                  {
+                    "source": "op",
+                    "opId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa"
+                  }
+                ],
+                "filters": [
+                  {
+                    "name": "normal",
+                    "args": [
+                      {
+                        "arg": "direction",
+                        "value": {
+                          "form": "axis",
+                          "sign": 1,
+                          "axis": "z"
+                        }
+                      },
+                      {
+                        "arg": "number",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              },
+              "arity": "any",
+              "onEmpty": "empty-ok",
+              "anchors": []
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-19T09:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "44444444-dddd-4ddd-8ddd-444444444444",
+          "type": "mirror",
+          "schemaVersion": 1,
+          "name": "Mirror to full bracket",
+          "outputBodyId": "00000000-0000-4000-8000-000000000011",
+          "parameters": {
+            "sourceOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "plane": {
+              "ast": {
+                "kind": "faces",
+                "scope": [
+                  {
+                    "source": "world",
+                    "world": "yz"
+                  }
+                ],
+                "filters": []
+              },
+              "arity": "one",
+              "onEmpty": "error",
+              "anchors": []
+            },
+            "merge": false
+          },
+          "metadata": {
+            "createdAt": "2026-07-19T09:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        }
+      ],
+      "documentId": "dddddddd-0000-4d00-8d00-dddddddddddd",
+      "kernelGeomVersion": "occt-8.0.0+aeth.3",
+      "operations": [
+        {
+          "id": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+          "type": "create_box",
+          "schemaVersion": 1,
+          "name": "Base Block",
+          "outputBodyId": "00000000-0000-4000-8000-00000000000b",
+          "parameters": {
+            "width": 80,
+            "depth": 50,
+            "height": 15,
+            "placement": {
+              "origin": [0, 0, 0],
+              "zDirection": [0, 0, 1],
+              "xDirection": [1, 0, 0]
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-17T12:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "33333333-cccc-4ccc-8ccc-333333333333",
+          "type": "shell",
+          "schemaVersion": 1,
+          "name": "Hollow the block",
+          "outputBodyId": "00000000-0000-4000-8000-000000000010",
+          "parameters": {
+            "targetOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "thickness": 1.6,
+            "direction": "inward",
+            "openFaces": {
+              "query": "faces(op(aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa)).normal(+z)",
+              "arity": "any",
+              "anchors": [],
+              "onEmpty": "empty-ok"
+            }
+          },
+          "metadata": {
+            "createdAt": "2026-07-19T09:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        },
+        {
+          "id": "44444444-dddd-4ddd-8ddd-444444444444",
+          "type": "mirror",
+          "schemaVersion": 1,
+          "name": "Mirror to full bracket",
+          "outputBodyId": "00000000-0000-4000-8000-000000000011",
+          "parameters": {
+            "sourceOperationId": "aaaaaaaa-1111-4a11-8a11-aaaaaaaaaaaa",
+            "plane": {
+              "query": "faces(world(yz))",
+              "arity": "one",
+              "anchors": [],
+              "onEmpty": "error"
+            },
+            "merge": false
+          },
+          "metadata": {
+            "createdAt": "2026-07-19T09:00:00Z",
+            "createdBy": {
+              "kind": "user"
+            }
+          }
+        }
+      ],
+      "prefixHashes": [
+        "8b04bfa19e16f49b42a65e97d08887fda64af746511cc170b879b6930235e901",
+        "c7b5b99deda00126af3c0c85811822941c3cf351298b35cab614982b170f8a32",
+        "8414f7bdc187082a5a179e4091cf7091b9ebbd02d67bf30aa8f7d745e048515b",
+        "0782287b4eef3604cdd5694675c3dc9daac6c81a8381cd329ce98ae320a6e24d"
+      ]
+    }
+  ]
+}

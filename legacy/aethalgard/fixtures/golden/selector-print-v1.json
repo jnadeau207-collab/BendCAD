@@ -1,0 +1,666 @@
+{
+  "$comment": "Cross-language pin for the AQL canonical selector printer (Phase 4 N6 slice A). printSelector(parse(query)) [TS @aeth/document-model] and PrintSelector(ast) [C++ selector_print.cpp] must both equal `canonical`. Regenerate with scratchpad/gen-selector-golden.mjs.",
+  "cases": [
+    {
+      "description": "simple op source",
+      "query": "faces(op(op_a))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "op",
+            "opId": "op_a"
+          }
+        ],
+        "filters": []
+      },
+      "canonical": "faces(op(op_a))"
+    },
+    {
+      "description": "no-arg filter",
+      "query": "faces(all).planar()",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "planar",
+            "args": []
+          }
+        ]
+      },
+      "canonical": "faces(all).planar()"
+    },
+    {
+      "description": "edge line filter",
+      "query": "edges(all).line()",
+      "ast": {
+        "kind": "edges",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "line",
+            "args": []
+          }
+        ]
+      },
+      "canonical": "edges(all).line()"
+    },
+    {
+      "description": "ident arg (unquoted)",
+      "query": "faces(all).role(top)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "role",
+            "args": [
+              {
+                "arg": "ident",
+                "value": "top"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).role(top)"
+    },
+    {
+      "description": "axis arg",
+      "query": "faces(all).max(z)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "max",
+            "args": [
+              {
+                "arg": "axis",
+                "value": "z"
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).max(z)"
+    },
+    {
+      "description": "two required numbers",
+      "query": "edges(all).length(1,5)",
+      "ast": {
+        "kind": "edges",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "length",
+            "args": [
+              {
+                "arg": "number",
+                "value": 1
+              },
+              {
+                "arg": "number",
+                "value": 5
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "edges(all).length(1,5)"
+    },
+    {
+      "description": "default omitted (parallel tol 1)",
+      "query": "faces(all).parallel(+z,1)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "parallel",
+            "args": [
+              {
+                "arg": "direction",
+                "value": {
+                  "form": "axis",
+                  "sign": 1,
+                  "axis": "z"
+                }
+              },
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).parallel(+z)"
+    },
+    {
+      "description": "explicit non-default (parallel tol 2)",
+      "query": "faces(all).parallel(+z,2)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "parallel",
+            "args": [
+              {
+                "arg": "direction",
+                "value": {
+                  "form": "axis",
+                  "sign": 1,
+                  "axis": "z"
+                }
+              },
+              {
+                "arg": "number",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).parallel(+z,2)"
+    },
+    {
+      "description": "direction vector arg",
+      "query": "faces(all).parallel([0,0,1])",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "parallel",
+            "args": [
+              {
+                "arg": "direction",
+                "value": {
+                  "form": "vector",
+                  "vector": [0, 0, 1]
+                }
+              },
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).parallel([0,0,1])"
+    },
+    {
+      "description": "signed axis direction",
+      "query": "faces(all).parallel(-x)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "parallel",
+            "args": [
+              {
+                "arg": "direction",
+                "value": {
+                  "form": "axis",
+                  "sign": -1,
+                  "axis": "x"
+                }
+              },
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).parallel(-x)"
+    },
+    {
+      "description": "point + default omitted (at 0.5)",
+      "query": "faces(all).at([1,2,3],0.5)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "at",
+            "args": [
+              {
+                "arg": "point",
+                "value": [1, 2, 3]
+              },
+              {
+                "arg": "number",
+                "value": 0.5
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).at([1,2,3])"
+    },
+    {
+      "description": "point + explicit param",
+      "query": "faces(all).at([1,2,3],0.75)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "at",
+            "args": [
+              {
+                "arg": "point",
+                "value": [1, 2, 3]
+              },
+              {
+                "arg": "number",
+                "value": 0.75
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).at([1,2,3],0.75)"
+    },
+    {
+      "description": "radius default omitted (1e-3)",
+      "query": "faces(all).radius(5,0.001)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "radius",
+            "args": [
+              {
+                "arg": "number",
+                "value": 5
+              },
+              {
+                "arg": "number",
+                "value": 0.001
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).radius(5)"
+    },
+    {
+      "description": "onGround default omitted",
+      "query": "faces(all).onGround(0.001)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "onGround",
+            "args": [
+              {
+                "arg": "number",
+                "value": 0.001
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).onGround()"
+    },
+    {
+      "description": "onGround no arg",
+      "query": "faces(all).onGround()",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "onGround",
+            "args": [
+              {
+                "arg": "number",
+                "value": 0.001
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).onGround()"
+    },
+    {
+      "description": "largest default omitted (1)",
+      "query": "faces(all).largest(1)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "largest",
+            "args": [
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).largest()"
+    },
+    {
+      "description": "largest explicit count",
+      "query": "faces(all).largest(3)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "largest",
+            "args": [
+              {
+                "arg": "number",
+                "value": 3
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).largest(3)"
+    },
+    {
+      "description": "smooth default omitted (edges)",
+      "query": "edges(all).smooth(1)",
+      "ast": {
+        "kind": "edges",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "smooth",
+            "args": [
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "edges(all).smooth()"
+    },
+    {
+      "description": "nested query (on)",
+      "query": "edges(all).on(faces(op(op_a)).planar())",
+      "ast": {
+        "kind": "edges",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "on",
+            "args": [
+              {
+                "arg": "query",
+                "value": {
+                  "kind": "faces",
+                  "scope": [
+                    {
+                      "source": "op",
+                      "opId": "op_a"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "name": "planar",
+                      "args": []
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "edges(all).on(faces(op(op_a)).planar())"
+    },
+    {
+      "description": "nested union same kind",
+      "query": "faces(op(op_a)).union(faces(op(op_b)))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "op",
+            "opId": "op_a"
+          }
+        ],
+        "filters": [
+          {
+            "name": "union",
+            "args": [
+              {
+                "arg": "query",
+                "value": {
+                  "kind": "faces",
+                  "scope": [
+                    {
+                      "source": "op",
+                      "opId": "op_b"
+                    }
+                  ],
+                  "filters": []
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(op(op_a)).union(faces(op(op_b)))"
+    },
+    {
+      "description": "string escaping (quote + backslash)",
+      "query": "faces(tag(\"a\\\"b\\\\c\"))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "tag",
+            "tag": "a\"b\\c"
+          }
+        ],
+        "filters": []
+      },
+      "canonical": "faces(tag(\"a\\\"b\\\\c\"))"
+    },
+    {
+      "description": "world source",
+      "query": "faces(world(xy))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "world",
+            "world": "xy"
+          }
+        ],
+        "filters": []
+      },
+      "canonical": "faces(world(xy))"
+    },
+    {
+      "description": "token source",
+      "query": "faces(token(\"t1\"))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "token",
+            "token": "t1"
+          }
+        ],
+        "filters": []
+      },
+      "canonical": "faces(token(\"t1\"))"
+    },
+    {
+      "description": "multiple sources (parser sorts)",
+      "query": "faces(body(op_b),op(op_a))",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "body",
+            "opId": "op_b"
+          },
+          {
+            "source": "op",
+            "opId": "op_a"
+          }
+        ],
+        "filters": []
+      },
+      "canonical": "faces(body(op_b),op(op_a))"
+    },
+    {
+      "description": "number magnitudes (area)",
+      "query": "faces(all).area(0.001,1000)",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "area",
+            "args": [
+              {
+                "arg": "number",
+                "value": 0.001
+              },
+              {
+                "arg": "number",
+                "value": 1000
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).area(0.001,1000)"
+    },
+    {
+      "description": "filter chain",
+      "query": "faces(all).planar().max(z).largest()",
+      "ast": {
+        "kind": "faces",
+        "scope": [
+          {
+            "source": "all"
+          }
+        ],
+        "filters": [
+          {
+            "name": "planar",
+            "args": []
+          },
+          {
+            "name": "max",
+            "args": [
+              {
+                "arg": "axis",
+                "value": "z"
+              }
+            ]
+          },
+          {
+            "name": "largest",
+            "args": [
+              {
+                "arg": "number",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "canonical": "faces(all).planar().max(z).largest()"
+    }
+  ]
+}
