@@ -1,0 +1,8 @@
+{
+  "source": "eeca9ad782640f97bc15423e72319acea310d36f",
+  "verified": [],
+  "failed": [
+    "native/kernel-host/CMakeLists.txt",
+    "native/kernel-host/src/geometry.cpp"
+  ]
+}
