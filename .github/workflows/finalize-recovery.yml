@@ -1,0 +1,29 @@
+name: Finalize legacy recovery
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/finalize-recovery.yml]
+permissions:
+  contents: write
+concurrency:
+  group: final-legacy-transfer
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Receive only encrypted packet files, not receipts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('tools/recovery_transfer.py').read_text()
+          s = s.replace("'.recovery-transfer-v2'", "'.recovery-transfer-v3'")
+          s = s.replace("'.recovery-transfer-v2/public.pem'", "'.recovery-transfer-v3/public.pem'")
+          s = s.replace("QUEUE.glob('batch-*.json')", "QUEUE.glob('batch-??.json')")
+          Path('/tmp/recovery-final.py').write_text(s)
+          PY
+          python3 /tmp/recovery-final.py
