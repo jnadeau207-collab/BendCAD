@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "name": "Origin-centered sphere r30 mm",
+  "notes": "Expected probes are analytic: volume = 4/3*pi*r^3, surface = 4*pi*r^2. Topology verified against pinned OCCT V8_0_0_p1: a full BRepPrimAPI_MakeSphere solid has 1 spherical face but 3 edges, not 1 - the u-periodic seam meridian plus TWO degenerate pole edges (zero-length edges closing the parameterization at v = +/-pi/2, carrying no 3D curve) - and 2 vertices (the poles). Degenerate edges stay in the AEMB edge table with zero polyline vertices so mesh edge identity matches the B-rep edge count.",
+  "operation": {
+    "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d63",
+    "type": "create_sphere",
+    "schemaVersion": 1,
+    "name": "Main ball",
+    "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d64",
+    "parameters": {
+      "radius": 30,
+      "placement": {
+        "origin": [0, 0, 0],
+        "zDirection": [0, 0, 1],
+        "xDirection": [1, 0, 0]
+      }
+    },
+    "metadata": {
+      "createdAt": "2026-07-13T00:00:00.000Z",
+      "createdBy": { "kind": "user" }
+    }
+  },
+  "expected": {
+    "volumeMm3": 113097.33552923254,
+    "surfaceAreaMm2": 11309.733552923255,
+    "centerOfMassMm": [0, 0, 0],
+    "boundingBoxMm": [-30, -30, -30, 30, 30, 30],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 1,
+    "edgeCount": 3,
+    "vertexCount": 2
+  }
+}

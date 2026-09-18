@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "Positional hole: blind 8mm-radius bore, 10mm deep, into an 80x50x15 plate",
+  "notes": "The blind-depth half of the hole operation's conformance pair (see hole-through-all-plate-r8.json for the through-all half, which reproduces boolean-cut-box-cylinder.json's plate+bore exactly). Geometry: plate spans x[-40,40] y[-25,25] z[0,15] (same base-center convention as create_box). The hole's placement origin sits on the plate's top face at (15,0,15) with the default drilling axis (-Z), so the tool cuts downward from z=15 to z=5 — a blind pocket that does NOT break through the bottom face. Analytic derivation: removed volume = pi*8^2*10 = 640*pi, so volume = 80*50*15 - 640*pi = 60000 - 640*pi. Surface: the top face loses a disc of area 64*pi (now open into the hole) but the hole itself adds a lateral wall of area 2*pi*8*10 = 160*pi PLUS a new flat bottom cap (the blind hole floor) of area 64*pi, so surface = 11900 - 64*pi + 160*pi + 64*pi = 11900 + 160*pi. Center of mass: the removed material is a cylinder of volume 640*pi centered at (15, 0, 10) (z-midpoint of [5,15]); comX = -15*640*pi / (60000-640*pi), comZ = (7.5*60000 - 10*640*pi) / (60000-640*pi). Topology verified against pinned OCCT V8_0_0_p1: 8 faces (6 plate faces, top carrying the hole loop, + the new blind-hole lateral wall and its flat floor cap), 15 edges (12 plate + top hole circle + floor circle + lateral seam), 10 vertices (8 plate + 2 seam endpoints) — one more face than the through-all case because the blind floor is a face the through-cut never creates.",
+  "operations": [
+    {
+      "id": "ee35835a-ad84-4768-9554-6385d3b4143a",
+      "type": "create_box",
+      "schemaVersion": 1,
+      "name": "Bracket plate",
+      "outputBodyId": "570b9e18-6286-46ec-8fc1-8ed563ee7f7a",
+      "parameters": {
+        "width": 80,
+        "depth": 50,
+        "height": 15,
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "bd61ef50-50cd-479d-834f-6f26335fa9af",
+      "type": "hole",
+      "schemaVersion": 1,
+      "name": "Blind bolt hole",
+      "outputBodyId": "e1f66fd5-1f87-4af3-b72d-8f6682902b05",
+      "parameters": {
+        "targetOperationId": "ee35835a-ad84-4768-9554-6385d3b4143a",
+        "placement": {
+          "origin": [15, 0, 15],
+          "zDirection": [0, 0, -1],
+          "xDirection": [1, 0, 0]
+        },
+        "size": { "kind": "radius", "radius": 8 },
+        "depth": 10,
+        "throughAll": false
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 57989.38070170253,
+    "surfaceAreaMm2": 12402.654824574367,
+    "centerOfMassMm": [-0.520082972253169, 0, 7.4133195046244715],
+    "boundingBoxMm": [-40, -25, 0, 40, 25, 15],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 8,
+    "edgeCount": 15,
+    "vertexCount": 10
+  }
+}

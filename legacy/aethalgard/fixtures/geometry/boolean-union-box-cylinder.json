@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "Boolean union: box 80 × 60 × 40 mm fused with a protruding boss cylinder r15 × 60 mm",
+  "notes": "First body-consuming document: the boolean references the box (target) and cylinder (tool) OPERATION ids, consumes both bodies, and only the boolean's output body appears in the evaluation. Geometry: box spans x[-40,40] y[-30,30] z[0,40]; cylinder axis at x=y=0 spans z[20,80], so it is buried in the box for z[20,40] and protrudes for z[40,80] — the cylinder base (z=20) is strictly interior, deliberately avoiding coplanar-face booleans. Analytic derivation: volume = boxV + protruding cylinder = 80*60*40 + pi*15^2*40 = 192000 + 9000*pi; surface = box surface - top-face hole + exposed lateral + top cap = 20800 - 225*pi + 1200*pi + 225*pi = 20800 + 1200*pi; center of mass z = (192000*20 + 9000*pi*60) / (192000 + 9000*pi), x = y = 0. Topology verified against pinned OCCT V8_0_0_p1: 8 faces (6 box faces, the top one carrying the circular hole loop, + boss lateral with seam + boss top cap), 15 edges (12 box + hole circle + seam line + top circle), 10 vertices (8 box + 2 seam endpoints).",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d80",
+      "type": "create_box",
+      "schemaVersion": 1,
+      "name": "Base block",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d81",
+      "parameters": {
+        "width": 80,
+        "depth": 60,
+        "height": 40,
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d82",
+      "type": "create_cylinder",
+      "schemaVersion": 1,
+      "name": "Boss",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d83",
+      "parameters": {
+        "radius": 15,
+        "height": 60,
+        "placement": {
+          "origin": [0, 0, 20],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d84",
+      "type": "boolean_combine",
+      "schemaVersion": 1,
+      "name": "Block with boss",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d85",
+      "parameters": {
+        "kind": "union",
+        "targetOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d80",
+        "toolOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d82"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 220274.33388230813,
+    "surfaceAreaMm2": 24569.91118430775,
+    "centerOfMassMm": [0, 0, 25.13438554260525],
+    "boundingBoxMm": [-40, -30, 0, 40, 30, 80],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 8,
+    "edgeCount": 15,
+    "vertexCount": 10
+  }
+}

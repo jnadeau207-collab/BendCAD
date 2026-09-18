@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "name": "Grounded centered box 100 × 60 × 30 mm",
+  "operation": {
+    "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d51",
+    "type": "create_box",
+    "schemaVersion": 1,
+    "name": "Main body",
+    "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d52",
+    "parameters": {
+      "width": 100,
+      "depth": 60,
+      "height": 30,
+      "placement": {
+        "origin": [0, 0, 0],
+        "zDirection": [0, 0, 1],
+        "xDirection": [1, 0, 0]
+      }
+    },
+    "metadata": {
+      "createdAt": "2026-07-12T00:00:00.000Z",
+      "createdBy": { "kind": "user" }
+    }
+  },
+  "expected": {
+    "volumeMm3": 180000,
+    "surfaceAreaMm2": 21600,
+    "centerOfMassMm": [0, 0, 15],
+    "boundingBoxMm": [-50, -30, 0, 50, 30, 30],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 6,
+    "edgeCount": 12,
+    "vertexCount": 8,
+    "triangleCount": 12
+  }
+}

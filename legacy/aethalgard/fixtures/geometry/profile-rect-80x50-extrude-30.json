@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "name": "Rectangle profile 80 × 50 mm extruded 30 mm along its normal",
+  "notes": "First consumed-reference document: the extrude names the profile OPERATION id (ADR-003 operation-level reference, never epoch-local topology). The profile produces no body; the evaluation response contains exactly one body, owned by the extrude. Expected probes are analytic: volume = w*d*h, surface = 2*w*d + 2*(w+d)*h. Topology verified against pinned OCCT V8_0_0_p1: a rectangle extrusion is topologically a box — 6 faces, 12 edges, 8 vertices.",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d71",
+      "type": "create_profile",
+      "schemaVersion": 1,
+      "name": "Base plate profile",
+      "outputProfileId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d72",
+      "parameters": {
+        "shape": { "kind": "rectangle", "width": 80, "depth": 50 },
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d73",
+      "type": "extrude",
+      "schemaVersion": 1,
+      "name": "Base plate",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d74",
+      "parameters": {
+        "profileOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d71",
+        "distance": 30,
+        "direction": "normal"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 120000,
+    "surfaceAreaMm2": 15800,
+    "centerOfMassMm": [0, 0, 15],
+    "boundingBoxMm": [-40, -25, 0, 40, 25, 30],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 6,
+    "edgeCount": 12,
+    "vertexCount": 8
+  }
+}

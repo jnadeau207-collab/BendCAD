@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "name": "Grounded base-centered box 6 x 6 x 20 mm — bolt-shank stand-in for ASM-003 definition evaluation",
+  "notes": "Provenance: hand-authored, not exported from any shipped control (there is no 'mint a bolt' verb) — a single create_box, minted for ASM-003 (docs/plan/07-assemblies/00-assembly-system.md §4.1, §15 ASM-003) whose exit criterion is literally 'one bolt definition displayed 1,000 times allocates one geometry resource'. Both `id` and `outputBodyId` below are LITERAL fixed UUIDs, not generated at test time (unlike native.integration.test.ts's inline createBox() helper, which mints a fresh randomUUID() per run), so this fixture — and any revisionHash a definition-evaluation cache derives from it — reproduces byte-for-byte across runs. What it is FOR: the smallest deterministic single-operation definition body for packages/kernel-client's definition-evaluation.native.integration.test.ts, standing in for one instanced part definition (the 'bolt') that the DefinitionEvaluationCache/evaluate_definition path evaluates once and the viewport would instance many times — it makes ASM-003's per-revision-hash evaluate-once contract falsifiable against a real, non-trivial-but-still-analytic solid, distinct in dimensions from the plain box-100x60x30.json golden fixture so a test importing both cannot pass by accidentally cross-checking one against the other. Geometry: base-centered like create_box's other fixtures — spans x[-3,3] y[-3,3] z[0,20]. Expected probes are analytic (volume = 6*6*20 = 720; surface = 2*(6*6) + 4*(6*20) = 72 + 480 = 552; center of mass at the box centroid (0,0,10)) and were additionally VERIFIED ONCE against a real kernel run (the same pinned OCCT build native.integration.test.ts drives): evaluate_document on this exact operation returned volumeMm3 719.9999999999999, surfaceAreaMm2 551.9999999999999, centerOfMassMm [2.6367796834847473e-17, 2.2204460492503135e-17, 9.999999999999998], and boundingBoxMm [-3,-3,0,3,3,20] exactly — floating-point residue on the scalar probes, none on the bounding box, matching the pattern box-100x60x30.json already established (the consuming suite's assertions use toBeCloseTo for the scalars and toEqual for the exact-integer bounding box, so the clean analytic values below are what belongs on disk). Topology: 1 solid, 1 shell, 6 faces, 12 edges, 8 vertices, 12 mesh triangles — identical counts to box-100x60x30.json, as any axis-aligned box must have. Binary marking: not applicable — this is a plain JSON assertion fixture like every other file in fixtures/geometry/, not one of the .step/.stl/.3mf formats fixtures/README.md's intake rule requires as `binary` in .gitattributes.",
+  "operation": {
+    "id": "1defbab0-2ece-4b79-9be9-d4a295fb648d",
+    "type": "create_box",
+    "schemaVersion": 1,
+    "name": "Bolt shank",
+    "outputBodyId": "235bf811-8e3b-428e-b43f-237e4eb9a95a",
+    "parameters": {
+      "width": 6,
+      "depth": 6,
+      "height": 20,
+      "placement": {
+        "origin": [0, 0, 0],
+        "zDirection": [0, 0, 1],
+        "xDirection": [1, 0, 0]
+      }
+    },
+    "metadata": {
+      "createdAt": "2026-07-30T00:00:00.000Z",
+      "createdBy": { "kind": "user" }
+    }
+  },
+  "expected": {
+    "volumeMm3": 720,
+    "surfaceAreaMm2": 552,
+    "centerOfMassMm": [0, 0, 10],
+    "boundingBoxMm": [-3, -3, 0, 3, 3, 20],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 6,
+    "edgeCount": 12,
+    "vertexCount": 8,
+    "triangleCount": 12
+  }
+}

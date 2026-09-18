@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "name": "Positional hole: throughAll 8mm-radius bore into an 80x50x15 plate",
+  "notes": "The through-all half of the hole operation's conformance pair (see hole-blind-plate-r8-d10.json for the blind-depth half). Same plate and bore position/radius as boolean-cut-box-cylinder.json, expressed through the new `hole` operation instead of a manually-placed tool cylinder plus boolean_combine: the placement origin sits on the plate's top face at (15,0,15) with the default drilling axis (-Z) and `throughAll: true`, so the kernel derives its own overshooting tool depth from the target's bounding box instead of a caller-supplied depth. Expected probes are copied verbatim from boolean-cut-box-cylinder.json's `expected` block: a through-all hole and an explicitly-overshot manual cut at the same position and radius must produce bit-for-bit the same solid, which is the whole point of the derived-depth guarantee.",
+  "operations": [
+    {
+      "id": "9af9c05d-5730-409f-a0d4-282dc86390b6",
+      "type": "create_box",
+      "schemaVersion": 1,
+      "name": "Bracket plate",
+      "outputBodyId": "93fcd690-a05f-4882-9c5a-ea6950539b29",
+      "parameters": {
+        "width": 80,
+        "depth": 50,
+        "height": 15,
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "b4eb1253-9ba7-47de-b201-5810dc1ea80e",
+      "type": "hole",
+      "schemaVersion": 1,
+      "name": "Through bolt hole",
+      "outputBodyId": "a7fd44ac-8373-4732-b07b-75a6c745f21d",
+      "parameters": {
+        "targetOperationId": "9af9c05d-5730-409f-a0d4-282dc86390b6",
+        "placement": {
+          "origin": [15, 0, 15],
+          "zDirection": [0, 0, -1],
+          "xDirection": [1, 0, 0]
+        },
+        "size": { "kind": "diameter", "diameter": 16 },
+        "throughAll": true
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 56984.0710525538,
+    "surfaceAreaMm2": 12251.858377202056,
+    "centerOfMassMm": [-0.7938873684537424, 0, 7.5],
+    "boundingBoxMm": [-40, -25, 0, 40, 25, 15],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 7,
+    "edgeCount": 15,
+    "vertexCount": 10
+  }
+}

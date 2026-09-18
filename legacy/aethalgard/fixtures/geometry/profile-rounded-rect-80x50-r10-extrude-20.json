@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "name": "Rounded rectangle profile 80 × 50 mm, corner r10 mm, extruded 20 mm",
+  "notes": "Expected probes are analytic: profile area = w*d - (4 - pi)*r^2 = 3600 + 100*pi, volume = area*h = 72000 + 2000*pi, perimeter = 2*(w - 2r) + 2*(d - 2r) + 2*pi*r = 180 + 20*pi, surface = 2*area + perimeter*h = 10800 + 600*pi. Topology verified against pinned OCCT V8_0_0_p1: 10 faces (4 planar sides + 4 cylindrical corner quarters + 2 caps), 24 edges (8 per cap boundary + 8 lateral seam lines at the segment/arc junctions), 16 vertices (8 per cap).",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d79",
+      "type": "create_profile",
+      "schemaVersion": 1,
+      "name": "Rounded plate profile",
+      "outputProfileId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d7a",
+      "parameters": {
+        "shape": {
+          "kind": "roundedRectangle",
+          "width": 80,
+          "depth": 50,
+          "cornerRadius": 10
+        },
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d7b",
+      "type": "extrude",
+      "schemaVersion": 1,
+      "name": "Rounded plate",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d7c",
+      "parameters": {
+        "profileOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d79",
+        "distance": 20,
+        "direction": "normal"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 78283.18530717959,
+    "surfaceAreaMm2": 12684.955592153876,
+    "centerOfMassMm": [0, 0, 10],
+    "boundingBoxMm": [-40, -25, 0, 40, 25, 20],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 10,
+    "edgeCount": 24,
+    "vertexCount": 16
+  }
+}

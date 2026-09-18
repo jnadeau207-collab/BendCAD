@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "name": "Circle profile r20 mm extruded 60 mm along its normal",
+  "notes": "Expected probes are analytic: volume = pi*r^2*h = 24000*pi, surface = 2*pi*r^2 + 2*pi*r*h = 3200*pi. Topology verified against pinned OCCT V8_0_0_p1: a circle extrusion duplicates the cylinder primitive — 3 faces (lateral, bottom cap, top cap), 3 edges (bottom circle, top circle, lateral seam line), 2 vertices (the seam endpoints).",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d75",
+      "type": "create_profile",
+      "schemaVersion": 1,
+      "name": "Boss profile",
+      "outputProfileId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d76",
+      "parameters": {
+        "shape": { "kind": "circle", "radius": 20 },
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d77",
+      "type": "extrude",
+      "schemaVersion": 1,
+      "name": "Boss",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d78",
+      "parameters": {
+        "profileOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d75",
+        "distance": 60,
+        "direction": "normal"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 75398.22368615503,
+    "surfaceAreaMm2": 10053.096491487338,
+    "centerOfMassMm": [0, 0, 30],
+    "boundingBoxMm": [-20, -20, 0, 20, 20, 60],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 3,
+    "edgeCount": 3,
+    "vertexCount": 2
+  }
+}

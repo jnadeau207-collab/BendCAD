@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "Boolean cut: bracket plate 80 × 50 × 15 mm with a through bolt hole r8 mm",
+  "notes": "The archetypal consumer part: a plate with a drilled hole. The cut subtracts the tool cylinder from the target plate and consumes both bodies; only the bracket remains. Geometry: plate spans x[-40,40] y[-25,25] z[0,15]; hole cylinder axis at (15,0) spans z[-5,20], overshooting the plate on both sides so the hole is a clean through-bore with no coplanar cap faces. Analytic derivation: volume = plateV - bore = 80*50*15 - pi*8^2*15 = 60000 - 960*pi; surface = plate surface - two hole discs + bore lateral = 11900 - 128*pi + 240*pi = 11900 + 112*pi; center of mass x = -pi*8^2*15*15 / (60000 - 960*pi) (removed material sat at x = 15), y = 0, z = 7.5. Topology verified against pinned OCCT V8_0_0_p1: 7 faces (6 plate faces, top and bottom each carrying the hole loop, + bore lateral with seam), 15 edges (12 plate + 2 hole circles + seam line), 10 vertices (8 plate + 2 seam endpoints).",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d86",
+      "type": "create_box",
+      "schemaVersion": 1,
+      "name": "Bracket plate",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d87",
+      "parameters": {
+        "width": 80,
+        "depth": 50,
+        "height": 15,
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d88",
+      "type": "create_cylinder",
+      "schemaVersion": 1,
+      "name": "Bolt hole tool",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d89",
+      "parameters": {
+        "radius": 8,
+        "height": 25,
+        "placement": {
+          "origin": [15, 0, -5],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8a",
+      "type": "boolean_combine",
+      "schemaVersion": 1,
+      "name": "Bracket with bolt hole",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8b",
+      "parameters": {
+        "kind": "cut",
+        "targetOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d86",
+        "toolOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d88"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 56984.0710525538,
+    "surfaceAreaMm2": 12251.858377202056,
+    "centerOfMassMm": [-0.7938873684537424, 0, 7.5],
+    "boundingBoxMm": [-40, -25, 0, 40, 25, 15],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 7,
+    "edgeCount": 15,
+    "vertexCount": 10
+  }
+}

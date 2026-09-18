@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "Boolean intersect: box 60 × 60 × 30 mm ∩ overshooting cylinder r20 × 50 mm",
+  "notes": "The intersection is derivable in closed form: the cylinder (axis at x=y=0, z[-10,40]) is strictly inside the box laterally (r20 < 30) and overshoots it vertically, so target ∩ tool is exactly a cylinder r20 with z[0,30] — the box planes cut the overshoot, nothing else. No tangency, no coplanar faces. Analytic derivation: volume = pi*20^2*30 = 12000*pi; surface = lateral + two caps = 2*pi*20*30 + 2*pi*20^2 = 2000*pi; center of mass (0,0,15). Topology verified against pinned OCCT V8_0_0_p1 and identical to the cylinder primitive: 3 faces (lateral with seam + two caps), 3 edges (two circles + seam line), 2 vertices (seam endpoints).",
+  "operations": [
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8c",
+      "type": "create_box",
+      "schemaVersion": 1,
+      "name": "Bounding block",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8d",
+      "parameters": {
+        "width": 60,
+        "depth": 60,
+        "height": 30,
+        "placement": {
+          "origin": [0, 0, 0],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8e",
+      "type": "create_cylinder",
+      "schemaVersion": 1,
+      "name": "Overshooting cylinder",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8f",
+      "parameters": {
+        "radius": 20,
+        "height": 50,
+        "placement": {
+          "origin": [0, 0, -10],
+          "zDirection": [0, 0, 1],
+          "xDirection": [1, 0, 0]
+        }
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    },
+    {
+      "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d90",
+      "type": "boolean_combine",
+      "schemaVersion": 1,
+      "name": "Common core",
+      "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d91",
+      "parameters": {
+        "kind": "intersect",
+        "targetOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8c",
+        "toolOperationId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d8e"
+      },
+      "metadata": {
+        "createdAt": "2026-07-13T00:00:00.000Z",
+        "createdBy": { "kind": "user" }
+      }
+    }
+  ],
+  "expected": {
+    "volumeMm3": 37699.11184307752,
+    "surfaceAreaMm2": 6283.185307179587,
+    "centerOfMassMm": [0, 0, 15],
+    "boundingBoxMm": [-20, -20, 0, 20, 20, 30],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 3,
+    "edgeCount": 3,
+    "vertexCount": 2
+  }
+}

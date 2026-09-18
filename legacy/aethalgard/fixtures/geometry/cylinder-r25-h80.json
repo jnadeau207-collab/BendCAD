@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "name": "Grounded base-centered cylinder r25 × h80 mm",
+  "notes": "Expected probes are analytic: volume = pi*r^2*h, surface = 2*pi*r*h + 2*pi*r^2. Topology verified against pinned OCCT V8_0_0_p1: 3 faces (lateral, bottom cap, top cap), 3 edges (bottom circle, top circle, lateral seam line), 2 vertices (the seam endpoints shared by both circles).",
+  "operation": {
+    "id": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d61",
+    "type": "create_cylinder",
+    "schemaVersion": 1,
+    "name": "Main boss",
+    "outputBodyId": "018f0f5d-7b3a-7cc1-9d22-7a0a96d30d62",
+    "parameters": {
+      "radius": 25,
+      "height": 80,
+      "placement": {
+        "origin": [0, 0, 0],
+        "zDirection": [0, 0, 1],
+        "xDirection": [1, 0, 0]
+      }
+    },
+    "metadata": {
+      "createdAt": "2026-07-13T00:00:00.000Z",
+      "createdBy": { "kind": "user" }
+    }
+  },
+  "expected": {
+    "volumeMm3": 157079.63267948967,
+    "surfaceAreaMm2": 16493.361431346413,
+    "centerOfMassMm": [0, 0, 40],
+    "boundingBoxMm": [-25, -25, 0, 25, 25, 80],
+    "solidCount": 1,
+    "shellCount": 1,
+    "faceCount": 3,
+    "edgeCount": 3,
+    "vertexCount": 2
+  }
+}
