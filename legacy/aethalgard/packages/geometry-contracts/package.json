@@ -1,0 +1,27 @@
+{
+  "name": "@aeth/geometry-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "aeth": {
+    "target": "isomorphic"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node ../../tools/scripts/remove-paths.mjs dist .tsbuildinfo",
+    "test": "vitest run --maxWorkers=1 --passWithNoTests --testTimeout=15000",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  }
+}

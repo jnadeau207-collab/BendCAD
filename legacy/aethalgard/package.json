@@ -1,0 +1,52 @@
+{
+  "name": "aethalgard",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local-first, agent-native CAD to manufacturing",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
+  "volta": {
+    "node": "24.18.0",
+    "pnpm": "11.17.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "check": "pnpm check:static && pnpm native:test && pnpm native:test:electron",
+    "check:static": "node tools/scripts/check-static-collect.mjs",
+    "cap:freeze": "node tools/scripts/cap-freeze.mjs",
+    "clean": "turbo run clean && node tools/scripts/remove-paths.mjs .turbo",
+    "context:build": "node tools/context/build-context.mjs",
+    "context:check": "node tools/context/check-context.mjs",
+    "context:check-pr": "node tools/context/check-pr-body.mjs",
+    "context:pr": "node tools/context/build-pr-body.mjs",
+    "dev": "turbo run dev --filter=@aeth/desktop",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "native:bootstrap": "node tools/build-native/run-python.mjs tools/build-native/bootstrap.py",
+    "native:build": "node tools/build-native/run-python.mjs tools/build-native/build.py",
+    "native:format": "node tools/build-native/run-python.mjs tools/build-native/format.py --write",
+    "native:format:check": "node tools/build-native/run-python.mjs tools/build-native/format.py",
+    "native:test": "node tools/build-native/run-python.mjs tools/build-native/test.py",
+    "native:test:electron": "node tools/build-native/run-python.mjs tools/build-native/test_electron.py",
+    "test": "node tools/scripts/check-static-workspace.mjs test",
+    "typecheck": "turbo run typecheck",
+    "dist": "pnpm build && node tools/scripts/package-portable.mjs",
+    "pack": "pnpm build && pnpm --filter @aeth/desktop run pack"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.3",
+    "eslint": "10.6.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.3",
+    "prettier": "3.9.5",
+    "turbo": "2.10.4",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.63.0",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/Open-Cascade-SAS/OCCT.git",
+  "tag": "V8_0_0_p1",
+  "commit": "4f95ecaa3b690e34988d42e2ca7fe882e7a8bc7d",
+  "libraryType": "Shared",
+  "installLayout": "Unix",
+  "cxxStandard": 20,
+  "toolkits": [
+    "TKPrim",
+    "TKMesh",
+    "TKDESTEP",
+    "TKShHealing",
+    "TKBool",
+    "TKFillet",
+    "TKOffset",
+    "TKLCAF",
+    "TKCAF"
+  ],
+  "modulesDisabled": [
+    "FoundationClasses",
+    "ModelingData",
+    "ModelingAlgorithms",
+    "Visualization",
+    "ApplicationFramework",
+    "DataExchange",
+    "Draw"
+  ],
+  "optionalDependenciesDisabled": [
+    "TCL",
+    "TK",
+    "FREETYPE",
+    "XLIB",
+    "OPENGL",
+    "TBB"
+  ],
+  "abi": {
+    "linux": "shared ELF, GCC-compatible C++20 ABI",
+    "macos": "shared Mach-O, AppleClang-compatible C++20 ABI",
+    "windows": "shared PE/COFF, MSVC-compatible C++20 ABI"
+  },
+  "patches": []
+}
