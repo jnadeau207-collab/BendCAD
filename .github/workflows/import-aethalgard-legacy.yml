@@ -4,13 +4,14 @@ on:
   push:
     paths:
       - ".github/workflows/import-aethalgard-legacy.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   recover:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Recover exact Aethalgard tree and push it
@@ -18,38 +19,44 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TARGET_REPO: ${{ github.repository }}
+          SOURCE_REPO: jnadeau207-collab/reepo
           SOURCE_SHA: 1eab12971dcb22c0b75f9d3714ba377d86ab36b5
+          LEGACY_TIP: eeca9ad782640f97bc15423e72319acea310d36f
+          ARCHIVE_MANIFEST: 213180dd5b2d0c805ae9610bf88be5cd82111b0f
         run: |
           set -euo pipefail
 
-          rm -rf /tmp/bendcad /tmp/aethalgard
+          rm -rf /tmp/bendcad /tmp/aethalgard /tmp/aethalgard.tar.gz
           git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" /tmp/bendcad
 
-          git init /tmp/aethalgard
-          git -C /tmp/aethalgard remote add origin https://github.com/jnadeau207-collab/reepo.git
-          git -C /tmp/aethalgard fetch --depth=1 origin "${SOURCE_SHA}"
-          test "$(git -C /tmp/aethalgard rev-parse FETCH_HEAD)" = "${SOURCE_SHA}"
+          # The old branch refs were deleted during the VibeCAD migration, but
+          # GitHub still retains the preserved commit objects. Download the exact
+          # commit archive directly instead of trying to fetch an unadvertised SHA.
+          mkdir -p /tmp/aethalgard
+          curl --fail --location --retry 3             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             -H "User-Agent: BendCAD-Recovery"             "https://api.github.com/repos/${SOURCE_REPO}/tarball/${SOURCE_SHA}"             -o /tmp/aethalgard.tar.gz
+          tar -xzf /tmp/aethalgard.tar.gz -C /tmp/aethalgard --strip-components=1
 
           cd /tmp/bendcad
           rm -rf legacy/aethalgard
           mkdir -p legacy/aethalgard
-          git -C /tmp/aethalgard archive FETCH_HEAD | tar -x -C legacy/aethalgard
+          cp -a /tmp/aethalgard/. legacy/aethalgard/
 
-          mkdir -p legacy
-          cat > legacy/AETHALGARD_RECOVERY.md <<'EOF'
+          cat > legacy/AETHALGARD_RECOVERY.md <<EOF
           # Recovered Aethalgard source
 
           This directory preserves the final pre-VibeCAD Aethalgard working-tree snapshot as reference/oracle material for BendCAD.
 
-          - Original repository: `jnadeau207-collab/reepo`
-          - Recovered snapshot: `1eab12971dcb22c0b75f9d3714ba377d86ab36b5`
+          - Original repository: `${SOURCE_REPO}`
+          - Recovered snapshot: `${SOURCE_SHA}`
           - Snapshot message: `archive: preserve local worktree before VibeCAD migration`
-          - Preserved legacy branch tip: `eeca9ad782640f97bc15423e72319acea310d36f`
-          - Consolidated archive manifest: `213180dd5b2d0c805ae9610bf88be5cd82111b0f`
+          - Preserved legacy branch tip: `${LEGACY_TIP}`
+          - Consolidated archive manifest: `${ARCHIVE_MANIFEST}`
 
           The tree under `legacy/aethalgard/` is an archive, not BendCAD's implementation.
 
-          BendCAD must not silently call OCCT/FreeCAD and claim that the resulting geometry kernel is Bend-native. The archived implementation is retained for requirements, regression fixtures, topology/reference semantics, test cases, and differential/oracle comparison while equivalent native Bend functionality is developed.
+          The current production Aethalgard application remains separate and is not being rewritten in Bend.
+
+          BendCAD must not silently call OCCT/FreeCAD and claim the result is a Bend-native kernel. This archive is retained for requirements, regression fixtures, topology/reference semantics, tolerance policy, test cases, and differential/oracle comparison while equivalent Bend-native functionality is developed.
           EOF
 
           test -f legacy/aethalgard/native/kernel-host/src/geometry.cpp
@@ -66,7 +73,5 @@ jobs:
           git config user.email "bendcad-archive@users.noreply.github.com"
           git add legacy
           git diff --cached --quiet && exit 0
-          git commit -m "archive: recover pre-VibeCAD Aethalgard snapshot"
+          git commit -m "archive: recover complete pre-VibeCAD Aethalgard snapshot"
           git push origin HEAD:main
-
-# manual recovery trigger 2026-09-18
