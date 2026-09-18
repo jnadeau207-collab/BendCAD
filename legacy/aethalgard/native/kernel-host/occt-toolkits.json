@@ -1,0 +1,27 @@
+{
+  "description": "Canonical OCCT toolkit link set for the kernel host. Single source of truth consumed by BOTH native/kernel-host/CMakeLists.txt (target_link_libraries) and tools/build-native/native_tooling.py (occt_install_is_current cache validation), so the cache check can never validate fewer toolkits than the host actually links. Deliberately kept OUT of occt.manifest.json: editing this link list must not change the OCCT source-build fingerprint and trigger a full multi-hour OCCT rebuild.",
+  "toolkits": [
+    "TKernel",
+    "TKMath",
+    "TKG2d",
+    "TKG3d",
+    "TKGeomBase",
+    "TKBRep",
+    "TKGeomAlgo",
+    "TKTopAlgo",
+    "TKPrim",
+    "TKBO",
+    "TKBool",
+    "TKFillet",
+    "TKOffset",
+    "TKMesh",
+    "TKShHealing",
+    "TKDE",
+    "TKXSBase",
+    "TKDESTEP",
+    "TKLCAF",
+    "TKCAF",
+    "TKXCAF",
+    "TKHLR"
+  ]
+}
