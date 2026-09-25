@@ -75,7 +75,10 @@ All packet pins reproduced independently: 2000.0/20.0/25.4/5.0 bit
 patterns, +Inf/-Inf/DBL_MAX/-0.0 patterns, op_id(req_len_ok) =
 13445760837015884352 (matches the contract §9 golden, which lives only in
 prose — no .bend file pins it), publish checksum 1099231252310917555.
-Zero mismatches.
+Zero mismatches. Scope: the oracle pins exact numerical values and
+hashes only; it does not re-implement or verify the evaluator's control
+semantics (verdict arms, cancellation/fuel ordering, atomicity), which
+are covered by the suite (§3) and the Class C–E attacks (§5).
 
 ## 5. Adversarial attacks (probes /tmp/c00-attack1.bend, /tmp/c00-attack2.bend)
 
@@ -85,13 +88,15 @@ lanes (`cmp` clean). sha256:
   atk1: 4ce5257376cd089b572dc984e3abe687aa7a3f7108a13154b86943f7c3b49150 (x3)
   atk2: 1d4c2f93d55e65a3aa36e3b7ddf7fbe6d78a6420420390b03198a90823c315c4 (x3)
 
-Class A — malformed input must not publish (16 attempts, all HELD:
-structured kind + model unchanged; boundary-valid attempts published):
+Class A — malformed input must not publish (14 attempts, all HELD:
+structured kind + model unchanged), plus 2 boundary-valid controls
+(published, correct; they guard against over-rejection, not attacks):
   neg-len-m, isect-badord2 (2nd interval), zero-tol ang/imp, neg-tol,
   nan-tol-par, inf-tol-apx, ninf-tol-lin, unk-tag1 (op_tag-collision
-  attempt vs K_len), unk-tag3, bytes-at-ceiling (publishes, correct),
-  bytes-zero-zero (publishes, correct), isect-nan-p2, isect-inf-p1,
-  len-nan-p1-unused, len-inf-p2-unused.
+  attempt vs K_len), unk-tag3, isect-nan-p2, isect-inf-p1,
+  len-nan-p1-unused, len-inf-p2-unused;
+  boundary-valid: bytes-at-ceiling (publishes, correct),
+  bytes-zero-zero (publishes, correct).
 Class B — NaN/Inf smuggling, all F64 entry paths (11 attempts, all HELD):
   sNaN-payload 0x7FF0...001, negative-NaN 0xFFF8..., -Inf p0 rejected;
   min-subnormal and DBL_MAX in mm publish (no over-rejection);
@@ -140,9 +145,9 @@ cancellation cannot publish partial or nonfinite geometry.
 
 Verdict: PASS. Evidence: 16/16 neg + 13/13 positive suite checks green on
 three byte-identical lanes; 49/49 adversarial attacks held on three
-byte-identical lanes (16 malformed, 11 nonfinite/overflow, 6
-cancellation-order, 8 fuel-honesty, 8 handle-reuse/no-leak); every
-failure/incomplete arm returns the input model (laws + tests);
-normalization overflow fails as numerical-uncertainty, never geometry;
-every published witness is pinned to an exact finite bit pattern and
-independently reproduced.
+byte-identical lanes (14 malformed + 2 boundary-valid controls, 11
+nonfinite/overflow, 6 cancellation-order, 8 fuel-honesty, 8
+handle-reuse/no-leak); every failure/incomplete arm returns the input
+model (laws + tests); normalization overflow fails as
+numerical-uncertainty, never geometry; every published witness is pinned
+to an exact finite bit pattern and independently reproduced.
