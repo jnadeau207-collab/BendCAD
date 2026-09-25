@@ -1,0 +1,217 @@
+# C01 verification receipt — 2026-09-25 (FINAL, single receipt)
+
+Packet: C01 mathematical foundation (MASTER_PLAN §10).
+Role: adversarial re-verifier of the FIXED packet. This file OVERWRITES
+and supersedes the implementor's same-dated receipt (resolving the
+implementor/verifier collision): every number below was observed this
+session by running the listed commands. Nothing committed, pushed, or
+amended; nothing fixed by the verifier (fix nothing — report only).
+
+## 1. Provenance
+
+BendCAD HEAD: 9ccfc4ea58ec6bb5af5f55eb449ef96dae5d5e40 (branch main)
+git status --porcelain (packet files untracked/new; no other edits):
+   M docs/receipts/c00-2026-09-25.txt   (concurrent agent's edit, untouched)
+   M docs/replacement-ledger.md         (C01 rows appended)
+  ?? docs/c01-contract.md
+  ?? docs/receipts/c01-2026-09-25.txt   (this file)
+  ?? laws/c01.bend
+  ?? src/c01/
+  ?? tests/c01/
+legacy/ status: clean (`git status --porcelain legacy/` empty; immutable
+reference untouched).
+
+BEND_PIN (root file): jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK:
+  fork: https://github.com/jnadeau207-collab/bend
+  commit: 50ec219a6b5c52316f4d1622816cceedd437fa95
+  tag: numeric/2026-09-25
+  date: 2026-09-25T17:33:09Z
+  built: bun build --compile --target=bun-linux-x64 ./bend2/main.ts
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bun 1.4.2.
+
+sha256 of every packet file (+ ledger):
+  12ad4696b5f62d863d2eb9a33f4d2d0da19d6a5953180f6e3f80efb55a0fe439  docs/c01-contract.md
+  1d0bdfbc81a05edff6ca806edebbd025b62a5271592068b25114dc06225ad9fc  src/c01/types.bend
+  bdb0b650566d2da226bc0c9f7e81381c185ce72b3068af58e952ea56138df775  src/c01/ops.bend
+  7e8ba9c240ee64159a1d30cd946a96b4fb4f24d72f69080ac093246bded29703  laws/c01.bend
+  811cb867ebd16df20c5696a7195371f55becc6a391beb8e3b9112e26769ff9c6  tests/c01/check.bend
+  eb2f940911cf3362fd85903cfee0b3fb2bfe59d53dc8e61f2307148e53a2819c  tests/c01/neg.bend
+  1b6e3c2d5598eac32d50d9e2740bdef98591b7423761c2481026263b6f60654d  tests/c01/pos.bend
+  d2f41a34de0b0b648060aec88df4a42b159fbae09afba93f4db21b1c094239d4  docs/replacement-ledger.md
+
+Note vs the superseded implementor receipt: laws/c01.bend and the ledger
+hashes are BYTE-IDENTICAL to it (laws provably unweakened); the other
+five packet files differ by the fix (input gates in ops.bend, Finding 4
+comment in types.bend, v2 reporters in check.bend, regression tests in
+neg/pos.bend, §3/§5/§7 contract updates). All changed content was read in
+full and audited strict (see §6).
+
+Attack probes (verifier-owned, /tmp; tree /tmp/vatk/src is a symlink to
+repo src/, diff-clean on all three src files):
+  6f6397182989503c1e8d7d9de8d5d823159230289bb0b1c03fe9e82ab1a8a03c  /tmp/vatk/tests/c01/vattack.bend
+  942160457e4435bdfb5908d8b37e533d4fedc87d2aa781da2655603d93b9380a  /tmp/vatk/tests/c01/vnan.bend
+  c01266795e45db8626d901ddbb1d69886e87d898bea7bf802c957fec44ab90cd  /tmp/vatk/tests/c01/vnew.bend (this session's new variants)
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c01/types.bend --check-only     # exit 0
+  bend src/c01/ops.bend --check-only      # exit 0
+  bend laws/c01.bend --check-only         # exit 0; 34 `law` decls, each with a proving def
+  bend tests/c01/check.bend --check-only  # exit 0
+
+34 laws confirmed by `grep -c '^law ' laws/c01.bend` (= 34). Bend fails a
+file with any unproven law, so check-only exit 0 proves all 34 closed.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c01/neg.bend                 # 69 PASS, selfcheck fails=0, exit 0
+  bend tests/c01/pos.bend                 # 44 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c01/neg.bend -o /tmp/vre/c01-neg-native && /tmp/vre/c01-neg-native
+                                          # build 0, 69 PASS, fails=0, exit 0
+  bend tests/c01/pos.bend -o /tmp/vre/c01-pos-native && /tmp/vre/c01-pos-native
+                                          # build 0, 44 PASS, fails=0, exit 0
+JS:
+  bend tests/c01/neg.bend -o /tmp/vre/c01-neg.js && bun /tmp/vre/c01-neg.js
+                                          # build 0, 69 PASS, fails=0, exit 0
+  bend tests/c01/pos.bend -o /tmp/vre/c01-pos.js && bun /tmp/vre/c01-pos.js
+                                          # build 0, 44 PASS, fails=0, exit 0
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all pairs):
+  neg: e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf (x3)
+  pos: 081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd (x3)
+
+The suite grew purely additively: the original 26 neg tags (neg-nan-v3
+… neg-no-nan-leak, tests/c01/neg.bend:32-111) and 21 pos tags
+(pos-norm-345 … pos-frame-local, tests/c01/pos.bend:64-130) are intact
+in order with unchanged expectations; the fix appended 43 neg
+(norm-family gates, neg-norm-*/neg-unit*/neg-dist*/neg-seg-nan/
+neg-pdist-nan/neg-drunit-nan/neg-grad-nan/neg-basis-nan*/neg-dot-nan-unc/
+neg-inv-nan-unc/neg-nan-proj-zero) and 23 pos checks (Finding 2/3/4 rows).
+
+## 4. Independent oracle cross-checks (python struct + scaled-norm, this session)
+
+39/39 pins reproduced by an independent oracle (`/tmp/vre/voracle.py`,
+exit 0, zero mismatches): all 30 implementor pins re-checked plus the 9
+fix-era new pins (14.0/4.0/8.0/-1.0 exact bits, v2norm 1e300-pair and
+subnormal-pair scaled outputs, subnormal-normalize derivations
+MSUB/rnorm(MSUB³)=0.5 and MSUB/rnorm(MSUB²)=1.0 exact, 1/1e-300
+scaled-adjugate path), plus sNaN/neg-NaN class checks. A literal audit
+additionally confirmed every `Nu64` literal in the six packet .bend
+files is a pinned value above, the sNaN class literal, or a small
+integer — zero UNLISTED. Scope: the oracle pins exact numerical values
+only; control semantics (failure arms, threshold routing) are covered by
+the suite (§3) and the attacks (§5).
+
+## 5. Adversarial attacks, three lanes each
+
+### 5a. Prior verifier probe vattack.bend (112 checks: f1..f112)
+
+Identical on all three lanes (build/run exit 0 everywhere; stdout
+byte-identical, `cmp` clean; sha256
+e3f9ae072eb302fb838ab849ac3048495cb57a5635534e7d2d29cfa789dd5e3d x3):
+105 exact-PASS + 7 kind-mismatches, ZERO ok-publications, ZERO NaN leaks.
+
+The 7 mismatches are STALE PROBE EXPECTATIONS, not packet defects: the
+probe (written pre-fix) expects "numerical-uncertainty" for raw-NaN
+smuggled into the norm family, while the fixed contract (§3 gate list,
+§7) deliberately reports "invalid-input" for nonfinite norm-family
+input. All 7 fail closed with the structured fixed-contract kind:
+  a-raw-norm-nan/nan1/nan2, a-raw-v2norm-nan, a-raw-pdist-nan,
+  a-raw-seg-nan, a-raw-basis-nan — each FAIL [invalid-input], projector
+  zeroes asserted by a-proj-zero (PASS).
+Fail-closed criterion (structured kind, no ok+0.0): 112/112 on all lanes.
+
+Everything else green, including the independent cross-checks of the
+fix: G-section unpinned-op pins (a-v2norm-34 … a-v2neg) match the new
+pos pins bit-for-bit; echo-sub3/sub2/subd lines match the
+pos-unit-sub3/sub2/drunit-sub3 pins; echo-kind confirms the Finding 4
+convention; threshold straddles (H), overflow arms (I), and the
+subnormal/degenerate/inverse-boundary families all hold.
+
+### 5b. Finding-1 repro probe vnan.bend (11 echo lines, no asserts)
+
+Identical on all three lanes (exit 0; sha256
+21a937fbbf1f11eef74b42ac70bc9fc877bd425ef9a31dd812a9086d23818a2c x3):
+all 9 nonfinite norm repros now fail closed —
+n-v3-n00/0n0/00n/nnn, n-v2-n0/0n/nn, n-v3-i00/0i0 each show=invalid-input
+bits=0 (previously ok+0.0: the Finding-1 NaN-swallow is gone).
+n-inv-1em300/n-inv-1e300 publish ok with exact scale-free diagonals
+(a=e=i=9094988921128908187 / 118622047889322841).
+
+### 5c. NEW variants vnew.bend, this session (36 checks, 5 families)
+
+36/36 PASS on all three lanes (build/run exit 0; stdout byte-identical,
+`cmp` clean; sha256
+0bb97d6634a4a05d66bfbe2584f686b66e9aae24424ebf5b9dc9e2d3157412b6 x3):
+- N1 (8): sNaN/negative-NaN payloads through every new gate (v3/v2
+  norm, v3 normalize, dr_unit, seg_dir, frame_basis, v3 dist, p_dist)
+  → all invalid-input.
+- N2 (9): NaN-position sweep over all 9 m3_inv slots (F64.max keeps
+  `a` unless ordered-less, so each slot stresses m3_maxabs
+  differently) → all numerical-uncertainty.
+- N3 (7): -0.0 vs +0.0 in every zero arm — norms publish +0.0 bits 0,
+  all three normalizes → invalid-input, all-neg-zero m3_inv →
+  uncertain, neg-zero frame origin → ok (valid input).
+- N4 (8): Inf-minus-Inf (p_minus_p, p_plus_d, d_add), 0*Inf
+  (v3_scale) → uncertain; true-overflow arms of v3/v2 dist and
+  v3_normalize → uncertain; frame_basis dd-overflow path
+  (z=(1,1,0), x=(DBL,DBL,0): dd=+Inf) → uncertain.
+- N5 (4): m3_is_rot(Inf) is False; raw rigid compose/apply_v with
+  smuggled NaN → uncertain; neg-NaN/sNaN failure projectors are zero.
+
+## 6. Negative confirmations and Finding 2-4 resolution
+
+- No weakened test/law: laws/c01.bend is byte-identical to the
+  implementor receipt's hash (7e8ba9c2…, §1) with all 34 proofs
+  definitional {==}; every neg check asserts the exact kind string and
+  every pos check pins exact bits or exact show; the 5 report_pure
+  call sites assert real predicates (bit-equalities / show-equalities,
+  neg.bend:104,246; pos.bend:112,188,220) — no trivially-true check
+  (`grep` for report_pure(..., True{}) clean); test growth is purely
+  additive (§3).
+- Finding 2 (unpinned ops): RESOLVED — 18 budgeted-op pins present
+  (pos-v2norm-34 … pos-pminus, pos.bend:132-200) and green (44/44),
+  cross-confirmed by independent vattack G-pins (all PASS).
+- Finding 3 (normalize tolerance): RESOLVED — tolerance stated per-op
+  in contract §5 with the honest subnormal exclusion (§5 ¶141-150,
+  §10), pinned by pos-unit-is-unit (exactly 1.0) and pos-unit-sub3/
+  sub2/drunit-sub3 (exact non-unit bits), all green.
+- Finding 4 (cres_kind wart): RESOLVED as documented convention —
+  types.bend:95-97 + contract §7 document that Cok yields F_invalid
+  and callers must gate on cres_ok/cres_show; pinned by pos-kind-doc,
+  green; vattack echo-kind confirms the behavior.
+- No placeholder: `grep -rni 'TODO|FIXME|placeholder|unimplemented|
+  admit|sorry'` over src/c01 laws/c01.bend tests/c01 returns nothing.
+- No @unsafe in code; no F32/f32 in authoritative values (both greps
+  clean over src/c01 laws/c01.bend tests/c01).
+- No naive norm: `F64.sqrt` occurs exactly twice in src/c01, both
+  inside the scaled definitions (ops.bend:101,115). `F64.max` occurs
+  at exactly three sites: v3_norm_raw (ops.bend:106) and v2_norm_raw
+  (:119), both gated on input finiteness at every publishing entry
+  (contract §3 gate list), and m3_maxabs (:537-544), whose NaN either
+  poisons the scaled determinant or trips the zero arm — both
+  uncertain (swept N2, all 9 slots). No `F64.min` anywhere.
+- No point+point: `grep -rn 'p_plus_p|point_add|pt_add'` clean —
+  separation holds by construction (contract M4).
+
+## 7. Exit-criteria verdict
+
+Criterion (MASTER_PLAN §10/C01): numerical tests cover extreme scales,
+near-singular frames, and round-trip transforms within stated bounds.
+
+Verdict: PASS. Evidence: 44/44 pos + 69/69 neg suite checks green on
+three byte-identical lanes (scales 5e-324..1.8e308 incl. DBL_MAX axis,
+1e±300, min subnormal; near-singular inverse diag(1,1,1e-13) and
+threshold-straddling frames; exact Rz90 round-trip + compose-with-
+inverse identity + frame world/local maps); 34/34 laws proven;
+112/112 old attack checks fail closed on three byte-identical lanes
+(105 exact + 7 stale-kind, all structured Cerr, zero ok+0.0); 9/9
+Finding-1 NaN repros now fail closed as invalid-input with zero
+projectors; 36/36 new NaN-swallow/zero-sign/Inf-arithmetic variants
+fail closed (or publish exact pinned values) on three byte-identical
+lanes; every published witness is pinned to an exact finite bit pattern
+and independently reproduced (39/39 oracle pins, literal audit clean).
