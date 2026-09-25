@@ -1,0 +1,148 @@
+# C00 verification receipt — 2026-09-25 (adversarial re-verification)
+
+Packet: C00 contracts and failure semantics (MASTER_PLAN §10).
+Verifier role: adversarial; fixed nothing. All evidence below was observed
+this session by reading the listed file bodies in full and running the
+listed commands. Nothing committed, pushed, or amended.
+
+## 1. Provenance
+
+BendCAD HEAD: f6273b4af6ef67dfb67de494b443f5a5152d6de0 (branch main)
+git status (packet dirs untracked, no tracked file modified):
+  ?? docs/
+  ?? laws/
+  ?? src/
+  ?? tests/
+legacy/ status: clean (immutable reference untouched).
+
+BEND_PIN (root file): jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK:
+  fork: https://github.com/jnadeau207-collab/bend
+  commit: 50ec219a6b5c52316f4d1622816cceedd437fa95
+  tag: numeric/2026-09-25
+  date: 2026-09-25T17:33:09Z
+  built: bun build --compile --target=bun-linux-x64 ./bend2/main.ts
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1.
+
+sha256 of every packet .bend file (+ contract docs):
+  8a65740d7118fc27a73903074a41186edfc0ee40078570d15e4e59eee87fb232  src/c00/types.bend
+  c35fe195c2a31734b32e7e81275884b351ccb89f015aa71b8ff1ffda015d6512  src/c00/eval.bend
+  47e07961972523da3eaee88fd1e634b20933b6c8b26b2a37dd90fc38673c2d2e  laws/c00.bend
+  e7063341ad8647bdc166892a82dec85138e3a4fd506cf34d78039c98bf97496c  tests/c00/check.bend
+  f8e78d2244ca4ed0a437e58001282ec8e68157f0b3577ecb4b98e3c442cc31ac  tests/c00/neg.bend
+  dcef6f9fdf717dddd2c57cf7012ec2a8fd7ed0d9645cd323282ed8c4e9f352d6  tests/c00/positive.bend
+  f6cd68753fd6e406008d72d96ab2cfd84955dbc24d5ed53ec125c81dfa3295d5  docs/c00-contract.md
+  2d2235c2387fc70b46051d56246e2f00447dd20112479c28b804ad6a0f66a298  docs/replacement-ledger.md
+
+Files read in full: docs/c00-contract.md, src/c00/types.bend,
+src/c00/eval.bend, laws/c00.bend, tests/c00/check.bend, tests/c00/neg.bend,
+tests/c00/positive.bend, docs/replacement-ledger.md.
+
+## 2. Static gates (exact commands, all exit 0, stdout "All terms check.")
+
+  bend src/c00/types.bend --check-only     # exit 0
+  bend src/c00/eval.bend --check-only      # exit 0
+  bend laws/c00.bend --check-only          # exit 0, 38 `law` decls each with a proving def
+  bend tests/c00/check.bend --check-only   # exit 0
+
+38 laws confirmed by `grep -c '^law ' laws/c00.bend` (= 38). Bend fails a
+file with any unproven law, so check-only exit 0 proves all 38 closed.
+
+## 3. Full suite, three lanes (exit 0 everywhere, stderr empty)
+
+Interpreted:
+  bend tests/c00/neg.bend                 # 16 PASS, selfcheck fails=0, exit 0
+  bend tests/c00/positive.bend            # 13 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c00/neg.bend -o /tmp/c00-neg-native && /tmp/c00-neg-native
+                                          # build 0, 16 PASS, fails=0, exit 0
+  bend tests/c00/positive.bend -o /tmp/c00-pos-native && /tmp/c00-pos-native
+                                          # build 0, 13 PASS, fails=0, exit 0
+JS:
+  bend tests/c00/neg.bend -o /tmp/c00-neg.js && bun /tmp/c00-neg.js
+                                          # build 0, 16 PASS, fails=0, exit 0
+  bend tests/c00/positive.bend -o /tmp/c00-pos.js && bun /tmp/c00-pos.js
+                                          # build 0, 13 PASS, fails=0, exit 0
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all pairs):
+  neg: 197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a (x3)
+  pos: 5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79af225b0c0c1ba2be496 (x3)
+
+## 4. Independent oracle cross-checks (python struct + FNV-1a, this session)
+
+All packet pins reproduced independently: 2000.0/20.0/25.4/5.0 bit
+patterns, +Inf/-Inf/DBL_MAX/-0.0 patterns, op_id(req_len_ok) =
+13445760837015884352 (matches the contract §9 golden, which lives only in
+prose — no .bend file pins it), publish checksum 1099231252310917555.
+Zero mismatches.
+
+## 5. Adversarial attacks (probes /tmp/c00-attack1.bend, /tmp/c00-attack2.bend)
+
+Each probe ran on all three lanes (interpreted, native -o+run, JS -o+bun):
+build exit 0, run exit 0, selfcheck fails=0, stdout byte-identical across
+lanes (`cmp` clean). sha256:
+  atk1: 4ce5257376cd089b572dc984e3abe687aa7a3f7108a13154b86943f7c3b49150 (x3)
+  atk2: 1d4c2f93d55e65a3aa36e3b7ddf7fbe6d78a6420420390b03198a90823c315c4 (x3)
+
+Class A — malformed input must not publish (16 attempts, all HELD:
+structured kind + model unchanged; boundary-valid attempts published):
+  neg-len-m, isect-badord2 (2nd interval), zero-tol ang/imp, neg-tol,
+  nan-tol-par, inf-tol-apx, ninf-tol-lin, unk-tag1 (op_tag-collision
+  attempt vs K_len), unk-tag3, bytes-at-ceiling (publishes, correct),
+  bytes-zero-zero (publishes, correct), isect-nan-p2, isect-inf-p1,
+  len-nan-p1-unused, len-inf-p2-unused.
+Class B — NaN/Inf smuggling, all F64 entry paths (11 attempts, all HELD):
+  sNaN-payload 0x7FF0...001, negative-NaN 0xFFF8..., -Inf p0 rejected;
+  min-subnormal and DBL_MAX in mm publish (no over-rejection);
+  DBL_MAX in cm/inch and isect overflow in m/inch fail as
+  numerical-uncertainty; -0.0 tolerance rejected; all ok-value witnesses
+  finite.
+Class C — cancel mid-publish (6 attempts, all HELD): valid, malformed,
+  fuel0, bytes-over, unknown-op, and overflow requests with
+  cancelled=True all report `cancelled` with the model unchanged —
+  cancellation is honored before any content inspection.
+Class D — fuel exhaustion mid-candidate (8 attempts, all HELD): fuel0
+  valid/malformed -> Incomplete used=0 (starved, nothing inspected);
+  fuel1 valid/unknown-op -> Incomplete used=1; fuel1 malformed ->
+  invalid-input (verdict not masked); fuel1 bytes-over ->
+  resource-exhausted; fuel=2^64-1 publishes; Incomplete model resumes
+  with fuel 2 publishing under the SAME op_id.
+Class E — stale/candidate handle reuse after failure (8 attempts, all HELD):
+  Failed and Incomplete outcome models are reusable and resume/publish
+  exactly once (rev/count +1 per publish; fail-then-publish chain 0->1->2);
+  projectors leak nothing: outcome_value is 0.0 on Failed/Incomplete/Empty,
+  outcome_fuel_used is 0 on Ok/Failed; Candidate values are unobtainable
+  (constructed and consumed inside eval.bend only).
+Observation (not a failure — contract §2 lists no such arm): a request
+  with rev=999 against the seed model publishes ok-value rev=1; request
+  rev is consumed only by op_id. Generational enforcement arrives in C04.
+
+## 6. Negative confirmations
+
+- No weakened test/law: every neg check asserts kind AND model_equal
+  (tests/c00/check.bend:37-40); positive checks pin exact F64 bit patterns
+  and rev/count +1; general laws quantify over all models/requests
+  (cancel_atomic, opid_excludes_fuel/cancel/bytes); proofs are
+  definitional {==} after match-splitting, the Bend proof form.
+- No placeholder: every def has a body; `grep -rni 'TODO|FIXME|
+  placeholder|unimplemented|admit|sorry'` hits only prose comments
+  (src/c00/eval.bend:2, src/c00/types.bend:46, laws/c00.bend:2).
+- No @unsafe in geometry paths: zero code uses; sole mention is the
+  eval.bend:2 comment stating its absence.
+- No F32 in authoritative values: `grep -rn 'F32|f32'` over
+  src/ laws/ tests/ returns nothing (exit 1).
+
+## 7. Exit-criteria verdict
+
+Criterion (MASTER_PLAN §10/C00): malformed input and deliberate
+cancellation cannot publish partial or nonfinite geometry.
+
+Verdict: PASS. Evidence: 16/16 neg + 13/13 positive suite checks green on
+three byte-identical lanes; 49/49 adversarial attacks held on three
+byte-identical lanes (16 malformed, 11 nonfinite/overflow, 6
+cancellation-order, 8 fuel-honesty, 8 handle-reuse/no-leak); every
+failure/incomplete arm returns the input model (laws + tests);
+normalization overflow fails as numerical-uncertainty, never geometry;
+every published witness is pinned to an exact finite bit pattern and
+independently reproduced.
