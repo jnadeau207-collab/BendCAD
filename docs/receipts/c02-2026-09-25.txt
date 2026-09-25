@@ -1,0 +1,180 @@
+# C02 verification receipt — 2026-09-25 (implementation + adversarial differential)
+
+Packet: C02 robust predicates and exact-number support (MASTER_PLAN §10).
+Every number below was observed this session by running the listed
+commands. Nothing committed, pushed, or amended; `legacy/` untouched.
+
+## 1. Provenance
+
+BendCAD HEAD: 79077fb (c01: mathematical foundation with laws, tests,
+receipt; branch main)
+git status --porcelain (packet files untracked/new; no other edits):
+  ?? docs/c02-contract.md
+  ?? laws/c02.bend
+  ?? src/c02/
+  ?? tests/c02/
+   M docs/replacement-ledger.md         (C02 rows appended)
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+
+BEND_PIN (root file): jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK:
+  fork: https://github.com/jnadeau207-collab/bend
+  commit: 50ec219a6b5c52316f4d1622816cceedd437fa95
+  tag: numeric/2026-09-25
+  date: 2026-09-25T17:33:09Z
+  built: bun build --compile --target=bun-linux-x64 ./bend2/main.ts
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bun 1.4.2. `bend update` never run.
+
+sha256 of every packet file (+ ledger):
+  0d8caea490c925addecc9fa6375e017818332766231e54834ceba062becef6dd  docs/c02-contract.md
+  d4970b1c9abb5da9843055e9506f2b0986366888d794a3d8f854e137150c857d  src/c02/types.bend
+  395ec861c7f12590355cd0f3e178bf1d0abe0ba0bef5926d7278f922cf944fae  src/c02/ops.bend
+  84f69eacb8593139140ded1a774b28445a30e3165879f1b9d339bf0ecb2da356  laws/c02.bend
+  19b9aaf5ca85d6c814478f29894ab0a691ef355af493742b53a9ec06032119a5  tests/c02/check.bend
+  a7fedf1d7bd895b21ed5fd0af77a1934f94059a322370765171f9695c53eec3b  tests/c02/neg.bend
+  3a76e868df0864bcfab178fc3cab96930227dcbdf74e71a03261f1ba1e3f22d8  tests/c02/pos.bend
+  fd228c40d4c4cefc23d9e73511b827c6fb1ad87b6322dbd69542273870153f9c  docs/replacement-ledger.md
+
+Oracle/probe scripts (implementor-owned, /tmp; /tmp/c02probe/src is a
+symlink to the repo src/, so probes test the exact bytes above):
+  285dc4c0d9f62a75b97338c9c4a9a5fec1074691d64b99a0bac6c0e7fac676a0  /tmp/c02_oracle.py
+  395d8591b4f0a151d491608b9c7f21202e098049d96800c6e1142403c815c804  /tmp/c02stress_gen.py
+  86f83b108a6ae6404be56b929fcbc1baf681d984482e613d294b5a030d641627  /tmp/c02stress_gen2.py
+  567f0ac0d9ad676b8d2c414876d09777cddcd57aecee767338040fbc128c4dc1  /tmp/c02probe/probe7.bend
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c02/types.bend --check-only     # exit 0
+  bend src/c02/ops.bend --check-only      # exit 0
+  bend laws/c02.bend --check-only         # exit 0; 51 `law` decls, each with a proving def
+  bend tests/c02/check.bend --check-only  # exit 0
+
+51 laws confirmed by `grep -c '^law ' laws/c02.bend` (= 51): 8 fully
+general structural laws (match-split over Sign/FailKind/Xrel/Tcls)
+plus 43 instances (5 small-int domain, 11 orient2d, 5 orient3d,
+5 incircle, 5 insphere, 7 seg_seg, 5 tri_class). Bend fails a file
+with any unproven law, so check-only exit 0 proves all 51 closed.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c02/neg.bend                 # 24 PASS, selfcheck fails=0, exit 0
+  bend tests/c02/pos.bend                 # 34 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c02/neg.bend -o /tmp/c02-neg-n && /tmp/c02-neg-n
+                                          # build 0, 24 PASS, fails=0, exit 0
+  bend tests/c02/pos.bend -o /tmp/c02-pos-n && /tmp/c02-pos-n
+                                          # build 0, 34 PASS, fails=0, exit 0
+JS:
+  bend tests/c02/neg.bend -o /tmp/c02-neg.js && bun /tmp/c02-neg.js
+                                          # build 0, 24 PASS, fails=0, exit 0
+  bend tests/c02/pos.bend -o /tmp/c02-pos.js && bun /tmp/c02-pos.js
+                                          # build 0, 34 PASS, fails=0, exit 0
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all pairs):
+  neg: 8b9a30e140baa4ee76934f5cd5a3a58b48ead74ecfadf822b6c9f4eed4b932f6 (x3)
+  pos: 245a65acd57bf0e8912e279be4124cfd65a3447a06e31178f84d1319c4070d (x3)
+
+## 4. Independent oracle cross-checks (this session)
+
+`/tmp/c02_oracle.py` computes exact truth with python `Fraction` on
+the exact supplied F64 values (per the spec, exactness is about the
+supplied coordinates) and models the F64 filter path op-for-op
+(same parenthesization as `ops.bend`). All 26 pinned
+routing predictions confirmed: 9 filter certifications (4 shortcut,
+3 bound, 2 P0/N0), 4 rep-zero, 2 gate-fail overflow/floor, 5 exact
+zeros, 1 nonzero exact win (o2-near: true det −1, F64 det −1.0,
+detsum 2251799947902977.0, bound ≈ 2.0 → fallback → exact neg),
+5 honest uncertains (all with nonzero true signs: −2^-49, −2^-47,
+−3.55e-15, −7.11e-15 forms), plus the computed-zero case
+(tri edge: computed det exactly 0.0, true det +4 → uncertain).
+Bit literals (filter constants 2^-50..2^-47, floor 2^-960, 2^25
+family, 2^26 boundary pair, 2±ulp, 1±ulp, 1e150, 2^-500, 2^60)
+reproduced from python `struct`; zero mismatches.
+
+## 5. Differential stress: 1717 adversarial cases, 0 contradictions
+
+Generators `/tmp/c02stress_gen.py` (seed 20260925) and
+`/tmp/c02stress_gen2.py` (seed 20260926) emitted bit-exact probes
+(all floats as `F64{bits}`): uniform floats, small/large/domain-limit
+integers, det=±1 shapes, near-degenerate perturbations 2^-k
+(k = 1..62), scales 1e±50..200 and 2^-50..-300, repeated points,
+collinear/cocircular/cospherical families, shared endpoints,
+point-degenerate segments, on-edge/near-vertex triangle cases,
+degenerate triangles, and nonfinite inputs. Probes ran on the
+native lane (build 0, run 0); the 308-case o3 probe additionally
+ran interpreted with byte-identical output (`cmp` clean).
+
+Predicate stress (1313 cases vs Fraction truth; `ok` must equal
+truth, `uncertain` allowed only for non-exact inputs, `invalid`
+only for nonfinite; integer-domain cases must decide exactly):
+  1240 ok + 64 numerical-uncertainty + 9 invalid-input;
+  0 soundness mismatches; 0 must-exact misses.
+Uncertain truth split (all honestly abstained nonzero truth except
+two truly-degenerate-but-nonintegral o2 zeros): o2 8 neg/9 pos/
+2 zero, o3 10/11, ic 7/7, is 1/1.
+
+Seg/tri stress (404 cases): seg expectations from an independent
+Fraction sign-rule implementation (both collinearity witnesses,
+all-points axis — structurally different from the Bend tree),
+cross-checked by a brute-force parametric intersection test (the
+two oracles agree on all 202 seg cases); tri expectations from an
+independent barycentric Fraction implementation (not orientation
+signs). 364 ok + 34 uncertain + 6 invalid; 0 mismatches.
+
+## 6. Defects found and fixed during implementation (both RED before)
+
+D1 — 3x3 P/N split by cofactor position (wrong: a +cofactor triple
+can be negative). The oracle caught it (`o3-neg` would certify pos
+for true det −1). Fixed to a value-sign split over the six signed
+triples (`fpos`/`fneg`, `ops.bend`); pinned by `o3-neg`/`o3-pos`
+(P0/N0 shortcuts) and 308/290/198-case o3/ic/is differentials.
+D2 — fork C-backend miscompile (not a C02 logic defect): a nested
+`Bool.or` of 3+ user-def calls sharing binders returns True on the
+native lane (interp/JS correct), which made 5 suite checks fail
+natively (`pos-o2-ccw/cw/flip`, `pos-o3-neg`, `neg-o2-ovf`).
+Bisected over 7 probes to this minimal repro (`probe7.bend`,
+hash §1): `Bool.or(qq(ax,bx), Bool.or(qq(bx,cx), qq(ax,cx)))`
+with `qq` a 2-arg `F64.is_eq` wrapper gives F on interp, T on
+native; the `and` shape is fine. C02 works around it by let-binding
+each repeated-point test before combining (`ops.bend` NOTE at
+`pteq2`, contract §10) — no semantic effect: all three lanes agree
+byte-identically on suite + stress (lands the 5 checks green).
+
+## 7. Negative confirmations
+
+- No weakened test/law: every neg check asserts the exact kind
+  string; every pos check pins the exact sign/relation/class or an
+  exact si_ok/mag bit fact; laws are definitional {==} (8 general
+  by match-split, 43 instances); differential oracles are
+  independent implementations (Fractions, barycentric,
+  parametric), not copies of the Bend trees.
+- No placeholder: `grep -rni 'TODO|FIXME|placeholder|
+  unimplemented|admit|sorry'` over src/c02 laws/c02.bend tests/c02
+  hits only the word "admitted" in one prose comment
+  (ops.bend:715).
+- No @unsafe in code (grep clean over src/c02 laws/c02.bend
+  tests/c02); no F32 type (grep `F32` clean; `f32` hits are pos.bend
+  counter binders `f32/f33`, the C01 naming convention).
+- No naive determinant: `F64.sqrt` absent from src/c02; `F64.min/
+  max` occur only in `seg_bbox`/`seg_coll`, whose inputs are
+  finite-gated (no NaN-swallow); `Bool.pick` only for the
+  collinear dominant-axis projection (same gate).
+
+## 8. Exit-criteria verdict
+
+Criterion (MASTER_PLAN §10/C02): adversarial near-degenerate cases
+match independent exact results; uncertain calculations never
+silently choose a side.
+
+Verdict: PASS. Evidence: 34/34 pos + 24/24 neg suite checks green
+on three byte-identical lanes (51/51 laws proven); 1717/1717
+differential cases agree with independent exact oracles
+(0 contradictions: 1604 decided with exact-matching signs/
+relations/classes, 98 honest uncertainties all with non-exact
+inputs, 15 invalid all with nonfinite/degenerate inputs); every
+integer-domain case decided exactly (0 must-exact misses);
+computed-zero-with-nonzero-truth abstains (pinned); both
+implementation-time defects were caught by the oracles before
+receipt and are pinned against regression.
