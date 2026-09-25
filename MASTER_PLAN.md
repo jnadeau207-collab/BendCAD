@@ -52,26 +52,31 @@ The canonical numeric contract and execution order live in the Bend fork:
 
 This plan does not duplicate them. If Bend's numeric contract changes, change it there first, qualify it there, then advance `BEND_PIN`.
 
-The initial blocker is upstream `bendlang/bend#797`: Bend can currently prove an F32 bit-roundtrip equality that optimized JS violates by quieting a signaling NaN. This is a language/compiler soundness defect, not a CAD tolerance issue. BendCAD must not build F64 geometry over that representation model.
+The #797 class shaped the representation: upstream closed `bendlang/bend#797` as not planned, so F32 on JS stays bit-unreliable and F64 geometry is built on the as-bits representation instead, which is immune to that failure. F32 stays out of authoritative geometry; see the host gate in section 4a.
 
-## 4. Required Bend handoff gate
+## 4. Required Bend handoff gates
 
-Serious BendCAD geometry numerics may begin only after the pinned Bend commit has all of the following:
+Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. Status below is at `BEND_PIN` `jnadeau207-collab/bend@50ec219a` (tag `numeric/2026-09-25`), whose evidence is the fork's `conformance/receipts/2026-09-25.txt`.
 
-1. the #797 class fixed without weakening the theorem;
-2. optimized F32/F64 storage bit-authoritative on JS;
-3. raw `w64` distinguished from tagged runtime `Term`;
-4. arbitrary U64 transport through constructors, arrays, closures, scheduling and host execution;
-5. exact F64 `from_bits/bits` transport;
-6. qualified add/sub/mul/div/sqrt/FMA and required conversions on host lanes;
-7. strict backend identity so a requested Metal/CUDA run cannot silently fall back;
-8. genuine Metal binary64 executed as GPU-resident integer software arithmetic over `ulong`.
+### 4a. Host gate (closed at the pin)
+
+H1. F64 geometry is built on the as-bits representation, immune to the #797 class; F32 stays out of authoritative geometry. (Was 1, 2, redefined: upstream will not fix #797.)
+H2. Raw `w64` distinguished from tagged runtime `Term`. (Was 3.)
+H3. Arbitrary U64 transport through constructors, arrays, closures, scheduling and host execution. (Was 4.)
+H4. Exact F64 `from_bits/bits` transport. (Was 5.)
+H5. Qualified add/sub/mul/div/sqrt/FMA and required conversions on host lanes (interpreter, JS, C): 2^20 cases per group over 22 groups with 0 mismatches, plus representation probes and the show/read text check, per the receipt. (Was 6.)
+
+### 4b. Device gate (CUDA closed at the pin; Metal open)
+
+D1. Strict backend identity: `--gpu on` (or `--gpu <size>`) refuses to start without a GPU, runs every `!` wave on the device, and aborts on device fault, so a zero-exit `--gpu on` run proves device execution. The no-flag default still falls back silently and reports no backend, so device claims must always pass `--gpu on`. (Was 7.)
+D2. CUDA execution proven: the receipt's `cuda` and `cuda-defs` lanes run the 2^20-case differential, the probes, and the repo `!` tests with 0 mismatches; `cuda-defs` additionally proves the software-float path Metal uses, with all 27 soft-native call sites compiled as their Base defs.
+D3. Genuine Metal binary64 executed as GPU-resident integer software arithmetic over `ulong`. OPEN: the Metal scan of emitted C is clean and the defs lanes prove the code path, but nothing has run on Apple hardware yet. This item needs a Mac. (Was 8.)
 
 Device qualification is a gate for device claims, not a reason to freeze host representation work when hardware is unavailable.
 
 ## 5. What belongs in BendCAD
 
-After the Bend handoff, BendCAD owns the CAD-specific numerical layer:
+With the host handoff gate (§4a) closed at `BEND_PIN`, BendCAD owns the CAD-specific numerical layer:
 
 - Vec2/Vec3, matrices, frames and transforms;
 - stable norms and `hypot`;
@@ -242,7 +247,7 @@ Use ordinary incremental commits; preserve existing work and do not force-reset 
 
 ## 13. First execution packet
 
-Until the Bend prerequisite gate in section 4 closes, BendCAD does not implement production geometry on an unqualified F64 substrate.
+The host prerequisite gate (§4a) is closed at `BEND_PIN`, so host geometry work may proceed on the qualified F64 substrate; device claims wait on the device gate (§4b).
 
 Work allowed in parallel:
 
@@ -251,9 +256,9 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-After `BEND_PIN` advances to a qualified numeric commit, BendCAD starts at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates. It does not start with an OCCT bridge or a box demo.
+`BEND_PIN` now names a qualified numeric commit (`numeric/2026-09-25`), so BendCAD starts at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates. It does not start with an OCCT bridge or a box demo.
 
-**Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 and actual Metal execution → pinned Bend handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification.
+**Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
 ## Primary references
 

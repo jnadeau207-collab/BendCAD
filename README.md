@@ -2,11 +2,11 @@
 
 An independent professional CAD kernel for Bend 2.
 
-**Status:** Aethalgard reference corpus recovered and hash-verified. Bend F64 and the Bend-native kernel are planned, not implemented.
+**Status:** Aethalgard reference corpus recovered and hash-verified. Bend F64 implemented and receipted at `BEND_PIN`; the Bend-native kernel is planned, not implemented.
 
 ## Pins
 
-- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@0b7e2b11c1054f5d0f4eb955cadb47997ef1115d`
+- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95` (tag `numeric/2026-09-25`)
 - Numeric contract lives in that fork: `bend2/docs/F64_CONTRACT.md`, `bend2/docs/F64_IMPLEMENTATION.md`
 - Advance `BEND_PIN` only after a Bend numeric gate. Never track floating `main`.
 

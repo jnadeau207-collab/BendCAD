@@ -27,3 +27,10 @@ Before adding code, try to delete the need for it through a stronger type, reusa
 Make the smallest coherent commit that closes a contract. Pair implementation with the adversarial test that proves it. Prefer one evaluator path over human/agent variants. Prefer explicit structured failure over guessed geometry.
 
 Read `MASTER_PLAN.md` before implementation. Numeric work begins only after its Bend handoff gate closes.
+
+## Bend toolchain
+
+- The installed `bend` (WSL `~/.bend/bin/bend`, also `bend` in PowerShell via WSL) is compiled from the fork `jnadeau207-collab/bend`, not from an upstream release. Never run `bend update`: it silently replaces the fork build with upstream and drops U64/F64.
+- Installed from fork tag `numeric/2026-09-25` (commit `50ec219a`), the `BEND_PIN` commit; `~/.bend/FORK` records provenance. Know which commit your `bend` was built from before reporting numeric results. Rebuild from the fork checkout with `bun build --compile --target=bun-linux-x64 ./bend2/main.ts --outfile ~/.bend/bin/bend`, then refresh `~/.bend/bend2` and `~/.bend/guide` from it.
+- Fork work reaches upstream through bendlang/bend PRs #1056 (emission), #1057 (U64), #1058 (F64) and #1059 (base helpers), all open as of 2026-09-25. When all four are merged and the install is switched to an upstream release, this section is obsolete and should be deleted.
+- Never delete a `pr/*` branch in the fork while its PR is open: GitHub auto-closes a PR when its head branch is deleted.
