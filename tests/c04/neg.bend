@@ -377,7 +377,37 @@ def neg_g8(f102: U64) -> IO(U64):
     f107 : U64 <- C.report_terr("neg-ck-cpshare",
       Op.brep_checked(C.b_cpshare(), Ty.P_manifold_solid{}, 12n),
       "invalid-input", f106)
-    return f107
+    f108 : U64 <- C.report_terr("neg-ck-pinch",
+      Op.brep_checked(C.b_pinch(), Ty.P_manifold_solid{}, 20n),
+      "invalid-input", f107)
+    f109 : U64 <- C.report_terr("neg-ck-offquad",
+      Op.brep_checked(C.b_offquad(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f108)
+    f110 : U64 <- C.report_terr("neg-ck-split",
+      Op.brep_checked(C.b_split(), Ty.P_manifold_solid{}, 20n),
+      "invalid-input", f109)
+    return f110
+
+def neg_g9(f110: U64) -> IO(U64):
+  do IO<U64>:
+    f111 : U64 <- C.report_terr("neg-ck-coin",
+      Op.brep_checked(C.b_coin(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f110)
+    f112 : U64 <- C.report_terr("neg-ck-xing",
+      Op.brep_checked(C.b_xing(), Ty.P_manifold_solid{}, 20n),
+      "invalid-input", f111)
+    f113 : U64 <- C.report_terr("neg-ck-invface",
+      Op.brep_checked(C.b_invface(), Ty.P_manifold_solid{},
+        20n),
+      "invalid-input", f112)
+    f114 : U64 <- C.report_terr("neg-ck-oriprop",
+      Op.brep_checked(C.b_oriprop(), Ty.P_manifold_solid{},
+        20n),
+      "invalid-input", f113)
+    f115 : U64 <- C.report_terr("neg-ck-split-open",
+      Op.brep_checked(C.b_split(), Ty.P_open_shell{}, 20n),
+      "invalid-input", f114)
+    return f115
 
 def main() -> IO(Unit):
   do IO<Unit>:
@@ -389,4 +419,5 @@ def main() -> IO(Unit):
     a6 : U64 <- neg_g6(a5)
     a7 : U64 <- neg_g7(a6)
     a8 : U64 <- neg_g8(a7)
-    IO.print("selfcheck fails=" ++ U64.show(a8))
+    a9 : U64 <- neg_g9(a8)
+    IO.print("selfcheck fails=" ++ U64.show(a9))

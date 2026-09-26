@@ -934,6 +934,20 @@ def okd_all(+a: Nat, +b: Nat) -> Nat:
   okd_pack(Bool.and(okd_ok(a), okd_ok(b)),
     Bool.and(okd_done(a), okd_done(b)))
 
+# --- Vertex-orbit carrier (stage H internal): fuel-out and genuine
+# close are distinguishable only via the closed flag; steps counts
+# non-degenerate visits before close. ---
+type VOrbit is Data:
+  VO{ steps: Nat, closed: Bool }
+
+def vo_steps(o: VOrbit) -> Nat:
+  VO{s, c} = o
+  s
+
+def vo_closed(o: VOrbit) -> Bool:
+  VO{s, c} = o
+  c
+
 # --- Slot validation walks: every recursive walk is structural in
 # its list AND fuel-capped; fuel exhaustion surfaces as
 # resource-exhausted, never a guess. ---

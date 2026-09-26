@@ -203,6 +203,16 @@ NURBS evaluation is §7. There is no NURBS derivative yet
   - torus: `(d2-S)^2-4R^2(r^2-ax^2)` with `d2 = m.m`,
     `S = R^2+r^2`, gradient `4(d2-S)m+8R^2*ax*a`.
   All dot products are C01 left folds; all results re-validated.
+- Exact membership (`sph_on`/`cyl_on`/`cone_on`/`tor_on`,
+  P1): total `Bool`, true iff the inputs pass the same
+  validity + unit-axis gates as `*_val` and the implicit
+  value (same associations as above) is ordered-`== 0`
+  (signed zero counts as on). No tolerance: near-miss
+  points with nonzero F64 value answer `False`, as do
+  malformed specs, nonfinite inputs, and true overflow
+  (fail-closed, never a guess). The cone is the double
+  cone (both nappes + apex satisfy). For C04
+  trim/surface consistency (vertex-on-quadric).
 - Sphere projection is the SCALED form `c + r*u` with
   `u = (m/M)/(n/M)`, `M = max|m_i|` (C03.1; `sph_proj_q_raw`).
   The scalar `r/n` is never formed: it underflows to zero when
@@ -437,3 +447,8 @@ claim it states; the unbounded claims live here explicitly:
   `*_valid` layer, §2). Grounded: `val_*` + `neg-g8` pins per
   entry family, `sphp_faraxis/minr/farctr/mixed` for the scaled
   projection, `lproj/ldist_tiny_unc` for the subnormal arm.
+- G10 (exact membership, P1): `*_on` holds exactly for valid
+  inputs whose `*_val` (§6, same associations) is ordered-`== 0`;
+  near-miss, malformed, nonfinite, and overflowed inputs answer
+  `False`. Grounded: `sphon_*/cylon_*/conon_*/toron_*` laws (32)
+  + `pos_g8`/`pos_g9` runtime pins (32).

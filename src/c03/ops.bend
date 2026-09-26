@@ -1552,6 +1552,55 @@ def tor_grad(+s: G.Torus, +q: V.Point) -> G.GRes:
     Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
     ax_unit_ok(a))
 
+# --- Quadric exact point-membership: the implicit equation with
+# ordered == 0 (signed zero counts as on), no tolerance. Total
+# Bool, fail-closed: malformed spec, non-unit axis, nonfinite
+# input, or nonfinite value (true overflow) yields False, never a
+# guess. Same left-fold associations as *_val, so *_on(s, q) holds
+# exactly when the inputs are valid and *_val(s, q) is zero. The
+# cone is the DOUBLE cone (both nappes and the apex satisfy);
+# nappe selection stays with cone_ax. For C04 trim/surface
+# consistency (vertex-on-quadric); quadrics have no surf_at.
+def sph_on(+s: G.Sphere, +q: V.Point) -> Bool:
+  G.Sp{+c, +r} = s
+  +m = pp_sub_raw(q, c)
+  +v = F64.sub(dd_dot_raw(m, m), F64.mul(r, r))
+  Bool.and(Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)),
+    Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64)))
+
+def cyl_on(+s: G.Cyl, +q: V.Point) -> Bool:
+  G.Cy{+o, +a, +r} = s
+  +m = pp_sub_raw(q, o)
+  +ax = dd_dot_raw(m, a)
+  +v = F64.sub(F64.sub(dd_dot_raw(m, m), F64.mul(ax, ax)),
+    F64.mul(r, r))
+  Bool.and(Bool.and(G.cy_valid(G.Cy{o, a, r}), V.pt_fin(q)),
+    Bool.and(ax_unit_ok(a),
+      Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64))))
+
+def cone_on(+s: G.Cone, +q: V.Point) -> Bool:
+  G.Co{+o, +a, +k} = s
+  +m = pp_sub_raw(q, o)
+  +ax = dd_dot_raw(m, a)
+  +v = F64.sub(F64.sub(dd_dot_raw(m, m), F64.mul(ax, ax)),
+    F64.mul(F64.mul(k, k), F64.mul(ax, ax)))
+  Bool.and(Bool.and(G.co_valid(G.Co{o, a, k}), V.pt_fin(q)),
+    Bool.and(ax_unit_ok(a),
+      Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64))))
+
+def tor_on(+s: G.Torus, +q: V.Point) -> Bool:
+  G.To{+o, +a, +R, +r} = s
+  +m = pp_sub_raw(q, o)
+  +ax = dd_dot_raw(m, a)
+  +d2 = dd_dot_raw(m, m)
+  +t = F64.add(F64.mul(R, R), F64.mul(r, r))
+  +v = F64.sub(F64.mul(F64.sub(d2, t), F64.sub(d2, t)),
+    F64.mul(F64.mul(4.0f64, F64.mul(R, R)),
+      F64.sub(F64.mul(r, r), F64.mul(ax, ax))))
+  Bool.and(Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
+    Bool.and(ax_unit_ok(a),
+      Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64))))
+
 # --- Trims in surface parameter space: segment/cubic evaluation,
 # enclosures, plane composition. Other surface compositions arrive
 # with C07/C08; the representation is fixed now. ---

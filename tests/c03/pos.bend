@@ -501,6 +501,141 @@ def pos_g7(f154: U64) -> IO(U64):
       4607182418800017408u64, 0u64, 0u64, f157)
     return f158
 
+# P1: quadric exact membership — on/off/near-miss pins. Near-miss
+# points are mathematically on-surface with nonzero F64 value.
+def pos_g8(f158: U64) -> IO(U64):
+  do IO<U64>:
+    f159 : U64 <- C.report_pure("pos-sphon-on",
+      O.sph_on(C.sp_unit(), C.p100()), f158)
+    f160 : U64 <- C.report_pure("pos-sphon-0608",
+      O.sph_on(C.sp_unit(), V.Pt{0.6f64, 0.8f64, 0.0f64}),
+      f159)
+    f161 : U64 <- C.report_pure("pos-cylon-on",
+      O.cyl_on(C.cy_z(), V.Pt{1.0f64, 0.0f64, 5.0f64}),
+      f160)
+    f162 : U64 <- C.report_pure("pos-conon-on",
+      O.cone_on(C.co_z(), V.Pt{1.0f64, 0.0f64, 2.0f64}),
+      f161)
+    f163 : U64 <- C.report_pure("pos-conon-neg",
+      O.cone_on(C.co_z(), V.Pt{F64.neg(1.0f64), 0.0f64,
+        F64.neg(2.0f64)}),
+      f162)
+    f164 : U64 <- C.report_pure("pos-conon-apex",
+      O.cone_on(C.co_z(), C.p000()), f163)
+    f165 : U64 <- C.report_pure("pos-toron-out",
+      O.tor_on(C.to_z(), V.Pt{5.0f64, 0.0f64, 0.0f64}),
+      f164)
+    f166 : U64 <- C.report_pure("pos-toron-in",
+      O.tor_on(C.to_z(), V.Pt{3.0f64, 0.0f64, 0.0f64}),
+      f165)
+    f167 : U64 <- C.report_pure("pos-toron-top",
+      O.tor_on(C.to_z(), V.Pt{4.0f64, 0.0f64, 1.0f64}),
+      f166)
+    f168 : U64 <- C.report_pure("pos-sphon-off",
+      Bool.not(O.sph_on(C.sp_unit(),
+        V.Pt{2.0f64, 0.0f64, 0.0f64})),
+      f167)
+    f169 : U64 <- C.report_pure("pos-sphon-near",
+      Bool.not(O.sph_on(C.sp_unit(),
+        V.Pt{G.w_quarter(), G.w_quarter(), 0.0f64})),
+      f168)
+    f170 : U64 <- C.report_pure("pos-cylon-off",
+      Bool.not(O.cyl_on(C.cy_z(),
+        V.Pt{2.0f64, 0.0f64, 0.0f64})),
+      f169)
+    f171 : U64 <- C.report_pure("pos-cylon-near",
+      Bool.not(O.cyl_on(C.cy_z(),
+        V.Pt{G.w_quarter(), G.w_quarter(), 0.0f64})),
+      f170)
+    f172 : U64 <- C.report_pure("pos-conon-off",
+      Bool.not(O.cone_on(C.co_z(),
+        V.Pt{2.0f64, 0.0f64, 2.0f64})),
+      f171)
+    f173 : U64 <- C.report_pure("pos-conon-near",
+      Bool.not(O.cone_on(C.co_z(), V.Pt{1.0f64, 1.0f64,
+        F64.mul(4.0f64, G.w_quarter())})),
+      f172)
+    f174 : U64 <- C.report_pure("pos-toron-off",
+      Bool.not(O.tor_on(C.to_z(),
+        V.Pt{2.0f64, 0.0f64, 0.0f64})),
+      f173)
+    f175 : U64 <- C.report_pure("pos-toron-near",
+      Bool.not(O.tor_on(C.to_z(),
+        V.Pt{F64.add(4.0f64, G.w_quarter()), 0.0f64,
+          G.w_quarter()})),
+      f174)
+    return f175
+
+# P1: membership invalid arms fail closed to False (total Bool, no
+# GRes — hence pos-suite Bool pins, not neg-suite gerr pins).
+def pos_g9(f175: U64) -> IO(U64):
+  do IO<U64>:
+    f176 : U64 <- C.report_pure("pos-sphon-nan",
+      Bool.not(O.sph_on(C.sp_unit(),
+        V.Pt{F64.nan(), 0.0f64, 0.0f64})),
+      f175)
+    f177 : U64 <- C.report_pure("pos-sphon-ovf",
+      Bool.not(O.sph_on(C.sp_unit(),
+        V.Pt{C.mx(), 0.0f64, 0.0f64})),
+      f176)
+    f178 : U64 <- C.report_pure("pos-sphon-rneg",
+      Bool.not(O.sph_on(G.Sp{C.p000(), F64.neg(1.0f64)},
+        C.p100())),
+      f177)
+    f179 : U64 <- C.report_pure("pos-cylon-nan",
+      Bool.not(O.cyl_on(C.cy_z(),
+        V.Pt{F64.nan(), 0.0f64, 0.0f64})),
+      f178)
+    f180 : U64 <- C.report_pure("pos-cylon-ovf",
+      Bool.not(O.cyl_on(C.cy_z(),
+        V.Pt{C.mx(), 0.0f64, 0.0f64})),
+      f179)
+    f181 : U64 <- C.report_pure("pos-cylon-axis2",
+      Bool.not(O.cyl_on(
+        G.Cy{C.p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 1.0f64},
+        V.Pt{1.0f64, 0.0f64, 5.0f64})),
+      f180)
+    f182 : U64 <- C.report_pure("pos-cylon-rneg",
+      Bool.not(O.cyl_on(G.Cy{C.p000(), C.d001(),
+        F64.neg(1.0f64)}, C.p100())),
+      f181)
+    f183 : U64 <- C.report_pure("pos-conon-nan",
+      Bool.not(O.cone_on(C.co_z(),
+        V.Pt{F64.nan(), 0.0f64, 0.0f64})),
+      f182)
+    f184 : U64 <- C.report_pure("pos-conon-ovf",
+      Bool.not(O.cone_on(C.co_z(),
+        V.Pt{C.mx(), 0.0f64, 0.0f64})),
+      f183)
+    f185 : U64 <- C.report_pure("pos-conon-axis2",
+      Bool.not(O.cone_on(
+        G.Co{C.p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 0.5f64},
+        V.Pt{1.0f64, 0.0f64, 2.0f64})),
+      f184)
+    f186 : U64 <- C.report_pure("pos-conon-kneg",
+      Bool.not(O.cone_on(G.Co{C.p000(), C.d001(),
+        F64.neg(0.5f64)}, C.p100())),
+      f185)
+    f187 : U64 <- C.report_pure("pos-toron-nan",
+      Bool.not(O.tor_on(C.to_z(),
+        V.Pt{F64.nan(), 0.0f64, 0.0f64})),
+      f186)
+    f188 : U64 <- C.report_pure("pos-toron-ovf",
+      Bool.not(O.tor_on(C.to_z(),
+        V.Pt{C.mx(), 0.0f64, 0.0f64})),
+      f187)
+    f189 : U64 <- C.report_pure("pos-toron-axis2",
+      Bool.not(O.tor_on(
+        G.To{C.p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 4.0f64,
+          1.0f64},
+        V.Pt{5.0f64, 0.0f64, 0.0f64})),
+      f188)
+    f190 : U64 <- C.report_pure("pos-toron-Rneg",
+      Bool.not(O.tor_on(G.To{C.p000(), C.d001(),
+        F64.neg(4.0f64), 1.0f64}, C.p100())),
+      f189)
+    return f190
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- pos_g1(0u64)
@@ -510,4 +645,6 @@ def main() -> IO(Unit):
     a5 : U64 <- pos_g5(a4)
     a6 : U64 <- pos_g6(a5)
     a7 : U64 <- pos_g7(a6)
-    IO.print("selfcheck fails=" ++ U64.show(a7))
+    a8 : U64 <- pos_g8(a7)
+    a9 : U64 <- pos_g9(a8)
+    IO.print("selfcheck fails=" ++ U64.show(a9))

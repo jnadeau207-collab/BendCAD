@@ -3223,3 +3223,233 @@ law bn11_wrap_inv:
 
 def bn11_wrap_inv():
   {==}
+
+# --- Quadric exact membership (P1): on/off/near-miss/invalid arms.
+# Near-miss pins are mathematically on-surface with nonzero F64
+# value (oracle: python struct); invalid arms fail closed to False.
+law sphon_on:
+  {O.sph_on(sp_unit(), p100()) == True{} : Bool}
+
+def sphon_on():
+  {==}
+
+law sphon_0608:
+  {O.sph_on(sp_unit(), V.Pt{0.6f64, 0.8f64, 0.0f64})
+    == True{} : Bool}
+
+def sphon_0608():
+  {==}
+
+law sphon_off:
+  {O.sph_on(sp_unit(), V.Pt{2.0f64, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def sphon_off():
+  {==}
+
+law sphon_near:
+  {O.sph_on(sp_unit(),
+      V.Pt{G.w_quarter(), G.w_quarter(), 0.0f64})
+    == False{} : Bool}
+
+def sphon_near():
+  {==}
+
+law sphon_nan:
+  {O.sph_on(sp_unit(), V.Pt{F64.nan(), 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def sphon_nan():
+  {==}
+
+law sphon_ovf:
+  {O.sph_on(sp_unit(),
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def sphon_ovf():
+  {==}
+
+law sphon_rneg:
+  {O.sph_on(G.Sp{p000(), F64.neg(1.0f64)}, p100())
+    == False{} : Bool}
+
+def sphon_rneg():
+  {==}
+
+law cylon_on:
+  {O.cyl_on(cy_z(), V.Pt{1.0f64, 0.0f64, 5.0f64})
+    == True{} : Bool}
+
+def cylon_on():
+  {==}
+
+law cylon_off:
+  {O.cyl_on(cy_z(), V.Pt{2.0f64, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def cylon_off():
+  {==}
+
+law cylon_near:
+  {O.cyl_on(cy_z(), V.Pt{G.w_quarter(), G.w_quarter(), 0.0f64})
+    == False{} : Bool}
+
+def cylon_near():
+  {==}
+
+law cylon_nan:
+  {O.cyl_on(cy_z(), V.Pt{F64.nan(), 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def cylon_nan():
+  {==}
+
+law cylon_ovf:
+  {O.cyl_on(cy_z(),
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def cylon_ovf():
+  {==}
+
+law cylon_axis2:
+  {O.cyl_on(G.Cy{p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 1.0f64},
+      V.Pt{1.0f64, 0.0f64, 5.0f64}) == False{} : Bool}
+
+def cylon_axis2():
+  {==}
+
+law cylon_rneg:
+  {O.cyl_on(G.Cy{p000(), d001(), F64.neg(1.0f64)}, p100())
+    == False{} : Bool}
+
+def cylon_rneg():
+  {==}
+
+law conon_on:
+  {O.cone_on(co_z(), V.Pt{1.0f64, 0.0f64, 2.0f64})
+    == True{} : Bool}
+
+def conon_on():
+  {==}
+
+law conon_neg:
+  {O.cone_on(co_z(), V.Pt{F64.neg(1.0f64), 0.0f64,
+      F64.neg(2.0f64)}) == True{} : Bool}
+
+def conon_neg():
+  {==}
+
+law conon_apex:
+  {O.cone_on(co_z(), p000()) == True{} : Bool}
+
+def conon_apex():
+  {==}
+
+law conon_off:
+  {O.cone_on(co_z(), V.Pt{2.0f64, 0.0f64, 2.0f64})
+    == False{} : Bool}
+
+def conon_off():
+  {==}
+
+law conon_near:
+  {O.cone_on(co_z(), V.Pt{1.0f64, 1.0f64,
+      F64.mul(4.0f64, G.w_quarter())}) == False{} : Bool}
+
+def conon_near():
+  {==}
+
+law conon_nan:
+  {O.cone_on(co_z(), V.Pt{F64.nan(), 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def conon_nan():
+  {==}
+
+law conon_ovf:
+  {O.cone_on(co_z(),
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def conon_ovf():
+  {==}
+
+law conon_axis2:
+  {O.cone_on(G.Co{p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 0.5f64},
+      V.Pt{1.0f64, 0.0f64, 2.0f64}) == False{} : Bool}
+
+def conon_axis2():
+  {==}
+
+law conon_kneg:
+  {O.cone_on(G.Co{p000(), d001(), F64.neg(0.5f64)}, p100())
+    == False{} : Bool}
+
+def conon_kneg():
+  {==}
+
+law toron_out:
+  {O.tor_on(to_z(), V.Pt{5.0f64, 0.0f64, 0.0f64})
+    == True{} : Bool}
+
+def toron_out():
+  {==}
+
+law toron_in:
+  {O.tor_on(to_z(), V.Pt{3.0f64, 0.0f64, 0.0f64})
+    == True{} : Bool}
+
+def toron_in():
+  {==}
+
+law toron_top:
+  {O.tor_on(to_z(), V.Pt{4.0f64, 0.0f64, 1.0f64})
+    == True{} : Bool}
+
+def toron_top():
+  {==}
+
+law toron_off:
+  {O.tor_on(to_z(), V.Pt{2.0f64, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def toron_off():
+  {==}
+
+law toron_near:
+  {O.tor_on(to_z(), V.Pt{F64.add(4.0f64, G.w_quarter()), 0.0f64,
+      G.w_quarter()}) == False{} : Bool}
+
+def toron_near():
+  {==}
+
+law toron_nan:
+  {O.tor_on(to_z(), V.Pt{F64.nan(), 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def toron_nan():
+  {==}
+
+law toron_ovf:
+  {O.tor_on(to_z(),
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64})
+    == False{} : Bool}
+
+def toron_ovf():
+  {==}
+
+law toron_axis2:
+  {O.tor_on(G.To{p000(), V.Dr{2.0f64, 0.0f64, 0.0f64}, 4.0f64,
+      1.0f64}, V.Pt{5.0f64, 0.0f64, 0.0f64}) == False{} : Bool}
+
+def toron_axis2():
+  {==}
+
+law toron_Rneg:
+  {O.tor_on(G.To{p000(), d001(), F64.neg(4.0f64), 1.0f64},
+      p100()) == False{} : Bool}
+
+def toron_Rneg():
+  {==}

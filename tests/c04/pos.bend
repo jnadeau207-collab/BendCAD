@@ -659,26 +659,113 @@ def pos_g9(f173: U64) -> IO(U64):
       Nat.is_eq(Op.hsh_nodup_c(Op.so_sh_list(C.so_b()),
         9n), 2n),
       f182)
-    return f183
-
-def pos_g10(f183: U64) -> IO(U64):
-  do IO<U64>:
-    f184 : U64 <- C.report_ok("pos-ck-sphere",
-      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 12n),
+    f184 : U64 <- C.report_pure("pos-qmem-spon",
+      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_sp(),
+        9n),
       f183)
-    f185 : U64 <- C.report_ok("pos-ck-cyl",
-      Op.brep_checked(C.b_cyl(), Ty.P_manifold_solid{}, 12n),
+    f185 : U64 <- C.report_pure("pos-qmem-spoff",
+      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
+        C.sf_sp(), 9n)),
       f184)
-    f186 : U64 <- C.report_ok("pos-ck-cav",
-      Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
+    f186 : U64 <- C.report_pure("pos-qmem-cyon",
+      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_cy(),
+        9n),
       f185)
-    f187 : U64 <- C.report_ok("pos-ck-open",
-      Op.brep_checked(C.b_open(), Ty.P_open_shell{}, 12n),
+    f187 : U64 <- C.report_pure("pos-qmem-cyoff",
+      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
+        C.sf_cy(), 9n)),
       f186)
-    f188 : U64 <- C.report_ok("pos-ck-pole",
-      Op.brep_checked(C.b_pole(), Ty.P_manifold_solid{}, 12n),
+    f188 : U64 <- C.report_pure("pos-qmem-con",
+      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_co(),
+        9n),
       f187)
-    return f188
+    f189 : U64 <- C.report_pure("pos-qmem-cooff",
+      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
+        C.sf_co(), 9n)),
+      f188)
+    f190 : U64 <- C.report_pure("pos-qmem-toon",
+      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(2n, 3u64), C.sf_to(),
+        9n),
+      f189)
+    f191 : U64 <- C.report_pure("pos-qmem-tooff",
+      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64),
+        C.sf_to(), 9n)),
+      f190)
+    f192 : U64 <- C.report_pure("pos-conn-split",
+      Nat.is_eq(Op.brep_conn_c(C.b_split(), 20n), 2n),
+      f191)
+    f193 : U64 <- C.report_pure("pos-conn-sphere",
+      Nat.is_eq(Op.brep_conn_c(C.b_sphere(), 12n), 3n),
+      f192)
+    return f193
+
+def pos_g10(f193: U64) -> IO(U64):
+  do IO<U64>:
+    f194 : U64 <- C.report_ok("pos-ck-sphere",
+      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 12n),
+      f193)
+    f195 : U64 <- C.report_ok("pos-ck-cyl",
+      Op.brep_checked(C.b_cyl(), Ty.P_manifold_solid{}, 12n),
+      f194)
+    f196 : U64 <- C.report_ok("pos-ck-cav",
+      Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
+      f195)
+    f197 : U64 <- C.report_ok("pos-ck-open",
+      Op.brep_checked(C.b_open(), Ty.P_open_shell{}, 12n),
+      f196)
+    f198 : U64 <- C.report_ok("pos-ck-pole",
+      Op.brep_checked(C.b_pole(), Ty.P_manifold_solid{}, 12n),
+      f197)
+    return f198
+
+def pos_g11(f198: U64) -> IO(U64):
+  do IO<U64>:
+    f199 : U64 <- C.report_pure("pos-coin-sphere",
+      Nat.is_eq(Op.brep_coin_c(C.b_sphere(), 12n), 3n), f198)
+    f200 : U64 <- C.report_pure("pos-coin-dup",
+      Nat.is_eq(Op.brep_coin_c(C.b_coin(), 12n), 2n), f199)
+    f201 : U64 <- C.report_pure("pos-coin-fuel",
+      Bool.not(Ty.okd_done(Op.brep_coin_c(C.b_sphere(), 0n))),
+      f200)
+    f202 : U64 <- C.report_pure("pos-link-sq",
+      Nat.is_eq(Op.vx_link_ok(C.b_oriprop(),
+        Ty.mk_hv(0n, 1u64), 20n, 20n), 3n),
+      f201)
+    f203 : U64 <- C.report_pure("pos-link-pinch",
+      Nat.is_eq(Op.vx_link_ok(C.b_pinch(),
+        Ty.mk_hv(0n, 1u64), 20n, 20n), 2n),
+      f202)
+    f204 : U64 <- C.report_pure("pos-segx-cross",
+      Op.segx_pair(C.p000(), C.p110(), C.p100(), C.p010()),
+      f203)
+    f205 : U64 <- C.report_pure("pos-segx-clean",
+      Bool.not(Op.segx_pair(C.p000(), C.p100(), C.p110(),
+        C.p010())),
+      f204)
+    f206 : U64 <- C.report_pure("pos-xing-clean",
+      Nat.is_eq(Op.brep_xing_c(C.b_oriprop(), 20n), 3n),
+      f205)
+    f207 : U64 <- C.report_pure("pos-xing-hit",
+      Nat.is_eq(Op.brep_xing_c(C.b_xing(), 20n), 2n), f206)
+    f208 : U64 <- C.report_pure("pos-xing-fuel",
+      Bool.not(Ty.okd_done(Op.brep_xing_c(C.b_sphere(), 0n))),
+      f207)
+    f209 : U64 <- C.report_pure("pos-orient-sq",
+      Nat.is_eq(Op.brep_orient_c(C.b_oriprop(), 20n), 3n),
+      f208)
+    f210 : U64 <- C.report_pure("pos-orient-invface",
+      Nat.is_eq(Op.brep_orient_c(C.b_invface(), 20n), 2n),
+      f209)
+    f211 : U64 <- C.report_pure("pos-prop-sphere",
+      Nat.is_eq(Op.brep_prop_c(C.b_sphere(), 12n), 3n),
+      f210)
+    f212 : U64 <- C.report_pure("pos-prop-oriprop",
+      Nat.is_eq(Op.brep_prop_c(C.b_oriprop(), 20n), 2n),
+      f211)
+    f213 : U64 <- C.report_pure("pos-prop-pinch",
+      Nat.is_eq(Op.brep_prop_c(C.b_pinch(), 20n), 3n),
+      f212)
+    return f213
 
 def main() -> IO(Unit):
   do IO<Unit>:
@@ -692,4 +779,5 @@ def main() -> IO(Unit):
     a8 : U64 <- pos_g8(a7)
     a9 : U64 <- pos_g9(a8)
     a10 : U64 <- pos_g10(a9)
-    IO.print("selfcheck fails=" ++ U64.show(a10))
+    a11 : U64 <- pos_g11(a10)
+    IO.print("selfcheck fails=" ++ U64.show(a11))
