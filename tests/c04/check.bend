@@ -669,3 +669,141 @@ def b_selfx() -> Ty.Brep:
   +b11 = Ty.tres_brep(Ty.so_push(b10, hsh_out, hsh0()))
   +hso0x = Ty.mk_hso(0n, 11u64)
   Ty.brep_set_top(b11, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# C04.1 ownership fixtures: outer-kind + shell-ownership violations.
+# Each is invalid-input under P_manifold_solid (stage F), diagnosed
+# by laws ck_alias/ck_outerkind/ck_cavdup/ck_reuse/ck_cpshare and
+# asserted in neg_g8. Value-level push still accepts them (shape-only
+# by design); brep_checked is the verdict.
+def b_alias() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh_out <> Nil{}))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+def b_outerkind() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_inner{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+def b_cavdup() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +b9 = Ty.tres_brep(Ty.vx_push(b8, p000()))
+  +b10 = Ty.tres_brep(Ty.vx_push(b9, p100()))
+  +hvN2 = Ty.mk_hv(2n, 9u64)
+  +hvS2 = Ty.mk_hv(3n, 10u64)
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hvN2, hvS2,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he1, True{}, tr_ts()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he1, False{}, tr_ts()))
+  +hc2x = Ty.mk_hc(2n, 12u64)
+  +hc3x = Ty.mk_hc(3n, 13u64)
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hc2x <> hc3x <> Nil{},
+    Ty.LK_outer{}))
+  +hlp1x = Ty.mk_hlp(1n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_sp(), hlp1x <> Nil{},
+    True{}))
+  +hfa1x = Ty.mk_hfa(1n, 15u64)
+  +b16 = Ty.tres_brep(Ty.sh_push(b15, hfa1x <> Nil{}, Ty.SK_inner{}))
+  +hsh_in = Ty.mk_hsh(1n, 16u64)
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b17 = Ty.tres_brep(Ty.so_push(b16, hsh_out,
+    hsh_in <> hsh_in <> Nil{}))
+  +hso0 = Ty.mk_hso(0n, 17u64)
+  Ty.brep_set_top(b17, Ty.Cp{hso0 <> Nil{}, hsh0()})
+
+def b_reuse() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  +hso1x = Ty.mk_hso(1n, 10u64)
+  Ty.brep_set_top(b10, Ty.Cp{hso0x <> hso1x <> Nil{}, hsh0()})
+
+def b_cpshare() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh_out <> Nil{}})

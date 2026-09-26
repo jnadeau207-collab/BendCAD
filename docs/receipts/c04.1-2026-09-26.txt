@@ -1,0 +1,303 @@
+# C04.1 receipt — 2026-09-26 (solid outer-kind + shell ownership + claim corrections)
+
+Packet: C04 repair. `brep_checked` stage F now enforces
+`Solid.outer = SK_outer` and single shell ownership (no
+outer/cavity aliasing, no cavity dup, no reuse across
+solids, no solid/compound sharing) under `P_manifold_solid`;
+"orientation" claims are corrected to edge-use pairing and
+"self-intersection" to the repeated-start-vertex proxy in
+code, contract, and this receipt; face-orientation coherence
+is explicitly DEFERRED with roadmap + rationale (contract
+§12); vertex-link, cavity-containment, and quadric-trim
+deferrals restated with no overclaim.
+Verdict: PASS. Every number below was observed by running the
+listed commands against the §1 bytes.
+
+Process note: test-first repair. The five ownership fixtures
+and their `neg_g8` assertions were committed before the
+validator change and run against the unrepaired `ops.bend`:
+`selfcheck fails=4` (`neg-ck-outerkind/cavdup/reuse/cpshare`
+all wrongly `ok`; `neg-ck-alias` already `invalid-input` via
+the cavity-kind arm). The stage-F repair then turned all
+five into principled `invalid-input` diagnoses with zero
+regressions (all 13 prior `ck_*` verdicts unchanged).
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: d0805628722fb755db748caa0feede199c0f4234
+  (log -1: "c04: boundary-representation topology with laws,
+  tests, receipt"; branch main)
+git status --porcelain (only the paths below; no other edits):
+   M docs/c04-contract.md
+   M docs/replacement-ledger.md
+   M laws/c04.bend
+   M src/c04/ops.bend
+   M src/c04/types.bend          (one comment line; no def changed)
+   M tests/c04/check.bend
+   M tests/c04/neg.bend
+   M tests/c04/pos.bend
+  ?? docs/receipts/c04.1-2026-09-26.txt  (this file; written, not hashed)
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched (no git commands against it; `bend update` never run).
+
+BEND_PIN (root file, unchanged):
+  jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK: unchanged (tag numeric/2026-09-25, commit 50ec219a).
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (fork build).
+bun 1.4.2.
+
+sha256 of every packet file (receipt excluded as it is the file being
+written):
+  668e95dbebaa56a467ab5cc54aa56b90baf5b80213861413107154f26876bac0  docs/c04-contract.md
+  6d589fe1aae2cc21cfd29dc153c42ce7fca7a711a3b530ea508e1318e4ad70e4  docs/replacement-ledger.md
+  fd6bb6709a4e99e3d136d7204bb486be038903c09e63030bff016099892b81cd  src/c04/types.bend
+  eca85b1de84fbf2294b19e6f0f9377696f64de242d5a9e80a87f318e4602bfa8  src/c04/ops.bend
+  6f64b101b6b544ecef0716f0d0eed24c4b0d943ce90dcef74b20f7d9262f0f12  laws/c04.bend
+  16bad57d949647b1b154697b8880bdbba8b3531c1cfceb7d58d65ae491484680  tests/c04/check.bend
+  9f4d74c73e73f68205514129594556c59609c812e942f3ddc08898f70e737fb4  tests/c04/neg.bend
+  90a49d4dfe609a90a7378cc4d7239e65831a4c73e6eb80c85927a92ff92fb403  tests/c04/pos.bend
+
+Oracle script (implementor-owned, /tmp):
+  e4cea0c9df013a8926730228338f8659cbd38358c446b7b929263c035094944e  /tmp/c041_oracle.py
+  (57 checks: the C04 52 — F64 pins, okd 16-pair table,
+  Euler/incidence identities, carried probe log, suite logs —
+  plus the 5 new ownership exit lines; §4)
+
+CI status (explicit record, as in C04 §1): the
+`verify-bendcad.yml` workflow is present and YAML-valid, but GitHub
+Actions execution is UNAVAILABLE — CI billing is blocked
+(maintainer-stated 2026-09-26; billing is out of scope by
+maintainer direction). Local qualification in this receipt is the
+authoritative evidence. No claim is made that CI enforces anything
+until its first green Actions run.
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c04/types.bend --check-only     # exit 0 (<1 s)
+  bend src/c04/ops.bend --check-only      # exit 0 (<1 s)
+  bend laws/c04.bend --check-only         # exit 0, ~0:21 elapsed
+  bend tests/c04/check.bend --check-only  # exit 0 (<1 s)
+  bend tests/c04/neg.bend --check-only    # exit 0 (<1 s)
+  bend tests/c04/pos.bend --check-only    # exit 0 (<1 s)
+
+430 laws confirmed by `grep -c '^law ' laws/c04.bend` (= 430),
+including 18 `ck_*` exit instances (`grep -c '^law ck_'` = 18).
+Bend fails a file with any unproven law, so check-only exit 0
+proves all 430 closed, including every `ck_*` end-to-end
+`brep_checked` verdict (5 accepts; 12 invalid-input diagnoses
+incl. alias/outerkind/cavdup/reuse/cpshare; 1 fuel diagnosis).
+Repo total: 924 laws (38+34+51+371+430).
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c04/neg.bend                 # 107 PASS, selfcheck fails=0, exit 0
+  bend tests/c04/pos.bend                 # 188 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c04/neg.bend -o /tmp/c041v/neg-n && /tmp/c041v/neg-n
+                                          # build 0, 107 PASS, fails=0, exit 0
+  bend tests/c04/pos.bend -o /tmp/c041v/pos-n && /tmp/c041v/pos-n
+                                          # build 0, 188 PASS, fails=0, exit 0
+JS:
+  bend tests/c04/neg.bend -o /tmp/c041v/neg.js && bun /tmp/c041v/neg.js
+                                          # build 0, 107 PASS, fails=0, exit 0
+  bend tests/c04/pos.bend -o /tmp/c041v/pos.js && bun /tmp/c041v/pos.js
+                                          # build 0, 188 PASS, fails=0, exit 0
+
+No native-lane arity failure: new defs keep ≤ 4 args (C02 D2 class).
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all
+pairs; zero FAIL lines in all six logs):
+  neg: 08d095ebd074a990aa6f4fed86ad5e7ecda27c138edf6a853858c0940c8cca43 (x3)
+  pos: 2c7eb762c7a1d5228f96df636effa72748b9fd2ec7f5945fc68be54f22e3701c (x3)
+
+Suite sizes: `grep -c report_` = 107 (neg) + 188 (pos) = 295
+checks, matching PASS counts. Exit appends: `pos_g10` (5 accepts)
++ `neg_g7` (8 diagnoses) + `neg_g8` (5 ownership diagnoses) over
+shared `check.bend` brep fixtures.
+
+Prior packets re-run this session (c00–c03 files byte-identical
+to d080562 per §1 status): all 8 suites interpreted green with
+counts 13+16+44+69+34+24+158+191 = 549 reproducing the C04
+receipt sets, every suite `selfcheck fails=0`.
+Repo total: 844 checks/lane (549 prior + 295 C04).
+
+## 4. Independent oracle cross-checks (this session, 0 mismatches)
+
+`/tmp/c041_oracle.py` (hash §1; exit 0, "ALL ORACLE CHECKS PASSED"):
+57/57, zero failures.
+
+F64 bit pins (struct truth for 2.0/1.0/0.0); okd_pack spec +
+full 16-pair table recomputation (`ok + 2*done`);
+Euler/incidence identities (tet V−E+F=2, cube, torus, disk,
+cavity 2+2, tet CE=2E, seam CE=2E, `euler-not-sufficient`
+documenting that counting alone cannot validate); the 13
+carried C04 probe checks (read from the preserved
+/tmp/c04v/probe-i.log — sound because the probe exercises
+only types.bend, whose C04.1 diff is one comment line);
+fresh C04.1 suite-log counts (107/188); all 18 exit-fixture
+verdict lines with exact kinds (5 ok accepts, 12
+invalid-input diagnoses, 1 resource-exhausted fuel diagnosis).
+
+## 5. Design record (what was built and checked)
+
+Repair (`src/c04/ops.bend`, +8 defs, 63 → 71): stage F under
+`P_manifold_solid` now conjoins five walks — `shs_no_open_c`
+(unchanged), `sos_cav_inner_c` (unchanged),
+`sos_outer_kind_c` (NEW: every solid outer resolves to
+`SK_outer`), `sos_own_c` (NEW: per-solid owned-handle nodup
+plus pairwise disjointness across the solid store by
+induction), `cp_sh_own_c` (NEW: compound sheets nodup and
+disjoint from all solid shells) — over `hsh_free_of` /
+`hsh_nodup_c` / `hsh_list_free_of` / `hsh_free_of_sos` /
+`so_sh_list` helpers. All fuel-capped (member-list sub-walks
+get the FULL cap, so fuel ≥ max store/member-list length
+still suffices); all ≤ 4 args. `P_open_shell` stays vacuous
+on stage F by documented design (contract §4/§12).
+`mk_solid`/`so_push` stay total by design: kind and ownership
+are store-level verdicts, not value shape.
+
+Claim corrections: "orientation" → edge-use pairing (stage C
+checks counts + opposite `fwd` only); "self-intersection" →
+repeated-start-vertex proxy (distinct start handles only;
+coincident vertices, mid-edge crossings, inter-loop
+penetration NOT detected). Corrected in `ops.bend` header +
+stage comments, `types.bend` split comment, `neg.bend`
+header, contract §§1/3/4/5/7/9/11/12/13, ledger C04 row, and
+this receipt. The historical C04 receipt is untouched (it
+records the C04 bytes); this receipt supersedes its
+qualifications.
+
+Face-orientation verdict: DEFER (contract §12). No sound
+in-scope check exists: coherence of outward face normals is
+geometric (embedding + interior classifier), C04 fixtures are
+combinatorial by design, and any structural rule on the
+`same` flag alone would be arbitrary. Roadmap: plane-face
+winding-vs-normal at C06; full coherence via normals +
+interior classification at C07/C08.
+
+Failure-arm evidence: outer-kind and all four ownership arms
+pinned invalid-input via unit walk-code laws + end-to-end
+`ck_*` + runtime `neg_g8`; pre-fix run proved the holes
+(process note above); `ck_fuel` + `neg-*-0` still pin
+exhaustion through the extended stage F.
+
+Recursion audit (machine, comment-stripped name-occurrence):
+exactly 90 self-recursive defs — 83 mention `fuel`
+(fuel-capped walks with explicit exhaustion arms) + 7
+structural store `snoc` builders. No unbounded recursion.
+
+## BN. Bend-native gates (BN-1..BN-12)
+
+N/A is forbidden by docs/bend-native-gates.md; every gate below is
+PASS with evidence at the §1 bytes.
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | Implementation is exactly `src/c04/types.bend` + `src/c04/ops.bend` (hashes §1); both `bend … --check-only` → `All terms check.` (§2). No authoritative algorithm in another language. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/ laws/ tests/ \| grep -v ': *#'` count is 0 — no `@unsafe` construct. |
+| BN-3 | PASS | `grep -rn "F32" src/ laws/ tests/` count is 0; all scalars are F64 or exact Nat/U64/Bool. |
+| BN-4 | PASS | Imports are `Base` + `../c00` + `../c01` + `../c03` + `./types.bend` + `./check.bend` only; `grep -rni "foreign\|ffi_import\|@ffi" src/` count is 0. Boundary list: none. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs"` over `src/` count is 0; `legacy/` clean (§1) + `tools/verify_legacy.py` exit 0 (`"failures": []`). Oracle is an independent /tmp script, not a runtime dependency. |
+| BN-6 | PASS | No GPU claim in this packet (contract §10), hence no GPU path to fall back from. All evaluation is host Nat/U64/Bool/F64. |
+| BN-7 | PASS | Content identity only (contract §7): generational `(idx, stamp)` handles into explicit content stores; stamp equality, never addresses. Ownership compares full `(idx, gen)` pairs via `hsh_eq`. |
+| BN-8 | PASS | Machine audit §5: exactly 90 self-recursive defs = 83 fuel-capped walks + 7 structural snoc, out of 365 total defs (294+71); the remaining 275 are non-recursive. No unbounded recursion. |
+| BN-9 | PASS | No batch op ships; parallel decomposition specified-only (contract §10). |
+| BN-10 | PASS | Every shortcut classified (contract §12 + §4): Euler identities documented-necessary, explicitly not validation; repeated-start proxy claimed as proxy only; quadric trim coincidence skip, vertex-link pinch, cavity inside/disjoint, and face-orientation coherence are LABELED deferrals, not shortcuts; exact endpoint embedding, no tolerance inflation. No unlabeled shortcut. |
+| BN-11 | PASS | Every `Terr` arm carries no value (typed defaults, contract §2/§9); pins: `neg-tres-*` + `neg-ck-*` kind asserts (incl. 5 new ownership diagnoses), `fails=0` on all six lanes. |
+| BN-12 | PASS | This section + §1: BendCAD HEAD `d080562` + per-file sha256; `BEND_PIN jnadeau207-collab/bend@50ec219a` + FORK tag `numeric/2026-09-25`; fork-build bend, bun 1.4.2, pinned env; CI-unavailable record. |
+
+Gate count: 12 (BN-1 through BN-12). Overall: 12 PASS / 0 FAIL.
+
+## 6. Counts
+
+check-only files passed: 6/6 C04 (types, ops, laws, check, neg,
+pos); prior packets untouched and re-run green (§3).
+Suite checks passed (neg+pos, per lane): 107+188 interpreted,
+107+188 native, 107+188 JS (295 checks × 3 lanes = 885
+executions, 0 fails). Repo: 844 checks/lane.
+Laws proven: 430 C04 (`grep -c '^law '`, check-only exit 0);
+repo total 924.
+Differential cases vs independent oracle: 57 pinned checks,
+0 mismatches.
+Unresolved/abstained cases: none silent. Standing abstentions by
+design: malformed/dangling → `invalid-input`, true overflow →
+`uncertainty`, short fuel → `resource-exhausted`, unimplemented
+scope per contract §12 (incl. the face-orientation deferral).
+
+## 7. Negative confirmations
+
+- No weakened test/law: 27 laws and 8 checks added with the
+  repair (22 walk-code laws + 5 `ck_*`; `neg_g8` + 3 `pos_g9`
+  pins); nothing deleted, skipped, or relabeled (prior
+  packets byte-identical to d080562, §1 status; all 13 prior
+  `ck_*` verdicts reproduce).
+- No placeholder: every new `src/c04` def is exercised by laws +
+  suite pins; contract §12 scope limits are explicit and
+  labeled.
+- No commit/push/amend performed before this receipt; `git status`
+  shows only the §1 packet paths.
+- Published history untouched: no amend, no rebase, no force-push.
+- `legacy/` clean before and after; fork untouched; `bend update`
+  never run.
+- Scratch contained: oracle + lane binaries/logs live in /tmp
+  only (`/tmp/c041_oracle.py`, `/tmp/c041v/`); the C04
+  `/tmp/c04v/` evidence it carries is preserved, not overwritten.
+- stdout logs: zero FAIL lines in all six C04.1 lane logs (and all
+  8 prior-packet interpreted logs); `cmp` clean across lanes per
+  suite.
+
+## 8. Exit-criteria verdict
+
+Criterion (C04.1 repair scope): `Solid.outer = SK_outer`
+enforced; outer/cavity aliasing and shell reuse across
+outer/cavities/solids/compounds prevented; self-intersection
+and orientation qualifications corrected; face-orientation
+validation implemented or explicitly deferred with roadmap +
+rationale; vertex-link, cavity-containment, quadric-trim
+deferrals explicit with no overclaim — under named profiles,
+with laws + tests + oracle evidence and an honest receipt.
+
+Verdict: PASS. Evidence: §2 static gates (430 laws closed incl.
+18 `ck_*` end-to-end verdicts) + §3 triple lanes (885 executions,
+0 fails, byte-identical stdout; priors reproduced) + §4 oracle
+(57/57 incl. all 18 exit lines) + §5 design record (stage-F
+kind/ownership walks, C00 arms only, fuel-capped walks) + §BN
+gate table (12/12 PASS). The four labeled deferrals
+(vertex-link pinch, cavity inside/disjoint, quadric trim
+coincidence, face-orientation coherence) are scope limits for
+later packets, not exit gaps: the C04.1 scope sentence is fully
+evidenced.
+
+C04.1 IS COMPLETE. C05 may proceed.
+
+## 9. Close-out re-verification (this session, same §1 bytes)
+
+An independent close-out pass re-ran every gate fresh against the
+§1 bytes (all 8 sha256 reproduced) and reproduced every number
+above with zero corrections to §§1–8: 6/6 check-only green (laws
+~0:21), neg 107 + pos 188 on interpreted + native + JS with
+`fails=0`, zero FAIL lines, `cmp` clean across lanes, stdout
+hashes identical to §3, priors 16+13+69+44+24+34+191+158 = 549
+green with c00–c03 byte-identical to d080562, oracle 57/57 exit 0
+at the §1 script hash. Fresh logs in /tmp/c041close/ (the §3–§4
+/tmp/c041v/ evidence preserved, not overwritten).
+
+New checks beyond §§1–8: the carried /tmp/c041v/neg-i.log and
+pos-i.log are byte-identical (`cmp` clean) to the fresh
+close-out logs, so the §4 suite-log cross-checks hold on fresh
+bytes, not only by the soundness argument; the §5 recursion
+audit was re-run mechanically (comment-stripped self-name
+occurrence per def): 365 total defs (294+71), exactly 90
+self-recursive = 83 mentioning `fuel` + the 7 structural store
+`snoc` (`vx/ed/ce/lp/fa/sh/so_snoc`); pre-image counts confirm
+403→430 laws (+27) and 102→107 / 185→188 reports (+8, tags
+stable, binder renumber only). Contamination re-greps all zero
+(BN-2/3/4/5); `legacy/` clean; `tools/verify_legacy.py` exit 0
+(`"failures": []`); CI workflow YAML-valid with the §1
+CI-unavailable record carried. No overclaim: the repeated-start
+proxy, the four §12 deferrals, and the pairing-vs-coherence
+wording were re-audited in final code, contract, and this
+receipt; the retained `selfx` fixture identifier names the
+documented proxy and asserts only an `invalid-input` verdict.

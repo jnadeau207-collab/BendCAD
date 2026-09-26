@@ -1,7 +1,7 @@
 # C04 negative tests: every types.bend failure arm asserts its
 # structured kind (invalid-input or resource-exhausted), plus
 # brep_checked exit counterexamples (dangling/inverted/trim/
-# embedding/nonmanifold/self-intersecting/profile/fuel reject).
+# embedding/nonmanifold/repeated-start/profile/ownership/fuel reject).
 # selfcheck fails=N.
 
 import Base
@@ -360,6 +360,25 @@ def neg_g7(f94: U64) -> IO(U64):
       "resource-exhausted", f101)
     return f102
 
+def neg_g8(f102: U64) -> IO(U64):
+  do IO<U64>:
+    f103 : U64 <- C.report_terr("neg-ck-alias",
+      Op.brep_checked(C.b_alias(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f102)
+    f104 : U64 <- C.report_terr("neg-ck-outerkind",
+      Op.brep_checked(C.b_outerkind(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f103)
+    f105 : U64 <- C.report_terr("neg-ck-cavdup",
+      Op.brep_checked(C.b_cavdup(), Ty.P_manifold_solid{}, 20n),
+      "invalid-input", f104)
+    f106 : U64 <- C.report_terr("neg-ck-reuse",
+      Op.brep_checked(C.b_reuse(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f105)
+    f107 : U64 <- C.report_terr("neg-ck-cpshare",
+      Op.brep_checked(C.b_cpshare(), Ty.P_manifold_solid{}, 12n),
+      "invalid-input", f106)
+    return f107
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- neg_g1(0u64)
@@ -369,4 +388,5 @@ def main() -> IO(Unit):
     a5 : U64 <- neg_g5(a4)
     a6 : U64 <- neg_g6(a5)
     a7 : U64 <- neg_g7(a6)
-    IO.print("selfcheck fails=" ++ U64.show(a7))
+    a8 : U64 <- neg_g8(a7)
+    IO.print("selfcheck fails=" ++ U64.show(a8))

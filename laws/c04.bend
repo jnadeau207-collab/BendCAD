@@ -3576,6 +3576,159 @@ law so_push_cav:
 def so_push_cav():
   {==}
 
+# --- F1. Shell ownership walks: absence/nodup/outer-kind/own codes ---
+law hsh_nd_empty:
+  {Nat.is_eq(Op.hsh_nodup_c(hsh0(), 8n), 3n) == True{} : Bool}
+
+def hsh_nd_empty():
+  {==}
+
+law hsh_nd_single:
+  {Nat.is_eq(Op.hsh_nodup_c(hsh1(), 8n), 3n) == True{} : Bool}
+
+def hsh_nd_single():
+  {==}
+
+law hsh_nd_dup:
+  {Nat.is_eq(Op.hsh_nodup_c(hsh_a() <> hsh_a() <> Nil{}, 8n), 2n)
+    == True{} : Bool}
+
+def hsh_nd_dup():
+  {==}
+
+law hsh_nd_fuel:
+  {Nat.is_eq(Op.hsh_nodup_c(hsh1(), 0n), 0n) == True{} : Bool}
+
+def hsh_nd_fuel():
+  {==}
+
+law hsh_fo_absent:
+  {Nat.is_eq(Op.hsh_free_of(Ty.mk_hsh(1n, 52u64) <> Nil{},
+    hsh_a(), 8n), 3n) == True{} : Bool}
+
+def hsh_fo_absent():
+  {==}
+
+law hsh_fo_hit:
+  {Nat.is_eq(Op.hsh_free_of(hsh1(), hsh_a(), 8n), 2n)
+    == True{} : Bool}
+
+def hsh_fo_hit():
+  {==}
+
+law so_shl_single:
+  {Nat.is_eq(Op.hsh_nodup_c(Op.so_sh_list(so_a()), 8n), 3n)
+    == True{} : Bool}
+
+def so_shl_single():
+  {==}
+
+law so_shl_alias:
+  {Nat.is_eq(Op.hsh_nodup_c(Op.so_sh_list(so_b()), 8n), 2n)
+    == True{} : Bool}
+
+def so_shl_alias():
+  {==}
+
+law outer_kind_ok:
+  {Nat.is_eq(Op.sos_outer_kind_c(sos1(), shs1(), 8n, 8n), 3n)
+    == True{} : Bool}
+
+def outer_kind_ok():
+  {==}
+
+law outer_kind_bad:
+  {Nat.is_eq(Op.sos_outer_kind_c(
+    Ty.So{61u64, Ty.mk_hsh(1n, 52u64), hsh0()} <> Nil{},
+    shs2(), 8n, 8n), 2n) == True{} : Bool}
+
+def outer_kind_bad():
+  {==}
+
+law outer_kind_fuel:
+  {Nat.is_eq(Op.sos_outer_kind_c(sos1(), shs1(), 0n, 8n), 0n)
+    == True{} : Bool}
+
+def outer_kind_fuel():
+  {==}
+
+law own_single_ok:
+  {Nat.is_eq(Op.sos_own_c(sos1(), 8n, 8n), 3n) == True{} : Bool}
+
+def own_single_ok():
+  {==}
+
+law own_alias_no:
+  {Nat.is_eq(Op.sos_own_c(so_b() <> Nil{}, 8n, 8n), 2n)
+    == True{} : Bool}
+
+def own_alias_no():
+  {==}
+
+law own_reuse_no:
+  {Nat.is_eq(Op.sos_own_c(so_a() <> so_a() <> Nil{}, 8n, 8n),
+    2n) == True{} : Bool}
+
+def own_reuse_no():
+  {==}
+
+law own_fuel:
+  {Nat.is_eq(Op.sos_own_c(sos1(), 0n, 8n), 0n) == True{} : Bool}
+
+def own_fuel():
+  {==}
+
+law cpown_disjoint_ok:
+  {Nat.is_eq(Op.cp_sh_own_c(top0(), sos1(), 8n), 3n)
+    == True{} : Bool}
+
+def cpown_disjoint_ok():
+  {==}
+
+law cpown_share_no:
+  {Nat.is_eq(Op.cp_sh_own_c(Ty.Cp{hso0(), hsh1()}, sos1(), 8n),
+    2n) == True{} : Bool}
+
+def cpown_share_no():
+  {==}
+
+law cpown_dup_no:
+  {Nat.is_eq(Op.cp_sh_own_c(
+    Ty.Cp{hso0(), hsh_a() <> hsh_a() <> Nil{}}, sos0(), 8n),
+    2n) == True{} : Bool}
+
+def cpown_dup_no():
+  {==}
+
+law hlf_absent:
+  {Nat.is_eq(Op.hsh_list_free_of(
+    Ty.mk_hsh(1n, 52u64) <> Nil{}, hsh1(), 8n, 8n), 3n)
+    == True{} : Bool}
+
+def hlf_absent():
+  {==}
+
+law hlf_hit:
+  {Nat.is_eq(Op.hsh_list_free_of(hsh1(), hsh1(), 8n, 8n), 2n)
+    == True{} : Bool}
+
+def hlf_hit():
+  {==}
+
+law hfos_absent:
+  {Nat.is_eq(Op.hsh_free_of_sos(hsh0(), sos1(), 8n, 8n), 3n)
+    == True{} : Bool}
+
+def hfos_absent():
+  {==}
+
+law hfos_hit:
+  {Nat.is_eq(Op.hsh_free_of_sos(hsh1(), sos1(), 8n, 8n), 2n)
+    == True{} : Bool}
+
+def hfos_hit():
+  {==}
+
 # --- Ops fixtures: brep_checked instances via the push protocol ---
 def tr_closed() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_00()}}
@@ -3834,6 +3987,139 @@ def b_selfx() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 11u64)
   Ty.brep_set_top(b11, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
+def b_alias() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh_out <> Nil{}))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+def b_outerkind() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_inner{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+def b_cavdup() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +b9 = Ty.tres_brep(Ty.vx_push(b8, p000()))
+  +b10 = Ty.tres_brep(Ty.vx_push(b9, p100()))
+  +hvN2 = Ty.mk_hv(2n, 9u64)
+  +hvS2 = Ty.mk_hv(3n, 10u64)
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hvN2, hvS2,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he1, True{}, tr_ts()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he1, False{}, tr_ts()))
+  +hc2x = Ty.mk_hc(2n, 12u64)
+  +hc3x = Ty.mk_hc(3n, 13u64)
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hc2x <> hc3x <> Nil{},
+    Ty.LK_outer{}))
+  +hlp1x = Ty.mk_hlp(1n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_sp(), hlp1x <> Nil{},
+    True{}))
+  +hfa1x = Ty.mk_hfa(1n, 15u64)
+  +b16 = Ty.tres_brep(Ty.sh_push(b15, hfa1x <> Nil{}, Ty.SK_inner{}))
+  +hsh_in = Ty.mk_hsh(1n, 16u64)
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b17 = Ty.tres_brep(Ty.so_push(b16, hsh_out,
+    hsh_in <> hsh_in <> Nil{}))
+  +hso0 = Ty.mk_hso(0n, 17u64)
+  Ty.brep_set_top(b17, Ty.Cp{hso0 <> Nil{}, hsh0()})
+
+def b_reuse() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  +hso1x = Ty.mk_hso(1n, 10u64)
+  Ty.brep_set_top(b10, Ty.Cp{hso0x <> hso1x <> Nil{}, hsh0()})
+
+def b_cpshare() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh_out <> Nil{}})
+
 law ck_sphere:
   {String.eq(Ty.tres_show(Op.brep_checked(b_sphere(),
     Ty.P_manifold_solid{}, 12n)), "ok") == True{} : Bool}
@@ -3924,4 +4210,39 @@ law ck_fuel:
     == True{} : Bool}
 
 def ck_fuel():
+  {==}
+
+law ck_alias:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_alias(),
+    Ty.P_manifold_solid{}, 12n)), "invalid-input") == True{} : Bool}
+
+def ck_alias():
+  {==}
+
+law ck_outerkind:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_outerkind(),
+    Ty.P_manifold_solid{}, 12n)), "invalid-input") == True{} : Bool}
+
+def ck_outerkind():
+  {==}
+
+law ck_cavdup:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_cavdup(),
+    Ty.P_manifold_solid{}, 20n)), "invalid-input") == True{} : Bool}
+
+def ck_cavdup():
+  {==}
+
+law ck_reuse:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_reuse(),
+    Ty.P_manifold_solid{}, 12n)), "invalid-input") == True{} : Bool}
+
+def ck_reuse():
+  {==}
+
+law ck_cpshare:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_cpshare(),
+    Ty.P_manifold_solid{}, 12n)), "invalid-input") == True{} : Bool}
+
+def ck_cpshare():
   {==}

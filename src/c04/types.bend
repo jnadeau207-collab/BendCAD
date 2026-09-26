@@ -24,7 +24,7 @@
 # Split with ops.bend (mirrors C03 mk_plane vs plane_checked): mk_*
 # gates value-level shape only (finite points, valid geometry arms,
 # nonempty member lists, degenerate edges pinched to one vertex).
-# Incidence, handle liveness, loop closure, orientation, trimming
+# Incidence, handle liveness, loop closure, edge-use pairing, trimming
 # consistency and geometric embedding are brep_checked in ops.bend
 # under an explicit Profile (manifold-solid vs open-shell).
 

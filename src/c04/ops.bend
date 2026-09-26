@@ -1,6 +1,7 @@
 # C04 boundary-representation validators: brep_checked under explicit profiles.
 # Data + constructors live in types.bend; this file validates incidence,
-# usage/orientation, loop closure, trimming, embedding, and solid/open rules.
+# edge-use pairing, loop closure, trimming, embedding, shell ownership,
+# and solid/open rules.
 # Every failure is C00 FailKind (invalid-input or resource-exhausted); no new
 # taxonomy. Every list walk is Nat-fuel-bounded (BN-8); handles are
 # generational (idx, gen) into explicit Brep lists (BN-7); no batch ops (BN-9).
@@ -8,13 +9,20 @@
 # Pipeline (first match wins; order matters for exhausted-vs-invalid):
 #  A. store re-validation via mk_brep (value + gen + nodup; catches raw Br).
 #  B. incidence: every member handle resolves (dangling => invalid).
-#  C. edge usage: solid = exactly twice opposite fwd; open = once/twice
-#     (twice => opposite). Covers inverted, nonmanifold-edge, open-boundary.
-#  D. loop closure (oriented vertex chain meets + closed) + self-intersection
-#     (no repeated start vertex) + trimming meets in face (u,v).
+#  C. edge-use pairing: solid = exactly twice opposite fwd; open =
+#     once/twice (twice => opposite). Covers inverted,
+#     nonmanifold-edge, open-boundary. This is PAIRING only: face/shell
+#     orientation coherence (outward normals) is DEFERRED, contract §12.
+#  D. loop closure (oriented vertex chain meets + closed) +
+#     repeated-start-vertex check (a narrow duplicate-vertex proxy, NOT
+#     general geometric self-intersection, contract §12) + trimming
+#     meets in face (u,v).
 #  E. face loop kinds: exactly one LK_outer per face.
-#  F. shell/solid/profile: solid forbids SK_open, cavities are SK_inner;
-#     open admits SK_open and boundary (once-used) edges.
+#  F. shell/solid/profile: solid forbids SK_open, outer IS SK_outer,
+#     cavities are SK_inner, and every shell is owned at most once (no
+#     outer/cavity aliasing, no cavity dup, no reuse across solids, no
+#     sharing between solids and the compound root); open admits SK_open
+#     and boundary (once-used) edges and skips solid/cavity ownership.
 #  G. embedding: C03 interior validity + vertex-on-curve (all curves) +
 #     trim-on-surface coincidence for plane/bezp only (sphere/cyl/cone/torus
 #     have no C03 surface eval; their trims pass on uv-meet + finiteness).
@@ -355,7 +363,9 @@ def brep_use_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
   +ces = Ty.brep_ces(b)
   es_use_c(es, ces, prof, fuel, fuel, 0n)
 
-# --- HVertex nodup for loop self-intersection (starts must be distinct). ---
+# --- HVertex nodup for the repeated-start-vertex proxy (starts must be
+# distinct). Narrow duplicate-handle check only, NOT general geometric
+# self-intersection (contract §12). ---
 def hv_free_of(xs: List<&2, Ty.HVertex>, +g: Ty.HVertex,
     fuel: Nat) -> Nat:
   match xs:
@@ -492,7 +502,10 @@ def brep_facekind_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   +lps = Ty.brep_lps(b)
   fas_kind_c(fas, lps, fuel, fuel)
 
-# --- Stage F profile: solid forbids SK_open (tag 2), cavities SK_inner(1). ---
+# --- Stage F profile: solid forbids SK_open (tag 2), outer IS SK_outer
+# (tag 0), cavities SK_inner (tag 1), and every shell is owned at most
+# once. Runs after stage B, so all resolves succeed (Tres defaults
+# unreachable). P_open_shell skips solid/cavity ownership entirely. ---
 def shs_no_open_c(shs: List<&2, Ty.Shell>, fuel: Nat) -> Nat:
   match shs:
     case Nil{}: 3n
@@ -530,13 +543,112 @@ def sos_cav_inner_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
             ffull)
           Ty.okd_all(code, rest)
 
+def sos_outer_kind_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
+    fuel: Nat, +ffull: Nat) -> Nat:
+  match sos:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = sos_outer_kind_c(t, shs, f, ffull)
+          +sh = Ty.tres_sh(Ty.sh_resolve(shs, Ty.so_outer(h), ffull))
+          +ok = U64.is_eq(Ty.skind_tag(Ty.sh_kind(sh)), 0u64)
+          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
+
+# One solid's owned shell handles: outer first, then cavities.
+def so_sh_list(+s: Ty.Solid) -> List<&2, Ty.HShell>:
+  Ty.so_outer(s) <> Ty.so_cavities(s)
+
+# HShell absence + nodup (mirrors hv_free_of/hv_nodup_c).
+def hsh_free_of(xs: List<&2, Ty.HShell>, +g: Ty.HShell,
+    fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hsh_free_of(t, g, f)
+          +neq = Bool.not(Ty.hsh_eq(h, g))
+          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
+            Ty.okd_done(rest))
+
+def hsh_nodup_c(xs: List<&2, Ty.HShell>, fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hg = h
+          Ty.okd_all(hsh_free_of(t, hg, ff), hsh_nodup_c(t, ff))
+
+# Every handle in xs absent from ys (fuel 1 per xs element; each
+# absence scan gets the full cap).
+def hsh_list_free_of(xs: List<&2, Ty.HShell>,
+    +ys: List<&2, Ty.HShell>, fuel: Nat, +ffull: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hsh_list_free_of(t, ys, f, ffull)
+          +code = hsh_free_of(ys, h, ffull)
+          Ty.okd_all(code, rest)
+
+# Handles in xs absent from every solid's owned shells in sos.
+def hsh_free_of_sos(+xs: List<&2, Ty.HShell>,
+    +sos: List<&2, Ty.Solid>, fuel: Nat, +ffull: Nat) -> Nat:
+  match sos:
+    case Nil{}: 3n
+    case s <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hsh_free_of_sos(xs, t, f, ffull)
+          +code = hsh_list_free_of(xs, so_sh_list(s), ffull,
+            ffull)
+          Ty.okd_all(code, rest)
+
+# Per-solid ownership: internal nodup (outer not among cavities, no
+# cavity dup) + disjointness from every LATER solid (pairwise across
+# the store by induction, mirroring the nodup_c pattern).
+def sos_own_c(sos: List<&2, Ty.Solid>, fuel: Nat,
+    +ffull: Nat) -> Nat:
+  match sos:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hh = so_sh_list(h)
+          +self_nd = hsh_nodup_c(hh, ffull)
+          +vs_tail = hsh_free_of_sos(hh, t, ffull, ffull)
+          +rest = sos_own_c(t, ff, ffull)
+          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
+
+# Compound open sheets: nodup + disjoint from every solid's shells.
+def cp_sh_own_c(+top: Ty.Compound, +sos: List<&2, Ty.Solid>,
+    +ffull: Nat) -> Nat:
+  +cs = Ty.cp_shells(top)
+  Ty.okd_all(hsh_nodup_c(cs, ffull),
+    hsh_free_of_sos(cs, sos, ffull, ffull))
+
 def brep_prof_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
   match prof:
     case Ty.P_manifold_solid{}:
       +shs = Ty.brep_shs(b)
       +sos = Ty.brep_sos(b)
+      +top = Ty.brep_top(b)
       Ty.okd_all(shs_no_open_c(shs, fuel),
-        sos_cav_inner_c(sos, shs, fuel, fuel))
+        Ty.okd_all(sos_cav_inner_c(sos, shs, fuel, fuel),
+          Ty.okd_all(sos_outer_kind_c(sos, shs, fuel, fuel),
+            Ty.okd_all(sos_own_c(sos, fuel, fuel),
+              cp_sh_own_c(top, sos, fuel)))))
     case Ty.P_open_shell{}: 3n
 
 # --- Stage G embedding: C03 interiors + vertex-on-curve + trim coincidence

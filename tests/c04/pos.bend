@@ -649,26 +649,36 @@ def pos_g9(f173: U64) -> IO(U64):
     f180 : U64 <- C.report_pure("pos-nodup-vs-fuel",
       Bool.not(Ty.okd_done(Ty.vs_nodup_c(C.vs1(), 0n))),
       f179)
-    return f180
-
-def pos_g10(f180: U64) -> IO(U64):
-  do IO<U64>:
-    f181 : U64 <- C.report_ok("pos-ck-sphere",
-      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 12n),
-      f180)
-    f182 : U64 <- C.report_ok("pos-ck-cyl",
-      Op.brep_checked(C.b_cyl(), Ty.P_manifold_solid{}, 12n),
+    f181 : U64 <- C.report_pure("pos-hsh-nd-ok",
+      Nat.is_eq(Op.hsh_nodup_c(C.hsh1(), 9n), 3n), f180)
+    f182 : U64 <- C.report_pure("pos-hsh-nd-dup",
+      Nat.is_eq(Op.hsh_nodup_c(Ty.mk_hsh(0n, 51u64) <>
+        C.hsh1(), 9n), 2n),
       f181)
-    f183 : U64 <- C.report_ok("pos-ck-cav",
-      Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
+    f183 : U64 <- C.report_pure("pos-so-shl-alias",
+      Nat.is_eq(Op.hsh_nodup_c(Op.so_sh_list(C.so_b()),
+        9n), 2n),
       f182)
-    f184 : U64 <- C.report_ok("pos-ck-open",
-      Op.brep_checked(C.b_open(), Ty.P_open_shell{}, 12n),
+    return f183
+
+def pos_g10(f183: U64) -> IO(U64):
+  do IO<U64>:
+    f184 : U64 <- C.report_ok("pos-ck-sphere",
+      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 12n),
       f183)
-    f185 : U64 <- C.report_ok("pos-ck-pole",
-      Op.brep_checked(C.b_pole(), Ty.P_manifold_solid{}, 12n),
+    f185 : U64 <- C.report_ok("pos-ck-cyl",
+      Op.brep_checked(C.b_cyl(), Ty.P_manifold_solid{}, 12n),
       f184)
-    return f185
+    f186 : U64 <- C.report_ok("pos-ck-cav",
+      Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
+      f185)
+    f187 : U64 <- C.report_ok("pos-ck-open",
+      Op.brep_checked(C.b_open(), Ty.P_open_shell{}, 12n),
+      f186)
+    f188 : U64 <- C.report_ok("pos-ck-pole",
+      Op.brep_checked(C.b_pole(), Ty.P_manifold_solid{}, 12n),
+      f187)
+    return f188
 
 def main() -> IO(Unit):
   do IO<Unit>:
