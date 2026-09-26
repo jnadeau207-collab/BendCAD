@@ -1,0 +1,253 @@
+# C04 receipt — 2026-09-26 (boundary-representation topology)
+
+Packet: vertex/edge/coedge/loop/face/shell/solid/cavity/compound
+representation with generational handles, plus the `brep_checked`
+manifold-solid and open-shell validity profiles (staged
+referential/edge-use/loop/geometric/shell/cavity checks on
+fuel-capped walks). MASTER_PLAN §C04 exit: sphere/cylinder seams
+and cavities accepted; dangling, inverted, self-intersecting, and
+nonmanifold counterexamples diagnosed.
+Verdict: PASS. Every number below was observed by running the
+listed commands against the §1 bytes.
+
+Process note: this packet was implemented by a supervised subagent
+workflow (research → types → ops → tests → laws → docs → critic →
+fix rounds → reverify); the close-out below re-ran every gate
+fresh on the final bytes, rebuilt the tet probe, repointed the
+oracle at fresh logs, and rewrote this receipt, the contract §11,
+and the ledger C04 rows to the final state. An interim receipt
+draft describing a types-only state was superseded before commit
+and never published.
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: e76ec807b9e58b2cbb2ade921e7dbc2b4d0c605
+  (log -1: "c03.2: freeze C03 with threshold fix and full local
+  requalification"; branch main)
+git status --porcelain (only the paths below; no other edits):
+   M docs/replacement-ledger.md
+  ?? docs/c04-contract.md
+  ?? docs/receipts/c04-2026-09-26.txt      (this file; written, not hashed)
+  ?? laws/c04.bend
+  ?? src/c04/
+  ?? tests/c04/
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched (no git commands against it; `bend update` never run).
+
+BEND_PIN (root file, unchanged):
+  jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK: unchanged (tag numeric/2026-09-25, commit 50ec219a).
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (Bend 2.0.27, fork build).
+bun 1.4.2.
+
+sha256 of every packet file (receipt excluded as it is the file being
+written):
+  c485f7761f58072838fa05acbb9dfce5634533f66e3ea5bba0228c9c9af6f06a  docs/c04-contract.md
+  5b225e81e578442affdeb4060e59ac846bb2c3d45b941b7aaba191df0cbc56aa  docs/replacement-ledger.md
+  578779e0b2e7751b6fc655b4c5f94bd4364f0ff1acc783a02b8530419b5bc9d0  src/c04/types.bend
+  20646418ba7952be5c0bc773f6e87a3f8c5d2f99908d1df509cc156a3f310d82  src/c04/ops.bend
+  ae6d815746f66c9dc185bb2fc7aabb07b2feefd89d3ebd87c94f117c15d5936d  laws/c04.bend
+  a8b51e723fc3a397b6a9739088f9175b5f51be66f2347d9ac9a3d03620348356  tests/c04/check.bend
+  791b56d183f585aed80ddc14bc87562ee3cafa66edefe779b57de236f7e2cca3  tests/c04/neg.bend
+  3efa260f2fd755a491f7071a863b24a833967c9aa6dc0625a8d3848ed9ca0753  tests/c04/pos.bend
+
+Oracle script (implementor-owned, /tmp):
+  05079725f6db91f1426a86c63f4cd09d23beb50d23b286a3bfeb925a956003f8  /tmp/c04_oracle.py
+  (52 checks: F64 pins, okd 16-pair table, Euler/incidence
+  identities, fresh probe log, fresh suite logs + exit lines, §4)
+
+CI status (explicit record, as in C03.2 §1): the
+`verify-bendcad.yml` workflow is present and YAML-valid, but GitHub
+Actions execution is UNAVAILABLE — CI billing is blocked
+(maintainer-stated 2026-09-26; billing is out of scope by
+maintainer direction). Local qualification in this receipt is the
+authoritative evidence. No claim is made that CI enforces anything
+until its first green Actions run.
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c04/types.bend --check-only     # exit 0 (<1 s)
+  bend src/c04/ops.bend --check-only      # exit 0 (<1 s)
+  bend laws/c04.bend --check-only         # exit 0, 0:20 elapsed
+  bend tests/c04/check.bend --check-only  # exit 0 (<1 s)
+  bend tests/c04/neg.bend --check-only    # exit 0 (<1 s)
+  bend tests/c04/pos.bend --check-only    # exit 0 (<1 s)
+
+403 laws confirmed by `grep -c '^law ' laws/c04.bend` (= 403),
+including 13 `ck_*` exit instances (`grep -c '^law ck_'` = 13).
+Bend fails a file with any unproven law, so check-only exit 0
+proves all 403 closed, including every `ck_*` end-to-end
+`brep_checked` verdict (sphere/cyl/cav/open/pole accepts;
+dang/inv/trimx/embx/nonm/selfx/open_solid/fuel diagnoses).
+Repo total: 897 laws (38+34+51+371+403).
+
+Codegen note: the per-store len/at/resolve/handle_of/issued/push
+law instances follow the mechanical pattern emitted by the
+uncommitted `/tmp/gen_c04.py`; every law, however produced, is
+machine-checked by `bend --check-only` like hand-written ones.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c04/neg.bend                 # 102 PASS, selfcheck fails=0, exit 0
+  bend tests/c04/pos.bend                 # 185 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c04/neg.bend -o /tmp/c04v/neg-n && /tmp/c04v/neg-n
+                                          # build 0, 102 PASS, fails=0, exit 0
+  bend tests/c04/pos.bend -o /tmp/c04v/pos-n && /tmp/c04v/pos-n
+                                          # build 0, 185 PASS, fails=0, exit 0
+JS:
+  bend tests/c04/neg.bend -o /tmp/c04v/neg.js && bun /tmp/c04v/neg.js
+                                          # build 0, 102 PASS, fails=0, exit 0
+  bend tests/c04/pos.bend -o /tmp/c04v/pos.js && bun /tmp/c04v/pos.js
+                                          # build 0, 185 PASS, fails=0, exit 0
+
+No native-lane arity failure: suites follow the C02-D2 let-binding
+shape and small-group split from the start.
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all
+pairs; zero FAIL lines in all six logs):
+  neg: 4e3b5a88d2022a9db97aa683d38acb33d8cb8c4313f302954e248a3f9ca359a9 (x3)
+  pos: 0b8bd4263491addeb0c4b60ae9dab520217cdb53bec20c189f90e0cd962acef8 (x3)
+
+Suite sizes: `grep -c report_` = 102 (neg) + 185 (pos) = 287
+checks, matching PASS counts. Exit appends: `pos_g10` (5 accepts)
++ `neg_g7` (8 diagnoses) over shared `check.bend` brep fixtures.
+
+Prior packets re-run this session (files byte-identical to e76ec80
+per §1 status): all 8 suites × 3 lanes green with counts
+16+13+69+44+24+34+191+158 reproducing the C03.2 receipt, stdout
+hashes reproducing it byte-for-byte, `cmp` clean per suite.
+Repo total: 836 checks/lane (549 prior + 287 C04).
+
+## 4. Independent oracle cross-checks (this session, 0 mismatches)
+
+`/tmp/c04_oracle.py` (hash §1; exit 0, "ALL ORACLE CHECKS PASSED"):
+52/52, zero failures.
+
+F64 bit pins (plane origin/normal/neg z, sphere center on-axis,
+closed NURBS eval endpoints on seam, stable quadratic roots);
+okd_pack full 16-pair table recomputation (`ok + 2*done`);
+Euler/incidence identities (tet V−E+F=2, cube, seam CE=2E,
+cavity 2+2, `euler-not-sufficient` documenting that counting
+alone cannot validate); fresh tet-probe log, all 12 verdicts +
+selfcheck; fresh suite-log counts (102/185); all 13 exit-fixture
+verdict lines with exact kinds (5 ok accepts, 7 invalid-input
+diagnoses, 1 resource-exhausted fuel diagnosis).
+
+Tet probe: rebuilt from scratch against the final bytes (32 pushes
+via the real push protocol: 4V/6E/12CE/4L/4F/1SH/1SO), run
+interpreted, 12/12 PASS + `selfcheck fails=0`, stdout
+e87403a0cb81e6f730ebfd2fbb6206244889a1db3d6c8e262c4b083d471ad2ef —
+byte-identical to the docs-session log, corroborating the
+representation protocol end to end. Probe file deleted after the
+run (log in /tmp only).
+
+## 5. Design record (what was built and checked)
+
+Representation (`src/c04/types.bend`, 294 defs): `Brep` mounts
+seven content stores (vertex/edge/coedge/loop/face/shell/solid)
+under one append-only stamp; every record carries its stamp;
+generational handles `(idx, stamp)` resolve by stamp equality,
+never by address; per-store `*_len/at/resolve/handle_of/issued`
+plus total `TRes` result with typed defaults; `mk_*` validates
+every field (records-valid, domains, C03 positivity on pushed
+geometry); `mk_brep` re-validates store-by-store closure with
+packed `ok + 2*done` codes, checking `done` before `ok`.
+
+Validation (`src/c04/ops.bend`, 63 defs): `brep_checked` stages
+done-before-ok — A (mk_brep re-validation), B referential
+integrity, C edge-use (twice-opposite) + loop orientation/
+closure/distinctness, E exact geometric endpoint embedding,
+F shell face-closure, G cavity/solid rules, profile-gated
+(manifold-solid vs open-shell). C00 failure kinds only; fuel
+exhaustion surfaces `F_exhausted` per stage; an internal
+`F_unsupported` (unreachable profile) is caught, never published.
+
+Failure-arm evidence: every C00 arm pinned — invalid-input via
+constructor gates + stage-B referential + stage-C/D matedness +
+`ck_*` diagnoses; uncertainty via nonfinite pushed slots;
+exhausted via 0-fuel walks (`neg-mb-fuel-*`, `ck_fuel`);
+unsupported unreachable (contract §4 table).
+
+Recursion audit (machine, comment-stripped name-occurrence):
+exactly 84 self-recursive defs — 77 mention `fuel` (fuel-capped
+walks with explicit exhaustion arms) + 7 structural store `snoc`
+builders. No unbounded recursion.
+
+## BN. Bend-native gates (BN-1..BN-12)
+
+N/A is forbidden by docs/bend-native-gates.md; every gate below is
+PASS with evidence at the §1 bytes.
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | Implementation is exactly `src/c04/types.bend` + `src/c04/ops.bend` (hashes §1); both `bend … --check-only` → `All terms check.` (§2). No authoritative algorithm in another language. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/c04 laws/c04.bend tests/c04 \| grep -v ': *#'` is empty — no `@unsafe` construct. |
+| BN-3 | PASS | `grep -rn "F32" src/c04 laws/c04.bend tests/c04` is empty; all scalars are F64 or exact Nat/U64/Bool. |
+| BN-4 | PASS | Imports are `Base` + `../c00` + `../c01` + `../c03` + `./types.bend` + `./check.bend` only; `grep -rni "foreign\|ffi_import\|@ffi" src/c04` empty. Boundary list: none. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs"` over `src/c04` is empty; `legacy/` clean (§1). Oracle is an independent /tmp script, not a runtime dependency. |
+| BN-6 | PASS | No GPU claim in this packet (contract §10), hence no GPU path to fall back from. All evaluation is host Nat/U64/Bool/F64. |
+| BN-7 | PASS | Content identity only (contract §7): generational `(idx, stamp)` handles into explicit content stores; stamp equality, never addresses. No Nat/U64/Addr identity-typed fields outside the documented handle mechanism. |
+| BN-8 | PASS | Machine audit §5: exactly 84 self-recursive defs = 77 fuel-capped walks + 7 structural snoc, out of 357 total defs (294+63); the remaining 273 are non-recursive. No unbounded recursion. |
+| BN-9 | PASS | No batch op ships; parallel decomposition specified-only (contract §10). |
+| BN-10 | PASS | Every shortcut classified (contract §12 + §4): Euler identities documented-necessary, explicitly not validation; quadric trim coincidence skip, vertex-link pinch, and cavity inside/disjoint are LABELED deferrals, not shortcuts; exact endpoint embedding, no tolerance inflation. No unlabeled shortcut. |
+| BN-11 | PASS | Every `Terr` arm carries no value (typed defaults, contract §2/§9); pins: `neg-tres-*` + `neg-ck-*` kind asserts, `fails=0` on all six lanes. |
+| BN-12 | PASS | This section + §1: BendCAD HEAD `e76ec80` + per-file sha256; `BEND_PIN jnadeau207-collab/bend@50ec219a` + FORK tag `numeric/2026-09-25`; bend 2.0.27 fork build, bun 1.4.2, pinned env; CI-unavailable record. |
+
+Gate count: 12 (BN-1 through BN-12). Overall: 12 PASS / 0 FAIL.
+
+## 6. Counts
+
+check-only files passed: 6/6 C04 (types, ops, laws, check, neg,
+pos); prior packets untouched and re-run green (§3).
+Suite checks passed (neg+pos, per lane): 102+185 interpreted,
+102+185 native, 102+185 JS (287 checks × 3 lanes = 861
+executions, 0 fails). Repo: 836 checks/lane.
+Laws proven: 403 C04 (`grep -c '^law '`, check-only exit 0);
+repo total 897.
+Differential cases vs independent oracle: 52 pinned checks,
+0 mismatches; plus the fresh 12-verdict tet probe.
+Unresolved/abstained cases: none silent. Standing abstentions by
+design: malformed/dangling → `invalid-input`, true overflow →
+`uncertainty`, short fuel → `resource-exhausted`, unimplemented
+scope per contract §12.
+
+## 7. Negative confirmations
+
+- No weakened test/law: 403 laws and 287 checks added with the
+  packet; nothing deleted, skipped, or relabeled (prior packets
+  byte-identical to e76ec80, §1 status).
+- No placeholder: every `src/c04` def is exercised by laws +
+  suite pins; contract §12 scope limits are explicit and
+  labeled.
+- No commit/push/amend performed before this receipt; `git status`
+  shows only the §1 packet paths.
+- Published history untouched: no amend, no rebase, no force-push.
+- `legacy/` clean before and after; fork untouched; `bend update`
+  never run.
+- Scratch removed: agent `scratch_syn.bend` and the close-out
+  tet probe deleted after their runs; stdout logs, lane binaries,
+  oracle, and probe log live in /tmp only.
+- stdout logs: zero FAIL lines in all six C04 lane logs (and all
+  24 prior-packet lane logs); `cmp` clean across lanes per suite.
+
+## 8. Exit-criteria verdict
+
+Criterion (MASTER_PLAN §C04): valid sphere/cylinder seams and
+cavities accepted; dangling, inverted, self-intersecting, and
+nonmanifold counterexamples diagnosed — under named profiles,
+with laws + tests + oracle evidence and an honest receipt.
+
+Verdict: PASS. Evidence: §2 static gates (403 laws closed incl.
+13 `ck_*` end-to-end verdicts) + §3 triple lanes (861 executions,
+0 fails, byte-identical stdout; priors reproduced bit-for-bit) +
+§4 oracle (52/52 incl. all 13 exit lines; fresh tet probe 12/12)
++ §5 design record (staged validation, C00 arms only,
+fuel-capped walks) + §BN gate table (12/12 PASS). The three
+labeled deferrals (vertex-link pinch, cavity inside/disjoint,
+quadric trim coincidence) are scope limits for later packets,
+not exit gaps: the exit sentence is fully evidenced.
+
+C04 IS COMPLETE. C05 may proceed.
