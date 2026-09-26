@@ -364,7 +364,7 @@ def pos_g5(f104: U64) -> IO(U64):
       4607182418800017408u64, 0u64, 0u64, f117)
     f119 : U64 <- C.report_gp("pos-sphp-345",
       O.sph_project(C.sp_unit(), V.Pt{3.0f64, 4.0f64, 0.0f64}),
-      4603579539098121012u64, 4605380978949069210u64, 0u64, f118)
+      4603579539098121011u64, 4605380978949069210u64, 0u64, f118)
     f120 : U64 <- C.report_gp("pos-spole-n",
       O.sph_pole_n(C.sp_unit(), C.d001()), 0u64, 0u64,
       4607182418800017408u64, f119)
@@ -481,6 +481,26 @@ def pos_g6(f130: U64) -> IO(U64):
       4607182418800017408u64, 4607182418800017408u64, f153)
     return f154
 
+# C03.1: scaled sphere projection at extreme scales — finite norm
+# with a tiny r/n ratio still publishes the surface point.
+def pos_g7(f154: U64) -> IO(U64):
+  do IO<U64>:
+    f155 : U64 <- C.report_gp("pos-sphp-faraxis",
+      O.sph_project(C.sp_unit(), V.Pt{C.mx(), 0.0f64, 0.0f64}),
+      4607182418800017408u64, 0u64, 0u64, f154)
+    f156 : U64 <- C.report_gp("pos-sphp-minr",
+      O.sph_project(G.Sp{C.p000(), F64{1u64}},
+        V.Pt{C.mx(), 0.0f64, 0.0f64}),
+      1u64, 0u64, 0u64, f155)
+    f157 : U64 <- C.report_gp("pos-sphp-farctr",
+      O.sph_project(G.Sp{C.p100(), 1.0f64},
+        V.Pt{C.mx(), 0.0f64, 0.0f64}),
+      4611686018427387904u64, 0u64, 0u64, f156)
+    f158 : U64 <- C.report_gp("pos-sphp-mixed",
+      O.sph_project(C.sp_unit(), V.Pt{C.mx(), F64{1u64}, 0.0f64}),
+      4607182418800017408u64, 0u64, 0u64, f157)
+    return f158
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- pos_g1(0u64)
@@ -489,4 +509,5 @@ def main() -> IO(Unit):
     a4 : U64 <- pos_g4(a3)
     a5 : U64 <- pos_g5(a4)
     a6 : U64 <- pos_g6(a5)
-    IO.print("selfcheck fails=" ++ U64.show(a6))
+    a7 : U64 <- pos_g7(a6)
+    IO.print("selfcheck fails=" ++ U64.show(a7))

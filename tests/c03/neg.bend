@@ -154,7 +154,8 @@ def neg_g2(f28: U64) -> IO(U64):
     f33 : U64 <- C.report_gerr("neg-dmid-nan",
       O.dom_mid(G.Dom{F64.nan(), 1.0f64}), "invalid-input", f32)
     f34 : U64 <- C.report_gerr("neg-dmid-ovf",
-      O.dom_mid(G.Dom{C.mx(), C.mx()}), "numerical-uncertainty", f33)
+      O.dom_mid(G.Dom{C.mxm1(), C.mx()}), "numerical-uncertainty",
+      f33)
     f35 : U64 <- C.report_gerr("neg-dlen-nan",
       O.dom_len(G.Dom{0.0f64, F64.nan()}), "invalid-input", f34)
     f36 : U64 <- C.report_gerr("neg-dlen-ovf",
@@ -559,6 +560,113 @@ def neg_g7(f155: U64) -> IO(U64):
       "numerical-uncertainty", f162)
     return f163
 
+# C03.1: raw malformed values rejected at evaluator boundaries
+# (centralized validity layer), plus the subnormal-direction
+# uncertainty arm and the negative-NURBS-weight pin.
+def neg_g8(f163: U64) -> IO(U64):
+  do IO<U64>:
+    f164 : U64 <- C.report_gerr("neg-dmid-degen",
+      O.dom_mid(G.Dom{1.0f64, 1.0f64}), "invalid-input", f163)
+    f165 : U64 <- C.report_gerr("neg-dlen-flip",
+      O.dom_len(G.Dom{2.0f64, 1.0f64}), "invalid-input", f164)
+    f166 : U64 <- C.report_gerr("neg-clamp-degen",
+      O.dom_clamp(G.Dom{0.0f64, 0.0f64}, 0.0f64), "invalid-input",
+      f165)
+    f167 : U64 <- C.report_gerr("neg-split-degen",
+      O.dom_split_hi(G.Dom{0.0f64, 0.0f64}, 0.0f64),
+      "invalid-input", f166)
+    f168 : U64 <- C.report_gerr("neg-leval-zero",
+      O.line_eval(G.Ln{C.p000(), C.d000()}, 1.0f64),
+      "invalid-input", f167)
+    f169 : U64 <- C.report_gerr("neg-lder-zero",
+      O.line_der(G.Ln{C.p000(), C.d000()}), "invalid-input",
+      f168)
+    f170 : U64 <- C.report_gerr("neg-lproj-tiny",
+      O.line_project(G.Ln{C.p000(),
+        V.Dr{F64{1u64}, 0.0f64, 0.0f64}}, C.p111()),
+      "numerical-uncertainty", f169)
+    f171 : U64 <- C.report_gerr("neg-ldist-tiny",
+      O.line_dist(G.Ln{C.p000(),
+        V.Dr{F64{1u64}, 0.0f64, 0.0f64}}, C.p111()),
+      "numerical-uncertainty", f170)
+    f172 : U64 <- C.report_gerr("neg-ceval-rneg",
+      O.circ_eval(G.Cc{C.p000(), C.d100(), C.d010(),
+        F64.neg(1.0f64)}, 0.5f64),
+      "invalid-input", f171)
+    f173 : U64 <- C.report_gerr("neg-qeval-wneg",
+      O.rqb_eval(G.Rq{C.p100(), C.p110(), C.p010(),
+        F64.neg(1.0f64), 1.0f64, 1.0f64}, 0.5f64),
+      "invalid-input", f172)
+    f174 : U64 <- C.report_gerr("neg-qder-w0",
+      O.rqb_der(G.Rq{C.p100(), C.p110(), C.p010(), 1.0f64,
+        0.0f64, 1.0f64}, 0.0f64),
+      "invalid-input", f173)
+    f175 : U64 <- C.report_gerr("neg-qbb-wneg",
+      O.rqb_bbox(G.Rq{C.p100(), C.p110(), C.p010(), 1.0f64,
+        1.0f64, F64.neg(1.0f64)}),
+      "invalid-input", f174)
+    f176 : U64 <- C.report_gerr("neg-qdisc-w0",
+      O.rqb_disc(G.Rq{C.p100(), C.p110(), C.p010(), 1.0f64,
+        0.0f64, 1.0f64}),
+      "invalid-input", f175)
+    f177 : U64 <- C.report_gerr("neg-sphv-rneg",
+      O.sph_val(G.Sp{C.p000(), F64.neg(1.0f64)}, C.p100()),
+      "invalid-input", f176)
+    f178 : U64 <- C.report_gerr("neg-sphg-r0",
+      O.sph_grad(G.Sp{C.p000(), 0.0f64}, C.p123()),
+      "invalid-input", f177)
+    f179 : U64 <- C.report_gerr("neg-sphp-rneg",
+      O.sph_project(G.Sp{C.p000(), F64.neg(1.0f64)},
+        V.Pt{2.0f64, 0.0f64, 0.0f64}),
+      "invalid-input", f178)
+    f180 : U64 <- C.report_gerr("neg-spole-r0",
+      O.sph_pole_n(G.Sp{C.p000(), 0.0f64}, C.d001()),
+      "invalid-input", f179)
+    f181 : U64 <- C.report_gerr("neg-cylv-rneg",
+      O.cyl_val(G.Cy{C.p000(), C.d001(), F64.neg(1.0f64)},
+        C.p100()),
+      "invalid-input", f180)
+    f182 : U64 <- C.report_gerr("neg-cylg-r0",
+      O.cyl_grad(G.Cy{C.p000(), C.d001(), 0.0f64}, C.p100()),
+      "invalid-input", f181)
+    f183 : U64 <- C.report_gerr("neg-cyck-rneg",
+      O.cyl_checked(G.Cy{C.p000(), C.d001(),
+        F64.neg(1.0f64)}),
+      "invalid-input", f182)
+    f184 : U64 <- C.report_gerr("neg-cov-kneg",
+      O.cone_val(G.Co{C.p000(), C.d001(), F64.neg(0.5f64)},
+        C.p100()),
+      "invalid-input", f183)
+    f185 : U64 <- C.report_gerr("neg-cog-k0",
+      O.cone_grad(G.Co{C.p000(), C.d001(), 0.0f64}, C.p100()),
+      "invalid-input", f184)
+    f186 : U64 <- C.report_gerr("neg-coax-kneg",
+      O.cone_ax(G.Co{C.p000(), C.d001(), F64.neg(0.5f64)},
+        C.p123()),
+      "invalid-input", f185)
+    f187 : U64 <- C.report_gerr("neg-cock-kneg",
+      O.cone_checked(G.Co{C.p000(), C.d001(),
+        F64.neg(0.5f64)}),
+      "invalid-input", f186)
+    f188 : U64 <- C.report_gerr("neg-torv-Rneg",
+      O.tor_val(G.To{C.p000(), C.d001(), F64.neg(4.0f64),
+        1.0f64}, C.p100()),
+      "invalid-input", f187)
+    f189 : U64 <- C.report_gerr("neg-torg-r0",
+      O.tor_grad(G.To{C.p000(), C.d001(), 4.0f64, 0.0f64},
+        C.p100()),
+      "invalid-input", f188)
+    f190 : U64 <- C.report_gerr("neg-tock-R0",
+      O.tor_checked(G.To{C.p000(), C.d001(), 0.0f64, 1.0f64}),
+      "invalid-input", f189)
+    f191 : U64 <- C.report_gerr("neg-nok-wneg",
+      O.nurbs_checked(G.Nb{C.nbk1_ks(), C.nbk1_ps(),
+        1.0f64 <> 1.0f64 <> F64.neg(1.0f64) <> 1.0f64 <>
+          Nil{}},
+        9n),
+      "invalid-input", f190)
+    return f191
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- neg_g1(0u64)
@@ -568,4 +676,5 @@ def main() -> IO(Unit):
     a5 : U64 <- neg_g5(a4)
     a6 : U64 <- neg_g6(a5)
     a7 : U64 <- neg_g7(a6)
-    IO.print("selfcheck fails=" ++ U64.show(a7))
+    a8 : U64 <- neg_g8(a7)
+    IO.print("selfcheck fails=" ++ U64.show(a8))

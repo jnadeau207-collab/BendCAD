@@ -653,6 +653,55 @@ def dr_is_zero(d: V.Dir) -> Bool:
 def spos(+x: F64) -> Bool:
   Bool.and(T.is_finite(x), F64.is_lt(0.0f64, x))
 
+# --- Semantic validity: finiteness + shape (the ONE centralized
+# layer; contract §3 step 2). Constructors AND evaluators consume
+# these; a raw value that fails them is malformed input, never
+# evaluated. Norm/frame checks (orthonormality, unit axis) stay in
+# ops.bend, conjoined at each call site. ---
+def dom_valid(d: Dom) -> Bool:
+  Dom{+lo, +hi} = d
+  Bool.and(dom_fin(Dom{lo, hi}), F64.is_lt(lo, hi))
+
+def ln_valid(l: Line3) -> Bool:
+  Ln{+p, +d} = l
+  Bool.and(ln_fin(Ln{p, d}), Bool.not(dr_is_zero(d)))
+
+# Circle finiteness + positive radius; the orthonormal frame is
+# ops.bend's uv_frame_ok, conjoined by every circle op.
+def cc_valid(c: Circle3) -> Bool:
+  Cc{+c, +u, +v, +r} = c
+  Bool.and(cc_fin(Cc{c, u, v, r}), spos(r))
+
+def rq_valid(b: RQBez) -> Bool:
+  Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
+  Bool.and(V.pt_fin(p0),
+    Bool.and(V.pt_fin(p1),
+      Bool.and(V.pt_fin(p2),
+        Bool.and(spos(w0), Bool.and(spos(w1), spos(w2))))))
+
+def sp_valid(s: Sphere) -> Bool:
+  Sp{+c, +r} = s
+  Bool.and(V.pt_fin(c), spos(r))
+
+def cy_valid(s: Cyl) -> Bool:
+  Cy{+o, +a, +r} = s
+  Bool.and(V.pt_fin(o),
+    Bool.and(V.dr_fin(a),
+      Bool.and(Bool.not(dr_is_zero(a)), spos(r))))
+
+def co_valid(s: Cone) -> Bool:
+  Co{+o, +a, +k} = s
+  Bool.and(V.pt_fin(o),
+    Bool.and(V.dr_fin(a),
+      Bool.and(Bool.not(dr_is_zero(a)), spos(k))))
+
+def to_valid(s: Torus) -> Bool:
+  To{+o, +a, +R, +r} = s
+  Bool.and(V.pt_fin(o),
+    Bool.and(V.dr_fin(a),
+      Bool.and(Bool.not(dr_is_zero(a)),
+        Bool.and(spos(R), spos(r)))))
+
 # --- Validated constructors: malformed input fails as invalid-input.
 # Semantic checks needing norms/orthonormality live in ops.bend. ---
 def mk_dom_go(lo: F64, hi: F64, ok: Bool) -> GRes:
@@ -661,9 +710,7 @@ def mk_dom_go(lo: F64, hi: F64, ok: Bool) -> GRes:
     case False{}: gerr(T.F_invalid{})
 
 def mk_dom(+lo: F64, +hi: F64) -> GRes:
-  mk_dom_go(lo, hi,
-    Bool.and(T.is_finite(lo),
-      Bool.and(T.is_finite(hi), F64.is_lt(lo, hi))))
+  mk_dom_go(lo, hi, dom_valid(Dom{lo, hi}))
 
 def mk_line_go(p: V.Point, d: V.Dir, ok: Bool) -> GRes:
   match ok:
@@ -671,9 +718,7 @@ def mk_line_go(p: V.Point, d: V.Dir, ok: Bool) -> GRes:
     case False{}: gerr(T.F_invalid{})
 
 def mk_line(+p: V.Point, +d: V.Dir) -> GRes:
-  mk_line_go(p, d,
-    Bool.and(V.pt_fin(p),
-      Bool.and(V.dr_fin(d), Bool.not(dr_is_zero(d)))))
+  mk_line_go(p, d, ln_valid(Ln{p, d}))
 
 def mk_plane_go(o: V.Point, u: V.Dir, v: V.Dir, ok: Bool) -> GRes:
   match ok:
@@ -691,9 +736,7 @@ def mk_circ_go(c: V.Point, u: V.Dir, v: V.Dir, r: F64,
     case False{}: gerr(T.F_invalid{})
 
 def mk_circ(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64) -> GRes:
-  mk_circ_go(c, u, v, r,
-    Bool.and(V.pt_fin(c),
-      Bool.and(V.dr_fin(u), Bool.and(V.dr_fin(v), spos(r)))))
+  mk_circ_go(c, u, v, r, cc_valid(Cc{c, u, v, r}))
 
 def mk_bez3_go(p0: V.Point, p1: V.Point, p2: V.Point, p3: V.Point,
     ok: Bool) -> GRes:
@@ -714,10 +757,7 @@ def mk_rqbez_go(p0: V.Point, p1: V.Point, p2: V.Point, w0: F64,
 def mk_rqbez(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64,
     +w1: F64, +w2: F64) -> GRes:
   mk_rqbez_go(p0, p1, p2, w0, w1, w2,
-    Bool.and(V.pt_fin(p0),
-      Bool.and(V.pt_fin(p1),
-        Bool.and(V.pt_fin(p2),
-          Bool.and(spos(w0), Bool.and(spos(w1), spos(w2)))))))
+    rq_valid(Rq{p0, p1, p2, w0, w1, w2}))
 
 def mk_bezp_go(p00: V.Point, p01: V.Point, p02: V.Point, p03: V.Point,
     p10: V.Point, p11: V.Point, p12: V.Point, p13: V.Point,
@@ -744,7 +784,7 @@ def mk_sph_go(c: V.Point, r: F64, ok: Bool) -> GRes:
     case False{}: gerr(T.F_invalid{})
 
 def mk_sph(+c: V.Point, +r: F64) -> GRes:
-  mk_sph_go(c, r, Bool.and(V.pt_fin(c), spos(r)))
+  mk_sph_go(c, r, sp_valid(Sp{c, r}))
 
 def mk_cyl_go(o: V.Point, a: V.Dir, r: F64, ok: Bool) -> GRes:
   match ok:
@@ -752,10 +792,7 @@ def mk_cyl_go(o: V.Point, a: V.Dir, r: F64, ok: Bool) -> GRes:
     case False{}: gerr(T.F_invalid{})
 
 def mk_cyl(+o: V.Point, +a: V.Dir, +r: F64) -> GRes:
-  mk_cyl_go(o, a, r,
-    Bool.and(V.pt_fin(o),
-      Bool.and(V.dr_fin(a),
-        Bool.and(Bool.not(dr_is_zero(a)), spos(r)))))
+  mk_cyl_go(o, a, r, cy_valid(Cy{o, a, r}))
 
 def mk_cone_go(o: V.Point, a: V.Dir, k: F64, ok: Bool) -> GRes:
   match ok:
@@ -763,10 +800,7 @@ def mk_cone_go(o: V.Point, a: V.Dir, k: F64, ok: Bool) -> GRes:
     case False{}: gerr(T.F_invalid{})
 
 def mk_cone(+o: V.Point, +a: V.Dir, +k: F64) -> GRes:
-  mk_cone_go(o, a, k,
-    Bool.and(V.pt_fin(o),
-      Bool.and(V.dr_fin(a),
-        Bool.and(Bool.not(dr_is_zero(a)), spos(k)))))
+  mk_cone_go(o, a, k, co_valid(Co{o, a, k}))
 
 def mk_torus_go(o: V.Point, a: V.Dir, R: F64, r: F64,
     ok: Bool) -> GRes:
@@ -775,11 +809,7 @@ def mk_torus_go(o: V.Point, a: V.Dir, R: F64, r: F64,
     case False{}: gerr(T.F_invalid{})
 
 def mk_torus(+o: V.Point, +a: V.Dir, +R: F64, +r: F64) -> GRes:
-  mk_torus_go(o, a, R, r,
-    Bool.and(V.pt_fin(o),
-      Bool.and(V.dr_fin(a),
-        Bool.and(Bool.not(dr_is_zero(a)),
-          Bool.and(spos(R), spos(r))))))
+  mk_torus_go(o, a, R, r, to_valid(To{o, a, R, r}))
 
 def mk_bbox_go(lo: V.Point, hi: V.Point, ok: Bool) -> GRes:
   match ok:

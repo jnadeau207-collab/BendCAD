@@ -223,6 +223,11 @@ def tb_s() -> G.TBez:
 def mx() -> F64:
   F64{9218868437227405311u64}
 
+# DBL_MAX minus one ulp: Dom{mxm1(), mx()} is a VALID domain whose
+# midpoint sum overflows (C03.1 overflow fixture).
+def mxm1() -> F64:
+  F64{9218868437227405310u64}
+
 def nmx() -> F64:
   F64{18442240474082181119u64}
 

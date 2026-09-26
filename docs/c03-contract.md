@@ -68,6 +68,17 @@ yields the degenerate `[0,0]`, `gres_bb` the degenerate zero box;
 `gres_kind` of `Gok` yields `F_invalid` BY DOCUMENTED CONVENTION
 (mirroring C01 `cres_kind`); gate on `gres_ok`/`gres_show` first.
 
+Semantic validity is ONE centralized layer (`types.bend`):
+`dom_valid` (finite + `lo < hi`), `ln_valid` (finite + nonzero
+direction), `cc_valid` (finite + positive radius),
+`rq_valid` (finite points + three positive weights),
+`sp_valid`/`cy_valid`/`co_valid`/`to_valid` (finite frame +
+nonzero axis + positive radii/slope). Constructors AND every
+evaluator consume them — a raw value that fails them is malformed
+input (§3 step 2), never evaluated. Norm/frame checks
+(orthonormality, unit axis) live in `ops.bend` and are conjoined
+at each call site (C03.1 hardening).
+
 ## 3. Pipeline order (first match wins)
 
 Every evaluator runs one total order (`ops.bend`; `*_go` matches
@@ -78,7 +89,9 @@ flags in parameter order):
 2. Malformed spec → `invalid-input`: degenerate domain (`lo >= hi`),
    zero direction, non-orthonormal frame, non-unit quadric axis,
    non-positive radius/weight/slope, bad NURBS
-   (counts/knots/weights/clamp).
+   (counts/knots/weights/clamp). The shape conjuncts are the
+   centralized `*_valid` predicates (§2), enforced at constructor
+   AND evaluator entries alike — raw bypasses fail here (C03.1).
 3. Parameter outside the admitted domain → `invalid-input`
    (`[0,1]` for Beziers, `[-1,1]` for circles, the knot domain
    `[k3, k_{nk-4}]` for NURBS). Out-of-domain is malformed CALLER
@@ -97,8 +110,11 @@ projection (sphere center) is `invalid-input`, like C01 `seg_dir`.
 ## 4. Domains, seams, periodicity, poles
 
 `mk_dom` requires finite ends with `lo < hi` strictly.
-`dom_mid`/`dom_len` re-validate (overflow → uncertainty);
-`dom_split_lo/hi` require `t` strictly inside. `pdom_wrap` is
+`dom_mid`/`dom_len`/`dom_clamp`/`dom_split_lo/hi`/`pdom_wrap`
+all consume `dom_valid` (degenerate/reversed domains →
+`invalid-input` at every domain entry, C03.1); overflow of a
+VALID domain still → uncertainty. `dom_split_lo/hi` require `t`
+strictly inside. `pdom_wrap` is
 SINGLE-STEP by contract: one span add/subtract across the seam, clamp
 when non-periodic. Multi-turn reduction is a stated follow-up (it
 needs the §1 range-reduction policy, not an ad-hoc fmod).
@@ -126,9 +142,14 @@ interpolation, pinned by the de Boor construction.
 Summation order is part of the contract (as in C01/C02).
 Reordering needs a contract amendment and re-pinning.
 
-- Line: `P(t) = p + t*d` per component; `line_project` divides by
-  `d.d` (zero → invalid); `line_dist` takes the scaled-hypot norm
-  of the residual (C01 formula, no spurious overflow).
+- Line: `P(t) = p + t*d` per component; every line entry
+  consumes `ln_valid` (raw zero directions → `invalid-input`,
+  C03.1). `line_project` divides by `d.d`: zero direction fails
+  at the validity gate, while `d.d == 0` past it is subnormal
+  underflow → `numerical-uncertainty` (never misattributed as
+  malformed input); `line_dist` takes the scaled-hypot norm
+  of the residual (C01 formula, no spurious overflow) with the
+  same two arms.
 - Circle (rational full turn, `D = (1+t^2)^2`):
   `nx = (1-6t^2+t^4)/D`, `ny = 4t(1-t^2)/D`,
   `C = c + r*nx*u + r*ny*v`; derivative by exact quotient rule on
@@ -147,7 +168,9 @@ Reordering needs a contract amendment and re-pinning.
   shared by every split/lerp in the packet.
 - Conic arc: `N = ΣwB p`, `D = ΣwB` (quadratic Bernstein, left
   folds), `C = N/D`; `D > 0` always (positive weights, `B >= 0`,
-  `ΣB = 1`). Derivative is the exact quotient rule
+  `ΣB = 1`), with positivity enforced by `rq_valid` at every
+  conic entry — eval, derivative, bbox, discriminant (C03.1).
+  Derivative is the exact quotient rule
   `(N'D-ND')/D^2` with `wq_der_raw`. Discriminant
   `w1^2-w0*w2`: negative ellipse, zero parabola, positive
   hyperbola branch (stated standard classification).
@@ -168,7 +191,10 @@ NURBS evaluation is §7. There is no NURBS derivative yet
   `s = m.u, t = m.v` (orthonormal frame, no divide); distance is
   `m.(u×v)`. The uv-rectangle enclosure evaluates the four
   corners (exact: evaluation is affine in `(s,t)`).
-- Quadrics (unit axis enforced by `*_checked`; `m = q-o`):
+- Quadrics (unit axis enforced by `*_checked`, positive radii/slope
+  enforced by `sp_valid`/`cy_valid`/`co_valid`/`to_valid` at
+  EVERY quadric entry — value, gradient, projection, poles, nappe
+  coordinate, and `*_checked` itself, C03.1; `m = q-o`):
   - sphere: `m.m-r^2`, gradient `2m`;
   - cylinder: `(m.m-ax^2)-r^2`, gradient `2(m-ax*a)`;
   - cone: `(m.m-ax^2)-k^2*ax^2`, gradient
@@ -177,6 +203,17 @@ NURBS evaluation is §7. There is no NURBS derivative yet
   - torus: `(d2-S)^2-4R^2(r^2-ax^2)` with `d2 = m.m`,
     `S = R^2+r^2`, gradient `4(d2-S)m+8R^2*ax*a`.
   All dot products are C01 left folds; all results re-validated.
+- Sphere projection is the SCALED form `c + r*u` with
+  `u = (m/M)/(n/M)`, `M = max|m_i|` (C03.1; `sph_proj_q_raw`).
+  The scalar `r/n` is never formed: it underflows to zero when
+  `r << n` (`r/n < 2^-1075`, e.g. `r` near DBL_MIN at a far-field
+  query), collapsing `(r/n)*m` onto the published center; even at
+  `r=1, m=(DBL_MAX,0,0)` the old spelling lost 1 ulp. `n/M` lies
+  in `[1, sqrt(3)]` and `m/M` in `[-1,1]`, so the unit direction
+  survives every finite scale; a nonfinite norm still →
+  uncertainty, coincidence still → invalid. This re-pins the
+  `(3,4,0)` case by 1 ulp in x (correctly-rounded 0.6 — the new
+  spelling is also the more accurate one).
 - Bicubic patch: tensor Bernstein — four row cubics in `u`
   (`pt_cubic_raw`), then one column cubic in `v`. `bezp_du` is
   the column cubic of row-derivatives; `bezp_dv` the
@@ -216,9 +253,14 @@ divide. `t` outside `[k3, k_{nk-4}]` → `invalid-input`.
 Fuel (BN-8): every list walk takes a `Nat` fuel, consumes one
 per element, and reports a packed code `ok + 2*done`. Callers
 check `done` FIRST: exhaustion → `resource-exhausted`, and the
-`ok`/span/window values are unread. `span_at` shares its fuel
-with the fin walk over the same list, so one `done` covers both
-(classified §11 BN-10: shared-fuel argument, stated). Drops are
+`ok`/span/window values are unread. `span_at` takes NO done flag
+of its own; every call site runs it over the SAME knot list with
+the SAME fuel as `kfin_c`/`knondec_c` and reads the span only
+when those walks report done — same list + same fuel implies the
+span walk consumed one fuel per element exactly like the fin walk, so
+fin-done implies span-complete (stated invariant, load-bearing;
+keep the list AND the fuel shared at every call site; classified
+§11 BN-10: shared-fuel argument, stated). Drops are
 structural in `(list, n)` and need no fuel; takes are fixed
 7/4-deep matches with zero fill — and zero fill is UNREACHABLE
 under valid counts (span clamp implies fit), so it is a
@@ -246,11 +288,17 @@ will wrap these contents, never replace them.
 domain; out-of-domain parameter; zero direction; non-orthonormal
 frame or non-unit axis (malformed SPEC); non-positive
 radius/weight/slope; bad NURBS (counts, knots, weights, clamp);
-coincident sphere projection. `numerical-uncertainty`: true
+coincident sphere projection. The shape conjuncts are enforced
+at evaluator entries, not just constructors (§2 centralized
+`*_valid` layer, C03.1). `numerical-uncertainty`: true
 overflow — a nonfinite result computed from finite inputs
 (re-validation at every publishing arm), including a far-field
 sphere projection whose `|q-c|` overflows (fixed 2026-09-25:
-it previously published the center). `resource-exhausted`:
+it previously published the center) and subnormal `d.d`
+underflow in `line_project`/`line_dist` (C03.1: a valid nonzero
+direction whose parameter is uncomputable). Whenever the scaled
+projection's norm is finite it publishes the surface point —
+never the center (C03.1). `resource-exhausted`:
 NURBS fuel ran out (walks + span). `unsupported-op`,
 `nonconvergence` (still reserved — no iterative solver until
 C05), `cancelled`, and `Incomplete` have no C03 trigger: C03
@@ -296,7 +344,7 @@ pins).
 | BN-7 | PASS | §8: content identity only; no ordinals/addresses/indices-as-identity. `Nurb` lists are immutable content; windows slide structurally. |
 | BN-8 | PASS | All recursion is structural (list tail / `Nat` predecessor) AND fuel-capped where input-sized: NURBS walks take `Nat` fuel, exhaustion → explicit `resource-exhausted` (`nurbs_eval` fuel-0 pin). No unbounded recursion. |
 | BN-9 | PASS | No expensive batch op executes in this packet (single-point evals, one de Boor step per call); the parallel decomposition is specified for the batch layer (§12) and needs no code here. |
-| BN-10 | PASS | Every shortcut classified: hull/circle enclosures = certified bounds (§10); Bernstein/de Boor/quotient formulas = exact identities, oracle-pinned bitwise (§5, smoke §13); `0/0 := 0` at repeated knots = stated standard convention (§7); shared-fuel span `done` = stated argument (§7); wrap single-step overflow-freedom on valid domains = stated arithmetic argument (§4); span clamp `nk-5` window-fit = stated index argument (§7, fixed 2026-09-25 with `nev_t1` + `neg-wrap-degen*` + `neg-sph-far` pins); thresholds inherited from C01 = stated + pin-tested (§10); trig ABSENT by policy (§1). No unlabeled shortcut. |
+| BN-10 | PASS | Every shortcut classified: hull/circle enclosures = certified bounds (§10); Bernstein/de Boor/quotient formulas = exact identities, oracle-pinned bitwise (§5, smoke §13); `0/0 := 0` at repeated knots = stated standard convention (§7); shared-fuel span `done` = stated argument (§7); wrap single-step overflow-freedom on valid domains = stated arithmetic argument (§4); span clamp `nk-5` window-fit = stated index argument (§7, fixed 2026-09-25 with `nev_t1` + `neg-wrap-degen*` + `neg-sph-far` pins); scaled projection (`n/M` in `[1,sqrt(3)]`, `m/M` in `[-1,1]`) = stated arithmetic argument (§6, C03.1 with `sphp_faraxis/minr/farctr/mixed` pins); thresholds inherited from C01 = stated + pin-tested (§10); trig ABSENT by policy (§1). No unlabeled shortcut. |
 | BN-11 | PASS | Every `Gerr` arm returns no value: projectors yield documented zero/default values (§2); sibling `neg-*`/`neg-bn11-*` assert kinds + defaults, `fails=0`. |
 | BN-12 | PASS | Packet verified at BendCAD HEAD `0f41d98a` + untracked `src/c03/` (this session; re-hash at commit), `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, `bend` = `~/.bend/bin/bend` (Bend 2.0.27, fork build). Toolchain env: `PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH`, `BEND_NO_TELEMETRY=1`. |
 
@@ -382,3 +430,8 @@ claim it states; the unbounded claims live here explicitly:
   order; short fuel fails as `resource-exhausted`, never a guess.
 - G8 (non-publishing failure): every `Gerr` arm carries no value
   (projector defaults, §2/§9; sibling `neg-bn11-*`).
+- G9 (evaluator-boundary validity, C03.1): raw malformed values
+  fail at evaluator entries, never evaluated (centralized
+  `*_valid` layer, §2). Grounded: `val_*` + `neg-g8` pins per
+  entry family, `sphp_faraxis/minr/farctr/mixed` for the scaled
+  projection, `lproj/ldist_tiny_unc` for the subnormal arm.

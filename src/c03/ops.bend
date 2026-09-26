@@ -231,7 +231,7 @@ def dom_mid_go(+lo: F64, +hi: F64, ok: Bool) -> G.GRes:
 
 def dom_mid(+d: G.Dom) -> G.GRes:
   G.Dom{+lo, +hi} = d
-  dom_mid_go(lo, hi, G.dom_fin(G.Dom{lo, hi}))
+  dom_mid_go(lo, hi, G.dom_valid(G.Dom{lo, hi}))
 
 def dom_len_go(+lo: F64, +hi: F64, ok: Bool) -> G.GRes:
   match ok:
@@ -242,7 +242,7 @@ def dom_len_go(+lo: F64, +hi: F64, ok: Bool) -> G.GRes:
 
 def dom_len(+d: G.Dom) -> G.GRes:
   G.Dom{+lo, +hi} = d
-  dom_len_go(lo, hi, G.dom_fin(G.Dom{lo, hi}))
+  dom_len_go(lo, hi, G.dom_valid(G.Dom{lo, hi}))
 
 def dom_clamp_gt(+t: F64, +hi: F64, gt: Bool) -> G.GRes:
   match gt:
@@ -262,7 +262,7 @@ def dom_clamp_fin(+lo: F64, +hi: F64, +t: F64, ok: Bool) -> G.GRes:
 def dom_clamp(+d: G.Dom, +t: F64) -> G.GRes:
   G.Dom{+lo, +hi} = d
   dom_clamp_fin(lo, hi, t,
-    Bool.and(G.dom_fin(G.Dom{lo, hi}), T.is_finite(t)))
+    Bool.and(G.dom_valid(G.Dom{lo, hi}), T.is_finite(t)))
 
 def pdom_wrap_hi(+t: F64, +lo: F64, +hi: F64, span: F64,
     under: Bool) -> G.GRes:
@@ -283,8 +283,7 @@ def pdom_wrap(+p: G.Pdom, +t: F64) -> G.GRes:
   G.Pdom{+d, +per} = p
   G.Dom{+lo, +hi} = d
   pdom_wrap_go(t, lo, hi, F64.sub(hi, lo),
-    Bool.and(G.dom_fin(G.Dom{lo, hi}),
-      Bool.and(T.is_finite(t), F64.is_lt(lo, hi))), per)
+    Bool.and(G.dom_valid(G.Dom{lo, hi}), T.is_finite(t)), per)
 
 def dom_split_go(+lo: F64, +hi: F64, +t: F64, fin: Bool,
     inside: Bool) -> G.GRes:
@@ -297,7 +296,7 @@ def dom_split_go(+lo: F64, +hi: F64, +t: F64, fin: Bool,
 
 def dom_split_lo(+d: G.Dom, +t: F64) -> G.GRes:
   G.Dom{+lo, +hi} = d
-  dom_split_go(lo, hi, t, G.dom_fin(G.Dom{lo, hi}),
+  dom_split_go(lo, hi, t, G.dom_valid(G.Dom{lo, hi}),
     Bool.and(F64.is_lt(lo, t), F64.is_lt(t, hi)))
 
 def dom_split_hi_go(+lo: F64, +hi: F64, +t: F64, fin: Bool,
@@ -311,7 +310,7 @@ def dom_split_hi_go(+lo: F64, +hi: F64, +t: F64, fin: Bool,
 
 def dom_split_hi(+d: G.Dom, +t: F64) -> G.GRes:
   G.Dom{+lo, +hi} = d
-  dom_split_hi_go(lo, hi, t, G.dom_fin(G.Dom{lo, hi}),
+  dom_split_hi_go(lo, hi, t, G.dom_valid(G.Dom{lo, hi}),
     Bool.and(F64.is_lt(lo, t), F64.is_lt(t, hi)))
 
 # --- Lines: evaluation, direction, projection, distance, bbox. ---
@@ -326,7 +325,7 @@ def line_eval_go(+p: V.Point, +d: V.Dir, +t: F64,
 def line_eval(+l: G.Line3, +t: F64) -> G.GRes:
   G.Ln{+p, +d} = l
   line_eval_go(p, d, t,
-    Bool.and(G.ln_fin(G.Ln{p, d}), T.is_finite(t)))
+    Bool.and(G.ln_valid(G.Ln{p, d}), T.is_finite(t)))
 
 def line_der_go(+d: V.Dir, ok: Bool) -> G.GRes:
   match ok:
@@ -335,15 +334,18 @@ def line_der_go(+d: V.Dir, ok: Bool) -> G.GRes:
 
 def line_der(+l: G.Line3) -> G.GRes:
   G.Ln{+p, +d} = l
-  line_der_go(d, G.ln_fin(G.Ln{p, d}))
+  line_der_go(d, G.ln_valid(G.Ln{p, d}))
 
+# fin is semantic validity (zero direction -> invalid-input here);
+# den == 0 past that gate is subnormal underflow of d.d, hence
+# numerical-uncertainty, never a misattributed invalid-input.
 def line_proj_go(+m: V.Dir, +d: V.Dir, den: F64, fin: Bool,
     zero: Bool) -> G.GRes:
   match fin:
     case False{}: G.gerr(T.F_invalid{})
     case True{}:
       match zero:
-        case True{}: G.gerr(T.F_invalid{})
+        case True{}: G.gerr(T.F_uncertain{})
         case False{}:
           +t = F64.div(dd_dot_raw(m, d), den)
           gate_f(t, T.is_finite(t), T.F_uncertain{})
@@ -353,7 +355,7 @@ def line_project(+l: G.Line3, +q: V.Point) -> G.GRes:
   +m = pp_sub_raw(q, p)
   +den = dd_dot_raw(d, d)
   line_proj_go(m, d, den,
-    Bool.and(G.ln_fin(G.Ln{p, d}), V.pt_fin(q)),
+    Bool.and(G.ln_valid(G.Ln{p, d}), V.pt_fin(q)),
     F64.is_eq(den, 0.0f64))
 
 def line_dist_fin(+r: V.Dir, ok: Bool) -> G.GRes:
@@ -369,7 +371,7 @@ def line_dist_go(+l: G.Line3, +q: V.Point, +t: F64, fin: Bool,
     case False{}: G.gerr(T.F_invalid{})
     case True{}:
       match zero:
-        case True{}: G.gerr(T.F_invalid{})
+        case True{}: G.gerr(T.F_uncertain{})
         case False{}:
           +c = pd_add_raw(G.ln_p(l), t, G.ln_d(l))
           +r = pp_sub_raw(q, c)
@@ -381,7 +383,7 @@ def line_dist(+l: G.Line3, +q: V.Point) -> G.GRes:
   +den = dd_dot_raw(d, d)
   +t = F64.div(dd_dot_raw(m, d), den)
   line_dist_go(l, q, t,
-    Bool.and(G.ln_fin(G.Ln{p, d}), V.pt_fin(q)),
+    Bool.and(G.ln_valid(G.Ln{p, d}), V.pt_fin(q)),
     F64.is_eq(den, 0.0f64))
 
 def seg_bbox_go(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
@@ -548,8 +550,8 @@ def circ_checked_go(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64,
 
 def circ_checked(+c: G.Circle3) -> G.GRes:
   G.Cc{+c, +u, +v, +r} = c
-  circ_checked_go(c, u, v, r, G.cc_fin(G.Cc{c, u, v, r}),
-    Bool.and(uv_frame_ok(u, v), G.spos(r)))
+  circ_checked_go(c, u, v, r, G.cc_valid(G.Cc{c, u, v, r}),
+    uv_frame_ok(u, v))
 
 def circ_eval_go(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64,
     +t: F64, fin: Bool, frame: Bool, dom: Bool) -> G.GRes:
@@ -576,8 +578,8 @@ def circ_eval_go(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64,
 
 def circ_eval(+c: G.Circle3, +t: F64) -> G.GRes:
   G.Cc{+c, +u, +v, +r} = c
-  circ_eval_go(c, u, v, r, t, G.cc_fin(G.Cc{c, u, v, r}),
-    Bool.and(uv_frame_ok(u, v), G.spos(r)),
+  circ_eval_go(c, u, v, r, t, G.cc_valid(G.Cc{c, u, v, r}),
+    uv_frame_ok(u, v),
     Bool.and(F64.is_le(F64.neg(1.0f64), t), F64.is_le(t, 1.0f64)))
 
 def circ_der_go(+u: V.Dir, +v: V.Dir, +r: F64, +t: F64, fin: Bool,
@@ -616,8 +618,8 @@ def circ_der_go(+u: V.Dir, +v: V.Dir, +r: F64, +t: F64, fin: Bool,
 
 def circ_der(+c: G.Circle3, +t: F64) -> G.GRes:
   G.Cc{+c, +u, +v, +r} = c
-  circ_der_go(u, v, r, t, G.cc_fin(G.Cc{c, u, v, r}),
-    Bool.and(uv_frame_ok(u, v), G.spos(r)),
+  circ_der_go(u, v, r, t, G.cc_valid(G.Cc{c, u, v, r}),
+    uv_frame_ok(u, v),
     Bool.and(F64.is_le(F64.neg(1.0f64), t), F64.is_le(t, 1.0f64)))
 
 # Seam point: both t = 1 and t = -1 evaluate here (c - r*u).
@@ -634,8 +636,8 @@ def circ_seam_go(+c: V.Point, +u: V.Dir, +r: F64, fin: Bool,
 
 def circ_seam_pt(+c: G.Circle3) -> G.GRes:
   G.Cc{+c, +u, +v, +r} = c
-  circ_seam_go(c, u, r, G.cc_fin(G.Cc{c, u, v, r}),
-    Bool.and(uv_frame_ok(u, v), G.spos(r)))
+  circ_seam_go(c, u, r, G.cc_valid(G.Cc{c, u, v, r}),
+    uv_frame_ok(u, v))
 
 # Coarse certified enclosure: |nx|, |ny| <= 1 for all t (nx^2+ny^2 =
 # 1 exactly), so c +- r*(|u| + |v|) componentwise always contains C(t).
@@ -667,8 +669,7 @@ def circ_bbox(+c: G.Circle3) -> G.GRes:
   V.Dr{+ux, +uy, +uz} = u
   V.Dr{+vx, +vy, +vz} = v
   circ_bbox_go(cx, cy, cz, ux, uy, uz, vx, vy, vz, r,
-    G.cc_fin(G.Cc{c, u, v, r}),
-    Bool.and(uv_frame_ok(u, v), G.spos(r)))
+    G.cc_valid(G.Cc{c, u, v, r}), uv_frame_ok(u, v))
 
 # --- Cubic Beziers: evaluation (Bernstein, left-fold order), exact
 # derivative, de Casteljau subdivision, control hull, endpoints. ---
@@ -836,7 +837,7 @@ def rqb_eval_go(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64,
 def rqb_eval(+b: G.RQBez, +t: F64) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
   rqb_eval_go(p0, p1, p2, w0, w1, w2, t,
-    G.rq_fin(G.Rq{p0, p1, p2, w0, w1, w2}),
+    G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}),
     Bool.and(F64.is_le(0.0f64, t), F64.is_le(t, 1.0f64)))
 
 # N = sum wB p, D = sum wB; d = (N' D - N D') / D^2 with the exact
@@ -898,7 +899,7 @@ def rqb_der_go(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64,
 def rqb_der(+b: G.RQBez, +t: F64) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
   rqb_der_go(p0, p1, p2, w0, w1, w2, t,
-    G.rq_fin(G.Rq{p0, p1, p2, w0, w1, w2}),
+    G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}),
     Bool.and(F64.is_le(0.0f64, t), F64.is_le(t, 1.0f64)))
 
 def rqb_bbox_go(+p0: V.Point, +p1: V.Point, +p2: V.Point,
@@ -911,7 +912,7 @@ def rqb_bbox_go(+p0: V.Point, +p1: V.Point, +p2: V.Point,
 
 def rqb_bbox(+b: G.RQBez) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
-  rqb_bbox_go(p0, p1, p2, G.rq_fin(G.Rq{p0, p1, p2, w0, w1, w2}))
+  rqb_bbox_go(p0, p1, p2, G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}))
 
 # Discriminant of the supporting conic: w1^2 - w0*w2. Negative =
 # ellipse, zero = parabola, positive = hyperbola branch (stated
@@ -926,7 +927,7 @@ def rqb_disc_go(+w0: F64, +w1: F64, +w2: F64,
 
 def rqb_disc(+b: G.RQBez) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
-  rqb_disc_go(w0, w1, w2, G.rq_fin(G.Rq{p0, p1, p2, w0, w1, w2}))
+  rqb_disc_go(w0, w1, w2, G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}))
 
 # Rational quarter circle: p0 = c+r*u, p1 = c+r*u+r*v, p2 = c+r*v
 # with weights (1, sqrt2/2, 1). Exact circle in exact arithmetic.
@@ -1273,7 +1274,7 @@ def cyl_checked_go(+o: V.Point, +a: V.Dir, +r: F64, fin: Bool,
 
 def cyl_checked(+s: G.Cyl) -> G.GRes:
   G.Cy{+o, +a, +r} = s
-  cyl_checked_go(o, a, r, G.cy_fin(G.Cy{o, a, r}), ax_unit_ok(a))
+  cyl_checked_go(o, a, r, G.cy_valid(G.Cy{o, a, r}), ax_unit_ok(a))
 
 def cone_checked_go(+o: V.Point, +a: V.Dir, +k: F64, fin: Bool,
     unit: Bool) -> G.GRes:
@@ -1286,7 +1287,7 @@ def cone_checked_go(+o: V.Point, +a: V.Dir, +k: F64, fin: Bool,
 
 def cone_checked(+s: G.Cone) -> G.GRes:
   G.Co{+o, +a, +k} = s
-  cone_checked_go(o, a, k, G.co_fin(G.Co{o, a, k}), ax_unit_ok(a))
+  cone_checked_go(o, a, k, G.co_valid(G.Co{o, a, k}), ax_unit_ok(a))
 
 def tor_checked_go(+o: V.Point, +a: V.Dir, +R: F64, +r: F64,
     fin: Bool, unit: Bool) -> G.GRes:
@@ -1299,7 +1300,7 @@ def tor_checked_go(+o: V.Point, +a: V.Dir, +R: F64, +r: F64,
 
 def tor_checked(+s: G.Torus) -> G.GRes:
   G.To{+o, +a, +R, +r} = s
-  tor_checked_go(o, a, R, r, G.to_fin(G.To{o, a, R, r}),
+  tor_checked_go(o, a, R, r, G.to_valid(G.To{o, a, R, r}),
     ax_unit_ok(a))
 
 # Sphere: val = m.m - r^2, grad = 2m.
@@ -1314,7 +1315,7 @@ def sph_val(+s: G.Sphere, +q: V.Point) -> G.GRes:
   G.Sp{+c, +r} = s
   +m = pp_sub_raw(q, c)
   sph_val_go(m, r, q,
-    Bool.and(G.sp_fin(G.Sp{c, r}), V.pt_fin(q)))
+    Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)))
 
 def sph_grad_go(+m: V.Dir, ok: Bool) -> G.GRes:
   match ok:
@@ -1326,10 +1327,23 @@ def sph_grad_go(+m: V.Dir, ok: Bool) -> G.GRes:
 def sph_grad(+s: G.Sphere, +q: V.Point) -> G.GRes:
   G.Sp{+c, +r} = s
   +m = pp_sub_raw(q, c)
-  sph_grad_go(m, Bool.and(G.sp_fin(G.Sp{c, r}), V.pt_fin(q)))
+  sph_grad_go(m, Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)))
 
-# Sphere projection: c + r*(q-c)/|q-c|; q == c is invalid-input
-# (coincident, like C01 seg_dir), never a guessed pole.
+# Sphere projection: c + r*u with u = (m/M)/(n/M), M = max|m_i|;
+# q == c is invalid-input (coincident, like C01 seg_dir), never a
+# guessed pole. The scalar r/n is NEVER formed: it underflows to
+# zero when r << n (r/n < 2^-1075, e.g. r near DBL_MIN at a
+# far-field query), collapsing (r/n)*m onto the published center;
+# even at r = 1, m = (DBL_MAX,0,0) the old spelling lost 1 ulp.
+# Here n/M lies in [1, sqrt(3)] and (m/M) in [-1, 1], so the unit
+# direction survives every finite scale; the result is re-validated.
+def sph_proj_q_raw(+c: V.Point, +r: F64, +mx: F64, +my: F64, +mz: F64,
+    +M: F64, +nM: F64) -> V.Point:
+  +ux = F64.div(F64.div(mx, M), nM)
+  +uy = F64.div(F64.div(my, M), nM)
+  +uz = F64.div(F64.div(mz, M), nM)
+  pd_add_raw(c, r, V.Dr{ux, uy, uz})
+
 def sph_proj_zero(+c: V.Point, +r: F64, +m: V.Dir, +n: F64,
     zero: Bool, nfin: Bool) -> G.GRes:
   match zero:
@@ -1338,7 +1352,12 @@ def sph_proj_zero(+c: V.Point, +r: F64, +m: V.Dir, +n: F64,
       match nfin:
         case False{}: G.gerr(T.F_uncertain{})
         case True{}:
-          +q = pd_add_raw(c, F64.div(r, n), m)
+          +mx = V.dr_x(m)
+          +my = V.dr_y(m)
+          +mz = V.dr_z(m)
+          +M = F64.max(F64.abs(mx), F64.max(F64.abs(my),
+            F64.abs(mz)))
+          +q = sph_proj_q_raw(c, r, mx, my, mz, M, F64.div(n, M))
           gate_p(q, V.pt_fin(q), T.F_uncertain{})
 
 def sph_proj_go(+c: V.Point, +r: F64, +m: V.Dir, +n: F64,
@@ -1352,7 +1371,7 @@ def sph_project(+s: G.Sphere, +q: V.Point) -> G.GRes:
   +m = pp_sub_raw(q, c)
   +n = d3_norm_raw(m)
   sph_proj_go(c, r, m, n,
-    Bool.and(G.sp_fin(G.Sp{c, r}), V.pt_fin(q)),
+    Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)),
     F64.is_eq(n, 0.0f64), T.is_finite(n))
 
 # Sphere poles along an explicit unit axis: c +- r*a.
@@ -1375,13 +1394,13 @@ def sph_pole_go(+c: V.Point, +a: V.Dir, +r: F64, fin: Bool,
 def sph_pole_n(+s: G.Sphere, +a: V.Dir) -> G.GRes:
   G.Sp{+c, +r} = s
   sph_pole_go(c, a, r,
-    Bool.and(G.sp_fin(G.Sp{c, r}), V.dr_fin(a)), ax_unit_ok(a),
+    Bool.and(G.sp_valid(G.Sp{c, r}), V.dr_fin(a)), ax_unit_ok(a),
     True{})
 
 def sph_pole_s(+s: G.Sphere, +a: V.Dir) -> G.GRes:
   G.Sp{+c, +r} = s
   sph_pole_go(c, a, r,
-    Bool.and(G.sp_fin(G.Sp{c, r}), V.dr_fin(a)), ax_unit_ok(a),
+    Bool.and(G.sp_valid(G.Sp{c, r}), V.dr_fin(a)), ax_unit_ok(a),
     False{})
 
 # Cylinder: ax = m.a; val = (m.m - ax^2) - r^2;
@@ -1403,7 +1422,7 @@ def cyl_val(+s: G.Cyl, +q: V.Point) -> G.GRes:
   G.Cy{+o, +a, +r} = s
   +m = pp_sub_raw(q, o)
   cyl_val_go(m, a, r,
-    Bool.and(G.cy_fin(G.Cy{o, a, r}), V.pt_fin(q)), ax_unit_ok(a))
+    Bool.and(G.cy_valid(G.Cy{o, a, r}), V.pt_fin(q)), ax_unit_ok(a))
 
 def cyl_grad_go(+m: V.Dir, +a: V.Dir, fin: Bool,
     unit: Bool) -> G.GRes:
@@ -1422,7 +1441,7 @@ def cyl_grad(+s: G.Cyl, +q: V.Point) -> G.GRes:
   G.Cy{+o, +a, +r} = s
   +m = pp_sub_raw(q, o)
   cyl_grad_go(m, a,
-    Bool.and(G.cy_fin(G.Cy{o, a, r}), V.pt_fin(q)), ax_unit_ok(a))
+    Bool.and(G.cy_valid(G.Cy{o, a, r}), V.pt_fin(q)), ax_unit_ok(a))
 
 # Cone: val = (m.m - ax^2) - k^2*ax^2 (double cone; one nappe is
 # ax >= 0 via cone_ax); grad = 2(m - ax*a) - 2k^2*ax*a.
@@ -1443,7 +1462,7 @@ def cone_val(+s: G.Cone, +q: V.Point) -> G.GRes:
   G.Co{+o, +a, +k} = s
   +m = pp_sub_raw(q, o)
   cone_val_go(m, a, k,
-    Bool.and(G.co_fin(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
+    Bool.and(G.co_valid(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
 
 def cone_grad_go(+m: V.Dir, +a: V.Dir, +k: F64, fin: Bool,
     unit: Bool) -> G.GRes:
@@ -1464,7 +1483,7 @@ def cone_grad(+s: G.Cone, +q: V.Point) -> G.GRes:
   G.Co{+o, +a, +k} = s
   +m = pp_sub_raw(q, o)
   cone_grad_go(m, a, k,
-    Bool.and(G.co_fin(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
+    Bool.and(G.co_valid(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
 
 def cone_ax_go(+m: V.Dir, +a: V.Dir, fin: Bool,
     unit: Bool) -> G.GRes:
@@ -1481,7 +1500,7 @@ def cone_ax(+s: G.Cone, +q: V.Point) -> G.GRes:
   G.Co{+o, +a, +k} = s
   +m = pp_sub_raw(q, o)
   cone_ax_go(m, a,
-    Bool.and(G.co_fin(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
+    Bool.and(G.co_valid(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
 
 # Torus: d2 = m.m, S = R^2+r^2; val = (d2-S)^2 - 4R^2(r^2-ax^2);
 # grad = 4(d2-S)m + 8R^2*ax*a.
@@ -1505,7 +1524,7 @@ def tor_val(+s: G.Torus, +q: V.Point) -> G.GRes:
   G.To{+o, +a, +R, +r} = s
   +m = pp_sub_raw(q, o)
   tor_val_go(m, a, R, r,
-    Bool.and(G.to_fin(G.To{o, a, R, r}), V.pt_fin(q)),
+    Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
     ax_unit_ok(a))
 
 def tor_grad_go(+m: V.Dir, +a: V.Dir, +R: F64, +r: F64, fin: Bool,
@@ -1528,7 +1547,7 @@ def tor_grad(+s: G.Torus, +q: V.Point) -> G.GRes:
   G.To{+o, +a, +R, +r} = s
   +m = pp_sub_raw(q, o)
   tor_grad_go(m, a, R, r,
-    Bool.and(G.to_fin(G.To{o, a, R, r}), V.pt_fin(q)),
+    Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
     ax_unit_ok(a))
 
 # --- Trims in surface parameter space: segment/cubic evaluation,
@@ -1677,6 +1696,12 @@ def pfin_c(ps: List<&2, V.Point>, fuel: Nat) -> Nat:
 
 # Knot span: last index with k <= t. Best-so-far on exhaustion (the
 # value is read only when the shared-fuel fin walk completed).
+# INVARANT (stated, load-bearing): span_at takes NO done flag of its
+# own; every caller runs it over the SAME knot list with the SAME
+# fuel as kfin_c/knondec_c, and reads the span only when those walks
+# report done. Same list + same fuel => the span walk consumed one
+# fuel per element exactly like the fin walk, so fin-done implies
+# span-complete. Keep the list AND the fuel shared at every call site.
 def span_at(ks: List<&2, F64>, +t: F64, fuel: Nat, +idx: Nat,
     best: Nat) -> Nat:
   match ks:

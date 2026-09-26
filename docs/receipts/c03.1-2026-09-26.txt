@@ -1,0 +1,252 @@
+# C03.1 hardening receipt — 2026-09-26 (evaluator-boundary validity + scaled projection)
+
+Packet: C03.1 closes the six blockers from the independent re-audit
+of `7f979d2` (raw-constructed values bypassing constructor checks;
+`r/n` underflow in sphere projection). No redesign: one centralized
+validity layer, one scaled formulation, one re-armed failure arm,
+one explicit invariant, two re-pins. C03 + C03.1 is the frozen C03
+baseline.
+Verdict: PASS. Every number below was observed this session by running
+the listed commands.
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: 7f979d2d82e526d493b86e574dbe5f652038379f
+  (log -1: "c03: curves, surfaces, trimming with laws, tests, receipt"; branch main)
+git status --porcelain (only the paths below; no other edits):
+   M docs/c03-contract.md
+   M docs/replacement-ledger.md
+   M laws/c03.bend
+   M src/c03/ops.bend
+   M src/c03/types.bend
+   M tests/c03/check.bend
+   M tests/c03/neg.bend
+   M tests/c03/pos.bend
+  ?? .github/workflows/verify-bendcad.yml
+  ?? docs/receipts/c03.1-2026-09-26.txt      (this file; written, not hashed)
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched (no checkout/pull/fetch/reset; `bend update` never run).
+
+BEND_PIN (root file, unchanged):
+  jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK: unchanged (tag numeric/2026-09-25, commit 50ec219a,
+built bun build --compile --target=bun-linux-x64 ./bend2/main.ts).
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (Bend 2.0.27, fork build).
+bun 1.4.2.
+
+sha256 of every packet file (receipt excluded as it is the file being
+written; gates doc unchanged, hash confirms):
+  5020dd683b4ce5c48730197f5fe06b64a263fd179068b6c965d2fa37b69c938d  docs/c03-contract.md
+  5470a0885ad6376faeb292299f83bfaff9c78f56c40aa362609b43492a32b06b  docs/bend-native-gates.md
+  0418cc04531b6139925600c44652dbdcd29d18c172119535120617e8762b3823  src/c03/types.bend
+  6bd9f951169a5cd6db0a76b10c2a71fbbd0872fc5f9453ccb819120d6678611f  src/c03/ops.bend
+  c0831c43cdd10d4f024531b049126ca1989c4e5c842c13483385406ab9db60cf  laws/c03.bend
+  f30776f23ae011b39c4f79dab5969b8f3abd9a72277794ee0ba5403a5440715a  tests/c03/check.bend
+  17eec69a2ba83d86d4fee25f90e72ff65002ec55b21abd958e53b814bddce625  tests/c03/neg.bend
+  cb4c6aa3c1975015cd38e93854f659df5e768f6170fd7fa3b843be2367873e41  tests/c03/pos.bend
+  5941d2a38a7430209c4555bab20b1620976c54c3f3e1ccd06f6e31c42e17d172  .github/workflows/verify-bendcad.yml
+  a0f127391076b734073ce082201fc70be8e864e02eed9a20c8365d99cf2f9e62  docs/replacement-ledger.md
+
+Oracle script (implementor-owned, /tmp; checks the exact bytes above
+through suite/law literals, no vendored copy):
+  227b19cc9b26c683eeeb51207ff1bfd443bcdb0e14018afde825da22ee614862  /tmp/c031_oracle.py
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c03/types.bend --check-only     # exit 0 (<1 s)
+  bend src/c03/ops.bend --check-only      # exit 0 (<1 s)
+  bend laws/c03.bend --check-only         # exit 0, 12:01 elapsed
+  bend tests/c03/check.bend --check-only  # exit 0 (<1 s)
+  bend tests/c03/neg.bend --check-only    # exit 0 (<1 s)
+  bend tests/c03/pos.bend --check-only    # exit 0 (<1 s)
+
+371 laws confirmed by `grep -c '^law ' laws/c03.bend` (= 371): 330
+from C03 plus 41 C03.1 laws (10 `val_*` validity predicates, 4 domain,
+4 line, 1 circle, 4 conic, 7 sphere incl. 3 scaled-projection pins,
+3 cylinder, 4 cone, 3 torus, 1 negative-NURBS-weight). Two C03 laws
+re-pinned onto corrected expectations (§5.5). An earlier laws run on
+comment-identical sources also passed (371 laws, 11:53); it is
+superseded by the post-final run above, which checks the exact §1 bytes.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c03/neg.bend                 # 191 PASS, selfcheck fails=0, exit 0
+  bend tests/c03/pos.bend                 # 158 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c03/neg.bend -o /tmp/c031-neg-n && /tmp/c031-neg-n
+                                          # build 0, 191 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c031-pos-n && /tmp/c031-pos-n
+                                          # build 0, 158 PASS, fails=0, exit 0
+JS:
+  bend tests/c03/neg.bend -o /tmp/c031-neg.js && bun /tmp/c031-neg.js
+                                          # build 0, 191 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c031-pos.js && bun /tmp/c031-pos.js
+                                          # build 0, 158 PASS, fails=0, exit 0
+
+No native-lane arity failure this session: the new groups follow the
+C02-D2 let-binding shape from the start.
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all pairs;
+zero FAIL lines in all six logs):
+  neg: 1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638 (x3)
+  pos: ea1508bb856c18bdc21d0794b29f046377f5c160e0a7fd7d81e50fcf3b2e7d49 (x3)
+
+Suite sizes: `grep -c report_` = 191 (neg) + 158 (pos) = 349 checks,
+matching PASS counts. Conservation: the C03 suite was 163 + 154 = 317;
+C03.1 adds `neg_g8` (28 checks) + `pos_g7` (4 checks) = +32, and
+converts two pins in place (§5.5). No check deleted or weakened.
+
+## 4. Independent oracle cross-checks (this session, 0 mismatches)
+
+`/tmp/c031_oracle.py` (hash §1; exit 0, "ALL ORACLE CHECKS PASSED"):
+31 pinned checks, zero failures.
+
+Scaled projection (contract §6 formula, same parenthesization):
+`sphp-345` x/y/z bits incl. the re-pin (...011), old-spelling
+consistency (...012), far-axis/min-r/offset-center/mixed-component
+surface-point bits, far-diagonal abstention arm, `n/M` in `[1,√3]`
+on three cases. Bug demonstration at the TRUE threshold: `r/n`
+underflows to zero iff `r/n < 2^-1075` — at `r=1, m=(DBL_MAX,0,0)`
+the old spelling lost 1 ulp (...407), while at `r=DBL_MIN` (or
+`r=1e-16`) it published the center (0,0,0) as ok; the audit's
+example named `r=1` for the collapse, the oracle pins the exact
+boundary instead. Domain: `Dom{MAX-1ulp,MAX}` validity + overflow
+of the midpoint sum; degenerate `Dom{MAX,MAX}` invalid by validity.
+Subnormal direction: `den` underflows to 0 while the direction is
+nonzero (uncertainty arm). Validity truth tables: `dom_valid`
+eq/flip/ok, `spos` neg/zero/positive.
+
+Unchanged-pin regression is carried by §3: every C03 pin still
+passes unmodified except the two §5.5 conversions.
+
+## 5. Fixes applied (all probe-observed before pinning)
+
+5.1 Centralized validity layer (src/c03/types.bend). New:
+`dom_valid`, `ln_valid`, `cc_valid`, `rq_valid`, `sp_valid`,
+`cy_valid`, `co_valid`, `to_valid` — finiteness + shape each.
+All eight `mk_*` constructors consume them (identical conjunctions,
+single source). Closes audit blockers #1–#4 structurally: no more
+per-site reconstruction of validity.
+
+5.2 Evaluator boundaries (src/c03/ops.bend). Every public evaluator
+now consumes the layer: `dom_mid/len/clamp/split_lo/split_hi` +
+`pdom_wrap` (identical conjunction, centralized); `line_eval/der/
+project/dist`; `circ_checked/eval/der/seam/bbox` (identical
+conjunction, centralized); `rqb_eval/der/bbox/disc`; `sph_val/grad/
+project/pole_n/pole_s`; `cyl_checked/val/grad`;
+`cone_checked/val/grad/ax`; `tor_checked/val/grad`. Raw zero line
+directions, negative/zero conic weights (restoring the BN-10 `D>0`
+certificate), negative/zero quadric radii/slopes, and degenerate
+domains now fail as `invalid-input` at evaluator entries. Pins:
+41 laws (§2) + `neg_g8` (28 checks).
+
+5.3 Scaled sphere projection (src/c03/ops.bend, `sph_proj_q_raw`).
+`c + (r/n)*m` → `c + r*((m/M)/(n/M))`, `M = max|m_i|`; the scalar
+`r/n` is never formed. `n/M` in `[1,√3]`, `m/M` in `[-1,1]`, result
+re-validated. A nonfinite norm still → uncertainty, coincidence
+still → invalid. Closes audit blocker #5 (genuine numerical
+robustness bug; true threshold §4). Pins: laws
+`sphp_faraxis/minr/farctr_ok` + `pos_g7` (4 checks incl. mixed
+MAX/MIN components).
+
+5.4 Subnormal `d.d` arm (src/c03/ops.bend, `line_proj_go`/
+`line_dist_go`). Zero direction now fails at the validity gate
+(still `invalid-input`); `d.d == 0` past it is subnormal underflow
+→ `numerical-uncertainty`, never misattributed as malformed input.
+Pins: laws `lproj/ldist_tiny_unc` + `neg-lproj/ldist-tiny`.
+
+5.5 Two re-pins (src fixes with corrected expectations, none
+relabeled): `sphp_345` x `...012 → ...011` (correctly-rounded 0.6;
+the new spelling is also the more accurate one); `dmid_ovf_unc` /
+`neg-dmid-ovf` fixture `Dom{MAX,MAX} → Dom{MAX-1ulp,MAX}` (a VALID
+domain whose midpoint sum overflows; the degenerate fixture is now
+`invalid-input` by `dmid_degen_inv`). Contract §5/§6/§9 amended.
+
+5.6 `span_at` invariant explicit (src/c03/ops.bend + contract §7):
+no done flag of its own; same list + same fuel as `kfin_c`/
+`knondec_c` ⇒ fin-done implies span-complete. Comment + contract
+only; no behavior change. Closes audit §13 qualification.
+
+5.7 CI workflow (new, `.github/workflows/verify-bendcad.yml`):
+builds the exact `BEND_PIN` fork compiler (bun build, bend2/guide
+refresh per AGENTS.md), runs every static gate (src/laws/tests
+check-only, C00→C03), BN-2/3/4/5 static greps, and every suite in
+all three lanes with `fails=0` + zero-FAIL + cross-lane `cmp`
+assertions. The workflow file itself is YAML-validated and its
+grep step executed against this tree (PASS) this session; its
+first green GitHub run is pending push. Closes audit §17.
+
+## BN. Bend-native gates (BN-1..BN-12)
+
+N/A is forbidden by docs/bend-native-gates.md; every gate below is
+PASS with evidence at the §1 bytes. Only deltas vs the C03 receipt
+are expanded; unchanged gates re-affirm with fresh evidence.
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | Implementation is exactly `src/c03/types.bend` + `src/c03/ops.bend` (hashes §1); both `bend … --check-only` → `All terms check.` No authoritative algorithm in another language. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/ laws/ tests/ \| grep -v ': *#'` is empty — no `@unsafe` construct anywhere (the one raw hit is a c00 comment stating its absence). |
+| BN-3 | PASS | `grep -rn "F32" src/ laws/ tests/` is empty; all scalars are the pinned as-bits F64 path. |
+| BN-4 | PASS | Imports unchanged (`Base`, `../c00`, `../c01`, `./types.bend`, `./check.bend`); `grep -rni "foreign\|ffi_import\|@ffi" src/` empty. Boundary list: none. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs"` over `src/` is empty; `legacy/` clean (§1). Oracle is an independent /tmp script, not a runtime dependency. |
+| BN-6 | PASS | No GPU claim in this packet (contract §11), hence no GPU path to fall back from. All evaluation is host F64. |
+| BN-7 | PASS | Content identity only (contract §8), unchanged. |
+| BN-8 | PASS | Recursion inventory re-audited: exactly the same 8 self-recursive defs in ops.bend — 5 fuel-capped walks + 3 structural drops; all 152 types.bend defs and remaining 189 ops.bend defs non-recursive (machine-checked by name-occurrence audit; the one raw `gres_show` hit is a following comment). No new recursion. |
+| BN-9 | PASS | No batch op ships (unchanged); parallel decomposition still specified-only (contract §12). |
+| BN-10 | PASS | Prior classifications stand; new: scaled projection (`n/M` range) = stated arithmetic argument (contract §6, `sphp_faraxis/minr/farctr/mixed` pins); shared-fuel span invariant now explicit in code + contract (§5.6); `sphp_345` 1-ulp re-pin + `dmid_ovf` valid-domain fixture (fixed, §5.5, not relabeled). No unlabeled shortcut. |
+| BN-11 | PASS | Every `Gerr` arm carries no value (unchanged projectors); pins: `neg-bn11-*` (all green in §3) + 28 new `neg-g8` kind asserts, `fails=0` on all six lanes. |
+| BN-12 | PASS | This section + §1: BendCAD HEAD `7f979d2` + per-file sha256; `BEND_PIN jnadeau207-collab/bend@50ec219a` + FORK tag `numeric/2026-09-25`; bend 2.0.27 fork build, bun 1.4.2, pinned env. |
+
+Gate count: 12 (BN-1 through BN-12). Overall: 12 PASS / 0 FAIL.
+
+## 6. Counts
+
+check-only files passed: 6/6 (types, ops, laws, check, neg, pos).
+Suite checks passed (neg+pos, per lane): 191+158 interpreted,
+191+158 native, 191+158 JS (349 checks × 3 lanes = 1047 executions).
+Laws proven: 371 (`grep -c '^law '`, check-only exit 0).
+Differential cases vs independent oracle: 31 pinned checks,
+0 mismatches (plus the §4 old-spelling consistency pins).
+Unresolved/abstained cases: none silent. Standing abstentions by
+design: true overflow -> `numerical-uncertainty` (incl. far-field
+sphere with nonfinite norm, subnormal `d.d`), short NURBS fuel ->
+`resource-exhausted`, unimplemented scope per contract §14.
+C00/C01/C02 files are untouched by this packet and were not re-run
+this session; the §5.7 workflow qualifies them on every push.
+
+## 7. Negative confirmations
+
+- No weakened test/law: 41 laws added, 32 checks added, 2 pins
+  converted to corrected expectations alongside src fixes (§5.5);
+  totals grew 330 -> 371 laws and 317 -> 349 checks; nothing
+  deleted, skipped, or relabeled.
+- No placeholder: every new `src/c03` def (`*_valid` x8,
+  `sph_proj_q_raw`) is exercised by laws + suite pins; contract
+  §14 scope limits unchanged.
+- No commit/push/amend performed before this receipt; `git status`
+  shows only the §1 packet paths.
+- `legacy/` clean before and after; fork worktree untouched
+  (no git commands against it at all); `bend update` never run.
+- Scratch removed: `c031_probe.bend` deleted after probing; stdout
+  logs, lane binaries, and oracle script live in /tmp only.
+- stdout logs: zero FAIL lines in all six lane logs; `cmp` clean
+  across lanes per suite (§3 hashes).
+
+## 8. Exit-criteria verdict
+
+Criterion (C03.1): every audit blocker closed — semantic validity
+enforced at all evaluator boundaries, rational-conic positivity
+restored, quadric positivity enforced incl. `*_checked`,
+degenerate domains rejected everywhere, sphere projection robust
+at extreme scale — with laws + tests + oracle evidence and an
+honest receipt.
+
+Verdict: PASS. Evidence: §2 static gates (371 laws closed) + §3
+triple lanes (1047 executions, 0 fails, byte-identical stdout) +
+§4 oracle (31/31, true underflow threshold pinned) + §BN gate
+table (12/12 PASS) + §5 fix trail (6 blockers closed with
+laws+tests, 2 re-pins with corrected expectations, none
+relabeled) + §5.7 CI workflow (canonical qualification on every
+push). C03 + C03.1 is the frozen C03 baseline; C04 may build on it.

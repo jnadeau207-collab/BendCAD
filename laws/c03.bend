@@ -660,6 +660,73 @@ law fin_dom_inffalse:
 def fin_dom_inffalse():
   {==}
 
+# --- Semantic validity: the centralized layer (C03.1). Constructors
+# and evaluators consume these; raw bypasses are malformed input. ---
+law val_dom_ok:
+  {G.dom_valid(G.Dom{0.0f64, 1.0f64}) == True{} : Bool}
+
+def val_dom_ok():
+  {==}
+
+law val_dom_eq:
+  {G.dom_valid(G.Dom{1.0f64, 1.0f64}) == False{} : Bool}
+
+def val_dom_eq():
+  {==}
+
+law val_dom_flip:
+  {G.dom_valid(G.Dom{2.0f64, 1.0f64}) == False{} : Bool}
+
+def val_dom_flip():
+  {==}
+
+law val_ln_zero:
+  {G.ln_valid(G.Ln{p000(), d000()}) == False{} : Bool}
+
+def val_ln_zero():
+  {==}
+
+law val_cc_rneg:
+  {G.cc_valid(G.Cc{p000(), d100(), d010(), F64.neg(1.0f64)})
+    == False{} : Bool}
+
+def val_cc_rneg():
+  {==}
+
+law val_rq_wneg:
+  {G.rq_valid(G.Rq{p100(), p110(), p010(), F64.neg(1.0f64),
+    1.0f64, 1.0f64}) == False{} : Bool}
+
+def val_rq_wneg():
+  {==}
+
+law val_sp_r0:
+  {G.sp_valid(G.Sp{p123(), 0.0f64}) == False{} : Bool}
+
+def val_sp_r0():
+  {==}
+
+law val_cy_rneg:
+  {G.cy_valid(G.Cy{p000(), d001(), F64.neg(1.0f64)})
+    == False{} : Bool}
+
+def val_cy_rneg():
+  {==}
+
+law val_co_kneg:
+  {G.co_valid(G.Co{p000(), d001(), F64.neg(0.5f64)})
+    == False{} : Bool}
+
+def val_co_kneg():
+  {==}
+
+law val_to_R0:
+  {G.to_valid(G.To{p000(), d001(), 0.0f64, 1.0f64})
+    == False{} : Bool}
+
+def val_to_R0():
+  {==}
+
 # --- Accessor roundtrips (bit-exact) ---
 law acc_dom_lo:
   {U64.is_eq(F64.bits(G.dom_lo(G.Dom{2.0f64, 3.0f64})),
@@ -940,7 +1007,7 @@ def dmid_nan_inv():
 
 law dmid_ovf_unc:
   {String.eq(G.gres_show(O.dom_mid(G.Dom{
-      F64{9218868437227405311u64}, F64{9218868437227405311u64}})),
+      F64{9218868437227405310u64}, F64{9218868437227405311u64}})),
     "numerical-uncertainty") == True{} : Bool}
 
 def dmid_ovf_unc():
@@ -966,6 +1033,35 @@ law dlen_ovf_unc:
     "numerical-uncertainty") == True{} : Bool}
 
 def dlen_ovf_unc():
+  {==}
+
+# Raw degenerate domains rejected at every domain evaluator (C03.1).
+law dmid_degen_inv:
+  {String.eq(G.gres_show(O.dom_mid(G.Dom{1.0f64, 1.0f64})),
+    "invalid-input") == True{} : Bool}
+
+def dmid_degen_inv():
+  {==}
+
+law dlen_flip_inv:
+  {String.eq(G.gres_show(O.dom_len(G.Dom{2.0f64, 1.0f64})),
+    "invalid-input") == True{} : Bool}
+
+def dlen_flip_inv():
+  {==}
+
+law clamp_degen_inv:
+  {String.eq(G.gres_show(O.dom_clamp(G.Dom{0.0f64, 0.0f64},
+      0.0f64)), "invalid-input") == True{} : Bool}
+
+def clamp_degen_inv():
+  {==}
+
+law split_degen_inv:
+  {String.eq(G.gres_show(O.dom_split_lo(G.Dom{0.0f64, 0.0f64},
+      0.0f64)), "invalid-input") == True{} : Bool}
+
+def split_degen_inv():
   {==}
 
 # --- dom_clamp: five positions + gates ---
@@ -1162,6 +1258,21 @@ law lder_nan_inv:
 def lder_nan_inv():
   {==}
 
+# Raw zero directions rejected at line evaluators (C03.1).
+law leval_zero_inv:
+  {String.eq(G.gres_show(O.line_eval(G.Ln{p000(), d000()},
+      1.0f64)), "invalid-input") == True{} : Bool}
+
+def leval_zero_inv():
+  {==}
+
+law lder_zero_inv:
+  {String.eq(G.gres_show(O.line_der(G.Ln{p000(), d000()})),
+    "invalid-input") == True{} : Bool}
+
+def lder_zero_inv():
+  {==}
+
 # --- line_project/line_dist/line_seg_bbox ---
 law lproj_t5:
   {f_bits_eq(O.line_project(ln_x(), V.Pt{5.0f64, 2.0f64, 0.0f64}),
@@ -1182,6 +1293,16 @@ law lproj_zero_inv:
       p111())), "invalid-input") == True{} : Bool}
 
 def lproj_zero_inv():
+  {==}
+
+# Nonzero but subnormal direction: d.d underflows to 0, so the
+# parameter is uncomputable — uncertainty, not malformed input (C03.1).
+law lproj_tiny_unc:
+  {String.eq(G.gres_show(O.line_project(G.Ln{p000(),
+      V.Dr{F64{1u64}, 0.0f64, 0.0f64}}, p111())),
+    "numerical-uncertainty") == True{} : Bool}
+
+def lproj_tiny_unc():
   {==}
 
 law lproj_nan_inv:
@@ -1211,6 +1332,14 @@ law ldist_zero_inv:
     "invalid-input") == True{} : Bool}
 
 def ldist_zero_inv():
+  {==}
+
+law ldist_tiny_unc:
+  {String.eq(G.gres_show(O.line_dist(G.Ln{p000(),
+      V.Dr{F64{1u64}, 0.0f64, 0.0f64}}, p111())),
+    "numerical-uncertainty") == True{} : Bool}
+
+def ldist_tiny_unc():
   {==}
 
 law ldist_ovf_unc:
@@ -1469,6 +1598,13 @@ law ceval_r0_inv:
       0.0f64}, 0.5f64)), "invalid-input") == True{} : Bool}
 
 def ceval_r0_inv():
+  {==}
+
+law ceval_rneg_inv:
+  {String.eq(G.gres_show(O.circ_eval(G.Cc{p000(), d100(), d010(),
+      F64.neg(1.0f64)}, 0.5f64)), "invalid-input") == True{} : Bool}
+
+def ceval_rneg_inv():
   {==}
 
 law ceval_ovf_unc:
@@ -1767,6 +1903,16 @@ law qeval_nan_inv:
 def qeval_nan_inv():
   {==}
 
+# Non-positive conic weights rejected at every conic op (C03.1):
+# the enclosure certificate needs D > 0 from positive weights.
+law qeval_wneg_inv:
+  {String.eq(G.gres_show(O.rqb_eval(G.Rq{p100(), p110(), p010(),
+      F64.neg(1.0f64), 1.0f64, 1.0f64}, 0.5f64)),
+    "invalid-input") == True{} : Bool}
+
+def qeval_wneg_inv():
+  {==}
+
 law qder_q0:
   {d_bits_eq(O.rqb_der(rq_q(), 0.0f64), 0u64,
     4609047870845172685u64, 0u64) == True{} : Bool}
@@ -1791,6 +1937,14 @@ law qder_ovf_unc:
 def qder_ovf_unc():
   {==}
 
+law qder_w0_inv:
+  {String.eq(G.gres_show(O.rqb_der(G.Rq{p100(), p110(), p010(),
+      1.0f64, 0.0f64, 1.0f64}, 0.0f64)), "invalid-input")
+    == True{} : Bool}
+
+def qder_w0_inv():
+  {==}
+
 # --- rqb_bbox/rqb_disc/rq_quarter ---
 law qbb_q:
   {bb_bits_eq(O.rqb_bbox(rq_q()), 0u64, 0u64, 0u64,
@@ -1806,6 +1960,14 @@ law qbb_nan_inv:
     "invalid-input") == True{} : Bool}
 
 def qbb_nan_inv():
+  {==}
+
+law qbb_wneg_inv:
+  {String.eq(G.gres_show(O.rqb_bbox(G.Rq{p100(), p110(), p010(),
+      1.0f64, 1.0f64, F64.neg(1.0f64)})), "invalid-input")
+    == True{} : Bool}
+
+def qbb_wneg_inv():
   {==}
 
 law qdisc_q:
@@ -1834,6 +1996,14 @@ law qdisc_nan_inv:
     == True{} : Bool}
 
 def qdisc_nan_inv():
+  {==}
+
+law qdisc_w0_inv:
+  {String.eq(G.gres_show(O.rqb_disc(G.Rq{p100(), p110(), p010(),
+      1.0f64, 0.0f64, 1.0f64})), "invalid-input")
+    == True{} : Bool}
+
+def qdisc_w0_inv():
   {==}
 
 law rquarter_ok:
@@ -2109,6 +2279,14 @@ law cyck_axok_ok:
 def cyck_axok_ok():
   {==}
 
+# Non-positive radii/slopes rejected at quadric entries (C03.1).
+law cyck_rneg_inv:
+  {String.eq(G.gres_show(O.cyl_checked(G.Cy{p000(), d001(),
+      F64.neg(1.0f64)})), "invalid-input") == True{} : Bool}
+
+def cyck_rneg_inv():
+  {==}
+
 law cock_ok:
   {String.eq(G.gres_show(O.cone_checked(co_z())), "ok")
     == True{} : Bool}
@@ -2132,6 +2310,13 @@ law cock_nan_inv:
 def cock_nan_inv():
   {==}
 
+law cock_kneg_inv:
+  {String.eq(G.gres_show(O.cone_checked(G.Co{p000(), d001(),
+      F64.neg(0.5f64)})), "invalid-input") == True{} : Bool}
+
+def cock_kneg_inv():
+  {==}
+
 law tock_ok:
   {String.eq(G.gres_show(O.tor_checked(to_z())), "ok")
     == True{} : Bool}
@@ -2153,6 +2338,13 @@ law tock_nan_inv:
     "invalid-input") == True{} : Bool}
 
 def tock_nan_inv():
+  {==}
+
+law tock_R0_inv:
+  {String.eq(G.gres_show(O.tor_checked(G.To{p000(), d001(),
+      0.0f64, 1.0f64})), "invalid-input") == True{} : Bool}
+
+def tock_R0_inv():
   {==}
 
 # --- sph_val/sph_grad: implicit value + gradient arms ---
@@ -2192,6 +2384,14 @@ law sphv_ovf_unc:
 def sphv_ovf_unc():
   {==}
 
+# Non-positive sphere radii rejected at every sphere op (C03.1).
+law sphv_rneg_inv:
+  {String.eq(G.gres_show(O.sph_val(G.Sp{p000(), F64.neg(1.0f64)},
+      p100())), "invalid-input") == True{} : Bool}
+
+def sphv_rneg_inv():
+  {==}
+
 law sphg_123:
   {d_bits_eq(O.sph_grad(sp_unit(), p123()),
     4611686018427387904u64, 4616189618054758400u64,
@@ -2216,6 +2416,13 @@ law sphg_ovf_unc:
 def sphg_ovf_unc():
   {==}
 
+law sphg_r0_inv:
+  {String.eq(G.gres_show(O.sph_grad(G.Sp{p000(), 0.0f64}, p123())),
+    "invalid-input") == True{} : Bool}
+
+def sphg_r0_inv():
+  {==}
+
 # --- sph_project/sph_pole_n/sph_pole_s ---
 law sphp_200:
   {p_bits_eq(O.sph_project(sp_unit(), V.Pt{2.0f64, 0.0f64, 0.0f64}),
@@ -2224,9 +2431,12 @@ law sphp_200:
 def sphp_200():
   {==}
 
+# x pin is the scaled formulation (C03.1): fl(0.75/1.25) is the
+# correctly-rounded 0.6 (...011); the old (r/n)*m spelling rounded
+# fl(fl(1/5)*3) one ulp higher (...012).
 law sphp_345:
   {p_bits_eq(O.sph_project(sp_unit(), V.Pt{3.0f64, 4.0f64, 0.0f64}),
-    4603579539098121012u64, 4605380978949069210u64, 0u64)
+    4603579539098121011u64, 4605380978949069210u64, 0u64)
     == True{} : Bool}
 
 def sphp_345():
@@ -2256,6 +2466,41 @@ law sphp_far_unc:
 def sphp_far_unc():
   {==}
 
+law sphp_rneg_inv:
+  {String.eq(G.gres_show(O.sph_project(G.Sp{p000(),
+      F64.neg(1.0f64)}, V.Pt{2.0f64, 0.0f64, 0.0f64})),
+    "invalid-input") == True{} : Bool}
+
+def sphp_rneg_inv():
+  {==}
+
+# Scaled projection (C03.1): finite norm + tiny r/n ratio still
+# publishes the surface point, never the center. r=1 at DBL_MAX on
+# one axis; r=DBL_MIN at DBL_MAX; offset center at DBL_MAX.
+law sphp_faraxis_ok:
+  {p_bits_eq(O.sph_project(sp_unit(),
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}),
+    4607182418800017408u64, 0u64, 0u64) == True{} : Bool}
+
+def sphp_faraxis_ok():
+  {==}
+
+law sphp_minr_ok:
+  {p_bits_eq(O.sph_project(G.Sp{p000(), F64{1u64}},
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}),
+    1u64, 0u64, 0u64) == True{} : Bool}
+
+def sphp_minr_ok():
+  {==}
+
+law sphp_farctr_ok:
+  {p_bits_eq(O.sph_project(G.Sp{p100(), 1.0f64},
+      V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}),
+    4611686018427387904u64, 0u64, 0u64) == True{} : Bool}
+
+def sphp_farctr_ok():
+  {==}
+
 law spolen_n:
   {p_bits_eq(O.sph_pole_n(sp_unit(), d001()),
     0u64, 0u64, 4607182418800017408u64) == True{} : Bool}
@@ -2276,6 +2521,13 @@ law spolen_axis2_inv:
     == True{} : Bool}
 
 def spolen_axis2_inv():
+  {==}
+
+law spolen_r0_inv:
+  {String.eq(G.gres_show(O.sph_pole_n(G.Sp{p000(), 0.0f64},
+      d001())), "invalid-input") == True{} : Bool}
+
+def spolen_r0_inv():
   {==}
 
 # --- cyl_val/cyl_grad ---
@@ -2317,6 +2569,14 @@ law cylv_ovf_unc:
 def cylv_ovf_unc():
   {==}
 
+law cylv_rneg_inv:
+  {String.eq(G.gres_show(O.cyl_val(G.Cy{p000(), d001(),
+      F64.neg(1.0f64)}, p100())), "invalid-input")
+    == True{} : Bool}
+
+def cylv_rneg_inv():
+  {==}
+
 law cylg_105:
   {d_bits_eq(O.cyl_grad(cy_z(), V.Pt{1.0f64, 0.0f64, 5.0f64}),
     4611686018427387904u64, 0u64, 0u64) == True{} : Bool}
@@ -2338,6 +2598,13 @@ law cylg_axis2_inv:
     "invalid-input") == True{} : Bool}
 
 def cylg_axis2_inv():
+  {==}
+
+law cylg_r0_inv:
+  {String.eq(G.gres_show(O.cyl_grad(G.Cy{p000(), d001(), 0.0f64},
+      p100())), "invalid-input") == True{} : Bool}
+
+def cylg_r0_inv():
   {==}
 
 # --- cone_val/cone_grad/cone_ax ---
@@ -2379,6 +2646,14 @@ law cov_ovf_unc:
 def cov_ovf_unc():
   {==}
 
+law cov_kneg_inv:
+  {String.eq(G.gres_show(O.cone_val(G.Co{p000(), d001(),
+      F64.neg(0.5f64)}, p100())), "invalid-input")
+    == True{} : Bool}
+
+def cov_kneg_inv():
+  {==}
+
 law cog_102:
   {d_bits_eq(O.cone_grad(co_z(), V.Pt{1.0f64, 0.0f64, 2.0f64}),
     4611686018427387904u64, 0u64, 13830554455654793216u64)
@@ -2401,6 +2676,13 @@ law cog_axis2_inv:
     "invalid-input") == True{} : Bool}
 
 def cog_axis2_inv():
+  {==}
+
+law cog_k0_inv:
+  {String.eq(G.gres_show(O.cone_grad(G.Co{p000(), d001(),
+      0.0f64}, p100())), "invalid-input") == True{} : Bool}
+
+def cog_k0_inv():
   {==}
 
 law coax_2:
@@ -2431,6 +2713,14 @@ law coax_axis2_inv:
     "invalid-input") == True{} : Bool}
 
 def coax_axis2_inv():
+  {==}
+
+law coax_kneg_inv:
+  {String.eq(G.gres_show(O.cone_ax(G.Co{p000(), d001(),
+      F64.neg(0.5f64)}, p123())), "invalid-input")
+    == True{} : Bool}
+
+def coax_kneg_inv():
   {==}
 
 # --- tor_val/tor_grad ---
@@ -2465,6 +2755,14 @@ law torv_ovf_unc:
 def torv_ovf_unc():
   {==}
 
+law torv_Rneg_inv:
+  {String.eq(G.gres_show(O.tor_val(G.To{p000(), d001(),
+      F64.neg(4.0f64), 1.0f64}, p100())), "invalid-input")
+    == True{} : Bool}
+
+def torv_Rneg_inv():
+  {==}
+
 law torg_eq:
   {d_bits_eq(O.tor_grad(to_z(), V.Pt{5.0f64, 0.0f64, 0.0f64}),
     4639833516098453504u64, 0u64, 0u64) == True{} : Bool}
@@ -2486,6 +2784,13 @@ law torg_axis2_inv:
     "invalid-input") == True{} : Bool}
 
 def torg_axis2_inv():
+  {==}
+
+law torg_r0_inv:
+  {String.eq(G.gres_show(O.tor_grad(G.To{p000(), d001(), 4.0f64,
+      0.0f64}, p100())), "invalid-input") == True{} : Bool}
+
+def torg_r0_inv():
   {==}
 
 # --- tseg_eval/tbez_eval: trim evaluation pins + gates ---
@@ -2730,6 +3035,15 @@ law nok_w0_inv:
     "invalid-input") == True{} : Bool}
 
 def nok_w0_inv():
+  {==}
+
+law nok_wneg_inv:
+  {String.eq(G.gres_show(O.nurbs_checked(G.Nb{nbk1_ks(),
+      nbk1_ps(),
+      1.0f64 <> 1.0f64 <> F64.neg(1.0f64) <> 1.0f64 <> Nil{}},
+    9n)), "invalid-input") == True{} : Bool}
+
+def nok_wneg_inv():
   {==}
 
 law nok_nanp_inv:

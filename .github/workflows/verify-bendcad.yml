@@ -1,0 +1,122 @@
+name: Verify BendCAD kernel
+# Canonical C00→C03 qualification: builds the exact BEND_PIN fork
+# compiler, then runs every static gate and every suite in all three
+# lanes. A commit that drifts from its receipt fails here.
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      BEND_NO_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+      - name: Build bend from the BEND_PIN fork commit
+        run: |
+          PIN_COMMIT="$(cut -d@ -f2 BEND_PIN)"
+          test -n "$PIN_COMMIT"
+          git init fork-bend
+          cd fork-bend
+          git remote add origin https://github.com/jnadeau207-collab/bend
+          git fetch --depth 1 origin "$PIN_COMMIT"
+          git checkout "$PIN_COMMIT"
+          git rev-parse HEAD
+          export PATH="$HOME/.bun/bin:$PATH"
+          mkdir -p "$HOME/.bend/bin"
+          bun build --compile --target=bun-linux-x64 ./bend2/main.ts --outfile "$HOME/.bend/bin/bend"
+          rm -rf "$HOME/.bend/bend2" "$HOME/.bend/guide"
+          cp -r bend2 "$HOME/.bend/bend2"
+          cp -r guide "$HOME/.bend/guide"
+          echo "$HOME/.bend/bin" >> "$GITHUB_PATH"
+      - name: Static gates (check-only)
+        run: |
+          export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
+          for f in src/c00/types.bend src/c00/eval.bend \
+              src/c01/types.bend src/c01/ops.bend \
+              src/c02/types.bend src/c02/ops.bend \
+              src/c03/types.bend src/c03/ops.bend \
+              laws/c00.bend laws/c01.bend laws/c02.bend laws/c03.bend \
+              tests/c00/check.bend tests/c01/check.bend \
+              tests/c02/check.bend tests/c03/check.bend; do
+            bend "$f" --check-only
+          done
+      - name: Bend-native static greps (BN-2/3/4/5)
+        run: |
+          test -z "$(grep -rn '@unsafe' src/ laws/ tests/ | grep -v ': *#' || true)"
+          test -z "$(grep -rni 'foreign\|ffi_import\|@ffi' src/ || true)"
+          test -z "$(grep -rni 'occt\|freecad\|planegcs' src/ || true)"
+          ! grep -rn 'F32' src/ laws/ tests/
+      - name: Suites, three lanes
+        run: |
+          export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
+          run_lane() {
+            out="$1"; shift
+            "$@" | tee "$out"
+            grep -q 'selfcheck fails=0' "$out"
+            ! grep -q 'FAIL' "$out"
+          }
+          mkdir -p /tmp/bendcad-ci
+          run_lane /tmp/bendcad-ci/c00-neg-i.log bend tests/c00/neg.bend
+          run_lane /tmp/bendcad-ci/c00-pos-i.log bend tests/c00/positive.bend
+          run_lane /tmp/bendcad-ci/c01-neg-i.log bend tests/c01/neg.bend
+          run_lane /tmp/bendcad-ci/c01-pos-i.log bend tests/c01/pos.bend
+          run_lane /tmp/bendcad-ci/c02-neg-i.log bend tests/c02/neg.bend
+          run_lane /tmp/bendcad-ci/c02-pos-i.log bend tests/c02/pos.bend
+          run_lane /tmp/bendcad-ci/c03-neg-i.log bend tests/c03/neg.bend
+          run_lane /tmp/bendcad-ci/c03-pos-i.log bend tests/c03/pos.bend
+          bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg-n
+          run_lane /tmp/bendcad-ci/c00-neg-n.log /tmp/bendcad-ci/c00-neg-n
+          bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos-n
+          run_lane /tmp/bendcad-ci/c00-pos-n.log /tmp/bendcad-ci/c00-pos-n
+          bend tests/c01/neg.bend -o /tmp/bendcad-ci/c01-neg-n
+          run_lane /tmp/bendcad-ci/c01-neg-n.log /tmp/bendcad-ci/c01-neg-n
+          bend tests/c01/pos.bend -o /tmp/bendcad-ci/c01-pos-n
+          run_lane /tmp/bendcad-ci/c01-pos-n.log /tmp/bendcad-ci/c01-pos-n
+          bend tests/c02/neg.bend -o /tmp/bendcad-ci/c02-neg-n
+          run_lane /tmp/bendcad-ci/c02-neg-n.log /tmp/bendcad-ci/c02-neg-n
+          bend tests/c02/pos.bend -o /tmp/bendcad-ci/c02-pos-n
+          run_lane /tmp/bendcad-ci/c02-pos-n.log /tmp/bendcad-ci/c02-pos-n
+          bend tests/c03/neg.bend -o /tmp/bendcad-ci/c03-neg-n
+          run_lane /tmp/bendcad-ci/c03-neg-n.log /tmp/bendcad-ci/c03-neg-n
+          bend tests/c03/pos.bend -o /tmp/bendcad-ci/c03-pos-n
+          run_lane /tmp/bendcad-ci/c03-pos-n.log /tmp/bendcad-ci/c03-pos-n
+          bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg.js
+          run_lane /tmp/bendcad-ci/c00-neg-js.log bun /tmp/bendcad-ci/c00-neg.js
+          bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos.js
+          run_lane /tmp/bendcad-ci/c00-pos-js.log bun /tmp/bendcad-ci/c00-pos.js
+          bend tests/c01/neg.bend -o /tmp/bendcad-ci/c01-neg.js
+          run_lane /tmp/bendcad-ci/c01-neg-js.log bun /tmp/bendcad-ci/c01-neg.js
+          bend tests/c01/pos.bend -o /tmp/bendcad-ci/c01-pos.js
+          run_lane /tmp/bendcad-ci/c01-pos-js.log bun /tmp/bendcad-ci/c01-pos.js
+          bend tests/c02/neg.bend -o /tmp/bendcad-ci/c02-neg.js
+          run_lane /tmp/bendcad-ci/c02-neg-js.log bun /tmp/bendcad-ci/c02-neg.js
+          bend tests/c02/pos.bend -o /tmp/bendcad-ci/c02-pos.js
+          run_lane /tmp/bendcad-ci/c02-pos-js.log bun /tmp/bendcad-ci/c02-pos.js
+          bend tests/c03/neg.bend -o /tmp/bendcad-ci/c03-neg.js
+          run_lane /tmp/bendcad-ci/c03-neg-js.log bun /tmp/bendcad-ci/c03-neg.js
+          bend tests/c03/pos.bend -o /tmp/bendcad-ci/c03-pos.js
+          run_lane /tmp/bendcad-ci/c03-pos-js.log bun /tmp/bendcad-ci/c03-pos.js
+          cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-n.log
+          cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-js.log
+          cmp /tmp/bendcad-ci/c00-pos-i.log /tmp/bendcad-ci/c00-pos-n.log
+          cmp /tmp/bendcad-ci/c00-pos-i.log /tmp/bendcad-ci/c00-pos-js.log
+          cmp /tmp/bendcad-ci/c01-neg-i.log /tmp/bendcad-ci/c01-neg-n.log
+          cmp /tmp/bendcad-ci/c01-neg-i.log /tmp/bendcad-ci/c01-neg-js.log
+          cmp /tmp/bendcad-ci/c01-pos-i.log /tmp/bendcad-ci/c01-pos-n.log
+          cmp /tmp/bendcad-ci/c01-pos-i.log /tmp/bendcad-ci/c01-pos-js.log
+          cmp /tmp/bendcad-ci/c02-neg-i.log /tmp/bendcad-ci/c02-neg-n.log
+          cmp /tmp/bendcad-ci/c02-neg-i.log /tmp/bendcad-ci/c02-neg-js.log
+          cmp /tmp/bendcad-ci/c02-pos-i.log /tmp/bendcad-ci/c02-pos-n.log
+          cmp /tmp/bendcad-ci/c02-pos-i.log /tmp/bendcad-ci/c02-pos-js.log
+          cmp /tmp/bendcad-ci/c03-neg-i.log /tmp/bendcad-ci/c03-neg-n.log
+          cmp /tmp/bendcad-ci/c03-neg-i.log /tmp/bendcad-ci/c03-neg-js.log
+          cmp /tmp/bendcad-ci/c03-pos-i.log /tmp/bendcad-ci/c03-pos-n.log
+          cmp /tmp/bendcad-ci/c03-pos-i.log /tmp/bendcad-ci/c03-pos-js.log
