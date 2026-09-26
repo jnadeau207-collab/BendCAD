@@ -1,0 +1,257 @@
+# C03 verification receipt — 2026-09-25 (implementation + audit fixes + triple lanes)
+
+Packet: C03 curves, surfaces, and trimming (MASTER_PLAN §10 C03).
+Verdict: PASS. Every number below was observed this session by running
+the listed commands. This receipt supersedes the same-day absence
+receipt (written when no C03 files existed); the packet has since
+been implemented, audited, fixed, and re-verified end to end.
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: 0f41d98a0f5ba4bff285de6368ebc3dbccffe17a
+  (log -1: "c02: robust predicates with laws, tests, receipt"; branch main)
+git status --porcelain (packet files untracked/new; no other edits):
+  ?? docs/bend-native-gates.md
+  ?? docs/c03-contract.md
+  ?? docs/receipts/c03-2026-09-25.txt          (this file; rewritten, not hashed)
+  ?? docs/receipts/c03-bend-pin-2026-09-25.txt (pin addendum, supporting)
+  ?? laws/c03.bend
+  ?? src/c03/
+  ?? tests/c03/
+   M docs/replacement-ledger.md               (C03 rows appended)
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched this session except read-only `branch -a`/`log`
+  (pr/* remote branches present: pr/base-helpers, pr/emission-speedup,
+  pr/f64, pr/u64; no checkout/pull/fetch/reset; `bend update` never run).
+
+BEND_PIN (root file): jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK:
+  fork: https://github.com/jnadeau207-collab/bend
+  commit: 50ec219a6b5c52316f4d1622816cceedd437fa95
+  tag: numeric/2026-09-25
+  date: 2026-09-25T17:33:09Z
+  built: bun build --compile --target=bun-linux-x64 ./bend2/main.ts
+Pin cross-check (addendum §2-§3, incorporated here): tag object
+c3be1c42 -> commit 50ec219a; `50ec219a:bend2` tree
+ad7586f1d9906893d186df9af960182b98c192b8; conformance receipt blob
+f845e498, sha256 3d84893c145b952c75cdc85ad989d87d6c3625d57f83e6040bcb1f4f3e1f6510.
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (Bend 2.0.27, fork build
+per FORK above). bun 1.4.2. `bend update` never run.
+
+sha256 of every packet file (+ gates + ledger; receipt excluded as
+it is the file being written):
+  e37fb1e94b97351d0531c26cce6ea00e1b8afc1660b11361239f8b6d2687db33  docs/c03-contract.md
+  5470a0885ad6376faeb292299f83bfaff9c78f56c40aa362609b43492a32b06b  docs/bend-native-gates.md
+  aeeb1c52dc1101f69ea30b073ac9a53c48cca3c21331b16ae86d6ea621471a85  src/c03/types.bend
+  1a833039664353e79da1eb9b6c2cb7399e3314e7fd8ab01449ff3437b2d962b7  src/c03/ops.bend
+  7076fbe47ea3ce0180c96c6703ca47597372fcd73771b217457b17fe861ca947  laws/c03.bend
+  ece8b0c618e50f74e408efb5c9291d9bd308b55517033826f0255fcdab08869a  tests/c03/check.bend
+  ed0d8266fc4bc2d60d48e8053240c22788c79c2a496b76bed6c8c3ec79e5482e  tests/c03/neg.bend
+  30d4547f3ff43fe3bb1a399f57e90723d012f8c5dcc351c5ff08d8dbd70ad34d  tests/c03/pos.bend
+  2343d17801f12ea54f27e7aa059ec27d356ecd1b18f7c7640c391f6c2ff3c899  docs/replacement-ledger.md
+
+Oracle script (implementor-owned, /tmp; probes import the exact bytes
+above via relative paths, no vendored copy):
+  d1aa4da869b437c1c7d0df1f1c71e0e9c60712201b8bb796b2d7398df5a9b807  /tmp/c03_oracle.py
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c03/types.bend --check-only     # exit 0 (<1 s)
+  bend src/c03/ops.bend --check-only      # exit 0 (<1 s)
+  bend laws/c03.bend --check-only         # exit 0, 12:20 elapsed
+  bend tests/c03/check.bend --check-only  # exit 0 (<1 s)
+
+330 laws confirmed by `grep -c '^law ' laws/c03.bend` (= 330): 326
+landed by the packet workflow plus 4 audit-fix laws (`nev_t1`,
+`wrap_degen1_inv`, `wrap_degen2_inv`, `sphp_far_unc`). Bend fails a
+file with any unproven law, so check-only exit 0 proves all 330
+closed. Timing note (closes the earlier "280 s timeout" gap): laws
+checking is slow in this build (C02's 51 laws take 5:10; C03's 330
+take 12:20) — the timeout was an under-provisioned limit, not a
+hang. A pre-fix run also passed (326 laws, 12:14); it is superseded
+by the post-fix run above, which checks the exact bytes in §1.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c03/neg.bend                 # 163 PASS, selfcheck fails=0, exit 0
+  bend tests/c03/pos.bend                 # 154 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c03/neg.bend -o /tmp/c03-neg-n && /tmp/c03-neg-n
+                                          # build 0, 163 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c03-pos-n && /tmp/c03-pos-n
+                                          # build 0, 154 PASS, fails=0, exit 0
+JS:
+  bend tests/c03/neg.bend -o /tmp/c03-neg.js && bun /tmp/c03-neg.js
+                                          # build 0, 163 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c03-pos.js && bun /tmp/c03-pos.js
+                                          # build 0, 154 PASS, fails=0, exit 0
+
+Native-neg needed a test-harness fix first (see §5.4): the C backend
+refused the as-landed file with "an arity over 255". No suite logic
+changed — one 3x-repeated op call per test became one let-bound call.
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all pairs;
+zero FAIL lines in all six logs):
+  neg: c2cc45b42ed669150aa5732aaf162cf1f2952307760c92ad8edf3cb9a0a18cc9 (x3)
+  pos: e0df25b06c16630e3b5e971471e1026c953472313845dca4477e83c96b01a7cf (x3)
+
+Suite sizes: `grep -c report_` = 163 (neg) + 154 (pos) = 317 checks,
+matching PASS counts. Conservation note: the as-landed suite was
+164 + 153 = 317; the audit moved `nev-t1` from neg to pos (it is a
+value pin now, §5.1) and converted three observed-bug pins in place.
+
+## 4. Independent oracle cross-checks (this session, 0 mismatches)
+
+`/tmp/c03_oracle.py` (hash §1; exit 0, "ALL ORACLE CHECKS PASSED"):
+62 pinned checks + 4 bound asserts, zero failures.
+
+Part A — op-for-op doubles emulation of the contract formulas (same
+parenthesization as ops.bend, incl. signed zeros), bitwise vs the
+suite/law literals: 52/52 match. Covered: bez3 midpoint; rqb quarter
+midpoint (unit + r=2 spellings, incl. the §13 pin 4609047870845172684);
+rqb_disc ellipse/parabola/hyperbola (incl. 13826050856027422718);
+circle t=+1/-1/seam triple (13830554455654793216,0,0); NURBS t=0.5
+(= Bernstein midpoint bits, the single-span equivalence), t=1.0
+(1,1,1), t=0.0; bezp flat/bump midpoints + c33 corner (3,3,0);
+pdom_wrap 25 -> 15; circ_der t=0/t=0.5 (incl. -0.0 z bits
+9223372036854775808); bez3_der t=0.5; rqb_der t=0.
+
+Part B — exact rational (Fraction) identities: 5/5. Seam t=±1 gives
+(nx,ny) = (-1,0) exactly with nx²+ny² = 1; Bernstein cubic/quadratic
+unity at 1/2; span window-fit: every sp in [3,nk-5] keeps
+knots[sp-2..sp+4] and points[sp-3..sp] in range (nk = 8,9,12,40).
+
+Part C — high-precision (Decimal, 60 digits) bound checks: 4/4.
+w_quarter is 0 ulp from correctly-rounded √2/2. Quarter midpoint:
+evaluation-only error 0.639 ulp; r² deviation 2.3e-17 (input-exact)
+and 1.8e-16 absolute — both within the §10 9e-16 bound (the bound
+holds with margin; the receipt records the tighter measurements).
+r=2 quarter midpoint is exactly 1 ulp below correctly-rounded √2
+(bits 4609047870845172684 vs 4609047870845172685), confirming the
+§5 "1 ulp" claim verbatim.
+
+Part D — circle sweep + derivative-vs-finite-difference: 6/6.
+2000 uniform samples in [-1,1]: max |nx²+ny²-1| = 8.882e-16 ≤ 9e-16
+(§5 bound reproduced; near-tight). circ_der vs Decimal central
+differences (h=1e-7) at 5 points: ≤ 3.2e-14 ≪ 1e-8 (§5 margin).
+
+## 5. Audit fixes applied before commit (all probe-observed)
+
+The as-landed packet carried four observed-bug pins (neg tests
+asserting behavior the contract forbids) plus one comment-promised
+pin that did not exist ("t=khi pinned after probing"). A code-level
+audit reproduced each, fixed src, and converted every pin to the
+corrected expectation with a matching law. No test was weakened or
+deleted to manufacture green: total checks conserved (317 -> 317).
+
+5.1 NURBS span clamp off-by-one (src/c03/ops.bend, nurbs_eval_go).
+Was: span clamped into [3,nk-4]; at t = khi the window k[s-2..s+4]
+overran by one, took the zero-fill path, and returned
+numerical-uncertainty (probed: `nurbs_eval(nbk1(),1.0,9n)` ->
+uncertainty while t=0.0/0.5/0.999 were ok). Fix: clamp into
+[3,nk-5] (one line + `nk5` binding; bad counts still route to
+invalid-input through the unchanged `valid` gate). Now: t=khi
+evaluates to the exact endpoint (1,1,1) bits 4607182418800017408×3,
+and zero-fill is genuinely unreachable (Part-B machine check).
+Pins: law `nev_t1` + `pos-nev-t1`; `neg-bug-nev-t1` removed from
+neg (moved, not dropped). Contract §7 amended (nk-5 + rationale).
+
+5.2 Degenerate pdom_wrap published ±inf (src/c03/ops.bend).
+Was: `pdom_wrap` gated finiteness but not `lo < hi`, so
+Dom{DBL_MAX,0} published ok(-inf) and Dom{0,-DBL_MAX} published
+ok(+inf). Fix: conjoin `F64.is_lt(lo,hi)` into the entry `ok`
+(pipeline step 2: degenerate domain -> invalid-input). Now both
+fixtures return invalid-input; valid-domain wrap provably cannot
+overflow (t+span < hi, t-span > lo — stated argument, §4).
+Pins: laws `wrap_degen1/2_inv` + `neg-wrap-degen1/2`. Valid wrap
+unchanged (`wrap-25` -> 15, all wrap laws green).
+
+5.3 Far-field sph_project published the center (src/c03/ops.bend).
+Was: q=(DBL_MAX,DBL_MAX,0) overflows |q-c| to +inf; r/inf = 0
+collapsed the projection to (0,0,0) — the sphere CENTER — published
+as ok. Fix: thread `T.is_finite(n)` into `sph_proj_zero/go`;
+nonfinite norm -> numerical-uncertainty (pipeline step 5: true
+overflow), keeping coincident (n = 0) -> invalid-input. Now:
+far -> uncertainty, center -> invalid, (2,0,0) -> (1,0,0), all
+probed. Pins: law `sphp_far_unc` + `neg-sph-far`. Contract §9
+amended (far-field example).
+
+5.4 Native-lane arity failure in neg_g7 (tests only, no src change).
+Was: `bend tests/c03/neg.bend -o native` failed with "an arity over
+255". Bisection: groups g1..g6 build alone; g7 fails alone; a
+singles-only g7 builds — the trigger is calling a big op 3× inside
+one Bool tree (x/y/z component reads), same class as C02 D2.
+Fix: `C.gres_p_is_zero` helper in tests/c03/check.bend (single call,
+C02-D2 let-binding shape); f156/f157/f158 rewritten to use it.
+Native neg now builds and runs 163/163.
+
+## BN. Bend-native gates (BN-1..BN-12)
+
+N/A is forbidden by docs/bend-native-gates.md; every gate below is
+PASS with evidence at the §1 bytes.
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | Packet implementation is exactly `src/c03/types.bend` + `src/c03/ops.bend` (hashes §1); both `bend … --check-only` → `All terms check.` No authoritative algorithm in another language. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/c03 laws/c03.bend tests/c03` is empty (exit 1) — no `@unsafe` construct anywhere in the packet. |
+| BN-3 | PASS | `grep -rn "F32" …` is empty (exit 1); `f32` hits are four lines in tests only, all U64 failure-counter variables named `f32` (neg.bend:152,155; pos.bend:116,120), never a float type. All scalars are the pinned as-bits F64 path. |
+| BN-4 | PASS | Imports are `Base`, `../c00`, `../c01`, `./types.bend`, `./check.bend` only (full list verified); `grep -rni "foreign\|ffi_import\|@ffi"` empty (exit 1). Boundary list: none. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs"` over packet sources is empty (exit 1); `legacy/` clean (§1). Oracle is an independent /tmp script, not a runtime dependency. |
+| BN-6 | PASS | No GPU claim in this packet (contract §11), hence no GPU path to fall back from. All evaluation is host F64. |
+| BN-7 | PASS | Content identity only (contract §8): validated specs (frames, controls, knots, weights, domain ends). No ordinals/addresses; `Nurb` lists are immutable content with structural windows. |
+| BN-8 | PASS | Recursion inventory (audited): exactly 8 self-recursive defs in ops.bend — 5 fuel-capped walks (`kfin/knondec/wpos/pfin_c`, `span_at`: 1 fuel/element, exhaustion code 0n) + 3 structural drops in (list,n); all 144 types.bend defs and remaining 188 ops.bend defs non-recursive. Fuel 0 rejected at `nurbs_eval`/`nurbs_checked` entry; publish gate checks `done` before `valid` (nurbs_eval_fin). Pins: `nev_fuel0/fuel5_exh` laws+tests, `bn8_wrap_once`, `pos-bn8-nok-fuel`. |
+| BN-9 | PASS | No batch op ships: `List<>` appears only in single-curve NURBS validation/span/window signatures (14 defs: 4 validation walks + span + 3 drops + 4 takes + `nok_c` + `nurbs_eval_go`, all §7). Parallel decomposition specified for the batch layer (contract §12): span-partitioned eval, subdivision tree, patch tiles, segmented reductions. |
+| BN-10 | PASS | Every shortcut classified (contract §10/§11, all evidenced this session): hull/circle enclosures = certified bounds; Bernstein/de Boor/quotient formulas = exact identities + 52 bitwise oracle checks; `0/0 := 0` at repeated knots = stated standard convention (`alpha_raw`, exact-zero test); shared-fuel span `done` = stated + code-audited (same list, same fuel ⇒ co-completion); wrap overflow-freedom = stated arithmetic argument (§4, new); span `nk-5` window-fit = stated index argument + Part-B machine check (§7, new); C01 thresholds inherited + pin-tested; trig ABSENT by policy (§1). The four as-landed contract violations were FIXED (§5), not relabeled. |
+| BN-11 | PASS | Every `Gerr` arm carries no value: projectors yield documented zero/defaults (contract §2). Pins: `neg-bn11-*` (8 tests incl. `gres_p_is_zero` defaults), per-arm `neg-*` kind asserts, `fails=0` on all six lanes. |
+| BN-12 | PASS | This section + §1: BendCAD HEAD `0f41d98a` + per-file sha256; `BEND_PIN jnadeau207-collab/bend@50ec219a` + FORK tag `numeric/2026-09-25` + bend2 tree `ad7586f1` + conformance receipt blob (addendum incorporated); bend 2.0.27 fork build, bun 1.4.2, pinned env. |
+
+Gate count: 12 (BN-1 through BN-12). Overall: 12 PASS / 0 FAIL.
+
+## 6. Counts
+
+check-only files passed: 4/4 (types, ops, laws, check).
+Suite checks passed (neg+pos, per lane): 163+154 interpreted,
+163+154 native, 163+154 JS (317 checks × 3 lanes = 951 executions).
+Laws proven: 330 (`grep -c '^law '`, check-only exit 0).
+Differential cases vs independent oracle: 62 pinned + 4 bound
+asserts, 0 mismatches; plus 2000-sample sweep (max 8.882e-16)
+and 5 finite-difference derivative cross-checks (≤ 3.2e-14).
+Unresolved/abstained cases: none silent. Honest abstentions by
+design: true overflow -> `numerical-uncertainty` (incl. far-field
+sphere, §5.3), short NURBS fuel -> `resource-exhausted`, NURBS
+derivative / periodic NURBS / general projection+intersection
+explicitly unimplemented (contract §14).
+
+## 7. Negative confirmations
+
+- No weakened test/law: the four observed-bug pins were converted to
+  corrected expectations alongside src fixes (§5); suite total
+  conserved 317 -> 317; laws grew 326 -> 330.
+- No placeholder: every `src/c03` def is exercised by laws or suite
+  pins; contract §14 lists only explicit scope limits.
+- No commit/push/amend performed before this receipt; `git status`
+  shows only the §1 packet paths.
+- `legacy/` clean before and after (status empty); fork worktree
+  untouched (read-only commands only); `bend update` never run.
+- Scratch removed: `probe_khi.bend` and `neg_bis*.bend` bisection
+  files deleted; stdout logs and oracle script live in /tmp only.
+- stdout logs: zero FAIL lines in all six lane logs; `cmp` clean
+  across lanes per suite (§3 hashes).
+
+## 8. Exit-criteria verdict
+
+Criterion (MASTER_PLAN §10/C03): conics, rational quarter-circles,
+periodic curves, derivative identities, and surface evaluations agree
+with analytic/high-precision references within declared bounds.
+
+Verdict: PASS. Evidence: §3 triple lanes (951 executions, 0 fails,
+byte-identical stdout) + §4 oracle (52 bitwise formula matches, 5
+exact identities, 4 bound checks incl. 1-ulp quarter claim verbatim,
+2000-sample sweep within 9e-16, derivatives within 3.2e-14 of
+finite differences) + §BN gate table (12/12 PASS) + §5 audit trail
+(4 violations found by code audit and fixed with laws+tests, none
+relabeled). Declared bounds: §10 (Bernstein/de Boor ~10 ulp absent
+cancellation, stated + pin-tested, not machine-proved) and the
+measured values in §4 Part C/D.

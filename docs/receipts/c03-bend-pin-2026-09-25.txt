@@ -1,0 +1,77 @@
+# C03 bend-pin provenance addendum — 2026-09-25
+
+Purpose: close the "diverged local bend checkout; pin tree verified only
+via git show, not working tree" gap. Every value below was observed this
+session with read-only commands. No checkout/pull/reset/fetch was run in
+/mnt/c/dev/bend; `bend update` never run; nothing committed or pushed;
+`legacy/` and `pr/*` untouched.
+
+BendCAD HEAD at observation: 0f41d98a0f5ba4bff285de6368ebc3dbccffe17a
+BendCAD status: ?? docs/bend-native-gates.md, docs/c03-contract.md,
+docs/receipts/c03-2026-09-25.txt, laws/c03.bend, src/c03/, tests/c03/.
+
+## 1. Local bend worktree state (observed, NOT the evidence source)
+
+Worktree: /mnt/c/dev/bend, branch main.
+HEAD:         2df68415255dca342a204e898fa134788f84554a
+origin/main:  df2e4303efb786be2895a3eb352ccace248099ff
+Ahead/behind: 4 / 8 (`rev-list --left-right --count HEAD...origin/main`).
+Merge-base:   3276efacc730460eab95b9b36b9f51efed6c2b8e.
+Status: `M AGENTS.md`, `?? FORK.md` (pre-existing; untouched here).
+`conformance/`: absent in the worktree (`ls` fails).
+The 4 HEAD-only commits are rebased counterparts of 4 of the 8
+origin-only commits (same subjects: emission/U64/F64/Base-helper
+rework); the other 4 origin-only commits are #1047-#1050.
+
+## 2. Pin identity (BEND_PIN == FORK == tag == commit object)
+
+BEND_PIN file: jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK:  commit 50ec219a6b5c52316f4d1622816cceedd437fa95,
+tag numeric/2026-09-25, date 2026-09-25T17:33:09Z.
+Tag object numeric/2026-09-25: c3be1c42afd50151467f810c77e90ca18abb8088
+(type tag) -> 50ec219a6b5c52316f4d1622816cceedd437fa95 (type commit).
+Tag message: "BendCAD pin: fork main df2e4303 (upstream 774ef644 +
+#1056-#1059) with the numeric contract, conformance/ and its receipt
+for bend2 tree ad7586f1".
+Pin subject: "conformance: receipt for bend2 tree ad7586f1 at 2^20
+cases a group, with no mismatch on any lane".
+Pin chain: df2e4303 (origin/main) -> 31aab48f576c1a1abdc423275cc729b707b878be
+(conformance harness) -> 50ec219a (adds only
+conformance/receipts/2026-09-25.txt, 57 lines). So the pin is 2 commits
+ahead of origin/main on the origin line; the diverged HEAD in §1 simply
+predates conformance/.
+
+## 3. Pin tree from the object store (no checkout; content-addressed)
+
+Commit tree:      9814ec6f10972116a9657abcb1989a9770fcefa6
+`50ec219a:bend2` tree: ad7586f1d9906893d186df9af960182b98c192b8
+(= the tree named in the pin subject; `git rev-parse` match).
+`50ec219a:conformance` tree: 7c45a5a012f0d0609cfd05b5afa96d120067a584
+(`git ls-tree -r 50ec219a -- conformance/`: 11 files; receipt blob
+f845e498ce634d2eb03c272e016a9ce42bfda42a.)
+Receipt content (`git show 50ec219a:conformance/receipts/2026-09-25.txt`):
+sha256 3d84893c145b952c75cdc85ad989d87d6c3625d57f83e6040bcb1f4f3e1f6510,
+2958 bytes, 57 lines. First content line names code bend2 tree
+ad7586f1d9906893d186df9af960182b98c192b8 at commit 31aab48f (= pin^);
+body records 2^20 cases x 22 groups, 0 mismatches on js/c/cuda/
+cuda-defs/c-defs lanes (interpreter at 2^2), probes + text + device
+tests passing — the MASTER_PLAN §4a host-gate evidence.
+
+## 4. Resolution: why no working-tree checkout is needed
+
+A checkout of the pin would materialize the same objects hashed in §3
+and add zero evidence, while disturbing the fork worktree other work
+depends on. C03 runs never use /mnt/c/dev/bend: every `bend` run uses
+~/.bend/bin/bend (Bend 2.0.27, sha256
+6c140151a7320f4f2bb21c566003643a4bd734d0c94e6313bc7b73d464cc29cc),
+built from the pin per FORK §2, env
+PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH, BEND_NO_TELEMETRY=1.
+The §1 divergence is therefore disclosed and immaterial: the pin is
+pinned by commit/tree/blob/content hashes, not by worktree position.
+This matches the C01/C02 receipts, which cite BEND_PIN + FORK +
+toolchain only.
+
+## 5. Incorporation
+
+Merge §2-§4 into the C03 receipt §1 (BN-12) and the contract BN-12 row
+at commit time; re-hash packet files then.
