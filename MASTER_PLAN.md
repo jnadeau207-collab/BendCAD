@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 2 — September 18, 2026**
+**Revision 3 — September 26, 2026 (Amendment A1: C04/C07/C11 boundary; see Amendment record)**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend.
 
@@ -148,9 +148,11 @@ Exit: conics, rational quarter-circles, periodic curves, derivative identities, 
 
 Implement vertices, edges, oriented edge uses/coedges, loops, faces, shells, solids, cavities, and compounds. Separate an underlying edge from its oriented uses. A closed edge can begin and end at the same vertex; a seam can occur twice on one face; a singular pole requires an explicit degenerate representation.
 
-For the admitted manifold-solid profile, validate local incidence and vertex links, orientation, closed boundaries, trimming consistency, and geometric embedding. Counting faces or checking Euler's formula alone is not solid validation. Open surfaces remain valid under a different explicitly named profile.
+For the admitted manifold-solid profile, validate that a B-rep is topologically coherent and locally geometrically consistent, using only predicate-level checks over C00–C03 primitives: local incidence; vertex links (each vertex link is a single cycle); edge-use pairing; closed boundaries; shell face-connectedness and orientation-propagation consistency; per-face orientation self-consistency (boundary winding agrees with the `same`-adjusted surface normal) wherever determinable from C03 surface normals; shell ownership (outer kind, cavity kind, single ownership); repeated-vertex / duplicate-incidence detection, including coincident distinct vertices; same-face straight-edge segment-crossing detection over C02 exact predicates; and trim/surface consistency (parametric coincidence where C03 evaluation exists, implicit point-on-surface membership for quadrics). Counting faces or checking Euler's formula alone is not solid validation. Open surfaces remain valid under a different explicitly named profile.
 
-Exit: valid sphere/cylinder seams and cavities are accepted; dangling, inverted, self-intersecting, and nonmanifold counterexamples are diagnosed appropriately.
+C04 does not prove arbitrary geometric embedding: general curved-edge intersection, cross-face and inter-loop penetration, general geometric self-intersection, global outward shell orientation requiring inside/outside classification, coarse cavity bbox nesting, and exact cavity inside/disjoint classification are explicitly out of C04 scope. Coarse nesting via broad-phase bounds and the inside/outside classification that global outwardness needs belong to C07; exact containment/interference belongs to C11. Full parametric trim coincidence for quadrics waits on the C03 surface-evaluation extension (parameter conventions plus evaluation), a prerequisite to C06/C07, not C04 work.
+
+Exit: valid sphere/cylinder seams and cavities are accepted; dangling, inverted (coedge-level and face winding/normal mismatch), repeated-vertex/coincident-vertex, same-face straight-edge crossing, vertex-link pinch, disconnected-shell, and nonmanifold topological counterexamples are diagnosed appropriately. The words "self-intersection" / "self-intersecting" are reserved for general geometric self-intersection (C07); C04 checks and receipts must use "repeated-vertex / duplicate-incidence" and "segment-crossing" for the C04-level detections.
 
 ### C05 — Planar arrangements and sketch solving
 
@@ -168,7 +170,7 @@ Exit: a parameterized mechanical bracket with a curved boundary and holes is aut
 
 Implement curve/curve, curve/surface, and surface/surface intersection with broad-phase bounds, subdivision/root isolation, refinement, endpoint classification, and complete admitted-domain coverage. Include tangency, coincidence, overlapping intervals, seams, and singularities. Newton iteration can refine an isolated candidate; it cannot by itself establish that all intersections were found.
 
-Exit: return intersection curves and topology/parameter correspondence, not only sampled points. Unresolved regions remain explicit uncertainty.
+Exit: return intersection curves and topology/parameter correspondence, not only sampled points. Unresolved regions remain explicit uncertainty. C07 owns general geometric self-intersection detection (curved-edge crossings, cross-face and inter-loop penetration) excluded from C04, the broad-phase bounds that coarse cavity nesting checks build on, and the inside/outside classification that global outward shell orientation needs. Prerequisite shared with C06: parametric evaluation and parameter conventions for every C03 surface arm (the C03 surface-evaluation extension).
 
 ### C08 — General B-rep booleans
 
@@ -194,7 +196,7 @@ Exit: valid indices, appropriate watertightness, orientation, and stated chordal
 
 Implement closest point/distance, extrema, sections, intersections, area, volume, centroid, inertia, interference, clearance, and acceleration structures. Use certified bounds or explicitly bounded numerical integration where required. An AABB overlap is not exact interference; incomplete searching is not proof of clearance.
 
-Exit: queries agree with analytic/high-precision fixtures and report incomplete or approximate status honestly. Minimum-wall claims require a separately qualified method, not a few successful ray samples.
+Exit: queries agree with analytic/high-precision fixtures and report incomplete or approximate status honestly. Minimum-wall claims require a separately qualified method, not a few successful ray samples. C11 owns exact cavity inside/disjoint classification and the inside/outside/interference machinery behind it.
 
 ### C12 — Interchange and durable identity
 
@@ -277,3 +279,7 @@ Work allowed in parallel:
 [7] Bend F32 JS representation soundness defect: https://github.com/bendlang/bend/issues/797
 
 These references motivate the design. No cited external test result is presented as a BendCAD test run.
+
+## Amendment record
+
+**A1 — 2026-09-26: C04/C07/C11 boundary.** The C04 exit wording ("vertex links, orientation, ... self-intersecting ... diagnosed") was broader than the machinery the roadmap stages at C07 (general intersection: broad-phase bounds, subdivision/root isolation) and C11 (interference/containment classification). C04.1 had narrowed scope by contract deferral instead of by plan authority. This amendment resolves the inconsistency by plan authority: C04 means topologically coherent and locally geometrically consistent (predicate-level checks over C00–C03 only), with the C04 inclusion list, the C07/C11 exclusion list, and the self-intersection terminology reservation now stated in the C04 section above. C04.1 (`4cae05d`) is therefore incomplete against the amended C04: it lacks vertex-link validation, per-face orientation self-consistency, shell connectedness, coincident-vertex detection, same-face segment-crossing detection, and quadric implicit membership. Those six are the C04 completion list; nothing else may be pulled into C04 without a further amendment.
