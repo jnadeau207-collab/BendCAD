@@ -1332,8 +1332,10 @@ def sph_grad(+s: G.Sphere, +q: V.Point) -> G.GRes:
 # Sphere projection: c + r*u with u = (m/M)/(n/M), M = max|m_i|;
 # q == c is invalid-input (coincident, like C01 seg_dir), never a
 # guessed pole. The scalar r/n is NEVER formed: it underflows to
-# zero when r << n (r/n < 2^-1075, e.g. r near DBL_MIN at a
-# far-field query), collapsing (r/n)*m onto the published center;
+# zero when r << n (r/n <= 2^-1075, the exact halfway value
+# 2^-1075 itself rounding to zero under ties-to-even; e.g. r near
+# DBL_MIN at a far-field query), collapsing (r/n)*m onto the
+# published center;
 # even at r = 1, m = (DBL_MAX,0,0) the old spelling lost 1 ulp.
 # Here n/M lies in [1, sqrt(3)] and (m/M) in [-1, 1], so the unit
 # direction survives every finite scale; the result is re-validated.

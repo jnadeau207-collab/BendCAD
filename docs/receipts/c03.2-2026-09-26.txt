@@ -1,0 +1,216 @@
+# C03.2 freeze receipt — 2026-09-26 (threshold correction + full local requalification)
+
+Packet: C03.2 closes the remaining C03 qualification gaps: the
+`r/n` underflow-threshold typo (`<` → `<=`, boundary-bracketed by
+oracle), full local requalification of C00→C03 (the workflow's
+claims executed by hand, since CI is billing-blocked), receipt
+integrity verification, fresh BN-7..BN-12 audits, legacy integrity,
+and the 9000deb message erratum. No geometry changes.
+Verdict: PASS. C03 is FROZEN. Every number below was observed this
+session by running the listed commands.
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: 9000deb7bab2437eb998fb076166985facb013c5b
+  (log -1: "c03.1: evaluator-boundary validity, scaled sphere
+  projection, CI workflow"; branch main)
+git status --porcelain (only the paths below; no other edits):
+   M docs/c03-contract.md
+   M src/c03/ops.bend
+  ?? docs/receipts/c03.2-2026-09-26.txt      (this file; written, not hashed)
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched (no git commands against it; `bend update` never run).
+
+BEND_PIN (root file, unchanged):
+  jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK: unchanged (tag numeric/2026-09-25, commit 50ec219a).
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (Bend 2.0.27, fork build).
+bun 1.4.2.
+
+sha256 of the changed files (receipt excluded as it is the file being
+written; every other tracked file is byte-identical to 9000deb per
+git status above):
+  758a7d63793225e94b8f0f79c39cd4cbeef7924632dc08bf4c031856ec413dd5  docs/c03-contract.md
+  553d86e3060c90fb65d47759539d1bf0f9d3d408fab650021a691f12536dc2a4  src/c03/ops.bend
+
+Oracle scripts (implementor-owned, /tmp):
+  78417fa3040ef360f944dc797006bcffbbb995ff7246b0373220526f277d6db0  /tmp/c031_oracle.py
+    (C03.1 oracle + 2 threshold-boundary checks, §4; supersedes the
+    C03.1-receipt hash 227b19cc…)
+  d1aa4da869b437c1c7d0df1f1c71e0e9c60712201b8bb796b2d7398df5a9b807  /tmp/c03_oracle.py
+    (unchanged; still matches the C03 receipt hash byte-for-byte)
+
+CI status (explicit record, §5.2): the C03.1 workflow file is present
+and YAML-valid, but GitHub Actions execution is UNAVAILABLE — CI
+billing is blocked (maintainer-stated 2026-09-26; billing state is
+not independently verifiable from this environment and is out of
+scope by maintainer direction). Local qualification in this receipt
+is therefore the authoritative freeze evidence. The workflow remains
+the canonical gate definition; no claim is made that CI enforces
+anything until its first green Actions run.
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  8 src files:  src/c00/types.bend src/c00/eval.bend
+    src/c01/types.bend src/c01/ops.bend src/c02/types.bend
+    src/c02/ops.bend src/c03/types.bend src/c03/ops.bend
+  4 laws files (each timed, this session):
+    bend laws/c00.bend --check-only   # exit 0, 0:15 elapsed, 38 laws
+    bend laws/c01.bend --check-only   # exit 0, 1:54 elapsed, 34 laws
+    bend laws/c02.bend --check-only   # exit 0, 5:00 elapsed, 51 laws
+    bend laws/c03.bend --check-only   # exit 0, 12:02 elapsed, 371 laws
+  12 test files (4 check + 8 suites): all exit 0.
+
+494 laws confirmed by `grep -c '^law '` (38+34+51+371). Bend fails a
+file with any unproven law, so check-only exit 0 proves all 494 closed.
+
+## 3. Full suite, three lanes (exit 0 everywhere)
+
+Every suite built and run interpreted, native, and JS this session:
+
+| Suite | interp | native | js | stdout sha256 (x3, `cmp` clean) |
+|---|---|---|---|---|
+| c00 neg (16) | 16 PASS, fails=0 | 16/0 | 16/0 | 197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a |
+| c00 pos (13) | 13 PASS, fails=0 | 13/0 | 13/0 | 5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79ad225b0c0c1ba2be496 |
+| c01 neg (69) | 69 PASS, fails=0 | 69/0 | 69/0 | e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf |
+| c01 pos (44) | 44 PASS, fails=0 | 44/0 | 44/0 | 081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd |
+| c02 neg (24) | 24 PASS, fails=0 | 24/0 | 24/0 | 8b9a30e140baa4ee76934f5cd5a3a58b48ead74ecfadf822b6c9f4eed4b932f6 |
+| c02 pos (34) | 34 PASS, fails=0 | 34/0 | 34/0 | 245a65acd57bf0e8912e279be4124c4fd65a3447a06e31178f84d1319c4070d0 |
+| c03 neg (191) | 191 PASS, fails=0 | 191/0 | 191/0 | 1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638 |
+| c03 pos (158) | 158 PASS, fails=0 | 158/0 | 158/0 | ea1508bb856c18bdc21d0794b29f046377f5c160e0a7fd7d81e50fcf3b2e7d49 |
+
+Zero FAIL lines in all 24 logs. c02 stdout hashes reproduce the C02
+receipt hashes byte-for-byte; c03 hashes reproduce the C03.1 receipt.
+Count note: `grep -c report_ tests/c00/positive.bend` = 14 because
+line 25 defines a `report_negzero` helper; the 13 real checks
+(f1..f13) match the 13 PASS lines and the C00 receipt.
+
+Suite sizes: 549 checks/lane (16+13+69+44+24+34+191+158), matching
+PASS counts; 549 × 3 lanes = 1647 executions, 0 fails.
+
+## 4. Independent oracle cross-checks (this session, 0 mismatches)
+
+`/tmp/c031_oracle.py` (hash §1; exit 0, "ALL ORACLE CHECKS PASSED"):
+33/33 — the C03.1 31 plus the §5.1 boundary bracket
+(`MIN/2.0 == 0.0` exact-halfway-rounds-to-zero,
+`bits(MIN/1.5) == 1` just-above-survives).
+`/tmp/c03_oracle.py` (hash §1, unchanged from the C03 receipt):
+re-run this session, exit 0, "ALL ORACLE CHECKS PASSED" (62 pinned
+checks + sweep + finite-difference cross-checks, all green).
+
+## 5. Fixes and audit evidence applied
+
+5.1 Threshold typo corrected (the one mathematical typo).
+`r/n` underflows to zero iff `r/n <= 2^-1075`: the exact halfway
+value rounds to zero under IEEE ties-to-even (verified: `MIN/2.0`
+is `0.0`, `MIN/1.5` is `MIN`, §4). Fixed in the `sph_proj_zero`
+comment (src/c03/ops.bend), contract §6, and the oracle comment.
+The C03.1 receipt §4 retains `<` as written — receipts are
+append-only; this section is the correction. No behavior change
+(comments only); c03 laws + all suites re-run on the final bytes
+(§2–§3) so the frozen tree is verified as hashed.
+
+5.2 CI explicitly recorded as unavailable (§1). Not a C03 defect;
+billing is out of scope by maintainer direction. The workflow file
+stands as the canonical gate definition; local qualification is
+authoritative until CI's first green run.
+
+5.3 9000deb message erratum (bookkeeping, no code impact). The
+commit message body reads "191+154... 191+158 checks"; the correct
+C03.1 size is 191+158 = 349 (a drafting artifact in the message
+only — code, laws, tests, and the C03.1 receipt all carry 191+158).
+Published history is not rewritten; this erratum is the correction.
+
+5.4 Receipt integrity verified programmatically. Every `sha256  path`
+row was parsed from the receipt bytes (not hand-copied) and compared
+against the recorded commit's objects: C03 receipt → 9/9 MATCH at
+7f979d2 (+ the /tmp oracle row matches the live file, §4); C03.1
+receipt → 10/10 MATCH at 9000deb (the /tmp oracle row differs only
+by the §4 extension, hash evolution recorded in §1). Process note:
+an initial hand-copied comparison falsely flagged neg.bend; the
+programmatic re-run showed MATCH — the flag was a transcription
+error in the check script, not a receipt defect.
+
+5.5 Fresh BN-7..BN-12 audits (this session, §BN). BN-7: no
+Nat/U64/Addr/Id fields in src/c03/types.bend (sole grep hit is the
+BN-7 comment itself). BN-8: machine name-occurrence audit over all
+8 src files — c00/c01/c02 have zero self-recursive defs; c03 has
+exactly the known 8 (5 fuel-capped walks + 3 structural drops).
+BN-9: `List<>` in exactly 14 ops.bend defs (4 walks + span + 3 drops
++ 4 takes + nok_c + nurbs_eval_go), single-curve §7 only. BN-10:
+prior classifications stand; new: `<=` threshold = stated +
+oracle-bracketed (§5.1). BN-11: 8 `neg-bn11-*` PASS in §3 logs +
+gerr projector laws closed in §2. BN-12: §1.
+
+5.6 Legacy integrity. `python3 tools/verify_legacy.py` (the
+verify-legacy workflow command): exit 0, `"failures": []`,
+core_bytes 4161578; `git status --porcelain legacy/` empty.
+
+## BN. Bend-native gates (BN-1..BN-12)
+
+Every gate PASS with fresh evidence at the §1 bytes. Deltas vs the
+C03.1 receipt are expanded; the rest re-affirm.
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | C03 implementation is exactly `src/c03/types.bend` + `src/c03/ops.bend` (hashes §1/C03.1); all 8 src files `bend … --check-only` → `All terms check.` No authoritative algorithm in another language. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/ laws/ tests/ \| grep -v ': *#'` empty (re-run this session). |
+| BN-3 | PASS | `grep -rn "F32" src/ laws/ tests/` empty (re-run). |
+| BN-4 | PASS | Imports unchanged; `grep -rni "foreign\|ffi_import\|@ffi" src/` empty (re-run). Boundary list: none. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/` empty (re-run); `legacy/` clean + verify_legacy.py exit 0 (§5.6). |
+| BN-6 | PASS | No GPU claim (contract §11). All evaluation is host F64. |
+| BN-7 | PASS | Content identity only; machine check §5.5 (no identity-typed fields in c03 types). |
+| BN-8 | PASS | Machine audit §5.5: zero recursion outside c03; c03 exactly the known 8 (5 fuel-capped + 3 structural). No new recursion. |
+| BN-9 | PASS | No batch op ships; `List<>` in exactly the 14 §7 defs (§5.5). |
+| BN-10 | PASS | All prior classifications stand; `<= 2^-1075` threshold stated + oracle-bracketed (§5.1). No unlabeled shortcut. |
+| BN-11 | PASS | Every `Gerr` arm carries no value; 8 `neg-bn11-*` PASS in §3 + projector laws closed in §2, `fails=0` on all 24 lanes. |
+| BN-12 | PASS | This section + §1: HEAD `9000deb` + per-file sha256; `BEND_PIN jnadeau207-collab/bend@50ec219a` + FORK tag `numeric/2026-09-25`; bend 2.0.27 fork build, bun 1.4.2, pinned env; CI-unavailable record (§5.2). |
+
+Gate count: 12 (BN-1 through BN-12). Overall: 12 PASS / 0 FAIL.
+
+## 6. Counts
+
+check-only files passed: 24/24 (8 src, 4 laws, 12 tests).
+Suite checks passed: 549/lane × 3 lanes = 1647 executions, 0 fails.
+Laws proven: 494 (38+34+51+371; check-only exit 0 each).
+Differential cases vs independent oracles: 33 (C03.1 extended) + 62
+(C03 re-run) pinned checks, 0 mismatches; plus the C03 sweep and
+finite-difference cross-checks (re-run green).
+Unresolved/abstained cases: none silent. Standing abstentions by
+design per contract §9/§14.
+
+## 7. Negative confirmations
+
+- No weakened test/law: this packet changes 2 comment/doc lines
+  (the `<=` typo) and adds the receipt; all 494 laws and 1647
+  executions pass unmodified on the final bytes.
+- No placeholder, no geometry change, no new scope.
+- No commit/push/amend performed before this receipt; `git status`
+  shows only the §1 packet paths (2 modified + this file).
+- Published history untouched: no amend, no rebase, no force-push
+  (§5.3 erratum handled append-only).
+- `legacy/` clean before and after; fork untouched; `bend update`
+  never run.
+- Scratch in /tmp only (lane logs/binaries under /tmp/c032/,
+  oracles); no scratch files in the repo.
+- stdout logs: zero FAIL lines in all 24 lane logs; `cmp` clean
+  across lanes per suite (§3 hashes).
+
+## 8. Exit-criteria verdict
+
+Criterion (clean C03): the threshold documentation exact, every
+workflow claim executed locally with evidence, receipt integrity
+verified, BN-7..BN-12 freshly audited, legacy integrity confirmed,
+CI status honestly recorded, and the message erratum on record —
+with no open geometry implementation bug.
+
+Verdict: PASS. Evidence: §2 static gates (494 laws closed, 24/24
+files) + §3 triple lanes (1647 executions, 0 fails, byte-identical
+stdout, history reproduced bit-for-bit) + §4 oracles (33/33 +
+62-check re-run, true threshold bracketed both sides) + §5 fix
+trail (typo corrected, CI recorded unavailable, erratum filed,
+receipts verified 19/19, BN-7..BN-12 + legacy freshly evidenced)
++ §BN gate table (12/12 PASS).
+
+C03 IS FROZEN at this packet. C04 may proceed.

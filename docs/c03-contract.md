@@ -206,8 +206,10 @@ NURBS evaluation is §7. There is no NURBS derivative yet
 - Sphere projection is the SCALED form `c + r*u` with
   `u = (m/M)/(n/M)`, `M = max|m_i|` (C03.1; `sph_proj_q_raw`).
   The scalar `r/n` is never formed: it underflows to zero when
-  `r << n` (`r/n < 2^-1075`, e.g. `r` near DBL_MIN at a far-field
-  query), collapsing `(r/n)*m` onto the published center; even at
+  `r << n` (`r/n <= 2^-1075` — the exact halfway value rounds to
+  zero under IEEE ties-to-even — e.g. `r` near DBL_MIN at a
+  far-field query), collapsing `(r/n)*m` onto the published
+  center; even at
   `r=1, m=(DBL_MAX,0,0)` the old spelling lost 1 ulp. `n/M` lies
   in `[1, sqrt(3)]` and `m/M` in `[-1,1]`, so the unit direction
   survives every finite scale; a nonfinite norm still →
