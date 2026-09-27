@@ -18,30 +18,45 @@
 #     general geometric self-intersection, contract §12) + trimming
 #     meets in face (u,v).
 #  E. face loop kinds: exactly one LK_outer per face.
-#  F. shell/solid/profile: solid forbids SK_open, outer IS SK_outer,
-#     cavities are SK_inner, and every shell is owned at most once (no
-#     outer/cavity aliasing, no cavity dup, no reuse across solids, no
-#     sharing between solids and the compound root); open admits SK_open
-#     and boundary (once-used) edges and skips solid/cavity ownership.
+#  F. hierarchy/profile: every loop owned by at most one face and
+#     every face by at most one shell (both profiles); solid
+#     additionally forbids SK_open, requires outer SK_outer and
+#     cavities SK_inner, every shell owned at most once (no
+#     outer/cavity aliasing, no cavity dup, no reuse across solids,
+#     no sharing between solids and the compound root), and every
+#     solid listed at most once in the compound root; open admits
+#     SK_open and boundary (once-used) edges and skips
+#     solid/cavity/solid-list ownership. Unreachable store slots are
+#     append-only history and never cause ownership rejection.
 #  G. embedding: C03 interior validity + vertex-on-curve (all curves) +
 #     trim-on-surface coincidence for plane/bezp only (sphere/cyl/cone/torus
-#     have no C03 surface eval; their trims pass on uv-meet + finiteness).
+#     have no C03 surface eval; their trims pass on uv-meet + finiteness)
+#     + quadric vertex membership (exact ordered-zero test of this
+#     F64 evaluation; overflow rejected; NOT a real-arithmetic test).
 #  H. vertex links (C04.2): every coedge in exactly one loop; each
 #     vertex fan a single twin(prev()) orbit over non-degenerate
 #     outgoing uses (degenerate uses transparent; poles vacuous).
-#  I. shell connectedness (C04.2): faces of each shell connected
-#     via shared edges (BFS from the first face; both profiles).
+#  I. shell connectedness (C04.2): each shell's face-edge graph
+#     connected (nodes = the shell's faces; faces adjacent iff they
+#     share one underlying edge; vertex-touching alone does NOT
+#     connect; BFS from the first face; both profiles).
 #  J. coincident distinct vertices: no two vertex slots share one
 #     point (exact C02 pteq3 pairwise; both profiles).
 #  K. same-face straight-edge segment crossing: no two non-adjacent
 #     line-curve edges of one face cross (C02 orient3d coplanarity
 #     + seg_seg proper in xy/xz/yz; curved edges out of scope;
-#     both profiles).
+#     both profiles). FAIL-CLOSED: predicate uncertainty rejects
+#     (uncertain coplanarity counts as coplanar, uncertain
+#     seg_seg counts as proper); a K rejection is NOT a proven
+#     crossing, only a refused clean verdict.
 #  L. orientation: per-face boundary winding agrees with the
-#     same-adjusted surface normal (plane/bezp/quadric C03 normals;
-#     zero-area winding or unavailable normal skips), and shared
-#     edges propagate same-flag agreement across distinct faces
-#     (seams and boundary edges skip; both profiles).
+#     same-adjusted surface normal in the loop kind's sense
+#     (outer aligned, hole opposed; plane/bezp/quadric C03
+#     normals; zero-area winding or unavailable normal skips),
+#     and every shared edge is locally coherent (each use's
+#     owning loop winds correctly for its own face; same flags
+#     never compared across faces; seams and boundary edges
+#     skip; both profiles).
 # On success returns Tok brep (the validated input); else Terr.
 
 import Base
@@ -520,10 +535,16 @@ def brep_facekind_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   +lps = Ty.brep_lps(b)
   fas_kind_c(fas, lps, fuel, fuel)
 
-# --- Stage F profile: solid forbids SK_open (tag 2), outer IS SK_outer
-# (tag 0), cavities SK_inner (tag 1), and every shell is owned at most
-# once. Runs after stage B, so all resolves succeed (Tres defaults
-# unreachable). P_open_shell skips solid/cavity ownership entirely. ---
+# --- Stage F hierarchy/profile: loops owned by at most one face and
+# faces by at most one shell (both profiles); solid additionally
+# forbids SK_open (tag 2), requires outer SK_outer (tag 0) and
+# cavities SK_inner (tag 1), every shell owned at most once, and
+# every solid listed at most once in the compound root. Runs after
+# stage B, so all resolves succeed (Tres defaults unreachable).
+# Ownership is structural handle comparison over member lists only:
+# unreachable store slots are append-only history and never reject.
+# P_open_shell checks loop/face ownership and skips solid/cavity/
+# solid-list ownership entirely. ---
 def shs_no_open_c(shs: List<&2, Ty.Shell>, fuel: Nat) -> Nat:
   match shs:
     case Nil{}: 3n
@@ -656,18 +677,207 @@ def cp_sh_own_c(+top: Ty.Compound, +sos: List<&2, Ty.Solid>,
   Ty.okd_all(hsh_nodup_c(cs, ffull),
     hsh_free_of_sos(cs, sos, ffull, ffull))
 
+# HLoop absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one loop
+# is owned by at most one face (no dup within a face, no sharing
+# across faces). Member-list comparison only; unreachable loop
+# slots are append-only history and never reject.
+def hlp_free_of(xs: List<&2, Ty.HLoop>, +g: Ty.HLoop,
+    fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hlp_free_of(t, g, f)
+          +neq = Bool.not(Ty.hlp_eq(h, g))
+          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
+            Ty.okd_done(rest))
+
+def hlp_nodup_c(xs: List<&2, Ty.HLoop>, fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hg = h
+          Ty.okd_all(hlp_free_of(t, hg, ff), hlp_nodup_c(t, ff))
+
+# Every handle in xs absent from ys (fuel 1 per xs element; each
+# absence scan gets the full cap).
+def hlp_list_free_of(xs: List<&2, Ty.HLoop>,
+    +ys: List<&2, Ty.HLoop>, fuel: Nat, +ffull: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hlp_list_free_of(t, ys, f, ffull)
+          +code = hlp_free_of(ys, h, ffull)
+          Ty.okd_all(code, rest)
+
+# Handles in xs absent from every face's loop list in fas.
+def hlp_free_of_fas(+xs: List<&2, Ty.HLoop>,
+    +fas: List<&2, Ty.Face>, fuel: Nat, +ffull: Nat) -> Nat:
+  match fas:
+    case Nil{}: 3n
+    case fa <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hlp_free_of_fas(xs, t, f, ffull)
+          +code = hlp_list_free_of(xs, Ty.fa_loops(fa), ffull,
+            ffull)
+          Ty.okd_all(code, rest)
+
+# Per-face loop ownership: internal nodup (no loop twice in one
+# face) + disjointness from every LATER face (pairwise across the
+# store by induction, mirroring sos_own_c).
+def fas_loop_own_c(fas: List<&2, Ty.Face>, fuel: Nat,
+    +ffull: Nat) -> Nat:
+  match fas:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hh = Ty.fa_loops(h)
+          +self_nd = hlp_nodup_c(hh, ffull)
+          +vs_tail = hlp_free_of_fas(hh, t, ffull, ffull)
+          +rest = fas_loop_own_c(t, ff, ffull)
+          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
+
+# HFace absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one face
+# is owned by at most one shell (no dup within a shell, no sharing
+# across shells). Member-list comparison only; unreachable face
+# slots are append-only history and never reject.
+def hfa_free_of(xs: List<&2, Ty.HFace>, +g: Ty.HFace,
+    fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hfa_free_of(t, g, f)
+          +neq = Bool.not(Ty.hfa_eq(h, g))
+          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
+            Ty.okd_done(rest))
+
+def hfa_nodup_c(xs: List<&2, Ty.HFace>, fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hg = h
+          Ty.okd_all(hfa_free_of(t, hg, ff), hfa_nodup_c(t, ff))
+
+# Every handle in xs absent from ys (fuel 1 per xs element; each
+# absence scan gets the full cap).
+def hfa_list_free_of(xs: List<&2, Ty.HFace>,
+    +ys: List<&2, Ty.HFace>, fuel: Nat, +ffull: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hfa_list_free_of(t, ys, f, ffull)
+          +code = hfa_free_of(ys, h, ffull)
+          Ty.okd_all(code, rest)
+
+# Handles in xs absent from every shell's face list in shs.
+def hfa_free_of_shs(+xs: List<&2, Ty.HFace>,
+    +shs: List<&2, Ty.Shell>, fuel: Nat, +ffull: Nat) -> Nat:
+  match shs:
+    case Nil{}: 3n
+    case s <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hfa_free_of_shs(xs, t, f, ffull)
+          +code = hfa_list_free_of(xs, Ty.sh_faces(s), ffull,
+            ffull)
+          Ty.okd_all(code, rest)
+
+# Per-shell face ownership: internal nodup (no face twice in one
+# shell) + disjointness from every LATER shell (pairwise across
+# the store by induction, mirroring sos_own_c).
+def shs_face_own_c(shs: List<&2, Ty.Shell>, fuel: Nat,
+    +ffull: Nat) -> Nat:
+  match shs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hh = Ty.sh_faces(h)
+          +self_nd = hfa_nodup_c(hh, ffull)
+          +vs_tail = hfa_free_of_shs(hh, t, ffull, ffull)
+          +rest = shs_face_own_c(t, ff, ffull)
+          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
+
+# HSolid absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one
+# solid is listed at most once in the compound root. Member-list
+# comparison only; unreachable solid slots are append-only history
+# and never reject.
+def hso_free_of(xs: List<&2, Ty.HSolid>, +g: Ty.HSolid,
+    fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hso_free_of(t, g, f)
+          +neq = Bool.not(Ty.hso_eq(h, g))
+          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
+            Ty.okd_done(rest))
+
+def hso_nodup_c(xs: List<&2, Ty.HSolid>, fuel: Nat) -> Nat:
+  match xs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +hg = h
+          Ty.okd_all(hso_free_of(t, hg, ff), hso_nodup_c(t, ff))
+
+# Compound solid list: nodup (mirrors the cp_sh_own_c nodup half;
+# solid-vs-shell disjointness is meaningless — different stores).
+def cp_so_own_c(+top: Ty.Compound, +ffull: Nat) -> Nat:
+  hso_nodup_c(Ty.cp_solids(top), ffull)
+
 def brep_prof_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
   match prof:
     case Ty.P_manifold_solid{}:
+      +fas = Ty.brep_fas(b)
       +shs = Ty.brep_shs(b)
       +sos = Ty.brep_sos(b)
       +top = Ty.brep_top(b)
-      Ty.okd_all(shs_no_open_c(shs, fuel),
-        Ty.okd_all(sos_cav_inner_c(sos, shs, fuel, fuel),
-          Ty.okd_all(sos_outer_kind_c(sos, shs, fuel, fuel),
-            Ty.okd_all(sos_own_c(sos, fuel, fuel),
-              cp_sh_own_c(top, sos, fuel)))))
-    case Ty.P_open_shell{}: 3n
+      Ty.okd_all(fas_loop_own_c(fas, fuel, fuel),
+        Ty.okd_all(shs_face_own_c(shs, fuel, fuel),
+          Ty.okd_all(shs_no_open_c(shs, fuel),
+            Ty.okd_all(sos_cav_inner_c(sos, shs, fuel, fuel),
+              Ty.okd_all(sos_outer_kind_c(sos, shs, fuel, fuel),
+                Ty.okd_all(sos_own_c(sos, fuel, fuel),
+                  Ty.okd_all(cp_sh_own_c(top, sos, fuel),
+                    cp_so_own_c(top, fuel))))))))
+    case Ty.P_open_shell{}:
+      +fas = Ty.brep_fas(b)
+      +shs = Ty.brep_shs(b)
+      Ty.okd_all(fas_loop_own_c(fas, fuel, fuel),
+        shs_face_own_c(shs, fuel, fuel))
 
 # --- Stage G embedding: C03 interiors + vertex-on-curve + trim coincidence
 # (plane/bezp only; other surfaces skip 3D coincidence, see header). ---
@@ -765,7 +975,12 @@ def hlp_coinc_go(hls: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
           Ty.okd_all(code, rest)
 
 # --- Quadric vertex membership (C04.2 G-extension): every face
-# vertex on the implicit quadric (P1 exact predicates). Trim (u,v)
+# vertex on the implicit quadric via the C03 *_on predicates. Each
+# is the EXACT ordered-zero test (F64.is_eq(v, 0.0f64); signed zero
+# counts as on) of THIS F64 evaluation with its documented left-fold
+# association — malformed spec, non-unit axis, nonfinite input, or
+# a nonfinite value (true overflow) yields off/False and rejects.
+# This is NOT a real-arithmetic membership test. Trim (u,v)
 # endpoints stay unchecked on quadrics (no surf_at; C03
 # surface-eval extension prerequisite). ---
 def vx_surf_on(+vs: List<&2, Ty.Vertex>, +hv: Ty.HVertex,
@@ -1121,10 +1336,15 @@ def brep_link_c(+b: Ty.Brep, +prof: Ty.Profile,
         vs_link_go(Ty.brep_vs(b), b, 0n, fuel, fuel))
     case Ty.P_open_shell{}: 3n
 
-# --- Stage I shell connectedness (C04.2): faces of each shell
-# connected via shared edges (BFS from the first face; dedup seen
-# and frontier so pops stay within the face count). Both profiles:
-# an open sheet is one connected surface too. Inner scans take
+# --- Stage I shell connectedness (C04.2): each shell's
+# FACE-EDGE GRAPH is connected. Nodes = the shell's face handles;
+# two faces are adjacent iff some underlying edge (HEdge) appears
+# via any coedge in any loop of BOTH faces (faces_share_edge).
+# Vertex-touching alone does NOT connect: two cells sharing only a
+# vertex are disconnected (b_pinch/b_split separated at H/I on
+# exactly this line). BFS from the first face; dedup seen and
+# frontier so pops stay within the face count. Both profiles: an
+# open sheet is one connected surface too. Inner scans take
 # constant ffull (exact: stage B walked every store scanned here). ---
 def hfa_mem(xs: List<&2, Ty.HFace>, +h: Ty.HFace,
     +ffull: Nat) -> Bool:
@@ -1358,8 +1578,11 @@ def brep_coin_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
 # xy/xz/yz projections (a proper 3D crossing projects to a shared
 # interior point in every projection; coplanar + proper in one
 # projection lifts to a 3D interior intersection). Degenerate and
-# curved edges skip (general curved intersection is C07). Predicate
-# failure is fail-closed (counts as crossing). Both profiles. ---
+# curved edges skip (general curved intersection is C07). FAIL-CLOSED:
+# predicate uncertainty REJECTS — an orient3d verdict that is not
+# ok counts as coplanar (cop=True), a seg_seg verdict that is not
+# ok counts as proper (segx_proper2=True) — so a K rejection is NOT
+# a proven crossing, only a refused clean verdict. Both profiles. ---
 def gval_is_ln(c: G.GVal) -> Bool:
   match c:
     case G.GV_ln{w}: True{}
@@ -1516,12 +1739,16 @@ def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
 # --- Stage L orientation, part 1: per-face self-consistency
 # (C04.2/A1). Each loop's boundary winding (Newell sum over the
 # oriented vertex chain) must agree with the same-adjusted surface
-# normal: plane via plane_normal, bezp via cross(bezp_du, bezp_dv)
-# at (0.5, 0.5), quadrics via *_grad at the first loop vertex.
+# normal in the sense its KIND demands: an outer boundary winds
+# with the face normal (Newell aligned, dot > 0) while a hole
+# (inner) winds against it (Newell opposed, dot < 0). Face
+# normal = surface normal (plane via plane_normal, bezp via
+# cross(bezp_du, bezp_dv) at (0.5, 0.5), quadrics via *_grad at
+# the first loop vertex), flipped when same is False.
 # Skip-vs-fail policy: zero-area winding or an unavailable normal
-# skips (passes) — the check fires only on a strictly negative
-# (finite) dot, i.e. positive evidence of a winding/normal
-# mismatch. Both profiles. ---
+# skips (passes) — the check fires only on a strictly
+# wrong-signed (finite) dot, i.e. positive evidence of a
+# winding/normal mismatch. Both profiles. ---
 def newell_add(+n: V.Dir, +p: V.Point, +q: V.Point) -> V.Dir:
   +nx = F64.add(V.dr_x(n), F64.mul(F64.sub(V.pt_y(p),
     V.pt_y(q)), F64.add(V.pt_z(p), V.pt_z(q))))
@@ -1615,7 +1842,7 @@ def surf_normal_at(+surf: G.GVal, +q: V.Point) -> G.GRes:
 def loop_orient_c(+hcs: List<&2, Ty.HCoedge>,
     +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
     +vs: List<&2, Ty.Vertex>, +surf: G.GVal, +same: Bool,
-    +ffull: Nat) -> Nat:
+    +kind: Ty.LoopKind, +ffull: Nat) -> Nat:
   +walked = hcs_walked(hcs, ffull)
   +n = lp_newell(hcs, ces, es, vs, ffull)
   +nz = dr_is_zero(n)
@@ -1626,9 +1853,12 @@ def loop_orient_c(+hcs: List<&2, Ty.HCoedge>,
     dr_neg(G.gres_d(nr)))
   +dot = GO.dd_dot_raw(n, adj)
   +fin = T.is_finite(dot)
-  +pos = F64.is_lt(0.0f64, dot)
+  +outer = U64.is_eq(Ty.lkind_tag(kind), 0u64)
+  +aligned = F64.is_lt(0.0f64, dot)
+  +opposed = F64.is_lt(dot, 0.0f64)
+  +want = Bool.pick(Bool, outer, aligned, opposed)
   +skip = Bool.or(nz, Bool.not(nok))
-  +ok = Bool.or(skip, Bool.and(fin, pos))
+  +ok = Bool.or(skip, Bool.and(fin, want))
   Ty.okd_pack(Bool.and(walked, ok), walked)
 
 def hlp_orient_go(hls: List<&2, Ty.HLoop>,
@@ -1646,7 +1876,7 @@ def hlp_orient_go(hls: List<&2, Ty.HLoop>,
             same, f, ffull)
           +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
           +code = loop_orient_c(Ty.lp_ces(lp), ces, es, vs,
-            surf, same, ffull)
+            surf, same, Ty.lp_kind(lp), ffull)
           Ty.okd_all(code, rest)
 
 def fas_orient_c(fas: List<&2, Ty.Face>,
@@ -1671,10 +1901,22 @@ def brep_orient_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
 
 # --- Stage L orientation, part 2: propagation (C04.2/A1). Every
 # edge used exactly twice with opposite fwd whose two uses sit in
-# distinct faces requires same-flag agreement across those faces
-# (combinatorial; global outwardness needs the C07 interior
-# classifier and stays out of scope). Seams (both uses in one
-# face) and boundary (once-used) edges skip. Both profiles. ---
+# distinct faces must be locally coherent: each use's owning loop
+# boundary (oriented coedge chain over the shared edge direction)
+# winds correctly for its own face (kind-aware: outer aligned,
+# hole opposed with the same-adjusted surface normal). The two
+# faces' `same` flags are NEVER compared: each `same` is relative
+# to its own surface parametrization (plane frame, Bezier du/dv
+# handedness, quadric gradient side), and adjacent faces carry
+# independent parametrizations — e.g. two planes with opposite
+# natural normals need DIFFERING same flags for consistently
+# outward face normals, while a back-to-back pair on one plane
+# needs differing same too. same-equality would reject valid
+# solids and admit invalid ones; validity is opposite use (stage
+# C) plus per-face winding-vs-own-normal here. Seams (both uses
+# in one face) and boundary (once-used) edges skip. Global
+# outwardness needs the C07 interior classifier and stays out of
+# scope. Both profiles. ---
 def hlp_mem(xs: List<&2, Ty.HLoop>, +hl: Ty.HLoop,
     +ffull: Nat) -> Bool:
   match xs:
@@ -1742,26 +1984,35 @@ def ces_nth_user(ces: List<&2, Ty.Coedge>, +tgt: Ty.HEdge,
 def edge_prop_c(+b: Ty.Brep, +he: Ty.HEdge,
     +ffull: Nat) -> Nat:
   +ces = Ty.brep_ces(b)
+  +es = Ty.brep_es(b)
+  +vs = Ty.brep_vs(b)
+  +lps = Ty.brep_lps(b)
+  +fas = Ty.brep_fas(b)
   +use = ces_use_go(ces, he, Ty.P_manifold_solid{}, ffull, 0n,
     False{}, False{})
   +twice = Bool.and(Ty.okd_done(use), Ty.okd_ok(use))
   +hcA = ces_nth_user(ces, he, Ty.hc_null(), 0n, ffull)
   +hcB = ces_nth_user(ces, he, hcA, 0n, ffull)
-  +hlA = hc_owner_go(Ty.brep_lps(b), hcA, 0n, ffull)
-  +hlB = hc_owner_go(Ty.brep_lps(b), hcB, 0n, ffull)
-  +hfA = hl_owner_go(Ty.brep_fas(b), hlA, 0n, ffull)
-  +hfB = hl_owner_go(Ty.brep_fas(b), hlB, 0n, ffull)
-  +adq = Bool.and(lps_walked(Ty.brep_lps(b), ffull),
-    fas_walked(Ty.brep_fas(b), ffull))
-  +faA = Ty.tres_fa(Ty.fa_resolve(Ty.brep_fas(b), hfA, ffull))
-  +faB = Ty.tres_fa(Ty.fa_resolve(Ty.brep_fas(b), hfB, ffull))
+  +hlA = hc_owner_go(lps, hcA, 0n, ffull)
+  +hlB = hc_owner_go(lps, hcB, 0n, ffull)
+  +hfA = hl_owner_go(fas, hlA, 0n, ffull)
+  +hfB = hl_owner_go(fas, hlB, 0n, ffull)
+  +adq = Bool.and(lps_walked(lps, ffull),
+    fas_walked(fas, ffull))
+  +lpA = Ty.tres_lp(Ty.lp_resolve(lps, hlA, ffull))
+  +lpB = Ty.tres_lp(Ty.lp_resolve(lps, hlB, ffull))
+  +faA = Ty.tres_fa(Ty.fa_resolve(fas, hfA, ffull))
+  +faB = Ty.tres_fa(Ty.fa_resolve(fas, hfB, ffull))
   +distinct = Bool.not(Ty.hfa_eq(hfA, hfB))
-  +sA = Ty.fa_same(faA)
-  +sB = Ty.fa_same(faB)
-  +sameq = Bool.pick(Bool, sA, sB, Bool.not(sB))
-  +agree = Bool.or(Bool.not(distinct), sameq)
+  +codeA = loop_orient_c(Ty.lp_ces(lpA), ces, es, vs,
+    Ty.fa_surf(faA), Ty.fa_same(faA), Ty.lp_kind(lpA), ffull)
+  +codeB = loop_orient_c(Ty.lp_ces(lpB), ces, es, vs,
+    Ty.fa_surf(faB), Ty.fa_same(faB), Ty.lp_kind(lpB), ffull)
+  +sub = Ty.okd_all(codeA, codeB)
+  +agree = Bool.or(Bool.not(distinct), Ty.okd_ok(sub))
   +ok = Bool.pick(Bool, twice, Bool.and(adq, agree), True{})
-  +done = Bool.and(Ty.okd_done(use), adq)
+  +done = Bool.and(Bool.and(Ty.okd_done(use), adq),
+    Ty.okd_done(sub))
   Ty.okd_pack(Bool.and(ok, done), done)
 
 def es_prop_c(es: List<&2, Ty.Edge>, +b: Ty.Brep, fuel: Nat,

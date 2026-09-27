@@ -760,12 +760,108 @@ def pos_g11(f198: U64) -> IO(U64):
       Nat.is_eq(Op.brep_prop_c(C.b_sphere(), 12n), 3n),
       f210)
     f212 : U64 <- C.report_pure("pos-prop-oriprop",
-      Nat.is_eq(Op.brep_prop_c(C.b_oriprop(), 20n), 2n),
+      Nat.is_eq(Op.brep_prop_c(C.b_oriprop(), 20n), 3n),
       f211)
     f213 : U64 <- C.report_pure("pos-prop-pinch",
       Nat.is_eq(Op.brep_prop_c(C.b_pinch(), 20n), 3n),
       f212)
-    return f213
+    f214 : U64 <- C.report_pure("pos-orient-hole",
+      Nat.is_eq(Op.brep_orient_c(C.b_hole(), 20n), 3n),
+      f213)
+    f215 : U64 <- C.report_pure("pos-orient-hole-bad",
+      Nat.is_eq(Op.brep_orient_c(C.b_hole_bad(), 20n), 2n),
+      f214)
+    f216 : U64 <- C.report_pure("pos-orient-hole-bad2",
+      Nat.is_eq(Op.brep_orient_c(C.b_hole_bad2(), 20n), 2n),
+      f215)
+    f217 : U64 <- C.report_pure("pos-orient-diffparam",
+      Nat.is_eq(Op.brep_orient_c(C.b_diffparam(), 20n), 3n),
+      f216)
+    f218 : U64 <- C.report_pure("pos-prop-invface",
+      Nat.is_eq(Op.brep_prop_c(C.b_invface(), 20n), 2n),
+      f217)
+    f219 : U64 <- C.report_pure("pos-prop-diffparam",
+      Nat.is_eq(Op.brep_prop_c(C.b_diffparam(), 20n), 3n),
+      f218)
+    f220 : U64 <- C.report_pure("pos-prop-hole",
+      Nat.is_eq(Op.brep_prop_c(C.b_hole(), 20n), 3n),
+      f219)
+    f221 : U64 <- C.report_ok("pos-ck-oriprop",
+      Op.brep_checked(C.b_oriprop(), Ty.P_manifold_solid{},
+        20n),
+      f220)
+    f222 : U64 <- C.report_ok("pos-ck-hole-open",
+      Op.brep_checked(C.b_hole(), Ty.P_open_shell{}, 20n),
+      f221)
+    f223 : U64 <- C.report_ok("pos-ck-diffparam",
+      Op.brep_checked(C.b_diffparam(), Ty.P_manifold_solid{},
+        20n),
+      f222)
+    return f223
+
+def pos_g12(f223: U64) -> IO(U64):
+  do IO<U64>:
+    f224 : U64 <- C.report_ok("pos-ck-h-seam",
+      Op.brep_checked(C.b_h_seam(), Ty.P_manifold_solid{},
+        12n),
+      f223)
+    f225 : U64 <- C.report_ok("pos-ck-h-pole",
+      Op.brep_checked(C.b_h_pole(), Ty.P_manifold_solid{},
+        12n),
+      f224)
+    f226 : U64 <- C.report_ok("pos-ck-h-highval",
+      Op.brep_checked(C.b_h_highval(), Ty.P_manifold_solid{},
+        20n),
+      f225)
+    f227 : U64 <- C.report_pure("pos-own-loop-clean",
+      Nat.is_eq(Op.fas_loop_own_c(Ty.brep_fas(C.b_sphere()),
+        12n, 12n), 3n),
+      f226)
+    f228 : U64 <- C.report_pure("pos-own-loop-hit",
+      Nat.is_eq(Op.fas_loop_own_c(Ty.brep_fas(C.b_alias_loop()),
+        12n, 12n), 2n),
+      f227)
+    f229 : U64 <- C.report_pure("pos-own-face-clean",
+      Nat.is_eq(Op.shs_face_own_c(Ty.brep_shs(C.b_sphere()),
+        12n, 12n), 3n),
+      f228)
+    f230 : U64 <- C.report_pure("pos-own-face-hit",
+      Nat.is_eq(Op.shs_face_own_c(Ty.brep_shs(C.b_alias_face()),
+        12n, 12n), 2n),
+      f229)
+    f231 : U64 <- C.report_pure("pos-own-solid-clean",
+      Nat.is_eq(Op.cp_so_own_c(Ty.brep_top(C.b_sphere()), 12n),
+        3n),
+      f230)
+    f232 : U64 <- C.report_pure("pos-own-solid-hit",
+      Nat.is_eq(Op.cp_so_own_c(Ty.brep_top(C.b_alias_solid()),
+        12n), 2n),
+      f231)
+    f233 : U64 <- C.report_pure("pos-own-open-loop-hit",
+      Nat.is_eq(Op.brep_prof_c(C.b_alias_loop(),
+        Ty.P_open_shell{}, 12n), 2n),
+      f232)
+    f234 : U64 <- C.report_pure("pos-own-open-solid-skip",
+      Nat.is_eq(Op.brep_prof_c(C.b_alias_solid(),
+        Ty.P_open_shell{}, 12n), 3n),
+      f233)
+    f235 : U64 <- C.report_pure("pos-link-highval",
+      Nat.is_eq(Op.vx_link_ok(C.b_h_highval(),
+        Ty.mk_hv(0n, 1u64), 20n, 20n), 3n),
+      f234)
+    f236 : U64 <- C.report_pure("pos-link-seam",
+      Nat.is_eq(Op.vx_link_ok(C.b_h_seam(),
+        Ty.mk_hv(0n, 1u64), 12n, 12n), 3n),
+      f235)
+    f237 : U64 <- C.report_pure("pos-link-pole",
+      Nat.is_eq(Op.vx_link_ok(C.b_h_pole(),
+        Ty.mk_hv(0n, 1u64), 12n, 12n), 3n),
+      f236)
+    f238 : U64 <- C.report_pure("pos-link-disc",
+      Nat.is_eq(Op.vx_link_ok(C.b_h_disc(),
+        Ty.mk_hv(0n, 1u64), 20n, 20n), 2n),
+      f237)
+    return f238
 
 def main() -> IO(Unit):
   do IO<Unit>:
@@ -780,4 +876,5 @@ def main() -> IO(Unit):
     a9 : U64 <- pos_g9(a8)
     a10 : U64 <- pos_g10(a9)
     a11 : U64 <- pos_g11(a10)
-    IO.print("selfcheck fails=" ++ U64.show(a11))
+    a12 : U64 <- pos_g12(a11)
+    IO.print("selfcheck fails=" ++ U64.show(a12))

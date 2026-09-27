@@ -73,6 +73,25 @@ Consequences, all enforced at value level:
   AND at push AND at assembly (one centralized `*_valid`
   layer, consumed by all three paths).
 
+Ownership contract (hierarchy exclusivity + allowed
+multi-ref), enforced by `brep_checked` stage F over member
+lists only. EXCLUSIVE (owned at most once — no dup within
+one member list, no sharing across owners): each loop is
+owned by at most one face (`fas_loop_own_c`); each face by
+at most one shell (`shs_face_own_c`); each shell by at most
+one solid-or-compound slot (`sos_own_c` + `cp_sh_own_c`);
+each solid listed at most once in the compound root
+(`cp_so_own_c`). ALLOWED multi-ref: vertices shared by many
+edges; one edge used by one (boundary, open only) or two
+(opposite-`fwd`) coedges per stage C; every coedge in
+exactly one loop (stage H traversal well-definedness);
+curve/surface/trim `GVal`s are plain values, freely reused.
+APPEND-ONLY UNREACHABLE-HISTORY RULE: stores grow by push
+only (no delete/update, §6); a slot never referenced from
+the root is retained history — never garbage, never an
+ownership rejection. Ownership verdicts read member lists,
+not store reachability.
+
 ## 2. Types (all in `src/c04/types.bend`)
 
 Handles (one per entity, §6): `HVertex/HE/HC/HL/HF/HS/HSo`,
@@ -136,21 +155,29 @@ Construction protocol, in order:
    vertex chain meets + closed) + no repeated starts (a
    narrow duplicate-handle proxy within each loop; geometric
    coincidence is stage J) + trim meets in face `(u,v)`;
-   E. exactly one `LK_outer` per face; F. profile (solid: no
-   `SK_open`, outer `SK_outer`, cavities `SK_inner`, every
-   shell owned at most once; open: vacuous); G. embedding
-   (C03 interiors + vertex-on-curve for all curves + trim
-   coincidence for plane/bezp + quadric vertex membership
-   for sphere/cylinder/cone/torus); H. vertex links (solid:
-   every coedge in exactly one loop, each vertex fan a
-   single `twin(prev())` orbit; open: vacuous); I. shell
-   connectedness (faces of each shell edge-connected, both
-   profiles); J. coincident distinct vertices (exact `pteq3`
-   pairwise, both profiles); K. same-face straight-edge
-   segment crossing (`orient3d` coplanarity + `seg_seg`
-   proper in `xy`/`xz`/`yz`, both profiles); L. orientation
-   (per-face winding vs `same`-adjusted C03 normal where
-   determinable + shared-edge `same` propagation, both
+   E. exactly one `LK_outer` per face; F. hierarchy/profile
+   (loop/face ownership both profiles; solid adds kind
+   rules + shell/solid ownership; open skips solid/cavity/
+   solid-list ownership); G. embedding (C03 interiors +
+   vertex-on-curve for all curves + trim coincidence for
+   plane/bezp + quadric vertex membership for
+   sphere/cylinder/cone/torus — exact ordered-zero test of
+   this F64 evaluation, overflow rejected, NOT
+   real-arithmetic); H. vertex links (solid: every coedge
+   in exactly one loop, each vertex fan a single
+   `twin(prev())` orbit; open: vacuous); I. shell
+   connectedness (each shell's face-edge graph connected:
+   faces adjacent iff sharing one underlying edge,
+   vertex-touching does not connect; both profiles);
+   J. coincident distinct vertices (exact `pteq3` pairwise,
+   both profiles); K. same-face straight-edge segment
+   crossing (`orient3d` coplanarity + `seg_seg` proper in
+   `xy`/`xz`/`yz`, fail-closed: predicate uncertainty
+   rejects, NOT a proven crossing; both profiles);
+   L. orientation
+   (kind-aware per-face winding vs `same`-adjusted C03 normal
+   where determinable + per-use local coherence across shared
+   edges — `same` never compared across faces — both
    profiles). Returns `Tok brep` on success, else `Terr`.
 
 ## 4. Profiles (explicitly named, validation implemented)
@@ -166,25 +193,35 @@ Implemented rules:
 - `P_manifold_solid`: every edge used exactly twice with
   opposite `fwd`; every loop closed with distinct starts
   (duplicate-handle proxy within the loop); every face has
-  exactly one `LK_outer`; no `SK_open`; outer `SK_outer`;
-  cavities `SK_inner`; every shell owned at most once
-  (no outer/cavity aliasing, no cavity dup, no reuse
-  across solids, no solid/compound sharing); trims meet
-  in `(u,v)`; vertices on curves; C03 interiors valid;
-  plane/bezp trim coincidence; quadric vertex membership;
-  single-orbit vertex links (`ck_pinch` rejects disjoint
-  links); edge-connected shells; no coincident distinct
-  vertices; no same-face straight-edge segment crossing;
-  per-face winding vs `same`-adjusted normal agreement
-  where determinable; shared-edge `same` propagation.
+  exactly one `LK_outer`; loops/faces/shells/solids owned
+  at most once (no loop shared across faces, no face
+  shared across shells, no outer/cavity aliasing, no
+  cavity dup, no shell reuse across solids, no
+  solid/compound shell sharing, no solid dup in the
+  compound root); no `SK_open`; outer `SK_outer`;
+  cavities `SK_inner`; trims meet in `(u,v)`; vertices on
+  curves; C03 interiors valid; plane/bezp trim
+  coincidence; quadric vertex membership (exact
+  ordered-zero test of this F64 evaluation, overflow
+  rejected, NOT real-arithmetic); single-orbit vertex
+  links (`ck_pinch` rejects disjoint links);
+  face-edge-graph-connected shells (shared underlying
+  edge = adjacent; vertex-touching does not connect); no
+  coincident distinct vertices; no same-face
+  straight-edge segment crossing (fail-closed: predicate
+  uncertainty rejects, NOT a proven crossing);
+  kind-aware per-face winding vs `same`-adjusted normal
+  agreement where determinable; per-use local coherence
+  across shared edges (`same` never compared across faces).
   Cavity inside/disjoint classification and global outward
   shell orientation (inside/outside classification) are
   DEFERRED to C07/C11 (§12).
 - `P_open_shell`: `SK_open` valid; edges used once (boundary)
-  or twice-opposite; loops still closed; face-kind, trim,
-  embedding, connectedness, coincidence, segment-crossing,
-  and orientation rules hold per face / per shell; vertex
-  links and solid/cavity kind and ownership rules skipped
+  or twice-opposite; loops still closed; face-kind,
+  loop/face ownership, trim, embedding, connectedness,
+  coincidence, segment-crossing, and orientation rules
+  hold per face / per shell; vertex links and solid/cavity
+  kind and shell/solid-list ownership rules skipped
   (solids are only meaningful under `P_manifold_solid`).
 
 Euler/counting identities are NECESSARY but explicitly NOT
@@ -224,9 +261,10 @@ while the validators check structure.
   takes NO fuel (C03 `dropk` precedent). `mk_brep` grants
   each of its 21 walks the FULL fuel cap (not divided).
   `brep_checked` grants each stage walk, each sub-resolve,
-  and each ownership sub-walk (`hsh_nodup_c`,
-  `hsh_free_of_sos`) the FULL cap; fuel ≥ max
-  store/member-list length suffices.
+  and each ownership sub-walk (`hsh/hlp/hfa/hso_nodup_c`,
+  `hsh/hlp/hfa_list_free_of`, `hsh/hlp/hfa_free_of_*`)
+  the FULL cap; fuel ≥ max store/member-list length
+  suffices.
 
 ## 6. Identity (BN-7)
 
@@ -247,6 +285,10 @@ op exists), so today a stale handle arises from a forged
 or cross-brep handle, not from removal; the generation
 check already rejects those (`neg-res-*-stale`). Removal
 with generational invalidation is a later milestone.
+Unreachable slots are retained history under the
+append-only unreachable-history rule (§1): ownership
+verdicts read member lists only, so unreferenced slots
+never reject.
 
 ## 7. Failure arms (C00 statuses reused, no new taxonomy)
 
@@ -261,11 +303,16 @@ nonmanifold-edge, open-boundary under solid), loop unclosed
 or repeated starts (the duplicate-vertex proxy — general
 geometric self-intersection is NOT checked, §12), face
 without exactly one outer, `SK_open` under solid, outer
-not `SK_outer`, cavity not `SK_inner`, shell owned twice
-(outer/cavity aliasing, cavity dup, cross-solid reuse,
-solid/compound sharing), trim endpoints unmet, C03
-interior invalid, vertex off curve, plane/bezp trim
-coincidence missed. `resource-exhausted`:
+not `SK_outer`, cavity not `SK_inner`, loop/face/shell/solid
+owned twice (loop shared across faces, face shared across
+shells, outer/cavity aliasing, cavity dup, cross-solid
+reuse, solid/compound sharing, solid dup in the compound
+root), trim endpoints unmet, C03 interior invalid, vertex
+off curve, plane/bezp trim coincidence missed, quadric
+vertex off (exact ordered-zero test of this F64 evaluation;
+overflow rejected), same-face segment pair
+uncertain-or-crossing (fail-closed: uncertainty rejects,
+NOT a proven crossing). `resource-exhausted`:
 fuel ran out in any walk (`len/at/resolve/handle_of/issued/
 all_c/gen_c/nodup_c` or any `brep_checked` stage walk).
 No C04 op publishes `numerical-uncertainty`, `unsupported-op`
@@ -375,14 +422,19 @@ ones.
   singly-owned cavities accept (`ck_cav`).
 - Orientation scope (C04.2/A1: self-consistency +
   propagation implemented; GLOBAL outwardness deferred):
-  stage L checks per-face boundary winding against the
-  `same`-adjusted C03 surface normal wherever determinable
-  (plane/bezp/quadric normals; zero-area winding or an
-  unavailable normal skips) plus shared-edge `same`
-  propagation across distinct faces. Global outward shell
-  orientation still needs the C07 inside/outside classifier
-  and stays deferred, as do curved-edge crossings and
-  cross-face / inter-loop penetration (C07).
+  stage L checks kind-aware per-face boundary winding (outer
+  aligned, hole opposed) against the `same`-adjusted C03
+  surface normal wherever determinable (plane/bezp/quadric
+  normals; zero-area winding or an unavailable normal skips)
+  plus per-use local coherence across distinct faces: each
+  use's owning loop winds correctly for its own face, while
+  `same` flags are never compared across faces (each is
+  relative to its own surface parametrization, so differing
+  parametrizations — and differing `same` flags — are both
+  valid). Global outward shell orientation still needs the
+  C07 inside/outside classifier and stays deferred, as do
+  curved-edge crossings and cross-face / inter-loop
+  penetration (C07).
 - Repeated-start proxy, not self-intersection (C04.1
   correction, kept): stage D checks that loop start vertices
   are distinct handles. Coincident DISTINCT vertices are a
@@ -395,9 +447,19 @@ ones.
 - Trim 3D coincidence for sphere/cylinder/cone/torus skipped:
   C03 has no surface eval for those arms, so their trims pass
   on `(u,v)` meets + finiteness while every face vertex is
-  checked for implicit quadric membership (`ck_offquad`);
+  checked for implicit quadric membership (`ck_offquad`):
+  the exact ordered-zero test (`F64.is_eq(v, 0.0f64)`,
+  signed zero counts as on) of this F64 evaluation with its
+  documented left-fold association — malformed spec, non-unit
+  axis, nonfinite input, or nonfinite value (true overflow)
+  yields off and rejects; NOT a real-arithmetic test.
   plane/bezp coincidence IS checked (`ce_coinc_ok`).
   Labeled, not silent.
+- Stage I connectedness means the face-edge graph: nodes are
+  the shell's faces, adjacency is sharing one underlying
+  edge — vertex-touching alone does NOT connect. A pinch
+  (shared vertex, disjoint links) fails at H; disjoint cells
+  in one shell fail at I (`ck_split`).
 - Open-shell skips vertex links and solid/cavity kind and
   ownership (§4): `P_open_shell` is vacuous on stages H/F
   by design; solids are only meaningful under
@@ -410,9 +472,10 @@ ones.
   validators (deliberately absent — counting alone is not
   validation, §4).
 - Exit coverage is dual: exit instances are pinned in laws
-  (`ck_*`, 26) AND asserted at runtime (`pos_g10` 5 accepts
-  + `neg_g7`/`neg_g8`/`neg_g9` 21 rejects over shared
-  `check.bend` brep fixtures) on all three lanes (§11).
+  (`ck_*`, 30) AND asserted at runtime (`pos_g10`/`pos_g11`
+  8 accepts + `neg_g7`/`neg_g8`/`neg_g9` 22 rejects over
+  shared `check.bend` brep fixtures) on all three lanes
+  (§11).
 - U64 stamp wraps past 2^64 pushes (§8).
 
 ## 13. Explicit general laws (for `laws/c04.bend`)
@@ -439,12 +502,13 @@ General (quantified) laws, closed by the proof beneath each:
   per-entity store ops, shell-ownership walks (`hsh_nd_*`,
   `hsh_fo_*`, `so_shl_*`, `outer_kind_*`, `own_*`,
   `cpown_*`, `hlf_*`, `hfos_*`), and `brep_checked`
-  instances (`ck_sphere/cyl/cav/open/pole` accept;
+  instances (`ck_sphere/cyl/cav/open/pole/oriprop_ok/
+  diffparam_ok/hole_ok` accept;
   `ck_dang/inv/trimx/embx/nonm/selfx/open_solid/alias/
   outerkind/cavdup/reuse/cpshare/pinch/offquad/split/coin/
-  xing/invface/oriprop/split_open` reject; `ck_fuel`),
-  stage J/K/L unit pins (`coin_*`, `link_*`, `segx_*`,
-  `xing_*`, `orient_*`, `prop_*`, `qmem_*`).
+  xing/invface/split_open/hole_bad/hole_bad2` reject;
+  `ck_fuel`), stage J/K/L unit pins (`coin_*`, `link_*`,
+  `segx_*`, `xing_*`, `orient_*`, `prop_*`, `qmem_*`).
 
-455 laws, all closed (`bend laws/c04.bend --check-only`
+466 laws, all closed (`bend laws/c04.bend --check-only`
 exit 0). Laws cover `src/c04/types.bend` + `src/c04/ops.bend`.

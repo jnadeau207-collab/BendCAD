@@ -1,0 +1,228 @@
+# C03.3 record — 2026-09-26 (quadric exact-membership, b5c18a6)
+
+Packet: `b5c18a6` ("c04.2 WIP", C03 portion) adds exact
+point-membership predicates for the four quadric families —
+`sph_on`/`cyl_on`/`cone_on`/`tor_on` in `src/c03/ops.bend`
+(+49 lines, 4 defs) — with the implicit equation tested by
+ordered `== 0` (signed zero counts as on), no tolerance,
+fail-closed on malformed spec / non-unit axis / nonfinite
+input / nonfinite value (true overflow). The cone is the
+DOUBLE cone (both nappes + apex satisfy). Contract records
+the G10 claim (exact membership, §6 associations) and the
+C04 consumer (trim/surface vertex-on-quadric consistency).
+Laws: +32 (`sphon_*`/`cylon_*`/`conon_*`/`toron_*`, 371 →
+403). Runtime pins: +32 in `tests/c03/pos.bend` (158 → 190).
+The change is purely additive: no prior C03 line altered
+(§1 numstat), so prior C03 verdicts must reproduce bit-for-bit.
+Verdict: PASS. C03 stays FROZEN under the extended claim set.
+Every number below was observed this session by running the
+listed commands against the §1 bytes.
+
+Note on Gate-7 hashes: this record was commissioned to cite
+the green Gate-7 C03 lane hashes. The prior workflow-child
+results arrived as opaque summaries carrying no inspected
+hashes, so reuse was impossible; every hash below was
+re-observed fresh this session (full three-lane C03
+qualification + c00–c02 interpreted regressions). Any Gate-7
+record for the same bytes must match these hashes exactly.
+
+## 1. Provenance (BN-12)
+
+BendCAD HEAD: b5c18a6e6a9801d8377a02d579ae86936b1f5a83
+  (log -1: "c04.2 WIP: H-ORBIT fix, coin/xing/orient stages,
+  fixtures, laws, contract"; branch main)
+C03 files VERIFIED UNTOUCHED since b5c18a6: `git status
+--porcelain` lists only C04/contract/workflow paths (6 C04
+packet files at qualification time, plus the workflow
+extension written with this record — no C03 path), and
+`git diff HEAD -- laws/c03.bend src/c03/ops.bend
+src/c03/types.bend tests/c03/pos.bend tests/c03/neg.bend
+tests/c03/check.bend docs/c03-contract.md --stat` is empty.
+Worktree C03 bytes ARE the b5c18a6 bytes.
+legacy/ status: clean (`git status --porcelain legacy/` empty).
+Fork: untouched (no git commands against it; `bend update` never run).
+
+b5c18a6 C03 change sizes (`git diff --numstat d69e674 b5c18a6`;
+d69e674 = Amendment A1 plan commit, no code):
+  15 additions, 0 deletions, docs/c03-contract.md
+  230 additions, 0 deletions, laws/c03.bend
+  49 additions, 0 deletions, src/c03/ops.bend
+  138 additions, 1 deletion, tests/c03/pos.bend (the 1 deletion
+    is the selfcheck-counter renumber for the +32 pins)
+  src/c03/types.bend, tests/c03/neg.bend, tests/c03/check.bend:
+    zero diff (not listed by numstat).
+
+BEND_PIN (root file, unchanged):
+  jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95
+~/.bend/FORK: unchanged (tag numeric/2026-09-25, commit 50ec219a).
+Toolchain env for every run: PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH,
+BEND_NO_TELEMETRY=1. bend = ~/.bend/bin/bend (fork build).
+bun 1.4.2.
+
+sha256 of the C03 packet files (== b5c18a6 objects per the
+untouched verification above; this record excluded as it is
+the file being written):
+  f34631adabf47d1a78baa58ce37d451d2512109e8cad5228aabc1d6ff36189da  docs/c03-contract.md
+  0418cc04531b6139925600c44652dbdcd29d18c172119535120617e8762b3823  src/c03/types.bend
+  7437f774515312f7308f19201283fd4e2b325a991918d12e6d8083519d116095  src/c03/ops.bend
+  073d00f408e7f84c77394f29bc3d7a567856b4243969ba6d10548693ea611d4a  laws/c03.bend
+  f30776f23ae011b39c4f79dab5969b8f3abd9a72277794ee0ba5403a5440715a  tests/c03/check.bend
+  17eec69a2ba83d86d4fee25f90e72ff65002ec55b21abd958e53b814bddce625  tests/c03/neg.bend
+  6edc093a6670fda55949604626d140942760812ccfc8b7258ddc70553c81e862  tests/c03/pos.bend
+
+CI status (explicit record, as in C03.2 §1): the
+`verify-bendcad.yml` workflow is present and YAML-valid, but GitHub
+Actions execution is UNAVAILABLE — CI billing is blocked
+(maintainer-stated 2026-09-26; billing is out of scope by
+maintainer direction). Local qualification in this record is the
+authoritative evidence. No claim is made that CI enforces anything
+until its first green Actions run. (This turn extends the workflow
+to C00→C04; that edit is YAML-validated but likewise unenforced.)
+
+## 2. Static gates (all exit 0, stdout "All terms check.")
+
+  bend src/c03/types.bend --check-only     # exit 0
+  bend src/c03/ops.bend --check-only      # exit 0
+  bend tests/c03/check.bend --check-only  # exit 0
+  bend tests/c03/neg.bend --check-only    # exit 0
+  bend tests/c03/pos.bend --check-only    # exit 0
+  bend laws/c03.bend --check-only         # exit 0, 15:04 elapsed,
+                                          # 403 laws
+
+403 laws confirmed by `grep -c '^law ' laws/c03.bend` (= 403),
+of which 32 match `^law (sphon|cylon|conon|toron)` (the new
+G10 membership laws). Bend fails a file with any unproven law,
+so check-only exit 0 proves all 403 closed.
+
+## 3. C03 suite, three lanes (exit 0 everywhere)
+
+Interpreted:
+  bend tests/c03/neg.bend   # 191 PASS, selfcheck fails=0, exit 0
+  bend tests/c03/pos.bend   # 190 PASS, selfcheck fails=0, exit 0
+Native:
+  bend tests/c03/neg.bend -o /tmp/c033v/c03-neg-n && /tmp/c033v/c03-neg-n
+                            # build 0, 191 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c033v/c03-pos-n && /tmp/c033v/c03-pos-n
+                            # build 0, 190 PASS, fails=0, exit 0
+JS:
+  bend tests/c03/neg.bend -o /tmp/c033v/c03-neg.js && bun /tmp/c033v/c03-neg.js
+                            # build 0, 191 PASS, fails=0, exit 0
+  bend tests/c03/pos.bend -o /tmp/c033v/c03-pos.js && bun /tmp/c033v/c03-pos.js
+                            # build 0, 190 PASS, fails=0, exit 0
+
+stdout sha256 (identical across lanes per suite; `cmp` clean all
+pairs; zero FAIL lines in all six logs):
+  neg: 1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638 (x3)
+  pos: 291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943 (x3)
+
+The neg hash REPRODUCES the C03.2 receipt §3 hash byte-for-byte
+(neg.bend untouched, as §1 numstat requires). The pos hash is
+new (was ea1508bb… at 158 checks): +32 pins, all named
+`pos-sphon-*`/`pos-cylon-*`/`pos-conon-*`/`pos-toron-*`
+(`grep -cE 'sphon|cylon|conon|toron'` = 32 on the pos log).
+
+No native-lane arity failure: the 4 new defs keep ≤ 4 args.
+
+## 4. Regressions: c00–c02 interpreted (this session, 0 fails)
+
+c00–c02 files are byte-identical to 4cae05d (c04.1) AND to
+d69e674/b5c18a6 (`git diff` over all c00–c02 src/laws/tests
+paths empty at both endpoints). All six suites re-run
+interpreted this session; every stdout hash reproduces the
+C03.2 receipt §3 hash byte-for-byte:
+
+  c00 neg (16): 197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a
+  c00 pos (13): 5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79ad225b0c0c1ba2be496
+  c01 neg (69): e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf
+  c01 pos (44): 081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd
+  c02 neg (24): 8b9a30e140baa4ee76934f5cd5a3a58b48ead74ecfadf822b6c9f4eed4b932f6
+  c02 pos (34): 245a65acd57bf0e8912e279be4124c4fd65a3447a06e31178f84d1319c4070d0
+
+All exit 0, all `selfcheck fails=0`, zero FAIL lines. 7 of 8
+prior suite hashes reproduce (the 6 above + c03 neg §3); the
+only new stdout in C00→C03 is c03 pos, exactly as the additive
+§1 change set requires.
+
+## 5. Design record (what b5c18a6 added to C03)
+
+Four total-`Bool` predicates (`src/c03/ops.bend`, after the
+`*_grad` block): each conjoins the same validity + unit-axis
+gates as its `*_val` sibling with `is_finite(v)` and ordered
+`F64.is_eq(v, 0.0f64)` on the implicit value computed with the
+SAME left-fold associations as `*_val` (§6), so `*_on(s, q)`
+holds exactly when the inputs are valid and `*_val(s, q)` is
+ordered-zero. Near-miss points (nonzero F64 value), malformed
+specs, nonfinite inputs, and true overflow all answer `False`.
+Sphere: `m.m - r²`; cylinder/cone: `m.m - ax² (- k²·ax²)`;
+torus: `(d2-S)² - 4R²(r²-ax²)`. No `surf_at` for quadrics
+(unchanged): C04 consumes only the membership verdict.
+
+Contract deltas (docs/c03-contract.md, +15): the §6 membership
+paragraph and the G10 unbounded-claim entry (32 laws + 32
+runtime pins as grounding). Laws (+230): 8 pins per family
+(on/near-miss/malformed/axis/nonfinite/overflow/nappe or
+equivalent per family). Pos (+138/-1): 32 `pos-*-on*` pins.
+
+## BN. Bend-native gates (BN-1..BN-12, C03 scope)
+
+Contamination re-greps (this session, whole tree): `@unsafe`
+0, `foreign|ffi_import|@ffi` in src/ 0, `occt|freecad|planegcs`
+in src/ 0, `F32` 0. `legacy/` clean; `tools/verify_legacy.py`
+exit 0 (`"failures": []`). Implementation is exactly the §1
+files; no new imports (Base + C00/C01/C02 consumers only, no
+foreign boundary); no GPU claim; no identity-typed fields
+added (predicates return Bool); no recursion added (4
+straight-line defs); no batch op; G10 classified in contract
+§§6/14 + §5 above (exact ordered-zero test, NOT
+real-arithmetic); every new arm returns Bool with no published
+value on rejection. BN-12: this section + §1.
+
+## 6. Counts
+
+check-only files passed: 6/6 C03 (types, ops, laws, check, neg,
+pos).
+Suite checks passed (neg+pos, per lane): 191+190 interpreted,
+191+190 native, 191+190 JS (381 checks × 3 lanes = 1143
+executions, 0 fails).
+Laws proven: 403 C03 (check-only exit 0); repo total 992
+(38+34+51+403+466; c00/c01/c02/c04 laws files also check-only
+green this session — see the c04.2 receipt).
+Regression hashes reproduced: 7/8 C00→C03 suite hashes (only
+c03 pos new, as designed).
+Unresolved/abstained cases: none silent. Standing abstentions by
+design per contract §9/§14 (incl. the G10 near-miss/overflow
+`False` arms, which are specified fail-closed verdicts, not
+abstentions).
+
+## 7. Negative confirmations
+
+- No weakened test/law: +32 laws and +32 checks added; nothing
+  deleted, skipped, or relabeled (prior C03 neg stdout
+  reproduces bit-for-bit; c00–c02 byte-identical and green).
+- No placeholder: all 4 new defs are exercised by laws + suite
+  pins on all three lanes.
+- No commit/push/amend performed before this record; C03 bytes
+  are exactly the published b5c18a6 objects (§1 verification).
+- Published history untouched: no amend, no rebase, no force-push.
+- `legacy/` clean before and after; fork untouched; `bend update`
+  never run.
+- Scratch contained: lane binaries/logs under /tmp/c033v/ only.
+- stdout logs: zero FAIL lines in all six C03 lane logs (and all
+  six c00–c02 interpreted regression logs); `cmp` clean across
+  lanes per suite.
+
+## 8. Exit-criteria verdict
+
+Criterion (C03.3 record scope): the b5c18a6 quadric-membership
+change is covered by laws + three-lane runtime pins with green
+hashes on record, prior C03 verdicts reproduce bit-for-bit, and
+the C03 files are verified untouched since b5c18a6 — with no
+open geometry implementation bug.
+
+Verdict: PASS. Evidence: §2 static gates (403 laws closed,
+6/6 files) + §3 triple lanes (1143 executions, 0 fails,
+byte-identical stdout, neg hash reproduced) + §4 regressions
+(6/6 prior hashes reproduced) + §5 design record (G10 exact
+membership, fail-closed arms) + §BN gates.
+
+C03 REMAINS FROZEN at b5c18a6 + this record.

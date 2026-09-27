@@ -1,7 +1,8 @@
 # C04 negative tests: every types.bend failure arm asserts its
 # structured kind (invalid-input or resource-exhausted), plus
 # brep_checked exit counterexamples (dangling/inverted/trim/
-# embedding/nonmanifold/repeated-start/profile/ownership/fuel reject).
+# embedding/nonmanifold/repeated-start/profile/ownership/fuel reject,
+# incl. hierarchy aliasing and vertex-link adversarials).
 # selfcheck fails=N.
 
 import Base
@@ -400,14 +401,62 @@ def neg_g9(f110: U64) -> IO(U64):
       Op.brep_checked(C.b_invface(), Ty.P_manifold_solid{},
         20n),
       "invalid-input", f112)
-    f114 : U64 <- C.report_terr("neg-ck-oriprop",
-      Op.brep_checked(C.b_oriprop(), Ty.P_manifold_solid{},
-        20n),
-      "invalid-input", f113)
-    f115 : U64 <- C.report_terr("neg-ck-split-open",
+    f114 : U64 <- C.report_terr("neg-ck-split-open",
       Op.brep_checked(C.b_split(), Ty.P_open_shell{}, 20n),
+      "invalid-input", f113)
+    f115 : U64 <- C.report_terr("neg-ck-hole-bad",
+      Op.brep_checked(C.b_hole_bad(), Ty.P_open_shell{},
+        20n),
       "invalid-input", f114)
-    return f115
+    f116 : U64 <- C.report_terr("neg-ck-hole-bad2",
+      Op.brep_checked(C.b_hole_bad2(), Ty.P_open_shell{},
+        20n),
+      "invalid-input", f115)
+    return f116
+
+def neg_g10(f116: U64) -> IO(U64):
+  do IO<U64>:
+    f117 : U64 <- C.report_terr("neg-ck-alias-loop",
+      Op.brep_checked(C.b_alias_loop(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f116)
+    f118 : U64 <- C.report_terr("neg-ck-alias-face",
+      Op.brep_checked(C.b_alias_face(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f117)
+    f119 : U64 <- C.report_terr("neg-ck-alias-solid",
+      Op.brep_checked(C.b_alias_solid(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f118)
+    f120 : U64 <- C.report_terr("neg-ck-h-disc",
+      Op.brep_checked(C.b_h_disc(), Ty.P_manifold_solid{},
+        20n),
+      "invalid-input", f119)
+    f121 : U64 <- C.report_terr("neg-ck-h-wrongtwin",
+      Op.brep_checked(C.b_h_wrongtwin(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f120)
+    f122 : U64 <- C.report_terr("neg-ck-h-dupce",
+      Op.brep_checked(C.b_h_dupce(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f121)
+    f123 : U64 <- C.report_terr("neg-ck-h-ce0",
+      Op.brep_checked(C.b_h_ce0(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f122)
+    f124 : U64 <- C.report_terr("neg-ck-h-ce2",
+      Op.brep_checked(C.b_h_ce2(), Ty.P_manifold_solid{},
+        12n),
+      "invalid-input", f123)
+    f125 : U64 <- C.report_terr("neg-ck-h-multi",
+      Op.brep_checked(C.b_h_multi(), Ty.P_manifold_solid{},
+        20n),
+      "invalid-input", f124)
+    f126 : U64 <- C.report_terr("neg-ck-h-rev",
+      Op.brep_checked(C.b_h_rev(), Ty.P_manifold_solid{},
+        20n),
+      "invalid-input", f125)
+    return f126
 
 def main() -> IO(Unit):
   do IO<Unit>:
@@ -420,4 +469,5 @@ def main() -> IO(Unit):
     a7 : U64 <- neg_g7(a6)
     a8 : U64 <- neg_g8(a7)
     a9 : U64 <- neg_g9(a8)
-    IO.print("selfcheck fails=" ++ U64.show(a9))
+    a10 : U64 <- neg_g10(a9)
+    IO.print("selfcheck fails=" ++ U64.show(a10))

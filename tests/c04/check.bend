@@ -75,11 +75,35 @@ def p100() -> V.Point:
 def p010() -> V.Point:
   V.Pt{0.0f64, 1.0f64, 0.0f64}
 
+def p300() -> V.Point:
+  V.Pt{3.0f64, 0.0f64, 0.0f64}
+
+def p330() -> V.Point:
+  V.Pt{3.0f64, 3.0f64, 0.0f64}
+
+def p030() -> V.Point:
+  V.Pt{0.0f64, 3.0f64, 0.0f64}
+
 def p001() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 1.0f64}
 
 def p110() -> V.Point:
   V.Pt{1.0f64, 1.0f64, 0.0f64}
+
+# Inner hole quad corners (strictly inside the 3x3 hole outer;
+# integral: stage K must decide coplanar/collinear C02 predicates
+# exactly, and the C02 exact domain is integral-only).
+def q00() -> V.Point:
+  V.Pt{1.0f64, 1.0f64, 0.0f64}
+
+def q10() -> V.Point:
+  V.Pt{2.0f64, 1.0f64, 0.0f64}
+
+def q11() -> V.Point:
+  V.Pt{2.0f64, 2.0f64, 0.0f64}
+
+def q01() -> V.Point:
+  V.Pt{1.0f64, 2.0f64, 0.0f64}
 
 def p111() -> V.Point:
   V.Pt{1.0f64, 1.0f64, 1.0f64}
@@ -108,6 +132,18 @@ def d_n100() -> V.Dir:
 def d_0n10() -> V.Dir:
   V.Dr{0.0f64, F64.neg(1.0f64), 0.0f64}
 
+def d300() -> V.Dir:
+  V.Dr{3.0f64, 0.0f64, 0.0f64}
+
+def d030() -> V.Dir:
+  V.Dr{0.0f64, 3.0f64, 0.0f64}
+
+def d_n300() -> V.Dir:
+  V.Dr{F64.neg(3.0f64), 0.0f64, 0.0f64}
+
+def d_0n30() -> V.Dir:
+  V.Dr{0.0f64, F64.neg(3.0f64), 0.0f64}
+
 def d_110() -> V.Dir:
   V.Dr{1.0f64, 1.0f64, 0.0f64}
 
@@ -125,6 +161,28 @@ def v2_01() -> V.Vec2:
 
 def v2_11() -> V.Vec2:
   V.V2{1.0f64, 1.0f64}
+
+def v2_30() -> V.Vec2:
+  V.V2{3.0f64, 0.0f64}
+
+def v2_33() -> V.Vec2:
+  V.V2{3.0f64, 3.0f64}
+
+def v2_03() -> V.Vec2:
+  V.V2{0.0f64, 3.0f64}
+
+# Inner hole (u,v) corners (identity through sf_pl).
+def w00() -> V.Vec2:
+  V.V2{1.0f64, 1.0f64}
+
+def w10() -> V.Vec2:
+  V.V2{2.0f64, 1.0f64}
+
+def w11() -> V.Vec2:
+  V.V2{2.0f64, 2.0f64}
+
+def w01() -> V.Vec2:
+  V.V2{1.0f64, 2.0f64}
 
 def dom_01() -> G.Dom:
   G.Dom{0.0f64, 1.0f64}
@@ -171,6 +229,12 @@ def cv_nb() -> G.GVal:
 # Surface arms (all six).
 def sf_pl() -> G.GVal:
   G.GV_pl{G.Pl{p000(), d100(), d010()}}
+
+# Same plane, opposite parametrization (u/v swapped): natural
+# normal -z. Adjacent faces with independent parametrizations
+# need NOT share same flags (stage L propagation).
+def sf_pl_flip() -> G.GVal:
+  G.GV_pl{G.Pl{p000(), d010(), d100()}}
 
 def p_spc() -> V.Point:
   V.Pt{0.5f64, 0.5f64, 0.25f64}
@@ -231,6 +295,43 @@ def tr_11_10() -> G.GVal:
 
 def tr_10_01() -> G.GVal:
   G.GV_ts{G.Ts{v2_10(), v2_01()}}
+
+# Hole-outer (3x3) trim legs (identity through sf_pl, like tr_*).
+def ts_00_30() -> G.GVal:
+  G.GV_ts{G.Ts{v2_00(), v2_30()}}
+
+def ts_30_33() -> G.GVal:
+  G.GV_ts{G.Ts{v2_30(), v2_33()}}
+
+def ts_33_03() -> G.GVal:
+  G.GV_ts{G.Ts{v2_33(), v2_03()}}
+
+def ts_03_00() -> G.GVal:
+  G.GV_ts{G.Ts{v2_03(), v2_00()}}
+
+# Inner hole trim legs (identity through sf_pl, like tr_*).
+def tq_00_10() -> G.GVal:
+  G.GV_ts{G.Ts{w00(), w10()}}
+
+def tq_10_11() -> G.GVal:
+  G.GV_ts{G.Ts{w10(), w11()}}
+
+def tq_11_01() -> G.GVal:
+  G.GV_ts{G.Ts{w11(), w01()}}
+
+def tq_01_00() -> G.GVal:
+  G.GV_ts{G.Ts{w01(), w00()}}
+
+# Flipped-plane trim legs (differing-parametrization fixture;
+# tr_11_10 already exists and is reused for the fourth leg).
+def tr_10_00() -> G.GVal:
+  G.GV_ts{G.Ts{v2_10(), v2_00()}}
+
+def tr_01_11() -> G.GVal:
+  G.GV_ts{G.Ts{v2_01(), v2_11()}}
+
+def tr_00_01() -> G.GVal:
+  G.GV_ts{G.Ts{v2_00(), v2_01()}}
 
 # Handle member lists: empty (typed) and singleton.
 def hc0() -> List<&2, Ty.HCoedge>:
@@ -1060,7 +1161,10 @@ def b_xing() -> Ty.Brep:
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
 # Stage L-orientation fixture: clean (non-crossing) quad loop whose
-# CCW winding disagrees with the same=False-adjusted plane normal.
+# CCW outer winding disagrees with the same=False-adjusted plane
+# normal (face0). Face1 (CW outer, same=False) is consistent, so
+# this is a single-fault case; both faces agree on same=False,
+# which a same-equality propagation check would wrongly accept.
 # Passes A-K; per-face orientation must diagnose invalid-input.
 def b_invface() -> Ty.Brep:
   +b0 = Ty.brep_empty()
@@ -1109,7 +1213,7 @@ def b_invface() -> Ty.Brep:
   +b19 = Ty.tres_brep(Ty.fa_push(b18, sf_pl(), hlp0 <> Nil{},
     False{}))
   +b20 = Ty.tres_brep(Ty.fa_push(b19, sf_pl(), hlp1 <> Nil{},
-    True{}))
+    False{}))
   +hfa0 = Ty.mk_hfa(0n, 19u64)
   +hfa1 = Ty.mk_hfa(1n, 20u64)
   +b21 = Ty.tres_brep(Ty.sh_push(b20, hfa0 <> hfa1 <> Nil{},
@@ -1119,10 +1223,12 @@ def b_invface() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage L-propagation fixture: clean quad, both faces
-# per-face-consistent (CCW/same=True, CW/same=False) but the shared
-# edges join faces with disagreeing same flags. Passes A-K and
-# per-face orientation; propagation must diagnose invalid-input.
+# Stage L shared-edge fixture: clean quad pillow, both faces
+# per-face-consistent (CCW outer/same=True, CW outer/same=False)
+# with DISAGREEING same flags across every shared edge. Valid:
+# each same is relative to its own face parametrization, and
+# opposite use plus per-face winding-vs-own-normal is the whole
+# local invariant. Passes A-L (propagation must accept).
 def b_oriprop() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1179,3 +1285,795 @@ def b_oriprop() -> Ty.Brep:
   +b22 = Ty.tres_brep(Ty.so_push(b21, hshS, hsh0()))
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Stage L hole fixture: one plane face with a valid hole — CCW
+# outer loop plus CW inner loop under same=True. Passes A-K
+# under P_open_shell; kind-aware orientation must accept.
+def b_hole() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p300()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p330()))
+  +b4 = Ty.tres_brep(Ty.vx_push(b3, p030()))
+  +b5 = Ty.tres_brep(Ty.vx_push(b4, q00()))
+  +b6 = Ty.tres_brep(Ty.vx_push(b5, q10()))
+  +b7 = Ty.tres_brep(Ty.vx_push(b6, q11()))
+  +b8 = Ty.tres_brep(Ty.vx_push(b7, q01()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +hv3 = Ty.mk_hv(3n, 4u64)
+  +hv4 = Ty.mk_hv(4n, 5u64)
+  +hv5 = Ty.mk_hv(5n, 6u64)
+  +hv6 = Ty.mk_hv(6n, 7u64)
+  +hv7 = Ty.mk_hv(7n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ed_push(b8, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d300()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he0, True{},
+    ts_00_30()))
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p300(), d030()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he1, True{},
+    ts_30_33()))
+  +b13 = Ty.tres_brep(Ty.ed_push(b12, hv2, hv3,
+    Ty.EK_curve{G.GV_ln{G.Ln{p330(), d_n300()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 13u64)
+  +b14 = Ty.tres_brep(Ty.ce_push(b13, he2, True{},
+    ts_33_03()))
+  +b15 = Ty.tres_brep(Ty.ed_push(b14, hv3, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p030(), d_0n30()}}, dom_01()}))
+  +he3 = Ty.mk_he(3n, 15u64)
+  +b16 = Ty.tres_brep(Ty.ce_push(b15, he3, True{},
+    ts_03_00()))
+  +b17 = Ty.tres_brep(Ty.ed_push(b16, hv4, hv5,
+    Ty.EK_curve{G.GV_ln{G.Ln{q00(), d100()}}, dom_01()}))
+  +he4 = Ty.mk_he(4n, 17u64)
+  +b18 = Ty.tres_brep(Ty.ce_push(b17, he4, False{},
+    tq_00_10()))
+  +b19 = Ty.tres_brep(Ty.ed_push(b18, hv5, hv6,
+    Ty.EK_curve{G.GV_ln{G.Ln{q10(), d010()}}, dom_01()}))
+  +he5 = Ty.mk_he(5n, 19u64)
+  +b20 = Ty.tres_brep(Ty.ce_push(b19, he5, False{},
+    tq_10_11()))
+  +b21 = Ty.tres_brep(Ty.ed_push(b20, hv6, hv7,
+    Ty.EK_curve{G.GV_ln{G.Ln{q11(), d_n100()}}, dom_01()}))
+  +he6 = Ty.mk_he(6n, 21u64)
+  +b22 = Ty.tres_brep(Ty.ce_push(b21, he6, False{},
+    tq_11_01()))
+  +b23 = Ty.tres_brep(Ty.ed_push(b22, hv7, hv4,
+    Ty.EK_curve{G.GV_ln{G.Ln{q01(), d_0n10()}}, dom_01()}))
+  +he7 = Ty.mk_he(7n, 23u64)
+  +b24 = Ty.tres_brep(Ty.ce_push(b23, he7, False{},
+    tq_01_00()))
+  +hc0 = Ty.mk_hc(0n, 10u64)
+  +hc1 = Ty.mk_hc(1n, 12u64)
+  +hc2 = Ty.mk_hc(2n, 14u64)
+  +hc3 = Ty.mk_hc(3n, 16u64)
+  +hc4 = Ty.mk_hc(4n, 18u64)
+  +hc5 = Ty.mk_hc(5n, 20u64)
+  +hc6 = Ty.mk_hc(6n, 22u64)
+  +hc7 = Ty.mk_hc(7n, 24u64)
+  +b25 = Ty.tres_brep(Ty.lp_push(b24,
+    hc0 <> hc1 <> hc2 <> hc3 <> Nil{}, Ty.LK_outer{}))
+  +b26 = Ty.tres_brep(Ty.lp_push(b25,
+    hc7 <> hc6 <> hc5 <> hc4 <> Nil{}, Ty.LK_inner{}))
+  +hlp0 = Ty.mk_hlp(0n, 25u64)
+  +hlp1 = Ty.mk_hlp(1n, 26u64)
+  +b27 = Ty.tres_brep(Ty.fa_push(b26, sf_pl(),
+    hlp0 <> hlp1 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 27u64)
+  +b28 = Ty.tres_brep(Ty.sh_push(b27, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshH = Ty.mk_hsh(0n, 28u64)
+  Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
+
+# Stage L inner-winding negative: b_hole shape with the inner
+# loop wound CCW like the outer (same=True). Passes A-K;
+# orientation must diagnose invalid-input (hole must oppose).
+def b_hole_bad() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p300()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p330()))
+  +b4 = Ty.tres_brep(Ty.vx_push(b3, p030()))
+  +b5 = Ty.tres_brep(Ty.vx_push(b4, q00()))
+  +b6 = Ty.tres_brep(Ty.vx_push(b5, q10()))
+  +b7 = Ty.tres_brep(Ty.vx_push(b6, q11()))
+  +b8 = Ty.tres_brep(Ty.vx_push(b7, q01()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +hv3 = Ty.mk_hv(3n, 4u64)
+  +hv4 = Ty.mk_hv(4n, 5u64)
+  +hv5 = Ty.mk_hv(5n, 6u64)
+  +hv6 = Ty.mk_hv(6n, 7u64)
+  +hv7 = Ty.mk_hv(7n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ed_push(b8, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d300()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he0, True{},
+    ts_00_30()))
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p300(), d030()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he1, True{},
+    ts_30_33()))
+  +b13 = Ty.tres_brep(Ty.ed_push(b12, hv2, hv3,
+    Ty.EK_curve{G.GV_ln{G.Ln{p330(), d_n300()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 13u64)
+  +b14 = Ty.tres_brep(Ty.ce_push(b13, he2, True{},
+    ts_33_03()))
+  +b15 = Ty.tres_brep(Ty.ed_push(b14, hv3, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p030(), d_0n30()}}, dom_01()}))
+  +he3 = Ty.mk_he(3n, 15u64)
+  +b16 = Ty.tres_brep(Ty.ce_push(b15, he3, True{},
+    ts_03_00()))
+  +b17 = Ty.tres_brep(Ty.ed_push(b16, hv4, hv5,
+    Ty.EK_curve{G.GV_ln{G.Ln{q00(), d100()}}, dom_01()}))
+  +he4 = Ty.mk_he(4n, 17u64)
+  +b18 = Ty.tres_brep(Ty.ce_push(b17, he4, True{},
+    tq_00_10()))
+  +b19 = Ty.tres_brep(Ty.ed_push(b18, hv5, hv6,
+    Ty.EK_curve{G.GV_ln{G.Ln{q10(), d010()}}, dom_01()}))
+  +he5 = Ty.mk_he(5n, 19u64)
+  +b20 = Ty.tres_brep(Ty.ce_push(b19, he5, True{},
+    tq_10_11()))
+  +b21 = Ty.tres_brep(Ty.ed_push(b20, hv6, hv7,
+    Ty.EK_curve{G.GV_ln{G.Ln{q11(), d_n100()}}, dom_01()}))
+  +he6 = Ty.mk_he(6n, 21u64)
+  +b22 = Ty.tres_brep(Ty.ce_push(b21, he6, True{},
+    tq_11_01()))
+  +b23 = Ty.tres_brep(Ty.ed_push(b22, hv7, hv4,
+    Ty.EK_curve{G.GV_ln{G.Ln{q01(), d_0n10()}}, dom_01()}))
+  +he7 = Ty.mk_he(7n, 23u64)
+  +b24 = Ty.tres_brep(Ty.ce_push(b23, he7, True{},
+    tq_01_00()))
+  +hc0 = Ty.mk_hc(0n, 10u64)
+  +hc1 = Ty.mk_hc(1n, 12u64)
+  +hc2 = Ty.mk_hc(2n, 14u64)
+  +hc3 = Ty.mk_hc(3n, 16u64)
+  +hc4 = Ty.mk_hc(4n, 18u64)
+  +hc5 = Ty.mk_hc(5n, 20u64)
+  +hc6 = Ty.mk_hc(6n, 22u64)
+  +hc7 = Ty.mk_hc(7n, 24u64)
+  +b25 = Ty.tres_brep(Ty.lp_push(b24,
+    hc0 <> hc1 <> hc2 <> hc3 <> Nil{}, Ty.LK_outer{}))
+  +b26 = Ty.tres_brep(Ty.lp_push(b25,
+    hc4 <> hc5 <> hc6 <> hc7 <> Nil{}, Ty.LK_inner{}))
+  +hlp0 = Ty.mk_hlp(0n, 25u64)
+  +hlp1 = Ty.mk_hlp(1n, 26u64)
+  +b27 = Ty.tres_brep(Ty.fa_push(b26, sf_pl(),
+    hlp0 <> hlp1 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 27u64)
+  +b28 = Ty.tres_brep(Ty.sh_push(b27, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshH = Ty.mk_hsh(0n, 28u64)
+  Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
+
+# Stage L inner-winding negative, flipped face: outer CW loop
+# consistent with same=False, but the inner loop is also CW
+# (must be CCW to oppose the -z face normal). Passes A-K;
+# orientation must diagnose invalid-input.
+def b_hole_bad2() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p300()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p330()))
+  +b4 = Ty.tres_brep(Ty.vx_push(b3, p030()))
+  +b5 = Ty.tres_brep(Ty.vx_push(b4, q00()))
+  +b6 = Ty.tres_brep(Ty.vx_push(b5, q10()))
+  +b7 = Ty.tres_brep(Ty.vx_push(b6, q11()))
+  +b8 = Ty.tres_brep(Ty.vx_push(b7, q01()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +hv3 = Ty.mk_hv(3n, 4u64)
+  +hv4 = Ty.mk_hv(4n, 5u64)
+  +hv5 = Ty.mk_hv(5n, 6u64)
+  +hv6 = Ty.mk_hv(6n, 7u64)
+  +hv7 = Ty.mk_hv(7n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ed_push(b8, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d300()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he0, False{},
+    ts_00_30()))
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p300(), d030()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he1, False{},
+    ts_30_33()))
+  +b13 = Ty.tres_brep(Ty.ed_push(b12, hv2, hv3,
+    Ty.EK_curve{G.GV_ln{G.Ln{p330(), d_n300()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 13u64)
+  +b14 = Ty.tres_brep(Ty.ce_push(b13, he2, False{},
+    ts_33_03()))
+  +b15 = Ty.tres_brep(Ty.ed_push(b14, hv3, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p030(), d_0n30()}}, dom_01()}))
+  +he3 = Ty.mk_he(3n, 15u64)
+  +b16 = Ty.tres_brep(Ty.ce_push(b15, he3, False{},
+    ts_03_00()))
+  +b17 = Ty.tres_brep(Ty.ed_push(b16, hv4, hv5,
+    Ty.EK_curve{G.GV_ln{G.Ln{q00(), d100()}}, dom_01()}))
+  +he4 = Ty.mk_he(4n, 17u64)
+  +b18 = Ty.tres_brep(Ty.ce_push(b17, he4, False{},
+    tq_00_10()))
+  +b19 = Ty.tres_brep(Ty.ed_push(b18, hv5, hv6,
+    Ty.EK_curve{G.GV_ln{G.Ln{q10(), d010()}}, dom_01()}))
+  +he5 = Ty.mk_he(5n, 19u64)
+  +b20 = Ty.tres_brep(Ty.ce_push(b19, he5, False{},
+    tq_10_11()))
+  +b21 = Ty.tres_brep(Ty.ed_push(b20, hv6, hv7,
+    Ty.EK_curve{G.GV_ln{G.Ln{q11(), d_n100()}}, dom_01()}))
+  +he6 = Ty.mk_he(6n, 21u64)
+  +b22 = Ty.tres_brep(Ty.ce_push(b21, he6, False{},
+    tq_11_01()))
+  +b23 = Ty.tres_brep(Ty.ed_push(b22, hv7, hv4,
+    Ty.EK_curve{G.GV_ln{G.Ln{q01(), d_0n10()}}, dom_01()}))
+  +he7 = Ty.mk_he(7n, 23u64)
+  +b24 = Ty.tres_brep(Ty.ce_push(b23, he7, False{},
+    tq_01_00()))
+  +hc0 = Ty.mk_hc(0n, 10u64)
+  +hc1 = Ty.mk_hc(1n, 12u64)
+  +hc2 = Ty.mk_hc(2n, 14u64)
+  +hc3 = Ty.mk_hc(3n, 16u64)
+  +hc4 = Ty.mk_hc(4n, 18u64)
+  +hc5 = Ty.mk_hc(5n, 20u64)
+  +hc6 = Ty.mk_hc(6n, 22u64)
+  +hc7 = Ty.mk_hc(7n, 24u64)
+  +b25 = Ty.tres_brep(Ty.lp_push(b24,
+    hc3 <> hc2 <> hc1 <> hc0 <> Nil{}, Ty.LK_outer{}))
+  +b26 = Ty.tres_brep(Ty.lp_push(b25,
+    hc7 <> hc6 <> hc5 <> hc4 <> Nil{}, Ty.LK_inner{}))
+  +hlp0 = Ty.mk_hlp(0n, 25u64)
+  +hlp1 = Ty.mk_hlp(1n, 26u64)
+  +b27 = Ty.tres_brep(Ty.fa_push(b26, sf_pl(),
+    hlp0 <> hlp1 <> Nil{}, False{}))
+  +hfa0 = Ty.mk_hfa(0n, 27u64)
+  +b28 = Ty.tres_brep(Ty.sh_push(b27, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshH = Ty.mk_hsh(0n, 28u64)
+  Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
+
+# Stage L differing-parametrization fixture: clean quad pillow
+# whose faces sit on OPPOSITE plane parametrizations (sf_pl vs
+# sf_pl_flip, natural normals +z vs -z) with EQUAL same flags
+# (both True), hence opposite face normals. Each face is
+# per-face-consistent (CCW vs +z, CW vs -z); propagation must
+# accept without comparing parametrizations or same flags.
+# Passes A-L.
+def b_diffparam() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p110()))
+  +b4 = Ty.tres_brep(Ty.vx_push(b3, p010()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +hv3 = Ty.mk_hv(3n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ed_push(b4, hv0, hv1,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 5u64)
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, he0, True{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_01()))
+  +b8 = Ty.tres_brep(Ty.ed_push(b7, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d010()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, he1, True{}, tr_10_11()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{},
+    tr_01_11()))
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hv2, hv3,
+    Ty.EK_curve{G.GV_ln{G.Ln{p110(), d_n100()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he2, True{},
+    tr_11_01()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{},
+    tr_11_10()))
+  +b14 = Ty.tres_brep(Ty.ed_push(b13, hv3, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_0n10()}}, dom_01()}))
+  +he3 = Ty.mk_he(3n, 14u64)
+  +b15 = Ty.tres_brep(Ty.ce_push(b14, he3, True{},
+    tr_01_00()))
+  +b16 = Ty.tres_brep(Ty.ce_push(b15, he3, False{},
+    tr_10_00()))
+  +hc0 = Ty.mk_hc(0n, 6u64)
+  +hc2 = Ty.mk_hc(2n, 9u64)
+  +hc4 = Ty.mk_hc(4n, 12u64)
+  +hc6 = Ty.mk_hc(6n, 15u64)
+  +hc1 = Ty.mk_hc(1n, 7u64)
+  +hc3 = Ty.mk_hc(3n, 10u64)
+  +hc5 = Ty.mk_hc(5n, 13u64)
+  +hc7 = Ty.mk_hc(7n, 16u64)
+  +b17 = Ty.tres_brep(Ty.lp_push(b16,
+    hc0 <> hc2 <> hc4 <> hc6 <> Nil{}, Ty.LK_outer{}))
+  +b18 = Ty.tres_brep(Ty.lp_push(b17,
+    hc7 <> hc5 <> hc3 <> hc1 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 17u64)
+  +hlp1 = Ty.mk_hlp(1n, 18u64)
+  +b19 = Ty.tres_brep(Ty.fa_push(b18, sf_pl(), hlp0 <> Nil{},
+    True{}))
+  +b20 = Ty.tres_brep(Ty.fa_push(b19, sf_pl_flip(),
+    hlp1 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 19u64)
+  +hfa1 = Ty.mk_hfa(1n, 20u64)
+  +b21 = Ty.tres_brep(Ty.sh_push(b20, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 21u64)
+  +b22 = Ty.tres_brep(Ty.so_push(b21, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 22u64)
+  Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Hierarchy-ownership fixture: ONE loop shared by TWO faces.
+# Passes A-E; stage F must diagnose invalid-input (loop owned
+# twice). Both faces see exactly one LK_outer, so E passes.
+def b_alias_loop() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +b8 = Ty.tres_brep(Ty.fa_push(b7, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +hfa1 = Ty.mk_hfa(1n, 8u64)
+  +b9 = Ty.tres_brep(Ty.sh_push(b8, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 10u64)
+  Ty.brep_set_top(b10, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Hierarchy-ownership fixture: ONE face shared by TWO shells.
+# Passes A-E; stage F must diagnose invalid-input (face owned
+# twice). Shell ownership itself is clean (distinct shells).
+def b_alias_face() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +b9 = Ty.tres_brep(Ty.sh_push(b8, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hshA = Ty.mk_hsh(0n, 8u64)
+  +hshB = Ty.mk_hsh(1n, 9u64)
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hshA, hsh0()))
+  +b11 = Ty.tres_brep(Ty.so_push(b10, hshB, hsh0()))
+  +hsoA = Ty.mk_hso(0n, 10u64)
+  +hsoB = Ty.mk_hso(1n, 11u64)
+  Ty.brep_set_top(b11, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
+
+# Hierarchy-ownership fixture: ONE solid listed TWICE in the
+# compound root. Passes A-E and every other F walk; stage F must
+# diagnose invalid-input (solid nodup in cp_solids).
+def b_alias_solid() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> hso0x <> Nil{}, hsh0()})
+
+# Stage H adversarial: disconnected fans (2-cell pinch, shared
+# vertex S=p100, cells to p000 and p110). Passes A-G; stage H
+# must diagnose invalid-input (two disjoint link orbits at S).
+def b_h_disc() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p100()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p000()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p110()))
+  +hvS = Ty.mk_hv(0n, 1u64)
+  +hvA = Ty.mk_hv(1n, 2u64)
+  +hvB = Ty.mk_hv(2n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hvS, hvA,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +heA = Ty.mk_he(0n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, heA, True{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, heA, False{}, tr_ts()))
+  +b7 = Ty.tres_brep(Ty.ed_push(b6, hvS, hvB,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d010()}}, dom_01()}))
+  +heB = Ty.mk_he(1n, 7u64)
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, heB, True{}, tr_ts()))
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, heB, False{}, tr_ts()))
+  +hcA0 = Ty.mk_hc(0n, 5u64)
+  +hcA1 = Ty.mk_hc(1n, 6u64)
+  +hcB0 = Ty.mk_hc(2n, 8u64)
+  +hcB1 = Ty.mk_hc(3n, 9u64)
+  +b10 = Ty.tres_brep(Ty.lp_push(b9, hcA0 <> hcA1 <> Nil{},
+    Ty.LK_outer{}))
+  +b11 = Ty.tres_brep(Ty.lp_push(b10, hcB0 <> hcB1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlpA = Ty.mk_hlp(0n, 10u64)
+  +hlpB = Ty.mk_hlp(1n, 11u64)
+  +b12 = Ty.tres_brep(Ty.fa_push(b11, sf_sp(), hlpA <> Nil{},
+    True{}))
+  +b13 = Ty.tres_brep(Ty.fa_push(b12, sf_sp(), hlpB <> Nil{},
+    True{}))
+  +hfaA = Ty.mk_hfa(0n, 12u64)
+  +hfaB = Ty.mk_hfa(1n, 13u64)
+  +b14 = Ty.tres_brep(Ty.sh_push(b13, hfaA <> Nil{}, Ty.SK_outer{}))
+  +b15 = Ty.tres_brep(Ty.sh_push(b14, hfaB <> Nil{}, Ty.SK_outer{}))
+  +hshA = Ty.mk_hsh(0n, 14u64)
+  +hshB = Ty.mk_hsh(1n, 15u64)
+  +b16 = Ty.tres_brep(Ty.so_push(b15, hshA, hsh0()))
+  +b17 = Ty.tres_brep(Ty.so_push(b16, hshB, hsh0()))
+  +hsoA = Ty.mk_hso(0n, 16u64)
+  +hsoB = Ty.mk_hso(1n, 17u64)
+  Ty.brep_set_top(b17, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
+
+# Stage H adversarial: wrong twin (one edge with THREE coedge
+# uses — the twin is undefined). Diagnosed at C (use count 3),
+# the H precondition; the spare use also sits in 0 loops.
+def b_h_wrongtwin() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, he0, True{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b7 = Ty.tres_brep(Ty.lp_push(b6, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.fa_push(b7, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.sh_push(b8, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 10u64)
+  Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# Stage H adversarial: duplicated coedge (one loop lists the
+# SAME coedge twice). Diagnosed at D (oriented chain breaks);
+# H coverage would also fail (spare use in 0 loops).
+def b_h_dupce() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc0 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# Stage H adversarial: coedges in 0 loops (a second
+# twice-opposite edge whose uses no loop references). Passes
+# A-G (store use-counts are clean); stage H coverage must
+# diagnose invalid-input.
+def b_h_ce0() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_ts()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, he1, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b9 = Ty.tres_brep(Ty.lp_push(b8, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.fa_push(b9, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 10u64)
+  +b11 = Ty.tres_brep(Ty.sh_push(b10, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 11u64)
+  +b12 = Ty.tres_brep(Ty.so_push(b11, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 12u64)
+  Ty.brep_set_top(b12, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# Stage H adversarial: one coedge in 2 loops (two DISTINCT loops
+# list the same coedge handles, so F loop-ownership passes).
+# Passes A-G; stage H one-ness must diagnose invalid-input.
+def b_h_ce2() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +b7 = Ty.tres_brep(Ty.lp_push(b6, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +hlp1 = Ty.mk_hlp(1n, 7u64)
+  +b8 = Ty.tres_brep(Ty.fa_push(b7, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +b9 = Ty.tres_brep(Ty.fa_push(b8, sf_sp(), hlp1 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 8u64)
+  +hfa1 = Ty.mk_hfa(1n, 9u64)
+  +b10 = Ty.tres_brep(Ty.sh_push(b9, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 10u64)
+  +b11 = Ty.tres_brep(Ty.so_push(b10, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 11u64)
+  Ty.brep_set_top(b11, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Stage H control: valid seam (one edge twice-opposite in one
+# loop — the b_sphere shape). Must ACCEPT; the fan at each
+# vertex is the single twin(prev()) orbit.
+def b_h_seam() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv12(),
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +hc0 = Ty.mk_hc(0n, 4u64)
+  +hc1 = Ty.mk_hc(1n, 5u64)
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc0 <> hc1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.sh_push(b7, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 8u64)
+  +b9 = Ty.tres_brep(Ty.so_push(b8, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 9u64)
+  Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# Stage H control: valid degenerate pole (collapsed uses are
+# transparent; the fan passes vacuously — the b_pole shape).
+# Must ACCEPT.
+def b_h_pole() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.ed_push(b1, hv01(), hv01(),
+    Ty.EK_degenerate{}))
+  +he0 = Ty.mk_he(0n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ce_push(b2, he0, True{}, tr_closed()))
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, False{}, tr_closed()))
+  +hc0 = Ty.mk_hc(0n, 3u64)
+  +hc1 = Ty.mk_hc(1n, 4u64)
+  +b5 = Ty.tres_brep(Ty.lp_push(b4, hc0 <> Nil{}, Ty.LK_outer{}))
+  +b6 = Ty.tres_brep(Ty.lp_push(b5, hc1 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 5u64)
+  +hlp1 = Ty.mk_hlp(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.fa_push(b6, sf_sp(), hlp0 <> Nil{}, True{}))
+  +b8 = Ty.tres_brep(Ty.fa_push(b7, sf_sp(), hlp1 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 7u64)
+  +hfa1 = Ty.mk_hfa(1n, 8u64)
+  +b9 = Ty.tres_brep(Ty.sh_push(b8, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 9u64)
+  +b10 = Ty.tres_brep(Ty.so_push(b9, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 10u64)
+  Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
+
+# Stage H adversarial: multi-component pinch (two digons sharing
+# S plus a third cell on A-B reusing the same vertex handles —
+# vertex multi-ref is allowed; the fan at S still splits).
+# Passes A-G; stage H must diagnose invalid-input.
+def b_h_multi() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p010()))
+  +hvS = Ty.mk_hv(0n, 1u64)
+  +hvA = Ty.mk_hv(1n, 2u64)
+  +hvB = Ty.mk_hv(2n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hvS, hvA,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +heA = Ty.mk_he(0n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, heA, True{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, heA, False{}, tr_ts()))
+  +b7 = Ty.tres_brep(Ty.ed_push(b6, hvS, hvB,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d010()}}, dom_01()}))
+  +heB = Ty.mk_he(1n, 7u64)
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, heB, True{}, tr_ts()))
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, heB, False{}, tr_ts()))
+  +b10 = Ty.tres_brep(Ty.ed_push(b9, hvA, hvB,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n110()}}, dom_01()}))
+  +heC = Ty.mk_he(2n, 10u64)
+  +b11 = Ty.tres_brep(Ty.ce_push(b10, heC, True{}, tr_ts()))
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, heC, False{}, tr_ts()))
+  +hcA0 = Ty.mk_hc(0n, 5u64)
+  +hcA1 = Ty.mk_hc(1n, 6u64)
+  +hcB0 = Ty.mk_hc(2n, 8u64)
+  +hcB1 = Ty.mk_hc(3n, 9u64)
+  +hcC0 = Ty.mk_hc(4n, 11u64)
+  +hcC1 = Ty.mk_hc(5n, 12u64)
+  +b13 = Ty.tres_brep(Ty.lp_push(b12, hcA0 <> hcA1 <> Nil{},
+    Ty.LK_outer{}))
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hcB0 <> hcB1 <> Nil{},
+    Ty.LK_outer{}))
+  +b15 = Ty.tres_brep(Ty.lp_push(b14, hcC0 <> hcC1 <> Nil{},
+    Ty.LK_outer{}))
+  +hlpA = Ty.mk_hlp(0n, 13u64)
+  +hlpB = Ty.mk_hlp(1n, 14u64)
+  +hlpC = Ty.mk_hlp(2n, 15u64)
+  +b16 = Ty.tres_brep(Ty.fa_push(b15, sf_sp(), hlpA <> Nil{},
+    True{}))
+  +b17 = Ty.tres_brep(Ty.fa_push(b16, sf_sp(), hlpB <> Nil{},
+    True{}))
+  +b18 = Ty.tres_brep(Ty.fa_push(b17, sf_sp(), hlpC <> Nil{},
+    True{}))
+  +hfaA = Ty.mk_hfa(0n, 16u64)
+  +hfaB = Ty.mk_hfa(1n, 17u64)
+  +hfaC = Ty.mk_hfa(2n, 18u64)
+  +b19 = Ty.tres_brep(Ty.sh_push(b18, hfaA <> hfaB <> hfaC <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 19u64)
+  +b20 = Ty.tres_brep(Ty.so_push(b19, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 20u64)
+  Ty.brep_set_top(b20, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Stage H adversarial: reversed fan (the b_oriprop square with
+# face1's loop order flipped — the oriented chain breaks).
+# Diagnosed at D (chain mismatch), the H fan precondition.
+def b_h_rev() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p110()))
+  +b4 = Ty.tres_brep(Ty.vx_push(b3, p010()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +hv3 = Ty.mk_hv(3n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ed_push(b4, hv0, hv1,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 5u64)
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, he0, True{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_10()))
+  +b8 = Ty.tres_brep(Ty.ed_push(b7, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d010()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, he1, True{}, tr_10_11()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{}, tr_10_11()))
+  +b11 = Ty.tres_brep(Ty.ed_push(b10, hv2, hv3,
+    Ty.EK_curve{G.GV_ln{G.Ln{p110(), d_n100()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 11u64)
+  +b12 = Ty.tres_brep(Ty.ce_push(b11, he2, True{}, tr_11_01()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{}, tr_11_01()))
+  +b14 = Ty.tres_brep(Ty.ed_push(b13, hv3, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_0n10()}}, dom_01()}))
+  +he3 = Ty.mk_he(3n, 14u64)
+  +b15 = Ty.tres_brep(Ty.ce_push(b14, he3, True{}, tr_01_00()))
+  +b16 = Ty.tres_brep(Ty.ce_push(b15, he3, False{}, tr_01_00()))
+  +hc0 = Ty.mk_hc(0n, 6u64)
+  +hc2 = Ty.mk_hc(2n, 9u64)
+  +hc4 = Ty.mk_hc(4n, 12u64)
+  +hc6 = Ty.mk_hc(6n, 15u64)
+  +hc1 = Ty.mk_hc(1n, 7u64)
+  +hc3 = Ty.mk_hc(3n, 10u64)
+  +hc5 = Ty.mk_hc(5n, 13u64)
+  +hc7 = Ty.mk_hc(7n, 16u64)
+  +b17 = Ty.tres_brep(Ty.lp_push(b16,
+    hc0 <> hc2 <> hc4 <> hc6 <> Nil{}, Ty.LK_outer{}))
+  +b18 = Ty.tres_brep(Ty.lp_push(b17,
+    hc1 <> hc3 <> hc5 <> hc7 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 17u64)
+  +hlp1 = Ty.mk_hlp(1n, 18u64)
+  +b19 = Ty.tres_brep(Ty.fa_push(b18, sf_pl(), hlp0 <> Nil{},
+    True{}))
+  +b20 = Ty.tres_brep(Ty.fa_push(b19, sf_pl(), hlp1 <> Nil{},
+    False{}))
+  +hfa0 = Ty.mk_hfa(0n, 19u64)
+  +hfa1 = Ty.mk_hfa(1n, 20u64)
+  +b21 = Ty.tres_brep(Ty.sh_push(b20, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 21u64)
+  +b22 = Ty.tres_brep(Ty.so_push(b21, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 22u64)
+  Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# Stage H valid: high-valence fan (3-lune beach ball — two
+# vertices N/S joined by three digon lunes; each vertex fan is
+# ONE twin(prev()) orbit of length 3). Must ACCEPT (A-L).
+def b_h_highval() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +hvN = Ty.mk_hv(0n, 1u64)
+  +hvS = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvN, hvS,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hvN, hvS,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_ts()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, he1, False{}, tr_ts()))
+  +b9 = Ty.tres_brep(Ty.ed_push(b8, hvN, hvS,
+    Ty.EK_curve{cv_ln(), dom_01()}))
+  +he2 = Ty.mk_he(2n, 9u64)
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he2, True{}, tr_ts()))
+  +b11 = Ty.tres_brep(Ty.ce_push(b10, he2, False{}, tr_ts()))
+  +e0f = Ty.mk_hc(0n, 4u64)
+  +e0b = Ty.mk_hc(1n, 5u64)
+  +e1f = Ty.mk_hc(2n, 7u64)
+  +e1b = Ty.mk_hc(3n, 8u64)
+  +e2f = Ty.mk_hc(4n, 10u64)
+  +e2b = Ty.mk_hc(5n, 11u64)
+  +b12 = Ty.tres_brep(Ty.lp_push(b11, e0f <> e1b <> Nil{},
+    Ty.LK_outer{}))
+  +b13 = Ty.tres_brep(Ty.lp_push(b12, e1f <> e2b <> Nil{},
+    Ty.LK_outer{}))
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, e2f <> e0b <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 12u64)
+  +hlp1 = Ty.mk_hlp(1n, 13u64)
+  +hlp2 = Ty.mk_hlp(2n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +b16 = Ty.tres_brep(Ty.fa_push(b15, sf_sp(), hlp1 <> Nil{},
+    True{}))
+  +b17 = Ty.tres_brep(Ty.fa_push(b16, sf_sp(), hlp2 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 15u64)
+  +hfa1 = Ty.mk_hfa(1n, 16u64)
+  +hfa2 = Ty.mk_hfa(2n, 17u64)
+  +b18 = Ty.tres_brep(Ty.sh_push(b17, hfa0 <> hfa1 <> hfa2 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 18u64)
+  +b19 = Ty.tres_brep(Ty.so_push(b18, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 19u64)
+  Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})

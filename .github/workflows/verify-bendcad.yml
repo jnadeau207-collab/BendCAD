@@ -1,5 +1,5 @@
 name: Verify BendCAD kernel
-# Canonical C00→C03 qualification: builds the exact BEND_PIN fork
+# Canonical C00→C04 qualification: builds the exact BEND_PIN fork
 # compiler, then runs every static gate and every suite in all three
 # lanes. A commit that drifts from its receipt fails here.
 on:
@@ -43,9 +43,12 @@ jobs:
               src/c01/types.bend src/c01/ops.bend \
               src/c02/types.bend src/c02/ops.bend \
               src/c03/types.bend src/c03/ops.bend \
+              src/c04/types.bend src/c04/ops.bend \
               laws/c00.bend laws/c01.bend laws/c02.bend laws/c03.bend \
+              laws/c04.bend \
               tests/c00/check.bend tests/c01/check.bend \
-              tests/c02/check.bend tests/c03/check.bend; do
+              tests/c02/check.bend tests/c03/check.bend \
+              tests/c04/check.bend; do
             bend "$f" --check-only
           done
       - name: Bend-native static greps (BN-2/3/4/5)
@@ -72,6 +75,8 @@ jobs:
           run_lane /tmp/bendcad-ci/c02-pos-i.log bend tests/c02/pos.bend
           run_lane /tmp/bendcad-ci/c03-neg-i.log bend tests/c03/neg.bend
           run_lane /tmp/bendcad-ci/c03-pos-i.log bend tests/c03/pos.bend
+          run_lane /tmp/bendcad-ci/c04-neg-i.log bend tests/c04/neg.bend
+          run_lane /tmp/bendcad-ci/c04-pos-i.log bend tests/c04/pos.bend
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg-n
           run_lane /tmp/bendcad-ci/c00-neg-n.log /tmp/bendcad-ci/c00-neg-n
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos-n
@@ -88,6 +93,10 @@ jobs:
           run_lane /tmp/bendcad-ci/c03-neg-n.log /tmp/bendcad-ci/c03-neg-n
           bend tests/c03/pos.bend -o /tmp/bendcad-ci/c03-pos-n
           run_lane /tmp/bendcad-ci/c03-pos-n.log /tmp/bendcad-ci/c03-pos-n
+          bend tests/c04/neg.bend -o /tmp/bendcad-ci/c04-neg-n
+          run_lane /tmp/bendcad-ci/c04-neg-n.log /tmp/bendcad-ci/c04-neg-n
+          bend tests/c04/pos.bend -o /tmp/bendcad-ci/c04-pos-n
+          run_lane /tmp/bendcad-ci/c04-pos-n.log /tmp/bendcad-ci/c04-pos-n
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg.js
           run_lane /tmp/bendcad-ci/c00-neg-js.log bun /tmp/bendcad-ci/c00-neg.js
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos.js
@@ -104,6 +113,10 @@ jobs:
           run_lane /tmp/bendcad-ci/c03-neg-js.log bun /tmp/bendcad-ci/c03-neg.js
           bend tests/c03/pos.bend -o /tmp/bendcad-ci/c03-pos.js
           run_lane /tmp/bendcad-ci/c03-pos-js.log bun /tmp/bendcad-ci/c03-pos.js
+          bend tests/c04/neg.bend -o /tmp/bendcad-ci/c04-neg.js
+          run_lane /tmp/bendcad-ci/c04-neg-js.log bun /tmp/bendcad-ci/c04-neg.js
+          bend tests/c04/pos.bend -o /tmp/bendcad-ci/c04-pos.js
+          run_lane /tmp/bendcad-ci/c04-pos-js.log bun /tmp/bendcad-ci/c04-pos.js
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-n.log
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-js.log
           cmp /tmp/bendcad-ci/c00-pos-i.log /tmp/bendcad-ci/c00-pos-n.log
@@ -120,3 +133,7 @@ jobs:
           cmp /tmp/bendcad-ci/c03-neg-i.log /tmp/bendcad-ci/c03-neg-js.log
           cmp /tmp/bendcad-ci/c03-pos-i.log /tmp/bendcad-ci/c03-pos-n.log
           cmp /tmp/bendcad-ci/c03-pos-i.log /tmp/bendcad-ci/c03-pos-js.log
+          cmp /tmp/bendcad-ci/c04-neg-i.log /tmp/bendcad-ci/c04-neg-n.log
+          cmp /tmp/bendcad-ci/c04-neg-i.log /tmp/bendcad-ci/c04-neg-js.log
+          cmp /tmp/bendcad-ci/c04-pos-i.log /tmp/bendcad-ci/c04-pos-n.log
+          cmp /tmp/bendcad-ci/c04-pos-i.log /tmp/bendcad-ci/c04-pos-js.log
