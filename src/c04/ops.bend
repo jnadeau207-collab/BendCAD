@@ -14,9 +14,10 @@
 #     nonmanifold-edge, open-boundary. This is PAIRING only: face/shell
 #     orientation coherence (outward normals) is DEFERRED, contract §12.
 #  D. loop closure (oriented vertex chain meets + closed) +
-#     repeated-start-vertex check (a narrow duplicate-vertex proxy, NOT
-#     general geometric self-intersection, contract §12) + trimming
-#     meets in face (u,v).
+#     duplicate incidence (same coedge handle twice rejected; two
+#     distinct coedges of one edge with opposite fwd are the valid
+#     seam; a closed edge used once is valid; a degenerate use must
+#     be a singleton pole loop) + trimming meets in face (u,v).
 #  E. face loop kinds: exactly one LK_outer per face.
 #  F. hierarchy/profile: every loop owned by at most one face and
 #     every face by at most one shell (both profiles); solid
@@ -49,12 +50,15 @@
 #     (uncertain coplanarity counts as coplanar, uncertain
 #     seg_seg counts as proper); a K rejection is NOT a proven
 #     crossing, only a refused clean verdict.
-#  L. orientation: per-face boundary winding agrees with the
-#     same-adjusted surface normal in the loop kind's sense
-#     (outer aligned, hole opposed; plane/bezp/quadric C03
-#     normals; zero-area winding or unavailable normal skips),
-#     and every shared edge is locally coherent (each use's
-#     owning loop winds correctly for its own face; same flags
+#  L. orientation, split: L-plane certifies per-face boundary
+#     winding vs the same-adjusted plane normal in the loop
+#     kind's sense (outer aligned, hole opposed) ONLY for
+#     straight-line planar boundaries; L-varying
+#     (sphere/cyl/cone/torus/bezier faces and curved plane
+#     boundaries) explicitly skips as not-determinable (never
+#     fails; certified-vs-skipped counts via
+#     brep_orient_cert_c/_skip_c); every shared edge is
+#     re-traversed as an explicit redundant recheck (same flags
 #     never compared across faces; seams and boundary edges
 #     skip; both profiles).
 # On success returns Tok brep (the validated input); else Terr.
@@ -396,10 +400,15 @@ def brep_use_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
   +ces = Ty.brep_ces(b)
   es_use_c(es, ces, prof, fuel, fuel, 0n)
 
-# --- HVertex nodup for the repeated-start-vertex proxy (starts must be
-# distinct). Narrow duplicate-handle check only, NOT general geometric
-# self-intersection (contract §12). ---
-def hv_free_of(xs: List<&2, Ty.HVertex>, +g: Ty.HVertex,
+# --- Stage D duplicate incidence over the loop's coedge handles.
+# (a) The same coedge handle twice in one loop is invalid
+# (hc_nodup_c). (b) Two DISTINCT coedges of one underlying edge
+# are the valid seam iff their fwd flags oppose (loop_seam_go);
+# same-fwd reuse is invalid. (c) A closed edge (v0 == v1,
+# EK_curve) used once is valid by construction (no pair, no
+# duplicate). A repeated VERTEX handle alone is not a verdict:
+# pinch/crossing geometry belongs to stages H/K. ---
+def hc_free_of(xs: List<&2, Ty.HCoedge>, +g: Ty.HCoedge,
     fuel: Nat) -> Nat:
   match xs:
     case Nil{}: 3n
@@ -407,12 +416,12 @@ def hv_free_of(xs: List<&2, Ty.HVertex>, +g: Ty.HVertex,
       match fuel:
         case 0n: 0n
         case 1n+f:
-          +rest = hv_free_of(t, g, f)
-          +neq = Bool.not(Ty.hv_eq(h, g))
+          +rest = hc_free_of(t, g, f)
+          +neq = Bool.not(Ty.hc_eq(h, g))
           Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
             Ty.okd_done(rest))
 
-def hv_nodup_c(xs: List<&2, Ty.HVertex>, fuel: Nat) -> Nat:
+def hc_nodup_c(xs: List<&2, Ty.HCoedge>, fuel: Nat) -> Nat:
   match xs:
     case Nil{}: 3n
     case h <> +t:
@@ -421,7 +430,71 @@ def hv_nodup_c(xs: List<&2, Ty.HVertex>, fuel: Nat) -> Nat:
         case 1n+f:
           +ff = f
           +hg = h
-          Ty.okd_all(hv_free_of(t, hg, ff), hv_nodup_c(t, ff))
+          Ty.okd_all(hc_free_of(t, hg, ff), hc_nodup_c(t, ff))
+
+# Same-edge pair rule: every later use of head's edge in this loop
+# must carry the opposite fwd (the seam direction). Distinct edges
+# skip. Runs after stage B, so resolves succeed.
+def hc_seam_free_go(tail: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
+    +he: Ty.HEdge, +fw: Bool, +ffull: Nat,
+    fuel: Nat) -> Nat:
+  match tail:
+    case Nil{}: 3n
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +rest = hc_seam_free_go(t, ces, es, he, fw, ffull, f)
+          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
+          +he2 = Ty.ce_edge(ce)
+          +fw2 = Ty.ce_fwd(ce)
+          +same = Ty.he_eq(he2, he)
+          +opp = Bool.or(Bool.and(fw, Bool.not(fw2)),
+            Bool.and(Bool.not(fw), fw2))
+          +ok = Bool.or(Bool.not(same), opp)
+          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)),
+            Ty.okd_done(rest))
+
+def loop_seam_go(hcs: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
+    +ffull: Nat, fuel: Nat) -> Nat:
+  match hcs:
+    case Nil{}: 3n
+    case h <> +t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ff = f
+          +ce0 = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
+          +he0 = Ty.ce_edge(ce0)
+          +fw0 = Ty.ce_fwd(ce0)
+          Ty.okd_all(hc_seam_free_go(t, ces, es, he0, fw0,
+            ffull, ff), loop_seam_go(t, ces, es, ffull, ff))
+
+# Singular/pole rule (d): a loop with no degenerate use passes; a
+# loop with a degenerate (EK_degenerate) use must be exactly that
+# one use — the pole apex pinched to one vertex (value-level
+# edge_valid). Mixed or multi-degenerate loops are invalid.
+def loop_pole_go(hcs: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
+    +ffull: Nat, fuel: Nat, +len: Nat, +nd: Nat) -> Nat:
+  match hcs:
+    case Nil{}:
+      +clean = Nat.is_eq(nd, 0n)
+      +pole = Bool.and(Nat.is_eq(len, 1n), Nat.is_eq(nd, 1n))
+      Ty.okd_pack(Bool.or(clean, pole), True{})
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
+          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
+            ffull))
+          +isd = U64.is_eq(Ty.ekind_tag(Ty.ed_kind(ed)), 1u64)
+          +nl = Nat.add(len, 1n)
+          +nn = Bool.pick(Nat, isd, Nat.add(nd, 1n), nd)
+          loop_pole_go(t, ces, es, ffull, f, nl, nn)
 
 # Oriented edge endpoints by coedge fwd.
 def o_v_start(+e: Ty.Edge, fwd: Bool) -> Ty.HVertex:
@@ -434,21 +507,20 @@ def o_v_end(+e: Ty.Edge, fwd: Bool) -> Ty.HVertex:
     case True{}: Ty.ed_v1(e)
     case False{}: Ty.ed_v0(e)
 
-# Loop chain tail walk: meets (vertex handles + uv) incremental, starts
-# collected for nodup, closure checked at Nil. Runs after stage B passed,
-# so all resolves succeed ( Tres defaults unreachable ); fuel exhaustion
-# surfaces only from the outer walks. 10 args (arity-safe).
+# Loop chain tail walk: meets (vertex handles + uv) incremental,
+# closure checked at Nil. Runs after stage B passed, so all
+# resolves succeed ( Tres defaults unreachable ); fuel exhaustion
+# surfaces only from the outer walks. 9 args (arity-safe).
 def loop_rest_go(rest: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
     +es: List<&2, Ty.Edge>, fuel: Nat, +ffull: Nat,
     +prev_v: Ty.HVertex, +first_v: Ty.HVertex, +prev_t: V.Vec2,
-    +first_t: V.Vec2, +starts: List<&2, Ty.HVertex>) -> Nat:
+    +first_t: V.Vec2) -> Nat:
   match rest:
     case Nil{}:
       +close_v = Ty.hv_eq(prev_v, first_v)
       +close_t = v2_eq(prev_t, first_t)
       +close_ok = Bool.and(close_v, close_t)
-      +nd = hv_nodup_c(starts, ffull)
-      Ty.okd_all(Ty.okd_pack(close_ok, True{}), nd)
+      Ty.okd_pack(close_ok, True{})
     case h <> t:
       match fuel:
         case 0n: 0n
@@ -465,12 +537,15 @@ def loop_rest_go(rest: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
           +mt = v2_eq(prev_t, ts)
           +step = Bool.and(mv, mt)
           +rest2 = loop_rest_go(t, ces, es, f, ffull, ce_,
-            first_v, te, first_t, cs <> starts)
+            first_v, te, first_t)
           Ty.okd_all(Ty.okd_pack(step, True{}), rest2)
 
-# One loop: peel first coedge, then tail walk (closure + nodup at Nil).
-def loop_one_c(hcs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +ffull: Nat) -> Nat:
+# One loop: peel first coedge, then the tail walk (chain meets +
+# closure at Nil), plus the duplicate-incidence verdicts over the
+# full handle list (each sub-walk gets the full cap, §8).
+def loop_one_c(+hcs: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
+    +ffull: Nat) -> Nat:
   match hcs:
     case Nil{}: 3n
     case fh <> rest:
@@ -482,8 +557,13 @@ def loop_one_c(hcs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
       +ftrim = Ty.ce_trim(fce)
       +fts = trim_o_start(ftrim, ffwd)
       +fte = trim_o_end(ftrim, ffwd)
-      loop_rest_go(rest, ces, es, ffull, ffull, fve, fvs, fte,
-        fts, fvs <> Nil{})
+      +chain = loop_rest_go(rest, ces, es, ffull, ffull, fve,
+        fvs, fte, fts)
+      +dup = hc_nodup_c(hcs, ffull)
+      +seam = loop_seam_go(hcs, ces, es, ffull, ffull)
+      +pole = loop_pole_go(hcs, ces, es, ffull, ffull, 0n, 0n)
+      Ty.okd_all(chain,
+        Ty.okd_all(dup, Ty.okd_all(seam, pole)))
 
 def lps_loop_c(lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
     +es: List<&2, Ty.Edge>, fuel: Nat, +ffull: Nat) -> Nat:
@@ -599,7 +679,7 @@ def sos_outer_kind_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
 def so_sh_list(+s: Ty.Solid) -> List<&2, Ty.HShell>:
   Ty.so_outer(s) <> Ty.so_cavities(s)
 
-# HShell absence + nodup (mirrors hv_free_of/hv_nodup_c).
+# HShell absence + nodup (mirrors hc_free_of/hc_nodup_c).
 def hsh_free_of(xs: List<&2, Ty.HShell>, +g: Ty.HShell,
     fuel: Nat) -> Nat:
   match xs:
@@ -1535,7 +1615,7 @@ def brep_conn_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   shs_conn_go(Ty.brep_shs(b), b, fuel, fuel)
 
 # --- Stage J coincident distinct vertices (C04.2/A1): pairwise exact
-# C02 pteq3 over the vertex store (nodup shape mirrors hv_nodup_c:
+# C02 pteq3 over the vertex store (nodup shape mirrors hc_nodup_c:
 # outer walk decrements, inner scan takes the remaining cap, so fuel
 # >= store length suffices). NaN coordinates never coincide (ordered
 # == is reflexive-false); stage A already rejects nonfinite points.
@@ -1736,19 +1816,23 @@ def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   fas_xing_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
     Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel)
 
-# --- Stage L orientation, part 1: per-face self-consistency
-# (C04.2/A1). Each loop's boundary winding (Newell sum over the
-# oriented vertex chain) must agree with the same-adjusted surface
-# normal in the sense its KIND demands: an outer boundary winds
-# with the face normal (Newell aligned, dot > 0) while a hole
-# (inner) winds against it (Newell opposed, dot < 0). Face
-# normal = surface normal (plane via plane_normal, bezp via
-# cross(bezp_du, bezp_dv) at (0.5, 0.5), quadrics via *_grad at
-# the first loop vertex), flipped when same is False.
-# Skip-vs-fail policy: zero-area winding or an unavailable normal
-# skips (passes) — the check fires only on a strictly
-# wrong-signed (finite) dot, i.e. positive evidence of a
-# winding/normal mismatch. Both profiles. ---
+# --- Stage L orientation, part 1: L-plane (certified) vs L-varying
+# (explicit skip). A loop earns a CERTIFIED winding verdict only on
+# a PLANE face bounded entirely by STRAIGHT-LINE edges: its Newell
+# sum over the oriented vertex chain is then the boundary-geometry
+# normal and must agree with the same-adjusted plane normal in the
+# sense its KIND demands (outer aligned, dot > 0; hole opposed,
+# dot < 0). Every other loop is NOT DETERMINABLE and SKIPS
+# (passes): sphere/cylinder/cone/torus/bezier faces (a varying
+# normal admits no one-sample dot verdict), curved boundaries on
+# planes (no chord-only claims: the vertex polygon is not the
+# boundary), zero-area winding, an unavailable normal, a nonfinite
+# dot, or an orthogonal sample (dot == 0 never hard-fails). The
+# check fires ONLY on a strictly wrong-signed FINITE dot, i.e.
+# positive evidence of a winding/normal mismatch. Both profiles.
+# Certified-vs-skipped counts are reported by brep_orient_cert_c /
+# brep_orient_skip_c (cnt-packed; verdict and counts share the
+# loop_orient_class core, so they agree by construction). ---
 def newell_add(+n: V.Dir, +p: V.Point, +q: V.Point) -> V.Dir:
   +nx = F64.add(V.dr_x(n), F64.mul(F64.sub(V.pt_y(p),
     V.pt_y(q)), F64.add(V.pt_z(p), V.pt_z(q))))
@@ -1810,56 +1894,100 @@ def lp_newell(hcs: List<&2, Ty.HCoedge>,
       lp_newell_go(rest, ces, es, vs, ffull, ffull, p0, p0,
         V.Dr{0.0f64, 0.0f64, 0.0f64})
 
-def lp_first_pt(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +ffull: Nat) -> V.Point:
-  match hcs:
-    case Nil{}: V.Pt{0.0f64, 0.0f64, 0.0f64}
-    case fh <> _:
-      +fce = Ty.tres_ce(Ty.ce_resolve(ces, fh, ffull))
-      +fed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(fce),
-        ffull))
-      Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-        o_v_start(fed, Ty.ce_fwd(fce)), ffull)))
+# L-plane gates: plane surface, straight-line edge, all-straight-line
+# loop. hcs_all_lines is fuel-gated and answers False on fuel-out;
+# callers conjoin hcs_walked/done, so the undecided answer is never
+# read as a verdict or a count.
+def surf_is_plane(+s: G.GVal) -> Bool:
+  match s:
+    case G.GV_pl{w}: True{}
+    case _: False{}
 
-def bezp_normal(+w: G.BezP) -> G.GRes:
-  +du = GO.bezp_du(w, 0.5f64, 0.5f64)
-  +dv = GO.bezp_dv(w, 0.5f64, 0.5f64)
+def gval_is_line(+c: G.GVal) -> Bool:
+  match c:
+    case G.GV_ln{w}: True{}
+    case _: False{}
+
+def ekind_is_line(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{curve, dom}: gval_is_line(curve)
+    case Ty.EK_degenerate{}: False{}
+
+def edge_is_line(+e: Ty.Edge) -> Bool:
+  Ty.Ed{gen, v0, v1, kind} = e
+  ekind_is_line(kind)
+
+def hcs_all_lines(hcs: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>, fuel: Nat,
+    +ffull: Nat) -> Bool:
+  match hcs:
+    case Nil{}: True{}
+    case h <> t:
+      match fuel:
+        case 0n: False{}
+        case 1n+f:
+          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
+          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
+            ffull))
+          Bool.and(edge_is_line(ed),
+            hcs_all_lines(t, ces, es, f, ffull))
+
+# Location-aware Bezier-patch normal: cross(bezp_du, bezp_dv) at the
+# QUERY (u, v) carried by the caller — never a fixed sample.
+# Out-of-domain (u, v) is invalid-input (via the bezp_du/dv gates);
+# true overflow is numerical-uncertainty. Reserved for a future
+# varying-surface check (C07); Stage L issues no bezier verdict.
+def bezp_normal_at(+w: G.BezP, +u: F64, +v: F64) -> G.GRes:
+  +du = GO.bezp_du(w, u, v)
+  +dv = GO.bezp_dv(w, u, v)
   +ok = Bool.and(G.gres_ok(du), G.gres_ok(dv))
   +n = GO.dd_cross_raw(G.gres_d(du), G.gres_d(dv))
   GO.gate_d(n, Bool.and(ok, V.dr_fin(n)), T.F_uncertain{})
 
-def surf_normal_at(+surf: G.GVal, +q: V.Point) -> G.GRes:
+# Plane-only normal fetch for L-plane. Every non-plane surface arm
+# is explicitly unsupported HERE (L-varying skips before reading it).
+def plane_normal_of(+surf: G.GVal) -> G.GRes:
   match surf:
     case G.GV_pl{w}: GO.plane_normal(w)
-    case G.GV_sp{w}: GO.sph_grad(w, q)
-    case G.GV_cy{w}: GO.cyl_grad(w, q)
-    case G.GV_co{w}: GO.cone_grad(w, q)
-    case G.GV_to{w}: GO.tor_grad(w, q)
-    case G.GV_bp{w}: bezp_normal(w)
     case _: G.gerr(T.F_unsupported{})
+
+# Per-loop orientation class: 0n = not-determinable skip, 1n =
+# certified pass, 2n = certified fail (strictly wrong-signed finite
+# dot). The single core under loop_orient_c and the cert/skip
+# counters, so verdict and counts agree by construction.
+def loop_orient_class(+hcs: List<&2, Ty.HCoedge>,
+    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
+    +vs: List<&2, Ty.Vertex>, +surf: G.GVal, +same: Bool,
+    +kind: Ty.LoopKind, +ffull: Nat) -> Nat:
+  +plane = surf_is_plane(surf)
+  +lines = hcs_all_lines(hcs, ces, es, ffull, ffull)
+  +n = lp_newell(hcs, ces, es, vs, ffull)
+  +nz = dr_is_zero(n)
+  +nr = plane_normal_of(surf)
+  +nok = G.gres_ok(nr)
+  +adj = Bool.pick(V.Dir, same, G.gres_d(nr),
+    dr_neg(G.gres_d(nr)))
+  +dot = GO.dd_dot_raw(n, adj)
+  +fin = T.is_finite(dot)
+  +zdot = F64.is_eq(dot, 0.0f64)
+  +outer = U64.is_eq(Ty.lkind_tag(kind), 0u64)
+  +wrong = Bool.pick(Bool, outer, F64.is_lt(dot, 0.0f64),
+    F64.is_lt(0.0f64, dot))
+  +determ = Bool.and(plane,
+    Bool.and(lines,
+      Bool.and(Bool.not(nz),
+        Bool.and(nok, Bool.and(fin, Bool.not(zdot))))))
+  Bool.pick(Nat, determ, Bool.pick(Nat, wrong, 2n, 1n), 0n)
 
 def loop_orient_c(+hcs: List<&2, Ty.HCoedge>,
     +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
     +vs: List<&2, Ty.Vertex>, +surf: G.GVal, +same: Bool,
     +kind: Ty.LoopKind, +ffull: Nat) -> Nat:
   +walked = hcs_walked(hcs, ffull)
-  +n = lp_newell(hcs, ces, es, vs, ffull)
-  +nz = dr_is_zero(n)
-  +q0 = lp_first_pt(hcs, ces, es, vs, ffull)
-  +nr = surf_normal_at(surf, q0)
-  +nok = G.gres_ok(nr)
-  +adj = Bool.pick(V.Dir, same, G.gres_d(nr),
-    dr_neg(G.gres_d(nr)))
-  +dot = GO.dd_dot_raw(n, adj)
-  +fin = T.is_finite(dot)
-  +outer = U64.is_eq(Ty.lkind_tag(kind), 0u64)
-  +aligned = F64.is_lt(0.0f64, dot)
-  +opposed = F64.is_lt(dot, 0.0f64)
-  +want = Bool.pick(Bool, outer, aligned, opposed)
-  +skip = Bool.or(nz, Bool.not(nok))
-  +ok = Bool.or(skip, Bool.and(fin, want))
-  Ty.okd_pack(Bool.and(walked, ok), walked)
+  +cls = loop_orient_class(hcs, ces, es, vs, surf, same, kind,
+    ffull)
+  +fail = Nat.is_eq(cls, 2n)
+  Ty.okd_pack(Bool.and(walked, Bool.not(fail)), walked)
 
 def hlp_orient_go(hls: List<&2, Ty.HLoop>,
     +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
@@ -1899,24 +2027,125 @@ def brep_orient_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   fas_orient_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
     Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel)
 
-# --- Stage L orientation, part 2: propagation (C04.2/A1). Every
-# edge used exactly twice with opposite fwd whose two uses sit in
-# distinct faces must be locally coherent: each use's owning loop
-# boundary (oriented coedge chain over the shared edge direction)
-# winds correctly for its own face (kind-aware: outer aligned,
-# hole opposed with the same-adjusted surface normal). The two
-# faces' `same` flags are NEVER compared: each `same` is relative
-# to its own surface parametrization (plane frame, Bezier du/dv
-# handedness, quadric gradient side), and adjacent faces carry
-# independent parametrizations — e.g. two planes with opposite
-# natural normals need DIFFERING same flags for consistently
-# outward face normals, while a back-to-back pair on one plane
-# needs differing same too. same-equality would reject valid
-# solids and admit invalid ones; validity is opposite use (stage
-# C) plus per-face winding-vs-own-normal here. Seams (both uses
-# in one face) and boundary (once-used) edges skip. Global
-# outwardness needs the C07 interior classifier and stays out of
-# scope. Both profiles. ---
+# --- L-plane/L-varying certified-vs-skipped counts (cnt-packed Nat:
+# cnt_pack(count, done) = done ? count+1 : 0; cnt_count meaningful
+# only when cnt_done, mirroring the Ty.okd_pack convention). A walked
+# loop is certified iff loop_orient_class issues a verdict (class 1
+# or 2, pass or fail — a certified fail still counts); otherwise it
+# is skipped (class 0). Fuel bound matches the verdict walks (fuel >=
+# max member-list length suffices). ---
+def cnt_pack(+count: Nat, +done: Bool) -> Nat:
+  match done:
+    case False{}: 0n
+    case True{}: Nat.add(count, 1n)
+
+def cnt_done(+c: Nat) -> Bool:
+  Bool.not(Nat.is_eq(c, 0n))
+
+def cnt_count(+c: Nat) -> Nat:
+  match c:
+    case 0n: 0n
+    case 1n+p: p
+
+def hlp_cert_go(hls: List<&2, Ty.HLoop>,
+    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
+    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
+    +surf: G.GVal, +same: Bool, fuel: Nat, +ffull: Nat,
+    +acc: Nat) -> Nat:
+  match hls:
+    case Nil{}: cnt_pack(acc, True{})
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
+          +hcs = Ty.lp_ces(lp)
+          +walked = hcs_walked(hcs, ffull)
+          +cls = loop_orient_class(hcs, ces, es, vs, surf,
+            same, Ty.lp_kind(lp), ffull)
+          +cert1 = Bool.and(walked,
+            Bool.not(Nat.is_eq(cls, 0n)))
+          +rest = hlp_cert_go(t, lps, ces, es, vs, surf, same,
+            f, ffull,
+            Nat.add(acc, Bool.pick(Nat, cert1, 1n, 0n)))
+          cnt_pack(cnt_count(rest),
+            Bool.and(walked, cnt_done(rest)))
+
+def hlp_skip_go(hls: List<&2, Ty.HLoop>,
+    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
+    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
+    +surf: G.GVal, +same: Bool, fuel: Nat, +ffull: Nat,
+    +acc: Nat) -> Nat:
+  match hls:
+    case Nil{}: cnt_pack(acc, True{})
+    case h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
+          +hcs = Ty.lp_ces(lp)
+          +walked = hcs_walked(hcs, ffull)
+          +cls = loop_orient_class(hcs, ces, es, vs, surf,
+            same, Ty.lp_kind(lp), ffull)
+          +skip1 = Bool.and(walked, Nat.is_eq(cls, 0n))
+          +rest = hlp_skip_go(t, lps, ces, es, vs, surf, same,
+            f, ffull,
+            Nat.add(acc, Bool.pick(Nat, skip1, 1n, 0n)))
+          cnt_pack(cnt_count(rest),
+            Bool.and(walked, cnt_done(rest)))
+
+def fas_cert_c(fas: List<&2, Ty.Face>,
+    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
+    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
+    +ffull: Nat, +acc: Nat) -> Nat:
+  match fas:
+    case Nil{}: cnt_pack(acc, True{})
+    case +h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +sub = hlp_cert_go(Ty.fa_loops(h), lps, ces, es, vs,
+            Ty.fa_surf(h), Ty.fa_same(h), ffull, ffull, 0n)
+          +rest = fas_cert_c(t, lps, ces, es, vs, f, ffull,
+            Nat.add(acc, cnt_count(sub)))
+          cnt_pack(cnt_count(rest),
+            Bool.and(cnt_done(sub), cnt_done(rest)))
+
+def fas_skip_c(fas: List<&2, Ty.Face>,
+    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
+    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
+    +ffull: Nat, +acc: Nat) -> Nat:
+  match fas:
+    case Nil{}: cnt_pack(acc, True{})
+    case +h <> t:
+      match fuel:
+        case 0n: 0n
+        case 1n+f:
+          +sub = hlp_skip_go(Ty.fa_loops(h), lps, ces, es, vs,
+            Ty.fa_surf(h), Ty.fa_same(h), ffull, ffull, 0n)
+          +rest = fas_skip_c(t, lps, ces, es, vs, f, ffull,
+            Nat.add(acc, cnt_count(sub)))
+          cnt_pack(cnt_count(rest),
+            Bool.and(cnt_done(sub), cnt_done(rest)))
+
+def brep_orient_cert_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  fas_cert_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
+    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel, 0n)
+
+def brep_orient_skip_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  fas_skip_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
+    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel, 0n)
+
+# --- Stage L orientation, part 2: EXPLICIT RECHECK (redundant by
+# construction). Re-runs the per-loop L verdict (loop_orient_c)
+# for each twice-used edge's two owning loops as an independent
+# edge-traversal cross-check of brep_orient_c's face traversal. It
+# adds NO new rule: `same` flags are never compared across faces
+# (each is relative to its own surface parametrization), and the
+# verdict is subsumed — it fails only if brep_orient_c fails.
+# Seams (both uses in one face) and boundary (once-used) edges
+# skip. Global outwardness needs the C07 interior classifier and
+# stays out of scope. Both profiles. ---
 def hlp_mem(xs: List<&2, Ty.HLoop>, +hl: Ty.HLoop,
     +ffull: Nat) -> Bool:
   match xs:
@@ -1981,7 +2210,7 @@ def ces_nth_user(ces: List<&2, Ty.Coedge>, +tgt: Ty.HEdge,
           Bool.pick(Ty.HCoedge, hit, hh,
             ces_nth_user(t, tgt, skip, Nat.add(idx, 1n), f))
 
-def edge_prop_c(+b: Ty.Brep, +he: Ty.HEdge,
+def edge_recheck_c(+b: Ty.Brep, +he: Ty.HEdge,
     +ffull: Nat) -> Nat:
   +ces = Ty.brep_ces(b)
   +es = Ty.brep_es(b)
@@ -2015,7 +2244,7 @@ def edge_prop_c(+b: Ty.Brep, +he: Ty.HEdge,
     Ty.okd_done(sub))
   Ty.okd_pack(Bool.and(ok, done), done)
 
-def es_prop_c(es: List<&2, Ty.Edge>, +b: Ty.Brep, fuel: Nat,
+def es_recheck_c(es: List<&2, Ty.Edge>, +b: Ty.Brep, fuel: Nat,
     +ffull: Nat, +idx: Nat) -> Nat:
   match es:
     case Nil{}: 3n
@@ -2024,16 +2253,16 @@ def es_prop_c(es: List<&2, Ty.Edge>, +b: Ty.Brep, fuel: Nat,
         case 0n: 0n
         case 1n+f:
           +tgt = Ty.mk_he(idx, Ty.ed_gen(h))
-          +code = edge_prop_c(b, tgt, ffull)
-          +rest = es_prop_c(t, b, f, ffull, Nat.add(idx, 1n))
+          +code = edge_recheck_c(b, tgt, ffull)
+          +rest = es_recheck_c(t, b, f, ffull, Nat.add(idx, 1n))
           Ty.okd_all(code, rest)
 
-def brep_prop_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  es_prop_c(Ty.brep_es(b), b, fuel, fuel, 0n)
+def brep_recheck_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  es_recheck_c(Ty.brep_es(b), b, fuel, fuel, 0n)
 
 def brep_ck_l(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
   +c1 = brep_orient_c(b, fuel)
-  +c2 = brep_prop_c(b, fuel)
+  +c2 = brep_recheck_c(b, fuel)
   +cl = Ty.okd_all(c1, c2)
   +done_l = Ty.okd_done(cl)
   +ok_l = Ty.okd_ok(cl)

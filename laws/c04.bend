@@ -1,9 +1,17 @@
-# C04 laws: every claim closed by the proof beneath it. Structural
-# properties are general where Bend allows (result core, projector
-# defaults over every FailKind, handle constructors over every
-# index/generation); one closed instance per pipeline arm
+# C04 laws: every claim closed by the proof beneath it. Two layers.
+# L0 implementation algebra (480 laws, sections A-M/L/F1/ops): result
+# core, projector defaults over every FailKind, handle constructors
+# over every index/generation, one closed instance per pipeline arm
 # (constructors, classifiers, validity, walks, pushes, assembly,
 # brep_checked profiles + seam/cavity/counterexample instances).
+# L1 semantic predicates (112 laws, `l1_*`): fixture-independent
+# stage semantics over quantified binders and inline micro-stores —
+# edge-use counts (solid = 2 opposite, open = 1 or 2 opposite),
+# loop semantics (oriented ends, trim ends, closure, duplicate
+# incidence, seam double-use, pole rule), vertex-link twin(prev())
+# orbits, face-edge connectedness (vertex-touching does not
+# connect), and the orientation spec (L-plane certifies, L-varying
+# never fails). Total: 592 laws.
 # Pins: F64 bit patterns from python struct (independent oracle) plus
 # observed `bend run` output (show strings, walk codes, stamp
 # arithmetic). Scope: boundary-representation topology (MASTER_PLAN
@@ -265,6 +273,12 @@ def w01() -> V.Vec2:
 def dom_01() -> G.Dom:
   G.Dom{0.0f64, 1.0f64}
 
+# Closed-ring domain: the rational C03 circle evaluates identically
+# at t = -1 and t = 1 (antipodal point c - r*u), so [-1,1] closes
+# a ring edge on one vertex with exact endpoint evaluation.
+def dom_n11() -> G.Dom:
+  G.Dom{F64.neg(1.0f64), 1.0f64}
+
 def dom_flip() -> G.Dom:
   G.Dom{2.0f64, 1.0f64}
 
@@ -316,6 +330,14 @@ def p_spc() -> V.Point:
 def p_cyo() -> V.Point:
   V.Pt{0.0f64, 0.5f64, 0.0f64}
 
+# Top ring center of the real cylinder side (bottom is p_cyo).
+def p_cy_top() -> V.Point:
+  V.Pt{1.0f64, 0.5f64, 0.0f64}
+
+# Arc midpoint for the curved sphere witness (arcs join p000/p100).
+def p_mid01() -> V.Point:
+  V.Pt{0.5f64, 0.0f64, 0.0f64}
+
 def p500() -> V.Point:
   V.Pt{5.0f64, 0.0f64, 0.0f64}
 
@@ -326,6 +348,30 @@ def vs_q() -> List<&2, Ty.Vertex>:
 def sf_cy() -> G.GVal:
   G.GV_cy{G.Cy{p_cyo(), d100(), 0.5f64}}
 
+# Cylinder cap planes: origin at the ring vertex, so the closed
+# cap trim at UV (0,0) coincides exactly (stage G coincidence).
+def sf_botcap() -> G.GVal:
+  G.GV_pl{G.Pl{p010(), d010(), d001()}}
+
+def sf_topcap() -> G.GVal:
+  G.GV_pl{G.Pl{p110(), d010(), d001()}}
+
+# Cylinder ring circles: eval(-1) == eval(1) exactly (p010 / p110),
+# so each closes on its ring vertex over dom_n11.
+def cc_bot() -> G.GVal:
+  G.GV_cc{G.Cc{p_cyo(), d_0n10(), d001(), 0.5f64}}
+
+def cc_top() -> G.GVal:
+  G.GV_cc{G.Cc{p_cy_top(), d_0n10(), d001(), 0.5f64}}
+
+# Sphere lune arcs: eval(0) == p000, eval(1) == p100 exactly
+# (antipodal half-circles, opposite bulges via +-y frames).
+def cc_arc0() -> G.GVal:
+  G.GV_cc{G.Cc{p_mid01(), d_n100(), d010(), 0.5f64}}
+
+def cc_arc1() -> G.GVal:
+  G.GV_cc{G.Cc{p_mid01(), d_n100(), d_0n10(), 0.5f64}}
+
 def sf_co() -> G.GVal:
   G.GV_co{G.Co{p000(), d001(), 0.5f64}}
 
@@ -335,10 +381,13 @@ def sf_sp() -> G.GVal:
 def sf_to() -> G.GVal:
   G.GV_to{G.To{p000(), d001(), 4.0f64, 1.0f64}}
 
-def sf_bp() -> G.GVal:
-  G.GV_bp{G.Bp{p000(), p100(), p010(), p001(), p110(), p111(),
+def bp0() -> G.BezP:
+  G.Bp{p000(), p100(), p010(), p001(), p110(), p111(),
     p123(), p000(), p100(), p010(), p001(), p110(), p111(),
-    p123(), p000(), p100()}}
+    p123(), p000(), p100()}
+
+def sf_bp() -> G.GVal:
+  G.GV_bp{bp0()}
 
 def tr_ts() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_11()}}
@@ -677,6 +726,10 @@ def so_r() -> Ty.Solid:
 def cp_r() -> Ty.Compound:
   Ty.Cp{hso1(), hsh1()}
 
+# ===== L0: implementation algebra (existing laws, kept). Sections
+# A-M/L/F1 plus the ops-fixture brep_checked instances pin
+# constructors, projectors, handles, walks, fuel, and exit
+# fixtures. Semantic stage cores live in L1 (`l1_*`) at the end.
 # --- A. Result core: general over every value arm / failure kind ---
 law tok_ok:
   for v: Ty.TVal
@@ -3883,7 +3936,11 @@ def tr_closed() -> G.GVal:
 def tr_bad() -> G.GVal:
   G.GV_ts{G.Ts{V.V2{2.0f64, 2.0f64}, V.V2{3.0f64, 3.0f64}}}
 
-def b_sphere() -> Ty.Brep:
+# Topology-control fixture: one straight ruling edge used
+# twice-opposite on a sphere face. Pins the seam-pairing /
+# ownership / link plumbing, NOT sphere geometry (see
+# b_sphere_curved for the curved witness). Must ACCEPT.
+def b_sphere_digon_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
   +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
@@ -3905,7 +3962,11 @@ def b_sphere() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-def b_cyl() -> Ty.Brep:
+# Topology-control fixture: one straight ruling edge used
+# twice-opposite on a cylinder face. Pins the seam-pairing
+# plumbing, NOT cylinder-side geometry (see b_cyl_side for the
+# real ring+seam witness). Must ACCEPT.
+def b_cyl_digon_ruling_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
   +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
@@ -3927,6 +3988,108 @@ def b_cyl() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
+# REAL cylinder side: one face whose outer loop is bottom closed
+# circle + seam + top closed circle + reverse seam, closed into a
+# solid by two plane cap faces sharing the ring edges. Ring edges
+# evaluate exactly at t = +-1 onto their ring vertices; the seam
+# is an exact ruling; ring vertices sit on the cylinder quadric;
+# cap trims coincide at UV origin. Must ACCEPT (A-L solid).
+def b_cyl_side() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p110()))
+  +hvB = Ty.mk_hv(0n, 1u64)
+  +hvT = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvB, hvB,
+    Ty.EK_curve{cc_bot(), dom_n11()}))
+  +heB = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hvB, hvT,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d100()}}, dom_01()}))
+  +heS = Ty.mk_he(1n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ed_push(b4, hvT, hvT,
+    Ty.EK_curve{cc_top(), dom_n11()}))
+  +heT = Ty.mk_he(2n, 5u64)
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, heB, True{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, heB, False{}, tr_closed()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, heS, True{}, tr_10_11()))
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, heS, False{}, tr_00_01()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, heT, True{}, tr_11_01()))
+  +b11 = Ty.tres_brep(Ty.ce_push(b10, heT, False{}, tr_closed()))
+  +hcBT = Ty.mk_hc(0n, 6u64)
+  +hcBF = Ty.mk_hc(1n, 7u64)
+  +hcST = Ty.mk_hc(2n, 8u64)
+  +hcSF = Ty.mk_hc(3n, 9u64)
+  +hcTT = Ty.mk_hc(4n, 10u64)
+  +hcTF = Ty.mk_hc(5n, 11u64)
+  +b12 = Ty.tres_brep(Ty.lp_push(b11,
+    hcBT <> hcST <> hcTT <> hcSF <> Nil{}, Ty.LK_outer{}))
+  +b13 = Ty.tres_brep(Ty.lp_push(b12, hcBF <> Nil{},
+    Ty.LK_outer{}))
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hcTF <> Nil{},
+    Ty.LK_outer{}))
+  +hlpS = Ty.mk_hlp(0n, 12u64)
+  +hlpB = Ty.mk_hlp(1n, 13u64)
+  +hlpT = Ty.mk_hlp(2n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_cy(), hlpS <> Nil{},
+    True{}))
+  +b16 = Ty.tres_brep(Ty.fa_push(b15, sf_botcap(), hlpB <> Nil{},
+    True{}))
+  +b17 = Ty.tres_brep(Ty.fa_push(b16, sf_topcap(), hlpT <> Nil{},
+    True{}))
+  +hfaS = Ty.mk_hfa(0n, 15u64)
+  +hfaB = Ty.mk_hfa(1n, 16u64)
+  +hfaT = Ty.mk_hfa(2n, 17u64)
+  +b18 = Ty.tres_brep(Ty.sh_push(b17,
+    hfaS <> hfaB <> hfaT <> Nil{}, Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 18u64)
+  +b19 = Ty.tres_brep(Ty.so_push(b18, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 19u64)
+  Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# REAL curved sphere witness: two on-sphere vertices joined by two
+# half-circle arc edges (opposite bulges) as two lune faces. Arc
+# endpoints are exact on the curves and on the sphere quadric; arc
+# interiors are NOT checked against the surface (C07 territory).
+# Must ACCEPT (A-L solid).
+def b_sphere_curved() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +hvN = Ty.mk_hv(0n, 1u64)
+  +hvS = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvN, hvS,
+    Ty.EK_curve{cc_arc0(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hvN, hvS,
+    Ty.EK_curve{cc_arc1(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_ts()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, he1, False{}, tr_ts()))
+  +e0f = Ty.mk_hc(0n, 4u64)
+  +e0b = Ty.mk_hc(1n, 5u64)
+  +e1f = Ty.mk_hc(2n, 7u64)
+  +e1b = Ty.mk_hc(3n, 8u64)
+  +b9 = Ty.tres_brep(Ty.lp_push(b8, e0f <> e1b <> Nil{},
+    Ty.LK_outer{}))
+  +b10 = Ty.tres_brep(Ty.lp_push(b9, e1f <> e0b <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 9u64)
+  +hlp1 = Ty.mk_hlp(1n, 10u64)
+  +b11 = Ty.tres_brep(Ty.fa_push(b10, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +b12 = Ty.tres_brep(Ty.fa_push(b11, sf_sp(), hlp1 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 11u64)
+  +hfa1 = Ty.mk_hfa(1n, 12u64)
+  +b13 = Ty.tres_brep(Ty.sh_push(b12, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 13u64)
+  +b14 = Ty.tres_brep(Ty.so_push(b13, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 14u64)
+  Ty.brep_set_top(b14, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
 def b_open() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -3943,6 +4106,12 @@ def b_open() -> Ty.Brep:
   +hsh0 = Ty.mk_hsh(0n, 6u64)
   Ty.brep_set_top(b6, Ty.Cp{hso0(), hsh0 <> Nil{}})
 
+# Singular pole witness: one degenerate edge pinched to one vertex
+# (value-level pinch), used twice-opposite as two singleton pole
+# loops on two apex faces (stage D pole rule); degenerate uses are
+# transparent in H, so the fan passes vacuously. Intended singular
+# semantics: the apex is explicit content (EK_degenerate), never
+# inferred. Must ACCEPT under P_manifold_solid.
 def b_pole() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -4106,33 +4275,31 @@ def b_nonm() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
+# Stage D duplicate-incidence fixture: ONE closed circle edge whose
+# single coedge use is listed TWICE in one loop. Chain and trim
+# meets pass (closed edge + closed trim); the duplicate-handle
+# verdict (same coedge twice, same edge + same fwd pair) must
+# diagnose invalid-input at D. Passes A-C and G, so D is the only
+# failure. (Geometric crossing is stage K's verdict, not D's.)
 def b_selfx() -> Ty.Brep:
   +b0 = Ty.brep_empty()
-  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
   +b2 = Ty.tres_brep(Ty.ed_push(b1, hv01(), hv01(),
-    Ty.EK_degenerate{}))
-  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv01(),
-    Ty.EK_degenerate{}))
+    Ty.EK_curve{cc_bot(), dom_n11()}))
   +he0 = Ty.mk_he(0n, 2u64)
-  +he1 = Ty.mk_he(1n, 3u64)
-  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_closed()))
-  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_closed()))
-  +b6 = Ty.tres_brep(Ty.ce_push(b5, he1, True{}, tr_closed()))
-  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, False{}, tr_closed()))
-  +hc0 = Ty.mk_hc(0n, 4u64)
-  +hc1 = Ty.mk_hc(1n, 5u64)
-  +hc2 = Ty.mk_hc(2n, 6u64)
-  +hc3 = Ty.mk_hc(3n, 7u64)
-  +b8 = Ty.tres_brep(Ty.lp_push(b7,
-    hc0 <> hc1 <> hc2 <> hc3 <> Nil{}, Ty.LK_outer{}))
-  +hlp0 = Ty.mk_hlp(0n, 8u64)
-  +b9 = Ty.tres_brep(Ty.fa_push(b8, sf_sp(), hlp0 <> Nil{}, True{}))
-  +hfa0 = Ty.mk_hfa(0n, 9u64)
-  +b10 = Ty.tres_brep(Ty.sh_push(b9, hfa0 <> Nil{}, Ty.SK_outer{}))
-  +hsh_out = Ty.mk_hsh(0n, 10u64)
-  +b11 = Ty.tres_brep(Ty.so_push(b10, hsh_out, hsh0()))
-  +hso0x = Ty.mk_hso(0n, 11u64)
-  Ty.brep_set_top(b11, Ty.Cp{hso0x <> Nil{}, hsh0()})
+  +b3 = Ty.tres_brep(Ty.ce_push(b2, he0, True{}, tr_closed()))
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, False{}, tr_closed()))
+  +hc0 = Ty.mk_hc(0n, 3u64)
+  +b5 = Ty.tres_brep(Ty.lp_push(b4, hc0 <> hc0 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 5u64)
+  +b6 = Ty.tres_brep(Ty.fa_push(b5, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.sh_push(b6, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.so_push(b7, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 8u64)
+  Ty.brep_set_top(b8, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
 def b_alias() -> Ty.Brep:
   +b0 = Ty.brep_empty()
@@ -4379,14 +4546,14 @@ def b_split() -> Ty.Brep:
   Ty.brep_set_top(b16, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
 law ck_sphere:
-  {String.eq(Ty.tres_show(Op.brep_checked(b_sphere(),
+  {String.eq(Ty.tres_show(Op.brep_checked(b_sphere_digon_control(),
     Ty.P_manifold_solid{}, 12n)), "ok") == True{} : Bool}
 
 def ck_sphere():
   {==}
 
 law ck_cyl:
-  {String.eq(Ty.tres_show(Op.brep_checked(b_cyl(),
+  {String.eq(Ty.tres_show(Op.brep_checked(b_cyl_digon_ruling_control(),
     Ty.P_manifold_solid{}, 12n)), "ok") == True{} : Bool}
 
 def ck_cyl():
@@ -4463,7 +4630,7 @@ def ck_open_solid():
   {==}
 
 law ck_fuel:
-  {String.eq(Ty.tres_show(Op.brep_checked(b_sphere(),
+  {String.eq(Ty.tres_show(Op.brep_checked(b_sphere_digon_control(),
     Ty.P_manifold_solid{}, 0n)), "resource-exhausted")
     == True{} : Bool}
 
@@ -4554,8 +4721,9 @@ law ck_split:
 def ck_split():
   {==}
 
-# Stage J fixture: b_sphere shape plus one unused vertex coincident
-# with v0. Passes A-I; stage J must diagnose invalid-input.
+# Stage J fixture: digon-control shape plus one unused vertex
+# coincident with v0. Passes A-I; stage J must diagnose
+# invalid-input.
 def b_coin() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -4579,9 +4747,11 @@ def b_coin() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage K fixture: bowtie (self-crossing) quad loop on a plane face
-# plus its reversed twin face (solid pairing). Passes A-J; stage K
-# must diagnose invalid-input (e0/e2 cross at the square center).
+# Stage K fixture: bowtie quad loop on a plane face plus its
+# reversed twin face (solid pairing). Each twin-face trim mirrors
+# its oriented vertex chain, so D meets and G plane-coincidence
+# pass; stage K must diagnose invalid-input (e0/e2 cross at the
+# square center). Passes A-J; fails exactly at K end-to-end.
 def b_xing() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -4596,17 +4766,17 @@ def b_xing() -> Ty.Brep:
     Ty.EK_curve{G.GV_ln{G.Ln{p000(), d_110()}}, dom_01()}))
   +he0 = Ty.mk_he(0n, 5u64)
   +b6 = Ty.tres_brep(Ty.ce_push(b5, he0, True{}, tr_00_11()))
-  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_11()))
   +b8 = Ty.tres_brep(Ty.ed_push(b7, hv1, hv2,
     Ty.EK_curve{G.GV_ln{G.Ln{p110(), d_0n10()}}, dom_01()}))
   +he1 = Ty.mk_he(1n, 8u64)
   +b9 = Ty.tres_brep(Ty.ce_push(b8, he1, True{}, tr_11_10()))
-  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{}, tr_10_11()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{}, tr_11_10()))
   +b11 = Ty.tres_brep(Ty.ed_push(b10, hv2, hv3,
     Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n110()}}, dom_01()}))
   +he2 = Ty.mk_he(2n, 11u64)
   +b12 = Ty.tres_brep(Ty.ce_push(b11, he2, True{}, tr_10_01()))
-  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{}, tr_11_01()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{}, tr_10_01()))
   +b14 = Ty.tres_brep(Ty.ed_push(b13, hv3, hv0,
     Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_0n10()}}, dom_01()}))
   +he3 = Ty.mk_he(3n, 14u64)
@@ -5085,7 +5255,7 @@ def b_diffparam() -> Ty.Brep:
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
 law coin_sphere:
-  {Op.brep_coin_c(b_sphere(), 12n) == 3n : Nat}
+  {Op.brep_coin_c(b_sphere_digon_control(), 12n) == 3n : Nat}
 
 def coin_sphere():
   {==}
@@ -5097,7 +5267,7 @@ def coin_dup():
   {==}
 
 law coin_fuel:
-  {Ty.okd_done(Op.brep_coin_c(b_sphere(), 0n)) == False{} : Bool}
+  {Ty.okd_done(Op.brep_coin_c(b_sphere_digon_control(), 0n)) == False{} : Bool}
 
 def coin_fuel():
   {==}
@@ -5177,34 +5347,90 @@ law orient_diffparam:
 def orient_diffparam():
   {==}
 
-law prop_sphere:
-  {Op.brep_prop_c(b_sphere(), 12n) == 3n : Nat}
+law recheck_sphere:
+  {Op.brep_recheck_c(b_sphere_digon_control(), 12n) == 3n : Nat}
 
-def prop_sphere():
+def recheck_sphere():
   {==}
 
-law prop_oriprop:
-  {Op.brep_prop_c(b_oriprop(), 20n) == 3n : Nat}
+law recheck_oriprop:
+  {Op.brep_recheck_c(b_oriprop(), 20n) == 3n : Nat}
 
-def prop_oriprop():
+def recheck_oriprop():
   {==}
 
-law prop_invface:
-  {Op.brep_prop_c(b_invface(), 20n) == 2n : Nat}
+law recheck_invface:
+  {Op.brep_recheck_c(b_invface(), 20n) == 2n : Nat}
 
-def prop_invface():
+def recheck_invface():
   {==}
 
-law prop_diffparam:
-  {Op.brep_prop_c(b_diffparam(), 20n) == 3n : Nat}
+law recheck_diffparam:
+  {Op.brep_recheck_c(b_diffparam(), 20n) == 3n : Nat}
 
-def prop_diffparam():
+def recheck_diffparam():
   {==}
 
-law prop_hole:
-  {Op.brep_prop_c(b_hole(), 20n) == 3n : Nat}
+law recheck_hole:
+  {Op.brep_recheck_c(b_hole(), 20n) == 3n : Nat}
 
-def prop_hole():
+def recheck_hole():
+  {==}
+
+law cert_oriprop:
+  {Op.cnt_count(Op.brep_orient_cert_c(b_oriprop(), 20n)) == 2n : Nat}
+
+def cert_oriprop():
+  {==}
+
+law skip_oriprop:
+  {Op.cnt_count(Op.brep_orient_skip_c(b_oriprop(), 20n)) == 0n : Nat}
+
+def skip_oriprop():
+  {==}
+
+law cert_invface:
+  {Op.cnt_count(Op.brep_orient_cert_c(b_invface(), 20n)) == 2n : Nat}
+
+def cert_invface():
+  {==}
+
+law cert_sphere:
+  {Op.cnt_count(Op.brep_orient_cert_c(b_sphere_digon_control(), 12n)) == 0n : Nat}
+
+def cert_sphere():
+  {==}
+
+law skip_sphere:
+  {Op.cnt_count(Op.brep_orient_skip_c(b_sphere_digon_control(), 12n)) == 1n : Nat}
+
+def skip_sphere():
+  {==}
+
+law cert_hole:
+  {Op.cnt_count(Op.brep_orient_cert_c(b_hole(), 20n)) == 2n : Nat}
+
+def cert_hole():
+  {==}
+
+law skip_hole:
+  {Op.cnt_count(Op.brep_orient_skip_c(b_hole(), 20n)) == 0n : Nat}
+
+def skip_hole():
+  {==}
+
+law bezp_z00pos:
+  {F64.is_lt(0.0f64,
+    V.dr_z(G.gres_d(Op.bezp_normal_at(bp0(), 0.0f64, 0.0f64)))) == True{} : Bool}
+
+def bezp_z00pos():
+  {==}
+
+law bezp_z11neg:
+  {F64.is_lt(V.dr_z(G.gres_d(Op.bezp_normal_at(bp0(), 1.0f64, 1.0f64))),
+    0.0f64) == True{} : Bool}
+
+def bezp_z11neg():
   {==}
 
 law ck_coin:
@@ -5268,4 +5494,1305 @@ law ck_diffparam_ok:
     Ty.P_manifold_solid{}, 20n)), "ok") == True{} : Bool}
 
 def ck_diffparam_ok():
+  {==}
+
+law ck_cyl_side:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_cyl_side(),
+    Ty.P_manifold_solid{}, 20n)), "ok") == True{} : Bool}
+
+def ck_cyl_side():
+  {==}
+
+law ck_sphere_curved:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_sphere_curved(),
+    Ty.P_manifold_solid{}, 20n)), "ok") == True{} : Bool}
+
+def ck_sphere_curved():
+  {==}
+
+law xing_defg:
+  {Bool.and(Nat.is_eq(Op.brep_loop_c(b_xing(), 20n), 3n),
+    Bool.and(Nat.is_eq(Op.brep_facekind_c(b_xing(), 20n), 3n),
+      Bool.and(Nat.is_eq(Op.brep_prof_c(b_xing(),
+        Ty.P_manifold_solid{}, 20n), 3n),
+        Nat.is_eq(Op.brep_embed_c(b_xing(), 20n), 3n))))
+    == True{} : Bool}
+
+def xing_defg():
+  {==}
+
+law xing_hijk:
+  {Bool.and(Nat.is_eq(Op.brep_link_c(b_xing(),
+      Ty.P_manifold_solid{}, 20n), 3n),
+    Bool.and(Nat.is_eq(Op.brep_conn_c(b_xing(), 20n), 3n),
+      Bool.and(Nat.is_eq(Op.brep_coin_c(b_xing(), 20n), 3n),
+        Nat.is_eq(Op.brep_xing_c(b_xing(), 20n), 2n))))
+    == True{} : Bool}
+
+def xing_hijk():
+  {==}
+
+law selfx_dup:
+  {Bool.and(Nat.is_eq(Op.brep_loop_c(b_selfx(), 12n), 2n),
+    Nat.is_eq(Op.brep_embed_c(b_selfx(), 12n), 3n))
+    == True{} : Bool}
+
+def selfx_dup():
+  {==}
+# ===== L1: semantic predicate laws (fixture-independent). The
+# `l1_*` helpers build micro-stores from inline literals only and
+# the `l1_*` laws quantify over binders (counts, flags, profiles,
+# GVal arms, stores) — no L0 fixture is referenced, so these pin
+# stage semantics rather than fixture plumbing.
+# ===== L1 helpers: fixture-free micro-stores (inline literals only).
+# Nothing here references the L0 fixture defs; every L1 law below
+# builds its context from these micro-stores or from quantified
+# binders, so L1 pins stage semantics, not fixture plumbing. =====
+def l1_v0() -> Ty.HVertex:
+  Ty.mk_hv(0n, 1u64)
+
+def l1_v1() -> Ty.HVertex:
+  Ty.mk_hv(1n, 2u64)
+
+def l1_v2() -> Ty.HVertex:
+  Ty.mk_hv(2n, 3u64)
+
+def l1_he0() -> Ty.HEdge:
+  Ty.mk_he(0n, 4u64)
+
+def l1_he1() -> Ty.HEdge:
+  Ty.mk_he(1n, 5u64)
+
+def l1_hc0() -> Ty.HCoedge:
+  Ty.mk_hc(0n, 6u64)
+
+def l1_hc1() -> Ty.HCoedge:
+  Ty.mk_hc(1n, 7u64)
+
+def l1_hl0() -> Ty.HLoop:
+  Ty.mk_hlp(0n, 8u64)
+
+def l1_hl1() -> Ty.HLoop:
+  Ty.mk_hlp(1n, 9u64)
+
+def l1_hf0() -> Ty.HFace:
+  Ty.mk_hfa(0n, 10u64)
+
+def l1_hf1() -> Ty.HFace:
+  Ty.mk_hfa(1n, 11u64)
+
+def l1_p0() -> V.Point:
+  V.Pt{0.0f64, 0.0f64, 0.0f64}
+
+def l1_p1() -> V.Point:
+  V.Pt{1.0f64, 0.0f64, 0.0f64}
+
+def l1_d0() -> V.Dir:
+  V.Dr{1.0f64, 0.0f64, 0.0f64}
+
+def l1_d1() -> V.Dir:
+  V.Dr{0.0f64, 1.0f64, 0.0f64}
+
+def l1_ln() -> G.GVal:
+  G.GV_ln{G.Ln{l1_p0(), l1_d0()}}
+
+def l1_dom() -> G.Dom:
+  G.Dom{0.0f64, 1.0f64}
+
+def l1_pl() -> G.GVal:
+  G.GV_pl{G.Pl{l1_p0(), l1_d0(), l1_d1()}}
+
+def l1_cc() -> G.GVal:
+  G.GV_cc{G.Cc{l1_p0(), l1_d0(), l1_d1(), 1.0f64}}
+
+def l1_uva() -> V.Vec2:
+  V.V2{0.0f64, 0.0f64}
+
+def l1_uvb() -> V.Vec2:
+  V.V2{1.0f64, 0.0f64}
+
+def l1_uvx() -> V.Vec2:
+  V.V2{2.0f64, 0.0f64}
+
+def l1_es_line() -> List<&2, Ty.Edge>:
+  Ty.Ed{4u64, l1_v0(), l1_v1(),
+    Ty.EK_curve{l1_ln(), l1_dom()}} <> Nil{}
+
+def l1_es_pair() -> List<&2, Ty.Edge>:
+  Ty.Ed{4u64, l1_v0(), l1_v1(),
+    Ty.EK_curve{l1_ln(), l1_dom()}} <>
+    Ty.Ed{5u64, l1_v0(), l1_v2(),
+      Ty.EK_curve{l1_ln(), l1_dom()}} <> Nil{}
+
+def l1_es_degen() -> List<&2, Ty.Edge>:
+  Ty.Ed{4u64, l1_v0(), l1_v0(), Ty.EK_degenerate{}} <> Nil{}
+
+def l1_es_cc() -> List<&2, Ty.Edge>:
+  Ty.Ed{4u64, l1_v0(), l1_v1(),
+    Ty.EK_curve{l1_cc(), l1_dom()}} <> Nil{}
+
+def l1_es_chain() -> List<&2, Ty.Edge>:
+  Ty.Ed{4u64, l1_v0(), l1_v1(),
+    Ty.EK_curve{l1_ln(), l1_dom()}} <>
+    Ty.Ed{5u64, l1_v1(), l1_v0(),
+      Ty.EK_curve{l1_ln(), l1_dom()}} <> Nil{}
+
+def l1_ces_seam(+f: Bool) -> List<&2, Ty.Coedge>:
+  Ty.Ce{6u64, l1_he0(), f, Ty.trim_zero()} <>
+    Ty.Ce{7u64, l1_he0(), Bool.not(f), Ty.trim_zero()} <>
+    Nil{}
+
+def l1_ces_same() -> List<&2, Ty.Coedge>:
+  Ty.Ce{6u64, l1_he0(), True{}, Ty.trim_zero()} <>
+    Ty.Ce{7u64, l1_he0(), True{}, Ty.trim_zero()} <> Nil{}
+
+def l1_ces_distinct() -> List<&2, Ty.Coedge>:
+  Ty.Ce{6u64, l1_he0(), True{}, Ty.trim_zero()} <>
+    Ty.Ce{7u64, l1_he1(), True{}, Ty.trim_zero()} <> Nil{}
+
+def l1_ces_one() -> List<&2, Ty.Coedge>:
+  Ty.Ce{6u64, l1_he0(), True{}, Ty.trim_zero()} <> Nil{}
+
+def l1_ces_chain(+gap: Bool) -> List<&2, Ty.Coedge>:
+  Ty.Ce{6u64, l1_he0(), True{},
+    G.GV_ts{G.Ts{l1_uva(), l1_uvb()}}} <>
+    Ty.Ce{7u64, l1_he1(), True{},
+      Bool.pick(G.GVal, gap,
+        G.GV_ts{G.Ts{l1_uvx(), l1_uva()}},
+        G.GV_ts{G.Ts{l1_uvb(), l1_uva()}})} <> Nil{}
+
+def l1_vs2() -> List<&2, Ty.Vertex>:
+  Ty.Vx{1u64, l1_p0()} <> Ty.Vx{2u64, l1_p1()} <> Nil{}
+
+def l1_lps_pair() -> List<&2, Ty.Loop>:
+  Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_outer{}} <>
+    Ty.Lp{9u64, l1_hc1() <> Nil{}, Ty.LK_outer{}} <> Nil{}
+
+def l1_fas_pair() -> List<&2, Ty.Face>:
+  Ty.Fa{10u64, l1_pl(), l1_hl0() <> Nil{}, True{}} <>
+    Ty.Fa{11u64, l1_pl(), l1_hl1() <> Nil{}, True{}} <> Nil{}
+
+def l1_b_share() -> Ty.Brep:
+  Ty.Br{Nil{}, l1_es_line(), l1_ces_seam(True{}),
+    l1_lps_pair(), l1_fas_pair(), Nil{}, Nil{},
+    Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_b_split() -> Ty.Brep:
+  Ty.Br{Nil{}, l1_es_pair(), l1_ces_distinct(),
+    l1_lps_pair(), l1_fas_pair(), Nil{}, Nil{},
+    Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_b_step() -> Ty.Brep:
+  Ty.Br{Nil{}, l1_es_line(), l1_ces_seam(True{}),
+    Ty.Lp{8u64, l1_hc0() <> l1_hc1() <> Nil{},
+      Ty.LK_outer{}} <> Nil{}, Nil{}, Nil{}, Nil{},
+    Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_lps_outer() -> List<&2, Ty.Loop>:
+  Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_outer{}} <> Nil{}
+
+def l1_lps_twoouter() -> List<&2, Ty.Loop>:
+  Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_outer{}} <>
+    Ty.Lp{9u64, l1_hc1() <> Nil{}, Ty.LK_outer{}} <> Nil{}
+
+def l1_lps_inner() -> List<&2, Ty.Loop>:
+  Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_inner{}} <> Nil{}
+
+# ===== L1-A. Edge-use counts: the stage C rule, quantified. =====
+law l1_use_solid_spec:
+  for c: Nat
+  for t: Bool
+  for f: Bool
+  {Op.use_rule_ok(c, t, f, Ty.P_manifold_solid{})
+    == Bool.and(Nat.is_eq(c, 2n), Bool.and(t, f)) : Bool}
+
+def l1_use_solid_spec(c, t, f):
+  {==}
+
+law l1_use_open_spec:
+  for c: Nat
+  for t: Bool
+  for f: Bool
+  {Op.use_rule_ok(c, t, f, Ty.P_open_shell{})
+    == Bool.or(Nat.is_eq(c, 1n),
+      Bool.and(Nat.is_eq(c, 2n), Bool.and(t, f))) : Bool}
+
+def l1_use_open_spec(c, t, f):
+  {==}
+
+law l1_use_solid_non2:
+  for c: Nat
+  for t: Bool
+  for f: Bool
+  {Bool.or(Nat.is_eq(c, 2n),
+    Bool.not(Op.use_rule_ok(c, t, f,
+      Ty.P_manifold_solid{}))) == True{} : Bool}
+
+def l1_use_solid_non2(c, t, f):
+  match c:
+    case 0n: {==}
+    case 1n+0n: {==}
+    case 1n+(1n+0n): {==}
+    case 1n+(1n+(1n+g)): {==}
+
+law l1_use_solid_pair:
+  for t: Bool
+  for f: Bool
+  {Op.use_rule_ok(2n, t, f, Ty.P_manifold_solid{})
+    == Bool.and(t, f) : Bool}
+
+def l1_use_solid_pair(t, f):
+  match t:
+    case True{}:
+      match f:
+        case True{}: {==}
+        case False{}: {==}
+    case False{}:
+      match f:
+        case True{}: {==}
+        case False{}: {==}
+
+law l1_use_open_1:
+  for t: Bool
+  for f: Bool
+  {Op.use_rule_ok(1n, t, f, Ty.P_open_shell{})
+    == True{} : Bool}
+
+def l1_use_open_1(t, f):
+  {==}
+
+law l1_use_open_non12:
+  for c: Nat
+  for t: Bool
+  for f: Bool
+  {Bool.or(Bool.or(Nat.is_eq(c, 1n), Nat.is_eq(c, 2n)),
+    Bool.not(Op.use_rule_ok(c, t, f, Ty.P_open_shell{})))
+    == True{} : Bool}
+
+def l1_use_open_non12(c, t, f):
+  match c:
+    case 0n: {==}
+    case 1n+0n: {==}
+    case 1n+(1n+0n): {==}
+    case 1n+(1n+(1n+g)): {==}
+
+law l1_use_open_pair:
+  for t: Bool
+  for f: Bool
+  {Op.use_rule_ok(2n, t, f, Ty.P_open_shell{})
+    == Bool.and(t, f) : Bool}
+
+def l1_use_open_pair(t, f):
+  match t:
+    case True{}:
+      match f:
+        case True{}: {==}
+        case False{}: {==}
+    case False{}:
+      match f:
+        case True{}: {==}
+        case False{}: {==}
+
+law l1_use_go_nil:
+  for tgt: Ty.HEdge
+  for prof: Ty.Profile
+  for fuel: Nat
+  for count: Nat
+  for t: Bool
+  for f: Bool
+  {Op.ces_use_go(Nil{}, tgt, prof, fuel, count, t, f)
+    == Ty.okd_pack(Op.use_rule_ok(count, t, f, prof),
+      True{}) : Nat}
+
+def l1_use_go_nil(tgt, prof, fuel, count, t, f):
+  {==}
+
+law l1_es_use_nil:
+  for ces: List<&2, Ty.Coedge>
+  for prof: Ty.Profile
+  for fuel: Nat
+  for ffull: Nat
+  for idx: Nat
+  {Op.es_use_c(Nil{}, ces, prof, fuel, ffull, idx)
+    == 3n : Nat}
+
+def l1_es_use_nil(ces, prof, fuel, ffull, idx):
+  {==}
+
+law l1_seam_use:
+  for f: Bool
+  {Op.ces_use_go(l1_ces_seam(f), l1_he0(),
+    Ty.P_manifold_solid{}, 2n, 0n, False{}, False{})
+    == 3n : Nat}
+
+def l1_seam_use(f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_outer_rule:
+  for lps: List<&2, Ty.Loop>
+  for fuel: Nat
+  for ffull: Nat
+  for count: Nat
+  {Op.hlp_outer_go(Nil{}, lps, fuel, ffull, count)
+    == Ty.okd_pack(Nat.is_eq(count, 1n), True{}) : Nat}
+
+def l1_outer_rule(lps, fuel, ffull, count):
+  {==}
+
+law l1_outer_one:
+  {Op.hlp_outer_go(l1_hl0() <> Nil{}, l1_lps_outer(), 2n,
+    8n, 0n) == 3n : Nat}
+
+def l1_outer_one():
+  {==}
+
+law l1_outer_two:
+  {Op.hlp_outer_go(l1_hl0() <> l1_hl1() <> Nil{},
+    l1_lps_twoouter(), 3n, 8n, 0n) == 2n : Nat}
+
+def l1_outer_two():
+  {==}
+
+law l1_outer_zero:
+  {Op.hlp_outer_go(l1_hl0() <> Nil{}, l1_lps_inner(), 2n,
+    8n, 0n) == 2n : Nat}
+
+def l1_outer_zero():
+  {==}
+
+law l1_noopen_open:
+  {Op.shs_no_open_c(Ty.Sh{1u64, Nil{}, Ty.SK_open{}}
+    <> Nil{}, 1n) == 2n : Nat}
+
+def l1_noopen_open():
+  {==}
+
+law l1_noopen_outer:
+  {Op.shs_no_open_c(Ty.Sh{1u64, Nil{}, Ty.SK_outer{}}
+    <> Nil{}, 1n) == 3n : Nat}
+
+def l1_noopen_outer():
+  {==}
+
+# ===== L1-B. Loop semantics: oriented ends, trim ends, closure,
+# duplicate incidence, seam double-use, pole rule. =====
+law l1_ov_start:
+  for a: Ty.HVertex
+  for b: Ty.HVertex
+  for f: Bool
+  {Op.o_v_start(Ty.Ed{0u64, a, b, Ty.EK_degenerate{}},
+    f) == Bool.pick(Ty.HVertex, f, a, b) : Ty.HVertex}
+
+def l1_ov_start(a, b, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_ov_end:
+  for a: Ty.HVertex
+  for b: Ty.HVertex
+  for f: Bool
+  {Op.o_v_end(Ty.Ed{0u64, a, b, Ty.EK_degenerate{}},
+    f) == Bool.pick(Ty.HVertex, f, b, a) : Ty.HVertex}
+
+def l1_ov_end(a, b, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_ov_swap:
+  for a: Ty.HVertex
+  for b: Ty.HVertex
+  for f: Bool
+  {Op.o_v_start(Ty.Ed{0u64, a, b, Ty.EK_degenerate{}},
+    f) == Op.o_v_end(Ty.Ed{0u64, a, b,
+      Ty.EK_degenerate{}}, Bool.not(f)) : Ty.HVertex}
+
+def l1_ov_swap(a, b, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_closed_start:
+  for a: Ty.HVertex
+  for f: Bool
+  {Op.o_v_start(Ty.Ed{0u64, a, a, Ty.EK_degenerate{}},
+    f) == a : Ty.HVertex}
+
+def l1_closed_start(a, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_closed_end:
+  for a: Ty.HVertex
+  for f: Bool
+  {Op.o_v_end(Ty.Ed{0u64, a, a, Ty.EK_degenerate{}},
+    f) == a : Ty.HVertex}
+
+def l1_closed_end(a, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_trim_ts_start:
+  for a: V.Vec2
+  for b: V.Vec2
+  {Op.trim_start(G.GV_ts{G.Ts{a, b}}) == a : V.Vec2}
+
+def l1_trim_ts_start(a, b):
+  {==}
+
+law l1_trim_ts_end:
+  for a: V.Vec2
+  for b: V.Vec2
+  {Op.trim_end(G.GV_ts{G.Ts{a, b}}) == b : V.Vec2}
+
+def l1_trim_ts_end(a, b):
+  {==}
+
+law l1_trim_tb_start:
+  for b0: V.Vec2
+  for b1: V.Vec2
+  for b2: V.Vec2
+  for b3: V.Vec2
+  {Op.trim_start(G.GV_tb{G.Tb{b0, b1, b2, b3}})
+    == b0 : V.Vec2}
+
+def l1_trim_tb_start(b0, b1, b2, b3):
+  {==}
+
+law l1_trim_tb_end:
+  for b0: V.Vec2
+  for b1: V.Vec2
+  for b2: V.Vec2
+  for b3: V.Vec2
+  {Op.trim_end(G.GV_tb{G.Tb{b0, b1, b2, b3}})
+    == b3 : V.Vec2}
+
+def l1_trim_tb_end(b0, b1, b2, b3):
+  {==}
+
+law l1_trim_o_start:
+  for t: G.GVal
+  for f: Bool
+  {Op.trim_o_start(t, f)
+    == Bool.pick(V.Vec2, f, Op.trim_start(t),
+      Op.trim_end(t)) : V.Vec2}
+
+def l1_trim_o_start(t, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_trim_o_end:
+  for t: G.GVal
+  for f: Bool
+  {Op.trim_o_end(t, f)
+    == Bool.pick(V.Vec2, f, Op.trim_end(t),
+      Op.trim_start(t)) : V.Vec2}
+
+def l1_trim_o_end(t, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_trim_swap:
+  for t: G.GVal
+  for f: Bool
+  {Op.trim_o_start(t, f)
+    == Op.trim_o_end(t, Bool.not(f)) : V.Vec2}
+
+def l1_trim_swap(t, f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_closure:
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for fuel: Nat
+  for ffull: Nat
+  for pv: Ty.HVertex
+  for fv: Ty.HVertex
+  for pt: V.Vec2
+  for ft: V.Vec2
+  {Op.loop_rest_go(Nil{}, ces, es, fuel, ffull, pv, fv,
+    pt, ft) == Ty.okd_pack(Bool.and(Ty.hv_eq(pv, fv),
+      Op.v2_eq(pt, ft)), True{}) : Nat}
+
+def l1_closure(ces, es, fuel, ffull, pv, fv, pt, ft):
+  {==}
+
+law l1_closure_vmiss:
+  {Op.loop_rest_go(Nil{}, Nil{}, Nil{}, 0n, 0n, l1_v0(),
+    l1_v1(), l1_uva(), l1_uva()) == 2n : Nat}
+
+def l1_closure_vmiss():
+  {==}
+
+law l1_closure_tmiss:
+  {Op.loop_rest_go(Nil{}, Nil{}, Nil{}, 0n, 0n, l1_v0(),
+    l1_v0(), l1_uva(), l1_uvb()) == 2n : Nat}
+
+def l1_closure_tmiss():
+  {==}
+
+law l1_chain_ok:
+  {Op.loop_rest_go(l1_hc1() <> Nil{},
+    l1_ces_chain(False{}), l1_es_chain(), 2n, 8n, l1_v1(),
+    l1_v0(), l1_uvb(), l1_uva()) == 3n : Nat}
+
+def l1_chain_ok():
+  {==}
+
+law l1_chain_gap:
+  {Op.loop_rest_go(l1_hc1() <> Nil{},
+    l1_ces_chain(True{}), l1_es_chain(), 2n, 8n, l1_v1(),
+    l1_v0(), l1_uvb(), l1_uva()) == 2n : Nat}
+
+def l1_chain_gap():
+  {==}
+
+law l1_nodup_nil:
+  for fuel: Nat
+  {Op.hc_nodup_c(Nil{}, fuel) == 3n : Nat}
+
+def l1_nodup_nil(fuel):
+  {==}
+
+law l1_nodup_single:
+  for h: Ty.HCoedge
+  {Op.hc_nodup_c(h <> Nil{}, 2n) == 3n : Nat}
+
+def l1_nodup_single(h):
+  {==}
+
+law l1_nodup_dup:
+  {Op.hc_nodup_c(l1_hc0() <> l1_hc0() <> Nil{}, 3n)
+    == 2n : Nat}
+
+def l1_nodup_dup():
+  {==}
+
+law l1_nodup_distinct:
+  {Op.hc_nodup_c(l1_hc0() <> l1_hc1() <> Nil{}, 3n)
+    == 3n : Nat}
+
+def l1_nodup_distinct():
+  {==}
+
+law l1_seam_free_nil:
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for he: Ty.HEdge
+  for fw: Bool
+  for ffull: Nat
+  for fuel: Nat
+  {Op.hc_seam_free_go(Nil{}, ces, es, he, fw, ffull,
+    fuel) == 3n : Nat}
+
+def l1_seam_free_nil(ces, es, he, fw, ffull, fuel):
+  {==}
+
+law l1_seam_go_nil:
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for ffull: Nat
+  for fuel: Nat
+  {Op.loop_seam_go(Nil{}, ces, es, ffull, fuel)
+    == 3n : Nat}
+
+def l1_seam_go_nil(ces, es, ffull, fuel):
+  {==}
+
+law l1_seam_accept:
+  for f: Bool
+  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ces_seam(f), l1_es_line(), 8n, 2n) == 3n : Nat}
+
+def l1_seam_accept(f):
+  match f:
+    case True{}: {==}
+    case False{}: {==}
+
+law l1_seam_same:
+  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ces_same(), l1_es_line(), 8n, 2n) == 2n : Nat}
+
+def l1_seam_same():
+  {==}
+
+law l1_seam_skip:
+  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ces_distinct(), l1_es_pair(), 8n, 2n) == 3n : Nat}
+
+def l1_seam_skip():
+  {==}
+
+law l1_pole_nil:
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for ffull: Nat
+  for fuel: Nat
+  for len: Nat
+  for nd: Nat
+  {Op.loop_pole_go(Nil{}, ces, es, ffull, fuel, len, nd)
+    == Ty.okd_pack(Bool.or(Nat.is_eq(nd, 0n),
+      Bool.and(Nat.is_eq(len, 1n), Nat.is_eq(nd, 1n))),
+      True{}) : Nat}
+
+def l1_pole_nil(ces, es, ffull, fuel, len, nd):
+  {==}
+
+law l1_pole_single:
+  {Op.loop_pole_go(l1_hc0() <> Nil{}, l1_ces_one(),
+    l1_es_degen(), 8n, 2n, 0n, 0n) == 3n : Nat}
+
+def l1_pole_single():
+  {==}
+
+law l1_pole_two:
+  {Op.loop_pole_go(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ces_seam(True{}), l1_es_degen(), 8n, 2n, 0n, 0n)
+    == 2n : Nat}
+
+def l1_pole_two():
+  {==}
+
+law l1_pole_clean:
+  {Op.loop_pole_go(l1_hc0() <> Nil{}, l1_ces_one(),
+    l1_es_line(), 8n, 2n, 0n, 0n) == 3n : Nat}
+
+def l1_pole_clean():
+  {==}
+
+# ===== L1-C. Vertex links: the twin(prev()) orbit machinery. =====
+law l1_mem_nil:
+  for hc: Ty.HCoedge
+  for ffull: Nat
+  {Op.hc_mem(Nil{}, hc, ffull) == False{} : Bool}
+
+def l1_mem_nil(hc, ffull):
+  {==}
+
+law l1_mem_hit:
+  {Op.hc_mem(l1_hc0() <> Nil{}, l1_hc0(), 4n)
+    == True{} : Bool}
+
+def l1_mem_hit():
+  {==}
+
+law l1_mem_miss:
+  {Op.hc_mem(l1_hc0() <> Nil{}, l1_hc1(), 4n)
+    == False{} : Bool}
+
+def l1_mem_miss():
+  {==}
+
+law l1_last_nil:
+  for d: Ty.HCoedge
+  for ff: Nat
+  {Op.hc_last(Nil{}, d, ff) == d : Ty.HCoedge}
+
+def l1_last_nil(d, ff):
+  {==}
+
+law l1_prev_nil:
+  for hc: Ty.HCoedge
+  for prev: Ty.HCoedge
+  for ff: Nat
+  {Op.lp_prev_go(Nil{}, hc, prev, ff) == hc : Ty.HCoedge}
+
+def l1_prev_nil(hc, prev, ff):
+  {==}
+
+law l1_prev_mid:
+  {Op.lp_prev_in(l1_hc0() <> l1_hc1() <> Nil{}, l1_hc1(),
+    4n) == l1_hc0() : Ty.HCoedge}
+
+def l1_prev_mid():
+  {==}
+
+law l1_prev_wrap:
+  {Op.lp_prev_in(l1_hc0() <> l1_hc1() <> Nil{}, l1_hc0(),
+    4n) == l1_hc1() : Ty.HCoedge}
+
+def l1_prev_wrap():
+  {==}
+
+law l1_prev_single:
+  {Op.lp_prev_in(l1_hc0() <> Nil{}, l1_hc0(), 4n)
+    == l1_hc0() : Ty.HCoedge}
+
+def l1_prev_single():
+  {==}
+
+law l1_hcprev_nil:
+  for hc: Ty.HCoedge
+  for ff: Nat
+  {Op.hc_prev(Nil{}, hc, ff) == hc : Ty.HCoedge}
+
+def l1_hcprev_nil(hc, ff):
+  {==}
+
+law l1_twin_nil:
+  for se: Ty.HEdge
+  for shc: Ty.HCoedge
+  for idx: Nat
+  for ff: Nat
+  {Op.hc_twin_go(Nil{}, se, shc, idx, ff)
+    == shc : Ty.HCoedge}
+
+def l1_twin_nil(se, shc, idx, ff):
+  {==}
+
+law l1_twin_first:
+  {Op.hc_twin_go(l1_ces_seam(True{}), l1_he0(), l1_hc0(),
+    0n, 4n) == l1_hc1() : Ty.HCoedge}
+
+def l1_twin_first():
+  {==}
+
+law l1_twin_second:
+  {Op.hc_twin_go(l1_ces_seam(True{}), l1_he0(), l1_hc1(),
+    0n, 4n) == l1_hc0() : Ty.HCoedge}
+
+def l1_twin_second():
+  {==}
+
+law l1_twin_miss:
+  {Op.hc_twin_go(l1_ces_one(), l1_he0(), l1_hc0(), 0n,
+    4n) == l1_hc0() : Ty.HCoedge}
+
+def l1_twin_miss():
+  {==}
+
+law l1_step:
+  {Op.hc_step(l1_b_step(), l1_hc1(), 8n)
+    == l1_hc1() : Ty.HCoedge}
+
+def l1_step():
+  {==}
+
+law l1_nondegen_curve:
+  {Op.hc_nondegen(l1_ces_seam(True{}), l1_es_line(),
+    l1_hc0(), 8n) == True{} : Bool}
+
+def l1_nondegen_curve():
+  {==}
+
+law l1_nondegen_degen:
+  {Op.hc_nondegen(l1_ces_one(), l1_es_degen(), l1_hc0(),
+    8n) == False{} : Bool}
+
+def l1_nondegen_degen():
+  {==}
+
+law l1_vorbit_fuel0:
+  for b: Ty.Brep
+  for start: Ty.HCoedge
+  for cur: Ty.HCoedge
+  for k: Nat
+  for ffull: Nat
+  {Op.vorbit_go(b, start, 0n, cur, k, ffull)
+    == Bool.pick(Ty.VOrbit, Ty.hc_eq(cur, start),
+      Ty.VO{k, True{}}, Ty.VO{k, False{}}) : Ty.VOrbit}
+
+def l1_vorbit_fuel0(b, start, cur, k, ffull):
+  {==}
+
+law l1_vxlink_fuel0:
+  for b: Ty.Brep
+  for v: Ty.HVertex
+  for ffull: Nat
+  {Op.vx_link_ok(b, v, 0n, ffull) == 0n : Nat}
+
+def l1_vxlink_fuel0(b, v, ffull):
+  {==}
+
+law l1_link_open:
+  for b: Ty.Brep
+  for fuel: Nat
+  {Op.brep_link_c(b, Ty.P_open_shell{}, fuel) == 3n : Nat}
+
+def l1_link_open(b, fuel):
+  {==}
+
+law l1_cov_nil:
+  for lps: List<&2, Ty.Loop>
+  for idx: Nat
+  for fuel: Nat
+  for ffull: Nat
+  {Op.ces_cov_go(Nil{}, lps, idx, fuel, ffull)
+    == 3n : Nat}
+
+def l1_cov_nil(lps, idx, fuel, ffull):
+  {==}
+
+law l1_start_nil:
+  for es: List<&2, Ty.Edge>
+  for v: Ty.HVertex
+  for idx: Nat
+  for ffull: Nat
+  {Op.ces_start_go(Nil{}, es, v, idx, ffull)
+    == Nil{} : List<&2, Ty.HCoedge>}
+
+def l1_start_nil(es, v, idx, ffull):
+  {==}
+
+# ===== L1-D. Face-edge connectedness: shared underlying edges
+# connect; vertex-touching alone does not. =====
+law l1_have_nil:
+  for tgt: Ty.HEdge
+  for ces: List<&2, Ty.Coedge>
+  for ffull: Nat
+  {Op.hcs_have_edge(Nil{}, tgt, ces, ffull)
+    == False{} : Bool}
+
+def l1_have_nil(tgt, ces, ffull):
+  {==}
+
+law l1_have_hit:
+  {Op.hcs_have_edge(l1_hc0() <> Nil{}, l1_he0(),
+    l1_ces_seam(True{}), 4n) == True{} : Bool}
+
+def l1_have_hit():
+  {==}
+
+law l1_have_miss:
+  {Op.hcs_have_edge(l1_hc0() <> Nil{}, l1_he1(),
+    l1_ces_distinct(), 4n) == False{} : Bool}
+
+def l1_have_miss():
+  {==}
+
+law l1_share_nil:
+  for hcs2: List<&2, Ty.HCoedge>
+  for ces: List<&2, Ty.Coedge>
+  for ffull: Nat
+  {Op.hcs_share_edge(Nil{}, hcs2, ces, ffull)
+    == False{} : Bool}
+
+def l1_share_nil(hcs2, ces, ffull):
+  {==}
+
+law l1_share_pos:
+  {Op.hcs_share_edge(l1_hc0() <> Nil{},
+    l1_hc1() <> Nil{}, l1_ces_seam(True{}), 4n)
+    == True{} : Bool}
+
+def l1_share_pos():
+  {==}
+
+law l1_share_neg:
+  {Op.hcs_share_edge(l1_hc0() <> Nil{},
+    l1_hc1() <> Nil{}, l1_ces_distinct(), 4n)
+    == False{} : Bool}
+
+def l1_share_neg():
+  {==}
+
+law l1_hls_nil:
+  for lpces: List<&2, Ty.HCoedge>
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for ffull: Nat
+  {Op.hls_have_edge(Nil{}, lpces, lps, ces, ffull)
+    == False{} : Bool}
+
+def l1_hls_nil(lpces, lps, ces, ffull):
+  {==}
+
+law l1_hlps_nil:
+  for hls2: List<&2, Ty.HLoop>
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for ffull: Nat
+  {Op.hlps_share_edge(Nil{}, hls2, lps, ces, ffull)
+    == False{} : Bool}
+
+def l1_hlps_nil(hls2, lps, ces, ffull):
+  {==}
+
+law l1_faces_share:
+  {Op.faces_share_edge(l1_b_share(), l1_hf0(), l1_hf1(),
+    8n) == True{} : Bool}
+
+def l1_faces_share():
+  {==}
+
+law l1_faces_split:
+  {Op.faces_share_edge(l1_b_split(), l1_hf0(), l1_hf1(),
+    8n) == False{} : Bool}
+
+def l1_faces_split():
+  {==}
+
+law l1_bfs_nil:
+  for b: Ty.Brep
+  for fuel: Nat
+  for ffull: Nat
+  {Op.sh_conn_faces(b, Nil{}, fuel, ffull) == 3n : Nat}
+
+def l1_bfs_nil(b, fuel, ffull):
+  {==}
+
+law l1_conn:
+  {Op.sh_conn_faces(l1_b_share(),
+    l1_hf0() <> l1_hf1() <> Nil{}, 4n, 8n) == 3n : Nat}
+
+def l1_conn():
+  {==}
+
+law l1_conn_split:
+  {Op.sh_conn_faces(l1_b_split(),
+    l1_hf0() <> l1_hf1() <> Nil{}, 4n, 8n) == 2n : Nat}
+
+def l1_conn_split():
+  {==}
+
+law l1_bfs_done:
+  for seen: List<&2, Ty.HFace>
+  for all: List<&2, Ty.HFace>
+  for ffull: Nat
+  {Op.sh_bfs_done(seen, all, ffull)
+    == Ty.okd_pack(Bool.and(Op.hfa_walked(all, ffull),
+      Nat.is_eq(Op.hfa_len(seen, ffull),
+        Op.hfa_len(all, ffull))),
+      Op.hfa_walked(all, ffull)) : Nat}
+
+def l1_bfs_done(seen, all, ffull):
+  {==}
+
+# ===== L1-E. Orientation spec: L-plane certifies straight-line
+# planar boundaries; L-varying skips (never fails). =====
+law l1_line_ln:
+  for w: G.Line3
+  {Op.gval_is_line(G.GV_ln{w}) == True{} : Bool}
+
+def l1_line_ln(w):
+  {==}
+
+law l1_line_cc:
+  for w: G.Circle3
+  {Op.gval_is_line(G.GV_cc{w}) == False{} : Bool}
+
+def l1_line_cc(w):
+  {==}
+
+law l1_line_bz:
+  for w: G.Bez3
+  {Op.gval_is_line(G.GV_bz{w}) == False{} : Bool}
+
+def l1_line_bz(w):
+  {==}
+
+law l1_line_rq:
+  for w: G.RQBez
+  {Op.gval_is_line(G.GV_rq{w}) == False{} : Bool}
+
+def l1_line_rq(w):
+  {==}
+
+law l1_line_nb:
+  for w: G.Nurb
+  {Op.gval_is_line(G.GV_nb{w}) == False{} : Bool}
+
+def l1_line_nb(w):
+  {==}
+
+law l1_line_pl:
+  for w: G.Plane3
+  {Op.gval_is_line(G.GV_pl{w}) == False{} : Bool}
+
+def l1_line_pl(w):
+  {==}
+
+law l1_ekind_curve:
+  for c: G.GVal
+  for d: G.Dom
+  {Op.ekind_is_line(Ty.EK_curve{c, d})
+    == Op.gval_is_line(c) : Bool}
+
+def l1_ekind_curve(c, d):
+  {==}
+
+law l1_ekind_degen:
+  {Op.ekind_is_line(Ty.EK_degenerate{}) == False{} : Bool}
+
+def l1_ekind_degen():
+  {==}
+
+law l1_edge_line:
+  for g: U64
+  for v0: Ty.HVertex
+  for v1: Ty.HVertex
+  for k: Ty.EdgeKind
+  {Op.edge_is_line(Ty.Ed{g, v0, v1, k})
+    == Op.ekind_is_line(k) : Bool}
+
+def l1_edge_line(g, v0, v1, k):
+  {==}
+
+law l1_lines_nil:
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for fuel: Nat
+  for ffull: Nat
+  {Op.hcs_all_lines(Nil{}, ces, es, fuel, ffull)
+    == True{} : Bool}
+
+def l1_lines_nil(ces, es, fuel, ffull):
+  {==}
+
+law l1_lines_fuel0:
+  for h: Ty.HCoedge
+  for t: List<&2, Ty.HCoedge>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for ffull: Nat
+  {Op.hcs_all_lines(h <> t, ces, es, 0n, ffull)
+    == False{} : Bool}
+
+def l1_lines_fuel0(h, t, ces, es, ffull):
+  {==}
+
+law l1_lines_pos:
+  {Op.hcs_all_lines(l1_hc0() <> Nil{},
+    l1_ces_seam(True{}), l1_es_line(), 8n, 8n)
+    == True{} : Bool}
+
+def l1_lines_pos():
+  {==}
+
+law l1_lines_neg:
+  {Op.hcs_all_lines(l1_hc0() <> Nil{}, l1_ces_one(),
+    l1_es_cc(), 8n, 8n) == False{} : Bool}
+
+def l1_lines_neg():
+  {==}
+
+law l1_plane_pos:
+  for w: G.Plane3
+  {Op.surf_is_plane(G.GV_pl{w}) == True{} : Bool}
+
+def l1_plane_pos(w):
+  {==}
+
+law l1_plane_cy:
+  for w: G.Cyl
+  {Op.surf_is_plane(G.GV_cy{w}) == False{} : Bool}
+
+def l1_plane_cy(w):
+  {==}
+
+law l1_plane_co:
+  for w: G.Cone
+  {Op.surf_is_plane(G.GV_co{w}) == False{} : Bool}
+
+def l1_plane_co(w):
+  {==}
+
+law l1_plane_sp:
+  for w: G.Sphere
+  {Op.surf_is_plane(G.GV_sp{w}) == False{} : Bool}
+
+def l1_plane_sp(w):
+  {==}
+
+law l1_plane_to:
+  for w: G.Torus
+  {Op.surf_is_plane(G.GV_to{w}) == False{} : Bool}
+
+def l1_plane_to(w):
+  {==}
+
+law l1_plane_bp:
+  for w: G.BezP
+  {Op.surf_is_plane(G.GV_bp{w}) == False{} : Bool}
+
+def l1_plane_bp(w):
+  {==}
+
+law l1_varying_nofail:
+  for s: G.GVal
+  for hcs: List<&2, Ty.HCoedge>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for same: Bool
+  for kind: Ty.LoopKind
+  for ffull: Nat
+  {Bool.or(Op.surf_is_plane(s),
+    Bool.not(Nat.is_eq(Op.loop_orient_class(hcs, ces, es,
+      vs, s, same, kind, ffull), 2n)))
+    == True{} : Bool}
+
+def l1_varying_nofail(s, hcs, ces, es, vs, same, kind,
+    ffull):
+  match s:
+    case G.GV_f{w}: {==}
+    case G.GV_p{w}: {==}
+    case G.GV_d{w}: {==}
+    case G.GV_v2{w}: {==}
+    case G.GV_dom{w}: {==}
+    case G.GV_ln{w}: {==}
+    case G.GV_pl{w}: {==}
+    case G.GV_cc{w}: {==}
+    case G.GV_bz{w}: {==}
+    case G.GV_rq{w}: {==}
+    case G.GV_bp{w}: {==}
+    case G.GV_sp{w}: {==}
+    case G.GV_cy{w}: {==}
+    case G.GV_co{w}: {==}
+    case G.GV_to{w}: {==}
+    case G.GV_bb{w}: {==}
+    case G.GV_nb{w}: {==}
+    case G.GV_ts{w}: {==}
+    case G.GV_tb{w}: {==}
+
+law l1_plnorm_unsupported:
+  for s: G.GVal
+  {Bool.or(Op.surf_is_plane(s),
+    Bool.not(G.gres_ok(Op.plane_normal_of(s))))
+    == True{} : Bool}
+
+def l1_plnorm_unsupported(s):
+  match s:
+    case G.GV_f{w}: {==}
+    case G.GV_p{w}: {==}
+    case G.GV_d{w}: {==}
+    case G.GV_v2{w}: {==}
+    case G.GV_dom{w}: {==}
+    case G.GV_ln{w}: {==}
+    case G.GV_pl{w}: {==}
+    case G.GV_cc{w}: {==}
+    case G.GV_bz{w}: {==}
+    case G.GV_rq{w}: {==}
+    case G.GV_bp{w}: {==}
+    case G.GV_sp{w}: {==}
+    case G.GV_cy{w}: {==}
+    case G.GV_co{w}: {==}
+    case G.GV_to{w}: {==}
+    case G.GV_bb{w}: {==}
+    case G.GV_nb{w}: {==}
+    case G.GV_ts{w}: {==}
+    case G.GV_tb{w}: {==}
+
+law l1_curved_skip:
+  {Op.loop_orient_class(l1_hc0() <> Nil{}, l1_ces_one(),
+    l1_es_cc(), l1_vs2(), l1_pl(), True{},
+    Ty.LK_outer{}, 8n) == 0n : Nat}
+
+def l1_curved_skip():
+  {==}
+
+law l1_orient_c_spec:
+  for hcs: List<&2, Ty.HCoedge>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for surf: G.GVal
+  for same: Bool
+  for kind: Ty.LoopKind
+  for ffull: Nat
+  {Op.loop_orient_c(hcs, ces, es, vs, surf, same, kind,
+    ffull) == Ty.okd_pack(Bool.and(Op.hcs_walked(hcs,
+      ffull), Bool.not(Nat.is_eq(Op.loop_orient_class(
+      hcs, ces, es, vs, surf, same, kind, ffull), 2n))),
+    Op.hcs_walked(hcs, ffull)) : Nat}
+
+def l1_orient_c_spec(hcs, ces, es, vs, surf, same, kind,
+    ffull):
+  {==}
+
+law l1_cert_nil:
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for surf: G.GVal
+  for same: Bool
+  for fuel: Nat
+  for ffull: Nat
+  for acc: Nat
+  {Op.hlp_cert_go(Nil{}, lps, ces, es, vs, surf, same,
+    fuel, ffull, acc) == Op.cnt_pack(acc, True{}) : Nat}
+
+def l1_cert_nil(lps, ces, es, vs, surf, same, fuel, ffull,
+    acc):
+  {==}
+
+law l1_skip_nil:
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for surf: G.GVal
+  for same: Bool
+  for fuel: Nat
+  for ffull: Nat
+  for acc: Nat
+  {Op.hlp_skip_go(Nil{}, lps, ces, es, vs, surf, same,
+    fuel, ffull, acc) == Op.cnt_pack(acc, True{}) : Nat}
+
+def l1_skip_nil(lps, ces, es, vs, surf, same, fuel, ffull,
+    acc):
+  {==}
+
+law l1_fcert_nil:
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for fuel: Nat
+  for ffull: Nat
+  for acc: Nat
+  {Op.fas_cert_c(Nil{}, lps, ces, es, vs, fuel, ffull,
+    acc) == Op.cnt_pack(acc, True{}) : Nat}
+
+def l1_fcert_nil(lps, ces, es, vs, fuel, ffull, acc):
+  {==}
+
+law l1_fskip_nil:
+  for lps: List<&2, Ty.Loop>
+  for ces: List<&2, Ty.Coedge>
+  for es: List<&2, Ty.Edge>
+  for vs: List<&2, Ty.Vertex>
+  for fuel: Nat
+  for ffull: Nat
+  for acc: Nat
+  {Op.fas_skip_c(Nil{}, lps, ces, es, vs, fuel, ffull,
+    acc) == Op.cnt_pack(acc, True{}) : Nat}
+
+def l1_fskip_nil(lps, ces, es, vs, fuel, ffull, acc):
+  {==}
+
+law l1_cnt_false:
+  for n: Nat
+  {Op.cnt_pack(n, False{}) == 0n : Nat}
+
+def l1_cnt_false(n):
+  {==}
+
+law l1_cnt_round:
+  {Op.cnt_count(Op.cnt_pack(2n, True{})) == 2n : Nat}
+
+def l1_cnt_round():
+  {==}
+
+law l1_cnt_done:
+  {Op.cnt_done(Op.cnt_pack(2n, True{})) == True{} : Bool}
+
+def l1_cnt_done():
+  {==}
+
+law l1_cnt_zero:
+  {Bool.and(Bool.not(Op.cnt_done(0n)),
+    Nat.is_eq(Op.cnt_count(0n), 0n)) == True{} : Bool}
+
+def l1_cnt_zero():
   {==}

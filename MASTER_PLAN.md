@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 3 — September 26, 2026 (Amendment A1: C04/C07/C11 boundary; see Amendment record)**
+**Revision 4 — September 27, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; see Amendment record)**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend.
 
@@ -222,6 +222,8 @@ Keep owner-reviewed laws separate from implementation proofs. Changing a law, ad
 
 The trusted computing base includes Bend's checker, elaboration/erasure/compiler passes, numeric primitive assumptions, runtime, device compiler, and hardware. A proof about source terms does not automatically prove those implementations correct. Record that boundary and reduce it incrementally rather than claiming infallibility.
 
+Proof methodology (Amendment A2, binding on every packet closeout from C04 on): Layer A semantic invariants, Layer B implementation theorems, Layer C stage-isolated adversarial fixtures, Layer D independent qualification — recorded in a per-packet exit receipt matrix with columns exit req, formal spec, predicate, pos witness, neg witness, stage-isolated, independent evidence, status. See the Amendment record.
+
 ## 12. Repository structure and delivery discipline
 
 Grow directories as implementations arrive; do not fill the repository with placeholder files:
@@ -283,3 +285,5 @@ These references motivate the design. No cited external test result is presented
 ## Amendment record
 
 **A1 — 2026-09-26: C04/C07/C11 boundary.** The C04 exit wording ("vertex links, orientation, ... self-intersecting ... diagnosed") was broader than the machinery the roadmap stages at C07 (general intersection: broad-phase bounds, subdivision/root isolation) and C11 (interference/containment classification). C04.1 had narrowed scope by contract deferral instead of by plan authority. This amendment resolves the inconsistency by plan authority: C04 means topologically coherent and locally geometrically consistent (predicate-level checks over C00–C03 only), with the C04 inclusion list, the C07/C11 exclusion list, and the self-intersection terminology reservation now stated in the C04 section above. C04.1 (`4cae05d`) is therefore incomplete against the amended C04: it lacks vertex-link validation, per-face orientation self-consistency, shell connectedness, coincident-vertex detection, same-face segment-crossing detection, and quadric implicit membership. Those six are the C04 completion list; nothing else may be pulled into C04 without a further amendment.
+
+**A2 — 2026-09-27: proof methodology.** Every packet closeout qualifies its exit criteria in four layers, recorded in an exit receipt matrix with exactly these columns: exit req, formal spec, predicate, pos witness, neg witness, stage-isolated, independent evidence, status. Layer A (semantic invariant): fixture-independent laws stating what each validation stage MEANS (quantified binders and micro-stores only — no exit fixture referenced), so stage semantics are pinned independently of fixture plumbing. Layer B (implementation theorem): closed laws over the actual implementation — one instance per pipeline arm (constructors, walks, verdicts) plus end-to-end accept/reject instances — all machine-checked. Layer C (stage-isolated adversarial fixtures): every negative exit fixture fails EXACTLY one stage (passing all earlier stages under the contract's first-match-wins order) and every positive exit fixture traverses all stages; isolation is corroborated by unit/walk-code pins, never asserted from the end-to-end verdict alone. Layer D (independent qualification): evidence independent of the artifact being qualified — triple-lane byte-equality, regression-hash reproduction against predecessor receipts, and independent oracle scripts or Layer-A cross-checks where no oracle script exists; carried-oracle scope limits are stated, never silent. A matrix row is PASS only when its law witness is closed AND its runtime witness is green on the qualifying lanes. The C04 closeout (`docs/c04-contract.md` §15) is the first matrix under this amendment.

@@ -150,6 +150,9 @@ def d_110() -> V.Dir:
 def d_n110() -> V.Dir:
   V.Dr{F64.neg(1.0f64), 1.0f64, 0.0f64}
 
+def d_1n10() -> V.Dir:
+  V.Dr{1.0f64, F64.neg(1.0f64), 0.0f64}
+
 def v2_00() -> V.Vec2:
   V.V2{0.0f64, 0.0f64}
 
@@ -186,6 +189,12 @@ def w01() -> V.Vec2:
 
 def dom_01() -> G.Dom:
   G.Dom{0.0f64, 1.0f64}
+
+# Closed-ring domain: the rational C03 circle evaluates identically
+# at t = -1 and t = 1 (antipodal point c - r*u), so [-1,1] closes
+# a ring edge on one vertex with exact endpoint evaluation.
+def dom_n11() -> G.Dom:
+  G.Dom{F64.neg(1.0f64), 1.0f64}
 
 def dom_flip() -> G.Dom:
   G.Dom{2.0f64, 1.0f64}
@@ -242,6 +251,14 @@ def p_spc() -> V.Point:
 def p_cyo() -> V.Point:
   V.Pt{0.0f64, 0.5f64, 0.0f64}
 
+# Top ring center of the real cylinder side (bottom is p_cyo).
+def p_cy_top() -> V.Point:
+  V.Pt{1.0f64, 0.5f64, 0.0f64}
+
+# Arc midpoint for the curved sphere witness (arcs join p000/p100).
+def p_mid01() -> V.Point:
+  V.Pt{0.5f64, 0.0f64, 0.0f64}
+
 def p500() -> V.Point:
   V.Pt{5.0f64, 0.0f64, 0.0f64}
 
@@ -252,6 +269,30 @@ def vs_q() -> List<&2, Ty.Vertex>:
 def sf_cy() -> G.GVal:
   G.GV_cy{G.Cy{p_cyo(), d100(), 0.5f64}}
 
+# Cylinder cap planes: origin at the ring vertex, so the closed
+# cap trim at UV (0,0) coincides exactly (stage G coincidence).
+def sf_botcap() -> G.GVal:
+  G.GV_pl{G.Pl{p010(), d010(), d001()}}
+
+def sf_topcap() -> G.GVal:
+  G.GV_pl{G.Pl{p110(), d010(), d001()}}
+
+# Cylinder ring circles: eval(-1) == eval(1) exactly (p010 / p110),
+# so each closes on its ring vertex over dom_n11.
+def cc_bot() -> G.GVal:
+  G.GV_cc{G.Cc{p_cyo(), d_0n10(), d001(), 0.5f64}}
+
+def cc_top() -> G.GVal:
+  G.GV_cc{G.Cc{p_cy_top(), d_0n10(), d001(), 0.5f64}}
+
+# Sphere lune arcs: eval(0) == p000, eval(1) == p100 exactly
+# (antipodal half-circles, opposite bulges via +-y frames).
+def cc_arc0() -> G.GVal:
+  G.GV_cc{G.Cc{p_mid01(), d_n100(), d010(), 0.5f64}}
+
+def cc_arc1() -> G.GVal:
+  G.GV_cc{G.Cc{p_mid01(), d_n100(), d_0n10(), 0.5f64}}
+
 def sf_co() -> G.GVal:
   G.GV_co{G.Co{p000(), d001(), 0.5f64}}
 
@@ -261,10 +302,13 @@ def sf_sp() -> G.GVal:
 def sf_to() -> G.GVal:
   G.GV_to{G.To{p000(), d001(), 4.0f64, 1.0f64}}
 
-def sf_bp() -> G.GVal:
-  G.GV_bp{G.Bp{p000(), p100(), p010(), p001(), p110(), p111(),
+def bp0() -> G.BezP:
+  G.Bp{p000(), p100(), p010(), p001(), p110(), p111(),
     p123(), p000(), p100(), p010(), p001(), p110(), p111(),
-    p123(), p000(), p100()}}
+    p123(), p000(), p100()}
+
+def sf_bp() -> G.GVal:
+  G.GV_bp{bp0()}
 
 # Trim arms (both).
 def tr_ts() -> G.GVal:
@@ -567,7 +611,11 @@ def tr_closed() -> G.GVal:
 def tr_bad() -> G.GVal:
   G.GV_ts{G.Ts{V.V2{2.0f64, 2.0f64}, V.V2{3.0f64, 3.0f64}}}
 
-def b_sphere() -> Ty.Brep:
+# Topology-control fixture: one straight ruling edge used
+# twice-opposite on a sphere face. Pins the seam-pairing /
+# ownership / link plumbing, NOT sphere geometry (see
+# b_sphere_curved for the curved witness). Must ACCEPT.
+def b_sphere_digon_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
   +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
@@ -589,7 +637,11 @@ def b_sphere() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-def b_cyl() -> Ty.Brep:
+# Topology-control fixture: one straight ruling edge used
+# twice-opposite on a cylinder face. Pins the seam-pairing
+# plumbing, NOT cylinder-side geometry (see b_cyl_side for the
+# real ring+seam witness). Must ACCEPT.
+def b_cyl_digon_ruling_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
   +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
@@ -611,6 +663,108 @@ def b_cyl() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
+# REAL cylinder side: one face whose outer loop is bottom closed
+# circle + seam + top closed circle + reverse seam, closed into a
+# solid by two plane cap faces sharing the ring edges. Ring edges
+# evaluate exactly at t = +-1 onto their ring vertices; the seam
+# is an exact ruling; ring vertices sit on the cylinder quadric;
+# cap trims coincide at UV origin. Must ACCEPT (A-L solid).
+def b_cyl_side() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p110()))
+  +hvB = Ty.mk_hv(0n, 1u64)
+  +hvT = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvB, hvB,
+    Ty.EK_curve{cc_bot(), dom_n11()}))
+  +heB = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hvB, hvT,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d100()}}, dom_01()}))
+  +heS = Ty.mk_he(1n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ed_push(b4, hvT, hvT,
+    Ty.EK_curve{cc_top(), dom_n11()}))
+  +heT = Ty.mk_he(2n, 5u64)
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, heB, True{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, heB, False{}, tr_closed()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, heS, True{}, tr_10_11()))
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, heS, False{}, tr_00_01()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, heT, True{}, tr_11_01()))
+  +b11 = Ty.tres_brep(Ty.ce_push(b10, heT, False{}, tr_closed()))
+  +hcBT = Ty.mk_hc(0n, 6u64)
+  +hcBF = Ty.mk_hc(1n, 7u64)
+  +hcST = Ty.mk_hc(2n, 8u64)
+  +hcSF = Ty.mk_hc(3n, 9u64)
+  +hcTT = Ty.mk_hc(4n, 10u64)
+  +hcTF = Ty.mk_hc(5n, 11u64)
+  +b12 = Ty.tres_brep(Ty.lp_push(b11,
+    hcBT <> hcST <> hcTT <> hcSF <> Nil{}, Ty.LK_outer{}))
+  +b13 = Ty.tres_brep(Ty.lp_push(b12, hcBF <> Nil{},
+    Ty.LK_outer{}))
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hcTF <> Nil{},
+    Ty.LK_outer{}))
+  +hlpS = Ty.mk_hlp(0n, 12u64)
+  +hlpB = Ty.mk_hlp(1n, 13u64)
+  +hlpT = Ty.mk_hlp(2n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_cy(), hlpS <> Nil{},
+    True{}))
+  +b16 = Ty.tres_brep(Ty.fa_push(b15, sf_botcap(), hlpB <> Nil{},
+    True{}))
+  +b17 = Ty.tres_brep(Ty.fa_push(b16, sf_topcap(), hlpT <> Nil{},
+    True{}))
+  +hfaS = Ty.mk_hfa(0n, 15u64)
+  +hfaB = Ty.mk_hfa(1n, 16u64)
+  +hfaT = Ty.mk_hfa(2n, 17u64)
+  +b18 = Ty.tres_brep(Ty.sh_push(b17,
+    hfaS <> hfaB <> hfaT <> Nil{}, Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 18u64)
+  +b19 = Ty.tres_brep(Ty.so_push(b18, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 19u64)
+  Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+# REAL curved sphere witness: two on-sphere vertices joined by two
+# half-circle arc edges (opposite bulges) as two lune faces. Arc
+# endpoints are exact on the curves and on the sphere quadric; arc
+# interiors are NOT checked against the surface (C07 territory).
+# Must ACCEPT (A-L solid).
+def b_sphere_curved() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p100()))
+  +hvN = Ty.mk_hv(0n, 1u64)
+  +hvS = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvN, hvS,
+    Ty.EK_curve{cc_arc0(), dom_01()}))
+  +he0 = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_ts()))
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_ts()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hvN, hvS,
+    Ty.EK_curve{cc_arc1(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_ts()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, he1, False{}, tr_ts()))
+  +e0f = Ty.mk_hc(0n, 4u64)
+  +e0b = Ty.mk_hc(1n, 5u64)
+  +e1f = Ty.mk_hc(2n, 7u64)
+  +e1b = Ty.mk_hc(3n, 8u64)
+  +b9 = Ty.tres_brep(Ty.lp_push(b8, e0f <> e1b <> Nil{},
+    Ty.LK_outer{}))
+  +b10 = Ty.tres_brep(Ty.lp_push(b9, e1f <> e0b <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 9u64)
+  +hlp1 = Ty.mk_hlp(1n, 10u64)
+  +b11 = Ty.tres_brep(Ty.fa_push(b10, sf_sp(), hlp0 <> Nil{},
+    True{}))
+  +b12 = Ty.tres_brep(Ty.fa_push(b11, sf_sp(), hlp1 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 11u64)
+  +hfa1 = Ty.mk_hfa(1n, 12u64)
+  +b13 = Ty.tres_brep(Ty.sh_push(b12, hfa0 <> hfa1 <> Nil{},
+    Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 13u64)
+  +b14 = Ty.tres_brep(Ty.so_push(b13, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 14u64)
+  Ty.brep_set_top(b14, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
 def b_open() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -627,6 +781,12 @@ def b_open() -> Ty.Brep:
   +hsh0 = Ty.mk_hsh(0n, 6u64)
   Ty.brep_set_top(b6, Ty.Cp{hso0(), hsh0 <> Nil{}})
 
+# Singular pole witness: one degenerate edge pinched to one vertex
+# (value-level pinch), used twice-opposite as two singleton pole
+# loops on two apex faces (stage D pole rule); degenerate uses are
+# transparent in H, so the fan passes vacuously. Intended singular
+# semantics: the apex is explicit content (EK_degenerate), never
+# inferred. Must ACCEPT under P_manifold_solid.
 def b_pole() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -791,33 +951,31 @@ def b_nonm() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
+# Stage D duplicate-incidence fixture: ONE closed circle edge whose
+# single coedge use is listed TWICE in one loop. Chain and trim
+# meets pass (closed edge + closed trim); the duplicate-handle
+# verdict (same coedge twice, same edge + same fwd pair) must
+# diagnose invalid-input at D. Passes A-C and G, so D is the only
+# failure. (Geometric crossing is stage K's verdict, not D's.)
 def b_selfx() -> Ty.Brep:
   +b0 = Ty.brep_empty()
-  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
   +b2 = Ty.tres_brep(Ty.ed_push(b1, hv01(), hv01(),
-    Ty.EK_degenerate{}))
-  +b3 = Ty.tres_brep(Ty.ed_push(b2, hv01(), hv01(),
-    Ty.EK_degenerate{}))
+    Ty.EK_curve{cc_bot(), dom_n11()}))
   +he0 = Ty.mk_he(0n, 2u64)
-  +he1 = Ty.mk_he(1n, 3u64)
-  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, True{}, tr_closed()))
-  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, False{}, tr_closed()))
-  +b6 = Ty.tres_brep(Ty.ce_push(b5, he1, True{}, tr_closed()))
-  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, False{}, tr_closed()))
-  +hc0 = Ty.mk_hc(0n, 4u64)
-  +hc1 = Ty.mk_hc(1n, 5u64)
-  +hc2 = Ty.mk_hc(2n, 6u64)
-  +hc3 = Ty.mk_hc(3n, 7u64)
-  +b8 = Ty.tres_brep(Ty.lp_push(b7,
-    hc0 <> hc1 <> hc2 <> hc3 <> Nil{}, Ty.LK_outer{}))
-  +hlp0 = Ty.mk_hlp(0n, 8u64)
-  +b9 = Ty.tres_brep(Ty.fa_push(b8, sf_sp(), hlp0 <> Nil{}, True{}))
-  +hfa0 = Ty.mk_hfa(0n, 9u64)
-  +b10 = Ty.tres_brep(Ty.sh_push(b9, hfa0 <> Nil{}, Ty.SK_outer{}))
-  +hsh_out = Ty.mk_hsh(0n, 10u64)
-  +b11 = Ty.tres_brep(Ty.so_push(b10, hsh_out, hsh0()))
-  +hso0x = Ty.mk_hso(0n, 11u64)
-  Ty.brep_set_top(b11, Ty.Cp{hso0x <> Nil{}, hsh0()})
+  +b3 = Ty.tres_brep(Ty.ce_push(b2, he0, True{}, tr_closed()))
+  +b4 = Ty.tres_brep(Ty.ce_push(b3, he0, False{}, tr_closed()))
+  +hc0 = Ty.mk_hc(0n, 3u64)
+  +b5 = Ty.tres_brep(Ty.lp_push(b4, hc0 <> hc0 <> Nil{},
+    Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 5u64)
+  +b6 = Ty.tres_brep(Ty.fa_push(b5, sf_sp(), hlp0 <> Nil{}, True{}))
+  +hfa0 = Ty.mk_hfa(0n, 6u64)
+  +b7 = Ty.tres_brep(Ty.sh_push(b6, hfa0 <> Nil{}, Ty.SK_outer{}))
+  +hsh_out = Ty.mk_hsh(0n, 7u64)
+  +b8 = Ty.tres_brep(Ty.so_push(b7, hsh_out, hsh0()))
+  +hso0x = Ty.mk_hso(0n, 8u64)
+  Ty.brep_set_top(b8, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
 # C04.1 ownership fixtures: outer-kind + shell-ownership violations.
 # Each is invalid-input under P_manifold_solid (stage F), diagnosed
@@ -1004,9 +1162,9 @@ def b_pinch() -> Ty.Brep:
   +hsoB = Ty.mk_hso(1n, 17u64)
   Ty.brep_set_top(b17, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
 
-# C04.2 quadric-membership fixture: b_sphere shape on the z-axis
-# edge, but v1 sits off the sphere face. Passes every stage except
-# the G quadric vertex-membership walk (invalid-input).
+# C04.2 quadric-membership fixture: digon-control shape on the
+# z-axis edge, but v1 sits off the sphere face. Passes every stage
+# except the G quadric vertex-membership walk (invalid-input).
 def b_offquad() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1075,8 +1233,9 @@ def b_split() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 16u64)
   Ty.brep_set_top(b16, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage J fixture: b_sphere shape plus one unused vertex coincident
-# with v0. Passes A-I; stage J must diagnose invalid-input.
+# Stage J fixture: digon-control shape plus one unused vertex
+# coincident with v0. Passes A-I; stage J must diagnose
+# invalid-input.
 def b_coin() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1100,9 +1259,11 @@ def b_coin() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage K fixture: bowtie (self-crossing) quad loop on a plane face
-# plus its reversed twin face (solid pairing). Passes A-J; stage K
-# must diagnose invalid-input (e0/e2 cross at the square center).
+# Stage K fixture: bowtie quad loop on a plane face plus its
+# reversed twin face (solid pairing). Each twin-face trim mirrors
+# its oriented vertex chain, so D meets and G plane-coincidence
+# pass; stage K must diagnose invalid-input (e0/e2 cross at the
+# square center). Passes A-J; fails exactly at K end-to-end.
 def b_xing() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1117,17 +1278,17 @@ def b_xing() -> Ty.Brep:
     Ty.EK_curve{G.GV_ln{G.Ln{p000(), d_110()}}, dom_01()}))
   +he0 = Ty.mk_he(0n, 5u64)
   +b6 = Ty.tres_brep(Ty.ce_push(b5, he0, True{}, tr_00_11()))
-  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he0, False{}, tr_00_11()))
   +b8 = Ty.tres_brep(Ty.ed_push(b7, hv1, hv2,
     Ty.EK_curve{G.GV_ln{G.Ln{p110(), d_0n10()}}, dom_01()}))
   +he1 = Ty.mk_he(1n, 8u64)
   +b9 = Ty.tres_brep(Ty.ce_push(b8, he1, True{}, tr_11_10()))
-  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{}, tr_10_11()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, he1, False{}, tr_11_10()))
   +b11 = Ty.tres_brep(Ty.ed_push(b10, hv2, hv3,
     Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n110()}}, dom_01()}))
   +he2 = Ty.mk_he(2n, 11u64)
   +b12 = Ty.tres_brep(Ty.ce_push(b11, he2, True{}, tr_10_01()))
-  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{}, tr_11_01()))
+  +b13 = Ty.tres_brep(Ty.ce_push(b12, he2, False{}, tr_10_01()))
   +b14 = Ty.tres_brep(Ty.ed_push(b13, hv3, hv0,
     Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_0n10()}}, dom_01()}))
   +he3 = Ty.mk_he(3n, 14u64)
@@ -1605,6 +1766,116 @@ def b_diffparam() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
+# Stage L-varying / curved-boundary fixtures (ORIENT-LEVEL ONLY, not
+# brep_checked exits). Each is a single open triangle face whose
+# chord winding disagrees with the face normal, so a verdict on the
+# chord polygon would FAIL: L must SKIP (pass) instead. b_planecurve
+# carries one circle edge on a plane (no chord-only claims for
+# curved); b_bezskip and b_spvar are varying-surface faces (no
+# one-sample-normal dot verdict). Triangle (0,0)->(0,1)->(1,0) has
+# Newell (0,0,-1), opposed to +z.
+def b_planecurve() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p010()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p100()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d010()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, True{}, tr_00_10()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hv1, hv2,
+    Ty.EK_curve{cv_cc(), dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_10_11()))
+  +b8 = Ty.tres_brep(Ty.ed_push(b7, hv2, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n100()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, he2, True{}, tr_01_00()))
+  +hc0 = Ty.mk_hc(0n, 5u64)
+  +hc1 = Ty.mk_hc(1n, 7u64)
+  +hc2 = Ty.mk_hc(2n, 9u64)
+  +b10 = Ty.tres_brep(Ty.lp_push(b9,
+    hc0 <> hc1 <> hc2 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 10u64)
+  +b11 = Ty.tres_brep(Ty.fa_push(b10, sf_pl(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 11u64)
+  +b12 = Ty.tres_brep(Ty.sh_push(b11, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshO = Ty.mk_hsh(0n, 12u64)
+  Ty.brep_set_top(b12, Ty.Cp{hso0(), hshO <> Nil{}})
+
+def b_bezskip() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p010()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p100()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d010()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, True{}, tr_00_10()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_1n10()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_10_11()))
+  +b8 = Ty.tres_brep(Ty.ed_push(b7, hv2, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n100()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, he2, True{}, tr_01_00()))
+  +hc0 = Ty.mk_hc(0n, 5u64)
+  +hc1 = Ty.mk_hc(1n, 7u64)
+  +hc2 = Ty.mk_hc(2n, 9u64)
+  +b10 = Ty.tres_brep(Ty.lp_push(b9,
+    hc0 <> hc1 <> hc2 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 10u64)
+  +b11 = Ty.tres_brep(Ty.fa_push(b10, sf_bp(), hlp0 <> Nil{},
+    True{}))
+  +hfa0 = Ty.mk_hfa(0n, 11u64)
+  +b12 = Ty.tres_brep(Ty.sh_push(b11, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshO = Ty.mk_hsh(0n, 12u64)
+  Ty.brep_set_top(b12, Ty.Cp{hso0(), hshO <> Nil{}})
+
+def b_spvar() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p010()))
+  +b3 = Ty.tres_brep(Ty.vx_push(b2, p100()))
+  +hv0 = Ty.mk_hv(0n, 1u64)
+  +hv1 = Ty.mk_hv(1n, 2u64)
+  +hv2 = Ty.mk_hv(2n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hv0, hv1,
+    Ty.EK_curve{G.GV_ln{G.Ln{p000(), d010()}}, dom_01()}))
+  +he0 = Ty.mk_he(0n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ce_push(b4, he0, True{}, tr_00_10()))
+  +b6 = Ty.tres_brep(Ty.ed_push(b5, hv1, hv2,
+    Ty.EK_curve{G.GV_ln{G.Ln{p010(), d_1n10()}}, dom_01()}))
+  +he1 = Ty.mk_he(1n, 6u64)
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, he1, True{}, tr_10_11()))
+  +b8 = Ty.tres_brep(Ty.ed_push(b7, hv2, hv0,
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n100()}}, dom_01()}))
+  +he2 = Ty.mk_he(2n, 8u64)
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, he2, True{}, tr_01_00()))
+  +hc0 = Ty.mk_hc(0n, 5u64)
+  +hc1 = Ty.mk_hc(1n, 7u64)
+  +hc2 = Ty.mk_hc(2n, 9u64)
+  +b10 = Ty.tres_brep(Ty.lp_push(b9,
+    hc0 <> hc1 <> hc2 <> Nil{}, Ty.LK_outer{}))
+  +hlp0 = Ty.mk_hlp(0n, 10u64)
+  +b11 = Ty.tres_brep(Ty.fa_push(b10, sf_sp(), hlp0 <> Nil{},
+    False{}))
+  +hfa0 = Ty.mk_hfa(0n, 11u64)
+  +b12 = Ty.tres_brep(Ty.sh_push(b11, hfa0 <> Nil{},
+    Ty.SK_open{}))
+  +hshO = Ty.mk_hsh(0n, 12u64)
+  Ty.brep_set_top(b12, Ty.Cp{hso0(), hshO <> Nil{}})
+
 # Hierarchy-ownership fixture: ONE loop shared by TWO faces.
 # Passes A-E; stage F must diagnose invalid-input (loop owned
 # twice). Both faces see exactly one LK_outer, so E passes.
@@ -1691,8 +1962,10 @@ def b_alias_solid() -> Ty.Brep:
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> hso0x <> Nil{}, hsh0()})
 
 # Stage H adversarial: disconnected fans (2-cell pinch, shared
-# vertex S=p100, cells to p000 and p110). Passes A-G; stage H
-# must diagnose invalid-input (two disjoint link orbits at S).
+# vertex S=p100, cells to p000 and p110). Each ruling runs from S
+# to its cell vertex, so G embedding passes; stage H must
+# diagnose invalid-input (two disjoint link orbits at S). Passes
+# A-G; fails exactly at H end-to-end.
 def b_h_disc() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p100()))
@@ -1702,7 +1975,7 @@ def b_h_disc() -> Ty.Brep:
   +hvA = Ty.mk_hv(1n, 2u64)
   +hvB = Ty.mk_hv(2n, 3u64)
   +b4 = Ty.tres_brep(Ty.ed_push(b3, hvS, hvA,
-    Ty.EK_curve{cv_ln(), dom_01()}))
+    Ty.EK_curve{G.GV_ln{G.Ln{p100(), d_n100()}}, dom_01()}))
   +heA = Ty.mk_he(0n, 4u64)
   +b5 = Ty.tres_brep(Ty.ce_push(b4, heA, True{}, tr_ts()))
   +b6 = Ty.tres_brep(Ty.ce_push(b5, heA, False{}, tr_ts()))
@@ -1853,7 +2126,7 @@ def b_h_ce2() -> Ty.Brep:
   Ty.brep_set_top(b11, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
 # Stage H control: valid seam (one edge twice-opposite in one
-# loop — the b_sphere shape). Must ACCEPT; the fan at each
+# loop — the digon-control shape). Must ACCEPT; the fan at each
 # vertex is the single twin(prev()) orbit.
 def b_h_seam() -> Ty.Brep:
   +b0 = Ty.brep_empty()

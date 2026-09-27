@@ -695,17 +695,17 @@ def pos_g9(f173: U64) -> IO(U64):
       Nat.is_eq(Op.brep_conn_c(C.b_split(), 20n), 2n),
       f191)
     f193 : U64 <- C.report_pure("pos-conn-sphere",
-      Nat.is_eq(Op.brep_conn_c(C.b_sphere(), 12n), 3n),
+      Nat.is_eq(Op.brep_conn_c(C.b_sphere_digon_control(), 12n), 3n),
       f192)
     return f193
 
 def pos_g10(f193: U64) -> IO(U64):
   do IO<U64>:
     f194 : U64 <- C.report_ok("pos-ck-sphere",
-      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 12n),
+      Op.brep_checked(C.b_sphere_digon_control(), Ty.P_manifold_solid{}, 12n),
       f193)
     f195 : U64 <- C.report_ok("pos-ck-cyl",
-      Op.brep_checked(C.b_cyl(), Ty.P_manifold_solid{}, 12n),
+      Op.brep_checked(C.b_cyl_digon_ruling_control(), Ty.P_manifold_solid{}, 12n),
       f194)
     f196 : U64 <- C.report_ok("pos-ck-cav",
       Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
@@ -721,11 +721,11 @@ def pos_g10(f193: U64) -> IO(U64):
 def pos_g11(f198: U64) -> IO(U64):
   do IO<U64>:
     f199 : U64 <- C.report_pure("pos-coin-sphere",
-      Nat.is_eq(Op.brep_coin_c(C.b_sphere(), 12n), 3n), f198)
+      Nat.is_eq(Op.brep_coin_c(C.b_sphere_digon_control(), 12n), 3n), f198)
     f200 : U64 <- C.report_pure("pos-coin-dup",
       Nat.is_eq(Op.brep_coin_c(C.b_coin(), 12n), 2n), f199)
     f201 : U64 <- C.report_pure("pos-coin-fuel",
-      Bool.not(Ty.okd_done(Op.brep_coin_c(C.b_sphere(), 0n))),
+      Bool.not(Ty.okd_done(Op.brep_coin_c(C.b_sphere_digon_control(), 0n))),
       f200)
     f202 : U64 <- C.report_pure("pos-link-sq",
       Nat.is_eq(Op.vx_link_ok(C.b_oriprop(),
@@ -748,7 +748,7 @@ def pos_g11(f198: U64) -> IO(U64):
     f207 : U64 <- C.report_pure("pos-xing-hit",
       Nat.is_eq(Op.brep_xing_c(C.b_xing(), 20n), 2n), f206)
     f208 : U64 <- C.report_pure("pos-xing-fuel",
-      Bool.not(Ty.okd_done(Op.brep_xing_c(C.b_sphere(), 0n))),
+      Bool.not(Ty.okd_done(Op.brep_xing_c(C.b_sphere_digon_control(), 0n))),
       f207)
     f209 : U64 <- C.report_pure("pos-orient-sq",
       Nat.is_eq(Op.brep_orient_c(C.b_oriprop(), 20n), 3n),
@@ -756,14 +756,14 @@ def pos_g11(f198: U64) -> IO(U64):
     f210 : U64 <- C.report_pure("pos-orient-invface",
       Nat.is_eq(Op.brep_orient_c(C.b_invface(), 20n), 2n),
       f209)
-    f211 : U64 <- C.report_pure("pos-prop-sphere",
-      Nat.is_eq(Op.brep_prop_c(C.b_sphere(), 12n), 3n),
+    f211 : U64 <- C.report_pure("pos-recheck-sphere",
+      Nat.is_eq(Op.brep_recheck_c(C.b_sphere_digon_control(), 12n), 3n),
       f210)
-    f212 : U64 <- C.report_pure("pos-prop-oriprop",
-      Nat.is_eq(Op.brep_prop_c(C.b_oriprop(), 20n), 3n),
+    f212 : U64 <- C.report_pure("pos-recheck-oriprop",
+      Nat.is_eq(Op.brep_recheck_c(C.b_oriprop(), 20n), 3n),
       f211)
-    f213 : U64 <- C.report_pure("pos-prop-pinch",
-      Nat.is_eq(Op.brep_prop_c(C.b_pinch(), 20n), 3n),
+    f213 : U64 <- C.report_pure("pos-recheck-pinch",
+      Nat.is_eq(Op.brep_recheck_c(C.b_pinch(), 20n), 3n),
       f212)
     f214 : U64 <- C.report_pure("pos-orient-hole",
       Nat.is_eq(Op.brep_orient_c(C.b_hole(), 20n), 3n),
@@ -777,14 +777,14 @@ def pos_g11(f198: U64) -> IO(U64):
     f217 : U64 <- C.report_pure("pos-orient-diffparam",
       Nat.is_eq(Op.brep_orient_c(C.b_diffparam(), 20n), 3n),
       f216)
-    f218 : U64 <- C.report_pure("pos-prop-invface",
-      Nat.is_eq(Op.brep_prop_c(C.b_invface(), 20n), 2n),
+    f218 : U64 <- C.report_pure("pos-recheck-invface",
+      Nat.is_eq(Op.brep_recheck_c(C.b_invface(), 20n), 2n),
       f217)
-    f219 : U64 <- C.report_pure("pos-prop-diffparam",
-      Nat.is_eq(Op.brep_prop_c(C.b_diffparam(), 20n), 3n),
+    f219 : U64 <- C.report_pure("pos-recheck-diffparam",
+      Nat.is_eq(Op.brep_recheck_c(C.b_diffparam(), 20n), 3n),
       f218)
-    f220 : U64 <- C.report_pure("pos-prop-hole",
-      Nat.is_eq(Op.brep_prop_c(C.b_hole(), 20n), 3n),
+    f220 : U64 <- C.report_pure("pos-recheck-hole",
+      Nat.is_eq(Op.brep_recheck_c(C.b_hole(), 20n), 3n),
       f219)
     f221 : U64 <- C.report_ok("pos-ck-oriprop",
       Op.brep_checked(C.b_oriprop(), Ty.P_manifold_solid{},
@@ -814,7 +814,7 @@ def pos_g12(f223: U64) -> IO(U64):
         20n),
       f225)
     f227 : U64 <- C.report_pure("pos-own-loop-clean",
-      Nat.is_eq(Op.fas_loop_own_c(Ty.brep_fas(C.b_sphere()),
+      Nat.is_eq(Op.fas_loop_own_c(Ty.brep_fas(C.b_sphere_digon_control()),
         12n, 12n), 3n),
       f226)
     f228 : U64 <- C.report_pure("pos-own-loop-hit",
@@ -822,7 +822,7 @@ def pos_g12(f223: U64) -> IO(U64):
         12n, 12n), 2n),
       f227)
     f229 : U64 <- C.report_pure("pos-own-face-clean",
-      Nat.is_eq(Op.shs_face_own_c(Ty.brep_shs(C.b_sphere()),
+      Nat.is_eq(Op.shs_face_own_c(Ty.brep_shs(C.b_sphere_digon_control()),
         12n, 12n), 3n),
       f228)
     f230 : U64 <- C.report_pure("pos-own-face-hit",
@@ -830,7 +830,7 @@ def pos_g12(f223: U64) -> IO(U64):
         12n, 12n), 2n),
       f229)
     f231 : U64 <- C.report_pure("pos-own-solid-clean",
-      Nat.is_eq(Op.cp_so_own_c(Ty.brep_top(C.b_sphere()), 12n),
+      Nat.is_eq(Op.cp_so_own_c(Ty.brep_top(C.b_sphere_digon_control()), 12n),
         3n),
       f230)
     f232 : U64 <- C.report_pure("pos-own-solid-hit",
@@ -863,6 +863,172 @@ def pos_g12(f223: U64) -> IO(U64):
       f237)
     return f238
 
+def pos_g13(f238: U64) -> IO(U64):
+  do IO<U64>:
+    f239 : U64 <- C.report_pure("pos-orient-planecurve",
+      Nat.is_eq(Op.brep_orient_c(C.b_planecurve(), 20n), 3n),
+      f238)
+    f240 : U64 <- C.report_pure("pos-orient-bezskip",
+      Nat.is_eq(Op.brep_orient_c(C.b_bezskip(), 20n), 3n),
+      f239)
+    f241 : U64 <- C.report_pure("pos-orient-spvar",
+      Nat.is_eq(Op.brep_orient_c(C.b_spvar(), 20n), 3n),
+      f240)
+    f242 : U64 <- C.report_pure("pos-recheck-spvar",
+      Nat.is_eq(Op.brep_recheck_c(C.b_spvar(), 20n), 3n),
+      f241)
+    f243 : U64 <- C.report_pure("pos-cert-oriprop",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_oriprop(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_oriprop(), 20n)), 2n)),
+      f242)
+    f244 : U64 <- C.report_pure("pos-skip-oriprop",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_oriprop(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_oriprop(), 20n)), 0n)),
+      f243)
+    f245 : U64 <- C.report_pure("pos-cert-invface",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_invface(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_invface(), 20n)), 2n)),
+      f244)
+    f246 : U64 <- C.report_pure("pos-skip-invface",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_invface(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_invface(), 20n)), 0n)),
+      f245)
+    f247 : U64 <- C.report_pure("pos-cert-hole",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_hole(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_hole(), 20n)), 2n)),
+      f246)
+    f248 : U64 <- C.report_pure("pos-skip-hole",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_hole(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_hole(), 20n)), 0n)),
+      f247)
+    f249 : U64 <- C.report_pure("pos-cert-sphere",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_sphere_digon_control(), 12n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_sphere_digon_control(), 12n)), 0n)),
+      f248)
+    f250 : U64 <- C.report_pure("pos-skip-sphere",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_sphere_digon_control(), 12n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_sphere_digon_control(), 12n)), 1n)),
+      f249)
+    f251 : U64 <- C.report_pure("pos-cert-planecurve",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_planecurve(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_planecurve(), 20n)), 0n)),
+      f250)
+    f252 : U64 <- C.report_pure("pos-skip-planecurve",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_planecurve(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_planecurve(), 20n)), 1n)),
+      f251)
+    f253 : U64 <- C.report_pure("pos-cert-bezskip",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_bezskip(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_bezskip(), 20n)), 0n)),
+      f252)
+    f254 : U64 <- C.report_pure("pos-skip-bezskip",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_bezskip(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_bezskip(), 20n)), 1n)),
+      f253)
+    f255 : U64 <- C.report_pure("pos-cert-spvar",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_spvar(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_spvar(), 20n)), 0n)),
+      f254)
+    f256 : U64 <- C.report_pure("pos-skip-spvar",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_spvar(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_spvar(), 20n)), 1n)),
+      f255)
+    f257 : U64 <- C.report_pure("pos-cert-fuel",
+      Bool.not(Op.cnt_done(Op.brep_orient_cert_c(C.b_oriprop(), 0n))),
+      f256)
+    f258 : U64 <- C.report_pure("pos-bezp-ok00",
+      G.gres_ok(Op.bezp_normal_at(C.bp0(), 0.0f64, 0.0f64)),
+      f257)
+    f259 : U64 <- C.report_pure("pos-bezp-ok11",
+      G.gres_ok(Op.bezp_normal_at(C.bp0(), 1.0f64, 1.0f64)),
+      f258)
+    f260 : U64 <- C.report_pure("pos-bezp-z00pos",
+      F64.is_lt(0.0f64,
+        V.dr_z(G.gres_d(Op.bezp_normal_at(C.bp0(), 0.0f64, 0.0f64)))),
+      f259)
+    f261 : U64 <- C.report_pure("pos-bezp-z11neg",
+      F64.is_lt(V.dr_z(G.gres_d(Op.bezp_normal_at(C.bp0(), 1.0f64, 1.0f64))),
+        0.0f64),
+      f260)
+    f262 : U64 <- C.report_pure("pos-bezp-baduv",
+      Bool.not(G.gres_ok(Op.bezp_normal_at(C.bp0(), 2.0f64, 0.5f64))),
+      f261)
+    return f262
+
+def pos_g14(f262: U64) -> IO(U64):
+  do IO<U64>:
+    f263 : U64 <- C.report_ok("pos-ck-cyl-side",
+      Op.brep_checked(C.b_cyl_side(), Ty.P_manifold_solid{},
+        20n),
+      f262)
+    f264 : U64 <- C.report_ok("pos-ck-sphere-curved",
+      Op.brep_checked(C.b_sphere_curved(),
+        Ty.P_manifold_solid{}, 20n),
+      f263)
+    f265 : U64 <- C.report_pure("pos-hdisc-d",
+      Nat.is_eq(Op.brep_loop_c(C.b_h_disc(), 20n), 3n),
+      f264)
+    f266 : U64 <- C.report_pure("pos-hdisc-e",
+      Nat.is_eq(Op.brep_facekind_c(C.b_h_disc(), 20n), 3n),
+      f265)
+    f267 : U64 <- C.report_pure("pos-hdisc-f",
+      Nat.is_eq(Op.brep_prof_c(C.b_h_disc(),
+        Ty.P_manifold_solid{}, 20n), 3n),
+      f266)
+    f268 : U64 <- C.report_pure("pos-hdisc-g",
+      Nat.is_eq(Op.brep_embed_c(C.b_h_disc(), 20n), 3n),
+      f267)
+    f269 : U64 <- C.report_pure("pos-hdisc-h",
+      Nat.is_eq(Op.brep_link_c(C.b_h_disc(),
+        Ty.P_manifold_solid{}, 20n), 2n),
+      f268)
+    f270 : U64 <- C.report_pure("pos-xing-d",
+      Nat.is_eq(Op.brep_loop_c(C.b_xing(), 20n), 3n),
+      f269)
+    f271 : U64 <- C.report_pure("pos-xing-e",
+      Nat.is_eq(Op.brep_facekind_c(C.b_xing(), 20n), 3n),
+      f270)
+    f272 : U64 <- C.report_pure("pos-xing-f",
+      Nat.is_eq(Op.brep_prof_c(C.b_xing(),
+        Ty.P_manifold_solid{}, 20n), 3n),
+      f271)
+    f273 : U64 <- C.report_pure("pos-xing-g",
+      Nat.is_eq(Op.brep_embed_c(C.b_xing(), 20n), 3n),
+      f272)
+    f274 : U64 <- C.report_pure("pos-xing-h",
+      Nat.is_eq(Op.brep_link_c(C.b_xing(),
+        Ty.P_manifold_solid{}, 20n), 3n),
+      f273)
+    f275 : U64 <- C.report_pure("pos-xing-i",
+      Nat.is_eq(Op.brep_conn_c(C.b_xing(), 20n), 3n),
+      f274)
+    f276 : U64 <- C.report_pure("pos-xing-j",
+      Nat.is_eq(Op.brep_coin_c(C.b_xing(), 20n), 3n),
+      f275)
+    f277 : U64 <- C.report_pure("pos-cert-cyl-side",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_cyl_side(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_cyl_side(), 20n)), 0n)),
+      f276)
+    f278 : U64 <- C.report_pure("pos-skip-cyl-side",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_cyl_side(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_cyl_side(), 20n)), 3n)),
+      f277)
+    f279 : U64 <- C.report_pure("pos-cert-sphere-curved",
+      Bool.and(Op.cnt_done(Op.brep_orient_cert_c(C.b_sphere_curved(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_cert_c(C.b_sphere_curved(), 20n)), 0n)),
+      f278)
+    f280 : U64 <- C.report_pure("pos-skip-sphere-curved",
+      Bool.and(Op.cnt_done(Op.brep_orient_skip_c(C.b_sphere_curved(), 20n)),
+        Nat.is_eq(Op.cnt_count(Op.brep_orient_skip_c(C.b_sphere_curved(), 20n)), 2n)),
+      f279)
+    f281 : U64 <- C.report_pure("pos-selfx-d",
+      Nat.is_eq(Op.brep_loop_c(C.b_selfx(), 12n), 2n),
+      f280)
+    f282 : U64 <- C.report_pure("pos-selfx-g",
+      Nat.is_eq(Op.brep_embed_c(C.b_selfx(), 12n), 3n),
+      f281)
+    return f282
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- pos_g1(0u64)
@@ -877,4 +1043,6 @@ def main() -> IO(Unit):
     a10 : U64 <- pos_g10(a9)
     a11 : U64 <- pos_g11(a10)
     a12 : U64 <- pos_g12(a11)
-    IO.print("selfcheck fails=" ++ U64.show(a12))
+    a13 : U64 <- pos_g13(a12)
+    a14 : U64 <- pos_g14(a13)
+    IO.print("selfcheck fails=" ++ U64.show(a14))

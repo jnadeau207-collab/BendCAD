@@ -5,8 +5,10 @@ entity types, the edge/coedge split, value-level validation,
 generational stores with a push/issued/resolve protocol — in
 `src/c04/types.bend`, plus the profile validators (`brep_checked`:
 incidence, edge-use pairing, closed boundaries, trimming
-consistency, shell ownership, geometric embedding; vertex-link
-pinch and face-orientation coherence deferred, §12) in
+consistency, shell ownership, geometric embedding, vertex-link
+validation (stage H, IMPLEMENTED), and kind-aware per-face
+orientation (L-plane certified, L-varying explicit skip; global
+outwardness deferred, §12)) in
 `src/c04/ops.bend`. §4 states the implemented rules; §12 records
 the remaining deferrals honestly. `brep_checked` is the validity
 verdict beyond value-level shape.
@@ -29,9 +31,10 @@ Delivered against that scope: representation (first paragraph)
 and profile validation (second paragraph) are implemented, pinned by
 laws, and tested. The exit fixtures (seams/cavities accepted,
 counterexamples diagnosed) are runnable via `brep_checked` and
-pinned in `laws/c04.bend` (`ck_*`) and asserted at runtime by
-the suite appends (`pos_g10`: 5 accepts; `neg_g7` + `neg_g8` +
-`neg_g9`: 21 rejects, incl. the C04.1 outer-kind/ownership and
+pinned in `laws/c04.bend` (32 `ck_*`: 10 accepts + 21 rejects
++ fuel) and asserted at runtime by the suite appends
+(`pos_g10`–`pos_g14`: 13 accepts; `neg_g7`–`neg_g10`:
+32 rejects, incl. the C04.1 outer-kind/ownership and
 the C04.2 vertex-link / connectedness / quadric-membership /
 coincidence / segment-crossing / orientation diagnoses).
 
@@ -152,9 +155,12 @@ Construction protocol, in order:
    raw `Br`); B. incidence (every member handle live);
    C. edge-use pairing (solid: twice opposite; open:
    once/twice, twice ⇒ opposite); D. loop closure (oriented
-   vertex chain meets + closed) + no repeated starts (a
-   narrow duplicate-handle proxy within each loop; geometric
-   coincidence is stage J) + trim meets in face `(u,v)`;
+   vertex chain meets + closed) + no same-coedge dup
+   (`hc_nodup_c`; repeated start vertices are NOT
+   auto-invalid) + seam double-use (`loop_seam_go`,
+   opposite `fwd`) + singleton pole (`loop_pole_go`) +
+   trim meets in face `(u,v)` (geometric coincidence is
+   stage J);
    E. exactly one `LK_outer` per face; F. hierarchy/profile
    (loop/face ownership both profiles; solid adds kind
    rules + shell/solid ownership; open skips solid/cavity/
@@ -174,11 +180,17 @@ Construction protocol, in order:
    crossing (`orient3d` coplanarity + `seg_seg` proper in
    `xy`/`xz`/`yz`, fail-closed: predicate uncertainty
    rejects, NOT a proven crossing; both profiles);
-   L. orientation
-   (kind-aware per-face winding vs `same`-adjusted C03 normal
-   where determinable + per-use local coherence across shared
-   edges — `same` never compared across faces — both
-   profiles). Returns `Tok brep` on success, else `Terr`.
+   L. orientation, split: L-plane certifies per-face
+   boundary winding vs the `same`-adjusted plane normal in
+   the loop kind's sense (outer aligned, hole opposed) ONLY
+   for straight-line planar boundaries; L-varying
+   (sphere/cyl/cone/torus/bezier faces and curved plane
+   boundaries) explicitly skips as not-determinable (never
+   fails; certified-vs-skipped counts via
+   `brep_orient_cert_c`/`brep_orient_skip_c`); every shared
+   edge is re-traversed as an explicit redundant recheck
+   (`same` never compared across faces — both profiles).
+   Returns `Tok brep` on success, else `Terr`.
 
 ## 4. Profiles (explicitly named, validation implemented)
 
@@ -191,8 +203,9 @@ explicitly.
 Implemented rules:
 
 - `P_manifold_solid`: every edge used exactly twice with
-  opposite `fwd`; every loop closed with distinct starts
-  (duplicate-handle proxy within the loop); every face has
+  opposite `fwd`; every loop closed with no same-coedge
+  dup (seam double-use and singleton pole allowed);
+  every face has
   exactly one `LK_outer`; loops/faces/shells/solids owned
   at most once (no loop shared across faces, no face
   shared across shells, no outer/cavity aliasing, no
@@ -210,9 +223,12 @@ Implemented rules:
   coincident distinct vertices; no same-face
   straight-edge segment crossing (fail-closed: predicate
   uncertainty rejects, NOT a proven crossing);
-  kind-aware per-face winding vs `same`-adjusted normal
-  agreement where determinable; per-use local coherence
-  across shared edges (`same` never compared across faces).
+  L-plane certified winding vs the `same`-adjusted plane
+  normal (outer aligned, hole opposed) for straight-line
+  planar boundaries; L-varying explicit skip (never fails)
+  for quadric/bezier faces and curved boundaries, with
+  certified-vs-skipped counts; an explicit redundant
+  per-edge recheck (`same` never compared across faces).
   Cavity inside/disjoint classification and global outward
   shell orientation (inside/outside classification) are
   DEFERRED to C07/C11 (§12).
@@ -300,8 +316,9 @@ gen 0 slot (D2), stamp below a slot gen (D1), duplicate gen
 within a store (D3); any `brep_checked` stage failure:
 dangling handle, edge-use count/fwd violation (inverted,
 nonmanifold-edge, open-boundary under solid), loop unclosed
-or repeated starts (the duplicate-vertex proxy — general
-geometric self-intersection is NOT checked, §12), face
+or same-coedge dup or seam/pole violation
+(duplicate-incidence only — general geometric
+self-intersection is NOT checked, §12), face
 without exactly one outer, `SK_open` under solid, outer
 not `SK_outer`, cavity not `SK_inner`, loop/face/shell/solid
 owned twice (loop shared across faces, face shared across
@@ -341,18 +358,18 @@ it is not a hidden assumption).
 
 | Gate | Verdict | Evidence |
 |------|---------|----------|
-| BN-1 | PASS | Packet implementation is exactly `src/c04/types.bend` (294 defs) + `src/c04/ops.bend` (71 defs); both `bend … --check-only` → `All terms check.` No authoritative algorithm in another language. |
+| BN-1 | PASS | Packet implementation is exactly `src/c04/types.bend` (296 defs) + `src/c04/ops.bend` (192 defs); both `bend … --check-only` → `All terms check.` No authoritative algorithm in another language. |
 | BN-2 | PASS | `grep -rn "@unsafe" src/ laws/ tests/ \| grep -v ': *#'` empty (this session). |
 | BN-3 | PASS | `grep -rn "F32" src/ laws/ tests/` empty; every scalar is the pinned as-bits F64 path. No display narrowing exists. |
 | BN-4 | PASS | `grep -rni "foreign\|ffi_import\|@ffi" src/` empty; imports are `Base` + `../c00` + `../c01` + `../c03` only. Boundary list: none. |
 | BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/` empty; `legacy/` clean + `verify_legacy.py` exit 0 (§11). No oracle harness in packet code. |
 | BN-6 | PASS | No GPU claim in this packet — hence no GPU path to fall back from. All work is host structural/Nat/U64/F64-finite checks. |
 | BN-7 | PASS | §6: generational `(idx, gen)` handles into explicit lists; stale → `invalid-input` (`neg-res-*-stale`, `vx/ed/…_res_stale` laws). No addresses; bare index never accepted as identity. |
-| BN-8 | PASS | Machine audit (§11): 90 self-recursive defs = 83 fuel-capped walks (types: `*_all_c`/`*_gen_c`/`*_nodup_c`/`*_free_of`/`*_len_go`/`*_at`/`*_handle_of_go`; ops: incidence/usage/loop/face/profile/ownership/embed walks; exhaustion → `resource-exhausted`, `neg-*-0` + `ck_fuel` pins) + 7 structural `*_snoc` (C03 `dropk` precedent, no fuel by design). No unbounded recursion. |
+| BN-8 | PASS | Machine audit (§11): 154 self-recursive defs = 147 fuel-capped walks (types: 49 `*_all_c`/`*_gen_c`/`*_nodup_c`/`*_free_of`/`*_len_go`/`*_at`/`*_handle_of_go`; ops: 98 incidence/usage/loop/face/profile/ownership/embed/link/conn/coin/xing/orient/recheck walks, every one taking fuel/`ffull`; exhaustion → `resource-exhausted`, `neg-*-0` + `ck_fuel` pins) + 7 structural `*_snoc` (C03 `dropk` precedent, no fuel by design). No unbounded recursion. |
 | BN-9 | PASS | No batch op ships; a batch is SPECIFIED as the left fold of the single push, failing closed on the first `Terr` (§10). |
-| BN-10 | PASS | No numerical shortcut: `brep_checked` evaluates C03 curves/surfaces at endpoints and compares exactly (no tolerance inflation); Euler identities documented-necessary, explicitly not validation (§4). The repeated-start proxy is claimed as a proxy only, never as general self-intersection; quadric trim coincidence skip, vertex-link pinch, cavity inside/disjoint, and face-orientation coherence are LABELED deferrals (§12), not shortcuts. |
+| BN-10 | PASS | No numerical shortcut: `brep_checked` evaluates C03 curves/surfaces at endpoints and compares exactly (no tolerance inflation); Euler identities documented-necessary, explicitly not validation (§4). Stage D duplicate-incidence (`hc_nodup_c` + seam + pole) is claimed as loop-handle hygiene only, never as general self-intersection; stage K uncertainty fails closed (uncertain-or-crossing, never a proven crossing). Vertex-link validation is IMPLEMENTED (stage H, `ck_pinch`); orientation is L-plane CERTIFIED with L-varying explicit skip and GLOBAL outwardness deferred (§12). Quadric trim 3D coincidence skip (with exact ordered-zero vertex membership), cavity inside/disjoint, curved-edge crossings, and cross-face/inter-loop penetration are LABELED deferrals (§12), not shortcuts. |
 | BN-11 | PASS | Every `Terr` arm returns no value: projectors yield documented defaults (§2); `neg-*` assert kinds, `pos-dflt-*` assert defaults, `fails=0` on all lanes. |
-| BN-12 | PASS | C04.1 receipt records BendCAD HEAD `d080562`, per-file sha256, `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, fork-build `bend`, bun 1.4.2, pinned env; CI-unavailable record carried. |
+| BN-12 | PASS | Single-SHA closeout at predecessor HEAD `6f70197d2dd1005670733f0206903408378f6427` + working-tree C04 bytes (§11, per-file sha256); `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, fork-build `bend`, bun 1.4.2, pinned env; CI-unavailable record carried. No completion claim from any other SHA (§14 records the superseded interim SHAs). |
 
 Gate count: 12 (BN-1 through BN-12).
 
@@ -375,39 +392,106 @@ across pushes). No shared mutable state, no atomics.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c04/types.bend --check-only   # All terms check.
 bend src/c04/ops.bend --check-only     # All terms check.
-bend laws/c04.bend --check-only        # All terms check (455 laws).
+bend laws/c04.bend --check-only        # All terms check (592 laws).
 bend tests/c04/check.bend --check-only # All terms check.
-bend tests/c04/neg.bend                # 115 PASS, selfcheck fails=0
-bend tests/c04/pos.bend                # 213 PASS, selfcheck fails=0
+bend tests/c04/neg.bend                # 126 PASS, selfcheck fails=0
+bend tests/c04/pos.bend                # 282 PASS, selfcheck fails=0
 # native lane: bend <suite> -o <bin> && <bin>; js lane: bend <suite> -o <js> && bun <js>
 grep -rn '@unsafe' src/ laws/ tests/ | grep -v ': *#'  # empty
 grep -rn 'F32' src/ laws/ tests/                        # empty
 ```
 
-Close-out record (final bytes, C04.1): `src/c04/types.bend`
-(one comment line reworded, no def changed),
-`src/c04/ops.bend`, `laws/c04.bend` (430 laws),
-`tests/c04/check.bend`, both
-suites all check-only green; `pos` 188/188, `neg` 107/107,
-`fails=0`, byte-identical `cmp` clean on interpreted +
-native + js. Prior packets (c00–c03) untouched
-(byte-identical to `d080562`) and re-run green on the
-interpreted lane with counts reproducing the C03.2 receipt
-sets. Repo totals:
-924 laws (38+34+51+371+430), 844 checks/lane (549 prior +
-295 C04). C04.2/A1 completion (this change): `laws/c04.bend`
-455 laws, `pos` 213/213, `neg` 115/115, `fails=0` on the
-interpreted lane; repo totals 949 laws
-(38+34+51+371+455), 877 checks/lane (549 prior + 328 C04).
-Oracle 57/57 (§4 of the C04.1 receipt: the C04
-52 plus the 5 new ownership exit lines; the 13 probe
-checks read the carried C04 probe log since types.bend is
-behavior-identical). Codegen note: the per-store
-len/at/resolve/handle_of/issued/push
-law instances follow the mechanical pattern emitted by the
-uncommitted `/tmp/gen_c04.py`; every law, however produced,
-is machine-checked by `bend --check-only` like hand-written
-ones.
+Closeout record — ONE coherent record for the closeout bytes
+(this section supersedes every interim number in §14 history;
+no 430/455 figure here is live).
+
+Predecessor HEAD: `6f70197d2dd1005670733f0206903408378f6427`
+(`c04.2: kind-aware orientation, hierarchy ownership, qualified
+closeout`). The closeout bytes are the working tree on top of
+that SHA: exactly the seven closeout paths
+(`docs/c04-contract.md`, `MASTER_PLAN.md` (Rev 4, Amendment
+A2), `src/c04/ops.bend`, `laws/c04.bend`,
+`tests/c04/check.bend`, `tests/c04/neg.bend`,
+`tests/c04/pos.bend`); c00–c03 and `src/c04/types.bend` are
+byte-identical to HEAD (`git status` shows no other path).
+No completion claim is made from any other SHA. Per-file
+sha256 of the closeout bytes (this contract excluded as the
+file being written):
+
+```text
+e6c621438fbbf3f93a1a99e3bfda1ed84137a006764c85104393a3287d7e90b5  MASTER_PLAN.md
+80d8a686118112be5381aa4059e9c058a63b962f36eeb551a2d5164751b17f9b  src/c04/types.bend (unmodified vs HEAD)
+51660ef6c57a15df2853059bf417caf32bfdea036261df9b34abc14d2af7aeec  src/c04/ops.bend
+8bec62a46e4af079947387ac618e20707d74df7ba9043aec0ce4e097c05e45c5  laws/c04.bend
+9101f8ca6fa6eb8cb2211dc53817ff9936ff0e171d8a003e9fa2e8b29517fa49  tests/c04/check.bend
+f0cc19fa5f4036fa809243b6db624c89ad3a089766c68188a305577faed791ca  tests/c04/neg.bend
+de0369caf3714f055857363c6adebd55bd68f7e8f6d32ad65cc5e1a4bf2392c4  tests/c04/pos.bend
+```
+
+Bend pin: `BEND_PIN
+jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`
+(`~/.bend/FORK` tag `numeric/2026-09-25`); fork-build `bend`,
+bun 1.4.2, `PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH`,
+`BEND_NO_TELEMETRY=1`. CI-unavailable record carried (BN-12):
+local qualification is the authoritative evidence.
+
+Laws: 592 (`grep -c '^law ' laws/c04.bend` = 592 = 480 L0 +
+112 L1; `grep -c '^law ck_'` = 32 = 10 accepts + 21 rejects +
+fuel). C03 predecessor: 403 laws; repo total 1118
+(38+34+51+403+592). RECONCILIATION: C03 stood at 371 laws
+through C04/C04.1; the C03.3 record (b5c18a6, G10 quadric
+exact-membership) added 32 laws purely additively (371 →
+403, neg stdout reproduced bit-for-bit). Every repo total
+still quoting 371, and every C04 total quoting 430 or 455,
+is superseded interim state — see §14.
+
+Tests (observed this turn, all exit 0): `neg` 126/126 and
+`pos` 282/282 on interpreted + native + js (408 checks × 3
+lanes = 1224 executions, 0 fails), `selfcheck fails=0`, zero
+FAIL lines in all six logs, `cmp` clean across lanes per
+suite. stdout sha256: neg
+`9bace48468977659517e3101c96e359bed4e741194306a54881cfcae65a3258b`
+(x3 — REPRODUCES the c04.2 receipt hash byte-for-byte); pos
+`84e3152a5577f98b86d229e58ca00987b32a9a649256d7da9d7e7e759a72d99c`
+(x3 — new, +44 pins vs the c04.2 238). C04 total 408/lane;
+prior packets carried 581/lane by byte-identity to the
+qualified HEAD (c00 16+13, c01 69+44, c02 24+34, c03 191+190;
+the older 549 figure predates the C03.3 +32 pos pins —
+reconciled above); repo total 989 checks/lane. Fast static
+gates re-run this turn: types/ops/check/neg/pos check-only
+all `All terms check.` Contamination re-greps all zero
+(BN-2/3/4/5); `legacy/` clean; `tools/verify_legacy.py` exit
+0 (`"failures": []`).
+
+Receipts: the predecessor receipts
+(`docs/receipts/c04-2026-09-26.txt`, `c04.1-2026-09-26.txt`,
+`c04.2-2026-09-26.txt`, `c03.3-2026-09-26.txt`) record their
+own bytes and stand; THIS section is the closeout record for
+the bytes above, and §15 is the exit receipt matrix
+(Amendment A2 format). Pre-commit gates (explicit, not
+silent): full `bend laws/c04.bend --check-only` closure over
+the 592 laws (re-run this turn: `All terms check.`, exit 0,
+1:14:51 wall; prior full run 1:07:29 at 466 laws), and a fresh
+independent oracle script (C04/C04.1 carried 52/57 oracle
+checks on older bytes; C04.2 recorded no fresh script —
+carried as a limitation, with the fixture-independent L1
+semantic laws, §13, as the independent check on fixture
+plumbing for the new stages). The 13 C04 probe checks read
+the carried C04 probe log (sound: the probe exercises only
+types.bend, byte-identical since C04.1).
+
+Limitation set: §12 (single set — vertex-link IMPLEMENTED,
+L-plane certified / L-varying skip / global outwardness
+deferred, cavity inside/disjoint deferred, quadric trim
+coincidence skipped-with-membership, curved-edge and
+cross-face penetration deferred to C07, exact containment to
+C11). No other limitation list is live.
+
+Codegen note: the per-store len/at/resolve/handle_of/issued/
+push law instances follow the mechanical pattern emitted by
+the uncommitted `/tmp/gen_c04.py`; every law, however
+produced, is machine-checked by `bend --check-only` like
+hand-written ones.
 
 ## 12. Limitations (honest scope, not placeholders)
 
@@ -420,29 +504,42 @@ ones.
   `SK_inner` kind and single ownership only, not
   strict-inside or pairwise-disjoint bboxes. Kind-correct,
   singly-owned cavities accept (`ck_cav`).
-- Orientation scope (C04.2/A1: self-consistency +
-  propagation implemented; GLOBAL outwardness deferred):
-  stage L checks kind-aware per-face boundary winding (outer
-  aligned, hole opposed) against the `same`-adjusted C03
-  surface normal wherever determinable (plane/bezp/quadric
-  normals; zero-area winding or an unavailable normal skips)
-  plus per-use local coherence across distinct faces: each
-  use's owning loop winds correctly for its own face, while
-  `same` flags are never compared across faces (each is
+- Orientation scope (L-plane certified, L-varying
+  explicit skip; GLOBAL outwardness deferred): stage L
+  certifies kind-aware per-face boundary winding (outer
+  aligned, hole opposed) against the `same`-adjusted plane
+  normal ONLY for straight-line planar boundaries
+  (`loop_orient_class` 1/2; the check fires only on a
+  strictly wrong-signed FINITE dot). Everything else skips
+  as not-determinable (class 0, never fails): quadric and
+  bezier faces (no one-sample-normal dot verdict),
+  curved boundaries on planes (no chord-only claims),
+  zero-area winding, unavailable normals, nonfinite dots,
+  and orthogonal samples (dot == 0). Certified-vs-skipped
+  counts (`brep_orient_cert_c`/`brep_orient_skip_c`) share
+  the class core with the verdict, so counts and verdicts
+  agree by construction. Bezier normals evaluate at the
+  caller-carried query UV (`bezp_normal_at`); no fixed
+  sample exists. Each shared edge is re-traversed as an
+  explicit redundant recheck of the same per-loop verdict
+  (`same` flags never compared across faces — each is
   relative to its own surface parametrization, so differing
-  parametrizations — and differing `same` flags — are both
+  parametrizations and differing `same` flags are both
   valid). Global outward shell orientation still needs the
   C07 inside/outside classifier and stays deferred, as do
   curved-edge crossings and cross-face / inter-loop
   penetration (C07).
-- Repeated-start proxy, not self-intersection (C04.1
-  correction, kept): stage D checks that loop start vertices
-  are distinct handles. Coincident DISTINCT vertices are a
-  stage J verdict (`ck_coin`); same-face straight-edge
-  crossings are a stage K verdict (`ck_xing`); general
-  geometric self-intersection stays C07. The words
+- Duplicate-incidence, not self-intersection (L0/L1
+  closeout rework): stage D checks no same-coedge dup
+  (`hc_nodup_c`) with seam double-use (`loop_seam_go`,
+  opposite `fwd`) and singleton pole (`loop_pole_go`)
+  allowed; repeated start vertices alone do NOT reject.
+  Coincident DISTINCT vertices are a stage J verdict
+  (`ck_coin`); same-face straight-edge crossings are a
+  stage K verdict (`ck_xing`); general geometric
+  self-intersection stays C07. The words
   "self-intersection" / "self-intersecting" are reserved
-  for C07 per Amendment A1; C04 text says repeated-vertex /
+  for C07 per Amendment A1; C04 text says
   duplicate-incidence and segment-crossing.
 - Trim 3D coincidence for sphere/cylinder/cone/torus skipped:
   C03 has no surface eval for those arms, so their trims pass
@@ -472,15 +569,18 @@ ones.
   validators (deliberately absent — counting alone is not
   validation, §4).
 - Exit coverage is dual: exit instances are pinned in laws
-  (`ck_*`, 30) AND asserted at runtime (`pos_g10`/`pos_g11`
-  8 accepts + `neg_g7`/`neg_g8`/`neg_g9` 22 rejects over
-  shared `check.bend` brep fixtures) on all three lanes
+  (`ck_*`, 32 = 10 accepts + 21 rejects + fuel) AND asserted
+  at runtime (13 `pos-ck-*` accepts + 32 `neg-ck-*` rejects
+  over shared `check.bend` brep fixtures) on all three lanes
   (§11).
 - U64 stamp wraps past 2^64 pushes (§8).
 
 ## 13. Explicit general laws (for `laws/c04.bend`)
 
-General (quantified) laws, closed by the proof beneath each:
+Two layers, every law closed by the proof beneath it.
+
+L0 implementation algebra (480 laws: sections A–M/L/F1 plus
+the ops-fixture `brep_checked` instances — kept):
 
 - Result core: `tres_ok`/`tres_show`/`tres_kind` over
   `Tok`/`Terr` (`tok_ok`, `tok_kind_doc`, `terr_not_ok`…).
@@ -503,12 +603,151 @@ General (quantified) laws, closed by the proof beneath each:
   `hsh_fo_*`, `so_shl_*`, `outer_kind_*`, `own_*`,
   `cpown_*`, `hlf_*`, `hfos_*`), and `brep_checked`
   instances (`ck_sphere/cyl/cav/open/pole/oriprop_ok/
-  diffparam_ok/hole_ok` accept;
+  diffparam_ok/hole_ok/cyl_side/sphere_curved` accept;
   `ck_dang/inv/trimx/embx/nonm/selfx/open_solid/alias/
   outerkind/cavdup/reuse/cpshare/pinch/offquad/split/coin/
   xing/invface/split_open/hole_bad/hole_bad2` reject;
   `ck_fuel`), stage J/K/L unit pins (`coin_*`, `link_*`,
-  `segx_*`, `xing_*`, `orient_*`, `prop_*`, `qmem_*`).
+  `segx_*`, `xing_*`, `orient_*`, `recheck_*`, `cert_*`,
+  `skip_*`, `bezp_*`, `qmem_*`).
 
-466 laws, all closed (`bend laws/c04.bend --check-only`
+L1 semantic predicates (112 laws, `l1_*`, fixture-independent:
+quantified binders and inline micro-stores only — no L0
+fixture referenced, so these pin stage semantics rather
+than fixture plumbing):
+
+- L1-A edge-use counts: the stage C rule quantified
+  (`l1_use_solid/open_spec` mirrors; `l1_use_solid_non2/
+  pair`, `l1_use_open_1/non12/pair` over every count and
+  flag pair), walk bases (`l1_use_go_nil`, `l1_es_use_nil`),
+  quantified seam acceptance (`l1_seam_use`, `for f: Bool`),
+  one-outer rule (`l1_outer_rule/one/two/zero`), solid
+  kind gate (`l1_noopen_open/outer`).
+- L1-B loop semantics: oriented ends (`l1_ov_start/end/
+  swap`), closed edge `v0 == v1` (`l1_closed_start/end`),
+  trim ends (`l1_trim_ts/tb_start/end`, `l1_trim_o_start/
+  end/swap`), closure = vertex meet AND uv meet
+  (`l1_closure`, `l1_closure_vmiss/tmiss`), trim
+  continuity (`l1_chain_ok/gap`), no same-coedge-dup
+  (`l1_nodup_nil/single/dup`) with distinct handles
+  passing regardless of shared vertices
+  (`l1_nodup_distinct`: repeated starts are not
+  auto-invalid), seam double-use allowed (walk bases
+  `l1_seam_free_nil`/`l1_seam_go_nil`, `l1_seam_accept`
+  quantified over `fwd`, `l1_seam_same` rejects,
+  `l1_seam_skip`), pole rule (`l1_pole_nil/
+  single/two/clean`).
+- L1-C vertex-link `twin(prev())` orbit: membership/last/
+  prev/twin atoms (`l1_mem_*`, `l1_last_nil`,
+  `l1_prev_nil/mid/wrap/single`, `l1_hcprev_nil`,
+  `l1_twin_nil/first/second/miss`), the composed step on a
+  micro-brep (`l1_step`), degenerate transparency
+  (`l1_nondegen_curve/degen`), fuel bases (`l1_vorbit_fuel0`,
+  `l1_vxlink_fuel0`, `l1_cov_nil`, `l1_start_nil`), and the
+  open-shell vacuity (`l1_link_open`, every brep and fuel).
+- L1-D face-edge connectedness: edge scans (`l1_have_nil/
+  hit/miss`, `l1_share_nil/pos`), vertex-only
+  non-adjacency (`l1_share_neg`, `l1_faces_split`,
+  `l1_conn_split`), loop/face sharing (`l1_hls/hlps_nil`,
+  `l1_faces_share`), BFS (`l1_bfs_nil/done`, `l1_conn`).
+- L1-E orientation spec: line gate (`l1_line_ln/cc/bz/rq/
+  nb/pl`, `l1_ekind_curve/degen`, `l1_edge_line`,
+  `l1_lines_nil/fuel0/pos/neg`), plane gate
+  (`l1_plane_pos/cy/co/sp/to/bp`), quantified
+  no-false-reject (`l1_varying_nofail`: non-plane ⟹ never
+  class 2, over every `GVal` arm and every store;
+  `l1_plnorm_unsupported`), curved-boundary skip
+  (`l1_curved_skip`), the fail ⟺ class-2 spec
+  (`l1_orient_c_spec`), and counter bases (`l1_cert/skip/
+  fcert/fskip_nil`, `l1_cnt_false/round/done/zero`).
+
+592 laws, all closed (`bend laws/c04.bend --check-only`
 exit 0). Laws cover `src/c04/types.bend` + `src/c04/ops.bend`.
+
+## 14. Historical record (superseded interim states)
+
+Nothing here is live; §11 is the single closeout. Each entry
+records its own bytes (see its receipt) and the numbers this
+file quoted before the rewrite:
+
+- C04 (`d080562`, `docs/receipts/c04-2026-09-26.txt`):
+  403 laws (13 `ck_*`), `pos` 185 + `neg` 102 = 287/lane,
+  repo 897 laws / 836 checks. Vertex-link pinch, cavity
+  inside/disjoint, and quadric trim coincidence carried as
+  deferrals; exit sentence in pre-A1 wording
+  ("self-intersecting ... diagnosed").
+- C04.1 (`4cae05d`, `docs/receipts/c04.1-2026-09-26.txt`):
+  430 laws (18 `ck_*`), `pos` 188 + `neg` 107 = 295/lane,
+  repo 924 laws (38+34+51+371+430) / 844 checks (549 prior +
+  295). Added solid outer-kind + shell ownership; corrected
+  orientation/self-intersection claims to edge-use pairing
+  and the repeated-start proxy; deferred face-orientation
+  coherence. The pre-rewrite §11 paragraph quoting
+  "`laws/c04.bend` (430 laws), `pos` 188/188, `neg` 107/107"
+  at `d080562` is preserved here.
+- C04.2 WIP (`b5c18a6`) → closeout (`6f70197`,
+  `docs/receipts/c04.2-2026-09-26.txt`): 455 → 466 laws
+  (26 → 30 `ck_*`), `pos` 213 → 238, `neg` 115 → 126.
+  Kind-aware orientation (hole-open fix), propagation
+  without cross-face `same` comparison, full hierarchy
+  ownership, vertex-link / connectedness / quadric-
+  membership / coincidence / segment-crossing / orientation
+  stages. The pre-rewrite §11 line quoting "455 laws, `pos`
+  213/213, `neg` 115/115" with repo totals
+  38+34+51+371+455 / 549+328 is preserved here.
+- C03.3 (`b5c18a6`, `docs/receipts/c03.3-2026-09-26.txt`):
+  C03 371 → 403 laws (+32 G10 quadric exact-membership, purely
+  additive) and `pos` 158 → 190 (+32). This is the
+  reconciliation source for the 403-law C03 predecessor and
+  the 581 prior checks in §11.
+- L0/L1 completion (working tree on `6f70197`, this
+  closeout): 592 laws (480 L0 + 112 L1), 32 `ck_*`, `pos`
+  282 + `neg` 126 = 408/lane, repo 1118 laws / 989 checks.
+  L-plane-certified / L-varying-skip orientation split with
+  certified-vs-skipped counts, redundant per-edge recheck,
+  and fixture-independent L1 stage semantics (§13).
+
+## 15. C04 exit receipt matrix (Amendment A2 format)
+
+One row per exit requirement (MASTER_PLAN C04 exit as amended
+by A1, plus the profile and robustness rows the contract
+implements). Columns per Amendment A2: exit req, formal spec,
+predicate, pos witness, neg witness, stage-isolated,
+independent evidence, status.
+
+Legend. Stage-isolated = the witness fixture passes every
+stage except the named one (reject rows) or all stages
+(accept rows), by fixture design over the §3 first-match-wins
+order, corroborated by the cited unit pins. Independent
+evidence tags: 3LANE = triple-lane byte-equality observed
+this turn (§11); REG = neg stdout reproduces the c04.2 hash;
+L1 = fixture-independent L1 semantic laws (§13); ORC-C =
+carried C04/C04.1 oracle (older bytes, stages A–G only).
+Status PASS = law witness closed (authoring turn) AND runtime
+witness green on all three lanes this turn.
+
+| Exit req | Formal spec | Predicate | Pos witness | Neg witness | Stage-isolated | Independent evidence | Status |
+|----------|-------------|-----------|-------------|-------------|----------------|----------------------|--------|
+| Sphere seam accepted | §4 solid; A1 exit | stage C twice-opposite + stage G qmem | `ck_sphere` + `pos-ck-sphere` | — (accept) | yes (`l1_seam_*`, `l1_use_*`) | 3LANE + L1 + REG | PASS |
+| Cylinder seam accepted | §4 solid; A1 exit | stage C twice-opposite + stage G qmem | `ck_cyl` + `pos-ck-cyl`; `ck_cyl_side` + `pos-ck-cyl-side` | — (accept) | yes (`l1_seam_*`, `qmem_*`) | 3LANE + L1 | PASS |
+| Cavity accepted | §4 solid; A1 exit | stage F `SK_inner` + single ownership | `ck_cav` + `pos-ck-cav` | — (accept) | yes (`own_*`, `cpown_*`) | 3LANE + ORC-C | PASS |
+| Open-shell accepted | §4 open profile | stages C–E + open-skipped F/H | `ck_open` + `pos-ck-open`; `ck_hole_ok` + `pos-ck-hole-open` | — (accept) | yes (`l1_noopen_*`, `l1_link_open`) | 3LANE + L1 | PASS |
+| Degenerate pole accepted | §1 pole rule | `edge_valid` pinch + stage C/D | `ck_pole` + `pos-ck-pole` | — (accept) | yes (`l1_pole_*`) | 3LANE + L1 | PASS |
+| Dangling diagnosed | §4; A1 exit | stage B liveness | — | `ck_dang` + `neg-ck-dang` | yes (L0 resolve/`*_at` laws) | 3LANE + REG + ORC-C | PASS |
+| Inverted / nonmanifold edge diagnosed | §4; A1 exit | stage C count+`fwd` | — | `ck_inv` + `neg-ck-inv`; `ck_nonm` + `neg-ck-nonm` | yes (`l1_use_solid_*`, `l1_seam_same`) | 3LANE + L1 + REG | PASS |
+| Duplicate-incidence diagnosed | §4; A1 exit (C04 wording) | stage D `hc_nodup_c` + seam + pole | — | `ck_selfx` + `neg-ck-selfx` | yes (`l1_nodup_*`, `l1_closure*`) | 3LANE + L1 + REG | PASS |
+| Trim / embedding diagnosed | §4; §6–§7 | stage D uv-meet + stage G C03/qmem | — | `ck_trimx`/`ck_embx`/`ck_offquad` + `neg-ck-trimx/embx/offquad` | yes (`l1_chain_*`, `l1_trim_*`, `qmem_*`) | 3LANE + L1 + REG | PASS |
+| Kind / ownership diagnosed | §1 hierarchy; §4 solid | stage F kind + ownership walks | — | `ck_open_solid`/`ck_alias`/`ck_outerkind`/`ck_cavdup`/`ck_reuse`/`ck_cpshare` + 6 `neg-ck-*`; `neg-ck-alias-loop/face/solid` | yes (`own_*`, `cpown_*`, `hlf_*`, `hfos_*`) | 3LANE + REG | PASS |
+| Vertex-link pinch diagnosed | §4; §12 (IMPLEMENTED) | stage H single `twin(prev())` orbit | `pos-ck-h-seam/h-pole/h-highval` (link accepts) | `ck_pinch` + `neg-ck-pinch`; `neg-ck-h-disc/wrongtwin/dupce/ce0/ce2/multi/rev` | yes (`l1_step`, `l1_mem/prev/twin_*`, `link_*`) | 3LANE + L1 | PASS |
+| Disconnected shell diagnosed | §4; A1 exit | stage I face-edge graph | — | `ck_split` + `neg-ck-split`; `ck_split_open` + `neg-ck-split-open` | yes (`l1_conn*`, `l1_bfs_*`, `l1_share_*`) | 3LANE + L1 | PASS |
+| Coincident vertices diagnosed | §4; A1 exit | stage J exact `pteq3` | — | `ck_coin` + `neg-ck-coin` | yes (`coin_*`) | 3LANE | PASS |
+| Segment crossing diagnosed | §4; A1 exit (fail-closed) | stage K coplanar+proper-cross | — | `ck_xing` + `neg-ck-xing` | yes (`segx_*`, `xing_*`) | 3LANE | PASS |
+| Face-orientation mismatch diagnosed | §4; §12 (L-plane certified) | stage L kind-aware winding + recheck | `ck_oriprop_ok` + `pos-ck-oriprop`; `ck_diffparam_ok` + `pos-ck-diffparam` | `ck_invface` + `neg-ck-invface`; `ck_hole_bad/bad2` + `neg-ck-hole-bad/bad2` | yes (`l1_orient_c_spec`, `l1_varying_nofail`, `recheck_*`, `cert/skip_*`) | 3LANE + L1 | PASS |
+| Fuel exhaustion diagnosed | §5; §8 (BN-8) | every stage walk `resource-exhausted` | — | `ck_fuel` + `neg-ck-fuel`; `neg-*-0` pins | yes (walk fuel-0 bases, `l1_*_fuel0`) | 3LANE + REG | PASS |
+
+Matrix closure: all 32 `ck_*` laws appear above (10 accepts +
+21 rejects + fuel); all 13 runtime `pos-ck-*` accepts and all
+32 runtime `neg-ck-*` rejects appear above. Deferred-by-A1
+items (global outwardness, cavity inside/disjoint, curved-edge
+and cross-face penetration, exact containment) have no matrix
+row by design — they are §12 limitations, not exit claims.

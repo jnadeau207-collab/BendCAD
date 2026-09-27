@@ -357,7 +357,7 @@ def neg_g7(f94: U64) -> IO(U64):
       Op.brep_checked(C.b_open(), Ty.P_manifold_solid{}, 12n),
       "invalid-input", f100)
     f102 : U64 <- C.report_terr("neg-ck-fuel",
-      Op.brep_checked(C.b_sphere(), Ty.P_manifold_solid{}, 0n),
+      Op.brep_checked(C.b_sphere_digon_control(), Ty.P_manifold_solid{}, 0n),
       "resource-exhausted", f101)
     return f102
 
