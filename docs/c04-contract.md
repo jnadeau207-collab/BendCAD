@@ -189,7 +189,12 @@ Construction protocol, in order:
    fails; certified-vs-skipped counts via
    `brep_orient_cert_c`/`brep_orient_skip_c`); every shared
    edge is re-traversed as an explicit redundant recheck
-   (`same` never compared across faces — both profiles).
+   (`same` never compared across faces). The recheck is not
+   profile-parameterized: it runs the solid use-rule
+   (`ces_use_go` under `P_manifold_solid`) and is vacuous
+   (`ok=True`) for edges that are not twice-opposite, hence
+   harmless under the open profile; the per-loop verdict it
+   rechecks (`loop_orient_c`) is itself profile-independent.
    Returns `Tok brep` on success, else `Terr`.
 
 ## 4. Profiles (explicitly named, validation implemented)
@@ -437,7 +442,9 @@ local qualification is the authoritative evidence.
 
 Laws: 592 (`grep -c '^law ' laws/c04.bend` = 592 = 480 L0 +
 112 L1; `grep -c '^law ck_'` = 32 = 10 accepts + 21 rejects +
-fuel). C03 predecessor: 403 laws; repo total 1118
+fuel; L1 = 35 semantic + 33 correspondence/base + 44
+microcase per the §13 taxonomy). C03 predecessor: 403 laws;
+repo total 1118
 (38+34+51+403+592). RECONCILIATION: C03 stood at 371 laws
 through C04/C04.1; the C03.3 record (b5c18a6, G10 quadric
 exact-membership) added 32 laws purely additively (371 →
@@ -468,17 +475,22 @@ Receipts: the predecessor receipts
 `c04.2-2026-09-26.txt`, `c03.3-2026-09-26.txt`) record their
 own bytes and stand; THIS section is the closeout record for
 the bytes above, and §15 is the exit receipt matrix
-(Amendment A2 format). Pre-commit gates (explicit, not
+(Amendment A2 format). Pre-commit gate (explicit, not
 silent): full `bend laws/c04.bend --check-only` closure over
 the 592 laws (re-run this turn: `All terms check.`, exit 0,
-1:14:51 wall; prior full run 1:07:29 at 466 laws), and a fresh
-independent oracle script (C04/C04.1 carried 52/57 oracle
-checks on older bytes; C04.2 recorded no fresh script —
-carried as a limitation, with the fixture-independent L1
-semantic laws, §13, as the independent check on fixture
-plumbing for the new stages). The 13 C04 probe checks read
-the carried C04 probe log (sound: the probe exercises only
-types.bend, byte-identical since C04.1).
+1:14:51 wall; prior full run 1:07:29 at 466 laws).
+Oracle provenance (stated exactly once, no gate attached):
+C04/C04.1 carried 52/57 oracle checks on older bytes
+(stages A–G only); C04.2 produced no fresh oracle script,
+and neither does this closeout. That absence is not a
+silent gap: per Amendment A2 Layer D, where no oracle
+script exists the independent check is Layer-A
+cross-checks — here the L1 fixture-independent law layer
+(§13 taxonomy) over the new-stage semantics. No fresh
+oracle script is claimed anywhere in this receipt. The 13
+C04 probe checks read the carried C04 probe log (sound:
+the probe exercises only types.bend, byte-identical since
+C04.1).
 
 Limitation set: §12 (single set — vertex-link IMPLEMENTED,
 L-plane certified / L-varying skip / global outwardness
@@ -525,7 +537,10 @@ hand-written ones.
   (`same` flags never compared across faces — each is
   relative to its own surface parametrization, so differing
   parametrizations and differing `same` flags are both
-  valid). Global outward shell orientation still needs the
+  valid). Known cleanup, non-blocking: the recheck runs
+  the solid use-rule rather than the caller's profile (§4);
+  parameterize it by profile when the recheck next changes.
+  Global outward shell orientation still needs the
   C07 inside/outside classifier and stays deferred, as do
   curved-edge crossings and cross-face / inter-loop
   penetration (C07).
@@ -611,55 +626,68 @@ the ops-fixture `brep_checked` instances — kept):
   `segx_*`, `xing_*`, `orient_*`, `recheck_*`, `cert_*`,
   `skip_*`, `bezp_*`, `qmem_*`).
 
-L1 semantic predicates (112 laws, `l1_*`, fixture-independent:
-quantified binders and inline micro-stores only — no L0
-fixture referenced, so these pin stage semantics rather
-than fixture plumbing):
+L1 laws (112, `l1_*`, fixture-independent: quantified
+binders and inline micro-stores only — no L0 fixture
+referenced). Honest taxonomy: these are NOT 112
+independent semantic specifications. They split into
+three classes (35 + 33 + 44 = 112; every `l1_*` law
+appears in exactly one class):
 
-- L1-A edge-use counts: the stage C rule quantified
-  (`l1_use_solid/open_spec` mirrors; `l1_use_solid_non2/
-  pair`, `l1_use_open_1/non12/pair` over every count and
-  flag pair), walk bases (`l1_use_go_nil`, `l1_es_use_nil`),
-  quantified seam acceptance (`l1_seam_use`, `for f: Bool`),
-  one-outer rule (`l1_outer_rule/one/two/zero`), solid
-  kind gate (`l1_noopen_open/outer`).
-- L1-B loop semantics: oriented ends (`l1_ov_start/end/
-  swap`), closed edge `v0 == v1` (`l1_closed_start/end`),
-  trim ends (`l1_trim_ts/tb_start/end`, `l1_trim_o_start/
-  end/swap`), closure = vertex meet AND uv meet
-  (`l1_closure`, `l1_closure_vmiss/tmiss`), trim
-  continuity (`l1_chain_ok/gap`), no same-coedge-dup
-  (`l1_nodup_nil/single/dup`) with distinct handles
-  passing regardless of shared vertices
-  (`l1_nodup_distinct`: repeated starts are not
-  auto-invalid), seam double-use allowed (walk bases
-  `l1_seam_free_nil`/`l1_seam_go_nil`, `l1_seam_accept`
-  quantified over `fwd`, `l1_seam_same` rejects,
-  `l1_seam_skip`), pole rule (`l1_pole_nil/
-  single/two/clean`).
-- L1-C vertex-link `twin(prev())` orbit: membership/last/
-  prev/twin atoms (`l1_mem_*`, `l1_last_nil`,
-  `l1_prev_nil/mid/wrap/single`, `l1_hcprev_nil`,
-  `l1_twin_nil/first/second/miss`), the composed step on a
-  micro-brep (`l1_step`), degenerate transparency
-  (`l1_nondegen_curve/degen`), fuel bases (`l1_vorbit_fuel0`,
-  `l1_vxlink_fuel0`, `l1_cov_nil`, `l1_start_nil`), and the
-  open-shell vacuity (`l1_link_open`, every brep and fuel).
-- L1-D face-edge connectedness: edge scans (`l1_have_nil/
-  hit/miss`, `l1_share_nil/pos`), vertex-only
-  non-adjacency (`l1_share_neg`, `l1_faces_split`,
-  `l1_conn_split`), loop/face sharing (`l1_hls/hlps_nil`,
-  `l1_faces_share`), BFS (`l1_bfs_nil/done`, `l1_conn`).
-- L1-E orientation spec: line gate (`l1_line_ln/cc/bz/rq/
-  nb/pl`, `l1_ekind_curve/degen`, `l1_edge_line`,
-  `l1_lines_nil/fuel0/pos/neg`), plane gate
-  (`l1_plane_pos/cy/co/sp/to/bp`), quantified
+- L1-S semantic invariants (35, the Layer-A core):
+  binder-quantified laws whose conclusion pins
+  implementation output against independent terms
+  (literals, constructors, boolean/Nat combinators,
+  equality atoms `hv_eq`/`v2_eq`/`is_eq`; gate
+  predicates allowed in hypotheses). The stage C rule
+  and corollaries (`l1_use_solid/open_spec`,
+  `l1_use_solid_non2/pair`, `l1_use_open_1/non12/pair`),
+  the one-outer rule (`l1_outer_rule`), oriented-end
+  atoms (`l1_ov_start/end`, `l1_closed_start/end`),
+  trim-end atoms (`l1_trim_ts/tb_start/end`), closure as
+  vertex-meet AND uv-meet (`l1_closure`),
+  single-element nodup (`l1_nodup_single`), the pole rule
+  (`l1_pole_nil`), open-shell link vacuity (`l1_link_open`,
+  every brep and fuel), line/plane gate arms
+  (`l1_line_ln/cc/bz/rq/nb/pl`,
+  `l1_plane_pos/cy/co/sp/to/bp`), quantified
   no-false-reject (`l1_varying_nofail`: non-plane ⟹ never
   class 2, over every `GVal` arm and every store;
-  `l1_plnorm_unsupported`), curved-boundary skip
-  (`l1_curved_skip`), the fail ⟺ class-2 spec
-  (`l1_orient_c_spec`), and counter bases (`l1_cert/skip/
-  fcert/fskip_nil`, `l1_cnt_false/round/done/zero`).
+  `l1_plnorm_unsupported`), and the counter-codec atom
+  (`l1_cnt_false`).
+- L1-C correspondence/base laws (33, conceptually Layer B):
+  agreements between two implementation-computed values
+  (wrapper ≡ structure, cross-helper agreement) plus
+  nil-walk and fuel-0 structural base cases. Named in
+  full: `l1_use_go_nil`, `l1_es_use_nil`, `l1_ov_swap`,
+  `l1_trim_o_start`, `l1_trim_o_end`, `l1_trim_swap`,
+  `l1_nodup_nil`, `l1_seam_free_nil`, `l1_seam_go_nil`,
+  `l1_mem_nil`, `l1_last_nil`, `l1_prev_nil`,
+  `l1_hcprev_nil`, `l1_twin_nil`, `l1_vorbit_fuel0`,
+  `l1_vxlink_fuel0`, `l1_cov_nil`, `l1_start_nil`,
+  `l1_have_nil`, `l1_share_nil`, `l1_hls_nil`,
+  `l1_hlps_nil`, `l1_bfs_nil`, `l1_bfs_done`,
+  `l1_ekind_curve`, `l1_edge_line`, `l1_lines_nil`,
+  `l1_lines_fuel0`, `l1_orient_c_spec`, `l1_cert_nil`,
+  `l1_skip_nil`, `l1_fcert_nil`, `l1_fskip_nil`. In
+  particular `l1_orient_c_spec` proves the wrapper agrees
+  with `loop_orient_class` — it does not prove the class
+  function itself implements geometric orientation; that
+  direction is carried by `l1_varying_nofail` (S) plus
+  the orientation microcases (M). Likewise `l1_edge_line`
+  and `l1_ekind_curve` prove helper agreement, not
+  independent line-ness.
+- L1-M microcase witnesses (44, A2-permitted): closed (or
+  flag-only-quantified: `l1_seam_use`, `l1_seam_accept`)
+  evaluations on fixed micro-stores. Outer/no-open cases,
+  closure misses, chain ok/gap, nodup dup/distinct (the
+  latter: distinct handles pass regardless of shared
+  vertices — repeated starts are not auto-invalid), seam
+  accept/same/skip, pole single/two/clean, link
+  prev/twin/step/nondegen cases, share/faces/conn cases
+  (incl. vertex-only non-adjacency `l1_share_neg`,
+  `l1_faces_split`, `l1_conn_split`), lines pos/neg,
+  `l1_ekind_degen`, curved skip, counter round-trips.
+  Valuable regression pins, not universal invariants.
 
 592 laws, all closed (`bend laws/c04.bend --check-only`
 exit 0). Laws cover `src/c04/types.bend` + `src/c04/ops.bend`.
@@ -701,11 +729,13 @@ file quoted before the rewrite:
   reconciliation source for the 403-law C03 predecessor and
   the 581 prior checks in §11.
 - L0/L1 completion (working tree on `6f70197`, this
-  closeout): 592 laws (480 L0 + 112 L1), 32 `ck_*`, `pos`
-  282 + `neg` 126 = 408/lane, repo 1118 laws / 989 checks.
-  L-plane-certified / L-varying-skip orientation split with
-  certified-vs-skipped counts, redundant per-edge recheck,
-  and fixture-independent L1 stage semantics (§13).
+  closeout): 592 laws (480 L0 + 112 L1 = 35 S + 33 C +
+  44 M), 32 `ck_*`, `pos` 282 + `neg` 126 = 408/lane,
+  repo 1118 laws / 989 checks. L-plane-certified /
+  L-varying-skip orientation split with certified-vs-skipped
+  counts, redundant per-edge recheck, and the §13 L1
+  taxonomy (no fresh oracle script — Layer-A cross-checks
+  per A2).
 
 ## 15. C04 exit receipt matrix (Amendment A2 format)
 
@@ -721,9 +751,9 @@ stage except the named one (reject rows) or all stages
 order, corroborated by the cited unit pins. Independent
 evidence tags: 3LANE = triple-lane byte-equality observed
 this turn (§11); REG = neg stdout reproduces the c04.2 hash;
-L1 = fixture-independent L1 semantic laws (§13); ORC-C =
+L1 = fixture-independent L1 laws (§13 taxonomy); ORC-C =
 carried C04/C04.1 oracle (older bytes, stages A–G only).
-Status PASS = law witness closed (authoring turn) AND runtime
+Status PASS = law witness closed (§11 full closure) AND runtime
 witness green on all three lanes this turn.
 
 | Exit req | Formal spec | Predicate | Pos witness | Neg witness | Stage-isolated | Independent evidence | Status |
