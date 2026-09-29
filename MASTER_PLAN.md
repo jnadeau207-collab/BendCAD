@@ -56,7 +56,7 @@ The #797 class shaped the representation: upstream closed `bendlang/bend#797` as
 
 ## 4. Required Bend handoff gates
 
-Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. Status below is at `BEND_PIN` `jnadeau207-collab/bend@50ec219a` (tag `numeric/2026-09-25`), whose evidence is the fork's `conformance/receipts/2026-09-25.txt`.
+Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. Status below is at `BEND_PIN` `jnadeau207-collab/bend@bc01485d` (tag `numeric/2026-09-29`, upstream 777ee0b5 plus U64 and F64), whose evidence is the fork's `conformance/receipts/2026-09-29.txt`; the pin advance is receipted in `docs/receipts/bend-pin-2026-09-29.txt`.
 
 ### 4a. Host gate (closed at the pin)
 
@@ -260,7 +260,7 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` now names a qualified numeric commit (`numeric/2026-09-25`), so BendCAD starts at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates. It does not start with an OCCT bridge or a box demo.
+`BEND_PIN` names a qualified numeric commit (`numeric/2026-09-29`), so BendCAD starts at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates. It does not start with an OCCT bridge or a box demo.
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 

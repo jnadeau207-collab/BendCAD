@@ -395,10 +395,10 @@ across pushes). No shared mutable state, no atomics.
 
 ```sh
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
-bend src/c04/types.bend --check-only   # All terms check.
-bend src/c04/ops.bend --check-only     # All terms check.
-bend laws/c04.bend --check-only        # All terms check (592 laws).
-bend tests/c04/check.bend --check-only # All terms check.
+bend src/c04/types.bend --check-only   # ALL PROOFS CHECK
+bend src/c04/ops.bend --check-only     # ALL PROOFS CHECK
+bend laws/c04.bend --check-only        # ALL PROOFS CHECK (592 laws).
+bend tests/c04/check.bend --check-only # ALL PROOFS CHECK
 bend tests/c04/neg.bend                # 126 PASS, selfcheck fails=0
 bend tests/c04/pos.bend                # 282 PASS, selfcheck fails=0
 # native lane: bend <suite> -o <bin> && <bin>; js lane: bend <suite> -o <js> && bun <js>

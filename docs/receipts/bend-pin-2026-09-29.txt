@@ -1,0 +1,97 @@
+# Bend pin advance — 2026-09-29
+
+Moves BEND_PIN from numeric/2026-09-25 (50ec219a) to numeric/2026-09-29
+(bc01485d). Every value below was observed this session on WSL2
+(Ryzen 7 7800X3D, RTX 4070 SUPER, bun 1.4.2, clang 20.1.2).
+
+## 1. Why the pin moved
+
+Upstream bendlang/bend moved 49 commits past the old pin's base, among
+them a compiler rewrite (87a1e9c9), BendTT (27dc2f69), the check
+verdict (84a16cf3: "ALL PROOFS CHECK" / "SOME PROOFS FAIL" replace
+"All terms check."), and 2.0.33/2.0.34's kernel equality changes.
+Upstream merged #1056 (emission) and landed #1059's Base simplifications
+as #1153; it closed #1057 (U64) and #1058 (F64): the maintainers will
+add both themselves and merge no PR for them. The fork was rebuilt as
+upstream 777ee0b5 + U64 (71f6053e) + F64 (e1fd2801); its old main is
+tag archive/main-2026-09-29-prerebase (df2e4303). U64 and F64 were
+re-applied by hand onto the rewritten compiler, not merged textually.
+
+## 2. Pin identity
+
+BEND_PIN:        jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+Tag object:      numeric/2026-09-29 9f5000994f587a1da4996422f2cf792dd6d2ce0b
+                 -> bc01485d (commit)
+Commit tree:     657b00a329b9f2a7a15b84a413cb9eec401ef24b
+bc01485d:bend2:  a8e5d7438509701a921aefba8d293ed955170101
+                 (= the tree the fork receipt names; it differs from fork
+                 main e1fd2801's bend2/ only by docs/F64_CONTRACT.md and
+                 docs/F64_IMPLEMENTATION.md)
+Pin chain:       777ee0b5 (upstream) -> 71f6053e U64 -> e1fd2801 F64
+                 (fork main) -> 32d875c7 contract + conformance/ ->
+                 bc01485d receipt. The old pin 50ec219a stays reachable
+                 through tag numeric/2026-09-25.
+Fork receipt:    conformance/receipts/2026-09-29.txt, 57 lines, sha256
+                 f81846d7f58e4608bd4ff8a2301282131241bab0b4670a3e891e33f526db4418:
+                 2^20 cases x 22 groups with 0 mismatches on js, c, cuda,
+                 cuda-defs and c-defs (interpreter at 2^2), probes, text
+                 and device tests passing, 27 soft-native call sites on the
+                 defs lanes, no double kept for Metal. MASTER_PLAN §4a and
+                 §4b stand at this pin as they did at the old one.
+Fork gates:      test 1522 / 1523 (io_process_run's inherited-pipe case
+                 fails on upstream 777ee0b5 here too), repo 53 / 53.
+Installed bend:  ~/.bend/FORK commit bc01485d, tag numeric/2026-09-29;
+                 `bend version` 2.0.34; ~/.bend/bend2 = pin bend2/.
+
+## 3. BendCAD on the new pin
+
+Static gates (verify-bendcad.yml's list, --check-only): every src/ and
+tests/*/check.bend file and laws/c00 print "ALL PROOFS CHECK", exit 0.
+
+Suites, three lanes (interpreter, native, JS), each `selfcheck fails=0`,
+no FAIL, and the three lanes byte-identical:
+  c00/neg      17 lines  sha256 197a114f36d9...
+  c00/positive 14 lines  sha256 5556d51d6880...
+  c01/neg      70 lines  sha256 e4234ed7904a...
+  c01/pos      45 lines  sha256 081d7716a78f...
+  c02/neg      25 lines  sha256 8b9a30e140ba...
+  c02/pos      35 lines  sha256 245a65acd57b...
+  c03/neg     192 lines  sha256 1b8b0880acf6...
+  c03/pos     191 lines  sha256 291781b39782...
+  c04/neg     127 lines  sha256 9bace4846897...
+  c04/pos     283 lines  sha256 84e3152a5577...
+c02/pos, c03/* and c04/* were also run on the old pin: byte-identical.
+
+Pilot (pilot/mesh-budget): oracle, interpreter, native and JS stdout
+sha256 d35d8fe997c0f464fddb3748b360e75b20a6f129c5fa007e22b64abb032a0fdc
+(= expected.sha256).
+
+## 4. Laws
+
+laws/c00, c01 and c02 check whole on the new bend (c01: 170 s against
+171 s on the old pin under the same load). laws/c03 (403 laws) and
+laws/c04 (592 laws) do not fit a 10-minute session call whole (c04 took
+1:07:29 at the old pin), so they were checked in parallel chunks:
+every chunk keeps the imports, every helper def and the laws its proofs
+cite, and one chunk of the whole file reproduces the file. A planted
+false law in a chunk fails (control).
+
+  laws/c03: 403 / 403 laws, ALL PROOFS CHECK.
+  laws/c04: 589 / 592 laws, ALL PROOFS CHECK.
+
+NOT CHECKED at the new pin: ck_hole_ok, ck_hole_bad and ck_hole_bad2.
+Each normalizes a full Op.brep_checked run at fuel 20n and exceeds 10
+minutes alone; ck_hole_bad2 also exceeds 575 s alone on the OLD pin, so
+the cost is the law's own, not a regression. They need one unbroken run:
+
+  bend laws/c04.bend --check-only
+
+GitHub Actions cannot run it now: every verify-bendcad.yml and
+verify-legacy.yml run since 2026-09-26 stopped at start with "The job
+was not started because your account is locked due to a billing
+issue", so no CI result exists for any BendCAD commit.
+
+laws/c01-c04 were checked with a bend built from fork main's tree
+(23f6d532, e1fd2801: the pin's code without the two contract docs, §2);
+the static gates, laws/c00, the suites and the pilot ran on the
+installed pin build itself (§3).

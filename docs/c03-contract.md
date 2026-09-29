@@ -380,9 +380,9 @@ state, no atomics, no GPU claim until the device gate closes.
 
 ```sh
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
-bend src/c03/types.bend --check-only  # All terms check.
-bend src/c03/ops.bend --check-only    # All terms check.
-bend laws/c03.bend --check-only       # All terms check (sibling).
+bend src/c03/types.bend --check-only  # ALL PROOFS CHECK
+bend src/c03/ops.bend --check-only    # ALL PROOFS CHECK
+bend laws/c03.bend --check-only       # ALL PROOFS CHECK (sibling).
 bend tests/c03/check.bend --check-only
 bend tests/c03/neg.bend               # selfcheck fails=0 (sibling)
 bend tests/c03/pos.bend               # selfcheck fails=0 (sibling)

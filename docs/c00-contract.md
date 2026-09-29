@@ -171,10 +171,10 @@ independent python FNV-1a implementation.
 
 ```sh
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
-bend src/c00/types.bend --check-only   # All terms check.
-bend src/c00/eval.bend --check-only    # All terms check.
-bend laws/c00.bend --check-only        # All terms check (38 laws proven).
-bend tests/c00/check.bend --check-only # All terms check.
+bend src/c00/types.bend --check-only   # ALL PROOFS CHECK
+bend src/c00/eval.bend --check-only    # ALL PROOFS CHECK
+bend laws/c00.bend --check-only        # ALL PROOFS CHECK (38 laws proven).
+bend tests/c00/check.bend --check-only # ALL PROOFS CHECK
 bend tests/c00/neg.bend                # 16 PASS, selfcheck fails=0
 bend tests/c00/positive.bend           # 13 PASS, selfcheck fails=0
 grep -rn '@unsafe' src/c00 laws/c00.bend tests/c00  # no matches

@@ -22,7 +22,8 @@ bend main.bend -o /tmp/mb.js && bun /tmp/mb.js | cmp - oracle.out
 
 Verified 2026-09-25: oracle, interpreted, native and JS lanes all exit 0 with
 stdout sha256 `d35d8fe997c0f464fddb3748b360e75b20a6f129c5fa007e22b64abb032a0fdc`,
-on `bend` rebuilt from fork tag `numeric/2026-09-25`.
+on `bend` rebuilt from fork tag `numeric/2026-09-25`. Re-verified 2026-09-29,
+same hash on every lane, on `bend` rebuilt from fork tag `numeric/2026-09-29`.
 
 Scope note: this pilot exercises integer/U64/control-flow logic only. Float
 formatting, transcendental ops, string-heavy and array-heavy ports are not

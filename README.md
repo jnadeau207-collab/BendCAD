@@ -6,7 +6,7 @@ An independent professional CAD kernel for Bend 2.
 
 ## Pins
 
-- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95` (tag `numeric/2026-09-25`)
+- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3` (tag `numeric/2026-09-29`)
 - Numeric contract lives in that fork: `bend2/docs/F64_CONTRACT.md`, `bend2/docs/F64_IMPLEMENTATION.md`
 - Advance `BEND_PIN` only after a Bend numeric gate. Never track floating `main`.
 
