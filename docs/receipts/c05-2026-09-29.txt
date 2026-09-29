@@ -1,0 +1,145 @@
+# C05 receipt — 2026-09-29 (planar arrangements and sketch solving)
+
+Packet: C05 per MASTER_PLAN §C05. It adds:
+
+- exact orientation predicates;
+- a planar segment arrangement (regions, nested loops, holes,
+  islands, dangling edges, lineage identity, durable region keys);
+- a Bend-native constraint solver (18 kinds, analytic Jacobians,
+  Nielsen-damped LM on Björck augmented MGS, Gram–Schmidt rank,
+  dof, named redundancy, certified conflicts, budget → nonconvergence).
+
+Contract: docs/c05-contract.md (A2 matrix §11).
+
+Every number below was observed this session by running the listed
+commands against the §1 bytes.
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD: e0915b0 ("pin: advance BEND_PIN to
+numeric/2026-09-29 (upstream 777ee0b5 + U64 + F64)"), branch main.
+The packet commit is the next commit on main; this receipt ships
+inside it.
+
+BEND_PIN: jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+~/.bend/FORK: tag numeric/2026-09-29, commit bc01485d, built
+`bun build --compile --target=bun-linux-x64 ./bend2/main.ts`.
+Toolchain: bun 1.4.2, WSL2 Ubuntu,
+PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH.
+Oracles: Windows CPython 3.14, numpy 2.4.0, scipy 1.18.0,
+shapely 2.1.2.
+
+sha256 of the packet bytes:
+6fb9ba5d54c62d8854ba30aaf30f7703fa7f11e538cf6f6e315a730316ae45fb  src/c05/arrange.bend
+4aa88cb033d48f47a22bfe469d932bdf2a1b56122ad467a97d9fcbeae2a830d0  src/c05/exact.bend
+c024a05b8a0de6b68228544744b4a698453725f3bed9721bf4b531b290ee6e4b  src/c05/solve.bend
+47eeb5bf022dcce854722cd70f949b698d890d25cd0b98aede075a3fada71038  laws/c05.bend
+5a3f889561dbc74b7edf1037e82ac67a6373f3d5fb263b1f1d66cfafd76cc995  tests/c05/check.bend
+5fbc0ad32d516e41820d528a436c853e82744c146fedbb0cb579fb8bad85c878  tests/c05/neg.bend
+1223c1f1aad198c0cf809c086bcef2ab6d6f57dad820b7565983d2bab7d9a19f  tests/c05/pos.bend
+ae08a788b3b51b19f8231101f19b00e9c2bd673f31c939b62cc1cc081e8982bc  tools/oracle/c05/arr_oracle.py
+68bab90f010d51db86cb468b2450a348a2134e738856a21d9be84cc41989043c  tools/oracle/c05/ex_oracle.py
+dcbe8d011d5f2eecd4d4af0971b3d692d78b8d3b1cdfbb873848e9f994579e59  tools/oracle/c05/oracles.py
+100112876928a6c19f66da2777b5dfcd8a007200993b4f469c5c18bc20ee10ac  tools/oracle/c05/sol_oracle.py
+c00–c04 sources: unchanged vs e0915b0.
+
+## 2. Static checks (bend --check-only)
+
+src/c05/exact.bend     ALL PROOFS CHECK   (38 defs)
+src/c05/arrange.bend   ALL PROOFS CHECK   (221 defs)
+src/c05/solve.bend     ALL PROOFS CHECK   (92 defs)
+tests/c05/check.bend   ALL PROOFS CHECK
+
+BN greps (src/c05, laws/c05.bend, tests/c05), all empty:
+@unsafe; F32; foreign|ffi; occt|freecad|planegcs; `#` comments.
+
+## 3. Laws (every law file, full run, no chunking, no time cap)
+
+| Law file | Laws | Wall time | Result | Max RSS |
+|----------|------|-----------|--------|---------|
+| laws/c00.bend | 38 | 0:15 | ALL PROOFS CHECK, rc=0 | |
+| laws/c01.bend | 34 | 1:59 | ALL PROOFS CHECK, rc=0 | |
+| laws/c02.bend | 51 | 5:33 | ALL PROOFS CHECK, rc=0 | |
+| laws/c03.bend | 403 | 15:19 | ALL PROOFS CHECK, rc=0 | |
+| laws/c04.bend | 592 | 1:22:49 | ALL PROOFS CHECK, rc=0 | 401 MB |
+| laws/c05.bend | 45 | 1:30:14 | ALL PROOFS CHECK, rc=0 | 374 MB |
+
+Repo total: 1,163 laws. Each file was checked in one full,
+uncapped run (detached), with its law and source sha256 recorded
+at start and matching the §1 bytes.
+
+laws/c05.bend was also split into 16 parallel chunks
+(`lawchunks.py`) to time individual laws; all 16 chunks pass.
+
+- The closed solver and arrangement instances dominate:
+  - `ok_solve_linear`: 11.6 min;
+  - `ok_solve_redundant_named`, `ok_solve_tangent_circles`,
+    `ok_arrange_antenna_dangles`, `ok_arrange_overlap_lineage`:
+    about 14 min each;
+  - `neg_solve_conflict_named`: 23.6 min;
+  - `ok_arrange_islands`: 26.5 min;
+  - `ok_arrange_hole`: 28.2 min.
+- Layer A laws: under 1 s per chunk.
+
+CI runs c04 and c05 laws serially, about 3 h in total, within the
+GitHub 6 h job limit.
+
+The c04 run closes the three heavy `ck_hole_*` laws that the
+2026-09-29 repin left unchecked.
+
+## 4. Suites, three lanes (interp / native / js)
+
+tests/c05/neg.bend   32 PASS, 0 FAIL, selfcheck fails=0
+  interp == native == js, sha256 b2bfe43edf2580a48a30aab229896a9ba4aa2f16330932611fde69b55e4ec769
+tests/c05/pos.bend   36 PASS, 0 FAIL, selfcheck fails=0
+  interp == native == js, sha256 b60cbd84fab2b5257022aa0390f40d6ddcfa33a3bd54e1d6973aa27e2a49b0c4
+
+Regression, c00–c04 suites on three lanes, all `ok`, fails=0,
+lanes byte-identical: c00/neg, c00/positive, c01/neg, c01/pos,
+c02/neg, c02/pos, c03/neg, c03/pos, c04/neg, c04/pos.
+
+## 5. Independent oracles (python tools/oracle/c05/oracles.py, final bytes)
+
+ex_oracle: 2000/2000 cases, wrong=0, uncertain=340 (of which finite-input 327)
+  moderate magnitude (|x| in [1e-30, 1e30] or 0): 1316 cases, 0 uncertain
+  extreme magnitude: 684 cases, 340 uncertain (fail-closed), 0 wrong
+arr_oracle_7:  300 cases, mismatches=0
+arr_oracle_11: 300 cases, mismatches=0
+arr_oracle_12: 300 cases, mismatches=0
+arr_oracle_13: 300 cases, mismatches=0
+  (mutation check: a dropped region and a dropped dangling edge
+  each flip a case to a mismatch)
+sol_oracle_1: 150 cases, wrong=0, arms: ok 100, conflict 50
+sol_oracle_2: 150 cases, wrong=0, arms: ok 100, conflict 49, poisoned nonconvergence 1
+sol_oracle_3: 150 cases, wrong=0, arms: ok 100, conflict 49, poisoned nonconvergence 1
+sol_oracle_4: 150 cases, wrong=0, arms: ok 100, conflict 50
+
+Convergence profile on the same sketches (seeds 1–4, 400
+consistent + 200 poisoned per budget):
+
+| Budget | Consistent solved | Poisoned certified | Wrong |
+|--------|-------------------|--------------------|-------|
+| 10 | 388/400 | 181/200 | 0 |
+| 20 | 398/400 | 194/200 | 0 |
+| 40 | 399/400 | 196/200 | 0 |
+| 100 | 400/400 | 197/200 | 0 |
+
+The pre-Nielsen damping schedule (v1), same corpus:
+
+| Budget | Consistent solved | Poisoned certified |
+|--------|-------------------|--------------------|
+| 10 | 388/400 | 182/200 |
+| 20 | 398/400 | 188/200 |
+| 100 | 399/400 | 196/200 |
+
+The worst consistent case needs 80–100 iterations, down from
+210–250 under v1. A Marquardt-scaled variant was measured and
+rejected: at fuel 200 on seeds 5–6 it failed to converge on 14 of
+200 consistent sketches, and it gave 4 dof disagreements from jumps
+to near-degenerate configurations.
+
+## 6. Verdict
+
+PASS. Every A2 matrix row (contract §11) has a closed law witness
+and a green three-lane runtime witness. BN-1..BN-12 all PASS
+(contract §7).

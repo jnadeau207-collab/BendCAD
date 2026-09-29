@@ -77,6 +77,8 @@ jobs:
           run_lane /tmp/bendcad-ci/c03-pos-i.log bend tests/c03/pos.bend
           run_lane /tmp/bendcad-ci/c04-neg-i.log bend tests/c04/neg.bend
           run_lane /tmp/bendcad-ci/c04-pos-i.log bend tests/c04/pos.bend
+          run_lane /tmp/bendcad-ci/c05-neg-i.log bend tests/c05/neg.bend
+          run_lane /tmp/bendcad-ci/c05-pos-i.log bend tests/c05/pos.bend
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg-n
           run_lane /tmp/bendcad-ci/c00-neg-n.log /tmp/bendcad-ci/c00-neg-n
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos-n
@@ -97,6 +99,10 @@ jobs:
           run_lane /tmp/bendcad-ci/c04-neg-n.log /tmp/bendcad-ci/c04-neg-n
           bend tests/c04/pos.bend -o /tmp/bendcad-ci/c04-pos-n
           run_lane /tmp/bendcad-ci/c04-pos-n.log /tmp/bendcad-ci/c04-pos-n
+          bend tests/c05/neg.bend -o /tmp/bendcad-ci/c05-neg-n
+          run_lane /tmp/bendcad-ci/c05-neg-n.log /tmp/bendcad-ci/c05-neg-n
+          bend tests/c05/pos.bend -o /tmp/bendcad-ci/c05-pos-n
+          run_lane /tmp/bendcad-ci/c05-pos-n.log /tmp/bendcad-ci/c05-pos-n
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg.js
           run_lane /tmp/bendcad-ci/c00-neg-js.log bun /tmp/bendcad-ci/c00-neg.js
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos.js
@@ -117,6 +123,10 @@ jobs:
           run_lane /tmp/bendcad-ci/c04-neg-js.log bun /tmp/bendcad-ci/c04-neg.js
           bend tests/c04/pos.bend -o /tmp/bendcad-ci/c04-pos.js
           run_lane /tmp/bendcad-ci/c04-pos-js.log bun /tmp/bendcad-ci/c04-pos.js
+          bend tests/c05/neg.bend -o /tmp/bendcad-ci/c05-neg.js
+          run_lane /tmp/bendcad-ci/c05-neg-js.log bun /tmp/bendcad-ci/c05-neg.js
+          bend tests/c05/pos.bend -o /tmp/bendcad-ci/c05-pos.js
+          run_lane /tmp/bendcad-ci/c05-pos-js.log bun /tmp/bendcad-ci/c05-pos.js
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-n.log
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-js.log
           cmp /tmp/bendcad-ci/c00-pos-i.log /tmp/bendcad-ci/c00-pos-n.log
@@ -137,3 +147,14 @@ jobs:
           cmp /tmp/bendcad-ci/c04-neg-i.log /tmp/bendcad-ci/c04-neg-js.log
           cmp /tmp/bendcad-ci/c04-pos-i.log /tmp/bendcad-ci/c04-pos-n.log
           cmp /tmp/bendcad-ci/c04-pos-i.log /tmp/bendcad-ci/c04-pos-js.log
+          cmp /tmp/bendcad-ci/c05-neg-i.log /tmp/bendcad-ci/c05-neg-n.log
+          cmp /tmp/bendcad-ci/c05-neg-i.log /tmp/bendcad-ci/c05-neg-js.log
+          cmp /tmp/bendcad-ci/c05-pos-i.log /tmp/bendcad-ci/c05-pos-n.log
+          cmp /tmp/bendcad-ci/c05-pos-i.log /tmp/bendcad-ci/c05-pos-js.log
+      - name: C05 independent oracles
+        run: |
+          export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
+          python3 -m pip install --quiet numpy scipy shapely
+          python3 tools/oracle/c05/oracles.py | tee /tmp/bendcad-ci/c05-oracles.log
+          test "$(grep -c cases /tmp/bendcad-ci/c05-oracles.log)" = 9
+          ! grep -E 'wrong=[1-9]|mismatches=[1-9]' /tmp/bendcad-ci/c05-oracles.log
