@@ -38,6 +38,9 @@ def lp() -> List<&2, F64>:
 def lf() -> List<&2, Bool>:
   C.line_fr()
 
+def anti() -> List<&2, F64>:
+  [0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 5.0f64, F64.neg(10.0f64), 5.0f64]
+
 def p01() -> S.Pt:
   C.pt(0n, 1n)
 
@@ -70,7 +73,7 @@ def sol_cases() -> List<&2, C.Case>:
    C.Case{"neg-sol-same-self", C.sol(lp(), lf(), [S.K_same{1u64, 2n, 2n}], 100n), inv()},
    C.Case{"neg-sol-grounded-contra", C.sol(lp(), C.ff(4n), [S.K_dist{5u64, p01(), p23(), 20.0f64}], 100n), "conflict [5]"},
    C.Case{"neg-sol-hv-axes", C.sol(lp(), lf(), [S.K_horiz{1u64, p01(), p23()}, S.K_vert{2u64, p01(), p23()},
-     S.K_dist{3u64, p01(), p23(), 10.0f64}], 200n), "conflict [1,2,3]"},
+     S.K_dist{3u64, p01(), p23(), 10.0f64}], 200n), "conflict [1,2]"},
    C.Case{"neg-sol-dist-5-6", C.sol(lp(), lf(), [S.K_dist{1u64, p01(), p23(), 5.0f64},
      S.K_dist{2u64, p01(), p23(), 6.0f64}], 200n), "conflict [1,2]"},
    C.Case{"neg-sol-triangle", C.sol([0.0f64, 0.0f64, 1.0f64, 0.0f64, 0.5f64, 1.0f64], List.append(&2, Bool, C.ff(2n), C.tt(4n)),
@@ -78,6 +81,18 @@ def sol_cases() -> List<&2, C.Case>:
       S.K_dist{3u64, p01(), C.pt(4n, 5n), 5.0f64}], 300n), "conflict [1,2,3]"},
    C.Case{"neg-sol-perp-grounded", C.sol(C.two_ps(), C.ff(8n),
      [S.K_perp{1u64, p01(), p23(), C.pt(4n, 5n), C.pt(6n, 7n)}], 100n), "conflict [1]"},
+   C.Case{"neg-sol-hv-collapse", C.sol(lp(), lf(), [S.K_horiz{1u64, p01(), p23()}, S.K_vert{2u64, p01(), p23()}], 200n),
+     "conflict [1,2]"},
+   C.Case{"neg-sol-angle-flipped", C.sol(anti(), C.ff(8n),
+     [S.K_angle{1u64, p01(), p23(), C.pt(4n, 5n), C.pt(6n, 7n), 1.0f64, 0.0f64}], 10n), "conflict [1]"},
+   C.Case{"neg-sol-angle90-flipped", C.sol([0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 5.0f64, 0.0f64, F64.neg(5.0f64)], C.ff(8n),
+     [S.K_angle{1u64, p01(), p23(), C.pt(4n, 5n), C.pt(6n, 7n), 0.0f64, 1.0f64}], 10n), "conflict [1]"},
+   C.Case{"neg-sol-radius-start", C.sol([0.0f64, 0.0f64, 3.0f64, 0.0f64, F64.neg(1.0f64)], C.tt(5n),
+     [S.K_on_circ{1u64, C.pt(2n, 3n), p01(), 4n}], 100n), inv()},
+   C.Case{"neg-sol-radius-cross", C.sol([0.0f64, 0.0f64, 10.0f64, 0.0f64, 4.0f64, 3.0f64, 3.0f64],
+     [False{}, False{}, False{}, False{}, False{}, True{}, True{}],
+     [S.K_tan_lc{1u64, p01(), p23(), C.pt(4n, 5n), 6n}, S.K_vdist{2u64, p01(), C.pt(4n, 5n), F64.neg(2.0f64)}], 100n), "err nonconvergence"},
+   C.Case{"neg-sol-coinc-collapse", C.sol(lp(), lf(), [S.K_coinc{1u64, p01(), p23()}, S.K_horiz{2u64, p01(), p23()}], 100n), "err nonconvergence"},
    C.Case{"neg-sol-fuel-1", C.sol(lp(), lf(), [S.K_horiz{1u64, p01(), p23()},
      S.K_dist{2u64, p01(), p23(), 20.0f64}], 1n), "err nonconvergence"},
    C.Case{"neg-sol-fuel-0", C.sol(lp(), lf(), [S.K_horiz{1u64, p01(), p23()},

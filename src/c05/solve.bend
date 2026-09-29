@@ -104,8 +104,15 @@ def rows_pair(+id: U64, +p: Pt, +q: Pt, +ps: List<&2, F64>) -> List<&2, Rw>:
   [Rw{id, False{}, (px(ps, p) - px(ps, q) : F64), [Gv{pxi(p), 1.0f64}, Gv{pxi(q), m1()}]},
    Rw{id, False{}, (py(ps, p) - py(ps, q) : F64), [Gv{pyi(p), 1.0f64}, Gv{pyi(q), m1()}]}]
 
-def row_ax(+id: U64, +i: Nat, +j: Nat, +ps: List<&2, F64>) -> List<&2, Rw>:
-  [Rw{id, False{}, (fat(ps, i) - fat(ps, j) : F64), [Gv{i, 1.0f64}, Gv{j, m1()}]}]
+def row_dir(+id: U64, +bj: Nat, +aj: Nat, +bk: Nat, +ak: Nat, +ps: List<&2, F64>) -> List<&2, Rw>:
+  +uj = (fat(ps, bj) - fat(ps, aj) : F64)
+  +uk = (fat(ps, bk) - fat(ps, ak) : F64)
+  +l2 = F64.fma(uj, uj, (uk * uk : F64))
+  +l = F64.sqrt(l2)
+  +l3 = (l * l2 : F64)
+  +gj = ((uk * uk : F64) / l3 : F64)
+  +gk = (F64.neg((uj * uk : F64)) / l3 : F64)
+  [Rw{id, True{}, (uj / l : F64), [Gv{bj, gj}, Gv{aj, F64.neg(gj)}, Gv{bk, gk}, Gv{ak, F64.neg(gk)}]}]
 
 def row_val(+id: U64, +i: Nat, +v: F64, +ps: List<&2, F64>) -> List<&2, Rw>:
   [Rw{id, False{}, (fat(ps, i) - v : F64), [Gv{i, 1.0f64}]}]
@@ -120,7 +127,7 @@ def row_len(+id: U64, +p: Pt, +q: Pt, +ps: List<&2, F64>, +k: F64,
   [Rw{id, False{}, (l + k : F64),
     Gv{pxi(p), ux} <> Gv{pxi(q), F64.neg(ux)} <> Gv{pyi(p), uy} <> Gv{pyi(q), F64.neg(uy)} <> g}]
 
-def rows_ang(+id: U64, +a: Pt, +b: Pt, +c: Pt, +d: Pt, +cs: F64, +sn: F64,
+def rows_ang(+id: U64, +a: Pt, +b: Pt, +c: Pt, +d: Pt, +cs: F64, +sn: F64, dir: Bool,
     +ps: List<&2, F64>) -> List<&2, Rw>:
   +ux = (px(ps, b) - px(ps, a) : F64)
   +uy = (py(ps, b) - py(ps, a) : F64)
@@ -132,11 +139,13 @@ def rows_ang(+id: U64, +a: Pt, +b: Pt, +c: Pt, +d: Pt, +cs: F64, +sn: F64,
   +nv = F64.fma(vx, vx, (vy * vy : F64))
   +nn = F64.sqrt((nu * nv : F64))
   +r = (F64.fma(wx, vy, F64.neg((wy * vx : F64))) / nn : F64)
-  +gux = ((F64.fma(cs, vy, F64.neg((sn * vx : F64))) / nn : F64) - ((r * ux : F64) / nu : F64) : F64)
-  +guy = ((F64.neg(F64.fma(sn, vy, (cs * vx : F64))) / nn : F64) - ((r * uy : F64) / nu : F64) : F64)
-  +gvx = ((F64.neg(wy) / nn : F64) - ((r * vx : F64) / nv : F64) : F64)
-  +gvy = ((wx / nn : F64) - ((r * vy : F64) / nv : F64) : F64)
-  [Rw{id, True{}, r,
+  +flip = Bool.and(dir, F64.is_lt(F64.fma(wx, vx, (wy * vy : F64)), 0.0f64))
+  +k = Bool.pick(F64, flip, m1(), 1.0f64)
+  +gux = (k * ((F64.fma(cs, vy, F64.neg((sn * vx : F64))) / nn : F64) - ((r * ux : F64) / nu : F64) : F64) : F64)
+  +guy = (k * ((F64.neg(F64.fma(sn, vy, (cs * vx : F64))) / nn : F64) - ((r * uy : F64) / nu : F64) : F64) : F64)
+  +gvx = (k * ((F64.neg(wy) / nn : F64) - ((r * vx : F64) / nv : F64) : F64) : F64)
+  +gvy = (k * ((wx / nn : F64) - ((r * vy : F64) / nv : F64) : F64) : F64)
+  [Rw{id, True{}, Bool.pick(F64, flip, (side(r) * (2.0f64 - F64.abs(r) : F64) : F64), r),
     [Gv{pxi(b), gux}, Gv{pxi(a), F64.neg(gux)}, Gv{pyi(b), guy}, Gv{pyi(a), F64.neg(guy)},
      Gv{pxi(d), gvx}, Gv{pxi(c), F64.neg(gvx)}, Gv{pyi(d), gvy}, Gv{pyi(c), F64.neg(gvy)}]}]
 
@@ -197,13 +206,13 @@ def rows_tcc(+id: U64, +o1: Pt, +r1: Nat, +o2: Pt, +r2: Nat,
 def rows_of(c: Cn, +ps: List<&2, F64>, +ps0: List<&2, F64>) -> List<&2, Rw>:
   match c:
     case K_coinc{id, p, q}: rows_pair(id, p, q, ps)
-    case K_horiz{id, a, b}: row_ax(id, pyi(a), pyi(b), ps)
-    case K_vert{id, a, b}: row_ax(id, pxi(a), pxi(b), ps)
+    case K_horiz{id, +a, +b}: row_dir(id, pyi(b), pyi(a), pxi(b), pxi(a), ps)
+    case K_vert{id, +a, +b}: row_dir(id, pxi(b), pxi(a), pyi(b), pyi(a), ps)
     case K_dist{id, p, q, d}: row_len(id, p, q, ps, F64.neg(d), [])
     case K_radius{id, r, v}: row_val(id, r, v, ps)
-    case K_angle{id, a, b, c, d, cs, sn}: rows_ang(id, a, b, c, d, cs, sn, ps)
-    case K_par{id, a, b, c, d}: rows_ang(id, a, b, c, d, 1.0f64, 0.0f64, ps)
-    case K_perp{id, a, b, c, d}: rows_ang(id, a, b, c, d, 0.0f64, 1.0f64, ps)
+    case K_angle{id, a, b, c, d, cs, sn}: rows_ang(id, a, b, c, d, cs, sn, True{}, ps)
+    case K_par{id, a, b, c, d}: rows_ang(id, a, b, c, d, 1.0f64, 0.0f64, False{}, ps)
+    case K_perp{id, a, b, c, d}: rows_ang(id, a, b, c, d, 0.0f64, 1.0f64, False{}, ps)
     case K_tan_lc{id, +a, +b, +o, +r}:
       row_sd(id, a, b, o, side(sd_of(a, b, o, ps0)), ps, F64.neg(fat(ps, r)), [Gv{r, m1()}])
     case K_tan_cc{id, o1, r1, o2, r2}: rows_tcc(id, o1, r1, o2, r2, ps, ps0)
@@ -220,6 +229,22 @@ def all_rows(cs: List<&2, Cn>, +ps: List<&2, F64>, +ps0: List<&2, F64>) -> List<
   match cs:
     case Nil{}: []
     case h <> t: List.append(&2, Rw, rows_of(h, ps, ps0), all_rows(t, ps, ps0))
+
+def rad_pos(+ps: List<&2, F64>, +r: Nat) -> Bool:
+  F64.is_lt(0.0f64, fat(ps, r))
+
+def cn_rad(c: Cn, +ps: List<&2, F64>) -> Bool:
+  match c:
+    case K_radius{id, r, v}: rad_pos(ps, r)
+    case K_tan_lc{id, a, b, o, r}: rad_pos(ps, r)
+    case K_tan_cc{id, o1, r1, o2, r2}: Bool.and(rad_pos(ps, r1), rad_pos(ps, r2))
+    case K_on_circ{id, p, o, r}: rad_pos(ps, r)
+    case _: True{}
+
+def rad_ok(cs: List<&2, Cn>, +ps: List<&2, F64>) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(cn_rad(h, ps), rad_ok(t, ps))
 
 def g_fin(g: List<&2, Gv>) -> Bool:
   match g:
@@ -402,8 +427,8 @@ def drs_at(cx: Cx, +ps: List<&2, F64>) -> List<&2, Dr>:
   drows(all_rows(cs, ps, ps0), np, free, tl, ta)
 
 def ok_at(cx: Cx, +ps: List<&2, F64>) -> Bool:
-  Cx{cs, ps0, free, np, tl, ta, lmin, lmax} = cx
-  rows_ok(all_rows(cs, ps, ps0))
+  Cx{+cs, ps0, free, np, tl, ta, lmin, lmax} = cx
+  Bool.and(rad_ok(cs, ps), rows_ok(all_rows(cs, ps, ps0)))
 
 def p2(n: Nat) -> F64:
   match n:
@@ -514,9 +539,16 @@ def canon(xs: List<&2, F64>) -> List<&2, F64>:
     case Nil{}: []
     case h <> t: (h + 0.0f64 : F64) <> canon(t)
 
-def ok_of(g: Gs, +ps: List<&2, F64>, +k: Nat) -> Sol:
+def gs_n(g: Gs) -> Nat:
   Gs{qs, n, red} = g
-  Sv_ok{canon(ps), Nat.sub(k, n), red}
+  n
+
+def gs_red(g: Gs) -> List<&2, U64>:
+  Gs{qs, n, red} = g
+  red
+
+def ok_of(+g: Gs, +ps: List<&2, F64>, +k: Nat) -> Sol:
+  Sv_ok{canon(ps), Nat.sub(k, gs_n(g)), gs_red(g)}
 
 def conflict_go(stat: Bool, +ds: List<&2, Dr>) -> Sol:
   match stat:
@@ -532,9 +564,47 @@ def classify_go(solved: Bool, +cx: Cx, +ps: List<&2, F64>, +ds: List<&2, Dr>) ->
       conflict_go(F64.is_le(nrm(jtr(ds, zeros(cx_np(cx)))),
         ((p2(26n) * F64.sqrt(fro2(ds)) : F64) * nrm(rt) : F64)), ds)
 
+def seg_long(+ps: List<&2, F64>, +a: Pt, +b: Pt, +tl: F64) -> Bool:
+  F64.is_lt(tl, hyp((px(ps, b) - px(ps, a) : F64), (py(ps, b) - py(ps, a) : F64)))
+
+def rad_long(+ps: List<&2, F64>, +r: Nat, +tl: F64) -> Bool:
+  F64.is_lt(tl, fat(ps, r))
+
+def cn_geo(c: Cn, +ps: List<&2, F64>, +tl: F64) -> Bool:
+  match c:
+    case K_horiz{id, a, b}: seg_long(ps, a, b, tl)
+    case K_vert{id, a, b}: seg_long(ps, a, b, tl)
+    case K_radius{id, r, v}: rad_long(ps, r, tl)
+    case K_angle{id, a, b, c, d, cs, sn}: Bool.and(seg_long(ps, a, b, tl), seg_long(ps, c, d, tl))
+    case K_par{id, a, b, c, d}: Bool.and(seg_long(ps, a, b, tl), seg_long(ps, c, d, tl))
+    case K_perp{id, a, b, c, d}: Bool.and(seg_long(ps, a, b, tl), seg_long(ps, c, d, tl))
+    case K_tan_lc{id, a, b, o, r}: Bool.and(seg_long(ps, a, b, tl), rad_long(ps, r, tl))
+    case K_tan_cc{id, o1, r1, o2, r2}: Bool.and(rad_long(ps, r1, tl), rad_long(ps, r2, tl))
+    case K_on_circ{id, p, o, r}: rad_long(ps, r, tl)
+    case K_on_line{id, p, a, b}: seg_long(ps, a, b, tl)
+    case K_midpoint{id, m, a, b}: seg_long(ps, a, b, tl)
+    case K_equal{id, a, b, c, d}: Bool.and(seg_long(ps, a, b, tl), seg_long(ps, c, d, tl))
+    case _: True{}
+
+def geo_ok(cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(cn_geo(h, ps, tl), geo_ok(t, ps, tl))
+
+def cx_cs(c: Cx) -> List<&2, Cn>:
+  Cx{cs, ps0, free, np, tl, ta, lmin, lmax} = c
+  cs
+
+def cx_tl(c: Cx) -> F64:
+  Cx{cs, ps0, free, np, tl, ta, lmin, lmax} = c
+  tl
+
+def solved_at(+cx: Cx, +ps: List<&2, F64>, +ds: List<&2, Dr>) -> Bool:
+  Bool.and(geo_ok(cx_cs(cx), ps, cx_tl(cx)), F64.is_le(maxabs(res_of(ds)), 1.0f64))
+
 def classify(+cx: Cx, +ps: List<&2, F64>) -> Sol:
   +ds = drs_at(cx, ps)
-  classify_go(F64.is_le(maxabs(res_of(ds)), 1.0f64), cx, ps, ds)
+  classify_go(solved_at(cx, ps, ds), cx, ps, ds)
 
 def pt_ok(p: Pt, +np: Nat) -> Bool:
   Pt{x, y} = p
@@ -629,7 +699,7 @@ def solve(+ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, tol: T.T
   +np = flen(ps)
   +valid = Bool.and(Bool.and(Bool.and(all_fin(ps), Nat.is_eq(blen(free), np)),
     Bool.and(T.tol_pos(lin), T.tol_pos(ang))), cns_ok(cs, np, []))
-  run(Bool.and(valid, rows_ok(all_rows(cs, ps, ps))), cs, ps, free, np, lin, ang, fuel)
+  run(Bool.and(valid, Bool.and(rad_ok(cs, ps), rows_ok(all_rows(cs, ps, ps)))), cs, ps, free, np, lin, ang, fuel)
 
 def ids_tail(xs: List<&2, U64>) -> String:
   match xs:

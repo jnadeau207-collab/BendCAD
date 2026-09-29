@@ -151,10 +151,13 @@ def build(poison):
 
 def resid(c, ps, ps0=None):
     k = c[1]
-    if k == "horiz":
-        return [ps[c[2][1]] - ps[c[3][1]]], [LIN]
-    if k == "vert":
-        return [ps[c[2][0]] - ps[c[3][0]]], [LIN]
+    if k == "coinc":
+        (ax, ay), (bx, by) = xy(ps, c[2]), xy(ps, c[3])
+        return [ax - bx, ay - by], [LIN, LIN]
+    if k in ("horiz", "vert"):
+        (ax, ay), (bx, by) = xy(ps, c[2]), xy(ps, c[3])
+        e = math.atan2(by - ay, bx - ax)
+        return [math.sin(e) if k == "horiz" else math.cos(e)], [ANG]
     if k == "dist":
         return [math.dist(xy(ps, c[2]), xy(ps, c[3])) - c[4]], [LIN]
     if k == "radius":
@@ -188,6 +191,10 @@ def resid(c, ps, ps0=None):
     cs, sn = (1.0, 0.0) if k == "par" else (0.0, 1.0) if k == "perp" else c[6:8]
     ux, uy = ps[b[0]] - ps[a[0]], ps[b[1]] - ps[a[1]]
     vx, vy = ps[d[0]] - ps[cc[0]], ps[d[1]] - ps[cc[1]]
+    if k == "angle":
+        e = math.atan2(vy, vx) - math.atan2(uy, ux) - math.atan2(sn, cs)
+        e = math.atan2(math.sin(e), math.cos(e))
+        return [math.sin(e) if abs(e) <= math.pi / 2 else math.copysign(2 - abs(math.sin(e)), e)], [ANG]
     wx, wy = cs * ux - sn * uy, sn * ux + cs * uy
     return [(wx * vy - wy * vx) / (math.hypot(ux, uy) * math.hypot(vx, vy))], [ANG]
 
@@ -237,7 +244,7 @@ def pt(p):
 
 def cn(c):
     k, i = c[1], c[0]
-    if k in ("horiz", "vert"):
+    if k in ("horiz", "vert", "coinc"):
         return f"S.K_{k}{{{i}u64, {pt(c[2])}, {pt(c[3])}}}"
     if k == "dist":
         return f"S.K_dist{{{i}u64, {pt(c[2])}, {pt(c[3])}, {lit(c[4])}}}"
@@ -262,16 +269,49 @@ def cn(c):
     return f"S.K_angle{{{i}u64, {', '.join(pt(p) for p in c[2:6])}, {lit(c[6])}, {lit(c[7])}}}"
 
 
+def trap(kind):
+    s = Sk()
+    a = s.pt(q(random.uniform(-5, 5)), q(random.uniform(-5, 5)))
+    phi = random.uniform(-math.pi, math.pi)
+    L = random.uniform(2, 8)
+    b = s.pt(s.ps[a[0]] + L * math.cos(phi), s.ps[a[1]] + L * math.sin(phi))
+    free = [False] * 4
+    if kind == "flip":
+        c = s.pt(q(random.uniform(-5, 5)), q(random.uniform(-5, 5)))
+        th = random.uniform(-math.pi, math.pi)
+        m = random.uniform(2, 8)
+        dl = random.uniform(-0.35, 0.35)
+        d = s.pt(s.ps[c[0]] + m * math.cos(phi + th + math.pi + dl), s.ps[c[1]] + m * math.sin(phi + th + math.pi + dl))
+        s.add("angle", a, b, c, d, math.cos(th), math.sin(th))
+        s.add("dist", c, d, m)
+        free = [False] * 6 + [True, True]
+    elif kind == "collapse":
+        s.add("horiz", a, b)
+        s.add("vert", a, b) if random.random() < 0.5 else s.add("coinc", a, b)
+        free = [False, False, True, True]
+    else:
+        o = s.pt(s.ps[a[0]] + 0.5 * L * math.cos(phi) - 2 * math.sin(phi), s.ps[a[1]] + 0.5 * L * math.sin(phi) + 2 * math.cos(phi))
+        r = s.par(2.0)
+        s.add("tanlc", a, b, o, r)
+        cph = math.cos(phi)
+        if abs(cph) < 0.3:
+            return trap(kind)
+        s.add("vdist", a, o, s.ps[o[1]] - s.ps[a[1]] - (2 / abs(cph)) * random.uniform(1.5, 3) * (1 if cph > 0 else -1))
+        free = [False] * 4 + [False, True, True]
+    return s, list(s.ps), free, kind
+
+
 cases = []
 while len(cases) < count:
     b = build(poison=len(cases) % 3 == 2)
     if b:
-        cases.append(b)
+        cases.append(b + ("poison" if len(cases) % 3 == 2 else "consistent",))
+cases += [trap(["flip", "collapse", "negrad"][i % 3]) for i in range(count // 3)]
 
 if sys.argv[1] == "gen":
     src = os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "src"), os.path.dirname(os.path.abspath(sys.argv[2]))).replace(os.sep, "/")
     body = []
-    for s, start, free in cases:
+    for s, start, free, role in cases:
         body.append("  S.sol_show(S.solve([" + ", ".join(lit(v) for v in start) + "], ["
                     + ", ".join("True{}" if f else "False{}" for f in free) + "], ["
                     + ", ".join(cn(c) for c in s.cs) + f"], tol(), {FUEL}n)) ++ \"\\n\"")
@@ -290,13 +330,18 @@ got = open(sys.argv[2]).read().strip().strip('"').replace("\\n", "\n").strip().s
 assert len(got) == len(cases), (len(got), len(cases))
 tally = {}
 bad = 0
-for n, ((s, start, free), line) in enumerate(zip(cases, got)):
-    poison = n % 3 == 2
+for n, ((s, start, free, role), line) in enumerate(zip(cases, got)):
+    poison = role == "poison"
     errs = []
     m = re.fullmatch(r"ok dof=(\d+) red=\[([\d,]*)\] ps=(.*)", line)
     kind = "ok" if m else line.split()[0] if not line.startswith("err") else line
-    tally[(poison, kind)] = tally.get((poison, kind), 0) + 1
-    if m:
+    tally[(role, kind)] = tally.get((role, kind), 0) + 1
+    if role in ("collapse", "negrad"):
+        if m:
+            errs.append(f"{role} trap reported ok")
+    elif role == "flip" and not m:
+        errs.append("flipped start did not solve")
+    elif m:
         ps = [float(v) for v in m[3].split()]
         if poison:
             errs.append("poisoned system reported ok")
@@ -317,6 +362,8 @@ for n, ((s, start, free), line) in enumerate(zip(cases, got)):
             dep = rank(J[:last]) < rank(J[:first]) + (last - first)
             if dep != (rid in red):
                 errs.append(f"constraint {rid}: svd dependent={dep}, solver redundant={rid in red}")
+    elif role != "consistent" and role != "poison":
+        pass
     elif line.startswith("conflict") and not poison:
         errs.append("consistent system reported conflict")
     elif line.startswith("conflict"):
@@ -330,5 +377,5 @@ for n, ((s, start, free), line) in enumerate(zip(cases, got)):
     if errs:
         bad += 1
         if bad <= 6:
-            print("case", n, "poison" if poison else "", s.cs, "\n  ", line[:300], "\n  ", errs)
+            print("case", n, role, s.cs, "\n  ", line[:300], "\n  ", errs)
 print(f"solver oracle: {len(cases)} cases, wrong={bad}, arms={sorted(tally.items())}")

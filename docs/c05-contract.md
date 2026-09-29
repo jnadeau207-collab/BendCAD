@@ -149,11 +149,11 @@ unless noted:
 | Kind | Residual | Unit |
 |------|----------|------|
 | `K_coinc{p,q}` | `p−q` (2 rows) | lin |
-| `K_horiz{a,b}` / `K_vert{a,b}` | `a.y−b.y` / `a.x−b.x` | lin |
+| `K_horiz{a,b}` / `K_vert{a,b}` | `(b−a).y/‖b−a‖` / `(b−a).x/‖b−a‖` (sine of the angle to the axis) | ang |
 | `K_dist{p,q,d}` (`d>0`) | `‖p−q‖ − d` | lin |
 | `K_radius{r,v}` (`v>0`) / `K_fix{i,v}` | `p[i] − v` | lin |
-| `K_angle{a,b,c,d,cs,sn}` | `cross(R(θ)(b−a), d−c)/(‖b−a‖‖d−c‖)` | ang |
-| `K_par` / `K_perp` | `K_angle` with `(1,0)` / `(0,1)` | ang |
+| `K_angle{a,b,c,d,cs,sn}` | directed: with `s = sin` and `c = cos` of the error between `R(θ)(b−a)` and `d−c`, the residual is `s` when `c ≥ 0`, else `sign(s)·(2 − |s|)` | ang |
+| `K_par` / `K_perp` | `s` only (undirected: lines have no orientation), `θ = 0` / `90°` | ang |
 | `K_tan_lc{a,b,o,r}` | `s·sd(o; ab) − r`, where `s` is the side of `o` in the initial configuration | lin |
 | `K_tan_cc{o1,r1,o2,r2}` | external `‖o1o2‖ − r1 − r2`; internal `‖o1o2‖ − s(r1 − r2)` (internal iff initially `‖o1o2‖ < max(r1,r2)`, with `s = sign(r1₀ − r2₀)`) | lin |
 | `K_on_circ{p,o,r}` | `‖p−o‖ − r` | lin |
@@ -164,7 +164,8 @@ unless noted:
 | `K_same{i,j}` | `p[j] − p[i]` (equal radii, etc.) | lin |
 
 Parallel, perpendicular and angle share one rotated-cross formula,
-so its gradient is written once. Every gradient is analytic. The
+so its gradient is written once. The directed branch only flips the
+gradient's sign. Every gradient is analytic. The
 independent oracle checks it against central finite differences
 (§6).
 
@@ -192,8 +193,9 @@ independent oracle checks it against central finite differences
      right-hand side carried along (`mgs` + `back`). This is
      Björck's backward-stable least-squares QR. Every augmented
      column has full rank because of its own `√λ` entry.
-   - A step is accepted iff the trial is finite, the cost falls, and
-     the predicted reduction `‖r̃‖² − ‖r̃+J̃δ‖²` is positive.
+   - A step is accepted iff the trial is finite, every radius stays
+     positive (`rad_ok`), the cost falls, and the predicted reduction
+     `‖r̃‖² − ‖r̃+J̃δ‖²` is positive.
    - The damping update is Nielsen's:
      - accept: `λ ← λ·max(1/3, 1−(2ρ−1)³)` and `ν ← 2`;
      - reject: `λ ← λν` and `ν ← 2ν`.
@@ -203,8 +205,9 @@ independent oracle checks it against central finite differences
      `2^-45(1+‖p‖)`, `λ` above its ceiling, or `fuel = 0`.
 4. **Classification** (`classify`, at the final iterate, independent
    of why iteration stopped):
-   - **Solved**: every weighted residual `≤ 1` (each constraint
-     within its tolerance) → `Sv_ok{ps, dof, red}`.
+   - **Solved** (`solved_at`): the geometry is admissible (§3.4) and
+     every weighted residual is `≤ 1` (each constraint within its
+     tolerance) → `Sv_ok{ps, dof, red}`.
      - `ps` is canonicalized (`−0 → +0`).
      - A Gram–Schmidt pass (twice-projected) over the masked
        weighted rows, in constraint order, gives the rank.
@@ -221,6 +224,28 @@ An expired budget is never a conflict: the fuel only bounds
 iteration, and classification demands a certificate (laws
 `lm_budget_returns_state`, `no_conflict_without_stationarity`,
 `neg_solve_budget_not_conflict`).
+
+### 3.4 No spurious solutions
+
+A residual can be zero on geometry the constraint does not mean.
+Each such case was audited and closed, then pinned by a law that
+the old behavior would fail.
+
+| Trap | Why it was possible | Rule now | Law witnesses |
+|------|---------------------|----------|---------------|
+| Angle at θ+180° | `sin` of the error is zero at both branches | directed residual, zero only at θ; strictly monotone in the error on (−π, π], finite everywhere, C¹ except exactly at an error of 180°, where the gradient still points back toward θ | `neg_angle_is_directed`, `neg_angle90_is_directed`, `ok_angle_from_flipped_side` |
+| Line collapsed to a point under h/v | linear `Δy`/`Δx` residuals shrink with the line | h/v are angular: scale-invariant, so collapse does not satisfy them; h+v on one line is a certified conflict naming exactly those two (legacy `MutuallyExclusiveAxes`) | `neg_axes_never_collapse` |
+| Collapse under any constraint that treats a pair as a line or a circle | residuals can be within tolerance on a line shorter than tolerance | **admissibility**: solved requires every such line (h, v, angle, par, perp, on-line base, tangency base, midpoint base, equal) longer than `tol.lin`, and every such radius above `tol.lin` (`geo_ok`) | `solved_needs_geometry`, `geometry_veto`, `ok_iff_solved`, `neg_coincidence_collapse_not_ok` |
+| Negative radius | tangency / on-circle rows are satisfiable with `r < 0` | radii must be positive at the start (`invalid` otherwise) and on every accepted step | `steps_keep_radii_positive`, `neg_negative_radius_not_ok`, `neg_nonpositive_radius_start` |
+| "Ok" without all constraints satisfied | — | `sol_ok(classify_go(s, …)) = s` for every `s`, and a conflict is never ok | `ok_iff_solved`, `conflict_never_ok`, `classify_is_solved_at` |
+
+Parallel and perpendicular stay undirected on purpose
+(`ok_parallel_is_undirected`): antiparallel lines are parallel.
+Collapse traps end as a certified conflict once the least-squares
+point is stationary (all 68 oracle collapse traps at budget 100),
+otherwise as `nonconvergence`. Negative-radius traps end as
+`nonconvergence`. Neither is ever ok, and an uncertified conflict is
+never claimed (§9).
 
 ### 3.3 Vocabulary mined from the legacy solver
 
@@ -280,6 +305,7 @@ Only the durable region key was ported.
 | Product exactness | `lsb_b(a)+lsb_b(b) ≥ 1076` | proven condition (§1) |
 | Angle unit check | `|cs²+sn²−1| ≤ 2^-40` | input validation |
 | Stationarity | `2^-26` (√ε) relative | conflict certificate, first-order |
+| Admissibility | line length `> tol.lin`, radius `> tol.lin` | a segment or circle smaller than tolerance is not geometry |
 | Rank / dependence | `2^-26` relative row residual | redundancy and dof |
 | `λ₀`, clamp | `2^-10·max‖col‖²`, `[2^-30, 2^60]·λ₀` | damping |
 | Tiny step | `2^-45 (1+‖p‖)` | stopping only, never classification |
@@ -295,15 +321,15 @@ bend src/c05/exact.bend --check-only     # ALL PROOFS CHECK
 bend src/c05/arrange.bend --check-only   # ALL PROOFS CHECK
 bend src/c05/solve.bend --check-only     # ALL PROOFS CHECK
 bend tests/c05/check.bend --check-only   # ALL PROOFS CHECK
-bend laws/c05.bend --check-only          # ALL PROOFS CHECK (45 laws, 1:30:14 full run)
-bend tests/c05/neg.bend                  # 32 PASS, selfcheck fails=0
-bend tests/c05/pos.bend                  # 36 PASS, selfcheck fails=0
+bend laws/c05.bend --check-only          # ALL PROOFS CHECK (59 laws; timing in the receipt)
+bend tests/c05/neg.bend                  # 38 PASS, selfcheck fails=0
+bend tests/c05/pos.bend                  # 38 PASS, selfcheck fails=0
 # native: bend <suite> -o <bin> && <bin>; js: bend <suite> -o <js> && bun <js>
 python tools/oracle/c05/oracles.py       # independent oracles (numpy, scipy, shapely)
 ```
 
 The three lanes are byte-identical per suite (`cmp`). The receipt
-(`docs/receipts/c05-2026-09-29.txt`) records hashes, law timings
+(`docs/receipts/c05.1-2026-09-29.txt`, superseding `c05-2026-09-29.txt` for 6a4a500) records hashes, law timings
 and oracle output.
 
 Independent oracles (`tools/oracle/c05/`, Layer D). None shares
@@ -341,26 +367,44 @@ code with the engines.
     contradicting pair;
   - consistent systems never `conflict`.
 
-  Tangency follows the documented initial-side rule.
+  Tangency follows the documented initial-side rule; angle and
+  axis residuals are recomputed with `atan2`, independently.
 
-Measured convergence profile (seeds 1–4: 400 consistent + 200 poisoned sketches, per budget):
+  Trap families (50 per seed), built to catch spurious solutions:
+  - **flip**: an angle constraint whose free end starts within ±20°
+    of the θ+180° branch; it must solve on the directed branch;
+  - **collapse**: h+v or coincidence+h on one line; it must never be
+    ok;
+  - **negrad**: a tangent circle whose center is forced across its
+    line; it must never be ok.
 
-| Budget | Consistent solved | Poisoned certified as conflict | Wrong |
-|--------|-------------------|--------------------------------|-------|
-| 10 | 97% | 90.5% | 0 |
-| 20 | 99.5% | 97% | 0 |
-| 100 | 100% | 98.5% | 0 |
+  Run against the previous solver (commit `6a4a500`), the oracle
+  reports 50 wrong per seed: every collapse and negrad trap reported
+  ok, and every flip landed on θ+180°. The current solver reports 0.
+
+Measured convergence profile. Seeds 1–4, per budget: 400
+consistent, 200 poisoned, 68 flip, 68 collapse and 64 negrad
+sketches.
+
+| Budget | Consistent solved | Poisoned certified | Flip solved | Collapse / negrad ever ok | Spurious answers |
+|--------|-------------------|--------------------|-------------|---------------------------|------------------|
+| 10 | 367 | 181 | 0 (nonconvergence) | 0 / 0 | 0 |
+| 20 | 398 | 195 | 68 | 0 / 0 | 0 |
+| 40 | 399 | 198 | 68 | 0 / 0 | 0 |
+| 100 | 400 | 198 | 68 | 0 / 0 | 0 |
 
 The remaining poisoned cases end `nonconvergence`: their
 least-squares infimum sits at a degenerate direction, where no
-stationary point exists. The worst consistent case needs 80–100
-iterations (the pre-Nielsen schedule needed 210–250).
+stationary point exists. Angular axis constraints are nonlinear, so
+budget 10 now solves 367 consistent sketches (388 with the former
+linear axes). From budget 20 on the counts match or exceed the
+former solver.
 
 ## 7. Bend-native gates (BN-1..BN-12)
 
 | Gate | Verdict | Evidence |
 |------|---------|----------|
-| BN-1 | PASS | The implementation is exactly `src/c05/{exact,arrange,solve}.bend` (38 + 221 + 92 defs); each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` is test-only comparator code, never on a runtime path. |
+| BN-1 | PASS | The implementation is exactly `src/c05/{exact,arrange,solve}.bend` (38 + 221 + 104 defs); each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` is test-only comparator code, never on a runtime path. |
 | BN-2 | PASS | `grep -rn "@unsafe" src/c05 laws/c05.bend tests/c05` is empty. |
 | BN-3 | PASS | `grep -rn F32 src/c05 laws/c05.bend tests/c05` is empty; every scalar is the pinned as-bits F64. |
 | BN-4 | PASS | No foreign or FFI code; imports are `Base` and `../c00/types.bend` only. Boundary list: none. |
@@ -410,8 +454,17 @@ No shared mutable state and no atomics.
   stationary point proves that no local improvement exists, not
   global inconsistency. A saddle start could in principle certify
   falsely; none occurred in any oracle run (§6).
-- **Angle is line-angle modulo π.** A sine residual cannot
-  distinguish θ from θ+π; the branch nearest the start is reached.
+- **Parallel and perpendicular are undirected by design.**
+  Antiparallel lines are parallel. `K_angle` is directed (§3.4).
+- **Collapse is refused; it is named only when certified.** A
+  sketch whose only answers are degenerate (a line shorter than
+  tolerance, or a radius at or below zero) is never ok.
+  - It is a named conflict when the least-squares point is
+    stationary (h+v on one line, and coincidence plus an axis
+    constraint given enough iterations).
+  - Otherwise, and for radii blocked at zero, it ends as
+    `nonconvergence`. A boundary (KKT) certificate that would name
+    those too is not yet computed.
 - **Tangency sides are fixed by the initial configuration**, as in
   interactive CAD, and are documented in the residual table.
 - **Degenerate starts are invalid.** Zero-length directions under
@@ -428,9 +481,9 @@ No shared mutable state and no atomics.
 
 ## 10. General laws (`laws/c05.bend`)
 
-45 laws.
+59 laws.
 
-**Layer A (general, quantified)**: 29.
+**Layer A (general, quantified)**: 35.
 
 - Sign algebra: `sgn_neg_invol`, `sgn_is_refl`, `sgn_neg_of_neg`.
 - Expansion taint: `ex_uncertain_dominates`, `ex_neg_keeps_ok`,
@@ -442,6 +495,9 @@ No shared mutable state and no atomics.
   `lm_done_returns_state`, `no_conflict_without_stationarity`,
   `conflict_names_violations`.
 - Shape: `zeros_len`, `dense_len`.
+- No spurious ok (§3.4): `conflict_never_ok`, `ok_iff_solved`,
+  `classify_is_solved_at`, `solved_needs_geometry`,
+  `geometry_veto`, `steps_keep_radii_positive`.
 - Identity lemmas and self-reference: `nat_eq_refl`,
   `pt_eq_refl`, `or_true_r`, `self_pair_invalid`,
   `same_line_invalid`, `reversed_line_invalid`,
@@ -449,7 +505,7 @@ No shared mutable state and no atomics.
   `perp_self_invalid`, `horiz_self_invalid`, `dist_self_invalid`.
   These hold for all ids, indices and parameter counts.
 
-**Layer B (closed implementation instances)**: 16, one per pipeline
+**Layer B (closed implementation instances)**: 24, one per pipeline
 arm plus the end-to-end exits. Floats are pinned by exact bits
 (`ok_bits`), never by show strings.
 
@@ -458,6 +514,11 @@ arm plus the end-to-end exits. Floats are pinned by exact bits
 - Arrangement rejects: degenerate, budget, underflow uncertainty.
 - Solver: linear solve, redundancy named, circle tangency, conflict
   named, grounded conflict, budget-not-conflict, bad index.
+- Spurious-solution discriminators (each fails under the previous
+  solver): angle directed (0° and 90°), parallel undirected,
+  angle solved from the flipped side, axes never collapse,
+  coincidence collapse not ok, negative radius not ok,
+  nonpositive radius start invalid.
 
 ## 11. C05 exit receipt matrix (Amendment A2 format)
 
@@ -483,12 +544,13 @@ Legend:
 | Invalid arrangement input | §2.2 stage 1 | `segs_ok` | — | `neg_arrange_degenerate`; `neg-arr-degenerate/nan/inf/dup-id` | yes (stage 1 only) | 3LANE + LA (`arrange_invalid_publishes_nothing`) | PASS |
 | Arrangement budget | §2.2 stage 2 | `len ≤ fuel` | — | `neg_arrange_budget`; `neg-arr-fuel` | yes (valid input) | 3LANE + LA (`arrange_budget_is_exhaustion`) | PASS |
 | Uncertainty fails closed | §1; §2.2 | `Su` → uncertain | — | `neg_arrange_underflow`; `neg-arr-underflow/overflow` | yes (valid, within budget) | 3LANE + ORC-X (0 wrong in 2,000) + LA (`ex_*` taint) | PASS |
-| Residual/Jacobian evaluation | §3.1 | analytic rows | `ok_solve_linear`, `ok_solve_tangent_circles`; 23 `pos-sol-*` | — | yes | 3LANE + ORC-S (finite-difference Jacobian rank) | PASS |
+| Residual/Jacobian evaluation | §3.1 | analytic rows | `ok_solve_linear`, `ok_solve_tangent_circles`; 25 `pos-sol-*` | — | yes | 3LANE + ORC-S (finite-difference Jacobian rank) | PASS |
 | Stable factorization, bounded iteration | §3.2 step 3 | augmented MGS + Nielsen LM | `ok_solve_*`; `pos-sol-determinism` | `neg-sol-fuel-0/1` | yes | 3LANE + ORC-S (profile, §6) + LA (`lm_*`) | PASS |
 | DOF and rank diagnosis | §3.2 step 4 | Gram–Schmidt rank | `ok_solve_redundant_named` (dof 1); `pos-sol-under/parallel/nothing/rect` | — | yes | ORC-S (SVD dof, 400 distinct sketches) | PASS |
 | Redundancy named | §3.2 step 4 | dependent rows in order | `ok_solve_redundant_named`; `pos-sol-redundant/perp-grounded/rect-extra/collinear-redundant` | — | yes | ORC-S (per-constraint SVD dependence) | PASS |
-| Conflicts named | §3.2 step 4 | certified stationarity | — | `neg_solve_conflict_named`, `neg_solve_grounded_conflict`; `neg-sol-hv-axes/dist-5-6/triangle/perp-grounded/grounded-contra` | yes (valid, stationary) | ORC-S (200 distinct poisoned sketches: never ok, pair named) + LA (`conflict_names_violations`) | PASS |
+| Conflicts named | §3.2 step 4 | certified stationarity | — | `neg_solve_conflict_named`, `neg_solve_grounded_conflict`, `neg_axes_never_collapse`; `neg-sol-hv-axes/hv-collapse/dist-5-6/triangle/perp-grounded/grounded-contra/angle-flipped` | yes (valid, stationary) | ORC-S (200 distinct poisoned sketches: never ok, pair named) + LA (`conflict_names_violations`) | PASS |
 | Nonconvergence is never a conflict | §3.2; plan text | budget → state, no certificate → nonconverged | — | `neg_solve_budget_not_conflict`; `neg-sol-fuel-0/1` | yes | LA (`lm_budget_returns_state`, `no_conflict_without_stationarity`) + ORC-S (0 false conflicts at every budget) | PASS |
-| Invalid sketch input | §3.2 steps 1–2 | `cns_ok` + finite initial rows | — | `neg_solve_bad_index`; 18 `neg-sol-*` invalid pins | yes (one defect each) | LA (`*_self_invalid`, `same/reversed_line_invalid`, `solve_invalid_publishes_nothing`) | PASS |
+| Invalid sketch input | §3.2 steps 1–2 | `cns_ok` + finite initial rows | — | `neg_solve_bad_index`, `neg_nonpositive_radius_start`; 19 `neg-sol-*` invalid pins | yes (one defect each) | LA (`*_self_invalid`, `same/reversed_line_invalid`, `solve_invalid_publishes_nothing`) | PASS |
 | Constraint set (coincident … tangency) | §3.1 table | per-kind rows | `pos-sol-*` per kind (tan-lc both sides, tan-cc external/internal, arc, angle30, on-line, midpoint, equal, hdist/vdist, equal-radii) | — | yes | ORC-S (every kind appears in the random corpus) | PASS |
+| No spurious solutions (flipped angle, collapse, negative radius) | §3.4 | directed angle, angular axes, `geo_ok`, `rad_ok` | `ok_angle_from_flipped_side`, `ok_parallel_is_undirected`; `pos-sol-angle-from-far`, `pos-sol-par-antiparallel` | `neg_angle_is_directed`, `neg_angle90_is_directed`, `neg_axes_never_collapse`, `neg_coincidence_collapse_not_ok`, `neg_negative_radius_not_ok`; `neg-sol-angle-flipped/angle90-flipped/hv-collapse/coinc-collapse/radius-cross/radius-start` | yes | LA (`ok_iff_solved`, `geometry_veto`, `solved_needs_geometry`, `steps_keep_radii_positive`, `conflict_never_ok`) + ORC-S trap families (0 wrong; 50 wrong per seed on the previous solver) | PASS |
 | PlaneGCS comparator-only | BN-5 | grep | — | — | n/a | BN-5 grep | PASS |

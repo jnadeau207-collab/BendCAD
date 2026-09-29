@@ -34,3 +34,12 @@ Read `MASTER_PLAN.md` before implementation. Numeric work begins only after its 
 - Installed from fork tag `numeric/2026-09-29` (commit `bc01485d`), the `BEND_PIN` commit; `~/.bend/FORK` records provenance. Know which commit your `bend` was built from before reporting numeric results. Rebuild from the fork checkout with `bun build --compile --target=bun-linux-x64 ./bend2/main.ts --outfile ~/.bend/bin/bend`, then refresh `~/.bend/bend2` and `~/.bend/guide` from it.
 - Upstream merged the fork's emission speedup (#1056) and Base simplifications (as #1153) and closed U64 (#1057) and F64 (#1058): its maintainers will add both themselves and merge no PR for them. Until they ship, the fork is the only source of U64/F64; its `main` is upstream plus those two commits, rebuilt when upstream moves, and each BendCAD pin is a tag `numeric/<date>` that is never deleted. When upstream ships U64 and F64, move the pin to an upstream release and delete this section.
 - `bend --check-only` prints `ALL PROOFS CHECK` (before 2.0.32, `All terms check.`); a failed check prints `SOME PROOFS FAIL` and exits 1.
+
+## Laws and qualification
+
+- Every packet closeout checks every law file (`laws/c00.bend` … `laws/cNN.bend`) in full on the pinned `bend`, however long it takes. Long runs go detached (`setsid nohup … > log`), with the sha256 of the law and source bytes recorded at launch; come back for every result. A law is never left unchecked for time.
+- Use the whole machine: split a law file into parallel chunks (`lawchunks.py`, chunks at `laws/` depth) for per-law timing and fast feedback, and also keep one full single-file run as the canonical record. Run oracle seeds and suite lanes in parallel.
+- Mind memory: WSL has about 19 GB. A process that exhausts it crashes the WSL service and kills every detached run with it.
+- Closed laws pin floats by `F64.bits`, never by `F64.show`: the checker does not evaluate `show`.
+- `bend <file> --verdict` rechecks with the Lean-proven BendTT kernel (needs elan + `leanprover/lean4:v4.34.0`, installed). It fails on any law that evaluates F64. The stock kernel runs out of its 400M-step fuel on a single `1.0 + 2.0`; a 1000× fuel build exhausts memory. Kernel-checked F64 needs a native F64 in BendTT, which is fork work. Until then, report `--check-only` evidence and say that `--verdict` is unavailable for F64 laws.
+- A law must discriminate: when fixing a semantic bug, add a closed law that the old behavior would fail, and show that it does.

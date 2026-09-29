@@ -1,0 +1,144 @@
+# C05.1 receipt — 2026-09-29 (no spurious solutions)
+
+Packet: C05.1 closes a class of solver bugs where a residual is zero
+on geometry the constraint does not mean (contract §3.4).
+
+- `K_angle` is directed: its residual is zero only at θ. Before, the
+  residual was the sine of the error, which θ+180° also satisfied.
+- Horizontal and vertical are angular and scale-invariant, so a
+  collapsed line no longer satisfies them. h+v on one line is now a
+  certified conflict naming exactly those two, matching legacy
+  `MutuallyExclusiveAxes`.
+- Solved requires admissible geometry (`geo_ok`): every line a
+  constraint relies on must be longer than `tol.lin`, and every radius
+  must exceed it. This is the legacy `SelfEndpointCollapse` intent.
+- Radii must be positive at the start and on every accepted step
+  (`rad_ok`).
+- Laws pin "ok iff solved", the geometry veto and the radius domain in
+  general. Closed laws discriminate each trap: every one fails under
+  the previous solver.
+
+Predecessor: 6a4a500 (C05; its receipt, c05-2026-09-29.txt, remains
+the record of that commit). Contract: docs/c05-contract.md
+(§3.4, §9, §10, §11 updated).
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD 6a4a500, branch main.
+BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+(~/.bend/FORK tag numeric/2026-09-29), bun 1.4.2, WSL2.
+Oracles: Windows CPython 3.14, numpy 2.4.0, scipy 1.18.0, shapely 2.1.2.
+
+6fb9ba5d54c62d8854ba30aaf30f7703fa7f11e538cf6f6e315a730316ae45fb  src/c05/arrange.bend (unchanged)
+4aa88cb033d48f47a22bfe469d932bdf2a1b56122ad467a97d9fcbeae2a830d0  src/c05/exact.bend (unchanged)
+63a10b1067f11fa3b0946ee0837f44e2bc939e06637021c768d04ea69e5af379  src/c05/solve.bend
+e6cff8a30e21f005f8806dab8425507bfd4a35db927a8a965b0bbfa7229db01e  laws/c05.bend
+5a3f889561dbc74b7edf1037e82ac67a6373f3d5fb263b1f1d66cfafd76cc995  tests/c05/check.bend (unchanged)
+ed8964bbbf3db67d5e65dbb42d10f0a24b469b4801c5bd7a7c523e9b7c32d3cd  tests/c05/neg.bend
+8e98360b2470ad9d400c9547940c4cb7ce2e8e080e01040167079ad0a3b2e123  tests/c05/pos.bend
+ae08a788b3b51b19f8231101f19b00e9c2bd673f31c939b62cc1cc081e8982bc  tools/oracle/c05/arr_oracle.py
+68bab90f010d51db86cb468b2450a348a2134e738856a21d9be84cc41989043c  tools/oracle/c05/ex_oracle.py
+dcbe8d011d5f2eecd4d4af0971b3d692d78b8d3b1cdfbb873848e9f994579e59  tools/oracle/c05/oracles.py
+9ff3c2aafa4124fedfe4d6f6273e6c59e764a0ed93a04b88493c96c69815082e  tools/oracle/c05/sol_oracle.py
+c00–c04 sources and laws: unchanged since 6a4a500; their full law runs
+(c05-2026-09-29.txt §3: every file ALL PROOFS CHECK, rc=0) stand for
+the same bytes.
+
+## 2. Static checks (--check-only)
+
+src/c05/exact.bend, src/c05/arrange.bend, src/c05/solve.bend (104
+defs), tests/c05/check.bend: ALL PROOFS CHECK. BN greps are empty.
+
+## 3. Laws — laws/c05.bend, 59 laws (35 general, 24 closed)
+
+Chunked run: 14 chunks (`lawchunks.py`), in parallel, detached, bytes
+hashed at launch and unchanged at completion. Every chunk returned
+ALL PROOFS CHECK, rc=0, and together they cover all 59 laws.
+
+| Chunk | Laws | Seconds |
+|-------|------|---------|
+| c05_00 | zeros_len, nat_eq_refl, pt_eq_refl, or_true_r, reversed_line_invalid, dist_self_invalid | 1.01 |
+| c05_01 | sgn_neg_invol, ex_neg_keeps_ok, neg_arrange_underflow, ok_angle_from_flipped_side | 3769.16 |
+| c05_02 | solve_invalid_publishes_nothing, ok_arrange_hole, conflict_never_ok | 2422.87 |
+| c05_03 | lm_budget_returns_state, dense_len, self_coincidence_invalid, perp_self_invalid (+ lemmas) | 0.77 |
+| c05_04 | ex_mul_taints, ok_arrange_square, ok_arrange_islands | 2459.56 |
+| c05_05 | ex_add_taints, same_line_invalid, par_self_invalid, neg_solve_grounded_conflict, ok_parallel_is_undirected | 213.30 |
+| c05_06 | arrange_invalid_publishes_nothing, neg_arrange_degenerate, neg_solve_budget_not_conflict | 67.26 |
+| c05_07 | sgn_is_refl, ex_uncertain_dominates, self_pair_invalid, ok_solve_tangent_circles, neg_nonpositive_radius_start | 956.10 |
+| c05_08 | lm_done_returns_state, ok_arrange_cross_dangles, neg_axes_never_collapse, neg_negative_radius_not_ok | 4730.40 |
+| c05_09 | sgn_neg_of_neg, ok_solve_redundant_named, ok_iff_solved, geometry_veto, neg_coincidence_collapse_not_ok | 4524.44 |
+| c05_10 | sol_err_show, horiz_self_invalid, neg_arrange_budget, neg_angle90_is_directed | 373.72 |
+| c05_11 | ares_err_show, no_conflict_without_stationarity, neg_solve_conflict_named, classify_is_solved_at, neg_angle_is_directed | 2018.18 |
+| c05_12 | arrange_budget_is_exhaustion, ok_arrange_overlap_lineage, solved_needs_geometry, steps_keep_radii_positive | 976.28 |
+| c05_13 | conflict_names_violations, neg_solve_bad_index, ok_solve_linear, ok_arrange_antenna_dangles | 2171.57 |
+
+Canonical single-file run: relaunched 2026-09-29T23:35:04Z on the
+same bytes (~6.9 h serial, the sum of chunk times). Its result is
+appended to this receipt when it finishes. The chunked run above is
+the evidence of record: each chunk is a complete book (every
+definition, plus its laws and their cited laws), so together they
+check every law exactly as the single file does.
+
+Kernel verdict (`--verdict`, Lean-proven BendTT). Lean
+v4.34.0 was installed for it, and it fails on every BendCAD law file.
+Minimal laws isolate the cause:
+
+- Bool, Nat and U64 laws pass.
+- An F64 law does not: the kernel runs out of its 400M-step fuel
+  evaluating the fork's bit-list F64.
+- A kernel rebuilt with 1000× fuel (Lean re-checked its soundness
+  theorem) exhausted WSL's memory on `1.0 + 2.0`.
+
+Kernel-checked F64 needs a native F64 in BendTT, which is fork work
+(planned). Until then the evidence of record is `--check-only`.
+
+## 4. Suites, three lanes
+
+tests/c05/neg.bend  38 PASS, selfcheck fails=0, interp == native == js
+  sha256 ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684
+tests/c05/pos.bend  38 PASS, selfcheck fails=0, interp == native == js
+  sha256 e39b4afd75c60bbf3fa6c42a798ff714c777cdf5f5496d5f99d24983778a65d7
+
+## 5. Independent oracles (python tools/oracle/c05/oracles.py, final bytes)
+
+ex_oracle: 2000/2000 cases, wrong=0, uncertain=340 (moderate magnitude: 0 of 1316)
+arr_oracle 7/11/12/13: 300 cases each, mismatches=0
+sol_oracle_1: 200 cases, wrong=0: consistent ok 100, poison conflict 50, flip ok 17, collapse conflict 17, negrad nonconvergence 16
+sol_oracle_2: 200 cases, wrong=0: consistent ok 100, poison conflict 50, flip ok 17, collapse conflict 17, negrad nonconvergence 16
+sol_oracle_3: 200 cases, wrong=0: consistent ok 100, poison conflict 49 + nonconvergence 1, flip ok 17, collapse conflict 17, negrad nonconvergence 16
+sol_oracle_4: 200 cases, wrong=0: consistent ok 100, poison conflict 49 + nonconvergence 1, flip ok 17, collapse conflict 17, negrad nonconvergence 16
+
+The same oracle against the previous solver (6a4a500), with the same
+seeds, reported wrong=50 per seed:
+
+- collapse: 17/17 reported ok;
+- negrad: 16/16 reported ok;
+- flip: 17/17 converged to θ+180°.
+
+The trap families therefore discriminate completely.
+
+Convergence profile (seeds 1–4; per budget 400 consistent, 200
+poisoned, 68 flip, 68 collapse, 64 negrad):
+
+| Budget | Consistent solved | Poisoned certified | Flip solved | Collapse / negrad ever ok |
+|--------|-------------------|--------------------|-------------|---------------------------|
+| 10 | 367 | 181 | 0 (nonconvergence) | 0 / 0 |
+| 20 | 398 | 195 | 68 | 0 / 0 |
+| 40 | 399 | 198 | 68 | 0 / 0 |
+| 100 | 400 | 198 | 68 | 0 / 0 |
+
+No spurious answer occurs at any budget.
+
+## 6. Incident
+
+During the verdict investigation, the 1000×-fuel kernel exhausted
+WSL memory. That crashed the WSL service and killed the first
+canonical c05 run (the chunk runs had already finished). WSL was
+restarted and the canonical run relaunched on the same bytes. The
+rule is now in AGENTS.md.
+
+## 7. Verdict
+
+PASS. All A2 rows (contract §11), including the new "No spurious
+solutions" row, have closed law witnesses and green three-lane runtime
+witnesses. BN-1..BN-12 all PASS.

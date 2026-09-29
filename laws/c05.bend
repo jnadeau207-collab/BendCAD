@@ -388,7 +388,7 @@ law ok_solve_linear:
   {ok_bits(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64], [False{}, False{}, True{}, True{}],
     [S.K_horiz{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}, S.K_fix{2u64, 2n, 5.0f64}],
     T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n),
-    0n, [], [0u64, 0u64, 4617315517961601024u64, 4317431451398701056u64]) == True{} : Bool}
+    0n, [], [0u64, 0u64, 4617315517961601024u64, 4169896036686364672u64]) == True{} : Bool}
 
 def ok_solve_linear():
   {==}
@@ -456,4 +456,147 @@ law ok_arrange_islands:
     == "v=8 e=8 c=2 R { e1.0[1] e1.1[2] e2.1[3] e3.1[4] } { e11.0[11] e11.1[12] e12.1[13] e13.1[14] } D" : String}
 
 def ok_arrange_islands():
+  {==}
+
+def sol_ok(s: S.Sol) -> Bool:
+  match s:
+    case S.Sv_ok{ps, dof, red}: True{}
+    case _: False{}
+
+law conflict_never_ok:
+  for b: Bool
+  for ds: List<&2, S.Dr>
+  {sol_ok(S.conflict_go(b, ds)) == False{} : Bool}
+
+def conflict_never_ok(b, ds):
+  match b:
+    case True{}: {==}
+    case False{}: {==}
+
+law ok_iff_solved:
+  for s: Bool
+  for +cx: S.Cx
+  for ps: List<&2, F64>
+  for +ds: List<&2, S.Dr>
+  {sol_ok(S.classify_go(s, cx, ps, ds)) == s : Bool}
+
+def ok_iff_solved(s, cx, ps, ds):
+  match s:
+    case True{}: {==}
+    case False{}:
+      conflict_never_ok(F64.is_le(S.nrm(S.jtr(ds, S.zeros(S.cx_np(cx)))),
+        ((S.p2(26n) * F64.sqrt(S.fro2(ds)) : F64) * S.nrm(S.res_of(ds)) : F64)), ds)
+
+law classify_is_solved_at:
+  for +cx: S.Cx
+  for +ps: List<&2, F64>
+  {S.classify(cx, ps) == S.classify_go(S.solved_at(cx, ps, S.drs_at(cx, ps)), cx, ps, S.drs_at(cx, ps)) : S.Sol}
+
+def classify_is_solved_at(cx, ps):
+  {==}
+
+law solved_needs_geometry:
+  for +cx: S.Cx
+  for +ps: List<&2, F64>
+  for ds: List<&2, S.Dr>
+  {S.solved_at(cx, ps, ds) == Bool.and(S.geo_ok(S.cx_cs(cx), ps, S.cx_tl(cx)),
+    F64.is_le(S.maxabs(S.res_of(ds)), 1.0f64)) : Bool}
+
+def solved_needs_geometry(cx, ps, ds):
+  {==}
+
+law geometry_veto:
+  for +cx: S.Cx
+  for ps: List<&2, F64>
+  for ds: List<&2, S.Dr>
+  for x: Bool
+  {sol_ok(S.classify_go(Bool.and(False{}, x), cx, ps, ds)) == False{} : Bool}
+
+def geometry_veto(cx, ps, ds, x):
+  ok_iff_solved(False{}, cx, ps, ds)
+
+law steps_keep_radii_positive:
+  for +cs: List<&2, S.Cn>
+  for ps0: List<&2, F64>
+  for fr: List<&2, Bool>
+  for np: Nat
+  for tl: F64
+  for ta: F64
+  for lo: F64
+  for hi: F64
+  for +ps: List<&2, F64>
+  {S.ok_at(S.Cx{cs, ps0, fr, np, tl, ta, lo, hi}, ps) == Bool.and(S.rad_ok(cs, ps), S.rows_ok(S.all_rows(cs, ps, ps0))) : Bool}
+
+def steps_keep_radii_positive(cs, ps0, fr, np, tl, ta, lo, hi, ps):
+  {==}
+
+law neg_angle_is_directed:
+  {S.sol_show(S.solve([0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 5.0f64, F64.neg(10.0f64), 5.0f64],
+    [False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}],
+    [S.K_angle{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 1.0f64, 0.0f64}],
+    T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n)) == "conflict [1]" : String}
+
+def neg_angle_is_directed():
+  {==}
+
+law neg_angle90_is_directed:
+  {S.sol_show(S.solve([0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 5.0f64, 0.0f64, F64.neg(5.0f64)],
+    [False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}],
+    [S.K_angle{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 0.0f64, 1.0f64}],
+    T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n)) == "conflict [1]" : String}
+
+def neg_angle90_is_directed():
+  {==}
+
+law ok_parallel_is_undirected:
+  {ok_bits(S.solve([0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 5.0f64, F64.neg(10.0f64), 5.0f64],
+    [False{}, False{}, False{}, False{}, False{}, False{}, False{}, False{}],
+    [S.K_par{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, S.Pt{4n, 5n}, S.Pt{6n, 7n}}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n),
+    0n, [1u64], [0u64, 0u64, 4621819117588971520u64, 0u64, 0u64, 4617315517961601024u64,
+      13845191154443747328u64, 4617315517961601024u64]) == True{} : Bool}
+
+def ok_parallel_is_undirected():
+  {==}
+
+law ok_angle_from_flipped_side:
+  {ok_bits(S.solve([0.0f64, 0.0f64, 10.0f64, 0.0f64, 0.0f64, 0.0f64, F64.neg(9.4f64), F64.neg(3.4f64)],
+    [False{}, False{}, False{}, False{}, False{}, False{}, True{}, True{}],
+    [S.K_angle{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 0.8660254037844387f64, 0.5f64},
+     S.K_dist{2u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 10.0f64}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 100n),
+    0n, [], [0u64, 0u64, 4621819117588971520u64, 0u64, 0u64, 0u64,
+      4621064907661979626u64, 4617315517961601023u64]) == True{} : Bool}
+
+def ok_angle_from_flipped_side():
+  {==}
+
+law neg_axes_never_collapse:
+  {S.sol_show(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64], [False{}, False{}, True{}, True{}],
+    [S.K_horiz{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}, S.K_vert{2u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 30n))
+    == "conflict [1,2]" : String}
+
+def neg_axes_never_collapse():
+  {==}
+
+law neg_coincidence_collapse_not_ok:
+  {sol_ok(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64], [False{}, False{}, True{}, True{}],
+    [S.K_coinc{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}, S.K_horiz{2u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 30n))
+    == False{} : Bool}
+
+def neg_coincidence_collapse_not_ok():
+  {==}
+
+law neg_negative_radius_not_ok:
+  {sol_ok(S.solve([0.0f64, 0.0f64, 10.0f64, 0.0f64, 4.0f64, 3.0f64, 3.0f64],
+    [False{}, False{}, False{}, False{}, False{}, True{}, True{}],
+    [S.K_tan_lc{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, S.Pt{4n, 5n}, 6n},
+     S.K_vdist{2u64, S.Pt{0n, 1n}, S.Pt{4n, 5n}, F64.neg(2.0f64)}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 30n)) == False{} : Bool}
+
+def neg_negative_radius_not_ok():
+  {==}
+
+law neg_nonpositive_radius_start:
+  {S.sol_show(S.solve([0.0f64, 0.0f64, 3.0f64, 0.0f64, F64.neg(1.0f64)], [True{}, True{}, True{}, True{}, True{}],
+    [S.K_on_circ{1u64, S.Pt{2n, 3n}, S.Pt{0n, 1n}, 4n}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n)) == "err invalid-input" : String}
+
+def neg_nonpositive_radius_start():
   {==}
