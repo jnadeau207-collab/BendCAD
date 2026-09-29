@@ -1,6 +1,8 @@
 # AGENTS
 
-BendCAD builds a new professional CAD kernel in Bend. Production Aethalgard is separate and must not be modified by this project.
+BendCAD is Aethalgard v2: a professional CAD kernel in Bend, and the agent-native system above it, built for an AI agent to drive (MASTER_PLAN §14). Aethalgard v1 (`C:\dev\Aethalgard_CAD`) is frozen: mine it for UX, vocabulary and lessons, but never modify it.
+
+Judge every design by one question: could an agent drive this alone and trust the answer? Every result must be proven, certified, estimated or assumed, and must say which.
 
 ## Mandate
 
