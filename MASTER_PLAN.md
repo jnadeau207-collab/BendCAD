@@ -2,7 +2,7 @@
 
 **Revision 5 — September 29, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; see Amendment record)**
 
-**Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend. That kernel, with the design model, engineering layer, agent interface and viewer above it, is Aethalgard v2: **BendCAD**, an open-source CAD system built from the kernel up to be driven by an AI agent (§14).
+**Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend. That kernel is Aethalgard v2: **BendCAD**. It is open source and built to be the world's best CAD kernel for AI agents (§14): never silently wrong, self-explaining, identity by meaning, toleranced and state-aware, fast and massively parallel.
 
 **Acceptance sentence:** a fresh Claude session told "pull up BendCAD and design me a bespoke jet engine" produces a buildable design, meaning:
 
@@ -12,7 +12,7 @@
 - drawings, BOM and manufacturing data;
 - evidence for every claim, labeled by strength.
 
-The challenge ladder (§16) measures progress toward it.
+The challenge ladder (§18) measures progress toward it.
 
 **Present status:** the pre-VibeCAD Aethalgard kernel/reference corpus is recovered. This document specifies future implementation; it does not claim that F64, a Bend-native kernel, or their qualification already exist.
 
@@ -26,15 +26,7 @@ The Bend language fork is `jnadeau207-collab/bend`. BendCAD's authoritative depe
 
 Compiler backends, operating-system I/O, device dispatch, and a qualified numeric runtime may contain C, C++, JavaScript, and Metal code. Those are declared implementation boundaries, not permission to hide CAD algorithms behind foreign calls. The archived OCCT evaluator may run only as a separately identified test oracle.
 
-The product target is a professional boundary-representation kernel with analytic and NURBS geometry, trimmed surfaces, robust booleans, feature modeling, queries, tessellation, and interchange, plus the layers above it that make it an agent-native CAD system:
-
-- the design model;
-- engineering;
-- the agent interface;
-- the viewer and app;
-- deliverables.
-
-Mesh-only or voxel-only modeling is not a substitute. The kernel stays releasable on its own, and every upper layer is a client of the same kernel operations (§14, P1).
+The product target is a professional boundary-representation kernel with analytic and NURBS geometry, trimmed surfaces, robust booleans, feature modeling, queries, tessellation, and interchange, designed first for agents (§14). Tolerances, operating states, lineage identity, diagnoses and sensitivities are kernel semantics, not add-ons. Mesh-only or voxel-only modeling is not a substitute. The agent interface is a thin typed layer over the kernel's operation algebra (§16). Viewers and applications are later, thin consumers.
 
 ## 2. Recovered source and its proper use
 
@@ -180,11 +172,11 @@ Start with coincidence, horizontal/vertical, distance, radius, angle, parallel/p
 
 ### C06 — First complete solid-building path
 
-Implement primitives, extrusion, revolution, pad/pocket semantics, holes, and transformations using the preceding geometry and topology. Handle multiple profile regions, axis crossings, and degenerate input explicitly. Every operation states its intended effect (added/removed material, created/modified faces), and the kernel checks the effect against that intent before publishing (§15, lesson 2).
+Implement primitives, extrusion, revolution, pad/pocket semantics, holes, and transformations using the preceding geometry and topology. Handle multiple profile regions, axis crossings, and degenerate input explicitly. Every operation states its intended effect (added/removed material, created/modified faces), and the kernel checks the effect against that intent before publishing (§14, property 4).
 
-C06 also delivers the minimal design-model evaluator: parts built from ops, parameters, and rebuild on edit. It pairs with A0 (§15).
+C06 also delivers the minimal design-model evaluator: parts built from ops, parameters, and rebuild on edit. It pairs with A0 (§17).
 
-Exit (G1, §16): a parameterized mechanical bracket with a curved boundary and holes is authored by a fresh agent session from a written brief, through the agent interface. It is then validated, measured, serialized, reopened, edited and tessellated, with no existing CAD kernel at runtime, graded by independent checks, and the transcript is kept in the receipt. This is the first end-to-end foundation, not the professional-completion ceiling.
+Exit (G1, §18): a parameterized mechanical bracket with a curved boundary and holes is authored by a fresh agent session from a written brief, through the agent interface. It is then validated, measured, serialized, reopened, edited and tessellated, with no existing CAD kernel at runtime, graded by independent checks, and the transcript is kept in the receipt. This is the first end-to-end foundation, not the professional-completion ceiling.
 
 ### C07 — General intersections
 
@@ -242,7 +234,7 @@ Sheet metal, surface modeling, and blade/airfoil section and stacking (for G5), 
 
 ### C13 — Professional release qualification
 
-C13 runs last. It qualifies the release after C14–C16 and the A/E/P tracks (§15) have delivered the ladder rungs the release claims.
+C13 runs last. It qualifies the release after C14–C16 have delivered the ladder rungs (§18) the release claims.
 
 Deliver a stable CLI and documented SDK/native integration boundary, reproducible builds, structured errors, resource/cancellation behavior, diagnostics, and compatibility tests across advertised targets. Publish a feature matrix grounded in admitted input domains and tests, not method-name counts.
 
@@ -298,259 +290,186 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` names a qualified numeric commit (`numeric/2026-09-29`), so BendCAD started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). The next packet is C06 + A0 (§15): solids and the design-model evaluator, protocol v0, and the G1 harness.
+`BEND_PIN` names a qualified numeric commit (`numeric/2026-09-29`), so BendCAD started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). C05's measured scaling is not Bend-grade (§15). The next packet is R0: a speed and parallelism rebuild of C00–C05. Then C06 + A0 (§17).
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
-## 14. Agent-native architecture (Amendment A3)
+## 14. The world's best kernel for agents (Amendment A3)
 
-### 14.1 Lessons from Aethalgard v1
+The product is the kernel. An agent designing a jet engine needs a
+kernel it can trust without looking, query instead of eyeballing, and
+explore at massive scale. It needs these nine properties. Every packet
+advances them and none may regress them.
 
-Each lesson is something v1 did that v2 must not.
+1. **Never silently wrong.** Laws on every operation, exact
+   predicates, certified bounds. When a result cannot be established,
+   the kernel says "uncertain" rather than guessing. C05.1 is the
+   pattern: every residual's zero set is audited, and discriminating
+   laws pin it.
+2. **Every failure is a diagnosis.** A failure says what failed, where
+   (by durable name), why (machine-readable), and the smallest known
+   fix. The C05 solver's named conflicts, dof and redundancy are the
+   template for every operation.
+3. **Identity by meaning, forever.** Every vertex, edge, face, feature
+   and parameter is named by lineage: the operation that made it,
+   from what inputs. After an edit a name resolves exactly, or fails
+   loudly as missing or ambiguous. Nothing is positional.
+4. **Checked intent.** An operation carries its intended effect:
+   material added or removed, faces created, cardinality, topology
+   class. The kernel verifies the effect before publishing, so a
+   valid-looking wrong result becomes a visible error.
+5. **The design is a pure, content-addressed operation graph.** Each
+   node is hashed from its operation and inputs (C00's `op_id` is the
+   seed). This gives:
+   - memoized, incremental rebuilds;
+   - free branching and exact diffs;
+   - bit-identical results on every lane.
 
-1. **The agent was a guest behind human UI state.** MCP exposed only
-   the ribbon a human had selected. There was no tool to change
-   workbench. Mutations required an attested human gesture. v2: the
-   agent is a first-class principal. Human approval is a *policy*
-   (which operations need sign-off), never an *interaction
-   dependency*.
-2. **Valid payloads did the wrong thing.** A pocket added material;
-   patterns mirrored. v2: every operation states its intended effect
-   (added/removed volume, created/modified faces), and the kernel
-   checks the effect against the intent before publishing. A
-   mismatch is a structured failure.
-3. **Green suites did not exercise the product.** 61% of journey
-   assertions never ran; journeys opened the app and sat idle. v2:
-   the challenge ladder (§16) is the product test, run by an agent,
-   graded by independent checks, leaving an artifact.
-4. **Truth was split.** FreeCAD owned geometry, Core owned revisions,
-   the renderer owned presentation, and generators went stale between
-   them. v2: one authority. The kernel's design model is the only
-   source of truth, and everything else derives from it by
-   hash-checked projection.
-5. **Identity was positional.** "Face12" rebinds silently after an
-   edit. v2: durable semantic selectors (C08 lineage) resolve to
-   exactly the intended set, or report missing/ambiguous.
+   Designs are written as Bend programs that build the graph. The
+   graph, not the program text, is canonical. Requirements are checks
+   on the graph, and laws where they are cheap enough to prove.
+6. **Toleranced, state-dependent geometry is native.** A jet engine
+   lives on microns:
+   - bearing fits of a few µm;
+   - blade profiles within a few hundredths of a millimetre;
+   - tip clearances that thermal and centrifugal growth move by
+     more than their tolerance.
 
-### 14.2 Principles
+   So a dimension is a nominal plus a tolerance zone, and a design is
+   evaluated in named operating states (cold build, hot running,
+   overspeed). Fit, clearance and interference are certified:
+   - over the whole tolerance envelope, by interval/affine arithmetic
+     (worst case);
+   - statistically, by massively parallel sampling;
+   - in every state, by composing displacement fields the analysis
+     layer supplies.
+7. **Sensitivities with every answer.** Every measure and query
+   returns its derivatives with respect to design parameters, where
+   they exist, and says where they do not (topology changes). The
+   C05 Jacobians are the seed. Sensitivities drive repair hints,
+   tolerance allocation and optimization.
+8. **Perception as structure.** The agent queries, it does not look:
+   - which faces bound this pocket;
+   - thinnest wall here, certified;
+   - what changed since the previous revision;
+   - the full stack-up behind this clearance.
 
-P1. **One evaluator.** Humans, agents, scripts and the viewer all
-call the same operations through the same protocol. The human UI is
-a client of the agent interface, not the other way round.
+   Rendering is a debugging aid for humans, never the interface.
+9. **Fast and massively parallel.** See §15. This is Bend law, not an
+   optimization.
 
-P2. **Addressable by meaning.** Anything that can be referenced has a
-durable name:
+## 15. Speed and parallelism are law
 
-- parts, features, faces by role ("bore of bearing seat 2");
-- parameters, requirements, materials.
+Victor's standard applies to every packet: correct, compact, fast, one
+general mechanism, and parallel by construction.
 
-Names survive edits or fail loudly.
+- **Measured, not assumed.** Every operation's contract states its
+  complexity and a latency budget. Receipts include scaling curves.
+  A performance regression blocks a packet like a failing law.
+- **Shapes that parallelize.** Use balanced trees and arrays, never
+  `nth` inside a loop. Use divide-and-conquer and tree reductions,
+  never long sequential folds where a tree exists. Batch operations
+  (variants, samples, tessellation, stack-ups) map over independent
+  work. Parallel claims are qualified by measured speedup on the
+  thread and GPU lanes (§4b), not by the absence of sequential code.
+- **Interactive by default.** A local edit to a large part re-evaluates
+  only the dirty subgraph (§14, property 5). Agent feedback loops must
+  stay interactive at jet-engine scale.
+- **Current state (measured 2026-09-29, native lane).** C05 is correct
+  and verified, but not Bend-grade.
 
-P3. **Every answer carries its status.** Each result says whether it
-is proven, certified (a bound), estimated (a method and its
-convergence), or assumed, with units and uncertainty. An agent never
-has to guess how much to trust a number.
+  | Engine | Size | Time |
+  |---|---|---|
+  | Arrangement | 25 segments | 0.1 s |
+  | Arrangement | 50 segments | 6.4 s |
+  | Arrangement | 100 segments | 220 s |
+  | Arrangement | 200 segments | did not finish in 280 s |
+  | Solver | 20 parameters | 0.1 s |
+  | Solver | 80 parameters | 0.3 s |
+  | Solver | 160 parameters | 3.5 s |
 
-P4. **Failures explain themselves.** Every failure carries:
+  The causes are list-based insertion sorts, positional lookups
+  inside loops, and a dense solver.
+- **R0 rebuild (next packet).** Re-derive C00–C05 to this standard
+  before C06 builds on them:
+  - arrangement by sweep or divide-and-conquer, O((n+k) log n);
+  - solver on a sparse Jacobian, with the constraint graph decomposed
+    into independent and rigid clusters solved in parallel;
+  - C01–C04 audited for the same patterns.
 
-- what failed, and where (selectors);
-- why, in machine-readable form;
-- the smallest known change that would fix it, when one is known.
+  Laws, oracles and three-lane identity carry over unchanged, and
+  behavior must stay byte-identical where it was correct. Exit
+  budgets:
+  - 10,000-segment arrangements interactive;
+  - 10,000-parameter sketches interactive;
+  - measured parallel speedup on multi-core and GPU.
 
-C05 already does this for sketches: named conflicting constraints,
-dof, redundancy.
+## 16. Interface and scope
 
-P5. **Design is text.** A design is a deterministic, diffable,
-versioned, branchable document. The agent can read it whole, edit it
-precisely, and replay it. Interactive edits emit the same text.
+- **Thin, typed, fast.** The agent interface is the operation algebra
+  itself: operations, queries, diagnoses, sensitivities and
+  transactions, exposed through MCP (primary), a CLI and the Bend
+  library. There is no separate application layer between the agent
+  and the kernel.
+- **No app port now.** Aethalgard v1 is frozen (A3) and its viewer is
+  not ported. A viewer, if built later, is a thin consumer of kernel
+  tessellation and graph events, and it inherits §15: it cannot be
+  slow.
+- **Engineering where the kernel needs it.** Tolerances and fits are
+  kernel semantics (§14, property 6; C15). Materials, analysis and
+  domain packs arrive when the challenge ladder requires them.
+  Analysis may use declared, labeled external open solvers until
+  Bend-native ones replace them. Geometry is Bend-only, always.
 
-P6. **Verification is the product.** Requirements are executable
-checks bound to the design. A design is "done" when every requirement
-passes with evidence of the stated strength. The agent cannot declare
-completion; the checks do.
+## 17. Milestone order
 
-P7. **Perception parity.** Anything a human can see, the agent can
-query as structure *and* view as an image:
+1. **R0: speed and parallelism rebuild of C00–C05** (§15).
+2. **C06 + A0.** Solids as content-addressed, intent-checked
+   operations with lineage names and diagnosed failures; the graph
+   evaluator with memoized incremental rebuild; the tolerance model
+   (nominal + zone, certified interval evaluation). A0 is the MCP/CLI
+   surface over it. Exit: G1.
+3. **C07 → C08 → C09.** Intersections, booleans, features. This is
+   where existing kernels are weakest, and where agents need the most
+   robustness, because an agent cannot hand-repair a failed fillet.
+   Sensitivities (§14, property 7) are built in, not bolted on.
+4. **C14 → C15.** Assemblies with certified interference and
+   clearance across the tolerance envelope and operating states;
+   semantic GD&T.
+5. **C10 → C11 → C12 → C16 → C13.** Tessellation, queries,
+   interchange and specialized modeling in ladder order, then release
+   qualification.
 
-- named views, sections and exploded views;
-- highlighted selectors;
-- revision diffs.
+## 18. The challenge ladder
 
-P8. **Bounded, incremental, cancellable.** Long work (booleans,
-meshing, analysis) runs as jobs with budgets, progress and partial
-results. Budget expiry is reported honestly, never as a false answer.
-This is the C05 rule, generalized.
+Each rung is an internal, graded eval, run by a fresh agent session
+from a written brief using only BendCAD. Independent grader code
+(not BendCAD's own checks), plus human review at the higher rungs,
+decides pass or fail. Each run leaves an artifact: transcript,
+design, deliverables and grader report. A rung counts once it passes
+repeatably across seeds and briefs.
 
-P9. **Evals are the spec.** Agent capability is measured by
-design-from-brief challenges with independent graders. A regression
-on the ladder blocks release, like a failing law.
-
-### 14.3 Layers
-
-```text
-L6  Deliverables      STEP AP242 + semantic PMI, drawings, BOM, 3MF/STL, inspection plans, (later) CAM
-L5  Human app         viewer (Aethalgard three.js, rebuilt on kernel tessellation), agent activity, review/approve, direct manipulation -> ops
-L4  Agent interface   protocol (MCP transport + CLI + SDK), sessions, transactions, jobs, perception, skills
-L3  Engineering       materials, tolerances/fits/stack-up, standard parts, analysis (FEA, thermal, fluid), DFM, domain packs
-L2  Design model      design graph: parts, sketches, features, assemblies, parameters, requirements, materials, PMI; text form; revisions/branches
-L1  Kernel            C00–C13: numerics, predicates, curves/surfaces, topology, sketches, solids, intersections, booleans, features, tessellation, queries, interchange
-L0  Bend fork         U64/F64 on every lane, GPU (CUDA; Metal pending), BendTT kernel (native F64 for --verdict)
-```
-
-Runtime shape:
-
-- The kernel and design model run as one native Bend binary: a local
-  daemon plus a CLI, from Bend's C lane.
-- Bend's JS lane gives a browser build of the same code for the
-  viewer and for sharing.
-- The GPU lane serves batch work: tessellation, meshing, analysis
-  kernels.
-- The agent interface is a thin protocol layer over the daemon.
-
-**Design representation (A3 decision).** A design is a declarative
-design graph in a small text format, interpreted by the kernel
-binary:
-
-- parts, sketches, features, assemblies;
-- parameters, requirements, materials, PMI.
-
-It is deterministic, diffable, branchable and replayable, and it is
-the only source of truth. Requirements are runtime checks with P3
-status. Generators that need code (blades, gears, patterns) are Bend
-plug-ins compiled into the kernel. Kernel algorithms keep laws; design
-requirements keep evidence.
-
-## 15. Tracks and milestones
-
-Four tracks advance together. Each milestone is a packet with a
-contract, laws, negative tests, a receipt, and (from A0 on) an agent
-transcript.
-
-### Kernel track (C)
-
-C06–C13 as in Revision 4, with these additions:
-
-- **C06** also delivers the minimal design-model evaluator (parts
-  built from ops, parameters, rebuild on edit). This is the first
-  thing the agent drives.
-- **C05.2** (after C07): curved-edge arrangements (arcs and circles
-  in regions). The solver already handles arcs.
-- **C14 Assemblies**: components, placements, mates/joints,
-  kinematic DOF, interference and clearance (C11 queries), exploded
-  views.
-- **C15 PMI/GD&T**: semantic dimensions and tolerances bound to
-  durable selectors, datum reference frames, ISO GPS / ASME Y14.5
-  semantics, exported with STEP AP242.
-- **C16 Specialized modeling** (as needed by the ladder): sheet metal,
-  surface modeling, blade/airfoil sections.
-
-### Agent track (A)
-
-- **A0 Protocol v0** (with C06). Sessions, transactions
-  (begin/commit/rollback), create/edit/query/verify, structured
-  results and failures, design text v0, job model. MCP (Streamable
-  HTTP and stdio) is the primary transport, with a CLI and SDK over
-  the same protocol. Exit: G1.
-- **A1 Perception.** Rendered named views, sections, highlights and
-  revision diffs as images, plus structured summaries (tree, mass
-  properties, bounding boxes, open issues).
-- **A2 Requirements.** A requirement language (dimensions, fits,
-  clearances, mass, envelope, stress/thermal margins, DFM rules)
-  compiled to checks with P3 status. "Done" = all checks pass.
-- **A3 Durable references.** Semantic selectors across edits (with
-  C08 lineage). Agent edits of an early feature propagate or fail
-  loudly.
-- **A4 Challenge harness.** A fresh-session runner, briefs,
-  independent graders, scoring, regression tracking (§16).
-- **A5 Skills.** BendCAD workflows as Claude skills, shipped in the
-  repo:
-  - design process (requirements → layout → detail → verify);
-  - DFM review;
-  - tolerance stack-up;
-  - analysis setup;
-  - drawing production.
-- **A6 Project memory.** A design journal, decisions with rationale,
-  open issues and assumptions, stored with the design, so
-  multi-session work on a large product (an engine) stays coherent.
-
-### Engineering track (E)
-
-- **E0 Materials.** Properties with sources and uncertainty,
-  temperature dependence, allowables by process and condition.
-- **E1 Tolerancing.** ISO 286 fits, GD&T evaluation, stack-up
-  analysis (worst-case, RSS, Monte Carlo).
-- **E2 Standard parts.** Parametric fasteners, bearings, seals,
-  springs and gears from standards, with their engineering data
-  (preload, life, ratings).
-- **E3 Structural analysis.** Meshing from kernel geometry; linear
-  static and modal FEA with convergence evidence; rotordynamics.
-  Bend-native is the target (the GPU lane fits FEA). Until it exists,
-  a declared external open solver (for example CalculiX) may run as a
-  labeled, replaceable analysis tool (A3 decision). Every result
-  names its solver, and each such tool has a Bend-native replacement
-  milestone. Geometry never leaves Bend.
-- **E4 Thermal and fluid.** 1D networks first; 3D CFD later, under
-  the same declared-external-solver rule as E3.
-- **E5 DFM.** Machining, additive, casting and sheet-metal rules
-  checked against the model, with process-aware tolerances and cost.
-- **E6 Domain packs.** Turbomachinery (cycle analysis, velocity
-  triangles, blade design), gears, bearings, bolted joints, pressure
-  vessels. Added in ladder order.
-
-### Product track (P)
-
-- **P0 Viewer.** Aethalgard's three.js viewport rebuilt on kernel
-  tessellation (C10) and design-model events.
-- **P1 App shell.** Desktop and web; shows agent sessions live;
-  review and approve by policy.
-- **P2 Direct manipulation.** Drags and picks emit design-model ops
-  (§14.2, P1).
-- **P3 Release.** v1 → v2 migration (STEP import of v1 designs),
-  packaging, documentation, open-source launch.
-
-## 16. The challenge ladder
-
-Each rung is an eval.
-
-- **Brief:** a written brief of the kind a customer would write.
-- **Run:** a fresh agent session with only BendCAD's interface and
-  skills.
-- **Grading:** independent graders. These are separate code, not
-  BendCAD's own checks, plus human review at the higher rungs.
-- **Pass:** every graded requirement met, with evidence of the
-  stated strength.
-- **Artifact:** transcript, design, deliverables and grader report.
-
-A rung passing once is a demo; passing repeatably across seeds and
-briefs is capability.
-
-| Rung | Challenge | Exercises |
+| Rung | Challenge | Needs |
 |---|---|---|
-| G1 | Parameterized mounting bracket, curved boundary, holes | C06, A0 |
-| G2 | Flanged pump housing with bolt pattern, gasket groove, fits | C07–C09, A1–A2, E1 |
-| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals, stack-up | C14, E1–E3, E6 gears |
-| G4 | Centrifugal blower assembly with modal FEA and DFM for machining | E3, E5, C15 drawings |
-| G5 | Micro turbojet, KJ-66 class (~100 N): centrifugal compressor, annular combustor, axial turbine, shaft and bearings, nozzle; drawings a hobby shop can build from | E6 turbomachinery, E0 hot-section materials, A6 |
+| G1 | Parameterized mounting bracket, curved boundary, holes | R0, C06, A0 |
+| G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | C07–C09, tolerance model |
+| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals, certified stack-ups | C14, C15 |
+| G4 | Centrifugal blower with modal analysis and machining DFM | analysis, C10–C11 |
+| G5 | Micro turbojet, KJ-66 class (~100 N), drawings a shop can build from; clearances certified in cold and running states | C16 blades, state-dependent geometry |
 | G6 | Bespoke jet engine from a performance brief | everything |
 
-G5 has public ground truth: hobbyists build that class of engine from
-drawings. That makes it the first rung where "buildable" can be
-checked against the real world, eventually by building one.
+## 19. What stays honest
 
-## 17. What stays honest
-
-- "Buildable" and "certified" are different claims. The ladder
-  targets buildable, with analysis evidence. Airworthiness
-  certification, combustion chemistry, creep-life prediction and
-  high-fidelity turbomachinery CFD are research-grade. BendCAD must
-  report them as estimates with stated methods until qualified
-  methods exist. It never presents an estimate as a guarantee.
-- The four proof categories of §11 extend to designs. A requirement
-  check is labeled proven, certified, estimated or assumed exactly as
-  kernel results are.
+- "Buildable" and "certified airworthy" are different claims. The
+  ladder targets buildable, with evidence. Combustion, creep life,
+  high-fidelity turbomachinery CFD and certification are
+  research-grade, and are reported as estimates with stated methods
+  until qualified methods exist.
+- The §11 proof categories (proven, certified, estimated, assumed)
+  apply to every design check as they do to every kernel result.
 - The Bend `--verdict` kernel cannot yet evaluate F64. The trusted
   base includes the TypeScript checker until BendTT gains native F64
-  (fork work, planned under L0).
+  (fork work).
 
 ## Primary references
 
@@ -576,22 +495,27 @@ These references motivate the design. No cited external test result is presented
 
 **A2 — 2026-09-27: proof methodology.** Every packet closeout qualifies its exit criteria in four layers, recorded in an exit receipt matrix with exactly these columns: exit req, formal spec, predicate, pos witness, neg witness, stage-isolated, independent evidence, status. Layer A (semantic invariant): fixture-independent laws stating what each validation stage MEANS (quantified binders and micro-stores only — no exit fixture referenced), so stage semantics are pinned independently of fixture plumbing. Layer B (implementation theorem): closed laws over the actual implementation — one instance per pipeline arm (constructors, walks, verdicts) plus end-to-end accept/reject instances — all machine-checked. Layer C (stage-isolated adversarial fixtures): every negative exit fixture fails EXACTLY one stage (passing all earlier stages under the contract's first-match-wins order) and every positive exit fixture traverses all stages; isolation is corroborated by unit/walk-code pins, never asserted from the end-to-end verdict alone. Layer D (independent qualification): evidence independent of the artifact being qualified — triple-lane byte-equality, regression-hash reproduction against predecessor receipts, and independent oracle scripts or Layer-A cross-checks where no oracle script exists; carried-oracle scope limits are stated, never silent. A matrix row is PASS only when its law witness is closed AND its runtime witness is green on the qualifying lanes. The C04 closeout (`docs/c04-contract.md` §15) is the first matrix under this amendment.
 
-**A3 — 2026-09-29: BendCAD is Aethalgard v2, agent-native.** Owner direction: BendCAD is version 2 of Aethalgard, the first agent-native professional CAD system, open source, built so that a fresh agent session can design a buildable product (up to a bespoke jet engine) through an interface made for the agent.
+**A3 — 2026-09-29: BendCAD is Aethalgard v2, the world's best kernel for agents.** Owner direction: BendCAD is version 2 of Aethalgard, open source. Its acceptance sentence is a fresh agent session designing a buildable, evidenced jet engine.
 
-This amendment:
+The first text of this amendment (`a1547de`) is superseded. It planned a viewer port and an application layer. The owner rejected that as a premature product pivot, and it is replaced here, before any packet ran under it.
 
-- replaces the §1 "not a replacement for Aethalgard" boundary;
-- brings the design model, engineering, agent interface, app and deliverables into scope (§14–§17);
-- re-states C06's exit as a graded agent run (G1);
-- adds C14 assemblies, C15 semantic PMI/GD&T and C16 specialized modeling, and the A/E/P tracks;
-- makes the challenge ladder (§16) the product test.
+The amendment:
+
+- makes the kernel the product (§14, nine properties);
+- makes speed and massive parallelism law, with measured budgets (§15);
+- measures the current engines and schedules the R0 rebuild of C00–C05 before C06 (§15, §17);
+- limits the interface to a thin typed layer over the operation algebra, with no app port (§16);
+- adds C14 assemblies, C15 semantic PMI/GD&T and C16 specialized modeling, with tolerances and operating states as native kernel semantics;
+- keeps the internal challenge ladder as the product test, with no external benchmark (§18);
+- re-states C06's exit as G1.
 
 Owner decisions:
 
-- designs are a declarative text graph interpreted by the kernel (not Bend programs); generators are Bend plug-ins;
-- declared, labeled external open solvers are allowed for analysis only until Bend-native ones replace them; geometry is Bend-only without exception;
-- new code is Apache-2.0;
-- Aethalgard v1 is frozen now;
-- v2 is named BendCAD.
+- designs are Bend programs that build a content-addressed operation graph, and the graph is canonical;
+- declared, labeled external solvers are allowed for analysis only, and geometry is Bend-only;
+- new code is Apache-2.0 (the LICENSE ships at release, excluding `legacy/`);
+- Aethalgard v1 is frozen;
+- v2 is named BendCAD;
+- MCP is the primary transport.
 
-MCP is the primary agent transport. Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels) are unchanged. The proposal text this amendment adopts is §14–§17.
+Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels) are unchanged.

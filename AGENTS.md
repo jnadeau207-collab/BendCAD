@@ -1,6 +1,6 @@
 # AGENTS
 
-BendCAD is Aethalgard v2: a professional CAD kernel in Bend, and the agent-native system above it, built for an AI agent to drive (MASTER_PLAN §14). Aethalgard v1 (`C:\dev\Aethalgard_CAD`) is frozen: mine it for UX, vocabulary and lessons, but never modify it.
+BendCAD is Aethalgard v2: a professional CAD kernel in Bend, built to be the world's best kernel for AI agents (MASTER_PLAN §14). Aethalgard v1 (`C:\dev\Aethalgard_CAD`) is frozen: mine it for UX, vocabulary and lessons, but never modify it.
 
 Judge every design by one question: could an agent drive this alone and trust the answer? Every result must be proven, certified, estimated or assumed, and must say which.
 
@@ -29,6 +29,12 @@ Before adding code, try to delete the need for it through a stronger type, reusa
 Make the smallest coherent commit that closes a contract. Pair implementation with the adversarial test that proves it. Prefer one evaluator path over human/agent variants. Prefer explicit structured failure over guessed geometry.
 
 Read `MASTER_PLAN.md` before implementation. Numeric work begins only after its Bend handoff gate closes.
+
+## Speed and parallelism are law
+
+- Victor's standard: correct, compact, fast, one general mechanism, parallel by construction.
+- No `nth` inside a loop, no insertion sorts, no O(n²) where O(n log n) exists. Use balanced trees and arrays, divide-and-conquer, and tree reductions.
+- Every operation's contract states its complexity and a latency budget. Receipts carry measured scaling curves and parallel speedup. A performance regression blocks a packet like a failing law.
 
 ## Bend toolchain
 

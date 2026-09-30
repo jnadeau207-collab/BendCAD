@@ -1,6 +1,6 @@
 # BendCAD
 
-Aethalgard v2: an open-source, agent-native professional CAD system written in Bend 2. The Bend kernel, with a design model, an engineering layer, an agent interface and a viewer, is built so that an AI agent can design buildable products, not just shapes (MASTER_PLAN §14–§17).
+Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the world's best kernel for AI agents. It is never silently wrong and explains its failures. Identity is by meaning. Toleranced, state-dependent geometry is native. Sensitivities come with every answer. It is fast and massively parallel by law (MASTER_PLAN §14–§15).
 
 **Status:** C00–C05 closed with laws, three-lane tests and independent oracles:
 
@@ -11,7 +11,7 @@ Aethalgard v2: an open-source, agent-native professional CAD system written in B
 - B-rep topology;
 - planar arrangements and the sketch solver.
 
-The receipt is `docs/receipts/c05.1-2026-09-29.txt` at `48ab78c`. Next: C06 solids with A0, the agent protocol, graded by challenge G1. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
+The receipt is `docs/receipts/c05.1-2026-09-29.txt` at `48ab78c`. Next: R0, a speed and parallelism rebuild of C00–C05 (measured C05 scaling is not Bend-grade, MASTER_PLAN §15). Then C06 solids with A0, graded by challenge G1. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
 
 ## Pins
 
@@ -22,7 +22,7 @@ The receipt is `docs/receipts/c05.1-2026-09-29.txt` at `48ab78c`. Next: C06 soli
 ## Start here
 
 - [AGENTS.md](AGENTS.md): coding mandate and hard lines
-- [MASTER_PLAN.md](MASTER_PLAN.md): the kernel roadmap (C00–C16), the agent-native architecture and tracks (§14–§15), and the challenge ladder (§16)
+- [MASTER_PLAN.md](MASTER_PLAN.md): the kernel roadmap (C00–C16), the agent kernel's properties (§14), speed and parallelism law (§15), interface and scope (§16), milestone order (§17), and the challenge ladder (§18)
 - [legacy/aethalgard/](legacy/aethalgard/): immutable reference corpus
 - [legacy/PROVENANCE.md](legacy/PROVENANCE.md), [legacy/manifest.json](legacy/manifest.json)
 
