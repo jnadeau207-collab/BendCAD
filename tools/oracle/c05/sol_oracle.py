@@ -213,12 +213,13 @@ def jac(s, ps, free, ps0):
     for i, f in enumerate(free):
         if not f:
             continue
-        h = 1e-6 * max(1.0, abs(ps[i]))
-        pp = list(ps)
-        pp[i] += h
-        pm = list(ps)
-        pm[i] -= h
-        cols.append((np.array([r for _, r in rows(s, pp, ps0)]) - np.array([r for _, r in rows(s, pm, ps0)])) / (2 * h))
+        h = 1e-3 * max(1.0, abs(ps[i]))
+
+        def at(k):
+            pk = list(ps)
+            pk[i] += k * h
+            return np.array([r for _, r in rows(s, pk, ps0)])
+        cols.append((8 * (at(1) - at(-1)) - (at(2) - at(-2))) / (12 * h))
     return np.array(cols).T if cols else np.zeros((len(base), 0))
 
 
@@ -301,20 +302,64 @@ def trap(kind):
     return s, list(s.ps), free, kind
 
 
+def shift(x, off):
+    if isinstance(x, tuple):
+        return (x[0] + off, x[1] + off)
+    if isinstance(x, int):
+        return x + off
+    return x
+
+
+def multi():
+    subs = []
+    while len(subs) < random.randint(2, 4):
+        pz = random.random() < 0.3
+        b = build(poison=pz)
+        if b:
+            subs.append(b + (pz,))
+    m = Sk()
+    start, free, cons = [], [], []
+    for t, st, fr, pz in subs:
+        off = len(m.ps)
+        m.ps += t.ps
+        start += st
+        free += fr
+        tw = next(c for c in t.cs if c[1] == "dist" and c[2:4] == t.cs[-1][2:4]) if pz else None
+        for c in t.cs:
+            cons.append(((c[1],) + tuple(shift(x, off) for x in c[2:]), id(t), pz, c is t.cs[-1] and pz, c is tw))
+    random.shuffle(cons)
+    m.cs = [(i + 1,) + c[0] for i, c in enumerate(cons)]
+    m.part = {i + 1: c[1] for i, c in enumerate(cons)}
+    m.pzids = {i + 1 for i, c in enumerate(cons) if c[2]}
+    parts = {}
+    for i, c in enumerate(cons):
+        if c[3] or c[4]:
+            parts.setdefault(c[1], set()).add(i + 1)
+    m.pairs = list(parts.values())
+    return m, start, free, "multi"
+
+
 cases = []
 while len(cases) < count:
     b = build(poison=len(cases) % 3 == 2)
     if b:
         cases.append(b + ("poison" if len(cases) % 3 == 2 else "consistent",))
 cases += [trap(["flip", "collapse", "negrad"][i % 3]) for i in range(count // 3)]
+cases += [multi() for _ in range(count // 3)]
+
+def blist(xs, ty):
+    if len(xs) <= 128:
+        return "[" + ", ".join(xs) + "]"
+    return f"List.append(&2, {ty}, [" + ", ".join(xs[:128]) + "], " + blist(xs[128:], ty) + ")"
+
 
 if sys.argv[1] == "gen":
     src = os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "src"), os.path.dirname(os.path.abspath(sys.argv[2]))).replace(os.sep, "/")
     body = []
     for s, start, free, role in cases:
-        body.append("  S.sol_show(S.solve([" + ", ".join(lit(v) for v in start) + "], ["
-                    + ", ".join("True{}" if f else "False{}" for f in free) + "], ["
-                    + ", ".join(cn(c) for c in s.cs) + f"], tol(), {FUEL}n)) ++ \"\\n\"")
+        body.append("  S.sol_show(S.solve(" + blist([lit(v) for v in start], "F64") + ", "
+                    + blist(["True{}" if f else "False{}" for f in free], "Bool") + ", "
+                    + blist([cn(c) for c in s.cs], "S.Cn") + f", tol(), {FUEL}n)) ++ \"\\n\"")
     open(sys.argv[2], "w", newline="\n").write("""import Base
 import SRC/c00/types.bend as T
 import SRC/c05/solve.bend as S
@@ -322,8 +367,8 @@ import SRC/c05/solve.bend as S
 def tol() -> T.Tol:
   T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64)
 
-def main() -> String:
-""".replace("SRC", src) + "\n  ++ ".join(b.strip() for b in body).join(["  ", "\n"]))
+""".replace("SRC", src) + "".join(f"def part{k}() -> String:\n" + "\n  ++ ".join(b.strip() for b in body[k:k + 100]).join(["  ", "\n\n"]) for k in range(0, len(body), 100))
+        + "def main() -> String:\n  " + " ++ ".join(f"part{k}()" for k in range(0, len(body), 100)) + "\n")
     sys.exit()
 
 got = open(sys.argv[2]).read().strip().strip('"').replace("\\n", "\n").strip().split("\n")
@@ -331,7 +376,7 @@ assert len(got) == len(cases), (len(got), len(cases))
 tally = {}
 bad = 0
 for n, ((s, start, free, role), line) in enumerate(zip(cases, got)):
-    poison = role == "poison"
+    poison = role == "poison" or (role == "multi" and bool(s.pzids))
     errs = []
     m = re.fullmatch(r"ok dof=(\d+) red=\[([\d,]*)\] ps=(.*)", line)
     kind = "ok" if m else line.split()[0] if not line.startswith("err") else line
@@ -351,17 +396,39 @@ for n, ((s, start, free, role), line) in enumerate(zip(cases, got)):
         if any(p != v for p, v, f in zip(ps, start, free) if not f):
             errs.append("fixed parameter moved")
         J = jac(s, ps, free, start)
-        dof = sum(free) - rank(J)
-        if dof != int(m[1]):
-            errs.append(f"dof {m[1]} != svd {dof}")
-        red = [int(x) for x in m[2].split(",") if x]
         ids = [r[0] for r in rows(s, ps, start)]
-        for rid in dict.fromkeys(ids):
-            first = ids.index(rid)
-            last = len(ids) - ids[::-1].index(rid)
-            dep = rank(J[:last]) < rank(J[:first]) + (last - first)
-            if dep != (rid in red):
-                errs.append(f"constraint {rid}: svd dependent={dep}, solver redundant={rid in red}")
+        kept, dep, grey = [], set(), False
+        for i, rid in enumerate(ids):
+            v = J[i]
+            w = v.copy()
+            for _ in range(2):
+                for q_ in kept:
+                    w = w - (q_ @ w) * q_
+            nv, nw = np.linalg.norm(v), np.linalg.norm(w)
+            if nw <= 1e-9 * nv:
+                dep.add(rid)
+            elif nw >= 1e-6 * nv:
+                kept.append(w / nw)
+            else:
+                grey = True
+        red = [int(x) for x in m[2].split(",") if x]
+        if grey:
+            tally[("grey", "skipped")] = tally.get(("grey", "skipped"), 0) + 1
+        else:
+            if sum(free) - len(kept) != int(m[1]):
+                errs.append(f"dof {m[1]} != reference {sum(free) - len(kept)}")
+            if set(red) != dep:
+                errs.append(f"redundant {sorted(red)} != reference {sorted(dep)}")
+    elif role == "multi" and line.startswith("conflict") and poison:
+        named = {int(x) for x in re.search(r"\[([\d,]*)\]", line)[1].split(",") if x}
+        if not named <= s.pzids:
+            errs.append(f"conflict {sorted(named)} blames constraints outside the poisoned parts")
+        if not any(pr <= named for pr in s.pairs):
+            errs.append(f"conflict {sorted(named)} names no complete contradicting pair {s.pairs}")
+    elif role == "multi" and not poison:
+        errs.append(f"consistent multi-part system reported {line[:40]}")
+    elif role == "multi" and line.startswith("err") and "nonconvergence" not in line:
+        errs.append("unexpected error arm")
     elif role != "consistent" and role != "poison":
         pass
     elif line.startswith("conflict") and not poison:

@@ -142,3 +142,13 @@ rule is now in AGENTS.md.
 PASS. All A2 rows (contract §11), including the new "No spurious
 solutions" row, have closed law witnesses and green three-lane runtime
 witnesses. BN-1..BN-12 all PASS.
+
+## 8. Canonical single-file law run
+
+bend laws/c05.bend --check-only on the committed 48ab78c bytes
+(laws/c05.bend e6cff8a3…, arrange.bend 6fb9ba5d…, exact.bend 4aa88cb0…,
+solve.bend 63a10b10…), relaunched 2026-09-29T23:35:04Z after the incident:
+
+ALL PROOFS CHECK, rc=0, wall 3:34:59, max RSS 529,584 KB.
+
+This corroborates the 14-chunk evidence in section 3.

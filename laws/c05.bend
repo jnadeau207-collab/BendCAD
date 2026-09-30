@@ -3,6 +3,7 @@ import ../src/c00/types.bend as T
 import ../src/c05/exact.bend as X
 import ../src/c05/arrange.bend as A
 import ../src/c05/solve.bend as S
+import ../src/c05/par.bend as P
 
 law sgn_neg_invol:
   for s: X.Sgn
@@ -128,7 +129,7 @@ def no_conflict_without_stationarity(ds):
 
 law conflict_names_violations:
   for ds: List<&2, S.Dr>
-  {S.conflict_go(True{}, ds) == S.Sv_conflict{S.viol(ds, [])} : S.Sol}
+  {S.conflict_go(True{}, ds) == S.Sv_conflict{S.dedup(S.viol(ds))} : S.Sol}
 
 def conflict_names_violations(ds):
   {==}
@@ -140,30 +141,18 @@ law sol_err_show:
 def sol_err_show(k):
   {==}
 
-law zeros_len:
+law gather_len:
   for n: Nat
-  {S.flen(S.zeros(n)) == n : Nat}
+  for i: U32
+  for pm: P.Tb<&2, U32>
+  for xt: P.Tb<&2, F64>
+  {S.flen(S.gather(n, i, pm, xt)) == n : Nat}
 
-def zeros_len(n):
+def gather_len(n, i, pm, xt):
   match n:
     case 0n: {==}
     case 1n+m:
-      %zeros_len(m) : {1n+S.flen(S.zeros(m)) == 1n+_ : Nat}
-      {==}
-
-law dense_len:
-  for n: Nat
-  for k: Nat
-  for g: List<&2, S.Gv>
-  for fr: List<&2, Bool>
-  for w: F64
-  {S.flen(S.dense(n, k, g, fr, w)) == n : Nat}
-
-def dense_len(n, k, g, fr, w):
-  match n:
-    case 0n: {==}
-    case 1n+m:
-      %dense_len(m, 1n+k, g, fr, w) : {1n+S.flen(S.dense(m, 1n+k, g, fr, w)) == 1n+_ : Nat}
+      %gather_len(m, (i + 1 : U32), pm, xt) : {1n+S.flen(S.gather(m, (i + 1 : U32), pm, xt)) == 1n+_ : Nat}
       {==}
 
 law nat_eq_refl:
@@ -303,7 +292,7 @@ def ok_arrange_square():
 law ok_arrange_cross_dangles:
   {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 2.0f64, 2.0f64},
     A.Seg{2u64, 0.0f64, 2.0f64, 2.0f64, 0.0f64}], 10n))
-    == "v=5 e=4 c=1 R D e1.0-x1.2 x1.2-e1.1 e2.0-x1.2 x1.2-e2.1" : String}
+    == "v=5 e=4 c=1 R D e1.0-x1.2 e2.0-x1.2 x1.2-e2.1 x1.2-e1.1" : String}
 
 def ok_arrange_cross_dangles():
   {==}
@@ -388,7 +377,7 @@ law ok_solve_linear:
   {ok_bits(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64], [False{}, False{}, True{}, True{}],
     [S.K_horiz{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}}, S.K_fix{2u64, 2n, 5.0f64}],
     T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n),
-    0n, [], [0u64, 0u64, 4617315517961601024u64, 4169896036686364672u64]) == True{} : Bool}
+    0n, [], [0u64, 0u64, 4617315517961601024u64, 4169896036682170368u64]) == True{} : Bool}
 
 def ok_solve_linear():
   {==}
@@ -397,7 +386,7 @@ law ok_solve_redundant_named:
   {ok_bits(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64], [False{}, False{}, True{}, True{}],
     [S.K_dist{1u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, 10.0f64}, S.K_dist{2u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, 10.0f64}],
     T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 100n),
-    1n, [2u64], [0u64, 0u64, 4621363944573119361u64, 4616052692831493342u64]) == True{} : Bool}
+    1n, [2u64], [0u64, 0u64, 4621363944573119361u64, 4616052692831493340u64]) == True{} : Bool}
 
 def ok_solve_redundant_named():
   {==}
@@ -484,13 +473,13 @@ def ok_iff_solved(s, cx, ps, ds):
   match s:
     case True{}: {==}
     case False{}:
-      conflict_never_ok(F64.is_le(S.nrm(S.jtr(ds, S.zeros(S.cx_np(cx)))),
+      conflict_never_ok(F64.is_le(S.jtr_nrm(ds),
         ((S.p2(26n) * F64.sqrt(S.fro2(ds)) : F64) * S.nrm(S.res_of(ds)) : F64)), ds)
 
 law classify_is_solved_at:
   for +cx: S.Cx
   for +ps: List<&2, F64>
-  {S.classify(cx, ps) == S.classify_go(S.solved_at(cx, ps, S.drs_at(cx, ps)), cx, ps, S.drs_at(cx, ps)) : S.Sol}
+  {S.classify(cx, ps) == S.classify_go(S.solved_at(cx, ps, S.rq_ds(S.rows_at(cx, ps))), cx, ps, S.rq_ds(S.rows_at(cx, ps))) : S.Sol}
 
 def classify_is_solved_at(cx, ps):
   {==}
@@ -499,7 +488,7 @@ law solved_needs_geometry:
   for +cx: S.Cx
   for +ps: List<&2, F64>
   for ds: List<&2, S.Dr>
-  {S.solved_at(cx, ps, ds) == Bool.and(S.geo_ok(S.cx_cs(cx), ps, S.cx_tl(cx)),
+  {S.solved_at(cx, ps, ds) == Bool.and(S.geo_ok(S.cx_cs(cx), S.ptb(ps), S.cx_tl(cx)),
     F64.is_le(S.maxabs(S.res_of(ds)), 1.0f64)) : Bool}
 
 def solved_needs_geometry(cx, ps, ds):
@@ -517,17 +506,19 @@ def geometry_veto(cx, ps, ds, x):
 
 law steps_keep_radii_positive:
   for +cs: List<&2, S.Cn>
-  for ps0: List<&2, F64>
-  for fr: List<&2, Bool>
+  for +ps0: P.Tb<&2, F64>
+  for ft: P.Tb<&2, Bool>
   for np: Nat
+  for nf: Nat
   for tl: F64
   for ta: F64
   for lo: F64
   for hi: F64
+  for od: S.Od
   for +ps: List<&2, F64>
-  {S.ok_at(S.Cx{cs, ps0, fr, np, tl, ta, lo, hi}, ps) == Bool.and(S.rad_ok(cs, ps), S.rows_ok(S.all_rows(cs, ps, ps0))) : Bool}
+  {S.rq_ok(S.rows_at(S.Cx{cs, ps0, ft, np, nf, tl, ta, lo, hi, od}, ps)) == Bool.and(S.rad_ok(cs, S.ptb(ps)), S.rows_ok(S.all_rows(cs, S.ptb(ps), ps0))) : Bool}
 
-def steps_keep_radii_positive(cs, ps0, fr, np, tl, ta, lo, hi, ps):
+def steps_keep_radii_positive(cs, ps0, ft, np, nf, tl, ta, lo, hi, od, ps):
   {==}
 
 law neg_angle_is_directed:
@@ -599,4 +590,37 @@ law neg_nonpositive_radius_start:
     [S.K_on_circ{1u64, S.Pt{2n, 3n}, S.Pt{0n, 1n}, 4n}], T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 10n)) == "err invalid-input" : String}
 
 def neg_nonpositive_radius_start():
+  {==}
+
+def dof_red(s: S.Sol, +dof: Nat, rs: List<&2, U64>) -> Bool:
+  match s:
+    case S.Sv_ok{ps, d, red}: Bool.and(Nat.is_eq(d, dof), ids_eq(red, rs))
+    case _: False{}
+
+law ok_solve_zero_pivot:
+  {dof_red(S.solve([5.1787109375f64, 1.302734375f64, 10.19921875f64, 1.28515625f64, 1.8203125f64, 1.01953125f64, 1.5400390625f64, F64.neg(3.0869140625f64)], [False{}, False{}, True{}, True{}, True{}, True{}, True{}, True{}], [S.K_hdist{3u64, S.Pt{6n, 7n}, S.Pt{0n, 1n}, 3.6572265625f64}, S.K_perp{6u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, S.Pt{0n, 1n}, S.Pt{2n, 3n}}, S.K_dist{11u64, S.Pt{4n, 5n}, S.Pt{2n, 3n}, 8.720686658469603f64}, S.K_dist{12u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 4.318359375f64}, S.K_vert{25u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}}, S.K_dist{27u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 4.318359375f64}],
+    T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 200n), 1n, [27u64]) == True{} : Bool}
+
+def ok_solve_zero_pivot():
+  {==}
+
+law ok_solve_clusters_merge:
+  {dof_red(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64, 20.0f64, 0.0f64, 24.0f64, 2.0f64],
+    [False{}, False{}, True{}, True{}, False{}, False{}, True{}, True{}],
+    [S.K_dist{10u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 5.0f64}, S.K_dist{11u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, 10.0f64},
+     S.K_dist{12u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 5.0f64}, S.K_dist{13u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, 10.0f64}],
+    T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 100n), 2n, [12u64, 13u64]) == True{} : Bool}
+
+def ok_solve_clusters_merge():
+  {==}
+
+law neg_solve_conflict_localized:
+  {S.sol_show(S.solve([0.0f64, 0.0f64, 7.0f64, 3.0f64, 20.0f64, 0.0f64, 24.0f64, 2.0f64],
+    [False{}, False{}, True{}, True{}, False{}, False{}, True{}, True{}],
+    [S.K_dist{20u64, S.Pt{0n, 1n}, S.Pt{2n, 3n}, 10.0f64}, S.K_dist{21u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 5.0f64},
+     S.K_dist{22u64, S.Pt{4n, 5n}, S.Pt{6n, 7n}, 6.0f64}],
+    T.mk_tol(0.0000001f64, 0.000000001f64, 0.000000001f64, 0.000001f64, 0.0000001f64), 100n))
+    == "conflict [21,22]" : String}
+
+def neg_solve_conflict_localized():
   {==}

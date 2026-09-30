@@ -1,0 +1,178 @@
+# R0.1 receipt — 2026-09-30 (C05 speed and parallelism rebuild)
+
+Packet: R0.1 rebuilds C05's arrangement and solver to MASTER_PLAN §15
+(no positional lookups in loops, no insertion sorts, no dense
+factorization, parallel by construction) with unchanged semantics.
+Contract: docs/c05-contract.md (§1, §2.2, §3.2, §5, §6–§11 updated;
+§12 new).
+
+Predecessor: 890396a (plan A3). The C05.1 receipt
+(c05.1-2026-09-29.txt) remains the record of 48ab78c; its canonical
+single-file law run is appended there as §8.
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD 890396a, branch main.
+BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+(~/.bend/FORK tag numeric/2026-09-29), WSL2, 16 cores, ~19 GB.
+Oracles: Windows CPython 3.14, numpy 2.4.0, scipy 1.18.0, shapely 2.1.2.
+GitHub Actions for this repository is billing-locked; local
+qualification below is the evidence of record.
+
+f87bafb7394cdec306d1080e3b5e3dac8279cf70727f6de78a6f1460561d63b4  src/c05/arrange.bend
+654b3883832bfb368dba20f6adc0ae60866179b02c8a006a228976c0ee58a04f  src/c05/exact.bend
+963515c743047c9aea97e136481cfffe0e8d4eec71f87891feee51d78692bbc6  src/c05/par.bend (new)
+60d42237400df420f7df3d5ddd600c21b0b238a4d7137c2676a2f5c5c4692aa8  src/c05/solve.bend
+00773a494a65cba7d6c5f3411456df392389376963de2e41cf77e58867e23856  src/c05/sqr.bend (new)
+3bdd97ae425e219b4d4c6b12a8b1af01901ea95c2c9441e4ec4b1f6a2899a555  laws/c05.bend
+5a3f889561dbc74b7edf1037e82ac67a6373f3d5fb263b1f1d66cfafd76cc995  tests/c05/check.bend (unchanged)
+ed8964bbbf3db67d5e65dbb42d10f0a24b469b4801c5bd7a7c523e9b7c32d3cd  tests/c05/neg.bend (unchanged)
+6244861873ce2f7794cc9229846b4266d8b2703a81fc8e9232f30dc80a774cd9  tests/c05/pos.bend
+ae08a788b3b51b19f8231101f19b00e9c2bd673f31c939b62cc1cc081e8982bc  tools/oracle/c05/arr_oracle.py (unchanged)
+9e1fce5eb2774742bab9d4f917963ef26175fd37150b2bdb7cf6d0a383ec9711  tools/oracle/c05/ex_oracle.py
+a39948447d2077367e0e9003a23655136e262e0ee9efde6dfcad5a681203c23d  tools/oracle/c05/oracles.py
+14b7cade9df69b7a3eb2e95070675065a5be6ca6f5eda16bafcf00563fdf0dbf  tools/oracle/c05/sol_oracle.py
+18a25d0794d1ef736ca8a03a06f48376cd164f8727c9d1ccc2ab275b6ee647e9  tools/bench/bench.py (new)
+
+C00–C04 sources and laws are unchanged.
+
+## 2. Laws
+
+Every law file, checked in full on the pinned bend (`--check-only`),
+detached, sha256 of law and source bytes recorded at launch.
+
+  c00  ALL PROOFS CHECK  0:57     rc=0
+  c01  ALL PROOFS CHECK  6:46     rc=0
+  c02  ALL PROOFS CHECK  14:35    rc=0
+  c03  ALL PROOFS CHECK  37:45    rc=0
+  c04  ALL PROOFS CHECK  2:15:55  rc=0
+  c05  ALL PROOFS CHECK  3:35:28  rc=0, max RSS 1,190,008 KB
+       (canonical single-file run on the final bytes above,
+        started 2026-09-30T05:21:56Z)
+
+(Wall times are inflated: up to 20 checks shared the machine.)
+
+c05 in parallel chunks (lawchunks.py, 14 chunks). One law,
+`solved_needs_geometry`, was restated after the first chunk run
+(its `geo_ok` argument now takes a tree, §4); the chunker then
+rebinned, so the evidence is the union below. Every chunk's other
+law texts, all helper defs and all sources are byte-identical
+between the two launches.
+
+  chunk       s   laws
+  c05_00   5604   gather_len nat_eq_refl pt_eq_refl same_line_invalid par_self_invalid ok_solve_zero_pivot
+  c05_01    270   ex_add_taints nat_eq_refl pt_eq_refl or_true_r reversed_line_invalid ok_arrange_square
+  c05_02   2969   conflict_names_violations … perp_self_invalid neg_solve_grounded_conflict ok_angle_from_flipped_side
+  c05_03    752   arrange_invalid_publishes_nothing no_conflict_without_stationarity neg_solve_budget_not_conflict ok_arrange_hole
+  c05_04   1825   sgn_neg_invol self_pair_invalid conflict_never_ok ok_iff_solved ok_solve_clusters_merge
+  c05_05      3   self_coincidence_invalid horiz_self_invalid classify_is_solved_at neg_nonpositive_radius_start
+  c05_06   1125   neg_arrange_budget ok_arrange_islands conflict_never_ok neg_axes_never_collapse
+  c05_07   4332   sgn_neg_of_neg ex_uncertain_dominates ok_iff_solved geometry_veto ok_parallel_is_undirected neg_coincidence_collapse_not_ok
+  c05_08   3627   arrange_budget_is_exhaustion ok_arrange_cross_dangles neg_solve_conflict_named neg_solve_conflict_localized
+  c05_10    396   lm_done_returns_state neg_arrange_underflow ok_arrange_antenna_dangles steps_keep_radii_positive
+  c05_11    882   ares_err_show solve_invalid_publishes_nothing lm_budget_returns_state ok_solve_tangent_circles ok_arrange_overlap_lineage
+  c05_12   3683   ex_neg_keeps_ok ex_mul_taints dist_self_invalid neg_angle_is_directed neg_negative_radius_not_ok
+  c05_13   1085   sgn_is_refl sol_err_show neg_solve_bad_index ok_solve_redundant_named neg_angle90_is_directed
+  new_08   2878   ok_arrange_cross_dangles neg_arrange_degenerate neg_solve_conflict_named neg_solve_conflict_localized
+  new_09   1232   arrange_budget_is_exhaustion same_line_invalid neg_solve_bad_index ok_solve_linear
+  new_13    844   ares_err_show self_pair_invalid horiz_self_invalid ok_solve_redundant_named solved_needs_geometry neg_angle90_is_directed
+
+All chunks: ALL PROOFS CHECK. The union covers all 61 laws.
+
+## 3. Suites, three lanes
+
+tests/c05/neg.bend  38 PASS, selfcheck fails=0, interp == native == js
+  sha256 ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684 (identical to C05.1)
+tests/c05/pos.bend  41 PASS, selfcheck fails=0, interp == native == js
+  sha256 7709eb898367fd4bc86e6f510b75ccdb4221ddf941120e00cf22e82d721643c0
+
+## 4. Changes to laws and pins (none weakened)
+
+Restated because their subject changed, same meaning:
+- conflict_names_violations: `Sv_conflict{dedup(viol(ds))}` (viol now
+  lists every violated row's id; dedup keeps each once, in order).
+- classify_is_solved_at: over rows recomputed by `rows_at`
+  (classify recomputes rows at the final point, as before).
+- steps_keep_radii_positive: the acceptance gate is `rows_at`'s ok,
+  still exactly `rad_ok ∧ rows_ok` at the trial point.
+- solved_needs_geometry: `geo_ok` takes the parameter tree `ptb(ps)`.
+- ok_iff_solved (helper def): the stationarity test uses `jtr_nrm`.
+- dense_len → gather_len: the step vector has one entry per parameter.
+Removed with its subject: zeros_len.
+
+New closed laws (each checked to discriminate):
+- ok_solve_zero_pivot — False on the build without the zero-dropping
+  fix (exact zeros reaching a pivot gave NaN and hid redundancy 27).
+- ok_solve_clusters_merge — redundancy across clusters in global order.
+- neg_solve_conflict_localized — a consistent cluster is never blamed.
+
+Re-pinned (Givens vs Gram–Schmidt rounding; dof/red unchanged):
+- ok_solve_linear: 6.004550604512308e-30 → 6.004550601573572e-30.
+- ok_solve_redundant_named: 3.939192985791677 → 3.939192985791676.
+- pos suite: 11 `pos-sol-*` strings, each asserted to keep its
+  `ok dof=… red=[…]` prefix; `pos-arr-tenth` and
+  ok_arrange_cross_dangles list dangling edges in canonical edge order.
+New pos cases: pos-sol-zero-pivot, pos-sol-clusters-merge,
+pos-sol-conflict-localized.
+
+## 5. Independent oracles (python tools/oracle/c05/oracles.py, final bytes)
+
+ex_oracle: filtered orient2s: wrong=0, differs from exact path=213 | 2000/2000 cases, wrong=0, uncertain=340 (finite-input 327)
+arr_oracle 7/11/12/13: 300 cases each, mismatches=0
+sol_oracle_1: 250 cases, wrong=0: consistent ok 100, poison conflict 50, flip ok 17, collapse conflict 17, negrad nonconvergence 16, multi conflict 29, multi ok 21
+sol_oracle_2: 250 cases, wrong=0: … multi conflict 32, multi nonconvergence 1, multi ok 17
+sol_oracle_3: 250 cases, wrong=0: … poison conflict 49 + nonconvergence 1, multi conflict 27, multi ok 23
+sol_oracle_4: 250 cases, wrong=0: … poison conflict 49 + nonconvergence 1, multi conflict 34, multi ok 16
+grey (reference band) cases: 0.
+
+Oracle changes: the multi-part family; a fourth-order finite-difference
+Jacobian; a reference rank by twice-projected orthogonalization in
+constraint order with a guard band (dependent ≤ 1e-9, independent
+≥ 1e-6). The former SVD rank with a fixed 1e-5·σ_max threshold mixed
+angle-weighted (1e9) and length-weighted (1e7) rows: on multi-part
+sketches it called rows at relative distance 0.0079 and 0.0049
+dependent; the C05.1 solver agrees with R0 on both. Discrimination:
+with the zero-pivot fix reverted, the oracle reports wrong=1 (seed 1,
+case 249).
+
+## 6. Scaling (python tools/bench/bench.py; native, idle machine)
+
+Every run is checked against a closed form (rect sum 6n², chain sum
+n(n+1)/2, grid sum g²(g−1), plate counts, Euler r = e − v + c).
+
+  workload     n      size     real s   user s  user/real
+  sol-rects    10       80      0.03     0.02
+  sol-rects    100     800      0.11     0.08
+  sol-rects    1000   8000      0.60     0.99    1.65
+  sol-rects    3000  24000      1.99     3.34    1.68
+  sol-chain    100     202      0.05     0.02
+  sol-chain    1000   2002      0.41     0.43    1.05
+  sol-chain    5000  10002      3.71     3.90    1.05
+  sol-grid     10      200      0.10     0.07
+  sol-grid     20      800      0.68     0.69    1.01
+  sol-grid     40     3200      5.02     5.10    1.02
+  arr-plate    10      404      0.06     0.03
+  arr-plate    35     4904      0.46     0.63    1.37
+  arr-plate    50    10004      0.97     1.32    1.36
+  arr-plate    100   40004      5.47     8.44    1.54
+  arr-random   100     100      0.23     0.22    (v=1340)
+  arr-random   200     200      0.90     1.22    (v=5609)
+  arr-random   400     400      3.84     5.46    (v=20331)
+  brep-holes   5       104      0.30     0.30    (C04, unchanged: R0.2)
+  brep-holes   10      404     16.03    16.02    (C04, unchanged: R0.2)
+
+C05.1 on the same machine: arrangement 50 segments 6.4 s, 100
+segments 220 s, 200 did not finish in 280 s; solver 160 parameters
+3.5 s, 800 parameters (100 rectangles) still running after about 9 minutes when stopped.
+
+## 7. Open against MASTER_PLAN §15
+
+- One connected 10,000-parameter cluster: seconds, not interactive.
+- Parallel speedup 1.0–1.7×; no GPU measurement.
+- C04 validation is roughly cubic (brep-holes above): R0.2.
+
+## 8. Verdict
+
+PASS for R0.1. Laws, suites, oracles and benchmarks are green on the
+final bytes; the open items are recorded in the contract (§9, §12) and
+MASTER_PLAN §15.

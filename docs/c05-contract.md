@@ -11,7 +11,21 @@ Scope: MASTER_PLAN §C05. Two engines, one packet:
   solver: analytic residuals and Jacobians, damped Gauss–Newton
   (Levenberg–Marquardt) on a backward-stable factorization,
   rank diagnosis, explicit degrees of freedom, named redundancy,
-  certified conflicts and budget-honest nonconvergence.
+  certified conflicts and budget-honest nonconvergence. The
+  constraint graph is split into independent clusters that are
+  solved in parallel.
+- `src/c05/par.bend` — the shared parallel primitives: balanced
+  read-mostly trees (`Tb`), a fork-join merge sort with an
+  uncertainty-carrying comparator, parallel maps, and
+  Shiloach–Vishkin connected components.
+- `src/c05/sqr.bend` — sparse orthogonal factorization: Givens
+  row-merge into an upper-triangular sparse `R`, rank-revealing
+  column deletion, and a nested-dissection multifrontal
+  least-squares solve.
+
+Amendment R0 (§12) rebuilt all three engines for speed and
+parallelism. Behavior stayed byte-identical where the old engines
+were correct; §12 lists every observable change.
 
 Code carries no comments; this document is the explanation.
 PlaneGCS (vendored in `legacy/`) was mined for vocabulary only
@@ -41,6 +55,15 @@ It returns `Su` only when the exact value is not representable
 within the expansion scheme: overflow, subnormal underflow, or
 nonfinite input.
 
+`orient2s` is the filtered form the arrangement uses. `dd_sign`
+evaluates `(a−b)(c−d) ± (e−f)(g−h)` in floating point and returns
+its sign when `|value| > 2·errA·sum`, `sum ≥ 2^-900` and both are
+finite, with Shewchuk's `errA` (`F64{4375247037990436868}`). Any
+other case falls back to the exact expansion path, so `orient2s`
+never returns a wrong sign either (ex_oracle: 0 wrong over 2,000
+cases; 213 cases the exact path left uncertain are decided by the
+filter, and none disagrees with `Fraction`).
+
 ## 2. Arrangement (`arrange.bend`)
 
 ### 2.1 Types
@@ -68,53 +91,60 @@ nonfinite input.
    zero-length segment, no duplicate id → `A_err{invalid}`.
 2. **Budget**: `len(segs) > fuel` → `A_err{exhausted}`. Every later
    loop is structurally bounded by the input.
-3. **Stops** (`seg_sorted`, per segment, exact):
-   - its own endpoints;
-   - every other endpoint lying on it (`orient2 = 0` and exact
-     betweenness);
-   - every proper crossing, as an `RPt`.
-
-   Stops are sorted along the segment by exact rational
-   comparison. A coincident stop keeps the minimum key
-   (`VK_end < VK_x`, then lexicographic ids).
-4. **Vertex table** (`vtab_go`): all stops, sorted exactly and
-   lexicographically, deduplicated, keeping the minimum key.
-5. **Edges** (`chain`): consecutive stops become edges between
-   vertex indices. Coincident edges (collinear overlaps) merge,
-   unioning their `srcs`.
-6. **Half-edges** (`tab_go`): per vertex, outgoing half-edges sorted
-   counter-clockwise by exact direction comparison (upper half
-   plane first, then `orient2` on the directions).
-   `next(h)` is the clockwise-previous half-edge at `head(h)`,
-   counted from `twin(h)`.
-7. **Faces** (`cycles`): the `next` orbits.
-8. **Components** (`labels`, `comps_go`): connected components by
-   label relaxation. A component's outer cycle is the cycle through
-   the last upper out-half-edge at its minimum vertex.
-9. **Nesting** (`locate`): each component's minimum vertex casts a
-   vertical ray at `x + ε` (ε symbolic: resolved by exact
-   comparisons only). The lowest edge above it, among components
-   not excluded, names the face directly below that edge.
-   - If that face is another component's outer cycle, that
-     component is excluded and the ray retried (fuel = #components + 1).
-   - Otherwise the face is the enclosing bounded face.
-   - No edge above means the unbounded face.
-10. **Regions** (`region_at`): every bounded cycle, plus the outer
-    cycles of the components located in it, as holes.
+3. **Candidate pairs** (`cands`): segments sorted by `xmin`; each
+   scans forward while the next `xmin ≤` its `xmax` and keeps pairs
+   whose y-intervals overlap (sort-and-sweep broad phase).
+4. **Stops** (`pr_stops`, a parallel map over candidate pairs):
+   endpoints lying on the other segment (`orient2s = 0` and exact
+   betweenness) and proper crossings as rational points, plus every
+   segment's own endpoints.
+5. **Vertices** (`vgroup`): all stops sorted exactly and
+   lexicographically; equal points form one vertex keeping the
+   minimum key (`VK_end < VK_x`, then lexicographic ids).
+6. **Edges** (`ep_go`, `ie_go`): each segment's stops, sorted along
+   it, give consecutive edges. Coincident edges (collinear overlaps)
+   merge, unioning their `srcs`.
+7. **Half-edges** (`hos`, `gr_of`): per vertex, outgoing half-edges
+   sorted counter-clockwise by exact direction comparison (upper
+   half plane first, then `orient2` on the directions). `next(h)` is
+   the clockwise-previous half-edge at `head(h)`, counted from
+   `twin(h)`.
+8. **Faces** (`jump_min`): the `next` orbits, labeled by their
+   minimum half-edge with pointer jumping (log rounds).
+9. **Components** (`P.components`): Shiloach–Vishkin hooking and
+   shortcutting. A component's outer cycle is the cycle through the
+   last upper out-half-edge at its minimum vertex.
+10. **Nesting** (slab index + pointer chaining):
+    - edges are bucketed into x-slabs with conservative float bounds
+      (rational crossings widened by a relative and absolute margin);
+    - each component's minimum vertex casts a vertical ray at
+      `x + ε` (ε symbolic, exact comparisons only) and finds the
+      lowest edge above it in its slab;
+    - if that edge's face is another component's outer cycle, the
+      component points at that component; pointer jumping resolves
+      the chains in log rounds;
+    - a chain that does not terminate (a cycle through outer faces)
+      falls back to the exclusion search: exclude the component
+      named and retry, with fuel `#components + 1`;
+    - no edge above means the unbounded face.
+11. **Regions** (`nk_of`, `starts`, `lp_of`, `regions_of`): every
+    bounded cycle, plus the outer cycles of the components located in
+    it, as holes.
     - Half-edges whose twin lies in the same region are antennas
-      and are removed.
-    - The survivors are relinked (`next_k`: rotate clockwise at the
-      head until a kept half-edge).
+      and are removed; the survivors are relinked (next kept
+      half-edge clockwise at the head, by pointer jumping).
     - Orientation is certified per loop by the exact turn at its
       minimum-origin vertex: exactly one CCW outer; the others are
       CW holes.
-    - Loops are rotated to start at their minimum vertex; holes and
-      regions are sorted by origin-index lists.
-11. **Dangling edges**: edges whose two sides lie in the same face
-    (antennas, bridges, isolated segments).
+    - Loops start at their minimum vertex; holes and regions are
+      sorted by origin-index lists.
+12. **Dangling edges** (`dang_of`): edges whose two sides lie in the
+    same face (antennas, bridges, isolated segments), in canonical
+    (u, v) edge order.
 
-Any exact comparison returning `Su`, or any internal lookup
-failing, publishes nothing and yields `A_err{uncertain}`.
+Every sort carries an ok flag: an uncertain comparison (`Su`) in
+any stage, or any internal lookup failing, publishes nothing and
+yields `A_err{uncertain}`.
 
 ### 2.3 Identity (BN-7)
 
@@ -171,54 +201,75 @@ independent oracle checks it against central finite differences
 
 ### 3.2 Pipeline (first match wins)
 
-1. **Validation** (`cns_ok` + `solve`) → `Sv_err{invalid}`, before
-   any numeric work. Rejected:
+1. **Validation** (`cns_valid` + `solve`) → `Sv_err{invalid}`,
+   before any numeric work. Rejected:
    - out-of-range indices;
    - a point related to itself (coincidence, h/v, distance,
      on-circle, midpoint base, tangency centers);
    - a line related to itself in either orientation;
    - `d ≤ 0`, `v ≤ 0`, a nonfinite value, or a non-unit angle pair;
-   - duplicate constraint ids;
+   - duplicate constraint ids (sort, then adjacent comparison);
    - a `free` length that differs from the parameter count;
    - a nonfinite parameter;
    - an inadmissible `lin`/`ang` tolerance.
-2. **Initial evaluation**: any nonfinite residual or gradient (a
-   zero-length direction under a direction constraint, concentric
-   tangency) → `Sv_err{invalid}`.
-3. **Iteration** (`lm`), bounded by `fuel`:
-   - Rows are weighted by `1/tol.lin` or `1/tol.ang`, and grounded
-     columns are masked.
-   - Each step solves `min ‖J̃δ + r̃‖² + λ‖δ‖²` through the augmented
-     system `[J̃; √λ I]` by modified Gram–Schmidt with the
-     right-hand side carried along (`mgs` + `back`). This is
-     Björck's backward-stable least-squares QR. Every augmented
-     column has full rank because of its own `√λ` entry.
-   - A step is accepted iff the trial is finite, every radius stays
-     positive (`rad_ok`), the cost falls, and the predicted reduction
-     `‖r̃‖² − ‖r̃+J̃δ‖²` is positive.
-   - The damping update is Nielsen's:
-     - accept: `λ ← λ·max(1/3, 1−(2ρ−1)³)` and `ν ← 2`;
-     - reject: `λ ← λν` and `ν ← 2ν`.
-   - `λ₀ = 2^-10 · max column norm² of J̃`, clamped to
-     `[2^-30 λ₀, 2^60 λ₀]`.
-   - The iteration stops on a zero cost, a step no longer than
-     `2^-45(1+‖p‖)`, `λ` above its ceiling, or `fuel = 0`.
-4. **Classification** (`classify`, at the final iterate, independent
-   of why iteration stopped):
-   - **Solved** (`solved_at`): the geometry is admissible (§3.4) and
-     every weighted residual is `≤ 1` (each constraint within its
-     tolerance) → `Sv_ok{ps, dof, red}`.
-     - `ps` is canonicalized (`−0 → +0`).
-     - A Gram–Schmidt pass (twice-projected) over the masked
-       weighted rows, in constraint order, gives the rank.
-     - A row whose projected norm is `≤ 2^-26` of its own norm is
-       dependent; its constraint id is named in `red`.
-     - `dof = #free − rank`.
-   - **Conflicting**: not solved, and first-order stationarity is
-     certified: `‖J̃ᵀr̃‖ ≤ 2^-26 ‖J̃‖_F ‖r̃‖` → `Sv_conflict{ids}`.
-     `ids` are the constraints whose weighted residual exceeds 1 at
-     that point (the support of the unresolvable residual).
-   - Otherwise → `Sv_err{nonconverged}`.
+2. **Clusters**: a graph with one node per parameter and one per
+   constraint, and an edge from each constraint to every free
+   parameter it reads. `P.components` labels it; constraints are
+   grouped by label, in constraint order within each group. Fixed
+   parameters join nothing, so two sketches sharing only grounded
+   geometry are independent. A component labeling that fails to
+   converge → `Sv_err{nonconverged}`.
+3. **Per cluster, in parallel** (`P.pmap`), on the cluster's
+   parameters renumbered by binary search:
+   1. **Initial evaluation**: any nonfinite residual or gradient, or
+      a nonpositive radius → `Sv_err{invalid}`.
+   2. **Iteration** (`lm`), bounded by `fuel`:
+      - Rows are weighted by `1/tol.lin` or `1/tol.ang`; grounded
+        columns are masked; rows are sparse and deduplicated.
+      - Each step solves `min ‖J̃δ + r̃‖² + λ‖δ‖²` through the
+        augmented system `[J̃; √λ I]`. Columns are ordered once per
+        cluster by nested dissection (BFS level separators from a
+        pseudo-peripheral vertex, leaves below 17 columns). The rows
+        are factored by Givens row-merge on the separator tree:
+        independent subtrees factor in parallel, each front
+        triangularizes its contribution rows, and the separator
+        front merges them (`fact`). Back-substitution gives δ.
+        Every column has full rank because of its own `√λ` row.
+      - Acceptance and the damping update are unchanged from C05.1:
+        the trial must be finite, keep every radius positive
+        (`rad_ok`), lower the cost, and have positive predicted
+        reduction. Nielsen's update, `λ₀ = 2^-10 · max column norm²`,
+        clamp `[2^-30 λ₀, 2^60 λ₀]`.
+      - The iteration stops on a zero cost, a step no longer than
+        `2^-45(1+‖p‖)`, `λ` above its ceiling, or `fuel = 0`.
+   3. **Classification** (`classify`, on rows recomputed at the
+      final iterate, independent of why iteration stopped):
+      - **Solved** (`solved_at`): admissible geometry (§3.4) and
+        every weighted residual `≤ 1` → ok.
+        - The rank comes from a sparse QR of `J̃ᵀ` with columns in
+          constraint-row order (`Q.rank`). Column `j` is dependent
+          when `|R_jj| ≤ 2^-26 ‖row j‖`; it is deleted and its tail
+          re-merged, so every later `R_kk` is the distance of row `k`
+          to the span of the kept earlier rows. This is exactly the
+          C05.1 Gram–Schmidt criterion. Its constraint id is named
+          in `red`.
+        - `dof = #free − rank`.
+      - **Conflicting**: not solved, and `‖J̃ᵀr̃‖ ≤ 2^-26 ‖J̃‖_F ‖r̃‖`
+        → the ids whose weighted residual exceeds 1.
+      - Otherwise → nonconverged.
+4. **Merge** (`mg_fin`), by priority:
+   - any cluster invalid → `Sv_err{invalid}`;
+   - else any cluster conflicting → `Sv_conflict{ids}`, the union of
+     the conflicting clusters' ids in global constraint order. A
+     consistent cluster is never blamed;
+   - else any cluster nonconverged → `Sv_err{nonconverged}`;
+   - else `Sv_ok{ps, dof, red}`: `ps` scatters every cluster's free
+     parameters into the input vector (canonicalized, `−0 → +0`),
+     `dof` is the sum of cluster dofs plus the free parameters no
+     constraint reads, and `red` is in global constraint order.
+
+A single cluster yields exactly the C05.1 semantics: its
+classification uses the same criteria on the same rows.
 
 An expired budget is never a conflict: the fuel only bounds
 iteration, and classification demands a certificate (laws
@@ -303,15 +354,17 @@ Only the durable region key was ported.
 | Constant | Value | Role |
 |----------|-------|------|
 | Product exactness | `lsb_b(a)+lsb_b(b) ≥ 1076` | proven condition (§1) |
+| Orientation filter | `abs(v) > 2·errA·sum`, `sum ≥ 2^-900`, both finite | fast path, else exact (§1) |
+| Slab margin | `abs(a)·2^-40 + 2^-1000` widening of each rational crossing's float estimate | conservative slab membership only; every decision is exact |
 | Angle unit check | `|cs²+sn²−1| ≤ 2^-40` | input validation |
 | Stationarity | `2^-26` (√ε) relative | conflict certificate, first-order |
 | Admissibility | line length `> tol.lin`, radius `> tol.lin` | a segment or circle smaller than tolerance is not geometry |
-| Rank / dependence | `2^-26` relative row residual | redundancy and dof |
+| Rank / dependence | `abs(R_jj) ≤ 2^-26 ‖row j‖` | redundancy and dof |
 | `λ₀`, clamp | `2^-10·max‖col‖²`, `[2^-30, 2^60]·λ₀` | damping |
 | Tiny step | `2^-45 (1+‖p‖)` | stopping only, never classification |
+| Nested-dissection leaf | fewer than 17 columns, or no edges | ordering granularity only |
 
-Cost per LM iteration is `O(np²·(m+np))`, dense. Arrangement stops
-cost `O(n²)` segment pairs, plus sorting.
+Complexity and measured scaling are in §12.
 
 ## 6. Verification
 
@@ -320,17 +373,21 @@ export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH
 bend src/c05/exact.bend --check-only     # ALL PROOFS CHECK
 bend src/c05/arrange.bend --check-only   # ALL PROOFS CHECK
 bend src/c05/solve.bend --check-only     # ALL PROOFS CHECK
+bend src/c05/par.bend --check-only       # ALL PROOFS CHECK
+bend src/c05/sqr.bend --check-only       # ALL PROOFS CHECK
 bend tests/c05/check.bend --check-only   # ALL PROOFS CHECK
-bend laws/c05.bend --check-only          # ALL PROOFS CHECK (59 laws; timing in the receipt)
+bend laws/c05.bend --check-only          # ALL PROOFS CHECK (61 laws; timing in the receipt)
 bend tests/c05/neg.bend                  # 38 PASS, selfcheck fails=0
-bend tests/c05/pos.bend                  # 38 PASS, selfcheck fails=0
+bend tests/c05/pos.bend                  # 41 PASS, selfcheck fails=0
 # native: bend <suite> -o <bin> && <bin>; js: bend <suite> -o <js> && bun <js>
 python tools/oracle/c05/oracles.py       # independent oracles (numpy, scipy, shapely)
+python tools/bench/bench.py              # scaling benchmarks with closed-form checks (§12)
 ```
 
 The three lanes are byte-identical per suite (`cmp`). The receipt
-(`docs/receipts/c05.1-2026-09-29.txt`, superseding `c05-2026-09-29.txt` for 6a4a500) records hashes, law timings
-and oracle output.
+(`docs/receipts/r0.1-2026-09-30.txt`, superseding
+`c05.1-2026-09-29.txt` for 48ab78c) records hashes, law timings,
+oracle output and the scaling benchmarks.
 
 Independent oracles (`tools/oracle/c05/`, Layer D). None shares
 code with the engines.
@@ -360,12 +417,24 @@ code with the engines.
   point; one sketch in three is poisoned with a contradicting
   distance. Checks:
   - on `ok`: an independent residual recomputation within
-    tolerance; grounded parameters bit-unchanged; `dof` equal to
-    `#free − rank(SVD of a central-difference Jacobian)`; and, per
-    constraint, SVD dependence iff the solver named it redundant;
+    tolerance; grounded parameters bit-unchanged; and a reference
+    rank from a fourth-order finite-difference Jacobian, orthogonalized
+    twice in constraint order in numpy. A row at relative distance
+    `≤ 1e-9` must be named redundant, a row at `≥ 1e-6` must not, and
+    `dof` must equal `#free − kept rows`. A case with any row inside
+    the band (the contract threshold `2^-26` sits there) is counted
+    `grey` and skipped; the final run has none;
   - poisoned systems never `ok`, and every conflict names the
     contradicting pair;
   - consistent systems never `conflict`.
+  - **multi** (50 per seed): two to four independent sketches, some
+    poisoned, merged with disjoint parameters and interleaved,
+    renumbered constraint ids. On `ok` the checks above apply to the
+    whole system. A conflict must name only ids from poisoned parts
+    and at least one complete contradicting pair. Nonconvergence is
+    allowed only when a part is poisoned. This family found a real
+    defect during R0 (a zero leading entry reaching a pivot poisoned
+    the rank with NaN; law `ok_solve_zero_pivot`).
 
   Tangency follows the documented initial-side rule; angle and
   axis residuals are recomputed with `atan2`, independently.
@@ -404,15 +473,15 @@ former solver.
 
 | Gate | Verdict | Evidence |
 |------|---------|----------|
-| BN-1 | PASS | The implementation is exactly `src/c05/{exact,arrange,solve}.bend` (38 + 221 + 104 defs); each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` is test-only comparator code, never on a runtime path. |
+| BN-1 | PASS | The implementation is exactly `src/c05/{exact,arrange,solve,par,sqr}.bend` (48 + 321 + 205 + 65 + 130 defs); each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` and `tools/bench/` is test-only code, never on a runtime path. |
 | BN-2 | PASS | `grep -rn "@unsafe" src/c05 laws/c05.bend tests/c05` is empty. |
 | BN-3 | PASS | `grep -rn F32 src/c05 laws/c05.bend tests/c05` is empty; every scalar is the pinned as-bits F64. |
-| BN-4 | PASS | No foreign or FFI code; imports are `Base` and `../c00/types.bend` only. Boundary list: none. |
+| BN-4 | PASS | No foreign or FFI code; imports are `Base`, `../c00/types.bend` and the C05 files themselves. Boundary list: none. |
 | BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/c05` is empty. The oracles (numpy, scipy, shapely/GEOS, `Fraction`) live under `tools/oracle/` as comparators only. PlaneGCS is not used, even as a comparator. |
 | BN-6 | PASS | No GPU claim in this packet. |
 | BN-7 | PASS | §2.3: vertices are lineage keys from caller ids, edges carry `srcs`, loops and regions are canonical, and the output is permutation-invariant (`pos-arr-perm`). Solver diagnostics name caller constraint ids. Parameter indices address the input vector of one call and are never persistent identity. |
-| BN-8 | PASS | The checker proves every def terminates (a structurally shrinking first argument; `mgs` carries an explicit column counter, `lm` a fuel). Budgets: arrangement `fuel ≥ #segments` else `resource-exhausted`; nesting retries `#comps + 1`; LM `fuel`, whose expiry is nonconvergence (`neg-sol-fuel-0/1`, `neg_solve_budget_not_conflict`, `lm_budget_returns_state`). |
-| BN-9 | PASS | No batch operation ships. Decomposition is in §8. |
+| BN-8 | PASS | The checker proves every def terminates (a structurally shrinking first argument or an explicit Nat fuel: merges, row streaming, pointer jumping, component rounds, nested-dissection depth, `lm`). Budgets: arrangement `fuel ≥ #segments` else `resource-exhausted`; nesting retries `#comps + 1`; LM `fuel`, whose expiry is nonconvergence (`neg-sol-fuel-0/1`, `neg_solve_budget_not_conflict`, `lm_budget_returns_state`). |
+| BN-9 | PASS | Parallelism ships as fork-join (§8): merge sorts, parallel maps over candidate pairs, edges, groups, components, loops and clusters, and the separator-tree factorization. Measured speedup is in §12. |
 | BN-10 | PASS | Exact predicates carry a proven exactness condition and fail closed (`Su` → uncertainty, laws `ex_*_taints`, `ex_uncertain_dominates`). Every solver constant is labeled in §5. Conflict is a first-order certificate, labeled local in §9, and oracle-measured to give 0 false conflicts: 400 distinct consistent sketches, each solved at budgets 10, 20, 40, 100 and 200. |
 | BN-11 | PASS | Error arms carry only a kind; conflicts carry only ids (§4). Laws: `arrange_invalid_publishes_nothing`, `arrange_budget_is_exhaustion`, `solve_invalid_publishes_nothing`, `no_conflict_without_stationarity`. Negative tests assert the exact arm. |
 | BN-12 | PASS | The receipt names `BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3` (`~/.bend/FORK` tag `numeric/2026-09-29`), the predecessor HEAD `e0915b0`, the committing SHA, per-file sha256, and the toolchain. |
@@ -421,26 +490,25 @@ Gate count: 12 (BN-1 through BN-12).
 
 ## 8. Parallel decomposition notes (BN-9)
 
-Arrangement:
+Everything parallel is fork-join over immutable data: `a b = f(x)
+g(y)` in `P.ms`, `P.pfm`, `P.pmc`, `Q.nd_go` and `Q.fact`. There is
+no shared mutable state and no atomics.
 
-- Per-segment stop collection is an independent map over segments
-  (each reads the shared immutable input).
-- The vertex table is a sort plus dedupe, so a merge-sort tree
-  applies.
-- Per-vertex angular sorting is independent per vertex, and cycle
-  tracing from unvisited half-edges partitions by start.
-- Component location is independent per component.
-- Region assembly is independent per bounded face.
+Arrangement: candidate-pair stops (`P.pflat`), per-edge records,
+per-vertex half-edge groups, per-component ray location, per-cycle
+kept-successor links, per-loop walks and per-edge dangling tests are
+parallel maps. Every sort is a parallel merge sort. Face and
+component labels use pointer jumping and Shiloach–Vishkin, which take
+log rounds of parallel maps.
 
-Solver:
+Solver: clusters are solved in parallel. Within a cluster, nested
+dissection is parallel over the separator tree, and so is the
+multifrontal factorization. Redundancy naming stays sequential by
+definition (it is order-dependent).
 
-- Row evaluation and densification are an independent map over
-  constraints.
-- Within MGS, the trailing-column updates of one step are
-  independent.
-- Redundancy naming is sequential by definition (order-dependent).
-
-No shared mutable state and no atomics.
+The spine is still lists: splitting and appending are sequential, so
+measured speedup is modest (§12). Tree-shaped sequences end to end
+are the next step.
 
 ## 9. Limitations (honest scope)
 
@@ -470,8 +538,15 @@ No shared mutable state and no atomics.
 - **Degenerate starts are invalid.** Zero-length directions under
   direction constraints and concentric tangency starts are
   rejected rather than regularized.
-- **Dense linear algebra.** Each iteration is `O(np²(m+np))`, with
-  no sparsity, incremental re-solve or drag mode yet.
+- **Large single clusters are not yet interactive.** Sparse
+  factorization made them tractable, but per-operation constants and
+  the LM iteration count (about 10–20 on ill-conditioned chains and
+  grids) keep a 10,000-parameter connected cluster at seconds (§12).
+  There is no incremental re-solve or drag mode yet.
+- **Rigid-cluster decomposition is not done.** Clusters are
+  independent components only; a well-constrained subsystem inside a
+  larger cluster is not solved separately.
+- **Parallel speedup is modest** (§12), and no GPU lane is claimed.
 - **Symmetry is composed, not native.** Spline and ellipse
   constraints are absent.
 - **The arrangement oracle is grid-based.** shapely nodes in
@@ -481,9 +556,9 @@ No shared mutable state and no atomics.
 
 ## 10. General laws (`laws/c05.bend`)
 
-59 laws.
+61 laws.
 
-**Layer A (general, quantified)**: 35.
+**Layer A (general, quantified)**: 34.
 
 - Sign algebra: `sgn_neg_invol`, `sgn_is_refl`, `sgn_neg_of_neg`.
 - Expansion taint: `ex_uncertain_dominates`, `ex_neg_keeps_ok`,
@@ -494,7 +569,7 @@ No shared mutable state and no atomics.
 - Iteration and classification: `lm_budget_returns_state`,
   `lm_done_returns_state`, `no_conflict_without_stationarity`,
   `conflict_names_violations`.
-- Shape: `zeros_len`, `dense_len`.
+- Shape: `gather_len` (the LM step has one entry per parameter).
 - No spurious ok (§3.4): `conflict_never_ok`, `ok_iff_solved`,
   `classify_is_solved_at`, `solved_needs_geometry`,
   `geometry_veto`, `steps_keep_radii_positive`.
@@ -505,7 +580,14 @@ No shared mutable state and no atomics.
   `perp_self_invalid`, `horiz_self_invalid`, `dist_self_invalid`.
   These hold for all ids, indices and parameter counts.
 
-**Layer B (closed implementation instances)**: 24, one per pipeline
+R0 restated the laws whose subjects changed, without weakening any
+(receipt §4): `conflict_names_violations` over `dedup(viol(ds))`;
+`classify_is_solved_at` over rows recomputed by `rows_at`;
+`steps_keep_radii_positive` over the acceptance gate `rows_at`;
+`dense_len` became `gather_len`. `zeros_len` was removed with its
+subject.
+
+**Layer B (closed implementation instances)**: 27, one per pipeline
 arm plus the end-to-end exits. Floats are pinned by exact bits
 (`ok_bits`), never by show strings.
 
@@ -519,6 +601,10 @@ arm plus the end-to-end exits. Floats are pinned by exact bits
   angle solved from the flipped side, axes never collapse,
   coincidence collapse not ok, negative radius not ok,
   nonpositive radius start invalid.
+- R0: `ok_solve_zero_pivot` (fails with the zero-pivot defect),
+  `ok_solve_clusters_merge` (redundancy across clusters in global
+  order), `neg_solve_conflict_localized` (a consistent cluster is
+  never blamed).
 
 ## 11. C05 exit receipt matrix (Amendment A2 format)
 
@@ -545,8 +631,10 @@ Legend:
 | Arrangement budget | §2.2 stage 2 | `len ≤ fuel` | — | `neg_arrange_budget`; `neg-arr-fuel` | yes (valid input) | 3LANE + LA (`arrange_budget_is_exhaustion`) | PASS |
 | Uncertainty fails closed | §1; §2.2 | `Su` → uncertain | — | `neg_arrange_underflow`; `neg-arr-underflow/overflow` | yes (valid, within budget) | 3LANE + ORC-X (0 wrong in 2,000) + LA (`ex_*` taint) | PASS |
 | Residual/Jacobian evaluation | §3.1 | analytic rows | `ok_solve_linear`, `ok_solve_tangent_circles`; 25 `pos-sol-*` | — | yes | 3LANE + ORC-S (finite-difference Jacobian rank) | PASS |
-| Stable factorization, bounded iteration | §3.2 step 3 | augmented MGS + Nielsen LM | `ok_solve_*`; `pos-sol-determinism` | `neg-sol-fuel-0/1` | yes | 3LANE + ORC-S (profile, §6) + LA (`lm_*`) | PASS |
-| DOF and rank diagnosis | §3.2 step 4 | Gram–Schmidt rank | `ok_solve_redundant_named` (dof 1); `pos-sol-under/parallel/nothing/rect` | — | yes | ORC-S (SVD dof, 400 distinct sketches) | PASS |
+| Stable factorization, bounded iteration | §3.2 step 3.2 | Givens row-merge on the nested-dissection tree + Nielsen LM | `ok_solve_*`; `pos-sol-determinism` | `neg-sol-fuel-0/1` | yes | 3LANE + ORC-S (profile, §6) + LA (`lm_*`, `gather_len`) | PASS |
+| DOF and rank diagnosis | §3.2 step 3.3 | sparse QR of `J̃ᵀ` with column deletion | `ok_solve_redundant_named` (dof 1), `ok_solve_zero_pivot`; `pos-sol-under/parallel/nothing/rect/zero-pivot` | — | yes | ORC-S (reference rank, 400 distinct sketches + 200 multi-part) | PASS |
+| Independent clusters, merged | §3.2 steps 2 and 4 | components + priority merge in global order | `ok_solve_clusters_merge`; `pos-sol-clusters-merge` | `neg_solve_conflict_localized`; `pos-sol-conflict-localized` | yes | 3LANE + ORC-S multi (never blames a consistent part) | PASS |
+| Speed and parallelism (MASTER_PLAN §15) | §12 | complexity + measured curves | `tools/bench/bench.py` (closed-form checks) | — | n/a | receipt §6 | PASS for the C05 rebuild; open items in §12 |
 | Redundancy named | §3.2 step 4 | dependent rows in order | `ok_solve_redundant_named`; `pos-sol-redundant/perp-grounded/rect-extra/collinear-redundant` | — | yes | ORC-S (per-constraint SVD dependence) | PASS |
 | Conflicts named | §3.2 step 4 | certified stationarity | — | `neg_solve_conflict_named`, `neg_solve_grounded_conflict`, `neg_axes_never_collapse`; `neg-sol-hv-axes/hv-collapse/dist-5-6/triangle/perp-grounded/grounded-contra/angle-flipped` | yes (valid, stationary) | ORC-S (200 distinct poisoned sketches: never ok, pair named) + LA (`conflict_names_violations`) | PASS |
 | Nonconvergence is never a conflict | §3.2; plan text | budget → state, no certificate → nonconverged | — | `neg_solve_budget_not_conflict`; `neg-sol-fuel-0/1` | yes | LA (`lm_budget_returns_state`, `no_conflict_without_stationarity`) + ORC-S (0 false conflicts at every budget) | PASS |
@@ -554,3 +642,44 @@ Legend:
 | Constraint set (coincident … tangency) | §3.1 table | per-kind rows | `pos-sol-*` per kind (tan-lc both sides, tan-cc external/internal, arc, angle30, on-line, midpoint, equal, hdist/vdist, equal-radii) | — | yes | ORC-S (every kind appears in the random corpus) | PASS |
 | No spurious solutions (flipped angle, collapse, negative radius) | §3.4 | directed angle, angular axes, `geo_ok`, `rad_ok` | `ok_angle_from_flipped_side`, `ok_parallel_is_undirected`; `pos-sol-angle-from-far`, `pos-sol-par-antiparallel` | `neg_angle_is_directed`, `neg_angle90_is_directed`, `neg_axes_never_collapse`, `neg_coincidence_collapse_not_ok`, `neg_negative_radius_not_ok`; `neg-sol-angle-flipped/angle90-flipped/hv-collapse/coinc-collapse/radius-cross/radius-start` | yes | LA (`ok_iff_solved`, `geometry_veto`, `solved_needs_geometry`, `steps_keep_radii_positive`, `conflict_never_ok`) + ORC-S trap families (0 wrong; 50 wrong per seed on the previous solver) | PASS |
 | PlaneGCS comparator-only | BN-5 | grep | — | — | n/a | BN-5 grep | PASS |
+
+## 12. Complexity and measured scaling (Amendment R0)
+
+R0 replaced every list-positional loop, insertion sort and dense
+factorization in C05.
+
+| Stage | C05.1 | R0 |
+|-------|-------|----|
+| Arrangement candidate pairs | all `O(n²)` pairs | sort-and-sweep: `O(n log n + p)`, `p` = pairs with overlapping x-intervals |
+| Vertices, edges, half-edge order | insertion sorts, `O(n²)` | merge sorts, `O(V log V)` |
+| Faces, components | label relaxation, `O(V·diameter)` | pointer jumping and Shiloach–Vishkin, `O(V log V)` |
+| Nesting | scan of all edges per component, retried | slab index + pointer-chained resolution, `O((V + c) log V)`; exclusion fallback only on cycles |
+| Solver rows | dense `np`-wide rows, `O(m·np²)` to build | sparse rows, `O(nnz log nnz)` |
+| Solver step | dense MGS, `O(np²(m+np))` | nested-dissection Givens row-merge on each cluster |
+| Rank | dense Gram–Schmidt | sparse QR of `J̃ᵀ` with column deletion |
+| Duplicate ids | `O(m²)` | sort, `O(m log m)` |
+| Independence | one system | independent clusters in parallel |
+
+Observable changes, each checked:
+
+- `ok_arrange_cross_dangles` and `pos-arr-tenth`: dangling edges are
+  now listed in canonical (u, v) edge order (the set is unchanged).
+- Solver outputs differ from C05.1 only in the last bits of values
+  already within tolerance (Givens vs. Gram–Schmidt rounding). `dof`
+  and `red` are unchanged in every suite case and oracle case.
+  `ok_solve_linear` and `ok_solve_redundant_named` were re-pinned
+  (a 6e-30 value's low bits; 2 ulp).
+
+Measured scaling (native, 16 cores, idle machine;
+`tools/bench/bench.py`, every run checked against a closed-form
+answer) is recorded in the receipt, §6.
+
+Budgets and status against MASTER_PLAN §15:
+
+- **10,000-segment arrangements: met for CAD-like input.** A
+  10,000-segment plate with 2,500 holes arranges in about a second.
+  Random dense input is output-bound (`V ≈ n²/8`).
+- **10,000-parameter sketches: met for multi-part sketches, not yet
+  for one connected cluster.** A 10,000-parameter chain or a
+  3,200-parameter grid takes seconds (§9).
+- **Parallel speedup: measured, modest** (§8). No GPU claim.

@@ -375,34 +375,51 @@ general mechanism, and parallel by construction.
 - **Interactive by default.** A local edit to a large part re-evaluates
   only the dirty subgraph (§14, property 5). Agent feedback loops must
   stay interactive at jet-engine scale.
-- **Current state (measured 2026-09-29, native lane).** C05 is correct
-  and verified, but not Bend-grade.
+- **Before R0 (measured 2026-09-29, native lane).** C05 was correct
+  and verified, but not Bend-grade: arrangement 100 segments 220 s
+  (200 did not finish); solver 160 parameters 3.5 s. The causes were
+  list-based insertion sorts, positional lookups inside loops, and a
+  dense solver.
+- **R0.1 — C05 rebuilt (done, 2026-09-30).** Sort-and-sweep candidate
+  pairs, parallel merge sorts, pointer jumping and Shiloach–Vishkin
+  components, a slab index for nesting; the solver splits into
+  independent clusters solved in parallel, each on a sparse Jacobian
+  with a nested-dissection multifrontal Givens factorization and a
+  sparse rank-revealing QR. Semantics unchanged (laws, oracles,
+  three-lane identity); receipt `docs/receipts/r0.1-2026-09-30.txt`.
 
-  | Engine | Size | Time |
-  |---|---|---|
-  | Arrangement | 25 segments | 0.1 s |
-  | Arrangement | 50 segments | 6.4 s |
-  | Arrangement | 100 segments | 220 s |
-  | Arrangement | 200 segments | did not finish in 280 s |
-  | Solver | 20 parameters | 0.1 s |
-  | Solver | 80 parameters | 0.3 s |
-  | Solver | 160 parameters | 3.5 s |
+  | Engine | Size | Before | R0.1 |
+  |---|---|---|---|
+  | Arrangement | 100 segments | 220 s | 0.2 s |
+  | Arrangement | 10,004-segment plate | — | 1.0 s |
+  | Arrangement | 40,004-segment plate | — | 5.5 s |
+  | Solver | 8,000 parameters, 1,000 parts | — | 0.6 s |
+  | Solver | 24,000 parameters, 3,000 parts | — | 2.0 s |
+  | Solver | 10,002-parameter chain, one cluster | — | 3.7 s |
+  | Solver | 3,200-parameter grid, one cluster | — | 5.0 s |
 
-  The causes are list-based insertion sorts, positional lookups
-  inside loops, and a dense solver.
-- **R0 rebuild (next packet).** Re-derive C00–C05 to this standard
-  before C06 builds on them:
-  - arrangement by sweep or divide-and-conquer, O((n+k) log n);
-  - solver on a sparse Jacobian, with the constraint graph decomposed
-    into independent and rigid clusters solved in parallel;
-  - C01–C04 audited for the same patterns.
-
-  Laws, oracles and three-lane identity carry over unchanged, and
-  behavior must stay byte-identical where it was correct. Exit
-  budgets:
-  - 10,000-segment arrangements interactive;
-  - 10,000-parameter sketches interactive;
-  - measured parallel speedup on multi-core and GPU.
+- **R0 audit of C00–C04.** C00, C01 and C02 hold no collections.
+  C03 revalidates a NURBS knot vector and scans for the span on every
+  evaluation (O(k) per point): acceptable until batch evaluation
+  (C10), where a validated handle with tree-indexed knots replaces it.
+  C04 validation is roughly cubic: a plane face with 101 loops (404
+  entities) checks in 16 s, dominated by same-face crossing (stage K)
+  and shell connectivity (stage I), and every handle resolve walks a
+  list.
+- **R0.2 — C04 validation rebuild (next).** Tree-backed stores with
+  O(log n) resolve that reproduce the exact fuel codes; stage K by
+  sweep candidates and the certified predicates; stage I by
+  edge-incidence sort and `P.components`; duplicate and coincidence
+  checks by sorting. Laws restated, never weakened.
+- **R0.3 — remaining budgets.** Large single clusters interactive
+  (iteration count, per-operation constants, rigid-cluster
+  decomposition); tree-shaped sequences end to end for real parallel
+  speedup; the GPU lane measured.
+- **Exit budgets (unchanged):** 10,000-segment arrangements
+  interactive (met for CAD-like input); 10,000-parameter sketches
+  interactive (met for multi-part sketches, open for one connected
+  cluster); measured parallel speedup on multi-core and GPU (1.0–1.7×
+  measured; GPU open).
 
 ## 16. Interface and scope
 
@@ -423,7 +440,8 @@ general mechanism, and parallel by construction.
 
 ## 17. Milestone order
 
-1. **R0: speed and parallelism rebuild of C00–C05** (§15).
+1. **R0: speed and parallelism rebuild of C00–C05** (§15). R0.1
+   (C05) is done; R0.2 (C04 validation) and R0.3 are next.
 2. **C06 + A0.** Solids as content-addressed, intent-checked
    operations with lineage names and diagnosed failures; the graph
    evaluator with memoized incremental rebuild; the tolerance model

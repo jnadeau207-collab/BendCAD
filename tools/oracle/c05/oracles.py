@@ -42,5 +42,5 @@ for script, extra in runs:
     out = os.path.join(gen, tag + ".out")
     py(os.path.join(here, script), "gen", src, *extra)
     bend_run(src, out)
-    lines.append(f"{tag}: " + next(l for l in py(os.path.join(here, script), "check", out, *extra).splitlines() if "cases" in l))
+    lines.append(f"{tag}: " + " | ".join(l for l in py(os.path.join(here, script), "check", out, *extra).splitlines() if "cases" in l or "filtered" in l))
 print("\n".join(lines))

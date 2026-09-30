@@ -61,8 +61,8 @@ def cs() -> List<&2, C6>:
   [{rows}]
 
 def row(c: C6) -> String:
-  C6{{ax, ay, bx, by, cx, cy}} = c
-  X.sgn_show(X.ex_sign(X.orient2(ax, ay, bx, by, cx, cy)))
+  C6{{+ax, +ay, +bx, +by, +cx, +cy}} = c
+  X.sgn_show(X.ex_sign(X.orient2(ax, ay, bx, by, cx, cy))) ++ "/" ++ X.sgn_show(X.orient2s(ax, ay, bx, by, cx, cy))
 
 def rows(xs: List<&2, C6>) -> String:
   match xs:
@@ -74,8 +74,13 @@ def main() -> String:
 """
     open(sys.argv[2], "w", newline="\n").write(prog)
 else:
-    got = open(sys.argv[2]).read().strip().strip('"').split()
+    pairs = [t.split("/") for t in open(sys.argv[2]).read().strip().strip('"').split()]
+    got = [p[0] for p in pairs]
+    filt = [p[1] for p in pairs]
     want = [exact(c) for c in cases]
+    fbad = [(i, w, g) for i, (w, g) in enumerate(zip(want, filt)) if g != w and g != "uncertain"]
+    fdiff = [i for i, (a, b) in enumerate(zip(got, filt)) if a != b]
+    print(f"filtered orient2s: wrong={len(fbad)}, differs from exact path={len(fdiff)}", fbad[:5])
     bad = [(i, w, g) for i, (w, g) in enumerate(zip(want, got)) if g != w and g != "uncertain"]
     unc = [i for i, g in enumerate(got) if g == "uncertain"]
     unc_true = [i for i in unc if want[i] != "uncertain"]
