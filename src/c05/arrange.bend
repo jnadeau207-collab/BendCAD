@@ -1,7 +1,8 @@
 import Base
 import ../c00/types.bend as T
 import ./exact.bend as X
-import ./par.bend as P
+import ../base/par.bend as P
+import ../base/ex.bend as E
 
 type Seg is Data:
   Seg{ id: U64, ax: F64, ay: F64, bx: F64, by: F64 }
@@ -12,7 +13,7 @@ type VKey is Data:
 
 type Pt is Data:
   PF{ x: F64, y: F64 }
-  PR{ x: X.Ex, y: X.Ex, w: X.Ex }
+  PR{ x: E.Ex, y: E.Ex, w: E.Ex }
 
 type OHE is Data:
   OHE{ from: VKey, to: VKey, srcs: List<&2, U64> }
@@ -32,22 +33,22 @@ def s_id(s: Seg) -> U64:
 def seg_nil() -> Seg:
   Seg{0u64, 0.0f64, 0.0f64, 1.0f64, 0.0f64}
 
-def f_cmp(+a: F64, +b: F64) -> X.Sgn:
-  X.sgn_pick(F64.is_lt(a, b), F64.is_lt(b, a))
+def f_cmp(+a: F64, +b: F64) -> P.Sgn:
+  P.sgn_pick(F64.is_lt(a, b), F64.is_lt(b, a))
 
-def pt_rx(p: Pt) -> X.Ex:
+def pt_rx(p: Pt) -> E.Ex:
   match p:
-    case PF{x, y}: X.ex_of(x)
+    case PF{x, y}: E.ex_of(x)
     case PR{x, y, w}: x
 
-def pt_ry(p: Pt) -> X.Ex:
+def pt_ry(p: Pt) -> E.Ex:
   match p:
-    case PF{x, y}: X.ex_of(y)
+    case PF{x, y}: E.ex_of(y)
     case PR{x, y, w}: y
 
-def pt_rw(p: Pt) -> X.Ex:
+def pt_rw(p: Pt) -> E.Ex:
   match p:
-    case PF{x, y}: X.ex_of(1.0f64)
+    case PF{x, y}: E.ex_of(1.0f64)
     case PR{x, y, w}: w
 
 def pt_isf(p: Pt) -> Bool:
@@ -65,45 +66,45 @@ def pf_y(p: Pt) -> F64:
     case PF{x, y}: y
     case PR{x, y, w}: 0.0f64
 
-def cmpx_go(ff: Bool, +p: Pt, +q: Pt) -> X.Sgn:
+def cmpx_go(ff: Bool, +p: Pt, +q: Pt) -> P.Sgn:
   match ff:
     case True{}: f_cmp(pf_x(p), pf_x(q))
-    case False{}: X.ex_cmp(X.ex_mul(pt_rx(p), pt_rw(q)), X.ex_mul(pt_rx(q), pt_rw(p)))
+    case False{}: E.ex_cmp(E.ex_mul(pt_rx(p), pt_rw(q)), E.ex_mul(pt_rx(q), pt_rw(p)))
 
-def cmpy_go(ff: Bool, +p: Pt, +q: Pt) -> X.Sgn:
+def cmpy_go(ff: Bool, +p: Pt, +q: Pt) -> P.Sgn:
   match ff:
     case True{}: f_cmp(pf_y(p), pf_y(q))
-    case False{}: X.ex_cmp(X.ex_mul(pt_ry(p), pt_rw(q)), X.ex_mul(pt_ry(q), pt_rw(p)))
+    case False{}: E.ex_cmp(E.ex_mul(pt_ry(p), pt_rw(q)), E.ex_mul(pt_ry(q), pt_rw(p)))
 
-def pt_cmpx(+p: Pt, +q: Pt) -> X.Sgn:
+def pt_cmpx(+p: Pt, +q: Pt) -> P.Sgn:
   cmpx_go(Bool.and(pt_isf(p), pt_isf(q)), p, q)
 
-def pt_cmpy(+p: Pt, +q: Pt) -> X.Sgn:
+def pt_cmpy(+p: Pt, +q: Pt) -> P.Sgn:
   cmpy_go(Bool.and(pt_isf(p), pt_isf(q)), p, q)
 
-def lex_go(sx: X.Sgn, +p: Pt, +q: Pt) -> X.Sgn:
+def lex_go(sx: P.Sgn, +p: Pt, +q: Pt) -> P.Sgn:
   match sx:
-    case X.Sz{}: pt_cmpy(p, q)
-    case X.Sn{}: X.Sn{}
-    case X.Sp{}: X.Sp{}
-    case X.Su{}: X.Su{}
+    case P.Sz{}: pt_cmpy(p, q)
+    case P.Sn{}: P.Sn{}
+    case P.Sp{}: P.Sp{}
+    case P.Su{}: P.Su{}
 
-def pt_lex(+p: Pt, +q: Pt) -> X.Sgn:
+def pt_lex(+p: Pt, +q: Pt) -> P.Sgn:
   lex_go(pt_cmpx(p, q), p, q)
 
-def rp_flip(neg: Bool, +x: X.Ex, +y: X.Ex, +w: X.Ex) -> Pt:
+def rp_flip(neg: Bool, +x: E.Ex, +y: E.Ex, +w: E.Ex) -> Pt:
   match neg:
-    case True{}: PR{X.ex_neg(x), X.ex_neg(y), X.ex_neg(w)}
+    case True{}: PR{E.ex_neg(x), E.ex_neg(y), E.ex_neg(w)}
     case False{}: PR{x, y, w}
 
 def rp_cross(s: Seg, r: Seg) -> Pt:
   Seg{i, +ax, +ay, +bx, +by} = s
   Seg{j, +cx, +cy, +dx, +dy} = r
   +oa = X.orient2(cx, cy, dx, dy, ax, ay)
-  +w = X.ex_sub(oa, X.orient2(cx, cy, dx, dy, bx, by))
-  rp_flip(X.sgn_is(X.ex_sign(w), X.Sn{}),
-    X.ex_add(X.ex_scale(w, ax), X.ex_mul(oa, X.ex_dif(bx, ax))),
-    X.ex_add(X.ex_scale(w, ay), X.ex_mul(oa, X.ex_dif(by, ay))), w)
+  +w = E.ex_sub(oa, X.orient2(cx, cy, dx, dy, bx, by))
+  rp_flip(P.sgn_is(E.ex_sign(w), P.Sn{}),
+    E.ex_add(E.ex_scale(w, ax), E.ex_mul(oa, E.ex_dif(bx, ax))),
+    E.ex_add(E.ex_scale(w, ay), E.ex_mul(oa, E.ex_dif(by, ay))), w)
 
 def vk_lt(a: VKey, b: VKey) -> Bool:
   match a b:
@@ -122,36 +123,36 @@ def vk_pick(c: Bool, +a: VKey, +b: VKey) -> VKey:
 def vk_min(+a: VKey, +b: VKey) -> VKey:
   vk_pick(vk_lt(a, b), a, b)
 
-def sg_opp(a: X.Sgn, b: X.Sgn) -> Bool:
+def sg_opp(a: P.Sgn, b: P.Sgn) -> Bool:
   match a b:
-    case X.Sn{} X.Sp{}: True{}
-    case X.Sp{} X.Sn{}: True{}
+    case P.Sn{} P.Sp{}: True{}
+    case P.Sp{} P.Sn{}: True{}
     case _ _: False{}
 
-def sg_unc(a: X.Sgn) -> Bool:
-  X.sgn_is(a, X.Su{})
+def sg_unc(a: P.Sgn) -> Bool:
+  P.sgn_is(a, P.Su{})
 
-def both_pos(a: X.Sgn, b: X.Sgn) -> X.Sgn:
+def both_pos(a: P.Sgn, b: P.Sgn) -> P.Sgn:
   match a b:
-    case X.Su{} _: X.Su{}
-    case _ X.Su{}: X.Su{}
-    case X.Sp{} X.Sp{}: X.Sp{}
-    case _ _: X.Sn{}
+    case P.Su{} _: P.Su{}
+    case _ P.Su{}: P.Su{}
+    case P.Sp{} P.Sp{}: P.Sp{}
+    case _ _: P.Sn{}
 
-def between(+s: Seg, +px: F64, +py: F64) -> X.Sgn:
+def between(+s: Seg, +px: F64, +py: F64) -> P.Sgn:
   Seg{id, +ax, +ay, +bx, +by} = s
   both_pos(X.dd_sign(px, ax, bx, ax, py, ay, by, ay, True{}),
     X.dd_sign(px, bx, ax, bx, py, by, ay, by, True{}))
 
 def seg_ok(s: Seg) -> Bool:
   Seg{id, +ax, +ay, +bx, +by} = s
-  Bool.and(Bool.and(Bool.and(X.fin(ax), X.fin(ay)), Bool.and(X.fin(bx), X.fin(by))),
+  Bool.and(Bool.and(Bool.and(E.fin(ax), E.fin(ay)), Bool.and(E.fin(bx), E.fin(by))),
     Bool.not(Bool.and(F64.is_eq(ax, bx), F64.is_eq(ay, by))))
 
-def id_cmp_go(+a: U64, +b: U64) -> X.Sgn:
-  X.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
+def id_cmp_go(+a: U64, +b: U64) -> P.Sgn:
+  P.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
 
-def id_cmp(a: U64, b: U64) -> X.Sgn:
+def id_cmp(a: U64, b: U64) -> P.Sgn:
   id_cmp_go(a, b)
 
 def ids_of(xs: List<&2, Seg>) -> List<&2, U64>:
@@ -203,10 +204,10 @@ def ymax(s: Seg) -> F64:
   Seg{id, ax, ay, bx, by} = s
   F64.max(ay, by)
 
-def si_cmp_go(+a: SI, +b: SI) -> X.Sgn:
+def si_cmp_go(+a: SI, +b: SI) -> P.Sgn:
   f_cmp(xmin(si_s(a)), xmin(si_s(b)))
 
-def si_cmp(a: SI, b: SI) -> X.Sgn:
+def si_cmp(a: SI, b: SI) -> P.Sgn:
   si_cmp_go(a, b)
 
 def number(xs: List<&2, Seg>, +k: U32) -> List<&2, SI>:
@@ -250,22 +251,22 @@ def ts_p(x: TS) -> Pt:
   TS{k, key, p} = x
   p
 
-def ts_cmp_go(+a: TS, +b: TS) -> X.Sgn:
+def ts_cmp_go(+a: TS, +b: TS) -> P.Sgn:
   pt_lex(ts_p(a), ts_p(b))
 
-def ts_cmp(a: TS, b: TS) -> X.Sgn:
+def ts_cmp(a: TS, b: TS) -> P.Sgn:
   ts_cmp_go(a, b)
 
-def bt_stop(b: X.Sgn, +k: U32, +key: VKey, +px: F64, +py: F64) -> P.So<&2, TS>:
+def bt_stop(b: P.Sgn, +k: U32, +key: VKey, +px: F64, +py: F64) -> P.So<&2, TS>:
   match b:
-    case X.Sp{}: P.So{True{}, [TS{k, key, PF{px, py}}]}
-    case X.Su{}: P.So{False{}, []}
+    case P.Sp{}: P.So{True{}, [TS{k, key, PF{px, py}}]}
+    case P.Su{}: P.So{False{}, []}
     case _: P.So{True{}, []}
 
-def on_stop(o: X.Sgn, +s: Seg, +k: U32, +key: VKey, +px: F64, +py: F64) -> P.So<&2, TS>:
+def on_stop(o: P.Sgn, +s: Seg, +k: U32, +key: VKey, +px: F64, +py: F64) -> P.So<&2, TS>:
   match o:
-    case X.Sz{}: bt_stop(between(s, px, py), k, key, px, py)
-    case X.Su{}: P.So{False{}, []}
+    case P.Sz{}: bt_stop(between(s, px, py), k, key, px, py)
+    case P.Su{}: P.So{False{}, []}
     case _: P.So{True{}, []}
 
 def xkey(+a: U64, +b: U64) -> VKey:
@@ -339,10 +340,10 @@ def vg_new(+good: Bool, g: VG, x: TS) -> VG:
   +nv = (vid + 1 : U32)
   VG{Bool.and(ok, good), nv, VX{key, p}, cur <> vs, TV{k, nv} <> tv}
 
-def vg_pick(c: X.Sgn, g: VG, x: TS) -> VG:
+def vg_pick(c: P.Sgn, g: VG, x: TS) -> VG:
   match c:
-    case X.Sz{}: vg_same(g, x)
-    case X.Sn{}: vg_new(True{}, g, x)
+    case P.Sz{}: vg_same(g, x)
+    case P.Sn{}: vg_new(True{}, g, x)
     case _: vg_new(False{}, g, x)
 
 def vg_go(xs: List<&2, TS>, +g: VG) -> VG:
@@ -366,12 +367,12 @@ def vg_verts(g: VG, +any: Bool) -> List<&2, VX>:
   VG{ok, vid, cur, vs, tv} = g
   vg_verts_go(any, cur, vs)
 
-def tv_cmp_go(+a: TV, +b: TV) -> X.Sgn:
+def tv_cmp_go(+a: TV, +b: TV) -> P.Sgn:
   TV{+ka, +va} = a
   TV{+kb, +vb} = b
   P.lex_u(P.u_cmp(ka, kb), va, vb)
 
-def tv_cmp(a: TV, b: TV) -> X.Sgn:
+def tv_cmp(a: TV, b: TV) -> P.Sgn:
   tv_cmp_go(a, b)
 
 def tv_k(x: TV) -> U32:
@@ -439,17 +440,17 @@ def e1_of(st: P.Tb<&2, Seg>, e: E0) -> E1:
   +s = P.tb_get(Seg, st, k)
   E1{u, v, k, s_id(s), lexpos(s)}
 
-def e1_tie(c: X.Sgn, +ia: U64, +ib: U64) -> X.Sgn:
+def e1_tie(c: P.Sgn, +ia: U64, +ib: U64) -> P.Sgn:
   match c:
-    case X.Sz{}: id_cmp_go(ia, ib)
+    case P.Sz{}: id_cmp_go(ia, ib)
     case _: c
 
-def e1_cmp_go(+a: E1, +b: E1) -> X.Sgn:
+def e1_cmp_go(+a: E1, +b: E1) -> P.Sgn:
   E1{+ua, +va, ka, +ia, fa} = a
   E1{+ub, +vb, kb, +ib, fb} = b
   e1_tie(P.lex_u(P.u_cmp(ua, ub), va, vb), ia, ib)
 
-def e1_cmp(a: E1, b: E1) -> X.Sgn:
+def e1_cmp(a: E1, b: E1) -> P.Sgn:
   e1_cmp_go(a, b)
 
 type IE is Data:
@@ -532,45 +533,45 @@ def hos(+st: P.Tb<&2, Seg>, es: List<&2, IE>, +e: U32) -> List<&2, HO>:
       +h = (e + e : U32)
       HO{u, h, s, Bool.not(fwd)} <> HO{v, (h + 1 : U32), s, fwd} <> hos(st, t, (e + 1 : U32))
 
-def sgn_flip(neg: Bool, s: X.Sgn) -> X.Sgn:
+def sgn_flip(neg: Bool, s: P.Sgn) -> P.Sgn:
   match neg:
-    case True{}: X.sgn_neg(s)
+    case True{}: P.sgn_neg(s)
     case False{}: s
 
-def up_go(sy: X.Sgn, sx: X.Sgn) -> Bool:
+def up_go(sy: P.Sgn, sx: P.Sgn) -> Bool:
   match sy:
-    case X.Sp{}: True{}
-    case X.Sz{}: X.sgn_is(sx, X.Sp{})
+    case P.Sp{}: True{}
+    case P.Sz{}: P.sgn_is(sx, P.Sp{})
     case _: False{}
 
 def seg_up(s: Seg, +neg: Bool) -> Bool:
   Seg{id, +ax, +ay, +bx, +by} = s
   up_go(sgn_flip(neg, f_cmp(by, ay)), sgn_flip(neg, f_cmp(bx, ax)))
 
-def seg_cross(a: Seg, b: Seg) -> X.Sgn:
+def seg_cross(a: Seg, b: Seg) -> P.Sgn:
   Seg{i, +ax1, +ay1, +bx1, +by1} = a
   Seg{j, +ax2, +ay2, +bx2, +by2} = b
   X.dd_sign(bx1, ax1, by2, ay2, by1, ay1, bx2, ax2, False{})
 
-def ccw_go(u1: Bool, u2: Bool, c: X.Sgn) -> X.Sgn:
+def ccw_go(u1: Bool, u2: Bool, c: P.Sgn) -> P.Sgn:
   match u1 u2:
-    case True{} False{}: X.Sn{}
-    case False{} True{}: X.Sp{}
-    case _ _: X.sgn_neg(c)
+    case True{} False{}: P.Sn{}
+    case False{} True{}: P.Sp{}
+    case _ _: P.sgn_neg(c)
 
-def ho_ccw(+a: HO, +b: HO) -> X.Sgn:
+def ho_ccw(+a: HO, +b: HO) -> P.Sgn:
   ccw_go(seg_up(ho_s(a), ho_neg(a)), seg_up(ho_s(b), ho_neg(b)),
     sgn_flip(Bool.xor(ho_neg(a), ho_neg(b)), seg_cross(ho_s(a), ho_s(b))))
 
-def ho_tie(c: X.Sgn, +a: HO, +b: HO) -> X.Sgn:
+def ho_tie(c: P.Sgn, +a: HO, +b: HO) -> P.Sgn:
   match c:
-    case X.Sz{}: ho_ccw(a, b)
+    case P.Sz{}: ho_ccw(a, b)
     case _: c
 
-def ho_cmp_go(+a: HO, +b: HO) -> X.Sgn:
+def ho_cmp_go(+a: HO, +b: HO) -> P.Sgn:
   ho_tie(P.u_cmp(ho_v(a), ho_v(b)), a, b)
 
-def ho_cmp(a: HO, b: HO) -> X.Sgn:
+def ho_cmp(a: HO, b: HO) -> P.Sgn:
   ho_cmp_go(a, b)
 
 type Grp is Data:
@@ -617,10 +618,10 @@ def np_n(x: NP) -> U32:
   NP{h, n} = x
   n
 
-def np_cmp_go(+a: NP, +b: NP) -> X.Sgn:
+def np_cmp_go(+a: NP, +b: NP) -> P.Sgn:
   P.u_cmp(np_h(a), np_h(b))
 
-def np_cmp(a: NP, b: NP) -> X.Sgn:
+def np_cmp(a: NP, b: NP) -> P.Sgn:
   np_cmp_go(a, b)
 
 def np_go(xs: List<&2, HO>, +prev: U32, acc: List<&2, NP>) -> List<&2, NP>:
@@ -643,7 +644,7 @@ def lu_go(xs: List<&2, HO>, +best: U32, found: Bool, +last: U32) -> U32:
 def strict_go(xs: List<&2, HO>, +prev: HO) -> Bool:
   match xs:
     case Nil{}: True{}
-    case +x <> t: Bool.and(X.sgn_is(ho_ccw(prev, x), X.Sn{}), strict_go(t, x))
+    case +x <> t: Bool.and(P.sgn_is(ho_ccw(prev, x), P.Sn{}), strict_go(t, x))
 
 def strict(xs: List<&2, HO>) -> Bool:
   match xs:
@@ -758,28 +759,28 @@ def comps_go(ps: List<&2, U32>, +i: U32, +lu: P.Tb<&2, U32>, +cy: P.Tb<&2, U32>)
     case p <> t: comp_add(U32.is_eq(p, i), i, lu, cy, comps_go(t, (i + 1 : U32), lu, cy))
 
 type D2 is Data:
-  D2{ x: X.Ex, y: X.Ex }
+  D2{ x: E.Ex, y: E.Ex }
 
-def d2_x(d: D2) -> X.Ex:
+def d2_x(d: D2) -> E.Ex:
   D2{x, y} = d
   x
 
-def d2_y(d: D2) -> X.Ex:
+def d2_y(d: D2) -> E.Ex:
   D2{x, y} = d
   y
 
-def d2_neg(neg: Bool, +x: X.Ex, +y: X.Ex) -> D2:
+def d2_neg(neg: Bool, +x: E.Ex, +y: E.Ex) -> D2:
   match neg:
-    case True{}: D2{X.ex_neg(x), X.ex_neg(y)}
+    case True{}: D2{E.ex_neg(x), E.ex_neg(y)}
     case False{}: D2{x, y}
 
 def seg_d2(s: Seg, +neg: Bool) -> D2:
   Seg{id, +ax, +ay, +bx, +by} = s
-  d2_neg(neg, X.ex_dif(bx, ax), X.ex_dif(by, ay))
+  d2_neg(neg, E.ex_dif(bx, ax), E.ex_dif(by, ay))
 
 def seg_a2(s: Seg) -> D2:
   Seg{id, ax, ay, bx, by} = s
-  D2{X.ex_of(ax), X.ex_of(ay)}
+  D2{E.ex_of(ax), E.ex_of(ay)}
 
 type EG is Data:
   EG{ e: U32, cu: U32, pu: Pt, pv: Pt, d: D2, a: D2 }
@@ -809,8 +810,8 @@ def eg_a(g: EG) -> D2:
   a
 
 def eg_nil() -> EG:
-  EG{0, 0, PF{0.0f64, 0.0f64}, PF{0.0f64, 0.0f64}, D2{X.ex_zero(), X.ex_zero()},
-    D2{X.ex_zero(), X.ex_zero()}}
+  EG{0, 0, PF{0.0f64, 0.0f64}, PF{0.0f64, 0.0f64}, D2{E.ex_zero(), E.ex_zero()},
+    D2{E.ex_zero(), E.ex_zero()}}
 
 def egs(es: List<&2, IE>, +i: U32, +tp: P.Tb<&2, U32>, +vp: P.Tb<&2, Pt>,
     +st: P.Tb<&2, Seg>) -> List<&2, EG>:
@@ -822,27 +823,27 @@ def egs(es: List<&2, IE>, +i: U32, +tp: P.Tb<&2, U32>, +vp: P.Tb<&2, Pt>,
       EG{i, P.tb_get(U32, tp, u), P.tb_get(Pt, vp, u), P.tb_get(Pt, vp, v),
         seg_d2(s, Bool.not(fwd)), seg_a2(s)} <> egs(t, (i + 1 : U32), tp, vp, st)
 
-def below_sign(+d: D2, +a: D2, +q: Pt) -> X.Sgn:
+def below_sign(+d: D2, +a: D2, +q: Pt) -> P.Sgn:
   +w = pt_rw(q)
-  +t1 = X.ex_sub(pt_ry(q), X.ex_mul(d2_y(a), w))
-  +t2 = X.ex_sub(pt_rx(q), X.ex_mul(d2_x(a), w))
-  X.ex_sign(X.ex_sub(X.ex_mul(d2_x(d), t1), X.ex_mul(d2_y(d), t2)))
+  +t1 = E.ex_sub(pt_ry(q), E.ex_mul(d2_y(a), w))
+  +t2 = E.ex_sub(pt_rx(q), E.ex_mul(d2_x(a), w))
+  E.ex_sign(E.ex_sub(E.ex_mul(d2_x(d), t1), E.ex_mul(d2_y(d), t2)))
 
-def height_n(+d: D2, +a: D2, +xo: X.Ex, +q: Pt) -> X.Ex:
+def height_n(+d: D2, +a: D2, +xo: E.Ex, +q: Pt) -> E.Ex:
   +w = pt_rw(q)
-  X.ex_add(X.ex_mul(X.ex_mul(d2_y(a), X.ex_mul(d2_x(d), xo)), w),
-    X.ex_mul(X.ex_mul(X.ex_sub(pt_rx(q), X.ex_mul(d2_x(a), w)), d2_y(d)), xo))
+  E.ex_add(E.ex_mul(E.ex_mul(d2_y(a), E.ex_mul(d2_x(d), xo)), w),
+    E.ex_mul(E.ex_mul(E.ex_sub(pt_rx(q), E.ex_mul(d2_x(a), w)), d2_y(d)), xo))
 
-def tie_go(s: X.Sgn, +d1: D2, +d2: D2) -> X.Sgn:
+def tie_go(s: P.Sgn, +d1: D2, +d2: D2) -> P.Sgn:
   match s:
-    case X.Sz{}:
-      X.ex_sign(X.ex_sub(X.ex_mul(d2_y(d1), d2_x(d2)), X.ex_mul(d2_y(d2), d2_x(d1))))
+    case P.Sz{}:
+      E.ex_sign(E.ex_sub(E.ex_mul(d2_y(d1), d2_x(d2)), E.ex_mul(d2_y(d2), d2_x(d1))))
     case _: s
 
-def lower(+g1: EG, +g2: EG, +q: Pt) -> X.Sgn:
+def lower(+g1: EG, +g2: EG, +q: Pt) -> P.Sgn:
   +d1 = eg_d(g1)
   +d2 = eg_d(g2)
-  tie_go(X.ex_cmp(height_n(d1, eg_a(g1), d2_x(d2), q), height_n(d2, eg_a(g2), d2_x(d1), q)), d1, d2)
+  tie_go(E.ex_cmp(height_n(d1, eg_a(g1), d2_x(d2), q), height_n(d2, eg_a(g2), d2_x(d1), q)), d1, d2)
 
 def in_list(xs: List<&2, U32>, +x: U32) -> Bool:
   match xs:
@@ -852,15 +853,15 @@ def in_list(xs: List<&2, U32>, +x: U32) -> Bool:
 type Cand is Data:
   Cand{ ok: Bool, has: Bool }
 
-def cand_go(+free: Bool, +sp: X.Sgn, +spv: X.Sgn, +vert: X.Sgn, +bel: X.Sgn) -> Cand:
+def cand_go(+free: Bool, +sp: P.Sgn, +spv: P.Sgn, +vert: P.Sgn, +bel: P.Sgn) -> Cand:
   +unc = Bool.or(Bool.or(sg_unc(sp), sg_unc(spv)), Bool.or(sg_unc(vert), sg_unc(bel)))
-  +span = Bool.and(Bool.not(X.sgn_is(sp, X.Sp{})), X.sgn_is(spv, X.Sn{}))
+  +span = Bool.and(Bool.not(P.sgn_is(sp, P.Sp{})), P.sgn_is(spv, P.Sn{}))
   Cand{Bool.not(unc), Bool.and(Bool.and(free, span),
-    Bool.and(Bool.not(X.sgn_is(vert, X.Sz{})), X.sgn_is(bel, X.Sn{})))}
+    Bool.and(Bool.not(P.sgn_is(vert, P.Sz{})), P.sgn_is(bel, P.Sn{})))}
 
 def is_cand(+ex: List<&2, U32>, +g: EG, +q: Pt) -> Cand:
   cand_go(Bool.not(in_list(ex, eg_cu(g))), pt_cmpx(eg_pu(g), q), pt_cmpx(q, eg_pv(g)),
-    X.ex_sign(d2_x(eg_d(g))), below_sign(eg_d(g), eg_a(g), q))
+    E.ex_sign(d2_x(eg_d(g))), below_sign(eg_d(g), eg_a(g), q))
 
 type Best is Data:
   Best{ ok: Bool, has: Bool, g: EG }
@@ -877,10 +878,10 @@ def best_g(b: Best) -> EG:
   Best{ok, has, g} = b
   g
 
-def best_pick(c: X.Sgn, +ok: Bool, +g: EG, +b: Best) -> Best:
+def best_pick(c: P.Sgn, +ok: Bool, +g: EG, +b: Best) -> Best:
   match c:
-    case X.Sn{}: Best{ok, True{}, g}
-    case X.Su{}: Best{False{}, True{}, best_g(b)}
+    case P.Sn{}: Best{ok, True{}, g}
+    case P.Su{}: Best{False{}, True{}, best_g(b)}
     case _: Best{ok, True{}, best_g(b)}
 
 def best_in(bhas: Bool, +ok: Bool, +g: EG, +b: Best, +q: Pt) -> Best:
@@ -928,15 +929,15 @@ def pt_lo(p: Pt) -> F64:
   match p:
     case PF{x, y}: x
     case PR{x, y, w}:
-      +a = (X.ex_est(x) / X.ex_est(w) : F64)
-      lo_of(X.fin(a), a)
+      +a = (E.ex_est(x) / E.ex_est(w) : F64)
+      lo_of(E.fin(a), a)
 
 def pt_hi(p: Pt) -> F64:
   match p:
     case PF{x, y}: x
     case PR{x, y, w}:
-      +a = (X.ex_est(x) / X.ex_est(w) : F64)
-      hi_of(X.fin(a), a)
+      +a = (E.ex_est(x) / E.ex_est(w) : F64)
+      hi_of(E.fin(a), a)
 
 type SX is Data:
   SX{ x0: F64, sc: F64, s: U32 }
@@ -959,18 +960,18 @@ def fin_min(xs: List<&2, EG>, +acc: F64) -> F64:
     case Nil{}: acc
     case +g <> t:
       +v = eg_lo(g)
-      fin_min(t, P.upick_f(X.fin(v), F64.min(acc, v), acc))
+      fin_min(t, P.upick_f(E.fin(v), F64.min(acc, v), acc))
 
 def fin_max(xs: List<&2, EG>, +acc: F64) -> F64:
   match xs:
     case Nil{}: acc
     case +g <> t:
       +v = eg_hi(g)
-      fin_max(t, P.upick_f(X.fin(v), F64.max(acc, v), acc))
+      fin_max(t, P.upick_f(E.fin(v), F64.max(acc, v), acc))
 
 def sx_mk(+x0: F64, +x1: F64, +s: U32) -> SX:
   +span = (x1 - x0 : F64)
-  SX{x0, P.upick_f(Bool.and(X.fin(span), F64.is_lt(0.0f64, span)), (U32.to_f64(s) / span : F64), 0.0f64), s}
+  SX{x0, P.upick_f(Bool.and(E.fin(span), F64.is_lt(0.0f64, span)), (U32.to_f64(s) / span : F64), 0.0f64), s}
 
 def slabs_n(+n: U32) -> U32:
   +d = P.dm_d(P.dims(n))
@@ -987,10 +988,10 @@ def kg_g(x: KG) -> EG:
   KG{s, g} = x
   g
 
-def kg_cmp_go(+a: KG, +b: KG) -> X.Sgn:
+def kg_cmp_go(+a: KG, +b: KG) -> P.Sgn:
   P.u_cmp(kg_s(a), kg_s(b))
 
-def kg_cmp(a: KG, b: KG) -> X.Sgn:
+def kg_cmp(a: KG, b: KG) -> P.Sgn:
   kg_cmp_go(a, b)
 
 def emit(fuel: Nat, stop: Bool, +s: U32, +s1: U32, +g: EG, acc: List<&2, KG>) -> List<&2, KG>:
@@ -1126,10 +1127,10 @@ def kv_v(x: KV) -> U32:
   KV{k, v} = x
   v
 
-def kv_cmp_go(+a: KV, +b: KV) -> X.Sgn:
+def kv_cmp_go(+a: KV, +b: KV) -> P.Sgn:
   P.u_cmp(kv_k(a), kv_k(b))
 
-def kv_cmp(a: KV, b: KV) -> X.Sgn:
+def kv_cmp(a: KV, b: KV) -> P.Sgn:
   kv_cmp_go(a, b)
 
 def kv_peek(xs: List<&2, KV>, +i: U32) -> Bool:
@@ -1414,11 +1415,11 @@ def nth_u(xs: List<&2, U32>, +i: U32, +d: U32) -> U32:
     case Nil{}: d
     case +x <> t: P.upick(U32.is_eq(i, 0), x, nth_u(t, (i - 1 : U32), d))
 
-def he_cross(+te: P.Tb<&2, IE>, +st: P.Tb<&2, Seg>, +a: U32, +b: U32) -> X.Sgn:
+def he_cross(+te: P.Tb<&2, IE>, +st: P.Tb<&2, Seg>, +a: U32, +b: U32) -> P.Sgn:
   sgn_flip(Bool.xor(he_neg(te, a), he_neg(te, b)), seg_cross(he_seg(te, st, a), he_seg(te, st, b)))
 
 type LP is Data:
-  LP{ f: U32, hs: List<&2, U32>, key: List<&2, U32>, turn: X.Sgn }
+  LP{ f: U32, hs: List<&2, U32>, key: List<&2, U32>, turn: P.Sgn }
 
 def lp_mk(+c: WC, +f: U32, +hs: List<&2, U32>) -> LP:
   +te = wc_te(c)
@@ -1440,16 +1441,16 @@ def lp_of_go(+c: WC, s: ST) -> LP:
 def lp_of(c: WC, s: ST) -> LP:
   lp_of_go(c, s)
 
-def lex_pick(c: X.Sgn, r: X.Sgn) -> X.Sgn:
+def lex_pick(c: P.Sgn, r: P.Sgn) -> P.Sgn:
   match c:
-    case X.Sz{}: r
+    case P.Sz{}: r
     case _: c
 
-def nl_cmp(a: List<&2, U32>, b: List<&2, U32>) -> X.Sgn:
+def nl_cmp(a: List<&2, U32>, b: List<&2, U32>) -> P.Sgn:
   match a b:
-    case Nil{} Nil{}: X.Sz{}
-    case Nil{} _: X.Sn{}
-    case _ Nil{}: X.Sp{}
+    case Nil{} Nil{}: P.Sz{}
+    case Nil{} _: P.Sn{}
+    case _ Nil{}: P.Sp{}
     case Con{+x, xt} Con{+y, yt}: lex_pick(P.u_cmp(x, y), nl_cmp(xt, yt))
 
 def lp_f(x: LP) -> U32:
@@ -1464,14 +1465,14 @@ def lp_hs(x: LP) -> List<&2, U32>:
   LP{f, hs, key, turn} = x
   hs
 
-def lp_turn(x: LP) -> X.Sgn:
+def lp_turn(x: LP) -> P.Sgn:
   LP{f, hs, key, turn} = x
   turn
 
-def lp_cmp_go(+a: LP, +b: LP) -> X.Sgn:
+def lp_cmp_go(+a: LP, +b: LP) -> P.Sgn:
   lex_pick(P.u_cmp(lp_f(a), lp_f(b)), nl_cmp(lp_key(a), lp_key(b)))
 
-def lp_cmp(a: LP, b: LP) -> X.Sgn:
+def lp_cmp(a: LP, b: LP) -> P.Sgn:
   lp_cmp_go(a, b)
 
 def ohe_of(+te: P.Tb<&2, IE>, +vk: P.Tb<&2, VKey>, +h: U32) -> OHE:
@@ -1517,12 +1518,12 @@ def rb_cf(b: RB) -> U32:
   RB{ok, cf, outs, holes, acc} = b
   cf
 
-def rb_put(t: X.Sgn, b: RB, +x: LP) -> RB:
+def rb_put(t: P.Sgn, b: RB, +x: LP) -> RB:
   match t:
-    case X.Sp{}:
+    case P.Sp{}:
       RB{ok, cf, outs, holes, acc} = b
       RB{ok, cf, x <> outs, holes, acc}
-    case X.Sn{}:
+    case P.Sn{}:
       RB{ok, cf, outs, holes, acc} = b
       RB{ok, cf, outs, x <> holes, acc}
     case _:
@@ -1562,10 +1563,10 @@ def rr_reg(r: RR) -> Region:
   RR{key, reg} = r
   reg
 
-def rr_cmp_go(+a: RR, +b: RR) -> X.Sgn:
+def rr_cmp_go(+a: RR, +b: RR) -> P.Sgn:
   nl_cmp(rr_key(a), rr_key(b))
 
-def rr_cmp(a: RR, b: RR) -> X.Sgn:
+def rr_cmp(a: RR, b: RR) -> P.Sgn:
   rr_cmp_go(a, b)
 
 def rrs_reg(xs: List<&2, RR>) -> List<&2, Region>:

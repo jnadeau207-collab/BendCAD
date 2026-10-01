@@ -253,6 +253,177 @@ def main() -> String:
 """
 
 
+PRISM = """
+def pxy_of(+m: Nat, +i: Nat) -> V.Vec2:
+  +r = Nat.sub(i, 3n)
+  +t = Nat.sub(Nat.sub(m, 1n), Nat.div(r, 4n))
+  +ph = Nat.mod(r, 4n)
+  +x = Bool.pick(F64, Nat.is_le(ph, 1n), nf(Nat.add(Nat.mul(2n, t), 1n)), nf(Nat.mul(2n, t)))
+  +y = Bool.pick(F64, Bool.or(Nat.is_eq(ph, 0n), Nat.is_eq(ph, 3n)), 2.0f64, 3.0f64)
+  +w = nf(Nat.mul(2n, m))
+  Bool.pick(V.Vec2, Nat.is_eq(i, 0n), V.V2{0.0f64, 0.0f64},
+    Bool.pick(V.Vec2, Nat.is_eq(i, 1n), V.V2{w, 0.0f64},
+      Bool.pick(V.Vec2, Nat.is_eq(i, 2n), V.V2{w, 2.0f64}, V.V2{x, y})))
+
+def lift(q: V.Vec2, +z: F64) -> V.Point:
+  V.V2{x, y} = q
+  V.Pt{x, y, z}
+
+def pz(+k: Nat, +i: Nat, +z: F64) -> V.Point:
+  lift(pxy_of(k, i), z)
+
+def pxy(p: V.Point) -> V.Vec2:
+  V.Pt{x, y, z} = p
+  V.V2{x, y}
+
+def dif(+a: V.Point, +b: V.Point) -> V.Dir:
+  V.Pt{ax, ay, az} = a
+  V.Pt{bx, by, bz} = b
+  V.Dr{(bx - ax : F64), (by - ay : F64), (bz - az : F64)}
+
+def ln(+a: V.Point, +b: V.Point) -> Ty.EdgeKind:
+  Ty.EK_curve{G.GV_ln{G.Ln{a, dif(a, b)}}, G.Dom{0.0f64, 1.0f64}}
+
+def ts(+a: V.Vec2, +b: V.Vec2) -> G.GVal:
+  G.GV_ts{G.Ts{a, b}}
+
+def uv(+s: F64, +t: F64) -> V.Vec2:
+  V.V2{s, t}
+
+def nx(+n: Nat, +i: Nat) -> Nat:
+  Nat.mod(1n+i, n)
+
+def g(+x: Nat) -> U64:
+  U64.from_nat(x)
+
+def vxs(c: Nat, +k: Nat, +n: Nat, +i: Nat, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +p = Bool.pick(V.Point, Nat.is_lt(i, n), pz(k, i, 0.0f64), pz(k, Nat.sub(i, n), 1.0f64))
+      vxs(m, k, n, 1n+i, Ty.tres_brep(Ty.vx_push(b, p)))
+
+def hv(+i: Nat) -> Ty.HVertex:
+  Ty.mk_hv(i, g(1n+i))
+
+def eds(c: Nat, +k: Nat, +n: Nat, +e: Nat, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +grp = Nat.div(e, n)
+      +i = Nat.mod(e, n)
+      +j = nx(n, i)
+      +a = Bool.pick(Nat, Nat.is_eq(grp, 1n), Nat.add(n, i), i)
+      +z = Bool.pick(Nat, Nat.is_eq(grp, 0n), j, Bool.pick(Nat, Nat.is_eq(grp, 1n), Nat.add(n, j), Nat.add(n, i)))
+      +pa = Bool.pick(V.Point, Nat.is_eq(grp, 1n), pz(k, i, 1.0f64), pz(k, i, 0.0f64))
+      +pb = Bool.pick(V.Point, Nat.is_eq(grp, 0n), pz(k, j, 0.0f64), Bool.pick(V.Point, Nat.is_eq(grp, 1n), pz(k, j, 1.0f64), pz(k, i, 1.0f64)))
+      eds(m, k, n, 1n+e, Ty.tres_brep(Ty.ed_push(b, hv(a), hv(z), ln(pa, pb))))
+
+def he(+n: Nat, +e: Nat) -> Ty.HEdge:
+  Ty.mk_he(e, g(Nat.add(Nat.mul(2n, n), 1n+e)))
+
+def ce(+b: Ty.Brep, +h: Ty.HEdge, +f: Bool, +t: G.GVal) -> Ty.Brep:
+  Ty.tres_brep(Ty.ce_push(b, h, f, t))
+
+def dl1(d: V.Dir) -> F64:
+  V.Dr{x, y, z} = d
+  (F64.abs(x) + F64.abs(y) : F64)
+
+def elen(+a: V.Point, +b: V.Point) -> F64:
+  dl1(dif(a, b))
+
+def dscale(d: V.Dir, +l: F64) -> V.Dir:
+  V.Dr{x, y, z} = d
+  V.Dr{(x / l : F64), (y / l : F64), 0.0f64}
+
+def unit(+a: V.Point, +b: V.Point) -> V.Dir:
+  dscale(dif(a, b), elen(a, b))
+
+def sides(c: Nat, +k: Nat, +n: Nat, +i: Nat, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +j = nx(n, i)
+      +l = elen(pz(k, i, 0.0f64), pz(k, j, 0.0f64))
+      +b1 = ce(b, he(n, i), True{}, ts(uv(0.0f64, 0.0f64), uv(l, 0.0f64)))
+      +b2 = ce(b1, he(n, Nat.add(Nat.mul(2n, n), j)), True{}, ts(uv(l, 0.0f64), uv(l, 1.0f64)))
+      +b3 = ce(b2, he(n, Nat.add(n, i)), False{}, ts(uv(0.0f64, 1.0f64), uv(l, 1.0f64)))
+      +b4 = ce(b3, he(n, Nat.add(Nat.mul(2n, n), i)), False{}, ts(uv(0.0f64, 0.0f64), uv(0.0f64, 1.0f64)))
+      sides(m, k, n, 1n+i, b4)
+
+def caps(c: Nat, +k: Nat, +n: Nat, +i: Nat, +top: Bool, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +e = Bool.pick(Nat, top, Nat.add(n, i), i)
+      caps(m, k, n, 1n+i, top, ce(b, he(n, e), top, ts(pxy(pz(k, i, 0.0f64)), pxy(pz(k, nx(n, i), 0.0f64)))))
+
+def hc(+n: Nat, +c: Nat) -> Ty.HCoedge:
+  Ty.mk_hc(c, g(Nat.add(Nat.mul(5n, n), 1n+c)))
+
+def side_lps(c: Nat, +n: Nat, +i: Nat, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +q = Nat.mul(4n, i)
+      side_lps(m, n, 1n+i, Ty.tres_brep(Ty.lp_push(b, [hc(n, q), hc(n, 1n+q), hc(n, Nat.add(q, 2n)), hc(n, Nat.add(q, 3n))], Ty.LK_outer{})))
+
+def top_hcs(c: Nat, +n: Nat, +i: Nat) -> List<&2, Ty.HCoedge>:
+  match c:
+    case 0n: []
+    case 1n+m: hc(n, Nat.add(Nat.mul(4n, n), i)) <> top_hcs(m, n, 1n+i)
+
+def bot_hcs(c: Nat, +n: Nat, +i: Nat) -> List<&2, Ty.HCoedge>:
+  match c:
+    case 0n: []
+    case 1n+m: hc(n, Nat.add(Nat.mul(5n, n), Nat.sub(Nat.sub(n, 1n), i))) <> bot_hcs(m, n, 1n+i)
+
+def pl(+o: V.Point, +u: V.Dir, +v: V.Dir) -> G.GVal:
+  G.GV_pl{G.Pl{o, u, v}}
+
+def zz() -> V.Dir:
+  V.Dr{0.0f64, 0.0f64, 1.0f64}
+
+def hl(+n: Nat, +l: Nat) -> Ty.HLoop:
+  Ty.mk_hlp(l, g(Nat.add(Nat.mul(11n, n), 1n+l)))
+
+def side_fas(c: Nat, +k: Nat, +n: Nat, +i: Nat, +b: Ty.Brep) -> Ty.Brep:
+  match c:
+    case 0n: b
+    case 1n+m:
+      +p = pz(k, i, 0.0f64)
+      side_fas(m, k, n, 1n+i, Ty.tres_brep(Ty.fa_push(b, pl(p, unit(p, pz(k, nx(n, i), 0.0f64)), zz()), [hl(n, i)], True{})))
+
+def hf(+n: Nat, +f: Nat) -> Ty.HFace:
+  Ty.mk_hfa(f, g(Nat.add(Nat.mul(12n, n), Nat.add(3n, f))))
+
+def hfs(c: Nat, +n: Nat, +f: Nat) -> List<&2, Ty.HFace>:
+  match c:
+    case 0n: []
+    case 1n+m: hf(n, f) <> hfs(m, n, 1n+f)
+
+def prism(+k: Nat) -> Ty.Brep:
+  +n = Nat.add(Nat.mul(4n, k), 2n)
+  +b0 = vxs(Nat.mul(2n, n), k, n, 0n, Ty.brep_empty())
+  +b1 = eds(Nat.mul(3n, n), k, n, 0n, b0)
+  +b2 = caps(n, k, n, 0n, False{}, caps(n, k, n, 0n, True{}, sides(n, k, n, 0n, b1)))
+  +b3 = Ty.tres_brep(Ty.lp_push(side_lps(n, n, 0n, b2), top_hcs(n, n, 0n), Ty.LK_outer{}))
+  +b4 = Ty.tres_brep(Ty.lp_push(b3, bot_hcs(n, n, 0n), Ty.LK_outer{}))
+  +o = {V.Pt{0.0f64, 0.0f64, 0.0f64} : V.Point}
+  +o1 = {V.Pt{0.0f64, 0.0f64, 1.0f64} : V.Point}
+  +x = {V.Dr{1.0f64, 0.0f64, 0.0f64} : V.Dir}
+  +y = {V.Dr{0.0f64, 1.0f64, 0.0f64} : V.Dir}
+  +b5 = Ty.tres_brep(Ty.fa_push(side_fas(n, k, n, 0n, b4), pl(o1, x, y), [hl(n, n)], True{}))
+  +b6 = Ty.tres_brep(Ty.fa_push(b5, pl(o, x, y), [hl(n, 1n+n)], False{}))
+  +gs = Nat.add(Nat.mul(13n, n), 5n)
+  +b7 = Ty.tres_brep(Ty.sh_push(b6, hfs(Nat.add(n, 2n), n, 0n), Ty.SK_outer{}))
+  +b8 = Ty.tres_brep(Ty.so_push(b7, Ty.mk_hsh(0n, g(gs)), []))
+  Ty.brep_set_top(b8, Ty.Cp{[Ty.mk_hso(0n, g(1n+gs))], []})
+
+def main() -> String:
+  Ty.tres_show(Op.brep_checked(prism(nn()), Ty.P_manifold_solid{}, 100000000n))
+"""
+
 WORK = {
     "sol-rects": (RECTS, lambda n: f"ok dof=0 sum={6 * n * n}", lambda n: 8 * n),
     "sol-chain": (CHAIN, lambda n: f"ok dof=0 sum={n * (n + 1) // 2}", lambda n: 2 * (n + 1)),
@@ -260,11 +431,12 @@ WORK = {
     "arr-plate": (PLATE, lambda n: f"v={4 * n * n + 4} e={4 * n * n + 4} c={n * n + 1} r={n * n + 1}", lambda n: 4 * n * n + 4),
     "arr-random": (RANDOM, None, lambda n: n),
     "brep-holes": (HOLES, lambda h: "ok", lambda h: 4 * (h * h + 1)),
+    "brep-prism": (PRISM, lambda k: "ok", lambda k: 4 * k + 4),
 }
-HEADS = {"brep-holes": HEAD4}
+HEADS = {"brep-holes": HEAD4, "brep-prism": HEAD4}
 
 PLAN = [("sol-rects", [10, 100, 1000, 3000]), ("sol-chain", [100, 1000, 5000]), ("sol-grid", [10, 20, 40]),
-        ("arr-plate", [10, 35, 50, 100]), ("arr-random", [100, 200, 400]), ("brep-holes", [1, 3, 5, 10])]
+        ("arr-plate", [10, 35, 50, 100]), ("arr-random", [100, 200, 400]), ("brep-holes", [1, 3, 5, 10]), ("brep-prism", [1, 4, 9, 19])]
 
 
 def wsl(cmd):
@@ -296,7 +468,8 @@ def run(kind, n):
 
 
 rows_ = []
-for kind, ns in [x for x in PLAN if len(sys.argv) < 2 or x[0] in sys.argv[1:]]:
+pick = dict((a.split("=")[0], [int(v) for v in a.split("=")[1].split(",")] if "=" in a else None) for a in sys.argv[1:])
+for kind, ns in [(k, pick.get(k) or v) for k, v in PLAN if not pick or k in pick]:
     for n in ns:
         sz, out, real, user, rss, ok = run(kind, n)
         rows_.append((kind, n, sz, out, real, user, rss, ok))

@@ -9,17 +9,20 @@ import ../../src/c02/types.bend as P
 import ../../src/c02/ops.bend as O
 import ./check.bend as C
 
+def mx() -> F64:
+  F64{9218868437227405311u64}
+
 def o2_unc() -> P.PRes:
-  O.orient2d(V.V2{0.0f64, 0.0f64}, V.V2{2.0f64, C.w251()},
-    V.V2{4.0f64, 4.0f64})
+  O.orient2d(V.V2{0.0f64, 0.0f64}, V.V2{mx(), 0.0f64},
+    V.V2{0.0f64, mx()})
 
 def seg_unc() -> P.Xres:
-  O.seg_seg(V.V2{0.0f64, 0.0f64}, V.V2{2.0f64, C.w251()},
-    V.V2{4.0f64, 4.0f64}, V.V2{5.0f64, 6.0f64})
+  O.seg_seg(V.V2{0.0f64, 0.0f64}, V.V2{mx(), mx()},
+    V.V2{mx(), 0.0f64}, V.V2{0.0f64, mx()})
 
 def tri_unc() -> P.Tres:
-  O.tri_class(V.V2{C.p2e60(), 1.0f64}, C.ccw_tri_a(), C.ccw_tri_b(),
-    C.ccw_tri_c())
+  O.tri_class(V.V2{1.0f64, 1.0f64}, V.V2{0.0f64, 0.0f64},
+    V.V2{mx(), 0.0f64}, V.V2{0.0f64, mx()})
 
 def main() -> IO(Unit):
   do IO<Unit>:
@@ -36,16 +39,16 @@ def main() -> IO(Unit):
         V.V2{F64{9218868437227405312u64}, 0.0f64},
         V.V2{0.0f64, 1.0f64}),
       "invalid-input", f2)
-    f4 : U64 <- C.report_perr("neg-o2-unc", o2_unc(),
+    f4 : U64 <- C.report_perr("neg-o2-ovf2", o2_unc(),
       "numerical-uncertainty", f3)
     f5 : U64 <- C.report_perr("neg-o2-ovf",
       O.orient2d(V.V2{0.0f64, 0.0f64},
         V.V2{F64{9218868437227405311u64}, 0.0f64},
         V.V2{0.0f64, F64{9218868437227405311u64}}),
       "numerical-uncertainty", f4)
-    f6 : U64 <- C.report_perr("neg-o2-tiny",
+    f6 : U64 <- C.report_perr("neg-o2-sub",
       O.orient2d(V.V2{0.0f64, 0.0f64}, V.V2{C.tiny500(), 0.0f64},
-        V.V2{0.0f64, C.tiny500()}),
+        V.V2{0.0f64, F64{1u64}}),
       "numerical-uncertainty", f5)
     f7 : U64 <- C.report_perr("neg-o3-nan",
       O.orient3d(V.Pt{F64.nan(), 0.0f64, 0.0f64},
@@ -57,10 +60,10 @@ def main() -> IO(Unit):
         V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Pt{0.0f64, 1.0f64, 0.0f64},
         V.Pt{F64{18442240474082181120u64}, 0.0f64, 1.0f64}),
       "invalid-input", f7)
-    f9 : U64 <- C.report_perr("neg-o3-unc",
+    f9 : U64 <- C.report_perr("neg-o3-ovf",
       O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
-        V.Pt{4.0f64, 0.0f64, 4.0f64}, V.Pt{0.0f64, 4.0f64, 0.0f64},
-        V.Pt{2.0f64, 2.0f64, C.w251()}),
+        V.Pt{mx(), 0.0f64, 0.0f64}, V.Pt{0.0f64, mx(), 0.0f64},
+        V.Pt{0.0f64, 0.0f64, mx()}),
       "numerical-uncertainty", f8)
     f10 : U64 <- C.report_perr("neg-ic-nan",
       O.incircle(V.V2{F64.nan(), 0.0f64}, V.V2{1.0f64, 0.0f64},
@@ -71,9 +74,9 @@ def main() -> IO(Unit):
         V.V2{1.0f64, F64{9218868437227405312u64}},
         V.V2{0.0f64, 1.0f64}, V.V2{0.25f64, 0.25f64}),
       "invalid-input", f10)
-    f12 : U64 <- C.report_perr("neg-ic-unc",
-      O.incircle(V.V2{0.0f64, 0.0f64}, V.V2{1.0f64, 0.0f64},
-        V.V2{0.0f64, 1.0f64}, V.V2{C.q148(), 1.0f64}),
+    f12 : U64 <- C.report_perr("neg-ic-ovf",
+      O.incircle(V.V2{0.0f64, 0.0f64}, V.V2{mx(), 0.0f64},
+        V.V2{0.0f64, mx()}, V.V2{1.0f64, 1.0f64}),
       "numerical-uncertainty", f11)
     f13 : U64 <- C.report_perr("neg-is-nan",
       O.insphere(V.Pt{F64.nan(), 0.0f64, 0.0f64},
@@ -86,16 +89,16 @@ def main() -> IO(Unit):
         V.Pt{0.0f64, 0.0f64, F64{18442240474082181120u64}},
         V.Pt{0.5f64, 0.5f64, 0.5f64}),
       "invalid-input", f13)
-    f15 : U64 <- C.report_perr("neg-is-unc",
-      O.insphere(V.Pt{1.0f64, 0.0f64, 0.0f64},
-        V.Pt{0.0f64, 1.0f64, 0.0f64}, V.Pt{0.0f64, 0.0f64, 1.0f64},
-        V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{C.q147(), 1.0f64, 1.0f64}),
+    f15 : U64 <- C.report_perr("neg-is-ovf",
+      O.insphere(V.Pt{mx(), 0.0f64, 0.0f64},
+        V.Pt{0.0f64, mx(), 0.0f64}, V.Pt{0.0f64, 0.0f64, mx()},
+        V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{1.0f64, 1.0f64, 1.0f64}),
       "numerical-uncertainty", f14)
     f16 : U64 <- C.report_xerr("neg-seg-nan",
       O.seg_seg(V.V2{F64.nan(), 0.0f64}, V.V2{2.0f64, 2.0f64},
         V.V2{0.0f64, 2.0f64}, V.V2{2.0f64, 0.0f64}),
       "invalid-input", f15)
-    f17 : U64 <- C.report_xerr("neg-seg-unc", seg_unc(),
+    f17 : U64 <- C.report_xerr("neg-seg-ovf", seg_unc(),
       "numerical-uncertainty", f16)
     f18 : U64 <- C.report_terr("neg-tri-nan",
       O.tri_class(V.V2{F64.nan(), 0.0f64}, C.ccw_tri_a(),
@@ -110,7 +113,7 @@ def main() -> IO(Unit):
       O.tri_class(V.V2{0.0f64, 0.0f64}, V.V2{0.0f64, 0.0f64},
         V.V2{1.0f64, 1.0f64}, V.V2{2.0f64, 2.0f64}),
       "invalid-input", f19)
-    f21 : U64 <- C.report_terr("neg-tri-unc", tri_unc(),
+    f21 : U64 <- C.report_terr("neg-tri-ovf", tri_unc(),
       "numerical-uncertainty", f20)
     f22 : U64 <- C.report_pure("neg-pres-zero",
       String.eq(P.pres_sign_show(o2_unc()), "zero"), f21)

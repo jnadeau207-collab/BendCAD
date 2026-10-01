@@ -1,7 +1,6 @@
 import Base
 import ../c00/types.bend as T
-import ./exact.bend as X
-import ./par.bend as P
+import ../base/par.bend as P
 import ./sqr.bend as Q
 
 type Pt is Data:
@@ -425,10 +424,10 @@ def tj_c(x: Tj) -> U32:
   Tj{c, j, v} = x
   c
 
-def tj_cmp_go(+a: Tj, +b: Tj) -> X.Sgn:
+def tj_cmp_go(+a: Tj, +b: Tj) -> P.Sgn:
   P.u_cmp(tj_c(a), tj_c(b))
 
-def tj_cmp(a: Tj, b: Tj) -> X.Sgn:
+def tj_cmp(a: Tj, b: Tj) -> P.Sgn:
   tj_cmp_go(a, b)
 
 def tj_row(xs: List<&2, Q.Sv>, +j: U32, acc: List<&2, Tj>) -> List<&2, Tj>:
@@ -905,10 +904,10 @@ def ci_ci(x: CI) -> U32:
   CI{lab, ci, c} = x
   ci
 
-def ci_cmp_go(+a: CI, +b: CI) -> X.Sgn:
+def ci_cmp_go(+a: CI, +b: CI) -> P.Sgn:
   P.lex_u(P.u_cmp(ci_lab(a), ci_lab(b)), ci_ci(a), ci_ci(b))
 
-def ci_cmp(a: CI, b: CI) -> X.Sgn:
+def ci_cmp(a: CI, b: CI) -> P.Sgn:
   ci_cmp_go(a, b)
 
 def u32s(xs: List<&2, Nat>) -> List<&2, U32>:
@@ -1047,10 +1046,10 @@ def ix_id(x: IX) -> U64:
   IX{ci, id} = x
   id
 
-def ix_cmp_go(+a: IX, +b: IX) -> X.Sgn:
+def ix_cmp_go(+a: IX, +b: IX) -> P.Sgn:
   P.u_cmp(ix_ci(a), ix_ci(b))
 
-def ix_cmp(a: IX, b: IX) -> X.Sgn:
+def ix_cmp(a: IX, b: IX) -> P.Sgn:
   ix_cmp_go(a, b)
 
 def pv_i(x: PV) -> U32:
@@ -1061,10 +1060,10 @@ def pv_v(x: PV) -> F64:
   PV{i, v} = x
   v
 
-def pv_cmp_go(+a: PV, +b: PV) -> X.Sgn:
+def pv_cmp_go(+a: PV, +b: PV) -> P.Sgn:
   P.u_cmp(pv_i(a), pv_i(b))
 
-def pv_cmp(a: PV, b: PV) -> X.Sgn:
+def pv_cmp(a: PV, b: PV) -> P.Sgn:
   pv_cmp_go(a, b)
 
 def ix_if(c: Bool, +ci: U32, +id: U64, rest: List<&2, IX>) -> List<&2, IX>:
@@ -1210,10 +1209,10 @@ def all_cn_ok(cs: List<&2, Cn>, +np: Nat) -> Bool:
     case Nil{}: True{}
     case c <> t: Bool.and(cn_ok(c, np), all_cn_ok(t, np))
 
-def u64_cmp_go(+a: U64, +b: U64) -> X.Sgn:
-  X.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
+def u64_cmp_go(+a: U64, +b: U64) -> P.Sgn:
+  P.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
 
-def u64_cmp(a: U64, b: U64) -> X.Sgn:
+def u64_cmp(a: U64, b: U64) -> P.Sgn:
   u64_cmp_go(a, b)
 
 def distinct_go(xs: List<&2, U64>, +prev: U64, first: Bool) -> Bool:

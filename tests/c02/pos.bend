@@ -42,21 +42,24 @@ def main() -> IO(Unit):
           V.V2{1.0f64, 0.0f64}, V.V2{0.0f64, 0.0f64},
           V.V2{0.0f64, 1.0f64})), "neg")),
       f6)
-    f8 : U64 <- C.report_pure("pos-sint-int",
-      Bool.and(P.si_ok(P.sint_of(5.0f64, P.lim_o2())),
-        U64.is_eq(P.si_mag(P.sint_of(5.0f64, P.lim_o2())), 5u64)),
-      f7)
-    f9 : U64 <- C.report_pure("pos-sint-half",
-      Bool.not(P.si_ok(P.sint_of(0.5f64, P.lim_o2()))), f8)
-    f10 : U64 <- C.report_pure("pos-sint-lim",
-      P.si_ok(P.sint_of(C.lim26(), P.lim_o2())), f9)
-    f11 : U64 <- C.report_pure("pos-sint-big",
-      Bool.not(P.si_ok(P.sint_of(C.lim26p1(), P.lim_o2()))), f10)
-    f12 : U64 <- C.report_pure("pos-sint-neg",
-      Bool.and(P.si_neg(P.sint_of(F64.neg(3.0f64), P.lim_o2())),
-        U64.is_eq(P.si_mag(P.sint_of(F64.neg(3.0f64), P.lim_o2())),
-          3u64)),
-      f11)
+    f8 : U64 <- C.report_ps("pos-o2-near-exact",
+      O.orient2d(V.V2{0.0f64, 0.0f64}, V.V2{2.0f64, C.w251()},
+        V.V2{4.0f64, 4.0f64}), "neg", f7)
+    f9 : U64 <- C.report_ps("pos-o2-tiny-exact",
+      O.orient2d(V.V2{0.0f64, 0.0f64}, V.V2{C.tiny500(), 0.0f64},
+        V.V2{0.0f64, C.tiny500()}), "pos", f8)
+    f10 : U64 <- C.report_ps("pos-o3-near-exact",
+      O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
+        V.Pt{4.0f64, 0.0f64, 4.0f64}, V.Pt{0.0f64, 4.0f64, 0.0f64},
+        V.Pt{2.0f64, 2.0f64, C.w251()}), "neg", f9)
+    f11 : U64 <- C.report_ps("pos-ic-near-exact",
+      O.incircle(V.V2{0.0f64, 0.0f64}, V.V2{1.0f64, 0.0f64},
+        V.V2{0.0f64, 1.0f64}, V.V2{C.q148(), 1.0f64}), "neg", f10)
+    f12 : U64 <- C.report_ps("pos-is-near-exact",
+      O.insphere(V.Pt{1.0f64, 0.0f64, 0.0f64},
+        V.Pt{0.0f64, 1.0f64, 0.0f64}, V.Pt{0.0f64, 0.0f64, 1.0f64},
+        V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{C.q147(), 1.0f64, 1.0f64}),
+      "neg", f11)
     f13 : U64 <- C.report_ps("pos-o3-neg",
       O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
         V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Pt{0.0f64, 1.0f64, 0.0f64},
@@ -155,4 +158,10 @@ def main() -> IO(Unit):
           String.eq(T.FailKind.show(
             P.tres_kind(P.tok(P.T_in{}))), "invalid-input"))),
       f33)
-    IO.print("selfcheck fails=" ++ U64.show(f34))
+    f35 : U64 <- C.report_xr("pos-seg-near-exact",
+      O.seg_seg(V.V2{0.0f64, 0.0f64}, V.V2{2.0f64, C.w251()},
+        V.V2{4.0f64, 4.0f64}, V.V2{5.0f64, 6.0f64}), "disjoint", f34)
+    f36 : U64 <- C.report_tc("pos-tri-far-exact",
+      O.tri_class(V.V2{C.p2e60(), 1.0f64}, C.ccw_tri_a(), C.ccw_tri_b(),
+        C.ccw_tri_c()), "outside", f35)
+    IO.print("selfcheck fails=" ++ U64.show(f36))

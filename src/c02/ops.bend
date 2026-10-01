@@ -1,19 +1,23 @@
 # C02 operators: robust predicates with a fast bounded-error filter and an
-# exact small-integer fallback. Every publishing op returns PRes/Xres/Tres:
+# exact expansion fallback. Every publishing op returns PRes/Xres/Tres:
 # a certified sign/relation/class or a C00 FailKind (invalid = malformed
-# input, uncertain = filter silent and exact domain inapplicable — never a
-# guessed side). Contract: docs/c02-contract.md.
+# input, uncertain = filter silent and the exact expansion not
+# representable: overflow or subnormal products — never a guessed side).
+# Contract: docs/c02-contract.md.
 #
 # Pipeline per predicate (first match wins): finite gate -> repeated-point
 # exact zero -> F64 filter (floor + shortcut + error bound) -> exact
-# small-integer kernel -> numerical-uncertainty. Zero signs come ONLY from
-# exact paths (repeated points or the integer kernel); the filter certifies
-# nonzero signs only. Summation/expansion orders below are the contract.
+# Shewchuk expansion (base/ex.bend) -> numerical-uncertainty. Zero signs
+# come ONLY from exact paths (repeated points or the expansion); the
+# filter certifies nonzero signs only. Summation orders below are the
+# contract.
 
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ./types.bend as P
+import ../base/par.bend as O
+import ../base/ex.bend as E
 
 # --- F64 3x3 core (shared by orient3d, incircle, insphere minors). ---
 # Cofactor expansion along row 0, SAME parenthesization as C01 m3_det_raw.
@@ -70,13 +74,26 @@ def d3_neg(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64,
   F64.add(F64.add(F64.add(F64.add(F64.add(fneg(u1), fneg(u2)),
     fneg(u3)), fneg(u4)), fneg(u5)), fneg(u6))
 
-# --- Exact 3x3 core on sign-magnitude integers (same expansion). ---
-def e3_raw(+a: P.SBal, +b: P.SBal, +c: P.SBal, +d: P.SBal, +e: P.SBal,
-    +f: P.SBal, +g: P.SBal, +h: P.SBal, +i: P.SBal) -> P.SBal:
-  +t0 = P.sb_sub(P.sb_mul(e, i), P.sb_mul(f, h))
-  +t1 = P.sb_sub(P.sb_mul(d, i), P.sb_mul(f, g))
-  +t2 = P.sb_sub(P.sb_mul(d, h), P.sb_mul(e, g))
-  P.sb_add(P.sb_sub(P.sb_mul(a, t0), P.sb_mul(b, t1)), P.sb_mul(c, t2))
+# --- Exact expansion kernels (same cofactor expansion as d3_raw). ---
+def sg_res(s: O.Sgn) -> P.PRes:
+  match s:
+    case O.Sn{}: P.pok(P.Sg_neg{})
+    case O.Sz{}: P.pok(P.Sg_zero{})
+    case O.Sp{}: P.pok(P.Sg_pos{})
+    case O.Su{}: P.perr(T.F_uncertain{})
+
+def e3x(+a: E.Ex, +b: E.Ex, +c: E.Ex, +d: E.Ex, +e: E.Ex, +f: E.Ex,
+    +g: E.Ex, +h: E.Ex, +i: E.Ex) -> E.Ex:
+  +t0 = E.ex_sub(E.ex_mul(e, i), E.ex_mul(f, h))
+  +t1 = E.ex_sub(E.ex_mul(d, i), E.ex_mul(f, g))
+  +t2 = E.ex_sub(E.ex_mul(d, h), E.ex_mul(e, g))
+  E.ex_add(E.ex_sub(E.ex_mul(a, t0), E.ex_mul(b, t1)), E.ex_mul(c, t2))
+
+def sq2(+x: E.Ex, +y: E.Ex) -> E.Ex:
+  E.ex_add(E.ex_mul(x, x), E.ex_mul(y, y))
+
+def sq3(+x: E.Ex, +y: E.Ex, +z: E.Ex) -> E.Ex:
+  E.ex_add(E.ex_add(E.ex_mul(x, x), E.ex_mul(y, y)), E.ex_mul(z, z))
 
 # --- Exact coordinate equality (total on finite values; -0.0 == +0.0).
 # NOTE: callers let-bind each pteq result before combining. A nested
@@ -92,33 +109,11 @@ def pteq3(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
 
 # --- orient2d: sign of det |ax-cx bx-cx; ay-cy by-cy|. ---
 # Pos iff c is left of a->b (CCW triangle a,b,c).
-def o2_exact_go(+ok: Bool, +xa: P.SInt, +xb: P.SInt, +xc: P.SInt,
-    +ya: P.SInt, +yb: P.SInt, +yc: P.SInt) -> P.PRes:
-  match ok:
-    case True{}:
-      +acx = P.sb_sub(P.sb_of_int(xa), P.sb_of_int(xc))
-      +bcx = P.sb_sub(P.sb_of_int(xb), P.sb_of_int(xc))
-      +acy = P.sb_sub(P.sb_of_int(ya), P.sb_of_int(yc))
-      +bcy = P.sb_sub(P.sb_of_int(yb), P.sb_of_int(yc))
-      +dl = P.sb_mul(acx, bcy)
-      +dr = P.sb_mul(acy, bcx)
-      P.pok(P.sb_sign(P.sb_sub(dl, dr)))
-    case False{}:
-      P.perr(T.F_uncertain{})
-
 def o2_exact(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64,
     +cy: F64) -> P.PRes:
-  +xa = P.sint_of(ax, P.lim_o2())
-  +xb = P.sint_of(bx, P.lim_o2())
-  +xc = P.sint_of(cx, P.lim_o2())
-  +ya = P.sint_of(ay, P.lim_o2())
-  +yb = P.sint_of(by, P.lim_o2())
-  +yc = P.sint_of(cy, P.lim_o2())
-  +ok = Bool.and(P.si_ok(xa),
-    Bool.and(P.si_ok(xb),
-      Bool.and(P.si_ok(xc),
-        Bool.and(P.si_ok(ya), Bool.and(P.si_ok(yb), P.si_ok(yc))))))
-  o2_exact_go(ok, xa, xb, xc, ya, yb, yc)
+  +dl = E.ex_mul(E.ex_dif(ax, cx), E.ex_dif(by, cy))
+  +dr = E.ex_mul(E.ex_dif(ay, cy), E.ex_dif(bx, cx))
+  sg_res(E.ex_sign(E.ex_sub(dl, dr)))
 
 def o2_bound(+det: F64, +ax: F64, +ay: F64, +bx: F64, +by: F64,
     +cx: F64, +cy: F64, big: Bool) -> P.PRes:
@@ -187,53 +182,12 @@ def orient2d(+a: V.Vec2, +b: V.Vec2, +c: V.Vec2) -> P.PRes:
 
 # --- orient3d: sign of the 3x3 det of abcd translated by d. ---
 # Pos iff d is above the oriented plane abc (right-handed tet abcd).
-def o3_exact_go(+ok: Bool, +xa: P.SInt, +ya: P.SInt, +za: P.SInt,
-    +xb: P.SInt, +yb: P.SInt, +zb: P.SInt, +xc: P.SInt, +yc: P.SInt,
-    +zc: P.SInt, +xd: P.SInt, +yd: P.SInt, +zd: P.SInt) -> P.PRes:
-  match ok:
-    case True{}:
-      +adx = P.sb_sub(P.sb_of_int(xa), P.sb_of_int(xd))
-      +ady = P.sb_sub(P.sb_of_int(ya), P.sb_of_int(yd))
-      +adz = P.sb_sub(P.sb_of_int(za), P.sb_of_int(zd))
-      +bdx = P.sb_sub(P.sb_of_int(xb), P.sb_of_int(xd))
-      +bdy = P.sb_sub(P.sb_of_int(yb), P.sb_of_int(yd))
-      +bdz = P.sb_sub(P.sb_of_int(zb), P.sb_of_int(zd))
-      +cdx = P.sb_sub(P.sb_of_int(xc), P.sb_of_int(xd))
-      +cdy = P.sb_sub(P.sb_of_int(yc), P.sb_of_int(yd))
-      +cdz = P.sb_sub(P.sb_of_int(zc), P.sb_of_int(zd))
-      P.pok(P.sb_sign(e3_raw(adx, ady, adz, bdx, bdy, bdz, cdx, cdy,
-        cdz)))
-    case False{}:
-      P.perr(T.F_uncertain{})
-
 def o3_exact(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
     +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64, +dy: F64,
     +dz: F64) -> P.PRes:
-  +xa = P.sint_of(ax, P.lim_o3())
-  +ya = P.sint_of(ay, P.lim_o3())
-  +za = P.sint_of(az, P.lim_o3())
-  +xb = P.sint_of(bx, P.lim_o3())
-  +yb = P.sint_of(by, P.lim_o3())
-  +zb = P.sint_of(bz, P.lim_o3())
-  +xc = P.sint_of(cx, P.lim_o3())
-  +yc = P.sint_of(cy, P.lim_o3())
-  +zc = P.sint_of(cz, P.lim_o3())
-  +xd = P.sint_of(dx, P.lim_o3())
-  +yd = P.sint_of(dy, P.lim_o3())
-  +zd = P.sint_of(dz, P.lim_o3())
-  +ok = Bool.and(P.si_ok(xa),
-    Bool.and(P.si_ok(ya),
-      Bool.and(P.si_ok(za),
-        Bool.and(P.si_ok(xb),
-          Bool.and(P.si_ok(yb),
-            Bool.and(P.si_ok(zb),
-              Bool.and(P.si_ok(xc),
-                Bool.and(P.si_ok(yc),
-                  Bool.and(P.si_ok(zc),
-                    Bool.and(P.si_ok(xd),
-                      Bool.and(P.si_ok(yd),
-                        P.si_ok(zd))))))))))))
-  o3_exact_go(ok, xa, ya, za, xb, yb, zb, xc, yc, zc, xd, yd, zd)
+  sg_res(E.ex_sign(e3x(E.ex_dif(ax, dx), E.ex_dif(ay, dy), E.ex_dif(az, dz),
+    E.ex_dif(bx, dx), E.ex_dif(by, dy), E.ex_dif(bz, dz),
+    E.ex_dif(cx, dx), E.ex_dif(cy, dy), E.ex_dif(cz, dz))))
 
 def o3_bound(+det: F64, +ax: F64, +ay: F64, +az: F64, +bx: F64,
     +by: F64, +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64,
@@ -348,43 +302,16 @@ def orient3d(+a: V.Point, +b: V.Point, +c: V.Point,
 def ic_sq(+dx: F64, +dy: F64) -> F64:
   F64.add(F64.mul(dx, dx), F64.mul(dy, dy))
 
-def ic_exact_go(+ok: Bool, +xa: P.SInt, +ya: P.SInt, +xb: P.SInt,
-    +yb: P.SInt, +xc: P.SInt, +yc: P.SInt, +xd: P.SInt,
-    +yd: P.SInt) -> P.PRes:
-  match ok:
-    case True{}:
-      +adx = P.sb_sub(P.sb_of_int(xa), P.sb_of_int(xd))
-      +ady = P.sb_sub(P.sb_of_int(ya), P.sb_of_int(yd))
-      +bdx = P.sb_sub(P.sb_of_int(xb), P.sb_of_int(xd))
-      +bdy = P.sb_sub(P.sb_of_int(yb), P.sb_of_int(yd))
-      +cdx = P.sb_sub(P.sb_of_int(xc), P.sb_of_int(xd))
-      +cdy = P.sb_sub(P.sb_of_int(yc), P.sb_of_int(yd))
-      +aq = P.sb_add(P.sb_mul(adx, adx), P.sb_mul(ady, ady))
-      +bq = P.sb_add(P.sb_mul(bdx, bdx), P.sb_mul(bdy, bdy))
-      +cq = P.sb_add(P.sb_mul(cdx, cdx), P.sb_mul(cdy, cdy))
-      P.pok(P.sb_sign(e3_raw(adx, ady, aq, bdx, bdy, bq, cdx, cdy,
-        cq)))
-    case False{}:
-      P.perr(T.F_uncertain{})
-
 def ic_exact(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64,
     +cy: F64, +dx: F64, +dy: F64) -> P.PRes:
-  +xa = P.sint_of(ax, P.lim_ic())
-  +ya = P.sint_of(ay, P.lim_ic())
-  +xb = P.sint_of(bx, P.lim_ic())
-  +yb = P.sint_of(by, P.lim_ic())
-  +xc = P.sint_of(cx, P.lim_ic())
-  +yc = P.sint_of(cy, P.lim_ic())
-  +xd = P.sint_of(dx, P.lim_ic())
-  +yd = P.sint_of(dy, P.lim_ic())
-  +ok = Bool.and(P.si_ok(xa),
-    Bool.and(P.si_ok(ya),
-      Bool.and(P.si_ok(xb),
-        Bool.and(P.si_ok(yb),
-          Bool.and(P.si_ok(xc),
-            Bool.and(P.si_ok(yc),
-              Bool.and(P.si_ok(xd), P.si_ok(yd))))))))
-  ic_exact_go(ok, xa, ya, xb, yb, xc, yc, xd, yd)
+  +adx = E.ex_dif(ax, dx)
+  +ady = E.ex_dif(ay, dy)
+  +bdx = E.ex_dif(bx, dx)
+  +bdy = E.ex_dif(by, dy)
+  +cdx = E.ex_dif(cx, dx)
+  +cdy = E.ex_dif(cy, dy)
+  sg_res(E.ex_sign(e3x(adx, ady, sq2(adx, ady), bdx, bdy, sq2(bdx, bdy),
+    cdx, cdy, sq2(cdx, cdy))))
 
 def ic_bound(+det: F64, +ax: F64, +ay: F64, +bx: F64, +by: F64,
     +cx: F64, +cy: F64, +dx: F64, +dy: F64, big: Bool) -> P.PRes:
@@ -485,79 +412,29 @@ def incircle(+a: V.Vec2, +b: V.Vec2, +c: V.Vec2,
 def is_sq(+dx: F64, +dy: F64, +dz: F64) -> F64:
   F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz))
 
-def is_exact_go(+ok: Bool, +xa: P.SInt, +ya: P.SInt, +za: P.SInt,
-    +xb: P.SInt, +yb: P.SInt, +zb: P.SInt, +xc: P.SInt, +yc: P.SInt,
-    +zc: P.SInt, +xd: P.SInt, +yd: P.SInt, +zd: P.SInt, +xe: P.SInt,
-    +ye: P.SInt, +ze: P.SInt) -> P.PRes:
-  match ok:
-    case True{}:
-      +adx = P.sb_sub(P.sb_of_int(xa), P.sb_of_int(xe))
-      +ady = P.sb_sub(P.sb_of_int(ya), P.sb_of_int(ye))
-      +adz = P.sb_sub(P.sb_of_int(za), P.sb_of_int(ze))
-      +bdx = P.sb_sub(P.sb_of_int(xb), P.sb_of_int(xe))
-      +bdy = P.sb_sub(P.sb_of_int(yb), P.sb_of_int(ye))
-      +bdz = P.sb_sub(P.sb_of_int(zb), P.sb_of_int(ze))
-      +cdx = P.sb_sub(P.sb_of_int(xc), P.sb_of_int(xe))
-      +cdy = P.sb_sub(P.sb_of_int(yc), P.sb_of_int(ye))
-      +cdz = P.sb_sub(P.sb_of_int(zc), P.sb_of_int(ze))
-      +ddx = P.sb_sub(P.sb_of_int(xd), P.sb_of_int(xe))
-      +ddy = P.sb_sub(P.sb_of_int(yd), P.sb_of_int(ye))
-      +ddz = P.sb_sub(P.sb_of_int(zd), P.sb_of_int(ze))
-      +aq = P.sb_add(P.sb_add(P.sb_mul(adx, adx), P.sb_mul(ady, ady)),
-        P.sb_mul(adz, adz))
-      +bq = P.sb_add(P.sb_add(P.sb_mul(bdx, bdx), P.sb_mul(bdy, bdy)),
-        P.sb_mul(bdz, bdz))
-      +cq = P.sb_add(P.sb_add(P.sb_mul(cdx, cdx), P.sb_mul(cdy, cdy)),
-        P.sb_mul(cdz, cdz))
-      +dq = P.sb_add(P.sb_add(P.sb_mul(ddx, ddx), P.sb_mul(ddy, ddy)),
-        P.sb_mul(ddz, ddz))
-      +m0 = e3_raw(bdy, bdz, bq, cdy, cdz, cq, ddy, ddz, dq)
-      +m1 = e3_raw(bdx, bdz, bq, cdx, cdz, cq, ddx, ddz, dq)
-      +m2 = e3_raw(bdx, bdy, bq, cdx, cdy, cq, ddx, ddy, dq)
-      +m3 = e3_raw(bdx, bdy, bdz, cdx, cdy, cdz, ddx, ddy, ddz)
-      +t0 = P.sb_mul(adx, m0)
-      +t1 = P.sb_mul(ady, m1)
-      +t2 = P.sb_mul(adz, m2)
-      +t3 = P.sb_mul(aq, m3)
-      P.pok(P.sb_sign(P.sb_sub(P.sb_add(P.sb_sub(t0, t1), t2), t3)))
-    case False{}:
-      P.perr(T.F_uncertain{})
-
 def is_exact(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
     +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64, +dy: F64,
     +dz: F64, +ex: F64, +ey: F64, +ez: F64) -> P.PRes:
-  +xa = P.sint_of(ax, P.lim_is())
-  +ya = P.sint_of(ay, P.lim_is())
-  +za = P.sint_of(az, P.lim_is())
-  +xb = P.sint_of(bx, P.lim_is())
-  +yb = P.sint_of(by, P.lim_is())
-  +zb = P.sint_of(bz, P.lim_is())
-  +xc = P.sint_of(cx, P.lim_is())
-  +yc = P.sint_of(cy, P.lim_is())
-  +zc = P.sint_of(cz, P.lim_is())
-  +xd = P.sint_of(dx, P.lim_is())
-  +yd = P.sint_of(dy, P.lim_is())
-  +zd = P.sint_of(dz, P.lim_is())
-  +xe = P.sint_of(ex, P.lim_is())
-  +ye = P.sint_of(ey, P.lim_is())
-  +ze = P.sint_of(ez, P.lim_is())
-  +ok = Bool.and(P.si_ok(xa),
-    Bool.and(P.si_ok(ya),
-      Bool.and(P.si_ok(za),
-        Bool.and(P.si_ok(xb),
-          Bool.and(P.si_ok(yb),
-            Bool.and(P.si_ok(zb),
-              Bool.and(P.si_ok(xc),
-                Bool.and(P.si_ok(yc),
-                  Bool.and(P.si_ok(zc),
-                    Bool.and(P.si_ok(xd),
-                      Bool.and(P.si_ok(yd),
-                        Bool.and(P.si_ok(zd),
-                          Bool.and(P.si_ok(xe),
-                            Bool.and(P.si_ok(ye),
-                              P.si_ok(ze)))))))))))))))
-  is_exact_go(ok, xa, ya, za, xb, yb, zb, xc, yc, zc, xd, yd, zd, xe,
-    ye, ze)
+  +adx = E.ex_dif(ax, ex)
+  +ady = E.ex_dif(ay, ey)
+  +adz = E.ex_dif(az, ez)
+  +bdx = E.ex_dif(bx, ex)
+  +bdy = E.ex_dif(by, ey)
+  +bdz = E.ex_dif(bz, ez)
+  +cdx = E.ex_dif(cx, ex)
+  +cdy = E.ex_dif(cy, ey)
+  +cdz = E.ex_dif(cz, ez)
+  +ddx = E.ex_dif(dx, ex)
+  +ddy = E.ex_dif(dy, ey)
+  +ddz = E.ex_dif(dz, ez)
+  +bq = sq3(bdx, bdy, bdz)
+  +cq = sq3(cdx, cdy, cdz)
+  +dq = sq3(ddx, ddy, ddz)
+  +t0 = E.ex_mul(adx, e3x(bdy, bdz, bq, cdy, cdz, cq, ddy, ddz, dq))
+  +t1 = E.ex_mul(ady, e3x(bdx, bdz, bq, cdx, cdz, cq, ddx, ddz, dq))
+  +t2 = E.ex_mul(adz, e3x(bdx, bdy, bq, cdx, cdy, cq, ddx, ddy, dq))
+  +t3 = E.ex_mul(sq3(adx, ady, adz), e3x(bdx, bdy, bdz, cdx, cdy, cdz, ddx, ddy, ddz))
+  sg_res(E.ex_sign(E.ex_sub(E.ex_add(E.ex_sub(t0, t1), t2), t3)))
 
 def is_bound(+det: F64, +ax: F64, +ay: F64, +az: F64, +bx: F64,
     +by: F64, +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64,

@@ -660,36 +660,28 @@ def pos_g9(f173: U64) -> IO(U64):
         9n), 2n),
       f182)
     f184 : U64 <- C.report_pure("pos-qmem-spon",
-      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_sp(),
-        9n),
+      Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(0n, 1u64), C.sf_sp()),
       f183)
     f185 : U64 <- C.report_pure("pos-qmem-spoff",
-      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
-        C.sf_sp(), 9n)),
+      Bool.not(Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(1n, 2u64), C.sf_sp())),
       f184)
     f186 : U64 <- C.report_pure("pos-qmem-cyon",
-      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_cy(),
-        9n),
+      Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(0n, 1u64), C.sf_cy()),
       f185)
     f187 : U64 <- C.report_pure("pos-qmem-cyoff",
-      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
-        C.sf_cy(), 9n)),
+      Bool.not(Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(1n, 2u64), C.sf_cy())),
       f186)
     f188 : U64 <- C.report_pure("pos-qmem-con",
-      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64), C.sf_co(),
-        9n),
+      Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(0n, 1u64), C.sf_co()),
       f187)
     f189 : U64 <- C.report_pure("pos-qmem-cooff",
-      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(1n, 2u64),
-        C.sf_co(), 9n)),
+      Bool.not(Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(1n, 2u64), C.sf_co())),
       f188)
     f190 : U64 <- C.report_pure("pos-qmem-toon",
-      Op.vx_surf_on(C.vs_q(), Ty.mk_hv(2n, 3u64), C.sf_to(),
-        9n),
+      Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(2n, 3u64), C.sf_to()),
       f189)
     f191 : U64 <- C.report_pure("pos-qmem-tooff",
-      Bool.not(Op.vx_surf_on(C.vs_q(), Ty.mk_hv(0n, 1u64),
-        C.sf_to(), 9n)),
+      Bool.not(Op.vx_surf_on(Ty.ix_mk(C.vs_q(), [], [], [], [], [], []), Ty.mk_hv(0n, 1u64), C.sf_to())),
       f190)
     f192 : U64 <- C.report_pure("pos-conn-split",
       Nat.is_eq(Op.brep_conn_c(C.b_split(), 20n), 2n),
@@ -729,11 +721,11 @@ def pos_g11(f198: U64) -> IO(U64):
       f200)
     f202 : U64 <- C.report_pure("pos-link-sq",
       Nat.is_eq(Op.vx_link_ok(C.b_oriprop(),
-        Ty.mk_hv(0n, 1u64), 20n, 20n), 3n),
+        Ty.mk_hv(0n, 1u64), 20n), 3n),
       f201)
     f203 : U64 <- C.report_pure("pos-link-pinch",
       Nat.is_eq(Op.vx_link_ok(C.b_pinch(),
-        Ty.mk_hv(0n, 1u64), 20n, 20n), 2n),
+        Ty.mk_hv(0n, 1u64), 20n), 2n),
       f202)
     f204 : U64 <- C.report_pure("pos-segx-cross",
       Op.segx_pair(C.p000(), C.p110(), C.p100(), C.p010()),
@@ -847,19 +839,19 @@ def pos_g12(f223: U64) -> IO(U64):
       f233)
     f235 : U64 <- C.report_pure("pos-link-highval",
       Nat.is_eq(Op.vx_link_ok(C.b_h_highval(),
-        Ty.mk_hv(0n, 1u64), 20n, 20n), 3n),
+        Ty.mk_hv(0n, 1u64), 20n), 3n),
       f234)
     f236 : U64 <- C.report_pure("pos-link-seam",
       Nat.is_eq(Op.vx_link_ok(C.b_h_seam(),
-        Ty.mk_hv(0n, 1u64), 12n, 12n), 3n),
+        Ty.mk_hv(0n, 1u64), 12n), 3n),
       f235)
     f237 : U64 <- C.report_pure("pos-link-pole",
       Nat.is_eq(Op.vx_link_ok(C.b_h_pole(),
-        Ty.mk_hv(0n, 1u64), 12n, 12n), 3n),
+        Ty.mk_hv(0n, 1u64), 12n), 3n),
       f236)
     f238 : U64 <- C.report_pure("pos-link-disc",
       Nat.is_eq(Op.vx_link_ok(C.b_h_disc(),
-        Ty.mk_hv(0n, 1u64), 20n, 20n), 2n),
+        Ty.mk_hv(0n, 1u64), 20n), 2n),
       f237)
     return f238
 

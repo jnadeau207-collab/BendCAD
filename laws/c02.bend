@@ -21,12 +21,6 @@ def n25p1() -> F64:
 def n25p2() -> F64:
   F64{4719772409752715264u64}
 
-def lim26() -> F64:
-  F64{4724276009111650304u64}
-
-def lim26p1() -> F64:
-  F64{4724276009178759168u64}
-
 def w251() -> F64:
   F64{4611686018427387905u64}
 
@@ -137,40 +131,6 @@ def terr_cls_out(k):
     case T.F_exhausted{}: {==}
 
 # --- Small-integer domain: roundtrip detection, limits, signs ---
-law sint_int:
-  {Bool.and(P.si_ok(P.sint_of(5.0f64, P.lim_o2())),
-    U64.is_eq(P.si_mag(P.sint_of(5.0f64, P.lim_o2())), 5u64))
-    == True{} : Bool}
-
-def sint_int():
-  {==}
-
-law sint_half:
-  {P.si_ok(P.sint_of(0.5f64, P.lim_o2())) == False{} : Bool}
-
-def sint_half():
-  {==}
-
-law sint_lim:
-  {P.si_ok(P.sint_of(lim26(), P.lim_o2())) == True{} : Bool}
-
-def sint_lim():
-  {==}
-
-law sint_big:
-  {P.si_ok(P.sint_of(lim26p1(), P.lim_o2())) == False{} : Bool}
-
-def sint_big():
-  {==}
-
-law sint_neg:
-  {Bool.and(P.si_neg(P.sint_of(F64.neg(3.0f64), P.lim_o2())),
-    U64.is_eq(P.si_mag(P.sint_of(F64.neg(3.0f64), P.lim_o2())), 3u64))
-    == True{} : Bool}
-
-def sint_neg():
-  {==}
-
 # --- orient2d: filter pins, rep zero, exact zero, exact win, uncertain ---
 law o2_ccw:
   {String.eq(P.pres_sign_show(O.orient2d(V.V2{0.0f64, 0.0f64},
@@ -212,12 +172,12 @@ law o2_near_neg:
 def o2_near_neg():
   {==}
 
-law o2_unc:
-  {String.eq(P.pres_show(O.orient2d(V.V2{0.0f64, 0.0f64},
-    V.V2{2.0f64, w251()}, V.V2{4.0f64, 4.0f64})),
-    "numerical-uncertainty") == True{} : Bool}
+law o2_near_exact:
+  {String.eq(P.pres_sign_show(O.orient2d(V.V2{0.0f64, 0.0f64},
+    V.V2{2.0f64, w251()}, V.V2{4.0f64, 4.0f64})), "neg")
+    == True{} : Bool}
 
-def o2_unc():
+def o2_near_exact():
   {==}
 
 law o2_nan_inv:
@@ -245,12 +205,12 @@ law o2_ovf_unc:
 def o2_ovf_unc():
   {==}
 
-law o2_tiny_unc:
-  {String.eq(P.pres_show(O.orient2d(V.V2{0.0f64, 0.0f64},
-    V.V2{tiny500(), 0.0f64}, V.V2{0.0f64, tiny500()})),
-    "numerical-uncertainty") == True{} : Bool}
+law o2_tiny_exact:
+  {String.eq(P.pres_sign_show(O.orient2d(V.V2{0.0f64, 0.0f64},
+    V.V2{tiny500(), 0.0f64}, V.V2{0.0f64, tiny500()})), "pos")
+    == True{} : Bool}
 
-def o2_tiny_unc():
+def o2_tiny_exact():
   {==}
 
 law o2_flip:
@@ -287,13 +247,22 @@ law o3_coplanar_zero:
 def o3_coplanar_zero():
   {==}
 
-law o3_unc:
-  {String.eq(P.pres_show(O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
+law o3_near_exact:
+  {String.eq(P.pres_sign_show(O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
     V.Pt{4.0f64, 0.0f64, 4.0f64}, V.Pt{0.0f64, 4.0f64, 0.0f64},
-    V.Pt{2.0f64, 2.0f64, w251()})), "numerical-uncertainty")
+    V.Pt{2.0f64, 2.0f64, w251()})), "neg")
     == True{} : Bool}
 
-def o3_unc():
+def o3_near_exact():
+  {==}
+
+law o3_ovf_unc:
+  {String.eq(P.pres_show(O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
+    V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}, V.Pt{0.0f64, F64{9218868437227405311u64}, 0.0f64},
+    V.Pt{0.0f64, 0.0f64, F64{9218868437227405311u64}})), "numerical-uncertainty")
+    == True{} : Bool}
+
+def o3_ovf_unc():
   {==}
 
 law o3_nan_inv:
@@ -329,12 +298,20 @@ law ic_on_zero:
 def ic_on_zero():
   {==}
 
-law ic_unc:
-  {String.eq(P.pres_show(O.incircle(V.V2{0.0f64, 0.0f64},
+law ic_near_exact:
+  {String.eq(P.pres_sign_show(O.incircle(V.V2{0.0f64, 0.0f64},
     V.V2{1.0f64, 0.0f64}, V.V2{0.0f64, 1.0f64},
-    V.V2{q148(), 1.0f64})), "numerical-uncertainty") == True{} : Bool}
+    V.V2{q148(), 1.0f64})), "neg") == True{} : Bool}
 
-def ic_unc():
+def ic_near_exact():
+  {==}
+
+law ic_ovf_unc:
+  {String.eq(P.pres_show(O.incircle(V.V2{0.0f64, 0.0f64},
+    V.V2{F64{9218868437227405311u64}, 0.0f64}, V.V2{0.0f64, F64{9218868437227405311u64}},
+    V.V2{1.0f64, 1.0f64})), "numerical-uncertainty") == True{} : Bool}
+
+def ic_ovf_unc():
   {==}
 
 law ic_inf_inv:
@@ -373,14 +350,24 @@ law is_on_zero:
 def is_on_zero():
   {==}
 
-law is_unc:
-  {String.eq(P.pres_show(O.insphere(
+law is_near_exact:
+  {String.eq(P.pres_sign_show(O.insphere(
     V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Pt{0.0f64, 1.0f64, 0.0f64},
     V.Pt{0.0f64, 0.0f64, 1.0f64}, V.Pt{0.0f64, 0.0f64, 0.0f64},
-    V.Pt{q147(), 1.0f64, 1.0f64})), "numerical-uncertainty")
+    V.Pt{q147(), 1.0f64, 1.0f64})), "neg")
     == True{} : Bool}
 
-def is_unc():
+def is_near_exact():
+  {==}
+
+law is_ovf_unc:
+  {String.eq(P.pres_show(O.insphere(
+    V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}, V.Pt{0.0f64, F64{9218868437227405311u64}, 0.0f64},
+    V.Pt{0.0f64, 0.0f64, F64{9218868437227405311u64}}, V.Pt{0.0f64, 0.0f64, 0.0f64},
+    V.Pt{1.0f64, 1.0f64, 1.0f64})), "numerical-uncertainty")
+    == True{} : Bool}
+
+def is_ovf_unc():
   {==}
 
 law is_nan_inv:
@@ -441,12 +428,22 @@ law seg_point_on:
 def seg_point_on():
   {==}
 
-law seg_unc:
-  {String.eq(P.xres_show(O.seg_seg(V.V2{0.0f64, 0.0f64},
+law seg_near_exact:
+  {String.eq(P.xres_rel_show(O.seg_seg(V.V2{0.0f64, 0.0f64},
     V.V2{2.0f64, w251()}, V.V2{4.0f64, 4.0f64},
-    V.V2{5.0f64, 6.0f64})), "numerical-uncertainty") == True{} : Bool}
+    V.V2{5.0f64, 6.0f64})), "disjoint") == True{} : Bool}
 
-def seg_unc():
+def seg_near_exact():
+  {==}
+
+law seg_ovf_unc:
+  {String.eq(P.xres_show(O.seg_seg(V.V2{0.0f64, 0.0f64},
+    V.V2{F64{9218868437227405311u64}, F64{9218868437227405311u64}},
+    V.V2{F64{9218868437227405311u64}, 0.0f64},
+    V.V2{0.0f64, F64{9218868437227405311u64}})), "numerical-uncertainty")
+    == True{} : Bool}
+
+def seg_ovf_unc():
   {==}
 
 # --- tri_class: inside/outside/boundary/degenerate ---

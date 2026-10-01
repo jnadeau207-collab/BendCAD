@@ -53,6 +53,8 @@ if sys.argv[1] == "gen":
     rows = ",\n".join("   C6{" + ", ".join(lit(x) for x in c) + "}" for c in cases)
     prog = f"""import Base
 import {src}/c05/exact.bend as X
+import {src}/base/ex.bend as E
+import {src}/base/par.bend as P
 
 type C6 is Data:
   C6{{ ax: F64, ay: F64, bx: F64, by: F64, cx: F64, cy: F64 }}
@@ -62,7 +64,7 @@ def cs() -> List<&2, C6>:
 
 def row(c: C6) -> String:
   C6{{+ax, +ay, +bx, +by, +cx, +cy}} = c
-  X.sgn_show(X.ex_sign(X.orient2(ax, ay, bx, by, cx, cy))) ++ "/" ++ X.sgn_show(X.orient2s(ax, ay, bx, by, cx, cy))
+  P.sgn_show(E.ex_sign(X.orient2(ax, ay, bx, by, cx, cy))) ++ "/" ++ P.sgn_show(X.orient2s(ax, ay, bx, by, cx, cy))
 
 def rows(xs: List<&2, C6>) -> String:
   match xs:

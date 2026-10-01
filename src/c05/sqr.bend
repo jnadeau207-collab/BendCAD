@@ -1,6 +1,5 @@
 import Base
-import ./exact.bend as X
-import ./par.bend as P
+import ../base/par.bend as P
 
 type Sv is Data:
   Sv{ c: U32, v: F64 }
@@ -31,10 +30,10 @@ def sv_v(s: Sv) -> F64:
   Sv{c, v} = s
   v
 
-def sv_cmp_go(+a: Sv, +b: Sv) -> X.Sgn:
+def sv_cmp_go(+a: Sv, +b: Sv) -> P.Sgn:
   P.u_cmp(sv_c(a), sv_c(b))
 
-def sv_cmp(a: Sv, b: Sv) -> X.Sgn:
+def sv_cmp(a: Sv, b: Sv) -> P.Sgn:
   sv_cmp_go(a, b)
 
 def push_go(z: Bool, +c: U32, +v: F64, acc: List<&2, Sv>) -> List<&2, Sv>:
@@ -49,11 +48,11 @@ def ra_both(+cs: F64, +sn: F64, +c: U32, +a: F64, +e: F64, acc: RA) -> RA:
   RA{r, x} = acc
   RA{push(c, F64.fma(cs, a, (sn * e : F64)), r), push(c, F64.fma(cs, e, F64.neg((sn * a : F64))), x)}
 
-def rot_step(o: X.Sgn, +cs: F64, +sn: F64, +r: Sv, rt: List<&2, Sv>, +x: Sv, xt: List<&2, Sv>,
+def rot_step(o: P.Sgn, +cs: F64, +sn: F64, +r: Sv, rt: List<&2, Sv>, +x: Sv, xt: List<&2, Sv>,
     acc: RA) -> RS:
   match o:
-    case X.Sn{}: RS{rt, x <> xt, ra_both(cs, sn, sv_c(r), sv_v(r), 0.0f64, acc)}
-    case X.Sp{}: RS{r <> rt, xt, ra_both(cs, sn, sv_c(x), 0.0f64, sv_v(x), acc)}
+    case P.Sn{}: RS{rt, x <> xt, ra_both(cs, sn, sv_c(r), sv_v(r), 0.0f64, acc)}
+    case P.Sp{}: RS{r <> rt, xt, ra_both(cs, sn, sv_c(x), 0.0f64, sv_v(x), acc)}
     case _: RS{rt, xt, ra_both(cs, sn, sv_c(r), sv_v(r), sv_v(x), acc)}
 
 def rot_go(fuel: Nat, +cs: F64, +sn: F64, st: RS) -> RA:
@@ -192,10 +191,10 @@ def rr_col(r: Rr) -> U32:
   Rr{xs, b} = r
   rs_col(xs)
 
-def rr_cmp_go(+a: Rr, +b: Rr) -> X.Sgn:
+def rr_cmp_go(+a: Rr, +b: Rr) -> P.Sgn:
   P.u_cmp(rr_col(a), rr_col(b))
 
-def rr_cmp(a: Rr, b: Rr) -> X.Sgn:
+def rr_cmp(a: Rr, b: Rr) -> P.Sgn:
   rr_cmp_go(a, b)
 
 def so_rr(s: P.So<&2, Rr>) -> List<&2, Rr>:
@@ -276,10 +275,10 @@ def ed_v(e: P.Ed) -> U32:
   P.Ed{u, v} = e
   v
 
-def ed_cmp_go(+a: P.Ed, +b: P.Ed) -> X.Sgn:
+def ed_cmp_go(+a: P.Ed, +b: P.Ed) -> P.Sgn:
   P.lex_u(P.u_cmp(ed_u(a), ed_u(b)), ed_v(a), ed_v(b))
 
-def ed_cmp(a: P.Ed, b: P.Ed) -> X.Sgn:
+def ed_cmp(a: P.Ed, b: P.Ed) -> P.Sgn:
   ed_cmp_go(a, b)
 
 def ed_peek(es: List<&2, P.Ed>, +i: U32) -> Bool:

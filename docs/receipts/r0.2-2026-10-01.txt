@@ -1,0 +1,213 @@
+# R0.2 receipt — 2026-10-01 (C04 validation rebuild, C02 exactness)
+
+Packet: R0.2 rebuilds C04 `brep_checked` on a tree-backed store index
+with sort, sweep and pointer-jumping stages (MASTER_PLAN §15), and
+replaces C02's small-integer exact kernel with Shewchuk expansion
+arithmetic so that every finite input of moderate magnitude is decided.
+Contracts: docs/c04-contract.md (§3, matrix rows, new §16),
+docs/c02-contract.md (§2, §4 rewritten, §7, §8, §9, §10).
+
+Predecessor: 4ca8f08 (R0.1).
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD 4ca8f08, branch main.
+BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+(~/.bend/FORK tag numeric/2026-09-29), WSL2, 16 cores, ~19 GB.
+Oracles: Windows CPython 3.14 (Fraction truth for C02; the C05 oracle
+stack of the R0.1 receipt). GitHub Actions for this repository is
+billing-locked; local qualification below is the evidence of record.
+
+Bytes checked by the law runs (sha256 recorded at launch, re-verified
+against the committed tree):
+
+6e0264da4936a3265c4baf0cd1a68822d7756612c03ded292f88ce5425d58f2f  laws/c02.bend
+47e07961972523da3eaee88fd1e634b20933b6c8b26b2a37dd90fc38673c2d2e  laws/c00.bend
+7e8ba9c240ee64159a1d30cd946a96b4fb4f24d72f69080ac093246bded29703  laws/c01.bend
+073d00f408e7f84c77394f29bc3d7a567856b4243969ba6d10548693ea611d4a  laws/c03.bend
+2e34a4e3c62c13953d2cc755cd212a65506c18cebc0d86820415765b178a1997  laws/c04.bend
+a3bcd95b68c923120729dfe7df5c74092331cf9844b55a94f79500a048ab73c6  laws/c05.bend
+6bce30496ac160f196a2095480b39b16169113b447fde61e0609aa1508bd5605  src/base/ex.bend (new; from c05/exact.bend)
+0bfaa8a78c99fab89adad8f8ff5220cb2fc540c26bac27823f84069a3d98dbb0  src/base/par.bend (moved from c05/par.bend, + Sgn)
+c35fe195c2a31734b32e7e81275884b351ccb89f015aa71b8ff1ffda015d6512  src/c00/eval.bend (unchanged)
+8a65740d7118fc27a73903074a41186edfc0ee40078570d15e4e59eee87fb232  src/c00/types.bend (unchanged)
+bdb0b650566d2da226bc0c9f7e81381c185ce72b3068af58e952ea56138df775  src/c01/ops.bend (unchanged)
+1d0bdfbc81a05edff6ca806edebbd025b62a5271592068b25114dc06225ad9fc  src/c01/types.bend (unchanged)
+5f1f9bfe70b90fd54ab0a2977201931fc6dc50a6e1a6123a4ad389cb9d69a5ea  src/c02/ops.bend
+ad9a879d3f1813caf238640dd30a1f69d457e6a89633e6153b02660b1b817804  src/c02/types.bend
+7437f774515312f7308f19201283fd4e2b325a991918d12e6d8083519d116095  src/c03/ops.bend (unchanged)
+0418cc04531b6139925600c44652dbdcd29d18c172119535120617e8762b3823  src/c03/types.bend (unchanged)
+c3876e374f58f36d4372539da75d7be50864da308f4c4f9cfb7f024fba0decbd  src/c04/ops.bend
+82c83155a860903a47bf9a89184601a32b445307dd00099a0b1dd0d68ca82775  src/c04/types.bend
+d4e52d0c62e0d6f97c888a4ecbdf289ebdc19f65889d3f0ff55e1cdf602ce69a  src/c05/arrange.bend (imports only)
+e8abe8d0fecdeae9865837be5c2ecbd158419fc0ca2cdfeb6e51a5c572420527  src/c05/exact.bend (expansions moved out)
+6595ce2c23f778ce1e12d7e838806ba544b84b2692e0ac5d07dbe40d2e560dca  src/c05/solve.bend (imports only)
+a1c726a4e36b4b0921be2fd526ac7b661a39cc2a335f511a39e36217f2c42fcb  src/c05/sqr.bend (imports only)
+
+Tests and tools:
+
+560808df708fc441081dc58ee19eafd3b2ff6efb8c08607c5df45c3f25ca5039  tests/c02/check.bend
+815ebb4bc07dcf404e261a2c17d07ffdbfdcca782c67216f29af6968abb8c8aa  tests/c02/neg.bend
+69a8e4455d776833530e3e99cde2826e5c38b058223f559495f23ab2006a8ca7  tests/c02/pos.bend
+9101f8ca6fa6eb8cb2211dc53817ff9936ff0e171d8a003e9fa2e8b29517fa49  tests/c04/check.bend (unchanged)
+f0cc19fa5f4036fa809243b6db624c89ad3a089766c68188a305577faed791ca  tests/c04/neg.bend (unchanged)
+fafec987276444c7f7a073eb4046efb95b650f0deefef073415b0de9f5f5f9c3  tests/c04/pos.bend (call signatures only)
+8dea781ce5f7be1879f02610fadb32a03322b6323552b0a54655d6c9fdf8a676  tools/oracle/c02/oracles.py (new)
+164dd3c15c597ba9e3f2eb68086246438e6912903f82a98c36f1b1610acf2fe3  tools/oracle/c02/pred_oracle.py (new)
+75570cd08458dd9f02ef14cf22d2cfcf2899faed7ecfeb4be314b8d4a489a1cb  tools/oracle/c04/diff_oracle.py (new)
+cd872e9b01243ae62cbb52bcc4bdd5d8e86ff1fd63583b8aa5c9c80ab46bf7c9  tools/oracle/c04/plant.py (new)
+99281aabea62d316bba309182af3cdafe966c2cbc46424b3016cffbc64e475c5  tools/oracle/c04/disc_rho.bend (new)
+9f02a22839cd306cd332abecfe1550fcdf7c5af2a9e3c4509cfb8ec6b4e76e2b  tools/oracle/c04/ref/ops.bend (4ca8f08 ops.bend, imports repointed)
+34f7513f3bc66857d45699103e460ea697e3100e839bf15669aac1d948506717  tools/bench/bench.py
+5082171dc4e5e787c5704139ec1d841b67a6121c589f5948e0a9dd543d67f381  tools/oracle/c05/ex_oracle.py (imports only)
+
+## 2. Laws
+
+Every law file, checked in full on the pinned bend (`--check-only`),
+detached, sha256 recorded at launch (2026-09-30T14:08:07Z;
+c02 relaunched 2026-10-01T11:01:31Z on its final bytes, §4).
+
+  c00  ALL PROOFS CHECK  1:20     rc=0
+  c01  ALL PROOFS CHECK  9:54     rc=0
+  c02  ALL PROOFS CHECK  9:56     rc=0   (idle machine)
+  c03  ALL PROOFS CHECK  47:51    rc=0
+  c04  ALL PROOFS CHECK  1:08:31  rc=0   (2:15:55 at R0.1)
+  c05  ALL PROOFS CHECK  3:52:31  rc=0, max RSS 1,194,868 KB
+
+(c00–c05 except c02 shared the machine with 16 chunk checks.)
+
+Parallel chunks (lawchunks.py), every chunk ALL PROOFS CHECK:
+c03 2 chunks (201 + 202 laws), c04 6 chunks (99–100 laws each,
+235–1649 s), c05 8 chunks (7–8 laws each, 570–5967 s).
+
+Law counts: c00 38, c01 34, c02 50, c03 403, c04 597, c05 61.
+
+## 3. Suites, three lanes (interp == native == js)
+
+tests/c02/neg.bend  24 PASS  sha256 83f3358bd0b2073305f3bcd60b1939a0fab540942e32de0ef3b6cfa25a870d83
+tests/c02/pos.bend  36 PASS  sha256 44a3bae441a358066841cff6124578c0b305da2b26cb0e2e96b8098bc6ce7c13
+tests/c03/neg.bend  191 PASS sha256 1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638 (identical to 4ca8f08)
+tests/c03/pos.bend  190 PASS sha256 291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943 (identical to 4ca8f08)
+tests/c04/neg.bend  126 PASS sha256 9bace48468977659517e3101c96e359bed4e741194306a54881cfcae65a3258b (identical to 4ca8f08)
+tests/c04/pos.bend  282 PASS sha256 84e3152a5577f98b86d229e58ca00987b32a9a649256d7da9d7e7e759a72d99c (identical to 4ca8f08)
+tests/c05/neg.bend  38 PASS  sha256 ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684 (identical to R0.1)
+tests/c05/pos.bend  41 PASS  sha256 7709eb898367fd4bc86e6f510b75ccdb4221ddf941120e00cf22e82d721643c0 (identical to R0.1)
+
+All selfcheck fails=0.
+
+## 4. Changes to laws (none weakened)
+
+C02 (51 → 50 laws):
+- Restated from `numerical-uncertainty` to the exact verdict:
+  o2_unc → o2_near_exact (neg), o2_tiny_unc → o2_tiny_exact (pos),
+  o3_unc → o3_near_exact (neg), ic_unc → ic_near_exact (neg),
+  is_unc → is_near_exact (neg), seg_unc → seg_near_exact (disjoint).
+  The pre-R0.2 kernel returns numerical-uncertainty on all six
+  (checked by evaluating the five predicate laws' expressions on
+  4ca8f08; seg_unc was itself the old law pinning uncertainty).
+- New, pinning the remaining abstention arm (overflow scale):
+  o3_ovf_unc, ic_ovf_unc, is_ovf_unc, seg_ovf_unc.
+- Removed with the small-integer kernel: sint_int, sint_half,
+  sint_lim, sint_big, sint_neg.
+- seg_near_exact was first written with `xres_show` (prints "ok"
+  for any decided relation) and failed the 2026-09-30 run; corrected
+  to `xres_rel_show`, and c02 rerun in full on the corrected bytes.
+
+C04 (592 → 597 laws): 94 laws that pinned removed walkers or old
+signatures restated on the same micro-fixtures against the index
+internals (contract §16.5 lists the renames); new: l1_seam_use_same,
+l1_orbit_cycle, l1_orbit_tail_step, l1_vxlink_rho, l1_conn_dup_face.
+l1_vxlink_rho pins the one changed verdict (orbit tail → invalid);
+`tools/oracle/c04/disc_rho.bend` shows the pre-R0.2 code returns 0
+(fuel-out) on its fixture at fuel 20 and 2000, the new code 2.
+
+C02 suites: neg-o2-tiny, neg-tri-unc and the integer-domain pins
+replaced by overflow/subnormal abstention pins (neg-*-ovf,
+neg-o2-sub) and exact near-degenerate pins (pos-*-near-exact,
+pos-o2-tiny-exact, pos-seg-near-exact, pos-tri-far-exact).
+
+## 5. Independent oracles (final bytes)
+
+C02 (`python tools/oracle/c02/oracles.py`): 2 seeds × 1324 cases
+(random, near-degenerate by construction, integral and non-integral,
+subnormal and overflow scale) vs Fraction truth:
+  pred_oracle_2: wrong=0, uncertain=13 (moderate-magnitude 0)
+  pred_oracle_3: wrong=0, uncertain=17 (moderate-magnitude 0)
+The 4ca8f08 kernel on the same cases: 464–468 moderate-magnitude
+uncertain per seed.
+
+C04 differential (`python tools/oracle/c04/diff_oracle.py SEED 68`):
+new ops vs 4ca8f08 ops on prisms and holed plates, 17 mutation kinds
+cycled deterministically, single and compound, 14 stage codes plus
+brep_checked compared per case:
+  seed 11:  342 cases, mismatches=0, orbit reclassified=10
+  seed 23:  342 cases, mismatches=0, orbit reclassified=11
+  seed 101: 342 cases, mismatches=0, orbit reclassified=9
+(every reclassified case: old fuel-out at 1000 and at 4000, new
+invalid; counted separately, never as a match).
+
+Planted bugs (`python tools/oracle/c04/plant.py 53 34 …`, final
+oracle bytes; each stage predicate forced to True in turn):
+  predicate      mismatches / 172
+  incid_ok       11
+  use_ok         27
+  lps_loop_ok    108
+  fas_kind_ok    12
+  embed_ok       87
+  link_ok        34
+  shs_conn_ok    15
+  coin_ok        12
+  fas_xing_ok    11
+  recheck_ok     25
+All ten planted bugs detected. (An earlier oracle version drew
+mutation kinds at random and missed the fas_kind_ok plant on one
+seed; kinds are now cycled so every kind runs in every seed, and two
+crossing-targeted kinds were added.)
+
+C05 (`python tools/oracle/c05/oracles.py`): identical to R0.1 —
+ex: wrong=0, differs from exact path 213, uncertain 340 (finite 327);
+arr: 4 × 300 cases, mismatches=0; sol: 4 × 250 cases, wrong=0.
+
+## 6. Measured (native lane, idle machine, `tools/bench/bench.py`)
+
+C04 `brep_checked`, construction included (fuel 10^8 for R0.2):
+
+  workload     entities  4ca8f08            R0.2
+  brep-holes        8    0.00 s             0.00 s
+  brep-holes       40    0.02 s             0.03 s
+  brep-holes      104    0.30 s             0.05 s
+  brep-holes      404   16.23 s             0.19 s
+  brep-holes    1,604    —                  0.83 s
+  brep-holes    6,404    —                  4.98 s
+  brep-prism        8    0.11 s (fuel 1000) 0.04 s
+  brep-prism       20    0.99 s (fuel 1000) 0.07 s
+  brep-prism       40    4.75 s (fuel 1000) 0.13 s
+  brep-prism       80   24.11 s (fuel 1000) 0.24 s
+  brep-prism      200    —                  0.60 s
+  brep-prism      400    —                  1.25 s
+  brep-prism    1,000    —                  3.69 s
+
+4ca8f08 at the bench's fuel 10^8 does not finish the 8-entity prism:
+stack overflow after 305 s at 2.1 GB (its walks scale with the fuel
+cap); its prism rows therefore use fuel 1000, which the differential
+oracle shows is sufficient. Growth: 4ca8f08 ≈ n^2.3 (prism); R0.2
+5× entities → 6.1× time (prism 200 → 1,000), 4× → 6.0× (plate
+1,604 → 6,404). The excess over n log n is construction, which pushes
+one entity at a time onto list stores (O(n) each); the checks
+themselves are sorts and sweeps.
+
+C05 workloads, rerun as a regression check: within noise of the R0.1
+receipt (arr-plate 40,004 segments 5.31 s, sol-rects 24,000
+parameters 2.05 s, sol-chain 10,002 3.72 s, sol-grid 3,200 5.03 s);
+all 25 runs PASS their closed-form checks.
+
+## 7. Not done here
+
+- `push` is O(n) per entity (list stores); a tree-backed bulk builder
+  belongs with C06.
+- Parallel speedup of the C04 stages is not measured separately;
+  stages are sorts and maps over `B.msort`/`B.pmap` but single-cluster
+  wall time is dominated by construction and the sequential stage
+  chain.
+- `--verdict` (Lean kernel) remains unavailable for F64-evaluating
+  laws (AGENTS.md).

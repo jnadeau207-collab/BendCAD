@@ -1,67 +1,23 @@
-# C04 boundary-representation validators: brep_checked under explicit profiles.
-# Data + constructors live in types.bend; this file validates incidence,
-# edge-use pairing, loop closure, trimming, embedding, shell ownership,
-# and solid/open rules.
-# Every failure is C00 FailKind (invalid-input or resource-exhausted); no new
-# taxonomy. Every list walk is Nat-fuel-bounded (BN-8); handles are
-# generational (idx, gen) into explicit Brep lists (BN-7); no batch ops (BN-9).
+# C04 boundary-representation validators: brep_checked under explicit
+# profiles. Data, constructors and the store index (Ty.Ix) live in
+# types.bend. Every failure is a C00 FailKind (invalid-input or
+# resource-exhausted); no new taxonomy.
 #
-# Pipeline (first match wins; order matters for exhausted-vs-invalid):
-#  A. store re-validation via mk_brep (value + gen + nodup; catches raw Br).
-#  B. incidence: every member handle resolves (dangling => invalid).
-#  C. edge-use pairing: solid = exactly twice opposite fwd; open =
-#     once/twice (twice => opposite). Covers inverted,
-#     nonmanifold-edge, open-boundary. This is PAIRING only: face/shell
-#     orientation coherence (outward normals) is DEFERRED, contract §12.
-#  D. loop closure (oriented vertex chain meets + closed) +
-#     duplicate incidence (same coedge handle twice rejected; two
-#     distinct coedges of one edge with opposite fwd are the valid
-#     seam; a closed edge used once is valid; a degenerate use must
-#     be a singleton pole loop) + trimming meets in face (u,v).
-#  E. face loop kinds: exactly one LK_outer per face.
-#  F. hierarchy/profile: every loop owned by at most one face and
-#     every face by at most one shell (both profiles); solid
-#     additionally forbids SK_open, requires outer SK_outer and
-#     cavities SK_inner, every shell owned at most once (no
-#     outer/cavity aliasing, no cavity dup, no reuse across solids,
-#     no sharing between solids and the compound root), and every
-#     solid listed at most once in the compound root; open admits
-#     SK_open and boundary (once-used) edges and skips
-#     solid/cavity/solid-list ownership. Unreachable store slots are
-#     append-only history and never cause ownership rejection.
-#  G. embedding: C03 interior validity + vertex-on-curve (all curves) +
-#     trim-on-surface coincidence for plane/bezp only (sphere/cyl/cone/torus
-#     have no C03 surface eval; their trims pass on uv-meet + finiteness)
-#     + quadric vertex membership (exact ordered-zero test of this
-#     F64 evaluation; overflow rejected; NOT a real-arithmetic test).
-#  H. vertex links (C04.2): every coedge in exactly one loop; each
-#     vertex fan a single twin(prev()) orbit over non-degenerate
-#     outgoing uses (degenerate uses transparent; poles vacuous).
-#  I. shell connectedness (C04.2): each shell's face-edge graph
-#     connected (nodes = the shell's faces; faces adjacent iff they
-#     share one underlying edge; vertex-touching alone does NOT
-#     connect; BFS from the first face; both profiles).
-#  J. coincident distinct vertices: no two vertex slots share one
-#     point (exact C02 pteq3 pairwise; both profiles).
-#  K. same-face straight-edge segment crossing: no two non-adjacent
-#     line-curve edges of one face cross (C02 orient3d coplanarity
-#     + seg_seg proper in xy/xz/yz; curved edges out of scope;
-#     both profiles). FAIL-CLOSED: predicate uncertainty rejects
-#     (uncertain coplanarity counts as coplanar, uncertain
-#     seg_seg counts as proper); a K rejection is NOT a proven
-#     crossing, only a refused clean verdict.
-#  L. orientation, split: L-plane certifies per-face boundary
-#     winding vs the same-adjusted plane normal in the loop
-#     kind's sense (outer aligned, hole opposed) ONLY for
-#     straight-line planar boundaries; L-varying
-#     (sphere/cyl/cone/torus/bezier faces and curved plane
-#     boundaries) explicitly skips as not-determinable (never
-#     fails; certified-vs-skipped counts via
-#     brep_orient_cert_c/_skip_c); every shared edge is
-#     re-traversed as an explicit redundant recheck (same flags
-#     never compared across faces; seams and boundary edges
-#     skip; both profiles).
-# On success returns Tok brep (the validated input); else Terr.
+# Fuel: a stage decides iff fuel covers the brep (Ty.ix_bound: the
+# longest store and member list); otherwise it reports fuel-out (code
+# 0). brep_checked: stores re-validated by mk_brep (A); then exhausted
+# iff fuel < ix_bound; else the verdict is the conjunction of stages
+# B..L, evaluated in pipeline order.
+#
+# Stages (contract section 3): B incidence, C edge-use pairing, D loop
+# closure + duplicate incidence + seam + pole, E one outer loop per
+# face, F hierarchy/profile ownership, G embedding, H vertex links, I
+# shell connectedness, J coincident vertices, K same-face straight-edge
+# crossing (fail-closed), L orientation + explicit recheck. Each stage
+# runs on the index in O(n log n): handle resolution by tree, pairwise
+# scans replaced by sorting and grouping, vertex orbits by pointer
+# jumping on the twin(prev()) functional graph, crossing candidates by
+# a bounding-box sweep.
 
 import Base
 import ../c00/types.bend as T
@@ -70,9 +26,75 @@ import ../c02/types.bend as P
 import ../c02/ops.bend as PO
 import ../c03/types.bend as G
 import ../c03/ops.bend as GO
+import ../base/par.bend as B
 import ./types.bend as Ty
 
-# --- Exact point/vec equality (fixtures use exact values). ---
+type HK is Data:
+  HK{ i: Nat, g: U64 }
+
+type UK is Data:
+  UK{ k: HK, f: Bool }
+
+type UC is Data:
+  UC{ n: Nat, t: Bool, f: Bool, rest: List<&2, UK> }
+
+type PV is Data:
+  PV{ k: HK, l: Nat, j: Nat, p: Ty.HCoedge }
+
+type ET is Data:
+  ET{ k: HK, c: Nat, h: Ty.HCoedge }
+
+type T2 is Data:
+  T2{ k: HK, a: Ty.HCoedge, b: Ty.HCoedge, two: Bool }
+
+type Hmap is Data:
+  Hmap{ pk: B.Tb<&2, HK>, pp: B.Tb<&2, Ty.HCoedge>, tk: B.Tb<&2, HK>, tv: B.Tb<&2, T2> }
+
+type GC is Data:
+  GC{ m: Hmap, x: Ty.Ix, s: B.Tb<&2, HK> }
+
+type JM is Data:
+  JM{ j: U32, m: U32 }
+
+type LN is Data:
+  LN{ lab: U32, n: Nat }
+
+type Orb is Data:
+  Orb{ s: B.Tb<&2, HK>, nx: B.Tb<&2, U32>, cyc: B.Tb<&2, Bool>, lab: B.Tb<&2, U32>, ndc: B.Tb<&2, Nat>, nd: B.Tb<&2, Bool> }
+
+type SV is Data:
+  SV{ k: HK, c: Nat, h: Ty.HCoedge }
+
+type SS is Data:
+  SS{ hs: List<&2, Ty.HCoedge>, rest: List<&2, SV> }
+
+type OC is Data:
+  OC{ o: Orb, x: Ty.Ix }
+
+type CL is Data:
+  CL{ k: HK, l: Nat }
+
+type CN is Data:
+  CN{ n: Nat, rest: List<&2, CL> }
+
+type EP is Data:
+  EP{ k: HK, p: U32 }
+
+type SG is Data:
+  SG{ e: Ty.Edge, a: V.Point, b: V.Point, safe: Bool }
+
+type SP2 is Data:
+  SP2{ safe: List<&2, SG>, risky: List<&2, SG> }
+
+type OCt is Data:
+  OCt{ bad: Bool, cert: Nat, skip: Nat }
+
+type FL is Data:
+  FL{ k: HK, f: Nat, h: Ty.HFace }
+
+type RC is Data:
+  RC{ x: Ty.Ix, ck: B.Tb<&2, HK>, cl: B.Tb<&2, Nat>, lg: B.Tb<&2, Ty.Loop>, fk: B.Tb<&2, HK>, fh: B.Tb<&2, Ty.HFace>, cls: B.Tb<&2, Nat> }
+
 def pt_eq(+a: V.Point, +b: V.Point) -> Bool:
   Bool.and(F64.is_eq(V.pt_x(a), V.pt_x(b)),
     Bool.and(F64.is_eq(V.pt_y(a), V.pt_y(b)),
@@ -82,7 +104,6 @@ def v2_eq(+a: V.Vec2, +b: V.Vec2) -> Bool:
   Bool.and(F64.is_eq(V.v2_x(a), V.v2_x(b)),
     F64.is_eq(V.v2_y(a), V.v2_y(b)))
 
-# --- Trim endpoints in face (u,v). TSeg a->b; TBez b0->b3. ---
 def trim_start(t: G.GVal) -> V.Vec2:
   match t:
     case G.GV_ts{w}:
@@ -109,7 +130,6 @@ def trim_fin(t: G.GVal) -> Bool:
     case G.GV_tb{w}: G.tb_fin(w)
     case _: False{}
 
-# Oriented trim ends by coedge fwd (False swaps).
 def trim_o_start(t: G.GVal, fwd: Bool) -> V.Vec2:
   match fwd:
     case True{}: trim_start(t)
@@ -120,8 +140,6 @@ def trim_o_end(t: G.GVal, fwd: Bool) -> V.Vec2:
     case True{}: trim_end(t)
     case False{}: trim_start(t)
 
-# --- C03 interior validity dispatch (raw GVal interiors; C04 classifiers
-# alone accept bad interiors, so embedding re-validates). ---
 def curve_fin_ok(c: G.GVal, fuel: Nat) -> Bool:
   match c:
     case G.GV_ln{w}: G.ln_valid(w)
@@ -141,7 +159,6 @@ def surf_fin_ok(s: G.GVal) -> Bool:
     case G.GV_bp{w}: G.bp_fin(w)
     case _: False{}
 
-# --- Curve eval at one parameter (Nurb takes fuel; others total). ---
 def curve_at(c: G.GVal, t: F64, fuel: Nat) -> G.GRes:
   match c:
     case G.GV_ln{w}: GO.line_eval(w, t)
@@ -151,8 +168,6 @@ def curve_at(c: G.GVal, t: F64, fuel: Nat) -> G.GRes:
     case G.GV_nb{w}: GO.nurbs_eval(w, t, fuel)
     case _: G.gerr(T.F_invalid{})
 
-# Edge endpoints on curve: v0 == eval(lo), v1 == eval(hi) (exact).
-# Closed edges (v0 handle == v1 handle) still check both ends.
 def edge_ends_on_curve(kind: Ty.EdgeKind, p0: V.Point, p1: V.Point,
     +fuel: Nat) -> Bool:
   match kind:
@@ -166,191 +181,12 @@ def edge_ends_on_curve(kind: Ty.EdgeKind, p0: V.Point, p1: V.Point,
           Bool.and(pt_eq(G.gres_p(r0), p0), pt_eq(G.gres_p(r1), p1))))
     case Ty.EK_degenerate{}: True{}
 
-# --- Surface eval at (u,v) for plane/bezp (others have no C03 eval). ---
 def surf_at(s: G.GVal, u: F64, v: F64) -> G.GRes:
   match s:
     case G.GV_pl{w}: GO.plane_eval(w, u, v)
     case G.GV_bp{w}: GO.bezp_eval(w, u, v)
     case _: G.gerr(T.F_unsupported{})
 
-# --- Stage B incidence: handle-list liveness walks (each handle must
-# resolve; fuel 1 per handle for the walk, full cap per resolve). ---
-def hce_live_c(xs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hce_live_c(t, ces, f, ffull)
-          +ok = Ty.tres_ok(Ty.ce_resolve(ces, h, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hlp_live_c(xs: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_live_c(t, lps, f, ffull)
-          +ok = Ty.tres_ok(Ty.lp_resolve(lps, h, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hfa_live_c(xs: List<&2, Ty.HFace>, +fas: List<&2, Ty.Face>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hfa_live_c(t, fas, f, ffull)
-          +ok = Ty.tres_ok(Ty.fa_resolve(fas, h, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hsh_live_c(xs: List<&2, Ty.HShell>, +shs: List<&2, Ty.Shell>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hsh_live_c(t, shs, f, ffull)
-          +ok = Ty.tres_ok(Ty.sh_resolve(shs, h, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hso_live_c(xs: List<&2, Ty.HSolid>, +sos: List<&2, Ty.Solid>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hso_live_c(t, sos, f, ffull)
-          +ok = Ty.tres_ok(Ty.so_resolve(sos, h, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-# Single-handle liveness (no walk; resolve with full fuel).
-def edge_ends_live(+e: Ty.Edge, +vs: List<&2, Ty.Vertex>,
-    +ffull: Nat) -> Bool:
-  +v0 = Ty.ed_v0(e)
-  +v1 = Ty.ed_v1(e)
-  Bool.and(Ty.tres_ok(Ty.vx_resolve(vs, v0, ffull)),
-    Ty.tres_ok(Ty.vx_resolve(vs, v1, ffull)))
-
-def ce_edge_live(c: Ty.Coedge, es: List<&2, Ty.Edge>,
-    +ffull: Nat) -> Bool:
-  Ty.tres_ok(Ty.ed_resolve(es, Ty.ce_edge(c), ffull))
-
-def so_shells_live(+s: Ty.Solid, +shs: List<&2, Ty.Shell>,
-    +ffull: Nat) -> Nat:
-  +ok_o = Ty.tres_ok(Ty.sh_resolve(shs, Ty.so_outer(s), ffull))
-  +code_c = hsh_live_c(Ty.so_cavities(s), shs, ffull, ffull)
-  Ty.okd_all(Ty.okd_pack(ok_o, True{}), code_c)
-
-# Per-store incidence walks (fuel 1 per slot; sub-resolves get full cap).
-def es_incid_c(es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match es:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = es_incid_c(t, vs, f, ffull)
-          +ok = edge_ends_live(h, vs, ffull)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def ces_incid_c(ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match ces:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = ces_incid_c(t, es, f, ffull)
-          +ok = ce_edge_live(h, es, ffull)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def lps_incid_c(lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match lps:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = lps_incid_c(t, ces, f, ffull)
-          +code = hce_live_c(Ty.lp_ces(h), ces, ffull, ffull)
-          Ty.okd_all(code, rest)
-
-def fas_incid_c(fas: List<&2, Ty.Face>, +lps: List<&2, Ty.Loop>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_incid_c(t, lps, f, ffull)
-          +code = hlp_live_c(Ty.fa_loops(h), lps, ffull, ffull)
-          Ty.okd_all(code, rest)
-
-def shs_incid_c(shs: List<&2, Ty.Shell>, +fas: List<&2, Ty.Face>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match shs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = shs_incid_c(t, fas, f, ffull)
-          +code = hfa_live_c(Ty.sh_faces(h), fas, ffull, ffull)
-          Ty.okd_all(code, rest)
-
-def sos_incid_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match sos:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = sos_incid_c(t, shs, f, ffull)
-          +code = so_shells_live(h, shs, ffull)
-          Ty.okd_all(code, rest)
-
-def top_incid_c(+top: Ty.Compound, sos: List<&2, Ty.Solid>,
-    shs: List<&2, Ty.Shell>, +ffull: Nat) -> Nat:
-  +a = hso_live_c(Ty.cp_solids(top), sos, ffull, ffull)
-  +b = hsh_live_c(Ty.cp_shells(top), shs, ffull, ffull)
-  Ty.okd_all(a, b)
-
-def brep_incid_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  +vs = Ty.brep_vs(b)
-  +es = Ty.brep_es(b)
-  +ces = Ty.brep_ces(b)
-  +lps = Ty.brep_lps(b)
-  +fas = Ty.brep_fas(b)
-  +shs = Ty.brep_shs(b)
-  +sos = Ty.brep_sos(b)
-  +top = Ty.brep_top(b)
-  Ty.okd_all(es_incid_c(es, vs, fuel, fuel),
-    Ty.okd_all(ces_incid_c(ces, es, fuel, fuel),
-      Ty.okd_all(lps_incid_c(lps, ces, fuel, fuel),
-        Ty.okd_all(fas_incid_c(fas, lps, fuel, fuel),
-          Ty.okd_all(shs_incid_c(shs, fas, fuel, fuel),
-            Ty.okd_all(sos_incid_c(sos, shs, fuel, fuel),
-              top_incid_c(top, sos, shs, fuel)))))))
-
-# --- Stage C usage: per-edge coedge count + fwd (solid = twice opposite;
-# open = once or twice-opposite). Inner scan threads (count, sawT, sawF). ---
 def use_rule_ok(+count: Nat, saw_t: Bool, saw_f: Bool,
     p: Ty.Profile) -> Bool:
   match p:
@@ -362,141 +198,6 @@ def use_rule_ok(+count: Nat, saw_t: Bool, saw_f: Bool,
         Bool.and(Nat.is_eq(count, 2n),
           Bool.and(saw_t, saw_f)))
 
-def ces_use_go(ces: List<&2, Ty.Coedge>, +tgt: Ty.HEdge,
-    +prof: Ty.Profile, fuel: Nat, +count: Nat, saw_t: Bool,
-    saw_f: Bool) -> Nat:
-  match ces:
-    case Nil{}:
-      Ty.okd_pack(use_rule_ok(count, saw_t, saw_f, prof), True{})
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +is_m = Ty.he_eq(Ty.ce_edge(h), tgt)
-          +fwd = Ty.ce_fwd(h)
-          +nc = Bool.pick(Nat, is_m, Nat.add(count, 1n), count)
-          +nt = Bool.or(saw_t, Bool.and(is_m, fwd))
-          +nf = Bool.or(saw_f, Bool.and(is_m, Bool.not(fwd)))
-          ces_use_go(t, tgt, prof, f, nc, nt, nf)
-
-def es_use_c(es: List<&2, Ty.Edge>, +ces: List<&2, Ty.Coedge>,
-    +prof: Ty.Profile, fuel: Nat, +ffull: Nat, +idx: Nat) -> Nat:
-  match es:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +gen = Ty.ed_gen(h)
-          +tgt = Ty.mk_he(idx, gen)
-          +code = ces_use_go(ces, tgt, prof, ffull, 0n, False{},
-            False{})
-          +rest = es_use_c(t, ces, prof, f, ffull,
-            Nat.add(idx, 1n))
-          Ty.okd_all(code, rest)
-
-def brep_use_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
-  +es = Ty.brep_es(b)
-  +ces = Ty.brep_ces(b)
-  es_use_c(es, ces, prof, fuel, fuel, 0n)
-
-# --- Stage D duplicate incidence over the loop's coedge handles.
-# (a) The same coedge handle twice in one loop is invalid
-# (hc_nodup_c). (b) Two DISTINCT coedges of one underlying edge
-# are the valid seam iff their fwd flags oppose (loop_seam_go);
-# same-fwd reuse is invalid. (c) A closed edge (v0 == v1,
-# EK_curve) used once is valid by construction (no pair, no
-# duplicate). A repeated VERTEX handle alone is not a verdict:
-# pinch/crossing geometry belongs to stages H/K. ---
-def hc_free_of(xs: List<&2, Ty.HCoedge>, +g: Ty.HCoedge,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hc_free_of(t, g, f)
-          +neq = Bool.not(Ty.hc_eq(h, g))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def hc_nodup_c(xs: List<&2, Ty.HCoedge>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = h
-          Ty.okd_all(hc_free_of(t, hg, ff), hc_nodup_c(t, ff))
-
-# Same-edge pair rule: every later use of head's edge in this loop
-# must carry the opposite fwd (the seam direction). Distinct edges
-# skip. Runs after stage B, so resolves succeed.
-def hc_seam_free_go(tail: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +he: Ty.HEdge, +fw: Bool, +ffull: Nat,
-    fuel: Nat) -> Nat:
-  match tail:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hc_seam_free_go(t, ces, es, he, fw, ffull, f)
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +he2 = Ty.ce_edge(ce)
-          +fw2 = Ty.ce_fwd(ce)
-          +same = Ty.he_eq(he2, he)
-          +opp = Bool.or(Bool.and(fw, Bool.not(fw2)),
-            Bool.and(Bool.not(fw), fw2))
-          +ok = Bool.or(Bool.not(same), opp)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def loop_seam_go(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +ffull: Nat, fuel: Nat) -> Nat:
-  match hcs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +ce0 = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +he0 = Ty.ce_edge(ce0)
-          +fw0 = Ty.ce_fwd(ce0)
-          Ty.okd_all(hc_seam_free_go(t, ces, es, he0, fw0,
-            ffull, ff), loop_seam_go(t, ces, es, ffull, ff))
-
-# Singular/pole rule (d): a loop with no degenerate use passes; a
-# loop with a degenerate (EK_degenerate) use must be exactly that
-# one use — the pole apex pinched to one vertex (value-level
-# edge_valid). Mixed or multi-degenerate loops are invalid.
-def loop_pole_go(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +ffull: Nat, fuel: Nat, +len: Nat, +nd: Nat) -> Nat:
-  match hcs:
-    case Nil{}:
-      +clean = Nat.is_eq(nd, 0n)
-      +pole = Bool.and(Nat.is_eq(len, 1n), Nat.is_eq(nd, 1n))
-      Ty.okd_pack(Bool.or(clean, pole), True{})
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
-            ffull))
-          +isd = U64.is_eq(Ty.ekind_tag(Ty.ed_kind(ed)), 1u64)
-          +nl = Nat.add(len, 1n)
-          +nn = Bool.pick(Nat, isd, Nat.add(nd, 1n), nd)
-          loop_pole_go(t, ces, es, ffull, f, nl, nn)
-
-# Oriented edge endpoints by coedge fwd.
 def o_v_start(+e: Ty.Edge, fwd: Bool) -> Ty.HVertex:
   match fwd:
     case True{}: Ty.ed_v0(e)
@@ -507,1162 +208,68 @@ def o_v_end(+e: Ty.Edge, fwd: Bool) -> Ty.HVertex:
     case True{}: Ty.ed_v1(e)
     case False{}: Ty.ed_v0(e)
 
-# Loop chain tail walk: meets (vertex handles + uv) incremental,
-# closure checked at Nil. Runs after stage B passed, so all
-# resolves succeed ( Tres defaults unreachable ); fuel exhaustion
-# surfaces only from the outer walks. 9 args (arity-safe).
-def loop_rest_go(rest: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, fuel: Nat, +ffull: Nat,
-    +prev_v: Ty.HVertex, +first_v: Ty.HVertex, +prev_t: V.Vec2,
-    +first_t: V.Vec2) -> Nat:
-  match rest:
-    case Nil{}:
-      +close_v = Ty.hv_eq(prev_v, first_v)
-      +close_t = v2_eq(prev_t, first_t)
-      +close_ok = Bool.and(close_v, close_t)
-      Ty.okd_pack(close_ok, True{})
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce), ffull))
-          +fwd = Ty.ce_fwd(ce)
-          +cs = o_v_start(ed, fwd)
-          +ce_ = o_v_end(ed, fwd)
-          +trim = Ty.ce_trim(ce)
-          +ts = trim_o_start(trim, fwd)
-          +te = trim_o_end(trim, fwd)
-          +mv = Ty.hv_eq(prev_v, cs)
-          +mt = v2_eq(prev_t, ts)
-          +step = Bool.and(mv, mt)
-          +rest2 = loop_rest_go(t, ces, es, f, ffull, ce_,
-            first_v, te, first_t)
-          Ty.okd_all(Ty.okd_pack(step, True{}), rest2)
+def newell_add(+n: V.Dir, +p: V.Point, +q: V.Point) -> V.Dir:
+  +nx = F64.add(V.dr_x(n), F64.mul(F64.sub(V.pt_y(p),
+    V.pt_y(q)), F64.add(V.pt_z(p), V.pt_z(q))))
+  +ny = F64.add(V.dr_y(n), F64.mul(F64.sub(V.pt_z(p),
+    V.pt_z(q)), F64.add(V.pt_x(p), V.pt_x(q))))
+  +nz = F64.add(V.dr_z(n), F64.mul(F64.sub(V.pt_x(p),
+    V.pt_x(q)), F64.add(V.pt_y(p), V.pt_y(q))))
+  V.Dr{nx, ny, nz}
 
-# One loop: peel first coedge, then the tail walk (chain meets +
-# closure at Nil), plus the duplicate-incidence verdicts over the
-# full handle list (each sub-walk gets the full cap, §8).
-def loop_one_c(+hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +ffull: Nat) -> Nat:
-  match hcs:
-    case Nil{}: 3n
-    case fh <> rest:
-      +fce = Ty.tres_ce(Ty.ce_resolve(ces, fh, ffull))
-      +fed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(fce), ffull))
-      +ffwd = Ty.ce_fwd(fce)
-      +fvs = o_v_start(fed, ffwd)
-      +fve = o_v_end(fed, ffwd)
-      +ftrim = Ty.ce_trim(fce)
-      +fts = trim_o_start(ftrim, ffwd)
-      +fte = trim_o_end(ftrim, ffwd)
-      +chain = loop_rest_go(rest, ces, es, ffull, ffull, fve,
-        fvs, fte, fts)
-      +dup = hc_nodup_c(hcs, ffull)
-      +seam = loop_seam_go(hcs, ces, es, ffull, ffull)
-      +pole = loop_pole_go(hcs, ces, es, ffull, ffull, 0n, 0n)
-      Ty.okd_all(chain,
-        Ty.okd_all(dup, Ty.okd_all(seam, pole)))
+def dr_is_zero(+d: V.Dir) -> Bool:
+  Bool.and(F64.is_eq(V.dr_x(d), 0.0f64),
+    Bool.and(F64.is_eq(V.dr_y(d), 0.0f64),
+      F64.is_eq(V.dr_z(d), 0.0f64)))
 
-def lps_loop_c(lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, fuel: Nat, +ffull: Nat) -> Nat:
-  match lps:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = lps_loop_c(t, ces, es, f, ffull)
-          +code = loop_one_c(Ty.lp_ces(h), ces, es, ffull)
-          Ty.okd_all(code, rest)
+def dr_neg(+d: V.Dir) -> V.Dir:
+  V.Dr{F64.neg(V.dr_x(d)), F64.neg(V.dr_y(d)),
+    F64.neg(V.dr_z(d))}
 
-def brep_loop_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  +lps = Ty.brep_lps(b)
-  +ces = Ty.brep_ces(b)
-  +es = Ty.brep_es(b)
-  lps_loop_c(lps, ces, es, fuel, fuel)
-
-# --- Stage E face kinds: exactly one LK_outer per face (tag 0). ---
-def hlp_outer_go(hls: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    fuel: Nat, +ffull: Nat, +count: Nat) -> Nat:
-  match hls:
-    case Nil{}:
-      Ty.okd_pack(Nat.is_eq(count, 1n), True{})
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +is_o = U64.is_eq(Ty.lkind_tag(Ty.lp_kind(lp)), 0u64)
-          +nc = Bool.pick(Nat, is_o, Nat.add(count, 1n), count)
-          hlp_outer_go(t, lps, f, ffull, nc)
-
-def fas_kind_c(fas: List<&2, Ty.Face>, +lps: List<&2, Ty.Loop>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_kind_c(t, lps, f, ffull)
-          +code = hlp_outer_go(Ty.fa_loops(h), lps, ffull, ffull, 0n)
-          Ty.okd_all(code, rest)
-
-def brep_facekind_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  +fas = Ty.brep_fas(b)
-  +lps = Ty.brep_lps(b)
-  fas_kind_c(fas, lps, fuel, fuel)
-
-# --- Stage F hierarchy/profile: loops owned by at most one face and
-# faces by at most one shell (both profiles); solid additionally
-# forbids SK_open (tag 2), requires outer SK_outer (tag 0) and
-# cavities SK_inner (tag 1), every shell owned at most once, and
-# every solid listed at most once in the compound root. Runs after
-# stage B, so all resolves succeed (Tres defaults unreachable).
-# Ownership is structural handle comparison over member lists only:
-# unreachable store slots are append-only history and never reject.
-# P_open_shell checks loop/face ownership and skips solid/cavity/
-# solid-list ownership entirely. ---
-def shs_no_open_c(shs: List<&2, Ty.Shell>, fuel: Nat) -> Nat:
-  match shs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = shs_no_open_c(t, f)
-          +ok = U64.is_ne(Ty.skind_tag(Ty.sh_kind(h)), 2u64)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hsh_all_inner_go(hs: List<&2, Ty.HShell>, +shs: List<&2, Ty.Shell>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match hs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hsh_all_inner_go(t, shs, f, ffull)
-          +sh = Ty.tres_sh(Ty.sh_resolve(shs, h, ffull))
-          +ok = U64.is_eq(Ty.skind_tag(Ty.sh_kind(sh)), 1u64)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def sos_cav_inner_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match sos:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = sos_cav_inner_c(t, shs, f, ffull)
-          +code = hsh_all_inner_go(Ty.so_cavities(h), shs, ffull,
-            ffull)
-          Ty.okd_all(code, rest)
-
-def sos_outer_kind_c(sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match sos:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = sos_outer_kind_c(t, shs, f, ffull)
-          +sh = Ty.tres_sh(Ty.sh_resolve(shs, Ty.so_outer(h), ffull))
-          +ok = U64.is_eq(Ty.skind_tag(Ty.sh_kind(sh)), 0u64)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-# One solid's owned shell handles: outer first, then cavities.
-def so_sh_list(+s: Ty.Solid) -> List<&2, Ty.HShell>:
-  Ty.so_outer(s) <> Ty.so_cavities(s)
-
-# HShell absence + nodup (mirrors hc_free_of/hc_nodup_c).
-def hsh_free_of(xs: List<&2, Ty.HShell>, +g: Ty.HShell,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hsh_free_of(t, g, f)
-          +neq = Bool.not(Ty.hsh_eq(h, g))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def hsh_nodup_c(xs: List<&2, Ty.HShell>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = h
-          Ty.okd_all(hsh_free_of(t, hg, ff), hsh_nodup_c(t, ff))
-
-# Every handle in xs absent from ys (fuel 1 per xs element; each
-# absence scan gets the full cap).
-def hsh_list_free_of(xs: List<&2, Ty.HShell>,
-    +ys: List<&2, Ty.HShell>, fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hsh_list_free_of(t, ys, f, ffull)
-          +code = hsh_free_of(ys, h, ffull)
-          Ty.okd_all(code, rest)
-
-# Handles in xs absent from every solid's owned shells in sos.
-def hsh_free_of_sos(+xs: List<&2, Ty.HShell>,
-    +sos: List<&2, Ty.Solid>, fuel: Nat, +ffull: Nat) -> Nat:
-  match sos:
-    case Nil{}: 3n
-    case s <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hsh_free_of_sos(xs, t, f, ffull)
-          +code = hsh_list_free_of(xs, so_sh_list(s), ffull,
-            ffull)
-          Ty.okd_all(code, rest)
-
-# Per-solid ownership: internal nodup (outer not among cavities, no
-# cavity dup) + disjointness from every LATER solid (pairwise across
-# the store by induction, mirroring the nodup_c pattern).
-def sos_own_c(sos: List<&2, Ty.Solid>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match sos:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hh = so_sh_list(h)
-          +self_nd = hsh_nodup_c(hh, ffull)
-          +vs_tail = hsh_free_of_sos(hh, t, ffull, ffull)
-          +rest = sos_own_c(t, ff, ffull)
-          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
-
-# Compound open sheets: nodup + disjoint from every solid's shells.
-def cp_sh_own_c(+top: Ty.Compound, +sos: List<&2, Ty.Solid>,
-    +ffull: Nat) -> Nat:
-  +cs = Ty.cp_shells(top)
-  Ty.okd_all(hsh_nodup_c(cs, ffull),
-    hsh_free_of_sos(cs, sos, ffull, ffull))
-
-# HLoop absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one loop
-# is owned by at most one face (no dup within a face, no sharing
-# across faces). Member-list comparison only; unreachable loop
-# slots are append-only history and never reject.
-def hlp_free_of(xs: List<&2, Ty.HLoop>, +g: Ty.HLoop,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_free_of(t, g, f)
-          +neq = Bool.not(Ty.hlp_eq(h, g))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def hlp_nodup_c(xs: List<&2, Ty.HLoop>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = h
-          Ty.okd_all(hlp_free_of(t, hg, ff), hlp_nodup_c(t, ff))
-
-# Every handle in xs absent from ys (fuel 1 per xs element; each
-# absence scan gets the full cap).
-def hlp_list_free_of(xs: List<&2, Ty.HLoop>,
-    +ys: List<&2, Ty.HLoop>, fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_list_free_of(t, ys, f, ffull)
-          +code = hlp_free_of(ys, h, ffull)
-          Ty.okd_all(code, rest)
-
-# Handles in xs absent from every face's loop list in fas.
-def hlp_free_of_fas(+xs: List<&2, Ty.HLoop>,
-    +fas: List<&2, Ty.Face>, fuel: Nat, +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case fa <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_free_of_fas(xs, t, f, ffull)
-          +code = hlp_list_free_of(xs, Ty.fa_loops(fa), ffull,
-            ffull)
-          Ty.okd_all(code, rest)
-
-# Per-face loop ownership: internal nodup (no loop twice in one
-# face) + disjointness from every LATER face (pairwise across the
-# store by induction, mirroring sos_own_c).
-def fas_loop_own_c(fas: List<&2, Ty.Face>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hh = Ty.fa_loops(h)
-          +self_nd = hlp_nodup_c(hh, ffull)
-          +vs_tail = hlp_free_of_fas(hh, t, ffull, ffull)
-          +rest = fas_loop_own_c(t, ff, ffull)
-          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
-
-# HFace absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one face
-# is owned by at most one shell (no dup within a shell, no sharing
-# across shells). Member-list comparison only; unreachable face
-# slots are append-only history and never reject.
-def hfa_free_of(xs: List<&2, Ty.HFace>, +g: Ty.HFace,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hfa_free_of(t, g, f)
-          +neq = Bool.not(Ty.hfa_eq(h, g))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def hfa_nodup_c(xs: List<&2, Ty.HFace>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = h
-          Ty.okd_all(hfa_free_of(t, hg, ff), hfa_nodup_c(t, ff))
-
-# Every handle in xs absent from ys (fuel 1 per xs element; each
-# absence scan gets the full cap).
-def hfa_list_free_of(xs: List<&2, Ty.HFace>,
-    +ys: List<&2, Ty.HFace>, fuel: Nat, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hfa_list_free_of(t, ys, f, ffull)
-          +code = hfa_free_of(ys, h, ffull)
-          Ty.okd_all(code, rest)
-
-# Handles in xs absent from every shell's face list in shs.
-def hfa_free_of_shs(+xs: List<&2, Ty.HFace>,
-    +shs: List<&2, Ty.Shell>, fuel: Nat, +ffull: Nat) -> Nat:
-  match shs:
-    case Nil{}: 3n
-    case s <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hfa_free_of_shs(xs, t, f, ffull)
-          +code = hfa_list_free_of(xs, Ty.sh_faces(s), ffull,
-            ffull)
-          Ty.okd_all(code, rest)
-
-# Per-shell face ownership: internal nodup (no face twice in one
-# shell) + disjointness from every LATER shell (pairwise across
-# the store by induction, mirroring sos_own_c).
-def shs_face_own_c(shs: List<&2, Ty.Shell>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match shs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hh = Ty.sh_faces(h)
-          +self_nd = hfa_nodup_c(hh, ffull)
-          +vs_tail = hfa_free_of_shs(hh, t, ffull, ffull)
-          +rest = shs_face_own_c(t, ff, ffull)
-          Ty.okd_all(self_nd, Ty.okd_all(vs_tail, rest))
-
-# HSolid absence + nodup (mirrors hsh_free_of/hsh_nodup_c): one
-# solid is listed at most once in the compound root. Member-list
-# comparison only; unreachable solid slots are append-only history
-# and never reject.
-def hso_free_of(xs: List<&2, Ty.HSolid>, +g: Ty.HSolid,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hso_free_of(t, g, f)
-          +neq = Bool.not(Ty.hso_eq(h, g))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def hso_nodup_c(xs: List<&2, Ty.HSolid>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = h
-          Ty.okd_all(hso_free_of(t, hg, ff), hso_nodup_c(t, ff))
-
-# Compound solid list: nodup (mirrors the cp_sh_own_c nodup half;
-# solid-vs-shell disjointness is meaningless — different stores).
-def cp_so_own_c(+top: Ty.Compound, +ffull: Nat) -> Nat:
-  hso_nodup_c(Ty.cp_solids(top), ffull)
-
-def brep_prof_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
-  match prof:
-    case Ty.P_manifold_solid{}:
-      +fas = Ty.brep_fas(b)
-      +shs = Ty.brep_shs(b)
-      +sos = Ty.brep_sos(b)
-      +top = Ty.brep_top(b)
-      Ty.okd_all(fas_loop_own_c(fas, fuel, fuel),
-        Ty.okd_all(shs_face_own_c(shs, fuel, fuel),
-          Ty.okd_all(shs_no_open_c(shs, fuel),
-            Ty.okd_all(sos_cav_inner_c(sos, shs, fuel, fuel),
-              Ty.okd_all(sos_outer_kind_c(sos, shs, fuel, fuel),
-                Ty.okd_all(sos_own_c(sos, fuel, fuel),
-                  Ty.okd_all(cp_sh_own_c(top, sos, fuel),
-                    cp_so_own_c(top, fuel))))))))
-    case Ty.P_open_shell{}:
-      +fas = Ty.brep_fas(b)
-      +shs = Ty.brep_shs(b)
-      Ty.okd_all(fas_loop_own_c(fas, fuel, fuel),
-        shs_face_own_c(shs, fuel, fuel))
-
-# --- Stage G embedding: C03 interiors + vertex-on-curve + trim coincidence
-# (plane/bezp only; other surfaces skip 3D coincidence, see header). ---
-def es_embed_c(es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match es:
-    case Nil{}: 3n
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = es_embed_c(t, vs, f, ffull)
-          +kind = Ty.ed_kind(h)
-          +is_curve = Ty.ekind_is_curve(kind)
-          +cv = Ty.ekind_curve(kind)
-          +fin_ok = Bool.or(Bool.not(is_curve),
-            curve_fin_ok(cv, ffull))
-          +p0 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, Ty.ed_v0(h),
-            ffull)))
-          +p1 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, Ty.ed_v1(h),
-            ffull)))
-          +on_ok = edge_ends_on_curve(kind, p0, p1, ffull)
-          +ok = Bool.and(fin_ok, on_ok)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def ces_trimfin_c(ces: List<&2, Ty.Coedge>, fuel: Nat) -> Nat:
-  match ces:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = ces_trimfin_c(t, f)
-          +ok = trim_fin(Ty.ce_trim(h))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def fas_surf_c(fas: List<&2, Ty.Face>, fuel: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_surf_c(t, f)
-          +ok = surf_fin_ok(Ty.fa_surf(h))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-# One coedge trim coincidence: surf(trim ends) == oriented vertex points.
-# Runs after B (resolves succeed); surf is plane/bezp (eval supported).
-def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +vs: List<&2, Ty.Vertex>,
-    +surf: G.GVal, +ffull: Nat) -> Bool:
-  +fwd = Ty.ce_fwd(ce)
-  +trim = Ty.ce_trim(ce)
-  +ts = trim_o_start(trim, fwd)
-  +te = trim_o_end(trim, fwd)
-  +hv_s = o_v_start(ed, fwd)
-  +hv_e = o_v_end(ed, fwd)
-  +ps = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv_s, ffull)))
-  +pe = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv_e, ffull)))
-  +rs = surf_at(surf, V.v2_x(ts), V.v2_y(ts))
-  +re = surf_at(surf, V.v2_x(te), V.v2_y(te))
-  Bool.and(G.gres_ok(rs),
-    Bool.and(G.gres_ok(re),
-      Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))))
-
-def hce_coinc_go(hcs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, +surf: G.GVal,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match hcs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hce_coinc_go(t, ces, es, vs, surf, f, ffull)
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce), ffull))
-          +ok = ce_coinc_ok(ce, ed, vs, surf, ffull)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)), Ty.okd_done(rest))
-
-def hlp_coinc_go(hls: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +surf: G.GVal, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match hls:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_coinc_go(t, lps, ces, es, vs, surf, f, ffull)
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +code = hce_coinc_go(Ty.lp_ces(lp), ces, es, vs, surf,
-            ffull, ffull)
-          Ty.okd_all(code, rest)
-
-# --- Quadric vertex membership (C04.2 G-extension): every face
-# vertex on the implicit quadric via the C03 *_on predicates. Each
-# is the EXACT ordered-zero test (F64.is_eq(v, 0.0f64); signed zero
-# counts as on) of THIS F64 evaluation with its documented left-fold
-# association — malformed spec, non-unit axis, nonfinite input, or
-# a nonfinite value (true overflow) yields off/False and rejects.
-# This is NOT a real-arithmetic membership test. Trim (u,v)
-# endpoints stay unchecked on quadrics (no surf_at; C03
-# surface-eval extension prerequisite). ---
-def vx_surf_on(+vs: List<&2, Ty.Vertex>, +hv: Ty.HVertex,
-    +surf: G.GVal, +ffull: Nat) -> Bool:
-  match surf:
-    case G.GV_sp{w}:
-      GO.sph_on(w, Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv,
-        ffull))))
-    case G.GV_cy{w}:
-      GO.cyl_on(w, Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv,
-        ffull))))
-    case G.GV_co{w}:
-      GO.cone_on(w, Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv,
-        ffull))))
-    case G.GV_to{w}:
-      GO.tor_on(w, Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, hv,
-        ffull))))
+def surf_is_plane(+s: G.GVal) -> Bool:
+  match s:
+    case G.GV_pl{w}: True{}
     case _: False{}
 
-def hce_memb_go(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +surf: G.GVal, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match hcs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hce_memb_go(t, ces, es, vs, surf, f, ffull)
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
-            ffull))
-          +fw = Ty.ce_fwd(ce)
-          +ok = Bool.and(vx_surf_on(vs, o_v_start(ed, fw),
-              surf, ffull),
-            vx_surf_on(vs, o_v_end(ed, fw), surf, ffull))
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
+def gval_is_line(+c: G.GVal) -> Bool:
+  match c:
+    case G.GV_ln{w}: True{}
+    case _: False{}
 
-def hlp_memb_go(hls: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +surf: G.GVal, fuel: Nat, +ffull: Nat) -> Nat:
-  match hls:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_memb_go(t, lps, ces, es, vs, surf, f,
-            ffull)
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +code = hce_memb_go(Ty.lp_ces(lp), ces, es, vs,
-            surf, ffull, ffull)
-          Ty.okd_all(code, rest)
+def ekind_is_line(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{curve, dom}: gval_is_line(curve)
+    case Ty.EK_degenerate{}: False{}
 
-def face_memb_one(surf: G.GVal, loops: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +ffull: Nat) -> Nat:
+def edge_is_line(+e: Ty.Edge) -> Bool:
+  Ty.Ed{gen, v0, v1, kind} = e
+  ekind_is_line(kind)
+
+def bezp_normal_at(+w: G.BezP, +u: F64, +v: F64) -> G.GRes:
+  +du = GO.bezp_du(w, u, v)
+  +dv = GO.bezp_dv(w, u, v)
+  +ok = Bool.and(G.gres_ok(du), G.gres_ok(dv))
+  +n = GO.dd_cross_raw(G.gres_d(du), G.gres_d(dv))
+  GO.gate_d(n, Bool.and(ok, V.dr_fin(n)), T.F_uncertain{})
+
+def plane_normal_of(+surf: G.GVal) -> G.GRes:
   match surf:
-    case G.GV_sp{w}:
-      hlp_memb_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case G.GV_cy{w}:
-      hlp_memb_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case G.GV_co{w}:
-      hlp_memb_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case G.GV_to{w}:
-      hlp_memb_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case _: 3n
+    case G.GV_pl{w}: GO.plane_normal(w)
+    case _: G.gerr(T.F_unsupported{})
 
-# Per-face coincidence dispatch (plane/bezp checked, others skip 3D).
-def face_coinc_one(surf: G.GVal, loops: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +ffull: Nat) -> Nat:
-  match surf:
-    case G.GV_pl{w}:
-      hlp_coinc_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case G.GV_bp{w}:
-      hlp_coinc_go(loops, lps, ces, es, vs, surf, ffull, ffull)
-    case _: 3n
+def cnt_pack(+count: Nat, +done: Bool) -> Nat:
+  match done:
+    case False{}: 0n
+    case True{}: Nat.add(count, 1n)
 
-def fas_coinc_c(fas: List<&2, Ty.Face>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, fuel: Nat, +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_coinc_c(t, lps, ces, es, vs, f, ffull)
-          +sf = Ty.fa_surf(h)
-          +ll = Ty.fa_loops(h)
-          +code = face_coinc_one(sf, ll, lps, ces, es, vs,
-            ffull)
-          +memb = face_memb_one(sf, ll, lps, ces, es, vs,
-            ffull)
-          Ty.okd_all(code, Ty.okd_all(memb, rest))
+def cnt_done(+c: Nat) -> Bool:
+  Bool.not(Nat.is_eq(c, 0n))
 
-def brep_embed_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  +vs = Ty.brep_vs(b)
-  +es = Ty.brep_es(b)
-  +ces = Ty.brep_ces(b)
-  +lps = Ty.brep_lps(b)
-  +fas = Ty.brep_fas(b)
-  Ty.okd_all(es_embed_c(es, vs, fuel, fuel),
-    Ty.okd_all(ces_trimfin_c(ces, fuel),
-      Ty.okd_all(fas_surf_c(fas, fuel),
-        fas_coinc_c(fas, lps, ces, es, vs, fuel, fuel))))
-
-# --- brep_checked pipeline (sequential via picks; earlier invalid wins over
-# later exhaustion; earlier exhaustion wins over later anything). ---
-# --- Stage H vertex links: single-fan per vertex (solid profile).
-# Fan permutation is twin(prev()) over loop order; one orbit must
-# cover every non-degenerate outgoing use. Degenerate (collapsed)
-# uses are transparent (they subtend no fan sector), so poles pass
-# vacuously when no non-degenerate fan exists. Every coedge must
-# sit in exactly one store loop (traversal well-definedness).
-# Fuel discipline: outer walks decrement fuel; inner scans take
-# constant ffull, exact because stage B already walked every store
-# scanned here (ffull shortage exhausts at B before H runs). ---
-def hc_mem(xs: List<&2, Ty.HCoedge>, +hc: Ty.HCoedge,
-    +ffull: Nat) -> Bool:
-  match xs:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          Bool.or(Ty.hc_eq(h, hc), hc_mem(t, hc, f))
-
-def hc_last_go(xs: List<&2, Ty.HCoedge>, +cand: Ty.HCoedge,
-    +ffull: Nat) -> Ty.HCoedge:
-  match xs:
-    case Nil{}: cand
-    case h <> t:
-      match ffull:
-        case 0n: cand
-        case 1n+f: hc_last_go(t, h, f)
-
-def hc_last(xs: List<&2, Ty.HCoedge>, +dflt: Ty.HCoedge,
-    +ffull: Nat) -> Ty.HCoedge:
-  hc_last_go(xs, dflt, ffull)
-
-def lp_prev_go(xs: List<&2, Ty.HCoedge>, +hc: Ty.HCoedge,
-    +prev: Ty.HCoedge, +ffull: Nat) -> Ty.HCoedge:
-  match xs:
-    case Nil{}: hc
-    case +h <> t:
-      match ffull:
-        case 0n: hc
-        case 1n+f:
-          Bool.pick(Ty.HCoedge, Ty.hc_eq(h, hc), prev,
-            lp_prev_go(t, hc, h, f))
-
-def lp_prev_in(+xs: List<&2, Ty.HCoedge>, +hc: Ty.HCoedge,
-    +ffull: Nat) -> Ty.HCoedge:
-  lp_prev_go(xs, hc, hc_last(xs, hc, ffull), ffull)
-
-def hc_prev(+lps: List<&2, Ty.Loop>, +hc: Ty.HCoedge,
-    +ffull: Nat) -> Ty.HCoedge:
-  match lps:
-    case Nil{}: hc
-    case h <> t:
-      match ffull:
-        case 0n: hc
-        case 1n+f:
-          +ces = Ty.lp_ces(h)
-          Bool.pick(Ty.HCoedge, hc_mem(ces, hc, ffull),
-            lp_prev_in(ces, hc, ffull), hc_prev(t, hc, f))
-
-def hc_twin_go(ces: List<&2, Ty.Coedge>, +se: Ty.HEdge,
-    +shc: Ty.HCoedge, +idx: Nat, +ffull: Nat) -> Ty.HCoedge:
-  match ces:
-    case Nil{}: shc
-    case +h <> t:
-      match ffull:
-        case 0n: shc
-        case 1n+f:
-          +hh = Ty.mk_hc(idx, Ty.ce_gen(h))
-          +hit = Bool.and(Ty.he_eq(Ty.ce_edge(h), se),
-            Bool.not(Ty.hc_eq(hh, shc)))
-          Bool.pick(Ty.HCoedge, hit, hh,
-            hc_twin_go(t, se, shc, Nat.add(idx, 1n), f))
-
-def hc_nondegen(+ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +hc: Ty.HCoedge,
-    +ffull: Nat) -> Bool:
-  +ce = Ty.tres_ce(Ty.ce_resolve(ces, hc, ffull))
-  +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce), ffull))
-  Bool.not(U64.is_eq(Ty.ekind_tag(Ty.ed_kind(ed)), 1u64))
-
-def hc_step(+b: Ty.Brep, +hc: Ty.HCoedge,
-    +ffull: Nat) -> Ty.HCoedge:
-  +p = hc_prev(Ty.brep_lps(b), hc, ffull)
-  +pc = Ty.tres_ce(Ty.ce_resolve(Ty.brep_ces(b), p, ffull))
-  +pe = Ty.ce_edge(pc)
-  hc_twin_go(Ty.brep_ces(b), pe, p, 0n, ffull)
-
-def hc_cov_some(+lps: List<&2, Ty.Loop>, +hc: Ty.HCoedge,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match lps:
-    case Nil{}: 2n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +here = hc_mem(Ty.lp_ces(h), hc, ffull)
-          Bool.pick(Nat, here, 3n, hc_cov_some(t, hc, f, ffull))
-
-def hc_cov_one(+lps: List<&2, Ty.Loop>, +hc: Ty.HCoedge,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match lps:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +here = hc_mem(Ty.lp_ces(h), hc, ffull)
-          +later = hc_cov_some(t, hc, ffull, ffull)
-          +excl = Bool.not(Bool.and(here, Ty.okd_ok(later)))
-          +rest = hc_cov_one(t, hc, f, ffull)
-          Ty.okd_all(Ty.okd_pack(excl, Ty.okd_done(later)), rest)
-
-def ces_cov_go(ces: List<&2, Ty.Coedge>,
-    +lps: List<&2, Ty.Loop>, +idx: Nat, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match ces:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +hh = Ty.mk_hc(idx, Ty.ce_gen(h))
-          +some = hc_cov_some(lps, hh, ffull, ffull)
-          +one = hc_cov_one(lps, hh, ffull, ffull)
-          +rest = ces_cov_go(t, lps, Nat.add(idx, 1n), f, ffull)
-          Ty.okd_all(some, Ty.okd_all(one, rest))
-
-def ces_start_pick(hit: Bool, +hh: Ty.HCoedge,
-    +rest: List<&2, Ty.HCoedge>) -> List<&2, Ty.HCoedge>:
-  match hit:
-    case True{}: hh <> rest
-    case False{}: rest
-
-def ces_start_go(ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +v: Ty.HVertex, +idx: Nat,
-    +ffull: Nat) -> List<&2, Ty.HCoedge>:
-  match ces:
-    case Nil{}: Nil{}
-    case +h <> t:
-      match ffull:
-        case 0n: Nil{}
-        case 1n+f:
-          +hh = Ty.mk_hc(idx, Ty.ce_gen(h))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(h),
-            ffull))
-          +rest = ces_start_go(t, es, v, Nat.add(idx, 1n), f)
-          +hit = Ty.hv_eq(o_v_start(ed, Ty.ce_fwd(h)), v)
-          ces_start_pick(hit, hh, rest)
-
-def hc_count_nd(+ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, ss: List<&2, Ty.HCoedge>,
-    +ffull: Nat) -> Nat:
-  match ss:
-    case Nil{}: 0n
-    case h <> t:
-      match ffull:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hc_count_nd(ces, es, t, f)
-          Bool.pick(Nat, hc_nondegen(ces, es, h, ffull),
-            Nat.add(rest, 1n), rest)
-
-def hc_first_nd(+ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, ss: List<&2, Ty.HCoedge>,
-    +ffull: Nat) -> Ty.HCoedge:
-  match ss:
-    case Nil{}: Ty.hc_null()
-    case +h <> t:
-      match ffull:
-        case 0n: Ty.hc_null()
-        case 1n+f:
-          Bool.pick(Ty.HCoedge, hc_nondegen(ces, es, h, ffull),
-            h, hc_first_nd(ces, es, t, f))
-
-# Closure is tested on the step TARGET before recursing, and the
-# caller seeds k=1 for {start} visited: each orbit element is
-# counted exactly once (H-ORBIT fix: the old code stepped, counted
-# the arrival, and only then tested cur==start, double-counting the
-# closing revisit as steps=nd+1 on every closed single orbit).
-def vorbit_go(+b: Ty.Brep, +start: Ty.HCoedge, fuel: Nat,
-    +cur: Ty.HCoedge, +k: Nat, +ffull: Nat) -> Ty.VOrbit:
-  match fuel:
-    case 0n:
-      Bool.pick(Ty.VOrbit, Ty.hc_eq(cur, start),
-        Ty.VO{k, True{}}, Ty.VO{k, False{}})
-    case 1n+f:
-      +nxt = hc_step(b, cur, ffull)
-      +nn = Bool.pick(Nat,
-        hc_nondegen(Ty.brep_ces(b), Ty.brep_es(b), nxt, ffull),
-        Nat.add(k, 1n), k)
-      Bool.pick(Ty.VOrbit, Ty.hc_eq(nxt, start),
-        Ty.VO{nn, True{}}, vorbit_go(b, start, f, nxt, nn,
-          ffull))
-
-def vx_link_orbit(+b: Ty.Brep, ss: List<&2, Ty.HCoedge>,
-    +nd: Nat, fuel: Nat, +ffull: Nat) -> Nat:
-  +ces = Ty.brep_ces(b)
-  +es = Ty.brep_es(b)
-  +st = hc_first_nd(ces, es, ss, ffull)
-  +c1 = hc_step(b, st, ffull)
-  +vo = Bool.pick(Ty.VOrbit, Ty.hc_eq(c1, st),
-    Ty.VO{1n, True{}}, vorbit_go(b, st, fuel, c1, 1n, ffull))
-  +done = Ty.vo_closed(vo)
-  Ty.okd_pack(Bool.and(done, Nat.is_eq(Ty.vo_steps(vo), nd)),
-    done)
-
-def vx_link_ok(+b: Ty.Brep, +v: Ty.HVertex, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match fuel:
+def cnt_count(+c: Nat) -> Nat:
+  match c:
     case 0n: 0n
-    case 1n+f:
-      +ces = Ty.brep_ces(b)
-      +es = Ty.brep_es(b)
-      +ss = ces_start_go(ces, es, v, 0n, ffull)
-      +nd = hc_count_nd(ces, es, ss, ffull)
-      Bool.pick(Nat, Nat.is_eq(nd, 0n), 3n,
-        vx_link_orbit(b, ss, nd, f, ffull))
+    case 1n+p: p
 
-def vs_link_go(vs: List<&2, Ty.Vertex>, +b: Ty.Brep,
-    +idx: Nat, fuel: Nat, +ffull: Nat) -> Nat:
-  match vs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +vv = Ty.mk_hv(idx, Ty.vx_gen(h))
-          +code = vx_link_ok(b, vv, ffull, ffull)
-          +rest = vs_link_go(t, b, Nat.add(idx, 1n), f, ffull)
-          Ty.okd_all(code, rest)
-
-def brep_link_c(+b: Ty.Brep, +prof: Ty.Profile,
-    +fuel: Nat) -> Nat:
-  match prof:
-    case Ty.P_manifold_solid{}:
-      Ty.okd_all(ces_cov_go(Ty.brep_ces(b), Ty.brep_lps(b),
-        0n, fuel, fuel),
-        vs_link_go(Ty.brep_vs(b), b, 0n, fuel, fuel))
-    case Ty.P_open_shell{}: 3n
-
-# --- Stage I shell connectedness (C04.2): each shell's
-# FACE-EDGE GRAPH is connected. Nodes = the shell's face handles;
-# two faces are adjacent iff some underlying edge (HEdge) appears
-# via any coedge in any loop of BOTH faces (faces_share_edge).
-# Vertex-touching alone does NOT connect: two cells sharing only a
-# vertex are disconnected (b_pinch/b_split separated at H/I on
-# exactly this line). BFS from the first face; dedup seen and
-# frontier so pops stay within the face count. Both profiles: an
-# open sheet is one connected surface too. Inner scans take
-# constant ffull (exact: stage B walked every store scanned here). ---
-def hfa_mem(xs: List<&2, Ty.HFace>, +h: Ty.HFace,
-    +ffull: Nat) -> Bool:
-  match xs:
-    case Nil{}: False{}
-    case g <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          Bool.or(Ty.hfa_eq(g, h), hfa_mem(t, h, f))
-
-def hfa_len(+xs: List<&2, Ty.HFace>, +ffull: Nat) -> Nat:
-  match xs:
-    case Nil{}: 0n
-    case g <> t:
-      match ffull:
-        case 0n: 0n
-        case 1n+f: Nat.add(hfa_len(t, f), 1n)
-
-def hcs_have_edge(hcs: List<&2, Ty.HCoedge>, +tgt: Ty.HEdge,
-    +ces: List<&2, Ty.Coedge>, +ffull: Nat) -> Bool:
-  match hcs:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          Bool.or(Ty.he_eq(Ty.ce_edge(ce), tgt),
-            hcs_have_edge(t, tgt, ces, f))
-
-def hcs_share_edge(hcs1: List<&2, Ty.HCoedge>,
-    +hcs2: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    +ffull: Nat) -> Bool:
-  match hcs1:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          Bool.or(hcs_have_edge(hcs2, Ty.ce_edge(ce), ces,
-            ffull), hcs_share_edge(t, hcs2, ces, f))
-
-def hls_have_edge(+hls2: List<&2, Ty.HLoop>,
-    +lpces: List<&2, Ty.HCoedge>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +ffull: Nat) -> Bool:
-  match hls2:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          Bool.or(hcs_share_edge(lpces, Ty.lp_ces(lp), ces,
-            ffull), hls_have_edge(t, lpces, lps, ces, f))
-
-def hlps_share_edge(hls1: List<&2, Ty.HLoop>,
-    +hls2: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +ffull: Nat) -> Bool:
-  match hls1:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          Bool.or(hls_have_edge(hls2, Ty.lp_ces(lp), lps,
-            ces, ffull), hlps_share_edge(t, hls2, lps, ces,
-            f))
-
-def faces_share_edge(+b: Ty.Brep, +f1: Ty.HFace,
-    +f2: Ty.HFace, +ffull: Nat) -> Bool:
-  +fa1 = Ty.tres_fa(Ty.fa_resolve(Ty.brep_fas(b), f1, ffull))
-  +fa2 = Ty.tres_fa(Ty.fa_resolve(Ty.brep_fas(b), f2, ffull))
-  hlps_share_edge(Ty.fa_loops(fa1), Ty.fa_loops(fa2),
-    Ty.brep_lps(b), Ty.brep_ces(b), ffull)
-
-def sh_seen_add_go(hit: Bool, +seen: List<&2, Ty.HFace>,
-    +f: Ty.HFace) -> List<&2, Ty.HFace>:
-  match hit:
-    case True{}: seen
-    case False{}: f <> seen
-
-def sh_seen_add(+seen: List<&2, Ty.HFace>, +f: Ty.HFace,
-    +ffull: Nat) -> List<&2, Ty.HFace>:
-  sh_seen_add_go(hfa_mem(seen, f, ffull), seen, f)
-
-def sh_front_pick(hit: Bool, +g: Ty.HFace,
-    +rest: List<&2, Ty.HFace>) -> List<&2, Ty.HFace>:
-  match hit:
-    case True{}: g <> rest
-    case False{}: rest
-
-def sh_frontier(+b: Ty.Brep, +f: Ty.HFace,
-    all: List<&2, Ty.HFace>, +seen: List<&2, Ty.HFace>,
-    +ffull: Nat) -> List<&2, Ty.HFace>:
-  match all:
-    case Nil{}: Nil{}
-    case +g <> t:
-      match ffull:
-        case 0n: Nil{}
-        case 1n+h:
-          +rest = sh_frontier(b, f, t, seen, h)
-          +new = Bool.and(faces_share_edge(b, f, g, ffull),
-            Bool.not(hfa_mem(seen, g, ffull)))
-          sh_front_pick(new, g, rest)
-
-def hfa_prepend_pick(hit: Bool, +h: Ty.HFace,
-    +rest: List<&2, Ty.HFace>) -> List<&2, Ty.HFace>:
-  match hit:
-    case True{}: h <> rest
-    case False{}: rest
-
-def hfa_prepend_new(fr: List<&2, Ty.HFace>,
-    +todo: List<&2, Ty.HFace>, +seen: List<&2, Ty.HFace>,
-    +ffull: Nat) -> List<&2, Ty.HFace>:
-  match fr:
-    case Nil{}: todo
-    case +h <> t:
-      match ffull:
-        case 0n: todo
-        case 1n+f:
-          +rest = hfa_prepend_new(t, todo, seen, f)
-          +fresh = Bool.and(Bool.not(hfa_mem(todo, h, ffull)),
-            Bool.not(hfa_mem(seen, h, ffull)))
-          hfa_prepend_pick(fresh, h, rest)
-
-# Fuel-explicit list coverage (I-LEN fix): hfa_len truncates at
-# fuel-out, so comparing truncated lengths alone is fail-open on
-# direct calls with short fuel. Coverage gates both bits.
-def hfa_walked(xs: List<&2, Ty.HFace>, fuel: Nat) -> Bool:
-  match xs:
-    case Nil{}: True{}
-    case h <> t:
-      match fuel:
-        case 0n: False{}
-        case 1n+f: hfa_walked(t, f)
-
-def sh_bfs_done(+seen: List<&2, Ty.HFace>,
-    +all: List<&2, Ty.HFace>, +ffull: Nat) -> Nat:
-  +w = hfa_walked(all, ffull)
-  +eq = Nat.is_eq(hfa_len(seen, ffull), hfa_len(all, ffull))
-  +ok = Bool.and(w, eq)
-  Ty.okd_pack(ok, w)
-
-def sh_bfs_go(+b: Ty.Brep, fuel: Nat,
-    +todo: List<&2, Ty.HFace>, +seen: List<&2, Ty.HFace>,
-    +all: List<&2, Ty.HFace>, +ffull: Nat) -> Nat:
-  match fuel:
-    case 0n:
-      match todo:
-        case Nil{}: sh_bfs_done(seen, all, ffull)
-        case +h <> t: 0n
-    case 1n+f:
-      match todo:
-        case Nil{}: sh_bfs_done(seen, all, ffull)
-        case +h <> t:
-          +seen2 = sh_seen_add(seen, h, ffull)
-          +fr = sh_frontier(b, h, all, seen2, ffull)
-          +todo2 = hfa_prepend_new(fr, t, seen2, ffull)
-          sh_bfs_go(b, f, todo2, seen2, all, ffull)
-
-def sh_conn_faces(+b: Ty.Brep, +faces: List<&2, Ty.HFace>,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match faces:
-    case Nil{}: 3n
-    case f0 <> _:
-      sh_bfs_go(b, fuel, f0 <> Nil{}, Nil{}, faces, ffull)
-
-def sh_conn_shell(+b: Ty.Brep, +sh: Ty.Shell, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  sh_conn_faces(b, Ty.sh_faces(sh), fuel, ffull)
-
-def shs_conn_go(shs: List<&2, Ty.Shell>, +b: Ty.Brep,
-    fuel: Nat, +ffull: Nat) -> Nat:
-  match shs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +code = sh_conn_shell(b, h, ffull, ffull)
-          +rest = shs_conn_go(t, b, f, ffull)
-          Ty.okd_all(code, rest)
-
-def brep_conn_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  shs_conn_go(Ty.brep_shs(b), b, fuel, fuel)
-
-# --- Stage J coincident distinct vertices (C04.2/A1): pairwise exact
-# C02 pteq3 over the vertex store (nodup shape mirrors hc_nodup_c:
-# outer walk decrements, inner scan takes the remaining cap, so fuel
-# >= store length suffices). NaN coordinates never coincide (ordered
-# == is reflexive-false); stage A already rejects nonfinite points.
-# Both profiles. ---
-def vx_coin_pt(+p: V.Point, +q: V.Point) -> Bool:
-  PO.pteq3(V.pt_x(p), V.pt_y(p), V.pt_z(p), V.pt_x(q),
-    V.pt_y(q), V.pt_z(q))
-
-def vs_free_of_pt(xs: List<&2, Ty.Vertex>, +q: V.Point,
-    fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = vs_free_of_pt(t, q, f)
-          +neq = Bool.not(vx_coin_pt(Ty.vx_p(h), q))
-          Ty.okd_pack(Bool.and(neq, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
-
-def vs_coin_c(xs: List<&2, Ty.Vertex>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +qp = Ty.vx_p(h)
-          Ty.okd_all(vs_free_of_pt(t, qp, ff), vs_coin_c(t, ff))
-
-def brep_coin_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  vs_coin_c(Ty.brep_vs(b), fuel)
-
-# --- Stage K same-face straight-edge segment crossing (C04.2/A1):
-# every pair of line-curve edges of one face (across all its loops)
-# with no shared endpoint vertex must not properly cross. Crossing
-# = orient3d-coplanar AND seg_seg-proper in at least one of the
-# xy/xz/yz projections (a proper 3D crossing projects to a shared
-# interior point in every projection; coplanar + proper in one
-# projection lifts to a 3D interior intersection). Degenerate and
-# curved edges skip (general curved intersection is C07). FAIL-CLOSED:
-# predicate uncertainty REJECTS — an orient3d verdict that is not
-# ok counts as coplanar (cop=True), a seg_seg verdict that is not
-# ok counts as proper (segx_proper2=True) — so a K rejection is NOT
-# a proven crossing, only a refused clean verdict. Both profiles. ---
 def gval_is_ln(c: G.GVal) -> Bool:
   match c:
     case G.GV_ln{w}: True{}
@@ -1715,654 +322,1568 @@ def segx_pair(+a: V.Point, +b: V.Point, +c: V.Point,
   +anyp = Bool.or(pxy, Bool.or(pxz, pyz))
   Bool.and(cop, anyp)
 
-def hcs_x_one(+hc1: Ty.HCoedge, hcs2: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, fuel: Nat, +ffull: Nat) -> Nat:
-  match hcs2:
-    case Nil{}: 3n
+def okc(+ok: Bool, +done: Bool) -> Nat:
+  Ty.okd_pack(Bool.and(ok, done), done)
+
+def ck_done(+b: Ty.Brep, +fuel: Nat) -> Bool:
+  Nat.is_le(Ty.ix_bound(b), fuel)
+
+def hk_i(k: HK) -> Nat:
+  HK{i, g} = k
+  i
+
+def hk_g(k: HK) -> U64:
+  HK{i, g} = k
+  g
+
+def nat_cmp_go(+a: Nat, +b: Nat) -> B.Sgn:
+  B.sgn_pick(Nat.is_lt(a, b), Nat.is_lt(b, a))
+
+def hk_tie(c: B.Sgn, +x: U64, +y: U64) -> B.Sgn:
+  match c:
+    case B.Sz{}: Ty.u64_cmp_go(x, y)
+    case _: c
+
+def hk_cmp_go(+a: HK, +b: HK) -> B.Sgn:
+  hk_tie(nat_cmp_go(hk_i(a), hk_i(b)), hk_g(a), hk_g(b))
+
+def hk_cmp(a: HK, b: HK) -> B.Sgn:
+  hk_cmp_go(a, b)
+
+def hk_eq(+a: HK, +b: HK) -> Bool:
+  Bool.and(Nat.is_eq(hk_i(a), hk_i(b)), U64.is_eq(hk_g(a), hk_g(b)))
+
+def so_hk(s: B.So<&2, HK>) -> List<&2, HK>:
+  B.So{ok, xs} = s
+  xs
+
+def hk_adj_go(xs: List<&2, HK>, +prev: HK, first: Bool) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +h <> t: Bool.and(Bool.or(first, Bool.not(hk_eq(h, prev))), hk_adj_go(t, h, False{}))
+
+def hks_distinct(+xs: List<&2, HK>) -> Bool:
+  hk_adj_go(so_hk(B.msort(~HK, ~hk_cmp, xs)), HK{0n, 0u64}, True{})
+
+def hc_key(h: Ty.HCoedge) -> HK:
+  Ty.HC{i, g} = h
+  HK{i, g}
+
+def hl_key(h: Ty.HLoop) -> HK:
+  Ty.HL{i, g} = h
+  HK{i, g}
+
+def hf_key(h: Ty.HFace) -> HK:
+  Ty.HF{i, g} = h
+  HK{i, g}
+
+def hs_key(h: Ty.HShell) -> HK:
+  Ty.HS{i, g} = h
+  HK{i, g}
+
+def ho_key(h: Ty.HSolid) -> HK:
+  Ty.HSo{i, g} = h
+  HK{i, g}
+
+def he_key(h: Ty.HEdge) -> HK:
+  Ty.HE{i, g} = h
+  HK{i, g}
+
+def hv_key(h: Ty.HVertex) -> HK:
+  Ty.HV{i, g} = h
+  HK{i, g}
+
+def hcs_keys(xs: List<&2, Ty.HCoedge>, acc: List<&2, HK>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: hc_key(h) <> hcs_keys(t, acc)
+
+def hls_keys(xs: List<&2, Ty.HLoop>, acc: List<&2, HK>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: hl_key(h) <> hls_keys(t, acc)
+
+def hfs_keys(xs: List<&2, Ty.HFace>, acc: List<&2, HK>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: hf_key(h) <> hfs_keys(t, acc)
+
+def hss_keys(xs: List<&2, Ty.HShell>, acc: List<&2, HK>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: hs_key(h) <> hss_keys(t, acc)
+
+def hos_keys(xs: List<&2, Ty.HSolid>, acc: List<&2, HK>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: ho_key(h) <> hos_keys(t, acc)
+
+def hc_nodup_c(+xs: List<&2, Ty.HCoedge>, +fuel: Nat) -> Nat:
+  okc(hks_distinct(hcs_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HCoedge, xs), fuel))
+
+def hsh_nodup_c(+xs: List<&2, Ty.HShell>, +fuel: Nat) -> Nat:
+  okc(hks_distinct(hss_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HShell, xs), fuel))
+
+def hlp_nodup_c(+xs: List<&2, Ty.HLoop>, +fuel: Nat) -> Nat:
+  okc(hks_distinct(hls_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HLoop, xs), fuel))
+
+def hfa_nodup_c(+xs: List<&2, Ty.HFace>, +fuel: Nat) -> Nat:
+  okc(hks_distinct(hfs_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HFace, xs), fuel))
+
+def hso_nodup_c(+xs: List<&2, Ty.HSolid>, +fuel: Nat) -> Nat:
+  okc(hks_distinct(hos_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HSolid, xs), fuel))
+
+def hcs_live(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_ce(x, h)), hcs_live(t, x))
+
+def hls_live(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_lp(x, h)), hls_live(t, x))
+
+def hfs_live(xs: List<&2, Ty.HFace>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_fa(x, h)), hfs_live(t, x))
+
+def hss_live(xs: List<&2, Ty.HShell>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_sh(x, h)), hss_live(t, x))
+
+def hos_live(xs: List<&2, Ty.HSolid>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_so(x, h)), hos_live(t, x))
+
+def es_live(es: List<&2, Ty.Edge>, +x: Ty.Ix) -> Bool:
+  match es:
+    case Nil{}: True{}
+    case +h <> t:
+      Bool.and(Bool.and(Ty.tres_ok(Ty.ix_vx(x, Ty.ed_v0(h))), Ty.tres_ok(Ty.ix_vx(x, Ty.ed_v1(h)))),
+        es_live(t, x))
+
+def ces_live(cs: List<&2, Ty.Coedge>, +x: Ty.Ix) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_ed(x, Ty.ce_edge(h))), ces_live(t, x))
+
+def lps_live(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
+  match ls:
+    case Nil{}: True{}
+    case h <> t: Bool.and(hcs_live(Ty.lp_ces(h), x), lps_live(t, x))
+
+def fas_live(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  match fs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(hls_live(Ty.fa_loops(h), x), fas_live(t, x))
+
+def shs_live(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
+  match ss:
+    case Nil{}: True{}
+    case h <> t: Bool.and(hfs_live(Ty.sh_faces(h), x), shs_live(t, x))
+
+def sos_live(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
+  match os:
+    case Nil{}: True{}
+    case +h <> t:
+      Bool.and(Bool.and(Ty.tres_ok(Ty.ix_sh(x, Ty.so_outer(h))), hss_live(Ty.so_cavities(h), x)),
+        sos_live(t, x))
+
+def incid_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  +top = Ty.brep_top(b)
+  Bool.and(Bool.and(Bool.and(es_live(Ty.brep_es(b), x), ces_live(Ty.brep_ces(b), x)),
+    Bool.and(lps_live(Ty.brep_lps(b), x), fas_live(Ty.brep_fas(b), x))),
+    Bool.and(Bool.and(shs_live(Ty.brep_shs(b), x), sos_live(Ty.brep_sos(b), x)),
+      Bool.and(hos_live(Ty.cp_solids(top), x), hss_live(Ty.cp_shells(top), x))))
+
+def brep_incid_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(incid_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
+
+def uk_k(u: UK) -> HK:
+  UK{k, f} = u
+  k
+
+def uk_f(u: UK) -> Bool:
+  UK{k, f} = u
+  f
+
+def uk_cmp_go(+a: UK, +b: UK) -> B.Sgn:
+  hk_cmp_go(uk_k(a), uk_k(b))
+
+def uk_cmp(a: UK, b: UK) -> B.Sgn:
+  uk_cmp_go(a, b)
+
+def so_uk(s: B.So<&2, UK>) -> List<&2, UK>:
+  B.So{ok, xs} = s
+  xs
+
+def ces_uks(cs: List<&2, Ty.Coedge>) -> List<&2, UK>:
+  match cs:
+    case Nil{}: []
+    case +h <> t: UK{he_key(Ty.ce_edge(h)), Ty.ce_fwd(h)} <> ces_uks(t)
+
+def uk_lt(+u: UK, +k: HK) -> Bool:
+  B.sgn_is(hk_cmp_go(uk_k(u), k), B.Sn{})
+
+def uk_skip_nx(xs: List<&2, UK>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: uk_lt(h, k)
+
+def uk_skip(xs: List<&2, UK>, +k: HK, go: Bool) -> List<&2, UK>:
+  match xs go:
+    case h <> +t True{}: uk_skip(t, k, uk_skip_nx(t, k))
+    case _ _: xs
+
+def uc_rest(c: UC) -> List<&2, UK>:
+  UC{n, t, f, rest} = c
+  rest
+
+def uk_take_nx(xs: List<&2, UK>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: hk_eq(uk_k(h), k)
+
+def uk_take(xs: List<&2, UK>, +k: HK, +n: Nat, st: Bool, sf: Bool, go: Bool) -> UC:
+  match xs go:
+    case h <> +t True{}:
+      +fw = uk_f(h)
+      uk_take(t, k, Nat.add(n, 1n), Bool.or(st, fw), Bool.or(sf, Bool.not(fw)), uk_take_nx(t, k))
+    case _ _: UC{n, st, sf, xs}
+
+def uc_ok(c: UC, +p: Ty.Profile) -> Bool:
+  UC{+n, t, f, rest} = c
+  use_rule_ok(n, t, f, p)
+
+def use_go(es: List<&2, Ty.Edge>, +i: Nat, +keys: List<&2, UK>, +p: Ty.Profile) -> Bool:
+  match es:
+    case Nil{}: True{}
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hcs_x_one(hc1, t, ces, es, vs, f, ffull)
-          +ce1 = Ty.tres_ce(Ty.ce_resolve(ces, hc1, ffull))
-          +ce2 = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +e1 = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce1),
-            ffull))
-          +e2 = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce2),
-            ffull))
-          +st = Bool.and(ed_straight(e1), ed_straight(e2))
-          +sh = hes_share_end(e1, e2)
-          +p1 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-            Ty.ed_v0(e1), ffull)))
-          +p2 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-            Ty.ed_v1(e1), ffull)))
-          +p3 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-            Ty.ed_v0(e2), ffull)))
-          +p4 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-            Ty.ed_v1(e2), ffull)))
-          +x = segx_pair(p1, p2, p3, p4)
-          +bad = Bool.and(st, Bool.and(Bool.not(sh), x))
-          +ok = Bool.not(bad)
-          Ty.okd_pack(Bool.and(ok, Ty.okd_ok(rest)),
-            Ty.okd_done(rest))
+      +k = {HK{i, Ty.ed_gen(h)} : HK}
+      +s = uk_skip(keys, k, uk_skip_nx(keys, k))
+      +c = uk_take(s, k, 0n, False{}, False{}, uk_take_nx(s, k))
+      Bool.and(uc_ok(c, p), use_go(t, Nat.add(i, 1n), uc_rest(c), p))
 
-def hcs_x_c(hcs1: List<&2, Ty.HCoedge>,
-    +hcs2: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match hcs1:
-    case Nil{}: 3n
+def use_ok(+b: Ty.Brep, +p: Ty.Profile) -> Bool:
+  use_go(Ty.brep_es(b), 0n, so_uk(B.msort(~UK, ~uk_cmp, ces_uks(Ty.brep_ces(b)))), p)
+
+def brep_use_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
+  okc(use_ok(b, prof), ck_done(b, fuel))
+
+def loop_rest_go(rest: List<&2, Ty.HCoedge>, +x: Ty.Ix, +prev_v: Ty.HVertex, +first_v: Ty.HVertex,
+    +prev_t: V.Vec2, +first_t: V.Vec2) -> Bool:
+  match rest:
+    case Nil{}: Bool.and(Ty.hv_eq(prev_v, first_v), v2_eq(prev_t, first_t))
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hcs_x_c(t, hcs2, ces, es, vs, f, ffull)
-          +code = hcs_x_one(h, hcs2, ces, es, vs, ffull,
-            ffull)
-          Ty.okd_all(code, rest)
+      +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+      +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+      +fwd = Ty.ce_fwd(ce)
+      +trim = Ty.ce_trim(ce)
+      +step = Bool.and(Ty.hv_eq(prev_v, o_v_start(ed, fwd)), v2_eq(prev_t, trim_o_start(trim, fwd)))
+      Bool.and(step, loop_rest_go(t, x, o_v_end(ed, fwd), first_v, trim_o_end(trim, fwd), first_t))
 
-def hls_x_one(+hcs1: List<&2, Ty.HCoedge>,
-    hls2: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, fuel: Nat, +ffull: Nat) -> Nat:
-  match hls2:
-    case Nil{}: 3n
+def hcs_uks(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> List<&2, UK>:
+  match xs:
+    case Nil{}: []
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hls_x_one(hcs1, t, lps, ces, es, vs, f,
-            ffull)
-          +lp2 = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +code = hcs_x_c(hcs1, Ty.lp_ces(lp2), ces, es, vs,
-            ffull, ffull)
-          Ty.okd_all(code, rest)
+      +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+      UK{he_key(Ty.ce_edge(ce)), Ty.ce_fwd(ce)} <> hcs_uks(t, x)
 
-def hls_x_c(hls1: List<&2, Ty.HLoop>,
-    +hls2: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, fuel: Nat, +ffull: Nat) -> Nat:
-  match hls1:
-    case Nil{}: 3n
+def seam_go(xs: List<&2, UK>, +pk: HK, +pf: Bool, +run: Nat) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +h <> t:
+      +same = Bool.and(Nat.is_lt(0n, run), hk_eq(uk_k(h), pk))
+      +f = uk_f(h)
+      +n2 = Bool.pick(Nat, same, Nat.add(run, 1n), 1n)
+      +bad = Bool.and(same, Bool.or(Nat.is_le(2n, run), Bool.not(Bool.xor(f, pf))))
+      Bool.and(Bool.not(bad), seam_go(t, uk_k(h), f, n2))
+
+def loop_seam_ok(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  seam_go(so_uk(B.msort(~UK, ~uk_cmp, hcs_uks(hcs, x))), HK{0n, 0u64}, False{}, 0n)
+
+def ed_degen(+e: Ty.Edge) -> Bool:
+  U64.is_eq(Ty.ekind_tag(Ty.ed_kind(e)), 1u64)
+
+def hcs_ndeg(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Nat:
+  match xs:
+    case Nil{}: 0n
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hls_x_c(t, hls2, lps, ces, es, vs, f,
-            ffull)
-          +lp1 = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +code = hls_x_one(Ty.lp_ces(lp1), hls2, lps, ces,
-            es, vs, ffull, ffull)
-          Ty.okd_all(code, rest)
+      +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))
+      Nat.add(Bool.pick(Nat, ed_degen(ed), 1n, 0n), hcs_ndeg(t, x))
 
-def fas_xing_c(fas: List<&2, Ty.Face>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
+def loop_pole_ok(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  +nd = hcs_ndeg(hcs, x)
+  Bool.or(Nat.is_eq(nd, 0n), Bool.and(Nat.is_eq(List.length(&2, Ty.HCoedge, hcs), 1n), Nat.is_eq(nd, 1n)))
+
+def loop_one_ok(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  match hcs:
+    case Nil{}: True{}
+    case +fh <> +rest:
+      +fce = Ty.tres_ce(Ty.ix_ce(x, fh))
+      +fed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(fce)))
+      +ffwd = Ty.ce_fwd(fce)
+      +ftrim = Ty.ce_trim(fce)
+      +all = {fh <> rest : List<&2, Ty.HCoedge>}
+      +chain = loop_rest_go(rest, x, o_v_end(fed, ffwd), o_v_start(fed, ffwd),
+        trim_o_end(ftrim, ffwd), trim_o_start(ftrim, ffwd))
+      Bool.and(Bool.and(chain, hks_distinct(hcs_keys(all, []))),
+        Bool.and(loop_seam_ok(all, x), loop_pole_ok(all, x)))
+
+def lps_loop_ok(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
+  match ls:
+    case Nil{}: True{}
+    case h <> t: Bool.and(loop_one_ok(Ty.lp_ces(h), x), lps_loop_ok(t, x))
+
+def brep_loop_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(lps_loop_ok(Ty.brep_lps(b), Ty.ix_of(b)), ck_done(b, fuel))
+
+def hls_outer(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> Nat:
+  match xs:
+    case Nil{}: 0n
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_xing_c(t, lps, ces, es, vs, f, ffull)
-          +ll = Ty.fa_loops(h)
-          +code = hls_x_c(ll, ll, lps, ces, es, vs, ffull,
-            ffull)
-          Ty.okd_all(code, rest)
+      +o = U64.is_eq(Ty.lkind_tag(Ty.lp_kind(Ty.tres_lp(Ty.ix_lp(x, h)))), 0u64)
+      Nat.add(Bool.pick(Nat, o, 1n, 0n), hls_outer(t, x))
 
-def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  fas_xing_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
-    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel)
+def fas_kind_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  match fs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Nat.is_eq(hls_outer(Ty.fa_loops(h), x), 1n), fas_kind_ok(t, x))
 
-# --- Stage L orientation, part 1: L-plane (certified) vs L-varying
-# (explicit skip). A loop earns a CERTIFIED winding verdict only on
-# a PLANE face bounded entirely by STRAIGHT-LINE edges: its Newell
-# sum over the oriented vertex chain is then the boundary-geometry
-# normal and must agree with the same-adjusted plane normal in the
-# sense its KIND demands (outer aligned, dot > 0; hole opposed,
-# dot < 0). Every other loop is NOT DETERMINABLE and SKIPS
-# (passes): sphere/cylinder/cone/torus/bezier faces (a varying
-# normal admits no one-sample dot verdict), curved boundaries on
-# planes (no chord-only claims: the vertex polygon is not the
-# boundary), zero-area winding, an unavailable normal, a nonfinite
-# dot, or an orthogonal sample (dot == 0 never hard-fails). The
-# check fires ONLY on a strictly wrong-signed FINITE dot, i.e.
-# positive evidence of a winding/normal mismatch. Both profiles.
-# Certified-vs-skipped counts are reported by brep_orient_cert_c /
-# brep_orient_skip_c (cnt-packed; verdict and counts share the
-# loop_orient_class core, so they agree by construction). ---
-def newell_add(+n: V.Dir, +p: V.Point, +q: V.Point) -> V.Dir:
-  +nx = F64.add(V.dr_x(n), F64.mul(F64.sub(V.pt_y(p),
-    V.pt_y(q)), F64.add(V.pt_z(p), V.pt_z(q))))
-  +ny = F64.add(V.dr_y(n), F64.mul(F64.sub(V.pt_z(p),
-    V.pt_z(q)), F64.add(V.pt_x(p), V.pt_x(q))))
-  +nz = F64.add(V.dr_z(n), F64.mul(F64.sub(V.pt_x(p),
-    V.pt_x(q)), F64.add(V.pt_y(p), V.pt_y(q))))
-  V.Dr{nx, ny, nz}
+def brep_facekind_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(fas_kind_ok(Ty.brep_fas(b), Ty.ix_of(b)), ck_done(b, fuel))
 
-def dr_is_zero(+d: V.Dir) -> Bool:
-  Bool.and(F64.is_eq(V.dr_x(d), 0.0f64),
-    Bool.and(F64.is_eq(V.dr_y(d), 0.0f64),
-      F64.is_eq(V.dr_z(d), 0.0f64)))
+def so_sh_list(+s: Ty.Solid) -> List<&2, Ty.HShell>:
+  Ty.so_outer(s) <> Ty.so_cavities(s)
 
-def dr_neg(+d: V.Dir) -> V.Dir:
-  V.Dr{F64.neg(V.dr_x(d)), F64.neg(V.dr_y(d)),
-    F64.neg(V.dr_z(d))}
+def fas_lkeys(fs: List<&2, Ty.Face>) -> List<&2, HK>:
+  match fs:
+    case Nil{}: []
+    case h <> t: hls_keys(Ty.fa_loops(h), fas_lkeys(t))
 
-def hcs_walked(xs: List<&2, Ty.HCoedge>, fuel: Nat) -> Bool:
+def shs_fkeys(ss: List<&2, Ty.Shell>) -> List<&2, HK>:
+  match ss:
+    case Nil{}: []
+    case h <> t: hfs_keys(Ty.sh_faces(h), shs_fkeys(t))
+
+def sos_skeys(os: List<&2, Ty.Solid>, acc: List<&2, HK>) -> List<&2, HK>:
+  match os:
+    case Nil{}: acc
+    case h <> t: hss_keys(so_sh_list(h), sos_skeys(t, acc))
+
+def shs_no_open(ss: List<&2, Ty.Shell>) -> Bool:
+  match ss:
+    case Nil{}: True{}
+    case h <> t: Bool.and(U64.is_ne(Ty.skind_tag(Ty.sh_kind(h)), 2u64), shs_no_open(t))
+
+def hss_kind(xs: List<&2, Ty.HShell>, +x: Ty.Ix, +tag: U64) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(U64.is_eq(Ty.skind_tag(Ty.sh_kind(Ty.tres_sh(Ty.ix_sh(x, h)))), tag), hss_kind(t, x, tag))
+
+def sos_kinds(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
+  match os:
+    case Nil{}: True{}
+    case +h <> t:
+      Bool.and(Bool.and(hss_kind([Ty.so_outer(h)], x, 0u64), hss_kind(Ty.so_cavities(h), x, 1u64)),
+        sos_kinds(t, x))
+
+def prof_ok(+b: Ty.Brep, +x: Ty.Ix, p: Ty.Profile) -> Bool:
+  match p:
+    case Ty.P_manifold_solid{}:
+      +top = Ty.brep_top(b)
+      +own = Bool.and(hks_distinct(fas_lkeys(Ty.brep_fas(b))), hks_distinct(shs_fkeys(Ty.brep_shs(b))))
+      +sh = hks_distinct(sos_skeys(Ty.brep_sos(b), hss_keys(Ty.cp_shells(top), [])))
+      Bool.and(Bool.and(own, sh), Bool.and(Bool.and(shs_no_open(Ty.brep_shs(b)), sos_kinds(Ty.brep_sos(b), x)),
+        hks_distinct(hos_keys(Ty.cp_solids(top), []))))
+    case Ty.P_open_shell{}:
+      Bool.and(hks_distinct(fas_lkeys(Ty.brep_fas(b))), hks_distinct(shs_fkeys(Ty.brep_shs(b))))
+
+def brep_prof_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
+  okc(prof_ok(b, Ty.ix_of(b), prof), ck_done(b, fuel))
+
+def es_embed_ok(es: List<&2, Ty.Edge>, +x: Ty.Ix, +fuel: Nat) -> Bool:
+  match es:
+    case Nil{}: True{}
+    case +h <> t:
+      +kind = Ty.ed_kind(h)
+      +fin_ok = Bool.or(Bool.not(Ty.ekind_is_curve(kind)), curve_fin_ok(Ty.ekind_curve(kind), fuel))
+      +p0 = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v0(h))))
+      +p1 = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v1(h))))
+      Bool.and(Bool.and(fin_ok, edge_ends_on_curve(kind, p0, p1, fuel)), es_embed_ok(t, x, fuel))
+
+def ces_trim_ok(cs: List<&2, Ty.Coedge>) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(trim_fin(Ty.ce_trim(h)), ces_trim_ok(t))
+
+def fas_surf_ok(fs: List<&2, Ty.Face>) -> Bool:
+  match fs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(surf_fin_ok(Ty.fa_surf(h)), fas_surf_ok(t))
+
+def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
+  +fwd = Ty.ce_fwd(ce)
+  +trim = Ty.ce_trim(ce)
+  +ts = trim_o_start(trim, fwd)
+  +te = trim_o_end(trim, fwd)
+  +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_start(ed, fwd))))
+  +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_end(ed, fwd))))
+  +rs = surf_at(surf, V.v2_x(ts), V.v2_y(ts))
+  +re = surf_at(surf, V.v2_x(te), V.v2_y(te))
+  Bool.and(G.gres_ok(rs), Bool.and(G.gres_ok(re), Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))))
+
+def pt_on(surf: G.GVal, +p: V.Point) -> Bool:
+  match surf:
+    case G.GV_sp{w}: GO.sph_on(w, p)
+    case G.GV_cy{w}: GO.cyl_on(w, p)
+    case G.GV_co{w}: GO.cone_on(w, p)
+    case G.GV_to{w}: GO.tor_on(w, p)
+    case _: False{}
+
+def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
+  pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))
+
+def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool) -> Bool:
   match xs:
     case Nil{}: True{}
     case h <> t:
-      match fuel:
-        case 0n: False{}
-        case 1n+f: hcs_walked(t, f)
+      +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+      +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+      +fw = Ty.ce_fwd(ce)
+      +c = Bool.or(Bool.not(coinc), ce_coinc_ok(ce, ed, x, surf))
+      +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_on(x, o_v_start(ed, fw), surf), vx_surf_on(x, o_v_end(ed, fw), surf)))
+      Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb))
 
-def lp_newell_go(rest: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, fuel: Nat, +ffull: Nat,
-    +prev: V.Point, +first: V.Point, +n: V.Dir) -> V.Dir:
+def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(hcs_face_ok(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, surf, coinc, memb), hls_face_ok(t, x, surf, coinc, memb))
+
+def surf_coinc(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_pl{w}: True{}
+    case G.GV_bp{w}: True{}
+    case _: False{}
+
+def surf_quad(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_sp{w}: True{}
+    case G.GV_cy{w}: True{}
+    case G.GV_co{w}: True{}
+    case G.GV_to{w}: True{}
+    case _: False{}
+
+def fas_coinc_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  match fs:
+    case Nil{}: True{}
+    case +h <> t:
+      +sf = Ty.fa_surf(h)
+      Bool.and(hls_face_ok(Ty.fa_loops(h), x, sf, surf_coinc(sf), surf_quad(sf)), fas_coinc_ok(t, x))
+
+def embed_ok(+b: Ty.Brep, +x: Ty.Ix, +fuel: Nat) -> Bool:
+  Bool.and(Bool.and(es_embed_ok(Ty.brep_es(b), x, fuel), ces_trim_ok(Ty.brep_ces(b))),
+    Bool.and(fas_surf_ok(Ty.brep_fas(b)), fas_coinc_ok(Ty.brep_fas(b), x)))
+
+def brep_embed_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(embed_ok(b, Ty.ix_of(b), fuel), ck_done(b, fuel))
+
+def hk_top() -> HK:
+  HK{U64.to_nat(281474976710655u64), 18446744073709551615u64}
+
+def hk_lt(+a: HK, +b: HK) -> Bool:
+  B.sgn_is(hk_cmp_go(a, b), B.Sn{})
+
+def trk_min(t: B.Tr<&2, HK>) -> HK:
+  match t:
+    case B.TL{v}: v
+    case B.TN{l, r}: trk_min(l)
+
+def kz_of(t: B.Tr<&2, HK>, +k: HK) -> Bool:
+  match t:
+    case B.TL{v}: False{}
+    case B.TN{l, r}: hk_lt(k, trk_min(r))
+
+def kf_go(t: B.Tr<&2, HK>, +k: HK, +base: U32, +n: U32, z: Bool) -> U32:
+  match t z:
+    case B.TL{v} _: base
+    case B.TN{+l, r} True{}: kf_go(l, k, base, U32.shr(n), kz_of(l, k))
+    case B.TN{l, +r} False{}:
+      +h = U32.shr(n)
+      kf_go(r, k, (base + h : U32), h, kz_of(r, k))
+
+def kfind(tb: B.Tb<&2, HK>, +k: HK) -> U32:
+  B.Tb{+n, +t} = tb
+  kf_go(t, k, 0, n, kz_of(t, k))
+
+def ktb(+ks: List<&2, HK>) -> B.Tb<&2, HK>:
+  B.tb_of(HK, ks, hk_top())
+
+def khas(+tb: B.Tb<&2, HK>, +k: HK) -> Bool:
+  hk_eq(B.tb_get(HK, tb, kfind(tb, k)), k)
+
+def hk_keep(c: Bool, +h: HK, rest: List<&2, HK>) -> List<&2, HK>:
+  match c:
+    case True{}: h <> rest
+    case False{}: rest
+
+def hk_uniq(xs: List<&2, HK>, +prev: HK, first: Bool) -> List<&2, HK>:
+  match xs:
+    case Nil{}: []
+    case +h <> t: hk_keep(Bool.or(first, Bool.not(hk_eq(h, prev))), h, hk_uniq(t, h, False{}))
+
+def hks_sorted_uniq(+xs: List<&2, HK>) -> List<&2, HK>:
+  hk_uniq(so_hk(B.msort(~HK, ~hk_cmp, xs)), HK{0n, 0u64}, True{})
+
+def hc_of(k: HK) -> Ty.HCoedge:
+  HK{i, g} = k
+  Ty.mk_hc(i, g)
+
+def pv_k(x: PV) -> HK:
+  PV{k, l, j, p} = x
+  k
+
+def pv_p(x: PV) -> Ty.HCoedge:
+  PV{k, l, j, p} = x
+  p
+
+def hk_tie2(c: B.Sgn, +a: Nat, +b: Nat) -> B.Sgn:
+  match c:
+    case B.Sz{}: nat_cmp_go(a, b)
+    case _: c
+
+def pv_tie(c: B.Sgn, +la: Nat, +lb: Nat, +ja: Nat, +jb: Nat) -> B.Sgn:
+  match c:
+    case B.Sz{}: hk_tie2(nat_cmp_go(la, lb), ja, jb)
+    case _: c
+
+def pv_cmp_go(+a: PV, +b: PV) -> B.Sgn:
+  PV{ka, la, ja, pa} = a
+  PV{kb, lb, jb, pb} = b
+  pv_tie(hk_cmp_go(ka, kb), la, lb, ja, jb)
+
+def pv_cmp(a: PV, b: PV) -> B.Sgn:
+  pv_cmp_go(a, b)
+
+def so_pv(s: B.So<&2, PV>) -> List<&2, PV>:
+  B.So{ok, xs} = s
+  xs
+
+def hc_last(xs: List<&2, Ty.HCoedge>, +d: Ty.HCoedge) -> Ty.HCoedge:
+  match xs:
+    case Nil{}: d
+    case h <> t: hc_last(t, h)
+
+def pv_loop(hs: List<&2, Ty.HCoedge>, +l: Nat, +j: Nat, +prev: Ty.HCoedge, acc: List<&2, PV>) -> List<&2, PV>:
+  match hs:
+    case Nil{}: acc
+    case +h <> t: PV{hc_key(h), l, j, prev} <> pv_loop(t, l, Nat.add(j, 1n), h, acc)
+
+def pv_all(ls: List<&2, Ty.Loop>, +l: Nat) -> List<&2, PV>:
+  match ls:
+    case Nil{}: []
+    case h <> t:
+      +hs = Ty.lp_ces(h)
+      pv_loop(hs, l, 0n, hc_last(hs, Ty.hc_null()), pv_all(t, Nat.add(l, 1n)))
+
+def pv_keep(c: Bool, +h: PV, rest: List<&2, PV>) -> List<&2, PV>:
+  match c:
+    case True{}: h <> rest
+    case False{}: rest
+
+def pv_first(xs: List<&2, PV>, +prev: HK, first: Bool) -> List<&2, PV>:
+  match xs:
+    case Nil{}: []
+    case +h <> t: pv_keep(Bool.or(first, Bool.not(hk_eq(pv_k(h), prev))), h, pv_first(t, pv_k(h), False{}))
+
+def pvs_ks(xs: List<&2, PV>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: []
+    case h <> t: pv_k(h) <> pvs_ks(t)
+
+def pvs_ps(xs: List<&2, PV>) -> List<&2, Ty.HCoedge>:
+  match xs:
+    case Nil{}: []
+    case h <> t: pv_p(h) <> pvs_ps(t)
+
+def et_k(x: ET) -> HK:
+  ET{k, c, h} = x
+  k
+
+def et_h(x: ET) -> Ty.HCoedge:
+  ET{k, c, h} = x
+  h
+
+def et_cmp_go(+a: ET, +b: ET) -> B.Sgn:
+  ET{ka, ca, ha} = a
+  ET{kb, cb, hb} = b
+  hk_tie2(hk_cmp_go(ka, kb), ca, cb)
+
+def et_cmp(a: ET, b: ET) -> B.Sgn:
+  et_cmp_go(a, b)
+
+def so_et(s: B.So<&2, ET>) -> List<&2, ET>:
+  B.So{ok, xs} = s
+  xs
+
+def ets_of(cs: List<&2, Ty.Coedge>, +i: Nat) -> List<&2, ET>:
+  match cs:
+    case Nil{}: []
+    case +h <> t: ET{he_key(Ty.ce_edge(h)), i, Ty.mk_hc(i, Ty.ce_gen(h))} <> ets_of(t, Nat.add(i, 1n))
+
+def t2_k(x: T2) -> HK:
+  T2{k, a, b, two} = x
+  k
+
+def t2_emit(+n: Nat, +k: HK, +a: Ty.HCoedge, +b: Ty.HCoedge, acc: List<&2, T2>) -> List<&2, T2>:
+  match n:
+    case 0n: acc
+    case 1n+m: T2{k, a, b, Nat.is_lt(1n, n)} <> acc
+
+def t2_grp(xs: List<&2, ET>, +cur: HK, +a: Ty.HCoedge, +b: Ty.HCoedge, +n: Nat, +acc: List<&2, T2>) -> List<&2, T2>:
+  match xs:
+    case Nil{}: t2_emit(n, cur, a, b, acc)
+    case +h <> t:
+      +same = Bool.and(Nat.is_lt(0n, n), hk_eq(et_k(h), cur))
+      t2_grp(t, et_k(h), Bool.pick(Ty.HCoedge, same, a, et_h(h)), Bool.pick(Ty.HCoedge, Bool.and(same, Nat.is_eq(n, 1n)), et_h(h), Bool.pick(Ty.HCoedge, same, b, Ty.hc_null())),
+        Bool.pick(Nat, same, Nat.add(n, 1n), 1n), Bool.pick(List<&2, T2>, same, acc, t2_emit(n, cur, a, b, acc)))
+
+def t2s_ks(xs: List<&2, T2>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: []
+    case h <> t: t2_k(h) <> t2s_ks(t)
+
+def hmap_of(+b: Ty.Brep) -> Hmap:
+  +pvs = pv_first(so_pv(B.msort(~PV, ~pv_cmp, pv_all(Ty.brep_lps(b), 0n))), HK{0n, 0u64}, True{})
+  +t2 = List.reverse(&2, T2, t2_grp(so_et(B.msort(~ET, ~et_cmp, ets_of(Ty.brep_ces(b), 0n))), HK{0n, 0u64}, Ty.hc_null(), Ty.hc_null(), 0n, []))
+  Hmap{ktb(pvs_ks(pvs)), B.tb_of(Ty.HCoedge, pvs_ps(pvs), Ty.hc_null()), ktb(t2s_ks(t2)),
+    B.tb_of(T2, t2, T2{hk_top(), Ty.hc_null(), Ty.hc_null(), False{}})}
+
+def hm_prev(+m: Hmap, +h: Ty.HCoedge) -> Ty.HCoedge:
+  Hmap{+pk, +pp, tk, tv} = m
+  +i = kfind(pk, hc_key(h))
+  Bool.pick(Ty.HCoedge, hk_eq(B.tb_get(HK, pk, i), hc_key(h)), B.tb_get(Ty.HCoedge, pp, i), h)
+
+def t2_twin(x: T2, +p: Ty.HCoedge) -> Ty.HCoedge:
+  T2{k, +a, b, two} = x
+  Bool.pick(Ty.HCoedge, Bool.not(Ty.hc_eq(a, p)), a, Bool.pick(Ty.HCoedge, two, b, p))
+
+def hm_twin(+m: Hmap, +x: Ty.Ix, +p: Ty.HCoedge) -> Ty.HCoedge:
+  Hmap{pk, pp, +tk, +tv} = m
+  +ek = he_key(Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, p))))
+  +i = kfind(tk, ek)
+  Bool.pick(Ty.HCoedge, hk_eq(B.tb_get(HK, tk, i), ek), t2_twin(B.tb_get(T2, tv, i), p), p)
+
+def hm_step(+m: Hmap, +x: Ty.Ix, +h: Ty.HCoedge) -> Ty.HCoedge:
+  hm_twin(m, x, hm_prev(m, h))
+
+def hc_nondegen(+x: Ty.Ix, +h: Ty.HCoedge) -> Bool:
+  Bool.not(ed_degen(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))))
+
+def slot_keys(cs: List<&2, Ty.Coedge>, +i: Nat, acc: List<&2, HK>) -> List<&2, HK>:
+  match cs:
+    case Nil{}: acc
+    case h <> t: HK{i, Ty.ce_gen(h)} <> slot_keys(t, Nat.add(i, 1n), acc)
+
+def mem_keys(ls: List<&2, Ty.Loop>, acc: List<&2, HK>) -> List<&2, HK>:
+  match ls:
+    case Nil{}: acc
+    case h <> t: hcs_keys(Ty.lp_ces(h), mem_keys(t, acc))
+
+def nxt_of(c: GC, k: HK) -> U32:
+  GC{+m, +x, +s} = c
+  kfind(s, hc_key(hm_step(m, x, hc_of(k))))
+
+def nd_of(c: GC, k: HK) -> Bool:
+  GC{m, +x, s} = c
+  hc_nondegen(x, hc_of(k))
+
+def jm_j(x: JM) -> U32:
+  JM{j, m} = x
+  j
+
+def jm_m(x: JM) -> U32:
+  JM{j, m} = x
+  m
+
+def jm_step(t: B.Tb<&2, JM>, x: JM) -> JM:
+  JM{+j, m} = x
+  +y = B.tb_get(JM, t, j)
+  JM{jm_j(y), U32.min(m, jm_m(y))}
+
+def jm_rounds(r: Nat, +xs: List<&2, JM>) -> List<&2, JM>:
+  match r:
+    case 0n: xs
+    case 1n+q: jm_rounds(q, B.pmap(~JM, ~B.Tb<&2, JM>, ~JM, ~jm_step, B.tb_of(JM, xs, JM{0, 0}), xs))
+
+def jm_init(xs: List<&2, U32>, +i: U32) -> List<&2, JM>:
+  match xs:
+    case Nil{}: []
+    case h <> t: JM{h, i} <> jm_init(t, (i + 1 : U32))
+
+def mark_go(xs: List<&2, JM>, +t: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match xs:
+    case Nil{}: t
+    case h <> r: mark_go(r, B.tb_set(Bool, t, jm_j(h), True{}))
+
+def ln_lab(x: LN) -> U32:
+  LN{lab, n} = x
+  lab
+
+def ln_cmp_go(+a: LN, +b: LN) -> B.Sgn:
+  B.u_cmp_go(ln_lab(a), ln_lab(b))
+
+def ln_cmp(a: LN, b: LN) -> B.Sgn:
+  ln_cmp_go(a, b)
+
+def so_ln(s: B.So<&2, LN>) -> List<&2, LN>:
+  B.So{ok, xs} = s
+  xs
+
+def ln_keep(c: Bool, +lab: U32, +n: Nat, rest: List<&2, LN>) -> List<&2, LN>:
+  match c:
+    case True{}: LN{lab, n} <> rest
+    case False{}: rest
+
+def cyc_lns(xs: List<&2, JM>, nds: List<&2, Bool>, +cyc: B.Tb<&2, Bool>, +i: U32) -> List<&2, LN>:
+  match xs:
+    case Nil{}: []
+    case h <> t:
+      match nds:
+        case Nil{}: []
+        case d <> dt:
+          ln_keep(B.tb_get(Bool, cyc, i), jm_m(h), Bool.pick(Nat, d, 1n, 0n), cyc_lns(t, dt, cyc, (i + 1 : U32)))
+
+def ln_sum(xs: List<&2, LN>, +t: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match xs:
+    case Nil{}: t
+    case h <> r:
+      LN{+lab, n} = h
+      ln_sum(r, B.tb_set(Nat, t, lab, Nat.add(n, B.tb_get(Nat, t, lab))))
+
+def jms_m(xs: List<&2, JM>) -> List<&2, U32>:
+  match xs:
+    case Nil{}: []
+    case h <> t: jm_m(h) <> jms_m(t)
+
+def orb_of(+b: Ty.Brep, +x: Ty.Ix, +m: Hmap) -> Orb:
+  +sk = hks_sorted_uniq(slot_keys(Ty.brep_ces(b), 0n, mem_keys(Ty.brep_lps(b), [])))
+  +st = ktb(sk)
+  +n = B.ulen(HK, sk)
+  +gc = {GC{m, x, st} : GC}
+  +nxt = B.pmap(~HK, ~GC, ~U32, ~nxt_of, gc, sk)
+  +nds = B.pmap(~HK, ~GC, ~Bool, ~nd_of, gc, sk)
+  +jm = jm_rounds(B.rounds_of(n), jm_init(nxt, 0))
+  +cyc = mark_go(jm, B.tb_of(Bool, B.rep_n(Bool, U32.to_nat(n), False{}), False{}))
+  +lns = so_ln(B.msort(~LN, ~ln_cmp, cyc_lns(jm, nds, cyc, 0)))
+  Orb{st, B.tb_of(U32, nxt, 0), cyc, B.tb_of(U32, jms_m(jm), 0),
+    ln_sum(lns, B.tb_of(Nat, B.rep_n(Nat, U32.to_nat(n), 0n), 0n)), B.tb_of(Bool, nds, False{})}
+
+def sv_k(x: SV) -> HK:
+  SV{k, c, h} = x
+  k
+
+def sv_h(x: SV) -> Ty.HCoedge:
+  SV{k, c, h} = x
+  h
+
+def sv_cmp_go(+a: SV, +b: SV) -> B.Sgn:
+  SV{ka, ca, ha} = a
+  SV{kb, cb, hb} = b
+  hk_tie2(hk_cmp_go(ka, kb), ca, cb)
+
+def sv_cmp(a: SV, b: SV) -> B.Sgn:
+  sv_cmp_go(a, b)
+
+def so_sv(s: B.So<&2, SV>) -> List<&2, SV>:
+  B.So{ok, xs} = s
+  xs
+
+def svs_of(cs: List<&2, Ty.Coedge>, +x: Ty.Ix, +i: Nat) -> List<&2, SV>:
+  match cs:
+    case Nil{}: []
+    case +h <> t:
+      +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(h)))
+      SV{hv_key(o_v_start(ed, Ty.ce_fwd(h))), i, Ty.mk_hc(i, Ty.ce_gen(h))} <> svs_of(t, x, Nat.add(i, 1n))
+
+def sv_lt(+s: SV, +k: HK) -> Bool:
+  hk_lt(sv_k(s), k)
+
+def sv_skip_nx(xs: List<&2, SV>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: sv_lt(h, k)
+
+def sv_skip(xs: List<&2, SV>, +k: HK, go: Bool) -> List<&2, SV>:
+  match xs go:
+    case h <> +t True{}: sv_skip(t, k, sv_skip_nx(t, k))
+    case _ _: xs
+
+def sv_take_nx(xs: List<&2, SV>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: hk_eq(sv_k(h), k)
+
+def sv_take(xs: List<&2, SV>, +k: HK, acc: List<&2, Ty.HCoedge>, go: Bool) -> SS:
+  match xs go:
+    case +h <> +t True{}: sv_take(t, k, sv_h(h) <> acc, sv_take_nx(t, k))
+    case _ _: SS{List.reverse(&2, Ty.HCoedge, acc), xs}
+
+def ss_hs(x: SS) -> List<&2, Ty.HCoedge>:
+  SS{hs, rest} = x
+  hs
+
+def ss_rest(x: SS) -> List<&2, SV>:
+  SS{hs, rest} = x
+  rest
+
+def oc_id(+c: OC, +h: Ty.HCoedge) -> U32:
+  OC{o, x} = c
+  Orb{s, nx, cyc, lab, ndc, nd} = o
+  kfind(s, hc_key(h))
+
+def hcs_nd(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Nat:
+  match xs:
+    case Nil{}: 0n
+    case h <> t: Nat.add(Bool.pick(Nat, hc_nondegen(x, h), 1n, 0n), hcs_nd(t, x))
+
+def fnd_pick(c: Bool, +h: Ty.HCoedge, rest: Ty.HCoedge) -> Ty.HCoedge:
+  match c:
+    case True{}: h
+    case False{}: rest
+
+def hcs_first_nd(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Ty.HCoedge:
+  match xs:
+    case Nil{}: Ty.hc_null()
+    case +h <> t: fnd_pick(hc_nondegen(x, h), h, hcs_first_nd(t, x))
+
+def orb_nx(o: Orb, +i: U32) -> U32:
+  Orb{s, nx, cyc, lab, ndc, nd} = o
+  B.tb_get(U32, nx, i)
+
+def orb_steps(o: Orb, +i: U32) -> Nat:
+  Orb{s, nx, cyc, +lab, +ndc, +nd} = o
+  +c1 = B.tb_get(U32, nx, i)
+  Nat.sub(Nat.add(1n, B.tb_get(Nat, ndc, B.tb_get(U32, lab, i))), Bool.pick(Nat, B.tb_get(Bool, nd, c1), 1n, 0n))
+
+def orb_cyc(o: Orb, +i: U32) -> Bool:
+  Orb{s, nx, cyc, lab, ndc, nd} = o
+  B.tb_get(Bool, cyc, i)
+
+def vx_orbit_ok(+o: Orb, +x: Ty.Ix, +ss: List<&2, Ty.HCoedge>) -> Bool:
+  +nd = hcs_nd(ss, x)
+  +i = oc_id(OC{o, x}, hcs_first_nd(ss, x))
+  +c1 = orb_nx(o, i)
+  +one = U32.is_eq(c1, i)
+  +closed = Bool.or(one, orb_cyc(o, i))
+  +steps = Bool.pick(Nat, one, 1n, orb_steps(o, i))
+  Bool.or(Nat.is_eq(nd, 0n), Bool.and(closed, Nat.is_eq(steps, nd)))
+
+def vs_link_go(vs: List<&2, Ty.Vertex>, +i: Nat, +svs: List<&2, SV>, +o: Orb, +x: Ty.Ix) -> Bool:
+  match vs:
+    case Nil{}: True{}
+    case h <> t:
+      +k = {HK{i, Ty.vx_gen(h)} : HK}
+      +s = sv_skip(svs, k, sv_skip_nx(svs, k))
+      +g = sv_take(s, k, [], sv_take_nx(s, k))
+      Bool.and(vx_orbit_ok(o, x, ss_hs(g)), vs_link_go(t, Nat.add(i, 1n), ss_rest(g), o, x))
+
+def cl_k(x: CL) -> HK:
+  CL{k, l} = x
+  k
+
+def cl_l(x: CL) -> Nat:
+  CL{k, l} = x
+  l
+
+def cl_cmp_go(+a: CL, +b: CL) -> B.Sgn:
+  hk_tie2(hk_cmp_go(cl_k(a), cl_k(b)), cl_l(a), cl_l(b))
+
+def cl_cmp(a: CL, b: CL) -> B.Sgn:
+  cl_cmp_go(a, b)
+
+def so_cl(s: B.So<&2, CL>) -> List<&2, CL>:
+  B.So{ok, xs} = s
+  xs
+
+def cls_hcs(xs: List<&2, Ty.HCoedge>, +l: Nat, acc: List<&2, CL>) -> List<&2, CL>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: CL{hc_key(h), l} <> cls_hcs(t, l, acc)
+
+def cls_all(ls: List<&2, Ty.Loop>, +l: Nat) -> List<&2, CL>:
+  match ls:
+    case Nil{}: []
+    case h <> t: cls_hcs(Ty.lp_ces(h), l, cls_all(t, Nat.add(l, 1n)))
+
+def cl_skip_nx(xs: List<&2, CL>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: hk_lt(cl_k(h), k)
+
+def cl_skip(xs: List<&2, CL>, +k: HK, go: Bool) -> List<&2, CL>:
+  match xs go:
+    case h <> +t True{}: cl_skip(t, k, cl_skip_nx(t, k))
+    case _ _: xs
+
+def cl_take_nx(xs: List<&2, CL>, +k: HK) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +h <> t: hk_eq(cl_k(h), k)
+
+def cl_take(xs: List<&2, CL>, +k: HK, +n: Nat, +pl: Nat, go: Bool) -> CN:
+  match xs go:
+    case +h <> +t True{}:
+      +l = cl_l(h)
+      +nw = Bool.or(Nat.is_eq(n, 0n), Bool.not(Nat.is_eq(l, pl)))
+      cl_take(t, k, Nat.add(n, Bool.pick(Nat, nw, 1n, 0n)), l, cl_take_nx(t, k))
+    case _ _: CN{n, xs}
+
+def cn_n(x: CN) -> Nat:
+  CN{n, rest} = x
+  n
+
+def cn_rest(x: CN) -> List<&2, CL>:
+  CN{n, rest} = x
+  rest
+
+def cov_go(cs: List<&2, Ty.Coedge>, +i: Nat, +cls: List<&2, CL>) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t:
+      +k = {HK{i, Ty.ce_gen(h)} : HK}
+      +s = cl_skip(cls, k, cl_skip_nx(cls, k))
+      +c = cl_take(s, k, 0n, 0n, cl_take_nx(s, k))
+      Bool.and(Nat.is_eq(cn_n(c), 1n), cov_go(t, Nat.add(i, 1n), cn_rest(c)))
+
+def cls_sorted(+b: Ty.Brep) -> List<&2, CL>:
+  so_cl(B.msort(~CL, ~cl_cmp, cls_all(Ty.brep_lps(b), 0n)))
+
+def link_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  +m = hmap_of(b)
+  +o = orb_of(b, x, m)
+  +svs = so_sv(B.msort(~SV, ~sv_cmp, svs_of(Ty.brep_ces(b), x, 0n)))
+  Bool.and(cov_go(Ty.brep_ces(b), 0n, cls_sorted(b)), vs_link_go(Ty.brep_vs(b), 0n, svs, o, x))
+
+def brep_link_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
+  match prof:
+    case Ty.P_manifold_solid{}: okc(link_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
+    case Ty.P_open_shell{}: 3n
+
+def ep_k(x: EP) -> HK:
+  EP{k, p} = x
+  k
+
+def ep_p(x: EP) -> U32:
+  EP{k, p} = x
+  p
+
+def ep_cmp_go(+a: EP, +b: EP) -> B.Sgn:
+  hk_cmp_go(ep_k(a), ep_k(b))
+
+def ep_cmp(a: EP, b: EP) -> B.Sgn:
+  ep_cmp_go(a, b)
+
+def so_ep(s: B.So<&2, EP>) -> List<&2, EP>:
+  B.So{ok, xs} = s
+  xs
+
+def hcs_ekeys(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +p: U32, acc: List<&2, EP>) -> List<&2, EP>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: EP{he_key(Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))), p} <> hcs_ekeys(t, x, p, acc)
+
+def hls_ekeys(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +p: U32, acc: List<&2, EP>) -> List<&2, EP>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: hcs_ekeys(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, p, hls_ekeys(t, x, p, acc))
+
+def fa_ekeys(+x: Ty.Ix, +f: Ty.HFace, +p: U32, acc: List<&2, EP>) -> List<&2, EP>:
+  hls_ekeys(Ty.fa_loops(Ty.tres_fa(Ty.ix_fa(x, f))), x, p, acc)
+
+def hfs_ekeys(xs: List<&2, Ty.HFace>, +x: Ty.Ix, +p: U32) -> List<&2, EP>:
+  match xs:
+    case Nil{}: []
+    case h <> t: fa_ekeys(x, h, p, hfs_ekeys(t, x, (p + 1 : U32)))
+
+def ed_keep(c: Bool, +u: U32, +v: U32, rest: List<&2, B.Ed>) -> List<&2, B.Ed>:
+  match c:
+    case True{}: B.Ed{u, v} <> rest
+    case False{}: rest
+
+def ep_edges(xs: List<&2, EP>, +pk: HK, +pp: U32, first: Bool) -> List<&2, B.Ed>:
+  match xs:
+    case Nil{}: []
+    case +h <> t:
+      +k = ep_k(h)
+      +p = ep_p(h)
+      ed_keep(Bool.and(Bool.not(first), hk_eq(k, pk)), pp, p, ep_edges(t, k, p, False{}))
+
+def all_zero(xs: List<&2, U32>) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(U32.is_eq(h, 0), all_zero(t))
+
+def cc_conn(c: B.CC) -> Bool:
+  B.CC{ok, ps} = c
+  Bool.and(ok, all_zero(ps))
+
+def sh_adj(+fs: List<&2, Ty.HFace>, +x: Ty.Ix) -> List<&2, B.Ed>:
+  ep_edges(so_ep(B.msort(~EP, ~ep_cmp, hfs_ekeys(fs, x, 0))), HK{0n, 0u64}, 0, True{})
+
+def sh_conn_ok(+fs: List<&2, Ty.HFace>, +x: Ty.Ix) -> Bool:
+  Bool.and(hks_distinct(hfs_keys(fs, [])), cc_conn(B.components(B.ulen(Ty.HFace, fs), sh_adj(fs, x))))
+
+def shs_conn_ok(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
+  match ss:
+    case Nil{}: True{}
+    case h <> t: Bool.and(sh_conn_ok(Ty.sh_faces(h), x), shs_conn_ok(t, x))
+
+def brep_conn_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(shs_conn_ok(Ty.brep_shs(b), Ty.ix_of(b)), ck_done(b, fuel))
+
+def vx_coin_pt(+p: V.Point, +q: V.Point) -> Bool:
+  PO.pteq3(V.pt_x(p), V.pt_y(p), V.pt_z(p), V.pt_x(q), V.pt_y(q), V.pt_z(q))
+
+def f_nan(+x: F64) -> Bool:
+  Bool.not(F64.is_eq(x, x))
+
+def pt_nan(+p: V.Point) -> Bool:
+  Bool.or(f_nan(V.pt_x(p)), Bool.or(f_nan(V.pt_y(p)), f_nan(V.pt_z(p))))
+
+def f_cmp_go(+a: F64, +b: F64) -> B.Sgn:
+  B.sgn_pick(F64.is_lt(a, b), F64.is_lt(b, a))
+
+def f_tie(c: B.Sgn, +a: F64, +b: F64) -> B.Sgn:
+  match c:
+    case B.Sz{}: f_cmp_go(a, b)
+    case _: c
+
+def pt_cmp_go(+p: V.Point, +q: V.Point) -> B.Sgn:
+  f_tie(f_tie(f_cmp_go(V.pt_x(p), V.pt_x(q)), V.pt_y(p), V.pt_y(q)), V.pt_z(p), V.pt_z(q))
+
+def pt_cmp(p: V.Point, q: V.Point) -> B.Sgn:
+  pt_cmp_go(p, q)
+
+def so_pt(s: B.So<&2, V.Point>) -> List<&2, V.Point>:
+  B.So{ok, xs} = s
+  xs
+
+def pt_keep(c: Bool, +p: V.Point, rest: List<&2, V.Point>) -> List<&2, V.Point>:
+  match c:
+    case True{}: p <> rest
+    case False{}: rest
+
+def vs_pts(vs: List<&2, Ty.Vertex>) -> List<&2, V.Point>:
+  match vs:
+    case Nil{}: []
+    case h <> t:
+      +p = Ty.vx_p(h)
+      pt_keep(Bool.not(pt_nan(p)), p, vs_pts(t))
+
+def pt_adj(xs: List<&2, V.Point>, +prev: V.Point, first: Bool) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +h <> t: Bool.and(Bool.or(first, Bool.not(vx_coin_pt(h, prev))), pt_adj(t, h, False{}))
+
+def coin_ok(vs: List<&2, Ty.Vertex>) -> Bool:
+  pt_adj(so_pt(B.msort(~V.Point, ~pt_cmp, vs_pts(vs))), V.Pt{0.0f64, 0.0f64, 0.0f64}, True{})
+
+def brep_coin_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(coin_ok(Ty.brep_vs(b)), ck_done(b, fuel))
+
+def sg_e(s: SG) -> Ty.Edge:
+  SG{e, a, b, safe} = s
+  e
+
+def sg_a(s: SG) -> V.Point:
+  SG{e, a, b, safe} = s
+  a
+
+def sg_b(s: SG) -> V.Point:
+  SG{e, a, b, safe} = s
+  b
+
+def sg_safe(s: SG) -> Bool:
+  SG{e, a, b, safe} = s
+  safe
+
+def f_safe(+x: F64) -> Bool:
+  +ax = F64.abs(x)
+  Bool.or(F64.is_eq(x, 0.0f64), Bool.and(F64.is_le(F64{3256102530588868608u64}, ax), F64.is_le(ax, F64{5958262307011166208u64})))
+
+def p_safe(+p: V.Point) -> Bool:
+  Bool.and(f_safe(V.pt_x(p)), Bool.and(f_safe(V.pt_y(p)), f_safe(V.pt_z(p))))
+
+def sg_bad(+s: SG, +t: SG) -> Bool:
+  Bool.and(Bool.not(hes_share_end(sg_e(s), sg_e(t))), segx_pair(sg_a(s), sg_b(s), sg_a(t), sg_b(t)))
+
+def sg_keep(c: Bool, +s: SG, rest: List<&2, SG>) -> List<&2, SG>:
+  match c:
+    case True{}: s <> rest
+    case False{}: rest
+
+def hcs_segs(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, acc: List<&2, SG>) -> List<&2, SG>:
+  match xs:
+    case Nil{}: acc
+    case h <> t:
+      +e = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))
+      +a = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v0(e))))
+      +b = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v1(e))))
+      sg_keep(ed_straight(e), SG{e, a, b, Bool.and(p_safe(a), p_safe(b))}, hcs_segs(t, x, acc))
+
+def hls_segs(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> List<&2, SG>:
+  match xs:
+    case Nil{}: []
+    case h <> t: hcs_segs(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, hls_segs(t, x))
+
+def pcoord(p: V.Point, k: Nat) -> F64:
+  match k:
+    case 0n: V.pt_x(p)
+    case 1n: V.pt_y(p)
+    case _: V.pt_z(p)
+
+def sg_lo(+s: SG, +k: Nat) -> F64:
+  F64.min(pcoord(sg_a(s), k), pcoord(sg_b(s), k))
+
+def sg_hi(+s: SG, +k: Nat) -> F64:
+  F64.max(pcoord(sg_a(s), k), pcoord(sg_b(s), k))
+
+def sg_ov(+s: SG, +t: SG) -> Bool:
+  Bool.and(Bool.and(F64.is_le(sg_lo(s, 1n), sg_hi(t, 1n)), F64.is_le(sg_lo(t, 1n), sg_hi(s, 1n))),
+    Bool.and(F64.is_le(sg_lo(s, 2n), sg_hi(t, 2n)), F64.is_le(sg_lo(t, 2n), sg_hi(s, 2n))))
+
+def sg_cmp_go(+s: SG, +t: SG) -> B.Sgn:
+  f_cmp_go(sg_lo(s, 0n), sg_lo(t, 0n))
+
+def sg_cmp(s: SG, t: SG) -> B.Sgn:
+  sg_cmp_go(s, t)
+
+def so_sg(s: B.So<&2, SG>) -> List<&2, SG>:
+  B.So{ok, xs} = s
+  xs
+
+def sp_add(c: Bool, +h: SG, acc: SP2) -> SP2:
+  match c:
+    case True{}:
+      SP2{safe, risky} = acc
+      SP2{h <> safe, risky}
+    case False{}:
+      SP2{safe, risky} = acc
+      SP2{safe, h <> risky}
+
+def sg_split(xs: List<&2, SG>, acc: SP2) -> SP2:
+  match xs:
+    case Nil{}: acc
+    case +h <> t: sg_split(t, sp_add(sg_safe(h), h, acc))
+
+def peek_x(xs: List<&2, SG>, +h: SG) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +y <> r: F64.is_le(sg_lo(y, 0n), sg_hi(h, 0n))
+
+def pair_bad(ov: Bool, +h: SG, +y: SG) -> Bool:
+  match ov:
+    case False{}: False{}
+    case True{}: sg_bad(h, y)
+
+def sweep_one(xs: List<&2, SG>, +h: SG, go: Bool) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +y <> +r:
+      match go:
+        case False{}: True{}
+        case True{}: Bool.and(Bool.not(pair_bad(sg_ov(h, y), h, y)), sweep_one(r, h, peek_x(r, h)))
+
+def sweep_all(xs: List<&2, SG>) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +h <> +t: Bool.and(sweep_one(t, h, peek_x(t, h)), sweep_all(t))
+
+def vs_all(+s: SG, xs: List<&2, SG>) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case +h <> t: Bool.and(Bool.not(sg_bad(s, h)), vs_all(s, t))
+
+def risky_ok(rs: List<&2, SG>, +all: List<&2, SG>) -> Bool:
+  match rs:
+    case Nil{}: True{}
+    case +h <> t: Bool.and(vs_all(h, all), risky_ok(t, all))
+
+def sp_ok(p: SP2, +all: List<&2, SG>) -> Bool:
+  SP2{safe, risky} = p
+  Bool.and(sweep_all(so_sg(B.msort(~SG, ~sg_cmp, safe))), risky_ok(risky, all))
+
+def face_xing_ok(+x: Ty.Ix, fl: List<&2, Ty.HLoop>) -> Bool:
+  +segs = hls_segs(fl, x)
+  sp_ok(sg_split(segs, SP2{[], []}), segs)
+
+def fas_xing_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  match fs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(face_xing_ok(x, Ty.fa_loops(h)), fas_xing_ok(t, x))
+
+def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
+  okc(fas_xing_ok(Ty.brep_fas(b), Ty.ix_of(b)), ck_done(b, fuel))
+
+def hcs_all_lines(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(edge_is_line(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))), hcs_all_lines(t, x))
+
+def hc_start_pt(+x: Ty.Ix, +h: Ty.HCoedge) -> V.Point:
+  +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+  +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+  Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_start(ed, Ty.ce_fwd(ce)))))
+
+def lp_newell_go(rest: List<&2, Ty.HCoedge>, +x: Ty.Ix, +prev: V.Point, +first: V.Point, +n: V.Dir) -> V.Dir:
   match rest:
     case Nil{}: newell_add(n, prev, first)
     case h <> t:
-      match fuel:
-        case 0n: n
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
-            ffull))
-          +fw = Ty.ce_fwd(ce)
-          +cs = o_v_start(ed, fw)
-          +cur = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs, cs,
-            ffull)))
-          lp_newell_go(t, ces, es, vs, f, ffull, cur, first,
-            newell_add(n, prev, cur))
+      +cur = hc_start_pt(x, h)
+      lp_newell_go(t, x, cur, first, newell_add(n, prev, cur))
 
-def lp_newell(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +ffull: Nat) -> V.Dir:
+def lp_newell(hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> V.Dir:
   match hcs:
     case Nil{}: V.Dr{0.0f64, 0.0f64, 0.0f64}
     case fh <> rest:
-      +fce = Ty.tres_ce(Ty.ce_resolve(ces, fh, ffull))
-      +fed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(fce),
-        ffull))
-      +ffw = Ty.ce_fwd(fce)
-      +p0 = Ty.vx_p(Ty.tres_vx(Ty.vx_resolve(vs,
-        o_v_start(fed, ffw), ffull)))
-      lp_newell_go(rest, ces, es, vs, ffull, ffull, p0, p0,
-        V.Dr{0.0f64, 0.0f64, 0.0f64})
+      +p0 = hc_start_pt(x, fh)
+      lp_newell_go(rest, x, p0, p0, V.Dr{0.0f64, 0.0f64, 0.0f64})
 
-# L-plane gates: plane surface, straight-line edge, all-straight-line
-# loop. hcs_all_lines is fuel-gated and answers False on fuel-out;
-# callers conjoin hcs_walked/done, so the undecided answer is never
-# read as a verdict or a count.
-def surf_is_plane(+s: G.GVal) -> Bool:
-  match s:
-    case G.GV_pl{w}: True{}
-    case _: False{}
-
-def gval_is_line(+c: G.GVal) -> Bool:
-  match c:
-    case G.GV_ln{w}: True{}
-    case _: False{}
-
-def ekind_is_line(+k: Ty.EdgeKind) -> Bool:
-  match k:
-    case Ty.EK_curve{curve, dom}: gval_is_line(curve)
-    case Ty.EK_degenerate{}: False{}
-
-def edge_is_line(+e: Ty.Edge) -> Bool:
-  Ty.Ed{gen, v0, v1, kind} = e
-  ekind_is_line(kind)
-
-def hcs_all_lines(hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>, fuel: Nat,
-    +ffull: Nat) -> Bool:
-  match hcs:
-    case Nil{}: True{}
-    case h <> t:
-      match fuel:
-        case 0n: False{}
-        case 1n+f:
-          +ce = Ty.tres_ce(Ty.ce_resolve(ces, h, ffull))
-          +ed = Ty.tres_ed(Ty.ed_resolve(es, Ty.ce_edge(ce),
-            ffull))
-          Bool.and(edge_is_line(ed),
-            hcs_all_lines(t, ces, es, f, ffull))
-
-# Location-aware Bezier-patch normal: cross(bezp_du, bezp_dv) at the
-# QUERY (u, v) carried by the caller — never a fixed sample.
-# Out-of-domain (u, v) is invalid-input (via the bezp_du/dv gates);
-# true overflow is numerical-uncertainty. Reserved for a future
-# varying-surface check (C07); Stage L issues no bezier verdict.
-def bezp_normal_at(+w: G.BezP, +u: F64, +v: F64) -> G.GRes:
-  +du = GO.bezp_du(w, u, v)
-  +dv = GO.bezp_dv(w, u, v)
-  +ok = Bool.and(G.gres_ok(du), G.gres_ok(dv))
-  +n = GO.dd_cross_raw(G.gres_d(du), G.gres_d(dv))
-  GO.gate_d(n, Bool.and(ok, V.dr_fin(n)), T.F_uncertain{})
-
-# Plane-only normal fetch for L-plane. Every non-plane surface arm
-# is explicitly unsupported HERE (L-varying skips before reading it).
-def plane_normal_of(+surf: G.GVal) -> G.GRes:
-  match surf:
-    case G.GV_pl{w}: GO.plane_normal(w)
-    case _: G.gerr(T.F_unsupported{})
-
-# Per-loop orientation class: 0n = not-determinable skip, 1n =
-# certified pass, 2n = certified fail (strictly wrong-signed finite
-# dot). The single core under loop_orient_c and the cert/skip
-# counters, so verdict and counts agree by construction.
-def loop_orient_class(+hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +surf: G.GVal, +same: Bool,
-    +kind: Ty.LoopKind, +ffull: Nat) -> Nat:
+def loop_orient_class(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +same: Bool, +kind: Ty.LoopKind) -> Nat:
   +plane = surf_is_plane(surf)
-  +lines = hcs_all_lines(hcs, ces, es, ffull, ffull)
-  +n = lp_newell(hcs, ces, es, vs, ffull)
+  +lines = hcs_all_lines(hcs, x)
+  +n = lp_newell(hcs, x)
   +nz = dr_is_zero(n)
   +nr = plane_normal_of(surf)
   +nok = G.gres_ok(nr)
-  +adj = Bool.pick(V.Dir, same, G.gres_d(nr),
-    dr_neg(G.gres_d(nr)))
+  +adj = Bool.pick(V.Dir, same, G.gres_d(nr), dr_neg(G.gres_d(nr)))
   +dot = GO.dd_dot_raw(n, adj)
   +fin = T.is_finite(dot)
   +zdot = F64.is_eq(dot, 0.0f64)
   +outer = U64.is_eq(Ty.lkind_tag(kind), 0u64)
-  +wrong = Bool.pick(Bool, outer, F64.is_lt(dot, 0.0f64),
-    F64.is_lt(0.0f64, dot))
-  +determ = Bool.and(plane,
-    Bool.and(lines,
-      Bool.and(Bool.not(nz),
-        Bool.and(nok, Bool.and(fin, Bool.not(zdot))))))
+  +wrong = Bool.pick(Bool, outer, F64.is_lt(dot, 0.0f64), F64.is_lt(0.0f64, dot))
+  +determ = Bool.and(plane, Bool.and(lines, Bool.and(Bool.not(nz), Bool.and(nok, Bool.and(fin, Bool.not(zdot))))))
   Bool.pick(Nat, determ, Bool.pick(Nat, wrong, 2n, 1n), 0n)
 
-def loop_orient_c(+hcs: List<&2, Ty.HCoedge>,
-    +ces: List<&2, Ty.Coedge>, +es: List<&2, Ty.Edge>,
-    +vs: List<&2, Ty.Vertex>, +surf: G.GVal, +same: Bool,
-    +kind: Ty.LoopKind, +ffull: Nat) -> Nat:
-  +walked = hcs_walked(hcs, ffull)
-  +cls = loop_orient_class(hcs, ces, es, vs, surf, same, kind,
-    ffull)
-  +fail = Nat.is_eq(cls, 2n)
-  Ty.okd_pack(Bool.and(walked, Bool.not(fail)), walked)
+def loop_orient_c(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +same: Bool, +kind: Ty.LoopKind) -> Nat:
+  Ty.okd_pack(Bool.not(Nat.is_eq(loop_orient_class(hcs, x, surf, same, kind), 2n)), True{})
 
-def hlp_orient_go(hls: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +surf: G.GVal, +same: Bool, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match hls:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = hlp_orient_go(t, lps, ces, es, vs, surf,
-            same, f, ffull)
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +code = loop_orient_c(Ty.lp_ces(lp), ces, es, vs,
-            surf, same, Ty.lp_kind(lp), ffull)
-          Ty.okd_all(code, rest)
+def lp_class(+x: Ty.Ix, +h: Ty.HLoop, +surf: G.GVal, +same: Bool) -> Nat:
+  +lp = Ty.tres_lp(Ty.ix_lp(x, h))
+  loop_orient_class(Ty.lp_ces(lp), x, surf, same, Ty.lp_kind(lp))
 
-def fas_orient_c(fas: List<&2, Ty.Face>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
-    +ffull: Nat) -> Nat:
-  match fas:
-    case Nil{}: 3n
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_orient_c(t, lps, ces, es, vs, f, ffull)
-          +code = hlp_orient_go(Ty.fa_loops(h), lps, ces,
-            es, vs, Ty.fa_surf(h), Ty.fa_same(h), ffull,
-            ffull)
-          Ty.okd_all(code, rest)
+def oct_add(o: OCt, +c: Nat) -> OCt:
+  OCt{bad, cert, skip} = o
+  OCt{Bool.or(bad, Nat.is_eq(c, 2n)), Nat.add(cert, Bool.pick(Nat, Nat.is_eq(c, 0n), 0n, 1n)),
+    Nat.add(skip, Bool.pick(Nat, Nat.is_eq(c, 0n), 1n, 0n))}
+
+def hls_oct(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +same: Bool, o: OCt) -> OCt:
+  match xs:
+    case Nil{}: o
+    case h <> t: hls_oct(t, x, surf, same, oct_add(o, lp_class(x, h, surf, same)))
+
+def fas_oct(fs: List<&2, Ty.Face>, +x: Ty.Ix, o: OCt) -> OCt:
+  match fs:
+    case Nil{}: o
+    case +h <> t: fas_oct(t, x, hls_oct(Ty.fa_loops(h), x, Ty.fa_surf(h), Ty.fa_same(h), o))
+
+def oct_of(+b: Ty.Brep, +x: Ty.Ix) -> OCt:
+  fas_oct(Ty.brep_fas(b), x, OCt{False{}, 0n, 0n})
+
+def oct_bad(o: OCt) -> Bool:
+  OCt{bad, cert, skip} = o
+  bad
+
+def oct_cert(o: OCt) -> Nat:
+  OCt{bad, cert, skip} = o
+  cert
+
+def oct_skip(o: OCt) -> Nat:
+  OCt{bad, cert, skip} = o
+  skip
 
 def brep_orient_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  fas_orient_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
-    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel)
-
-# --- L-plane/L-varying certified-vs-skipped counts (cnt-packed Nat:
-# cnt_pack(count, done) = done ? count+1 : 0; cnt_count meaningful
-# only when cnt_done, mirroring the Ty.okd_pack convention). A walked
-# loop is certified iff loop_orient_class issues a verdict (class 1
-# or 2, pass or fail — a certified fail still counts); otherwise it
-# is skipped (class 0). Fuel bound matches the verdict walks (fuel >=
-# max member-list length suffices). ---
-def cnt_pack(+count: Nat, +done: Bool) -> Nat:
-  match done:
-    case False{}: 0n
-    case True{}: Nat.add(count, 1n)
-
-def cnt_done(+c: Nat) -> Bool:
-  Bool.not(Nat.is_eq(c, 0n))
-
-def cnt_count(+c: Nat) -> Nat:
-  match c:
-    case 0n: 0n
-    case 1n+p: p
-
-def hlp_cert_go(hls: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +surf: G.GVal, +same: Bool, fuel: Nat, +ffull: Nat,
-    +acc: Nat) -> Nat:
-  match hls:
-    case Nil{}: cnt_pack(acc, True{})
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +hcs = Ty.lp_ces(lp)
-          +walked = hcs_walked(hcs, ffull)
-          +cls = loop_orient_class(hcs, ces, es, vs, surf,
-            same, Ty.lp_kind(lp), ffull)
-          +cert1 = Bool.and(walked,
-            Bool.not(Nat.is_eq(cls, 0n)))
-          +rest = hlp_cert_go(t, lps, ces, es, vs, surf, same,
-            f, ffull,
-            Nat.add(acc, Bool.pick(Nat, cert1, 1n, 0n)))
-          cnt_pack(cnt_count(rest),
-            Bool.and(walked, cnt_done(rest)))
-
-def hlp_skip_go(hls: List<&2, Ty.HLoop>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>,
-    +surf: G.GVal, +same: Bool, fuel: Nat, +ffull: Nat,
-    +acc: Nat) -> Nat:
-  match hls:
-    case Nil{}: cnt_pack(acc, True{})
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +lp = Ty.tres_lp(Ty.lp_resolve(lps, h, ffull))
-          +hcs = Ty.lp_ces(lp)
-          +walked = hcs_walked(hcs, ffull)
-          +cls = loop_orient_class(hcs, ces, es, vs, surf,
-            same, Ty.lp_kind(lp), ffull)
-          +skip1 = Bool.and(walked, Nat.is_eq(cls, 0n))
-          +rest = hlp_skip_go(t, lps, ces, es, vs, surf, same,
-            f, ffull,
-            Nat.add(acc, Bool.pick(Nat, skip1, 1n, 0n)))
-          cnt_pack(cnt_count(rest),
-            Bool.and(walked, cnt_done(rest)))
-
-def fas_cert_c(fas: List<&2, Ty.Face>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
-    +ffull: Nat, +acc: Nat) -> Nat:
-  match fas:
-    case Nil{}: cnt_pack(acc, True{})
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +sub = hlp_cert_go(Ty.fa_loops(h), lps, ces, es, vs,
-            Ty.fa_surf(h), Ty.fa_same(h), ffull, ffull, 0n)
-          +rest = fas_cert_c(t, lps, ces, es, vs, f, ffull,
-            Nat.add(acc, cnt_count(sub)))
-          cnt_pack(cnt_count(rest),
-            Bool.and(cnt_done(sub), cnt_done(rest)))
-
-def fas_skip_c(fas: List<&2, Ty.Face>,
-    +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +es: List<&2, Ty.Edge>, +vs: List<&2, Ty.Vertex>, fuel: Nat,
-    +ffull: Nat, +acc: Nat) -> Nat:
-  match fas:
-    case Nil{}: cnt_pack(acc, True{})
-    case +h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +sub = hlp_skip_go(Ty.fa_loops(h), lps, ces, es, vs,
-            Ty.fa_surf(h), Ty.fa_same(h), ffull, ffull, 0n)
-          +rest = fas_skip_c(t, lps, ces, es, vs, f, ffull,
-            Nat.add(acc, cnt_count(sub)))
-          cnt_pack(cnt_count(rest),
-            Bool.and(cnt_done(sub), cnt_done(rest)))
+  okc(Bool.not(oct_bad(oct_of(b, Ty.ix_of(b)))), ck_done(b, fuel))
 
 def brep_orient_cert_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  fas_cert_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
-    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel, 0n)
+  cnt_pack(oct_cert(oct_of(b, Ty.ix_of(b))), ck_done(b, fuel))
 
 def brep_orient_skip_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  fas_skip_c(Ty.brep_fas(b), Ty.brep_lps(b), Ty.brep_ces(b),
-    Ty.brep_es(b), Ty.brep_vs(b), fuel, fuel, 0n)
+  cnt_pack(oct_skip(oct_of(b, Ty.ix_of(b))), ck_done(b, fuel))
 
-# --- Stage L orientation, part 2: EXPLICIT RECHECK (redundant by
-# construction). Re-runs the per-loop L verdict (loop_orient_c)
-# for each twice-used edge's two owning loops as an independent
-# edge-traversal cross-check of brep_orient_c's face traversal. It
-# adds NO new rule: `same` flags are never compared across faces
-# (each is relative to its own surface parametrization), and the
-# verdict is subsumed — it fails only if brep_orient_c fails.
-# Seams (both uses in one face) and boundary (once-used) edges
-# skip. Global outwardness needs the C07 interior classifier and
-# stays out of scope. Both profiles. ---
-def hlp_mem(xs: List<&2, Ty.HLoop>, +hl: Ty.HLoop,
-    +ffull: Nat) -> Bool:
+def fl_k(x: FL) -> HK:
+  FL{k, f, h} = x
+  k
+
+def fl_h(x: FL) -> Ty.HFace:
+  FL{k, f, h} = x
+  h
+
+def fl_cmp_go(+a: FL, +b: FL) -> B.Sgn:
+  FL{ka, fa, ha} = a
+  FL{kb, fb, hb} = b
+  hk_tie2(hk_cmp_go(ka, kb), fa, fb)
+
+def fl_cmp(a: FL, b: FL) -> B.Sgn:
+  fl_cmp_go(a, b)
+
+def so_fl(s: B.So<&2, FL>) -> List<&2, FL>:
+  B.So{ok, xs} = s
+  xs
+
+def fls_hls(xs: List<&2, Ty.HLoop>, +f: Nat, +hf: Ty.HFace, acc: List<&2, FL>) -> List<&2, FL>:
   match xs:
-    case Nil{}: False{}
-    case h <> t:
-      match ffull:
-        case 0n: False{}
-        case 1n+f:
-          Bool.or(Ty.hlp_eq(h, hl), hlp_mem(t, hl, f))
+    case Nil{}: acc
+    case h <> t: FL{hl_key(h), f, hf} <> fls_hls(t, f, hf, acc)
 
-def hc_owner_go(lps: List<&2, Ty.Loop>, +hc: Ty.HCoedge,
-    +idx: Nat, +ffull: Nat) -> Ty.HLoop:
-  match lps:
-    case Nil{}: Ty.hlp_null()
-    case +h <> t:
-      match ffull:
-        case 0n: Ty.hlp_null()
-        case 1n+f:
-          Bool.pick(Ty.HLoop, hc_mem(Ty.lp_ces(h), hc, ffull),
-            Ty.mk_hlp(idx, Ty.lp_gen(h)),
-            hc_owner_go(t, hc, Nat.add(idx, 1n), f))
+def fls_all(fs: List<&2, Ty.Face>, +f: Nat) -> List<&2, FL>:
+  match fs:
+    case Nil{}: []
+    case +h <> t: fls_hls(Ty.fa_loops(h), f, Ty.mk_hfa(f, Ty.fa_gen(h)), fls_all(t, Nat.add(f, 1n)))
 
-def hl_owner_go(fas: List<&2, Ty.Face>, +hl: Ty.HLoop,
-    +idx: Nat, +ffull: Nat) -> Ty.HFace:
-  match fas:
-    case Nil{}: Ty.hfa_null()
-    case +h <> t:
-      match ffull:
-        case 0n: Ty.hfa_null()
-        case 1n+f:
-          Bool.pick(Ty.HFace, hlp_mem(Ty.fa_loops(h), hl,
-            ffull), Ty.mk_hfa(idx, Ty.fa_gen(h)),
-            hl_owner_go(t, hl, Nat.add(idx, 1n), f))
+def fl_keep(c: Bool, +h: FL, rest: List<&2, FL>) -> List<&2, FL>:
+  match c:
+    case True{}: h <> rest
+    case False{}: rest
 
-def lps_walked(xs: List<&2, Ty.Loop>, fuel: Nat) -> Bool:
+def fl_first(xs: List<&2, FL>, +prev: HK, first: Bool) -> List<&2, FL>:
   match xs:
-    case Nil{}: True{}
-    case h <> t:
-      match fuel:
-        case 0n: False{}
-        case 1n+f: lps_walked(t, f)
+    case Nil{}: []
+    case +h <> t: fl_keep(Bool.or(first, Bool.not(hk_eq(fl_k(h), prev))), h, fl_first(t, fl_k(h), False{}))
 
-def fas_walked(xs: List<&2, Ty.Face>, fuel: Nat) -> Bool:
+def fls_ks(xs: List<&2, FL>) -> List<&2, HK>:
   match xs:
-    case Nil{}: True{}
+    case Nil{}: []
+    case h <> t: fl_k(h) <> fls_ks(t)
+
+def fls_hs(xs: List<&2, FL>) -> List<&2, Ty.HFace>:
+  match xs:
+    case Nil{}: []
+    case h <> t: fl_h(h) <> fls_hs(t)
+
+def cl_keep(c: Bool, +h: CL, rest: List<&2, CL>) -> List<&2, CL>:
+  match c:
+    case True{}: h <> rest
+    case False{}: rest
+
+def cl_first(xs: List<&2, CL>, +prev: HK, first: Bool) -> List<&2, CL>:
+  match xs:
+    case Nil{}: []
+    case +h <> t: cl_keep(Bool.or(first, Bool.not(hk_eq(cl_k(h), prev))), h, cl_first(t, cl_k(h), False{}))
+
+def cls_ks(xs: List<&2, CL>) -> List<&2, HK>:
+  match xs:
+    case Nil{}: []
+    case h <> t: cl_k(h) <> cls_ks(t)
+
+def cls_ls(xs: List<&2, CL>) -> List<&2, Nat>:
+  match xs:
+    case Nil{}: []
+    case h <> t: cl_l(h) <> cls_ls(t)
+
+def hl_pick(c: Bool, +l: Nat, lp: Ty.Loop) -> Ty.HLoop:
+  match c:
+    case True{}: Ty.mk_hlp(l, Ty.lp_gen(lp))
+    case False{}: Ty.hlp_null()
+
+def rc_owner_l(+r: RC, +h: Ty.HCoedge) -> Ty.HLoop:
+  RC{x, +ck, +cl, +lg, fk, fh, cls} = r
+  +i = kfind(ck, hc_key(h))
+  +l = B.tb_get(Nat, cl, i)
+  hl_pick(hk_eq(B.tb_get(HK, ck, i), hc_key(h)), l, B.tb_get(Ty.Loop, lg, U32.from_nat(l)))
+
+def rc_owner_f(+r: RC, +h: Ty.HLoop) -> Ty.HFace:
+  RC{x, ck, cl, lg, +fk, +fh, cls} = r
+  +i = kfind(fk, hl_key(h))
+  Bool.pick(Ty.HFace, hk_eq(B.tb_get(HK, fk, i), hl_key(h)), B.tb_get(Ty.HFace, fh, i), Ty.hfa_null())
+
+def cls_pick(c: Bool, +v: Nat, +x: Ty.Ix, +hl: Ty.HLoop, +hf: Ty.HFace) -> Nat:
+  match c:
+    case True{}: v
+    case False{}:
+      +fa = Ty.tres_fa(Ty.ix_fa(x, hf))
+      lp_class(x, hl, Ty.fa_surf(fa), Ty.fa_same(fa))
+
+def rc_cls(+r: RC, +hl: Ty.HLoop, +hf: Ty.HFace) -> Nat:
+  RC{+x, ck, cl, lg, fk, fh, +cls} = r
+  Ty.HL{+li, lgn} = hl
+  +known = Bool.and(Nat.is_lt(li, Ty.ix_nl(x)), Bool.not(Ty.hlp_eq(hl, Ty.hlp_null())))
+  cls_pick(known, B.tb_get(Nat, cls, U32.from_nat(li)), x, hl, hf)
+
+def own_cls(ls: List<&2, Ty.Loop>, +i: Nat, +x: Ty.Ix, +fk: B.Tb<&2, HK>, +fh: B.Tb<&2, Ty.HFace>) -> List<&2, Nat>:
+  match ls:
+    case Nil{}: []
     case h <> t:
-      match fuel:
-        case 0n: False{}
-        case 1n+f: fas_walked(t, f)
+      +hl = Ty.mk_hlp(i, Ty.lp_gen(h))
+      +j = kfind(fk, hl_key(hl))
+      +hf = Bool.pick(Ty.HFace, hk_eq(B.tb_get(HK, fk, j), hl_key(hl)), B.tb_get(Ty.HFace, fh, j), Ty.hfa_null())
+      +fa = Ty.tres_fa(Ty.ix_fa(x, hf))
+      lp_class(x, hl, Ty.fa_surf(fa), Ty.fa_same(fa)) <> own_cls(t, Nat.add(i, 1n), x, fk, fh)
 
-def ces_nth_user(ces: List<&2, Ty.Coedge>, +tgt: Ty.HEdge,
-    +skip: Ty.HCoedge, +idx: Nat, +ffull: Nat) -> Ty.HCoedge:
-  match ces:
-    case Nil{}: Ty.hc_null()
-    case +h <> t:
-      match ffull:
-        case 0n: Ty.hc_null()
-        case 1n+f:
-          +hh = Ty.mk_hc(idx, Ty.ce_gen(h))
-          +hit = Bool.and(Ty.he_eq(Ty.ce_edge(h), tgt),
-            Bool.not(Ty.hc_eq(hh, skip)))
-          Bool.pick(Ty.HCoedge, hit, hh,
-            ces_nth_user(t, tgt, skip, Nat.add(idx, 1n), f))
+def rc_of(+b: Ty.Brep, +x: Ty.Ix) -> RC:
+  +cf = cl_first(cls_sorted(b), HK{0n, 0u64}, True{})
+  +ff = fl_first(so_fl(B.msort(~FL, ~fl_cmp, fls_all(Ty.brep_fas(b), 0n))), HK{0n, 0u64}, True{})
+  +fk = ktb(fls_ks(ff))
+  +fh = B.tb_of(Ty.HFace, fls_hs(ff), Ty.hfa_null())
+  RC{x, ktb(cls_ks(cf)), B.tb_of(Nat, cls_ls(cf), 0n), B.tb_of(Ty.Loop, Ty.brep_lps(b), Ty.lp_dflt()), fk, fh,
+    B.tb_of(Nat, own_cls(Ty.brep_lps(b), 0n, x, fk, fh), 0n)}
 
-def edge_recheck_c(+b: Ty.Brep, +he: Ty.HEdge,
-    +ffull: Nat) -> Nat:
-  +ces = Ty.brep_ces(b)
-  +es = Ty.brep_es(b)
-  +vs = Ty.brep_vs(b)
-  +lps = Ty.brep_lps(b)
-  +fas = Ty.brep_fas(b)
-  +use = ces_use_go(ces, he, Ty.P_manifold_solid{}, ffull, 0n,
-    False{}, False{})
-  +twice = Bool.and(Ty.okd_done(use), Ty.okd_ok(use))
-  +hcA = ces_nth_user(ces, he, Ty.hc_null(), 0n, ffull)
-  +hcB = ces_nth_user(ces, he, hcA, 0n, ffull)
-  +hlA = hc_owner_go(lps, hcA, 0n, ffull)
-  +hlB = hc_owner_go(lps, hcB, 0n, ffull)
-  +hfA = hl_owner_go(fas, hlA, 0n, ffull)
-  +hfB = hl_owner_go(fas, hlB, 0n, ffull)
-  +adq = Bool.and(lps_walked(lps, ffull),
-    fas_walked(fas, ffull))
-  +lpA = Ty.tres_lp(Ty.lp_resolve(lps, hlA, ffull))
-  +lpB = Ty.tres_lp(Ty.lp_resolve(lps, hlB, ffull))
-  +faA = Ty.tres_fa(Ty.fa_resolve(fas, hfA, ffull))
-  +faB = Ty.tres_fa(Ty.fa_resolve(fas, hfB, ffull))
-  +distinct = Bool.not(Ty.hfa_eq(hfA, hfB))
-  +codeA = loop_orient_c(Ty.lp_ces(lpA), ces, es, vs,
-    Ty.fa_surf(faA), Ty.fa_same(faA), Ty.lp_kind(lpA), ffull)
-  +codeB = loop_orient_c(Ty.lp_ces(lpB), ces, es, vs,
-    Ty.fa_surf(faB), Ty.fa_same(faB), Ty.lp_kind(lpB), ffull)
-  +sub = Ty.okd_all(codeA, codeB)
-  +agree = Bool.or(Bool.not(distinct), Ty.okd_ok(sub))
-  +ok = Bool.pick(Bool, twice, Bool.and(adq, agree), True{})
-  +done = Bool.and(Bool.and(Ty.okd_done(use), adq),
-    Ty.okd_done(sub))
-  Ty.okd_pack(Bool.and(ok, done), done)
+def edge_recheck_ok(+r: RC, x2: T2) -> Bool:
+  T2{k, +a, +b, two} = x2
+  +la = rc_owner_l(r, a)
+  +lb = rc_owner_l(r, b)
+  +fa = rc_owner_f(r, la)
+  +fb = rc_owner_f(r, lb)
+  Bool.or(Ty.hfa_eq(fa, fb), Bool.and(Bool.not(Nat.is_eq(rc_cls(r, la, fa), 2n)), Bool.not(Nat.is_eq(rc_cls(r, lb, fb), 2n))))
 
-def es_recheck_c(es: List<&2, Ty.Edge>, +b: Ty.Brep, fuel: Nat,
-    +ffull: Nat, +idx: Nat) -> Nat:
+def uc_twice(c: UC) -> Bool:
+  UC{+n, t, f, rest} = c
+  use_rule_ok(n, t, f, Ty.P_manifold_solid{})
+
+def rchk_pick(tw: Bool, +m: Hmap, +r: RC, +k: HK) -> Bool:
+  match tw:
+    case False{}: True{}
+    case True{}:
+      Hmap{pk, pp, +tk, +tv} = m
+      edge_recheck_ok(r, B.tb_get(T2, tv, kfind(tk, k)))
+
+def rchk_go(es: List<&2, Ty.Edge>, +i: Nat, +keys: List<&2, UK>, +m: Hmap, +r: RC) -> Bool:
   match es:
-    case Nil{}: 3n
+    case Nil{}: True{}
     case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +tgt = Ty.mk_he(idx, Ty.ed_gen(h))
-          +code = edge_recheck_c(b, tgt, ffull)
-          +rest = es_recheck_c(t, b, f, ffull, Nat.add(idx, 1n))
-          Ty.okd_all(code, rest)
+      +k = {HK{i, Ty.ed_gen(h)} : HK}
+      +s = uk_skip(keys, k, uk_skip_nx(keys, k))
+      +c = uk_take(s, k, 0n, False{}, False{}, uk_take_nx(s, k))
+      Bool.and(rchk_pick(uc_twice(c), m, r, k), rchk_go(t, Nat.add(i, 1n), uc_rest(c), m, r))
+
+def recheck_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  rchk_go(Ty.brep_es(b), 0n, so_uk(B.msort(~UK, ~uk_cmp, ces_uks(Ty.brep_ces(b)))), hmap_of(b), rc_of(b, x))
 
 def brep_recheck_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  es_recheck_c(Ty.brep_es(b), b, fuel, fuel, 0n)
+  okc(recheck_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
 
-def brep_ck_l(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +c1 = brep_orient_c(b, fuel)
-  +c2 = brep_recheck_c(b, fuel)
-  +cl = Ty.okd_all(c1, c2)
-  +done_l = Ty.okd_done(cl)
-  +ok_l = Ty.okd_ok(cl)
-  +win = Ty.tok_brep(b)
-  +ok_branch = Bool.pick(Ty.TRes, ok_l, win, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_l, ok_branch, Ty.terr(T.F_exhausted{}))
+def hc_keep2(c: Bool, +h: Ty.HCoedge, rest: List<&2, Ty.HCoedge>) -> List<&2, Ty.HCoedge>:
+  match c:
+    case True{}: h <> rest
+    case False{}: rest
 
-def brep_ck_k(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +ck = brep_xing_c(b, fuel)
-  +done_k = Ty.okd_done(ck)
-  +ok_k = Ty.okd_ok(ck)
-  +rest = brep_ck_l(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_k, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_k, ok_branch, Ty.terr(T.F_exhausted{}))
+def svs_at(xs: List<&2, SV>, +k: HK) -> List<&2, Ty.HCoedge>:
+  match xs:
+    case Nil{}: []
+    case +h <> t: hc_keep2(hk_eq(sv_k(h), k), sv_h(h), svs_at(t, k))
 
-def brep_ck_j(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cj = brep_coin_c(b, fuel)
-  +done_j = Ty.okd_done(cj)
-  +ok_j = Ty.okd_ok(cj)
-  +rest = brep_ck_k(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_j, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_j, ok_branch, Ty.terr(T.F_exhausted{}))
+def vx_link_ok(+b: Ty.Brep, +v: Ty.HVertex, +fuel: Nat) -> Nat:
+  +x = Ty.ix_of(b)
+  +o = orb_of(b, x, hmap_of(b))
+  okc(vx_orbit_ok(o, x, svs_at(svs_of(Ty.brep_ces(b), x, 0n), hv_key(v))), ck_done(b, fuel))
 
-def brep_ck_i(+b: Ty.Brep, +prof: Ty.Profile,
-    +fuel: Nat) -> Ty.TRes:
-  +ci = brep_conn_c(b, fuel)
-  +done_i = Ty.okd_done(ci)
-  +ok_i = Ty.okd_ok(ci)
-  +win = brep_ck_j(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_i, win, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_i, ok_branch, Ty.terr(T.F_exhausted{}))
+def own_done(+n: Nat, +m: Nat, +fuel: Nat, +ffull: Nat) -> Bool:
+  Bool.and(Nat.is_le(n, fuel), Nat.is_le(Nat.max(n, m), ffull))
 
-def brep_ck_h(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +ch = brep_link_c(b, prof, fuel)
-  +done_h = Ty.okd_done(ch)
-  +ok_h = Ty.okd_ok(ch)
-  +rest = brep_ck_i(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_h, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_h, ok_branch, Ty.terr(T.F_exhausted{}))
+def fas_loop_own_c(+fas: List<&2, Ty.Face>, +fuel: Nat, +ffull: Nat) -> Nat:
+  okc(hks_distinct(fas_lkeys(fas)), own_done(List.length(&2, Ty.Face, fas), Ty.fas_maxlen(fas, 0n), fuel, ffull))
 
-def brep_ck_g(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cg = brep_embed_c(b, fuel)
-  +done_g = Ty.okd_done(cg)
-  +ok_g = Ty.okd_ok(cg)
-  +rest = brep_ck_h(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_g, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_g, ok_branch, Ty.terr(T.F_exhausted{}))
+def shs_face_own_c(+shs: List<&2, Ty.Shell>, +fuel: Nat, +ffull: Nat) -> Nat:
+  okc(hks_distinct(shs_fkeys(shs)), own_done(List.length(&2, Ty.Shell, shs), Ty.shs_maxlen(shs, 0n), fuel, ffull))
 
-def brep_ck_f(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cf = brep_prof_c(b, prof, fuel)
-  +done_f = Ty.okd_done(cf)
-  +ok_f = Ty.okd_ok(cf)
-  +rest = brep_ck_g(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_f, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_f, ok_branch, Ty.terr(T.F_exhausted{}))
+def sos_own_c(+sos: List<&2, Ty.Solid>, +fuel: Nat, +ffull: Nat) -> Nat:
+  okc(hks_distinct(sos_skeys(sos, [])), own_done(List.length(&2, Ty.Solid, sos), Nat.add(Ty.sos_maxlen(sos, 0n), 1n), fuel, ffull))
 
-def brep_ck_e(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +ce = brep_facekind_c(b, fuel)
-  +done_e = Ty.okd_done(ce)
-  +ok_e = Ty.okd_ok(ce)
-  +rest = brep_ck_f(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_e, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_e, ok_branch, Ty.terr(T.F_exhausted{}))
+def cp_sh_own_c(+top: Ty.Compound, +sos: List<&2, Ty.Solid>, +ffull: Nat) -> Nat:
+  +cs = Ty.cp_shells(top)
+  okc(hks_distinct(hss_keys(cs, hks_sorted_uniq(sos_skeys(sos, [])))),
+    Nat.is_le(Nat.max(List.length(&2, Ty.HShell, cs), List.length(&2, Ty.Solid, sos)), ffull))
 
-def brep_ck_d(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cd = brep_loop_c(b, fuel)
-  +done_d = Ty.okd_done(cd)
-  +ok_d = Ty.okd_ok(cd)
-  +rest = brep_ck_e(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_d, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_d, ok_branch, Ty.terr(T.F_exhausted{}))
+def cp_so_own_c(+top: Ty.Compound, +ffull: Nat) -> Nat:
+  +cs = Ty.cp_solids(top)
+  okc(hks_distinct(hos_keys(cs, [])), Nat.is_le(List.length(&2, Ty.HSolid, cs), ffull))
 
-def brep_ck_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cc = brep_use_c(b, prof, fuel)
-  +done_c = Ty.okd_done(cc)
-  +ok_c = Ty.okd_ok(cc)
-  +rest = brep_ck_d(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_c, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_c, ok_branch, Ty.terr(T.F_exhausted{}))
+def sos_outer_all(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
+  match os:
+    case Nil{}: True{}
+    case h <> t: Bool.and(hss_kind([Ty.so_outer(h)], x, 0u64), sos_outer_all(t, x))
 
-def brep_ck_b(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +cb = brep_incid_c(b, fuel)
-  +done_b = Ty.okd_done(cb)
-  +ok_b = Ty.okd_ok(cb)
-  +rest = brep_ck_c(b, prof, fuel)
-  +ok_branch = Bool.pick(Ty.TRes, ok_b, rest, Ty.terr(T.F_invalid{}))
-  Bool.pick(Ty.TRes, done_b, ok_branch, Ty.terr(T.F_exhausted{}))
+def sos_outer_kind_c(+sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>, +fuel: Nat, +ffull: Nat) -> Nat:
+  +x = Ty.ix_mk([], [], [], [], [], shs, [])
+  okc(sos_outer_all(sos, x), own_done(List.length(&2, Ty.Solid, sos), List.length(&2, Ty.Shell, shs), fuel, ffull))
+
+def shs_no_open_c(+shs: List<&2, Ty.Shell>, +fuel: Nat) -> Nat:
+  okc(shs_no_open(shs), Nat.is_le(List.length(&2, Ty.Shell, shs), fuel))
+
+def ck_l(ok: Bool, +b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: Bool.and(Bool.not(oct_bad(oct_of(b, x))), recheck_ok(b, x))
+
+def ck_k(ok: Bool, +b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_l(fas_xing_ok(Ty.brep_fas(b), x), b, x)
+
+def ck_j(ok: Bool, +b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_k(coin_ok(Ty.brep_vs(b)), b, x)
+
+def ck_i(ok: Bool, +b: Ty.Brep, +x: Ty.Ix) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_j(shs_conn_ok(Ty.brep_shs(b), x), b, x)
+
+def link_prof(+b: Ty.Brep, +x: Ty.Ix, p: Ty.Profile) -> Bool:
+  match p:
+    case Ty.P_manifold_solid{}: link_ok(b, x)
+    case Ty.P_open_shell{}: True{}
+
+def ck_h(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_i(link_prof(b, x, prof), b, x)
+
+def ck_g(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_h(embed_ok(b, x, fuel), b, x, prof)
+
+def ck_f(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_g(prof_ok(b, x, prof), b, x, prof, fuel)
+
+def ck_e(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_f(fas_kind_ok(Ty.brep_fas(b), x), b, x, prof, fuel)
+
+def ck_d(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_e(lps_loop_ok(Ty.brep_lps(b), x), b, x, prof, fuel)
+
+def ck_c(ok: Bool, +b: Ty.Brep, +x: Ty.Ix, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ck_d(use_ok(b, prof), b, x, prof, fuel)
+
+def verdict(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Bool:
+  +x = Ty.ix_of(b)
+  ck_c(incid_ok(b, x), b, x, prof, fuel)
+
+def ck_done_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
+  match done:
+    case False{}: Ty.terr(T.F_exhausted{})
+    case True{}: Bool.pick(Ty.TRes, verdict(b, prof, fuel), Ty.tok_brep(b), Ty.terr(T.F_invalid{}))
+
+def ck_after_a(ok: Bool, +ra: Ty.TRes, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
+  match ok:
+    case False{}: ra
+    case True{}: ck_done_go(ck_done(b, fuel), b, prof, fuel)
 
 def brep_checked(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +vs = Ty.brep_vs(b)
-  +es = Ty.brep_es(b)
-  +ces = Ty.brep_ces(b)
-  +lps = Ty.brep_lps(b)
-  +fas = Ty.brep_fas(b)
-  +shs = Ty.brep_shs(b)
-  +sos = Ty.brep_sos(b)
-  +top = Ty.brep_top(b)
-  +stamp = Ty.brep_stamp(b)
-  +ra = Ty.mk_brep(vs, es, ces, lps, fas, shs, sos, top, stamp,
-    fuel)
-  +ok_a = Ty.tres_ok(ra)
-  +rest = brep_ck_b(b, prof, fuel)
-  Bool.pick(Ty.TRes, ok_a, rest, ra)
+  +ra = Ty.mk_brep(Ty.brep_vs(b), Ty.brep_es(b), Ty.brep_ces(b), Ty.brep_lps(b), Ty.brep_fas(b),
+    Ty.brep_shs(b), Ty.brep_sos(b), Ty.brep_top(b), Ty.brep_stamp(b), fuel)
+  ck_after_a(Ty.tres_ok(ra), ra, b, prof, fuel)

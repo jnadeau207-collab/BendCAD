@@ -6,10 +6,10 @@ and exact fallback. Exit: adversarial near-degenerate cases match
 independent exact results; uncertain calculations never silently choose
 a side.
 
-Implementation: `src/c02/types.bend` (signs, results, constants, exact
-small-integer domain, sign-magnitude arithmetic), `src/c02/ops.bend`
-(filters, exact kernels, the four predicates, segment relation,
-triangle classification). Laws+proofs: `laws/c02.bend`. Tests:
+Implementation: `src/c02/types.bend` (signs, results, constants),
+`src/base/ex.bend` (floating-point expansion arithmetic, shared with
+C05), `src/c02/ops.bend` (filters, exact expansion kernels, the four
+predicates, segment relation, triangle classification). Laws+proofs: `laws/c02.bend`. Tests:
 `tests/c02/check.bend` (support), `tests/c02/neg.bend`,
 `tests/c02/pos.bend`.
 
@@ -43,14 +43,17 @@ Every predicate runs one total order (`ops.bend`):
 4. Shortcut: orient2d opposite-sign products, or 3x3/4x4
    positive/negative part exactly zero → the certified NONZERO sign.
 5. Error bound `|det| > K·detsum` → the certified NONZERO sign.
-6. All coordinates integral within the predicate's exact domain →
-   the exact determinant sign (zero or not).
-7. Else `numerical-uncertainty`: filter silent, exact domain
-   inapplicable — an honest abstention, never a guessed side.
+6. Exact expansion evaluation of the same determinant (§4) → the
+   exact sign of the determinant of the supplied values (zero or not).
+7. Else `numerical-uncertainty`: the expansion is not representable
+   (a partial product or sum overflows, or a product's rounding error
+   falls below the subnormal grid) — an honest abstention, never a
+   guessed side.
 
 Zero signs come ONLY from exact paths (steps 2, 6). A computed F64
-zero never certifies: `neg-tri-unc` pins a case whose computed
-determinant is exactly `0.0` with true determinant `+4` → uncertain.
+zero never certifies: `pos-tri-far-exact` pins a case whose computed
+determinant is exactly `0.0` with true determinant nonzero, now
+decided by the expansion.
 
 ## 3. Filter error analysis
 
@@ -92,29 +95,43 @@ Reordering needs a contract amendment and re-pinning.
 Category: stated analysis + pin-tested behavior (§9 differential),
 never relabeled as proven (C01 §11 discipline).
 
-## 4. Exact small-integer domains
+## 4. Exact expansion fallback (all finite doubles)
 
-`sint_of` detects integrality by truncation roundtrip:
-`mag = to_u64(|x|)`, ok iff `to_f64(mag) == |x|` and `mag <= lim`
-(all mags < 2^53 convert exactly; `-0.0` normalizes to `+0`).
-Determinants run in sign-magnitude `SB` arithmetic over U64 with
-these domains and maxima (wrap impossible by construction):
+Since R0.2 the fallback is Shewchuk expansion arithmetic
+(`src/base/ex.bend`), not a small-integer kernel. An expansion is a
+nonoverlapping list of F64 components, least significant first, whose
+exact sum is the represented value. Primitives: `two_sum` (Knuth,
+6 flops) and `two_prod` (`F64.fma` error term); `ex_grow`/`ex_add`
+(grow-expansion with zero elimination), `ex_scale`, `ex_mul`,
+`ex_dif` (exact difference of two doubles). The determinant is
+evaluated with the SAME cofactor expansion as the filter, over
+expansion-valued differences, so its sign is the exact sign of the
+determinant of the supplied values. `ex_sign` reads the sign of the
+most significant nonzero component.
 
-| Predicate | \|coord\| limit | Max \|det\| | U64 margin |
-|---|---|---|---|
-| orient2d | 2^26 | 2^55 | 9 bits |
-| orient3d | 2^12 | 6·2^39 < 2^42 | 22 bits |
-| incircle | 2^8 | 6·2^37 < 2^40 | 24 bits |
-| insphere | 2^8 | 4·2^50 = 2^52 | 12 bits |
+Representability is tracked, not assumed. Every expansion carries an
+`ok` flag, cleared when any `two_sum` result is nonfinite or when a
+product is not exactly split: `prod_exact(a, b, p)` requires `p`
+finite and `lsb(a) + lsb(b) ≥ 1076` (biased exponents of the lowest
+set mantissa bits), i.e. the exact product's lowest bit lies on the
+F64 grid, so `p + fma(a, b, −p)` is exact. A cleared flag yields
+`Su` → `numerical-uncertainty`. Zero factors are always exact.
 
-Exactness is about the SUPPLIED coordinates (MASTER_PLAN §10): the
-kernel signs the determinant of the given F64 values exactly when
-they are small integers; it never repairs information lost earlier.
-For orient3d/incircle integer domains the filter already decides
-every nonzero case (`|det| >= 1` exceeds `K·detsum_max`), so their
-exact path fires for zeros (pinned `o3-coplanar_zero`, `ic-on_zero`,
-`is-on_zero`); orient2d/insphere admit nonzero exact wins (pinned
-`o2-near_neg`: true det −1, filter bound ≈ 2.0).
+Consequence: every finite input whose intermediate products stay
+inside the F64 exponent range is decided exactly: integral or not,
+near-degenerate or not. Abstention is confined to overflow scale
+(coordinates near `DBL_MAX`: `neg-o2-ovf`, `neg-o3-ovf`,
+`neg-ic-ovf`, `neg-is-ovf`, `neg-seg-ovf`, `neg-tri-ovf`, and laws
+`o2_ovf_unc`, `o3_ovf_unc`, `ic_ovf_unc`, `is_ovf_unc`, `seg_ovf_unc`) and
+subnormal-scale products whose error term leaves the grid
+(`neg-o2-sub`). Exactness remains about the SUPPLIED coordinates
+(MASTER_PLAN §10): the kernel never repairs information lost before
+the call.
+
+Cost: the filter decides almost every call in O(1). The fallback is
+O(k²) in expansion length k (bounded by the determinant size, at
+most a few hundred components for insphere), and runs only when the
+filter is silent.
 
 ## 5. Sign conventions
 
@@ -159,10 +176,11 @@ wins propagation.
 `invalid-input`: nonfinite in any slot of any entry (all four
 predicates, both combinators), degenerate triangle. (Zero-area
 segments are ADMITTED as points, not malformed.)
-`numerical-uncertainty`: near-degenerate non-integral inputs,
-overflow-scale products (`neg-o2-ovf`: DBL_MAX axes),
-subnormal-floor detsum (`neg-o2-tiny`), computed-zero-with-nonzero-
-truth (`neg-tri-unc`). `unsupported-op`, `nonconvergence` (still
+`numerical-uncertainty`: only when the exact expansion is not
+representable (§4): overflow-scale products (`neg-*-ovf`) and
+subnormal products whose rounding error leaves the F64 grid
+(`neg-o2-sub`). Near-degenerate finite inputs of moderate magnitude,
+integral or not, are always decided. `unsupported-op`, `nonconvergence` (still
 reserved), `cancelled`, `resource-exhausted`, and `Incomplete` have
 no C02 trigger: C02 ops are pure O(1) functions with no dispatch,
 no iteration, and no fuel threading — the C00 pipeline keeps that
@@ -183,12 +201,19 @@ proven instances and tests named beside them.
   contradictions (§9).
 - P2 (zero exactness): zero is published only by exact paths.
   Proven: rep-shortcut on NON-INTEGRAL duplicates (`o2-rep-zero`),
-  integer zeros (`o2-coll-zero`, `o3-coplanar-zero`, `ic/ic/on`,
-  `is-on-zero`). Tested: computed-zero pins report uncertain
-  (`neg-tri-unc`, stress truth-zero-nonintegral cases).
-- P3 (exact completeness on domains): integer inputs within §4
-  limits are always decided exactly. Tested: every must-exact
-  stress case decided (0 misses), `pos-sint-*` boundary pins.
+  expansion zeros (`o2-coll-zero`, `o3-coplanar-zero`, `ic-on-zero`,
+  `is-on-zero`). Tested: computed-zero-with-nonzero-truth pins are
+  decided with the true sign (`pos-tri-far-exact`), stress
+  truth-zero non-integral cases decided zero.
+- P3 (exact completeness): every finite input whose expansion is
+  representable (§4) is decided exactly. Proven: non-integral
+  near-degenerate instances per predicate (`o2_near_exact`,
+  `o2_tiny_exact`, `o3_near_exact`, `ic_near_exact`,
+  `is_near_exact`, and `seg_near_exact` for the combinator), each of
+  which the pre-R0.2 kernel reported
+  uncertain. Tested: the R0.2 oracle (§9) finds 0 moderate-magnitude
+  uncertain results; the pre-R0.2 kernel gives 464–468 per seed on
+  the same cases.
 - P4 (entry boundary): nonfinite in any component of any entry
   fails as `invalid-input`. Proven: per-predicate instances.
   Tested: `neg-*-nan/inf/ninf` for every entry path.
@@ -213,7 +238,13 @@ grep -rn '@unsafe' src/c02 laws/c02.bend tests/c02  # no matches
 grep -rn 'F32\|f32' src/c02 laws/c02.bend tests/c02  # no matches
 ```
 
-Truth oracle: python `Fraction` on the exact supplied F64 values
+R0.2 oracle: `python tools/oracle/c02/oracles.py` generates 1324
+cases per seed (random, near-degenerate by construction, integral
+and non-integral, subnormal and overflow scale), evaluates them
+natively, and compares with `Fraction` truth: wrong sign = 0 (any
+magnitude), uncertain at moderate magnitude = 0.
+
+Pre-R0.2 truth oracle: python `Fraction` on the exact supplied F64 values
 (spec: exactness is about the supplied coordinates) plus `struct`
 bit pins; an independent F64 path model predicted filter-vs-exact
 routing for every pinned case. Differential: 1313 randomized +
@@ -225,12 +256,11 @@ stdout; see the receipt for hashes and counts.
 
 ## 10. Limitations (honest scope, not placeholders)
 
-- Overflow-scale products and subnormal-floor detsums report
-  uncertainty even when the sign looks obvious (pinned
-  `neg-o2-ovf`, `neg-o2-tiny`); 1e150-scale is decided (`pos-o2-big150`).
-- Exactness covers small-integer coordinates (§4) only; general
-  expansion arithmetic is NOT implemented — non-integral
-  near-degenerate inputs abstain honestly instead.
+- Overflow-scale products and subnormal products whose error term
+  leaves the F64 grid report uncertainty even when the sign looks
+  obvious (pinned `neg-*-ovf`, `neg-o2-sub`); 1e150-scale is decided
+  (`pos-o2-big150`). Scaling inputs by a power of two before the
+  call would extend the decided range; not implemented.
 - incircle/insphere return raw determinant signs without
   orientation canonicalization (§5).
 - §3 bounds are stated + pin/differential-tested, not

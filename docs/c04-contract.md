@@ -150,15 +150,18 @@ Construction protocol, in order:
 6. `brep_set_top` replaces the root totally (liveness of the
    new top is `brep_checked`, not here).
 7. `brep_checked(b, profile, fuel)` (ops.bend, IMPLEMENTED)
-   runs stages in order, earlier invalid winning over later
-   exhaustion: A. store re-validation via `mk_brep` (catches
-   raw `Br`); B. incidence (every member handle live);
+   runs A. store re-validation via `mk_brep` (catches raw
+   `Br`; its own invalid/exhausted verdict wins); then, since
+   R0.2 (§16), `resource-exhausted` iff `fuel < ix_bound(b)`
+   (the longest store or member list), else the conjunction
+   of B..L in this order, each decided on the store index
+   `Ty.Ix`: B. incidence (every member handle live);
    C. edge-use pairing (solid: twice opposite; open:
    once/twice, twice ⇒ opposite); D. loop closure (oriented
    vertex chain meets + closed) + no same-coedge dup
    (`hc_nodup_c`; repeated start vertices are NOT
-   auto-invalid) + seam double-use (`loop_seam_go`,
-   opposite `fwd`) + singleton pole (`loop_pole_go`) +
+   auto-invalid) + seam double-use (`loop_seam_ok`,
+   opposite `fwd`) + singleton pole (`loop_pole_ok`) +
    trim meets in face `(u,v)` (geometric coincidence is
    stage J);
    E. exactly one `LK_outer` per face; F. hierarchy/profile
@@ -171,15 +174,17 @@ Construction protocol, in order:
    this F64 evaluation, overflow rejected, NOT
    real-arithmetic); H. vertex links (solid: every coedge
    in exactly one loop, each vertex fan a single
-   `twin(prev())` orbit; open: vacuous); I. shell
+   `twin(prev())` orbit, a vertex whose orbit enters a cycle
+   it is not on is invalid; open: vacuous); I. shell
    connectedness (each shell's face-edge graph connected:
    faces adjacent iff sharing one underlying edge,
    vertex-touching does not connect; both profiles);
-   J. coincident distinct vertices (exact `pteq3` pairwise,
-   both profiles); K. same-face straight-edge segment
+   J. coincident distinct vertices (exact point equality,
+   decided by sorting, both profiles); K. same-face straight-edge segment
    crossing (`orient3d` coplanarity + `seg_seg` proper in
-   `xy`/`xz`/`yz`, fail-closed: predicate uncertainty
-   rejects, NOT a proven crossing; both profiles);
+   `xy`/`xz`/`yz`, candidates from a bounding-box sweep,
+   fail-closed: predicate uncertainty rejects, NOT a proven
+   crossing; both profiles);
    L. orientation, split: L-plane certifies per-face
    boundary winding vs the `same`-adjusted plane normal in
    the loop kind's sense (outer aligned, hole opposed) ONLY
@@ -191,7 +196,7 @@ Construction protocol, in order:
    edge is re-traversed as an explicit redundant recheck
    (`same` never compared across faces). The recheck is not
    profile-parameterized: it runs the solid use-rule
-   (`ces_use_go` under `P_manifold_solid`) and is vacuous
+   (`use_rule_ok` under `P_manifold_solid`) and is vacuous
    (`ok=True`) for edges that are not twice-opposite, hence
    harmless under the open profile; the per-loop verdict it
    rechecks (`loop_orient_c`) is itself profile-independent.
@@ -546,8 +551,8 @@ hand-written ones.
   penetration (C07).
 - Duplicate-incidence, not self-intersection (L0/L1
   closeout rework): stage D checks no same-coedge dup
-  (`hc_nodup_c`) with seam double-use (`loop_seam_go`,
-  opposite `fwd`) and singleton pole (`loop_pole_go`)
+  (`hc_nodup_c`) with seam double-use (`loop_seam_ok`,
+  opposite `fwd`) and singleton pole (`loop_pole_ok`)
   allowed; repeated start vertices alone do NOT reject.
   Coincident DISTINCT vertices are a stage J verdict
   (`ck_coin`); same-face straight-edge crossings are a
@@ -660,15 +665,15 @@ appears in exactly one class):
   nil-walk and fuel-0 structural base cases. Named in
   full: `l1_use_go_nil`, `l1_es_use_nil`, `l1_ov_swap`,
   `l1_trim_o_start`, `l1_trim_o_end`, `l1_trim_swap`,
-  `l1_nodup_nil`, `l1_seam_free_nil`, `l1_seam_go_nil`,
+  `l1_nodup_nil`, `l1_seam_run_nil`, `l1_seam_go_nil`,
   `l1_mem_nil`, `l1_last_nil`, `l1_prev_nil`,
-  `l1_hcprev_nil`, `l1_twin_nil`, `l1_vorbit_fuel0`,
+  `l1_hcprev_nil`, `l1_twin_nil`, `l1_orbit_tail`,
   `l1_vxlink_fuel0`, `l1_cov_nil`, `l1_start_nil`,
   `l1_have_nil`, `l1_share_nil`, `l1_hls_nil`,
-  `l1_hlps_nil`, `l1_bfs_nil`, `l1_bfs_done`,
+  `l1_hlps_nil`, `l1_conn_nil`, `l1_conn_rule`,
   `l1_ekind_curve`, `l1_edge_line`, `l1_lines_nil`,
-  `l1_lines_fuel0`, `l1_orient_c_spec`, `l1_cert_nil`,
-  `l1_skip_nil`, `l1_fcert_nil`, `l1_fskip_nil`. In
+  `l1_lines_cons`, `l1_orient_c_spec`, `l1_oct_hls_nil`,
+  `l1_oct_skip`, `l1_oct_fas_nil`, `l1_oct_bad`. In
   particular `l1_orient_c_spec` proves the wrapper agrees
   with `loop_orient_class` — it does not prove the class
   function itself implements geometric orientation; that
@@ -769,11 +774,11 @@ witness green on all three lanes this turn.
 | Trim / embedding diagnosed | §4; §6–§7 | stage D uv-meet + stage G C03/qmem | — | `ck_trimx`/`ck_embx`/`ck_offquad` + `neg-ck-trimx/embx/offquad` | yes (`l1_chain_*`, `l1_trim_*`, `qmem_*`) | 3LANE + L1 + REG | PASS |
 | Kind / ownership diagnosed | §1 hierarchy; §4 solid | stage F kind + ownership walks | — | `ck_open_solid`/`ck_alias`/`ck_outerkind`/`ck_cavdup`/`ck_reuse`/`ck_cpshare` + 6 `neg-ck-*`; `neg-ck-alias-loop/face/solid` | yes (`own_*`, `cpown_*`, `hlf_*`, `hfos_*`) | 3LANE + REG | PASS |
 | Vertex-link pinch diagnosed | §4; §12 (IMPLEMENTED) | stage H single `twin(prev())` orbit | `pos-ck-h-seam/h-pole/h-highval` (link accepts) | `ck_pinch` + `neg-ck-pinch`; `neg-ck-h-disc/wrongtwin/dupce/ce0/ce2/multi/rev` | yes (`l1_step`, `l1_mem/prev/twin_*`, `link_*`) | 3LANE + L1 | PASS |
-| Disconnected shell diagnosed | §4; A1 exit | stage I face-edge graph | — | `ck_split` + `neg-ck-split`; `ck_split_open` + `neg-ck-split-open` | yes (`l1_conn*`, `l1_bfs_*`, `l1_share_*`) | 3LANE + L1 | PASS |
-| Coincident vertices diagnosed | §4; A1 exit | stage J exact `pteq3` | — | `ck_coin` + `neg-ck-coin` | yes (`coin_*`) | 3LANE | PASS |
+| Disconnected shell diagnosed | §4; A1 exit | stage I face-edge graph | — | `ck_split` + `neg-ck-split`; `ck_split_open` + `neg-ck-split-open` | yes (`l1_conn*`, `l1_share_*`, `l1_faces_*`) | 3LANE + L1 | PASS |
+| Coincident vertices diagnosed | §4; A1 exit | stage J exact equality by sort (R0.2) | — | `ck_coin` + `neg-ck-coin` | yes (`coin_*`) | 3LANE | PASS |
 | Segment crossing diagnosed | §4; A1 exit (fail-closed) | stage K coplanar+proper-cross | — | `ck_xing` + `neg-ck-xing` | yes (`segx_*`, `xing_*`) | 3LANE | PASS |
 | Face-orientation mismatch diagnosed | §4; §12 (L-plane certified) | stage L kind-aware winding + recheck | `ck_oriprop_ok` + `pos-ck-oriprop`; `ck_diffparam_ok` + `pos-ck-diffparam` | `ck_invface` + `neg-ck-invface`; `ck_hole_bad/bad2` + `neg-ck-hole-bad/bad2` | yes (`l1_orient_c_spec`, `l1_varying_nofail`, `recheck_*`, `cert/skip_*`) | 3LANE + L1 | PASS |
-| Fuel exhaustion diagnosed | §5; §8 (BN-8) | every stage walk `resource-exhausted` | — | `ck_fuel` + `neg-ck-fuel`; `neg-*-0` pins | yes (walk fuel-0 bases, `l1_*_fuel0`) | 3LANE + REG | PASS |
+| Fuel exhaustion diagnosed | §5; §8 (BN-8) | `fuel < ix_bound` → `resource-exhausted` (R0.2, §16) | — | `ck_fuel` + `neg-ck-fuel`; `neg-*-0` pins | yes (`l1_vxlink_fuel0`, `l1_nodup_nil`, `coin_fuel`) | 3LANE + REG | PASS |
 
 Matrix closure: all 32 `ck_*` laws appear above (10 accepts +
 21 rejects + fuel); all 13 runtime `pos-ck-*` accepts and all
@@ -781,3 +786,112 @@ Matrix closure: all 32 `ck_*` laws appear above (10 accepts +
 items (global outwardness, cavity inside/disjoint, curved-edge
 and cross-face penetration, exact containment) have no matrix
 row by design — they are §12 limitations, not exit claims.
+
+## 16. Amendment R0.2 — validation rebuilt on a store index
+
+R0.2 (2026-10-01) replaced every list walk and pairwise scan in
+`brep_checked` with an index and sorted passes. Construction (§3
+steps 1–6) and `mk_brep` are unchanged, apart from duplicate-generation
+detection, which now sorts. §16 supersedes earlier wording in §3, §8
+(stages), §9 BN-8 and §10 where they differ.
+
+### 16.1 Index
+
+`Ty.Ix` (types.bend) holds the seven stores as balanced trees
+(`B.tb_of`) with their lengths. `ix_vx`/`ix_ed`/`ix_ce`/`ix_lp`/
+`ix_fa`/`ix_sh`/`ix_so` resolve a handle in `O(log n)` with exactly
+the verdict of the list `*_resolve` (out of range or generation
+mismatch → `invalid-input`). `ix_bound(b)` is the larger of the
+longest store and the longest member list (loop coedges, face
+loops, shell faces, solid shells).
+
+### 16.2 Fuel
+
+A stage decides iff `fuel ≥ ix_bound(b)`; otherwise its code is
+`0` (not done). `brep_checked` runs A, then reports
+`resource-exhausted` iff `fuel < ix_bound(b)`, else the verdict of
+B..L evaluated as a short-circuit conjunction. This is the §8
+statement made exact: before R0.2 each walk spent its own fuel, so
+some intermediate fuel values gave per-walk codes that §8 did not
+promise. Every fuel law and pin (`ck_fuel`, `neg-*-0`, `*_fuel`)
+holds unchanged, and the old implementation's cost grew with the
+fuel cap even on valid input: at fuel 10⁸ it overflowed the stack
+after 305 s on an 8-entity prism.
+
+### 16.3 Stages
+
+| Stage | Before | R0.2 |
+|---|---|---|
+| Handle resolution | list walk per lookup, `O(n)` | tree, `O(log n)` |
+| B incidence | resolve per member | index, `O(n log n)` |
+| C edge uses | per-edge scan of all coedges, `O(E·C)` | sort coedge-use keys, one grouped pass, `O(C log C)` |
+| D loop rules | membership and seam scans per coedge | chain via index; duplicates and seams by sort, `O(L log L)` per loop |
+| E/F kind, ownership | pairwise `free_of` walks | key sort, `hks_distinct`, `O(n log n)` |
+| G embedding | per-vertex resolve | index, `O(n log n)` |
+| H vertex links | walk each orbit with fuel | `prev`/`twin` maps by sort; orbits by pointer jumping on the `twin(prev())` functional graph, `O(C log C)` |
+| I connectivity | BFS with list membership | edge-incidence sort (`sh_adj`) + `B.components`, `O(n log n)` |
+| J coincidence | all pairs | sort points, compare neighbours, `O(V log V)` |
+| K crossing | all same-face edge pairs | bounding-box sweep for safe segments, exhaustive pairs only for risky ones (§16.4) |
+| L orientation | per-loop walks, per-edge recheck scans | loop classes cached per store loop, recheck by sorted maps, `O(n log n)` |
+
+One deliberate verdict change: a vertex whose `twin(prev())` orbit
+enters a cycle it is not on was `resource-exhausted` at every fuel
+(the walk never returned to its start); it is now `invalid-input`.
+Law `l1_vxlink_rho` pins it; the pre-R0.2 code returns fuel-out on
+the same fixture even at fuel 2000 (`tools/oracle/c04/disc_rho.bend`).
+Laws `l1_orbit_tail`, `l1_orbit_cycle` and `l1_orbit_tail_step` pin
+the orbit facts it rests on.
+
+### 16.4 Stage K candidates
+
+A segment is safe when every coordinate is 0 or has magnitude in
+`[2^-300, 2^300]`; its bounding box then cannot hide a crossing
+through rounding, and the sweep reports every pair whose boxes
+overlap. Pairs involving a risky segment are checked exhaustively.
+Each candidate pair still goes through the certified C02 predicates
+(`orient3d` coplanarity, `seg_seg` proper), and since R0.2 those
+decide every finite input of moderate magnitude, non-integral
+collinear edges included (C02 §4).
+
+### 16.5 Evidence
+
+- Differential oracle (`tools/oracle/c04/diff_oracle.py`): the new
+  `ops.bend` against the pre-R0.2 one (`tools/oracle/c04/ref/`) on
+  prisms and holed plates under 17 mutation kinds, single and
+  compound, comparing all 14 stage codes and `brep_checked`.
+  Seeds 11/23/101: 1026 cases, 0 mismatches apart from the orbit
+  change above (30 cases, each confirmed fuel-out on the old side at
+  4× fuel).
+- Planted-bug check (`tools/oracle/c04/plant.py`): each of the ten
+  stage predicates forced to `True` in turn is detected (mismatches
+  ≥ 1 for every one).
+- Laws: 597 (5 new: `l1_seam_use_same`, `l1_orbit_cycle`,
+  `l1_orbit_tail_step`, `l1_vxlink_rho`, `l1_conn_dup_face`); 94
+  restated against the new internals on the same micro-fixtures, none
+  weakened. Renamed with their subject: `l1_vorbit_fuel0` →
+  `l1_orbit_tail`, `l1_lines_fuel0` → `l1_lines_cons`,
+  `l1_bfs_nil`/`l1_bfs_done` → `l1_conn_nil`/`l1_conn_rule`,
+  `l1_cert_nil`/`l1_skip_nil`/`l1_fcert_nil`/`l1_fskip_nil` →
+  `l1_oct_hls_nil`/`l1_oct_skip`/`l1_oct_fas_nil`/`l1_oct_bad`,
+  `l1_seam_free_nil` → `l1_seam_run_nil`.
+- Suites: neg 126/126 and pos 282/282, byte-identical to the
+  pre-R0.2 output on all three lanes.
+
+### 16.6 Measured (native lane, idle machine, `tools/bench/bench.py`)
+
+| Workload | Entities | Pre-R0.2 | R0.2 |
+|---|---|---|---|
+| Holed plate, open shell | 104 | 0.30 s | 0.05 s |
+| Holed plate | 404 | 16.2 s | 0.19 s |
+| Holed plate | 1,604 | — | 0.83 s |
+| Holed plate | 6,404 | — | 5.0 s |
+| Comb prism, solid | 80 | 24.1 s (fuel 1000) | 0.24 s |
+| Comb prism | 400 | — | 1.25 s |
+| Comb prism | 1,000 | — | 3.7 s |
+
+Times include building the brep with `push` (§3 step 2), which is
+`O(n)` per push because stores are lists: construction measured
+1.0 s of the 1,000-entity prism's 3.7 s and 2.2 s of the 6,404-entity
+plate's 5.0 s. A tree-backed builder belongs with the
+first operation that creates breps in bulk (C06).
+

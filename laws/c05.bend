@@ -3,33 +3,34 @@ import ../src/c00/types.bend as T
 import ../src/c05/exact.bend as X
 import ../src/c05/arrange.bend as A
 import ../src/c05/solve.bend as S
-import ../src/c05/par.bend as P
+import ../src/base/par.bend as P
+import ../src/base/ex.bend as E
 
 law sgn_neg_invol:
-  for s: X.Sgn
-  {X.sgn_neg(X.sgn_neg(s)) == s : X.Sgn}
+  for s: P.Sgn
+  {P.sgn_neg(P.sgn_neg(s)) == s : P.Sgn}
 
 def sgn_neg_invol(s):
   match s:
-    case X.Sn{}: {==}
-    case X.Sz{}: {==}
-    case X.Sp{}: {==}
-    case X.Su{}: {==}
+    case P.Sn{}: {==}
+    case P.Sz{}: {==}
+    case P.Sp{}: {==}
+    case P.Su{}: {==}
 
 law sgn_is_refl:
-  for s: X.Sgn
-  {X.sgn_is(s, s) == True{} : Bool}
+  for s: P.Sgn
+  {P.sgn_is(s, s) == True{} : Bool}
 
 def sgn_is_refl(s):
   match s:
-    case X.Sn{}: {==}
-    case X.Sz{}: {==}
-    case X.Sp{}: {==}
-    case X.Su{}: {==}
+    case P.Sn{}: {==}
+    case P.Sz{}: {==}
+    case P.Sp{}: {==}
+    case P.Su{}: {==}
 
 law sgn_neg_of_neg:
   for b: Bool
-  {X.sgn_neg(X.sgn_of_neg(b)) == X.sgn_of_neg(Bool.not(b)) : X.Sgn}
+  {P.sgn_neg(E.sgn_of_neg(b)) == E.sgn_of_neg(Bool.not(b)) : P.Sgn}
 
 def sgn_neg_of_neg(b):
   match b:
@@ -38,7 +39,7 @@ def sgn_neg_of_neg(b):
 
 law ex_uncertain_dominates:
   for cs: List<&2, F64>
-  {X.ex_sign(X.Ex{False{}, cs}) == X.Su{} : X.Sgn}
+  {E.ex_sign(E.Ex{False{}, cs}) == P.Su{} : P.Sgn}
 
 def ex_uncertain_dominates(cs):
   {==}
@@ -46,23 +47,23 @@ def ex_uncertain_dominates(cs):
 law ex_neg_keeps_ok:
   for ok: Bool
   for cs: List<&2, F64>
-  {X.ex_ok(X.ex_neg(X.Ex{ok, cs})) == ok : Bool}
+  {E.ex_ok(E.ex_neg(E.Ex{ok, cs})) == ok : Bool}
 
 def ex_neg_keeps_ok(ok, cs):
   {==}
 
 law ex_add_taints:
-  for a: X.Ex
+  for a: E.Ex
   for cs: List<&2, F64>
-  {X.ex_ok(X.ex_add(a, X.Ex{False{}, cs})) == False{} : Bool}
+  {E.ex_ok(E.ex_add(a, E.Ex{False{}, cs})) == False{} : Bool}
 
 def ex_add_taints(a, cs):
   {==}
 
 law ex_mul_taints:
-  for a: X.Ex
+  for a: E.Ex
   for cs: List<&2, F64>
-  {X.ex_ok(X.ex_mul(a, X.Ex{False{}, cs})) == False{} : Bool}
+  {E.ex_ok(E.ex_mul(a, E.Ex{False{}, cs})) == False{} : Bool}
 
 def ex_mul_taints(a, cs):
   {==}

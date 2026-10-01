@@ -1,5 +1,16 @@
 import Base
-import ./exact.bend as X
+
+type Sgn is Data:
+  Sn{}
+  Sz{}
+  Sp{}
+  Su{}
+
+def sgn_pick(n: Bool, p: Bool) -> Sgn:
+  match n p:
+    case True{} _: Sn{}
+    case _ True{}: Sp{}
+    case _ _: Sz{}
 
 type Tr<a, -A: Kind(a)> is Kind(a):
   TL{ v: A }
@@ -20,6 +31,28 @@ type Dm is Data:
 def inf() -> U32:
   4294967295
 
+def sgn_show(s: Sgn) -> String:
+  match s:
+    case Sn{}: "neg"
+    case Sz{}: "zero"
+    case Sp{}: "pos"
+    case Su{}: "uncertain"
+
+def sgn_neg(s: Sgn) -> Sgn:
+  match s:
+    case Sn{}: Sp{}
+    case Sz{}: Sz{}
+    case Sp{}: Sn{}
+    case Su{}: Su{}
+
+def sgn_is(s: Sgn, w: Sgn) -> Bool:
+  match s w:
+    case Sn{} Sn{}: True{}
+    case Sz{} Sz{}: True{}
+    case Sp{} Sp{}: True{}
+    case Su{} Su{}: True{}
+    case _ _: False{}
+
 def upick(c: Bool, +a: U32, +b: U32) -> U32:
   match c:
     case True{}: a
@@ -28,10 +61,10 @@ def upick(c: Bool, +a: U32, +b: U32) -> U32:
 def u_le(+a: U32, +b: U32) -> Bool:
   Bool.not(U32.is_lt(b, a))
 
-def u_cmp_go(+a: U32, +b: U32) -> X.Sgn:
-  X.sgn_pick(U32.is_lt(a, b), U32.is_lt(b, a))
+def u_cmp_go(+a: U32, +b: U32) -> Sgn:
+  sgn_pick(U32.is_lt(a, b), U32.is_lt(b, a))
 
-def u_cmp(a: U32, b: U32) -> X.Sgn:
+def u_cmp(a: U32, b: U32) -> Sgn:
   u_cmp_go(a, b)
 
 def ulen_go(-A: Data, xs: List<&2, A>, +n: U32) -> U32:
@@ -137,14 +170,14 @@ def tb_list(-A: Data, tb: Tb<&2, A>) -> List<&2, A>:
   Tb{n, t} = tb
   tr_list(A, t, [])
 
-def mg_step(-A: Data, c: X.Sgn, +ok: Bool, acc: List<&2, A>, x: A, xt: List<&2, A>,
+def mg_step(-A: Data, c: Sgn, +ok: Bool, acc: List<&2, A>, x: A, xt: List<&2, A>,
     y: A, yt: List<&2, A>) -> Mg<&2, A>:
   match c:
-    case X.Sp{}: Mg{ok, y <> acc, x <> xt, yt}
-    case X.Su{}: Mg{False{}, x <> acc, xt, y <> yt}
+    case Sp{}: Mg{ok, y <> acc, x <> xt, yt}
+    case Su{}: Mg{False{}, x <> acc, xt, y <> yt}
     case _: Mg{ok, x <> acc, xt, y <> yt}
 
-def mg_go(~A: Data, ~cmp: A -> A -> X.Sgn, fuel: Nat, st: Mg<&2, A>) -> Mg<&2, A>:
+def mg_go(~A: Data, ~cmp: A -> A -> Sgn, fuel: Nat, st: Mg<&2, A>) -> Mg<&2, A>:
   match fuel:
     case 0n: st
     case 1n+f:
@@ -159,12 +192,12 @@ def mg_fin(-A: Data, st: Mg<&2, A>) -> So<&2, A>:
   Mg{ok, acc, xs, ys} = st
   So{ok, List.reverse.go(&2, A, acc, List.append(&2, A, xs, ys))}
 
-def ms_join(~A: Data, ~cmp: A -> A -> X.Sgn, a: So<&2, A>, b: So<&2, A>, +n: U32) -> So<&2, A>:
+def ms_join(~A: Data, ~cmp: A -> A -> Sgn, a: So<&2, A>, b: So<&2, A>, +n: U32) -> So<&2, A>:
   So{oa, xa} = a
   So{ob, xb} = b
   mg_fin(A, mg_go(~A, ~cmp, U32.to_nat(n), Mg{Bool.and(oa, ob), [], xa, xb}))
 
-def ms(~A: Data, ~cmp: A -> A -> X.Sgn, d: Nat, small: Bool, +n: U32, +xs: List<&2, A>) -> So<&2, A>:
+def ms(~A: Data, ~cmp: A -> A -> Sgn, d: Nat, small: Bool, +n: U32, +xs: List<&2, A>) -> So<&2, A>:
   match d:
     case 0n: So{False{}, xs}
     case 1n+(+e):
@@ -176,7 +209,7 @@ def ms(~A: Data, ~cmp: A -> A -> X.Sgn, d: Nat, small: Bool, +n: U32, +xs: List<
           a b = ms(~A, ~cmp, e, U32.is_lt(h, 2), h, take_u(A, xs, h, U32.is_eq(h, 0))) ms(~A, ~cmp, e, U32.is_lt(m, 2), m, drop_u(A, xs, h, U32.is_eq(h, 0)))
           ms_join(~A, ~cmp, a, b, n)
 
-def msort(~A: Data, ~cmp: A -> A -> X.Sgn, +xs: List<&2, A>) -> So<&2, A>:
+def msort(~A: Data, ~cmp: A -> A -> Sgn, +xs: List<&2, A>) -> So<&2, A>:
   +n = ulen(A, xs)
   ms(~A, ~cmp, 40n, U32.is_lt(n, 2), n, xs)
 
@@ -289,15 +322,15 @@ def hk_keep(xs: List<&2, HK>) -> List<&2, HK>:
     case Nil{}: []
     case +h <> t: hk_keep_go(hk_ok(h), h, hk_keep(t))
 
-def lex_u(c: X.Sgn, +a: U32, +b: U32) -> X.Sgn:
+def lex_u(c: Sgn, +a: U32, +b: U32) -> Sgn:
   match c:
-    case X.Sz{}: u_cmp(a, b)
+    case Sz{}: u_cmp(a, b)
     case _: c
 
-def hk_cmp_go(+a: HK, +b: HK) -> X.Sgn:
+def hk_cmp_go(+a: HK, +b: HK) -> Sgn:
   lex_u(u_cmp(hk_hi(a), hk_hi(b)), hk_lo(a), hk_lo(b))
 
-def hk_cmp(a: HK, b: HK) -> X.Sgn:
+def hk_cmp(a: HK, b: HK) -> Sgn:
   hk_cmp_go(a, b)
 
 def hk_dedup(xs: List<&2, HK>, +prev: U32, first: Bool) -> List<&2, HK>:

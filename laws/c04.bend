@@ -23,6 +23,7 @@ import ../src/c01/types.bend as V
 import ../src/c03/types.bend as G
 import ../src/c04/types.bend as Ty
 import ../src/c04/ops.bend as Op
+import ../src/base/par.bend as B
 
 # --- Bit-equality helpers (exact pins, no show-format dependence) ---
 def pt_bits_eq(+p: V.Point, +wx: U64, +wy: U64, +wz: U64) -> Bool:
@@ -344,6 +345,9 @@ def p500() -> V.Point:
 def vs_q() -> List<&2, Ty.Vertex>:
   Ty.Vx{1u64, p000()} <> Ty.Vx{2u64, p001()} <> Ty.Vx{3u64,
     p500()} <> Nil{}
+
+def ix_vs(+vs: List<&2, Ty.Vertex>) -> Ty.Ix:
+  Ty.ix_mk(vs, Nil{}, Nil{}, Nil{}, Nil{}, Nil{}, Nil{})
 
 def sf_cy() -> G.GVal:
   G.GV_cy{G.Cy{p_cyo(), d100(), 0.5f64}}
@@ -3803,14 +3807,14 @@ def hsh_nd_fuel():
   {==}
 
 law hsh_fo_absent:
-  {Nat.is_eq(Op.hsh_free_of(Ty.mk_hsh(1n, 52u64) <> Nil{},
-    hsh_a(), 8n), 3n) == True{} : Bool}
+  {Nat.is_eq(Op.hsh_nodup_c(hsh_a() <> Ty.mk_hsh(1n, 52u64) <> Nil{},
+    8n), 3n) == True{} : Bool}
 
 def hsh_fo_absent():
   {==}
 
 law hsh_fo_hit:
-  {Nat.is_eq(Op.hsh_free_of(hsh1(), hsh_a(), 8n), 2n)
+  {Nat.is_eq(Op.hsh_nodup_c(hsh_a() <> hsh1(), 8n), 2n)
     == True{} : Bool}
 
 def hsh_fo_hit():
@@ -3901,30 +3905,31 @@ def cpown_dup_no():
   {==}
 
 law hlf_absent:
-  {Nat.is_eq(Op.hsh_list_free_of(
-    Ty.mk_hsh(1n, 52u64) <> Nil{}, hsh1(), 8n, 8n), 3n)
-    == True{} : Bool}
+  {Op.hks_distinct(Op.hss_keys(Ty.mk_hsh(1n, 52u64) <> Nil{},
+    Op.hss_keys(hsh1(), Nil{}))) == True{} : Bool}
 
 def hlf_absent():
   {==}
 
 law hlf_hit:
-  {Nat.is_eq(Op.hsh_list_free_of(hsh1(), hsh1(), 8n, 8n), 2n)
-    == True{} : Bool}
+  {Op.hks_distinct(Op.hss_keys(hsh1(), Op.hss_keys(hsh1(), Nil{})))
+    == False{} : Bool}
 
 def hlf_hit():
   {==}
 
 law hfos_absent:
-  {Nat.is_eq(Op.hsh_free_of_sos(hsh0(), sos1(), 8n, 8n), 3n)
+  {Op.hks_distinct(Op.hss_keys(hsh0(),
+    Op.hks_sorted_uniq(Op.sos_skeys(sos1(), Nil{}))))
     == True{} : Bool}
 
 def hfos_absent():
   {==}
 
 law hfos_hit:
-  {Nat.is_eq(Op.hsh_free_of_sos(hsh1(), sos1(), 8n, 8n), 2n)
-    == True{} : Bool}
+  {Op.hks_distinct(Op.hss_keys(hsh1(),
+    Op.hks_sorted_uniq(Op.sos_skeys(sos1(), Nil{}))))
+    == False{} : Bool}
 
 def hfos_hit():
   {==}
@@ -4680,28 +4685,28 @@ def ck_pinch():
   {==}
 
 law qmem_spon:
-  {Op.vx_surf_on(vs_q(), Ty.mk_hv(0n, 1u64), sf_sp(), 9n)
+  {Op.vx_surf_on(ix_vs(vs_q()), Ty.mk_hv(0n, 1u64), sf_sp())
     == True{} : Bool}
 
 def qmem_spon():
   {==}
 
 law qmem_cyon:
-  {Op.vx_surf_on(vs_q(), Ty.mk_hv(0n, 1u64), sf_cy(), 9n)
+  {Op.vx_surf_on(ix_vs(vs_q()), Ty.mk_hv(0n, 1u64), sf_cy())
     == True{} : Bool}
 
 def qmem_cyon():
   {==}
 
 law qmem_con:
-  {Op.vx_surf_on(vs_q(), Ty.mk_hv(0n, 1u64), sf_co(), 9n)
+  {Op.vx_surf_on(ix_vs(vs_q()), Ty.mk_hv(0n, 1u64), sf_co())
     == True{} : Bool}
 
 def qmem_con():
   {==}
 
 law qmem_toon:
-  {Op.vx_surf_on(vs_q(), Ty.mk_hv(2n, 3u64), sf_to(), 9n)
+  {Op.vx_surf_on(ix_vs(vs_q()), Ty.mk_hv(2n, 3u64), sf_to())
     == True{} : Bool}
 
 def qmem_toon():
@@ -5273,14 +5278,14 @@ def coin_fuel():
   {==}
 
 law link_sq:
-  {Op.vx_link_ok(b_oriprop(), Ty.mk_hv(0n, 1u64), 20n, 20n)
+  {Op.vx_link_ok(b_oriprop(), Ty.mk_hv(0n, 1u64), 20n)
     == 3n : Nat}
 
 def link_sq():
   {==}
 
 law link_pinch:
-  {Op.vx_link_ok(b_pinch(), Ty.mk_hv(0n, 1u64), 20n, 20n)
+  {Op.vx_link_ok(b_pinch(), Ty.mk_hv(0n, 1u64), 20n)
     == 2n : Nat}
 
 def link_pinch():
@@ -5698,6 +5703,55 @@ def l1_lps_twoouter() -> List<&2, Ty.Loop>:
 def l1_lps_inner() -> List<&2, Ty.Loop>:
   Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_inner{}} <> Nil{}
 
+def l1_ixv(+vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>,
+    +ces: List<&2, Ty.Coedge>) -> Ty.Ix:
+  Ty.ix_mk(vs, es, ces, Nil{}, Nil{}, Nil{}, Nil{})
+
+def l1_ix(+es: List<&2, Ty.Edge>, +ces: List<&2, Ty.Coedge>) -> Ty.Ix:
+  Ty.ix_mk(Nil{}, es, ces, Nil{}, Nil{}, Nil{}, Nil{})
+
+def l1_ixl(+lps: List<&2, Ty.Loop>) -> Ty.Ix:
+  Ty.ix_mk(Nil{}, Nil{}, Nil{}, lps, Nil{}, Nil{}, Nil{})
+
+def l1_b_ec(+es: List<&2, Ty.Edge>, +ces: List<&2, Ty.Coedge>) -> Ty.Brep:
+  Ty.Br{Nil{}, es, ces, Nil{}, Nil{}, Nil{}, Nil{},
+    Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_b_single() -> Ty.Brep:
+  Ty.Br{Nil{}, l1_es_line(), l1_ces_one(),
+    Ty.Lp{8u64, l1_hc0() <> Nil{}, Ty.LK_outer{}} <> Nil{}, Nil{},
+    Nil{}, Nil{}, Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_shs_pair() -> List<&2, Ty.Shell>:
+  Ty.Sh{13u64, l1_hf0() <> l1_hf1() <> Nil{}, Ty.SK_outer{}} <> Nil{}
+
+def l1_rho_x() -> Ty.HCoedge:
+  Ty.mk_hc(4n, 23u64)
+
+def l1_b_rho() -> Ty.Brep:
+  Ty.Br{Ty.Vx{1u64, l1_p0()} <> Ty.Vx{2u64, l1_p1()} <>
+      Ty.Vx{3u64, V.Pt{0.0f64, 1.0f64, 0.0f64}} <> Nil{},
+    Ty.Ed{4u64, l1_v0(), l1_v1(), Ty.EK_curve{l1_ln(), l1_dom()}} <>
+      Ty.Ed{5u64, l1_v1(), l1_v0(), Ty.EK_curve{l1_ln(), l1_dom()}} <>
+      Ty.Ed{22u64, l1_v2(), l1_v0(), Ty.EK_curve{l1_ln(), l1_dom()}} <>
+      Nil{},
+    Ty.Ce{6u64, l1_he0(), True{}, Ty.trim_zero()} <>
+      Ty.Ce{7u64, l1_he1(), True{}, Ty.trim_zero()} <>
+      Ty.Ce{20u64, l1_he0(), False{}, Ty.trim_zero()} <>
+      Ty.Ce{21u64, l1_he0(), True{}, Ty.trim_zero()} <>
+      Ty.Ce{23u64, Ty.mk_he(2n, 22u64), True{}, Ty.trim_zero()} <> Nil{},
+    Ty.Lp{8u64, l1_hc0() <> l1_hc1() <> Nil{}, Ty.LK_outer{}} <>
+      Ty.Lp{9u64, Ty.mk_hc(2n, 20u64) <> Nil{}, Ty.LK_outer{}} <>
+      Ty.Lp{30u64, l1_rho_x() <> Ty.mk_hc(3n, 21u64) <> Nil{},
+        Ty.LK_outer{}} <> Nil{},
+    Nil{}, Nil{}, Nil{}, Ty.Cp{Nil{}, Nil{}}, 12u64}
+
+def l1_orb_rho() -> Op.Orb:
+  Op.orb_of(l1_b_rho(), Ty.ix_of(l1_b_rho()), Op.hmap_of(l1_b_rho()))
+
+def l1_rho_id(+h: Ty.HCoedge) -> U32:
+  Op.oc_id(Op.OC{l1_orb_rho(), Ty.ix_of(l1_b_rho())}, h)
+
 # ===== L1-A. Edge-use counts: the stage C rule, quantified. =====
 law l1_use_solid_spec:
   for c: Nat
@@ -5794,70 +5848,68 @@ def l1_use_open_pair(t, f):
         case False{}: {==}
 
 law l1_use_go_nil:
-  for tgt: Ty.HEdge
+  for i: Nat
+  for keys: List<&2, Op.UK>
   for prof: Ty.Profile
-  for fuel: Nat
-  for count: Nat
-  for t: Bool
-  for f: Bool
-  {Op.ces_use_go(Nil{}, tgt, prof, fuel, count, t, f)
-    == Ty.okd_pack(Op.use_rule_ok(count, t, f, prof),
-      True{}) : Nat}
+  {Op.use_go(Nil{}, i, keys, prof) == True{} : Bool}
 
-def l1_use_go_nil(tgt, prof, fuel, count, t, f):
+def l1_use_go_nil(i, keys, prof):
   {==}
 
 law l1_es_use_nil:
   for ces: List<&2, Ty.Coedge>
   for prof: Ty.Profile
-  for fuel: Nat
-  for ffull: Nat
-  for idx: Nat
-  {Op.es_use_c(Nil{}, ces, prof, fuel, ffull, idx)
-    == 3n : Nat}
+  {Op.use_ok(l1_b_ec(Nil{}, ces), prof) == True{} : Bool}
 
-def l1_es_use_nil(ces, prof, fuel, ffull, idx):
+def l1_es_use_nil(ces, prof):
   {==}
 
 law l1_seam_use:
   for f: Bool
-  {Op.ces_use_go(l1_ces_seam(f), l1_he0(),
-    Ty.P_manifold_solid{}, 2n, 0n, False{}, False{})
-    == 3n : Nat}
+  {Op.use_ok(l1_b_ec(l1_es_line(), l1_ces_seam(f)),
+    Ty.P_manifold_solid{}) == True{} : Bool}
 
 def l1_seam_use(f):
   match f:
     case True{}: {==}
     case False{}: {==}
 
-law l1_outer_rule:
-  for lps: List<&2, Ty.Loop>
-  for fuel: Nat
-  for ffull: Nat
-  for count: Nat
-  {Op.hlp_outer_go(Nil{}, lps, fuel, ffull, count)
-    == Ty.okd_pack(Nat.is_eq(count, 1n), True{}) : Nat}
+law l1_seam_use_same:
+  {Op.use_ok(l1_b_ec(l1_es_line(), l1_ces_same()),
+    Ty.P_manifold_solid{}) == False{} : Bool}
 
-def l1_outer_rule(lps, fuel, ffull, count):
+def l1_seam_use_same():
+  {==}
+
+law l1_outer_rule:
+  for g: U64
+  for su: G.GVal
+  for ls: List<&2, Ty.HLoop>
+  for sa: Bool
+  for x: Ty.Ix
+  {Op.fas_kind_ok(Ty.Fa{g, su, ls, sa} <> Nil{}, x)
+    == Bool.and(Nat.is_eq(Op.hls_outer(ls, x), 1n), True{}) : Bool}
+
+def l1_outer_rule(g, su, ls, sa, x):
   {==}
 
 law l1_outer_one:
-  {Op.hlp_outer_go(l1_hl0() <> Nil{}, l1_lps_outer(), 2n,
-    8n, 0n) == 3n : Nat}
+  {Op.hls_outer(l1_hl0() <> Nil{}, l1_ixl(l1_lps_outer()))
+    == 1n : Nat}
 
 def l1_outer_one():
   {==}
 
 law l1_outer_two:
-  {Op.hlp_outer_go(l1_hl0() <> l1_hl1() <> Nil{},
-    l1_lps_twoouter(), 3n, 8n, 0n) == 2n : Nat}
+  {Op.hls_outer(l1_hl0() <> l1_hl1() <> Nil{},
+    l1_ixl(l1_lps_twoouter())) == 2n : Nat}
 
 def l1_outer_two():
   {==}
 
 law l1_outer_zero:
-  {Op.hlp_outer_go(l1_hl0() <> Nil{}, l1_lps_inner(), 2n,
-    8n, 0n) == 2n : Nat}
+  {Op.hls_outer(l1_hl0() <> Nil{}, l1_ixl(l1_lps_inner()))
+    == 0n : Nat}
 
 def l1_outer_zero():
   {==}
@@ -6011,47 +6063,43 @@ def l1_trim_swap(t, f):
     case False{}: {==}
 
 law l1_closure:
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for fuel: Nat
-  for ffull: Nat
+  for x: Ty.Ix
   for pv: Ty.HVertex
   for fv: Ty.HVertex
   for pt: V.Vec2
   for ft: V.Vec2
-  {Op.loop_rest_go(Nil{}, ces, es, fuel, ffull, pv, fv,
-    pt, ft) == Ty.okd_pack(Bool.and(Ty.hv_eq(pv, fv),
-      Op.v2_eq(pt, ft)), True{}) : Nat}
+  {Op.loop_rest_go(Nil{}, x, pv, fv, pt, ft)
+    == Bool.and(Ty.hv_eq(pv, fv), Op.v2_eq(pt, ft)) : Bool}
 
-def l1_closure(ces, es, fuel, ffull, pv, fv, pt, ft):
+def l1_closure(x, pv, fv, pt, ft):
   {==}
 
 law l1_closure_vmiss:
-  {Op.loop_rest_go(Nil{}, Nil{}, Nil{}, 0n, 0n, l1_v0(),
-    l1_v1(), l1_uva(), l1_uva()) == 2n : Nat}
+  {Op.loop_rest_go(Nil{}, l1_ix(Nil{}, Nil{}), l1_v0(), l1_v1(),
+    l1_uva(), l1_uva()) == False{} : Bool}
 
 def l1_closure_vmiss():
   {==}
 
 law l1_closure_tmiss:
-  {Op.loop_rest_go(Nil{}, Nil{}, Nil{}, 0n, 0n, l1_v0(),
-    l1_v0(), l1_uva(), l1_uvb()) == 2n : Nat}
+  {Op.loop_rest_go(Nil{}, l1_ix(Nil{}, Nil{}), l1_v0(), l1_v0(),
+    l1_uva(), l1_uvb()) == False{} : Bool}
 
 def l1_closure_tmiss():
   {==}
 
 law l1_chain_ok:
   {Op.loop_rest_go(l1_hc1() <> Nil{},
-    l1_ces_chain(False{}), l1_es_chain(), 2n, 8n, l1_v1(),
-    l1_v0(), l1_uvb(), l1_uva()) == 3n : Nat}
+    l1_ix(l1_es_chain(), l1_ces_chain(False{})), l1_v1(), l1_v0(),
+    l1_uvb(), l1_uva()) == True{} : Bool}
 
 def l1_chain_ok():
   {==}
 
 law l1_chain_gap:
   {Op.loop_rest_go(l1_hc1() <> Nil{},
-    l1_ces_chain(True{}), l1_es_chain(), 2n, 8n, l1_v1(),
-    l1_v0(), l1_uvb(), l1_uva()) == 2n : Nat}
+    l1_ix(l1_es_chain(), l1_ces_chain(True{})), l1_v1(), l1_v0(),
+    l1_uvb(), l1_uva()) == False{} : Bool}
 
 def l1_chain_gap():
   {==}
@@ -6061,7 +6109,9 @@ law l1_nodup_nil:
   {Op.hc_nodup_c(Nil{}, fuel) == 3n : Nat}
 
 def l1_nodup_nil(fuel):
-  {==}
+  match fuel:
+    case 0n: {==}
+    case 1n+f: {==}
 
 law l1_nodup_single:
   for h: Ty.HCoedge
@@ -6084,34 +6134,26 @@ law l1_nodup_distinct:
 def l1_nodup_distinct():
   {==}
 
-law l1_seam_free_nil:
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for he: Ty.HEdge
-  for fw: Bool
-  for ffull: Nat
-  for fuel: Nat
-  {Op.hc_seam_free_go(Nil{}, ces, es, he, fw, ffull,
-    fuel) == 3n : Nat}
+law l1_seam_run_nil:
+  for pk: Op.HK
+  for pf: Bool
+  for run: Nat
+  {Op.seam_go(Nil{}, pk, pf, run) == True{} : Bool}
 
-def l1_seam_free_nil(ces, es, he, fw, ffull, fuel):
+def l1_seam_run_nil(pk, pf, run):
   {==}
 
 law l1_seam_go_nil:
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for ffull: Nat
-  for fuel: Nat
-  {Op.loop_seam_go(Nil{}, ces, es, ffull, fuel)
-    == 3n : Nat}
+  for x: Ty.Ix
+  {Op.loop_seam_ok(Nil{}, x) == True{} : Bool}
 
-def l1_seam_go_nil(ces, es, ffull, fuel):
+def l1_seam_go_nil(x):
   {==}
 
 law l1_seam_accept:
   for f: Bool
-  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
-    l1_ces_seam(f), l1_es_line(), 8n, 2n) == 3n : Nat}
+  {Op.loop_seam_ok(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ix(l1_es_line(), l1_ces_seam(f))) == True{} : Bool}
 
 def l1_seam_accept(f):
   match f:
@@ -6119,198 +6161,194 @@ def l1_seam_accept(f):
     case False{}: {==}
 
 law l1_seam_same:
-  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
-    l1_ces_same(), l1_es_line(), 8n, 2n) == 2n : Nat}
+  {Op.loop_seam_ok(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ix(l1_es_line(), l1_ces_same())) == False{} : Bool}
 
 def l1_seam_same():
   {==}
 
 law l1_seam_skip:
-  {Op.loop_seam_go(l1_hc0() <> l1_hc1() <> Nil{},
-    l1_ces_distinct(), l1_es_pair(), 8n, 2n) == 3n : Nat}
+  {Op.loop_seam_ok(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ix(l1_es_pair(), l1_ces_distinct())) == True{} : Bool}
 
 def l1_seam_skip():
   {==}
 
 law l1_pole_nil:
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for ffull: Nat
-  for fuel: Nat
-  for len: Nat
-  for nd: Nat
-  {Op.loop_pole_go(Nil{}, ces, es, ffull, fuel, len, nd)
-    == Ty.okd_pack(Bool.or(Nat.is_eq(nd, 0n),
-      Bool.and(Nat.is_eq(len, 1n), Nat.is_eq(nd, 1n))),
-      True{}) : Nat}
+  for +hcs: List<&2, Ty.HCoedge>
+  for +x: Ty.Ix
+  {Op.loop_pole_ok(hcs, x)
+    == Bool.or(Nat.is_eq(Op.hcs_ndeg(hcs, x), 0n),
+      Bool.and(Nat.is_eq(List.length(&2, Ty.HCoedge, hcs), 1n),
+        Nat.is_eq(Op.hcs_ndeg(hcs, x), 1n))) : Bool}
 
-def l1_pole_nil(ces, es, ffull, fuel, len, nd):
+def l1_pole_nil(hcs, x):
   {==}
 
 law l1_pole_single:
-  {Op.loop_pole_go(l1_hc0() <> Nil{}, l1_ces_one(),
-    l1_es_degen(), 8n, 2n, 0n, 0n) == 3n : Nat}
+  {Op.loop_pole_ok(l1_hc0() <> Nil{},
+    l1_ix(l1_es_degen(), l1_ces_one())) == True{} : Bool}
 
 def l1_pole_single():
   {==}
 
 law l1_pole_two:
-  {Op.loop_pole_go(l1_hc0() <> l1_hc1() <> Nil{},
-    l1_ces_seam(True{}), l1_es_degen(), 8n, 2n, 0n, 0n)
-    == 2n : Nat}
+  {Op.loop_pole_ok(l1_hc0() <> l1_hc1() <> Nil{},
+    l1_ix(l1_es_degen(), l1_ces_seam(True{}))) == False{} : Bool}
 
 def l1_pole_two():
   {==}
 
 law l1_pole_clean:
-  {Op.loop_pole_go(l1_hc0() <> Nil{}, l1_ces_one(),
-    l1_es_line(), 8n, 2n, 0n, 0n) == 3n : Nat}
+  {Op.loop_pole_ok(l1_hc0() <> Nil{},
+    l1_ix(l1_es_line(), l1_ces_one())) == True{} : Bool}
 
 def l1_pole_clean():
   {==}
 
 # ===== L1-C. Vertex links: the twin(prev()) orbit machinery. =====
 law l1_mem_nil:
-  for hc: Ty.HCoedge
-  for ffull: Nat
-  {Op.hc_mem(Nil{}, hc, ffull) == False{} : Bool}
+  {Op.khas(Op.ktb(Nil{}), Op.hc_key(l1_hc0())) == False{} : Bool}
 
-def l1_mem_nil(hc, ffull):
+def l1_mem_nil():
   {==}
 
 law l1_mem_hit:
-  {Op.hc_mem(l1_hc0() <> Nil{}, l1_hc0(), 4n)
-    == True{} : Bool}
+  {Op.khas(Op.ktb(Op.hcs_keys(l1_hc0() <> Nil{}, Nil{})),
+    Op.hc_key(l1_hc0())) == True{} : Bool}
 
 def l1_mem_hit():
   {==}
 
 law l1_mem_miss:
-  {Op.hc_mem(l1_hc0() <> Nil{}, l1_hc1(), 4n)
-    == False{} : Bool}
+  {Op.khas(Op.ktb(Op.hcs_keys(l1_hc0() <> Nil{}, Nil{})),
+    Op.hc_key(l1_hc1())) == False{} : Bool}
 
 def l1_mem_miss():
   {==}
 
 law l1_last_nil:
   for d: Ty.HCoedge
-  for ff: Nat
-  {Op.hc_last(Nil{}, d, ff) == d : Ty.HCoedge}
+  {Op.hc_last(Nil{}, d) == d : Ty.HCoedge}
 
-def l1_last_nil(d, ff):
+def l1_last_nil(d):
   {==}
 
 law l1_prev_nil:
-  for hc: Ty.HCoedge
-  for prev: Ty.HCoedge
-  for ff: Nat
-  {Op.lp_prev_go(Nil{}, hc, prev, ff) == hc : Ty.HCoedge}
+  {Op.hm_prev(Op.hmap_of(l1_b_step()), Ty.mk_hc(5n, 99u64))
+    == Ty.mk_hc(5n, 99u64) : Ty.HCoedge}
 
-def l1_prev_nil(hc, prev, ff):
+def l1_prev_nil():
   {==}
 
 law l1_prev_mid:
-  {Op.lp_prev_in(l1_hc0() <> l1_hc1() <> Nil{}, l1_hc1(),
-    4n) == l1_hc0() : Ty.HCoedge}
+  {Op.hm_prev(Op.hmap_of(l1_b_step()), l1_hc1())
+    == l1_hc0() : Ty.HCoedge}
 
 def l1_prev_mid():
   {==}
 
 law l1_prev_wrap:
-  {Op.lp_prev_in(l1_hc0() <> l1_hc1() <> Nil{}, l1_hc0(),
-    4n) == l1_hc1() : Ty.HCoedge}
+  {Op.hm_prev(Op.hmap_of(l1_b_step()), l1_hc0())
+    == l1_hc1() : Ty.HCoedge}
 
 def l1_prev_wrap():
   {==}
 
 law l1_prev_single:
-  {Op.lp_prev_in(l1_hc0() <> Nil{}, l1_hc0(), 4n)
+  {Op.hm_prev(Op.hmap_of(l1_b_single()), l1_hc0())
     == l1_hc0() : Ty.HCoedge}
 
 def l1_prev_single():
   {==}
 
 law l1_hcprev_nil:
-  for hc: Ty.HCoedge
-  for ff: Nat
-  {Op.hc_prev(Nil{}, hc, ff) == hc : Ty.HCoedge}
+  {Op.hm_prev(Op.hmap_of(l1_b_ec(Nil{}, Nil{})), l1_hc0())
+    == l1_hc0() : Ty.HCoedge}
 
-def l1_hcprev_nil(hc, ff):
+def l1_hcprev_nil():
   {==}
 
 law l1_twin_nil:
-  for se: Ty.HEdge
-  for shc: Ty.HCoedge
-  for idx: Nat
-  for ff: Nat
-  {Op.hc_twin_go(Nil{}, se, shc, idx, ff)
-    == shc : Ty.HCoedge}
+  {Op.hm_twin(Op.hmap_of(l1_b_split()), Ty.ix_of(l1_b_split()),
+    l1_hc0()) == l1_hc0() : Ty.HCoedge}
 
-def l1_twin_nil(se, shc, idx, ff):
+def l1_twin_nil():
   {==}
 
 law l1_twin_first:
-  {Op.hc_twin_go(l1_ces_seam(True{}), l1_he0(), l1_hc0(),
-    0n, 4n) == l1_hc1() : Ty.HCoedge}
+  {Op.hm_twin(Op.hmap_of(l1_b_share()), Ty.ix_of(l1_b_share()),
+    l1_hc0()) == l1_hc1() : Ty.HCoedge}
 
 def l1_twin_first():
   {==}
 
 law l1_twin_second:
-  {Op.hc_twin_go(l1_ces_seam(True{}), l1_he0(), l1_hc1(),
-    0n, 4n) == l1_hc0() : Ty.HCoedge}
+  {Op.hm_twin(Op.hmap_of(l1_b_share()), Ty.ix_of(l1_b_share()),
+    l1_hc1()) == l1_hc0() : Ty.HCoedge}
 
 def l1_twin_second():
   {==}
 
 law l1_twin_miss:
-  {Op.hc_twin_go(l1_ces_one(), l1_he0(), l1_hc0(), 0n,
-    4n) == l1_hc0() : Ty.HCoedge}
+  {Op.hm_twin(Op.hmap_of(l1_b_single()), Ty.ix_of(l1_b_single()),
+    l1_hc0()) == l1_hc0() : Ty.HCoedge}
 
 def l1_twin_miss():
   {==}
 
 law l1_step:
-  {Op.hc_step(l1_b_step(), l1_hc1(), 8n)
-    == l1_hc1() : Ty.HCoedge}
+  {Op.hm_step(Op.hmap_of(l1_b_step()), Ty.ix_of(l1_b_step()),
+    l1_hc1()) == l1_hc1() : Ty.HCoedge}
 
 def l1_step():
   {==}
 
 law l1_nondegen_curve:
-  {Op.hc_nondegen(l1_ces_seam(True{}), l1_es_line(),
-    l1_hc0(), 8n) == True{} : Bool}
+  {Op.hc_nondegen(l1_ix(l1_es_line(), l1_ces_seam(True{})),
+    l1_hc0()) == True{} : Bool}
 
 def l1_nondegen_curve():
   {==}
 
 law l1_nondegen_degen:
-  {Op.hc_nondegen(l1_ces_one(), l1_es_degen(), l1_hc0(),
-    8n) == False{} : Bool}
+  {Op.hc_nondegen(l1_ix(l1_es_degen(), l1_ces_one()), l1_hc0())
+    == False{} : Bool}
 
 def l1_nondegen_degen():
   {==}
 
-law l1_vorbit_fuel0:
-  for b: Ty.Brep
-  for start: Ty.HCoedge
-  for cur: Ty.HCoedge
-  for k: Nat
-  for ffull: Nat
-  {Op.vorbit_go(b, start, 0n, cur, k, ffull)
-    == Bool.pick(Ty.VOrbit, Ty.hc_eq(cur, start),
-      Ty.VO{k, True{}}, Ty.VO{k, False{}}) : Ty.VOrbit}
+law l1_orbit_tail:
+  {Op.orb_cyc(l1_orb_rho(), l1_rho_id(l1_rho_x()))
+    == False{} : Bool}
 
-def l1_vorbit_fuel0(b, start, cur, k, ffull):
+def l1_orbit_tail():
+  {==}
+
+law l1_orbit_cycle:
+  {Op.orb_cyc(l1_orb_rho(), l1_rho_id(l1_hc0()))
+    == True{} : Bool}
+
+def l1_orbit_cycle():
+  {==}
+
+law l1_orbit_tail_step:
+  {Op.orb_nx(l1_orb_rho(), l1_rho_id(l1_rho_x()))
+    == l1_rho_id(l1_hc0()) : U32}
+
+def l1_orbit_tail_step():
+  {==}
+
+law l1_vxlink_rho:
+  {Op.vx_link_ok(l1_b_rho(), l1_v2(), 20n) == 2n : Nat}
+
+def l1_vxlink_rho():
   {==}
 
 law l1_vxlink_fuel0:
-  for b: Ty.Brep
-  for v: Ty.HVertex
-  for ffull: Nat
-  {Op.vx_link_ok(b, v, 0n, ffull) == 0n : Nat}
+  {Op.vx_link_ok(b_oriprop(), Ty.mk_hv(0n, 1u64), 0n) == 0n : Nat}
 
-def l1_vxlink_fuel0(b, v, ffull):
+def l1_vxlink_fuel0():
   {==}
 
 law l1_link_open:
@@ -6322,149 +6360,134 @@ def l1_link_open(b, fuel):
   {==}
 
 law l1_cov_nil:
-  for lps: List<&2, Ty.Loop>
-  for idx: Nat
-  for fuel: Nat
-  for ffull: Nat
-  {Op.ces_cov_go(Nil{}, lps, idx, fuel, ffull)
-    == 3n : Nat}
+  for i: Nat
+  for cls: List<&2, Op.CL>
+  {Op.cov_go(Nil{}, i, cls) == True{} : Bool}
 
-def l1_cov_nil(lps, idx, fuel, ffull):
+def l1_cov_nil(i, cls):
   {==}
 
 law l1_start_nil:
-  for es: List<&2, Ty.Edge>
-  for v: Ty.HVertex
-  for idx: Nat
-  for ffull: Nat
-  {Op.ces_start_go(Nil{}, es, v, idx, ffull)
-    == Nil{} : List<&2, Ty.HCoedge>}
+  for x: Ty.Ix
+  for i: Nat
+  {Op.svs_of(Nil{}, x, i) == Nil{} : List<&2, Op.SV>}
 
-def l1_start_nil(es, v, idx, ffull):
+def l1_start_nil(x, i):
   {==}
 
 # ===== L1-D. Face-edge connectedness: shared underlying edges
 # connect; vertex-touching alone does not. =====
 law l1_have_nil:
-  for tgt: Ty.HEdge
-  for ces: List<&2, Ty.Coedge>
-  for ffull: Nat
-  {Op.hcs_have_edge(Nil{}, tgt, ces, ffull)
-    == False{} : Bool}
+  for x: Ty.Ix
+  for p: U32
+  for acc: List<&2, Op.EP>
+  {Op.hcs_ekeys(Nil{}, x, p, acc) == acc : List<&2, Op.EP>}
 
-def l1_have_nil(tgt, ces, ffull):
+def l1_have_nil(x, p, acc):
   {==}
 
 law l1_have_hit:
-  {Op.hcs_have_edge(l1_hc0() <> Nil{}, l1_he0(),
-    l1_ces_seam(True{}), 4n) == True{} : Bool}
+  {Op.hcs_ekeys(l1_hc0() <> Nil{},
+    l1_ix(l1_es_line(), l1_ces_seam(True{})), 0, Nil{})
+    == Op.EP{Op.he_key(l1_he0()), 0} <> Nil{} : List<&2, Op.EP>}
 
 def l1_have_hit():
   {==}
 
 law l1_have_miss:
-  {Op.hcs_have_edge(l1_hc0() <> Nil{}, l1_he1(),
-    l1_ces_distinct(), 4n) == False{} : Bool}
+  {Op.hcs_ekeys(l1_hc1() <> Nil{},
+    l1_ix(l1_es_pair(), l1_ces_distinct()), 0, Nil{})
+    == Op.EP{Op.he_key(l1_he1()), 0} <> Nil{} : List<&2, Op.EP>}
 
 def l1_have_miss():
   {==}
 
 law l1_share_nil:
-  for hcs2: List<&2, Ty.HCoedge>
-  for ces: List<&2, Ty.Coedge>
-  for ffull: Nat
-  {Op.hcs_share_edge(Nil{}, hcs2, ces, ffull)
-    == False{} : Bool}
+  for x: Ty.Ix
+  {Op.sh_adj(Nil{}, x) == Nil{} : List<&2, B.Ed>}
 
-def l1_share_nil(hcs2, ces, ffull):
+def l1_share_nil(x):
   {==}
 
 law l1_share_pos:
-  {Op.hcs_share_edge(l1_hc0() <> Nil{},
-    l1_hc1() <> Nil{}, l1_ces_seam(True{}), 4n)
-    == True{} : Bool}
+  {Op.sh_adj(l1_hf0() <> l1_hf1() <> Nil{}, Ty.ix_of(l1_b_share()))
+    == B.Ed{0, 1} <> Nil{} : List<&2, B.Ed>}
 
 def l1_share_pos():
   {==}
 
 law l1_share_neg:
-  {Op.hcs_share_edge(l1_hc0() <> Nil{},
-    l1_hc1() <> Nil{}, l1_ces_distinct(), 4n)
-    == False{} : Bool}
+  {Op.sh_adj(l1_hf0() <> l1_hf1() <> Nil{}, Ty.ix_of(l1_b_split()))
+    == Nil{} : List<&2, B.Ed>}
 
 def l1_share_neg():
   {==}
 
 law l1_hls_nil:
-  for lpces: List<&2, Ty.HCoedge>
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for ffull: Nat
-  {Op.hls_have_edge(Nil{}, lpces, lps, ces, ffull)
-    == False{} : Bool}
+  for x: Ty.Ix
+  for p: U32
+  for acc: List<&2, Op.EP>
+  {Op.hls_ekeys(Nil{}, x, p, acc) == acc : List<&2, Op.EP>}
 
-def l1_hls_nil(lpces, lps, ces, ffull):
+def l1_hls_nil(x, p, acc):
   {==}
 
 law l1_hlps_nil:
-  for hls2: List<&2, Ty.HLoop>
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for ffull: Nat
-  {Op.hlps_share_edge(Nil{}, hls2, lps, ces, ffull)
-    == False{} : Bool}
+  for x: Ty.Ix
+  for p: U32
+  {Op.hfs_ekeys(Nil{}, x, p) == Nil{} : List<&2, Op.EP>}
 
-def l1_hlps_nil(hls2, lps, ces, ffull):
+def l1_hlps_nil(x, p):
   {==}
 
 law l1_faces_share:
-  {Op.faces_share_edge(l1_b_share(), l1_hf0(), l1_hf1(),
-    8n) == True{} : Bool}
+  {Op.shs_conn_ok(l1_shs_pair(), Ty.ix_of(l1_b_share()))
+    == True{} : Bool}
 
 def l1_faces_share():
   {==}
 
 law l1_faces_split:
-  {Op.faces_share_edge(l1_b_split(), l1_hf0(), l1_hf1(),
-    8n) == False{} : Bool}
+  {Op.shs_conn_ok(l1_shs_pair(), Ty.ix_of(l1_b_split()))
+    == False{} : Bool}
 
 def l1_faces_split():
   {==}
 
-law l1_bfs_nil:
-  for b: Ty.Brep
-  for fuel: Nat
-  for ffull: Nat
-  {Op.sh_conn_faces(b, Nil{}, fuel, ffull) == 3n : Nat}
+law l1_conn_nil:
+  for x: Ty.Ix
+  {Op.sh_conn_ok(Nil{}, x) == True{} : Bool}
 
-def l1_bfs_nil(b, fuel, ffull):
+def l1_conn_nil(x):
   {==}
 
 law l1_conn:
-  {Op.sh_conn_faces(l1_b_share(),
-    l1_hf0() <> l1_hf1() <> Nil{}, 4n, 8n) == 3n : Nat}
+  {Op.sh_conn_ok(l1_hf0() <> l1_hf1() <> Nil{},
+    Ty.ix_of(l1_b_share())) == True{} : Bool}
 
 def l1_conn():
   {==}
 
 law l1_conn_split:
-  {Op.sh_conn_faces(l1_b_split(),
-    l1_hf0() <> l1_hf1() <> Nil{}, 4n, 8n) == 2n : Nat}
+  {Op.sh_conn_ok(l1_hf0() <> l1_hf1() <> Nil{},
+    Ty.ix_of(l1_b_split())) == False{} : Bool}
 
 def l1_conn_split():
   {==}
 
-law l1_bfs_done:
-  for seen: List<&2, Ty.HFace>
-  for all: List<&2, Ty.HFace>
-  for ffull: Nat
-  {Op.sh_bfs_done(seen, all, ffull)
-    == Ty.okd_pack(Bool.and(Op.hfa_walked(all, ffull),
-      Nat.is_eq(Op.hfa_len(seen, ffull),
-        Op.hfa_len(all, ffull))),
-      Op.hfa_walked(all, ffull)) : Nat}
+law l1_conn_dup_face:
+  {Op.sh_conn_ok(l1_hf0() <> l1_hf0() <> Nil{},
+    Ty.ix_of(l1_b_share())) == False{} : Bool}
 
-def l1_bfs_done(seen, all, ffull):
+def l1_conn_dup_face():
+  {==}
+
+law l1_conn_rule:
+  for ok: Bool
+  for ps: List<&2, U32>
+  {Op.cc_conn(B.CC{ok, ps}) == Bool.and(ok, Op.all_zero(ps)) : Bool}
+
+def l1_conn_rule(ok, ps):
   {==}
 
 # ===== L1-E. Orientation spec: L-plane certifies straight-line
@@ -6538,39 +6561,34 @@ def l1_edge_line(g, v0, v1, k):
   {==}
 
 law l1_lines_nil:
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for fuel: Nat
-  for ffull: Nat
-  {Op.hcs_all_lines(Nil{}, ces, es, fuel, ffull)
-    == True{} : Bool}
+  for x: Ty.Ix
+  {Op.hcs_all_lines(Nil{}, x) == True{} : Bool}
 
-def l1_lines_nil(ces, es, fuel, ffull):
+def l1_lines_nil(x):
   {==}
 
-law l1_lines_fuel0:
+law l1_lines_cons:
   for h: Ty.HCoedge
   for t: List<&2, Ty.HCoedge>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for ffull: Nat
-  {Op.hcs_all_lines(h <> t, ces, es, 0n, ffull)
-    == False{} : Bool}
+  for +x: Ty.Ix
+  {Op.hcs_all_lines(h <> t, x)
+    == Bool.and(Op.edge_is_line(Ty.tres_ed(Ty.ix_ed(x,
+      Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))),
+      Op.hcs_all_lines(t, x)) : Bool}
 
-def l1_lines_fuel0(h, t, ces, es, ffull):
+def l1_lines_cons(h, t, x):
   {==}
 
 law l1_lines_pos:
   {Op.hcs_all_lines(l1_hc0() <> Nil{},
-    l1_ces_seam(True{}), l1_es_line(), 8n, 8n)
-    == True{} : Bool}
+    l1_ix(l1_es_line(), l1_ces_seam(True{}))) == True{} : Bool}
 
 def l1_lines_pos():
   {==}
 
 law l1_lines_neg:
-  {Op.hcs_all_lines(l1_hc0() <> Nil{}, l1_ces_one(),
-    l1_es_cc(), 8n, 8n) == False{} : Bool}
+  {Op.hcs_all_lines(l1_hc0() <> Nil{},
+    l1_ix(l1_es_cc(), l1_ces_one())) == False{} : Bool}
 
 def l1_lines_neg():
   {==}
@@ -6618,21 +6636,16 @@ def l1_plane_bp(w):
   {==}
 
 law l1_varying_nofail:
-  for s: G.GVal
+  for +s: G.GVal
   for hcs: List<&2, Ty.HCoedge>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
+  for x: Ty.Ix
   for same: Bool
   for kind: Ty.LoopKind
-  for ffull: Nat
   {Bool.or(Op.surf_is_plane(s),
-    Bool.not(Nat.is_eq(Op.loop_orient_class(hcs, ces, es,
-      vs, s, same, kind, ffull), 2n)))
-    == True{} : Bool}
+    Bool.not(Nat.is_eq(Op.loop_orient_class(hcs, x, s, same, kind),
+      2n))) == True{} : Bool}
 
-def l1_varying_nofail(s, hcs, ces, es, vs, same, kind,
-    ffull):
+def l1_varying_nofail(s, hcs, x, same, kind):
   match s:
     case G.GV_f{w}: {==}
     case G.GV_p{w}: {==}
@@ -6683,92 +6696,64 @@ def l1_plnorm_unsupported(s):
     case G.GV_tb{w}: {==}
 
 law l1_curved_skip:
-  {Op.loop_orient_class(l1_hc0() <> Nil{}, l1_ces_one(),
-    l1_es_cc(), l1_vs2(), l1_pl(), True{},
-    Ty.LK_outer{}, 8n) == 0n : Nat}
+  {Op.loop_orient_class(l1_hc0() <> Nil{},
+    l1_ixv(l1_vs2(), l1_es_cc(), l1_ces_one()), l1_pl(), True{},
+    Ty.LK_outer{}) == 0n : Nat}
 
 def l1_curved_skip():
   {==}
 
 law l1_orient_c_spec:
-  for hcs: List<&2, Ty.HCoedge>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
+  for +hcs: List<&2, Ty.HCoedge>
+  for +x: Ty.Ix
+  for +surf: G.GVal
+  for +same: Bool
+  for +kind: Ty.LoopKind
+  {Op.loop_orient_c(hcs, x, surf, same, kind)
+    == Ty.okd_pack(Bool.not(Nat.is_eq(Op.loop_orient_class(hcs, x,
+      surf, same, kind), 2n)), True{}) : Nat}
+
+def l1_orient_c_spec(hcs, x, surf, same, kind):
+  {==}
+
+law l1_oct_hls_nil:
+  for x: Ty.Ix
   for surf: G.GVal
   for same: Bool
-  for kind: Ty.LoopKind
-  for ffull: Nat
-  {Op.loop_orient_c(hcs, ces, es, vs, surf, same, kind,
-    ffull) == Ty.okd_pack(Bool.and(Op.hcs_walked(hcs,
-      ffull), Bool.not(Nat.is_eq(Op.loop_orient_class(
-      hcs, ces, es, vs, surf, same, kind, ffull), 2n))),
-    Op.hcs_walked(hcs, ffull)) : Nat}
+  for o: Op.OCt
+  {Op.hls_oct(Nil{}, x, surf, same, o) == o : Op.OCt}
 
-def l1_orient_c_spec(hcs, ces, es, vs, surf, same, kind,
-    ffull):
+def l1_oct_hls_nil(x, surf, same, o):
   {==}
 
-law l1_cert_nil:
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
-  for surf: G.GVal
-  for same: Bool
-  for fuel: Nat
-  for ffull: Nat
-  for acc: Nat
-  {Op.hlp_cert_go(Nil{}, lps, ces, es, vs, surf, same,
-    fuel, ffull, acc) == Op.cnt_pack(acc, True{}) : Nat}
+law l1_oct_skip:
+  for bad: Bool
+  for cert: Nat
+  for skip: Nat
+  {Op.oct_add(Op.OCt{bad, cert, skip}, 0n)
+    == Op.OCt{Bool.or(bad, False{}), Nat.add(cert, 0n),
+      Nat.add(skip, 1n)} : Op.OCt}
 
-def l1_cert_nil(lps, ces, es, vs, surf, same, fuel, ffull,
-    acc):
+def l1_oct_skip(bad, cert, skip):
   {==}
 
-law l1_skip_nil:
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
-  for surf: G.GVal
-  for same: Bool
-  for fuel: Nat
-  for ffull: Nat
-  for acc: Nat
-  {Op.hlp_skip_go(Nil{}, lps, ces, es, vs, surf, same,
-    fuel, ffull, acc) == Op.cnt_pack(acc, True{}) : Nat}
+law l1_oct_fas_nil:
+  for x: Ty.Ix
+  for o: Op.OCt
+  {Op.fas_oct(Nil{}, x, o) == o : Op.OCt}
 
-def l1_skip_nil(lps, ces, es, vs, surf, same, fuel, ffull,
-    acc):
+def l1_oct_fas_nil(x, o):
   {==}
 
-law l1_fcert_nil:
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
-  for fuel: Nat
-  for ffull: Nat
-  for acc: Nat
-  {Op.fas_cert_c(Nil{}, lps, ces, es, vs, fuel, ffull,
-    acc) == Op.cnt_pack(acc, True{}) : Nat}
+law l1_oct_bad:
+  for bad: Bool
+  for cert: Nat
+  for skip: Nat
+  {Op.oct_add(Op.OCt{bad, cert, skip}, 2n)
+    == Op.OCt{Bool.or(bad, True{}), Nat.add(cert, 1n),
+      Nat.add(skip, 0n)} : Op.OCt}
 
-def l1_fcert_nil(lps, ces, es, vs, fuel, ffull, acc):
-  {==}
-
-law l1_fskip_nil:
-  for lps: List<&2, Ty.Loop>
-  for ces: List<&2, Ty.Coedge>
-  for es: List<&2, Ty.Edge>
-  for vs: List<&2, Ty.Vertex>
-  for fuel: Nat
-  for ffull: Nat
-  for acc: Nat
-  {Op.fas_skip_c(Nil{}, lps, ces, es, vs, fuel, ffull,
-    acc) == Op.cnt_pack(acc, True{}) : Nat}
-
-def l1_fskip_nil(lps, ces, es, vs, fuel, ffull, acc):
+def l1_oct_bad(bad, cert, skip):
   {==}
 
 law l1_cnt_false:

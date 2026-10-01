@@ -32,6 +32,7 @@ import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c03/types.bend as G
+import ../base/par.bend as B
 
 # --- Generational handles: structural (index, generation) pairs into
 # the Brep lists. Well-formed as data for any pair; liveness is
@@ -1114,170 +1115,89 @@ def sos_gen_c(sos: List<&2, Solid>, +stamp: U64, fuel: Nat) -> Nat:
           okd_pack(Bool.and(Bool.and(U64.is_ne(hg, 0u64),
             U64.is_le(hg, stamp)), okd_ok(rest)), okd_done(rest))
 
-# --- Slot uniqueness checks (D3): no duplicate gen within a store.
-# free_of scans the tail for g (ok = absent); nodup combines head-vs-tail
-# with the recursive tail check. Each scan gets the full remaining fuel,
-# so fuel >= store length still suffices (same bound as validity). ---
-def vs_free_of(xs: List<&2, Vertex>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = vs_free_of(t, g, f)
-          +hg = vx_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+# --- Slot uniqueness checks (D3): no duplicate gen within a store,
+# decided by sorting the gens (done iff fuel >= store length). ---
+def u64_cmp_go(+a: U64, +b: U64) -> B.Sgn:
+  B.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
 
-def vs_nodup_c(xs: List<&2, Vertex>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = vx_gen(h)
-          okd_all(vs_free_of(t, hg, ff), vs_nodup_c(t, ff))
+def u64_cmp(a: U64, b: U64) -> B.Sgn:
+  u64_cmp_go(a, b)
 
-def es_free_of(xs: List<&2, Edge>, +g: U64, fuel: Nat) -> Nat:
+def u64_adj_distinct(xs: List<&2, U64>, +prev: U64, first: Bool) -> Bool:
   match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = es_free_of(t, g, f)
-          +hg = ed_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+    case Nil{}: True{}
+    case +h <> t:
+      Bool.and(Bool.or(first, U64.is_ne(h, prev)), u64_adj_distinct(t, h, False{}))
 
-def es_nodup_c(xs: List<&2, Edge>, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = ed_gen(h)
-          okd_all(es_free_of(t, hg, ff), es_nodup_c(t, ff))
+def so_u64(s: B.So<&2, U64>) -> List<&2, U64>:
+  B.So{ok, xs} = s
+  xs
 
-def ces_free_of(xs: List<&2, Coedge>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = ces_free_of(t, g, f)
-          +hg = ce_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+def gens_distinct(+gs: List<&2, U64>) -> Bool:
+  u64_adj_distinct(so_u64(B.msort(~U64, ~u64_cmp, gs)), 0u64, True{})
 
-def ces_nodup_c(xs: List<&2, Coedge>, fuel: Nat) -> Nat:
+def vs_gens(xs: List<&2, Vertex>) -> List<&2, U64>:
   match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = ce_gen(h)
-          okd_all(ces_free_of(t, hg, ff), ces_nodup_c(t, ff))
+    case Nil{}: []
+    case h <> t: vx_gen(h) <> vs_gens(t)
 
-def lps_free_of(xs: List<&2, Loop>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = lps_free_of(t, g, f)
-          +hg = lp_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+def vs_nodup_c(+xs: List<&2, Vertex>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Vertex, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(vs_gens(xs))), done)
 
-def lps_nodup_c(xs: List<&2, Loop>, fuel: Nat) -> Nat:
+def es_gens(xs: List<&2, Edge>) -> List<&2, U64>:
   match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = lp_gen(h)
-          okd_all(lps_free_of(t, hg, ff), lps_nodup_c(t, ff))
+    case Nil{}: []
+    case h <> t: ed_gen(h) <> es_gens(t)
 
-def fas_free_of(xs: List<&2, Face>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = fas_free_of(t, g, f)
-          +hg = fa_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+def es_nodup_c(+xs: List<&2, Edge>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Edge, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(es_gens(xs))), done)
 
-def fas_nodup_c(xs: List<&2, Face>, fuel: Nat) -> Nat:
+def ces_gens(xs: List<&2, Coedge>) -> List<&2, U64>:
   match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = fa_gen(h)
-          okd_all(fas_free_of(t, hg, ff), fas_nodup_c(t, ff))
+    case Nil{}: []
+    case h <> t: ce_gen(h) <> ces_gens(t)
 
-def shs_free_of(xs: List<&2, Shell>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = shs_free_of(t, g, f)
-          +hg = sh_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+def ces_nodup_c(+xs: List<&2, Coedge>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Coedge, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(ces_gens(xs))), done)
 
-def shs_nodup_c(xs: List<&2, Shell>, fuel: Nat) -> Nat:
+def lps_gens(xs: List<&2, Loop>) -> List<&2, U64>:
   match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = sh_gen(h)
-          okd_all(shs_free_of(t, hg, ff), shs_nodup_c(t, ff))
+    case Nil{}: []
+    case h <> t: lp_gen(h) <> lps_gens(t)
 
-def sos_free_of(xs: List<&2, Solid>, +g: U64, fuel: Nat) -> Nat:
-  match xs:
-    case Nil{}: 3n
-    case h <> t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +rest = sos_free_of(t, g, f)
-          +hg = so_gen(h)
-          okd_pack(Bool.and(U64.is_ne(hg, g), okd_ok(rest)),
-            okd_done(rest))
+def lps_nodup_c(+xs: List<&2, Loop>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Loop, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(lps_gens(xs))), done)
 
-def sos_nodup_c(xs: List<&2, Solid>, fuel: Nat) -> Nat:
+def fas_gens(xs: List<&2, Face>) -> List<&2, U64>:
   match xs:
-    case Nil{}: 3n
-    case h <> +t:
-      match fuel:
-        case 0n: 0n
-        case 1n+f:
-          +ff = f
-          +hg = so_gen(h)
-          okd_all(sos_free_of(t, hg, ff), sos_nodup_c(t, ff))
+    case Nil{}: []
+    case h <> t: fa_gen(h) <> fas_gens(t)
+
+def fas_nodup_c(+xs: List<&2, Face>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Face, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(fas_gens(xs))), done)
+
+def shs_gens(xs: List<&2, Shell>) -> List<&2, U64>:
+  match xs:
+    case Nil{}: []
+    case h <> t: sh_gen(h) <> shs_gens(t)
+
+def shs_nodup_c(+xs: List<&2, Shell>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Shell, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(shs_gens(xs))), done)
+
+def sos_gens(xs: List<&2, Solid>) -> List<&2, U64>:
+  match xs:
+    case Nil{}: []
+    case h <> t: so_gen(h) <> sos_gens(t)
+
+def sos_nodup_c(+xs: List<&2, Solid>, +fuel: Nat) -> Nat:
+  +done = Nat.is_le(List.length(&2, Solid, xs), fuel)
+  okd_pack(Bool.and(done, gens_distinct(sos_gens(xs))), done)
 
 # Validated Brep assembly: every slot value-checked, gen-checked
 # (nonzero, <= stamp), and uniqueness-checked under one shared fuel
@@ -2053,3 +1973,202 @@ def so_push(b: Brep, +outer: HShell,
 def brep_set_top(b: Brep, top: Compound) -> Brep:
   Br{vs, es, ces, lps, fas, shs, sos, old, stamp} = b
   Br{vs, es, ces, lps, fas, shs, sos, top, stamp}
+
+# --- Index: tree-backed stores for O(log n) resolution. ix_* resolves
+# return exactly the *_resolve value for any fuel covering the store. ---
+type Ix is Data:
+  Ix{ tv: B.Tb<&2, Vertex>, nv: Nat, te: B.Tb<&2, Edge>, ne: Nat,
+    tc: B.Tb<&2, Coedge>, nc: Nat, tl: B.Tb<&2, Loop>, nl: Nat,
+    tf: B.Tb<&2, Face>, nf: Nat, ts: B.Tb<&2, Shell>, ns: Nat,
+    to: B.Tb<&2, Solid>, no: Nat }
+
+def vx_dflt() -> Vertex:
+  Vx{0u64, V.Pt{0.0f64, 0.0f64, 0.0f64}}
+
+def ed_dflt() -> Edge:
+  Ed{0u64, hv_null(), hv_null(), EK_degenerate{}}
+
+def ce_dflt() -> Coedge:
+  Ce{0u64, he_null(), False{}, trim_zero()}
+
+def lp_dflt() -> Loop:
+  Lp{0u64, Nil{}, LK_outer{}}
+
+def fa_dflt() -> Face:
+  Fa{0u64, surf_zero(), Nil{}, True{}}
+
+def sh_dflt() -> Shell:
+  Sh{0u64, Nil{}, SK_open{}}
+
+def so_dflt() -> Solid:
+  So{0u64, hsh_null(), Nil{}}
+
+def ix_mk(+vs: List<&2, Vertex>, +es: List<&2, Edge>,
+    +ces: List<&2, Coedge>, +lps: List<&2, Loop>,
+    +fas: List<&2, Face>, +shs: List<&2, Shell>,
+    +sos: List<&2, Solid>) -> Ix:
+  Ix{B.tb_of(Vertex, vs, vx_dflt()), List.length(&2, Vertex, vs),
+    B.tb_of(Edge, es, ed_dflt()), List.length(&2, Edge, es),
+    B.tb_of(Coedge, ces, ce_dflt()), List.length(&2, Coedge, ces),
+    B.tb_of(Loop, lps, lp_dflt()), List.length(&2, Loop, lps),
+    B.tb_of(Face, fas, fa_dflt()), List.length(&2, Face, fas),
+    B.tb_of(Shell, shs, sh_dflt()), List.length(&2, Shell, shs),
+    B.tb_of(Solid, sos, so_dflt()), List.length(&2, Solid, sos)}
+
+def ix_of(b: Brep) -> Ix:
+  Br{vs, es, ces, lps, fas, shs, sos, top, stamp} = b
+  ix_mk(vs, es, ces, lps, fas, shs, sos)
+
+def ix_tv(x: Ix) -> B.Tb<&2, Vertex>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  tv
+
+def ix_nv(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  nv
+
+def ix_te(x: Ix) -> B.Tb<&2, Edge>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  te
+
+def ix_ne(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  ne
+
+def ix_tc(x: Ix) -> B.Tb<&2, Coedge>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  tc
+
+def ix_nc(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  nc
+
+def ix_tl(x: Ix) -> B.Tb<&2, Loop>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  tl
+
+def ix_nl(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  nl
+
+def ix_tf(x: Ix) -> B.Tb<&2, Face>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  tf
+
+def ix_nf(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  nf
+
+def ix_ts(x: Ix) -> B.Tb<&2, Shell>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  ts
+
+def ix_ns(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  ns
+
+def ix_to(x: Ix) -> B.Tb<&2, Solid>:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  to
+
+def ix_no(x: Ix) -> Nat:
+  Ix{tv, nv, te, ne, tc, nc, tl, nl, tf, nf, ts, ns, to, no} = x
+  no
+
+def ix_vx_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: vx_resolve_go(tok_vx(B.tb_get(Vertex, ix_tv(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_vx(+x: Ix, h: HVertex) -> TRes:
+  HV{+idx, gen} = h
+  ix_vx_go(Nat.is_lt(idx, ix_nv(x)), x, idx, gen)
+
+def ix_ed_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: ed_resolve_go(tok_ed(B.tb_get(Edge, ix_te(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_ed(+x: Ix, h: HEdge) -> TRes:
+  HE{+idx, gen} = h
+  ix_ed_go(Nat.is_lt(idx, ix_ne(x)), x, idx, gen)
+
+def ix_ce_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: ce_resolve_go(tok_ce(B.tb_get(Coedge, ix_tc(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_ce(+x: Ix, h: HCoedge) -> TRes:
+  HC{+idx, gen} = h
+  ix_ce_go(Nat.is_lt(idx, ix_nc(x)), x, idx, gen)
+
+def ix_lp_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: lp_resolve_go(tok_lp(B.tb_get(Loop, ix_tl(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_lp(+x: Ix, h: HLoop) -> TRes:
+  HL{+idx, gen} = h
+  ix_lp_go(Nat.is_lt(idx, ix_nl(x)), x, idx, gen)
+
+def ix_fa_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: fa_resolve_go(tok_fa(B.tb_get(Face, ix_tf(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_fa(+x: Ix, h: HFace) -> TRes:
+  HF{+idx, gen} = h
+  ix_fa_go(Nat.is_lt(idx, ix_nf(x)), x, idx, gen)
+
+def ix_sh_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: sh_resolve_go(tok_sh(B.tb_get(Shell, ix_ts(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_sh(+x: Ix, h: HShell) -> TRes:
+  HS{+idx, gen} = h
+  ix_sh_go(Nat.is_lt(idx, ix_ns(x)), x, idx, gen)
+
+def ix_so_go(inr: Bool, +x: Ix, +idx: Nat, +gen: U64) -> TRes:
+  match inr:
+    case True{}: so_resolve_go(tok_so(B.tb_get(Solid, ix_to(x), U32.from_nat(idx))), gen)
+    case False{}: terr(T.F_invalid{})
+
+def ix_so(+x: Ix, h: HSolid) -> TRes:
+  HSo{+idx, gen} = h
+  ix_so_go(Nat.is_lt(idx, ix_no(x)), x, idx, gen)
+
+def lps_maxlen(xs: List<&2, Loop>, +m: Nat) -> Nat:
+  match xs:
+    case Nil{}: m
+    case h <> t: lps_maxlen(t, Nat.max(m, List.length(&2, HCoedge, lp_ces(h))))
+
+def fas_maxlen(xs: List<&2, Face>, +m: Nat) -> Nat:
+  match xs:
+    case Nil{}: m
+    case h <> t: fas_maxlen(t, Nat.max(m, List.length(&2, HLoop, fa_loops(h))))
+
+def shs_maxlen(xs: List<&2, Shell>, +m: Nat) -> Nat:
+  match xs:
+    case Nil{}: m
+    case h <> t: shs_maxlen(t, Nat.max(m, List.length(&2, HFace, sh_faces(h))))
+
+def sos_maxlen(xs: List<&2, Solid>, +m: Nat) -> Nat:
+  match xs:
+    case Nil{}: m
+    case h <> t: sos_maxlen(t, Nat.max(m, List.length(&2, HShell, so_cavities(h))))
+
+def store_bound(b: Brep) -> Nat:
+  Br{vs, es, ces, lps, fas, shs, sos, top, stamp} = b
+  Nat.max(Nat.max(Nat.max(List.length(&2, Vertex, vs), List.length(&2, Edge, es)),
+    Nat.max(List.length(&2, Coedge, ces), List.length(&2, Loop, lps))),
+    Nat.max(Nat.max(List.length(&2, Face, fas), List.length(&2, Shell, shs)),
+      List.length(&2, Solid, sos)))
+
+def ix_bound(b: Brep) -> Nat:
+  Br{+vs, +es, +ces, +lps, +fas, +shs, +sos, top, +stamp} = b
+  Cp{cs, csh} = top
+  +mem = Nat.max(Nat.max(lps_maxlen(lps, 0n), fas_maxlen(fas, 0n)),
+    Nat.max(Nat.max(shs_maxlen(shs, 0n), sos_maxlen(sos, 0n)),
+      Nat.max(List.length(&2, HSolid, cs), List.length(&2, HShell, csh))))
+  Nat.max(mem, store_bound(Br{vs, es, ces, lps, fas, shs, sos, Cp{[], []}, stamp}))

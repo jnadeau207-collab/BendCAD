@@ -406,11 +406,34 @@ general mechanism, and parallel by construction.
   entities) checks in 16 s, dominated by same-face crossing (stage K)
   and shell connectivity (stage I), and every handle resolve walks a
   list.
-- **R0.2 — C04 validation rebuild (next).** Tree-backed stores with
-  O(log n) resolve that reproduce the exact fuel codes; stage K by
-  sweep candidates and the certified predicates; stage I by
-  edge-incidence sort and `P.components`; duplicate and coincidence
-  checks by sorting. Laws restated, never weakened.
+- **R0.2 — C04 validation and C02 exactness (done, 2026-10-01).**
+  `brep_checked` runs on a store index (`Ty.Ix`, tree-backed, `O(log n)`
+  resolve) with every stage a sort, grouped pass, pointer jump or
+  sweep: edge uses and seams by sorted keys, vertex links by pointer
+  jumping on the `twin(prev())` graph, shell connectivity by
+  edge-incidence sort and `components`, coincidence by sort, crossings
+  by a bounding-box sweep. A stage decides iff fuel covers the longest
+  store or member list (the §8 contract, now exact); one verdict
+  changed on purpose: a vertex orbit that never returns is invalid,
+  no longer fuel-out. C02's exact fallback is now Shewchuk expansion
+  arithmetic (`src/base/ex.bend`, shared with C05), so every finite
+  input of moderate magnitude is decided, not only small integers.
+  Evidence: a differential oracle against the old validator (1026
+  mutated breps, 0 unexplained mismatches; 10/10 planted bugs caught);
+  C04 laws: 94 restated, 5 new; C02 laws: 6 restated from uncertain to
+  exact, 4 new overflow laws, the 5 small-integer laws removed with
+  their kernel; every law pinning a changed verdict fails on the old
+  code; all law files checked in full; receipt `docs/receipts/r0.2-2026-10-01.txt`.
+
+  | Workload | Before | R0.2 |
+  |---|---|---|
+  | Holed plate, 404 entities | 16.2 s | 0.19 s |
+  | Holed plate, 6,404 entities | — | 5.0 s |
+  | Comb prism, 80 entities | 24.1 s | 0.24 s |
+  | Comb prism, 1,000 entities | — | 3.7 s |
+
+  Still open in C04: `push` is `O(n)` per entity (list stores); a
+  tree-backed bulk builder comes with C06.
 - **R0.3 — remaining budgets.** Large single clusters interactive
   (iteration count, per-operation constants, rigid-cluster
   decomposition); tree-shaped sequences end to end for real parallel
@@ -441,7 +464,8 @@ general mechanism, and parallel by construction.
 ## 17. Milestone order
 
 1. **R0: speed and parallelism rebuild of C00–C05** (§15). R0.1
-   (C05) is done; R0.2 (C04 validation) and R0.3 are next.
+   (C05) and R0.2 (C04 validation, C02 exactness) are done; R0.3 is
+   next.
 2. **C06 + A0.** Solids as content-addressed, intent-checked
    operations with lineage names and diagnosed failures; the graph
    evaluator with memoized incremental rebuild; the tolerance model
