@@ -117,6 +117,38 @@ def main() -> String:
   summ(S.solve(pts(n2, 0n), trues(Nat.mul(2n, n2)), S.K_fix{1u64, 0n, 0.0f64} <> S.K_fix{2u64, 1n, 0.0f64} <> rowc(Nat.mul(g, Nat.sub(g, 1n)), g, 0n, 0n), tol(), 100n))
 """
 
+TRUSS = """
+def jit(+i: Nat) -> F64:
+  (0.035f64 * (U64.to_f64(U64.from_nat(Nat.mod(Nat.mul(i, 7n), 5n))) - 2.0f64 : F64) : F64)
+
+def pts(n: Nat, +g: Nat, +i: Nat) -> List<&2, F64>:
+  match n:
+    case 0n: []
+    case 1n+m: (nf(Nat.mod(i, g)) + jit(i) : F64) <> (nf(Nat.div(i, g)) - jit(Nat.add(i, 3n)) : F64) <> pts(m, g, 1n+i)
+
+def pt(+i: Nat) -> S.Pt:
+  S.Pt{Nat.mul(2n, i), Nat.add(Nat.mul(2n, i), 1n)}
+
+def edges(n: Nat, +g: Nat, +i: Nat) -> List<&2, S.Cn>:
+  match n:
+    case 0n: []
+    case 1n+m:
+      +c = Nat.mod(i, g)
+      +r = Nat.div(i, g)
+      +d = U64.from_nat(Nat.mul(4n, i))
+      +rt = Nat.is_lt(Nat.add(c, 1n), g)
+      +up = Nat.is_lt(Nat.add(r, 1n), g)
+      +h = Bool.pick(List<&2, S.Cn>, rt, [S.K_dist{(d + 10u64 : U64), pt(i), pt(Nat.add(i, 1n)), 1.0f64}], [])
+      +v = Bool.pick(List<&2, S.Cn>, up, [S.K_dist{(d + 11u64 : U64), pt(i), pt(Nat.add(i, g)), 1.0f64}], [])
+      +x = Bool.pick(List<&2, S.Cn>, Bool.and(rt, up), [S.K_dist{(d + 12u64 : U64), pt(i), pt(Nat.add(i, Nat.add(g, 1n))), 1.4142135623730951f64}], [])
+      List.append(&2, S.Cn, h, List.append(&2, S.Cn, v, List.append(&2, S.Cn, x, edges(m, g, 1n+i))))
+
+def main() -> String:
+  +g = nn()
+  +n2 = Nat.mul(g, g)
+  summ(S.solve(pts(n2, g, 0n), trues(Nat.mul(2n, n2)), S.K_fix{1u64, 0n, 0.0f64} <> S.K_fix{2u64, 1n, 0.0f64} <> S.K_fix{3u64, 3n, 0.0f64} <> edges(n2, g, 0n), tol(), 100n))
+"""
+
 PLATE = """
 def sq(+id: U64, +x0: F64, +y0: F64, +x1: F64, +y1: F64, rest: List<&2, A.Seg>) -> List<&2, A.Seg>:
   A.Seg{id, x0, y0, x1, y0} <> A.Seg{(id + 1u64 : U64), x1, y0, x1, y1} <> A.Seg{(id + 2u64 : U64), x1, y1, x0, y1} <> A.Seg{(id + 3u64 : U64), x0, y1, x0, y0} <> rest
@@ -428,6 +460,7 @@ WORK = {
     "sol-rects": (RECTS, lambda n: f"ok dof=0 sum={6 * n * n}", lambda n: 8 * n),
     "sol-chain": (CHAIN, lambda n: f"ok dof=0 sum={n * (n + 1) // 2}", lambda n: 2 * (n + 1)),
     "sol-grid": (GRID, lambda g: f"ok dof=0 sum={g * g * (g - 1)}", lambda g: 2 * g * g),
+    "sol-truss": (TRUSS, lambda g: f"ok dof=0 sum={g * g * (g - 1)}", lambda g: 2 * g * g),
     "arr-plate": (PLATE, lambda n: f"v={4 * n * n + 4} e={4 * n * n + 4} c={n * n + 1} r={n * n + 1}", lambda n: 4 * n * n + 4),
     "arr-random": (RANDOM, None, lambda n: n),
     "brep-holes": (HOLES, lambda h: "ok", lambda h: 4 * (h * h + 1)),
@@ -435,7 +468,7 @@ WORK = {
 }
 HEADS = {"brep-holes": HEAD4, "brep-prism": HEAD4}
 
-PLAN = [("sol-rects", [10, 100, 1000, 3000]), ("sol-chain", [100, 1000, 5000]), ("sol-grid", [10, 20, 40]),
+PLAN = [("sol-rects", [10, 100, 1000, 3000]), ("sol-chain", [100, 1000, 5000]), ("sol-grid", [10, 20, 40]), ("sol-truss", [5, 10, 20, 40]),
         ("arr-plate", [10, 35, 50, 100]), ("arr-random", [100, 200, 400]), ("brep-holes", [1, 3, 5, 10]), ("brep-prism", [1, 4, 9, 19])]
 
 

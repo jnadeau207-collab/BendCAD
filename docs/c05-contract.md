@@ -235,11 +235,15 @@ independent oracle checks it against central finite differences
         triangularizes its contribution rows, and the separator
         front merges them (`fact`). Back-substitution gives δ.
         Every column has full rank because of its own `√λ` row.
-      - Acceptance and the damping update are unchanged from C05.1:
-        the trial must be finite, keep every radius positive
-        (`rad_ok`), lower the cost, and have positive predicted
-        reduction. Nielsen's update, `λ₀ = 2^-10 · max column norm²`,
-        clamp `[2^-30 λ₀, 2^60 λ₀]`.
+      - Acceptance and the damping update are Nielsen's, unchanged
+        in the trial test: finite, every radius positive (`rad_ok`),
+        a lower cost, and positive predicted reduction.
+        `λ₀ = 2^-10 · max column norm²`, clamp `[2^-30 λ₀, 2^60 λ₀]`.
+        Iteration starts at the floor `2^-30 λ₀`, not at `λ₀`.
+        A rejected step still raises `λ` by the same factor. An
+        accepted update uses Nielsen's gain, then the floor. Either
+        update stops the iteration when the new `λ` is above the
+        ceiling.
       - The iteration stops on a zero cost, a step no longer than
         `2^-45(1+‖p‖)`, `λ` above its ceiling, or `fuel = 0`.
    3. **Classification** (`classify`, on rows recomputed at the
@@ -360,7 +364,7 @@ Only the durable region key was ported.
 | Stationarity | `2^-26` (√ε) relative | conflict certificate, first-order |
 | Admissibility | line length `> tol.lin`, radius `> tol.lin` | a segment or circle smaller than tolerance is not geometry |
 | Rank / dependence | `abs(R_jj) ≤ 2^-26 ‖row j‖` | redundancy and dof |
-| `λ₀`, clamp | `2^-10·max‖col‖²`, `[2^-30, 2^60]·λ₀` | damping |
+| `λ₀`, clamp, start | `2^-10·max‖col‖²`, clamp `[2^-30, 2^60]·λ₀`, start `2^-30 λ₀` | damping |
 | Tiny step | `2^-45 (1+‖p‖)` | stopping only, never classification |
 | Nested-dissection leaf | fewer than 17 columns, or no edges | ordering granularity only |
 
@@ -506,9 +510,13 @@ dissection is parallel over the separator tree, and so is the
 multifrontal factorization. Redundancy naming stays sequential by
 definition (it is order-dependent).
 
-The spine is still lists: splitting and appending are sequential, so
-measured speedup is modest (§12). Tree-shaped sequences end to end
-are the next step.
+The spine is still lists: splitting and appending are sequential.
+The R0.3 scheduler drains a small frontier flat, so a fork that
+follows a list split is handed to the next turn. Measured speedup
+on that build is 2.0× for the grid and 1.4× for the chain at 16
+threads, and the 16-thread truss regression is gone (§12). A
+speedup above 2× was not measured. Tree-shaped sequences are not
+in this packet.
 
 ## 9. Limitations (honest scope)
 
@@ -538,15 +546,19 @@ are the next step.
 - **Degenerate starts are invalid.** Zero-length directions under
   direction constraints and concentric tangency starts are
   rejected rather than regularized.
-- **Large single clusters are not yet interactive.** Sparse
-  factorization made them tractable, but per-operation constants and
-  the LM iteration count (about 10–20 on ill-conditioned chains and
-  grids) keep a 10,000-parameter connected cluster at seconds (§12).
+- **One connected cluster is near a second, not a drag edit.**
+  Iteration starts at the damping floor (§3.2). On the pinned
+  compiler a 10,002-parameter chain takes 1.4 s and a
+  3,200-parameter grid takes 1.6 s (were 3.7 s and 5.0 s). At 16
+  threads on the R0.3 scheduler those are 1.06 s and 0.81 s.
   There is no incremental re-solve or drag mode yet.
 - **Rigid-cluster decomposition is not done.** Clusters are
   independent components only; a well-constrained subsystem inside a
-  larger cluster is not solved separately.
-- **Parallel speedup is modest** (§12), and no GPU lane is claimed.
+  larger cluster is not solved separately. The latency above did
+  not use that decomposition.
+- **Parallel speedup is real and uneven** (§12). A banged GPU call
+  on this WSL2 machine fails closed: CUDA has no concurrent managed
+  access here, so no GPU speedup is claimed.
 - **Symmetry is composed, not native.** Spline and ellipse
   constraints are absent.
 - **The arrangement oracle is grid-based.** shapely nodes in
@@ -664,11 +676,14 @@ Observable changes, each checked:
 
 - `ok_arrange_cross_dangles` and `pos-arr-tenth`: dangling edges are
   now listed in canonical (u, v) edge order (the set is unchanged).
-- Solver outputs differ from C05.1 only in the last bits of values
-  already within tolerance (Givens vs. Gram–Schmidt rounding). `dof`
-  and `red` are unchanged in every suite case and oracle case.
-  `ok_solve_linear` and `ok_solve_redundant_named` were re-pinned
-  (a 6e-30 value's low bits; 2 ulp).
+- Against C05.1, solver outputs differed in the last bits of values
+  already within tolerance (Givens vs. Gram–Schmidt). `dof` and
+  `red` stayed the same, and `ok_solve_linear` and
+  `ok_solve_redundant_named` were re-pinned (a 6e-30 residual; 2 ulp).
+  R0.3 pins those two again, plus `ok_angle_from_flipped_side`:
+  the linear y residual is now 1.9e-27, and the other two move by
+  1 ulp. Verdicts, `dof` and redundancy ids are unchanged
+  (receipt §2).
 
 Measured scaling (native, 16 cores, idle machine;
 `tools/bench/bench.py`, every run checked against a closed-form
@@ -679,7 +694,16 @@ Budgets and status against MASTER_PLAN §15:
 - **10,000-segment arrangements: met for CAD-like input.** A
   10,000-segment plate with 2,500 holes arranges in about a second.
   Random dense input is output-bound (`V ≈ n²/8`).
-- **10,000-parameter sketches: met for multi-part sketches, not yet
-  for one connected cluster.** A 10,000-parameter chain or a
-  3,200-parameter grid takes seconds (§9).
-- **Parallel speedup: measured, modest** (§8). No GPU claim.
+- **10,000-parameter sketches: one connected cluster is about a
+  second on the R0.3 scheduler, and 1.4–1.6 s on the pinned
+  compiler.** Chain 10,002 parameters: pinned 1.42 s (1 thread) and
+  1.38 s (16); R0.3 scheduler 1.46 s and 1.06 s. Grid 3,200
+  parameters: pinned 1.63 s at either thread count; R0.3 scheduler
+  1.60 s and 0.81 s. R0.1 was 3.71 s and 5.02 s. Answers checked
+  against the closed forms (receipt §3).
+- **Parallel speedup: measured** (§8, receipt). The 16-thread
+  fork-spine regression is gone (truss 7.03 s → 0.38 s). The grid
+  speeds up 2.0× and the chain 1.4× against one thread on the new
+  scheduler. A 1,500-rectangle sketch is 0.97 s at 16 threads versus
+  0.76 s on the pinned scheduler. GPU: a banged call refuses to
+  start on this WSL2 box.

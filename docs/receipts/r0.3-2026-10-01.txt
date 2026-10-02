@@ -1,0 +1,109 @@
+# R0.3 receipt — 2026-10-01 (solver damping floor, host scheduler)
+
+Packet: R0.3 starts Levenberg–Marquardt at the floor of the existing
+damping clamp, and the host pool engages one thread per occupied row
+and drains a small frontier flat. MASTER_PLAN §15. Contract:
+docs/c05-contract.md (§3.2, §5, §8, §9, §12).
+
+Predecessor: 9686ace (R0.2).
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD 9686ace, branch main.
+BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+(~/.bend/FORK tag numeric/2026-09-29) is unchanged. The scheduler
+numbers use a side build, /home/jesse/bend-r03/bin/bend, compiled
+2026-10-01 from bend-sched 0759b75046bc4946438c6b812ee2f64549c07b63
+(branch sched, bend2/comp.ts). That binary is not installed over
+~/.bend. WSL2, 16 cores.
+
+`p2(n)` is 2^-n. λ₀ stays 2^-10 · max column norm². The clamp stays
+[2^-30 λ₀, 2^60 λ₀]. Only the initial λ changed, from λ₀ to the floor.
+An earlier edit wrote the ceiling as p2(30)·(new λ) and put it below
+the start, so the first rejected step stopped the solve. That edit
+is not this tree.
+
+Bytes:
+
+4a20c4eb9744db9d3a3ef803b170a209b59313d68f9b4a609bad9cd29bafae4f  src/c05/solve.bend
+a44c1b3d56672aecde81fded28ac7832373f53763d2e7463580984711e8e91c2  laws/c05.bend
+028ba1c3019202e4123ee22993707198c8f75a094f7ed6ed5f8a5af2fa04fcf6  tests/c05/pos.bend
+ed8964bbbf3db67d5e65dbb42d10f0a24b469b4801c5bd7a7c523e9b7c32d3cd  tests/c05/neg.bend
+eaf4303234c3c2a9f85147e048e92f885d4d762e68820bba8581e1e97384d710  tools/bench/bench.py
+214a4ceda8b35c72efa18150232d3ec9c9ba75d6bcbda0d7be6e7cacbf1ba9ad  docs/c05-contract.md
+fb663509eb21dc41020ad158e5766346cd950ee77e9367389ca2b50cc741a29d  MASTER_PLAN.md
+
+## 2. What changed, and what did not
+
+Solver (`run`): the state starts at `p2(30)·λ₀`. `mk_cx` still stores
+that floor and `2^60·λ₀`. Acceptance, the Nielsen gain and rejection
+are unchanged. The ceiling test used to run only when a step was
+rejected. An accepted update that lands above the ceiling now stops
+too. The suites and the three re-pinned calls below were re-run
+after that stop was added; the bits did not move.
+
+Three laws re-pinned to the new bits. Verdicts did not change.
+ok_solve_linear: x stays 5, and the y residual moves from 6.0e-30
+to 1.9e-27 (4169896036682170368 → 4207248258336030720). Both are
+far under the 1e-7 linear tolerance. ok_solve_redundant_named: one
+ulp on the free endpoint (…3340 → …3341), 3.939192985791676 to
+3.9391929857916765. ok_angle_from_flipped_side: one ulp on the 30°
+endpoint (…9626 → …9627), 8.660254037844386 to 8.660254037844387.
+dof and redundancy ids are the same.
+These three calls were executed on the pinned compiler and the printed
+bits match the laws. The other solve laws pin either dof/red only or
+a show-string that the suites still produce. The quantified laws do
+not call `run`. A full `laws/c05.bend --check-only` was started on
+the pinned compiler at 2026-10-01T22:05:18-04:00 and stopped when
+the accepted-step ceiling stop was added, so that run is not
+evidence for these bytes.
+
+Suites, pinned compiler, interpreter == native == JS (`cmp`),
+selfcheck fails=0:
+
+  tests/c05/pos.bend  41 PASS
+  tests/c05/neg.bend  38 PASS
+
+## 3. Measured answers
+
+Every run below prints the closed form in tools/bench/bench.py.
+Wall time is GNU time, real seconds. "Pinned" is ~/.bend/bin/bend.
+"R0.3" is the side scheduler. Same BendCAD source.
+
+  workload          answer                         pinned t1  pinned t16  R0.3 t1  R0.3 t16
+  sol-truss-16      ok dof=0 sum=3840              0.58       7.03        0.57     0.38
+  sol-rects-1500    ok dof=0 sum=13500000          1.03       0.76        1.03     0.97
+  sol-grid-40       ok dof=0 sum=62400             1.63       1.63        1.60     0.81
+  sol-chain-5000    ok dof=0 sum=12502500          1.42       1.38        1.46     1.06
+
+R0.1 on this machine, previous damping: chain 3.71 s, grid 5.02 s.
+One thread is unchanged by the scheduler (the rows above agree).
+The floor is what cut the chain and the grid. The scheduler is what
+removed the 16-thread regression on the truss and what halved the grid.
+
+rects-1500 at 16 threads is slower on the new scheduler (0.97 s vs
+0.76 s). That case already had a little speedup; the new drain does
+not help it.
+
+## 4. GPU lane
+
+A `!` call is what enters the device. An unbanged `--gpu on` stays
+on the CPU, because BANGS is 0. pow2!(20) with an 800-step leaf,
+compiled by the side scheduler, 16 threads, `--gpu off`: prints
+2081423360 in 0.01 s. The same binary `--gpu on` exits 1:
+
+  bend: --gpu on, but this binary found no usable GPU (a CUDA GPU
+  needs concurrent managed access, which WSL2's lack)
+
+S.solve! on the 16×16 truss, same compiler, exits 1 with the same
+sentence. No GPU timing exists, and none is claimed.
+
+## 5. Not done
+
+- Rigid-cluster decomposition. The latency above is the damping
+  floor and the scheduler, not a split of a rigid subsystem.
+- Tree-shaped BendCAD sequences. The spine is still lists.
+- The pinned compiler is still bc01485d. The 0.81 s / 1.06 s figures
+  are the side build.
+- Adding brep entities one at a time is still O(n). That is C06,
+  carried forward from R0.2.

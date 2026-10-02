@@ -665,9 +665,10 @@ def lm_step(+cx: Cx, st: St) -> St:
   +c2 = dot(rt, rt)
   +tiny = F64.is_le(nrm(dl), (p2(45n) * (1.0f64 + nrm(ps) : F64) : F64))
   +up = (lam * nu : F64)
+  +gl = F64.max((lam * gain(((cost - c2 : F64) / pred : F64)) : F64), cx_lmin(cx))
   Bool.pick(St, Bool.and(Bool.and(rq_ok(rq), fin(c2)), Bool.and(F64.is_lt(c2, cost), F64.is_lt(0.0f64, pred))),
-    St{q, F64.max((lam * gain(((cost - c2 : F64) / pred : F64)) : F64), cx_lmin(cx)), 2.0f64, c2,
-      Bool.or(tiny, F64.is_eq(c2, 0.0f64)), dq},
+    St{q, gl, 2.0f64, c2,
+      Bool.or(Bool.or(tiny, F64.is_eq(c2, 0.0f64)), F64.is_lt(cx_lmax(cx), gl)), dq},
     St{ps, up, (2.0f64 * nu : F64), cost, Bool.or(tiny, F64.is_lt(cx_lmax(cx), up)), ds})
 
 def lm(fuel: Nat, done: Bool, +cx: Cx, +st: St) -> St:
@@ -810,8 +811,9 @@ def run(ok: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +free: List<&2, Bool>, 
       +ds = drows(all_rows(cs, pt, pt), ft, tl, ta)
       +rt = res_of(ds)
       +l0 = (p2(10n) * F64.max(col_max(ds), 1.0f64) : F64)
-      +cx = mk_cx(cs, pt, ft, np, nfree(free), tl, ta, (p2(30n) * l0 : F64), (1152921504606846976.0f64 * l0 : F64), od_of(ds, U32.from_nat(np), ft))
-      classify(cx, st_ps(lm(fuel, False{}, cx, St{ps, l0, 2.0f64, dot(rt, rt), False{}, ds})))
+      +lf = (p2(30n) * l0 : F64)
+      +cx = mk_cx(cs, pt, ft, np, nfree(free), tl, ta, lf, (1152921504606846976.0f64 * l0 : F64), od_of(ds, U32.from_nat(np), ft))
+      classify(cx, st_ps(lm(fuel, False{}, cx, St{ps, lf, 2.0f64, dot(rt, rt), False{}, ds})))
 
 def pt_refs(p: Pt, acc: List<&2, Nat>) -> List<&2, Nat>:
   Pt{x, y} = p

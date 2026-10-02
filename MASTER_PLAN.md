@@ -434,15 +434,32 @@ general mechanism, and parallel by construction.
 
   Still open in C04: `push` is `O(n)` per entity (list stores); a
   tree-backed bulk builder comes with C06.
-- **R0.3 — remaining budgets.** Large single clusters interactive
-  (iteration count, per-operation constants, rigid-cluster
-  decomposition); tree-shaped sequences end to end for real parallel
-  speedup; the GPU lane measured.
-- **Exit budgets (unchanged):** 10,000-segment arrangements
-  interactive (met for CAD-like input); 10,000-parameter sketches
-  interactive (met for multi-part sketches, open for one connected
-  cluster); measured parallel speedup on multi-core and GPU (1.0–1.7×
-  measured; GPU open).
+- **R0.3 — single-cluster latency and the parallel lanes
+  (2026-10-01).** The solver starts at the floor of its damping
+  clamp (`2^-30 λ₀`) and keeps the ceiling (`2^60 λ₀`). On the
+  pinned compiler a 10,002-parameter chain takes 1.4 s and a
+  3,200-parameter grid takes 1.6 s (R0.1: 3.7 s and 5.0 s). The
+  host scheduler engages one thread per occupied row and drains a
+  small frontier flat. A small fork spine is no longer slower on
+  16 threads. Measured speedup at 16 threads is 2.0× on the grid
+  and 1.4× on the chain; a speedup above 2× was not measured. At
+  16 threads that scheduler runs the grid in 0.81 s and the chain
+  in 1.06 s. A banged GPU call on this WSL2 machine fails closed
+  (no concurrent managed access). Rigid-cluster decomposition and
+  tree-shaped BendCAD sequences are not in this packet. `BEND_PIN`
+  stays `bc01485d`. Receipt `docs/receipts/r0.3-2026-10-01.txt`.
+
+  | Workload | R0.1 | Pinned, 16 threads | R0.3 scheduler, 16 threads |
+  |---|---|---|---|
+  | Chain, 10,002 parameters | 3.7 s | 1.38 s | 1.06 s |
+  | Grid, 3,200 parameters | 5.0 s | 1.63 s | 0.81 s |
+  | Truss, 16×16, 16 threads | — | 7.03 s | 0.38 s |
+
+- **Exit budgets:** 10,000-segment arrangements interactive (met for
+  CAD-like input at R0.1). 10,000-parameter sketches: about a second
+  for one connected cluster on the R0.3 scheduler; 1.4–1.6 s on the
+  pinned compiler. Parallel speedup measured on the CPU; the GPU
+  lane was run and refused to start on this machine.
 
 ## 16. Interface and scope
 
@@ -464,8 +481,10 @@ general mechanism, and parallel by construction.
 ## 17. Milestone order
 
 1. **R0: speed and parallelism rebuild of C00–C05** (§15). R0.1
-   (C05) and R0.2 (C04 validation, C02 exactness) are done; R0.3 is
-   next.
+   (C05), R0.2 (C04 validation, C02 exactness) and R0.3 (solver
+   damping floor, host scheduler, GPU lane attempted) are recorded.
+   Rigid-cluster decomposition and tree-shaped sequences remain
+   open and do not block C06.
 2. **C06 + A0.** Solids as content-addressed, intent-checked
    operations with lineage names and diagnosed failures; the graph
    evaluator with memoized incremental rebuild; the tolerance model
