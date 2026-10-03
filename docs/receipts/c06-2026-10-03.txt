@@ -1,0 +1,177 @@
+# C06 receipt — 2026-10-03 (box kernel closeout: laws, measure, trim, diagnosis)
+
+Packet: C06 box-only kernel closeout. The predecessor commit
+(dee98a2) shipped the contract, the box-only kernel and 19
+interpreter selfcheck pins with no law file. This packet adds
+laws/c06.bend (380 laws), closes the laws gaps found in review,
+implements the remaining small-scope C06 surface (box measure,
+quad-trim check, staged-diagnosis runtime coverage, adversarial
+pins), and records all fast suites green on all three lanes
+(interp/js/native, byte-identical).
+
+Contract: docs/c06-contract.md (§7 pending scope narrowed, §8
+measure, §9 quad-trim added). Predecessor HEAD dee98a2, branch main.
+
+## 0. Laws gaps found and fixed
+
+Review of the draft law file against the implementation found:
+
+1. `trim_quad` advertised but missing: the ops.bend header and the
+   surfx conventions both name "the C06 quad-trim check" as part of
+   the fail-closed path, but no such function existed. Implemented
+   `O.trim_quad` + 17 laws (§R).
+2. `Measure` beyond the type: contract §7 listed measure computation
+   as pending with no constructor/projector coverage at all.
+   Implemented `O.ms_box` (+ `Y.ms_*` projectors) with 15 laws (§S);
+   contract §7/§8 updated.
+3. Result-protocol holes: `intent_fm`/`intent_shells` projectors,
+   `matfx_tag`, `sok_*` round-trips and wrong-arm defaults for the
+   iv/s/fx/body/part/ms arms, and kind preservation through `Y.serr`
+   had no laws. `surf_kind_tag`/`surf_kind_show` had no laws. Added
+   32 laws (§P).
+4. Diagnosis paths unpinned at runtime: `att_tag` had no direct law,
+   `diag_brep` had no fuel-exhaustion law and no diag-text pins, and
+   the test suites exercised zero staged-diagnosis paths. Added 5
+   laws (§Q) and tests/c06/diag.bend (29 runtime pins).
+5. Adversarial box pins lived only in prose: the FP-adversarial
+   coordinates, negative corner, and fin/pos gate ordering had laws
+   but no runtime tests. Added 4 pins to tests/c06/box.bend.
+
+Deliberately NOT built (contract §7, fail-closed, pinned by
+neg_evop_* laws): cyl/sph/cone/tor builders, general
+extrude/revolve, hole/pocket/pad surgery, xform, forest compounds
+and merge restamping, per-node partial cache reuse. Partial reuse is
+observationally transparent through EvRes, so it needs no law until
+rebuild counts become observable. The Spec/join_specs bulk-builder
+machinery in ops.bend has no consumer yet; it is the scaffold for
+forest compounds, not dead weight to delete.
+
+## 1. Provenance (BN-12)
+
+Predecessor HEAD dee98a2, branch main. Working tree uncommitted
+by packet rule (never commit/push as part of verification).
+c00–c05 sources, laws and tests: unchanged since dee98a2.
+
+3055ccd7ba4c6aed19a6e6e9a96c3c5d9533e6713b3195c0dca94329918b715c  docs/c06-contract.md
+03ada3c4051eeb1cb59849fc2cadee04c9dc1fea3d5ae50bf7b5ce7ebb9048c5  src/c06/types.bend
+f563fdc18527c69ea09dde941e6891ca2c70f7954ee61a7f93a712baedc19b29  src/c06/surfx.bend (unchanged)
+9836bdcb4abf0079a4c3d6824a7108bd71d410630c4274be6d7e49083821ac51  src/c06/ops.bend
+c2c6c4614f015416767e896e29df5580cb74b78ef4bf83d4c628940de70b839a  src/c06/eval.bend (unchanged)
+30705c6ad965010a767634d96c795b091a2674913d0087b75a6bbcaaa2ee923b  laws/c06.bend
+6a5929b81dd6921bd04777c48ca414e9a5dd7b456dd5fab79b6dd9f44388a991  tests/c06/box.bend
+de454b233620dd367cfa8dce1c0b89dd8a343ff9943ade1ee5e6b4bd361f88f7  tests/c06/eval.bend (unchanged)
+a3dea86534b65fba7e72a786399a27d6ece13c8f8c8ccddde0009fd7900eaa13  tests/c06/diag.bend
+
+BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3
+(~/.bend/FORK tag numeric/2026-09-29), bend 2.0.34, bun 1.4.2, WSL2.
+Oracle: CPython 3.14.4 (stdlib struct only, §5). Machine: 16
+threads, 19 GB WSL; each law check is single-threaded at ~1 GB RSS.
+
+## 2. Static checks (--check-only)
+
+src/c06/types.bend, src/c06/surfx.bend, src/c06/ops.bend,
+src/c06/eval.bend, tests/c06/box.bend, tests/c06/eval.bend,
+tests/c06/diag.bend: each ALL PROOFS CHECK, rc=0. BN greps: the
+only `@unsafe` hit in src/laws/tests is the comment at
+src/c00/eval.bend:2 asserting its absence; F32/FFI/oracle-term
+greps over the packet are empty (§7).
+
+## 3. Laws — laws/c06.bend, 380 laws (311 baseline A–O, 69 new P–S)
+
+12 chunks, each a complete book (shared imports + helper defs +
+its laws), run in parallel, bytes hashed at launch
+(docs/receipts/logs/c06-final-sha.txt) and unchanged at
+completion. Every chunk returned ALL PROOFS CHECK, rc=0:
+
+| Chunk | File | Laws | Covers |
+|-------|------|------|--------|
+| old0–old6 | laws/c06old0..6_tmp.bend | 39 each | baseline A–O, round-robin 8-way |
+| old7 | laws/c06old7_tmp.bend | 38 | baseline A–O, remainder |
+| pr | laws/laws_pr_tmp.bend | 49 | new §P (32) + §R (17) |
+| q | laws/c06q_tmp.bend | 5 | new §Q |
+| s1 | laws/c06s1_tmp.bend | 8 | new §S ok-pins |
+| s2 | laws/c06s2_tmp.bend | 7 | new §S neg/bin-pins |
+
+Raw logs: docs/receipts/logs/c06-chunk-old{0..7}.log,
+c06-chunk-pr.log, c06-chunk-q.log, c06-chunk-s1.log,
+c06-chunk-s2.log. Slowest chunks (old3/old7, ~45–50 min) hold
+the brep_checked-class laws (box builds, ev_part rebuilds,
+diag_brep full stages); the interpreter runs the same
+computations in seconds — the cost is checker normalization,
+not algorithmic. Together the chunks check every law exactly
+as the single file does; §8 records the canonical run.
+
+Kernel verdict (`--verdict`, Lean-proven BendTT): unavailable for
+F64 laws per AGENTS.md (the stock kernel exhausts its 400M-step
+fuel on a single `1.0 + 2.0`; a 1000× fuel build exhausts WSL
+memory). Evidence of record is `--check-only`, as in prior packets.
+
+## 4. Suites, three lanes (interp / js / native, byte-identical)
+
+tests/c06/box.bend   26 pins, selfcheck fails=0 (22 carried + 4
+  new: t_box_adv, t_box_negcorner, t_box_fin_first,
+  t_box_pos_first)
+tests/c06/diag.bend  29 pins, selfcheck fails=0 (new file:
+  staged diagnosis, quad-trim, measure)
+tests/c06/eval.bend  8 pins, selfcheck fails=0 (unchanged)
+tests/c05/pos.bend   40 PASS, selfcheck fails=0 (re-pinned calls,
+  unchanged)
+tests/c05/neg.bend   38 PASS, selfcheck fails=0 (re-pinned calls,
+  unchanged)
+tests/c05/check.bend ALL PROOFS CHECK, rc=0 (no main; check-only)
+
+Every suite above ran on all three lanes: `bend <file>` (interp),
+`bend <file> -o out.js` + `bun out.js` (js), `bend <file> -o out`
++ `./out` (native, bend's bundled backend — no system C compiler
+needed). All lanes print byte-identical stdout per suite
+(diff-clean), each containing `selfcheck fails=0` (or ALL PROOFS
+CHECK) and no FAIL. (A `.mjs` target builds a non-invoking lib
+bundle instead; the runnable form is `.js`, as in CI.)
+
+Raw logs: docs/receipts/logs/c06-{box,diag,eval}{,-js,-n}.log,
+c05-{pos,neg}{,-js,-n}.log, c05-check.log.
+
+## 5. Independent oracle (CPython 3.14.4, stdlib only)
+
+The ms_box 1×2×3 volume/area bit pins were re-derived from
+IEEE-754 first principles: 6.0 = 4618441417868443648 lies strictly
+inside [4618441417868443646, 4618441417868443651] ([6-2ulp,6+3ulp]),
+and 22.0 = 4626885667169763328 lies strictly inside
+[4626885667169763325, 4626885667169763332] ([22-3ulp,22+4ulp]).
+Both enclosures straddle the exact reals, as certified-interval
+arithmetic requires. No OCCT/FreeCAD/PlaneGCS involvement (BN-5).
+
+## 6. Verdict
+
+PASS. All 380 laws hold (12/12 chunks plus the canonical
+single-file run), all 63 c06 runtime pins and the c05 re-pinned
+suites are green on all three lanes with byte-identical output,
+and BN-1..BN-12 all PASS.
+
+## 7. Bend-native gates (BN-1..BN-12)
+
+| Gate | Verdict | Evidence |
+|------|---------|----------|
+| BN-1 | PASS | Packet implementation is Bend only: src/c06/{types,surfx,ops,eval}.bend, laws/c06.bend, tests/c06/{box,eval,diag}.bend. No authoritative algorithm in another language; per-file sha256 in §1. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/ laws/ tests/` → one hit, the comment at src/c00/eval.bend:2 asserting absence. Zero uses in trusted geometry. |
+| BN-3 | PASS | `grep -rni "F32\|f32" src/c06/ laws/c06.bend tests/c06/` → empty. Scalars are the pinned as-bits F64 path (F64.bits pins, laws §D/§S). |
+| BN-4 | PASS | No foreign/FFI calls in packet sources (grep ffi/foreign/extern/cuda/metal/opencl empty). Bend only; no runtime boundary to name. |
+| BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/c06/ laws/c06.bend tests/c06/ docs/c06-contract.md` → empty. Only oracle is CPython stdlib (§5), a separately identified comparator, never runtime geometry. |
+| BN-6 | PASS | No GPU claim in this packet: no GPU code, no device dispatch, hence no GPU path to fall back from. |
+| BN-7 | PASS | Generational identity: gid(j)=j+1 with hv/he/hc/hlp/hfa/hsh/hso constructors (ops.bend); box push-order gens 1–58 pinned by ok_box_gen_* laws; lineage Nm{node,role,idx} via box_names (26 names, ok_box_names_* laws). No address/ordinal identity. |
+| BN-8 | PASS | Every walk takes Nat fuel with explicit rejection on exhaustion: prof_go 17/18 → resource-exhausted (neg_prof_fuel law, code 17 on 0 fuel); stc → 100+stage undecided; att_tag → 100; stage_ex fuel arms. Runtime: t_diag_fuel. No unbounded recursion. |
+| BN-9 | PASS | Independent unit is the node build (evm threads nodes in fail-fast order, which is semantic); multi-part spec assembly uses balanced-tree joins (tr_of_list/tr_join_lists, O(1) join + single flatten, join_specs). Box build is fixed-size (58 pushes). No batch op without a stated decomposition. |
+| BN-10 | PASS | Intervals: 1-ulp outward enclosure, pins §D/§S + §5 cross-check. Profile/pip: exact orient2d/expansions (tangent reports on-edge). Box: exact by identical computation (contract §3), adversarial pins ok_box_adversarial/t_box_adv. Quadrics: trig-free rational map + stereographic chart, gate_pt finiteness gate. |
+| BN-11 | PASS | Every failure arm returns Serr, never partial geometry: box_go gates run before any push; bulk_c publishes only the brep_checked Tok value, else diagnosis; ev_part halts with last=Serr (neg_eval_* laws); gate_publish compares all five effect fields (neg_gate_* laws + t_gate_mis). |
+| BN-12 | PASS | BEND_PIN jnadeau207-collab/bend@bc01485d (FORK tag numeric/2026-09-29), bend 2.0.34, predecessor dee98a2, per-file sha256 §1, env bun 1.4.2 / WSL2 / CPython 3.14.4. |
+
+## 8. Canonical single-file law run
+
+bend laws/c06.bend --check-only on the §1 bytes, launched
+2026-10-03T00:34:18Z:
+
+ALL PROOFS CHECK, rc=0, wall ~2:53, max RSS ~1,016 MB.
+
+Raw log: docs/receipts/logs/c06-laws-canonical.log. Bytes
+re-verified unchanged at completion (c06-final-sha.txt, all OK).
+This corroborates the 12-chunk evidence in section 3.

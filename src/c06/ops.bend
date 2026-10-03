@@ -1856,3 +1856,157 @@ def box_checked(+x0: F64, +y0: F64, +z0: F64, +dx: F64,
     box_sum_fin(x0, y0, z0, dx, dy, dz), x0, y0, z0, dx, dy,
     dz, fuel)
 
+# --- C06 quad-trim check (surfx conventions): a parametric point on
+# a quadric surface must evaluate to a finite point. Non-quad
+# surfaces are caller error (the C04 stages own plane/bezier
+# trims); G-layer failures keep their kind; non-finite points are
+# representability failures, never snapped. Success is sok_u(0),
+# the prof_go convention. ---
+def trim_quad_fin(fx: Bool, fy: Bool, fz: Bool) -> Y.SRes:
+  match fx:
+    case False{}:
+      Y.serr_uncertain("quad trim", "trim_quad",
+        "nonfinite-point", "shrink the coordinates")
+    case True{}:
+      match fy:
+        case False{}:
+          Y.serr_uncertain("quad trim", "trim_quad",
+            "nonfinite-point", "shrink the coordinates")
+        case True{}:
+          match fz:
+            case False{}:
+              Y.serr_uncertain("quad trim", "trim_quad",
+                "nonfinite-point", "shrink the coordinates")
+            case True{}: Y.sok_u(0u64)
+
+def trim_quad_pt(p: V.Point) -> Y.SRes:
+  V.Pt{+x, +y, +z} = p
+  trim_quad_fin(T.is_finite(x), T.is_finite(y),
+    T.is_finite(z))
+
+def trim_quad_v(v: G.GVal) -> Y.SRes:
+  match v:
+    case G.GV_p{p}: trim_quad_pt(p)
+    case _:
+      Y.serr_unsupported("quad trim", "trim_quad",
+        "internal-trim", "internal: report this")
+
+def trim_quad_map(r: G.GRes) -> Y.SRes:
+  match r:
+    case G.Gok{v}: trim_quad_v(v)
+    case G.Gerr{kind}:
+      Y.serr(kind,
+        Y.mk_diag("quad trim", "trim_quad", "eval-failed",
+          "check the (u,v) domain and radii"))
+
+def trim_quad_go(quad: Bool, s: G.GVal, +u: F64,
+    +v: F64) -> Y.SRes:
+  match quad:
+    case True{}: trim_quad_map(SX.surf_at(s, u, v))
+    case False{}:
+      Y.serr_invalid("surface", "trim_quad", "not-quad",
+        "route plane/bezier trims through the C04 stages")
+
+def trim_quad(+s: G.GVal, +u: F64, +v: F64) -> Y.SRes:
+  trim_quad_go(SX.surf_is_quad(s), s, u, v)
+
+# --- Box measure: certified volume/area intervals over the dims
+# (outward-rounded, so they enclose the true reals), exact bbox
+# corners replaying box_core's adds, entity counts from the brep.
+# Bad inputs are invalid; enclosure overflow is uncertain. ---
+def ms_bin_iv(op: U64, x: Y.Iv, y: Y.Iv) -> Y.SRes:
+  match op:
+    case 0u64: iv_add(x, y)
+    case _: iv_mul(x, y)
+
+def ms_bin_vb(op: U64, x: Y.Iv, vb: Y.SVal) -> Y.SRes:
+  match vb:
+    case Y.SV_iv{y}: ms_bin_iv(op, x, y)
+    case _:
+      Y.serr_unsupported("measure", "ms_box",
+        "internal-measure", "internal: report this")
+
+def ms_bin_vv(op: U64, va: Y.SVal, vb: Y.SVal) -> Y.SRes:
+  match va:
+    case Y.SV_iv{x}: ms_bin_vb(op, x, vb)
+    case _:
+      Y.serr_unsupported("measure", "ms_box",
+        "internal-measure", "internal: report this")
+
+def ms_bin_r(op: U64, va: Y.SVal, b: Y.SRes) -> Y.SRes:
+  match b:
+    case Y.Serr{k, dg}: Y.Serr{k, dg}
+    case Y.Sok{vb}: ms_bin_vv(op, va, vb)
+
+def ms_bin2(op: U64, a: Y.SRes, b: Y.SRes) -> Y.SRes:
+  match a:
+    case Y.Serr{k, dg}: Y.Serr{k, dg}
+    case Y.Sok{va}: ms_bin_r(op, va, b)
+
+def ms_asm_va(vol: Y.Iv, va: Y.SVal, +x0: F64, +y0: F64,
+    +z0: F64, +dx: F64, +dy: F64, +dz: F64,
+    +b: Ty.Brep) -> Y.SRes:
+  match va:
+    case Y.SV_iv{area}:
+      Y.sok_ms(Y.mk_ms(vol, area, V.Pt{x0, y0, z0},
+        V.Pt{F64.add(x0, dx), F64.add(y0, dy),
+          F64.add(z0, dz)},
+        List.length(&2, Ty.Vertex, Ty.brep_vs(b)),
+        List.length(&2, Ty.Edge, Ty.brep_es(b)),
+        List.length(&2, Ty.Face, Ty.brep_fas(b))))
+    case _:
+      Y.serr_unsupported("measure", "ms_box",
+        "internal-measure", "internal: report this")
+
+def ms_asm_vv(vv: Y.SVal, va: Y.SVal, +x0: F64, +y0: F64,
+    +z0: F64, +dx: F64, +dy: F64, +dz: F64,
+    +b: Ty.Brep) -> Y.SRes:
+  match vv:
+    case Y.SV_iv{vol}:
+      ms_asm_va(vol, va, x0, y0, z0, dx, dy, dz, b)
+    case _:
+      Y.serr_unsupported("measure", "ms_box",
+        "internal-measure", "internal: report this")
+
+def ms_asm_r(vv: Y.SVal, ra: Y.SRes, +x0: F64, +y0: F64,
+    +z0: F64, +dx: F64, +dy: F64, +dz: F64,
+    +b: Ty.Brep) -> Y.SRes:
+  match ra:
+    case Y.Serr{k, dg}: Y.Serr{k, dg}
+    case Y.Sok{va}: ms_asm_vv(vv, va, x0, y0, z0, dx, dy, dz, b)
+
+def ms_asm(rv: Y.SRes, ra: Y.SRes, +x0: F64, +y0: F64,
+    +z0: F64, +dx: F64, +dy: F64, +dz: F64,
+    +b: Ty.Brep) -> Y.SRes:
+  match rv:
+    case Y.Serr{k, dg}: Y.Serr{k, dg}
+    case Y.Sok{vv}: ms_asm_r(vv, ra, x0, y0, z0, dx, dy, dz, b)
+
+def ms_box_go(fin: Bool, pos: Bool, +dx: F64, +dy: F64,
+    +dz: F64, +x0: F64, +y0: F64, +z0: F64,
+    +b: Ty.Brep) -> Y.SRes:
+  match fin:
+    case False{}:
+      Y.serr_invalid("corner/dims", "ms_box",
+        "non-finite corner or dim", "pass finite F64 inputs")
+    case True{}:
+      match pos:
+        case False{}:
+          Y.serr_invalid("dims", "ms_box",
+            "non-positive dim", "pass strictly positive dims")
+        case True{}:
+          ms_asm(ms_bin2(1u64, iv_mul(iv_pt(dx), iv_pt(dy)),
+              Y.sok_iv(iv_pt(dz))),
+            ms_bin2(1u64,
+              ms_bin2(0u64,
+                ms_bin2(0u64, iv_mul(iv_pt(dx), iv_pt(dy)),
+                  iv_mul(iv_pt(dy), iv_pt(dz))),
+                iv_mul(iv_pt(dz), iv_pt(dx))),
+              Y.sok_iv(iv_pt(2.0f64))),
+            x0, y0, z0, dx, dy, dz, b)
+
+def ms_box(+dx: F64, +dy: F64, +dz: F64, +x0: F64,
+    +y0: F64, +z0: F64, +b: Ty.Brep) -> Y.SRes:
+  ms_box_go(box_fin(x0, y0, z0, dx, dy, dz),
+    box_pos(dx, dy, dz), dx, dy, dz, x0, y0, z0, b)
+

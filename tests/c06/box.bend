@@ -13,7 +13,8 @@ def is_sok(r: Y.SRes) -> Bool:
     case Y.Sok{v}: True{}
     case Y.Serr{k, dg}: False{}
 
-# want: 0 invalid-input, 1 numerical-uncertainty, 2 unsupported-op.
+# want: 0 invalid-input, 1 numerical-uncertainty, 2 unsupported-op,
+# 3 resource-exhausted.
 def kind_is(r: Y.SRes, want: U64) -> Bool:
   match r:
     case Y.Sok{v}: False{}
@@ -22,6 +23,7 @@ def kind_is(r: Y.SRes, want: U64) -> Bool:
         case T.F_invalid{}: U64.is_eq(want, 0u64)
         case T.F_uncertain{}: U64.is_eq(want, 1u64)
         case T.F_unsupported{}: U64.is_eq(want, 2u64)
+        case T.F_exhausted{}: U64.is_eq(want, 3u64)
         case _: False{}
 
 def brep_vef(r: Y.SRes, nv: Nat, ne: Nat, nf: Nat) -> Bool:
@@ -187,10 +189,32 @@ def t_prof_hole_out() -> U64:
   Bool.pick(U64, U64.is_eq(O.prof_code(outer10(), [holeF()],
     100000n), 9u64), 0u64, 1u64)
 
+def t_box_adv() -> U64:
+  Bool.pick(U64, brep_vef(O.box_checked(97398.60767117864f64,
+    F64.neg(971916.5996719621f64), 0.0f64, 1.0f64, 2.0f64,
+    3.0f64, 10000n), 8n, 12n, 6n), 0u64, 1u64)
+
+def t_box_negcorner() -> U64:
+  Bool.pick(U64, brep_vef(O.box_checked(F64.neg(5.0f64),
+    F64.neg(5.0f64), F64.neg(5.0f64), 1.0f64, 2.0f64, 3.0f64,
+    10000n), 8n, 12n, 6n), 0u64, 1u64)
+
+def t_box_fin_first() -> U64:
+  Bool.pick(U64, kind_is(O.box_checked(F64.nan(), 0.0f64,
+    0.0f64, 1.0e308f64, 1.0f64, 1.0f64, 10000n), 0u64), 0u64,
+    1u64)
+
+def t_box_pos_first() -> U64:
+  Bool.pick(U64, kind_is(O.box_checked(1.0e308f64, 0.0f64,
+    0.0f64, 1.0e308f64, 0.0f64, 1.0f64, 10000n), 0u64), 0u64,
+    1u64)
+
 def total() -> U64:
   U64.add(t_box_ok(), U64.add(t_box_frac(),
     U64.add(t_box_zero(), U64.add(t_box_nan(),
-      U64.add(t_box_over(), U64.add(t_prof_sq(),
+      U64.add(t_box_over(), U64.add(t_box_adv(),
+        U64.add(t_box_negcorner(), U64.add(t_box_fin_first(),
+          U64.add(t_box_pos_first(), U64.add(t_prof_sq(),
         U64.add(t_prof_bow(), U64.add(t_prof_cw(),
           U64.add(t_pip_in(), U64.add(t_pip_out(),
             U64.add(t_pip_edge(), U64.add(t_prof_nest_ab(),
@@ -203,7 +227,7 @@ def total() -> U64:
                           U64.add(t_revax_mid(),
                             U64.add(t_revax_last(),
                               U64.add(t_prof_holes_cross(),
-                                t_prof_hole_out())))))))))))))))))))))
+                                t_prof_hole_out())))))))))))))))))))))))))
 
 def main() -> IO(Unit):
   do IO<Unit>:

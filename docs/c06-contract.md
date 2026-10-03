@@ -1,9 +1,10 @@
 # C06 contract — intent-checked solid builders over C00–C05
 
 Scope: the C06 layer builds valid `C04.Brep` solids from operator
-graphs, diagnoses failures by pipeline stage, and publishes results
-through an intent gate. One value union, one result type: every
-fallible C06 op returns `SRes` (`src/c06/types.bend`).
+graphs, diagnoses failures by pipeline stage, checks quadric trim
+points, measures boxes, and publishes results through an intent
+gate. One value union, one result type: every fallible C06 op
+returns `SRes` (`src/c06/types.bend`).
 
 Files:
 
@@ -116,8 +117,33 @@ binder unless `+`-annotated; leaf-first definition order.
 
 Primitive builders (`cyl`/`sph`/`cone`/`tor`), general
 profile extrude/revolve, hole/pocket/pad surgery, `xform`,
-forest compounds and merge restamping, `Measure` computation
-beyond the type, quad-trim checks beyond C04's stages, and
-per-node partial cache reuse. All fail closed through
-`unsupported-op` or `invalid-input` today; no stub returns
-success.
+forest compounds and merge restamping, and per-node partial
+cache reuse. All fail closed through `unsupported-op` or
+`invalid-input` today; no stub returns success. Partial reuse
+is observationally transparent through `EvRes` (a reused entry
+equals a rebuilt one when hashes match), so it needs no law
+until rebuild counts become observable.
+
+## 8. Box measure (`ms_box`)
+
+`ms_box(dx, dy, dz, x0, y0, z0, brep) -> SRes` returns `SV_ms`
+with certified volume/area intervals over the dims
+(`vol=(dx*dy)*dz`, `area=2*(xy+yz+zx)`, outward-rounded, so
+each encloses the true real), exact bbox corners replaying
+`box_core`'s adds, and entity counts from the brep. Non-finite
+or non-positive inputs are `invalid-input` (same gates as
+`box_checked`); enclosure overflow is `uncertain`. The
+`1×2×3` pins (`vol=[6-2ulp,6+3ulp]`,
+`area=[22-3ulp,22+4ulp]`, bits in laws §S) straddle the exact
+values, verified independently in Python.
+
+## 9. Quad-trim check (`trim_quad`)
+
+`trim_quad(s, u, v) -> SRes` evaluates a parametric point on a
+quadric surface through `surfx.surf_at` and requires a finite
+point. Non-quad surfaces are `invalid-input` (`not-quad`; the
+C04 stages own plane/bezier trims); G-layer failures keep
+their kind (`invalid` for domain/radii violations,
+`uncertain` for `gate_pt` overflow); non-finite points are
+`uncertain`, never snapped. Success is `sok_u(0)`, the
+`prof_go` convention.

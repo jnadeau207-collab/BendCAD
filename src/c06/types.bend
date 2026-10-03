@@ -254,6 +254,34 @@ def ms_show(m: Measure) -> String:
     " n=" ++ Nat.show(nv) ++ "/" ++ Nat.show(ne) ++ "/" ++
     Nat.show(nf)
 
+def ms_vol(m: Measure) -> Iv:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  vol
+
+def ms_area(m: Measure) -> Iv:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  area
+
+def ms_blo(m: Measure) -> V.Point:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  blo
+
+def ms_bhi(m: Measure) -> V.Point:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  bhi
+
+def ms_nv(m: Measure) -> Nat:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  nv
+
+def ms_ne(m: Measure) -> Nat:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  ne
+
+def ms_nf(m: Measure) -> Nat:
+  Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
+  nf
+
 # --- Op algebra. Param-carrying ops name Dim ids; structural ops name
 # input node ids. Profiles are inline content (part of the hash). ---
 type Op is Data:
