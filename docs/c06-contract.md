@@ -84,21 +84,37 @@ Fuel exhaustion reports `100+stage` (undecided), never success.
 
 `ev_part(part, old_cache, fuel) -> EvRes{cc, last}` evaluates
 nodes in list order (caller-topological), fail-fast: the first
-node error halts the walk with that error. Node build hashes are
-FNV-1 over the op tag plus dim nominal bits (`F64.bits`).
-Cache reuse is all-or-nothing: if every node hash matches the old
-cache, the whole cache is reused and the root body is looked up;
-otherwise every node rebuilds. Per-node partial reuse is future
+node error halts the walk with that error. `Part` carries the
+intent declared before the build. Node build hashes are FNV-1
+over the op tag, the op's dim ids, the bits of `nom`, `lo`, and
+`hi` for each of those dims (`F64.bits`), any input node id
+embedded in the op, and `Node.ins`, in that order. The B-rep is
+the nominal solid. A present
+dim whose zone fails `lo <= nom <= hi` with `lo > 0` is
+`invalid-input` and does not build. `ms_zone` certifies the
+volume as the outward product of the three `[lo, hi]` intervals.
+`ms_nom_vol` is the nominal-point product; those two disagree
+when a zone is wider than its nominal.
+
+Cache reuse is all-or-nothing. If every node hash matches the
+old cache and every op is a box, the cache is reused and the
+root is looked up. Publish then runs `gate_publish` on the
+stored effect and the part intent: agreement returns the body,
+a mismatch is `invalid-input` and does not return the body.
+A cache whose hashes match but whose op is not a box is not
+reused; the walk calls `ev_op` and returns `unsupported-op`.
+Otherwise every node rebuilds. Per-node partial reuse is future
 work. `O_box` resolves three dim ids to nominals and builds at
 the origin; every other op returns `unsupported-op` naming the
 pending builder. Unknown dim ids and unknown root ids are
 `invalid-input`.
 
 `gate_publish(fx, intent)` compares all five effect fields
-(`mat/fc/fm/shells/holes`); equality publishes `SV_fx`, any
-mismatch is `invalid-input` naming the gate. `box_names(node)`
-issues the 26 lineage names (6 faces role 0, 12 edges role 1,
-8 vertices role 2) under the creator node id.
+(`mat/fc/fm/shells/holes`). `ev_part` calls it on every publish
+of a root body, including a cache hit. A direct call still
+returns `SV_fx` on agreement and `invalid-input` on a mismatch.
+`box_names(node)` issues the 26 lineage names (6 faces role 0,
+12 edges role 1, 8 vertices role 2) under the creator node id.
 
 ## 6. Bend-linearity rules this layer follows
 
@@ -119,10 +135,12 @@ Primitive builders (`cyl`/`sph`/`cone`/`tor`), general
 profile extrude/revolve, hole/pocket/pad surgery, `xform`,
 forest compounds and merge restamping, and per-node partial
 cache reuse. All fail closed through `unsupported-op` or
-`invalid-input` today; no stub returns success. Partial reuse
-is observationally transparent through `EvRes` (a reused entry
-equals a rebuilt one when hashes match), so it needs no law
-until rebuild counts become observable.
+`invalid-input` today; no stub returns success. A cache hit
+does not turn an unsupported op into success. `join_specs` is
+kept for a later compound and has no caller. The box path that
+runs is `box_checked` then `bulk_c`. Partial reuse is future
+work; a full-hash hit is not the same body once an input id,
+dim id, or zone bound (`nom`, `lo`, or `hi`) changes.
 
 ## 8. Box measure (`ms_box`)
 
@@ -131,8 +149,10 @@ with certified volume/area intervals over the dims
 (`vol=(dx*dy)*dz`, `area=2*(xy+yz+zx)`, outward-rounded, so
 each encloses the true real), exact bbox corners replaying
 `box_core`'s adds, and entity counts from the brep. Non-finite
-or non-positive inputs are `invalid-input` (same gates as
-`box_checked`); enclosure overflow is `uncertain`. The
+or non-positive inputs are `invalid-input`, and a non-finite
+corner sum is `uncertain`, the same three gates as
+`box_checked` (`box_fin`, `box_pos`, `box_sum_fin`). Enclosure
+overflow is also `uncertain`. The
 `1×2×3` pins (`vol=[6-2ulp,6+3ulp]`,
 `area=[22-3ulp,22+4ulp]`, bits in laws §S) straddle the exact
 values, verified independently in Python.

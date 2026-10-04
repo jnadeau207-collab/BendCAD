@@ -15,7 +15,7 @@ The receipt is `docs/receipts/c05.1-2026-09-29.txt` at `48ab78c`. Next: R0, a sp
 
 ## Pins
 
-- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3` (tag `numeric/2026-09-29`)
+- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@288da0836f419b57323283b971fe44b363ff1193` (local `numeric-on-upstream`; tag `numeric/2026-09-29` is the previous pin `bc01485d`)
 - Numeric contract lives in that fork: `bend2/docs/F64_CONTRACT.md`, `bend2/docs/F64_IMPLEMENTATION.md`
 - Advance `BEND_PIN` only after a Bend numeric gate. Never track floating `main`.
 

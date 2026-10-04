@@ -696,9 +696,12 @@ def pos_g10(f193: U64) -> IO(U64):
     f194 : U64 <- C.report_ok("pos-ck-sphere",
       Op.brep_checked(C.b_sphere_digon_control(), Ty.P_manifold_solid{}, 12n),
       f193)
+    f194b : U64 <- C.report_ok("pos-ck-sphere-bound",
+      Op.brep_checked(C.b_sphere_digon_control(), Ty.P_manifold_solid{}, 2n),
+      f194)
     f195 : U64 <- C.report_ok("pos-ck-cyl",
       Op.brep_checked(C.b_cyl_digon_ruling_control(), Ty.P_manifold_solid{}, 12n),
-      f194)
+      f194b)
     f196 : U64 <- C.report_ok("pos-ck-cav",
       Op.brep_checked(C.b_cav(), Ty.P_manifold_solid{}, 20n),
       f195)

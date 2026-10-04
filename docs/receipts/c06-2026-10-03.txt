@@ -1,13 +1,13 @@
-# C06 receipt — 2026-10-03 (box kernel closeout: laws, measure, trim, diagnosis)
+# C06 receipt — 2026-10-03 (box path: laws, measure, trim, diagnosis)
 
-Packet: C06 box-only kernel closeout. The predecessor commit
+Packet: box-only kernel. The predecessor commit
 (dee98a2) shipped the contract, the box-only kernel and 19
 interpreter selfcheck pins with no law file. This packet adds
 laws/c06.bend (380 laws), closes the laws gaps found in review,
 implements the remaining small-scope C06 surface (box measure,
 quad-trim check, staged-diagnosis runtime coverage, adversarial
-pins), and records all fast suites green on all three lanes
-(interp/js/native, byte-identical).
+pins), and records the suite lanes below. The box path is qualified
+only for the claims the new logs show. G1 remains open.
 
 Contract: docs/c06-contract.md (§7 pending scope narrowed, §8
 measure, §9 quad-trim added). Predecessor HEAD dee98a2, branch main.
@@ -114,7 +114,7 @@ tests/c06/box.bend   26 pins, selfcheck fails=0 (22 carried + 4
 tests/c06/diag.bend  29 pins, selfcheck fails=0 (new file:
   staged diagnosis, quad-trim, measure)
 tests/c06/eval.bend  8 pins, selfcheck fails=0 (unchanged)
-tests/c05/pos.bend   40 PASS, selfcheck fails=0 (re-pinned calls,
+tests/c05/pos.bend   41 PASS, selfcheck fails=0 (re-pinned calls,
   unchanged)
 tests/c05/neg.bend   38 PASS, selfcheck fails=0 (re-pinned calls,
   unchanged)
@@ -143,10 +143,45 @@ arithmetic requires. No OCCT/FreeCAD/PlaneGCS involvement (BN-5).
 
 ## 6. Verdict
 
-PASS. All 380 laws hold (12/12 chunks plus the canonical
-single-file run), all 63 c06 runtime pins and the c05 re-pinned
-suites are green on all three lanes with byte-identical output,
-and BN-1..BN-12 all PASS.
+The box path is qualified only for the claims the new logs show. G1 remains open.
+
+The new logs use `bun bend2/main.ts` at
+`288da0836f419b57323283b971fe44b363ff1193`, not `~/.bend/bin/bend`.
+They are checker evidence or `selfcheck`, not a kernel `--verdict`,
+and they are not G1.
+
+- `docs/receipts/logs/c06-laws-2026-10-03-rebased.log`:
+  `laws/c06.bend --check-only` printed `ALL PROOFS CHECK`, exit 0.
+- `docs/receipts/logs/c06-box-2026-10-03-rebased.log`,
+  `c06-diag-2026-10-03-rebased.log`,
+  `c06-eval-2026-10-03-rebased.log`: interpreter `selfcheck fails=0`.
+- `docs/receipts/logs/c06-box-js-run-2026-10-03-rebased.log`,
+  `c06-diag-js-run-2026-10-03-rebased.log`,
+  `c06-eval-js-run-2026-10-03-rebased.log`: JS `selfcheck fails=0`,
+  exit 0.
+- `docs/receipts/logs/c06-box-n-clang-run-2026-10-03.log`,
+  `c06-diag-n-clang-run-2026-10-03.log`,
+  `c06-eval-n-clang-run-2026-10-03.log`: native `selfcheck fails=0`,
+  exit 0, after a clang build.
+- `docs/receipts/logs/c06-box-n-2026-10-03-rebased.log`,
+  `c06-diag-n-2026-10-03-rebased.log`,
+  `c06-eval-n-2026-10-03-rebased.log`: native compile exited 1
+  (no clang). Those three are not passes.
+
+Sections 2–5 and 7 record the earlier `bc01485d` run. They are not
+a claim that G1 is met. `tests/c05/pos.bend` in section 4 is 41
+PASS, matching `docs/receipts/logs/c05-pos.log` and the 41 `C.Case`
+entries in the suite.
+
+After the zone laws and `ck_stage_fuel` were added, the same
+compiler was run again on 2026-10-04:
+
+- `docs/receipts/logs/b45-eval-2026-10-04.log` and
+  `b45-diag-2026-10-04.log`: interpreter `selfcheck fails=0`.
+- `docs/receipts/logs/b45-c06-laws-2026-10-04.log` and
+  `b45-c04-laws-2026-10-04.log`: `--check-only` printed
+  `ALL PROOFS CHECK`, exit 0.
+  The 2026-10-03 logs above do not include those pins.
 
 ## 7. Bend-native gates (BN-1..BN-12)
 
@@ -160,7 +195,7 @@ and BN-1..BN-12 all PASS.
 | BN-6 | PASS | No GPU claim in this packet: no GPU code, no device dispatch, hence no GPU path to fall back from. |
 | BN-7 | PASS | Generational identity: gid(j)=j+1 with hv/he/hc/hlp/hfa/hsh/hso constructors (ops.bend); box push-order gens 1–58 pinned by ok_box_gen_* laws; lineage Nm{node,role,idx} via box_names (26 names, ok_box_names_* laws). No address/ordinal identity. |
 | BN-8 | PASS | Every walk takes Nat fuel with explicit rejection on exhaustion: prof_go 17/18 → resource-exhausted (neg_prof_fuel law, code 17 on 0 fuel); stc → 100+stage undecided; att_tag → 100; stage_ex fuel arms. Runtime: t_diag_fuel. No unbounded recursion. |
-| BN-9 | PASS | Independent unit is the node build (evm threads nodes in fail-fast order, which is semantic); multi-part spec assembly uses balanced-tree joins (tr_of_list/tr_join_lists, O(1) join + single flatten, join_specs). Box build is fixed-size (58 pushes). No batch op without a stated decomposition. |
+| BN-9 | PASS | Independent unit is the node build (evm threads nodes in fail-fast order, which is semantic). The box path that runs is box_checked then bulk_c, a fixed-size build (58 pushes). No batch op without a stated decomposition. |
 | BN-10 | PASS | Intervals: 1-ulp outward enclosure, pins §D/§S + §5 cross-check. Profile/pip: exact orient2d/expansions (tangent reports on-edge). Box: exact by identical computation (contract §3), adversarial pins ok_box_adversarial/t_box_adv. Quadrics: trig-free rational map + stereographic chart, gate_pt finiteness gate. |
 | BN-11 | PASS | Every failure arm returns Serr, never partial geometry: box_go gates run before any push; bulk_c publishes only the brep_checked Tok value, else diagnosis; ev_part halts with last=Serr (neg_eval_* laws); gate_publish compares all five effect fields (neg_gate_* laws + t_gate_mis). |
 | BN-12 | PASS | BEND_PIN jnadeau207-collab/bend@bc01485d (FORK tag numeric/2026-09-29), bend 2.0.34, predecessor dee98a2, per-file sha256 §1, env bun 1.4.2 / WSL2 / CPython 3.14.4. |

@@ -458,6 +458,16 @@ def neg_g10(f116: U64) -> IO(U64):
       "invalid-input", f125)
     return f126
 
+def neg_g11(f126: U64) -> IO(U64):
+  do IO<U64>:
+    f127 : U64 <- C.report_terr("neg-ck-fuel-ix",
+      Op.brep_checked(C.b_fuel_gap(), Ty.P_manifold_solid{}, 1n),
+      "resource-exhausted", f126)
+    f128 : U64 <- C.report_terr("neg-ck-fuel-ix-full",
+      Op.brep_checked(C.b_fuel_gap(), Ty.P_manifold_solid{}, 2n),
+      "invalid-input", f127)
+    return f128
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- neg_g1(0u64)
@@ -470,4 +480,5 @@ def main() -> IO(Unit):
     a8 : U64 <- neg_g8(a7)
     a9 : U64 <- neg_g9(a8)
     a10 : U64 <- neg_g10(a9)
-    IO.print("selfcheck fails=" ++ U64.show(a10))
+    a11 : U64 <- neg_g11(a10)
+    IO.print("selfcheck fails=" ++ U64.show(a11))

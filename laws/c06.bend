@@ -211,44 +211,50 @@ def root318(er: EV.EvRes) -> Bool:
                   Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(bb)), 6n)))
             case _: False{}
 
+def box_it() -> Y.Intent:
+  Y.mk_intent(Y.M_create{}, 6n, 0n, 1n, 0n)
+
 def part1() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
       Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
       Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64, box_it())
 
 def part_baddim() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64, box_it())
 
 def part_badroot() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
       Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
       Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 99u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 99u64, box_it())
+
+def cyl_ps() -> List<&2, Y.Param>:
+  [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
+    Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64))]
 
 def part_cyl() -> Y.Part:
-  Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
-      Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64))],
-    [Y.mk_node(7u64, Y.O_cyl{1u64, 2u64}, [])], 7u64)
+  Y.mk_part(cyl_ps(),
+    [Y.mk_node(7u64, Y.O_cyl{1u64, 2u64}, [])], 7u64, box_it())
 
 def part_ff1() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 9u64, 9u64}, []), Y.mk_node(8u64, Y.O_cyl{1u64, 1u64}, [])], 8u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 9u64, 9u64}, []), Y.mk_node(8u64, Y.O_cyl{1u64, 1u64}, [])], 8u64, box_it())
 
 def part_ff2() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
       Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
       Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, []), Y.mk_node(8u64, Y.O_cyl{1u64, 1u64}, [])], 8u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, []), Y.mk_node(8u64, Y.O_cyl{1u64, 1u64}, [])], 8u64, box_it())
 
 def pchg0() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 1u64, 1u64}, [])], 7u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 1u64, 1u64}, [])], 7u64, box_it())
 
 def pchg() -> Y.Part:
   Y.mk_part([Y.mk_param(1u64, Y.mk_dm(9.0f64, 0.5f64, 20.0f64))],
-    [Y.mk_node(7u64, Y.O_box{1u64, 1u64, 1u64}, [])], 7u64)
+    [Y.mk_node(7u64, Y.O_box{1u64, 1u64, 1u64}, [])], 7u64, box_it())
 
 def unit_box() -> Ty.Brep:
   O.box_core(0.0f64, 0.0f64, 0.0f64, 1.0f64, 2.0f64, 3.0f64)
@@ -1725,109 +1731,167 @@ def neg_diag_valid_box():
 
 # --- M. Op-graph eval (contract §5). ---
 
+def hash_ps() -> List<&2, Y.Param>:
+  [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
+    Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+    Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64)),
+    Y.mk_param(4u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))]
+
 law ok_node_hash_box:
   {EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
     [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
       Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
-      Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))]) == 7153670588617593504u64 : U64}
+      Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))], [])
+    == 1606728812698307254u64 : U64}
 
 def ok_node_hash_box():
   {==}
 
-law node_hash_cyl:
-  for r: U64
-  for h: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_cyl{r, h}, ps) == 2u64 : U64}
+# Same nominals, different hi. The old hash ignored the zone.
+law node_hash_zone:
+  {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
+      [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
+        Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+        Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))], []),
+      EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
+        [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 9.0f64)),
+          Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+          Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))], []))
+    == False{} : Bool}
 
-def node_hash_cyl(r, h, ps):
+def node_hash_zone():
+  {==}
+
+# Same nominals, different dim id. The old hash ignored the id.
+law node_hash_dim_id:
+  {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), []),
+      EV.node_hash(Y.O_box{4u64, 2u64, 3u64}, hash_ps(), []))
+    == False{} : Bool}
+
+def node_hash_dim_id():
+  {==}
+
+# Same op and nominals, different input node id. The old hash ignored ins.
+law node_hash_ins:
+  {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), []),
+      EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), [9u64]))
+    == False{} : Bool}
+
+def node_hash_ins():
+  {==}
+
+law node_hash_cyl:
+  {U64.is_eq(EV.node_hash(Y.O_cyl{1u64, 2u64}, [], []), 2u64)
+    == False{} : Bool}
+
+def node_hash_cyl():
   {==}
 
 law node_hash_sph:
-  for r: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_sph{r}, ps) == 3u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_sph{1u64}, [], []), 3u64) == False{} : Bool}
 
-def node_hash_sph(r, ps):
+def node_hash_sph():
   {==}
 
 law node_hash_cone:
-  for r: U64
-  for h: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_cone{r, h}, ps) == 4u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_cone{1u64, 2u64}, [], []), 4u64)
+    == False{} : Bool}
 
-def node_hash_cone(r, h, ps):
+def node_hash_cone():
   {==}
 
 law node_hash_tor:
-  for a: U64
-  for r: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_tor{a, r}, ps) == 5u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_tor{1u64, 2u64}, [], []), 5u64)
+    == False{} : Bool}
 
-def node_hash_tor(a, r, ps):
+def node_hash_tor():
   {==}
 
 law node_hash_extrude:
-  for p: Y.Prof
-  for d: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_extrude{p, d}, ps) == 6u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_extrude{Y.mk_prof(sq_loop(), []), 1u64},
+      [], []), 6u64) == False{} : Bool}
 
-def node_hash_extrude(p, d, ps):
+def node_hash_extrude():
   {==}
 
 law node_hash_revolve:
-  for p: Y.Prof
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_revolve{p}, ps) == 7u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_revolve{Y.mk_prof(sq_loop(), [])}, [], []),
+      7u64) == False{} : Bool}
 
-def node_hash_revolve(p, ps):
+def node_hash_revolve():
   {==}
 
 law node_hash_holes:
-  for b: U64
-  for hs: List<&2, Y.HoleSpec>
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_holes{b, hs}, ps) == 8u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_holes{7u64, []}, [], []), 8u64)
+    == False{} : Bool}
 
-def node_hash_holes(b, hs, ps):
+def node_hash_holes():
   {==}
 
 law node_hash_pocket:
-  for b: U64
-  for x: F64
-  for y: F64
-  for w: F64
-  for h: F64
-  for d: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_pocket{b, x, y, w, h, d}, ps) == 9u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_pocket{7u64, 0.0f64, 0.0f64, 1.0f64, 1.0f64,
+      2u64}, [], []), 9u64) == False{} : Bool}
 
-def node_hash_pocket(b, x, y, w, h, d, ps):
+def node_hash_pocket():
   {==}
 
 law node_hash_pad:
-  for b: U64
-  for x: F64
-  for y: F64
-  for w: U64
-  for h: U64
-  for d: U64
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_pad{b, x, y, w, h, d}, ps) == 10u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_pad{7u64, 0.0f64, 0.0f64, 1u64, 2u64, 3u64},
+      [], []), 10u64) == False{} : Bool}
 
-def node_hash_pad(b, x, y, w, h, d, ps):
+def node_hash_pad():
+  {==}
+
+def sres_why(r: Y.SRes) -> String:
+  match r:
+    case Y.Sok{v}: ""
+    case Y.Serr{k, dg}:
+      Y.Dg{+what, +loc, +why, +fix} = dg
+      why
+
+def zone_wide() -> Y.Dim:
+  Y.mk_dm(2.0f64, 1.0f64, 3.0f64)
+
+def zone_pt() -> Y.Dim:
+  Y.mk_dm(2.0f64, 2.0f64, 2.0f64)
+
+# Volume of [1,3] x {2} x {2} sits strictly below the nominal
+# point product 2 x 2 x 2. Substituting nom for [lo, hi] makes
+# the two lows equal and this law fails. Both results are Sok.
+law zone_not_nominal:
+  {Bool.and(String.eq(Y.sres_show(O.ms_zone(zone_wide(), zone_pt(),
+      zone_pt())), "ok"),
+    Bool.and(String.eq(Y.sres_show(O.ms_nom_vol(zone_wide(), zone_pt(),
+        zone_pt())), "ok"),
+      F64.is_lt(Y.iv_lo(Y.sok_iv_of(O.ms_zone(zone_wide(), zone_pt(),
+          zone_pt()))),
+        Y.iv_lo(Y.sok_iv_of(O.ms_nom_vol(zone_wide(), zone_pt(),
+          zone_pt()))))))
+    == True{} : Bool}
+
+def zone_not_nominal():
+  {==}
+
+# A present dim with lo > nom is invalid-input, why "zone".
+# A missing id is not a zone error: why stays "unknown dim id".
+law neg_ev_box_zone:
+  {Bool.and(String.eq(sres_why(EV.ev_box(1u64, 2u64, 3u64,
+      [Y.mk_param(1u64, Y.mk_dm(1.0f64, 5.0f64, 9.0f64)),
+        Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+        Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))],
+      10000n)), "zone"),
+    String.eq(sres_why(EV.ev_box(9u64, 2u64, 3u64, hash_ps(),
+      10000n)), "unknown dim id"))
+    == True{} : Bool}
+
+def neg_ev_box_zone():
   {==}
 
 law node_hash_xform:
-  for b: U64
-  for xf: V.Rigid
-  for ps: List<&2, Y.Param>
-  {EV.node_hash(Y.O_xform{b, xf}, ps) == 11u64 : U64}
+  {U64.is_eq(EV.node_hash(Y.O_xform{7u64, id_rigid()}, [], []), 11u64)
+    == False{} : Bool}
 
-def node_hash_xform(b, xf, ps):
+def node_hash_xform():
   {==}
 
 law ok_fnv_step:
@@ -1979,7 +2043,7 @@ def neg_eval_cyl():
   {==}
 
 law neg_eval_empty:
-  {Y.sres_show(ev_last2(EV.ev_part(Y.mk_part([], [], 99u64), Y.cache_empty(), 10000n)))
+  {Y.sres_show(ev_last2(EV.ev_part(Y.mk_part([], [], 99u64, box_it()), Y.cache_empty(), 10000n)))
     == "invalid-input" : String}
 
 def neg_eval_empty():
@@ -2903,6 +2967,16 @@ law neg_ms_box_over:
 def neg_ms_box_over():
   {==}
 
+# Corner sum overflows while the volume and area enclosures stay finite.
+# The old ms_box skipped box_sum_fin and returned ok with a non-finite bhi.
+law neg_ms_box_corner:
+  {Y.diag_show(Y.sres_diag(O.ms_box(1.0e308f64, 0.1f64, 0.1f64,
+      1.0e308f64, 0.0f64, 0.0f64, unit_box())))
+    == "far corner @ ms_box [corner+dim overflows F64] fix: shrink the box or move it toward origin" : String}
+
+def neg_ms_box_corner():
+  {==}
+
 law ok_ms_bin_add:
   {Y.sok_iv_of(O.ms_bin_iv(0u64, Y.Iv{1.0f64, 1.0f64}, Y.Iv{2.0f64, 2.0f64}))
     == Y.Iv{F64{4613937818241073151u64}, F64{4613937818241073153u64}} : Y.Iv}
@@ -2929,4 +3003,81 @@ law neg_ms_bin_second:
     Y.serr_uncertain("b", "t", "w", "f"))) == "numerical-uncertainty" : String}
 
 def neg_ms_bin_second():
+  {==}
+
+# --- T. Cache identity and publish gate on ev_part. ---
+
+def box_ps() -> List<&2, Y.Param>:
+  [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
+    Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+    Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))]
+
+def part_ins() -> Y.Part:
+  Y.mk_part(box_ps(),
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [9u64])], 7u64,
+    box_it())
+
+def part_mis() -> Y.Part:
+  Y.mk_part(box_ps(),
+    [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64,
+    Y.mk_intent(Y.M_create{}, 5n, 0n, 1n, 0n))
+
+def ins_poison() -> Y.Cache:
+  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
+      box_ps(), []), EV.dummy_body(),
+    Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
+
+def cyl_poison() -> Y.Cache:
+  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_cyl{1u64, 2u64}, cyl_ps(),
+      []), EV.dummy_body(),
+    Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
+
+# A cache entry under the hash of the old inputs must not win once ins changes.
+law ok_cache_ins_miss:
+  {root318(EV.ev_part(part_ins(), ins_poison(), 10000n)) == True{} : Bool}
+
+def ok_cache_ins_miss():
+  {==}
+
+# The poisoned entry's hash is the hash ev_part computes, so this is a hit.
+law ok_cache_cyl_covers:
+  {EV.cc_covers(EV.cc_items(cyl_poison()),
+      EV.ev_hashes([Y.mk_node(7u64, Y.O_cyl{1u64, 2u64}, [])], cyl_ps()))
+    == True{} : Bool}
+
+def ok_cache_cyl_covers():
+  {==}
+
+# A cache hit on an unsupported op still fails. The old path returned the body.
+law neg_cache_cyl:
+  {Y.sres_show(ev_last2(EV.ev_part(part_cyl(), cyl_poison(), 10000n)))
+    == "unsupported-op" : String}
+
+def neg_cache_cyl():
+  {==}
+
+# Changing ins changes the hash, so the old entry does not cover.
+law neg_cache_ins_covers:
+  {EV.cc_covers(EV.cc_items(ins_poison()),
+      EV.ev_hashes([Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [9u64])],
+        box_ps())) == False{} : Bool}
+
+def neg_cache_ins_covers():
+  {==}
+
+# Agreeing intent is ok_eval_fresh (part1 carries the box intent).
+# Disagreeing intent is invalid-input, including when the geometry cache hits.
+law neg_ev_intent:
+  {Y.sres_show(ev_last2(EV.ev_part(part_mis(), Y.cache_empty(), 10000n)))
+    == "invalid-input" : String}
+
+def neg_ev_intent():
+  {==}
+
+law neg_ev_intent_hit:
+  {Y.sres_show(ev_last2(EV.ev_part(part_mis(),
+      ev_cc2(EV.ev_part(part1(), Y.cache_empty(), 10000n)), 10000n)))
+    == "invalid-input" : String}
+
+def neg_ev_intent_hit():
   {==}

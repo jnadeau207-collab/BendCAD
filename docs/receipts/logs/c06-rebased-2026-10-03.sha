@@ -1,0 +1,11 @@
+start 2026-10-03T16:12:35-04:00
+compiler 288da0836f419b57323283b971fe44b363ff1193
+8425c45ac78894e083f5136f0d9f0974078aeb79016e11659a5228e3c11d4c36  /mnt/c/dev/BendCAD/laws/c06.bend
+1790a7af97504fa348e0a0ee96dd736697d7df55d513112fd9ae3c88404ca475  /mnt/c/dev/BendCAD/src/c06/eval.bend
+63c2ea5ef4f2038d471ead59244ac3f8d0a0f77a62d007a4b739599e25f26927  /mnt/c/dev/BendCAD/src/c06/ops.bend
+ea08aa7e733152bbd8ec545106df2884f06baf1608d9df8d7d5220fe3f1396eb  /mnt/c/dev/BendCAD/src/c06/types.bend
+f563fdc18527c69ea09dde941e6891ca2c70f7954ee61a7f93a712baedc19b29  /mnt/c/dev/BendCAD/src/c06/surfx.bend
+6a5929b81dd6921bd04777c48ca414e9a5dd7b456dd5fab79b6dd9f44388a991  /mnt/c/dev/BendCAD/tests/c06/box.bend
+e6e268477810273106be2e07d80d67def677020a723272fd283e3e1d61bb3bff  /mnt/c/dev/BendCAD/tests/c06/diag.bend
+e220943886bb18f877342b9f369d660bfdb5ba969abe1b0010a7aadc524b1e90  /mnt/c/dev/BendCAD/tests/c06/eval.bend
+c06-runner-done 2026-10-03T19:22:06-04:00

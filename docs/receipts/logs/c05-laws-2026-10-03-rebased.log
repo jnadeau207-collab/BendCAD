@@ -1,0 +1,41 @@
+start 2026-10-03T16:12:35-04:00
+compiler 288da0836f419b57323283b971fe44b363ff1193
+rebase-tip 1d27fcc1101aef974c6f5ff3325778b116773f80
+bun /home/jesse/.bun/bin/bun
+1.4.2
+sha256 at launch
+a44c1b3d56672aecde81fded28ac7832373f53763d2e7463580984711e8e91c2  /mnt/c/dev/BendCAD/laws/c05.bend
+4a20c4eb9744db9d3a3ef803b170a209b59313d68f9b4a609bad9cd29bafae4f  /mnt/c/dev/BendCAD/src/c05/solve.bend
+e8abe8d0fecdeae9865837be5c2ecbd158419fc0ca2cdfeb6e51a5c572420527  /mnt/c/dev/BendCAD/src/c05/exact.bend
+d4e52d0c62e0d6f97c888a4ecbdf289ebdc19f65889d3f0ff55e1cdf602ce69a  /mnt/c/dev/BendCAD/src/c05/arrange.bend
+a1c726a4e36b4b0921be2fd526ac7b661a39cc2a335f511a39e36217f2c42fcb  /mnt/c/dev/BendCAD/src/c05/sqr.bend
+0bfaa8a78c99fab89adad8f8ff5220cb2fc540c26bac27823f84069a3d98dbb0  /mnt/c/dev/BendCAD/src/base/par.bend
+6bce30496ac160f196a2095480b39b16169113b447fde61e0609aa1508bd5605  /mnt/c/dev/BendCAD/src/base/ex.bend
+7f3ae6415c0ccf995fb98648558626837fdf480b3458f7788608a3511560a93a  /mnt/c/dev/bend-onto-upstream/bend2/base.bend
+ALL PROOFS CHECK
+Use --verdict for mathematical validity.
+	Command being timed: "bun bend2/main.ts /mnt/c/dev/BendCAD/laws/c05.bend --check-only"
+	User time (seconds): 12427.32
+	System time (seconds): 1450.96
+	Percent of CPU this job got: 121%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:10:26
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1132120
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 4
+	Minor (reclaiming a frame) page faults: 522789
+	Voluntary context switches: 59677808
+	Involuntary context switches: 30355
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+exit 0
+end 2026-10-03T19:23:02-04:00

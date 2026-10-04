@@ -1,0 +1,6 @@
+date 2026-10-04
+compiler 288da0836f419b57323283b971fe44b363ff1193
+cmd bun /mnt/c/dev/bend-onto-upstream/bend2/main.ts laws/c06.bend --check-only
+ALL PROOFS CHECK
+Use --verdict for mathematical validity.
+exit 0

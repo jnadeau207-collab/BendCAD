@@ -150,10 +150,12 @@ Construction protocol, in order:
 6. `brep_set_top` replaces the root totally (liveness of the
    new top is `brep_checked`, not here).
 7. `brep_checked(b, profile, fuel)` (ops.bend, IMPLEMENTED)
-   runs A. store re-validation via `mk_brep` (catches raw
-   `Br`; its own invalid/exhausted verdict wins); then, since
-   R0.2 (§16), `resource-exhausted` iff `fuel < ix_bound(b)`
-   (the longest store or member list), else the conjunction
+   returns `resource-exhausted` before stage A and before
+   stages B..L whenever `fuel < ix_bound(b)` (the longest
+   store or member list). That result is not a geometric
+   pass. Otherwise it runs A. store re-validation via
+   `mk_brep` (catches raw `Br`; an invalid store wins only
+   when fuel covers `ix_bound`), then the conjunction
    of B..L in this order, each decided on the store index
    `Ty.Ix`: B. incidence (every member handle live);
    C. edge-use pairing (solid: twice opposite; open:
@@ -341,7 +343,9 @@ overflow rejected), same-face segment pair
 uncertain-or-crossing (fail-closed: uncertainty rejects,
 NOT a proven crossing). `resource-exhausted`:
 fuel ran out in any walk (`len/at/resolve/handle_of/issued/
-all_c/gen_c/nodup_c` or any `brep_checked` stage walk).
+all_c/gen_c/nodup_c` or any `brep_checked` stage walk), and
+`brep_checked` returns it before those walks when
+`fuel < ix_bound`.
 No C04 op publishes `numerical-uncertainty`, `unsupported-op`
 (except internal `surf_at` on non-plane/bezp, which is caught
 and skipped, never published), `nonconvergence`, `cancelled`,
@@ -356,8 +360,11 @@ fuel ≥ store length; `at` needs fuel ≥ index (head free);
 `resolve` costs its inner `at`; `issued` costs its inner
 `len`; `mk_brep` needs fuel ≥ the LONGEST store (full cap
 per each of 21 walks); `brep_checked` needs fuel ≥ the
-max store length and max member-list length (full cap per
-stage walk and per sub-resolve; fixtures use 12–20).
+max store length and max member-list length (`ix_bound`).
+Fuel below that bound is `resource-exhausted` and does not
+run `mk_brep` or stages B..L. At or above the bound, each
+stage walk and each sub-resolve gets that full cap
+(fixtures use 12–20, and the digon control decides at 2).
 `snoc`/`brep_set_top`/accessors/classifiers are
 O(length)-structural or O(1) with no fuel parameter.
 U64 stamp arithmetic wraps past 2^64 pushes (unstated
@@ -808,13 +815,21 @@ loops, shell faces, solid shells).
 ### 16.2 Fuel
 
 A stage decides iff `fuel ≥ ix_bound(b)`; otherwise its code is
-`0` (not done). `brep_checked` runs A, then reports
-`resource-exhausted` iff `fuel < ix_bound(b)`, else the verdict of
-B..L evaluated as a short-circuit conjunction. This is the §8
-statement made exact: before R0.2 each walk spent its own fuel, so
-some intermediate fuel values gave per-walk codes that §8 did not
-promise. Every fuel law and pin (`ck_fuel`, `neg-*-0`, `*_fuel`)
-holds unchanged, and the old implementation's cost grew with the
+`0` (not done). `brep_checked` reports `resource-exhausted`
+before `mk_brep` and before B..L whenever `fuel < ix_bound(b)`.
+That answer is not a geometric pass. Otherwise it runs A, then
+the verdict of B..L as a short-circuit conjunction; A's invalid
+verdict wins only at a covering fuel. This is the §8 statement
+made exact: before R0.2 each walk spent its own fuel, so some
+intermediate fuel values gave per-walk codes that §8 did not
+promise. A later reading ran A before the `ix_bound` rejection,
+so a store-invalid brep whose member list was the bound returned
+`invalid-input` below `ix_bound`. `ck_fuel_ix` pins the rejection
+in front: fuel 1 on that brep (`ix_bound` 2) is
+`resource-exhausted`, while `mk_brep` at the same fuel is still
+`invalid-input`, and fuel 2 still validates. Every earlier fuel
+law and pin (`ck_fuel`, `neg-*-0`, `*_fuel`) holds unchanged, and
+the old implementation's cost grew with the
 fuel cap even on valid input: at fuel 10⁸ it overflowed the stack
 after 305 s on an 8-entity prism.
 

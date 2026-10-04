@@ -1,17 +1,17 @@
 # C04 laws: every claim closed by the proof beneath it. Two layers.
-# L0 implementation algebra (480 laws, sections A-M/L/F1/ops): result
+# L0 implementation algebra (481 laws, sections A-M/L/F1/ops): result
 # core, projector defaults over every FailKind, handle constructors
 # over every index/generation, one closed instance per pipeline arm
 # (constructors, classifiers, validity, walks, pushes, assembly,
 # brep_checked profiles + seam/cavity/counterexample instances).
-# L1 semantic predicates (112 laws, `l1_*`): fixture-independent
+# L1 semantic predicates (117 laws, `l1_*`): fixture-independent
 # stage semantics over quantified binders and inline micro-stores —
 # edge-use counts (solid = 2 opposite, open = 1 or 2 opposite),
 # loop semantics (oriented ends, trim ends, closure, duplicate
 # incidence, seam double-use, pole rule), vertex-link twin(prev())
 # orbits, face-edge connectedness (vertex-touching does not
 # connect), and the orientation spec (L-plane certifies, L-varying
-# never fails). Total: 592 laws.
+# never fails). Total: 598 laws.
 # Pins: F64 bit patterns from python struct (independent oracle) plus
 # observed `bend run` output (show strings, walk codes, stamp
 # arithmetic). Scope: boundary-representation topology (MASTER_PLAN
@@ -675,6 +675,13 @@ def top1() -> Ty.Compound:
 
 def b_empty() -> Ty.Brep:
   Ty.brep_empty()
+
+# Store length 1 (one nonfinite vertex) and member length 2 (one loop
+# of two coedges). ix_bound is the member list. Fuel 1 finishes every
+# mk_brep walk and would be invalid-input; brep_checked must exhaust.
+def b_fuel_gap() -> Ty.Brep:
+  Ty.Br{vs_bad(), es0(), ces0(), lp_b() <> Nil{}, fas0(), shs0(),
+    sos0(), top0(), 32u64}
 
 def b_vs1() -> Ty.Brep:
   Ty.Br{vs1(), es0(), ces0(), lps0(), fas0(), shs0(), sos0(),
@@ -4640,6 +4647,54 @@ law ck_fuel:
     == True{} : Bool}
 
 def ck_fuel():
+  {==}
+
+# Fuel below ix_bound is exhausted. It is not a geometric pass, and it
+# is not the store-invalid verdict mk_brep would return on its own.
+# Fuel at ix_bound still validates: the gap stays invalid-input, and
+# the digon control stays ok.
+law ck_fuel_ix:
+  {Bool.and(Nat.is_eq(Ty.ix_bound(b_fuel_gap()), 2n),
+    Bool.and(Nat.is_eq(Ty.ix_bound(b_sphere_digon_control()), 2n),
+    Bool.and(String.eq(Ty.tres_show(Ty.mk_brep(Ty.brep_vs(b_fuel_gap()),
+      Ty.brep_es(b_fuel_gap()), Ty.brep_ces(b_fuel_gap()),
+      Ty.brep_lps(b_fuel_gap()), Ty.brep_fas(b_fuel_gap()),
+      Ty.brep_shs(b_fuel_gap()), Ty.brep_sos(b_fuel_gap()),
+      Ty.brep_top(b_fuel_gap()), Ty.brep_stamp(b_fuel_gap()), 1n)),
+      "invalid-input"),
+    Bool.and(String.eq(Ty.tres_show(Op.brep_checked(b_fuel_gap(),
+      Ty.P_manifold_solid{}, 1n)), "resource-exhausted"),
+    Bool.and(Bool.not(String.eq(Ty.tres_show(Op.brep_checked(b_fuel_gap(),
+      Ty.P_manifold_solid{}, 1n)), "ok")),
+    Bool.and(String.eq(Ty.tres_show(Op.brep_checked(b_fuel_gap(),
+      Ty.P_manifold_solid{}, 2n)), "invalid-input"),
+    Bool.and(String.eq(Ty.tres_show(Op.brep_checked(
+      b_sphere_digon_control(), Ty.P_manifold_solid{}, 2n)), "ok"),
+      String.eq(Ty.tres_show(Op.brep_checked(b_sphere_digon_control(),
+        Ty.P_manifold_solid{}, 1n)), "resource-exhausted"))))))))
+    == True{} : Bool}
+
+def ck_fuel_ix():
+  {==}
+
+# Stage entries match on ck_done before the walk. Below ix_bound
+# the code is 0. At ix_bound the digon control's incidence and
+# orientation are decided ok (3), and its orientation cert is the
+# decided zero-count pack (1), not the not-done 0. A code of 0 on
+# a short budget is also what the old okc/cnt_pack returned; the
+# match is what keeps the walk out of argument position.
+law ck_stage_fuel:
+  {Bool.and(Nat.is_eq(Op.brep_incid_c(b_fuel_gap(), 1n), 0n),
+    Bool.and(Nat.is_eq(Op.brep_orient_c(b_fuel_gap(), 1n), 0n),
+    Bool.and(Nat.is_eq(Op.brep_incid_c(b_sphere_digon_control(), 1n), 0n),
+    Bool.and(Nat.is_eq(Op.brep_orient_c(b_sphere_digon_control(), 1n), 0n),
+    Bool.and(Nat.is_eq(Op.brep_orient_cert_c(b_sphere_digon_control(), 1n), 0n),
+    Bool.and(Nat.is_eq(Op.brep_incid_c(b_sphere_digon_control(), 2n), 3n),
+    Bool.and(Nat.is_eq(Op.brep_orient_c(b_sphere_digon_control(), 2n), 3n),
+      Nat.is_eq(Op.brep_orient_cert_c(b_sphere_digon_control(), 2n), 1n))))))))
+    == True{} : Bool}
+
+def ck_stage_fuel():
   {==}
 
 law ck_alias:

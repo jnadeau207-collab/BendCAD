@@ -6,6 +6,7 @@ import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
 import ../../src/c03/types.bend as G
 import ../../src/c04/types.bend as Ty
+import ../../src/c04/ops.bend as C4
 import ../../src/c06/types.bend as Y
 import ../../src/c06/ops.bend as O
 import ./box.bend as BX
@@ -148,6 +149,28 @@ def t_ms_over() -> U64:
   Bool.pick(U64, BX.kind_is(O.ms_box(1.0e308f64, 1.0e308f64,
     1.0f64, 0.0f64, 0.0f64, 0.0f64, ub()), 1u64), 0u64, 1u64)
 
+# 1e308+1e308 on the corner, dims small enough that vol/area stay finite.
+# Old ms_box returned Sok with a non-finite bhi.
+def t_ms_corner() -> U64:
+  Bool.pick(U64, BX.kind_is(O.ms_box(1.0e308f64, 0.1f64, 0.1f64,
+    1.0e308f64, 0.0f64, 0.0f64, ub()), 1u64), 0u64, 1u64)
+
+# Fuel 0 is not-done (0). A large fuel on the unit box is a
+# decided pass (3). Code 0 was also the old short-budget pack.
+def t_incid_low() -> U64:
+  Bool.pick(U64, Nat.is_eq(C4.brep_incid_c(ub(), 0n), 0n), 0u64, 1u64)
+
+def t_incid_box() -> U64:
+  Bool.pick(U64, Nat.is_eq(C4.brep_incid_c(ub(), 10000n), 3n),
+    0u64, 1u64)
+
+def t_orient_low() -> U64:
+  Bool.pick(U64, Nat.is_eq(C4.brep_orient_c(ub(), 0n), 0n), 0u64, 1u64)
+
+def t_orient_box() -> U64:
+  Bool.pick(U64, Nat.is_eq(C4.brep_orient_c(ub(), 10000n), 3n),
+    0u64, 1u64)
+
 def total() -> U64:
   U64.add(t_stage_go_0(), U64.add(t_stage_go_incid(),
     U64.add(t_stage_go_embed(), U64.add(t_stage_go_unknown(),
@@ -164,7 +187,12 @@ def total() -> U64:
                           U64.add(t_ms_vol(), U64.add(t_ms_area(),
                             U64.add(t_ms_counts(),
                               U64.add(t_ms_zero(),
-                                t_ms_over()))))))))))))))))))))))))))))
+                                U64.add(t_ms_over(),
+                                  U64.add(t_ms_corner(),
+                                    U64.add(t_incid_low(),
+                                      U64.add(t_incid_box(),
+                                        U64.add(t_orient_low(),
+                                          t_orient_box())))))))))))))))))))))))))))))))))
 
 def main() -> IO(Unit):
   do IO<Unit>:

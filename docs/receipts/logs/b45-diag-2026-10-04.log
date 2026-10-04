@@ -1,0 +1,5 @@
+date 2026-10-04
+compiler 288da0836f419b57323283b971fe44b363ff1193
+cmd bun /mnt/c/dev/bend-onto-upstream/bend2/main.ts tests/c06/diag.bend
+selfcheck fails=0
+exit 0

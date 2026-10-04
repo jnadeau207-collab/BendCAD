@@ -4,9 +4,12 @@
 # therefore routes its decision through a helper-def param (the
 # base/par.bend tr_set pattern): decisions are computed in argument
 # position and matched as params in the callee. Cache reuse is
-# all-or-nothing: when every node hash matches the old cache, the
-# whole cache is reused and the root is looked up; otherwise every
-# node rebuilds. Per-node partial reuse is future work.
+# all-or-nothing: when every node hash matches and every op is a
+# box, the cache is reused and the root is published through the
+# intent gate. An unsupported op is never reused. Otherwise every
+# node rebuilds. Per-node partial reuse is future work. The hash
+# covers the op tag, dim ids, zone bits (nom, lo, hi), and input
+# node ids.
 
 import Base
 import ../c00/types.bend as T
@@ -40,18 +43,22 @@ def pm_hit_go(xs: List<&2, Y.Param>, +id: U64) -> Bool:
         case Y.Pm{pid, d}:
           Bool.or(U64.is_eq(pid, id), pm_hit_go(t, id))
 
-def dm_nom(x: Y.Dim) -> F64:
-  match x:
-    case Y.Dm{nom, lo, hi}: nom
-
 def pm_nom_go(xs: List<&2, Y.Param>, +id: U64) -> F64:
   match xs:
     case []: 0.0f64
     case p <> t:
       match p:
         case Y.Pm{pid, d}:
-          Bool.pick(F64, U64.is_eq(pid, id), dm_nom(d),
+          Bool.pick(F64, U64.is_eq(pid, id), Y.dm_nom(d),
             pm_nom_go(t, id))
+
+def pm_dm_go(xs: List<&2, Y.Param>, +id: U64) -> Y.Dim:
+  match xs:
+    case []: Y.mk_dm(0.0f64, 0.0f64, 0.0f64)
+    case p <> t:
+      match p:
+        case Y.Pm{pid, d}:
+          Bool.pick(Y.Dim, U64.is_eq(pid, id), d, pm_dm_go(t, id))
 
 def bt_id(x: Y.Built) -> U64:
   match x:
@@ -116,24 +123,67 @@ def cc_items(c: Y.Cache) -> List<&2, Y.Built>:
   match c:
     case Y.Cc{items}: items
 
-# Build hash: FNV-1 over the op tag plus dim nominals for box. Other
-# ops hash to their tag; they fail at ev_op until built.
-def node_hash(op: Y.Op, +ps: List<&2, Y.Param>) -> U64:
+# FNV-1 over a list of words. The list is the first argument so the
+# self-call shrinks before the accumulator changes.
+def fnv_list(xs: List<&2, U64>, +h: U64) -> U64:
+  match xs:
+    case []: h
+    case b <> t: fnv_list(t, fnv_step(h, b))
+
+# Nominal, lo, and hi bits of each dim id. A missing id contributes
+# the zero dim pm_dm_go returns. Dropping lo/hi makes two zones with
+# the same nominal hash equal.
+def fnv_zone(+id: U64, +h: U64, +ps: List<&2, Y.Param>) -> U64:
+  +d = pm_dm_go(ps, id)
+  fnv_step(fnv_step(fnv_step(h, F64.bits(Y.dm_nom(d))),
+    F64.bits(Y.dm_lo(d))), F64.bits(Y.dm_hi(d)))
+
+def fnv_zones(ids: List<&2, U64>, +h: U64,
+    +ps: List<&2, Y.Param>) -> U64:
+  match ids:
+    case []: h
+    case i <> t: fnv_zones(t, fnv_zone(i, h, ps), ps)
+
+# Dim ids carried by the op, in constructor order. Coordinates, profiles,
+# and hole lists are not dim ids.
+def op_dim_ids(op: Y.Op) -> List<&2, U64>:
   match op:
-    case Y.O_box{w, h, d}:
-      fnv_step(fnv_step(fnv_step(fnv_step(14695981039346656037u64,
-        1u64), F64.bits(pm_nom_go(ps, w))),
-        F64.bits(pm_nom_go(ps, h))), F64.bits(pm_nom_go(ps, d)))
-    case Y.O_cyl{r, h}: 2u64
-    case Y.O_sph{r}: 3u64
-    case Y.O_cone{r, h}: 4u64
-    case Y.O_tor{bigR, r}: 5u64
-    case Y.O_extrude{prof, depth}: 6u64
-    case Y.O_revolve{prof}: 7u64
-    case Y.O_holes{base, hs}: 8u64
-    case Y.O_pocket{base, x, y, w, h, depth}: 9u64
-    case Y.O_pad{base, x, y, w, h, d}: 10u64
-    case Y.O_xform{base, xf}: 11u64
+    case Y.O_box{w, h, d}: [w, h, d]
+    case Y.O_cyl{r, h}: [r, h]
+    case Y.O_sph{r}: [r]
+    case Y.O_cone{r, h}: [r, h]
+    case Y.O_tor{bigR, r}: [bigR, r]
+    case Y.O_extrude{prof, depth}: [depth]
+    case Y.O_revolve{prof}: []
+    case Y.O_holes{base, hs}: []
+    case Y.O_pocket{base, x, y, w, h, depth}: [depth]
+    case Y.O_pad{base, x, y, w, h, d}: [w, h, d]
+    case Y.O_xform{base, xf}: []
+
+# Input node ids embedded in the op. Node.ins is hashed separately.
+def op_in_ids(op: Y.Op) -> List<&2, U64>:
+  match op:
+    case Y.O_box{w, h, d}: []
+    case Y.O_cyl{r, h}: []
+    case Y.O_sph{r}: []
+    case Y.O_cone{r, h}: []
+    case Y.O_tor{bigR, r}: []
+    case Y.O_extrude{prof, depth}: []
+    case Y.O_revolve{prof}: []
+    case Y.O_holes{base, hs}: [base]
+    case Y.O_pocket{base, x, y, w, h, depth}: [base]
+    case Y.O_pad{base, x, y, w, h, d}: [base]
+    case Y.O_xform{base, xf}: [base]
+
+# Build hash: op tag, dim ids, zone bits (nom, lo, hi), embedded input
+# ids, then Node.ins. A change to any of those misses. Unsupported ops
+# still hash, and a hit on one is not a publish (nodes_box / ev_op).
+def node_hash(+op: Y.Op, ps: List<&2, Y.Param>,
+    ins: List<&2, U64>) -> U64:
+  +ids = op_dim_ids(op)
+  fnv_list(ins, fnv_list(op_in_ids(op), fnv_zones(ids,
+    fnv_list(ids, fnv_step(14695981039346656037u64, Y.op_tag(op))),
+    ps)))
 
 def ev_wrap(r: Y.SRes, +nw: F64, +nh: F64, +nd: F64) -> Y.SRes:
   match r:
@@ -163,18 +213,57 @@ def ev_box_go(okw: Bool, okh: Bool, okd: Bool, +nw: F64,
     Y.serr_invalid("box width", "ev_box", "unknown dim id",
       "add the dim to the part params"))
 
+# A missing id is not a zone error; ev_box_go names the unknown dim.
+# A present id whose zone is not lo <= nom <= hi with lo > 0 does not
+# build. The solid itself stays the nominal box.
+def zone_one(hit: Bool, +d: Y.Dim) -> Bool:
+  match hit:
+    case False{}: True{}
+    case True{}: Y.dm_valid_pos(d)
+
+def ev_box_zone(ok: Bool, +w: U64, +h: U64, +d: U64,
+    +ps: List<&2, Y.Param>, +fuel: Nat) -> Y.SRes:
+  match ok:
+    case False{}:
+      Y.serr_invalid("dims", "ev_box", "zone",
+        "lo <= nom <= hi and lo > 0")
+    case True{}:
+      ev_box_go(pm_hit_go(ps, w), pm_hit_go(ps, h), pm_hit_go(ps, d),
+        pm_nom_go(ps, w), pm_nom_go(ps, h), pm_nom_go(ps, d), fuel)
+
 def ev_box(+w: U64, +h: U64, +d: U64, +ps: List<&2, Y.Param>,
     +fuel: Nat) -> Y.SRes:
-  ev_box_go(pm_hit_go(ps, w), pm_hit_go(ps, h), pm_hit_go(ps, d),
-    pm_nom_go(ps, w), pm_nom_go(ps, h), pm_nom_go(ps, d), fuel)
+  ev_box_zone(Bool.and(zone_one(pm_hit_go(ps, w), pm_dm_go(ps, w)),
+    Bool.and(zone_one(pm_hit_go(ps, h), pm_dm_go(ps, h)),
+      zone_one(pm_hit_go(ps, d), pm_dm_go(ps, d)))),
+    w, h, d, ps, fuel)
 
-def ev_op(op: Y.Op, +ps: List<&2, Y.Param>,
-    +fuel: Nat) -> Y.SRes:
+# The only built op. The cache and ev_op share this test so a hit
+# cannot publish an op ev_op would reject.
+def op_is_box(op: Y.Op) -> Bool:
   match op:
-    case Y.O_box{w, h, d}: ev_box(w, h, d, ps, fuel)
-    case _:
+    case Y.O_box{w, h, d}: True{}
+    case _: False{}
+
+def nodes_box(ns: List<&2, Y.Node>) -> Bool:
+  match ns:
+    case []: True{}
+    case n <> t:
+      match n:
+        case Y.Nd{id, op, ins}:
+          Bool.and(op_is_box(op), nodes_box(t))
+
+def ev_op_go(ok: Bool, op: Y.Op, +ps: List<&2, Y.Param>,
+    +fuel: Nat) -> Y.SRes:
+  match ok op:
+    case True{} Y.O_box{w, h, d}: ev_box(w, h, d, ps, fuel)
+    case _ _:
       Y.serr_unsupported("op", "ev_op", "builder pending",
         "only box is implemented so far")
+
+def ev_op(+op: Y.Op, +ps: List<&2, Y.Param>,
+    +fuel: Nat) -> Y.SRes:
+  ev_op_go(op_is_box(op), op, ps, fuel)
 
 def fx_of_body(b: Y.Body) -> Y.Effect:
   match b:
@@ -191,7 +280,7 @@ def ev_hashes(ns: List<&2, Y.Node>,
     case n <> t:
       match n:
         case Y.Nd{id, op, ins}:
-          HP{id, node_hash(op, ps)} <> ev_hashes(t, ps)
+          HP{id, node_hash(op, ps, ins)} <> ev_hashes(t, ps)
 
 # Fail-fast node walk, self-recursive only. The continue/halt branch
 # on the computed node result goes through Bool.pick (a match cannot
@@ -214,59 +303,6 @@ def sres_body(r: Y.SRes) -> Y.Body:
         case Y.SV_body{b}: b
         case _: dummy_body()
 
-def evm(ns: List<&2, Y.Node>, +ps: List<&2, Y.Param>,
-    +nw: List<&2, Y.Built>, +fuel: Nat) -> EvRes:
-  match ns:
-    case []: EV{Y.Cc{nw}, Y.sok_u(0u64)}
-    case n <> t:
-      match n:
-        case Y.Nd{id, +op, ins}:
-          +r = ev_op(op, ps, fuel)
-          +sb = sres_body(r)
-          Bool.pick(EvRes, sres_is_body(r),
-            evm(t, ps,
-              bt_cat(nw, [Y.mk_built(id, node_hash(op, ps), sb,
-                fx_of_body(sb))]),
-              fuel),
-            EV{Y.Cc{nw}, r})
-
-def ev_root2(hit: Bool, bt: Y.Built, rest: List<&2, Y.Built>,
-    +cc: Y.Cache, +root: U64) -> EvRes:
-  match hit bt:
-    case True{} Y.Bt{bid, bh, body, fx}:
-      EV{cc, Y.sok_body(body)}
-    case False{} _:
-      EV{cc, Y.serr_invalid("root", "ev_part",
-        "root node id not built",
-        "point root at a node id in the part")}
-
-def ev_root(out: CcOut, +cc: Y.Cache, +root: U64) -> EvRes:
-  match out:
-    case CO{hit, bt, rest}: ev_root2(hit, bt, rest, cc, root)
-
-def ev_part3(er: EvRes, +root: U64) -> EvRes:
-  match er:
-    case EV{+cc, last}:
-      match last:
-        case Y.Serr{k, dg}: EV{cc, Y.Serr{k, dg}}
-        case Y.Sok{v}:
-          ev_root(cc_find_id0(cc_items(cc), [], root), cc, root)
-
-def ev_part2(hit: Bool, +ps: List<&2, Y.Param>,
-    +ns: List<&2, Y.Node>, +root: U64, +old: Y.Cache,
-    +fuel: Nat) -> EvRes:
-  match hit:
-    case True{}:
-      ev_root(cc_find_id0(cc_items(old), [], root), old, root)
-    case False{}:
-      ev_part3(evm(ns, ps, [], fuel), root)
-
-def ev_part(p: Y.Part, +old: Y.Cache, +fuel: Nat) -> EvRes:
-  match p:
-    case Y.Pt{+ps, +ns, root}:
-      ev_part2(cc_covers(cc_items(old), ev_hashes(ns, ps)), ps,
-        ns, root, old, fuel)
-
 def gate_go(ok: Bool, mat: Y.MatFx, fc: Nat, fm: Nat, sh: Nat,
     ho: Nat) -> Y.SRes:
   match ok:
@@ -286,6 +322,67 @@ def gate_publish(fx: Y.Effect, it: Y.Intent) -> Y.SRes:
             Bool.and(Nat.is_eq(sh, ish),
               Nat.is_eq(ho, iho))))),
         mat, fc, fm, sh, ho)
+
+def evm(ns: List<&2, Y.Node>, +ps: List<&2, Y.Param>,
+    +nw: List<&2, Y.Built>, +fuel: Nat) -> EvRes:
+  match ns:
+    case []: EV{Y.Cc{nw}, Y.sok_u(0u64)}
+    case n <> t:
+      match n:
+        case Y.Nd{id, +op, ins}:
+          +r = ev_op(op, ps, fuel)
+          +sb = sres_body(r)
+          Bool.pick(EvRes, sres_is_body(r),
+            evm(t, ps,
+              bt_cat(nw, [Y.mk_built(id, node_hash(op, ps, ins), sb,
+                fx_of_body(sb))]),
+              fuel),
+            EV{Y.Cc{nw}, r})
+
+# Publish the root body only when its stored effect matches the
+# part intent. A mismatch is the gate's invalid-input, not a body.
+def ev_root_pub(g: Y.SRes, +cc: Y.Cache, +body: Y.Body) -> EvRes:
+  match g:
+    case Y.Serr{k, dg}: EV{cc, Y.Serr{k, dg}}
+    case Y.Sok{v}: EV{cc, Y.sok_body(body)}
+
+def ev_root2(hit: Bool, bt: Y.Built, rest: List<&2, Y.Built>,
+    +cc: Y.Cache, +root: U64, +it: Y.Intent) -> EvRes:
+  match hit bt:
+    case True{} Y.Bt{bid, bh, body, fx}:
+      ev_root_pub(gate_publish(fx, it), cc, body)
+    case False{} _:
+      EV{cc, Y.serr_invalid("root", "ev_part",
+        "root node id not built",
+        "point root at a node id in the part")}
+
+def ev_root(out: CcOut, +cc: Y.Cache, +root: U64,
+    +it: Y.Intent) -> EvRes:
+  match out:
+    case CO{hit, bt, rest}: ev_root2(hit, bt, rest, cc, root, it)
+
+def ev_part3(er: EvRes, +root: U64, +it: Y.Intent) -> EvRes:
+  match er:
+    case EV{+cc, last}:
+      match last:
+        case Y.Serr{k, dg}: EV{cc, Y.Serr{k, dg}}
+        case Y.Sok{v}:
+          ev_root(cc_find_id0(cc_items(cc), [], root), cc, root, it)
+
+def ev_part2(hit: Bool, +ps: List<&2, Y.Param>,
+    +ns: List<&2, Y.Node>, +root: U64, +old: Y.Cache,
+    +fuel: Nat, +it: Y.Intent) -> EvRes:
+  match hit:
+    case True{}:
+      ev_root(cc_find_id0(cc_items(old), [], root), old, root, it)
+    case False{}:
+      ev_part3(evm(ns, ps, [], fuel), root, it)
+
+def ev_part(p: Y.Part, +old: Y.Cache, +fuel: Nat) -> EvRes:
+  match p:
+    case Y.Pt{+ps, +ns, root, it}:
+      ev_part2(Bool.and(cc_covers(cc_items(old), ev_hashes(ns, ps)),
+          nodes_box(ns)), ps, ns, root, old, fuel, it)
 
 # Box lineage names: 6 faces (role 0), 12 edges (role 1), 8 vertices
 # (role 2) under the creator node id.

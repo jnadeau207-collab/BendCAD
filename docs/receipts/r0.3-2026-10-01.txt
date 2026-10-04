@@ -17,11 +17,17 @@ numbers use a side build, /home/jesse/bend-r03/bin/bend, compiled
 (branch sched, bend2/comp.ts). That binary is not installed over
 ~/.bend. WSL2, 16 cores.
 
-`p2(n)` is 2^-n. λ₀ stays 2^-10 · max column norm². The clamp stays
-[2^-30 λ₀, 2^60 λ₀]. Only the initial λ changed, from λ₀ to the floor.
-An earlier edit wrote the ceiling as p2(30)·(new λ) and put it below
-the start, so the first rejected step stopped the solve. That edit
-is not this tree.
+`p2(n)` is 2^-n. `col_max` is the largest squared column norm.
+λ₀ is `p2(10) · max(col_max, 1)`. The `1` floors that squared norm
+before the scale: a Jacobian whose columns are all shorter than 1,
+including a zero column, would otherwise make λ₀ zero and drop the
+√λ row that keeps every column full rank. The clamp stays
+[2^-30 λ₀, 2^60 λ₀]. Two rules changed the damping, not one.
+Iteration starts at the floor 2^-30 λ₀, and `lm_step`'s accept arm
+sets `done` when the updated λ is above the ceiling. The reject
+arm already stopped on that ceiling. An earlier edit wrote the
+ceiling as p2(30)·(new λ) and put it below the start, so the first
+rejected step stopped the solve. That edit is not this tree.
 
 Bytes:
 
@@ -33,14 +39,24 @@ eaf4303234c3c2a9f85147e048e92f885d4d762e68820bba8581e1e97384d710  tools/bench/be
 214a4ceda8b35c72efa18150232d3ec9c9ba75d6bcbda0d7be6e7cacbf1ba9ad  docs/c05-contract.md
 fb663509eb21dc41020ad158e5766346cd950ee77e9367389ca2b50cc741a29d  MASTER_PLAN.md
 
+The contract hash above is the 2026-10-01 packet. On 2026-10-03 the
+damping sentences were corrected to state `λ₀ = p2(10)·max(col_max, 1)`
+and both stop rules (start at `2^-30 λ₀`, and the accept arm stops
+when the new λ is above the ceiling). The same edit points the
+parallel primitives at `src/base/par.bend` (69 defs) and the
+expansions at `src/base/ex.bend` (34 defs). The corrected contract
+is 9fb253f042ea8a96d8b38e06af52b62a24e46dcbe95cf412a6602b4258204ea4.
+`src/c05/solve.bend` was not edited. Its hash above still matches.
+
 ## 2. What changed, and what did not
 
-Solver (`run`): the state starts at `p2(30)·λ₀`. `mk_cx` still stores
-that floor and `2^60·λ₀`. Acceptance, the Nielsen gain and rejection
-are unchanged. The ceiling test used to run only when a step was
-rejected. An accepted update that lands above the ceiling now stops
-too. The suites and the three re-pinned calls below were re-run
-after that stop was added; the bits did not move.
+Solver (`run`): λ₀ is `p2(10)·max(col_max, 1)` and the state starts
+at `p2(30)·λ₀`. `mk_cx` stores that floor and `2^60·λ₀`. The trial
+test, the Nielsen gain and the reject-arm ceiling stop are the
+older rules. The accept arm also sets `done` when its new λ is
+above the ceiling. That stop stays. The suites and the three
+re-pinned calls below were re-run after it was added; the bits
+did not move.
 
 Three laws re-pinned to the new bits. Verdicts did not change.
 ok_solve_linear: x stays 5, and the y residual moves from 6.0e-30
@@ -51,12 +67,30 @@ ulp on the free endpoint (…3340 → …3341), 3.939192985791676 to
 endpoint (…9626 → …9627), 8.660254037844386 to 8.660254037844387.
 dof and redundancy ids are the same.
 These three calls were executed on the pinned compiler and the printed
-bits match the laws. The other solve laws pin either dof/red only or
-a show-string that the suites still produce. The quantified laws do
-not call `run`. A full `laws/c05.bend --check-only` was started on
-the pinned compiler at 2026-10-01T22:05:18-04:00 and stopped when
-the accepted-step ceiling stop was added, so that run is not
-evidence for these bytes.
+bits match the laws. `ok_solve_tangent_circles` and
+`ok_parallel_is_undirected` also pin full coordinate bits through
+`ok_bits`, not dof or redundancy alone. The other solve laws pin
+either dof/red only (`ok_solve_zero_pivot`, `ok_solve_clusters_merge`)
+or a show-string. The quantified laws do not call `run`. A full
+`laws/c05.bend --check-only` was started on the pinned compiler at
+2026-10-01T22:05:18-04:00 and stopped when the accepted-step ceiling
+stop was added, so that run is not evidence for these bytes.
+
+The same law file, still
+`a44c1b3d56672aecde81fded28ac7832373f53763d2e7463580984711e8e91c2`,
+was checked to completion on 2026-10-03. The compiler was
+`bun bend2/main.ts` from bend-onto-upstream
+`288da0836f419b57323283b971fe44b363ff1193` (IEEE `F64.min` /
+`F64.max`, one commit after rebase tip
+`1d27fcc1101aef974c6f5ff3325778b116773f80`), not
+`~/.bend/bin/bend`. `laws/c05.bend --check-only` printed
+`ALL PROOFS CHECK`, exit 0, wall 3:10:26, max RSS 1,132,120 KB.
+Launched 2026-10-03T16:12:35-04:00, ended 2026-10-03T19:23:02-04:00.
+Log: `docs/receipts/logs/c05-laws-2026-10-03-rebased.log`. That is
+the checker, not a kernel `--verdict`. No law was re-pinned.
+`ok_solve_tangent_circles` and `ok_parallel_is_undirected` still
+pin the full coordinate bits, and the check passed on those bits.
+`F64.min` / `F64.max` did not move a C05 law.
 
 Suites, pinned compiler, interpreter == native == JS (`cmp`),
 selfcheck fails=0:
@@ -103,7 +137,8 @@ sentence. No GPU timing exists, and none is claimed.
 - Rigid-cluster decomposition. The latency above is the damping
   floor and the scheduler, not a split of a rigid subsystem.
 - Tree-shaped BendCAD sequences. The spine is still lists.
-- The pinned compiler is still bc01485d. The 0.81 s / 1.06 s figures
-  are the side build.
+- The pinned compiler for these timings is bc01485d. The 0.81 s /
+  1.06 s figures are the side build 0759b750, not that pin and not
+  a later pin. They were not re-measured when BEND_PIN moved.
 - Adding brep entities one at a time is still O(n). That is C06,
   carried forward from R0.2.

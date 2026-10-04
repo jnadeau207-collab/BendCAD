@@ -116,8 +116,9 @@ def intent_check(i: Intent, e: Effect) -> Bool:
   fx_eq(intent_fx(i), e)
 
 # --- Toleranced dimension: nominal plus zone (MASTER_PLAN §14.6 seed).
-# The zone is the certified envelope; evaluation over the zone is
-# interval-certified (ops.bend). ---
+# The B-rep is the nominal solid. The zone is checked before that
+# build (invalid zone is invalid-input) and the certified volume is
+# the outward product of [lo, hi], not of the nominal point. ---
 type Dim is Data:
   Dm{ nom: F64, lo: F64, hi: F64 }
 
@@ -140,6 +141,18 @@ def dm_show(d: Dim) -> String:
   F64.show(nom) ++ " [" ++ F64.show(lo) ++ "," ++
     F64.show(hi) ++ "]"
 
+def dm_nom(d: Dim) -> F64:
+  Dm{+nom, +lo, +hi} = d
+  nom
+
+def dm_lo(d: Dim) -> F64:
+  Dm{+nom, +lo, +hi} = d
+  lo
+
+def dm_hi(d: Dim) -> F64:
+  Dm{+nom, +lo, +hi} = d
+  hi
+
 # --- Certified interval: lo <= hi, both finite. Arithmetic (ops.bend)
 # rounds outward, so the interval encloses the true real result. ---
 type Iv is Data:
@@ -156,6 +169,14 @@ def iv_valid(v: Iv) -> Bool:
 def iv_show(v: Iv) -> String:
   Iv{+lo, +hi} = v
   "[" ++ F64.show(lo) ++ "," ++ F64.show(hi) ++ "]"
+
+def iv_lo(v: Iv) -> F64:
+  Iv{+lo, +hi} = v
+  lo
+
+def iv_hi(v: Iv) -> F64:
+  Iv{+lo, +hi} = v
+  hi
 
 def iv_of_dm(d: Dim) -> Iv:
   Dm{+nom, +lo, +hi} = d
@@ -283,7 +304,8 @@ def ms_nf(m: Measure) -> Nat:
   nf
 
 # --- Op algebra. Param-carrying ops name Dim ids; structural ops name
-# input node ids. Profiles are inline content (part of the hash). ---
+# input node ids. Profiles are inline content. The node hash covers
+# the op tag, dim ids, nominal bits, and input node ids (eval.bend). ---
 type Op is Data:
   O_box{ w: U64, h: U64, d: U64 }
   O_cyl{ r: U64, h: U64 }
@@ -329,7 +351,8 @@ def op_show(o: Op) -> String:
 
 # --- Param + Node + Part: the content-addressed op graph (§14.5).
 # Node ids are content hashes (eval.bend); the graph, not the program
-# text, is canonical. ---
+# text, is canonical. intent is declared before the build; ev_part
+# refuses a mismatch at publish. ---
 type Param is Data:
   Pm{ id: U64, dim: Dim }
 
@@ -348,18 +371,18 @@ def node_show(n: Node) -> String:
 
 type Part is Data:
   Pt{ params: List<&2, Param>, nodes: List<&2, Node>,
-    root: U64 }
+    root: U64, intent: Intent }
 
 def mk_part(params: List<&2, Param>, nodes: List<&2, Node>,
-    root: U64) -> Part:
-  Pt{params, nodes, root}
+    root: U64, intent: Intent) -> Part:
+  Pt{params, nodes, root, intent}
 
 def part_empty() -> Part:
-  Pt{[], [], 0u64}
+  Pt{[], [], 0u64, In{M_same{}, 0n, 0n, 0n, 0n}}
 
 # --- Evaluated node value (memo entry): node id + build hash +
-# body + measured effect. Rebuild reuses the entry iff the build
-# hash is unchanged (eval.bend). ---
+# body + measured effect. Reuse also requires every op to be a box
+# and a matching intent at publish (eval.bend). ---
 type Built is Data:
   Bt{ id: U64, hash: U64, body: Body, fx: Effect }
 

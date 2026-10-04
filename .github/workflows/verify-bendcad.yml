@@ -1,7 +1,8 @@
 name: Verify BendCAD kernel
-# Canonical C00→C04 qualification: builds the exact BEND_PIN fork
-# compiler, then runs every static gate and every suite in all three
-# lanes. A commit that drifts from its receipt fails here.
+# Builds the exact BEND_PIN fork compiler, then runs the static gates
+# and every suite on interpreter, native, and JS. C06 box, diag, eval,
+# and laws/c06.bend run in this job, on the same lanes as C05.
+# A skipped job is not qualification.
 on:
   push:
   pull_request:
@@ -10,7 +11,7 @@ permissions:
 jobs:
   qualify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 360
     env:
       BEND_NO_TELEMETRY: 1
     steps:
@@ -36,6 +37,8 @@ jobs:
           cp -r bend2 "$HOME/.bend/bend2"
           cp -r guide "$HOME/.bend/guide"
           echo "$HOME/.bend/bin" >> "$GITHUB_PATH"
+      - name: Install clang
+        run: sudo apt-get update && sudo apt-get install -y clang
       - name: Static gates (check-only)
         run: |
           export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
@@ -45,7 +48,7 @@ jobs:
               src/c03/types.bend src/c03/ops.bend \
               src/c04/types.bend src/c04/ops.bend \
               laws/c00.bend laws/c01.bend laws/c02.bend laws/c03.bend \
-              laws/c04.bend \
+              laws/c04.bend laws/c06.bend \
               tests/c00/check.bend tests/c01/check.bend \
               tests/c02/check.bend tests/c03/check.bend \
               tests/c04/check.bend; do
@@ -79,6 +82,9 @@ jobs:
           run_lane /tmp/bendcad-ci/c04-pos-i.log bend tests/c04/pos.bend
           run_lane /tmp/bendcad-ci/c05-neg-i.log bend tests/c05/neg.bend
           run_lane /tmp/bendcad-ci/c05-pos-i.log bend tests/c05/pos.bend
+          run_lane /tmp/bendcad-ci/c06-box-i.log bend tests/c06/box.bend
+          run_lane /tmp/bendcad-ci/c06-diag-i.log bend tests/c06/diag.bend
+          run_lane /tmp/bendcad-ci/c06-eval-i.log bend tests/c06/eval.bend
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg-n
           run_lane /tmp/bendcad-ci/c00-neg-n.log /tmp/bendcad-ci/c00-neg-n
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos-n
@@ -103,6 +109,12 @@ jobs:
           run_lane /tmp/bendcad-ci/c05-neg-n.log /tmp/bendcad-ci/c05-neg-n
           bend tests/c05/pos.bend -o /tmp/bendcad-ci/c05-pos-n
           run_lane /tmp/bendcad-ci/c05-pos-n.log /tmp/bendcad-ci/c05-pos-n
+          bend tests/c06/box.bend -o /tmp/bendcad-ci/c06-box-n
+          run_lane /tmp/bendcad-ci/c06-box-n.log /tmp/bendcad-ci/c06-box-n
+          bend tests/c06/diag.bend -o /tmp/bendcad-ci/c06-diag-n
+          run_lane /tmp/bendcad-ci/c06-diag-n.log /tmp/bendcad-ci/c06-diag-n
+          bend tests/c06/eval.bend -o /tmp/bendcad-ci/c06-eval-n
+          run_lane /tmp/bendcad-ci/c06-eval-n.log /tmp/bendcad-ci/c06-eval-n
           bend tests/c00/neg.bend -o /tmp/bendcad-ci/c00-neg.js
           run_lane /tmp/bendcad-ci/c00-neg-js.log bun /tmp/bendcad-ci/c00-neg.js
           bend tests/c00/positive.bend -o /tmp/bendcad-ci/c00-pos.js
@@ -127,6 +139,12 @@ jobs:
           run_lane /tmp/bendcad-ci/c05-neg-js.log bun /tmp/bendcad-ci/c05-neg.js
           bend tests/c05/pos.bend -o /tmp/bendcad-ci/c05-pos.js
           run_lane /tmp/bendcad-ci/c05-pos-js.log bun /tmp/bendcad-ci/c05-pos.js
+          bend tests/c06/box.bend -o /tmp/bendcad-ci/c06-box.js
+          run_lane /tmp/bendcad-ci/c06-box-js.log bun /tmp/bendcad-ci/c06-box.js
+          bend tests/c06/diag.bend -o /tmp/bendcad-ci/c06-diag.js
+          run_lane /tmp/bendcad-ci/c06-diag-js.log bun /tmp/bendcad-ci/c06-diag.js
+          bend tests/c06/eval.bend -o /tmp/bendcad-ci/c06-eval.js
+          run_lane /tmp/bendcad-ci/c06-eval-js.log bun /tmp/bendcad-ci/c06-eval.js
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-n.log
           cmp /tmp/bendcad-ci/c00-neg-i.log /tmp/bendcad-ci/c00-neg-js.log
           cmp /tmp/bendcad-ci/c00-pos-i.log /tmp/bendcad-ci/c00-pos-n.log
@@ -151,6 +169,12 @@ jobs:
           cmp /tmp/bendcad-ci/c05-neg-i.log /tmp/bendcad-ci/c05-neg-js.log
           cmp /tmp/bendcad-ci/c05-pos-i.log /tmp/bendcad-ci/c05-pos-n.log
           cmp /tmp/bendcad-ci/c05-pos-i.log /tmp/bendcad-ci/c05-pos-js.log
+          cmp /tmp/bendcad-ci/c06-box-i.log /tmp/bendcad-ci/c06-box-n.log
+          cmp /tmp/bendcad-ci/c06-box-i.log /tmp/bendcad-ci/c06-box-js.log
+          cmp /tmp/bendcad-ci/c06-diag-i.log /tmp/bendcad-ci/c06-diag-n.log
+          cmp /tmp/bendcad-ci/c06-diag-i.log /tmp/bendcad-ci/c06-diag-js.log
+          cmp /tmp/bendcad-ci/c06-eval-i.log /tmp/bendcad-ci/c06-eval-n.log
+          cmp /tmp/bendcad-ci/c06-eval-i.log /tmp/bendcad-ci/c06-eval-js.log
       - name: C05 independent oracles
         run: |
           export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"

@@ -5,9 +5,10 @@
 #
 # Fuel: a stage decides iff fuel covers the brep (Ty.ix_bound: the
 # longest store and member list); otherwise it reports fuel-out (code
-# 0). brep_checked: stores re-validated by mk_brep (A); then exhausted
-# iff fuel < ix_bound; else the verdict is the conjunction of stages
-# B..L, evaluated in pipeline order.
+# 0). brep_checked returns resource-exhausted before mk_brep and before
+# stages B..L when fuel < ix_bound. Otherwise stores are re-validated
+# by mk_brep (A), and the verdict is the conjunction of stages B..L,
+# evaluated in pipeline order.
 #
 # Stages (contract section 3): B incidence, C edge-use pairing, D loop
 # closure + duplicate incidence + seam + pole, E one outer loop per
@@ -418,20 +419,47 @@ def hos_keys(xs: List<&2, Ty.HSolid>, acc: List<&2, HK>) -> List<&2, HK>:
     case Nil{}: acc
     case h <> t: ho_key(h) <> hos_keys(t, acc)
 
+# Length is the budget. The distinctness walk runs only after that
+# match; okc would have evaluated it first.
+def hc_nodup_go(done: Bool, +xs: List<&2, Ty.HCoedge>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hcs_keys(xs, [])), True{})
+
 def hc_nodup_c(+xs: List<&2, Ty.HCoedge>, +fuel: Nat) -> Nat:
-  okc(hks_distinct(hcs_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HCoedge, xs), fuel))
+  hc_nodup_go(Nat.is_le(List.length(&2, Ty.HCoedge, xs), fuel), xs)
+
+def hsh_nodup_go(done: Bool, +xs: List<&2, Ty.HShell>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hss_keys(xs, [])), True{})
 
 def hsh_nodup_c(+xs: List<&2, Ty.HShell>, +fuel: Nat) -> Nat:
-  okc(hks_distinct(hss_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HShell, xs), fuel))
+  hsh_nodup_go(Nat.is_le(List.length(&2, Ty.HShell, xs), fuel), xs)
+
+def hlp_nodup_go(done: Bool, +xs: List<&2, Ty.HLoop>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hls_keys(xs, [])), True{})
 
 def hlp_nodup_c(+xs: List<&2, Ty.HLoop>, +fuel: Nat) -> Nat:
-  okc(hks_distinct(hls_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HLoop, xs), fuel))
+  hlp_nodup_go(Nat.is_le(List.length(&2, Ty.HLoop, xs), fuel), xs)
+
+def hfa_nodup_go(done: Bool, +xs: List<&2, Ty.HFace>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hfs_keys(xs, [])), True{})
 
 def hfa_nodup_c(+xs: List<&2, Ty.HFace>, +fuel: Nat) -> Nat:
-  okc(hks_distinct(hfs_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HFace, xs), fuel))
+  hfa_nodup_go(Nat.is_le(List.length(&2, Ty.HFace, xs), fuel), xs)
+
+def hso_nodup_go(done: Bool, +xs: List<&2, Ty.HSolid>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hos_keys(xs, [])), True{})
 
 def hso_nodup_c(+xs: List<&2, Ty.HSolid>, +fuel: Nat) -> Nat:
-  okc(hks_distinct(hos_keys(xs, [])), Nat.is_le(List.length(&2, Ty.HSolid, xs), fuel))
+  hso_nodup_go(Nat.is_le(List.length(&2, Ty.HSolid, xs), fuel), xs)
 
 def hcs_live(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
   match xs:
@@ -499,8 +527,15 @@ def incid_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
     Bool.and(Bool.and(shs_live(Ty.brep_shs(b), x), sos_live(Ty.brep_sos(b), x)),
       Bool.and(hos_live(Ty.cp_solids(top), x), hss_live(Ty.cp_shells(top), x))))
 
+# ck_done is the match. incid_ok is not an argument, so a short
+# budget does not build the index or walk the stores.
+def incid_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(incid_ok(b, Ty.ix_of(b)), True{})
+
 def brep_incid_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(incid_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
+  incid_c_go(ck_done(b, fuel), b)
 
 def uk_k(u: UK) -> HK:
   UK{k, f} = u
@@ -570,8 +605,13 @@ def use_go(es: List<&2, Ty.Edge>, +i: Nat, +keys: List<&2, UK>, +p: Ty.Profile) 
 def use_ok(+b: Ty.Brep, +p: Ty.Profile) -> Bool:
   use_go(Ty.brep_es(b), 0n, so_uk(B.msort(~UK, ~uk_cmp, ces_uks(Ty.brep_ces(b)))), p)
 
+def use_c_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(use_ok(b, prof), True{})
+
 def brep_use_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
-  okc(use_ok(b, prof), ck_done(b, fuel))
+  use_c_go(ck_done(b, fuel), b, prof)
 
 def loop_rest_go(rest: List<&2, Ty.HCoedge>, +x: Ty.Ix, +prev_v: Ty.HVertex, +first_v: Ty.HVertex,
     +prev_t: V.Vec2, +first_t: V.Vec2) -> Bool:
@@ -638,8 +678,13 @@ def lps_loop_ok(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(loop_one_ok(Ty.lp_ces(h), x), lps_loop_ok(t, x))
 
+def loop_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(lps_loop_ok(Ty.brep_lps(b), Ty.ix_of(b)), True{})
+
 def brep_loop_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(lps_loop_ok(Ty.brep_lps(b), Ty.ix_of(b)), ck_done(b, fuel))
+  loop_c_go(ck_done(b, fuel), b)
 
 def hls_outer(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> Nat:
   match xs:
@@ -653,8 +698,13 @@ def fas_kind_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(Nat.is_eq(hls_outer(Ty.fa_loops(h), x), 1n), fas_kind_ok(t, x))
 
+def facekind_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(fas_kind_ok(Ty.brep_fas(b), Ty.ix_of(b)), True{})
+
 def brep_facekind_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(fas_kind_ok(Ty.brep_fas(b), Ty.ix_of(b)), ck_done(b, fuel))
+  facekind_c_go(ck_done(b, fuel), b)
 
 def so_sh_list(+s: Ty.Solid) -> List<&2, Ty.HShell>:
   Ty.so_outer(s) <> Ty.so_cavities(s)
@@ -702,8 +752,13 @@ def prof_ok(+b: Ty.Brep, +x: Ty.Ix, p: Ty.Profile) -> Bool:
     case Ty.P_open_shell{}:
       Bool.and(hks_distinct(fas_lkeys(Ty.brep_fas(b))), hks_distinct(shs_fkeys(Ty.brep_shs(b))))
 
+def prof_c_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(prof_ok(b, Ty.ix_of(b), prof), True{})
+
 def brep_prof_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
-  okc(prof_ok(b, Ty.ix_of(b), prof), ck_done(b, fuel))
+  prof_c_go(ck_done(b, fuel), b, prof)
 
 def es_embed_ok(es: List<&2, Ty.Edge>, +x: Ty.Ix, +fuel: Nat) -> Bool:
   match es:
@@ -788,8 +843,13 @@ def embed_ok(+b: Ty.Brep, +x: Ty.Ix, +fuel: Nat) -> Bool:
   Bool.and(Bool.and(es_embed_ok(Ty.brep_es(b), x, fuel), ces_trim_ok(Ty.brep_ces(b))),
     Bool.and(fas_surf_ok(Ty.brep_fas(b)), fas_coinc_ok(Ty.brep_fas(b), x)))
 
+def embed_c_go(done: Bool, +b: Ty.Brep, +fuel: Nat) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(embed_ok(b, Ty.ix_of(b), fuel), True{})
+
 def brep_embed_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(embed_ok(b, Ty.ix_of(b), fuel), ck_done(b, fuel))
+  embed_c_go(ck_done(b, fuel), b, fuel)
 
 def hk_top() -> HK:
   HK{U64.to_nat(281474976710655u64), 18446744073709551615u64}
@@ -1268,9 +1328,14 @@ def link_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
   +svs = so_sv(B.msort(~SV, ~sv_cmp, svs_of(Ty.brep_ces(b), x, 0n)))
   Bool.and(cov_go(Ty.brep_ces(b), 0n, cls_sorted(b)), vs_link_go(Ty.brep_vs(b), 0n, svs, o, x))
 
+def link_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(link_ok(b, Ty.ix_of(b)), True{})
+
 def brep_link_c(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Nat:
   match prof:
-    case Ty.P_manifold_solid{}: okc(link_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
+    case Ty.P_manifold_solid{}: link_c_go(ck_done(b, fuel), b)
     case Ty.P_open_shell{}: 3n
 
 def ep_k(x: EP) -> HK:
@@ -1342,8 +1407,13 @@ def shs_conn_ok(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(sh_conn_ok(Ty.sh_faces(h), x), shs_conn_ok(t, x))
 
+def conn_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(shs_conn_ok(Ty.brep_shs(b), Ty.ix_of(b)), True{})
+
 def brep_conn_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(shs_conn_ok(Ty.brep_shs(b), Ty.ix_of(b)), ck_done(b, fuel))
+  conn_c_go(ck_done(b, fuel), b)
 
 def vx_coin_pt(+p: V.Point, +q: V.Point) -> Bool:
   PO.pteq3(V.pt_x(p), V.pt_y(p), V.pt_z(p), V.pt_x(q), V.pt_y(q), V.pt_z(q))
@@ -1392,8 +1462,13 @@ def pt_adj(xs: List<&2, V.Point>, +prev: V.Point, first: Bool) -> Bool:
 def coin_ok(vs: List<&2, Ty.Vertex>) -> Bool:
   pt_adj(so_pt(B.msort(~V.Point, ~pt_cmp, vs_pts(vs))), V.Pt{0.0f64, 0.0f64, 0.0f64}, True{})
 
+def coin_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(coin_ok(Ty.brep_vs(b)), True{})
+
 def brep_coin_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(coin_ok(Ty.brep_vs(b)), ck_done(b, fuel))
+  coin_c_go(ck_done(b, fuel), b)
 
 def sg_e(s: SG) -> Ty.Edge:
   SG{e, a, b, safe} = s
@@ -1526,8 +1601,13 @@ def fas_xing_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(face_xing_ok(x, Ty.fa_loops(h)), fas_xing_ok(t, x))
 
+def xing_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(fas_xing_ok(Ty.brep_fas(b), Ty.ix_of(b)), True{})
+
 def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(fas_xing_ok(Ty.brep_fas(b), Ty.ix_of(b)), ck_done(b, fuel))
+  xing_c_go(ck_done(b, fuel), b)
 
 def hcs_all_lines(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
   match xs:
@@ -1606,14 +1686,29 @@ def oct_skip(o: OCt) -> Nat:
   OCt{bad, cert, skip} = o
   skip
 
+def orient_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(Bool.not(oct_bad(oct_of(b, Ty.ix_of(b)))), True{})
+
 def brep_orient_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(Bool.not(oct_bad(oct_of(b, Ty.ix_of(b)))), ck_done(b, fuel))
+  orient_c_go(ck_done(b, fuel), b)
+
+def orient_cert_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: 0n
+    case True{}: cnt_pack(oct_cert(oct_of(b, Ty.ix_of(b))), True{})
 
 def brep_orient_cert_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  cnt_pack(oct_cert(oct_of(b, Ty.ix_of(b))), ck_done(b, fuel))
+  orient_cert_go(ck_done(b, fuel), b)
+
+def orient_skip_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: 0n
+    case True{}: cnt_pack(oct_skip(oct_of(b, Ty.ix_of(b))), True{})
 
 def brep_orient_skip_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  cnt_pack(oct_skip(oct_of(b, Ty.ix_of(b))), ck_done(b, fuel))
+  orient_skip_go(ck_done(b, fuel), b)
 
 def fl_k(x: FL) -> HK:
   FL{k, f, h} = x
@@ -1763,8 +1858,13 @@ def rchk_go(es: List<&2, Ty.Edge>, +i: Nat, +keys: List<&2, UK>, +m: Hmap, +r: R
 def recheck_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
   rchk_go(Ty.brep_es(b), 0n, so_uk(B.msort(~UK, ~uk_cmp, ces_uks(Ty.brep_ces(b)))), hmap_of(b), rc_of(b, x))
 
+def recheck_c_go(done: Bool, +b: Ty.Brep) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(recheck_ok(b, Ty.ix_of(b)), True{})
+
 def brep_recheck_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
-  okc(recheck_ok(b, Ty.ix_of(b)), ck_done(b, fuel))
+  recheck_c_go(ck_done(b, fuel), b)
 
 def hc_keep2(c: Bool, +h: Ty.HCoedge, rest: List<&2, Ty.HCoedge>) -> List<&2, Ty.HCoedge>:
   match c:
@@ -1776,43 +1876,84 @@ def svs_at(xs: List<&2, SV>, +k: HK) -> List<&2, Ty.HCoedge>:
     case Nil{}: []
     case +h <> t: hc_keep2(hk_eq(sv_k(h), k), sv_h(h), svs_at(t, k))
 
-def vx_link_ok(+b: Ty.Brep, +v: Ty.HVertex, +fuel: Nat) -> Nat:
+def vx_link_done(+b: Ty.Brep, +v: Ty.HVertex) -> Nat:
   +x = Ty.ix_of(b)
   +o = orb_of(b, x, hmap_of(b))
-  okc(vx_orbit_ok(o, x, svs_at(svs_of(Ty.brep_ces(b), x, 0n), hv_key(v))), ck_done(b, fuel))
+  okc(vx_orbit_ok(o, x, svs_at(svs_of(Ty.brep_ces(b), x, 0n), hv_key(v))), True{})
+
+def vx_link_go(done: Bool, +b: Ty.Brep, +v: Ty.HVertex) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: vx_link_done(b, v)
+
+def vx_link_ok(+b: Ty.Brep, +v: Ty.HVertex, +fuel: Nat) -> Nat:
+  vx_link_go(ck_done(b, fuel), b, v)
 
 def own_done(+n: Nat, +m: Nat, +fuel: Nat, +ffull: Nat) -> Bool:
   Bool.and(Nat.is_le(n, fuel), Nat.is_le(Nat.max(n, m), ffull))
 
+def fas_loop_own_go(done: Bool, +fas: List<&2, Ty.Face>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(fas_lkeys(fas)), True{})
+
 def fas_loop_own_c(+fas: List<&2, Ty.Face>, +fuel: Nat, +ffull: Nat) -> Nat:
-  okc(hks_distinct(fas_lkeys(fas)), own_done(List.length(&2, Ty.Face, fas), Ty.fas_maxlen(fas, 0n), fuel, ffull))
+  fas_loop_own_go(own_done(List.length(&2, Ty.Face, fas), Ty.fas_maxlen(fas, 0n), fuel, ffull), fas)
+
+def shs_face_own_go(done: Bool, +shs: List<&2, Ty.Shell>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(shs_fkeys(shs)), True{})
 
 def shs_face_own_c(+shs: List<&2, Ty.Shell>, +fuel: Nat, +ffull: Nat) -> Nat:
-  okc(hks_distinct(shs_fkeys(shs)), own_done(List.length(&2, Ty.Shell, shs), Ty.shs_maxlen(shs, 0n), fuel, ffull))
+  shs_face_own_go(own_done(List.length(&2, Ty.Shell, shs), Ty.shs_maxlen(shs, 0n), fuel, ffull), shs)
+
+def sos_own_go(done: Bool, +sos: List<&2, Ty.Solid>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(sos_skeys(sos, [])), True{})
 
 def sos_own_c(+sos: List<&2, Ty.Solid>, +fuel: Nat, +ffull: Nat) -> Nat:
-  okc(hks_distinct(sos_skeys(sos, [])), own_done(List.length(&2, Ty.Solid, sos), Nat.add(Ty.sos_maxlen(sos, 0n), 1n), fuel, ffull))
+  sos_own_go(own_done(List.length(&2, Ty.Solid, sos), Nat.add(Ty.sos_maxlen(sos, 0n), 1n), fuel, ffull), sos)
+
+def cp_sh_own_go(done: Bool, +cs: List<&2, Ty.HShell>, +sos: List<&2, Ty.Solid>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hss_keys(cs, hks_sorted_uniq(sos_skeys(sos, [])))), True{})
 
 def cp_sh_own_c(+top: Ty.Compound, +sos: List<&2, Ty.Solid>, +ffull: Nat) -> Nat:
   +cs = Ty.cp_shells(top)
-  okc(hks_distinct(hss_keys(cs, hks_sorted_uniq(sos_skeys(sos, [])))),
-    Nat.is_le(Nat.max(List.length(&2, Ty.HShell, cs), List.length(&2, Ty.Solid, sos)), ffull))
+  cp_sh_own_go(Nat.is_le(Nat.max(List.length(&2, Ty.HShell, cs), List.length(&2, Ty.Solid, sos)), ffull), cs, sos)
+
+def cp_so_own_go(done: Bool, +cs: List<&2, Ty.HSolid>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(hks_distinct(hos_keys(cs, [])), True{})
 
 def cp_so_own_c(+top: Ty.Compound, +ffull: Nat) -> Nat:
   +cs = Ty.cp_solids(top)
-  okc(hks_distinct(hos_keys(cs, [])), Nat.is_le(List.length(&2, Ty.HSolid, cs), ffull))
+  cp_so_own_go(Nat.is_le(List.length(&2, Ty.HSolid, cs), ffull), cs)
 
 def sos_outer_all(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
   match os:
     case Nil{}: True{}
     case h <> t: Bool.and(hss_kind([Ty.so_outer(h)], x, 0u64), sos_outer_all(t, x))
 
+def sos_outer_go(done: Bool, +sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(sos_outer_all(sos, Ty.ix_mk([], [], [], [], [], shs, [])), True{})
+
 def sos_outer_kind_c(+sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>, +fuel: Nat, +ffull: Nat) -> Nat:
-  +x = Ty.ix_mk([], [], [], [], [], shs, [])
-  okc(sos_outer_all(sos, x), own_done(List.length(&2, Ty.Solid, sos), List.length(&2, Ty.Shell, shs), fuel, ffull))
+  sos_outer_go(own_done(List.length(&2, Ty.Solid, sos), List.length(&2, Ty.Shell, shs), fuel, ffull), sos, shs)
+
+def shs_no_open_go(done: Bool, +shs: List<&2, Ty.Shell>) -> Nat:
+  match done:
+    case False{}: Ty.okd_pack(False{}, False{})
+    case True{}: okc(shs_no_open(shs), True{})
 
 def shs_no_open_c(+shs: List<&2, Ty.Shell>, +fuel: Nat) -> Nat:
-  okc(shs_no_open(shs), Nat.is_le(List.length(&2, Ty.Shell, shs), fuel))
+  shs_no_open_go(Nat.is_le(List.length(&2, Ty.Shell, shs), fuel), shs)
 
 def ck_l(ok: Bool, +b: Ty.Brep, +x: Ty.Ix) -> Bool:
   match ok:
@@ -1883,7 +2024,13 @@ def ck_after_a(ok: Bool, +ra: Ty.TRes, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Na
     case False{}: ra
     case True{}: ck_done_go(ck_done(b, fuel), b, prof, fuel)
 
+def brep_checked_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
+  match done:
+    case False{}: Ty.terr(T.F_exhausted{})
+    case True{}:
+      +ra = Ty.mk_brep(Ty.brep_vs(b), Ty.brep_es(b), Ty.brep_ces(b), Ty.brep_lps(b), Ty.brep_fas(b),
+        Ty.brep_shs(b), Ty.brep_sos(b), Ty.brep_top(b), Ty.brep_stamp(b), fuel)
+      ck_after_a(Ty.tres_ok(ra), ra, b, prof, fuel)
+
 def brep_checked(+b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
-  +ra = Ty.mk_brep(Ty.brep_vs(b), Ty.brep_es(b), Ty.brep_ces(b), Ty.brep_lps(b), Ty.brep_fas(b),
-    Ty.brep_shs(b), Ty.brep_sos(b), Ty.brep_top(b), Ty.brep_stamp(b), fuel)
-  ck_after_a(Ty.tres_ok(ra), ra, b, prof, fuel)
+  brep_checked_go(ck_done(b, fuel), b, prof, fuel)

@@ -66,9 +66,9 @@ The #797 class shaped the representation: upstream closed `bendlang/bend#797` as
 
 ## 4. Required Bend handoff gates
 
-Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. Status below is at `BEND_PIN` `jnadeau207-collab/bend@bc01485d` (tag `numeric/2026-09-29`, upstream 777ee0b5 plus U64 and F64), whose evidence is the fork's `conformance/receipts/2026-09-29.txt`; the pin advance is receipted in `docs/receipts/bend-pin-2026-09-29.txt`.
+Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. `BEND_PIN` is `jnadeau207-collab/bend@288da0836f419b57323283b971fe44b363ff1193` (local branch `numeric-on-upstream`: upstream `653e391b`, then the replayed U64, F64, conformance harness, and historical receipt, then the min/max and show/read commit). It is not tag `numeric/2026-09-29`. The host-gate evidence on file is the previous pin `bc01485d`, in `docs/receipts/bend-pin-2026-09-29.txt` and the fork's `conformance/receipts/2026-09-29.txt`. This plan does not present that receipt as a measurement of `288da083`. The 2^20 harness was not re-run for this pin.
 
-### 4a. Host gate (closed at the pin)
+### 4a. Host gate (closed for `bc01485d`; not re-measured on the current pin)
 
 H1. F64 geometry is built on the as-bits representation, immune to the #797 class; F32 stays out of authoritative geometry. (Was 1, 2, redefined: upstream will not fix #797.)
 H2. Raw `w64` distinguished from tagged runtime `Term`. (Was 3.)
@@ -76,7 +76,7 @@ H3. Arbitrary U64 transport through constructors, arrays, closures, scheduling a
 H4. Exact F64 `from_bits/bits` transport. (Was 5.)
 H5. Qualified add/sub/mul/div/sqrt/FMA and required conversions on host lanes (interpreter, JS, C): 2^20 cases per group over 22 groups with 0 mismatches, plus representation probes and the show/read text check, per the receipt. (Was 6.)
 
-### 4b. Device gate (CUDA closed at the pin; Metal open)
+### 4b. Device gate (CUDA closed for `bc01485d`; not re-measured on the current pin; Metal open)
 
 D1. Strict backend identity: `--gpu on` (or `--gpu <size>`) refuses to start without a GPU, runs every `!` wave on the device, and aborts on device fault, so a zero-exit `--gpu on` run proves device execution. The no-flag default still falls back silently and reports no backend, so device claims must always pass `--gpu on`. (Was 7.)
 D2. CUDA execution proven: the receipt's `cuda` and `cuda-defs` lanes run the 2^20-case differential, the probes, and the repo `!` tests with 0 mismatches; `cuda-defs` additionally proves the software-float path Metal uses, with all 27 soft-native call sites compiled as their Base defs.
@@ -436,30 +436,41 @@ general mechanism, and parallel by construction.
   tree-backed bulk builder comes with C06.
 - **R0.3 — single-cluster latency and the parallel lanes
   (2026-10-01).** The solver starts at the floor of its damping
-  clamp (`2^-30 λ₀`) and keeps the ceiling (`2^60 λ₀`). On the
-  pinned compiler a 10,002-parameter chain takes 1.4 s and a
-  3,200-parameter grid takes 1.6 s (R0.1: 3.7 s and 5.0 s). The
-  host scheduler engages one thread per occupied row and drains a
-  small frontier flat. A small fork spine is no longer slower on
-  16 threads. Measured speedup at 16 threads is 2.0× on the grid
-  and 1.4× on the chain; a speedup above 2× was not measured. At
-  16 threads that scheduler runs the grid in 0.81 s and the chain
-  in 1.06 s. A banged GPU call on this WSL2 machine fails closed
-  (no concurrent managed access). Rigid-cluster decomposition and
-  tree-shaped BendCAD sequences are not in this packet. `BEND_PIN`
-  stays `bc01485d`. Receipt `docs/receipts/r0.3-2026-10-01.txt`.
+  clamp (`2^-30 λ₀`) and keeps the ceiling (`2^60 λ₀`). The times
+  below are the receipt. They were not re-measured on the current
+  pin. "Pinned" is `~/.bend/bin/bend` at `bc01485d`. The 0.81 s
+  grid and 1.06 s chain are not that pin. They are the side binary
+  `/home/jesse/bend-r03/bin/bend`, compiled 2026-10-01 from
+  `0759b75046bc4946438c6b812ee2f64549c07b63`. That side scheduler
+  engages one thread per occupied row and drains a small frontier
+  flat. `0759b750` is not an ancestor of `BEND_PIN`, and it was not
+  replayed onto the upstream pool. R0.1 on this machine, previous
+  damping: chain 3.71 s, grid 5.02 s. A banged GPU call on this
+  WSL2 machine fails closed (no concurrent managed access).
+  Rigid-cluster decomposition and tree-shaped BendCAD sequences
+  are not in this packet. Receipt `docs/receipts/r0.3-2026-10-01.txt`.
 
-  | Workload | R0.1 | Pinned, 16 threads | R0.3 scheduler, 16 threads |
-  |---|---|---|---|
-  | Chain, 10,002 parameters | 3.7 s | 1.38 s | 1.06 s |
-  | Grid, 3,200 parameters | 5.0 s | 1.63 s | 0.81 s |
-  | Truss, 16×16, 16 threads | — | 7.03 s | 0.38 s |
+  | Workload | R0.1 | Pinned t1 | Pinned, 16 threads | Side `0759b750` t1 | Side `0759b750`, 16 threads |
+  |---|---|---|---|---|---|
+  | sol-chain-5000, 10,002 parameters | 3.71 s | 1.42 s | 1.38 s | 1.46 s | 1.06 s |
+  | sol-grid-40, 3,200 parameters | 5.02 s | 1.63 s | 1.63 s | 1.60 s | 0.81 s |
+  | sol-truss-16, 16×16 | — | 0.58 s | 7.03 s | 0.57 s | 0.38 s |
+  | sol-rects-1500 | — | 1.03 s | 0.76 s | 1.03 s | 0.97 s |
+
+  The truss row at 16 threads is 7.03 s on the pinned compiler and
+  0.38 s on the side scheduler. A sentence that no speedup above
+  2× was measured is false next to that row. sol-rects-1500 at 16
+  threads is slower on the side scheduler (0.97 s vs 0.76 s). A3
+  disposition: historical regression on the side scheduler, not a
+  number re-measured here.
 
 - **Exit budgets:** 10,000-segment arrangements interactive (met for
-  CAD-like input at R0.1). 10,000-parameter sketches: about a second
-  for one connected cluster on the R0.3 scheduler; 1.4–1.6 s on the
-  pinned compiler. Parallel speedup measured on the CPU; the GPU
-  lane was run and refused to start on this machine.
+  CAD-like input at R0.1). 10,000-parameter sketches: the receipt's
+  pinned times are chain 1.42 s / 1.38 s and grid 1.63 s; the side
+  scheduler's 16-thread times are chain 1.06 s and grid 0.81 s.
+  Those parallel times are historical measurements of `0759b750`,
+  not of the current pin. The GPU lane was run and refused to start
+  on this machine.
 
 ## 16. Interface and scope
 

@@ -1,0 +1,30 @@
+start 2026-10-03T16:13:16-04:00
+compiler 288da0836f419b57323283b971fe44b363ff1193
+cmd bun bend2/main.ts /mnt/c/dev/BendCAD/laws/c06.bend --check-only
+ALL PROOFS CHECK
+Use --verdict for mathematical validity.
+	Command being timed: "bun bend2/main.ts /mnt/c/dev/BendCAD/laws/c06.bend --check-only"
+	User time (seconds): 12115.98
+	System time (seconds): 645.99
+	Percent of CPU this job got: 112%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:08:50
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1108796
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 298117
+	Voluntary context switches: 24918585
+	Involuntary context switches: 24943
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+exit 0
+end 2026-10-03T19:22:06-04:00

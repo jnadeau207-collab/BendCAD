@@ -3,7 +3,8 @@
 Scope: MASTER_PLAN §C05. Two engines, one packet:
 
 - `src/c05/exact.bend` — adaptive-exact orientation predicates
-  (Shewchuk expansions over the pinned F64 path).
+  over the pinned F64 path. The Shewchuk expansions it calls
+  live in `src/base/ex.bend`.
 - `src/c05/arrange.bend` — planar arrangement of line segments
   into regions with nested loops, holes, disconnected islands,
   dangling-edge reporting and deterministic boundary identity.
@@ -14,10 +15,11 @@ Scope: MASTER_PLAN §C05. Two engines, one packet:
   certified conflicts and budget-honest nonconvergence. The
   constraint graph is split into independent clusters that are
   solved in parallel.
-- `src/c05/par.bend` — the shared parallel primitives: balanced
+- `src/base/par.bend` — the shared parallel primitives: balanced
   read-mostly trees (`Tb`), a fork-join merge sort with an
   uncertainty-carrying comparator, parallel maps, and
-  Shiloach–Vishkin connected components.
+  Shiloach–Vishkin connected components. R0.2 moved this file
+  out of `src/c05/par.bend`.
 - `src/c05/sqr.bend` — sparse orthogonal factorization: Givens
   row-merge into an upper-triangular sparse `R`, rank-revealing
   column deletion, and a nested-dissection multifrontal
@@ -238,12 +240,18 @@ independent oracle checks it against central finite differences
       - Acceptance and the damping update are Nielsen's, unchanged
         in the trial test: finite, every radius positive (`rad_ok`),
         a lower cost, and positive predicted reduction.
-        `λ₀ = 2^-10 · max column norm²`, clamp `[2^-30 λ₀, 2^60 λ₀]`.
-        Iteration starts at the floor `2^-30 λ₀`, not at `λ₀`.
-        A rejected step still raises `λ` by the same factor. An
-        accepted update uses Nielsen's gain, then the floor. Either
-        update stops the iteration when the new `λ` is above the
-        ceiling.
+        `λ₀ = 2^-10 · max(‖col‖²_max, 1)`, clamp `[2^-30 λ₀, 2^60 λ₀]`.
+        `‖col‖²_max` is `col_max`: the largest sum of squared
+        entries in one column. The `1` floors that sum before the
+        scale. A Jacobian whose columns are all shorter than 1,
+        including a zero column, would otherwise make `λ₀` zero
+        and drop the `√λ` row that keeps every column full rank.
+        Iteration starts at `2^-30 λ₀`, not at `λ₀`. A rejected
+        step still raises `λ` by the same factor. An accepted
+        update uses Nielsen's gain, then the floor `2^-30 λ₀`.
+        Either update stops the iteration when the new `λ` is
+        above the ceiling. The accept arm (`gl`) and the reject
+        arm (`up`) both set that stop.
       - The iteration stops on a zero cost, a step no longer than
         `2^-45(1+‖p‖)`, `λ` above its ceiling, or `fuel = 0`.
    3. **Classification** (`classify`, on rows recomputed at the
@@ -364,7 +372,7 @@ Only the durable region key was ported.
 | Stationarity | `2^-26` (√ε) relative | conflict certificate, first-order |
 | Admissibility | line length `> tol.lin`, radius `> tol.lin` | a segment or circle smaller than tolerance is not geometry |
 | Rank / dependence | `abs(R_jj) ≤ 2^-26 ‖row j‖` | redundancy and dof |
-| `λ₀`, clamp, start | `2^-10·max‖col‖²`, clamp `[2^-30, 2^60]·λ₀`, start `2^-30 λ₀` | damping |
+| `λ₀`, clamp, start, stop | `λ₀ = 2^-10·max(‖col‖²_max, 1)`, clamp `[2^-30, 2^60]·λ₀`, start `2^-30 λ₀`. Reject raises `λ`. Accept uses Nielsen's gain, then the floor. Either new `λ` above the ceiling stops | damping |
 | Tiny step | `2^-45 (1+‖p‖)` | stopping only, never classification |
 | Nested-dissection leaf | fewer than 17 columns, or no edges | ordering granularity only |
 
@@ -377,7 +385,8 @@ export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH
 bend src/c05/exact.bend --check-only     # ALL PROOFS CHECK
 bend src/c05/arrange.bend --check-only   # ALL PROOFS CHECK
 bend src/c05/solve.bend --check-only     # ALL PROOFS CHECK
-bend src/c05/par.bend --check-only       # ALL PROOFS CHECK
+bend src/base/par.bend --check-only      # ALL PROOFS CHECK
+bend src/base/ex.bend --check-only       # ALL PROOFS CHECK
 bend src/c05/sqr.bend --check-only       # ALL PROOFS CHECK
 bend tests/c05/check.bend --check-only   # ALL PROOFS CHECK
 bend laws/c05.bend --check-only          # ALL PROOFS CHECK (61 laws; timing in the receipt)
@@ -477,10 +486,10 @@ former solver.
 
 | Gate | Verdict | Evidence |
 |------|---------|----------|
-| BN-1 | PASS | The implementation is exactly `src/c05/{exact,arrange,solve,par,sqr}.bend` (48 + 321 + 205 + 65 + 130 defs); each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` and `tools/bench/` is test-only code, never on a runtime path. |
+| BN-1 | PASS | The implementation is `src/c05/{exact,arrange,solve,sqr}.bend` (10 + 321 + 205 + 130 defs) plus `src/base/ex.bend` (34 defs) and `src/base/par.bend` (69 defs). The old count 48 + 321 + 205 + 65 + 130 put expansions and the parallel primitives under `src/c05`; R0.2 moved them, and `par` gained the sign defs (65 → 69). `src/c05/par.bend` is gone. Each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` and `tools/bench/` is test-only code, never on a runtime path. |
 | BN-2 | PASS | `grep -rn "@unsafe" src/c05 laws/c05.bend tests/c05` is empty. |
 | BN-3 | PASS | `grep -rn F32 src/c05 laws/c05.bend tests/c05` is empty; every scalar is the pinned as-bits F64. |
-| BN-4 | PASS | No foreign or FFI code; imports are `Base`, `../c00/types.bend` and the C05 files themselves. Boundary list: none. |
+| BN-4 | PASS | No foreign or FFI code; imports are `Base`, `../c00/types.bend`, `../base/par.bend`, `../base/ex.bend` and the C05 files themselves. Boundary list: none. |
 | BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/c05` is empty. The oracles (numpy, scipy, shapely/GEOS, `Fraction`) live under `tools/oracle/` as comparators only. PlaneGCS is not used, even as a comparator. |
 | BN-6 | PASS | No GPU claim in this packet. |
 | BN-7 | PASS | §2.3: vertices are lineage keys from caller ids, edges carry `srcs`, loops and regions are canonical, and the output is permutation-invariant (`pos-arr-perm`). Solver diagnostics name caller constraint ids. Parameter indices address the input vector of one call and are never persistent identity. |
@@ -511,12 +520,16 @@ multifrontal factorization. Redundancy naming stays sequential by
 definition (it is order-dependent).
 
 The spine is still lists: splitting and appending are sequential.
-The R0.3 scheduler drains a small frontier flat, so a fork that
-follows a list split is handed to the next turn. Measured speedup
-on that build is 2.0× for the grid and 1.4× for the chain at 16
-threads, and the 16-thread truss regression is gone (§12). A
-speedup above 2× was not measured. Tree-shaped sequences are not
-in this packet.
+The R0.3 numbers are the side binary built from `0759b750`, not
+`BEND_PIN`. That scheduler engages one thread per occupied row and
+drains a small frontier flat, so a fork that follows a list split
+is handed to the next turn. It is not the upstream pool, and it
+was not replayed. The receipt's 16-thread rows are chain 1.06 s,
+grid 0.81 s, truss 0.38 s (pinned 16-thread truss 7.03 s), and
+sol-rects-1500 0.97 s (pinned 0.76 s, slower). The truss row is a
+change above 2×. A3 disposition for sol-rects-1500: historical
+regression on the side scheduler, not a number re-measured here.
+Tree-shaped sequences are not in this packet.
 
 ## 9. Limitations (honest scope)
 
@@ -547,10 +560,11 @@ in this packet.
   direction constraints and concentric tangency starts are
   rejected rather than regularized.
 - **One connected cluster is near a second, not a drag edit.**
-  Iteration starts at the damping floor (§3.2). On the pinned
-  compiler a 10,002-parameter chain takes 1.4 s and a
-  3,200-parameter grid takes 1.6 s (were 3.7 s and 5.0 s). At 16
-  threads on the R0.3 scheduler those are 1.06 s and 0.81 s.
+  Iteration starts at the damping floor (§3.2). On pinned
+  `bc01485d` the receipt's chain is 1.42 s (one thread) and
+  1.38 s (16), and the grid is 1.63 s at either count (R0.1:
+  3.71 s and 5.02 s). The 1.06 s chain and 0.81 s grid are the
+  side binary `0759b750` at 16 threads, not the pin.
   There is no incremental re-solve or drag mode yet.
 - **Rigid-cluster decomposition is not done.** Clusters are
   independent components only; a well-constrained subsystem inside a
@@ -694,16 +708,19 @@ Budgets and status against MASTER_PLAN §15:
 - **10,000-segment arrangements: met for CAD-like input.** A
   10,000-segment plate with 2,500 holes arranges in about a second.
   Random dense input is output-bound (`V ≈ n²/8`).
-- **10,000-parameter sketches: one connected cluster is about a
-  second on the R0.3 scheduler, and 1.4–1.6 s on the pinned
-  compiler.** Chain 10,002 parameters: pinned 1.42 s (1 thread) and
-  1.38 s (16); R0.3 scheduler 1.46 s and 1.06 s. Grid 3,200
-  parameters: pinned 1.63 s at either thread count; R0.3 scheduler
-  1.60 s and 0.81 s. R0.1 was 3.71 s and 5.02 s. Answers checked
-  against the closed forms (receipt §3).
-- **Parallel speedup: measured** (§8, receipt). The 16-thread
-  fork-spine regression is gone (truss 7.03 s → 0.38 s). The grid
-  speeds up 2.0× and the chain 1.4× against one thread on the new
-  scheduler. A 1,500-rectangle sketch is 0.97 s at 16 threads versus
-  0.76 s on the pinned scheduler. GPU: a banged call refuses to
-  start on this WSL2 box.
+- **10,000-parameter sketches.** Chain 10,002 parameters: pinned
+  `bc01485d` 1.42 s (1 thread) and 1.38 s (16); side scheduler
+  `0759b750` 1.46 s and 1.06 s. Grid 3,200 parameters: pinned
+  1.63 s at either thread count; side scheduler 1.60 s and 0.81 s.
+  R0.1 was 3.71 s and 5.02 s. The 0.81 s and 1.06 s figures are
+  that side binary, not the pin, and were not re-measured here.
+  Answers checked against the closed forms (receipt §3).
+- **Parallel speedup: measured on the side scheduler `0759b750`,
+  not re-measured on the current pin** (§8, receipt §3). Truss at
+  16 threads is 7.03 s on the pinned compiler and 0.38 s on that
+  side binary, which is above 2×. Grid on that binary is 1.60 s
+  at one thread and 0.81 s at 16; chain is 1.46 s and 1.06 s.
+  sol-rects-1500 at 16 threads is 0.97 s versus 0.76 s on the
+  pinned scheduler. A3 disposition: historical regression on the
+  side scheduler, not a number re-measured here. GPU: a banged
+  call refuses to start on this WSL2 box.

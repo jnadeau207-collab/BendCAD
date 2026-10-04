@@ -1,8 +1,9 @@
-# C06 builders: intent-checked solid ops over C00-C05. Total spec
-# builders fail closed through brep_checked (stage-attributed
-# diagnosis), the C06 quad-trim check, and intent comparison before
-# publishing. Validators: profile/topology up front (invalid-input);
-# representability at the gates (uncertain, never snapped).
+# C06 builders: solid ops over C00-C05. Total spec builders fail
+# closed through brep_checked (stage-attributed diagnosis) and the
+# C06 quad-trim check. Intent comparison is the evaluator's publish
+# (eval.bend), not this file. Validators: profile/topology up front
+# (invalid-input); representability at the gates (uncertain, never
+# snapped).
 # Contract: docs/c06-contract.md. Style: linear aggregate flow (each
 # computed aggregate used once or threaded via _go params); scalars
 # dup freely; every recursive walk takes Nat fuel.
@@ -1982,8 +1983,8 @@ def ms_asm(rv: Y.SRes, ra: Y.SRes, +x0: F64, +y0: F64,
     case Y.Serr{k, dg}: Y.Serr{k, dg}
     case Y.Sok{vv}: ms_asm_r(vv, ra, x0, y0, z0, dx, dy, dz, b)
 
-def ms_box_go(fin: Bool, pos: Bool, +dx: F64, +dy: F64,
-    +dz: F64, +x0: F64, +y0: F64, +z0: F64,
+def ms_box_go(fin: Bool, pos: Bool, sumfin: Bool, +dx: F64,
+    +dy: F64, +dz: F64, +x0: F64, +y0: F64, +z0: F64,
     +b: Ty.Brep) -> Y.SRes:
   match fin:
     case False{}:
@@ -1995,18 +1996,51 @@ def ms_box_go(fin: Bool, pos: Bool, +dx: F64, +dy: F64,
           Y.serr_invalid("dims", "ms_box",
             "non-positive dim", "pass strictly positive dims")
         case True{}:
-          ms_asm(ms_bin2(1u64, iv_mul(iv_pt(dx), iv_pt(dy)),
-              Y.sok_iv(iv_pt(dz))),
-            ms_bin2(1u64,
-              ms_bin2(0u64,
-                ms_bin2(0u64, iv_mul(iv_pt(dx), iv_pt(dy)),
-                  iv_mul(iv_pt(dy), iv_pt(dz))),
-                iv_mul(iv_pt(dz), iv_pt(dx))),
-              Y.sok_iv(iv_pt(2.0f64))),
-            x0, y0, z0, dx, dy, dz, b)
+          match sumfin:
+            case False{}:
+              Y.serr_uncertain("far corner", "ms_box",
+                "corner+dim overflows F64",
+                "shrink the box or move it toward origin")
+            case True{}:
+              ms_asm(ms_bin2(1u64, iv_mul(iv_pt(dx), iv_pt(dy)),
+                  Y.sok_iv(iv_pt(dz))),
+                ms_bin2(1u64,
+                  ms_bin2(0u64,
+                    ms_bin2(0u64, iv_mul(iv_pt(dx), iv_pt(dy)),
+                      iv_mul(iv_pt(dy), iv_pt(dz))),
+                    iv_mul(iv_pt(dz), iv_pt(dx))),
+                  Y.sok_iv(iv_pt(2.0f64))),
+                x0, y0, z0, dx, dy, dz, b)
 
 def ms_box(+dx: F64, +dy: F64, +dz: F64, +x0: F64,
     +y0: F64, +z0: F64, +b: Ty.Brep) -> Y.SRes:
   ms_box_go(box_fin(x0, y0, z0, dx, dy, dz),
-    box_pos(dx, dy, dz), dx, dy, dz, x0, y0, z0, b)
+    box_pos(dx, dy, dz),
+    box_sum_fin(x0, y0, z0, dx, dy, dz),
+    dx, dy, dz, x0, y0, z0, b)
+
+# Volume over the tolerance zones. iv_of_dm is the factor. The
+# nominal-point product is a different function, so a law can see
+# a substitution of nom for [lo, hi].
+def ms_zone_ok(+w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Bool:
+  Bool.and(Y.dm_valid_pos(w),
+    Bool.and(Y.dm_valid_pos(h), Y.dm_valid_pos(d)))
+
+def ms_zone_vol(+w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Y.SRes:
+  ms_bin2(1u64, iv_mul(Y.iv_of_dm(w), Y.iv_of_dm(h)),
+    Y.sok_iv(Y.iv_of_dm(d)))
+
+def ms_nom_vol(+w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Y.SRes:
+  ms_bin2(1u64, iv_mul(iv_pt(Y.dm_nom(w)), iv_pt(Y.dm_nom(h))),
+    Y.sok_iv(iv_pt(Y.dm_nom(d))))
+
+def ms_zone_go(ok: Bool, +w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Y.SRes:
+  match ok:
+    case False{}:
+      Y.serr_invalid("dims", "ms_zone", "zone",
+        "lo <= nom <= hi and lo > 0")
+    case True{}: ms_zone_vol(w, h, d)
+
+def ms_zone(+w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Y.SRes:
+  ms_zone_go(ms_zone_ok(w, h, d), w, h, d)
 

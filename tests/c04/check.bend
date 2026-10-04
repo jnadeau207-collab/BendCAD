@@ -563,6 +563,11 @@ def top0() -> Ty.Compound:
 def top1() -> Ty.Compound:
   Ty.Cp{hso1(), hsh1()}
 
+# Store length 1, member length 2. ix_bound is 2. See laws ck_fuel_ix.
+def b_fuel_gap() -> Ty.Brep:
+  Ty.Br{vs_bad(), es0(), ces0(), lp_b() <> Nil{}, fas0(), shs0(),
+    sos0(), top0(), 32u64}
+
 # One-store breps for issued/fuel tests.
 def b_vs1() -> Ty.Brep:
   Ty.Br{vs1(), es0(), ces0(), lps0(), fas0(), shs0(), sos0(),
