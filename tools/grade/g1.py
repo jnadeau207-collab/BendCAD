@@ -87,7 +87,7 @@ def main(design, obj, log_path, out):
     res['did_faces'] = 'faces' in cmds
     res['did_sens'] = 'sens' in cmds
     res['did_tess'] = 'tess' in cmds
-    res['committed_edit_of_W'] = any(c['args'][1] == 'apply' and any(re.match(r'\(param W 140', a) for a in c['args'][2:])
+    res['committed_edit_of_W'] = any(len(c['args']) > 1 and c['args'][1] == 'apply' and any(re.match(r'\(param W 140', a) for a in c['args'][2:])
                                      and 'committed' in c['out'] for c in calls)
     checks = ['params_present', 'params_final', 'holes_reference_W_and_H', 'has_arcs', 'every_node_has_intent',
               'kernel_interval_contains_exact', 'mesh_bbox_ok', 'mesh_genus_5', 'mesh_volume_within_1pct',

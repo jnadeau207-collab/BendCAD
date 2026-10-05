@@ -1,0 +1,1 @@
+{"mcpServers": {"bendcad": {"command": "node", "args": ["C:/dev/BendCAD/tools/mcp/bendcad-mcp.mjs"], "env": {"BENDCAD_LOG": "C:/dev/BendCAD/docs/receipts/g1/mcp-log.jsonl"}}}}
