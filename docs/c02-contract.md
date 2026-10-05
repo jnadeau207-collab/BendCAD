@@ -265,12 +265,15 @@ stdout; see the receipt for hashes and counts.
   orientation canonicalization (§5).
 - §3 bounds are stated + pin/differential-tested, not
   machine-proved.
-- Native-backend workaround (fork bug at BEND_PIN): a nested
-  `Bool.or` of 3+ user-def calls with shared binders miscompiles on
-  the C lane (returns True; interp/JS correct; minimal repro in the
-  receipt). C02 let-binds every repeated-point test before
-  combining (`ops.bend` NOTE at `pteq2`) — no semantic effect:
-  all three lanes agree byte-identically on suite + stress.
+- Native-backend workaround: at `numeric/2026-09-25` a nested
+  `Bool.or` of 3+ user-def calls with shared binders miscompiled on
+  the C lane (returned True; interp/JS correct; minimal repro in the
+  C02 receipt). C02 let-binds every repeated-point test before
+  combining (`pteq2`), with no semantic effect: all three lanes
+  agree byte-identically on suite + stress. The miscompile is gone
+  since `bc01485d`: re-run 2026-10-05, the repro gives `F`
+  natively at `bc01485d` and on every lane at `numeric/2026-10-05`,
+  and still `T` natively at `50ec219a`. The let-binding stays.
 - No certified-interval/root-isolation types: signs suffice for
   the admitted predicates (MASTER_PLAN §10 "where necessary" does
   not trigger here); root isolation belongs to C07 intersections.

@@ -1,25 +1,3 @@
-# C04 boundary-representation validators: brep_checked under explicit
-# profiles. Data, constructors and the store index (Ty.Ix) live in
-# types.bend. Every failure is a C00 FailKind (invalid-input or
-# resource-exhausted); no new taxonomy.
-#
-# Fuel: a stage decides iff fuel covers the brep (Ty.ix_bound: the
-# longest store and member list); otherwise it reports fuel-out (code
-# 0). brep_checked returns resource-exhausted before mk_brep and before
-# stages B..L when fuel < ix_bound. Otherwise stores are re-validated
-# by mk_brep (A), and the verdict is the conjunction of stages B..L,
-# evaluated in pipeline order.
-#
-# Stages (contract section 3): B incidence, C edge-use pairing, D loop
-# closure + duplicate incidence + seam + pole, E one outer loop per
-# face, F hierarchy/profile ownership, G embedding, H vertex links, I
-# shell connectedness, J coincident vertices, K same-face straight-edge
-# crossing (fail-closed), L orientation + explicit recheck. Each stage
-# runs on the index in O(n log n): handle resolution by tree, pairwise
-# scans replaced by sorting and grouping, vertex orbits by pointer
-# jumping on the twin(prev()) functional graph, crossing candidates by
-# a bounding-box sweep.
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
@@ -419,8 +397,6 @@ def hos_keys(xs: List<&2, Ty.HSolid>, acc: List<&2, HK>) -> List<&2, HK>:
     case Nil{}: acc
     case h <> t: ho_key(h) <> hos_keys(t, acc)
 
-# Length is the budget. The distinctness walk runs only after that
-# match; okc would have evaluated it first.
 def hc_nodup_go(done: Bool, +xs: List<&2, Ty.HCoedge>) -> Nat:
   match done:
     case False{}: Ty.okd_pack(False{}, False{})
@@ -436,30 +412,6 @@ def hsh_nodup_go(done: Bool, +xs: List<&2, Ty.HShell>) -> Nat:
 
 def hsh_nodup_c(+xs: List<&2, Ty.HShell>, +fuel: Nat) -> Nat:
   hsh_nodup_go(Nat.is_le(List.length(&2, Ty.HShell, xs), fuel), xs)
-
-def hlp_nodup_go(done: Bool, +xs: List<&2, Ty.HLoop>) -> Nat:
-  match done:
-    case False{}: Ty.okd_pack(False{}, False{})
-    case True{}: okc(hks_distinct(hls_keys(xs, [])), True{})
-
-def hlp_nodup_c(+xs: List<&2, Ty.HLoop>, +fuel: Nat) -> Nat:
-  hlp_nodup_go(Nat.is_le(List.length(&2, Ty.HLoop, xs), fuel), xs)
-
-def hfa_nodup_go(done: Bool, +xs: List<&2, Ty.HFace>) -> Nat:
-  match done:
-    case False{}: Ty.okd_pack(False{}, False{})
-    case True{}: okc(hks_distinct(hfs_keys(xs, [])), True{})
-
-def hfa_nodup_c(+xs: List<&2, Ty.HFace>, +fuel: Nat) -> Nat:
-  hfa_nodup_go(Nat.is_le(List.length(&2, Ty.HFace, xs), fuel), xs)
-
-def hso_nodup_go(done: Bool, +xs: List<&2, Ty.HSolid>) -> Nat:
-  match done:
-    case False{}: Ty.okd_pack(False{}, False{})
-    case True{}: okc(hks_distinct(hos_keys(xs, [])), True{})
-
-def hso_nodup_c(+xs: List<&2, Ty.HSolid>, +fuel: Nat) -> Nat:
-  hso_nodup_go(Nat.is_le(List.length(&2, Ty.HSolid, xs), fuel), xs)
 
 def hcs_live(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
   match xs:
@@ -527,8 +479,6 @@ def incid_ok(+b: Ty.Brep, +x: Ty.Ix) -> Bool:
     Bool.and(Bool.and(shs_live(Ty.brep_shs(b), x), sos_live(Ty.brep_sos(b), x)),
       Bool.and(hos_live(Ty.cp_solids(top), x), hss_live(Ty.cp_shells(top), x))))
 
-# ck_done is the match. incid_ok is not an argument, so a short
-# budget does not build the index or walk the stores.
 def incid_c_go(done: Bool, +b: Ty.Brep) -> Nat:
   match done:
     case False{}: Ty.okd_pack(False{}, False{})

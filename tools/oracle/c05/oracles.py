@@ -11,7 +11,7 @@ def wsl_path(p):
 
 
 def bend_run(src, out):
-    exe = "/tmp/bendcad-c05-" + os.path.basename(src)[:-6]
+    exe = "/tmp/bendcad-c05-" + os.path.basename(src)[:-5]
     cmd = f'export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; bend "{src}" -o {exe} && {exe}'
     if os.name == "nt":
         r = subprocess.run(["wsl.exe", "-e", "bash", "-lc", cmd.replace(src, wsl_path(src))], capture_output=True, text=True)
@@ -31,13 +31,14 @@ def py(*args):
 
 runs = [("ex_oracle.py", [])]
 runs += [("arr_oracle.py", [str(s), "300"]) for s in (7, 11, 12, 13)]
+runs += [("arr_oracle.py", [str(s), "150", "nest"]) for s in (1, 2, 3, 4)]
 runs += [("sol_oracle.py", [str(s), "150"]) for s in (1, 2, 3, 4)]
 only = sys.argv[1:]
 lines = []
 for script, extra in runs:
     if only and not any(script.startswith(o) for o in only):
         continue
-    tag = script[:-3] + ("_" + extra[0] if extra else "")
+    tag = script[:-3] + "".join("_" + e for e in extra[2:]) + ("_" + extra[0] if extra else "")
     src = os.path.join(gen, tag + ".bend")
     out = os.path.join(gen, tag + ".out")
     py(os.path.join(here, script), "gen", src, *extra)

@@ -1,7 +1,3 @@
-# C02 negative tests: every failure arm asserts its structured kind, and
-# every near-degenerate non-exact case asserts honest uncertainty (never
-# a guessed side). Ends in selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V

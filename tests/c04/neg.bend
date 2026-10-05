@@ -1,10 +1,3 @@
-# C04 negative tests: every types.bend failure arm asserts its
-# structured kind (invalid-input or resource-exhausted), plus
-# brep_checked exit counterexamples (dangling/inverted/trim/
-# embedding/nonmanifold/repeated-start/profile/ownership/fuel reject,
-# incl. hierarchy aliasing and vertex-link adversarials).
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -25,7 +18,6 @@ def hea() -> Ty.HEdge:
 def b0() -> Ty.Brep:
   Ty.brep_empty()
 
-# Grouped to fit the native backend's arity limit (C02 D2 class).
 def neg_g1(f0: U64) -> IO(U64):
   do IO<U64>:
     f1 : U64 <- C.report_terr("neg-vx-nan",

@@ -172,6 +172,21 @@ def main() -> String:
   asum(A.arrange(sq(1u64, 0.0f64, 0.0f64, w, w, rows(n, n, 5u64, [])), 100000000n))
 """
 
+NEST = """
+def sq(+id: U64, +x0: F64, +y0: F64, +x1: F64, +y1: F64, rest: List<&2, A.Seg>) -> List<&2, A.Seg>:
+  A.Seg{id, x0, y0, x1, y0} <> A.Seg{(id + 1u64 : U64), x1, y0, x1, y1} <> A.Seg{(id + 2u64 : U64), x1, y1, x0, y1} <> A.Seg{(id + 3u64 : U64), x0, y1, x0, y0} <> rest
+
+def nest(k: Nat, +id: U64, acc: List<&2, A.Seg>) -> List<&2, A.Seg>:
+  match k:
+    case 0n: acc
+    case 1n+(+m):
+      +h = nf(1n+m)
+      nest(m, (id + 4u64 : U64), sq(id, F64.neg(h), F64.neg(h), h, h, acc))
+
+def main() -> String:
+  asum(A.arrange(nest(nn(), 1u64, []), 100000000n))
+"""
+
 RANDOM = """
 def nx(+s: U64) -> U64:
   ((s * 6364136223846793005u64 : U64) + 1442695040888963407u64 : U64)
@@ -463,13 +478,14 @@ WORK = {
     "sol-truss": (TRUSS, lambda g: f"ok dof=0 sum={g * g * (g - 1)}", lambda g: 2 * g * g),
     "arr-plate": (PLATE, lambda n: f"v={4 * n * n + 4} e={4 * n * n + 4} c={n * n + 1} r={n * n + 1}", lambda n: 4 * n * n + 4),
     "arr-random": (RANDOM, None, lambda n: n),
+    "arr-nest": (NEST, lambda n: f"v={4 * n} e={4 * n} c={n} r={n}", lambda n: 4 * n),
     "brep-holes": (HOLES, lambda h: "ok", lambda h: 4 * (h * h + 1)),
     "brep-prism": (PRISM, lambda k: "ok", lambda k: 4 * k + 4),
 }
 HEADS = {"brep-holes": HEAD4, "brep-prism": HEAD4}
 
 PLAN = [("sol-rects", [10, 100, 1000, 3000]), ("sol-chain", [100, 1000, 5000]), ("sol-grid", [10, 20, 40]), ("sol-truss", [5, 10, 20, 40]),
-        ("arr-plate", [10, 35, 50, 100]), ("arr-random", [100, 200, 400]), ("brep-holes", [1, 3, 5, 10]), ("brep-prism", [1, 4, 9, 19])]
+        ("arr-plate", [10, 35, 50, 100]), ("arr-random", [100, 200, 400]), ("arr-nest", [250, 500, 1000, 2000]), ("brep-holes", [1, 3, 5, 10]), ("brep-prism", [1, 4, 9, 19])]
 
 
 def wsl(cmd):
@@ -490,7 +506,8 @@ def run(kind, n):
     f = os.path.join(gen, f"{kind}-{n}.bend")
     open(f, "w", newline="\n").write(HEADS.get(kind, HEAD).replace("NN", f"{n}n") + body)
     exe = f"/tmp/bendcad-bench-{kind}-{n}"
-    r = wsl(f'export PATH=$HOME/.bend/bin:$PATH; (ulimit -v 8000000; bend "{wpath(f)}" -o {exe}) && /usr/bin/time -f "TIME %e %U %M" {exe}')
+    bend = os.environ.get("BEND", "bend")
+    r = wsl(f'export PATH=$HOME/.bend/bin:$PATH; (ulimit -v 8000000; {bend} "{wpath(f)}" -o {exe}) && /usr/bin/time -f "TIME %e %U %M" {exe}')
     if r.returncode:
         sys.exit(f"{kind} {n} failed:\n{r.stdout}{r.stderr}")
     out = r.stdout.strip().strip('"')

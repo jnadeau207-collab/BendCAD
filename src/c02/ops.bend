@@ -1,17 +1,3 @@
-# C02 operators: robust predicates with a fast bounded-error filter and an
-# exact expansion fallback. Every publishing op returns PRes/Xres/Tres:
-# a certified sign/relation/class or a C00 FailKind (invalid = malformed
-# input, uncertain = filter silent and the exact expansion not
-# representable: overflow or subnormal products — never a guessed side).
-# Contract: docs/c02-contract.md.
-#
-# Pipeline per predicate (first match wins): finite gate -> repeated-point
-# exact zero -> F64 filter (floor + shortcut + error bound) -> exact
-# Shewchuk expansion (base/ex.bend) -> numerical-uncertainty. Zero signs
-# come ONLY from exact paths (repeated points or the expansion); the
-# filter certifies nonzero signs only. Summation orders below are the
-# contract.
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
@@ -19,8 +5,6 @@ import ./types.bend as P
 import ../base/par.bend as O
 import ../base/ex.bend as E
 
-# --- F64 3x3 core (shared by orient3d, incircle, insphere minors). ---
-# Cofactor expansion along row 0, SAME parenthesization as C01 m3_det_raw.
 def d3_raw(a: F64, b: F64, c: F64, +d: F64, +e: F64, +f: F64, +g: F64,
     +h: F64, +i: F64) -> F64:
   +t0 = F64.sub(F64.mul(e, i), F64.mul(f, h))
@@ -28,8 +12,6 @@ def d3_raw(a: F64, b: F64, c: F64, +d: F64, +e: F64, +f: F64, +g: F64,
   +t2 = F64.sub(F64.mul(d, h), F64.mul(e, g))
   F64.add(F64.sub(F64.mul(a, t0), F64.mul(b, t1)), F64.mul(c, t2))
 
-# Positive/negative parts of one F64 value (exact comparisons; signed
-# zeroes contribute 0 to both sides, matching their absolute value).
 def fpos_go(+t: F64, pos: Bool) -> F64:
   match pos:
     case True{}: F64.abs(t)
@@ -46,12 +28,6 @@ def fneg_go(+t: F64, neg: Bool) -> F64:
 def fneg(+t: F64) -> F64:
   fneg_go(t, F64.is_lt(t, 0.0f64))
 
-# Positive/negative triple-product sums over the six SIGNED triples
-# (+aei, +bfg, +cdh, -gec, -hfa, -idb), split by VALUE sign: det = P-N
-# with P, N >= 0. Each triple is ((x*y)*z) with exact negation on the
-# last three; the outer sums are pinned left folds. Splitting by
-# cofactor position instead would be WRONG (a +cofactor triple can be
-# negative); the value split is what makes P==0/N==0 decisive.
 def d3_pos(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64,
     +g: F64, +h: F64, +i: F64) -> F64:
   +t1 = F64.mul(F64.mul(a, e), i)
@@ -74,7 +50,6 @@ def d3_neg(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64,
   F64.add(F64.add(F64.add(F64.add(F64.add(fneg(u1), fneg(u2)),
     fneg(u3)), fneg(u4)), fneg(u5)), fneg(u6))
 
-# --- Exact expansion kernels (same cofactor expansion as d3_raw). ---
 def sg_res(s: O.Sgn) -> P.PRes:
   match s:
     case O.Sn{}: P.pok(P.Sg_neg{})
@@ -95,10 +70,6 @@ def sq2(+x: E.Ex, +y: E.Ex) -> E.Ex:
 def sq3(+x: E.Ex, +y: E.Ex, +z: E.Ex) -> E.Ex:
   E.ex_add(E.ex_add(E.ex_mul(x, x), E.ex_mul(y, y)), E.ex_mul(z, z))
 
-# --- Exact coordinate equality (total on finite values; -0.0 == +0.0).
-# NOTE: callers let-bind each pteq result before combining. A nested
-# Bool.or of 3+ pteq calls miscompiles on the native (C) lane at BEND_PIN
-# (returns True; interp/JS correct) — see contract §10. ---
 def pteq2(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> Bool:
   Bool.and(F64.is_eq(ax, bx), F64.is_eq(ay, by))
 
@@ -107,8 +78,6 @@ def pteq3(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
   Bool.and(F64.is_eq(ax, bx),
     Bool.and(F64.is_eq(ay, by), F64.is_eq(az, bz)))
 
-# --- orient2d: sign of det |ax-cx bx-cx; ay-cy by-cy|. ---
-# Pos iff c is left of a->b (CCW triangle a,b,c).
 def o2_exact(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64,
     +cy: F64) -> P.PRes:
   +dl = E.ex_mul(E.ex_dif(ax, cx), E.ex_dif(by, cy))
@@ -180,8 +149,6 @@ def orient2d(+a: V.Vec2, +b: V.Vec2, +c: V.Vec2) -> P.PRes:
   +rep = Bool.or(r12, Bool.or(r23, r13))
   o2_fin(ax, ay, bx, by, cx, cy, fin, rep)
 
-# --- orient3d: sign of the 3x3 det of abcd translated by d. ---
-# Pos iff d is above the oriented plane abc (right-handed tet abcd).
 def o3_exact(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
     +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64, +dy: F64,
     +dz: F64) -> P.PRes:
@@ -295,10 +262,6 @@ def orient3d(+a: V.Point, +b: V.Point, +c: V.Point,
     Bool.or(r13, Bool.or(r14, Bool.or(r23, Bool.or(r24, r34)))))
   o3_fin(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, fin, rep)
 
-# --- incircle: sign of the translated 3x3 det with a square column. ---
-# Rows are (dx, dy, dx*dx+dy*dy) off d. Pos iff d is strictly inside the
-# circle through a, b, c when (a, b, c) is CCW; the raw determinant sign
-# is returned without orientation canonicalization (contract §5).
 def ic_sq(+dx: F64, +dy: F64) -> F64:
   F64.add(F64.mul(dx, dx), F64.mul(dy, dy))
 
@@ -403,12 +366,6 @@ def incircle(+a: V.Vec2, +b: V.Vec2, +c: V.Vec2,
     Bool.or(r13, Bool.or(r14, Bool.or(r23, Bool.or(r24, r34)))))
   ic_fin(ax, ay, bx, by, cx, cy, dx, dy, fin, rep)
 
-# --- insphere: sign of the translated 4x4 det with a square column. ---
-# Rows are (dx, dy, dz, dx*dx+dy*dy+dz*dz) off e, Laplace along row 0:
-# det = r0*m0 - r1*m1 + r2*m2 - r3*m3 (pinned left association). Pos iff
-# e is strictly inside the sphere through a, b, c, d when tet (a,b,c,d)
-# is positively oriented; the raw determinant sign is returned (contract
-# §5). P/N are the row0-weighted minor triple sums, same association.
 def is_sq(+dx: F64, +dy: F64, +dz: F64) -> F64:
   F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz))
 
@@ -584,13 +541,6 @@ def insphere(+a: V.Point, +b: V.Point, +c: V.Point, +d: V.Point,
   is_fin(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, ex, ey, ez,
     fin, rep)
 
-# --- Segment-segment relation in 2D (exact comparisons throughout). ---
-# o1..o4 are orient2d(a,b,c), (a,b,d), (c,d,a), (c,d,b). Zero signs are
-# exact (exact paths only), and every comparison below (equality, bbox,
-# 1D overlap) is exact on F64 values; the relation is therefore EXACT
-# whenever the four orientations decide. First sub-failure in o1..o4
-# order wins propagation. Degenerate point-segments are admitted:
-# point-point equality is touch, point-on-segment is touch.
 def seg_bbox(+ax: F64, +ay: F64, +bx: F64, +by: F64, +px: F64,
     +py: F64) -> Bool:
   +xok = Bool.and(F64.is_le(F64.min(ax, bx), px),
@@ -614,8 +564,6 @@ def seg_coll_go(ov: Bool, eq: Bool) -> P.Xres:
     case True{}: P.xok(P.X_overlap{})
     case False{}: seg_coll_eq(eq)
 
-# Collinear 1D overlap on the dominant axis of ab (exact endpoint
-# comparisons; single-point contact is touch, positive length overlap).
 def seg_coll(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64,
     +cy: F64, +dx: F64, +dy: F64) -> P.Xres:
   +xdom = F64.is_le(F64.abs(F64.sub(ay, by)), F64.abs(F64.sub(ax,
@@ -785,13 +733,6 @@ def seg_seg(+a: V.Vec2, +b: V.Vec2, +c: V.Vec2,
               Bool.and(T.is_finite(dx), T.is_finite(dy))))))))
   seg_fin(ax, ay, bx, by, cx, cy, dx, dy, fin)
 
-# --- Point-in-triangle classification (exact on decided signs). ---
-# o0 = orient2d(a,b,c) must be nonzero (degenerate triangle is
-# invalid-input); o1..o3 = orient2d(a,b,p),(b,c,p),(c,a,p). With o0
-# positive, p is inside iff no edge sign is neg, on the boundary iff
-# inside-sided with a zero (a zero with the other signs inside-sided
-# forces p onto that edge segment — no bbox needed), else outside;
-# mirrored for o0 negative. First sub-failure wins propagation.
 def tri_inb(anyz: Bool) -> P.Tres:
   match anyz:
     case True{}: P.tok(P.T_bound{})
@@ -897,6 +838,4 @@ def tri_class(+p: V.Vec2, +a: V.Vec2, +b: V.Vec2,
             Bool.and(T.is_finite(by),
               Bool.and(T.is_finite(cx), T.is_finite(cy))))))))
   tri_fin(px, py, ax, ay, bx, by, cx, cy, fin)
-
-
 

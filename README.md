@@ -11,11 +11,11 @@ Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the
 - B-rep topology;
 - planar arrangements and the sketch solver.
 
-The receipt is `docs/receipts/c05.1-2026-09-29.txt` at `48ab78c`. Next: R0, a speed and parallelism rebuild of C00–C05 (measured C05 scaling is not Bend-grade, MASTER_PLAN §15). Then C06 solids with A0, graded by challenge G1. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
+R0, the speed and parallelism rebuild, is recorded through R0.4: C05 rebuilt (R0.1), C04 validation on a store index and C02 exact for all finite doubles (R0.2), the solver started at its damping floor (R0.3), and the audit repairs of 2026-10-04/05 (R0.4, `docs/receipts/r0.4-2026-10-05.txt`). C06 is partial: the box kernel, staged diagnosis, quadric trim checks, measures, and the op-graph evaluator with its intent gate; its exit is challenge G1. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
 
 ## Pins
 
-- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@288da0836f419b57323283b971fe44b363ff1193` (local `numeric-on-upstream`; tag `numeric/2026-09-29` is the previous pin `bc01485d`)
+- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920` (tag `numeric/2026-10-05`, branch `numeric-on-upstream`; `numeric/2026-09-29` is the earlier pin `bc01485d`)
 - Numeric contract lives in that fork: `bend2/docs/F64_CONTRACT.md`, `bend2/docs/F64_IMPLEMENTATION.md`
 - Advance `BEND_PIN` only after a Bend numeric gate. Never track floating `main`.
 

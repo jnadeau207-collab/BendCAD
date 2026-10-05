@@ -1,8 +1,3 @@
-# C04 positive tests: constructor pins, predicate/accessor pins,
-# store-op pins, issue-protocol pins, projector conventions,
-# brep_checked exit fixtures (seams/cavity/open/pole accept).
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -56,7 +51,6 @@ def res_v() -> Ty.TRes:
 def rj() -> Ty.TRes:
   Ty.mk_vx(C.pnan())
 
-# Grouped to fit the native backend's arity limit (C02 D2 class).
 def pos_g1(f0: U64) -> IO(U64):
   do IO<U64>:
     f1 : U64 <- C.report_ok("pos-vx-ok",

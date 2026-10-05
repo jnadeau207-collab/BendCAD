@@ -1,7 +1,3 @@
-# C06 op-graph eval pins: fresh build, cache reuse, bad dim id,
-# bad root, unsupported op, publish gate, lineage names.
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -102,18 +98,18 @@ def part_mis() -> Y.Part:
     Y.mk_intent(Y.M_create{}, 5n, 0n, 1n, 0n))
 
 def ins_poison() -> Y.Cache:
-  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
+  Y.Cc{[Y.mk_built(7u64, EV.node_key(Y.O_box{1u64, 2u64, 3u64},
       box_ps(), []), EV.dummy_body(),
     Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
 
 def cyl_poison() -> Y.Cache:
-  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_cyl{1u64, 2u64}, cyl_ps(),
+  Y.Cc{[Y.mk_built(7u64, EV.node_key(Y.O_cyl{1u64, 2u64}, cyl_ps(),
       []), EV.dummy_body(),
     Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
 
 def t_cache_cyl() -> U64:
   Bool.pick(U64, Bool.and(EV.cc_covers(EV.cc_items(cyl_poison()),
-      EV.ev_hashes(cyl_ns(), cyl_ps())),
+      EV.ev_keys(cyl_ns(), cyl_ps())),
     BX.kind_is(ev_last(EV.ev_part(part_cyl(), cyl_poison(),
       10000n)), 2u64)), 0u64, 1u64)
 

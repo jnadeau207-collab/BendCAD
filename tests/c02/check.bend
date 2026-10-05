@@ -1,6 +1,3 @@
-# C02 test support: reporters over PRes/Xres/Tres + shared fixtures.
-# Imported by neg.bend/pos.bend; no main here.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -15,7 +12,6 @@ def verdict(ok: Bool) -> String:
 def bump(f: U64, ok: Bool) -> U64:
   (f + Bool.to_u64(Bool.not(ok)) : U64)
 
-# Perr of the wanted kind (structured failure, no sign published).
 def perr_as(+r: P.PRes, want: String) -> Bool:
   String.eq(P.pres_show(r), want)
 
@@ -26,7 +22,6 @@ def report_perr(tag: String, +r: P.PRes, +want: String,
       ++ " [" ++ P.pres_show(r) ++ "]")
     return bump(f, perr_as(r, want))
 
-# Pok with the wanted sign.
 def ps_as(+r: P.PRes, want: String) -> Bool:
   Bool.and(String.eq(P.pres_show(r), "ok"),
     String.eq(P.pres_sign_show(r), want))
@@ -38,7 +33,6 @@ def report_ps(tag: String, +r: P.PRes, +want: String,
       ++ " [" ++ P.pres_show(r) ++ ":" ++ P.pres_sign_show(r) ++ "]")
     return bump(f, ps_as(r, want))
 
-# Xok with the wanted relation.
 def xr_as(+r: P.Xres, want: String) -> Bool:
   Bool.and(String.eq(P.xres_show(r), "ok"),
     String.eq(P.xres_rel_show(r), want))
@@ -60,7 +54,6 @@ def report_xerr(tag: String, +r: P.Xres, +want: String,
       ++ " [" ++ P.xres_show(r) ++ "]")
     return bump(f, xerr_as(r, want))
 
-# Tok with the wanted class.
 def tc_as(+r: P.Tres, want: String) -> Bool:
   Bool.and(String.eq(P.tres_show(r), "ok"),
     String.eq(P.tres_cls_show(r), want))
@@ -87,7 +80,6 @@ def report_pure(tag: String, +ok: Bool, f: U64) -> IO(U64):
     IO.print(tag ++ " " ++ verdict(ok))
     return bump(f, ok)
 
-# --- Shared fixtures (bit-exact; python struct, see receipt) ---
 def n25() -> F64:
   F64{4719772409484279808u64}
 

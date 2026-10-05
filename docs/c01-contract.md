@@ -136,7 +136,7 @@ absolute bounds (all in ulp of the result):
 | `v2/v3_dot`, `v3_cross`, `m3_det`, `m3_mul` | lin | ≤ n ulp relative absent cancellation (n = terms); cancellation → absolute bound |
 | `m3_inv` | lin | ≤ 64 ulp relative when admitted (det(B) > 1e-12) |
 | `rg_compose/inv/apply`, frame maps | lin | ≤ 8 ulp relative per application |
-| `p_plus_d`, `p_minus_p`, `v_add/sub/scale`, `d_add/d_scale` | lin | ≤ 2 ulp (one rounding + validation) |
+| `p_plus_d`, `p_minus_p`, `v2/v3_add`, `v3_sub`, `v2/v3_scale`, `d_add/d_scale` | lin | ≤ 2 ulp (one rounding + validation) |
 
 The normalize unit bound is honest about subnormals: each published
 component is `xᵢ/n` correctly rounded, and in the normal range the
@@ -224,14 +224,14 @@ proven instances and tests named beside them.
 - M2 (zero/degenerate never publishes): normalize of zero,
   `seg_dir` of coincident points, inverse of singular matrices are
   `Cerr`, and `Cerr` projectors yield documented zeroes, never NaN.
-  Proven: `normalize_zero_*`, `seg_coincident`, `inv_*`
+  Proven: `normalize_zero_*`, `seg_coincident_inv`, `inv_*`
   instances + `cerr_zero_*`. Tested: all `neg-*`.
 - M3 (round-trip identity): invert-then-apply and compose-with-
   inverse restore the input within §5 bounds. Proven: exact Rz90
   round-trip instance. Tested: `pos-rt-*`.
 - M4 (point/direction separation): translation never affects `Dir`
   application; no point+point exists (by construction — the symbol
-  is absent, grep-verified). Proven: `dir_ignores_translation`.
+  is absent, grep-verified). Proven: `dir_notrans`.
   Tested: `pos-dir-notrans`.
 - M5 (frame obligation): every published `Frame`/`Rigid` satisfies
   `m3_is_rot`; `frame_basis` output is right-handed orthonormal

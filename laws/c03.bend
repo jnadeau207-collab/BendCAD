@@ -1,22 +1,12 @@
-# C03 laws: every claim closed by the proof beneath it. Unbounded claims
-# live as explicit laws in docs/c03-contract.md; this file proves the
-# structural properties generally plus one instance per pipeline arm.
-# Pins: F64 bit patterns from python struct (independent oracle).
-# Scope: curves, surfaces, trims, NURBS data (MASTER_PLAN §10 C03).
-
 import Base
 import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
 import ../src/c03/types.bend as G
 import ../src/c03/ops.bend as O
 
-# --- Local GVal lifter (identity): lets one law range over all 19 arms.
-# Every gok_* ctor below is Gok{arm}, so arm-exhaustiveness here covers
-# every constructor's ok/kind shape. ---
 def gok_wrap(v: G.GVal) -> G.GRes:
   G.Gok{v}
 
-# --- Bit-equality helpers (exact pins, no show-format dependence) ---
 def p_bits_eq(+r: G.GRes, +wx: U64, +wy: U64, +wz: U64) -> Bool:
   +p = G.gres_p(r)
   Bool.and(U64.is_eq(F64.bits(V.pt_x(p)), wx),
@@ -54,7 +44,6 @@ def dom_bits_eq(+r: G.GRes, +wlo: U64, +whi: U64) -> Bool:
   Bool.and(U64.is_eq(F64.bits(G.dom_lo(d)), wlo),
     U64.is_eq(F64.bits(G.dom_hi(d)), whi))
 
-# --- Fixtures ---
 def p000() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
 
@@ -91,7 +80,6 @@ def v2_00() -> V.Vec2:
 def v2_11() -> V.Vec2:
   V.V2{1.0f64, 1.0f64}
 
-# --- Structural: general over every value arm and failure kind ---
 law gok_ok:
   for v: G.GVal
   {G.gres_ok(gok_wrap(v)) == True{} : Bool}
@@ -249,7 +237,6 @@ def gerr_bb_zero(k):
     case T.F_cancelled{}: {==}
     case T.F_exhausted{}: {==}
 
-# --- mk_dom: ok pin + every rejection arm ---
 law dom_ok_pin:
   {Bool.and(String.eq(G.gres_show(G.mk_dom(0.0f64, 1.0f64)), "ok"),
     dom_bits_eq(G.mk_dom(0.0f64, 1.0f64), 0u64,
@@ -286,7 +273,6 @@ law dom_inf_inv:
 def dom_inf_inv():
   {==}
 
-# --- mk_line: ok pin + every rejection arm ---
 law line_ok_pin:
   {String.eq(G.gres_show(G.mk_line(p000(), d100())), "ok")
     == True{} : Bool}
@@ -325,7 +311,6 @@ law line_negzero_inv:
 def line_negzero_inv():
   {==}
 
-# --- mk_plane: ok pin + rejection (takes a Plane3 value) ---
 law plane_ok_pin:
   {String.eq(G.gres_show(G.mk_plane(G.Pl{p000(), d100(), d010()})),
     "ok") == True{} : Bool}
@@ -341,7 +326,6 @@ law plane_nan_inv:
 def plane_nan_inv():
   {==}
 
-# --- mk_circ: ok pin + every rejection arm ---
 law circ_ok_pin:
   {String.eq(G.gres_show(G.mk_circ(p000(), d100(), d010(), 2.0f64)),
     "ok") == True{} : Bool}
@@ -378,7 +362,6 @@ law circ_rinf_inv:
 def circ_rinf_inv():
   {==}
 
-# --- mk_bez3: ok pin + rejection ---
 law bez_ok_pin:
   {String.eq(G.gres_show(G.mk_bez3(p000(), p100(), p010(), p111())),
     "ok") == True{} : Bool}
@@ -394,7 +377,6 @@ law bez_nan_inv:
 def bez_nan_inv():
   {==}
 
-# --- mk_rqbez: ok pin (quarter-circle weights) + every weight arm ---
 law rq_ok_pin:
   {String.eq(G.gres_show(G.mk_rqbez(p100(), p111(), p010(), 1.0f64,
       G.w_quarter(), 1.0f64)), "ok") == True{} : Bool}
@@ -423,7 +405,6 @@ law rq_wnan_inv:
 def rq_wnan_inv():
   {==}
 
-# --- mk_bezp: ok pin + rejection ---
 law bp_ok_pin:
   {String.eq(G.gres_show(G.mk_bezp(p000(), p000(), p000(), p000(),
       p000(), p100(), p010(), p000(), p000(), p010(), p111(), p000(),
@@ -441,7 +422,6 @@ law bp_nan_inv:
 def bp_nan_inv():
   {==}
 
-# --- Quadrics/torus: ok pins + every rejection arm ---
 law sph_ok_pin:
   {String.eq(G.gres_show(G.mk_sph(p123(), 2.0f64)), "ok")
     == True{} : Bool}
@@ -527,7 +507,6 @@ law torus_rneg_inv:
 def torus_rneg_inv():
   {==}
 
-# --- mk_bbox: ok pin + every rejection arm ---
 law bb_ok_pin:
   {Bool.and(String.eq(G.gres_show(G.mk_bbox(p000(), p111())), "ok"),
     bb_bits_eq(G.mk_bbox(p000(), p111()), 0u64, 0u64, 0u64,
@@ -552,7 +531,6 @@ law bb_nan_inv:
 def bb_nan_inv():
   {==}
 
-# --- Trims: ok pins + rejections ---
 law tseg_ok_pin:
   {String.eq(G.gres_show(G.mk_tseg(v2_00(), v2_11())), "ok")
     == True{} : Bool}
@@ -582,7 +560,6 @@ law tbez_nan_inv:
 def tbez_nan_inv():
   {==}
 
-# --- Scalar predicates: zero/positive classification ---
 law dz_zero_true:
   {G.dr_is_zero(d000()) == True{} : Bool}
 
@@ -633,7 +610,6 @@ law spos_nan_false:
 def spos_nan_false():
   {==}
 
-# --- Finiteness predicates: instances ---
 law fin_ln_false:
   {G.ln_fin(G.Ln{V.Pt{F64.nan(), 0.0f64, 0.0f64}, d100()})
     == False{} : Bool}
@@ -660,8 +636,6 @@ law fin_dom_inffalse:
 def fin_dom_inffalse():
   {==}
 
-# --- Semantic validity: the centralized layer (C03.1). Constructors
-# and evaluators consume these; raw bypasses are malformed input. ---
 law val_dom_ok:
   {G.dom_valid(G.Dom{0.0f64, 1.0f64}) == True{} : Bool}
 
@@ -727,7 +701,6 @@ law val_to_R0:
 def val_to_R0():
   {==}
 
-# --- Accessor roundtrips (bit-exact) ---
 law acc_dom_lo:
   {U64.is_eq(F64.bits(G.dom_lo(G.Dom{2.0f64, 3.0f64})),
     4611686018427387904u64) == True{} : Bool}
@@ -784,7 +757,6 @@ law acc_ts_b:
 def acc_ts_b():
   {==}
 
-# --- Quarter-circle weight pin (python struct sqrt(2)/2) ---
 law wq_bits:
   {U64.is_eq(F64.bits(G.w_quarter()), 4604544271217802189u64)
     == True{} : Bool}
@@ -792,8 +764,6 @@ law wq_bits:
 def wq_bits():
   {==}
 
-# --- BN-11 (non-publishing failures): rejected constructors publish
-# only documented defaults, never partial geometry. ---
 law bn11_line_zero:
   {p_bits_eq(G.mk_line(p000(), d000()), 0u64, 0u64, 0u64)
     == True{} : Bool}
@@ -816,7 +786,6 @@ law bn11_sph_neg:
 def bn11_sph_neg():
   {==}
 
-# --- Ops fixtures (raw values; finiteness is gated at every entry) ---
 def dom_01() -> G.Dom:
   G.Dom{0.0f64, 1.0f64}
 
@@ -916,8 +885,6 @@ def ax_big() -> V.Dir:
 def ax_ok() -> V.Dir:
   V.Dr{F64{4607182418800019660u64}, 0.0f64, 0.0f64}
 
-# --- Geometry unwrap helpers (documented zero defaults; let behavior
-# laws reach through geometry-returning ops without match-in-law). ---
 def unwrap_bz(r: G.GRes) -> G.Bez3:
   match r:
     case G.Gok{v}:
@@ -975,7 +942,6 @@ def unwrap_to(r: G.GRes) -> G.Torus:
         case _: G.To{p000(), d001(), 4.0f64, 1.0f64}
     case G.Gerr{kind}: G.To{p000(), d001(), 4.0f64, 1.0f64}
 
-# 3D box membership (exact comparisons; boxes are finite-gated).
 def bb_has(+b: G.BBox3, +qx: F64, +qy: F64, +qz: F64) -> Bool:
   +lo = G.bb_lo(b)
   +hi = G.bb_hi(b)
@@ -990,7 +956,6 @@ def ev_in_bb(+e: G.GRes, +b: G.GRes) -> Bool:
   +p = G.gres_p(e)
   bb_has(G.gres_bb(b), V.pt_x(p), V.pt_y(p), V.pt_z(p))
 
-# --- dom_mid/dom_len: pins + gates ---
 law dmid_25:
   {f_bits_eq(O.dom_mid(dom_25()), 4615063718147915776u64)
     == True{} : Bool}
@@ -1035,7 +1000,6 @@ law dlen_ovf_unc:
 def dlen_ovf_unc():
   {==}
 
-# Raw degenerate domains rejected at every domain evaluator (C03.1).
 law dmid_degen_inv:
   {String.eq(G.gres_show(O.dom_mid(G.Dom{1.0f64, 1.0f64})),
     "invalid-input") == True{} : Bool}
@@ -1064,7 +1028,6 @@ law split_degen_inv:
 def split_degen_inv():
   {==}
 
-# --- dom_clamp: five positions + gates ---
 law clamp_in:
   {f_bits_eq(O.dom_clamp(G.Dom{0.0f64, 5.0f64}, 2.0f64),
     4611686018427387904u64) == True{} : Bool}
@@ -1114,7 +1077,6 @@ law clamp_domnan_inv:
 def clamp_domnan_inv():
   {==}
 
-# --- pdom_wrap: periodic arms + clamped fallback + gate ---
 law wrap_under:
   {f_bits_eq(O.pdom_wrap(pdom_per(), F64.neg(3.0f64)),
     4619567317775286272u64) == True{} : Bool}
@@ -1168,7 +1130,6 @@ law wrap_degen2_inv:
 def wrap_degen2_inv():
   {==}
 
-# --- dom_split_lo/hi: halves + strict-interior gate ---
 law split_lo_mid:
   {dom_bits_eq(O.dom_split_lo(dom_010(), 4.0f64), 0u64,
     4616189618054758400u64) == True{} : Bool}
@@ -1212,7 +1173,6 @@ law split_nan_inv:
 def split_nan_inv():
   {==}
 
-# --- line_eval/line_der: pins + gates ---
 law leval_t3:
   {p_bits_eq(O.line_eval(ln_x(), 3.0f64), 4613937818241073152u64,
     0u64, 0u64) == True{} : Bool}
@@ -1258,7 +1218,6 @@ law lder_nan_inv:
 def lder_nan_inv():
   {==}
 
-# Raw zero directions rejected at line evaluators (C03.1).
 law leval_zero_inv:
   {String.eq(G.gres_show(O.line_eval(G.Ln{p000(), d000()},
       1.0f64)), "invalid-input") == True{} : Bool}
@@ -1273,7 +1232,6 @@ law lder_zero_inv:
 def lder_zero_inv():
   {==}
 
-# --- line_project/line_dist/line_seg_bbox ---
 law lproj_t5:
   {f_bits_eq(O.line_project(ln_x(), V.Pt{5.0f64, 2.0f64, 0.0f64}),
     4617315517961601024u64) == True{} : Bool}
@@ -1295,8 +1253,6 @@ law lproj_zero_inv:
 def lproj_zero_inv():
   {==}
 
-# Nonzero but subnormal direction: d.d underflows to 0, so the
-# parameter is uncomputable — uncertainty, not malformed input (C03.1).
 law lproj_tiny_unc:
   {String.eq(G.gres_show(O.line_project(G.Ln{p000(),
       V.Dr{F64{1u64}, 0.0f64, 0.0f64}}, p111())),
@@ -1367,7 +1323,6 @@ law segbb_nan_inv:
 def segbb_nan_inv():
   {==}
 
-# --- plane_checked/plane_normal: frame validation arms ---
 law plck_ok:
   {String.eq(G.gres_show(O.plane_checked(pl_xy())), "ok")
     == True{} : Bool}
@@ -1411,7 +1366,6 @@ law pln_frame_inv:
 def pln_frame_inv():
   {==}
 
-# --- plane_eval/plane_project/plane_dist/plane_uv_bbox ---
 law pleval_23:
   {p_bits_eq(O.plane_eval(pl_xy(), 2.0f64, 3.0f64),
     4611686018427387904u64, 4613937818241073152u64, 0u64)
@@ -1519,7 +1473,6 @@ law plbb_frame_inv:
 def plbb_frame_inv():
   {==}
 
-# --- circ_checked/circ_eval: rational circle arms ---
 law cck_ok:
   {String.eq(G.gres_show(O.circ_checked(cc_unit())), "ok")
     == True{} : Bool}
@@ -1556,8 +1509,6 @@ law ceval_t1:
 def ceval_t1():
   {==}
 
-# Both ends evaluate to the seam bit-exactly (the -0.0 ny coefficient
-# at t = -1 is absorbed by the inner +0.0 addend).
 law ceval_tneg1:
   {p_bits_eq(O.circ_eval(cc_unit(), F64.neg(1.0f64)),
     13830554455654793216u64, 0u64, 0u64) == True{} : Bool}
@@ -1616,7 +1567,6 @@ law ceval_ovf_unc:
 def ceval_ovf_unc():
   {==}
 
-# --- circ_der/circ_seam_pt/circ_bbox ---
 law cder_t0:
   {d_bits_eq(O.circ_der(cc_unit(), 0.0f64), 0u64,
     4616189618054758400u64, 0u64) == True{} : Bool}
@@ -1624,7 +1574,6 @@ law cder_t0:
 def cder_t0():
   {==}
 
-# dz is exactly -0.0 here (both scaled terms are -0.0).
 law cder_t05:
   {d_bits_eq(O.circ_der(cc_unit(), 0.5f64), 13837471984682434298u64,
     13829617706932300153u64, 9223372036854775808u64)
@@ -1677,7 +1626,6 @@ law cbb_r0_inv:
 def cbb_r0_inv():
   {==}
 
-# --- bez3_eval/bez3_der: Bernstein pins + gates ---
 law beval_t0:
   {p_bits_eq(O.bez3_eval(bz_s(), 0.0f64), 0u64, 0u64, 0u64)
     == True{} : Bool}
@@ -1760,7 +1708,6 @@ law bder_ovf_unc:
 def bder_ovf_unc():
   {==}
 
-# --- bez3_split_lo/hi: halves meet at the joint; strict gate ---
 law bsplit_lo_ok:
   {String.eq(G.gres_show(O.bez3_split_lo(bz_s(), 0.5f64)), "ok")
     == True{} : Bool}
@@ -1827,7 +1774,6 @@ law bsplit_hi_t1_inv:
 def bsplit_hi_t1_inv():
   {==}
 
-# --- bez3_bbox/bez3_end0/bez3_end1 ---
 law bbbox_s:
   {bb_bits_eq(O.bez3_bbox(bz_s()), 0u64, 0u64, 0u64,
     4607182418800017408u64, 4607182418800017408u64,
@@ -1867,7 +1813,6 @@ law bend_nan_inv:
 def bend_nan_inv():
   {==}
 
-# --- rqb_eval/rqb_der: rational conic pins + gates ---
 law qeval_q0:
   {p_bits_eq(O.rqb_eval(rq_q(), 0.0f64), 4607182418800017408u64,
     0u64, 0u64) == True{} : Bool}
@@ -1903,8 +1848,6 @@ law qeval_nan_inv:
 def qeval_nan_inv():
   {==}
 
-# Non-positive conic weights rejected at every conic op (C03.1):
-# the enclosure certificate needs D > 0 from positive weights.
 law qeval_wneg_inv:
   {String.eq(G.gres_show(O.rqb_eval(G.Rq{p100(), p110(), p010(),
       F64.neg(1.0f64), 1.0f64, 1.0f64}, 0.5f64)),
@@ -1945,7 +1888,6 @@ law qder_w0_inv:
 def qder_w0_inv():
   {==}
 
-# --- rqb_bbox/rqb_disc/rq_quarter ---
 law qbb_q:
   {bb_bits_eq(O.rqb_bbox(rq_q()), 0u64, 0u64, 0u64,
     4607182418800017408u64, 4607182418800017408u64, 0u64)
@@ -2036,7 +1978,6 @@ law rquarter_r0_inv:
 def rquarter_r0_inv():
   {==}
 
-# --- bezp_eval/bezp_du/bezp_dv: tensor pins + gates ---
 law peval_flat:
   {p_bits_eq(O.bezp_eval(bp_flat(), 0.5f64, 0.5f64),
     4609434218613702656u64, 4609434218613702656u64, 0u64)
@@ -2130,7 +2071,6 @@ law pdv_ovf_unc:
 def pdv_ovf_unc():
   {==}
 
-# --- bezp_bbox/bezp_iso/bezp_corners/bbox_union ---
 law pbb_flat:
   {bb_bits_eq(O.bezp_bbox(bp_flat()), 0u64, 0u64, 0u64,
     4613937818241073152u64, 4613937818241073152u64, 0u64)
@@ -2241,7 +2181,6 @@ law bbunion_nan_inv:
 def bbunion_nan_inv():
   {==}
 
-# --- Quadric frame validation: unit-axis arms + threshold pins ---
 law cyck_ok:
   {String.eq(G.gres_show(O.cyl_checked(cy_z())), "ok")
     == True{} : Bool}
@@ -2279,7 +2218,6 @@ law cyck_axok_ok:
 def cyck_axok_ok():
   {==}
 
-# Non-positive radii/slopes rejected at quadric entries (C03.1).
 law cyck_rneg_inv:
   {String.eq(G.gres_show(O.cyl_checked(G.Cy{p000(), d001(),
       F64.neg(1.0f64)})), "invalid-input") == True{} : Bool}
@@ -2347,7 +2285,6 @@ law tock_R0_inv:
 def tock_R0_inv():
   {==}
 
-# --- sph_val/sph_grad: implicit value + gradient arms ---
 law sphv_on:
   {f_bits_eq(O.sph_val(sp_unit(), p100()), 0u64) == True{} : Bool}
 
@@ -2384,7 +2321,6 @@ law sphv_ovf_unc:
 def sphv_ovf_unc():
   {==}
 
-# Non-positive sphere radii rejected at every sphere op (C03.1).
 law sphv_rneg_inv:
   {String.eq(G.gres_show(O.sph_val(G.Sp{p000(), F64.neg(1.0f64)},
       p100())), "invalid-input") == True{} : Bool}
@@ -2423,7 +2359,6 @@ law sphg_r0_inv:
 def sphg_r0_inv():
   {==}
 
-# --- sph_project/sph_pole_n/sph_pole_s ---
 law sphp_200:
   {p_bits_eq(O.sph_project(sp_unit(), V.Pt{2.0f64, 0.0f64, 0.0f64}),
     4607182418800017408u64, 0u64, 0u64) == True{} : Bool}
@@ -2431,9 +2366,6 @@ law sphp_200:
 def sphp_200():
   {==}
 
-# x pin is the scaled formulation (C03.1): fl(0.75/1.25) is the
-# correctly-rounded 0.6 (...011); the old (r/n)*m spelling rounded
-# fl(fl(1/5)*3) one ulp higher (...012).
 law sphp_345:
   {p_bits_eq(O.sph_project(sp_unit(), V.Pt{3.0f64, 4.0f64, 0.0f64}),
     4603579539098121011u64, 4605380978949069210u64, 0u64)
@@ -2474,9 +2406,6 @@ law sphp_rneg_inv:
 def sphp_rneg_inv():
   {==}
 
-# Scaled projection (C03.1): finite norm + tiny r/n ratio still
-# publishes the surface point, never the center. r=1 at DBL_MAX on
-# one axis; r=DBL_MIN at DBL_MAX; offset center at DBL_MAX.
 law sphp_faraxis_ok:
   {p_bits_eq(O.sph_project(sp_unit(),
       V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}),
@@ -2530,7 +2459,6 @@ law spolen_r0_inv:
 def spolen_r0_inv():
   {==}
 
-# --- cyl_val/cyl_grad ---
 law cylv_on:
   {f_bits_eq(O.cyl_val(cy_z(), V.Pt{1.0f64, 0.0f64, 5.0f64}), 0u64)
     == True{} : Bool}
@@ -2607,7 +2535,6 @@ law cylg_r0_inv:
 def cylg_r0_inv():
   {==}
 
-# --- cone_val/cone_grad/cone_ax ---
 law cov_on:
   {f_bits_eq(O.cone_val(co_z(), V.Pt{1.0f64, 0.0f64, 2.0f64}), 0u64)
     == True{} : Bool}
@@ -2723,7 +2650,6 @@ law coax_kneg_inv:
 def coax_kneg_inv():
   {==}
 
-# --- tor_val/tor_grad ---
 law torv_eq:
   {f_bits_eq(O.tor_val(to_z(), V.Pt{5.0f64, 0.0f64, 0.0f64}), 0u64)
     == True{} : Bool}
@@ -2793,7 +2719,6 @@ law torg_r0_inv:
 def torg_r0_inv():
   {==}
 
-# --- tseg_eval/tbez_eval: trim evaluation pins + gates ---
 law tse_t0:
   {v2_bits_eq(O.tseg_eval(ts_diag(), 0.0f64), 0u64, 0u64)
     == True{} : Bool}
@@ -2875,7 +2800,6 @@ law tbe_nan_inv:
 def tbe_nan_inv():
   {==}
 
-# --- tseg_bbox/tbez_bbox/plane_trim_pt ---
 law tsbb_diag:
   {bb_bits_eq(O.tseg_bbox(ts_diag()), 0u64, 0u64, 0u64,
     4607182418800017408u64, 4607182418800017408u64, 0u64)
@@ -2929,7 +2853,6 @@ law trimpt_nan_inv:
 def trimpt_nan_inv():
   {==}
 
-# --- NURBS fixtures: single-span cubic Bezier as NURBS + defects ---
 def nbk1_ks() -> List<&2, F64>:
   0.0f64 <> 0.0f64 <> 0.0f64 <> 0.0f64 <> 1.0f64 <> 1.0f64 <>
     1.0f64 <> 1.0f64 <> Nil{}
@@ -2987,7 +2910,6 @@ def v2_in_bb(+e: G.GRes, +b: G.GRes) -> Bool:
       Bool.and(F64.is_le(V.pt_y(lo), V.v2_y(v)),
         F64.is_le(V.v2_y(v), V.pt_y(hi)))))
 
-# --- nurbs_checked: ok pin + fuel/count/shape/weight gates ---
 law nok_ok:
   {String.eq(G.gres_show(O.nurbs_checked(nbk1(), 9n)), "ok")
     == True{} : Bool}
@@ -3060,7 +2982,6 @@ law nok_nank_inv:
 def nok_nank_inv():
   {==}
 
-# --- nurbs_eval: de Boor pins + gates (t=khi pinned after probing) ---
 law nev_t05:
   {p_bits_eq(O.nurbs_eval(nbk1(), 0.5f64, 9n),
     4602678819172646912u64, 4602678819172646912u64,
@@ -3126,7 +3047,6 @@ law nev_bez_equiv:
 def nev_bez_equiv():
   {==}
 
-# --- BN-8 (bounded iteration): single-step wrap + fuel rejection ---
 law bn8_wrap_once:
   {f_bits_eq(O.pdom_wrap(pdom_per(), 25.0f64),
     4624633867356078080u64) == True{} : Bool}
@@ -3134,7 +3054,6 @@ law bn8_wrap_once:
 def bn8_wrap_once():
   {==}
 
-# --- BN-10 (certified enclosures): evaluations land inside hulls ---
 law bn10_bez:
   {ev_in_bb(O.bez3_eval(bz_s(), 0.3f64), O.bez3_bbox(bz_s()))
     == True{} : Bool}
@@ -3186,7 +3105,6 @@ law bn10_tbez:
 def bn10_tbez():
   {==}
 
-# --- BN-11 (non-publishing failures): op-level default projections ---
 law bn11_leval_ovf:
   {p_bits_eq(O.line_eval(G.Ln{
       V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}, d100()},
@@ -3224,9 +3142,6 @@ law bn11_wrap_inv:
 def bn11_wrap_inv():
   {==}
 
-# --- Quadric exact membership (P1): on/off/near-miss/invalid arms.
-# Near-miss pins are mathematically on-surface with nonzero F64
-# value (oracle: python struct); invalid arms fail closed to False.
 law sphon_on:
   {O.sph_on(sp_unit(), p100()) == True{} : Bool}
 
@@ -3452,4 +3367,29 @@ law toron_Rneg:
       p100()) == False{} : Bool}
 
 def toron_Rneg():
+  {==}
+
+def hull_bz() -> G.Bez3:
+  G.Bz{V.Pt{0.1f64, 0.0f64, 0.0f64}, V.Pt{0.1f64, 1.0f64, 0.0f64},
+    V.Pt{0.1f64, 2.0f64, 0.0f64}, V.Pt{0.1f64, 3.0f64, 0.0f64}}
+
+law bez_hull_x_hi:
+  {F64.bits(V.pt_x(G.bb_hi(G.gres_bb(O.bez3_bbox(hull_bz())))))
+    == 4591870180066957722u64 : U64}
+
+def bez_hull_x_hi():
+  {==}
+
+law bez_eval_above_hull:
+  {F64.bits(V.pt_x(G.gres_p(O.bez3_eval(hull_bz(), 0.1f64))))
+    == 4591870180066957723u64 : U64}
+
+def bez_eval_above_hull():
+  {==}
+
+law bez_eval_below_hull:
+  {F64.bits(V.pt_x(G.gres_p(O.bez3_eval(hull_bz(), 0.3f64))))
+    == 4591870180066957720u64 : U64}
+
+def bez_eval_below_hull():
   {==}

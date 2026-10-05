@@ -1,17 +1,9 @@
-# C02 laws: every claim closed by the proof beneath it. Unbounded claims
-# live as explicit P-laws in docs/c02-contract.md; this file proves the
-# structural properties generally plus one instance per pipeline arm.
-# Pins: exact truth from an independent python Fraction oracle; F64 bit
-# patterns from python struct; filter-vs-exact paths predicted by the
-# same oracle (see the receipt).
-
 import Base
 import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
 import ../src/c02/types.bend as P
 import ../src/c02/ops.bend as O
 
-# --- Bit-exact fixtures (python struct; see receipt) ---
 def n25() -> F64:
   F64{4719772409484279808u64}
 
@@ -36,7 +28,6 @@ def big150() -> F64:
 def tiny500() -> F64:
   F64{2355382605114769408u64}
 
-# --- Structural: general over every sign/kind/relation/class ---
 law pok_ok:
   for s: P.Sign
   {P.pres_ok(P.pok(s)) == True{} : Bool}
@@ -130,8 +121,6 @@ def terr_cls_out(k):
     case T.F_cancelled{}: {==}
     case T.F_exhausted{}: {==}
 
-# --- Small-integer domain: roundtrip detection, limits, signs ---
-# --- orient2d: filter pins, rep zero, exact zero, exact win, uncertain ---
 law o2_ccw:
   {String.eq(P.pres_sign_show(O.orient2d(V.V2{0.0f64, 0.0f64},
     V.V2{1.0f64, 0.0f64}, V.V2{0.0f64, 1.0f64})), "pos")
@@ -222,7 +211,6 @@ law o2_flip:
 def o2_flip():
   {==}
 
-# --- orient3d: shortcut pins, coplanar zero, uncertain ---
 law o3_neg:
   {String.eq(P.pres_sign_show(O.orient3d(V.Pt{0.0f64, 0.0f64, 0.0f64},
     V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Pt{0.0f64, 1.0f64, 0.0f64},
@@ -273,7 +261,6 @@ law o3_nan_inv:
 def o3_nan_inv():
   {==}
 
-# --- incircle: inside/outside/on/uncertain/invalid ---
 law ic_in:
   {String.eq(P.pres_sign_show(O.incircle(V.V2{0.0f64, 0.0f64},
     V.V2{1.0f64, 0.0f64}, V.V2{0.0f64, 1.0f64},
@@ -322,7 +309,6 @@ law ic_inf_inv:
 def ic_inf_inv():
   {==}
 
-# --- insphere: inside/outside/on/uncertain/invalid ---
 law is_in:
   {String.eq(P.pres_sign_show(O.insphere(
     V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Pt{0.0f64, 1.0f64, 0.0f64},
@@ -379,7 +365,6 @@ law is_nan_inv:
 def is_nan_inv():
   {==}
 
-# --- seg_seg: all four relations, point cases, propagation ---
 law seg_proper:
   {String.eq(P.xres_rel_show(O.seg_seg(V.V2{0.0f64, 0.0f64},
     V.V2{2.0f64, 2.0f64}, V.V2{0.0f64, 2.0f64},
@@ -446,7 +431,6 @@ law seg_ovf_unc:
 def seg_ovf_unc():
   {==}
 
-# --- tri_class: inside/outside/boundary/degenerate ---
 law tri_in:
   {String.eq(P.tres_cls_show(O.tri_class(V.V2{1.0f64, 1.0f64},
     V.V2{0.0f64, 0.0f64}, V.V2{4.0f64, 0.0f64},

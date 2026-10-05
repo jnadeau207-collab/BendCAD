@@ -1,46 +1,29 @@
-# C01 foundation types: Vec2/Vec3, Point/Dir newtypes, Mat3, Frame, Rigid.
-# Data + total predicates + validated constructors + one result type.
-# Fallible geometry: ops.bend. Contract: docs/c01-contract.md.
-# Failure arms reuse C00 FailKind (T.FailKind); no new taxonomy.
-
 import Base
 import ../c00/types.bend as T
 
-# --- Raw vectors: any three F64, finite or not. Only validated values flow
-# into published geometry; ctors below reject nonfinite components. ---
 type Vec2 is Data:
   V2{ x: F64, y: F64 }
 
 type Vec3 is Data:
   V3{ x: F64, y: F64, z: F64 }
 
-# Point vs direction: distinct types, distinct operations. A Point is a
-# position (no point+point exists); a Dir is a free finite vector, possibly
-# zero as data (unit-ness is a checked property, not the type invariant).
 type Point is Data:
   Pt{ x: F64, y: F64, z: F64 }
 
 type Dir is Data:
   Dr{ x: F64, y: F64, z: F64 }
 
-# Row-major 3x3: rows (a,b,c) (d,e,f) (g,h,i).
 type Mat3 is Data:
   M3{ a: F64, b: F64, c: F64, d: F64, e: F64, f: F64, g: F64, h: F64,
     i: F64 }
 
-# Frame: origin + right-handed orthonormal basis (columns bx, by, bz).
-# Constructed only through validation (ops.bend); the basis obligation is
-# |norm-1| <= 1e-12, |pairwise dot| <= 1e-12, |det-1| <= 1e-9, det > 0.
 type Frame is Data:
   Fr{ ox: F64, oy: F64, oz: F64, xx: F64, xy: F64, xz: F64, yx: F64,
     yy: F64, yz: F64, zx: F64, zy: F64, zz: F64 }
 
-# Rigid transform: proper rotation + translation. Same basis obligation.
 type Rigid is Data:
   Rg{ rot: Mat3, tx: F64, ty: F64, tz: F64 }
 
-# --- One value union, one result type: every fallible C01 op returns CRes
-# carrying either a value or a C00 FailKind. No NaN/Inf ever hides in Cok. ---
 type CVal is Data:
   CV_f{ v: F64 }
   CV_v2{ v: Vec2 }
@@ -92,15 +75,11 @@ def cres_show(r: CRes) -> String:
     case Cok{v}: "ok"
     case Cerr{kind}: T.FailKind.show(kind)
 
-# Total kind projector. There is no ok-valued FailKind, so Cok yields
-# F_invalid BY DOCUMENTED CONVENTION (contract §7); gate on cres_ok or
-# cres_show before reading the kind. Pinned: pos-kind-doc.
 def cres_kind(r: CRes) -> T.FailKind:
   match r:
     case Cok{v}: T.F_invalid{}
     case Cerr{kind}: kind
 
-# Total projectors; documented zeroes unless the arm matches.
 def cres_f(r: CRes) -> F64:
   match r:
     case Cok{v}:
@@ -171,7 +150,6 @@ def cres_rg(r: CRes) -> Rigid:
     case Cerr{kind}: Rg{M3{0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64,
       0.0f64, 0.0f64, 0.0f64}, 0.0f64, 0.0f64, 0.0f64}
 
-# --- Exact constants as bit patterns (no parser dependence). ---
 def dbl_max() -> F64:
   F64{9218868437227405311u64}
 
@@ -190,7 +168,6 @@ def th_det() -> F64:
 def th_sing() -> F64:
   F64{4427486594234968593u64}
 
-# --- Finiteness: the entry boundary, mirroring C00 is_finite. ---
 def v2_fin(v: Vec2) -> Bool:
   V2{x, y} = v
   Bool.and(T.is_finite(x), T.is_finite(y))
@@ -218,7 +195,6 @@ def m3_fin(m: Mat3) -> Bool:
               Bool.and(T.is_finite(g),
                 Bool.and(T.is_finite(h), T.is_finite(i)))))))))
 
-# --- Validated constructors: nonfinite smuggling fails as invalid-input. ---
 def mk_v2_go(x: F64, y: F64, ok: Bool) -> CRes:
   match ok:
     case True{}: cok_v2(V2{x, y})
@@ -264,7 +240,6 @@ def mk_m3(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64, +g: F64,
     +h: F64, +i: F64) -> CRes:
   mk_m3_go(a, b, c, d, e, f, g, h, i, m3_fin(M3{a, b, c, d, e, f, g, h, i}))
 
-# --- Raw component accessors (total; no validation, no failure). ---
 def v2_x(v: Vec2) -> F64:
   V2{x, y} = v
   x
@@ -345,9 +320,6 @@ def m_i(m: Mat3) -> F64:
   M3{a, b, c, d, e, f, g, h, i} = m
   i
 
-# --- Raw exact ops: total reordering/negation, finite-preserving always.
-# Arithmetic (add/sub/scale/mul) can overflow truly; validated wrappers live
-# in ops.bend and re-check finiteness. ---
 def v3_neg(v: Vec3) -> Vec3:
   V3{x, y, z} = v
   V3{F64.neg(x), F64.neg(y), F64.neg(z)}

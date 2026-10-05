@@ -1,8 +1,4 @@
 name: Verify BendCAD kernel
-# Builds the exact BEND_PIN fork compiler, then runs the static gates
-# and every suite on interpreter, native, and JS. C06 box, diag, eval,
-# and laws/c06.bend run in this job, on the same lanes as C05.
-# A skipped job is not qualification.
 on:
   push:
   pull_request:
@@ -42,16 +38,19 @@ jobs:
       - name: Static gates (check-only)
         run: |
           export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
-          for f in src/c00/types.bend src/c00/eval.bend \
+          for f in src/base/ex.bend src/base/par.bend \
+              src/c00/types.bend src/c00/eval.bend \
               src/c01/types.bend src/c01/ops.bend \
               src/c02/types.bend src/c02/ops.bend \
               src/c03/types.bend src/c03/ops.bend \
               src/c04/types.bend src/c04/ops.bend \
-              laws/c00.bend laws/c01.bend laws/c02.bend laws/c03.bend \
-              laws/c04.bend laws/c06.bend \
+              src/c05/exact.bend src/c05/arrange.bend \
+              src/c05/sqr.bend src/c05/solve.bend \
+              src/c06/types.bend src/c06/surfx.bend \
+              src/c06/ops.bend src/c06/eval.bend \
               tests/c00/check.bend tests/c01/check.bend \
               tests/c02/check.bend tests/c03/check.bend \
-              tests/c04/check.bend; do
+              tests/c04/check.bend tests/c05/check.bend; do
             bend "$f" --check-only
           done
       - name: Bend-native static greps (BN-2/3/4/5)
@@ -178,7 +177,43 @@ jobs:
       - name: C05 independent oracles
         run: |
           export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
-          python3 -m pip install --quiet numpy scipy shapely
+          python3 -m pip install --quiet --break-system-packages numpy scipy shapely
           python3 tools/oracle/c05/oracles.py | tee /tmp/bendcad-ci/c05-oracles.log
-          test "$(grep -c cases /tmp/bendcad-ci/c05-oracles.log)" = 9
+          test "$(grep -c cases /tmp/bendcad-ci/c05-oracles.log)" = 13
           ! grep -E 'wrong=[1-9]|mismatches=[1-9]' /tmp/bendcad-ci/c05-oracles.log
+  laws:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        law: [c00, c01, c02, c03, c04, c05, c06]
+    env:
+      BEND_NO_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+      - name: Build bend from the BEND_PIN fork commit
+        run: |
+          PIN_COMMIT="$(cut -d@ -f2 BEND_PIN)"
+          test -n "$PIN_COMMIT"
+          git init fork-bend
+          cd fork-bend
+          git remote add origin https://github.com/jnadeau207-collab/bend
+          git fetch --depth 1 origin "$PIN_COMMIT"
+          git checkout "$PIN_COMMIT"
+          git rev-parse HEAD
+          export PATH="$HOME/.bun/bin:$PATH"
+          mkdir -p "$HOME/.bend/bin"
+          bun build --compile --target=bun-linux-x64 ./bend2/main.ts --outfile "$HOME/.bend/bin/bend"
+          rm -rf "$HOME/.bend/bend2" "$HOME/.bend/guide"
+          cp -r bend2 "$HOME/.bend/bend2"
+          cp -r guide "$HOME/.bend/guide"
+          echo "$HOME/.bend/bin" >> "$GITHUB_PATH"
+      - name: Check the law file in full
+        run: |
+          export PATH="$HOME/.bend/bin:$HOME/.bun/bin:$PATH"
+          bend "laws/${{ matrix.law }}.bend" --check-only

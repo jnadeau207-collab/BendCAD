@@ -1,6 +1,3 @@
-# C01 positive tests: exact pins incl. extreme scales, round-trip
-# transforms, frame maps. Ends in selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -128,7 +125,6 @@ def main() -> IO(Unit):
       O.fr_to_local(C.fr_ident(), C.pt123()),
       4607182418800017408u64, 4611686018427387904u64,
       4613937818241073152u64, f20)
-    # Every budgeted op pins at least one exact value (Finding 2).
     f22 : U64 <- C.report_f("pos-v2norm-34",
       O.v2_norm(V.V2{3.0f64, 4.0f64}), 4617315517961601024u64, f21)
     f23 : U64 <- C.report_f("pos-v3dist-345",
@@ -198,9 +194,6 @@ def main() -> IO(Unit):
         V.Pt{1.0f64, 2.0f64, 3.0f64}),
       4613937818241073152u64, 4613937818241073152u64,
       4613937818241073152u64, f38)
-    # Normalize unit-ness, honestly bounded (Finding 3): exactly 1.0
-    # in the normal range; subnormal-magnitude inputs pin exact bits
-    # and are NOT unit (measured deviation in the contract).
     f40 : U64 <- C.report_f("pos-unit-is-unit",
       O.v3_norm(V.cres_v3(O.v3_normalize(C.v340()))),
       4607182418800017408u64, f39)
@@ -215,8 +208,6 @@ def main() -> IO(Unit):
       O.dr_unit(V.Dr{F64{1u64}, F64{1u64}, F64{1u64}}),
       4602678819172646912u64, 4602678819172646912u64,
       4602678819172646912u64, f42)
-    # cres_kind total-default convention (Finding 4): Cok yields
-    # F_invalid by documentation; Cerr passes its kind through.
     f44 : U64 <- C.report_pure("pos-kind-doc",
       Bool.and(String.eq(T.FailKind.show(
           V.cres_kind(V.cok_f(1.0f64))), "invalid-input"),

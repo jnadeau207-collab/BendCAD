@@ -257,8 +257,8 @@ Evaluation (`nurbs_eval`): validate, then find the span (last
 index with `k <= t`, clamped into `[3, nk-5]` — the window
 `k[s-2..s+4]` needs `s+4 <= nk-1`; an earlier `nk-4` clamp
 overran by one at `t = khi` and was fixed 2026-09-25), extract the
-7-knot / 4-point / 4-weight window in one fuel-bounded pass per
-list, run fixed cubic de Boor in homogeneous coordinates
+7-knot / 4-point / 4-weight window with structural drops and fixed
+takes (no fuel), run fixed cubic de Boor in homogeneous coordinates
 (`deboor_raw`: 3+2+1 lerps with `alpha = (t-k_j)/(k_hi-k_j)`),
 divide. `t` outside `[k3, k_{nk-4}]` → `invalid-input`.
 
@@ -324,10 +324,20 @@ pins).
 
 - Bezier/Bezier-patch/rational hulls: Bernstein basis is
   nonnegative with unit sum on the domain (polynomial/rational
-  with positive weights), so the control hull CONTAINS the
-  curve/patch — certified enclosure, coarse by design. Same
-  certificate for trim hulls and the plane uv-rectangle (affine
-  exactness at corners).
+  with positive weights), so the control hull contains the exact
+  curve/patch — certified for the real curve, coarse by design.
+  It does NOT contain every evaluated F64 point: evaluation rounds
+  (see the accuracy bullet below), and a point can leave the hull
+  by that error. Pinned counterexample (2026-10-04 audit, laws
+  `bez_hull_x_hi`, `bez_eval_above_hull`, `bez_eval_below_hull`):
+  four controls with `x = 0.1` give a hull `[0.1, 0.1]`, while
+  `bez3_eval` at `t = 0.1` returns `x` one ulp above and at
+  `t = 0.3` two ulps below. A consumer that needs the evaluated
+  set inside a box widens the hull by the evaluation bound. Same
+  statement for trim hulls. The plane uv-rectangle is different:
+  `o + s*u + t*v` is evaluated with roundings that are monotone in
+  `s` and `t`, so every evaluated point lies between the evaluated
+  corners.
 - Whole-circle box: `nx^2+ny^2 = 1` in exact arithmetic, so
   `|nx|,|ny| <= 1` and `c +- r*(|u|+|v|)` contains `C(t)` —
   certified, coarse (arceconomy is a follow-up).
@@ -356,7 +366,7 @@ pins).
 | BN-7 | PASS | §8: content identity only; no ordinals/addresses/indices-as-identity. `Nurb` lists are immutable content; windows slide structurally. |
 | BN-8 | PASS | All recursion is structural (list tail / `Nat` predecessor) AND fuel-capped where input-sized: NURBS walks take `Nat` fuel, exhaustion → explicit `resource-exhausted` (`nurbs_eval` fuel-0 pin). No unbounded recursion. |
 | BN-9 | PASS | No expensive batch op executes in this packet (single-point evals, one de Boor step per call); the parallel decomposition is specified for the batch layer (§12) and needs no code here. |
-| BN-10 | PASS | Every shortcut classified: hull/circle enclosures = certified bounds (§10); Bernstein/de Boor/quotient formulas = exact identities, oracle-pinned bitwise (§5, smoke §13); `0/0 := 0` at repeated knots = stated standard convention (§7); shared-fuel span `done` = stated argument (§7); wrap single-step overflow-freedom on valid domains = stated arithmetic argument (§4); span clamp `nk-5` window-fit = stated index argument (§7, fixed 2026-09-25 with `nev_t1` + `neg-wrap-degen*` + `neg-sph-far` pins); scaled projection (`n/M` in `[1,sqrt(3)]`, `m/M` in `[-1,1]`) = stated arithmetic argument (§6, C03.1 with `sphp_faraxis/minr/farctr/mixed` pins); thresholds inherited from C01 = stated + pin-tested (§10); trig ABSENT by policy (§1). No unlabeled shortcut. |
+| BN-10 | PASS | Every shortcut classified: hull/circle enclosures = certified bounds (§10); Bernstein/de Boor/quotient formulas = exact identities, oracle-pinned bitwise (§5, smoke §13); `0/0 := 0` at repeated knots = stated standard convention (§7); shared-fuel span `done` = stated argument (§7); wrap single-step overflow-freedom on valid domains = stated arithmetic argument (§4); span clamp `nk-5` window-fit = stated index argument (§7, fixed 2026-09-25 with `nev_t1` + `neg-wrap-degen*` + `neg-sph-far` pins); scaled projection (`n/M` in `[1,sqrt(3)]`, `m/M` in `[-1,1]`) = stated arithmetic argument (§6, C03.1 with `pos-sphp-faraxis/minr/farctr/mixed` pins); thresholds inherited from C01 = stated + pin-tested (§10); trig ABSENT by policy (§1). No unlabeled shortcut. |
 | BN-11 | PASS | Every `Gerr` arm returns no value: projectors yield documented zero/default values (§2); sibling `neg-*`/`neg-bn11-*` assert kinds + defaults, `fails=0`. |
 | BN-12 | PASS | Packet verified at BendCAD HEAD `0f41d98a` + untracked `src/c03/` (this session; re-hash at commit), `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, `bend` = `~/.bend/bin/bend` (Bend 2.0.27, fork build). Toolchain env: `PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH`, `BEND_NO_TELEMETRY=1`. |
 
@@ -436,7 +446,10 @@ claim it states; the unbounded claims live here explicitly:
   derivatives are the exact formulas of §5–§6 (pinned at
   endpoints/midpoints; NURBS excluded per §14).
 - G6 (enclosure soundness): every published `BBox3` contains the
-  evaluated set (§10 certificates).
+  exact (real) curve, patch or trim it encloses (§10
+  certificates). The plane uv-rectangle also contains every
+  evaluated point. Control hulls do not contain every evaluated
+  point; the counterexample is pinned (§10).
 - G7 (NURBS totality): valid inputs always evaluate (single-span
   NURBS = Bernstein on the nose); invalid inputs fail by §3
   order; short fuel fails as `resource-exhausted`, never a guess.
@@ -444,8 +457,9 @@ claim it states; the unbounded claims live here explicitly:
   (projector defaults, §2/§9; sibling `neg-bn11-*`).
 - G9 (evaluator-boundary validity, C03.1): raw malformed values
   fail at evaluator entries, never evaluated (centralized
-  `*_valid` layer, §2). Grounded: `val_*` + `neg-g8` pins per
-  entry family, `sphp_faraxis/minr/farctr/mixed` for the scaled
+  `*_valid` layer, §2). Grounded: `val_*` laws + the C03.1 entry
+  pins (`neg-dmid-degen`, `neg-leval-zero`, `neg-qeval-wneg`,
+  `neg-sphv-rneg`, …) per entry family, `pos-sphp-faraxis/minr/farctr/mixed` for the scaled
   projection, `lproj/ldist_tiny_unc` for the subnormal arm.
 - G10 (exact membership, P1): `*_on` holds exactly for valid
   inputs whose `*_val` (§6, same associations) is ordered-`== 0`;

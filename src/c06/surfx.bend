@@ -1,38 +1,9 @@
-# C03 surface-evaluation extension (prerequisite to C06/C07, MASTER_PLAN
-# §C04/C07): parameter conventions plus forward evaluation for every
-# C03 surface arm. Trig-free throughout: quadrics reuse the Circle3
-# rational full-turn map; the sphere uses a stereographic chart.
-#
-# CONVENTIONS (pinned here, consumed by builders and the C06
-# quad-trim check):
-# - Pl{o,u,v}: S(s,t) = o + s*u + t*v (C03 plane_eval).
-# - Cy{o,a,r}: canonical frame (n1,n2) = qframe(a);
-#   S(t,h) = c(h) + (r*nx(t))*n1 + (r*ny(t))*n2, t in [-1,1],
-#   c(h) = o + h*a. Ring at h: Circle3{c(h),n1,n2,r}.
-# - Co{o,a,k}: S(t,h) = c(h) + ((k*h)*nx(t))*n1 + ((k*h)*ny(t))*n2,
-#   h >= 0 (nappe side condition). Ring at h: Circle3{c(h),n1,n2,k*h}.
-# - To{o,a,R,r}: S(t,s) = c(s) + (w*nx(t))*n1 + (w*ny(t))*n2,
-#   w = R + r*nx(s), c(s) = o + (r*ny(s))*a, R > r > 0.
-#   Parallel at s: Circle3{c(s),n1,n2,w}. Meridian at t0:
-#   Circle3{o + R*d(t0), d(t0), a, r}, d(t0) = nx(t0)*n1+ny(t0)*n2.
-# - Sp{c,r}: stereographic chart in the WORLD frame:
-#   D = 1+u^2+v^2; S(u,v) = c + r*(2u/D, 2v/D, (1-u^2-v^2)/D).
-#   (1,0) is c+r*X; (-1,0) is c-r*X.
-# - Bp: C03 bezp_eval.
-# BITWISE DISCIPLINE: spine points use the line_eval op order
-# (o + h*a per component), and ring/surf formulas mirror circ_eval,
-# so a ring vertex computed by circ_eval satisfies surf_at trim
-# coincidence bitwise. Style: aggregates cross def boundaries as
-# params (destructured once at the top); bodies compute in F64
-# scalars; see contract §BN (checker engineering rule R1-R5).
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c03/types.bend as G
 import ../c03/ops.bend as G3
 
-# --- Rational full-turn map, op order mirroring circ_eval_go. ---
 def circ_nx(+t: F64) -> F64:
   +t2 = F64.mul(t, t)
   +t4 = F64.mul(t2, t2)
@@ -51,25 +22,9 @@ def circ_ny(+t: F64) -> F64:
 def t_in11(+t: F64) -> Bool:
   Bool.and(F64.is_le(F64.neg(1.0f64), t), F64.is_le(t, 1.0f64))
 
-# --- Canonical frame type. ---
 type QFr is Data:
   QFr{ n1: V.Dir, n2: V.Dir }
 
-def qf_show3(n2: V.Dir, +a: F64, +b: F64, +c: F64) -> String:
-  V.Dr{+d, +e, +f} = n2
-  "(" ++ F64.show(a) ++ "," ++ F64.show(b) ++ "," ++
-    F64.show(c) ++ ")(" ++ F64.show(d) ++ "," ++
-    F64.show(e) ++ "," ++ F64.show(f) ++ ")"
-
-def qf_show2(n1: V.Dir, n2: V.Dir) -> String:
-  V.Dr{+a, +b, +c} = n1
-  qf_show3(n2, a, b, c)
-
-def qf_show(q: QFr) -> String:
-  QFr{+n1, +n2} = q
-  qf_show2(n1, n2)
-
-# --- Scalar norm (mirrors the d3_norm_raw formula; no aggregate). ---
 def norm3_go(+m: F64, +x: F64, +y: F64, +z: F64,
     zero: Bool) -> F64:
   match zero:
@@ -85,7 +40,6 @@ def norm3(+x: F64, +y: F64, +z: F64) -> F64:
   +m = F64.max(F64.abs(x), F64.max(F64.abs(y), F64.abs(z)))
   norm3_go(m, x, y, z, F64.is_eq(m, 0.0f64))
 
-# --- Least-aligned world axis, as an index (all scalar). ---
 def qf_wi_yz(y_min: Bool) -> U64:
   match y_min:
     case True{}: 1u64
@@ -106,7 +60,6 @@ def qf_wi(+ax: F64, +ay: F64, +az: F64) -> U64:
 def qf_wpick(+wi: U64, want: U64) -> F64:
   Bool.pick(F64, U64.is_eq(wi, want), 1.0f64, 0.0f64)
 
-# --- Gram-Schmidt frame, all scalar; constructs once at the end. ---
 def qf_gs_c(+ax: F64, +ay: F64, +az: F64) -> QFr:
   +wi = qf_wi(ax, ay, az)
   +wx = qf_wpick(wi, 0u64)
@@ -129,12 +82,11 @@ def qf_gs_c(+ax: F64, +ay: F64, +az: F64) -> QFr:
     V.Dr{F64.div(c2x, n2), F64.div(c2y, n2),
       F64.div(c2z, n2)}}
 
-# --- Canonical frame dispatch. World axes get exact world frames. ---
 def qframe_gz(z: Bool, +ax: F64, +ay: F64, +az: F64) -> QFr:
   match z:
     case True{}:
       QFr{V.Dr{1.0f64, 0.0f64, 0.0f64},
-        V.Dr{0.0f64, 1.0f64, 0.0f64}}
+        V.Dr{0.0f64, az, 0.0f64}}
     case False{}: qf_gs_c(ax, ay, az)
 
 def qframe_gy(y: Bool, z: Bool, +ax: F64, +ay: F64,
@@ -142,7 +94,7 @@ def qframe_gy(y: Bool, z: Bool, +ax: F64, +ay: F64,
   match y:
     case True{}:
       QFr{V.Dr{0.0f64, 0.0f64, 1.0f64},
-        V.Dr{1.0f64, 0.0f64, 0.0f64}}
+        V.Dr{ay, 0.0f64, 0.0f64}}
     case False{}: qframe_gz(z, ax, ay, az)
 
 def qframe_go(x: Bool, y: Bool, z: Bool, +ax: F64, +ay: F64,
@@ -150,7 +102,7 @@ def qframe_go(x: Bool, y: Bool, z: Bool, +ax: F64, +ay: F64,
   match x:
     case True{}:
       QFr{V.Dr{0.0f64, 1.0f64, 0.0f64},
-        V.Dr{0.0f64, 0.0f64, 1.0f64}}
+        V.Dr{0.0f64, 0.0f64, ax}}
     case False{}: qframe_gy(y, z, ax, ay, az)
 
 def qframe_c(+ax: F64, +ay: F64, +az: F64) -> QFr:
@@ -168,18 +120,15 @@ def qframe(a: V.Dir) -> QFr:
   V.Dr{+ax, +ay, +az} = a
   qframe_c(ax, ay, az)
 
-# --- Spine point (line_eval op order, inline for one-hop use). ---
 def spine_c(+ox: F64, +oy: F64, +oz: F64, +ax: F64, +ay: F64,
     +az: F64, +h: F64) -> V.Point:
   V.Pt{F64.add(ox, F64.mul(h, ax)),
     F64.add(oy, F64.mul(h, ay)),
     F64.add(oz, F64.mul(h, az))}
 
-# --- Gate a computed point (single shallow scrutiny). ---
 def gate_pt(+p: V.Point) -> G.GRes:
   G3.gate_p(p, V.pt_fin(p), T.F_uncertain{})
 
-# --- Cylinder eval (chain f <- s <- q). ---
 def surf_cyl_f(+r: F64, +t: F64, +h: F64, +ox: F64, +oy: F64,
     +oz: F64, +ax: F64, +ay: F64, +az: F64, +n1x: F64,
     +n1y: F64, +n1z: F64, +n2x: F64, +n2y: F64,
@@ -221,12 +170,11 @@ def surf_cyl_go(ok: Bool, o: V.Point, +a: V.Dir, +r: F64,
 
 def surf_cyl(c: G.Cyl, +t: F64, +h: F64) -> G.GRes:
   G.Cy{+o, +a, +r} = c
-  surf_cyl_go(Bool.and(G.cy_valid(c),
+  surf_cyl_go(Bool.and(Bool.and(G.cy_valid(c), G3.ax_unit_ok(a)),
       Bool.and(T.is_finite(t),
         Bool.and(T.is_finite(h), t_in11(t)))),
     o, a, r, t, h)
 
-# --- Cone eval (chain f <- s <- q). ---
 def surf_cone_f(+rh: F64, +t: F64, +h: F64, +ox: F64, +oy: F64,
     +oz: F64, +ax: F64, +ay: F64, +az: F64, +n1x: F64,
     +n1y: F64, +n1z: F64, +n2x: F64, +n2y: F64,
@@ -268,13 +216,12 @@ def surf_cone_go(ok: Bool, o: V.Point, +a: V.Dir, +k: F64,
 
 def surf_cone(c: G.Cone, +t: F64, +h: F64) -> G.GRes:
   G.Co{+o, +a, +k} = c
-  surf_cone_go(Bool.and(G.co_valid(c),
+  surf_cone_go(Bool.and(Bool.and(G.co_valid(c), G3.ax_unit_ok(a)),
       Bool.and(T.is_finite(t),
         Bool.and(T.is_finite(h),
           Bool.and(t_in11(t), F64.is_le(0.0f64, h))))),
     o, a, k, t, h)
 
-# --- Torus eval (chain f <- s <- q). R > r rejects spindle/horn. ---
 def surf_tor_f(+R: F64, +r: F64, +t: F64, +s: F64, +ox: F64,
     +oy: F64, +oz: F64, +ax: F64, +ay: F64, +az: F64,
     +n1x: F64, +n1y: F64, +n1z: F64, +n2x: F64, +n2y: F64,
@@ -320,14 +267,13 @@ def surf_tor_go(ok: Bool, o: V.Point, +a: V.Dir, +R: F64,
 
 def surf_tor(c: G.Torus, +t: F64, +s: F64) -> G.GRes:
   G.To{+o, +a, +R, +r} = c
-  surf_tor_go(Bool.and(G.to_valid(c),
+  surf_tor_go(Bool.and(Bool.and(G.to_valid(c), G3.ax_unit_ok(a)),
       Bool.and(F64.is_lt(r, R),
         Bool.and(T.is_finite(t),
           Bool.and(T.is_finite(s),
             Bool.and(t_in11(t), t_in11(s)))))),
     o, a, R, r, t, s)
 
-# --- Sphere eval, stereographic chart in the world frame. ---
 def surf_sph_f(+r: F64, +u: F64, +v: F64, +cx: F64, +cy: F64,
     +cz: F64) -> G.GRes:
   +uu = F64.mul(u, u)
@@ -358,7 +304,6 @@ def surf_sph(c: G.Sphere, +u: F64, +v: F64) -> G.GRes:
       Bool.and(T.is_finite(u), T.is_finite(v))),
     cp, r, u, v)
 
-# --- Dispatch over every C03 surface arm. ---
 def surf_at(s: G.GVal, u: F64, v: F64) -> G.GRes:
   match s:
     case G.GV_pl{w}: G3.plane_eval(w, u, v)
@@ -397,8 +342,6 @@ def surf_is_quad(s: G.GVal) -> Bool:
     case G.GV_to{w}: True{}
     case _: False{}
 
-# --- Ring constructors: circle edges paired with quadric faces.
-# Centers/radii mirror the surf_at subexpressions bitwise. ---
 def ring_cyl_s(n1: V.Dir, n2: V.Dir, o: V.Point, a: V.Dir,
     +r: F64, +h: F64) -> G.GRes:
   V.Pt{+ox, +oy, +oz} = o
@@ -421,7 +364,8 @@ def ring_cyl_go(ok: Bool, o: V.Point, +a: V.Dir, +r: F64,
 
 def ring_cyl(c: G.Cyl, +h: F64) -> G.GRes:
   G.Cy{+o, +a, +r} = c
-  ring_cyl_go(Bool.and(G.cy_valid(c), T.is_finite(h)),
+  ring_cyl_go(Bool.and(Bool.and(G.cy_valid(c), G3.ax_unit_ok(a)),
+      T.is_finite(h)),
     o, a, r, h)
 
 def ring_cone_s(n1: V.Dir, n2: V.Dir, o: V.Point, a: V.Dir,
@@ -446,7 +390,7 @@ def ring_cone_go(ok: Bool, o: V.Point, +a: V.Dir, +k: F64,
 
 def ring_cone(c: G.Cone, +h: F64) -> G.GRes:
   G.Co{+o, +a, +k} = c
-  ring_cone_go(Bool.and(G.co_valid(c),
+  ring_cone_go(Bool.and(Bool.and(G.co_valid(c), G3.ax_unit_ok(a)),
       Bool.and(T.is_finite(h), F64.is_lt(0.0f64, h))),
     o, a, k, h)
 
@@ -474,7 +418,7 @@ def ring_tor_p_go(ok: Bool, o: V.Point, +a: V.Dir, +R: F64,
 
 def ring_tor_p(c: G.Torus, +s: F64) -> G.GRes:
   G.To{+o, +a, +R, +r} = c
-  ring_tor_p_go(Bool.and(G.to_valid(c),
+  ring_tor_p_go(Bool.and(Bool.and(G.to_valid(c), G3.ax_unit_ok(a)),
       Bool.and(F64.is_lt(r, R),
         Bool.and(T.is_finite(s), t_in11(s)))),
     o, a, R, r, s)
@@ -512,7 +456,7 @@ def ring_tor_m_go(ok: Bool, o: V.Point, +a: V.Dir, +R: F64,
 
 def ring_tor_m(c: G.Torus, +t: F64) -> G.GRes:
   G.To{+o, +a, +R, +r} = c
-  ring_tor_m_go(Bool.and(G.to_valid(c),
+  ring_tor_m_go(Bool.and(Bool.and(G.to_valid(c), G3.ax_unit_ok(a)),
       Bool.and(F64.is_lt(r, R),
         Bool.and(T.is_finite(t), t_in11(t)))),
     o, a, R, r, t)

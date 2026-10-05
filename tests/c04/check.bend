@@ -1,6 +1,3 @@
-# C04 test support: reporters over TRes + shared fixtures.
-# Imported by neg.bend/pos.bend; no main here.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -15,7 +12,6 @@ def verdict(ok: Bool) -> String:
 def bump(f: U64, ok: Bool) -> U64:
   (f + Bool.to_u64(Bool.not(ok)) : U64)
 
-# Terr of the wanted kind (structured failure, no value published).
 def terr_as(+r: Ty.TRes, want: String) -> Bool:
   String.eq(Ty.tres_show(r), want)
 
@@ -26,7 +22,6 @@ def report_terr(tag: String, +r: Ty.TRes, +want: String,
       ++ " [" ++ Ty.tres_show(r) ++ "]")
     return bump(f, terr_as(r, want))
 
-# Tok of any arm.
 def ok_as(+r: Ty.TRes) -> Bool:
   String.eq(Ty.tres_show(r), "ok")
 
@@ -36,7 +31,6 @@ def report_ok(tag: String, +r: Ty.TRes, f: U64) -> IO(U64):
       ++ " [" ++ Ty.tres_show(r) ++ "]")
     return bump(f, ok_as(r))
 
-# Tok Nat pinned exactly.
 def tn_as(+r: Ty.TRes, want: Nat) -> Bool:
   Bool.and(String.eq(Ty.tres_show(r), "ok"),
     Nat.is_eq(Ty.tres_n(r), want))
@@ -48,7 +42,6 @@ def report_tn(tag: String, +r: Ty.TRes, +want: Nat,
       ++ " [" ++ Ty.tres_show(r) ++ "]")
     return bump(f, tn_as(r, want))
 
-# Tok F64 pinned to exact bits.
 def tf_as(+r: Ty.TRes, want: U64) -> Bool:
   Bool.and(String.eq(Ty.tres_show(r), "ok"),
     U64.is_eq(F64.bits(Ty.tres_f(r)), want))
@@ -65,7 +58,6 @@ def report_pure(tag: String, +ok: Bool, f: U64) -> IO(U64):
     IO.print(tag ++ " " ++ verdict(ok))
     return bump(f, ok)
 
-# --- Shared fixtures ---
 def p000() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
 
@@ -90,9 +82,6 @@ def p001() -> V.Point:
 def p110() -> V.Point:
   V.Pt{1.0f64, 1.0f64, 0.0f64}
 
-# Inner hole quad corners (strictly inside the 3x3 hole outer;
-# integral: stage K must decide coplanar/collinear C02 predicates
-# exactly, and the C02 exact domain is integral-only).
 def q00() -> V.Point:
   V.Pt{1.0f64, 1.0f64, 0.0f64}
 
@@ -174,7 +163,6 @@ def v2_33() -> V.Vec2:
 def v2_03() -> V.Vec2:
   V.V2{0.0f64, 3.0f64}
 
-# Inner hole (u,v) corners (identity through sf_pl).
 def w00() -> V.Vec2:
   V.V2{1.0f64, 1.0f64}
 
@@ -190,9 +178,6 @@ def w01() -> V.Vec2:
 def dom_01() -> G.Dom:
   G.Dom{0.0f64, 1.0f64}
 
-# Closed-ring domain: the rational C03 circle evaluates identically
-# at t = -1 and t = 1 (antipodal point c - r*u), so [-1,1] closes
-# a ring edge on one vertex with exact endpoint evaluation.
 def dom_n11() -> G.Dom:
   G.Dom{F64.neg(1.0f64), 1.0f64}
 
@@ -208,7 +193,6 @@ def dom_nan() -> G.Dom:
 def dom_inf() -> G.Dom:
   G.Dom{0.0f64, F64{9218868437227405312u64}}
 
-# Curve arms (all five).
 def cv_ln() -> G.GVal:
   G.GV_ln{G.Ln{p000(), d100()}}
 
@@ -235,13 +219,9 @@ def nb_ws() -> List<&2, F64>:
 def cv_nb() -> G.GVal:
   G.GV_nb{G.Nb{nb_ks(), nb_ps(), nb_ws()}}
 
-# Surface arms (all six).
 def sf_pl() -> G.GVal:
   G.GV_pl{G.Pl{p000(), d100(), d010()}}
 
-# Same plane, opposite parametrization (u/v swapped): natural
-# normal -z. Adjacent faces with independent parametrizations
-# need NOT share same flags (stage L propagation).
 def sf_pl_flip() -> G.GVal:
   G.GV_pl{G.Pl{p000(), d010(), d100()}}
 
@@ -251,11 +231,9 @@ def p_spc() -> V.Point:
 def p_cyo() -> V.Point:
   V.Pt{0.0f64, 0.5f64, 0.0f64}
 
-# Top ring center of the real cylinder side (bottom is p_cyo).
 def p_cy_top() -> V.Point:
   V.Pt{1.0f64, 0.5f64, 0.0f64}
 
-# Arc midpoint for the curved sphere witness (arcs join p000/p100).
 def p_mid01() -> V.Point:
   V.Pt{0.5f64, 0.0f64, 0.0f64}
 
@@ -269,24 +247,18 @@ def vs_q() -> List<&2, Ty.Vertex>:
 def sf_cy() -> G.GVal:
   G.GV_cy{G.Cy{p_cyo(), d100(), 0.5f64}}
 
-# Cylinder cap planes: origin at the ring vertex, so the closed
-# cap trim at UV (0,0) coincides exactly (stage G coincidence).
 def sf_botcap() -> G.GVal:
   G.GV_pl{G.Pl{p010(), d010(), d001()}}
 
 def sf_topcap() -> G.GVal:
   G.GV_pl{G.Pl{p110(), d010(), d001()}}
 
-# Cylinder ring circles: eval(-1) == eval(1) exactly (p010 / p110),
-# so each closes on its ring vertex over dom_n11.
 def cc_bot() -> G.GVal:
   G.GV_cc{G.Cc{p_cyo(), d_0n10(), d001(), 0.5f64}}
 
 def cc_top() -> G.GVal:
   G.GV_cc{G.Cc{p_cy_top(), d_0n10(), d001(), 0.5f64}}
 
-# Sphere lune arcs: eval(0) == p000, eval(1) == p100 exactly
-# (antipodal half-circles, opposite bulges via +-y frames).
 def cc_arc0() -> G.GVal:
   G.GV_cc{G.Cc{p_mid01(), d_n100(), d010(), 0.5f64}}
 
@@ -310,15 +282,12 @@ def bp0() -> G.BezP:
 def sf_bp() -> G.GVal:
   G.GV_bp{bp0()}
 
-# Trim arms (both).
 def tr_ts() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_11()}}
 
 def tr_tb() -> G.GVal:
   G.GV_tb{G.Tb{v2_00(), v2_10(), v2_01(), v2_11()}}
 
-# Unit-square trim legs (square/xing fixtures; each maps through
-# sf_pl to its loop's vertex chain for G coincidence).
 def tr_00_10() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_10()}}
 
@@ -340,7 +309,6 @@ def tr_11_10() -> G.GVal:
 def tr_10_01() -> G.GVal:
   G.GV_ts{G.Ts{v2_10(), v2_01()}}
 
-# Hole-outer (3x3) trim legs (identity through sf_pl, like tr_*).
 def ts_00_30() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_30()}}
 
@@ -353,7 +321,6 @@ def ts_33_03() -> G.GVal:
 def ts_03_00() -> G.GVal:
   G.GV_ts{G.Ts{v2_03(), v2_00()}}
 
-# Inner hole trim legs (identity through sf_pl, like tr_*).
 def tq_00_10() -> G.GVal:
   G.GV_ts{G.Ts{w00(), w10()}}
 
@@ -366,8 +333,6 @@ def tq_11_01() -> G.GVal:
 def tq_01_00() -> G.GVal:
   G.GV_ts{G.Ts{w01(), w00()}}
 
-# Flipped-plane trim legs (differing-parametrization fixture;
-# tr_11_10 already exists and is reused for the fourth leg).
 def tr_10_00() -> G.GVal:
   G.GV_ts{G.Ts{v2_10(), v2_00()}}
 
@@ -377,7 +342,6 @@ def tr_01_11() -> G.GVal:
 def tr_00_01() -> G.GVal:
   G.GV_ts{G.Ts{v2_00(), v2_01()}}
 
-# Handle member lists: empty (typed) and singleton.
 def hc0() -> List<&2, Ty.HCoedge>:
   Nil{}
 
@@ -411,7 +375,6 @@ def hso0() -> List<&2, Ty.HSolid>:
 def hso1() -> List<&2, Ty.HSolid>:
   Ty.mk_hso(0n, 61u64) <> Nil{}
 
-# Entity slots: valid values with known gens.
 def vx_a() -> Ty.Vertex:
   Ty.Vx{1u64, p000()}
 
@@ -563,12 +526,10 @@ def top0() -> Ty.Compound:
 def top1() -> Ty.Compound:
   Ty.Cp{hso1(), hsh1()}
 
-# Store length 1, member length 2. ix_bound is 2. See laws ck_fuel_ix.
 def b_fuel_gap() -> Ty.Brep:
   Ty.Br{vs_bad(), es0(), ces0(), lp_b() <> Nil{}, fas0(), shs0(),
     sos0(), top0(), 32u64}
 
-# One-store breps for issued/fuel tests.
 def b_vs1() -> Ty.Brep:
   Ty.Br{vs1(), es0(), ces0(), lps0(), fas0(), shs0(), sos0(),
     top0(), 1u64}
@@ -601,9 +562,6 @@ def b_full() -> Ty.Brep:
   Ty.Br{vs1(), es1(), ces1(), lps1(), fas1(), shs1(), sos1(),
     top1(), 61u64}
 
-# --- brep_checked exit fixtures (push-protocol breps; verdicts pinned
-# in laws ck_* and asserted in pos_g10/neg_g7). Handles name issued
-# slots: hv01/hv12 are the first two pushed vertices. ---
 def hv01() -> Ty.HVertex:
   Ty.mk_hv(0n, 1u64)
 
@@ -616,10 +574,6 @@ def tr_closed() -> G.GVal:
 def tr_bad() -> G.GVal:
   G.GV_ts{G.Ts{V.V2{2.0f64, 2.0f64}, V.V2{3.0f64, 3.0f64}}}
 
-# Topology-control fixture: one straight ruling edge used
-# twice-opposite on a sphere face. Pins the seam-pairing /
-# ownership / link plumbing, NOT sphere geometry (see
-# b_sphere_curved for the curved witness). Must ACCEPT.
 def b_sphere_digon_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -642,10 +596,6 @@ def b_sphere_digon_control() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Topology-control fixture: one straight ruling edge used
-# twice-opposite on a cylinder face. Pins the seam-pairing
-# plumbing, NOT cylinder-side geometry (see b_cyl_side for the
-# real ring+seam witness). Must ACCEPT.
 def b_cyl_digon_ruling_control() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -668,12 +618,6 @@ def b_cyl_digon_ruling_control() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# REAL cylinder side: one face whose outer loop is bottom closed
-# circle + seam + top closed circle + reverse seam, closed into a
-# solid by two plane cap faces sharing the ring edges. Ring edges
-# evaluate exactly at t = +-1 onto their ring vertices; the seam
-# is an exact ruling; ring vertices sit on the cylinder quadric;
-# cap trims coincide at UV origin. Must ACCEPT (A-L solid).
 def b_cyl_side() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
@@ -726,11 +670,6 @@ def b_cyl_side() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 19u64)
   Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# REAL curved sphere witness: two on-sphere vertices joined by two
-# half-circle arc edges (opposite bulges) as two lune faces. Arc
-# endpoints are exact on the curves and on the sphere quadric; arc
-# interiors are NOT checked against the surface (C07 territory).
-# Must ACCEPT (A-L solid).
 def b_sphere_curved() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -786,12 +725,6 @@ def b_open() -> Ty.Brep:
   +hsh0 = Ty.mk_hsh(0n, 6u64)
   Ty.brep_set_top(b6, Ty.Cp{hso0(), hsh0 <> Nil{}})
 
-# Singular pole witness: one degenerate edge pinched to one vertex
-# (value-level pinch), used twice-opposite as two singleton pole
-# loops on two apex faces (stage D pole rule); degenerate uses are
-# transparent in H, so the fan passes vacuously. Intended singular
-# semantics: the apex is explicit content (EK_degenerate), never
-# inferred. Must ACCEPT under P_manifold_solid.
 def b_pole() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -956,12 +889,6 @@ def b_nonm() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage D duplicate-incidence fixture: ONE closed circle edge whose
-# single coedge use is listed TWICE in one loop. Chain and trim
-# meets pass (closed edge + closed trim); the duplicate-handle
-# verdict (same coedge twice, same edge + same fwd pair) must
-# diagnose invalid-input at D. Passes A-C and G, so D is the only
-# failure. (Geometric crossing is stage K's verdict, not D's.)
 def b_selfx() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p010()))
@@ -982,11 +909,6 @@ def b_selfx() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 8u64)
   Ty.brep_set_top(b8, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# C04.1 ownership fixtures: outer-kind + shell-ownership violations.
-# Each is invalid-input under P_manifold_solid (stage F), diagnosed
-# by laws ck_alias/ck_outerkind/ck_cavdup/ck_reuse/ck_cpshare and
-# asserted in neg_g8. Value-level push still accepts them (shape-only
-# by design); brep_checked is the verdict.
 def b_alias() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1120,9 +1042,6 @@ def b_cpshare() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh_out <> Nil{}})
 
-# C04.2 vertex-link fixture: two 1-edge cells sharing exactly one
-# vertex (a pinch). Valid through stage G; stage H must diagnose
-# invalid-input (two disjoint link orbits at the shared vertex).
 def b_pinch() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1167,9 +1086,6 @@ def b_pinch() -> Ty.Brep:
   +hsoB = Ty.mk_hso(1n, 17u64)
   Ty.brep_set_top(b17, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
 
-# C04.2 quadric-membership fixture: digon-control shape on the
-# z-axis edge, but v1 sits off the sphere face. Passes every stage
-# except the G quadric vertex-membership walk (invalid-input).
 def b_offquad() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1192,9 +1108,6 @@ def b_offquad() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# C04.2 connectedness fixture: one shell, two unconnected digon
-# cells (four distinct on-sphere points). Passes A-H; stage I must
-# diagnose invalid-input (disconnected shell).
 def b_split() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1238,9 +1151,6 @@ def b_split() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 16u64)
   Ty.brep_set_top(b16, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage J fixture: digon-control shape plus one unused vertex
-# coincident with v0. Passes A-I; stage J must diagnose
-# invalid-input.
 def b_coin() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1264,11 +1174,6 @@ def b_coin() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage K fixture: bowtie quad loop on a plane face plus its
-# reversed twin face (solid pairing). Each twin-face trim mirrors
-# its oriented vertex chain, so D meets and G plane-coincidence
-# pass; stage K must diagnose invalid-input (e0/e2 cross at the
-# square center). Passes A-J; fails exactly at K end-to-end.
 def b_xing() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1326,12 +1231,6 @@ def b_xing() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage L-orientation fixture: clean (non-crossing) quad loop whose
-# CCW outer winding disagrees with the same=False-adjusted plane
-# normal (face0). Face1 (CW outer, same=False) is consistent, so
-# this is a single-fault case; both faces agree on same=False,
-# which a same-equality propagation check would wrongly accept.
-# Passes A-K; per-face orientation must diagnose invalid-input.
 def b_invface() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1389,12 +1288,6 @@ def b_invface() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage L shared-edge fixture: clean quad pillow, both faces
-# per-face-consistent (CCW outer/same=True, CW outer/same=False)
-# with DISAGREEING same flags across every shared edge. Valid:
-# each same is relative to its own face parametrization, and
-# opposite use plus per-face winding-vs-own-normal is the whole
-# local invariant. Passes A-L (propagation must accept).
 def b_oriprop() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1452,9 +1345,6 @@ def b_oriprop() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage L hole fixture: one plane face with a valid hole — CCW
-# outer loop plus CW inner loop under same=True. Passes A-K
-# under P_open_shell; kind-aware orientation must accept.
 def b_hole() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1535,9 +1425,6 @@ def b_hole() -> Ty.Brep:
   +hshH = Ty.mk_hsh(0n, 28u64)
   Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
 
-# Stage L inner-winding negative: b_hole shape with the inner
-# loop wound CCW like the outer (same=True). Passes A-K;
-# orientation must diagnose invalid-input (hole must oppose).
 def b_hole_bad() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1618,10 +1505,6 @@ def b_hole_bad() -> Ty.Brep:
   +hshH = Ty.mk_hsh(0n, 28u64)
   Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
 
-# Stage L inner-winding negative, flipped face: outer CW loop
-# consistent with same=False, but the inner loop is also CW
-# (must be CCW to oppose the -z face normal). Passes A-K;
-# orientation must diagnose invalid-input.
 def b_hole_bad2() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1702,13 +1585,6 @@ def b_hole_bad2() -> Ty.Brep:
   +hshH = Ty.mk_hsh(0n, 28u64)
   Ty.brep_set_top(b28, Ty.Cp{hso0(), hshH <> Nil{}})
 
-# Stage L differing-parametrization fixture: clean quad pillow
-# whose faces sit on OPPOSITE plane parametrizations (sf_pl vs
-# sf_pl_flip, natural normals +z vs -z) with EQUAL same flags
-# (both True), hence opposite face normals. Each face is
-# per-face-consistent (CCW vs +z, CW vs -z); propagation must
-# accept without comparing parametrizations or same flags.
-# Passes A-L.
 def b_diffparam() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1771,14 +1647,6 @@ def b_diffparam() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage L-varying / curved-boundary fixtures (ORIENT-LEVEL ONLY, not
-# brep_checked exits). Each is a single open triangle face whose
-# chord winding disagrees with the face normal, so a verdict on the
-# chord polygon would FAIL: L must SKIP (pass) instead. b_planecurve
-# carries one circle edge on a plane (no chord-only claims for
-# curved); b_bezskip and b_spvar are varying-surface faces (no
-# one-sample-normal dot verdict). Triangle (0,0)->(0,1)->(1,0) has
-# Newell (0,0,-1), opposed to +z.
 def b_planecurve() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1881,9 +1749,6 @@ def b_spvar() -> Ty.Brep:
   +hshO = Ty.mk_hsh(0n, 12u64)
   Ty.brep_set_top(b12, Ty.Cp{hso0(), hshO <> Nil{}})
 
-# Hierarchy-ownership fixture: ONE loop shared by TWO faces.
-# Passes A-E; stage F must diagnose invalid-input (loop owned
-# twice). Both faces see exactly one LK_outer, so E passes.
 def b_alias_loop() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1911,9 +1776,6 @@ def b_alias_loop() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Hierarchy-ownership fixture: ONE face shared by TWO shells.
-# Passes A-E; stage F must diagnose invalid-input (face owned
-# twice). Shell ownership itself is clean (distinct shells).
 def b_alias_face() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1941,9 +1803,6 @@ def b_alias_face() -> Ty.Brep:
   +hsoB = Ty.mk_hso(1n, 11u64)
   Ty.brep_set_top(b11, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
 
-# Hierarchy-ownership fixture: ONE solid listed TWICE in the
-# compound root. Passes A-E and every other F walk; stage F must
-# diagnose invalid-input (solid nodup in cp_solids).
 def b_alias_solid() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -1966,11 +1825,6 @@ def b_alias_solid() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> hso0x <> Nil{}, hsh0()})
 
-# Stage H adversarial: disconnected fans (2-cell pinch, shared
-# vertex S=p100, cells to p000 and p110). Each ruling runs from S
-# to its cell vertex, so G embedding passes; stage H must
-# diagnose invalid-input (two disjoint link orbits at S). Passes
-# A-G; fails exactly at H end-to-end.
 def b_h_disc() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p100()))
@@ -2015,9 +1869,6 @@ def b_h_disc() -> Ty.Brep:
   +hsoB = Ty.mk_hso(1n, 17u64)
   Ty.brep_set_top(b17, Ty.Cp{hsoA <> hsoB <> Nil{}, hsh0()})
 
-# Stage H adversarial: wrong twin (one edge with THREE coedge
-# uses — the twin is undefined). Diagnosed at C (use count 3),
-# the H precondition; the spare use also sits in 0 loops.
 def b_h_wrongtwin() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2041,9 +1892,6 @@ def b_h_wrongtwin() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage H adversarial: duplicated coedge (one loop lists the
-# SAME coedge twice). Diagnosed at D (oriented chain breaks);
-# H coverage would also fail (spare use in 0 loops).
 def b_h_dupce() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2065,10 +1913,6 @@ def b_h_dupce() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage H adversarial: coedges in 0 loops (a second
-# twice-opposite edge whose uses no loop references). Passes
-# A-G (store use-counts are clean); stage H coverage must
-# diagnose invalid-input.
 def b_h_ce0() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2097,9 +1941,6 @@ def b_h_ce0() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 12u64)
   Ty.brep_set_top(b12, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage H adversarial: one coedge in 2 loops (two DISTINCT loops
-# list the same coedge handles, so F loop-ownership passes).
-# Passes A-G; stage H one-ness must diagnose invalid-input.
 def b_h_ce2() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2130,9 +1971,6 @@ def b_h_ce2() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 11u64)
   Ty.brep_set_top(b11, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage H control: valid seam (one edge twice-opposite in one
-# loop — the digon-control shape). Must ACCEPT; the fan at each
-# vertex is the single twin(prev()) orbit.
 def b_h_seam() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2155,9 +1993,6 @@ def b_h_seam() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 9u64)
   Ty.brep_set_top(b9, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage H control: valid degenerate pole (collapsed uses are
-# transparent; the fan passes vacuously — the b_pole shape).
-# Must ACCEPT.
 def b_h_pole() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2183,10 +2018,6 @@ def b_h_pole() -> Ty.Brep:
   +hso0x = Ty.mk_hso(0n, 10u64)
   Ty.brep_set_top(b10, Ty.Cp{hso0x <> Nil{}, hsh0()})
 
-# Stage H adversarial: multi-component pinch (two digons sharing
-# S plus a third cell on A-B reusing the same vertex handles —
-# vertex multi-ref is allowed; the fan at S still splits).
-# Passes A-G; stage H must diagnose invalid-input.
 def b_h_multi() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2241,9 +2072,6 @@ def b_h_multi() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 20u64)
   Ty.brep_set_top(b20, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage H adversarial: reversed fan (the b_oriprop square with
-# face1's loop order flipped — the oriented chain breaks).
-# Diagnosed at D (chain mismatch), the H fan precondition.
 def b_h_rev() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))
@@ -2301,9 +2129,6 @@ def b_h_rev() -> Ty.Brep:
   +hsoS = Ty.mk_hso(0n, 22u64)
   Ty.brep_set_top(b22, Ty.Cp{hsoS <> Nil{}, hsh0()})
 
-# Stage H valid: high-valence fan (3-lune beach ball — two
-# vertices N/S joined by three digon lunes; each vertex fan is
-# ONE twin(prev()) orbit of length 3). Must ACCEPT (A-L).
 def b_h_highval() -> Ty.Brep:
   +b0 = Ty.brep_empty()
   +b1 = Ty.tres_brep(Ty.vx_push(b0, p000()))

@@ -1,5 +1,3 @@
-// Oracle driver: exercises the ORIGINAL legacy mesh-budget.ts via its own
-// runtime (bun). Prints the pilot line protocol; Bend lanes must match stdout.
 import {
   admitToEvaluationBudget,
   createEvaluationBudgetTotals,
@@ -38,7 +36,6 @@ console.log(
   `const eval totalPacketBytes=${evaluationBudget.totalPacketBytes} totalTriangles=${evaluationBudget.totalTriangles} totalVertices=${evaluationBudget.totalVertices} totalFaces=${evaluationBudget.totalFaces} totalEdges=${evaluationBudget.totalEdges} totalEdgeVertices=${evaluationBudget.totalEdgeVertices} totalBrepVertices=${evaluationBudget.totalBrepVertices} bodyCount=${evaluationBudget.bodyCount} gpuBytes=${evaluationBudget.gpuBytes}`,
 );
 
-// V1: single accept (mirrors mesh-budget.test.ts "accepts a body well under budget")
 {
   const t = createEvaluationBudgetTotals();
   admitToEvaluationBudget(
@@ -49,7 +46,6 @@ console.log(
   check(t.packetBytes === 4096 && t.triangles === 200 && t.vertices === 100 && t.faces === 6 && t.edges === 12 && t.edgeVertices === 24 && t.brepVertices === 8 && t.bodyCount === 1 && t.gpuBytes === 100 * 28 + 200 * 12);
 }
 
-// V2: double accumulation (mirrors "accumulates across multiple bodies")
 {
   const t = createEvaluationBudgetTotals();
   const body = d({ packetByteLength: 1000, vertexCount: 10, triangleCount: 20 });
@@ -59,7 +55,6 @@ console.log(
   check(t.bodyCount === 2 && t.packetBytes === 2000 && t.vertices === 20 && t.triangles === 40 && t.gpuBytes === 2 * (10 * 28 + 20 * 12));
 }
 
-// V3..V11: the 9 ceiling rejections in TS ceilingCases order, atomicity checked
 const cases: { over: Partial<MeshBudgetDescriptor>; field: string; seed?: (t: EvaluationBudgetTotals) => void }[] = [
   { over: { packetByteLength: evaluationBudget.totalPacketBytes + 1 }, field: "totalPacketBytes" },
   { over: { triangleCount: evaluationBudget.totalTriangles + 1 }, field: "totalTriangles" },
@@ -88,7 +83,6 @@ for (const c of cases) {
   if (JSON.stringify(t) !== JSON.stringify(before)) atomicOk = false;
 }
 
-// V12: exact-boundary accept (next == ceiling passes; only next > ceiling rejects)
 {
   const t = createEvaluationBudgetTotals();
   admitToEvaluationBudget(t, d({ triangleCount: evaluationBudget.totalTriangles }));

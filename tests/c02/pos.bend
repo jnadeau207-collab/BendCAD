@@ -1,6 +1,3 @@
-# C02 positive tests: certified signs, exact-fallback wins, segment
-# relations, triangle classes, domain-boundary pins. selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V

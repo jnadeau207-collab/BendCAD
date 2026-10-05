@@ -26,7 +26,31 @@ def rsegs():
     return [(i,) + s for i, s in zip(ids, out)]
 
 
-cases = [rsegs() for _ in range(int(sys.argv[4]) if len(sys.argv) > 4 else 150)]
+def rect(x0, y0, x1, y1):
+    return [(x0, y0, x1, y0), (x1, y0, x1, y1), (x1, y1, x0, y1), (x0, y1, x0, y0)]
+
+
+def nsegs():
+    out = []
+    for _ in range(random.randint(1, 2)):
+        cx, cy = random.randint(8, 40), random.randint(8, 40)
+        for r in sorted(random.sample(range(1, 8), random.randint(1, 4)), reverse=True):
+            out += rect(cx - r, cy - r - random.randint(0, 1), cx + r + random.randint(0, 1), cy + r)
+    for _ in range(random.randint(0, 3)):
+        x0, y0 = random.randint(0, 44), random.randint(0, 44)
+        out += rect(x0, y0, x0 + random.randint(1, 8), y0 + random.randint(1, 8))
+    for _ in range(random.randint(0, 2)):
+        while True:
+            p = [(random.randint(0, 48), random.randint(0, 48)) for _ in range(3)]
+            if (p[1][0] - p[0][0]) * (p[2][1] - p[0][1]) != (p[1][1] - p[0][1]) * (p[2][0] - p[0][0]):
+                break
+        out += [p[0] + p[1], p[1] + p[2], p[2] + p[0]]
+    random.shuffle(out)
+    ids = random.sample(range(1, 1000), len(out))
+    return [(i,) + s for i, s in zip(ids, out)]
+
+
+cases = [(nsegs if sys.argv[5:] == ["nest"] else rsegs)() for _ in range(int(sys.argv[4]) if len(sys.argv) > 4 else 150)]
 
 
 def lit(v):

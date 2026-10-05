@@ -38,8 +38,8 @@ Read `MASTER_PLAN.md` before implementation. Numeric work begins only after its 
 
 ## Bend toolchain
 
-- The installed `bend` (WSL `~/.bend/bin/bend`, also `bend` in PowerShell via WSL) is the old pin `bc01485d`, not `BEND_PIN`. Never run `bend update`: it silently replaces a fork build with upstream and drops U64/F64. Do not report a pin result from that binary.
-- `BEND_PIN` is `288da0836f419b57323283b971fe44b363ff1193` on local branch `numeric-on-upstream` in `C:\dev\bend-onto-upstream`. Run it from source: `export PATH=$HOME/.bun/bin:$PATH` and `bun bend2/main.ts` in that worktree. Tag `numeric/2026-09-29` (`bc01485d`) is the previous pin; `~/.bend/FORK` still records that tag. Know which commit your `bend` was built from before reporting numeric results.
+- The installed `bend` (WSL `~/.bend/bin/bend`, also `bend` in PowerShell via WSL) is built from `BEND_PIN`, tag `numeric/2026-10-05`, and `~/.bend/FORK` records that tag. Never run `bend update`: it silently replaces a fork build with upstream and drops U64/F64. Know which commit your `bend` was built from before reporting numeric results.
+- `BEND_PIN` is `a4d17acecf79c71696610f0683d8d003bc392920` (tag `numeric/2026-10-05`) on branch `numeric-on-upstream` (worktree `C:\dev\bend-onto-upstream`): `288da083` plus the host scheduler and its conformance receipt (`conformance/receipts/2026-10-05.txt`). Tags `numeric/2026-09-29` (`bc01485d`) and `numeric/2026-09-25` are earlier pins.
 - Upstream merged the fork's emission speedup (#1056) and Base simplifications (as #1153) and closed U64 (#1057) and F64 (#1058): its maintainers will add both themselves and merge no PR for them. Until they ship, the fork is the only source of U64/F64; its `main` is upstream plus those two commits, rebuilt when upstream moves, and each BendCAD pin is a tag `numeric/<date>` that is never deleted. When upstream ships U64 and F64, move the pin to an upstream release and delete this section.
 - `bend --check-only` prints `ALL PROOFS CHECK` (before 2.0.32, `All terms check.`); a failed check prints `SOME PROOFS FAIL` and exits 1.
 

@@ -1,0 +1,451 @@
+# R0.4 receipt — 2026-10-05 (audit repairs, scheduler on the pin)
+
+Packet: a line-by-line audit of C00–C06 and the R0.1–R0.3 rebuild, the
+repair of every defect it confirmed, and the R0.3 host scheduler moved
+onto the pinned compiler. MASTER_PLAN §15 (R0.4 entry). Contracts:
+every docs/cNN-contract.md (the sections each finding names), and
+docs/replacement-ledger.md (C02, C03.1, C04 and C05 rows; a new C06
+section).
+
+Predecessor: c985d99.
+
+## 1. Provenance (BN-12)
+
+Development and every probe below ran on the pinned compiler of the
+predecessor, ~/bend-pin288/bin/bend, built from
+jnadeau207-collab/bend@288da0836f419b57323283b971fe44b363ff1193.
+The closeout ran on the new pin (§7). WSL2, AMD Ryzen 7 7800X3D,
+16 threads, 19 GB.
+
+The closeout compiler is `BEND_PIN`
+jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920,
+tag `numeric/2026-10-05` on branch `numeric-on-upstream`: `288da083`,
+then the host scheduler (`02657a7e`, §6), then its conformance
+receipt. The fork's `conformance/receipts/2026-10-05.txt` ran
+`conformance/run.sh` at D=20, every step: 0 mismatches on js, c,
+cuda, cuda-defs, c-defs and the interpreter, and no line a Metal
+compile keeps uses a double. This WSL session has no systemd user
+bus, so the harness ran through a stand-in `systemd-run` that drops
+the scope options: no step ran under its 6 GB cap. The cap guards
+the host and does not change a result.
+
+`~/.bend/bin/bend` was rebuilt from that tag (`bun build --compile
+--target=bun-linux-x64 ./bend2/main.ts`), sha256
+ada00d6850e5fec47692b6274dc7a7d38ac445b984e5c44555469e4f1005f223;
+`~/.bend/FORK` names the tag. The binary is byte-identical to the
+candidate build that ran the chunked law runs (§3).
+
+Bytes at closeout, every file this packet changes (sha256; the
+twelve removed law files are named in §2):
+
+  8dbd74294b3d78f7d3dfdacfbba4cc3c926a117ed99721f5ac43668080d8dc7c  .github/workflows/verify-bendcad.yml
+  1f06293fc80df205f6e6974527903a0201894fec2f5ba581249d82d4951b5025  AGENTS.md
+  1e2e293b2bb17dbb512a1426ae9c90285d78dca36db93f245d346e8c80a5085c  BEND_PIN
+  b2d7732c2f757278ccc569b15d681f488ee793ceb90d07f9c2a257e6a054b388  MASTER_PLAN.md
+  a12e2e3a234d42f3b6b2d6b58c1664a90dc65e625db74491ac2cfd4a38a4d8d2  README.md
+  2e87ba26372d0cdd5680e4dd8490743b2fbd390c0034705495a4affdacbb2452  docs/c01-contract.md
+  518380f7bec435543005d37923b8ebc72a37b1b0af05a3e964a70fd796dbfde4  docs/c02-contract.md
+  2c321c761fd4cd4f58ce871ceb05bc6f45c0e6c839d0d1a26ba9a513994bf574  docs/c03-contract.md
+  270ad6042923647da6d552a8c8c25942dd2fb8d4ee5437f2c5bac2c3a43ef2d1  docs/c04-contract.md
+  eb8692302f773a43ab14ed2f92258186d59e8236916039e5cb1b3714bb1449bb  docs/c05-contract.md
+  c15039c0eb0f6d261a65ff3d2f587777d7a32aeab000aa4dcb31fadf3f459c91  docs/c06-contract.md
+  8880751b9b3077b591942cea2436b65742d3e546f09c28ddb2aa955e77d84443  docs/replacement-ledger.md
+  4a26f3936ec3c6f181ca243fee246f410a2cd211b8cc280b6362eff9190318f8  laws/c00.bend
+  9236290d800fc7ab96f48bf126bdba0510f4e2e3cc3a76535abd1b96ee981ddf  laws/c01.bend
+  2732c24e84b721c2a81fb945dfd33db45137ef070c40bbb5008ed014eeb80bca  laws/c02.bend
+  7c730c348a584b0945baa87000324a301ceefe6264f4f6aee3c9fd755133595b  laws/c03.bend
+  e3370fe1339287960e42be5715daa55a361d5d913fb48391a2ff81796de0abef  laws/c04.bend
+  8f1db96f0d86e348b684e2e674923c2fd9f88a0214401b25f60afa1807ce6ca5  laws/c05.bend
+  90ea70085839f798cc290a908d419231403c52eb587f1687ea1c3cfa274f3bc4  laws/c06.bend
+  d3b43364c49d29669a8fffc4f5d9bbf324f0e528cd650e6aded253557ce75652  pilot/mesh-budget/README.md
+  05ef15c33855791afb277212f0f61463987f9cfd26d84d4524e9642ebdedb9ad  pilot/mesh-budget/main.bend
+  0ed46fec8a5eac0447572d69704cea8cb1045193a8ed63ba9bfa4a16150a7c1c  pilot/mesh-budget/mesh_budget.bend
+  1ae8c8eca7e6e6849a12575166d7485c1fb4c1eb72f36c342dbbc325b3f448fd  pilot/mesh-budget/oracle.ts
+  f1e9a96d539c0c5527be23d2d8e6ab59db262c2b67d6de77296f6c42eddc38fa  src/c00/eval.bend
+  70c590a08075cfa452752a4edff9c041fcb5faee32e7b60a6827d626b49b714d  src/c00/types.bend
+  0c6a4c23eed44f55a4b0a0755b360b89099756becb8dc71fa5eb3a5ffd56a18c  src/c01/ops.bend
+  ab7b7dd2022922bf87cbb7ac288222f07049d683fbcda5cc3a831a6bac268c4a  src/c01/types.bend
+  69ce3048e1947a4d806c367008aa3ed0050b2cc0dfe9fefea460785d9eedf8fc  src/c02/ops.bend
+  fe6447240fe70f29bf7aaff90c4fb217fdeb80ba64b4cf59c6ac918ee147147b  src/c02/types.bend
+  0a3868c2721070d8e7c83022ba1fa0b8b562f5bb9677dc9453be4325423001f4  src/c03/ops.bend
+  eebe73e003ebedb027e805c160dec1cd76343f6ff833f0b7bd9f924ffc6706c1  src/c03/types.bend
+  0651ef714b33617efcffdb667f11eeecbd50895fb9e486256bc769a5953d12c8  src/c04/ops.bend
+  74b72954807ac1a464d7b2cc58a278d7202796601332e1d01b36b8a6ae67f30d  src/c04/types.bend
+  b2b83364fcf1aae97cf6fb3e7b640aebb60f1947ec5846f20b34ef0591efaa15  src/c05/arrange.bend
+  34b1f279af915f32f0df235905836f8e047f60fef0f8044b5ecfee8a77403510  src/c06/eval.bend
+  5900a815786decf77f7c56c005563ea3e8012ee81cfa28cf6361e4596226d1a7  src/c06/ops.bend
+  602cfe4014fdafce6cb88be21d0d94fbb99f9d6a12ef8aa0e93dcb28629b6385  src/c06/surfx.bend
+  f8f5f0050e7d48cfe6b3d1389a45d2b38efa9cbdf75c0e832ec6aac57637525b  src/c06/types.bend
+  680fd13cb4ed9e77149f1210b6e77945038bebce1656331ce84274c20199a4ee  tests/c00/check.bend
+  c883d0eecea34b1ede9feeb06919755374470ae44a6b6f4045147b9dbd85c7aa  tests/c00/neg.bend
+  6d6eb27aa5703fefd1ae56dfc12f36de01bfaa43a1946f8e7c9ec3530c2cf8e8  tests/c00/positive.bend
+  0b21f6bd2099c395f001e518eb07de28ddc0cfd0df2a3a7091f796a793782407  tests/c01/check.bend
+  5043de8ee5db464b9052673c3580adee747485cfeb058b48eb796433442882a3  tests/c01/neg.bend
+  8c7b6326928f4b788fb1fdfb7cc3392f9c87b0b3bf6dd87b1609681875e8ca1c  tests/c01/pos.bend
+  bb10bcea1bc43e2a2594f910f4180f7fab24ef9fef10c0f5b956a6ecad496c7c  tests/c02/check.bend
+  c74477f9013c93ca3e0cf31f32280ca8671d7686e4bb7bfb02bdb3b6f5f823ed  tests/c02/neg.bend
+  3c1d012ccd411c666375165df3c067eac03c543678b1b7ebb21d3ddbbda456e7  tests/c02/pos.bend
+  7937d442db6df27d20f14132790b1ddf9263863d5f432ffa14c067010fe18bf0  tests/c03/check.bend
+  07895a0bd56bb4f3deaf07142a2f3b4d5931c2486ee3bd32bac02be385419ba5  tests/c03/neg.bend
+  5c1017b3609da49264676f363c41bb63640f225993455d52255c863be5388208  tests/c03/pos.bend
+  098bf7a773acaa88e85b2f65db7b12dde26012067d8f4bd0e8ef486d0841f12c  tests/c04/check.bend
+  c8e000c7bd3fa612a8a9cf478887e6cb7d6d4769a660cc5439274fd5c936483f  tests/c04/neg.bend
+  54a07b2db8f4cd0791a8d2dccf2fa05c7271b8e048192c9084db4254423c82b4  tests/c04/pos.bend
+  39a38be9cb35238142dcefcf7951edf7d8353c8a1ef27b81ce7f71a8c01742bc  tests/c05/pos.bend
+  dd4ac240769a4c16821f7a9cd444c6c8845f12665107b6ec3f2f0c4310a1e38a  tests/c06/box.bend
+  9c54fdaddca85e078db12c6d5fb86bbc05be53d6170a8dfe67bfce47ae7ecc34  tests/c06/diag.bend
+  8ef64a03fae70f953f34df5c6de642e0b7a138fb941cbf74b3f9722c623360db  tests/c06/eval.bend
+  869490a701724a73add9e8d8619f1a7d6f744ae181123edae0437b109a410f5e  tools/bench/bench.py
+  5afdeadf94c88f85f2c3a5ffa4721d6c4a70f0193920bb1e5de222da8333163d  tools/oracle/c02/oracles.py
+  38c008c9ee7def54b33ac0e913c6ece3a11d074d3500e4fe49a78b21128ddf60  tools/oracle/c04/ref/ops.bend
+  b3b393811b39ddd95b9d5d708ac5bb62a6c64474691394ec62052ad069789b2b  tools/oracle/c05/arr_oracle.py
+  8c3ec481e153561824e90e4809956df9265464e76fa596f16d371d3e9ada9b5d  tools/oracle/c05/oracles.py
+
+## 2. Findings and repairs
+
+Every finding was confirmed on the predecessor's code, by a probe
+wherever behavior is at stake, and every semantic repair has a law
+that the predecessor fails (§3).
+
+F1  C06 hole clearance (`hole_clr_pt`, `hole_hh`, `hole_rect`) claimed
+    exact expansion arithmetic but formed each coordinate difference
+    with a rounded `F64.sub`. Probe: `hole_clr_pt(2^60+512, 1, 255, 0,
+    255, 2, 2^60+256)` returned 2 (tangent); the exact answer is 0
+    (clear). Repair: `E.ex_dif` for every difference (`ex_d2`, `ex_dot3`).
+F2  C06 `qframe` gave left-handed frames on `-X`, `-Y`, `-Z` while the
+    Gram–Schmidt branch is right-handed (`n1 × n2 = a`). Repair: on a
+    world axis `n2` carries the axis component's sign.
+F3  C06 profile checks (`simp_*`, `pr_*`, `hh_*`) looked points up by
+    position inside double loops, `O(n³)`. Repair: segment lists walked
+    in the same order, so every reported code is unchanged.
+F4  About a hundred unreachable C06 definitions (the spec-join machinery,
+    `*_new`, `rect_loop`, `f_nth`, `iv_nth`, `gval_def`, `hole_boss_go`,
+    `hole_clr_hs`, `gid`, `qf_show*`), the leftover R0.2 C04 helpers
+    `h{lp,fa,so}_nodup_c`, and dead C01/C03 helpers (`fin_or_unc_d/p`,
+    `hpt_fin`, `gate_dom`) were removed. `VOrbit` stays: the C04
+    reference oracle (`tools/oracle/c04/ref/ops.bend`) uses it.
+F5  C06 `stage_go(0)` (a diagnosis in which every stage passes) reported
+    `resource-exhausted`, a fuel event that never happened. It is now
+    `invalid-input`, reason `internal-stage`. The audit's first reading,
+    that `diag_brep` misses `brep_checked`'s recheck, is withdrawn: the
+    recheck is implied by the orientation verdict (C04 §3 calls it
+    redundant), so stage L agrees.
+F6  C06 `evm` chose continue-or-halt with `Bool.pick`, which evaluates
+    both arms: every node after a failure was still built. Probe: a
+    40-node walk that halts at node 1 cost 40× a 1-node walk (0.40 s vs
+    0.01 s). Repair: the decision is a parameter; the built list is
+    accumulated in reverse (no append per node).
+F7  C06 cache reuse matched the 64-bit node hash, which is linear in its
+    words (`h·P + w`; also not FNV-1 as the contract said). Probe: two
+    parts (height 10 and 9.998046874999227) have hash
+    11712806376517700278; evaluating the second against the first's
+    cache published the first's box. Repair: entries hold the full key
+    and match exactly (sort-merge); the key also covers coordinates,
+    profile points, hole specs and the transform matrix, which the hash
+    left out; the root is found among the matched entries.
+F8  C06 accepted duplicate node ids and duplicate param ids (the first
+    silently won). Both are now `invalid-input`.
+F9  C06 surface evaluators gated on `cy_valid`/`co_valid`/`to_valid` only;
+    C03 requires a unit axis, and `qframe` assumes one. Probe:
+    `trim_quad` on a cylinder with axis (0,0,2) returned ok. Repair:
+    `ax_unit_ok` in all seven gates.
+F10 C05 `region_key` unioned ids by repeated insertion (`O(n·m)`).
+    Repair: concatenate, sort, deduplicate.
+F11 C04 contract BN-8 row described the pre-R0.2 per-walk fuel. Rewritten.
+F12 C03 contract §10/G6 claimed every published box contains the
+    evaluated set. Probe: four controls at x = 0.1 give hull [0.1, 0.1];
+    `bez3_eval` at t = 0.1 returns x one ulp above, at t = 0.3 two ulps
+    below. The hull contains the exact curve. Contract restated, the
+    counterexample pinned.
+F13 C04 `push` is `O(n)` per entity (list stores). Not repaired: the
+    store redesign belongs with the first builder that pushes many
+    entities. Stated in MASTER_PLAN.
+F14 C04 `ix_bound` ignored NURBS knot lists, while stage G evaluates
+    NURBS edges with the caller's fuel. Probe: a two-vertex store with a
+    cubic NURBS edge has bound 2; `brep_embed_c` returned 2 (decided
+    invalid) at fuel 2 and 3 at fuel 100. Repair: the bound includes
+    `nk + 1` for every NURBS edge.
+F15 C05 nesting (R0.1) bucketed edges into √E slabs and scanned a whole
+    slab per component: `m` nested squares cost `O(m²)`. Probe: 250 /
+    500 / 1000 / 2000 nested squares 0.2 / 0.5 / 1.7 / 6.4 s. Repair: a
+    vertical ray at `x − ε` from each component's minimum vertex, on a
+    segment tree over the distinct vertex x-ranks with vertically sorted
+    nodes (§5).
+F16 C05 published a face that touches itself at a vertex as one loop
+    through that vertex twice, although the contract (§2.2, §6)
+    promises simple loops and GEOS hole parity. The new nesting
+    family of the arrangement oracle found it: 13 of 600 cases, all
+    pinched faces, and the predecessor's code gives byte-identical
+    output on all 600, so the defect is C05's own, not F15's.
+    Splitting each pinched loop at its repeated vertex reproduces
+    shapely's (area, hole count) multiset in all 13. Repair: every
+    walked cycle is split into simple cycles before orientation is
+    certified (`cyc_split`: one sort of the cycle's origins, then a
+    stack fold; a vertex that recurs off the stack publishes
+    nothing). Probe: a square with a triangle touching its bottom
+    edge at (2, 0) was one loop through `e11.0` twice; it is now the
+    square with the triangle as a touching hole.
+
+Process: twelve scratch law files committed in 2da9c17 (`laws/c06old*`,
+`c06q`, `c06s1`, `c06s2`, `laws_pr`) were removed. 1,456 comment lines
+were stripped from the Bend, TypeScript and YAML sources, and 258 from
+the C04 reference copy `tools/oracle/c04/ref/ops.bend` (r0.2 pinned its
+old bytes; a diff of the old file without its comment lines against the
+new one differs only in runs of blank lines, and the differential
+oracle reproduces r0.2's numbers on it, §7). CI never checked
+`laws/c05.bend` or the C05/C06/base sources although the C05 receipt
+said CI ran the C05 laws. The workflow now checks every source
+statically and runs each law file as its own matrix job. README status
+was stale (it said R0 was next). The C05 and C02 oracle drivers named
+their executables with `[:-6]` (one character too many), so seeds 11,
+12 and 13 shared one binary, and the C02 driver used the C05 prefix:
+harmless while one driver runs at a time, a collision when two do.
+Fixed. The arrangement oracle gains a nesting family (§7); its default
+case stream is byte-identical to before. Contract text that named
+things that do not exist was corrected: C01 `v_add/sub/scale`,
+`seg_coincident`, `dir_ignores_translation`; C03 `neg-g8` and the
+`sphp_*` pins; C05 `cns_ok` and "25 `pos-sol-*`" (28); the C04 §5
+fuel paragraph (pre-R0.2 walks) and the C04 §11 counts (592 laws,
+126/282 PASS). The C02 contract blamed a C-lane `Bool.or`
+miscompile on the current pin; its repro gives the wrong answer at
+`50ec219a` and the right one at `bc01485d` and at the pin, and the
+contract now says so. The replacement ledger, last touched at
+C05.1, described the small-integer kernel, walk-based C04
+validation and the dense solver; it now describes R0.1–R0.4 and
+gains a C06 section.
+
+## 3. Laws
+
+laws/c03.bend 403 → 406, laws/c04.bend 599 → 602, laws/c05.bend
+61 → 62, laws/c06.bend 392 → 405 (14 new, `cc_has_empty` removed with
+`cc_has`). c00, c01, c02 keep their counts (38, 34, 50): 1,597 laws.
+
+Discrimination: each new or re-pinned law, with only its helpers, was
+checked against the predecessor's sources. Every one fails there with a
+value mismatch (predecessor value first):
+
+  ok_hole_clr_exact          2 vs 0
+  ok_hole_hh_exact           20 vs 0
+  ok_hole_rect_exact         21 vs 0
+  ok_qframe_nx/ny/nz         left-handed frame vs right-handed
+  neg_trim_quad_axis         ok vs invalid-input
+  neg_surf_at_axis           Gok point vs Gerr invalid
+  neg_ring_cyl_axis          Gok circle vs Gerr invalid
+  ok_cache_collision_rebuilds  dims [10, 10, 10] vs [10, 9.998…, 10]
+  neg_ev_dup_node            ok vs invalid-input
+  neg_ev_dup_param           ok vs invalid-input
+  node_hash_pocket_coords    equal hashes vs distinct
+  neg_stage_zero, neg_bulk_c_terr, neg_diag_valid_box
+                             resource-exhausted vs invalid-input
+  ck_fuel_nurbs              bound 2 vs 9
+  ck_embed_nurbs_short       2 (decided) vs 0 (not done)
+  ok_arrange_pinch           one loop through e11.0 twice vs outer
+                             ring + touching hole
+
+`coll_hash_equal` and the three C03 hull laws pin facts that hold on
+both sides (the collision, the counterexample).
+
+Canonical single-file runs on the pin (`~/.bend/bin/bend`, sha256
+ada00d68…), detached, with the sha256 of the compiler, every law file
+and every source recorded at launch (WSL `~/lawruns/r04`,
+2026-10-05T07:13:58Z). After F16 changed `src/c05/arrange.bend` and
+`laws/c05.bend`, the c05 run was stopped (1:32 in, on the old bytes)
+and relaunched on the final bytes (`~/lawruns/r04b`,
+08:46:21Z). At closeout every law and source file matches the r04b
+hashes, and the only files that differ from the r04 hashes are those
+two, which no other law file imports. GNU time, wall and peak RSS:
+
+  c00   38 laws  ALL PROOFS CHECK  rc=0     0:30    185 MB
+  c01   34 laws  ALL PROOFS CHECK  rc=0     3:23    208 MB
+  c02   50 laws  ALL PROOFS CHECK  rc=0    15:53    276 MB
+  c03  406 laws  ALL PROOFS CHECK  rc=0    21:49    285 MB
+  c04  602 laws  ALL PROOFS CHECK  rc=0    37:59    426 MB
+  c05   62 laws  ALL PROOFS CHECK  rc=0  3:28:35  1,142 MB
+  c06  405 laws  ALL PROOFS CHECK  rc=0  3:59:41  1,142 MB
+
+The runs shared the machine with each other, the chunked runs and the
+oracles, so these walls are not idle timings. Chunked runs
+(`lawchunks.py`, 8 chunks) passed every law as well: c00–c04 on the
+candidate build, byte-identical to the pin; c05 on its final bytes
+(08:46–10:12Z); c06 on `288da083`, whose checker is the pin's (the
+scheduler commit changes only the native back end).
+
+## 4. Suites
+
+Three lanes on the pin, `bend <file>` (interp), `-o x.js` + `bun`
+(JS) and `-o x` (native): every suite's stdout is byte-identical on
+all three lanes and to the predecessor's tree built by the same
+compiler (native), apart from the one line F16 adds (below).
+
+  suite                PASS  FAIL  stdout sha256
+  tests/c00/neg.bend     16     0  197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a
+  tests/c00/positive     13     0  5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79af225b0c0c1ba2be496
+  tests/c01/neg.bend     69     0  e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf
+  tests/c01/pos.bend     44     0  081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd
+  tests/c02/neg.bend     24     0  83f3358bd0b2073305f3bcd60b1939a0fab540942e32de0ef3b6cfa25a870d83
+  tests/c02/pos.bend     36     0  44a3bae441a358066841cff6124578c0b305da2b26cb0e2e96b8098bc6ce7c13
+  tests/c03/neg.bend    191     0  1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638
+  tests/c03/pos.bend    190     0  291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943
+  tests/c04/neg.bend    128     0  cd5ef16d784a5842dd1c9c8154d27f7103e2f2a40a88c95771f5f8ab824239ae
+  tests/c04/pos.bend    283     0  79d995e6227f0d87c315f6efa9328cfcc61d248c8d01f5d1800d0fde08b02563
+  tests/c05/neg.bend     38     0  ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684
+  tests/c05/pos.bend     42     0  6a3d9792fd5f16b655a93b36c7ee735ed40ab9c55c1e1e3d775841a564943bbb
+  tests/c06/box.bend   selfcheck fails=0
+  tests/c06/diag.bend  selfcheck fails=0
+  tests/c06/eval.bend  selfcheck fails=0
+
+Every suite above ends `selfcheck fails=0`. The C02, C03 and C05 neg
+hashes equal r0.2's. tests/c05/pos.bend is the post-F16 run (WSL
+`~/qual5`): it differs from the predecessor's output only by the new
+`pos-arr-pinch` line, and before F16 it was byte-identical
+(b7e58c79…). No other suite imports the arrangement. The C06 suites
+check their own pins and print only the failure count, so their
+equality with the predecessor says only that each tree passes its own
+pins; tests/c06/diag.bend changed pins (three kinds, `t_trim_over`,
+the new `t_trim_axis`), which the laws of §3 discriminate.
+tests/c00–c05/check.bend: ALL PROOFS CHECK, rc=0 (c05 rerun after
+F16). Raw outputs: WSL `~/qual2/s`, `~/qual5`.
+
+## 5. Nesting (F15) and arrangement timings
+
+Idle, native, best single run, seconds (threads 1 / 16), both columns
+built by `288da083`, so the rows compare the code alone:
+
+                       predecessor        R0.4
+  nested squares 250   0.20 / 0.20        0.10 / 0.10
+  nested squares 500   0.50 / 0.40        0.20 / 0.20
+  nested squares 1000  1.70 / 1.40        0.50 / 0.40
+  nested squares 2000  6.40 / 5.10        1.10 / 0.90
+  nested squares 4000  —                  3.00 / 2.60
+  nested squares 8000  —                  9.11 / 7.80
+  arr-plate-100        7.30 / 5.20        4.40 / 3.60
+  arr-random-400       4.60 / 3.70        4.20 / 3.30
+
+The nesting tree is built only when there are two or more components.
+Node lists are sorted with exact comparisons (no float filter); a
+filtered comparison is a constant-factor follow-up. Outputs (`v e c r`)
+are identical on every row. `tools/bench/bench.py` gains the `arr-nest`
+family and a `BEND` override for the compiler. These rows predate F16;
+on the final code and the pin, 2,000 nested squares take 1.1 s on one
+thread and 0.8 s on 16 (§7), so the cycle split costs nothing
+measurable there.
+
+## 6. Host scheduler on the pin
+
+R0.3's side scheduler (`0759b750`) was never on the pin. `02657a7e`
+replays it onto upstream 2.0.35's pool, which keeps main-thread
+participation, yield before sleep and the ring rewind. A turn wakes
+one worker per further unit, each through its own slot, and a worker
+spins before it sleeps; a frontier of at most `CUBE_T` tasks runs
+listed turns that deal only units holding tasks; a drain with fewer
+queued tasks than threads runs flat.
+
+A stress run (bench programs at 16, 7, 3 and 2 threads, 800 runs)
+found a race in the first replay: a worker whose claim ran past
+an older turn's bound read the next turn's list, so two threads
+drained one unit (two hangs, one fail-stop; `288da083` 0 of 800). A
+listed turn now stores its list length with the turn's low byte, and
+a stale claim takes no unit. With the fix: 2,400 runs (pm_map 1,200;
+pm_tree, sol-truss-16, sol-grid-40, sol-chain-1000 300 each), 0 bad,
+every output equal to the one-thread output.
+
+Fork tests: every `tests/*/*.bend` with an expected output, built by
+`288da083` and by `02657a7e` and run at 16, 4, 2 and 1 threads: 2,824
+runs pass and none regress. 20 runs (gfx_clicks, gfx_window,
+io_select_eintr, io_tcp_connect_black_hole, io_tcp_send_slow_peer)
+need a display or a network peer and fail the same way on both; 843
+files have no expected output or are not built by `288da083`.
+
+Idle, native, best of 3, seconds, the pin / `288da083`, same BendCAD
+sources, every output identical:
+
+                    1 thread       4 threads      16 threads
+  sol-grid-40       1.5 / 1.5      0.8 / 1.5      0.8 / 1.5
+  sol-chain-5000    1.4 / 1.4      1.1 / 1.3      1.0 / 1.3
+  sol-truss-16      0.6 / 0.6      0.4 / 0.4      0.4 / 0.5
+  sol-rects-1500    1.0 / 1.0      0.6 / 0.8      0.7 / 0.7
+  pm_map            0.9 / 0.9      0.3 / 0.5      0.1 / 0.5
+  arr-plate-100     4.4 / 4.4      3.1 / 3.6      2.71 / 3.6
+
+sol-rects-1500 at 16 threads, ten runs each: the pin 0.58–0.66 s,
+`288da083` 0.69–0.74 s. R0.3's side scheduler ran rects at 16
+threads in 0.97 s against 0.76 s on its pinned compiler; that
+regression is gone.
+Single-thread times did not move. The GPU lane is unchanged: a banged
+call on this WSL2 machine refuses to start.
+
+## 7. Closeout on the new pin
+
+Everything below ran on the pin, on the final bytes of every file it
+reads: the runs that predate F16 (the C02 and C04 oracles, the C05
+solver and exact oracles, the pilot, the static checks of the other
+sources) read nothing F16 changed, and `src/c05/arrange.bend`,
+`tests/c05/check.bend` and the arrangement oracles were rerun after
+it. Oracles ran from WSL with `PYTHONPATH=~/oracle-pkgs` (the system
+Python's pip is locked, and Windows Python's site-packages are
+corrupted).
+
+Oracles:
+- C05 `oracles.py`: ex 2,000 cases, 0 wrong (differs from the exact
+  path 213, uncertain 340, of them finite-input 327); arr default
+  4 × 300 and nest 4 × 150, 0 mismatches (nest: 13 before F16);
+  sol 4 × 250, 0 wrong. The solver and exact oracles do not import
+  the arrangement, so their run before F16 stands.
+- C04 on the comment-stripped reference copy: `diff_oracle.py` seeds
+  11/23/101, 342 cases each, 0 mismatches, orbit reclassified
+  10/11/9; `plant.py 53 34`: all ten planted bugs caught with
+  11/27/108/12/87/34/15/12/11/25 mismatches; `disc_rho.bend`: old 0
+  (fuel 20 and 2000), new 2. All equal r0.2's numbers.
+- C02 `oracles.py`: 2 × 1,324 cases, 0 wrong, uncertain 13 and 17,
+  0 of them of moderate magnitude (r0.2's numbers).
+
+Pilot (`pilot/mesh-budget`): the legacy oracle, interpreted, native
+and JS stdout all hash d35d8fe9…, equal to `expected.sha256`.
+
+Static gates, as CI runs them: all 20 source files and the six
+`tests/c0N/check.bend` files pass `--check-only` one by one; the BN
+greps (`@unsafe`, FFI, OCCT/FreeCAD/PlaneGCS, `F32`) are empty.
+
+Bench (`BEND=~/.bend/bin/bend python3 tools/bench/bench.py`, idle,
+16 threads, one run each, every output checked against its closed
+form): 33 runs, 0 failures, 12:15–12:27Z.
+
+  sol-rects   10/100/1000/3000      0.01  0.15  0.41  0.97 s
+  sol-chain   100/1000/5000         0.01  0.15  0.94 s
+  sol-grid    10/20/40              0.03  0.15  0.73 s
+  sol-truss   5/10/20/40            0.02  0.10  0.60  4.98 s
+  arr-plate   10/35/50/100          0.02  0.29  0.60  2.76 s
+  arr-random  100/200/400           0.15  0.62  2.59 s
+  arr-nest    250/500/1000/2000     0.06  0.13  0.29  0.71 s
+  brep-holes  1/3/5/10              0.00  0.00  0.00  0.02 s
+  brep-prism  1/4/9/19              0.00  0.01  0.02  0.03 s
+
+Every family is at or below its last receipt (R0.1: chain-5000
+3.71 s, grid-40 5.02 s, plate-100 5.47 s, random-400 3.84 s; R0.2:
+brep-holes 404 entities 0.19 s). sol-truss-40 has no earlier number;
+against `288da083`, same sources, best of 3, 1 / 16 threads: the pin
+12.11 / 5.1 s, `288da083` 12.01 / 7.7 s (random-400 4.2 / 2.61 vs
+4.3 / 3.4; nest-2000 1.1 / 0.8 vs 1.1 / 0.9). The truss is one rigid
+cluster of 3,200 parameters, the single-cluster cost that rigid-
+cluster decomposition (open) addresses.
+
+Incident: the first qualification run started six native builds at
+once (each `bend -o` about 1.7 GB plus zig clang about 2 GB) and
+exhausted WSL's 19 GB. WSL stopped responding and was restarted
+(`wsl --shutdown`), which killed only that run. It was rerun with at
+most three build lanes and a watchdog that kills the largest build
+when free memory falls under 1.5 GB; the watchdog never fired.
+
+## 8. Open, stated
+
+- C04 `push` is `O(n)` per entity (F13).
+- C04's stage-L recheck is implied by the orientation verdict and costs
+  a second pass; the contract keeps it as a declared redundant check.
+- C04 stage K checks risky-magnitude segments exhaustively to keep the
+  pre-R0.2 fail-closed verdicts.
+- C06 profiles hold at most 64 points and are checked pairwise.
+- `--verdict` is unavailable for F64 laws (AGENTS.md).
+- GitHub Actions is billing-locked, so the workflow was corrected by
+  reading it, not by running it. The c05 and c06 law jobs took about
+  three hours each here and may exceed GitHub's six-hour job limit
+  on a hosted runner.

@@ -1,8 +1,3 @@
-# C00 positive tests: valid requests publish exactly once with pinned
-# witnesses; empty intersection succeeds distinctly; op identity is
-# deterministic over content and blind to execution inputs.
-# Ends in selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c00/eval.bend as E

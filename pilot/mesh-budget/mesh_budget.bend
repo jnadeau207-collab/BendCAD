@@ -1,18 +1,5 @@
-# Pilot port of legacy `packages/geometry-contracts/src/mesh-budget.ts`
-# (mesh resource budgets + evaluation admission).
-#
-# Differences from the TS original, all forced by the language boundary:
-# - U64 everywhere (Bend numbers are fixed-width; budgets exceed U24/U32 range
-#   in spirit and U64 is the fork's exact integer transport).
-# - `admit` is pure: it returns `AdmitResult` instead of mutating `totals` or
-#   throwing. Atomicity ("rejected admission leaves the accumulator untouched",
-#   mesh-budget.ts:119-121) holds by construction: on rejection there is no new
-#   value to observe; the caller's totals remain usable.
-# - First-failing ceiling in TS order wins, exactly like the TS loop.
-
 import Base
 
-# One body's mesh counts, as read off its descriptor (mesh-budget.ts:78-86).
 type Desc is Data:
   Desc{
     packet_byte_length: U64,
@@ -24,7 +11,6 @@ type Desc is Data:
     brep_vertex_count: U64,
   }
 
-# Running evaluation accumulator (mesh-budget.ts:89-99).
 type Totals is Data:
   Totals{
     packet_bytes: U64,
@@ -38,7 +24,6 @@ type Totals is Data:
     gpu_bytes: U64,
   }
 
-# Which ceiling an admission crossed (mesh-budget.ts:139-149 field names).
 type BudgetField is Data:
   F_bodyCount{}
   F_totalPacketBytes{}
@@ -50,7 +35,6 @@ type BudgetField is Data:
   F_totalBrepVertices{}
   F_gpuBytes{}
 
-# Pure outcome of one admission: the advanced accumulator or the crossed field.
 type AdmitResult is Data:
   AdmitOk{totals: Totals}
   AdmitErr{field: BudgetField}
@@ -76,11 +60,9 @@ def BudgetField.show(f: BudgetField) -> String:
     case F_gpuBytes{}:
       "gpuBytes"
 
-# Per-packet wire byte cap: 48 MiB (mesh-budget.ts:22).
 def max_packet_bytes() -> U64:
   50331648u64
 
-# Per-packet header-count ceilings (mesh-budget.ts:29-36).
 def per_packet_triangle_count() -> U64:
   500000u64
 
@@ -99,7 +81,6 @@ def per_packet_edge_vertex_count() -> U64:
 def per_packet_brep_vertex_count() -> U64:
   300000u64
 
-# Evaluation-wide ceilings (mesh-budget.ts:44-54).
 def eval_total_packet_bytes() -> U64:
   268435456u64
 
@@ -127,20 +108,15 @@ def eval_body_count() -> U64:
 def eval_gpu_bytes() -> U64:
   503316480u64
 
-# Estimated device-memory bytes of one body once uploaded
-# (mesh-budget.ts:57-58: 28 bytes/vertex + 12 bytes/triangle).
 def gpu_bytes_for(v: U64, t: U64) -> U64:
   ((v * 28u64 : U64) + (t * 12u64 : U64) : U64)
 
-# A zeroed accumulator for one evaluation's admission run (mesh-budget.ts:102).
 def zero_totals() -> Totals:
   Totals{0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 0u64}
 
 def zero_desc() -> Desc:
   Desc{0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 0u64}
 
-# One ceiling check: reject with `field` when over, else keep the chained result.
-# Nesting order below mirrors the TS `ceilings` table order (mesh-budget.ts:139).
 def pick_fail(over: Bool, field: BudgetField, ok: AdmitResult) -> AdmitResult:
   match over:
     case True{}:
@@ -148,18 +124,11 @@ def pick_fail(over: Bool, field: BudgetField, ok: AdmitResult) -> AdmitResult:
     case False{}:
       ok
 
-# Constructor bundle for the prospective totals. (A bare `Totals{...}` cannot sit
-# on a let-binding RHS — the checker infers bindings but only checks
-# constructors against a known type — so construction lives in this def body,
-# checked against the declared return type.)
 def build_next(
   npb: U64, ntr: U64, nve: U64, nfa: U64, ned: U64, nev: U64, nbv: U64, nbc: U64, ngb: U64
 ) -> Totals:
   Totals{npb, ntr, nve, nfa, ned, nev, nbv, nbc, ngb}
 
-# Admits one body's descriptor into the running budget (mesh-budget.ts:123-168).
-# Every prospective total is computed first; the first ceiling crossed in TS
-# table order is reported. On success the advanced accumulator is returned.
 def admit(t: Totals, d: Desc) -> AdmitResult:
   Totals{pb, tr, ve, fa, ed, ev, bv, bc, gb} = t
   Desc{dp, +dv, +dt, df, de, dev, dbv} = d
@@ -203,12 +172,10 @@ def show_totals(t: Totals) -> String:
     ++ " brepVertices=" ++ U64.show(bv) ++ " bodyCount=" ++ U64.show(bc)
     ++ " gpuBytes=" ++ U64.show(gb)
 
-# Two-field line for the exact-boundary vector (main.bend V12).
 def show_boundary(t: Totals) -> String:
   Totals{pb, tr, ve, fa, ed, ev, bv, bc, gb} = t
   "triangles=" ++ U64.show(tr) ++ " bodyCount=" ++ U64.show(bc)
 
-# Body-count-saturated seed for the atomicity demonstration.
 def atom_seed() -> Totals:
   Totals{0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 0u64, 1000u64, 0u64}
 
@@ -218,8 +185,6 @@ def atomicity_word(ok: Bool) -> String:
       "ok"
     case False{}:
       "VIOLATED"
-
-# --- Laws (cheap arithmetic core; behavioral vectors run in main.bend) ---
 
 law gpu_bytes_zero:
   {gpu_bytes_for(0u64, 0u64) == 0u64 : U64}

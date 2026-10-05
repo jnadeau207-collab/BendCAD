@@ -783,45 +783,85 @@ def seg_a2(s: Seg) -> D2:
   D2{E.ex_of(ax), E.ex_of(ay)}
 
 type EG is Data:
-  EG{ e: U32, cu: U32, pu: Pt, pv: Pt, d: D2, a: D2 }
+  EG{ e: U32, d: D2, a: D2 }
 
 def eg_e(g: EG) -> U32:
-  EG{e, cu, pu, pv, d, a} = g
+  EG{e, d, a} = g
   e
 
-def eg_cu(g: EG) -> U32:
-  EG{e, cu, pu, pv, d, a} = g
-  cu
-
-def eg_pu(g: EG) -> Pt:
-  EG{e, cu, pu, pv, d, a} = g
-  pu
-
-def eg_pv(g: EG) -> Pt:
-  EG{e, cu, pu, pv, d, a} = g
-  pv
-
 def eg_d(g: EG) -> D2:
-  EG{e, cu, pu, pv, d, a} = g
+  EG{e, d, a} = g
   d
 
 def eg_a(g: EG) -> D2:
-  EG{e, cu, pu, pv, d, a} = g
+  EG{e, d, a} = g
   a
 
 def eg_nil() -> EG:
-  EG{0, 0, PF{0.0f64, 0.0f64}, PF{0.0f64, 0.0f64}, D2{E.ex_zero(), E.ex_zero()},
-    D2{E.ex_zero(), E.ex_zero()}}
+  EG{0, D2{E.ex_zero(), E.ex_zero()}, D2{E.ex_zero(), E.ex_zero()}}
 
-def egs(es: List<&2, IE>, +i: U32, +tp: P.Tb<&2, U32>, +vp: P.Tb<&2, Pt>,
-    +st: P.Tb<&2, Seg>) -> List<&2, EG>:
+type SE is Data:
+  SE{ a: U32, b: U32, g: EG }
+
+def se_a(x: SE) -> U32:
+  SE{a, b, g} = x
+  a
+
+def se_b(x: SE) -> U32:
+  SE{a, b, g} = x
+  b
+
+def se_g(x: SE) -> EG:
+  SE{a, b, g} = x
+  g
+
+def se_keep(c: Bool, +x: SE, rest: List<&2, SE>) -> List<&2, SE>:
+  match c:
+    case True{}: x <> rest
+    case False{}: rest
+
+def nil_se(xs: List<&2, SE>) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case h <> t: False{}
+
+def egs(es: List<&2, IE>, +i: U32, +rk: P.Tb<&2, U32>, +st: P.Tb<&2, Seg>) -> List<&2, SE>:
   match es:
     case Nil{}: []
     case x <> t:
-      IE{+u, v, +k, fwd, srcs} = x
+      IE{u, v, +k, fwd, srcs} = x
       +s = P.tb_get(Seg, st, k)
-      EG{i, P.tb_get(U32, tp, u), P.tb_get(Pt, vp, u), P.tb_get(Pt, vp, v),
-        seg_d2(s, Bool.not(fwd)), seg_a2(s)} <> egs(t, (i + 1 : U32), tp, vp, st)
+      +ra = P.tb_get(U32, rk, u)
+      +rb = P.tb_get(U32, rk, v)
+      se_keep(U32.is_lt(ra, rb), SE{ra, (rb - 1 : U32), EG{i, seg_d2(s, Bool.not(fwd)), seg_a2(s)}},
+        egs(t, (i + 1 : U32), rk, st))
+
+def se_if(c: Bool, es: List<&2, IE>, +rk: P.Tb<&2, U32>, +st: P.Tb<&2, Seg>) -> List<&2, SE>:
+  match c:
+    case True{}: egs(es, 0, rk, st)
+    case False{}: []
+
+def x_same(+p: Pt, +q: Pt) -> Bool:
+  P.sgn_is(pt_cmpx(p, q), P.Sz{})
+
+def rk_go(xs: List<&2, VX>, +prev: Pt, +k: U32, first: Bool) -> List<&2, U32>:
+  match xs:
+    case Nil{}: []
+    case +h <> t:
+      +k2 = P.upick(first, 0, P.upick(x_same(prev, vx_p(h)), k, (k + 1 : U32)))
+      k2 <> rk_go(t, vx_p(h), k2, False{})
+
+def pt_keep(c: Bool, +p: Pt, rest: List<&2, Pt>) -> List<&2, Pt>:
+  match c:
+    case True{}: p <> rest
+    case False{}: rest
+
+def rep_go(xs: List<&2, VX>, +prev: Pt, first: Bool) -> List<&2, Pt>:
+  match xs:
+    case Nil{}: []
+    case +h <> t:
+      pt_keep(Bool.or(first, Bool.not(x_same(prev, vx_p(h)))), vx_p(h),
+        rep_go(t, vx_p(h), False{}))
 
 def below_sign(+d: D2, +a: D2, +q: Pt) -> P.Sgn:
   +w = pt_rw(q)
@@ -845,276 +885,218 @@ def lower(+g1: EG, +g2: EG, +q: Pt) -> P.Sgn:
   +d2 = eg_d(g2)
   tie_go(E.ex_cmp(height_n(d1, eg_a(g1), d2_x(d2), q), height_n(d2, eg_a(g2), d2_x(d1), q)), d1, d2)
 
-def in_list(xs: List<&2, U32>, +x: U32) -> Bool:
+def tie_left(s: P.Sgn, +d1: D2, +d2: D2) -> P.Sgn:
+  match s:
+    case P.Sz{}:
+      E.ex_sign(E.ex_sub(E.ex_mul(d2_y(d2), d2_x(d1)), E.ex_mul(d2_y(d1), d2_x(d2))))
+    case _: s
+
+def lower_left(+g1: EG, +g2: EG, +q: Pt) -> P.Sgn:
+  +d1 = eg_d(g1)
+  +d2 = eg_d(g2)
+  tie_left(E.ex_cmp(height_n(d1, eg_a(g1), d2_x(d2), q), height_n(d2, eg_a(g2), d2_x(d1), q)), d1, d2)
+
+type KQ is Data:
+  KQ{ q: Pt, g: EG }
+
+def kq_cmp_go(+x: KQ, +y: KQ) -> P.Sgn:
+  KQ{qx, gx} = x
+  KQ{qy, gy} = y
+  lower(gx, gy, qx)
+
+def kq_cmp(x: KQ, y: KQ) -> P.Sgn:
+  kq_cmp_go(x, y)
+
+def kqs(xs: List<&2, SE>, +q: Pt) -> List<&2, KQ>:
   match xs:
-    case Nil{}: False{}
-    case h <> t: Bool.or(U32.is_eq(h, x), in_list(t, x))
+    case Nil{}: []
+    case h <> t: KQ{q, se_g(h)} <> kqs(t, q)
 
-type Cand is Data:
-  Cand{ ok: Bool, has: Bool }
+def kq_gs(xs: List<&2, KQ>) -> List<&2, EG>:
+  match xs:
+    case Nil{}: []
+    case h <> t:
+      KQ{q, g} = h
+      g <> kq_gs(t)
 
-def cand_go(+free: Bool, +sp: P.Sgn, +spv: P.Sgn, +vert: P.Sgn, +bel: P.Sgn) -> Cand:
-  +unc = Bool.or(Bool.or(sg_unc(sp), sg_unc(spv)), Bool.or(sg_unc(vert), sg_unc(bel)))
-  +span = Bool.and(Bool.not(P.sgn_is(sp, P.Sp{})), P.sgn_is(spv, P.Sn{}))
-  Cand{Bool.not(unc), Bool.and(Bool.and(free, span),
-    Bool.and(Bool.not(P.sgn_is(vert, P.Sz{})), P.sgn_is(bel, P.Sn{})))}
+type SRT is Data:
+  R0{}
+  R1{ g: EG }
+  R2{ sep: EG, l: SRT, r: SRT }
 
-def is_cand(+ex: List<&2, U32>, +g: EG, +q: Pt) -> Cand:
-  cand_go(Bool.not(in_list(ex, eg_cu(g))), pt_cmpx(eg_pu(g), q), pt_cmpx(q, eg_pv(g)),
-    E.ex_sign(d2_x(eg_d(g))), below_sign(eg_d(g), eg_a(g), q))
+type RL is Data:
+  RL{ t: SRT, last: EG }
 
-type Best is Data:
-  Best{ ok: Bool, has: Bool, g: EG }
+def rl_of(xs: List<&2, EG>) -> List<&2, RL>:
+  match xs:
+    case Nil{}: []
+    case +g <> t: RL{R1{g}, g} <> rl_of(t)
 
-def best_ok(b: Best) -> Bool:
-  Best{ok, has, g} = b
+def rl_pair(a: RL, b: RL) -> RL:
+  RL{ta, la} = a
+  RL{tb, lb} = b
+  RL{R2{la, ta, tb}, lb}
+
+def rl_pairs(xs: List<&2, RL>) -> List<&2, RL>:
+  match xs:
+    case Nil{}: []
+    case a <> Nil{}: [a]
+    case a <> b <> t: rl_pair(a, b) <> rl_pairs(t)
+
+def rl_top(xs: List<&2, RL>) -> SRT:
+  match xs:
+    case Nil{}: R0{}
+    case h <> t:
+      RL{th, lh} = h
+      th
+
+def rl_lift(d: Nat, xs: List<&2, RL>) -> SRT:
+  match d:
+    case 0n: rl_top(xs)
+    case 1n+e: rl_lift(e, rl_pairs(xs))
+
+def srt_of(+gs: List<&2, EG>) -> SRT:
+  rl_lift(1n+P.dm_d(P.dims(P.ulen(EG, gs))), rl_of(gs))
+
+type XT is Data:
+  X0{}
+  XN{ sr: SRT, l: XT, r: XT }
+
+type XTB is Data:
+  XTB{ ok: Bool, t: XT }
+
+def cov_go(xs: List<&2, SE>, +lo: U32, +hi: U32) -> List<&2, SE>:
+  match xs:
+    case Nil{}: []
+    case +h <> t: se_keep(Bool.and(P.u_le(se_a(h), lo), P.u_le(hi, se_b(h))), h, cov_go(t, lo, hi))
+
+def left_go(xs: List<&2, SE>, +lo: U32, +hi: U32, +mid: U32) -> List<&2, SE>:
+  match xs:
+    case Nil{}: []
+    case +h <> t:
+      +cv = Bool.and(P.u_le(se_a(h), lo), P.u_le(hi, se_b(h)))
+      se_keep(Bool.and(Bool.not(cv), U32.is_lt(se_a(h), mid)), h, left_go(t, lo, hi, mid))
+
+def right_go(xs: List<&2, SE>, +lo: U32, +hi: U32, +mid: U32) -> List<&2, SE>:
+  match xs:
+    case Nil{}: []
+    case +h <> t:
+      +cv = Bool.and(P.u_le(se_a(h), lo), P.u_le(hi, se_b(h)))
+      se_keep(Bool.and(Bool.not(cv), P.u_le(mid, se_b(h))), h, right_go(t, lo, hi, mid))
+
+def so_kq_ok(s: P.So<&2, KQ>) -> Bool:
+  P.So{ok, xs} = s
   ok
 
-def best_has(b: Best) -> Bool:
-  Best{ok, has, g} = b
-  has
+def so_kq_xs(s: P.So<&2, KQ>) -> List<&2, KQ>:
+  P.So{ok, xs} = s
+  xs
 
-def best_g(b: Best) -> EG:
-  Best{ok, has, g} = b
-  g
+def xtb_join(+srt: P.So<&2, KQ>, l: XTB, r: XTB) -> XTB:
+  XTB{lo, lt} = l
+  XTB{ro, rt} = r
+  XTB{Bool.and(so_kq_ok(srt), Bool.and(lo, ro)), XN{srt_of(kq_gs(so_kq_xs(srt))), lt, rt}}
 
-def best_pick(c: P.Sgn, +ok: Bool, +g: EG, +b: Best) -> Best:
+def st_build(d: Nat, empty: Bool, +lo: U32, +w: U32, +xs: List<&2, SE>, +xt: P.Tb<&2, Pt>) -> XTB:
+  match d empty:
+    case _ True{}: XTB{True{}, X0{}}
+    case 0n False{}: XTB{False{}, X0{}}
+    case 1n+(+e) False{}:
+      +hi = ((lo + w : U32) - 1 : U32)
+      +h = U32.shr(w)
+      +mid = (lo + h : U32)
+      +ls = left_go(xs, lo, hi, mid)
+      +rs = right_go(xs, lo, hi, mid)
+      l r = st_build(e, nil_se(ls), lo, h, ls, xt) st_build(e, nil_se(rs), mid, h, rs, xt)
+      xtb_join(P.msort(~KQ, ~kq_cmp, kqs(cov_go(xs, lo, hi), P.tb_get(Pt, xt, lo))), l, r)
+
+def xtb_ok(s: XTB) -> Bool:
+  XTB{ok, t} = s
+  ok
+
+def xtb_t(s: XTB) -> XT:
+  XTB{ok, t} = s
+  t
+
+def ab_code(s: P.Sgn) -> U64:
+  match s:
+    case P.Sn{}: 0u64
+    case P.Sp{}: 1u64
+    case _: 2u64
+
+def above(+g: EG, +q: Pt) -> U64:
+  ab_code(below_sign(eg_d(g), eg_a(g), q))
+
+type Hit is Data:
+  Hit{ ok: Bool, has: Bool, g: EG }
+
+def sr_dec(t: SRT, +q: Pt) -> U64:
+  match t:
+    case R0{}: 1u64
+    case R1{g}: above(g, q)
+    case R2{sep, l, r}: above(sep, q)
+
+def hit_leaf(c: U64, +g: EG) -> Hit:
   match c:
-    case P.Sn{}: Best{ok, True{}, g}
-    case P.Su{}: Best{False{}, True{}, best_g(b)}
-    case _: Best{ok, True{}, best_g(b)}
+    case 0u64: Hit{True{}, True{}, g}
+    case 1u64: Hit{True{}, False{}, eg_nil()}
+    case _: Hit{False{}, False{}, eg_nil()}
 
-def best_in(bhas: Bool, +ok: Bool, +g: EG, +b: Best, +q: Pt) -> Best:
-  match bhas:
-    case False{}: Best{ok, True{}, g}
-    case True{}: best_pick(lower(g, best_g(b), q), ok, g, b)
+def sr_find(t: SRT, +q: Pt, dec: U64) -> Hit:
+  match t:
+    case R0{}: Hit{True{}, False{}, eg_nil()}
+    case R1{g}: hit_leaf(dec, g)
+    case R2{sep, +l, +r}:
+      match dec:
+        case 0u64: sr_find(l, q, sr_dec(l, q))
+        case 1u64: sr_find(r, q, sr_dec(r, q))
+        case _: Hit{False{}, False{}, eg_nil()}
 
-def best_go(has: Bool, +cok: Bool, +g: EG, +q: Pt, +b: Best) -> Best:
-  match has:
-    case False{}: Best{Bool.and(cok, best_ok(b)), best_has(b), best_g(b)}
-    case True{}: best_in(best_has(b), Bool.and(cok, best_ok(b)), g, b, q)
+def hit_lo(c: P.Sgn, +ok: Bool, +bg: EG, +hg: EG) -> Hit:
+  match c:
+    case P.Sn{}: Hit{ok, True{}, hg}
+    case P.Su{}: Hit{False{}, True{}, bg}
+    case _: Hit{ok, True{}, bg}
 
-def cand_ok(c: Cand) -> Bool:
-  Cand{ok, has} = c
-  ok
+def hit_pick(bh: Bool, hh: Bool, +ok: Bool, +bg: EG, +hg: EG, +q: Pt) -> Hit:
+  match bh hh:
+    case True{} False{}: Hit{ok, True{}, bg}
+    case False{} False{}: Hit{ok, False{}, bg}
+    case False{} True{}: Hit{ok, True{}, hg}
+    case True{} True{}: hit_lo(lower_left(hg, bg, q), ok, bg, hg)
 
-def cand_has(c: Cand) -> Bool:
-  Cand{ok, has} = c
-  has
+def hit_min(b: Hit, h: Hit, +q: Pt) -> Hit:
+  Hit{bo, bh, bg} = b
+  Hit{ho, hh, hg} = h
+  hit_pick(bh, hh, Bool.and(bo, ho), bg, hg, q)
 
-def lowest(xs: List<&2, EG>, +ex: List<&2, U32>, +q: Pt, +b: Best) -> Best:
-  match xs:
-    case Nil{}: b
-    case +g <> t:
-      +c = is_cand(ex, g, q)
-      lowest(t, ex, q, best_go(cand_has(c), cand_ok(c), g, q, b))
+def st_q(t: XT, +q: Pt, +i: U32, +lo: U32, +w: U32, +best: Hit, left: Bool) -> Hit:
+  match t left:
+    case X0{} _: best
+    case XN{+sr, l, r} True{}:
+      +h = U32.shr(w)
+      st_q(l, q, i, lo, h, hit_min(best, sr_find(sr, q, sr_dec(sr, q)), q),
+        U32.is_lt(i, (lo + U32.shr(h) : U32)))
+    case XN{+sr, l, r} False{}:
+      +h = U32.shr(w)
+      st_q(r, q, i, (lo + h : U32), h, hit_min(best, sr_find(sr, q, sr_dec(sr, q)), q),
+        U32.is_lt(i, ((lo + h : U32) + U32.shr(h) : U32)))
 
-def f_pinf() -> F64:
-  F64{9218868437227405312u64}
+def hit_none() -> Hit:
+  Hit{True{}, False{}, eg_nil()}
 
-def f_ninf() -> F64:
-  F64{18442240474082181120u64}
-
-def lo_of(ok: Bool, +a: F64) -> F64:
-  match ok:
-    case True{}: (a - F64.fma(F64.abs(a), F64{4427038433705197568u64}, F64{103582791429521408u64}) : F64)
-    case False{}: f_ninf()
-
-def hi_of(ok: Bool, +a: F64) -> F64:
-  match ok:
-    case True{}: (a + F64.fma(F64.abs(a), F64{4427038433705197568u64}, F64{103582791429521408u64}) : F64)
-    case False{}: f_pinf()
-
-def pt_lo(p: Pt) -> F64:
-  match p:
-    case PF{x, y}: x
-    case PR{x, y, w}:
-      +a = (E.ex_est(x) / E.ex_est(w) : F64)
-      lo_of(E.fin(a), a)
-
-def pt_hi(p: Pt) -> F64:
-  match p:
-    case PF{x, y}: x
-    case PR{x, y, w}:
-      +a = (E.ex_est(x) / E.ex_est(w) : F64)
-      hi_of(E.fin(a), a)
-
-type SX is Data:
-  SX{ x0: F64, sc: F64, s: U32 }
-
-def slab(+c: SX, +x: F64) -> U32:
-  SX{+x0, +sc, +s} = c
-  +t = F64.min(F64.max(((x - x0 : F64) * sc : F64), 0.0f64), U32.to_f64(s))
-  U32.min(F64.to_u32(t), (s - 1 : U32))
-
-def eg_lo(g: EG) -> F64:
-  EG{e, cu, pu, pv, d, a} = g
-  F64.min(pt_lo(pu), pt_lo(pv))
-
-def eg_hi(g: EG) -> F64:
-  EG{e, cu, pu, pv, d, a} = g
-  F64.max(pt_hi(pu), pt_hi(pv))
-
-def fin_min(xs: List<&2, EG>, +acc: F64) -> F64:
-  match xs:
-    case Nil{}: acc
-    case +g <> t:
-      +v = eg_lo(g)
-      fin_min(t, P.upick_f(E.fin(v), F64.min(acc, v), acc))
-
-def fin_max(xs: List<&2, EG>, +acc: F64) -> F64:
-  match xs:
-    case Nil{}: acc
-    case +g <> t:
-      +v = eg_hi(g)
-      fin_max(t, P.upick_f(E.fin(v), F64.max(acc, v), acc))
-
-def sx_mk(+x0: F64, +x1: F64, +s: U32) -> SX:
-  +span = (x1 - x0 : F64)
-  SX{x0, P.upick_f(Bool.and(E.fin(span), F64.is_lt(0.0f64, span)), (U32.to_f64(s) / span : F64), 0.0f64), s}
-
-def slabs_n(+n: U32) -> U32:
-  +d = P.dm_d(P.dims(n))
-  P.dm_pow(Nat.div(1n+d, 2n))
-
-type KG is Data:
-  KG{ s: U32, g: EG }
-
-def kg_s(x: KG) -> U32:
-  KG{s, g} = x
-  s
-
-def kg_g(x: KG) -> EG:
-  KG{s, g} = x
-  g
-
-def kg_cmp_go(+a: KG, +b: KG) -> P.Sgn:
-  P.u_cmp(kg_s(a), kg_s(b))
-
-def kg_cmp(a: KG, b: KG) -> P.Sgn:
-  kg_cmp_go(a, b)
-
-def emit(fuel: Nat, stop: Bool, +s: U32, +s1: U32, +g: EG, acc: List<&2, KG>) -> List<&2, KG>:
-  match fuel:
-    case 0n: acc
-    case 1n+f:
-      match stop:
-        case True{}: acc
-        case False{}: emit(f, U32.is_eq(s, s1), (s + 1 : U32), s1, g, KG{s, g} <> acc)
-
-def emits(xs: List<&2, EG>, +c: SX, +fuel: Nat, acc: List<&2, KG>) -> List<&2, KG>:
-  match xs:
-    case Nil{}: acc
-    case +g <> t: emits(t, c, fuel, emit(fuel, False{}, slab(c, eg_lo(g)), slab(c, eg_hi(g)), g, acc))
-
-type SLB is Data:
-  SLB{ i: U32, cur: List<&2, EG>, out: List<&2, List<&2, EG>> }
-
-def slb_i(b: SLB) -> U32:
-  SLB{i, cur, out} = b
-  i
-
-def slb_step(same: Bool, b: SLB, +x: KG) -> SLB:
-  match same:
-    case True{}:
-      SLB{i, cur, out} = b
-      SLB{i, kg_g(x) <> cur, out}
+def qc_go(z: Bool, +t: XT, +p2: U32, +k: U32, +q: Pt) -> Hit:
+  match z:
+    case True{}: hit_none()
     case False{}:
-      SLB{+i, cur, out} = b
-      +gap = U32.to_nat(((kg_s(x) - i : U32) - 1 : U32))
-      SLB{kg_s(x), [kg_g(x)], List.append(&2, List<&2, EG>, P.rep_n(List<&2, EG>, gap, []), cur <> out)}
+      +i = (k - 1 : U32)
+      st_q(t, q, i, 0, p2, hit_none(), U32.is_lt(i, U32.shr(p2)))
 
-def slb_go(xs: List<&2, KG>, +b: SLB) -> SLB:
-  match xs:
-    case Nil{}: b
-    case +x <> t: slb_go(t, slb_step(U32.is_eq(kg_s(x), slb_i(b)), b, x))
-
-def slb_fin(b: SLB, +s: U32) -> List<&2, List<&2, EG>>:
-  SLB{+i, cur, out} = b
-  List.reverse(&2, List<&2, EG>, List.append(&2, List<&2, EG>,
-    P.rep_n(List<&2, EG>, U32.to_nat(((s - i : U32) - 1 : U32)), []), cur <> out))
-
-def slab_lists(+kgs: List<&2, KG>, +s: U32) -> List<&2, List<&2, EG>>:
-  slb_fin(slb_go(kgs, SLB{0, [], []}), s)
-
-type LC is Data:
-  LC{ sl: P.Tb<&2, List<&2, EG>>, sx: SX, sf: Nat, cyc: P.Tb<&2, U32>, oc: P.Tb<&2, U32>, vp: P.Tb<&2, Pt>, fuel: Nat }
-
-def lc_sl(c: LC) -> P.Tb<&2, List<&2, EG>>:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  sl
-
-def lc_sx(c: LC) -> SX:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  sx
-
-def lc_sf(c: LC) -> Nat:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  sf
-
-def lc_cyc(c: LC) -> P.Tb<&2, U32>:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  cyc
-
-def lc_oc(c: LC) -> P.Tb<&2, U32>:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  oc
-
-def lc_vp(c: LC) -> P.Tb<&2, Pt>:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  vp
-
-def lc_fuel(c: LC) -> Nat:
-  LC{sl, sx, sf, cyc, oc, vp, fuel} = c
-  fuel
-
-type SR is Data:
-  SR{ done: Bool, face: U32, add: U32, ok: Bool }
-
-def sr_of(has: Bool, +ok: Bool, +e: U32, +c: LC) -> SR:
-  match has:
-    case False{}: SR{True{}, P.inf(), P.inf(), ok}
-    case True{}:
-      +f = P.tb_get(U32, lc_cyc(c), ((e + e : U32) + 1 : U32))
-      +d = P.tb_get(U32, lc_oc(c), f)
-      SR{U32.is_eq(d, P.inf()), f, d, ok}
-
-def lowest_sl(fuel: Nat, stop: Bool, +c: LC, +s: U32, +s1: U32, +ex: List<&2, U32>,
-    +q: Pt, +b: Best) -> Best:
-  match fuel:
-    case 0n: b
-    case 1n+f:
-      match stop:
-        case True{}: b
-        case False{}:
-          lowest_sl(f, U32.is_eq(s, s1), c, (s + 1 : U32), s1, ex, q,
-            lowest(P.tb_get(List<&2, EG>, lc_sl(c), s), ex, q, b))
-
-def loc_step(+c: LC, +ex: List<&2, U32>, +q: Pt) -> SR:
-  +sx = lc_sx(c)
-  +b = lowest_sl(lc_sf(c), False{}, c, slab(sx, pt_lo(q)), slab(sx, pt_hi(q)), ex, q,
-    Best{True{}, False{}, eg_nil()})
-  sr_of(best_has(b), best_ok(b), eg_e(best_g(b)), c)
+def q_comp(+t: XT, +p2: U32, +k: U32, +q: Pt) -> Hit:
+  qc_go(U32.is_eq(k, 0), t, p2, k, q)
 
 type LR is Data:
   LR{ ok: Bool, face: U32 }
-
-def loc_go(fuel: Nat, st: SR, +c: LC, +ex: List<&2, U32>, +q: Pt, +acc: Bool) -> LR:
-  match fuel:
-    case 0n: LR{False{}, P.inf()}
-    case 1n+g:
-      SR{done, +face, +add, +ok} = st
-      match done:
-        case True{}: LR{Bool.and(acc, ok), face}
-        case False{}:
-          +ex2 = {add <> ex : List<&2, U32>}
-          loc_go(g, loc_step(c, ex2, q), c, ex2, q, Bool.and(acc, ok))
-
-def loc_comp_go(+c: LC, x: Comp) -> LR:
-  Comp{+root, outer} = x
-  +q = P.tb_get(Pt, lc_vp(c), root)
-  +ex = {[root] : List<&2, U32>}
-  loc_go(lc_fuel(c), loc_step(c, ex, q), c, ex, q, True{})
 
 type KV is Data:
   KV{ k: U32, v: U32 }
@@ -1175,26 +1157,28 @@ def oc_kvs(xs: List<&2, Comp>) -> List<&2, KV>:
 type NJ is Data:
   NJ{ term: Bool, face: U32, nxt: U32, ok: Bool }
 
-def nj_from(has: Bool, +ok: Bool, +e: U32, +c: LC, +pos: P.Tb<&2, U32>) -> NJ:
+def nj_from(has: Bool, +ok: Bool, +e: U32, +cyc: P.Tb<&2, U32>, +oc: P.Tb<&2, U32>,
+    +pos: P.Tb<&2, U32>) -> NJ:
   match has:
     case False{}: NJ{True{}, P.inf(), 0, ok}
     case True{}:
-      +f = P.tb_get(U32, lc_cyc(c), ((e + e : U32) + 1 : U32))
-      +d = P.tb_get(U32, lc_oc(c), f)
+      +f = P.tb_get(U32, cyc, ((e + e : U32) + 1 : U32))
+      +d = P.tb_get(U32, oc, f)
       +t = U32.is_eq(d, P.inf())
       NJ{t, f, P.upick(t, 0, P.tb_get(U32, pos, d)), ok}
 
 type NC is Data:
-  NC{ lc: LC, pos: P.Tb<&2, U32> }
+  NC{ st: XT, p2: U32, rk: P.Tb<&2, U32>, vp: P.Tb<&2, Pt>, cyc: P.Tb<&2, U32>,
+    oc: P.Tb<&2, U32>, pos: P.Tb<&2, U32> }
+
+def nj_hit(h: Hit, +cyc: P.Tb<&2, U32>, +oc: P.Tb<&2, U32>, +pos: P.Tb<&2, U32>) -> NJ:
+  Hit{ok, has, g} = h
+  nj_from(has, ok, eg_e(g), cyc, oc, pos)
 
 def nj_of_go(+c: NC, x: Comp) -> NJ:
-  NC{+lc, +pos} = c
+  NC{+st, +p2, +rk, +vp, +cyc, +oc, +pos} = c
   Comp{+root, outer} = x
-  +q = P.tb_get(Pt, lc_vp(lc), root)
-  +sx = lc_sx(lc)
-  +b = lowest_sl(lc_sf(lc), False{}, lc, slab(sx, pt_lo(q)), slab(sx, pt_hi(q)), [root], q,
-    Best{True{}, False{}, eg_nil()})
-  nj_from(best_has(b), best_ok(b), eg_e(best_g(b)), lc, pos)
+  nj_hit(q_comp(st, p2, P.tb_get(U32, rk, root), P.tb_get(Pt, vp, root)), cyc, oc, pos)
 
 def nj_of(c: NC, x: Comp) -> NJ:
   nj_of_go(c, x)
@@ -1238,19 +1222,10 @@ def cjs(xs: List<&2, Comp>, ys: List<&2, NJ>) -> List<&2, CJ>:
         case Nil{}: []
         case y <> yt: CJ{h, y} <> cjs(t, yt)
 
-def lr_pick(term: Bool, +c: LC, +x: Comp, +j: NJ) -> LR:
-  match term:
-    case True{}:
-      NJ{t, face, nxt, ok} = j
-      LR{ok, face}
-    case False{}: loc_comp_go(c, x)
-
-def lr_of_go(+c: LC, x: CJ) -> LR:
-  CJ{+cm, +j} = x
-  lr_pick(nj_term(j), c, cm, j)
-
-def lr_of(c: LC, x: CJ) -> LR:
-  lr_of_go(c, x)
+def lr_of(u: Unit, x: CJ) -> LR:
+  CJ{cm, j} = x
+  NJ{+t, face, nxt, ok} = j
+  LR{Bool.and(ok, t), P.upick(t, face, P.inf())}
 
 def pos_kvs(xs: List<&2, Comp>, +i: U32) -> List<&2, KV>:
   match xs:
@@ -1433,13 +1408,6 @@ def lp_mk(+c: WC, +f: U32, +hs: List<&2, U32>) -> LP:
   LP{f, List.append(&2, U32, P.drop_u(U32, hs, m, z), P.take_u(U32, hs, m, z)),
     List.append(&2, U32, P.drop_u(U32, os, m, z), P.take_u(U32, os, m, z)),
     he_cross(te, st, hin, hout)}
-
-def lp_of_go(+c: WC, s: ST) -> LP:
-  ST{+h, +f} = s
-  lp_mk(c, f, walk(wc_fuel(c), False{}, wc_tn(c), h, h, []))
-
-def lp_of(c: WC, s: ST) -> LP:
-  lp_of_go(c, s)
 
 def lex_pick(c: P.Sgn, r: P.Sgn) -> P.Sgn:
   match c:
@@ -1629,6 +1597,176 @@ def res_pick(ok: Bool, r: ARes) -> ARes:
     case True{}: r
     case False{}: A_err{T.F_uncertain{}}
 
+type WV is Data:
+  WV{ o: U32, i: U32 }
+
+def wv_cmp_go(+a: WV, +b: WV) -> P.Sgn:
+  WV{ao, ai} = a
+  WV{bo, bi} = b
+  lex_pick(P.u_cmp(ao, bo), P.u_cmp(ai, bi))
+
+def wv_cmp(a: WV, b: WV) -> P.Sgn:
+  wv_cmp_go(a, b)
+
+def wvs(os: List<&2, U32>, +i: U32) -> List<&2, WV>:
+  match os:
+    case Nil{}: []
+    case o <> t: WV{o, i} <> wvs(t, (i + 1 : U32))
+
+type WS is Data:
+  WS{ i: U32, seen: Bool }
+
+def ws_go(xs: List<&2, WV>, +prev: U32, first: Bool) -> List<&2, WS>:
+  match xs:
+    case Nil{}: []
+    case x <> t:
+      WV{+o, i} = x
+      WS{i, Bool.and(Bool.not(first), U32.is_eq(o, prev))} <> ws_go(t, o, False{})
+
+def ws_any(xs: List<&2, WS>) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case x <> t:
+      WS{i, seen} = x
+      Bool.or(seen, ws_any(t))
+
+def ws_cmp_go(+a: WS, +b: WS) -> P.Sgn:
+  WS{ai, sa} = a
+  WS{bi, sb} = b
+  P.u_cmp(ai, bi)
+
+def ws_cmp(a: WS, b: WS) -> P.Sgn:
+  ws_cmp_go(a, b)
+
+def ws_flags(xs: List<&2, WS>) -> List<&2, Bool>:
+  match xs:
+    case Nil{}: []
+    case x <> t:
+      WS{i, seen} = x
+      seen <> ws_flags(t)
+
+type SV is Data:
+  SV{ h: U32, o: U32 }
+
+def sv_peek(xs: List<&2, SV>, +o: U32) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case x <> t:
+      SV{h, xo} = x
+      U32.is_eq(xo, o)
+
+def sv_h(x: SV) -> U32:
+  SV{h, o} = x
+  h
+
+type PP is Data:
+  PP{ ok: Bool, st: List<&2, SV>, cy: List<&2, U32> }
+
+def pop_go(st: List<&2, SV>, hit: Bool, +o: U32, acc: List<&2, U32>) -> PP:
+  match st hit:
+    case Nil{} _: PP{False{}, [], acc}
+    case Con{x, t} True{}: PP{True{}, t, sv_h(x) <> acc}
+    case Con{x, +t} False{}: pop_go(t, sv_peek(t, o), o, sv_h(x) <> acc)
+
+type SP is Data:
+  SP{ ok: Bool, st: List<&2, SV>, cy: List<&2, List<&2, U32>> }
+
+def sp_pop(r: PP, +h: U32, +o: U32, ok: Bool, cy: List<&2, List<&2, U32>>) -> SP:
+  PP{rok, rst, rcy} = r
+  SP{Bool.and(ok, rok), SV{h, o} <> rst, rcy <> cy}
+
+def sp_push(s: SP, +h: U32, +o: U32) -> SP:
+  SP{ok, st, cy} = s
+  SP{ok, SV{h, o} <> st, cy}
+
+def sp_hit(s: SP, +h: U32, +o: U32) -> SP:
+  SP{ok, +st, cy} = s
+  sp_pop(pop_go(st, sv_peek(st, o), o, []), h, o, ok, cy)
+
+def sp_step(f: Bool, +h: U32, +o: U32, s: SP) -> SP:
+  match f:
+    case False{}: sp_push(s, h, o)
+    case True{}: sp_hit(s, h, o)
+
+def sp_bad(s: SP) -> SP:
+  SP{ok, st, cy} = s
+  SP{False{}, st, cy}
+
+def sp_go(hs: List<&2, U32>, os: List<&2, U32>, fl: List<&2, Bool>, s: SP) -> SP:
+  match hs:
+    case Nil{}: s
+    case h <> ht:
+      match os:
+        case Nil{}: sp_bad(s)
+        case o <> ot:
+          match fl:
+            case Nil{}: sp_bad(s)
+            case f <> ft: sp_go(ht, ot, ft, sp_step(f, h, o, s))
+
+def stk_hs(xs: List<&2, SV>, acc: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}: acc
+    case x <> t:
+      SV{h, o} = x
+      stk_hs(t, h <> acc)
+
+type CR is Data:
+  CR{ ok: Bool, cs: List<&2, List<&2, U32>> }
+
+def cr_fin(+ok: Bool, s: SP) -> CR:
+  SP{sok, st, cy} = s
+  CR{Bool.and(ok, sok), stk_hs(st, []) <> cy}
+
+def cyc_pick(rep: Bool, +hs: List<&2, U32>, +os: List<&2, U32>, ws: List<&2, WS>) -> CR:
+  match rep:
+    case False{}: CR{True{}, [hs]}
+    case True{}:
+      +fs = P.msort(~WS, ~ws_cmp, ws)
+      cr_fin(so_ok(WS, fs), sp_go(hs, os, ws_flags(so_xs(WS, fs)), SP{True{}, [], []}))
+
+def cr_and(+ok: Bool, r: CR) -> CR:
+  CR{rok, cs} = r
+  CR{Bool.and(ok, rok), cs}
+
+def cyc_split(+hs: List<&2, U32>, +os: List<&2, U32>) -> CR:
+  +vs = P.msort(~WV, ~wv_cmp, wvs(os, 0))
+  +ws = ws_go(so_xs(WV, vs), 0, True{})
+  cr_and(so_ok(WV, vs), cyc_pick(ws_any(ws), hs, os, ws))
+
+type LS is Data:
+  LS{ ok: Bool, xs: List<&2, LP> }
+
+def lps_mk(cs: List<&2, List<&2, U32>>, +c: WC, +f: U32) -> List<&2, LP>:
+  match cs:
+    case Nil{}: []
+    case h <> t: lp_mk(c, f, h) <> lps_mk(t, c, f)
+
+def ls_mk(r: CR, +c: WC, +f: U32) -> LS:
+  CR{ok, cs} = r
+  LS{ok, lps_mk(cs, c, f)}
+
+def lps_of_go(+c: WC, s: ST) -> LS:
+  ST{+h, +f} = s
+  +hs = walk(wc_fuel(c), False{}, wc_tn(c), h, h, [])
+  ls_mk(cyc_split(hs, orgs(wc_te(c), hs)), c, f)
+
+def lps_of(c: WC, s: ST) -> LS:
+  lps_of_go(c, s)
+
+def ls_ok(xs: List<&2, LS>) -> Bool:
+  match xs:
+    case Nil{}: True{}
+    case x <> t:
+      LS{ok, ys} = x
+      Bool.and(ok, ls_ok(t))
+
+def ls_cat(xs: List<&2, LS>) -> List<&2, LP>:
+  match xs:
+    case Nil{}: []
+    case x <> t:
+      LS{ok, ys} = x
+      List.append(&2, LP, ys, ls_cat(t))
+
 def arr_build(+segs: List<&2, Seg>) -> ARes:
   +sis = number(segs, 0)
   +st = P.tb_of(Seg, segs, seg_nil())
@@ -1654,19 +1792,20 @@ def arr_build(+segs: List<&2, Seg>) -> ARes:
   +ps = cc_ps(cc)
   +comps = comps_go(ps, 0, tlu, tcy)
   +vp = P.tb_of(Pt, vx_ps(verts), PF{0.0f64, 0.0f64})
-  +eg = egs(es, 0, P.tb_of(U32, ps, 0), vp, st)
+  +rk = rk_go(verts, PF{0.0f64, 0.0f64}, 0, True{})
+  +reps = rep_go(verts, PF{0.0f64, 0.0f64}, True{})
+  +nx = P.ulen(Pt, reps)
+  +nint = P.upick(U32.is_eq(nx, 0), 0, (nx - 1 : U32))
+  +p2 = P.dm_pow(P.dm_d(P.dims(nint)))
+  +sxs = se_if(U32.is_lt(1, P.ulen(Comp, comps)), es, P.tb_of(U32, rk, 0), st)
+  +stb = st_build(2n+P.dm_d(P.dims(p2)), nil_se(sxs), 0, p2, sxs, P.tb_of(Pt, reps, PF{0.0f64, 0.0f64}))
   +ock = P.msort(~KV, ~kv_cmp, oc_kvs(comps))
   +oc = P.tb_of(U32, fill(cyl, so_xs(KV, ock), P.inf(), False{}), P.inf())
   +nc = P.ulen(Comp, comps)
-  +ns = slabs_n(P.ulen(IE, es))
-  +sx = sx_mk(fin_min(eg, f_pinf()), fin_max(eg, f_ninf()), ns)
-  +sfu = U32.to_nat((ns + 1 : U32))
-  +kgs = P.msort(~KG, ~kg_cmp, emits(eg, sx, sfu, []))
-  +sl = P.tb_of(List<&2, EG>, slab_lists(so_xs(KG, kgs), ns), [])
-  +lc = {LC{sl, sx, sfu, tcy, oc, vp, U32.to_nat((nc + 1 : U32))} : LC}
   +pos = P.tb_of(U32, fill(P.iota_go(VX, verts, 0), pos_kvs(comps, 0), P.inf(), False{}), P.inf())
-  +njs = nj_rounds(1n+P.rounds_of(nc), P.pmap(~Comp, ~NC, ~NJ, ~nj_of, NC{lc, pos}, comps))
-  +lrs = P.pmap(~CJ, ~LC, ~LR, ~lr_of, lc, cjs(comps, njs))
+  +njs = nj_rounds(1n+P.rounds_of(nc), P.pmap(~Comp, ~NC, ~NJ, ~nj_of,
+    NC{xtb_t(stb), p2, P.tb_of(U32, rk, 0), vp, tcy, oc, pos}, comps))
+  +lrs = P.pmap(~CJ, ~Unit, ~LR, ~lr_of, Unit{}, cjs(comps, njs))
   +rgk = P.msort(~KV, ~kv_cmp, rg_kvs(comps, lrs))
   +rg = P.tb_of(U32, fill(cyl, so_xs(KV, rgk), P.inf(), True{}), P.inf())
   +hfuel = U32.to_nat((P.ulen(U32, cyl) + 1 : U32))
@@ -1676,14 +1815,14 @@ def arr_build(+segs: List<&2, Seg>) -> ARes:
   +sts = starts(nks, jump_min(nkl), 0)
   +te = P.tb_of(IE, es, ie_nil())
   +vk = P.tb_of(VKey, vx_keys(verts), VK_end{0u64, 0u64})
-  +lps = P.pmap(~ST, ~WC, ~LP, ~lp_of, WC{P.tb_of(U32, nkl, 0), te, st, vk, hfuel}, sts)
-  +lsort = P.msort(~LP, ~lp_cmp, lps)
+  +lsl = P.pmap(~ST, ~WC, ~LS, ~lps_of, WC{P.tb_of(U32, nkl, 0), te, st, vk, hfuel}, sts)
+  +lsort = P.msort(~LP, ~lp_cmp, ls_cat(lsl))
   +rb = regions_of(te, vk, so_xs(LP, lsort))
   +rsort = P.msort(~RR, ~rr_cmp, rb_acc(rb))
   +dang = List.concat(&2, OHE, P.pmap(~U32, ~DC, ~List<&2, OHE>, ~dang_of, DC{kc, te, vk}, P.iota_go(IE, es, 0)))
   +ok = P.ands([so_ok(SI, ssort), so_ok(TS, pst), so_ok(TS, tsort), vg_ok(vg), so_ok(TV, tvs),
-    so_ok(E1, e1), so_ok(HO, hsort), grs_ok(grs), so_ok(NP, nps), cc_ok(cc), so_ok(KV, ock),
-    lrs_ok(lrs), so_ok(KV, rgk), so_ok(LP, lsort), rb_ok(rb), so_ok(RR, rsort)])
+    so_ok(E1, e1), so_ok(HO, hsort), grs_ok(grs), so_ok(NP, nps), cc_ok(cc), xtb_ok(stb), so_ok(KV, ock),
+    lrs_ok(lrs), so_ok(KV, rgk), ls_ok(lsl), so_ok(LP, lsort), rb_ok(rb), so_ok(RR, rsort)])
   res_pick(ok, A_ok{U32.to_nat(nv), U32.to_nat(P.ulen(IE, es)), U32.to_nat(nc),
     rrs_reg(so_xs(RR, rsort)), dang})
 
@@ -1705,17 +1844,15 @@ def arrange_go(valid: Bool, +segs: List<&2, Seg>, +fuel: Nat) -> ARes:
 def arrange(+segs: List<&2, Seg>, +fuel: Nat) -> ARes:
   arrange_go(segs_ok(segs), segs, fuel)
 
-def id_ins(xs: List<&2, U64>, +x: U64) -> List<&2, U64>:
-  match xs:
-    case Nil{}: [x]
-    case +h <> +t:
-      Bool.pick(List<&2, U64>, U64.is_lt(x, h), x <> h <> t,
-        Bool.pick(List<&2, U64>, U64.is_eq(x, h), h <> t, h <> id_ins(t, x)))
+def id_keep(c: Bool, +x: U64, rest: List<&2, U64>) -> List<&2, U64>:
+  match c:
+    case True{}: x <> rest
+    case False{}: rest
 
-def ids_union(xs: List<&2, U64>, ys: List<&2, U64>) -> List<&2, U64>:
+def uniq64(xs: List<&2, U64>, +prev: U64, first: Bool) -> List<&2, U64>:
   match xs:
-    case Nil{}: ys
-    case h <> t: ids_union(t, id_ins(ys, h))
+    case Nil{}: []
+    case +h <> t: id_keep(Bool.or(first, Bool.not(U64.is_eq(h, prev))), h, uniq64(t, h, False{}))
 
 def vk_show(k: VKey) -> String:
   match k:
@@ -1770,7 +1907,7 @@ def loop_ids(xs: List<&2, OHE>, acc: List<&2, U64>) -> List<&2, U64>:
     case Nil{}: acc
     case h <> t:
       OHE{from, to, srcs} = h
-      loop_ids(t, ids_union(srcs, acc))
+      loop_ids(t, List.append(&2, U64, srcs, acc))
 
 def holes_ids(xs: List<&2, List<&2, OHE>>, acc: List<&2, U64>) -> List<&2, U64>:
   match xs:
@@ -1779,7 +1916,7 @@ def holes_ids(xs: List<&2, List<&2, OHE>>, acc: List<&2, U64>) -> List<&2, U64>:
 
 def region_key(r: Region) -> List<&2, U64>:
   Region{outer, holes} = r
-  holes_ids(holes, loop_ids(outer, []))
+  uniq64(so_xs(U64, P.msort(~U64, ~id_cmp, holes_ids(holes, loop_ids(outer, [])))), 0u64, True{})
 
 def keys_show(xs: List<&2, Region>) -> String:
   match xs:

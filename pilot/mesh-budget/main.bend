@@ -1,9 +1,3 @@
-# Pilot entry point: replays the oracle vectors (oracle.ts, generated from the
-# ORIGINAL mesh-budget.ts) against the Bend port and prints the same line
-# protocol. Byte-identical stdout across lanes + `diff` against oracle.out is
-# the verification gate; the trailing `selfcheck fails=N` line folds every
-# internal expectation (accept values, reject fields, boundary, atomicity).
-
 import Base
 import ./mesh_budget.bend as MB
 

@@ -1,11 +1,7 @@
-# C00 test support: shared fixtures, pure verdicts, line reporting.
-# Imported by neg.bend and positive.bend; no main here.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c00/eval.bend as E
 
-# --- Fixtures ---
 def tol_good() -> T.Tol:
   T.mk_tol(0.001f64, 0.0001f64, 0.00001f64, 0.01f64, 0.1f64)
 
@@ -27,7 +23,6 @@ def unk_req(tag: U64, tol: T.Tol, b: T.Budget, n: U64, cx: Bool) -> T.Request:
   T.mk_request(T.K_unknown{tag}, T.U_mm{}, 1.0f64, 0.0f64, 0.0f64, 0.0f64,
     7u64, tol, b, n, cx)
 
-# --- Pure verdicts ---
 def failed_as_go(o: T.Outcome, ok: Bool) -> Bool:
   match o:
     case T.Failed{kind, model, op}: ok
@@ -78,7 +73,6 @@ def empty_as_go(o: T.Outcome, got: String, m: T.Model, pre: T.Model) -> Bool:
 def empty_as(+o: T.Outcome, pre: T.Model) -> Bool:
   empty_as_go(o, E.outcome_show(o), E.outcome_model(o), pre)
 
-# --- Reporting (one run per test; verdicts recomputed, pure) ---
 def verdict(ok: Bool) -> String:
   match ok:
     case True{}: "PASS"

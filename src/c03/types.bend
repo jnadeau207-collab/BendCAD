@@ -1,71 +1,35 @@
-# C03 curve/surface/trim types: parameter domains, implicit + parametric
-# geometry, trimming curves in surface parameter space, NURBS data.
-# Data + total predicates + validated constructors + one result type.
-# Evaluators: ops.bend. Contract: docs/c03-contract.md.
-# Failure arms reuse C00 FailKind (T.FailKind); no new taxonomy.
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 
-# --- Parameter domain: a finite open interval lo < hi. Periodic curves
-# wrap it (Pdom); clamped curves reject outside parameters. ---
 type Dom is Data:
   Dom{ lo: F64, hi: F64 }
 
-# Periodic wrapper: the same interval with seam identification
-# (wrap maps hi back to lo). The seam point is an honest geometric
-# point, never a guessed branch (contract §6).
 type Pdom is Data:
   Pdom{ d: Dom, periodic: Bool }
 
-# --- Lines: point + free direction. The direction must be nonzero;
-# unit-ness is NOT required (projectors divide by d.d). ---
 type Line3 is Data:
   Ln{ p: V.Point, d: V.Dir }
 
-# --- Planes in frame form: origin + in-plane basis (u, v). The normal
-# is u x v. Semantic validation (orthonormality) is ops.bend's
-# plane_checked; mk_plane gates finiteness only. ---
 type Plane3 is Data:
   Pl{ o: V.Point, u: V.Dir, v: V.Dir }
 
-# --- Circles in frame form with the RATIONAL full-turn parameter
-# (tangent-quarter-angle): with D = (1+t^2)^2,
-# C(t) = c + r*(nx*u + ny*v),
-# nx = (1-6t^2+t^4)/D, ny = 4t(1-t^2)/D, t in [-1, 1].
-# t = 0 is c+r*u; t -> +-1 closes the full turn at the single seam
-# point c-r*u (up to signed zero: ny is +0.0/-0.0 at +1/-1).
-# No transcendental evaluation anywhere. Frame orthonormality is
-# ops.bend's circ_checked.
 type Circle3 is Data:
   Cc{ c: V.Point, u: V.Dir, v: V.Dir, r: F64 }
 
-# --- Cubic Bezier curve: four finite control points, t in [0, 1]. ---
 type Bez3 is Data:
   Bz{ p0: V.Point, p1: V.Point, p2: V.Point, p3: V.Point }
 
-# --- Rational quadratic Bezier = conic arc: three points + three
-# strictly positive finite weights. The supporting conic's class is
-# sign(w1^2 - w0*w2): ellipse / parabola / hyperbola branch. The
-# rational quarter circle is weights (1, sqrt2/2, 1). ---
 type RQBez is Data:
   Rq{ p0: V.Point, p1: V.Point, p2: V.Point, w0: F64, w1: F64,
     w2: F64 }
 
-# --- Bicubic tensor-product Bezier patch: 4x4 controls, (u, v) in
-# [0, 1]^2. Iso-curves are cubic Beziers (ops.bend). ---
 type BezP is Data:
   Bp{ p00: V.Point, p01: V.Point, p02: V.Point, p03: V.Point,
     p10: V.Point, p11: V.Point, p12: V.Point, p13: V.Point,
     p20: V.Point, p21: V.Point, p22: V.Point, p23: V.Point,
     p30: V.Point, p31: V.Point, p32: V.Point, p33: V.Point }
 
-# --- Quadrics in implicit + frame form. Axes must be UNIT (ops.bend's
-# *_checked enforce |norm-1| <= 1e-12); value/gradient formulas assume
-# it by contract. Cone slope k = radial per unit axial (no angle, no
-# trig); the implicit equation is the double cone, one nappe is the
-# ax >= 0 side condition (cone_ax). ---
 type Sphere is Data:
   Sp{ c: V.Point, r: F64 }
 
@@ -78,30 +42,18 @@ type Cone is Data:
 type Torus is Data:
   To{ o: V.Point, a: V.Dir, R: F64, r: F64 }
 
-# --- Axis-aligned enclosure: two finite corners with lo <= hi
-# componentwise (ordered). Produced only by certified hulls. ---
 type BBox3 is Data:
   Bb{ lo: V.Point, hi: V.Point }
 
-# --- Trimming curves live in SURFACE parameter space from the outset:
-# a segment or cubic Bezier over (u, v). Composition with a surface
-# maps them to 3D (plane_trim_pt now; other surfaces in C07/C08). ---
 type TSeg is Data:
   Ts{ a: V.Vec2, b: V.Vec2 }
 
 type TBez is Data:
   Tb{ b0: V.Vec2, b1: V.Vec2, b2: V.Vec2, b3: V.Vec2 }
 
-# --- Cubic clamped NURBS: knot/point/weight lists with len(ks) =
-# len(ps) + 4 = len(ws) + 4, validated by ops.bend's nurbs_checked
-# (finite, nondecreasing, clamped ends, positive weights). Degree is
-# FIXED at 3; the kind is content (knot vector + controls), never an
-# ordinal or address (BN-7; contract §8). ---
 type Nurb is Data:
   Nb{ ks: List<&2, F64>, ps: List<&2, V.Point>, ws: List<&2, F64> }
 
-# --- Fixed windows extracted from NURBS lists for one de Boor step.
-# Single-pass fuel-bounded extraction; the rest is fixed-size. ---
 type K7 is Data:
   K7{ k0: F64, k1: F64, k2: F64, k3: F64, k4: F64, k5: F64, k6: F64 }
 
@@ -114,9 +66,6 @@ type W4 is Data:
 type K4 is Data:
   K4{ k0: F64, k1: F64, k2: F64, k3: F64 }
 
-# --- One value union, one result type: every fallible C03 op returns
-# GRes carrying either a value or a C00 FailKind. No NaN/Inf ever hides
-# in Gok. ---
 type GVal is Data:
   GV_f{ v: F64 }
   GV_p{ v: V.Point }
@@ -212,15 +161,11 @@ def gres_show(r: GRes) -> String:
     case Gok{v}: "ok"
     case Gerr{kind}: T.FailKind.show(kind)
 
-# Total kind projector. There is no ok-valued FailKind, so Gok yields
-# F_invalid BY DOCUMENTED CONVENTION (mirrors C01 cres_kind); gate on
-# gres_ok or gres_show before reading the kind.
 def gres_kind(r: GRes) -> T.FailKind:
   match r:
     case Gok{v}: T.F_invalid{}
     case Gerr{kind}: kind
 
-# Total projectors; documented zeroes unless the arm matches.
 def gres_f(r: GRes) -> F64:
   match r:
     case Gok{v}:
@@ -271,15 +216,12 @@ def gres_bb(r: GRes) -> BBox3:
     case Gerr{kind}: Bb{V.Pt{0.0f64, 0.0f64, 0.0f64},
       V.Pt{0.0f64, 0.0f64, 0.0f64}}
 
-# --- Exact constants as bit patterns (no parser dependence). ---
-# Rational quarter-circle middle weight sqrt(2)/2 (python struct).
 def w_quarter() -> F64:
   F64{4604544271217802189u64}
 
 def one_o2() -> F64:
   0.5f64
 
-# --- Raw accessors (total; no validation, no failure). ---
 def dom_lo(d: Dom) -> F64:
   Dom{lo, hi} = d
   lo
@@ -560,7 +502,6 @@ def w4_3(w: W4) -> F64:
   W4{w0, w1, w2, w3} = w
   w3
 
-# --- Finiteness: the entry boundary, mirroring C00 is_finite. ---
 def dom_fin(d: Dom) -> Bool:
   Dom{lo, hi} = d
   Bool.and(T.is_finite(lo), T.is_finite(hi))
@@ -641,23 +582,14 @@ def tb_fin(t: TBez) -> Bool:
   Bool.and(V.v2_fin(b0),
     Bool.and(V.v2_fin(b1), Bool.and(V.v2_fin(b2), V.v2_fin(b3))))
 
-# A direction is degenerate iff exactly the zero vector (ordered
-# equality; -0.0 == +0.0, so signed zeroes are zero too).
 def dr_is_zero(d: V.Dir) -> Bool:
   V.Dr{x, y, z} = d
   Bool.and(F64.is_eq(x, 0.0f64),
     Bool.and(F64.is_eq(y, 0.0f64), F64.is_eq(z, 0.0f64)))
 
-# Strictly positive finite scalar (radius, weight, slope): the
-# is_lt conjunct alone would admit +Inf, so finiteness is load-bearing.
 def spos(+x: F64) -> Bool:
   Bool.and(T.is_finite(x), F64.is_lt(0.0f64, x))
 
-# --- Semantic validity: finiteness + shape (the ONE centralized
-# layer; contract §3 step 2). Constructors AND evaluators consume
-# these; a raw value that fails them is malformed input, never
-# evaluated. Norm/frame checks (orthonormality, unit axis) stay in
-# ops.bend, conjoined at each call site. ---
 def dom_valid(d: Dom) -> Bool:
   Dom{+lo, +hi} = d
   Bool.and(dom_fin(Dom{lo, hi}), F64.is_lt(lo, hi))
@@ -666,8 +598,6 @@ def ln_valid(l: Line3) -> Bool:
   Ln{+p, +d} = l
   Bool.and(ln_fin(Ln{p, d}), Bool.not(dr_is_zero(d)))
 
-# Circle finiteness + positive radius; the orthonormal frame is
-# ops.bend's uv_frame_ok, conjoined by every circle op.
 def cc_valid(c: Circle3) -> Bool:
   Cc{+c, +u, +v, +r} = c
   Bool.and(cc_fin(Cc{c, u, v, r}), spos(r))
@@ -702,8 +632,6 @@ def to_valid(s: Torus) -> Bool:
       Bool.and(Bool.not(dr_is_zero(a)),
         Bool.and(spos(R), spos(r)))))
 
-# --- Validated constructors: malformed input fails as invalid-input.
-# Semantic checks needing norms/orthonormality live in ops.bend. ---
 def mk_dom_go(lo: F64, hi: F64, ok: Bool) -> GRes:
   match ok:
     case True{}: gok_dom(Dom{lo, hi})

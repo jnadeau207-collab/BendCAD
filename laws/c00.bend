@@ -1,15 +1,7 @@
-# C00 laws: every claim closed by the proof beneath it. Bend rejects open
-# laws ("1 TODO found" fails the check), so the unbounded general claims live
-# as explicit numbered laws in docs/c00-contract.md; this file proves each
-# pipeline arm's routing, attribution, and atomicity instance, plus three
-# fully general laws (cancel_atomic, opid_excludes_*). Pins: F64 bit patterns
-# from python struct; FNV goldens cross-checked in python (see contract doc).
-
 import Base
 import ../src/c00/types.bend as T
 import ../src/c00/eval.bend as E
 
-# --- Fixtures ---
 def tol_good() -> T.Tol:
   T.mk_tol(0.001f64, 0.0001f64, 0.00001f64, 0.01f64, 0.1f64)
 
@@ -53,7 +45,6 @@ def req_badord() -> T.Request:
   T.mk_request(T.K_isect{}, T.U_mm{}, 10.0f64, 0.0f64, 5.0f64, 15.0f64, 7u64,
     tol_good(), bud2(), 64u64, False{})
 
-# --- Boundary classifier + normalization ---
 law finite_accepts:
   {Bool.and(T.is_finite(1.0f64), T.is_finite(0.0f64)) == True{} : Bool}
 
@@ -98,7 +89,6 @@ law taxonomy:
 def taxonomy():
   {==}
 
-# --- Cancellation: general over every model and request ---
 law cancel_atomic:
   for m: T.Model
   for r: T.Request
@@ -119,7 +109,6 @@ def cancel_explicit(r):
     case T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cx}:
       {==}
 
-# --- Fuel exhaustion: explicit incomplete, never trusted geometry ---
 law fuel0_incomplete:
   {E.outcome_show(E.run(T.model_seed(), E.set_fuel(req_len_ok(), 0u64)))
     == "incomplete" : String}
@@ -148,7 +137,6 @@ law fuel1_reports_invalid:
 def fuel1_reports_invalid():
   {==}
 
-# --- Byte budget ---
 law bytes_exhausted:
   {E.outcome_show(E.run(T.model_seed(), E.set_bytes(req_len_ok(), 1000001u64)))
     == "resource-exhausted" : String}
@@ -163,7 +151,6 @@ law bytes_keeps_model:
 def bytes_keeps_model():
   {==}
 
-# --- Nonfinite + malformed rejection, each with atomicity ---
 law nan_rejected:
   {E.outcome_show(E.run(T.model_seed(), req_nan())) == "invalid-input"
     : String}
@@ -213,7 +200,6 @@ law unknown_keeps_model:
 def unknown_keeps_model():
   {==}
 
-# --- Normalization overflow: uncertainty, never trusted geometry ---
 law overflow_uncertain:
   {E.outcome_show(E.run(T.model_seed(), req_ovf()))
     == "numerical-uncertainty" : String}
@@ -228,7 +214,6 @@ law overflow_keeps_model:
 def overflow_keeps_model():
   {==}
 
-# --- Publication: once, with the exact witness and revision ---
 law len_publishes:
   {E.outcome_show(E.run(T.model_seed(), req_len_ok())) == "ok-value" : String}
 
@@ -263,7 +248,6 @@ law len_checksum:
 def len_checksum():
   {==}
 
-# --- Empty intersection: success, distinctly, with the model unchanged ---
 law empty_is_success:
   {E.outcome_show(E.run(T.model_seed(), req_isect_miss())) == "ok-empty"
     : String}
@@ -299,7 +283,6 @@ law isect_hit_rev:
 def isect_hit_rev():
   {==}
 
-# --- Op identity excludes execution inputs: general over every request ---
 law opid_excludes_fuel:
   for r: T.Request
   for a: U64
@@ -333,7 +316,6 @@ def opid_excludes_bytes(r, a, b):
     case T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cx}:
       {==}
 
-# --- Attribution: every outcome carries its request's id ---
 law failed_attributed:
   {E.outcome_op(E.run(T.model_seed(), req_nan())) == E.op_id(req_nan()) : U64}
 

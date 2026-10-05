@@ -1,6 +1,3 @@
-# C06 box-builder + profile-validator pins.
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -13,8 +10,6 @@ def is_sok(r: Y.SRes) -> Bool:
     case Y.Sok{v}: True{}
     case Y.Serr{k, dg}: False{}
 
-# want: 0 invalid-input, 1 numerical-uncertainty, 2 unsupported-op,
-# 3 resource-exhausted.
 def kind_is(r: Y.SRes, want: U64) -> Bool:
   match r:
     case Y.Sok{v}: False{}

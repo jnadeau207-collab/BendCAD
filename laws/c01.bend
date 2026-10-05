@@ -1,14 +1,8 @@
-# C01 laws: every claim closed by the proof beneath it. Unbounded claims
-# live as explicit M-laws in docs/c01-contract.md; this file proves the
-# structural properties generally plus one instance per pipeline arm.
-# Pins: F64 bit patterns from python struct (independent oracle).
-
 import Base
 import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
 import ../src/c01/ops.bend as O
 
-# --- Bit-equality helpers (exact pins, no show-format dependence) ---
 def v3_bits_eq(+r: V.CRes, +wx: U64, +wy: U64, +wz: U64) -> Bool:
   +v = V.cres_v3(r)
   Bool.and(U64.is_eq(F64.bits(V.v3_x(v)), wx),
@@ -40,7 +34,6 @@ def m_bits_eq(+r: V.CRes, +w0: U64, +w1: U64, +w2: U64, +w3: U64,
                 Bool.and(U64.is_eq(F64.bits(V.m_h(m)), w7),
                   U64.is_eq(F64.bits(V.m_i(m)), w8)))))))))
 
-# --- Fixtures ---
 def v340() -> V.Vec3:
   V.V3{3.0f64, 4.0f64, 0.0f64}
 
@@ -99,7 +92,6 @@ def rt_back_go(ri: V.CRes) -> V.CRes:
 def rt_back_val() -> V.CRes:
   rt_back_go(rt_inv())
 
-# --- Structural: general over every value/kind ---
 law cres_ok_ok:
   for v: V.CVal
   {V.cres_ok(V.Cok{v}) == True{} : Bool}
@@ -128,7 +120,6 @@ law cerr_zero_v3:
 def cerr_zero_v3(k):
   {==}
 
-# --- Entry boundary: nonfinite rejected in every constructor ---
 law entry_vec:
   {Bool.and(String.eq(V.cres_show(V.mk_v3(F64.nan(), 0.0f64, 0.0f64)),
       "invalid-input"),
@@ -150,7 +141,6 @@ law entry_pdm:
 def entry_pdm():
   {==}
 
-# --- Scaled norms: exact pins, no spurious overflow, true overflow fails ---
 law norm345:
   {F64.bits(V.cres_f(O.v3_norm(v340()))) == 4617315517961601024u64 : U64}
 
@@ -189,7 +179,6 @@ law norm_1e300:
 def norm_1e300():
   {==}
 
-# --- Normalize: unit pins; zero fails, never NaN ---
 law unit340:
   {v3_bits_eq(O.v3_normalize(v340()), 4603579539098121011u64,
     4605380978949069210u64, 0u64) == True{} : Bool}
@@ -210,7 +199,6 @@ law drunit_zero_inv:
 def drunit_zero_inv():
   {==}
 
-# --- dot / cross / det exact pins ---
 law dot32:
   {F64.bits(V.cres_f(O.v3_dot(V.V3{1.0f64, 2.0f64, 3.0f64},
     V.V3{4.0f64, 5.0f64, 6.0f64}))) == 4629700416936869888u64 : U64}
@@ -240,8 +228,6 @@ law det_diag123:
 def det_diag123():
   {==}
 
-# --- Inverse: exact pins; singular and near-singular fail honestly ---
-# Off-diagonal b/d/f/h are negated cofactors: -(+0.0) = -0.0 (exact).
 law inv_ident:
   {m_bits_eq(O.m3_inv(m_ident()), 4607182418800017408u64,
     9223372036854775808u64, 0u64, 9223372036854775808u64,
@@ -272,7 +258,6 @@ law inv_near_unc:
 def inv_near_unc():
   {==}
 
-# --- Point/direction algebra pins; coincident seg_dir fails ---
 law seg_coincident_inv:
   {V.cres_show(O.seg_dir(V.Pt{1.0f64, 2.0f64, 3.0f64},
     V.Pt{1.0f64, 2.0f64, 3.0f64})) == "invalid-input" : String}
@@ -291,7 +276,6 @@ law pt_algebra:
 def pt_algebra():
   {==}
 
-# --- Rigid round-trip: exact Rz90 forward and back ---
 law mk_rigid_ok:
   {V.cres_show(O.mk_rigid(V.M3{0.0f64, F64.neg(1.0f64), 0.0f64, 1.0f64,
     0.0f64, 0.0f64, 0.0f64, 0.0f64, 1.0f64}, 5.0f64, 6.0f64, 7.0f64))
@@ -322,7 +306,6 @@ law dir_notrans:
 def dir_notrans():
   {==}
 
-# --- Frames: obligation enforced, basis builder exact on axes ---
 law frame_ident_ok:
   {V.cres_show(O.mk_frame(0.0f64, 0.0f64, 0.0f64, 1.0f64, 0.0f64,
     0.0f64, 0.0f64, 1.0f64, 0.0f64, 0.0f64, 0.0f64, 1.0f64))

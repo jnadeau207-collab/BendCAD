@@ -1,6 +1,3 @@
-# C01 negative tests: every failure arm asserts its structured kind and
-# that no NaN leaks through projectors. Ends in selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -109,8 +106,6 @@ def main() -> IO(Unit):
           U64.is_eq(F64.bits(V.m_a(V.cres_m(O.m3_inv(m_sing())))),
             0u64))),
       f25)
-    # Norm-family input gates: NaN in each slot, other slots zero, is
-    # malformed (invalid-input), never a swallowed 0.0 ok.
     f27 : U64 <- C.report_err("neg-norm-nan-x0",
       O.v3_norm(V.V3{F64.nan(), 0.0f64, 0.0f64}), "invalid-input",
       f26)
@@ -137,7 +132,6 @@ def main() -> IO(Unit):
       O.v2_norm(V.V2{F64.nan(), 1.0f64}), "invalid-input", f34)
     f36 : U64 <- C.report_err("neg-norm2-nan-y1",
       O.v2_norm(V.V2{1.0f64, F64.nan()}), "invalid-input", f35)
-    # Same gate for infinities (every nonfinite class, every width).
     f37 : U64 <- C.report_err("neg-norm-inf-x",
       O.v3_norm(V.V3{F64{9218868437227405312u64}, 0.0f64, 0.0f64}),
       "invalid-input", f36)
@@ -150,7 +144,6 @@ def main() -> IO(Unit):
     f40 : U64 <- C.report_err("neg-norm2-inf",
       O.v2_norm(V.V2{0.0f64, F64{9218868437227405312u64}}),
       "invalid-input", f39)
-    # The same vectors through normalize: gated before the raw norm.
     f41 : U64 <- C.report_err("neg-unit-nan-x0",
       O.v3_normalize(V.V3{F64.nan(), 0.0f64, 0.0f64}),
       "invalid-input", f40)
@@ -181,7 +174,6 @@ def main() -> IO(Unit):
     f50 : U64 <- C.report_err("neg-unit2-nan-y1",
       O.v2_normalize(V.V2{1.0f64, F64.nan()}), "invalid-input",
       f49)
-    # The same vectors through dist (against the origin): gated inputs.
     f51 : U64 <- C.report_err("neg-dist-nan-x0",
       O.v3_dist(V.V3{F64.nan(), 0.0f64, 0.0f64}, C.v000()),
       "invalid-input", f50)
@@ -212,7 +204,6 @@ def main() -> IO(Unit):
     f60 : U64 <- C.report_err("neg-dist2-nan-y1",
       O.v2_dist(V.V2{1.0f64, F64.nan()}, V.V2{0.0f64, 0.0f64}),
       "invalid-input", f59)
-    # Gated siblings: point/dir/frame entries pin invalid-input too.
     f61 : U64 <- C.report_err("neg-seg-nan",
       O.seg_dir(C.pt123(), V.Pt{F64.nan(), 0.0f64, 0.0f64}),
       "invalid-input", f60)
@@ -233,8 +224,6 @@ def main() -> IO(Unit):
       O.frame_basis(V.Pt{0.0f64, 0.0f64, 0.0f64},
         V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Dr{1.0f64, F64.nan(), 0.0f64}),
       "invalid-input", f65)
-    # Result-validated regime (contrast): polynomial ops propagate NaN
-    # to a nonfinite result and report numerical-uncertainty.
     f67 : U64 <- C.report_err("neg-dot-nan-unc",
       O.v3_dot(V.V3{F64.nan(), 1.0f64, 2.0f64},
         V.V3{1.0f64, 2.0f64, 3.0f64}),

@@ -1,13 +1,3 @@
-# C06 builders: solid ops over C00-C05. Total spec builders fail
-# closed through brep_checked (stage-attributed diagnosis) and the
-# C06 quad-trim check. Intent comparison is the evaluator's publish
-# (eval.bend), not this file. Validators: profile/topology up front
-# (invalid-input); representability at the gates (uncertain, never
-# snapped).
-# Contract: docs/c06-contract.md. Style: linear aggregate flow (each
-# computed aggregate used once or threaded via _go params); scalars
-# dup freely; every recursive walk takes Nat fuel.
-
 import Base
 import ../c00/types.bend as T
 import ../c00/eval.bend as E0
@@ -24,65 +14,6 @@ import ../base/ex.bend as E
 import ./types.bend as Y
 import ./surfx.bend as SX
 
-# --- Small list helpers (all fuel-bounded walks). ---
-def v2_nth_go(xs: List<&2, V.Vec2>, i: Nat, m: Nat) -> V.Vec2:
-  match xs:
-    case Nil{}: V.V2{0.0f64, 0.0f64}
-    case h <> t:
-      match i:
-        case 0n: h
-        case 1n+j: v2_nth_go(t, j, m)
-
-def v2_nth(xs: List<&2, V.Vec2>, i: Nat, fuel: Nat) -> V.Vec2:
-  match fuel:
-    case 0n: V.V2{0.0f64, 0.0f64}
-    case 1n+m: v2_nth_go(xs, i, m)
-
-def f_nth_go(xs: List<&2, F64>, i: Nat, m: Nat) -> F64:
-  match xs:
-    case Nil{}: 0.0f64
-    case h <> t:
-      match i:
-        case 0n: h
-        case 1n+j: f_nth_go(t, j, m)
-
-def f_nth(xs: List<&2, F64>, i: Nat, fuel: Nat) -> F64:
-  match fuel:
-    case 0n: 0.0f64
-    case 1n+m: f_nth_go(xs, i, m)
-
-def map_add_go(xs: List<&2, Nat>, +off: Nat, m: Nat) -> List<&2, Nat>:
-  match xs:
-    case Nil{}: []
-    case h <> t: Nat.add(h, off) <> map_add_go(t, off, m)
-
-def map_add(xs: List<&2, Nat>, off: Nat, fuel: Nat) -> List<&2, Nat>:
-  match fuel:
-    case 0n: xs
-    case 1n+m: map_add_go(xs, off, m)
-
-def iv_nth_go(xs: List<&2, Y.Iv>, i: Nat, m: Nat) -> Y.Iv:
-  match xs:
-    case Nil{}: Y.Iv{0.0f64, 0.0f64}
-    case h <> t:
-      match i:
-        case 0n: h
-        case 1n+j: iv_nth_go(t, j, m)
-
-def iv_nth(xs: List<&2, Y.Iv>, i: Nat, fuel: Nat) -> Y.Iv:
-  match fuel:
-    case 0n: Y.Iv{0.0f64, 0.0f64}
-    case 1n+m: iv_nth_go(xs, i, m)
-
-# --- Total GVal projector: GV_f{0} default fails every downstream
-# class check (curve/surf/trim) loudly at stage A. ---
-def gval_def(r: G.GRes) -> G.GVal:
-  match r:
-    case G.Gok{v}: v
-    case G.Gerr{kind}: G.GV_f{0.0f64}
-
-# --- Outward rounding via bit successors. NaN passes through
-# (callers gate finiteness); infinities saturate. ---
 def fnu_sg(+b: U64, neg: Bool) -> F64:
   match neg:
     case True{}: F64{(b - 1u64 : U64)}
@@ -139,9 +70,6 @@ def f64_next_down(+x: F64) -> F64:
     U64.is_eq(b, 0u64),
     U64.is_le(9223372036854775808u64, b))
 
-# --- Certified interval arithmetic. Each op rounds outward one ulp
-# past the correctly-rounded F64 result, so the interval encloses
-# the true real value. Nonfinite enclosure fails as uncertain. ---
 def iv_gate2(ok: Bool, +lo: F64, +hi: F64) -> Y.SRes:
   match ok:
     case True{}: Y.sok_iv(Y.Iv{lo, hi})
@@ -241,19 +169,10 @@ def iv_sqrt(a: Y.Iv) -> Y.SRes:
 def iv_pt(+x: F64) -> Y.Iv:
   Y.Iv{x, x}
 
-# Certified pi enclosure: correctly-rounded pi lies strictly
-# between, so [pred, succ] encloses true pi (verified in python;
-# oracle re-verifies from Decimal).
 def pi_iv() -> Y.Iv:
   Y.Iv{F64{4614256656552045847u64},
     F64{4614256656552045849u64}}
 
-# --- Profile validation codes. 0 ok; 1 short; 2 nonfinite;
-# 3 repeated-point; 4 zero-area; 5 winding; 6 self-crossing;
-# 7 self-touch; 8 spike; 9 hole-outside; 10 loop-touch;
-# 11 loop-crossing; 12 hole-nesting; 13 predicate-uncertain;
-# 14 axis-crossing; 15 axis-pinch; 16 hole-axis-touch;
-# 17 fuel-out; 18 profile-too-large. First-nonzero wins. ---
 def pick_nz(+a: U64, b: U64) -> U64:
   Bool.pick(U64, U64.is_eq(a, 0u64), b, a)
 
@@ -342,8 +261,6 @@ def dist_code(xs: List<&2, V.Vec2>, fuel: Nat) -> U64:
       dist_go(t, V.v2_x(h), V.v2_y(h), V.v2_x(h), V.v2_y(h),
         fuel)
 
-# --- Simplicity: pairwise exact segment checks. Adjacent pairs
-# admit touch (shared endpoint) but never overlap (spike). ---
 def simp_rel(x: P.Xrel, adj: Bool) -> U64:
   match x:
     case P.X_disjoint{}: 0u64
@@ -356,49 +273,72 @@ def simp_r(r: P.Xres, adj: Bool) -> U64:
     case P.Xok{x}: simp_rel(x, adj)
     case P.Xerr{kind}: 13u64
 
-def simp_j(+xs: List<&2, V.Vec2>, +i: Nat, k: Nat, +jlim: Nat,
-    +n: Nat, fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          +ip1 = Bool.pick(Nat, Nat.is_eq(Nat.add(i, 1n), n),
-            0n, Nat.add(i, 1n))
-          +jp1 = Bool.pick(Nat, Nat.is_eq(Nat.add(p, 1n), n),
-            0n, Nat.add(p, 1n))
-          Bool.pick(U64, Nat.is_lt(p, jlim), 0u64,
-            pick_nz(simp_r(P2.seg_seg(v2_nth(xs, i, m),
-                v2_nth(xs, ip1, m), v2_nth(xs, p, m),
-                v2_nth(xs, jp1, m)), False{}),
-              simp_j(xs, i, p, jlim, n, m)))
+type S2 is Data:
+  S2{ a: V.Vec2, b: V.Vec2 }
 
-def simp_i(+xs: List<&2, V.Vec2>, k: Nat, +n: Nat,
-    fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          +p1 = Nat.add(p, 1n)
-          +i2 = Bool.pick(Nat, Nat.is_eq(p1, n), 0n, p1)
-          +i3 = Bool.pick(Nat, Nat.is_eq(Nat.add(i2, 1n), n),
-            0n, Nat.add(i2, 1n))
-          +is0 = Nat.is_eq(p, 0n)
-          +ks = Bool.pick(Nat, is0, Nat.sub(n, 1n), n)
-          +jlim = Bool.pick(Nat, is0, 2n, Nat.add(p, 2n))
-          pick_nz(simp_r(P2.seg_seg(v2_nth(xs, p, m),
-              v2_nth(xs, i2, m), v2_nth(xs, i2, m),
-              v2_nth(xs, i3, m)), True{}),
-            pick_nz(simp_j(xs, p, ks, jlim, n, m),
-              simp_i(xs, p, n, m)))
+def hd_or(xs: List<&2, V.Vec2>, +d: V.Vec2) -> V.Vec2:
+  match xs:
+    case []: d
+    case h <> t: h
 
-def simp_loop(xs: List<&2, V.Vec2>, +n: Nat, fuel: Nat) -> U64:
-  simp_i(xs, n, n, fuel)
+def segs_go(xs: List<&2, V.Vec2>, +first: V.Vec2) -> List<&2, S2>:
+  match xs:
+    case []: []
+    case h <> +t: S2{h, hd_or(t, first)} <> segs_go(t, first)
 
-# --- Loop-vs-loop separation: every pair disjoint. ---
+def segs_of(+xs: List<&2, V.Vec2>) -> List<&2, S2>:
+  segs_go(xs, hd_or(xs, V.V2{0.0f64, 0.0f64}))
+
+def s2_code(s: S2, t: S2, adj: Bool) -> U64:
+  match s t:
+    case S2{a, b} S2{c, d}: simp_r(P2.seg_seg(a, b, c, d), adj)
+
+def far_go(+s: S2, ts: List<&2, S2>, +acc: U64) -> U64:
+  match ts:
+    case []: acc
+    case t <> r: far_go(s, r, pick_nz(s2_code(s, t, False{}), acc))
+
+def far0(+s: S2, ts: List<&2, S2>, +acc: U64) -> U64:
+  match ts:
+    case []: acc
+    case t <> r:
+      match r:
+        case []: acc
+        case u <> v: far0(s, u <> v, pick_nz(s2_code(s, t, False{}), acc))
+
+def tl_s2(xs: List<&2, S2>) -> List<&2, S2>:
+  match xs:
+    case []: []
+    case h <> t: t
+
+def hd_s2(xs: List<&2, S2>, +d: S2) -> S2:
+  match xs:
+    case []: d
+    case h <> t: h
+
+def nil_s2(xs: List<&2, S2>) -> Bool:
+  match xs:
+    case []: True{}
+    case h <> t: False{}
+
+def far_pick(last: Bool, +s: S2, +ts: List<&2, S2>) -> U64:
+  match last:
+    case True{}: far0(s, ts, 0u64)
+    case False{}: far_go(s, ts, 0u64)
+
+def simp_go(rev: List<&2, S2>, +passed: List<&2, S2>, +s0: S2) -> U64:
+  match rev:
+    case []: 0u64
+    case +s <> +r:
+      pick_nz(pick_nz(s2_code(s, hd_s2(passed, s0), True{}),
+          far_pick(nil_s2(r), s, tl_s2(passed))),
+        simp_go(r, s <> passed, s0))
+
+def simp_loop(+xs: List<&2, V.Vec2>) -> U64:
+  +ss = segs_of(xs)
+  simp_go(List.reverse(&2, S2, ss), [],
+    hd_s2(ss, S2{V.V2{0.0f64, 0.0f64}, V.V2{0.0f64, 0.0f64}}))
+
 def pr_rel(x: P.Xrel) -> U64:
   match x:
     case P.X_disjoint{}: 0u64
@@ -411,41 +351,23 @@ def pr_r(r: P.Xres) -> U64:
     case P.Xok{x}: pr_rel(x)
     case P.Xerr{kind}: 13u64
 
-def pr_j(+xs: List<&2, V.Vec2>, +ys: List<&2, V.Vec2>, +i: Nat,
-    k: Nat, +n: Nat, +m: Nat, fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++q:
-          +ip1 = Bool.pick(Nat, Nat.is_eq(Nat.add(i, 1n), n),
-            0n, Nat.add(i, 1n))
-          +jp1 = Bool.pick(Nat, Nat.is_eq(Nat.add(p, 1n), m),
-            0n, Nat.add(p, 1n))
-          pick_nz(pr_r(P2.seg_seg(v2_nth(xs, i, q),
-              v2_nth(xs, ip1, q), v2_nth(ys, p, q),
-              v2_nth(ys, jp1, q))),
-            pr_j(xs, ys, i, p, n, m, q))
+def pr_code(s: S2, t: S2) -> U64:
+  match s t:
+    case S2{a, b} S2{c, d}: pr_r(P2.seg_seg(a, b, c, d))
 
-def pr_i(+xs: List<&2, V.Vec2>, +ys: List<&2, V.Vec2>, k: Nat,
-    +n: Nat, +m: Nat, fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++q:
-          pick_nz(pr_j(xs, ys, p, m, n, m, q),
-            pr_i(xs, ys, p, n, m, q))
+def pr_row(+s: S2, ys: List<&2, S2>) -> U64:
+  match ys:
+    case []: 0u64
+    case t <> r: pick_nz(pr_code(s, t), pr_row(s, r))
 
-def loop_pair_code(xs: List<&2, V.Vec2>, ys: List<&2, V.Vec2>,
-    +n: Nat, +m: Nat, fuel: Nat) -> U64:
-  pr_i(xs, ys, n, n, m, fuel)
+def pr_go(xs: List<&2, S2>, +ys: List<&2, S2>) -> U64:
+  match xs:
+    case []: 0u64
+    case s <> r: pick_nz(pr_row(s, ys), pr_go(r, ys))
 
-# --- Point-in-polygon: exact ray casting. Per-edge codes
-# (0 pass, 1 cross, 2 boundary, 3 uncertain), then a scalar fold:
-# 0 outside, 1 inside, 2 boundary, 3 uncertain. ---
+def loop_pair_code(+xs: List<&2, V.Vec2>, +ys: List<&2, V.Vec2>) -> U64:
+  pr_go(List.reverse(&2, S2, segs_of(xs)), List.reverse(&2, S2, segs_of(ys)))
+
 def edge_sg(s: P.Sign, straddle: Bool, upward: Bool,
     bbox: Bool) -> U64:
   match s:
@@ -565,75 +487,47 @@ def holes_len(hs: List<&2, List<&2, V.Vec2>>,
   holes_len_go(hs, fuel)
 
 def hole_one(+h: List<&2, V.Vec2>, +outer: List<&2, V.Vec2>,
-    +non: Nat, +fuel: Nat) -> U64:
+    +fuel: Nat) -> U64:
   +m = List.length(&2, V.Vec2, h)
   pick_nz(Bool.pick(U64, Nat.is_le(3n, m), 0u64, 1u64),
     pick_nz(fin_code(h, fuel),
       pick_nz(dist_code(h, fuel),
         pick_nz(sh_map_hole(sh_sign(h, fuel)),
-          pick_nz(simp_loop(h, m, fuel),
+          pick_nz(simp_loop(h),
             pick_nz(hole_in_go(h, outer, fuel),
-              loop_pair_code(outer, h, non, m, fuel)))))))
+              loop_pair_code(outer, h)))))))
 
 def holes_go(hs: List<&2, List<&2, V.Vec2>>,
-    +outer: List<&2, V.Vec2>, +non: Nat, fuel: Nat) -> U64:
+    +outer: List<&2, V.Vec2>, fuel: Nat) -> U64:
   match hs:
     case Nil{}: 0u64
     case h <> t:
       match fuel:
         case 0n: 17u64
         case 1n++m:
-          pick_nz(hole_one(h, outer, non, m),
-            holes_go(t, outer, non, m))
+          pick_nz(hole_one(h, outer, m),
+            holes_go(t, outer, m))
 
-def ll_nth_go(hs: List<&2, List<&2, V.Vec2>>, i: Nat,
-    m: Nat) -> List<&2, V.Vec2>:
-  match hs:
-    case Nil{}: []
-    case h <> t:
-      match i:
-        case 0n: h
-        case 1n+j: ll_nth_go(t, j, m)
+def hh_pair(+a: List<&2, V.Vec2>, +b: List<&2, V.Vec2>, +fuel: Nat) -> U64:
+  +fp = hd_or(b, V.V2{0.0f64, 0.0f64})
+  +fq = hd_or(a, V.V2{0.0f64, 0.0f64})
+  pick_nz(loop_pair_code(a, b),
+    pick_nz(nest_map(pip(V.v2_x(fp), V.v2_y(fp), a, fuel)),
+      nest_map(pip(V.v2_x(fq), V.v2_y(fq), b, fuel))))
 
-def ll_nth(hs: List<&2, List<&2, V.Vec2>>, i: Nat,
-    fuel: Nat) -> List<&2, V.Vec2>:
-  match fuel:
-    case 0n: []
-    case 1n+m: ll_nth_go(hs, i, m)
+def hh_row(+a: List<&2, V.Vec2>, bs: List<&2, List<&2, V.Vec2>>,
+    +fuel: Nat) -> U64:
+  match bs:
+    case []: 0u64
+    case b <> r: pick_nz(hh_pair(a, b, fuel), hh_row(a, r, fuel))
 
-def hh_j(+hs: List<&2, List<&2, V.Vec2>>, +i: Nat, k: Nat,
-    fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          +a = ll_nth(hs, i, m)
-          +b = ll_nth(hs, p, m)
-          +fp = v2_nth(b, 0n, m)
-          +fq = v2_nth(a, 0n, m)
-          pick_nz(loop_pair_code(a, b,
-              List.length(&2, V.Vec2, a),
-              List.length(&2, V.Vec2, b), m),
-            pick_nz(nest_map(pip(V.v2_x(fp), V.v2_y(fp), a,
-                m)),
-              pick_nz(nest_map(pip(V.v2_x(fq), V.v2_y(fq), b,
-                  m)),
-                hh_j(hs, i, p, m))))
+def hh_go(hr: List<&2, List<&2, V.Vec2>>, +fuel: Nat) -> U64:
+  match hr:
+    case []: 0u64
+    case a <> +r: pick_nz(hh_row(a, r, fuel), hh_go(r, fuel))
 
-def hh_i(+hs: List<&2, List<&2, V.Vec2>>, k: Nat,
-    fuel: Nat) -> U64:
-  match k:
-    case 0n: 0u64
-    case 1n++p:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          pick_nz(hh_j(hs, p, p, m), hh_i(hs, p, m))
-
-def holes_hh(+hs: List<&2, List<&2, V.Vec2>>, fuel: Nat) -> U64:
-  hh_i(hs, List.length(&2, List<&2, V.Vec2>, hs), fuel)
+def holes_hh(+hs: List<&2, List<&2, V.Vec2>>, +fuel: Nat) -> U64:
+  hh_go(List.reverse(&2, List<&2, V.Vec2>, hs), fuel)
 
 def prof_code(+loop: List<&2, V.Vec2>,
     +holes: List<&2, List<&2, V.Vec2>>, +fuel: Nat) -> U64:
@@ -649,16 +543,21 @@ def prof_code(+loop: List<&2, V.Vec2>,
         pick_nz(fin_code(loop, fuel),
           pick_nz(dist_code(loop, fuel),
             pick_nz(sh_map_outer(sh_sign(loop, fuel)),
-              pick_nz(simp_loop(loop, n, fuel),
-                pick_nz(holes_go(holes, loop, n, fuel),
+              pick_nz(simp_loop(loop),
+                pick_nz(holes_go(holes, loop, fuel),
                   holes_hh(holes, fuel)))))))))
 
-# --- Exact hole clearance via expansion arithmetic. Raw outcomes:
-# 0 clear, 1 too-close, 2 tangent, 3 uncertain. Tangent fails
-# closed (breakout). Ex subexpressions are rebuilt, never shared. ---
-def ex_sq2(+x: F64, +y: F64) -> E.Ex:
-  E.ex_add(E.ex_mul(E.ex_of(x), E.ex_of(x)),
-    E.ex_mul(E.ex_of(y), E.ex_of(y)))
+def ex_d2(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> E.Ex:
+  E.ex_add(E.ex_mul(E.ex_dif(ax, bx), E.ex_dif(ax, bx)),
+    E.ex_mul(E.ex_dif(ay, by), E.ex_dif(ay, by)))
+
+def ex_dot3(+px: F64, +py: F64, +ax: F64, +ay: F64, +bx: F64,
+    +by: F64) -> E.Ex:
+  E.ex_add(E.ex_mul(E.ex_dif(px, ax), E.ex_dif(bx, ax)),
+    E.ex_mul(E.ex_dif(py, ay), E.ex_dif(by, ay)))
+
+def ex_rr(+r: F64) -> E.Ex:
+  E.ex_mul(E.ex_of(r), E.ex_of(r))
 
 def clr_sgn(s: B.Sgn) -> U64:
   match s:
@@ -674,52 +573,29 @@ def clr_t2(s: B.Sgn, +px: F64, +py: F64, +ax: F64, +ay: F64,
     +bx: F64, +by: F64, +r: F64) -> U64:
   match s:
     case B.Sn{}:
-      clr_fin(E.ex_sub(E.ex_mul(ex_sq2(F64.sub(px, ax),
-            F64.sub(py, ay)),
-          ex_sq2(F64.sub(bx, ax), F64.sub(by, ay))),
-        E.ex_mul(E.ex_add(E.ex_mul(E.ex_of(F64.sub(px, ax)),
-              E.ex_of(F64.sub(bx, ax))),
-            E.ex_mul(E.ex_of(F64.sub(py, ay)),
-              E.ex_of(F64.sub(by, ay)))),
-          E.ex_add(E.ex_mul(E.ex_of(F64.sub(px, ax)),
-              E.ex_of(F64.sub(bx, ax))),
-            E.ex_mul(E.ex_of(F64.sub(py, ay)),
-              E.ex_of(F64.sub(by, ay)))))),
-        E.ex_mul(E.ex_mul(E.ex_of(r), E.ex_of(r)),
-          ex_sq2(F64.sub(bx, ax), F64.sub(by, ay))))
-    case B.Sz{}:
-      clr_fin(ex_sq2(F64.sub(px, bx), F64.sub(py, by)),
-        E.ex_mul(E.ex_of(r), E.ex_of(r)))
-    case B.Sp{}:
-      clr_fin(ex_sq2(F64.sub(px, bx), F64.sub(py, by)),
-        E.ex_mul(E.ex_of(r), E.ex_of(r)))
+      clr_fin(E.ex_sub(E.ex_mul(ex_d2(px, py, ax, ay),
+          ex_d2(bx, by, ax, ay)),
+        E.ex_mul(ex_dot3(px, py, ax, ay, bx, by),
+          ex_dot3(px, py, ax, ay, bx, by))),
+        E.ex_mul(ex_rr(r), ex_d2(bx, by, ax, ay)))
+    case B.Sz{}: clr_fin(ex_d2(px, py, bx, by), ex_rr(r))
+    case B.Sp{}: clr_fin(ex_d2(px, py, bx, by), ex_rr(r))
     case B.Su{}: 3u64
 
 def clr_t1(s: B.Sgn, +px: F64, +py: F64, +ax: F64, +ay: F64,
     +bx: F64, +by: F64, +r: F64) -> U64:
   match s:
-    case B.Sn{}:
-      clr_fin(ex_sq2(F64.sub(px, ax), F64.sub(py, ay)),
-        E.ex_mul(E.ex_of(r), E.ex_of(r)))
-    case B.Sz{}:
-      clr_fin(ex_sq2(F64.sub(px, ax), F64.sub(py, ay)),
-        E.ex_mul(E.ex_of(r), E.ex_of(r)))
+    case B.Sn{}: clr_fin(ex_d2(px, py, ax, ay), ex_rr(r))
+    case B.Sz{}: clr_fin(ex_d2(px, py, ax, ay), ex_rr(r))
     case B.Sp{}:
-      clr_t2(E.ex_cmp(E.ex_add(E.ex_mul(E.ex_of(F64.sub(px,
-                ax)),
-              E.ex_of(F64.sub(bx, ax))),
-            E.ex_mul(E.ex_of(F64.sub(py, ay)),
-              E.ex_of(F64.sub(by, ay)))),
-          ex_sq2(F64.sub(bx, ax), F64.sub(by, ay))),
+      clr_t2(E.ex_cmp(ex_dot3(px, py, ax, ay, bx, by),
+          ex_d2(bx, by, ax, ay)),
         px, py, ax, ay, bx, by, r)
     case B.Su{}: 3u64
 
 def hole_clr_pt(+px: F64, +py: F64, +ax: F64, +ay: F64,
     +bx: F64, +by: F64, +r: F64) -> U64:
-  clr_t1(E.ex_sign(E.ex_add(E.ex_mul(E.ex_of(F64.sub(px, ax)),
-            E.ex_of(F64.sub(bx, ax))),
-          E.ex_mul(E.ex_of(F64.sub(py, ay)),
-            E.ex_of(F64.sub(by, ay))))),
+  clr_t1(E.ex_sign(ex_dot3(px, py, ax, ay, bx, by)),
     px, py, ax, ay, bx, by, r)
 
 def clr_map(c: U64) -> U64:
@@ -753,17 +629,6 @@ def hole_clr_loop(+px: F64, +py: F64, +r: F64,
       hole_clr_go(t, px, py, r, V.v2_x(h), V.v2_y(h),
         V.v2_x(h), V.v2_y(h), fuel)
 
-def hole_clr_hs(+px: F64, +py: F64, +r: F64,
-    hs: List<&2, List<&2, V.Vec2>>, fuel: Nat) -> U64:
-  match hs:
-    case Nil{}: 0u64
-    case h <> t:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          pick_nz(hole_clr_loop(px, py, r, h, m),
-            hole_clr_hs(px, py, r, t, m))
-
 def hh_fin(s: B.Sgn) -> U64:
   match s:
     case B.Sn{}: 20u64
@@ -773,7 +638,7 @@ def hh_fin(s: B.Sgn) -> U64:
 
 def hole_hh(+x1: F64, +y1: F64, +r1: F64, +x2: F64, +y2: F64,
     +r2: F64) -> U64:
-  hh_fin(E.ex_cmp(ex_sq2(F64.sub(x1, x2), F64.sub(y1, y2)),
+  hh_fin(E.ex_cmp(ex_d2(x1, y1, x2, y2),
     E.ex_mul(E.ex_add(E.ex_of(r1), E.ex_of(r2)),
       E.ex_add(E.ex_of(r1), E.ex_of(r2)))))
 
@@ -790,30 +655,11 @@ def hole_rect(+px: F64, +py: F64, +r: F64, +rx0: F64, +ry0: F64,
     Bool.pick(F64, F64.is_lt(rx1, px), rx1, px))
   +cy = Bool.pick(F64, F64.is_lt(py, ry0), ry0,
     Bool.pick(F64, F64.is_lt(ry1, py), ry1, py))
-  rect_fin(E.ex_cmp(ex_sq2(F64.sub(px, cx), F64.sub(py, cy)),
-    E.ex_mul(E.ex_of(r), E.ex_of(r))))
+  rect_fin(E.ex_cmp(ex_d2(px, py, cx, cy), ex_rr(r)))
 
 def hole_boss1(+px: F64, +py: F64, +r: F64, b: Y.Boss) -> U64:
   Y.Bo{+x, +y, +w, +d, +z0, +z1} = b
   hole_rect(px, py, r, x, y, F64.add(x, w), F64.add(y, d))
-
-def hole_boss_go(+px: F64, +py: F64, +r: F64,
-    bs: List<&2, Y.Boss>, fuel: Nat) -> U64:
-  match bs:
-    case Nil{}: 0u64
-    case h <> t:
-      match fuel:
-        case 0n: 17u64
-        case 1n++m:
-          pick_nz(hole_boss1(px, py, r, h),
-            hole_boss_go(px, py, r, t, m))
-
-def rect_loop(+x: F64, +y: F64, +w: F64, +h: F64)
-    -> List<&2, V.Vec2>:
-  +x1 = F64.add(x, w)
-  +y1 = F64.add(y, h)
-  V.V2{x, y} <> V.V2{x, y1} <> V.V2{x1, y1} <> V.V2{x1, y} <>
-    []
 
 def rect_disj(+x0: F64, +y0: F64, +w0: F64, +h0: F64, +x1: F64,
     +y1: F64, +w1: F64, +h1: F64) -> Bool:
@@ -822,7 +668,6 @@ def rect_disj(+x0: F64, +y0: F64, +w0: F64, +h0: F64, +x1: F64,
       Bool.or(F64.is_le(F64.add(y0, h0), y1),
         F64.is_le(F64.add(y1, h1), y0))))
 
-# --- Code mapper: every validation code becomes a diagnosis. ---
 def prof_go(code: U64, +loc: String) -> Y.SRes:
   match code:
     case 0u64: Y.sok_u(0u64)
@@ -906,10 +751,6 @@ def prof_valid(p: Y.Prof, fuel: Nat) -> Y.SRes:
   Y.Pf{+loop, +holes} = p
   prof_go(prof_code(loop, holes, fuel), "profile")
 
-# --- Revolve axis discipline: all y >= 0; axis vertices join at
-# most one non-axis edge (else a nonmanifold pinch). Each step
-# checks the previous vertex (both its edges are known then); the
-# Nil arm checks the last vertex against the closing edge. ---
 def rev_ax_go(xs: List<&2, V.Vec2>, +prev_y: F64, +prev_nax: Bool,
     +close_nax: Bool, fuel: Nat) -> U64:
   match xs:
@@ -993,399 +834,6 @@ def prof_valid_rev(p: Y.Prof, +fuel: Nat) -> Y.SRes:
       pick_nz(rev_ax(loop, fuel), rev_hole_go(holes, fuel))),
     "revolve")
 
-# --- Specs: index-addressed entity descriptions. Builders emit
-# them; bulk stamps gens, rewrites refs, and assembles. ---
-type VSp is Data:
-  VS{ p: V.Point }
-
-type ESp is Data:
-  ES{ i0: Nat, i1: Nat, curve: G.GVal, dom: G.Dom, degen: Bool }
-
-type CSp is Data:
-  CS{ ei: Nat, fwd: Bool, trim: G.GVal }
-
-type LSp is Data:
-  LS{ ces: List<&2, Nat>, kind: Ty.LoopKind }
-
-type FSp is Data:
-  FS{ surf: G.GVal, loops: List<&2, Nat>, same: Bool }
-
-type SSp is Data:
-  SS{ faces: List<&2, Nat>, kind: Ty.ShellKind }
-
-type OSp is Data:
-  OS{ outer: Nat, cavs: List<&2, Nat> }
-
-type Spec is Data:
-  SP{ vs: List<&2, VSp>, es: List<&2, ESp>, ces: List<&2, CSp>,
-    lps: List<&2, LSp>, fas: List<&2, FSp>, shs: List<&2, SSp>,
-    sos: List<&2, OSp>, topso: List<&2, Nat>,
-    topsh: List<&2, Nat> }
-
-def spec_empty() -> Spec:
-  SP{[], [], [], [], [], [], [], [], []}
-
-def spec_nv(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, VSp, vs)
-
-def spec_ne(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, ESp, es)
-
-def spec_nc(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, CSp, ces)
-
-def spec_nl(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, LSp, lps)
-
-def spec_nf(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, FSp, fas)
-
-def spec_nh(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, SSp, shs)
-
-def spec_no(sp: Spec) -> Nat:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  List.length(&2, OSp, sos)
-
-def vs_def() -> VSp:
-  VS{V.Pt{0.0f64, 0.0f64, 0.0f64}}
-
-def es_def() -> ESp:
-  ES{0n, 0n, G.GV_f{0.0f64}, G.Dom{0.0f64, 1.0f64}, False{}}
-
-def ces_def() -> CSp:
-  CS{0n, True{}, G.GV_f{0.0f64}}
-
-def lps_def() -> LSp:
-  LS{[], Ty.LK_outer{}}
-
-def fas_def() -> FSp:
-  FS{G.GV_f{0.0f64}, [], True{}}
-
-def shs_def() -> SSp:
-  SS{[], Ty.SK_outer{}}
-
-def sos_def() -> OSp:
-  OS{0n, []}
-
-# --- Balanced tree joins (O(1) join, single O(n) flatten).
-# Empty inputs fall back to the default leaf (callers guard
-# empties up front, so defaults are unreachable). ---
-def tr_lift_d(-A: Data, +ts: List<&2, B.Tr<&2, A>>, +z: A,
-    dm: B.Dm) -> B.Tr<&2, A>:
-  B.Dm{+d, +k} = dm
-  B.tr_lift(A, d, ts, z)
-
-def tr_of_d(-A: Data, +xs: List<&2, A>, +z: A,
-    dm: B.Dm) -> B.Tr<&2, A>:
-  B.Dm{+d, +k} = dm
-  B.tr_lift(A, d, B.tr_leaves(A, xs), z)
-
-def tr_of_list(-A: Data, +xs: List<&2, A>, +z: A) -> B.Tr<&2, A>:
-  tr_of_d(A, xs, z,
-    B.dims(U32.from_nat(List.length(&2, A, xs))))
-
-def tr_parts(-A: Data, +ll: List<&2, List<&2, A>>, +z: A,
-    fuel: Nat) -> List<&2, B.Tr<&2, A>>:
-  match ll:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: tr_of_list(A, h, z) <> tr_parts(A, t, z, m)
-
-def tr_join_d(-A: Data, +ts: List<&2, B.Tr<&2, A>>,
-    +z: A) -> B.Tr<&2, A>:
-  tr_lift_d(A, ts, z,
-    B.dims(U32.from_nat(List.length(&2, B.Tr<&2, A>, ts))))
-
-def tr_join_go(-A: Data, +ll: List<&2, List<&2, A>>, +z: A,
-    fuel: Nat) -> B.Tr<&2, A>:
-  tr_join_d(A, tr_parts(A, ll, z, fuel), z)
-
-def tr_flat(-A: Data, +t: B.Tr<&2, A>) -> List<&2, A>:
-  B.tr_list(A, t, [])
-
-def tr_join_lists(-A: Data, +ll: List<&2, List<&2, A>>, +z: A,
-    fuel: Nat) -> List<&2, A>:
-  tr_flat(A, tr_join_go(A, ll, z, fuel))
-
-# --- Spec offsets (per-part index relocation). ---
-def esp_1(e: ESp, +ov: Nat) -> ESp:
-  ES{+i0, +i1, +curve, +dom, +degen} = e
-  ES{Nat.add(i0, ov), Nat.add(i1, ov), curve, dom, degen}
-
-def esp_off_l(xs: List<&2, ESp>, +ov: Nat,
-    fuel: Nat) -> List<&2, ESp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n+m: esp_1(h, ov) <> esp_off_l(t, ov, m)
-
-def csp_1(c: CSp, +oe: Nat) -> CSp:
-  CS{+ei, +fwd, +trim} = c
-  CS{Nat.add(ei, oe), fwd, trim}
-
-def csp_off_l(xs: List<&2, CSp>, +oe: Nat,
-    fuel: Nat) -> List<&2, CSp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n+m: csp_1(h, oe) <> csp_off_l(t, oe, m)
-
-def lsp_1(l: LSp, +oc: Nat, fuel: Nat) -> LSp:
-  LS{+ces, +kind} = l
-  LS{map_add(ces, oc, fuel), kind}
-
-def lsp_off_l(xs: List<&2, LSp>, +oc: Nat,
-    fuel: Nat) -> List<&2, LSp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n++m: lsp_1(h, oc, m) <> lsp_off_l(t, oc, m)
-
-def fsp_1(f: FSp, +ol: Nat, fuel: Nat) -> FSp:
-  FS{+surf, +loops, +same} = f
-  FS{surf, map_add(loops, ol, fuel), same}
-
-def fsp_off_l(xs: List<&2, FSp>, +ol: Nat,
-    fuel: Nat) -> List<&2, FSp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n++m: fsp_1(h, ol, m) <> fsp_off_l(t, ol, m)
-
-def ssp_1(s: SSp, +of: Nat, fuel: Nat) -> SSp:
-  SS{+faces, +kind} = s
-  SS{map_add(faces, of, fuel), kind}
-
-def ssp_off_l(xs: List<&2, SSp>, +of: Nat,
-    fuel: Nat) -> List<&2, SSp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n++m: ssp_1(h, of, m) <> ssp_off_l(t, of, m)
-
-def osp_1(o: OSp, +oh: Nat, fuel: Nat) -> OSp:
-  OS{+outer, +cavs} = o
-  OS{Nat.add(outer, oh), map_add(cavs, oh, fuel)}
-
-def osp_off_l(xs: List<&2, OSp>, +oh: Nat,
-    fuel: Nat) -> List<&2, OSp>:
-  match xs:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: xs
-        case 1n++m: osp_1(h, oh, m) <> osp_off_l(t, oh, m)
-
-def spec_off(sp: Spec, +ov: Nat, +oe: Nat, +oc: Nat, +ol: Nat,
-    +of: Nat, +oh: Nat, +oo: Nat, +fuel: Nat) -> Spec:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  SP{vs, esp_off_l(es, ov, fuel), csp_off_l(ces, oe, fuel),
-    lsp_off_l(lps, oc, fuel), fsp_off_l(fas, ol, fuel),
-    ssp_off_l(shs, of, fuel), osp_off_l(sos, oh, fuel),
-    map_add(topso, oo, fuel), map_add(topsh, oh, fuel)}
-
-def sp_vs(sp: Spec) -> List<&2, VSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  vs
-
-def sp_es(sp: Spec) -> List<&2, ESp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  es
-
-def sp_ces(sp: Spec) -> List<&2, CSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  ces
-
-def sp_lps(sp: Spec) -> List<&2, LSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  lps
-
-def sp_fas(sp: Spec) -> List<&2, FSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  fas
-
-def sp_shs(sp: Spec) -> List<&2, SSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  shs
-
-def sp_sos(sp: Spec) -> List<&2, OSp>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  sos
-
-def sp_topso(sp: Spec) -> List<&2, Nat>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  topso
-
-def sp_topsh(sp: Spec) -> List<&2, Nat>:
-  SP{+vs, +es, +ces, +lps, +fas, +shs, +sos, +topso,
-    +topsh} = sp
-  topsh
-
-def g_vs(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, VSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_vs(h) <> g_vs(t, m)
-
-def g_es(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, ESp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_es(h) <> g_es(t, m)
-
-def g_ces(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, CSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_ces(h) <> g_ces(t, m)
-
-def g_lps(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, LSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_lps(h) <> g_lps(t, m)
-
-def g_fas(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, FSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_fas(h) <> g_fas(t, m)
-
-def g_shs(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, SSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_shs(h) <> g_shs(t, m)
-
-def g_sos(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, OSp>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_sos(h) <> g_sos(t, m)
-
-def g_topso(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, Nat>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_topso(h) <> g_topso(t, m)
-
-def g_topsh(sps: List<&2, Spec>, fuel: Nat) -> List<&2, List<&2, Nat>>:
-  match sps:
-    case Nil{}: []
-    case h <> t:
-      match fuel:
-        case 0n: []
-        case 1n+m: sp_topsh(h) <> g_topsh(t, m)
-
-def off_parts(sps: List<&2, Spec>, +ov: Nat, +oe: Nat, +oc: Nat,
-    +ol: Nat, +of: Nat, +oh: Nat, +oo: Nat,
-    fuel: Nat) -> List<&2, Spec>:
-  match sps:
-    case Nil{}: []
-    case +h <> t:
-      match fuel:
-        case 0n: []
-        case 1n++m:
-          spec_off(h, ov, oe, oc, ol, of, oh, oo, m) <>
-            off_parts(t, Nat.add(ov, spec_nv(h)),
-              Nat.add(oe, spec_ne(h)), Nat.add(oc, spec_nc(h)),
-              Nat.add(ol, spec_nl(h)), Nat.add(of, spec_nf(h)),
-              Nat.add(oh, spec_nh(h)), Nat.add(oo, spec_no(h)),
-              m)
-
-def join_specs(+sps: List<&2, Spec>, +fuel: Nat) -> Spec:
-  +os = off_parts(sps, 0n, 0n, 0n, 0n, 0n, 0n, 0n, fuel)
-  SP{tr_join_lists(VSp, g_vs(os, fuel), vs_def(), fuel),
-    tr_join_lists(ESp, g_es(os, fuel), es_def(), fuel),
-    tr_join_lists(CSp, g_ces(os, fuel), ces_def(), fuel),
-    tr_join_lists(LSp, g_lps(os, fuel), lps_def(), fuel),
-    tr_join_lists(FSp, g_fas(os, fuel), fas_def(), fuel),
-    tr_join_lists(SSp, g_shs(os, fuel), shs_def(), fuel),
-    tr_join_lists(OSp, g_sos(os, fuel), sos_def(), fuel),
-    tr_join_lists(Nat, g_topso(os, fuel), 0n, fuel),
-    tr_join_lists(Nat, g_topsh(os, fuel), 0n, fuel)}
-
-# --- Stamping: canonical gens (gen = idx+1) plus the stamp cap
-# (stamp = max store length). Builders emit consistent gens directly
-# via these smart constructors; no deep restamp pass is needed. ---
-
-def gid(+j: Nat) -> U64:
-  (U64.from_nat(j) + 1u64 : U64)
-
-def hv_new(+j: Nat) -> Ty.HVertex:
-  Ty.mk_hv(j, gid(j))
-
-def he_new(+j: Nat) -> Ty.HEdge:
-  Ty.mk_he(j, gid(j))
-
-def hc_new(+j: Nat) -> Ty.HCoedge:
-  Ty.mk_hc(j, gid(j))
-
-def hlp_new(+j: Nat) -> Ty.HLoop:
-  Ty.mk_hlp(j, gid(j))
-
-def hfa_new(+j: Nat) -> Ty.HFace:
-  Ty.mk_hfa(j, gid(j))
-
-def hsh_new(+j: Nat) -> Ty.HShell:
-  Ty.mk_hsh(j, gid(j))
-
-def hso_new(+j: Nat) -> Ty.HSolid:
-  Ty.mk_hso(j, gid(j))
-
-# --- Stage A attribution: names the failing store walk. Tags
-# 1..21 (store x all/gen/nodup); 100 undecided; 0 defensive. ---
 def att3(+a: Nat, +g: Nat, +n: Nat, +base: U64) -> U64:
   Bool.pick(U64, Bool.not(Ty.okd_ok(a)), base,
     Bool.pick(U64, Bool.not(Ty.okd_ok(g)), (base + 1u64 : U64),
@@ -1502,8 +950,6 @@ def att_go(tag: U64) -> Y.SRes:
       Y.serr_invalid("spec stores", "bulk", "unknown-att",
         "internal: report this")
 
-# --- Stage B..L attribution in pipeline order. Stages are
-# numbered B=2..L=12; 100+stage means undecided (fuel). ---
 def stc(+c: Nat, +stage: U64) -> U64:
   Bool.pick(U64, Bool.not(Ty.okd_done(c)), (100u64 + stage : U64),
     Bool.pick(U64, Bool.not(Ty.okd_ok(c)), stage, 0u64))
@@ -1550,7 +996,7 @@ def stage_ex(code: U64) -> Y.SRes:
 def stage_go(code: U64) -> Y.SRes:
   match code:
     case 0u64:
-      Y.serr_exhausted("stages", "bulk", "internal-stage",
+      Y.serr_invalid("stages", "bulk", "internal-stage",
         "internal: report this")
     case 2u64:
       Y.serr_invalid("incidence", "bulk", "dangling-handle",
@@ -1631,12 +1077,6 @@ def bulk_a(ra: Ty.TRes, +vs: List<&2, Ty.Vertex>,
       att_go(att_tag(vs, es, ces, lps, fas, shs, sos, stamp,
         fuel))
 
-# --- Box builder: exact on all validated inputs by identical
-# computation. Vertices are single F64.adds of corner+dim; every
-# edge/trim eval replays the identical add, so C04's exact
-# coincidence checks hold bit-for-bit. Edges run min->max with
-# d=+dim over dom [0,1]; trims are in edge (v0->v1) order. ---
-
 def box_fin(+x0: F64, +y0: F64, +z0: F64, +dx: F64, +dy: F64,
     +dz: F64) -> Bool:
   Bool.and(T.is_finite(x0),
@@ -1655,9 +1095,6 @@ def box_sum_fin(+x0: F64, +y0: F64, +z0: F64, +dx: F64,
     Bool.and(T.is_finite(F64.add(y0, dy)),
       T.is_finite(F64.add(z0, dz))))
 
-# Positional handle refs into the push order below: 8 vertices
-# (gens 1-8), 12 edges (9-20), 24 coedges (21-44), 6 loops
-# (45-50), 6 faces (51-56), shell 57, solid 58.
 def hv_ref(+i: Nat) -> Ty.HVertex:
   Ty.mk_hv(i, (1u64 + U64.from_nat(i) : U64))
 
@@ -1857,12 +1294,6 @@ def box_checked(+x0: F64, +y0: F64, +z0: F64, +dx: F64,
     box_sum_fin(x0, y0, z0, dx, dy, dz), x0, y0, z0, dx, dy,
     dz, fuel)
 
-# --- C06 quad-trim check (surfx conventions): a parametric point on
-# a quadric surface must evaluate to a finite point. Non-quad
-# surfaces are caller error (the C04 stages own plane/bezier
-# trims); G-layer failures keep their kind; non-finite points are
-# representability failures, never snapped. Success is sok_u(0),
-# the prof_go convention. ---
 def trim_quad_fin(fx: Bool, fy: Bool, fz: Bool) -> Y.SRes:
   match fx:
     case False{}:
@@ -1911,10 +1342,6 @@ def trim_quad_go(quad: Bool, s: G.GVal, +u: F64,
 def trim_quad(+s: G.GVal, +u: F64, +v: F64) -> Y.SRes:
   trim_quad_go(SX.surf_is_quad(s), s, u, v)
 
-# --- Box measure: certified volume/area intervals over the dims
-# (outward-rounded, so they enclose the true reals), exact bbox
-# corners replaying box_core's adds, entity counts from the brep.
-# Bad inputs are invalid; enclosure overflow is uncertain. ---
 def ms_bin_iv(op: U64, x: Y.Iv, y: Y.Iv) -> Y.SRes:
   match op:
     case 0u64: iv_add(x, y)
@@ -2019,9 +1446,6 @@ def ms_box(+dx: F64, +dy: F64, +dz: F64, +x0: F64,
     box_sum_fin(x0, y0, z0, dx, dy, dz),
     dx, dy, dz, x0, y0, z0, b)
 
-# Volume over the tolerance zones. iv_of_dm is the factor. The
-# nominal-point product is a different function, so a law can see
-# a substitution of nom for [lo, hi].
 def ms_zone_ok(+w: Y.Dim, +h: Y.Dim, +d: Y.Dim) -> Bool:
   Bool.and(Y.dm_valid_pos(w),
     Bool.and(Y.dm_valid_pos(h), Y.dm_valid_pos(d)))

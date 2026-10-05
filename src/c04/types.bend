@@ -1,42 +1,9 @@
-# C04 boundary-representation topology types: vertices, edges, oriented
-# edge uses (coedges), loops, faces, shells, solids, cavities, compounds.
-# Data + total predicates + validated constructors + one result type.
-# Validators: ops.bend. Contract: docs/c04-contract.md.
-# Failure arms reuse C00 FailKind (T.FailKind); no new taxonomy.
-#
-# BN-7 identity: every entity lives in an explicit Brep list; a handle
-# is the structural (index, generation) pair, never an address or a bare
-# ordinal. Each slot records the stamp issued at push time; resolve
-# compares it and reports a mismatch as invalid-input (stale handle).
-# Slot gens start at 1 (stamp 0 is the empty model); mk_* values carry
-# gen 0 meaning UNISSUED — push re-stamps, the incoming gen is ignored.
-#
-# BN-8 fuel: every recursive list walk takes Nat fuel and fails closed
-# with resource-exhausted when fuel runs out. The snoc appends below are
-# structural in the list (bounded by length) and take no fuel, by the
-# C03 dropk precedent. Head lookups (at idx 0) consume no fuel.
-#
-# BN-9 batches: no batch op yet. A batch is SPECIFIED as the left fold
-# of the corresponding single push over its input list, failing closed
-# on the first step that returns Terr; no batch runs until a later
-# milestone implements that fold.
-#
-# Split with ops.bend (mirrors C03 mk_plane vs plane_checked): mk_*
-# gates value-level shape only (finite points, valid geometry arms,
-# nonempty member lists, degenerate edges pinched to one vertex).
-# Incidence, handle liveness, loop closure, edge-use pairing, trimming
-# consistency and geometric embedding are brep_checked in ops.bend
-# under an explicit Profile (manifold-solid vs open-shell).
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c03/types.bend as G
 import ../base/par.bend as B
 
-# --- Generational handles: structural (index, generation) pairs into
-# the Brep lists. Well-formed as data for any pair; liveness is
-# resolve's verdict, never the type. ---
 type HVertex is Data:
   HV{ idx: Nat, gen: U64 }
 
@@ -58,85 +25,53 @@ type HShell is Data:
 type HSolid is Data:
   HSo{ idx: Nat, gen: U64 }
 
-# --- Validation profiles, explicitly named (MASTER_PLAN C04). Open
-# surfaces are valid ONLY under P_open_shell; the admitted solid
-# profile is P_manifold_solid. ops.bend threads the profile. ---
 type Profile is Data:
   P_manifold_solid{}
   P_open_shell{}
 
-# --- Edge geometry: either a curve arm over a parameter domain, or an
-# explicit degenerate marker for singular poles (apex squeezed to one
-# vertex). Pole-ness is content, never inferred. ---
 type EdgeKind is Data:
   EK_curve{ curve: G.GVal, dom: G.Dom }
   EK_degenerate{}
 
-# Outer boundary vs hole; every face carries >= 1 loop, exactly one
-# outer under P_manifold_solid (checked in ops.bend).
 type LoopKind is Data:
   LK_outer{}
   LK_inner{}
 
-# Outer boundary vs cavity wall vs open sheet. A cavity IS a shell of
-# kind SK_inner referenced from Solid.cavities; SK_open is admitted
-# only under P_open_shell.
 type ShellKind is Data:
   SK_outer{}
   SK_inner{}
   SK_open{}
 
-# --- Vertex: a finite point. gen is the issued stamp (0 = unissued). ---
 type Vertex is Data:
   Vx{ gen: U64, p: V.Point }
 
-# --- Edge: the UNDERLYING geometry + endpoints, unoriented. Coedges
-# carry orientation (fwd). A closed edge has v0 == v1 with EK_curve;
-# a pole has v0 == v1 with EK_degenerate (enforced by edge_valid). ---
 type Edge is Data:
   Ed{ gen: U64, v0: HVertex, v1: HVertex, kind: EdgeKind }
 
-# --- Coedge: one ORIENTED use of an edge, with its trimming curve in
-# the owning face's parameter space (TSeg/TBez arm). A seam edge
-# occurs twice on one face as two coedges (fwd True/False); mating
-# across faces is ops-level. ---
 type Coedge is Data:
   Ce{ gen: U64, edge: HEdge, fwd: Bool, trim: G.GVal }
 
-# --- Loop: an ordered coedge cycle; closure is geometric (ops.bend),
-# not the list shape. Nonempty at value level. ---
 type Loop is Data:
   Lp{ gen: U64, ces: List<&2, HCoedge>, kind: LoopKind }
 
-# --- Face: a surface arm + trimming loops. same aligns the face
-# normal with the surface normal (True) or flips it (False). ---
 type Face is Data:
   Fa{ gen: U64, surf: G.GVal, loops: List<&2, HLoop>, same: Bool }
 
-# --- Shell: a face set with one boundary role (outer/inner/open).
-# Closedness is ops-level. ---
 type Shell is Data:
   Sh{ gen: U64, faces: List<&2, HFace>, kind: ShellKind }
 
-# --- Solid: one outer shell + zero or more cavity (inner) shells. ---
 type Solid is Data:
   So{ gen: U64, outer: HShell, cavities: List<&2, HShell> }
 
-# --- Compound: the root grouping — solids plus open sheets that are
-# not part of any solid. Stored as Brep.top. ---
 type Compound is Data:
   Cp{ solids: List<&2, HSolid>, shells: List<&2, HShell> }
 
-# --- Brep: the explicit stores + root + issue stamp. stamp exceeds
-# every issued slot gen (empty = 0); each push stamps stamp+1. ---
 type Brep is Data:
   Br{ vs: List<&2, Vertex>, es: List<&2, Edge>,
     ces: List<&2, Coedge>, lps: List<&2, Loop>,
     fas: List<&2, Face>, shs: List<&2, Shell>,
     sos: List<&2, Solid>, top: Compound, stamp: U64 }
 
-# --- One value union, one result type: every fallible C04 op returns
-# TRes carrying either a value or a C00 FailKind. ---
 type TVal is Data:
   T_f{ v: F64 }
   T_n{ v: Nat }
@@ -232,15 +167,11 @@ def tres_show(r: TRes) -> String:
     case Tok{v}: "ok"
     case Terr{kind}: T.FailKind.show(kind)
 
-# Total kind projector. There is no ok-valued FailKind, so Tok yields
-# F_invalid BY DOCUMENTED CONVENTION (mirrors C01 cres_kind); gate on
-# tres_ok or tres_show before reading the kind.
 def tres_kind(r: TRes) -> T.FailKind:
   match r:
     case Tok{v}: T.F_invalid{}
     case Terr{kind}: kind
 
-# --- Handle constructors: total, any pair well-formed as data. ---
 def mk_hv(idx: Nat, gen: U64) -> HVertex:
   HV{idx, gen}
 
@@ -262,8 +193,6 @@ def mk_hsh(idx: Nat, gen: U64) -> HShell:
 def mk_hso(idx: Nat, gen: U64) -> HSolid:
   HSo{idx, gen}
 
-# --- Null handles: the documented projector defaults. A null carries
-# no liveness claim; resolve treats it like any other pair. ---
 def hv_null() -> HVertex:
   HV{0n, 0u64}
 
@@ -289,7 +218,6 @@ def brep_empty() -> Brep:
   Br{Nil{}, Nil{}, Nil{}, Nil{}, Nil{}, Nil{}, Nil{},
     Cp{Nil{}, Nil{}}, 0u64}
 
-# --- Zero geometry arms for projector defaults (never validated). ---
 def curve_zero() -> G.GVal:
   G.GV_ln{G.Ln{V.Pt{0.0f64, 0.0f64, 0.0f64},
     V.Dr{0.0f64, 0.0f64, 0.0f64}}}
@@ -301,10 +229,6 @@ def surf_zero() -> G.GVal:
 def trim_zero() -> G.GVal:
   G.GV_ts{G.Ts{V.V2{0.0f64, 0.0f64}, V.V2{0.0f64, 0.0f64}}}
 
-# Total projectors; documented zeroes unless the arm matches.
-# Entity defaults: gen 0 (unissued), null handles, empty member lists,
-# zero geometry arms, same=True, shell kind SK_open BY CONVENTION —
-# gate on tres_ok; no default kind is meaningful.
 def tres_f(r: TRes) -> F64:
   match r:
     case Tok{v}:
@@ -457,7 +381,6 @@ def tres_hso(r: TRes) -> HSolid:
         case _: hso_null()
     case Terr{kind}: hso_null()
 
-# --- Raw accessors (total; no validation, no failure). ---
 def hv_idx(h: HVertex) -> Nat:
   HV{idx, gen} = h
   idx
@@ -538,7 +461,6 @@ def ed_kind(e: Edge) -> EdgeKind:
   Ed{gen, v0, v1, kind} = e
   kind
 
-# Union-kind accessors; documented defaults on the other arm.
 def ekind_is_curve(k: EdgeKind) -> Bool:
   match k:
     case EK_curve{curve, dom}: True{}
@@ -666,7 +588,6 @@ def brep_stamp(b: Brep) -> U64:
   Br{vs, es, ces, lps, fas, shs, sos, top, stamp} = b
   stamp
 
-# --- Structural handle equality: index AND generation. ---
 def hv_eq(a: HVertex, b: HVertex) -> Bool:
   HV{ai, ag} = a
   HV{bi, bg} = b
@@ -702,9 +623,6 @@ def hso_eq(a: HSolid, b: HSolid) -> Bool:
   HSo{bi, bg} = b
   Bool.and(Nat.is_eq(ai, bi), U64.is_eq(ag, bg))
 
-# --- Geometry-arm classifiers over C03 values. Edges take curve arms
-# (Nurb here is a cubic curve), faces take surface arms, coedges take
-# trim arms. Anything else is invalid-input at the constructor. ---
 def gval_is_curve(c: G.GVal) -> Bool:
   match c:
     case G.GV_ln{v}: True{}
@@ -730,7 +648,6 @@ def gval_is_trim(t: G.GVal) -> Bool:
     case G.GV_tb{v}: True{}
     case _: False{}
 
-# --- Member-list emptiness: total, no walk (shape only). ---
 def hce_nonempty(xs: List<&2, HCoedge>) -> Bool:
   match xs:
     case Nil{}: False{}
@@ -756,16 +673,10 @@ def hso_nonempty(xs: List<&2, HSolid>) -> Bool:
     case Nil{}: False{}
     case h <> t: True{}
 
-# --- Value-level validity: finiteness + shape (the ONE centralized
-# layer; constructors AND pushes consume these). Incidence, liveness,
-# closure and embedding are ops.bend's brep_checked. ---
 def vx_valid(v: Vertex) -> Bool:
   Vx{gen, p} = v
   V.pt_fin(p)
 
-# Curve edges need a curve arm over a strict domain; endpoints are
-# unconstrained (v0 == v1 is the honest closed edge). Degenerate
-# edges must pinch to one vertex (the pole apex).
 def edge_valid(e: Edge) -> Bool:
   Ed{gen, v0, v1, kind} = e
   match kind:
@@ -799,8 +710,6 @@ def sh_valid(s: Shell) -> Bool:
   Sh{gen, faces, kind} = s
   hfa_nonempty(faces)
 
-# Every Solid value is well-formed: the outer handle and cavity
-# membership are store-level (brep_checked), not value shape.
 def so_valid(s: Solid) -> Bool:
   So{gen, outer, cavities} = s
   True{}
@@ -817,7 +726,6 @@ def cp_has_shells(c: Compound) -> Bool:
   Cp{solids, shells} = c
   hsh_nonempty(shells)
 
-# --- Kind/profile tags: content identity words (mirrors C00 op_tag). ---
 def ekind_tag(k: EdgeKind) -> U64:
   match k:
     case EK_curve{curve, dom}: 0u64
@@ -844,8 +752,6 @@ def profile_show(p: Profile) -> String:
     case P_manifold_solid{}: "manifold-solid"
     case P_open_shell{}: "open-shell"
 
-# --- Validated constructors: malformed input fails as invalid-input.
-# All mk_* values carry gen 0 (unissued); push re-stamps. ---
 def mk_vx_go(p: V.Point, ok: Bool) -> TRes:
   match ok:
     case True{}: tok_vx(Vx{0u64, p})
@@ -911,7 +817,6 @@ def mk_shell_go(faces: List<&2, HFace>, kind: ShellKind,
 def mk_shell(+faces: List<&2, HFace>, kind: ShellKind) -> TRes:
   mk_shell_go(faces, kind, hfa_nonempty(faces))
 
-# Total: every Solid/Compound value is well-formed (so_valid).
 def mk_solid(outer: HShell,
     cavities: List<&2, HShell>) -> TRes:
   tok_so(So{0u64, outer, cavities})
@@ -920,8 +825,6 @@ def mk_compound(solids: List<&2, HSolid>,
     shells: List<&2, HShell>) -> TRes:
   tok_cp(Cp{solids, shells})
 
-# --- Walk codes pack ok + 2*done as one Nat (mirrors C03 code_pack;
-# ok is meaningful only when done; callers check done first). ---
 def okd_pack(ok: Bool, done: Bool) -> Nat:
   Nat.add(Bool.pick(Nat, ok, 1n, 0n), Bool.pick(Nat, done, 2n, 0n))
 
@@ -935,9 +838,6 @@ def okd_all(+a: Nat, +b: Nat) -> Nat:
   okd_pack(Bool.and(okd_ok(a), okd_ok(b)),
     Bool.and(okd_done(a), okd_done(b)))
 
-# --- Vertex-orbit carrier (stage H internal): fuel-out and genuine
-# close are distinguishable only via the closed flag; steps counts
-# non-degenerate visits before close. ---
 type VOrbit is Data:
   VO{ steps: Nat, closed: Bool }
 
@@ -949,9 +849,6 @@ def vo_closed(o: VOrbit) -> Bool:
   VO{s, c} = o
   c
 
-# --- Slot validation walks: every recursive walk is structural in
-# its list AND fuel-capped; fuel exhaustion surfaces as
-# resource-exhausted, never a guess. ---
 def vs_all_c(vs: List<&2, Vertex>, fuel: Nat) -> Nat:
   match vs:
     case Nil{}: 3n
@@ -1029,8 +926,6 @@ def sos_all_c(sos: List<&2, Solid>, fuel: Nat) -> Nat:
           okd_pack(Bool.and(so_valid(h), okd_ok(rest)),
             okd_done(rest))
 
-# --- Slot generation checks (D1/D2): every slot gen nonzero (D2) and
-# <= stamp (D1). Fuel 1 per slot; each walk gets the full mk_brep cap. ---
 def vs_gen_c(vs: List<&2, Vertex>, +stamp: U64, fuel: Nat) -> Nat:
   match vs:
     case Nil{}: 3n
@@ -1115,8 +1010,6 @@ def sos_gen_c(sos: List<&2, Solid>, +stamp: U64, fuel: Nat) -> Nat:
           okd_pack(Bool.and(Bool.and(U64.is_ne(hg, 0u64),
             U64.is_le(hg, stamp)), okd_ok(rest)), okd_done(rest))
 
-# --- Slot uniqueness checks (D3): no duplicate gen within a store,
-# decided by sorting the gens (done iff fuel >= store length). ---
 def u64_cmp_go(+a: U64, +b: U64) -> B.Sgn:
   B.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
 
@@ -1199,10 +1092,6 @@ def sos_nodup_c(+xs: List<&2, Solid>, +fuel: Nat) -> Nat:
   +done = Nat.is_le(List.length(&2, Solid, xs), fuel)
   okd_pack(Bool.and(done, gens_distinct(sos_gens(xs))), done)
 
-# Validated Brep assembly: every slot value-checked, gen-checked
-# (nonzero, <= stamp), and uniqueness-checked under one shared fuel
-# cap per walk (full cap each, not divided). Handle liveness of member
-# lists and top is brep_checked in ops.bend, not here.
 def mk_brep_pick2(vs: List<&2, Vertex>, es: List<&2, Edge>,
     ces: List<&2, Coedge>, lps: List<&2, Loop>,
     fas: List<&2, Face>, shs: List<&2, Shell>,
@@ -1259,14 +1148,6 @@ def mk_brep(+vs: List<&2, Vertex>, +es: List<&2, Edge>,
                                         okd_all(sos_all_c(sos, fuel),
                                           okd_all(sos_gen_c(sos, stamp, fuel),
                                             sos_nodup_c(sos, fuel))))))))))))))))))))))
-
-# --- Generational store ops, per entity: structural snoc append,
-# fuel-bounded len/at/resolve/handle_of, issued-handle preview, and
-# validating push (stamps stamp+1, bumps stamp). resolve reports a
-# generation mismatch as invalid-input (stale handle); out-of-range
-# is invalid-input; fuel-out is resource-exhausted. issued+push is
-# the issue protocol: the issued handle names the pushed slot iff no
-# push intervenes. ---
 
 def vx_snoc(xs: List<&2, Vertex>, v: Vertex) -> List<&2, Vertex>:
   match xs:
@@ -1968,14 +1849,10 @@ def so_push(b: Brep, +outer: HShell,
   so_push_go(b, outer, cavities,
     so_valid(So{0u64, outer, cavities}))
 
-# --- Root replacement: total, structural. Liveness of the new top
-# is brep_checked in ops.bend, not here. ---
 def brep_set_top(b: Brep, top: Compound) -> Brep:
   Br{vs, es, ces, lps, fas, shs, sos, old, stamp} = b
   Br{vs, es, ces, lps, fas, shs, sos, top, stamp}
 
-# --- Index: tree-backed stores for O(log n) resolution. ix_* resolves
-# return exactly the *_resolve value for any fuel covering the store. ---
 type Ix is Data:
   Ix{ tv: B.Tb<&2, Vertex>, nv: Nat, te: B.Tb<&2, Edge>, ne: Nat,
     tc: B.Tb<&2, Coedge>, nc: Nat, tl: B.Tb<&2, Loop>, nl: Nat,
@@ -2165,10 +2042,28 @@ def store_bound(b: Brep) -> Nat:
     Nat.max(Nat.max(List.length(&2, Face, fas), List.length(&2, Shell, shs)),
       List.length(&2, Solid, sos)))
 
+def nb_need(c: G.GVal) -> Nat:
+  match c:
+    case G.GV_nb{w}:
+      G.Nb{ks, ps, ws} = w
+      1n+List.length(&2, F64, ks)
+    case _: 0n
+
+def ek_need(k: EdgeKind) -> Nat:
+  match k:
+    case EK_curve{curve, dom}: nb_need(curve)
+    case EK_degenerate{}: 0n
+
+def es_nbmax(xs: List<&2, Edge>, +m: Nat) -> Nat:
+  match xs:
+    case Nil{}: m
+    case h <> t: es_nbmax(t, Nat.max(m, ek_need(ed_kind(h))))
+
 def ix_bound(b: Brep) -> Nat:
   Br{+vs, +es, +ces, +lps, +fas, +shs, +sos, top, +stamp} = b
   Cp{cs, csh} = top
   +mem = Nat.max(Nat.max(lps_maxlen(lps, 0n), fas_maxlen(fas, 0n)),
     Nat.max(Nat.max(shs_maxlen(shs, 0n), sos_maxlen(sos, 0n)),
       Nat.max(List.length(&2, HSolid, cs), List.length(&2, HShell, csh))))
-  Nat.max(mem, store_bound(Br{vs, es, ces, lps, fas, shs, sos, Cp{[], []}, stamp}))
+  Nat.max(Nat.max(mem, es_nbmax(es, 0n)),
+    store_bound(Br{vs, es, ces, lps, fas, shs, sos, Cp{[], []}, stamp}))

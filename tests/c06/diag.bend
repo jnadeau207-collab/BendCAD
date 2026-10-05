@@ -1,6 +1,3 @@
-# C06 staged-diagnosis + quad-trim + measure runtime pins.
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -15,7 +12,7 @@ def ub() -> Ty.Brep:
   O.box_core(0.0f64, 0.0f64, 0.0f64, 1.0f64, 2.0f64, 3.0f64)
 
 def t_stage_go_0() -> U64:
-  Bool.pick(U64, BX.kind_is(O.stage_go(0u64), 3u64), 0u64, 1u64)
+  Bool.pick(U64, BX.kind_is(O.stage_go(0u64), 0u64), 0u64, 1u64)
 
 def t_stage_go_incid() -> U64:
   Bool.pick(U64, BX.kind_is(O.stage_go(2u64), 0u64), 0u64, 1u64)
@@ -58,7 +55,7 @@ def t_bulk_c_pass() -> U64:
 
 def t_bulk_c_terr() -> U64:
   Bool.pick(U64, BX.kind_is(O.bulk_c(Ty.Terr{T.F_invalid{}},
-    ub(), 10000n), 3u64), 0u64, 1u64)
+    ub(), 10000n), 0u64), 0u64, 1u64)
 
 def t_bulk_a_ok() -> U64:
   Bool.pick(U64, BX.is_sok(O.bulk_a(Ty.tok_brep(ub()),
@@ -82,7 +79,7 @@ def t_diag_fuel() -> U64:
     1u64)
 
 def t_diag_valid() -> U64:
-  Bool.pick(U64, BX.kind_is(O.diag_brep(ub(), 10000n), 3u64),
+  Bool.pick(U64, BX.kind_is(O.diag_brep(ub(), 10000n), 0u64),
     0u64, 1u64)
 
 def cyl() -> G.GVal:
@@ -103,9 +100,15 @@ def t_trim_other() -> U64:
 
 def t_trim_over() -> U64:
   Bool.pick(U64, BX.kind_is(O.trim_quad(G.GV_cy{G.Cy{
-    V.Pt{0.0f64, 0.0f64, 0.0f64},
-    V.Dr{0.0f64, 0.0f64, 10.0f64}, 1.0f64}}, 0.0f64,
+    V.Pt{0.0f64, 0.0f64, 1.0e308f64},
+    V.Dr{0.0f64, 0.0f64, 1.0f64}, 1.0f64}}, 0.0f64,
     1.0e308f64), 1u64), 0u64, 1u64)
+
+def t_trim_axis() -> U64:
+  Bool.pick(U64, BX.kind_is(O.trim_quad(G.GV_cy{G.Cy{
+    V.Pt{0.0f64, 0.0f64, 0.0f64},
+    V.Dr{0.0f64, 0.0f64, 2.0f64}, 1.0f64}}, 0.0f64,
+    0.0f64), 0u64), 0u64, 1u64)
 
 def t_ms_ok() -> U64:
   Bool.pick(U64, BX.is_sok(O.ms_box(1.0f64, 2.0f64, 3.0f64,
@@ -149,14 +152,10 @@ def t_ms_over() -> U64:
   Bool.pick(U64, BX.kind_is(O.ms_box(1.0e308f64, 1.0e308f64,
     1.0f64, 0.0f64, 0.0f64, 0.0f64, ub()), 1u64), 0u64, 1u64)
 
-# 1e308+1e308 on the corner, dims small enough that vol/area stay finite.
-# Old ms_box returned Sok with a non-finite bhi.
 def t_ms_corner() -> U64:
   Bool.pick(U64, BX.kind_is(O.ms_box(1.0e308f64, 0.1f64, 0.1f64,
     1.0e308f64, 0.0f64, 0.0f64, ub()), 1u64), 0u64, 1u64)
 
-# Fuel 0 is not-done (0). A large fuel on the unit box is a
-# decided pass (3). Code 0 was also the old short-budget pack.
 def t_incid_low() -> U64:
   Bool.pick(U64, Nat.is_eq(C4.brep_incid_c(ub(), 0n), 0n), 0u64, 1u64)
 
@@ -183,7 +182,7 @@ def total() -> U64:
                   U64.add(t_att_tag_box(), U64.add(t_diag_fuel(),
                     U64.add(t_diag_valid(), U64.add(t_trim_cyl(),
                       U64.add(t_trim_t(), U64.add(t_trim_other(),
-                        U64.add(t_trim_over(), U64.add(t_ms_ok(),
+                        U64.add(t_trim_over(), U64.add(t_trim_axis(), U64.add(t_ms_ok(),
                           U64.add(t_ms_vol(), U64.add(t_ms_area(),
                             U64.add(t_ms_counts(),
                               U64.add(t_ms_zero(),
@@ -192,7 +191,7 @@ def total() -> U64:
                                     U64.add(t_incid_low(),
                                       U64.add(t_incid_box(),
                                         U64.add(t_orient_low(),
-                                          t_orient_box())))))))))))))))))))))))))))))))))
+                                          t_orient_box()))))))))))))))))))))))))))))))))))
 
 def main() -> IO(Unit):
   do IO<Unit>:

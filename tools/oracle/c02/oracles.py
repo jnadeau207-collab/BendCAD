@@ -11,7 +11,7 @@ def wsl_path(p):
 
 
 def bend_run(src, out):
-    exe = "/tmp/bendcad-c05-" + os.path.basename(src)[:-6]
+    exe = "/tmp/bendcad-c02-" + os.path.basename(src)[:-5]
     cmd = f'export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; bend "{src}" -o {exe} && {exe}'
     if os.name == "nt":
         r = subprocess.run(["wsl.exe", "-e", "bash", "-lc", cmd.replace(src, wsl_path(src))], capture_output=True, text=True)

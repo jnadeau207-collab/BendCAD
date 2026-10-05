@@ -1,7 +1,3 @@
-# C06 laws: intent-checked solid builders over C00-C05.
-# Contract: docs/c06-contract.md. Convention: laws/c05.bend
-# (ground pins ok_/neg_ plus quantified definitional laws).
-
 import Base
 import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
@@ -269,8 +265,6 @@ def org() -> V.Point:
 def axis_z() -> V.Dir:
   V.Dr{0.0f64, 0.0f64, 1.0f64}
 
-# --- A. Result protocol (contract §1). ---
-
 law sok_is_ok:
   for v: Y.SVal
   {Y.sres_ok(Y.Sok{v}) == True{} : Bool}
@@ -444,8 +438,6 @@ law intent_show_pin:
 def intent_show_pin():
   {==}
 
-# --- B. Intent, toleranced dims, certified intervals (types). ---
-
 law intent_fx_rt:
   for m: Y.MatFx
   for fc: Nat
@@ -570,11 +562,6 @@ law prof_show_pin:
 def prof_show_pin():
   {==}
 
-# NOTE: hole_show/body_show/ms_show render through the native F64.show,
-# which the proof checker leaves symbolic, so no {==} pin can state
-# their output. Their structural content is covered by ok_box_counts,
-# ok_fx_of_body, and the dim/interval pins instead.
-
 law nm_show_pin:
   {Y.nm_show(Y.mk_nm(7u64, 1u64, 11n)) == "n7.r1#11" : String}
 
@@ -610,8 +597,6 @@ law body_kind_proj:
 
 def body_kind_proj(b, k, p, z0, z1, bo, nh, rh, dm):
   {==}
-
-# --- C. Op algebra tags and shows (contract §5). ---
 
 law op_tag_box:
   {Y.op_tag(Y.O_box{1u64, 2u64, 3u64}) == 1u64 : U64}
@@ -702,8 +687,6 @@ law node_show_pin:
 
 def node_show_pin():
   {==}
-
-# --- D. Certified interval arithmetic (outward rounding). ---
 
 law ok_iv_add:
   {Y.sok_iv_of(O.iv_add(Y.Iv{1.0f64, 1.0f64}, Y.Iv{2.0f64, 2.0f64}))
@@ -828,8 +811,6 @@ law iv_pt_point:
 
 def iv_pt_point(x):
   {==}
-
-# --- E. Profile validator codes (contract §2). ---
 
 law ok_prof_square:
   {O.prof_code(sq_loop(), [], 1000n) == 0u64 : U64}
@@ -960,8 +941,6 @@ law neg_sh_zero:
 def neg_sh_zero():
   {==}
 
-# --- F. Point-in-polygon (contract §2: exact, tangent is on-edge). ---
-
 law ok_pip_in:
   {O.pip(0.5f64, 0.5f64, sq_loop(), 1000n) == 1u64 : U64}
 
@@ -994,8 +973,6 @@ law pip_empty:
 
 def pip_empty(px, py, fuel):
   {==}
-
-# --- G. Small validator helpers. ---
 
 law pick_nz_zero:
   for b: U64
@@ -1042,8 +1019,6 @@ law dist_code_dup:
 
 def dist_code_dup():
   {==}
-
-# --- H. Code mapper: every validation code becomes a diagnosis. ---
 
 law ok_prof_go_zero:
   {Y.sok_u_of(O.prof_go(0u64, "profile")) == 0u64 : U64}
@@ -1241,8 +1216,6 @@ law neg_prof_valid_bow:
 def neg_prof_valid_bow():
   {==}
 
-# --- I. Revolve axis discipline. ---
-
 law ok_rev_ax:
   {O.rev_ax(rev_sq(), 100000n) == 0u64 : U64}
 
@@ -1297,8 +1270,6 @@ law neg_rev_prof_cross:
 
 def neg_rev_prof_cross():
   {==}
-
-# --- J. Hole clearance and footprints. ---
 
 law neg_hole_breakout:
   {O.hole_clr_loop(1.5f64, 0.5f64, 1.0f64, sq_loop(), 100n) == 19u64 : U64}
@@ -1370,8 +1341,6 @@ law neg_rect_disj:
 
 def neg_rect_disj():
   {==}
-
-# --- K. Box builder (contract §3). ---
 
 law ok_box:
   {box318(O.box_checked(0.0f64, 0.0f64, 0.0f64, 1.0f64, 2.0f64, 3.0f64, 10000n))
@@ -1522,10 +1491,8 @@ law neg_box_sum:
 def neg_box_sum():
   {==}
 
-# --- L. Staged diagnosis (contract §4). ---
-
 law neg_stage_zero:
-  {Y.sres_show(O.stage_go(0u64)) == "resource-exhausted" : String}
+  {Y.sres_show(O.stage_go(0u64)) == "invalid-input" : String}
 
 def neg_stage_zero():
   {==}
@@ -1702,7 +1669,7 @@ def bulk_c_passthrough(b, fuel):
 
 law neg_bulk_c_terr:
   {Y.sres_show(O.bulk_c(Ty.Terr{T.F_invalid{}}, unit_box(), 10000n))
-    == "resource-exhausted" : String}
+    == "invalid-input" : String}
 
 def neg_bulk_c_terr():
   {==}
@@ -1724,12 +1691,10 @@ def neg_bulk_a_att():
   {==}
 
 law neg_diag_valid_box:
-  {Y.sres_show(O.diag_brep(unit_box(), 10000n)) == "resource-exhausted" : String}
+  {Y.sres_show(O.diag_brep(unit_box(), 10000n)) == "invalid-input" : String}
 
 def neg_diag_valid_box():
   {==}
-
-# --- M. Op-graph eval (contract §5). ---
 
 def hash_ps() -> List<&2, Y.Param>:
   [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
@@ -1747,7 +1712,6 @@ law ok_node_hash_box:
 def ok_node_hash_box():
   {==}
 
-# Same nominals, different hi. The old hash ignored the zone.
 law node_hash_zone:
   {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
       [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
@@ -1762,7 +1726,6 @@ law node_hash_zone:
 def node_hash_zone():
   {==}
 
-# Same nominals, different dim id. The old hash ignored the id.
 law node_hash_dim_id:
   {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), []),
       EV.node_hash(Y.O_box{4u64, 2u64, 3u64}, hash_ps(), []))
@@ -1771,7 +1734,6 @@ law node_hash_dim_id:
 def node_hash_dim_id():
   {==}
 
-# Same op and nominals, different input node id. The old hash ignored ins.
 law node_hash_ins:
   {U64.is_eq(EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), []),
       EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, hash_ps(), [9u64]))
@@ -1855,9 +1817,6 @@ def zone_wide() -> Y.Dim:
 def zone_pt() -> Y.Dim:
   Y.mk_dm(2.0f64, 2.0f64, 2.0f64)
 
-# Volume of [1,3] x {2} x {2} sits strictly below the nominal
-# point product 2 x 2 x 2. Substituting nom for [lo, hi] makes
-# the two lows equal and this law fails. Both results are Sok.
 law zone_not_nominal:
   {Bool.and(String.eq(Y.sres_show(O.ms_zone(zone_wide(), zone_pt(),
       zone_pt())), "ok"),
@@ -1872,8 +1831,6 @@ law zone_not_nominal:
 def zone_not_nominal():
   {==}
 
-# A present dim with lo > nom is invalid-input, why "zone".
-# A missing id is not a zone error: why stays "unknown dim id".
 law neg_ev_box_zone:
   {Bool.and(String.eq(sres_why(EV.ev_box(1u64, 2u64, 3u64,
       [Y.mk_param(1u64, Y.mk_dm(1.0f64, 5.0f64, 9.0f64)),
@@ -1901,21 +1858,21 @@ def ok_fnv_step():
   {==}
 
 law ok_pm_hit:
-  {EV.pm_hit_go([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))], 1u64)
+  {EV.px_hit(EV.px_of([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))]), 1u64)
     == True{} : Bool}
 
 def ok_pm_hit():
   {==}
 
 law neg_pm_hit:
-  {EV.pm_hit_go([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))], 9u64)
+  {EV.px_hit(EV.px_of([Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64))]), 9u64)
     == False{} : Bool}
 
 def neg_pm_hit():
   {==}
 
 law ok_pm_nom:
-  {EV.pm_nom_go([Y.mk_param(5u64, Y.mk_dm(7.0f64, 6.0f64, 8.0f64))], 5u64)
+  {EV.px_nom(EV.px_of([Y.mk_param(5u64, Y.mk_dm(7.0f64, 6.0f64, 8.0f64))]), 5u64)
     == 7.0f64 : F64}
 
 def ok_pm_nom():
@@ -1935,14 +1892,6 @@ law ok_ev_wrap_kind:
 def ok_ev_wrap_kind():
   {==}
 
-law cc_has_empty:
-  for id: U64
-  for h: U64
-  {EV.cc_has([], id, h) == False{} : Bool}
-
-def cc_has_empty(id, h):
-  {==}
-
 law cc_covers_empty:
   for items: List<&2, Y.Built>
   {EV.cc_covers(items, []) == True{} : Bool}
@@ -1951,15 +1900,15 @@ def cc_covers_empty(items):
   {==}
 
 law ok_cc_find_hit:
-  {EV.cc_find_id0([EV.bt_dummy()], [], 0u64)
-    == EV.CO{True{}, EV.bt_dummy(), []} : EV.CcOut}
+  {EV.cc_find([EV.bt_dummy()], 0u64)
+    == EV.CO{True{}, EV.bt_dummy()} : EV.CcOut}
 
 def ok_cc_find_hit():
   {==}
 
 law neg_cc_find_miss:
-  {EV.cc_find_id0([EV.bt_dummy()], [], 9u64)
-    == EV.CO{False{}, EV.bt_dummy(), [EV.bt_dummy()]} : EV.CcOut}
+  {EV.cc_find([EV.bt_dummy()], 9u64)
+    == EV.CO{False{}, EV.bt_dummy()} : EV.CcOut}
 
 def neg_cc_find_miss():
   {==}
@@ -2075,8 +2024,6 @@ law ok_eval_origin_z1:
 def ok_eval_origin_z1():
   {==}
 
-# Pending builders fail closed (contract §7: no stub returns success).
-
 law neg_evop_cyl:
   {Y.sres_show(EV.ev_op(Y.O_cyl{1u64, 2u64}, [], 10n)) == "unsupported-op" : String}
 
@@ -2141,8 +2088,6 @@ law neg_evop_xform:
 def neg_evop_xform():
   {==}
 
-# --- N. Publish gate and lineage names (contract §5). ---
-
 law ok_gate:
   {EV.gate_publish(Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n),
     Y.mk_intent(Y.M_create{}, 6n, 0n, 1n, 0n))
@@ -2203,8 +2148,6 @@ law ok_box_names_last:
 
 def ok_box_names_last():
   {==}
-
-# --- O. Quadric frames and evaluators (surfx). ---
 
 law ok_circ_nx_zero:
   {SX.circ_nx(0.0f64) == 1.0f64 : F64}
@@ -2448,8 +2391,6 @@ law neg_ring_tor_m_t:
 
 def neg_ring_tor_m_t():
   {==}
-
-# --- P. Result-protocol gap pins (extends A/B/O). ---
 
 law intent_proj_fm:
   for m: Y.MatFx
@@ -2714,8 +2655,6 @@ law neg_kind_show_f:
 def neg_kind_show_f():
   {==}
 
-# --- Q. Staged-diagnosis runtime paths (extends L). ---
-
 law ok_att_tag_box:
   {O.att_tag(Ty.brep_vs(unit_box()), Ty.brep_es(unit_box()),
     Ty.brep_ces(unit_box()), Ty.brep_lps(unit_box()),
@@ -2751,8 +2690,6 @@ law diag_stage_zero:
 
 def diag_stage_zero():
   {==}
-
-# --- R. C06 quad-trim check. ---
 
 def trim_cyl() -> G.GVal:
   G.GV_cy{G.Cy{org(), axis_z(), 1.0f64}}
@@ -2842,8 +2779,11 @@ law neg_trim_quad_huge:
 def neg_trim_quad_huge():
   {==}
 
+def trim_far() -> G.GVal:
+  G.GV_cy{G.Cy{V.Pt{0.0f64, 0.0f64, 1.0e308f64}, axis_z(), 1.0f64}}
+
 law neg_trim_quad_over:
-  {Y.sres_show(O.trim_quad(trim_wide(), 0.0f64, 1.0e308f64))
+  {Y.sres_show(O.trim_quad(trim_far(), 0.0f64, 1.0e308f64))
     == "numerical-uncertainty" : String}
 
 def neg_trim_quad_over():
@@ -2882,8 +2822,6 @@ law neg_trim_quad_pt_huge:
 
 def neg_trim_quad_pt_huge():
   {==}
-
-# --- S. Box measure. ---
 
 def ms123() -> Y.SRes:
   O.ms_box(1.0f64, 2.0f64, 3.0f64, 0.0f64, 0.0f64, 0.0f64, unit_box())
@@ -2967,8 +2905,6 @@ law neg_ms_box_over:
 def neg_ms_box_over():
   {==}
 
-# Corner sum overflows while the volume and area enclosures stay finite.
-# The old ms_box skipped box_sum_fin and returned ok with a non-finite bhi.
 law neg_ms_box_corner:
   {Y.diag_show(Y.sres_diag(O.ms_box(1.0e308f64, 0.1f64, 0.1f64,
       1.0e308f64, 0.0f64, 0.0f64, unit_box())))
@@ -3005,8 +2941,6 @@ law neg_ms_bin_second:
 def neg_ms_bin_second():
   {==}
 
-# --- T. Cache identity and publish gate on ev_part. ---
-
 def box_ps() -> List<&2, Y.Param>:
   [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
     Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
@@ -3023,32 +2957,29 @@ def part_mis() -> Y.Part:
     Y.mk_intent(Y.M_create{}, 5n, 0n, 1n, 0n))
 
 def ins_poison() -> Y.Cache:
-  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_box{1u64, 2u64, 3u64},
+  Y.Cc{[Y.mk_built(7u64, EV.node_key(Y.O_box{1u64, 2u64, 3u64},
       box_ps(), []), EV.dummy_body(),
     Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
 
 def cyl_poison() -> Y.Cache:
-  Y.Cc{[Y.mk_built(7u64, EV.node_hash(Y.O_cyl{1u64, 2u64}, cyl_ps(),
+  Y.Cc{[Y.mk_built(7u64, EV.node_key(Y.O_cyl{1u64, 2u64}, cyl_ps(),
       []), EV.dummy_body(),
     Y.mk_fx(Y.M_create{}, 6n, 0n, 1n, 0n))]}
 
-# A cache entry under the hash of the old inputs must not win once ins changes.
 law ok_cache_ins_miss:
   {root318(EV.ev_part(part_ins(), ins_poison(), 10000n)) == True{} : Bool}
 
 def ok_cache_ins_miss():
   {==}
 
-# The poisoned entry's hash is the hash ev_part computes, so this is a hit.
 law ok_cache_cyl_covers:
   {EV.cc_covers(EV.cc_items(cyl_poison()),
-      EV.ev_hashes([Y.mk_node(7u64, Y.O_cyl{1u64, 2u64}, [])], cyl_ps()))
+      EV.ev_keys([Y.mk_node(7u64, Y.O_cyl{1u64, 2u64}, [])], cyl_ps()))
     == True{} : Bool}
 
 def ok_cache_cyl_covers():
   {==}
 
-# A cache hit on an unsupported op still fails. The old path returned the body.
 law neg_cache_cyl:
   {Y.sres_show(ev_last2(EV.ev_part(part_cyl(), cyl_poison(), 10000n)))
     == "unsupported-op" : String}
@@ -3056,17 +2987,14 @@ law neg_cache_cyl:
 def neg_cache_cyl():
   {==}
 
-# Changing ins changes the hash, so the old entry does not cover.
 law neg_cache_ins_covers:
   {EV.cc_covers(EV.cc_items(ins_poison()),
-      EV.ev_hashes([Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [9u64])],
+      EV.ev_keys([Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [9u64])],
         box_ps())) == False{} : Bool}
 
 def neg_cache_ins_covers():
   {==}
 
-# Agreeing intent is ok_eval_fresh (part1 carries the box intent).
-# Disagreeing intent is invalid-input, including when the geometry cache hits.
 law neg_ev_intent:
   {Y.sres_show(ev_last2(EV.ev_part(part_mis(), Y.cache_empty(), 10000n)))
     == "invalid-input" : String}
@@ -3080,4 +3008,146 @@ law neg_ev_intent_hit:
     == "invalid-input" : String}
 
 def neg_ev_intent_hit():
+  {==}
+
+law ok_hole_clr_exact:
+  {O.hole_clr_pt(F64{4877398396442247170u64}, 1.0f64, 255.0f64, 0.0f64,
+    255.0f64, 2.0f64, F64{4877398396442247169u64}) == 0u64 : U64}
+
+def ok_hole_clr_exact():
+  {==}
+
+law ok_hole_hh_exact:
+  {O.hole_hh(F64{4877398396442247170u64}, 0.0f64, 0.5f64, 255.0f64, 0.0f64,
+    F64{4877398396442247169u64}) == 0u64 : U64}
+
+def ok_hole_hh_exact():
+  {==}
+
+law ok_hole_rect_exact:
+  {O.hole_rect(F64{4877398396442247170u64}, 0.0f64,
+    F64{4877398396442247169u64}, 0.0f64, F64.neg(1.0f64), 255.0f64,
+    1.0f64) == 0u64 : U64}
+
+def ok_hole_rect_exact():
+  {==}
+
+law ok_qframe_nx:
+  {SX.qframe(V.Dr{F64.neg(1.0f64), 0.0f64, 0.0f64})
+    == SX.QFr{V.Dr{0.0f64, 1.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, F64.neg(1.0f64)}} : SX.QFr}
+
+def ok_qframe_nx():
+  {==}
+
+law ok_qframe_ny:
+  {SX.qframe(V.Dr{0.0f64, F64.neg(1.0f64), 0.0f64})
+    == SX.QFr{V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Dr{F64.neg(1.0f64), 0.0f64, 0.0f64}} : SX.QFr}
+
+def ok_qframe_ny():
+  {==}
+
+law ok_qframe_nz:
+  {SX.qframe(V.Dr{0.0f64, 0.0f64, F64.neg(1.0f64)})
+    == SX.QFr{V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, F64.neg(1.0f64), 0.0f64}} : SX.QFr}
+
+def ok_qframe_nz():
+  {==}
+
+law neg_trim_quad_axis:
+  {Y.sres_show(O.trim_quad(trim_wide(), 0.0f64, 0.0f64))
+    == "invalid-input" : String}
+
+def neg_trim_quad_axis():
+  {==}
+
+law neg_surf_at_axis:
+  {SX.surf_at(trim_wide(), 0.0f64, 0.0f64) == G.gerr(T.F_invalid{}) : G.GRes}
+
+def neg_surf_at_axis():
+  {==}
+
+law neg_ring_cyl_axis:
+  {SX.ring_cyl(G.Cy{org(), V.Dr{0.0f64, 0.0f64, 2.0f64}, 1.0f64}, 0.0f64)
+    == G.gerr(T.F_invalid{}) : G.GRes}
+
+def neg_ring_cyl_axis():
+  {==}
+
+def coll_ps_a() -> List<&2, Y.Param>:
+  [Y.mk_param(1u64, Y.mk_dm(10.0f64, 9.0f64, 11.0f64)),
+    Y.mk_param(2u64, Y.mk_dm(10.0f64, 9.0f64, 11.0f64)),
+    Y.mk_param(3u64, Y.mk_dm(10.0f64, 9.0f64, 11.0f64))]
+
+def coll_ps_b() -> List<&2, Y.Param>:
+  [Y.mk_param(1u64, Y.mk_dm(10.0f64, 9.0f64, F64{4622382067542392833u64})),
+    Y.mk_param(2u64, Y.mk_dm(F64{4621818018077343309u64}, 9.0f64, 11.0f64)),
+    Y.mk_param(3u64, Y.mk_dm(10.0f64, 9.0f64, 11.0f64))]
+
+def coll_part(ps: List<&2, Y.Param>) -> Y.Part:
+  Y.mk_part(ps, [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64,
+    box_it())
+
+def bits_of(xs: List<&2, F64>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case h <> t: F64.bits(h) <> bits_of(t)
+
+def coll_dims(er: EV.EvRes) -> List<&2, U64>:
+  match er:
+    case EV.EV{cc, last}:
+      match last:
+        case Y.Serr{k, dg}: []
+        case Y.Sok{v}:
+          match v:
+            case Y.SV_body{b}:
+              Y.Bd{brep, kind, prof, z0, z1, boss, nhole, rh, dims} = b
+              bits_of(dims)
+            case _: []
+
+law coll_hash_equal:
+  {EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, coll_ps_a(), [])
+    == EV.node_hash(Y.O_box{1u64, 2u64, 3u64}, coll_ps_b(), []) : U64}
+
+def coll_hash_equal():
+  {==}
+
+law ok_cache_collision_rebuilds:
+  {coll_dims(EV.ev_part(coll_part(coll_ps_b()),
+      ev_cc2(EV.ev_part(coll_part(coll_ps_a()), Y.cache_empty(), 100000n)),
+      100000n))
+    == [4621819117588971520u64, 4621818018077343309u64, 4621819117588971520u64]
+      : List<&2, U64>}
+
+def ok_cache_collision_rebuilds():
+  {==}
+
+law neg_ev_dup_node:
+  {Y.sres_show(ev_last2(EV.ev_part(Y.mk_part(box_ps(),
+      [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, []),
+        Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64, box_it()),
+      Y.cache_empty(), 10000n)))
+    == "invalid-input" : String}
+
+def neg_ev_dup_node():
+  {==}
+
+law neg_ev_dup_param:
+  {Y.sres_show(ev_last2(EV.ev_part(Y.mk_part(
+      [Y.mk_param(1u64, Y.mk_dm(1.0f64, 0.5f64, 2.0f64)),
+        Y.mk_param(1u64, Y.mk_dm(5.0f64, 4.0f64, 6.0f64)),
+        Y.mk_param(2u64, Y.mk_dm(2.0f64, 1.0f64, 3.0f64)),
+        Y.mk_param(3u64, Y.mk_dm(3.0f64, 2.0f64, 4.0f64))],
+      [Y.mk_node(7u64, Y.O_box{1u64, 2u64, 3u64}, [])], 7u64, box_it()),
+      Y.cache_empty(), 10000n)))
+    == "invalid-input" : String}
+
+def neg_ev_dup_param():
+  {==}
+
+law node_hash_pocket_coords:
+  {U64.is_eq(EV.node_hash(Y.O_pocket{7u64, 0.0f64, 0.0f64, 1.0f64, 1.0f64, 1u64}, [], []),
+    EV.node_hash(Y.O_pocket{7u64, 0.5f64, 0.0f64, 1.0f64, 1.0f64, 1u64}, [], []))
+    == False{} : Bool}
+
+def node_hash_pocket_coords():
   {==}

@@ -152,7 +152,8 @@ Construction protocol, in order:
 7. `brep_checked(b, profile, fuel)` (ops.bend, IMPLEMENTED)
    returns `resource-exhausted` before stage A and before
    stages B..L whenever `fuel < ix_bound(b)` (the longest
-   store or member list). That result is not a geometric
+   store or member list, or one more than the longest NURBS
+   knot list on an edge). That result is not a geometric
    pass. Otherwise it runs A. store re-validation via
    `mk_brep` (catches raw `Br`; an invalid store wins only
    when fuel covers `ix_bound`), then the conjunction
@@ -279,20 +280,16 @@ while the validators check structure.
   FIRST (→ `resource-exhausted`), then `ok`
   (→ `invalid-input`).
 - Fuel consumption (exact): `*_len` spends 1 per cons;
-  `*_all_c`/`*_gen_c` spend 1 per slot; `*_nodup_c` spends
-  1 per slot for the outer walk, each inner `*_free_of`
-  scan getting the full remaining fuel (so fuel ≥ length
-  still suffices); `*_at` spends 1 per tail step — head
-  (`idx 0`) is FREE (`pos-at-vx-headfree`); `*_handle_of`
-  checks the head even at fuel 0 (`pos-hof-vx-0head`) and
-  spends 1 per further step. `*_snoc` is structural and
-  takes NO fuel (C03 `dropk` precedent). `mk_brep` grants
-  each of its 21 walks the FULL fuel cap (not divided).
-  `brep_checked` grants each stage walk, each sub-resolve,
-  and each ownership sub-walk (`hsh/hlp/hfa/hso_nodup_c`,
-  `hsh/hlp/hfa_list_free_of`, `hsh/hlp/hfa_free_of_*`)
-  the FULL cap; fuel ≥ max store/member-list length
-  suffices.
+  `*_all_c`/`*_gen_c` spend 1 per slot; `*_nodup_c` is
+  done iff the list is no longer than the fuel, and finds
+  duplicates by sorting (R0.2); `*_at` spends 1 per tail
+  step — head (`idx 0`) is FREE (`pos-at-vx-headfree`);
+  `*_handle_of` checks the head even at fuel 0
+  (`pos-hof-vx-0head`) and spends 1 per further step.
+  `*_snoc` is structural and takes NO fuel (C03 `dropk`
+  precedent). `mk_brep` grants each of its 21 walks the
+  FULL fuel cap (not divided). `brep_checked` decides a
+  stage only at `fuel ≥ ix_bound(b)` (§16.2).
 
 ## 6. Identity (BN-7)
 
@@ -360,7 +357,8 @@ fuel ≥ store length; `at` needs fuel ≥ index (head free);
 `resolve` costs its inner `at`; `issued` costs its inner
 `len`; `mk_brep` needs fuel ≥ the LONGEST store (full cap
 per each of 21 walks); `brep_checked` needs fuel ≥ the
-max store length and max member-list length (`ix_bound`).
+max store length, the max member-list length, and one more than
+the longest NURBS knot list on an edge (`ix_bound`).
 Fuel below that bound is `resource-exhausted` and does not
 run `mk_brep` or stages B..L. At or above the bound, each
 stage walk and each sub-resolve gets that full cap
@@ -382,7 +380,7 @@ it is not a hidden assumption).
 | BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/` empty; `legacy/` clean + `verify_legacy.py` exit 0 (§11). No oracle harness in packet code. |
 | BN-6 | PASS | No GPU claim in this packet — hence no GPU path to fall back from. All work is host structural/Nat/U64/F64-finite checks. |
 | BN-7 | PASS | §6: generational `(idx, gen)` handles into explicit lists; stale → `invalid-input` (`neg-res-*-stale`, `vx/ed/…_res_stale` laws). No addresses; bare index never accepted as identity. |
-| BN-8 | PASS | Machine audit (§11): 154 self-recursive defs = 147 fuel-capped walks (types: 49 `*_all_c`/`*_gen_c`/`*_nodup_c`/`*_free_of`/`*_len_go`/`*_at`/`*_handle_of_go`; ops: 98 incidence/usage/loop/face/profile/ownership/embed/link/conn/coin/xing/orient/recheck walks, every one taking fuel/`ffull`; exhaustion → `resource-exhausted`, `neg-*-0` + `ck_fuel` pins) + 7 structural `*_snoc` (C03 `dropk` precedent, no fuel by design). No unbounded recursion. |
+| BN-8 | PASS | Every self-recursive def is structural in a list or `Nat`, or takes fuel. Store walks (`*_all_c`/`*_gen_c`/`*_len_go`/`*_at`/`*_handle_of_go`) spend one fuel per element; every `brep_checked` stage decides only when `fuel ≥ ix_bound` (§16.2) and otherwise reports code `0`, and `brep_checked` returns `resource-exhausted` before `mk_brep` and the stages. The `*_snoc` appends are structural (C03 `dropk` precedent). No unbounded recursion. (The pre-R0.2 per-walk accounting this row used to describe is superseded by §16.) |
 | BN-9 | PASS | No batch op ships; a batch is SPECIFIED as the left fold of the single push, failing closed on the first `Terr` (§10). |
 | BN-10 | PASS | No numerical shortcut: `brep_checked` evaluates C03 curves/surfaces at endpoints and compares exactly (no tolerance inflation); Euler identities documented-necessary, explicitly not validation (§4). Stage D duplicate-incidence (`hc_nodup_c` + seam + pole) is claimed as loop-handle hygiene only, never as general self-intersection; stage K uncertainty fails closed (uncertain-or-crossing, never a proven crossing). Vertex-link validation is IMPLEMENTED (stage H, `ck_pinch`); orientation is L-plane CERTIFIED with L-varying explicit skip and GLOBAL outwardness deferred (§12). Quadric trim 3D coincidence skip (with exact ordered-zero vertex membership), cavity inside/disjoint, curved-edge crossings, and cross-face/inter-loop penetration are LABELED deferrals (§12), not shortcuts. |
 | BN-11 | PASS | Every `Terr` arm returns no value: projectors yield documented defaults (§2); `neg-*` assert kinds, `pos-dflt-*` assert defaults, `fails=0` on all lanes. |
@@ -409,10 +407,10 @@ across pushes). No shared mutable state, no atomics.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c04/types.bend --check-only   # ALL PROOFS CHECK
 bend src/c04/ops.bend --check-only     # ALL PROOFS CHECK
-bend laws/c04.bend --check-only        # ALL PROOFS CHECK (592 laws).
+bend laws/c04.bend --check-only        # ALL PROOFS CHECK (602 laws at R0.4).
 bend tests/c04/check.bend --check-only # ALL PROOFS CHECK
-bend tests/c04/neg.bend                # 126 PASS, selfcheck fails=0
-bend tests/c04/pos.bend                # 282 PASS, selfcheck fails=0
+bend tests/c04/neg.bend                # 128 PASS, selfcheck fails=0
+bend tests/c04/pos.bend                # 283 PASS, selfcheck fails=0
 # native lane: bend <suite> -o <bin> && <bin>; js lane: bend <suite> -o <js> && bun <js>
 grep -rn '@unsafe' src/ laws/ tests/ | grep -v ': *#'  # empty
 grep -rn 'F32' src/ laws/ tests/                        # empty
@@ -799,8 +797,8 @@ row by design — they are §12 limitations, not exit claims.
 R0.2 (2026-10-01) replaced every list walk and pairwise scan in
 `brep_checked` with an index and sorted passes. Construction (§3
 steps 1–6) and `mk_brep` are unchanged, apart from duplicate-generation
-detection, which now sorts. §16 supersedes earlier wording in §3, §8
-(stages), §9 BN-8 and §10 where they differ.
+detection, which now sorts. §16 supersedes earlier wording in §3, §5,
+§8 (stages), §9 BN-8 and §10 where they differ.
 
 ### 16.1 Index
 
@@ -808,9 +806,18 @@ detection, which now sorts. §16 supersedes earlier wording in §3, §8
 (`B.tb_of`) with their lengths. `ix_vx`/`ix_ed`/`ix_ce`/`ix_lp`/
 `ix_fa`/`ix_sh`/`ix_so` resolve a handle in `O(log n)` with exactly
 the verdict of the list `*_resolve` (out of range or generation
-mismatch → `invalid-input`). `ix_bound(b)` is the larger of the
-longest store and the longest member list (loop coedges, face
-loops, shell faces, solid shells).
+mismatch → `invalid-input`). `ix_bound(b)` is the largest of the
+longest store, the longest member list (loop coedges, face
+loops, shell faces, solid shells), and `nk + 1` for every edge
+whose curve is a NURBS with `nk` knots. Stage G evaluates NURBS
+edges with the caller's fuel (`nurbs_checked`, `nurbs_eval`),
+which decide only at `fuel ≥ nk + 1`. Before the 2026-10-04 audit
+the knot term was missing, so a NURBS edge with more knots than
+the longest store made stage G decide `invalid` at
+`ix_bound ≤ fuel ≤ nk` (`ck_embed_nurbs_short` pins the fix:
+`brep_embed_c` on a two-vertex, one-NURBS-edge store returns `0`,
+not decided, at fuel 2; `ck_embed_nurbs_full` returns `3` at
+fuel 9 = `ix_bound`).
 
 ### 16.2 Fuel
 

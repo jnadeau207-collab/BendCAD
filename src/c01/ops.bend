@@ -1,15 +1,7 @@
-# C01 operators: robust norms, dot/cross/det, normalize, conditioning-checked
-# inverses, frames, rigid transforms. Every publishing op returns CRes:
-# finite value or a C00 FailKind (invalid = malformed/degenerate input,
-# uncertain = true overflow or failed conditioning). Raw *_raw defs are
-# total but may yield nonfinite on true overflow; they are never published
-# without re-validation. No naive sqrt(x*x+...) anywhere.
-
 import Base
 import ../c00/types.bend as T
 import ./types.bend as V
 
-# --- Raw arithmetic core (total; callers re-validate). ---
 def v3_add_raw(+a: V.Vec3, +b: V.Vec3) -> V.Vec3:
   V.V3{+ax, +ay, +az} = a
   V.V3{+bx, +by, +bz} = b
@@ -38,7 +30,6 @@ def v2_scale_raw(+s: F64, +v: V.Vec2) -> V.Vec2:
   V.V2{+x, +y} = v
   V.V2{F64.mul(s, x), F64.mul(s, y)}
 
-# Left-fold sums; the order is the contract (docs/c01-contract.md).
 def v3_dot_raw(+a: V.Vec3, +b: V.Vec3) -> F64:
   V.V3{+ax, +ay, +az} = a
   V.V3{+bx, +by, +bz} = b
@@ -56,7 +47,6 @@ def v3_cross_raw(+a: V.Vec3, +b: V.Vec3) -> V.Vec3:
     F64.sub(F64.mul(az, bx), F64.mul(ax, bz)),
     F64.sub(F64.mul(ax, by), F64.mul(ay, bx))}
 
-# Cofactor expansion along row 0, left-fold sums.
 def m3_det_raw(+m: V.Mat3) -> F64:
   V.M3{+a, +b, +c, +d, +e, +f, +g, +h, +i} = m
   +t0 = F64.sub(F64.mul(e, i), F64.mul(f, h))
@@ -84,13 +74,6 @@ def m3_app_raw(+m: V.Mat3, +v: V.Vec3) -> V.Vec3:
     F64.add(F64.add(F64.mul(d, x), F64.mul(e, y)), F64.mul(f, z)),
     F64.add(F64.add(F64.mul(g, x), F64.mul(h, y)), F64.mul(i, z))}
 
-# Scaled hypot: m = max|x|; 0 if m == 0 else m*sqrt(sum (x/m)^2).
-# Ratios are in [-1,1], so no spurious overflow at any finite scale.
-# WARNING: F64.max swallows NaN (max(a,b) keeps a unless a<b ordered),
-# so *_norm_raw can collapse to 0.0 on nonfinite input. Every publishing
-# entry below gates on input finiteness FIRST (invalid-input) and never
-# trusts a finite result alone. m3_is_rot is safe without a gate: it
-# ANDs m3_fin over the input, so nonfinite can only yield False.
 def v3_norm_go(+m: F64, +x: F64, +y: F64, +z: F64, zero: Bool) -> F64:
   match zero:
     case True{}: 0.0f64
@@ -119,7 +102,6 @@ def v2_norm_raw(+v: V.Vec2) -> F64:
   +m = F64.max(F64.abs(x), F64.abs(y))
   v2_norm_go(m, x, y, F64.is_eq(m, 0.0f64))
 
-# --- Validated publishing ops: finite value or structured failure. ---
 def fin_or_unc_f(+v: F64, ok: Bool) -> V.CRes:
   match ok:
     case True{}: V.cok_f(v)
@@ -135,25 +117,11 @@ def fin_or_unc_v2(+v: V.Vec2, ok: Bool) -> V.CRes:
     case True{}: V.cok_v2(v)
     case False{}: V.cerr(T.F_uncertain{})
 
-def fin_or_unc_d(+d: V.Dir, ok: Bool) -> V.CRes:
-  match ok:
-    case True{}: V.cok_d(d)
-    case False{}: V.cerr(T.F_uncertain{})
-
-def fin_or_unc_p(+p: V.Point, ok: Bool) -> V.CRes:
-  match ok:
-    case True{}: V.cok_p(p)
-    case False{}: V.cerr(T.F_uncertain{})
-
 def fin_or_unc_m(+m: V.Mat3, ok: Bool) -> V.CRes:
   match ok:
     case True{}: V.cok_m(m)
     case False{}: V.cerr(T.F_uncertain{})
 
-# Checked constructors: validate components, then build. NOTE: binding a
-# constructor application to a shared (+/-) binder hangs the fork checker,
-# so validated values are always built component-wise here, never bound
-# and re-checked. Callers pass each component expression once.
 def v3_checked_go(x: F64, y: F64, z: F64, ok: Bool) -> V.CRes:
   match ok:
     case True{}: V.cok_v3(V.V3{x, y, z})
@@ -220,9 +188,6 @@ def m3_mul(+a: V.Mat3, +b: V.Mat3) -> V.CRes:
   +c = m3_mul_raw(a, b)
   fin_or_unc_m(c, V.m3_fin(c))
 
-# Input gate: nonfinite entries are malformed (invalid-input, C00
-# taxonomy), never trusted to the max-based raw norm. True overflow of
-# finite inputs still reports numerical-uncertainty via the result check.
 def v3_norm_gate(+v: V.Vec3, fin: Bool) -> V.CRes:
   match fin:
     case True{}:
@@ -293,8 +258,6 @@ def v2_scale(+s: F64, +v: V.Vec2) -> V.CRes:
   +c = v2_scale_raw(s, v)
   fin_or_unc_v2(c, V.v2_fin(c))
 
-# Normalize: zero -> invalid (no direction exists); nonfinite norm (true
-# overflow) -> uncertain; else the unit vector, re-validated, never NaN.
 def v3_unit_go(+x: F64, +y: F64, +z: F64, +n: F64, zero: Bool) -> V.CRes:
   match zero:
     case True{}: V.cerr(T.F_invalid{})
@@ -363,11 +326,9 @@ def dr_unit(+d: V.Dir) -> V.CRes:
   dr_unit_gate(x, y, z,
     Bool.and(T.is_finite(x), Bool.and(T.is_finite(y), T.is_finite(z))))
 
-# Gradient of the norm at v is v/|v|; same failure arms as normalize.
 def v3_grad_norm(+v: V.Vec3) -> V.CRes:
   v3_normalize(v)
 
-# Unit direction from a to b: coincident -> invalid; overflow -> uncertain.
 def seg_dir_go(+dx: F64, +dy: F64, +dz: F64, fin: Bool) -> V.CRes:
   match fin:
     case True{}: dr_unit(V.Dr{dx, dy, dz})
@@ -394,7 +355,6 @@ def seg_dir(+a: V.Point, +b: V.Point) -> V.CRes:
       Bool.and(T.is_finite(bx),
         Bool.and(T.is_finite(by), T.is_finite(bz)))))
 
-# Point/direction algebra. There is deliberately no point+point.
 def p_plus_d(+p: V.Point, +d: V.Dir) -> V.CRes:
   V.Pt{+px, +py, +pz} = p
   V.Dr{+dx, +dy, +dz} = d
@@ -440,10 +400,6 @@ def d_scale(+s: F64, +d: V.Dir) -> V.CRes:
   V.Dr{+x, +y, +z} = d
   d_checked(F64.mul(s, x), F64.mul(s, y), F64.mul(s, z))
 
-# --- Conditioning: the rotation obligation behind Frame and Rigid. ---
-# Rows unit within 1e-12, pairwise orthogonal within 1e-12, det within
-# 1e-9 of +1. All comparisons fail closed on nonfinite (F64.is_le is
-# False unless ordered), and finiteness is also checked explicitly.
 def unit_ok(+n: F64) -> Bool:
   Bool.and(T.is_finite(n),
     F64.is_le(F64.abs(F64.sub(n, 1.0f64)), V.th_unit()))
@@ -485,7 +441,6 @@ def mk_frame_go(+ox: F64, +oy: F64, +oz: F64, +xx: F64, +xy: F64,
       V.cok_fr(V.Fr{ox, oy, oz, xx, xy, xz, yx, yy, yz, zx, zy, zz})
     case False{}: V.cerr(T.F_invalid{})
 
-# Basis arrives as columns; the rotation check runs on rows.
 def mk_frame(+ox: F64, +oy: F64, +oz: F64, +xx: F64, +xy: F64,
     +xz: F64, +yx: F64, +yy: F64, +yz: F64, +zx: F64, +zy: F64,
     +zz: F64) -> V.CRes:
@@ -525,13 +480,10 @@ def fr_of_rigid(+r: V.Rigid) -> V.Frame:
   V.M3{+a, +b, +c, +d, +e, +f, +g, +h, +i} = m
   V.Fr{tx, ty, tz, a, d, g, b, e, h, c, f, i}
 
-# Jacobian of rigid application w.r.t. the point: the rotation block.
 def rg_jac(+r: V.Rigid) -> V.Mat3:
   V.Rg{+m, +tx, +ty, +tz} = r
   m
 
-# --- Scaled-adjugate inverse: B = A/s with |bij| <= 1, so cofactors and
-# det(B) (<= 6) cannot overflow. |det(B)| <= 1e-12 -> uncertain. ---
 def m3_maxabs(+m: V.Mat3) -> F64:
   V.M3{+a, +b, +c, +d, +e, +f, +g, +h, +i} = m
   F64.max(F64.abs(a),
@@ -549,7 +501,6 @@ def m3_inv_q(+c11: F64, +c21: F64, +c31: F64, +c12: F64, +c22: F64,
     F64.div(c12, q), F64.div(c22, q), F64.div(c32, q), F64.div(c13, q),
     F64.div(c23, q), F64.div(c33, q))
 
-# Cofactors of B = A/s; adjugate entries below are transposed.
 def m3_inv_cof(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64,
     +g: F64, +h: F64, +i: F64, +s: F64, +db: F64) -> V.CRes:
   +c11 = F64.sub(F64.mul(F64.div(e, s), F64.div(i, s)),
@@ -603,7 +554,6 @@ def m3_inv(+m: V.Mat3) -> V.CRes:
   +s = m3_maxabs(m)
   m3_inv_db(m, s, F64.is_eq(s, 0.0f64))
 
-# --- Rigid compose / invert / apply. ---
 def rg_compose_rot_go(+r: V.Mat3, +tx: F64, +ty: F64, +tz: F64,
     ok: Bool) -> V.CRes:
   match ok:
@@ -660,7 +610,6 @@ def rg_apply_v(+r: V.Rigid, +v: V.Vec3) -> V.CRes:
   +q = m3_app_raw(m, v)
   fin_or_unc_v3(q, V.v3_fin(q))
 
-# Frame maps run through the one rigid path (no duplicate algorithm).
 def fr_to_world(+fr: V.Frame, +p: V.Point) -> V.CRes:
   rg_apply_p(rg_of_frame(fr), p)
 
@@ -675,9 +624,6 @@ def fr_to_local_go(+p: V.Point, +ri: V.CRes) -> V.CRes:
 def fr_to_local(+fr: V.Frame, +p: V.Point) -> V.CRes:
   fr_to_local_go(p, rg_inv(rg_of_frame(fr)))
 
-# Frame from two directions (Gram-Schmidt, cf. legacy PlacementFrame):
-# normalize z, orthogonalize x against it, y = z cross x. Zero input ->
-# invalid; parallel/near-parallel (relative 1e-12) -> uncertain.
 def frame_basis_fin(+ox: F64, +oy: F64, +oz: F64, +zx: F64, +zy: F64,
     +zz: F64, +px: F64, +py: F64, +pz: F64, +np: F64) -> V.CRes:
   +ux = F64.div(px, np)
@@ -724,8 +670,6 @@ def frame_basis_xv(+o: V.Point, +zx: F64, +zy: F64, +zz: F64, +xx: F64,
         Bool.and(V.dr_fin(V.Dr{zx, zy, zz}),
           Bool.and(T.is_finite(xx),
             Bool.and(T.is_finite(xy), T.is_finite(xz)))))
-
-# Leaf-first: par <- xp <- xv <- xn2 <- zv <- zn <- xn <- basis.
 
 def frame_basis_xn2(+o: V.Point, +zx: F64, +zy: F64, +zz: F64, +xx: F64,
     +xy: F64, +xz: F64, +nx: F64, fin: Bool) -> V.CRes:

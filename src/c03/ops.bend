@@ -1,19 +1,8 @@
-# C03 operators: evaluation, derivatives, subdivision, enclosures,
-# projection, trimming composition, NURBS de Boor. Every publishing op
-# returns GRes: a finite value or a C00 FailKind (invalid = malformed
-# input or out-of-domain parameter, uncertain = true overflow,
-# exhausted = NURBS fuel ran out). Raw *_raw defs are total but may
-# yield nonfinite on true overflow; they are never published without
-# re-validation. Dot/cross/norm reuse C01's exact formulas and
-# left-fold order. No transcendental evaluation anywhere: circles are
-# rational (stereographic), conics are rational Beziers.
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ./types.bend as G
 
-# --- Homogeneous work point for rational evaluation (de Boor). ---
 type Hpt is Data:
   Hp{ x: F64, y: F64, z: F64, w: F64 }
 
@@ -33,13 +22,6 @@ def hpt_w(h: Hpt) -> F64:
   Hp{x, y, z, w} = h
   w
 
-def hpt_fin(h: Hpt) -> Bool:
-  Hp{x, y, z, w} = h
-  Bool.and(T.is_finite(x),
-    Bool.and(T.is_finite(y),
-      Bool.and(T.is_finite(z), T.is_finite(w))))
-
-# --- Raw point/direction arithmetic (total; callers re-validate). ---
 def dd_dot_raw(+a: V.Dir, +b: V.Dir) -> F64:
   V.Dr{+ax, +ay, +az} = a
   V.Dr{+bx, +by, +bz} = b
@@ -77,9 +59,6 @@ def dd_sub_raw(+a: V.Dir, +b: V.Dir) -> V.Dir:
   V.Dr{+bx, +by, +bz} = b
   V.Dr{F64.sub(ax, bx), F64.sub(ay, by), F64.sub(az, bz)}
 
-# Scaled hypot on a direction (C01 v3_norm_raw formula): ratios in
-# [-1, 1], so no spurious overflow. F64.max swallows NaN, so every
-# publishing use gates input finiteness FIRST.
 def d3_norm_go(+m: F64, +x: F64, +y: F64, +z: F64,
     zero: Bool) -> F64:
   match zero:
@@ -96,8 +75,6 @@ def d3_norm_raw(+d: V.Dir) -> F64:
   +m = F64.max(F64.abs(x), F64.max(F64.abs(y), F64.abs(z)))
   d3_norm_go(m, x, y, z, F64.is_eq(m, 0.0f64))
 
-# Linear interpolation, one formula everywhere: a*s + b*t per slot.
-# (Callers pass s = 1-t; the association is the contract.)
 def flerp_raw(+a: F64, +b: F64, +s: F64, +t: F64) -> F64:
   F64.add(F64.mul(a, s), F64.mul(b, t))
 
@@ -118,7 +95,6 @@ def hlerp_raw(+a: Hpt, +b: Hpt, +s: F64, +t: F64) -> Hpt:
   Hp{flerp_raw(ax, bx, s, t), flerp_raw(ay, by, s, t),
     flerp_raw(az, bz, s, t), flerp_raw(aw, bw, s, t)}
 
-# Weighted sums with caller-supplied basis values, left-fold order.
 def pt_cubic_raw(+p0: V.Point, +p1: V.Point, +p2: V.Point,
     +p3: V.Point, +b0: F64, +b1: F64, +b2: F64, +b3: F64) -> V.Point:
   V.Pt{+x0, +y0, +z0} = p0
@@ -167,7 +143,6 @@ def dr_quad_raw(+d0: V.Dir, +d1: V.Dir, +d2: V.Dir, +c0: F64,
     F64.add(F64.add(F64.mul(c0, z0), F64.mul(c1, z1)),
       F64.mul(c2, z2))}
 
-# --- Publishing gates: value + ok flag + failure kind. ---
 def gate_f(+v: F64, ok: Bool, k: T.FailKind) -> G.GRes:
   match ok:
     case True{}: G.gok_f(v)
@@ -188,19 +163,11 @@ def gate_v2(+v: V.Vec2, ok: Bool, k: T.FailKind) -> G.GRes:
     case True{}: G.gok_v2(v)
     case False{}: G.gerr(k)
 
-def gate_dom(+v: G.Dom, ok: Bool, k: T.FailKind) -> G.GRes:
-  match ok:
-    case True{}: G.gok_dom(v)
-    case False{}: G.gerr(k)
-
 def gate_bb(+v: G.BBox3, ok: Bool, k: T.FailKind) -> G.GRes:
   match ok:
     case True{}: G.gok_bb(v)
     case False{}: G.gerr(k)
 
-# Orthonormal pair check: each unit within th_unit, |dot| within
-# th_unit. Finiteness is conjuncted explicitly (ordered comparisons
-# fail closed, but the conjunct documents the boundary).
 def uv_frame_ok(+u: V.Dir, +v: V.Dir) -> Bool:
   +nu = d3_norm_raw(u)
   +nv = d3_norm_raw(v)
@@ -213,15 +180,11 @@ def uv_frame_ok(+u: V.Dir, +v: V.Dir) -> Bool:
         Bool.and(F64.is_le(dv, V.th_unit()),
           F64.is_le(dp, V.th_unit())))))
 
-# Unit-axis check for quadric frames.
 def ax_unit_ok(+a: V.Dir) -> Bool:
   +n = d3_norm_raw(a)
   Bool.and(V.dr_fin(a),
     F64.is_le(F64.abs(F64.sub(n, 1.0f64)), V.th_unit()))
 
-# --- Domains: midpoint, length, clamp, single-step periodic wrap,
-# subdivision. Wrap is single-step by contract (multi-turn reduction
-# needs no-trig range reduction, a stated follow-up). ---
 def dom_mid_go(+lo: F64, +hi: F64, ok: Bool) -> G.GRes:
   match ok:
     case True{}:
@@ -313,7 +276,6 @@ def dom_split_hi(+d: G.Dom, +t: F64) -> G.GRes:
   dom_split_hi_go(lo, hi, t, G.dom_valid(G.Dom{lo, hi}),
     Bool.and(F64.is_lt(lo, t), F64.is_lt(t, hi)))
 
-# --- Lines: evaluation, direction, projection, distance, bbox. ---
 def line_eval_go(+p: V.Point, +d: V.Dir, +t: F64,
     ok: Bool) -> G.GRes:
   match ok:
@@ -336,9 +298,6 @@ def line_der(+l: G.Line3) -> G.GRes:
   G.Ln{+p, +d} = l
   line_der_go(d, G.ln_valid(G.Ln{p, d}))
 
-# fin is semantic validity (zero direction -> invalid-input here);
-# den == 0 past that gate is subnormal underflow of d.d, hence
-# numerical-uncertainty, never a misattributed invalid-input.
 def line_proj_go(+m: V.Dir, +d: V.Dir, den: F64, fin: Bool,
     zero: Bool) -> G.GRes:
   match fin:
@@ -402,8 +361,6 @@ def line_seg_bbox(+a: V.Point, +b: V.Point) -> G.GRes:
     Bool.and(V.pt_fin(V.Pt{ax, ay, az}),
       V.pt_fin(V.Pt{bx, by, bz})))
 
-# --- Planes: frame validation, normal, evaluation, projection,
-# distance, uv-rectangle enclosure (exact: evaluation is affine). ---
 def plane_checked_go(+o: V.Point, +u: V.Dir, +v: V.Dir, fin: Bool,
     frame: Bool) -> G.GRes:
   match fin:
@@ -498,8 +455,6 @@ def plane_dist(+p: G.Plane3, +q: V.Point) -> G.GRes:
     Bool.and(G.pl_fin(G.Pl{o, u, v}), V.pt_fin(q)),
     uv_frame_ok(u, v))
 
-# Hull of four finite corners (total on finite inputs; the caller
-# gates). F64.min/max are exact on finite inputs.
 def bbox4_raw(+a: V.Point, +b: V.Point, +c: V.Point,
     +d: V.Point) -> G.BBox3:
   V.Pt{+ax, +ay, +az} = a
@@ -538,7 +493,6 @@ def plane_uv_bbox(+p: G.Plane3, +s0: F64, +s1: F64, +t0: F64,
           Bool.and(T.is_finite(t0), T.is_finite(t1))))),
     uv_frame_ok(u, v))
 
-# --- Rational circles: evaluation, derivative, seam, enclosure. ---
 def circ_checked_go(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64,
     fin: Bool, frame: Bool) -> G.GRes:
   match fin:
@@ -622,7 +576,6 @@ def circ_der(+c: G.Circle3, +t: F64) -> G.GRes:
     uv_frame_ok(u, v),
     Bool.and(F64.is_le(F64.neg(1.0f64), t), F64.is_le(t, 1.0f64)))
 
-# Seam point: both t = 1 and t = -1 evaluate here (c - r*u).
 def circ_seam_go(+c: V.Point, +u: V.Dir, +r: F64, fin: Bool,
     frame: Bool) -> G.GRes:
   match fin:
@@ -639,8 +592,6 @@ def circ_seam_pt(+c: G.Circle3) -> G.GRes:
   circ_seam_go(c, u, r, G.cc_valid(G.Cc{c, u, v, r}),
     uv_frame_ok(u, v))
 
-# Coarse certified enclosure: |nx|, |ny| <= 1 for all t (nx^2+ny^2 =
-# 1 exactly), so c +- r*(|u| + |v|) componentwise always contains C(t).
 def circ_bbox_go(+cx: F64, +cy: F64, +cz: F64, +ux: F64,
     +uy: F64, +uz: F64, +vx: F64, +vy: F64, +vz: F64, +r: F64,
     fin: Bool, frame: Bool) -> G.GRes:
@@ -671,8 +622,6 @@ def circ_bbox(+c: G.Circle3) -> G.GRes:
   circ_bbox_go(cx, cy, cz, ux, uy, uz, vx, vy, vz, r,
     G.cc_valid(G.Cc{c, u, v, r}), uv_frame_ok(u, v))
 
-# --- Cubic Beziers: evaluation (Bernstein, left-fold order), exact
-# derivative, de Casteljau subdivision, control hull, endpoints. ---
 def bez3_eval_go(+p0: V.Point, +p1: V.Point, +p2: V.Point,
     +p3: V.Point, +t: F64, fin: Bool, dom: Bool) -> G.GRes:
   match fin:
@@ -804,10 +753,6 @@ def bez3_end1(+b: G.Bez3) -> G.GRes:
   G.Bz{+p0, +p1, +p2, +p3} = b
   bez3_end_go(p3, G.bz_fin(G.Bz{p0, p1, p2, p3}))
 
-# --- Rational quadratic Beziers = conic arcs: evaluation, quotient-rule
-# derivative, hull (certified for positive weights), discriminant,
-# quarter-circle constructor. den = sum wB > 0 always: weights are
-# positive, B >= 0 on [0, 1], sum B = 1. ---
 def rqb_eval_go(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64,
     +w1: F64, +w2: F64, +t: F64, fin: Bool, dom: Bool) -> G.GRes:
   match fin:
@@ -840,9 +785,6 @@ def rqb_eval(+b: G.RQBez, +t: F64) -> G.GRes:
     G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}),
     Bool.and(F64.is_le(0.0f64, t), F64.is_le(t, 1.0f64)))
 
-# N = sum wB p, D = sum wB; d = (N' D - N D') / D^2 with the exact
-# quadratic derivatives N' = 2((w1p1-w0p0)s + (w2p2-w1p1)t),
-# D' = 2((w1-w0)s + (w2-w1)t).
 def wq_der_raw(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64,
     +w1: F64, +w2: F64, +s: F64, +t: F64) -> V.Dir:
   V.Pt{+x0, +y0, +z0} = p0
@@ -914,9 +856,6 @@ def rqb_bbox(+b: G.RQBez) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
   rqb_bbox_go(p0, p1, p2, G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}))
 
-# Discriminant of the supporting conic: w1^2 - w0*w2. Negative =
-# ellipse, zero = parabola, positive = hyperbola branch (stated
-# standard classification; contract §5).
 def rqb_disc_go(+w0: F64, +w1: F64, +w2: F64,
     ok: Bool) -> G.GRes:
   match ok:
@@ -929,8 +868,6 @@ def rqb_disc(+b: G.RQBez) -> G.GRes:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = b
   rqb_disc_go(w0, w1, w2, G.rq_valid(G.Rq{p0, p1, p2, w0, w1, w2}))
 
-# Rational quarter circle: p0 = c+r*u, p1 = c+r*u+r*v, p2 = c+r*v
-# with weights (1, sqrt2/2, 1). Exact circle in exact arithmetic.
 def rq_quarter_fin(+p0: V.Point, +p1: V.Point, +p2: V.Point,
     ok: Bool) -> G.GRes:
   match ok:
@@ -961,8 +898,6 @@ def rq_quarter(+c: V.Point, +u: V.Dir, +v: V.Dir,
         Bool.and(V.dr_fin(v), T.is_finite(r)))),
     Bool.and(uv_frame_ok(u, v), G.spos(r)))
 
-# --- Bicubic patches: tensor evaluation (rows in u, then column in
-# v), exact partials, 16-point hull, iso-curves, corners. ---
 def bezp_eval_go(+p00: V.Point, +p01: V.Point, +p02: V.Point,
     +p03: V.Point, +p10: V.Point, +p11: V.Point, +p12: V.Point,
     +p13: V.Point, +p20: V.Point, +p21: V.Point, +p22: V.Point,
@@ -1006,7 +941,6 @@ def bezp_eval(+b: G.BezP, +u: F64, +v: F64) -> G.GRes:
     Bool.and(Bool.and(F64.is_le(0.0f64, u), F64.is_le(u, 1.0f64)),
       Bool.and(F64.is_le(0.0f64, v), F64.is_le(v, 1.0f64))))
 
-# d/du: cubic in v of the four row-derivatives at u.
 def bezp_du_go(+p00: V.Point, +p01: V.Point, +p02: V.Point,
     +p03: V.Point, +p10: V.Point, +p11: V.Point, +p12: V.Point,
     +p13: V.Point, +p20: V.Point, +p21: V.Point, +p22: V.Point,
@@ -1073,7 +1007,6 @@ def bezp_du(+b: G.BezP, +u: F64, +v: F64) -> G.GRes:
     Bool.and(Bool.and(F64.is_le(0.0f64, u), F64.is_le(u, 1.0f64)),
       Bool.and(F64.is_le(0.0f64, v), F64.is_le(v, 1.0f64))))
 
-# d/dv: cubic-derivative of the four row-evals at (u, v).
 def bezp_dv_go(+p00: V.Point, +p01: V.Point, +p02: V.Point,
     +p03: V.Point, +p10: V.Point, +p11: V.Point, +p12: V.Point,
     +p13: V.Point, +p20: V.Point, +p21: V.Point, +p22: V.Point,
@@ -1116,7 +1049,6 @@ def bezp_dv(+b: G.BezP, +u: F64, +v: F64) -> G.GRes:
     Bool.and(Bool.and(F64.is_le(0.0f64, u), F64.is_le(u, 1.0f64)),
       Bool.and(F64.is_le(0.0f64, v), F64.is_le(v, 1.0f64))))
 
-# Box union (total; exact on finite inputs).
 def bb_union_raw(+a: G.BBox3, +b: G.BBox3) -> G.BBox3:
   +alo = G.bb_lo(a)
   +ahi = G.bb_hi(a)
@@ -1171,8 +1103,6 @@ def bezp_bbox(+b: G.BezP) -> G.GRes:
     G.bp_fin(G.Bp{p00, p01, p02, p03, p10, p11, p12, p13, p20,
       p21, p22, p23, p30, p31, p32, p33}))
 
-# Iso-curves are exact cubic Beziers: iso_u fixes u (curve in v over
-# row-evals), iso_v fixes v (curve in u over column-evals).
 def bezp_iso_fin(+c0: V.Point, +c1: V.Point, +c2: V.Point,
     +c3: V.Point, ok: Bool) -> G.GRes:
   match ok:
@@ -1260,9 +1190,6 @@ def bezp_c30(+b: G.BezP) -> G.GRes:
 def bezp_c33(+b: G.BezP) -> G.GRes:
   bezp_corner_go(G.bp_c33(b), G.bp_fin(b))
 
-# --- Quadrics: unit-axis validation, implicit value + exact gradient,
-# sphere projection and poles, cone nappe coordinate. All formulas
-# assume a unit axis (enforced by *_checked); m = q - o throughout. ---
 def cyl_checked_go(+o: V.Point, +a: V.Dir, +r: F64, fin: Bool,
     unit: Bool) -> G.GRes:
   match fin:
@@ -1303,7 +1230,6 @@ def tor_checked(+s: G.Torus) -> G.GRes:
   tor_checked_go(o, a, R, r, G.to_valid(G.To{o, a, R, r}),
     ax_unit_ok(a))
 
-# Sphere: val = m.m - r^2, grad = 2m.
 def sph_val_go(+m: V.Dir, +r: F64, +q: V.Point, ok: Bool) -> G.GRes:
   match ok:
     case True{}:
@@ -1329,16 +1255,6 @@ def sph_grad(+s: G.Sphere, +q: V.Point) -> G.GRes:
   +m = pp_sub_raw(q, c)
   sph_grad_go(m, Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)))
 
-# Sphere projection: c + r*u with u = (m/M)/(n/M), M = max|m_i|;
-# q == c is invalid-input (coincident, like C01 seg_dir), never a
-# guessed pole. The scalar r/n is NEVER formed: it underflows to
-# zero when r << n (r/n <= 2^-1075, the exact halfway value
-# 2^-1075 itself rounding to zero under ties-to-even; e.g. r near
-# DBL_MIN at a far-field query), collapsing (r/n)*m onto the
-# published center;
-# even at r = 1, m = (DBL_MAX,0,0) the old spelling lost 1 ulp.
-# Here n/M lies in [1, sqrt(3)] and (m/M) in [-1, 1], so the unit
-# direction survives every finite scale; the result is re-validated.
 def sph_proj_q_raw(+c: V.Point, +r: F64, +mx: F64, +my: F64, +mz: F64,
     +M: F64, +nM: F64) -> V.Point:
   +ux = F64.div(F64.div(mx, M), nM)
@@ -1376,7 +1292,6 @@ def sph_project(+s: G.Sphere, +q: V.Point) -> G.GRes:
     Bool.and(G.sp_valid(G.Sp{c, r}), V.pt_fin(q)),
     F64.is_eq(n, 0.0f64), T.is_finite(n))
 
-# Sphere poles along an explicit unit axis: c +- r*a.
 def sph_pole_go(+c: V.Point, +a: V.Dir, +r: F64, fin: Bool,
     unit: Bool, north: Bool) -> G.GRes:
   match fin:
@@ -1405,8 +1320,6 @@ def sph_pole_s(+s: G.Sphere, +a: V.Dir) -> G.GRes:
     Bool.and(G.sp_valid(G.Sp{c, r}), V.dr_fin(a)), ax_unit_ok(a),
     False{})
 
-# Cylinder: ax = m.a; val = (m.m - ax^2) - r^2;
-# grad = 2(m - ax*a).
 def cyl_val_go(+m: V.Dir, +a: V.Dir, +r: F64, fin: Bool,
     unit: Bool) -> G.GRes:
   match fin:
@@ -1445,8 +1358,6 @@ def cyl_grad(+s: G.Cyl, +q: V.Point) -> G.GRes:
   cyl_grad_go(m, a,
     Bool.and(G.cy_valid(G.Cy{o, a, r}), V.pt_fin(q)), ax_unit_ok(a))
 
-# Cone: val = (m.m - ax^2) - k^2*ax^2 (double cone; one nappe is
-# ax >= 0 via cone_ax); grad = 2(m - ax*a) - 2k^2*ax*a.
 def cone_val_go(+m: V.Dir, +a: V.Dir, +k: F64, fin: Bool,
     unit: Bool) -> G.GRes:
   match fin:
@@ -1504,8 +1415,6 @@ def cone_ax(+s: G.Cone, +q: V.Point) -> G.GRes:
   cone_ax_go(m, a,
     Bool.and(G.co_valid(G.Co{o, a, k}), V.pt_fin(q)), ax_unit_ok(a))
 
-# Torus: d2 = m.m, S = R^2+r^2; val = (d2-S)^2 - 4R^2(r^2-ax^2);
-# grad = 4(d2-S)m + 8R^2*ax*a.
 def tor_val_go(+m: V.Dir, +a: V.Dir, +R: F64, +r: F64, fin: Bool,
     unit: Bool) -> G.GRes:
   match fin:
@@ -1552,15 +1461,6 @@ def tor_grad(+s: G.Torus, +q: V.Point) -> G.GRes:
     Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
     ax_unit_ok(a))
 
-# --- Quadric exact point-membership: the implicit equation with
-# ordered == 0 (signed zero counts as on), no tolerance. Total
-# Bool, fail-closed: malformed spec, non-unit axis, nonfinite
-# input, or nonfinite value (true overflow) yields False, never a
-# guess. Same left-fold associations as *_val, so *_on(s, q) holds
-# exactly when the inputs are valid and *_val(s, q) is zero. The
-# cone is the DOUBLE cone (both nappes and the apex satisfy);
-# nappe selection stays with cone_ax. For C04 trim/surface
-# consistency (vertex-on-quadric); quadrics have no surf_at.
 def sph_on(+s: G.Sphere, +q: V.Point) -> Bool:
   G.Sp{+c, +r} = s
   +m = pp_sub_raw(q, c)
@@ -1601,9 +1501,6 @@ def tor_on(+s: G.Torus, +q: V.Point) -> Bool:
     Bool.and(ax_unit_ok(a),
       Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64))))
 
-# --- Trims in surface parameter space: segment/cubic evaluation,
-# enclosures, plane composition. Other surface compositions arrive
-# with C07/C08; the representation is fixed now. ---
 def tseg_eval_go(+a: V.Vec2, +b: V.Vec2, +t: F64, fin: Bool,
     dom: Bool) -> G.GRes:
   match fin:
@@ -1644,7 +1541,6 @@ def tbez_eval(+t: G.TBez, +u: F64) -> G.GRes:
   tbez_eval_go(b0, b1, b2, b3, u, G.tb_fin(G.Tb{b0, b1, b2, b3}),
     Bool.and(F64.is_le(0.0f64, u), F64.is_le(u, 1.0f64)))
 
-# 2D hull, same certificate as the 3D hulls (returned as corners).
 def tseg_bbox_go(+ax: F64, +ay: F64, +bx: F64, +by: F64,
     ok: Bool) -> G.GRes:
   match ok:
@@ -1678,7 +1574,6 @@ def tbez_bbox(+t: G.TBez) -> G.GRes:
   tbez_bbox_go(x0, y0, x1, y1, x2, y2, x3, y3,
     G.tb_fin(G.Tb{b0, b1, b2, b3}))
 
-# Plane composition: the trim point (u, v) maps through plane_eval.
 def plane_trim_pt(+p: G.Plane3, +uv: V.Vec2) -> G.GRes:
   G.Pl{+o, +u, +v} = p
   V.V2{+s, +t} = uv
@@ -1686,11 +1581,6 @@ def plane_trim_pt(+p: G.Plane3, +uv: V.Vec2) -> G.GRes:
     Bool.and(G.pl_fin(G.Pl{o, u, v}), V.v2_fin(uv)),
     uv_frame_ok(u, v))
 
-# --- NURBS (cubic clamped): fuel-bounded validation walks, knot span,
-# window extraction, fixed de Boor. Walk codes pack ok + 2*done as one
-# Nat (ok is meaningful only when done; callers check done first).
-# Every recursive walk is structural in its list AND fuel-capped; fuel
-# exhaustion surfaces as resource-exhausted, never a guess. ---
 def code_pack(ok: Bool, done: Bool) -> Nat:
   Nat.add(Bool.pick(Nat, ok, 1n, 0n), Bool.pick(Nat, done, 2n, 0n))
 
@@ -1745,14 +1635,6 @@ def pfin_c(ps: List<&2, V.Point>, fuel: Nat) -> Nat:
           code_pack(Bool.and(V.pt_fin(h), code_ok(rest)),
             code_done(rest))
 
-# Knot span: last index with k <= t. Best-so-far on exhaustion (the
-# value is read only when the shared-fuel fin walk completed).
-# INVARANT (stated, load-bearing): span_at takes NO done flag of its
-# own; every caller runs it over the SAME knot list with the SAME
-# fuel as kfin_c/knondec_c, and reads the span only when those walks
-# report done. Same list + same fuel => the span walk consumed one
-# fuel per element exactly like the fin walk, so fin-done implies
-# span-complete. Keep the list AND the fuel shared at every call site.
 def span_at(ks: List<&2, F64>, +t: F64, fuel: Nat, +idx: Nat,
     best: Nat) -> Nat:
   match ks:
@@ -1764,7 +1646,6 @@ def span_at(ks: List<&2, F64>, +t: F64, fuel: Nat, +idx: Nat,
           span_at(t2, t, f, Nat.add(idx, 1n),
             Bool.pick(Nat, F64.is_le(h, t), idx, best))
 
-# Structural drops (bounded by n + length; no fuel needed).
 def dropk(ks: List<&2, F64>, n: Nat) -> List<&2, F64>:
   match ks:
     case Nil{}: Nil{}
@@ -1789,8 +1670,6 @@ def dropw(ws: List<&2, F64>, n: Nat) -> List<&2, F64>:
         case 0n: h <> t
         case 1n+m: dropw(t, m)
 
-# Fixed takes with zero fill (total; short reads zero-fill and the
-# caller routes through counts, which imply fit — contract §7).
 def k7_zero() -> G.K7:
   G.K7{0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64}
 
@@ -1870,8 +1749,6 @@ def take4w(ws: List<&2, F64>) -> G.W4:
                 case Nil{}: w4_zero()
                 case w3 <> t3: G.W4{w0, w1, w2, w3}
 
-# de Boor ratio with the standard 0/0 := 0 convention for repeated
-# knots (exact-zero test; stated convention, contract §7).
 def alpha_go(+num: F64, +den: F64, zero: Bool) -> F64:
   match zero:
     case True{}: 0.0f64
@@ -1885,8 +1762,6 @@ def hpt_of(+p: V.Point, +w: F64) -> Hpt:
   V.Pt{+x, +y, +z} = p
   Hp{F64.mul(w, x), F64.mul(w, y), F64.mul(w, z), w}
 
-# Fixed cubic de Boor on one window (knots k[s-2..s+4] as k0..k6,
-# points/weights q/w[s-3..s]). Homogeneous lerps; the caller divides.
 def deboor_raw(+w: G.K7, +p: G.P4, +ww: G.W4, +t: F64) -> Hpt:
   +k0 = G.k7_0(w)
   +k1 = G.k7_1(w)
@@ -1911,7 +1786,6 @@ def deboor_raw(+w: G.K7, +p: G.P4, +ww: G.W4, +t: F64) -> Hpt:
   +c = alpha_raw(t, k2, k3)
   hlerp_raw(n0, n1, F64.sub(1.0f64, c), c)
 
-# Whole-curve validation code (counts + walks + clamped ends).
 def nok_c(+ks: List<&2, F64>, +ps: List<&2, V.Point>,
     +ws: List<&2, F64>, +fuel: Nat) -> Nat:
   +nk = List.length(&2, F64, ks)

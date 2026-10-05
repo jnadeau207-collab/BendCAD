@@ -66,9 +66,9 @@ The #797 class shaped the representation: upstream closed `bendlang/bend#797` as
 
 ## 4. Required Bend handoff gates
 
-Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. `BEND_PIN` is `jnadeau207-collab/bend@288da0836f419b57323283b971fe44b363ff1193` (local branch `numeric-on-upstream`: upstream `653e391b`, then the replayed U64, F64, conformance harness, and historical receipt, then the min/max and show/read commit). It is not tag `numeric/2026-09-29`. The host-gate evidence on file is the previous pin `bc01485d`, in `docs/receipts/bend-pin-2026-09-29.txt` and the fork's `conformance/receipts/2026-09-29.txt`. This plan does not present that receipt as a measurement of `288da083`. The 2^20 harness was not re-run for this pin.
+Serious BendCAD geometry numerics may begin once the pinned Bend commit closes the host gate. Device claims additionally require the device gate. `BEND_PIN` is `jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920`, tag `numeric/2026-10-05` (branch `numeric-on-upstream`: upstream `653e391b`, then the replayed U64, F64, conformance harness and historical receipt, the min/max and show/read commit `288da083`, the host scheduler, and its conformance receipt). The host and device gates were re-run on this pin: the fork's `conformance/receipts/2026-10-05.txt`. The earlier evidence for `bc01485d` stays in `docs/receipts/bend-pin-2026-09-29.txt`.
 
-### 4a. Host gate (closed for `bc01485d`; not re-measured on the current pin)
+### 4a. Host gate (closed for `numeric/2026-10-05`)
 
 H1. F64 geometry is built on the as-bits representation, immune to the #797 class; F32 stays out of authoritative geometry. (Was 1, 2, redefined: upstream will not fix #797.)
 H2. Raw `w64` distinguished from tagged runtime `Term`. (Was 3.)
@@ -76,7 +76,7 @@ H3. Arbitrary U64 transport through constructors, arrays, closures, scheduling a
 H4. Exact F64 `from_bits/bits` transport. (Was 5.)
 H5. Qualified add/sub/mul/div/sqrt/FMA and required conversions on host lanes (interpreter, JS, C): 2^20 cases per group over 22 groups with 0 mismatches, plus representation probes and the show/read text check, per the receipt. (Was 6.)
 
-### 4b. Device gate (CUDA closed for `bc01485d`; not re-measured on the current pin; Metal open)
+### 4b. Device gate (CUDA closed for `numeric/2026-10-05`; Metal open)
 
 D1. Strict backend identity: `--gpu on` (or `--gpu <size>`) refuses to start without a GPU, runs every `!` wave on the device, and aborts on device fault, so a zero-exit `--gpu on` run proves device execution. The no-flag default still falls back silently and reports no backend, so device claims must always pass `--gpu on`. (Was 7.)
 D2. CUDA execution proven: the receipt's `cuda` and `cuda-defs` lanes run the 2^20-case differential, the probes, and the repo `!` tests with 0 mismatches; `cuda-defs` additionally proves the software-float path Metal uses, with all 27 soft-native call sites compiled as their Base defs.
@@ -290,7 +290,7 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` names a qualified numeric commit (`numeric/2026-09-29`), so BendCAD started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). C05's measured scaling is not Bend-grade (§15). The next packet is R0: a speed and parallelism rebuild of C00–C05. Then C06 + A0 (§17).
+`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is recorded through R0.4 (§15). C06 + A0 is in progress (§17).
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
@@ -382,10 +382,10 @@ general mechanism, and parallel by construction.
   dense solver.
 - **R0.1 — C05 rebuilt (done, 2026-09-30).** Sort-and-sweep candidate
   pairs, parallel merge sorts, pointer jumping and Shiloach–Vishkin
-  components, a slab index for nesting; the solver splits into
-  independent clusters solved in parallel, each on a sparse Jacobian
-  with a nested-dissection multifrontal Givens factorization and a
-  sparse rank-revealing QR. Semantics unchanged (laws, oracles,
+  components, a slab index for nesting (replaced at R0.4); the solver
+  splits into independent clusters solved in parallel, each on a
+  sparse Jacobian with a nested-dissection multifrontal Givens
+  factorization and a sparse rank-revealing QR. Semantics unchanged (laws, oracles,
   three-lane identity); receipt `docs/receipts/r0.1-2026-09-30.txt`.
 
   | Engine | Size | Before | R0.1 |
@@ -413,7 +413,8 @@ general mechanism, and parallel by construction.
   jumping on the `twin(prev())` graph, shell connectivity by
   edge-incidence sort and `components`, coincidence by sort, crossings
   by a bounding-box sweep. A stage decides iff fuel covers the longest
-  store or member list (the §8 contract, now exact); one verdict
+  store or member list (the §8 contract, now exact; R0.4 adds each
+  NURBS edge's `nk + 1`); one verdict
   changed on purpose: a vertex orbit that never returns is invalid,
   no longer fuel-out. C02's exact fallback is now Shewchuk expansion
   arithmetic (`src/base/ex.bend`, shared with C05), so every finite
@@ -432,13 +433,15 @@ general mechanism, and parallel by construction.
   | Comb prism, 80 entities | 24.1 s | 0.24 s |
   | Comb prism, 1,000 entities | — | 3.7 s |
 
-  Still open in C04: `push` is `O(n)` per entity (list stores); a
-  tree-backed bulk builder comes with C06.
+  Still open in C04: `push` is `O(n)` per entity (list stores), so
+  building `n` entities by push is `O(n²)`. The C06 box builds 58
+  entities and needed nothing larger; the tree-backed bulk builder
+  comes with the first builder that pushes many entities.
 - **R0.3 — single-cluster latency and the parallel lanes
   (2026-10-01).** The solver starts at the floor of its damping
   clamp (`2^-30 λ₀`) and keeps the ceiling (`2^60 λ₀`). The times
-  below are the receipt. They were not re-measured on the current
-  pin. "Pinned" is `~/.bend/bin/bend` at `bc01485d`. The 0.81 s
+  below are the R0.3 receipt's. "Pinned" there is `~/.bend/bin/bend`
+  at `bc01485d`; R0.4 re-measured on its own pin (below). The 0.81 s
   grid and 1.06 s chain are not that pin. They are the side binary
   `/home/jesse/bend-r03/bin/bend`, compiled 2026-10-01 from
   `0759b75046bc4946438c6b812ee2f64549c07b63`. That side scheduler
@@ -464,13 +467,57 @@ general mechanism, and parallel by construction.
   disposition: historical regression on the side scheduler, not a
   number re-measured here.
 
-- **Exit budgets:** 10,000-segment arrangements interactive (met for
-  CAD-like input at R0.1). 10,000-parameter sketches: the receipt's
-  pinned times are chain 1.42 s / 1.38 s and grid 1.63 s; the side
-  scheduler's 16-thread times are chain 1.06 s and grid 0.81 s.
-  Those parallel times are historical measurements of `0759b750`,
-  not of the current pin. The GPU lane was run and refused to start
-  on this machine.
+  The host scheduler is on the pin since R0.4: `numeric/2026-10-05`
+  (`a4d17ace`) is `288da083` plus the side scheduler's turns
+  replayed onto upstream's pool, a listed small frontier, and a turn tag
+  that closes a double-drain race the first replay had. Measured
+  2026-10-05 with the pinned binary, idle, best of 3, 16 threads,
+  against `288da083`: grid 1.5 → 0.8 s, chain 1.3 → 1.0 s, truss
+  0.5 → 0.4 s, `pm_map` 0.5 → 0.1 s, a 40,004-segment plate
+  3.6 → 2.71 s; rects, best of 10, 0.69 → 0.58 s (the side scheduler's
+  rects regression is gone). Single-thread times did not move.
+
+- **R0.4 — audit repairs (2026-10-05).** A line-by-line audit of
+  C00–C06 and R0.1–R0.3 recorded sixteen findings; every semantic
+  repair has a law that fails on the predecessor (receipt
+  `docs/receipts/r0.4-2026-10-05.txt`):
+  - nesting (R0.1) scanned whole slabs: `m` nested squares were
+    `O(m²)` (2,000 squares 6.4 s). A left ray on a segment tree with
+    vertically sorted nodes makes it `O(log² E)` per component with
+    acyclic chains (2,000 squares 1.1 s; plate and random unchanged or
+    faster); `region_key` sorts instead of inserting;
+  - C05 published a face that touches itself at a vertex as one loop
+    through that vertex twice, though its contract promises simple
+    loops and GEOS hole parity (a new nesting oracle family found it:
+    13 of 600 cases, the same on the R0.1 code). Each walked cycle is
+    now split into simple cycles;
+  - C06 cache reuse trusted a 64-bit linear hash, and two parts were
+    built to collide, so a cache hit republished the other part's box.
+    Entries now match on the full key, which also covers coordinates,
+    profiles, hole specs and transforms;
+  - C06 surface evaluators accepted non-unit axes (C03 rejects them),
+    and `qframe` gave left-handed frames on `-X`, `-Y`, `-Z`;
+  - C06 hole clearance rounded coordinate differences before its exact
+    arithmetic;
+  - C06 `evm` was not fail-fast (`Bool.pick` evaluates both arms);
+    duplicate node and param ids were accepted;
+  - C06 profile checks looked points up by position inside loops
+    (`O(n³)`); about a hundred unreachable definitions were removed;
+  - C06 reported an all-pass diagnosis as `resource-exhausted`;
+  - C04 `ix_bound` ignored NURBS knot lists, so a valid NURBS edge
+    decided `invalid` at fuels between the bound and its knot count;
+  - the C03 contract claimed control hulls contain every evaluated
+    point; evaluation can leave the hull by an ulp or two (pinned);
+  - stale contract rows, twelve committed scratch law files, comments
+    in code, and a CI workflow that never checked `laws/c05.bend` or
+    the C05/C06/base sources.
+- **Exit budgets:** 10,000-segment arrangements interactive: met for
+  CAD-like input at R0.1, and for nested profiles since R0.4 (8,000
+  segments as 2,000 nested squares: 1.1 s on one thread, 0.8 s on
+  16; 6.4 s at R0.1).
+  10,000-parameter sketches on the pin at R0.4, 16 threads: chain
+  1.0 s, grid 0.8 s (one thread: 1.4 s and 1.5 s). The GPU lane was
+  run and refused to start on this machine.
 
 ## 16. Interface and scope
 
@@ -492,8 +539,9 @@ general mechanism, and parallel by construction.
 ## 17. Milestone order
 
 1. **R0: speed and parallelism rebuild of C00–C05** (§15). R0.1
-   (C05), R0.2 (C04 validation, C02 exactness) and R0.3 (solver
-   damping floor, host scheduler, GPU lane attempted) are recorded.
+   (C05), R0.2 (C04 validation, C02 exactness), R0.3 (solver
+   damping floor, host scheduler, GPU lane attempted) and R0.4 (audit
+   repairs, the scheduler on the pin) are recorded.
    Rigid-cluster decomposition and tree-shaped sequences remain
    open and do not block C06.
 2. **C06 + A0.** Solids as content-addressed, intent-checked

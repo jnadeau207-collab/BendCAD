@@ -438,6 +438,16 @@ law ok_arrange_hole:
 def ok_arrange_hole():
   {==}
 
+law ok_arrange_pinch:
+  {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 4.0f64, 0.0f64}, A.Seg{2u64, 4.0f64, 0.0f64, 4.0f64, 4.0f64},
+    A.Seg{3u64, 4.0f64, 4.0f64, 0.0f64, 4.0f64}, A.Seg{4u64, 0.0f64, 4.0f64, 0.0f64, 0.0f64},
+    A.Seg{11u64, 2.0f64, 0.0f64, 3.0f64, 2.0f64}, A.Seg{12u64, 3.0f64, 2.0f64, 1.0f64, 2.0f64},
+    A.Seg{13u64, 1.0f64, 2.0f64, 2.0f64, 0.0f64}], 100n))
+    == "v=7 e=8 c=1 R { e1.0[1] e11.0[1] e1.1[2] e2.1[3] e3.1[4] | e12.1[12] e11.1[11] e11.0[13] } { e12.1[13] e11.0[11] e11.1[12] } D" : String}
+
+def ok_arrange_pinch():
+  {==}
+
 law ok_arrange_islands:
   {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 2.0f64, 0.0f64}, A.Seg{2u64, 2.0f64, 0.0f64, 2.0f64, 2.0f64},
     A.Seg{3u64, 2.0f64, 2.0f64, 0.0f64, 2.0f64}, A.Seg{4u64, 0.0f64, 2.0f64, 0.0f64, 0.0f64},

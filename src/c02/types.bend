@@ -1,12 +1,6 @@
-# C02 predicate types: signs, predicate/segment/triangle results, exact
-# small-integer domain, sign-magnitude integer arithmetic.
-# Filters + predicates: ops.bend. Contract: docs/c02-contract.md.
-# Failure arms reuse C00 FailKind (T.FailKind); no new taxonomy.
-
 import Base
 import ../c00/types.bend as T
 
-# --- Signs: the certified output of every predicate. ---
 type Sign is Data:
   Sg_neg{}
   Sg_zero{}
@@ -42,9 +36,6 @@ def sign_is_pos(s: Sign) -> Bool:
     case Sg_zero{}: False{}
     case Sg_pos{}: True{}
 
-# Total F64 classifier. Ordered comparisons fail closed, so NaN maps to
-# Sg_zero BY DOCUMENTED CONVENTION; filter callers gate finiteness first
-# and never read that arm (contract §3).
 def sign_of_f_gt(gt: Bool) -> Sign:
   match gt:
     case True{}: Sg_pos{}
@@ -58,7 +49,6 @@ def sign_of_f_go(lt: Bool, gt: Bool) -> Sign:
 def sign_of_f(+f: F64) -> Sign:
   sign_of_f_go(F64.is_lt(f, 0.0f64), F64.is_lt(0.0f64, f))
 
-# --- Predicate result: certified sign or a C00 failure kind. ---
 type PRes is Data:
   Pok{ s: Sign }
   Perr{ kind: T.FailKind }
@@ -79,15 +69,11 @@ def pres_show(r: PRes) -> String:
     case Pok{s}: "ok"
     case Perr{kind}: T.FailKind.show(kind)
 
-# Total kind projector. There is no ok-valued FailKind, so Pok yields
-# F_invalid BY DOCUMENTED CONVENTION (mirrors C01 cres_kind); gate on
-# pres_ok or pres_show before reading the kind. Pinned: pos-kind-doc.
 def pres_kind(r: PRes) -> T.FailKind:
   match r:
     case Pok{s}: T.F_invalid{}
     case Perr{kind}: kind
 
-# Total sign projector; documented Sg_zero unless the arm matches.
 def pres_sign(r: PRes) -> Sign:
   match r:
     case Pok{s}: s
@@ -96,7 +82,6 @@ def pres_sign(r: PRes) -> Sign:
 def pres_sign_show(r: PRes) -> String:
   sign_show(pres_sign(r))
 
-# --- Segment-segment relation in 2D (see ops.bend seg_seg). ---
 type Xrel is Data:
   X_disjoint{}
   X_touch{}
@@ -143,7 +128,6 @@ def xres_rel(r: Xres) -> Xrel:
 def xres_rel_show(r: Xres) -> String:
   xrel_show(xres_rel(r))
 
-# --- Point-in-triangle classification (see ops.bend tri_class). ---
 type Tcls is Data:
   T_in{}
   T_bound{}
@@ -188,9 +172,6 @@ def tres_cls(r: Tres) -> Tcls:
 def tres_cls_show(r: Tres) -> String:
   tcls_show(tres_cls(r))
 
-# --- Filter constants (exact powers of two, bit-pinned; contract §3). ---
-# Conservative Shewchuk Stage-A coefficients: 8/16/32/64 eps, each with
-# >= 2x margin over the published A-constant for its determinant size.
 def k_o2() -> F64:
   F64{4382002437431492608u64}
 
@@ -203,8 +184,5 @@ def k_ic() -> F64:
 def k_is() -> F64:
   F64{4395513236313604096u64}
 
-# Filter floor: detsum must reach 2^-960. Below it the error bound itself
-# would leave the normal range, so the filter stays silent and the exact
-# expansion path (or honest uncertainty) decides. Contract §3.
 def detmin() -> F64:
   F64{283726776524341248u64}

@@ -1,18 +1,9 @@
-# C06 first solid-building path: types for intent-checked solid ops,
-# toleranced params, certified intervals, profiles, op graphs, lineage.
-# Data + total predicates + shows + one result type. Builders: ops.bend.
-# Graph evaluator: eval.bend. Contract: docs/c06-contract.md.
-# Failure arms reuse C00 FailKind; every C06 failure also carries a
-# Diag (what/where/why/fix, MASTER_PLAN §14 property 2).
-
 import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 
-# --- Diagnosis: what failed, where (lineage name), why (machine code),
-# and the smallest known fix. Every Serr carries one. ---
 type Diag is Data:
   Dg{ what: String, loc: String, why: String, fix: String }
 
@@ -27,9 +18,6 @@ def diag_show(d: Diag) -> String:
 def diag_null() -> Diag:
   Dg{"ok", "-", "-", "-"}
 
-# --- Material effect class (MASTER_PLAN §14 property 4: checked intent).
-# M_create builds a solid from nothing; M_add/M_remove change material;
-# M_same preserves it (transforms, rebuilds). ---
 type MatFx is Data:
   M_create{}
   M_add{}
@@ -53,8 +41,6 @@ def matfx_show(m: MatFx) -> String:
 def matfx_eq(a: MatFx, b: MatFx) -> Bool:
   U64.is_eq(matfx_tag(a), matfx_tag(b))
 
-# --- Effect: measured outcome. fc/fm = faces created/modified,
-# shells = shells in the published brep, holes = through-hole count. ---
 type Effect is Data:
   Fx{ mat: MatFx, fc: Nat, fm: Nat, shells: Nat, holes: Nat }
 
@@ -76,8 +62,6 @@ def fx_eq(a: Effect, b: Effect) -> Bool:
       Bool.and(Nat.is_eq(na, nb),
         Bool.and(Nat.is_eq(sa, sb), Nat.is_eq(ha, hb)))))
 
-# --- Intent: declared BEFORE the build; intent_check compares the
-# measured effect against it. Any mismatch is a publish refusal. ---
 type Intent is Data:
   In{ mat: MatFx, fc: Nat, fm: Nat, shells: Nat, holes: Nat }
 
@@ -115,10 +99,6 @@ def intent_show(i: Intent) -> String:
 def intent_check(i: Intent, e: Effect) -> Bool:
   fx_eq(intent_fx(i), e)
 
-# --- Toleranced dimension: nominal plus zone (MASTER_PLAN §14.6 seed).
-# The B-rep is the nominal solid. The zone is checked before that
-# build (invalid zone is invalid-input) and the certified volume is
-# the outward product of [lo, hi], not of the nominal point. ---
 type Dim is Data:
   Dm{ nom: F64, lo: F64, hi: F64 }
 
@@ -153,8 +133,6 @@ def dm_hi(d: Dim) -> F64:
   Dm{+nom, +lo, +hi} = d
   hi
 
-# --- Certified interval: lo <= hi, both finite. Arithmetic (ops.bend)
-# rounds outward, so the interval encloses the true real result. ---
 type Iv is Data:
   Iv{ lo: F64, hi: F64 }
 
@@ -186,10 +164,6 @@ def iv_nom(d: Dim) -> Iv:
   Dm{+nom, +lo, +hi} = d
   Iv{nom, nom}
 
-# --- Profile: straight-edge outer loop + straight-edge hole loops in
-# sketch (x, y). Loops close implicitly (last connects to first).
-# Curved (arc) profile edges are NOT admitted here: they need C07
-# intersections for validation (contract §12). ---
 type Prof is Data:
   Pf{ loop: List<&2, V.Vec2>, holes: List<&2, List<&2, V.Vec2>> }
 
@@ -202,7 +176,6 @@ def prof_show(p: Prof) -> String:
   "loop=" ++ Nat.show(List.length(&2, V.Vec2, loop)) ++
     " holes=" ++ Nat.show(List.length(&2, List<&2, V.Vec2>, holes))
 
-# --- Round hole spec (rectangular pockets reuse profile hole loops). ---
 type HoleSpec is Data:
   Hs{ x: F64, y: F64, r: F64 }
 
@@ -214,7 +187,6 @@ def hole_show(h: HoleSpec) -> String:
   "hole(" ++ F64.show(x) ++ "," ++ F64.show(y) ++ "," ++
     F64.show(r) ++ ")"
 
-# --- Boss record: pad footprint retained for hole-vs-boss checks. ---
 type Boss is Data:
   Bo{ x: F64, y: F64, w: F64, d: F64, z0: F64, z1: F64 }
 
@@ -222,12 +194,6 @@ def mk_boss(x: F64, y: F64, w: F64, d: F64, z0: F64,
     z1: F64) -> Boss:
   Bo{x, y, w, d, z0, z1}
 
-# --- Body: a built brep plus its recipe. kind tags: 0 = z-prism
-# (caps perpendicular to z, surgery allowed), 1 = closed primitive,
-# 2 = pad compound (base prism + bosses; base surgery allowed),
-# 3 = transformed (no further surgery; xform last), 5 = forest
-# compound (one solid per region; no surgery). rh retains round
-# holes for rebuilds; dims retains primitive dims for measures. ---
 type Body is Data:
   Bd{ brep: Ty.Brep, kind: U64, prof: Prof, z0: F64, z1: F64,
     boss: List<&2, Boss>, nhole: Nat, rh: List<&2, HoleSpec>,
@@ -258,9 +224,6 @@ def body_show(b: Body) -> String:
     " E=" ++ Nat.show(List.length(&2, Ty.Edge, Ty.brep_es(brep))) ++
     " F=" ++ Nat.show(List.length(&2, Ty.Face, Ty.brep_fas(brep)))
 
-# --- Measure: certified volume/area intervals + exact bbox corners +
-# entity counts. Labeled certified only over the interval arithmetic
-# and the stated pi enclosure (contract §7); sampling is separate. ---
 type Measure is Data:
   Ms{ vol: Iv, area: Iv, blo: V.Point, bhi: V.Point, nv: Nat,
     ne: Nat, nf: Nat }
@@ -303,9 +266,6 @@ def ms_nf(m: Measure) -> Nat:
   Ms{+vol, +area, +blo, +bhi, +nv, +ne, +nf} = m
   nf
 
-# --- Op algebra. Param-carrying ops name Dim ids; structural ops name
-# input node ids. Profiles are inline content. The node hash covers
-# the op tag, dim ids, nominal bits, and input node ids (eval.bend). ---
 type Op is Data:
   O_box{ w: U64, h: U64, d: U64 }
   O_cyl{ r: U64, h: U64 }
@@ -349,10 +309,6 @@ def op_show(o: Op) -> String:
     case O_pad{base, x, y, w, h, d}: "pad"
     case O_xform{base, xf}: "xform"
 
-# --- Param + Node + Part: the content-addressed op graph (§14.5).
-# Node ids are content hashes (eval.bend); the graph, not the program
-# text, is canonical. intent is declared before the build; ev_part
-# refuses a mismatch at publish. ---
 type Param is Data:
   Pm{ id: U64, dim: Dim }
 
@@ -380,15 +336,12 @@ def mk_part(params: List<&2, Param>, nodes: List<&2, Node>,
 def part_empty() -> Part:
   Pt{[], [], 0u64, In{M_same{}, 0n, 0n, 0n, 0n}}
 
-# --- Evaluated node value (memo entry): node id + build hash +
-# body + measured effect. Reuse also requires every op to be a box
-# and a matching intent at publish (eval.bend). ---
 type Built is Data:
-  Bt{ id: U64, hash: U64, body: Body, fx: Effect }
+  Bt{ id: U64, key: List<&2, U64>, body: Body, fx: Effect }
 
-def mk_built(id: U64, hash: U64, body: Body,
+def mk_built(id: U64, key: List<&2, U64>, body: Body,
     fx: Effect) -> Built:
-  Bt{id, hash, body, fx}
+  Bt{id, key, body, fx}
 
 type Cache is Data:
   Cc{ items: List<&2, Built> }
@@ -396,8 +349,6 @@ type Cache is Data:
 def cache_empty() -> Cache:
   Cc{[]}
 
-# --- Lineage name (§14.3): creator node + role + ordinal. Roles:
-# 0 face, 1 edge, 2 vertex, 3 solid, 4 hole wall, 5 boss, 6 cap. ---
 type Nm is Data:
   Nm{ node: U64, role: U64, idx: Nat }
 
@@ -409,8 +360,6 @@ def nm_show(n: Nm) -> String:
   "n" ++ U64.show(node) ++ ".r" ++ U64.show(role) ++ "#" ++
     Nat.show(idx)
 
-# --- One value union, one result type: every fallible C06 op returns
-# SRes carrying either a value or a FailKind plus a Diag. ---
 type SVal is Data:
   SV_brep{ v: Ty.Brep }
   SV_body{ v: Body }
@@ -488,8 +437,6 @@ def sres_kind(r: SRes) -> T.FailKind:
     case Sok{v}: T.F_invalid{}
     case Serr{kind, diag}: kind
 
-# Total projectors with documented defaults (mirror C04 tres_*:
-# gate on sres_ok/sres_show first). Defaults carry no claim.
 def sok_def_body() -> Body:
   Bd{Ty.brep_empty(), 3u64, Pf{[], []}, 0.0f64, 0.0f64, [],
     0n, [], []}

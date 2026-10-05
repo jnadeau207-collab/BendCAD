@@ -1,7 +1,3 @@
-# C03 negative tests: every failure arm asserts its structured kind, and
-# every rejected constructor publishes only documented defaults (BN-11).
-# Ops.bend failure arms append once src/c03/ops.bend lands. selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -43,7 +39,6 @@ def wrap_degen2() -> G.GRes:
 def sph_far() -> G.GRes:
   O.sph_project(C.sp_unit(), V.Pt{C.mx(), C.mx(), 0.0f64})
 
-# Grouped to fit the native backend's arity limit (C02 D2 class).
 def neg_g1(f0: U64) -> IO(U64):
   do IO<U64>:
     f1 : U64 <- C.report_gerr("neg-dom-eq",
@@ -549,9 +544,6 @@ def neg_g7(f155: U64) -> IO(U64):
       U64.is_eq(F64.bits(G.gres_f(bn11_qdisc())), 0u64), f158)
     f160 : U64 <- C.report_pure("neg-bn11-wrap",
       U64.is_eq(F64.bits(G.gres_f(bn11_wrap())), 0u64), f159)
-    # Corrected pins (src fixed 2026-09-25: degenerate wrap domains
-    # rejected, far-field sphere projection abstains; the NURBS t=khi
-    # endpoint pin lives in pos.bend as pos-nev-t1).
     f161 : U64 <- C.report_gerr("neg-wrap-degen1", wrap_degen1(),
       "invalid-input", f160)
     f162 : U64 <- C.report_gerr("neg-wrap-degen2", wrap_degen2(),
@@ -560,9 +552,6 @@ def neg_g7(f155: U64) -> IO(U64):
       "numerical-uncertainty", f162)
     return f163
 
-# C03.1: raw malformed values rejected at evaluator boundaries
-# (centralized validity layer), plus the subnormal-direction
-# uncertainty arm and the negative-NURBS-weight pin.
 def neg_g8(f163: U64) -> IO(U64):
   do IO<U64>:
     f164 : U64 <- C.report_gerr("neg-dmid-degen",

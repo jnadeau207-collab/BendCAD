@@ -12,10 +12,16 @@ Files:
   `Op`/`Param`/`Node`/`Part`, `Built`/`Cache`, `Nm`, profile and
   interval types.
 - `src/c06/surfx.bend` — trig-free quadric frames and evaluators
-  (cylinder/cone/torus/sphere) used by later builders.
+  (cylinder/cone/torus/sphere) used by later builders. Every
+  evaluator requires a unit axis (C03 `ax_unit_ok`); a non-unit
+  axis is `invalid-input`, as in C03. `qframe(a)` returns a
+  right-handed frame, `n1 × n2 = a`, for every unit axis: world
+  axes get exact frames, and on the negative axes `n2` is the
+  positive axis's `n2` negated (fixed 2026-10-04; before, `-X`,
+  `-Y`, `-Z` got left-handed frames).
 - `src/c06/ops.bend` — profile validator, box builder, staged
   diagnosis.
-- `src/c06/eval.bend` — op-graph eval, build hashing, memo cache,
+- `src/c06/eval.bend` — op-graph eval, build keys, memo cache,
   publish gate, lineage names.
 
 ## 1. Result protocol
@@ -41,7 +47,14 @@ wrong winding, hole outside/overlap, …). Pins: unit square `0`,
 bowtie `4`, clockwise square `5`. `pip(x, y, loop, fuel)` returns
 `0` outside / `1` inside / `2` on-edge. Predicates are exact
 (`P2.orient2d`, `Ex` expansions); tangent contact reports on-edge,
-never inside/outside.
+never inside/outside. Hole clearance (`hole_clr_pt`, `hole_hh`,
+`hole_rect`) forms every coordinate difference exactly
+(`E.ex_dif`); before 2026-10-04 it rounded the differences first,
+so near-tangent holes at large coordinates could be misclassified
+(laws `ok_hole_clr_exact`, `ok_hole_hh_exact`, `ok_hole_rect_exact`).
+A profile holds at most 64 points (code `18`); simplicity and
+loop-pair checks are pairwise segment tests, `O(n²)` in that cap,
+walking segment lists (no positional lookups).
 
 ## 3. Box builder (`box_checked`)
 
@@ -79,29 +92,53 @@ the first failing stage through `stage_ex` with a fix hint.
 Stage-A (attribution) failures name the failing store walk via
 `att_tag`/`att_go` (tags 1–21, one per store × all/gen/nodup).
 Fuel exhaustion reports `100+stage` (undecided), never success.
+Stage L is `brep_orient_c`; `brep_checked`'s explicit recheck adds
+nothing to it (C04 §3 calls it redundant), so the two agree. If
+every stage passes, the report is `invalid-input` with reason
+`internal-stage`: the caller paired a failed `brep_checked` result
+with a valid brep. It was `resource-exhausted` before 2026-10-04,
+which named a fuel event that never happened.
 
 ## 5. Op-graph eval (`ev_part`)
 
 `ev_part(part, old_cache, fuel) -> EvRes{cc, last}` evaluates
 nodes in list order (caller-topological), fail-fast: the first
-node error halts the walk with that error. `Part` carries the
-intent declared before the build. Node build hashes are FNV-1
-over the op tag, the op's dim ids, the bits of `nom`, `lo`, and
-`hi` for each of those dims (`F64.bits`), any input node id
-embedded in the op, and `Node.ins`, in that order. The B-rep is
-the nominal solid. A present
+node error halts the walk with that error, and no later node is
+evaluated (`evm` carries the continue/halt decision as a
+parameter; before 2026-10-04 it chose with `Bool.pick`, which
+evaluates both arms, so every later node was still built). After
+a node error, `cc` holds the nodes built before it and `last` is
+that error; no body is published. Node
+ids and param ids must each be distinct; a duplicate is
+`invalid-input` and nothing is built. `Part` carries the intent
+declared before the build. A node's key (`node_key`) is the word
+list: op tag, the op's dim ids, the bits of `nom`, `lo`, and `hi`
+for each of those dims (`F64.bits`), any input node id embedded
+in the op, the op's remaining content (coordinate bits, profile
+points with counts, hole specs, transform matrix), and
+`Node.ins`, in that order. `node_hash` is a 64-bit digest of the
+key (`h·P + w` per word with the FNV offset and prime; it is not
+FNV-1) and is for display only. The B-rep is the nominal solid.
+A present
 dim whose zone fails `lo <= nom <= hi` with `lo > 0` is
 `invalid-input` and does not build. `ms_zone` certifies the
 volume as the outward product of the three `[lo, hi]` intervals.
 `ms_nom_vol` is the nominal-point product; those two disagree
 when a zone is wider than its nominal.
 
-Cache reuse is all-or-nothing. If every node hash matches the
-old cache and every op is a box, the cache is reused and the
-root is looked up. Publish then runs `gate_publish` on the
+Cache reuse is all-or-nothing. If every node's id and full key
+equal a cache entry's (sort-merge on ids, exact key comparison)
+and every op is a box, the cache is reused and the root is looked
+up among the matched entries. Before 2026-10-04 the cache was
+matched on the 64-bit hash alone; the hash is linear in its words,
+so two parts can be built to collide (`coll_hash_equal`), and the
+old code then published the cached body of the other part
+(`ok_cache_collision_rebuilds` now rebuilds). Cache entries are
+trusted as produced by `ev_part`: a hand-built entry with a correct
+key but a different body is the caller's. Publish then runs `gate_publish` on the
 stored effect and the part intent: agreement returns the body,
 a mismatch is `invalid-input` and does not return the body.
-A cache whose hashes match but whose op is not a box is not
+A cache whose keys match but whose op is not a box is not
 reused; the walk calls `ev_op` and returns `unsupported-op`.
 Otherwise every node rebuilds. Per-node partial reuse is future
 work. `O_box` resolves three dim ids to nominals and builds at
@@ -124,10 +161,14 @@ at most two scrutinees, no mutual recursion, and nested matches
 only on binders of the immediately enclosing single match.
 Consequences used throughout: decisions computed in argument
 position and matched as callee params (the `base/par.bend`
-`tr_set` pattern); `Bool.pick` over aggregates for branches on
-computed values inside a self-recursive walk (see `evm`, with the
-shared result evaluated once); single syntactic use per match
-binder unless `+`-annotated; leaf-first definition order.
+`tr_set` pattern). `Bool.pick` evaluates both arms, so it never
+selects between a recursive call and a result; a self-recursive
+walk takes the decision as a parameter instead (`evm`,
+`sr_find`). The shrinking argument comes first (the checker reads
+arguments left to right), params are matched in parameter order,
+and a param is never matched after a local statement. Single
+syntactic use per match binder unless `+`-annotated; leaf-first
+definition order.
 
 ## 7. Pending scope (explicitly not built)
 
@@ -136,11 +177,12 @@ profile extrude/revolve, hole/pocket/pad surgery, `xform`,
 forest compounds and merge restamping, and per-node partial
 cache reuse. All fail closed through `unsupported-op` or
 `invalid-input` today; no stub returns success. A cache hit
-does not turn an unsupported op into success. `join_specs` is
-kept for a later compound and has no caller. The box path that
+does not turn an unsupported op into success. The box path that
 runs is `box_checked` then `bulk_c`. Partial reuse is future
-work; a full-hash hit is not the same body once an input id,
-dim id, or zone bound (`nom`, `lo`, or `hi`) changes.
+work; a full-key hit is not the same body once any word of the
+key changes. The unreferenced spec-join machinery (`join_specs`
+and its helpers) was removed on 2026-10-04; the compound builder
+will be written with its first caller.
 
 ## 8. Box measure (`ms_box`)
 
@@ -163,7 +205,8 @@ values, verified independently in Python.
 quadric surface through `surfx.surf_at` and requires a finite
 point. Non-quad surfaces are `invalid-input` (`not-quad`; the
 C04 stages own plane/bezier trims); G-layer failures keep
-their kind (`invalid` for domain/radii violations,
-`uncertain` for `gate_pt` overflow); non-finite points are
+their kind (`invalid` for domain/radii violations and for a
+non-unit axis, `uncertain` for `gate_pt` overflow); non-finite
+points are
 `uncertain`, never snapped. Success is `sok_u(0)`, the
 `prof_go` convention.

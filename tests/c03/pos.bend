@@ -1,7 +1,3 @@
-# C03 positive tests: constructor pins, predicate/accessor pins, projector
-# conventions. Ops.bend behavior pins append once src/c03/ops.bend lands.
-# selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -9,7 +5,6 @@ import ../../src/c03/types.bend as G
 import ../../src/c03/ops.bend as O
 import ./check.bend as C
 
-# Grouped to fit the native backend's arity limit (C02 D2 class).
 def pos_g1(f0: U64) -> IO(U64):
   do IO<U64>:
     f1 : U64 <- C.report_gdom("pos-dom-ok",
@@ -481,8 +476,6 @@ def pos_g6(f130: U64) -> IO(U64):
       4607182418800017408u64, 4607182418800017408u64, f153)
     return f154
 
-# C03.1: scaled sphere projection at extreme scales — finite norm
-# with a tiny r/n ratio still publishes the surface point.
 def pos_g7(f154: U64) -> IO(U64):
   do IO<U64>:
     f155 : U64 <- C.report_gp("pos-sphp-faraxis",
@@ -501,8 +494,6 @@ def pos_g7(f154: U64) -> IO(U64):
       4607182418800017408u64, 0u64, 0u64, f157)
     return f158
 
-# P1: quadric exact membership — on/off/near-miss pins. Near-miss
-# points are mathematically on-surface with nonzero F64 value.
 def pos_g8(f158: U64) -> IO(U64):
   do IO<U64>:
     f159 : U64 <- C.report_pure("pos-sphon-on",
@@ -566,8 +557,6 @@ def pos_g8(f158: U64) -> IO(U64):
       f174)
     return f175
 
-# P1: membership invalid arms fail closed to False (total Bool, no
-# GRes — hence pos-suite Bool pins, not neg-suite gerr pins).
 def pos_g9(f175: U64) -> IO(U64):
   do IO<U64>:
     f176 : U64 <- C.report_pure("pos-sphon-nan",

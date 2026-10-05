@@ -1,6 +1,3 @@
-# C00 negative tests: every failure path asserts its structured kind AND
-# zero publication (accepted model unchanged). Ends in selfcheck fails=N.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c00/eval.bend as E

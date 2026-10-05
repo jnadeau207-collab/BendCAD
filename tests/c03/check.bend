@@ -1,6 +1,3 @@
-# C03 test support: reporters over GRes + shared fixtures.
-# Imported by neg.bend/pos.bend; no main here.
-
 import Base
 import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
@@ -14,7 +11,6 @@ def verdict(ok: Bool) -> String:
 def bump(f: U64, ok: Bool) -> U64:
   (f + Bool.to_u64(Bool.not(ok)) : U64)
 
-# Gerr of the wanted kind (structured failure, no value published).
 def gerr_as(+r: G.GRes, want: String) -> Bool:
   String.eq(G.gres_show(r), want)
 
@@ -25,7 +21,6 @@ def report_gerr(tag: String, +r: G.GRes, +want: String,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gerr_as(r, want))
 
-# Gok F64 pinned to exact bits.
 def gf_as(+r: G.GRes, want: U64) -> Bool:
   Bool.and(String.eq(G.gres_show(r), "ok"),
     U64.is_eq(F64.bits(G.gres_f(r)), want))
@@ -37,7 +32,6 @@ def report_gf(tag: String, +r: G.GRes, +want: U64,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gf_as(r, want))
 
-# Gok Point pinned to exact component bits.
 def gp_as(+r: G.GRes, +wx: U64, +wy: U64, +wz: U64) -> Bool:
   +p = G.gres_p(r)
   Bool.and(String.eq(G.gres_show(r), "ok"),
@@ -52,7 +46,6 @@ def report_gp(tag: String, +r: G.GRes, +wx: U64, +wy: U64, +wz: U64,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gp_as(r, wx, wy, wz))
 
-# Gok Dir pinned to exact component bits.
 def gd_as(+r: G.GRes, +wx: U64, +wy: U64, +wz: U64) -> Bool:
   +d = G.gres_d(r)
   Bool.and(String.eq(G.gres_show(r), "ok"),
@@ -67,7 +60,6 @@ def report_gd(tag: String, +r: G.GRes, +wx: U64, +wy: U64, +wz: U64,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gd_as(r, wx, wy, wz))
 
-# Gok Vec2 pinned to exact component bits.
 def gv2_as(+r: G.GRes, +wx: U64, +wy: U64) -> Bool:
   +v = G.gres_v2(r)
   Bool.and(String.eq(G.gres_show(r), "ok"),
@@ -81,7 +73,6 @@ def report_gv2(tag: String, +r: G.GRes, +wx: U64, +wy: U64,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gv2_as(r, wx, wy))
 
-# Gok Dom pinned to exact endpoint bits.
 def gdom_as(+r: G.GRes, +wlo: U64, +whi: U64) -> Bool:
   +d = G.gres_dom(r)
   Bool.and(String.eq(G.gres_show(r), "ok"),
@@ -95,7 +86,6 @@ def report_gdom(tag: String, +r: G.GRes, +wlo: U64, +whi: U64,
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, gdom_as(r, wlo, whi))
 
-# Gok BBox3 pinned to exact corner bits.
 def gbb_as(+r: G.GRes, +ax: U64, +ay: U64, +az: U64, +bx: U64,
     +by: U64, +bz: U64) -> Bool:
   +b = G.gres_bb(r)
@@ -121,17 +111,12 @@ def report_pure(tag: String, +ok: Bool, f: U64) -> IO(U64):
     IO.print(tag ++ " " ++ verdict(ok))
     return bump(f, ok)
 
-# Projected point is the documented zero default. Single op call per
-# use site: repeating a big op 3x in one Bool tree exceeds the native
-# backend's 255 arity limit (C02 D2 class); let-bind instead.
 def gres_p_is_zero(+r: G.GRes) -> Bool:
   +p = G.gres_p(r)
   Bool.and(U64.is_eq(F64.bits(V.pt_x(p)), 0u64),
     Bool.and(U64.is_eq(F64.bits(V.pt_y(p)), 0u64),
       U64.is_eq(F64.bits(V.pt_z(p)), 0u64)))
 
-# Gok of any arm (geometry values have no projector; the show pin plus
-# ops.bend behavior pins carry them).
 def ok_as(+r: G.GRes) -> Bool:
   String.eq(G.gres_show(r), "ok")
 
@@ -141,7 +126,6 @@ def report_ok(tag: String, +r: G.GRes, f: U64) -> IO(U64):
       ++ " [" ++ G.gres_show(r) ++ "]")
     return bump(f, ok_as(r))
 
-# --- Shared fixtures ---
 def p000() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
 
@@ -223,8 +207,6 @@ def tb_s() -> G.TBez:
 def mx() -> F64:
   F64{9218868437227405311u64}
 
-# DBL_MAX minus one ulp: Dom{mxm1(), mx()} is a VALID domain whose
-# midpoint sum overflows (C03.1 overflow fixture).
 def mxm1() -> F64:
   F64{9218868437227405310u64}
 
@@ -334,7 +316,6 @@ def nbk_nank() -> G.Nurb:
   G.Nb{0.0f64 <> 0.0f64 <> 0.0f64 <> F64.nan() <> 1.0f64 <>
     1.0f64 <> 1.0f64 <> 1.0f64 <> Nil{}, nbk1_ps(), nbk1_ws()}
 
-# Geometry unwraps (documented zero defaults).
 def unwrap_bz(r: G.GRes) -> G.Bez3:
   match r:
     case G.Gok{v}:
@@ -352,7 +333,6 @@ def unwrap_rq(r: G.GRes) -> G.RQBez:
     case G.Gerr{kind}: G.Rq{p000(), p000(), p000(), 1.0f64, 1.0f64,
       1.0f64}
 
-# 3D box membership for enclosure probes.
 def ev_in_bb(+e: G.GRes, +b: G.GRes) -> Bool:
   +p = G.gres_p(e)
   +bb = G.gres_bb(b)

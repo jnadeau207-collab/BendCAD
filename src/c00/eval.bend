@@ -1,15 +1,6 @@
-# C00 evaluator: input boundary, fuel threading, op identity, atomic publish.
-# No @unsafe anywhere: fuel exhaustion yields Incomplete, never trusted geometry.
-# Defs precede uses (Bend has no forward references), so the pipeline reads
-# leaf-first; entry point `run` is near the end.
-
 import Base
 import ./types.bend as T
 
-# Deterministic op identity: FNV-1a over CONTENT words (op, unit, params,
-# input revision, tolerances). Fuel/bytes/cancellation are execution, not
-# content, and are excluded — re-running with more fuel yields the same id
-# (legacy operation-hash.ts `excludedKeys`). Identity, not a crypto commitment.
 def mix(h: U64, x: U64) -> U64:
   ((h .^. x : U64) * 1099511628211u64 : U64)
 
@@ -41,7 +32,6 @@ def op_id(r: T.Request) -> U64:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   op_id_of(op, unit, p0, p1, p2, p3, rev, tol)
 
-# Request re-binders for laws/tests: each changes one execution input.
 def cancel_req(r: T.Request) -> T.Request:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   T.mk_request(op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, True{})
@@ -56,8 +46,6 @@ def set_bytes(r: T.Request, b: U64) -> T.Request:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   T.mk_request(op, unit, p0, p1, p2, p3, rev, tol, budget, b, cancelled)
 
-# Boundary getters: each projects one verdict; stages match on it via _go
-# (Bend matches params/fields only, never computed values).
 def req_cancelled(r: T.Request) -> Bool:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   cancelled
@@ -92,8 +80,6 @@ def req_op(r: T.Request) -> T.OpKind:
 def req_tag(r: T.Request) -> U64:
   T.op_tag(req_op(r))
 
-# K_len witnesses: p0 as a normalized mm length. Normalization can overflow
-# to +Inf (finite × finite); the candidate is re-validated downstream.
 def len_value(r: T.Request) -> F64:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   T.to_mm(unit, p0)
@@ -105,7 +91,6 @@ def len_neg(r: T.Request) -> Bool:
 def len_fin(r: T.Request) -> Bool:
   T.is_finite(len_value(r))
 
-# K_isect witnesses: both intervals normalized to mm.
 def isect_a0(r: T.Request) -> F64:
   T.Request{op, unit, p0, p1, p2, p3, rev, tol, budget, bytes, cancelled} = r
   T.to_mm(unit, p0)
@@ -131,18 +116,11 @@ def isect_all_fin(+r: T.Request) -> Bool:
     Bool.and(T.is_finite(isect_a1(r)),
       Bool.and(T.is_finite(isect_b0(r)), T.is_finite(isect_b1(r)))))
 
-# Atomic publication: the candidate never escapes. Success builds the next
-# model revision (rev+1, count+1, folded checksum) in one pure step; every
-# other arm returns the input model untouched.
 def publish(m: T.Model, id: U64, +v: F64, tag: U64) -> T.Outcome:
   T.Model{rev, count, sum} = m
   T.mk_ok(T.mk_model((rev + 1u64 : U64), (count + 1u64 : U64),
     mix(mix(sum, F64.bits(v)), tag)), T.mk_s_value(v), id)
 
-# K_isect: overlap of [p0,p1] and [p2,p3] in `unit`. Malformed intervals
-# (lo > hi) are invalid input. Normalization overflow is uncertainty. A
-# disjoint pair is S_empty SUCCESS with the model unchanged; otherwise the
-# published witness is the overlap's lower bound.
 def ex_isect_mty(m: T.Model, id: U64, lo: F64, hi: F64, empty: Bool,
     tag: U64) -> T.Outcome:
   match empty:
@@ -171,10 +149,6 @@ def ex_isect_ord(m: T.Model, +r: T.Request, id: U64, bad: Bool) -> T.Outcome:
 def ex_isect(m: T.Model, +r: T.Request, id: U64) -> T.Outcome:
   ex_isect_ord(m, r, id, isect_bad_ord(r))
 
-# K_len: transport one length through the boundary. p0 must be a finite
-# non-negative length in `unit` (-0.0 counts as zero); the published witness
-# is its mm value. Overflow fails as numerical uncertainty, never as trusted
-# geometry.
 def ex_len_fin(m: T.Model, id: U64, +v: F64, fin: Bool,
     tag: U64) -> T.Outcome:
   match fin:
@@ -241,18 +215,9 @@ def run_cancel(m: T.Model, +r: T.Request, id: U64,
     case False{}:
       st_bytes(m, r, id, bytes_over(r))
 
-# Pipeline entry, total order (first match wins): cancellation → byte budget
-# → fuel floor → content validation → fuel for the op → dispatch → candidate
-# validation → publish. Fuel 0 starves the boundary (nothing inspected,
-# nothing published); fuel 1 pays for the boundary and reports what it
-# learned (invalid input is reported, never masked as incomplete); fuel ≥ 2
-# runs the op.
 def run(+m: T.Model, +r: T.Request) -> T.Outcome:
   run_cancel(m, r, op_id(r), req_cancelled(r))
 
-# Outcome projectors for laws/tests. `outcome_value` is meaningful only for
-# ok-value and `outcome_fuel_used` only for incomplete; both return a
-# documented zero elsewhere so they stay total.
 def status_show(s: T.Success) -> String:
   match s:
     case T.S_value{value}: "ok-value"
