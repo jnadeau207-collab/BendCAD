@@ -15,8 +15,10 @@ import ./model.bend as M
 
 
 
+
 type QP is Data:
   QP{ id: Nat, x: F64, y: F64 }
+
 
 
 
@@ -27,8 +29,10 @@ type TP is Data:
 
 
 
+
 type Tri is Data:
   Tri{ a: Nat, b: Nat, c: Nat }
+
 
 
 
@@ -40,8 +44,14 @@ type Ctx is Data:
 
 
 
+
+type LA is Data:
+  LA{ b: Nat, ps: List<&2, V.Point>, ts: List<&2, Tri> }
+
+
 def nf(+n: Nat) -> F64:
   U64.to_f64(U64.from_nat(n))
+
 
 
 
@@ -50,6 +60,7 @@ def rq_pts(+w: G.RQBez, +j: Nat, +k: Nat) -> List<&2, V.Point>:
   match j:
     case 0n: []
     case 1n+i: List.append(&2, V.Point, rq_pts(w, i, k), [G.gres_p(GO.rqb_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n)))))])
+
 
 
 
@@ -64,11 +75,13 @@ def cc_pts(+w: G.Circle3, +j: Nat, +n: Nat) -> List<&2, V.Point>:
 
 
 
+
 def cv_pts(c: G.GVal) -> List<&2, V.Point>:
   match c:
     case G.GV_rq{+w}: rq_pts(w, 6n, 6n)
     case G.GV_cc{+w}: cc_pts(w, 31n, 32n)
     case _: []
+
 
 
 
@@ -81,9 +94,11 @@ def ek_pts(k: Ty.EdgeKind) -> List<&2, V.Point>:
 
 
 
+
 def ed_pts(e: Ty.Edge) -> List<&2, V.Point>:
   Ty.Ed{g, v0, v1, k} = e
   ek_pts(k)
+
 
 
 
@@ -96,10 +111,12 @@ def smps(es: List<&2, Ty.Edge>) -> List<&2, List<&2, V.Point>>:
 
 
 
+
 def bases(ss: List<&2, List<&2, V.Point>>, +b: Nat) -> List<&2, Nat>:
   match ss:
     case []: []
     case +s <> t: b <> bases(t, Nat.add(b, List.length(&2, V.Point, s)))
+
 
 
 
@@ -114,8 +131,10 @@ def vx_pts(vs: List<&2, Ty.Vertex>) -> List<&2, V.Point>:
 
 
 
+
 def pz() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
+
 
 
 
@@ -132,10 +151,12 @@ def ctx_of(+b: Ty.Brep) -> Ctx:
 
 
 
+
 def cat_pts(ss: List<&2, List<&2, V.Point>>) -> List<&2, V.Point>:
   match ss:
     case []: []
     case s <> t: List.append(&2, V.Point, s, cat_pts(t))
+
 
 
 
@@ -146,8 +167,10 @@ def all_pts(+b: Ty.Brep) -> List<&2, V.Point>:
 
 
 
+
 def ux(+i: Nat) -> U32:
   U32.from_nat(i)
+
 
 
 
@@ -160,10 +183,12 @@ def tps_of(ps: List<&2, V.Point>, +b: Nat) -> List<&2, TP>:
 
 
 
+
 def tp_rev(xs: List<&2, TP>, +acc: List<&2, TP>) -> List<&2, TP>:
   match xs:
     case []: acc
     case x <> t: tp_rev(t, x <> acc)
+
 
 
 
@@ -175,9 +200,11 @@ def hv_i(h: Ty.HVertex) -> Nat:
 
 
 
+
 def he_i(h: Ty.HEdge) -> Nat:
   Ty.HE{idx, gen} = h
   idx
+
 
 
 
@@ -189,9 +216,11 @@ def hc_i(h: Ty.HCoedge) -> Nat:
 
 
 
+
 def hl_i(h: Ty.HLoop) -> Nat:
   Ty.HL{idx, gen} = h
   idx
+
 
 
 
@@ -209,6 +238,7 @@ def ce_pts(+x: Ctx, +h: Ty.HCoedge) -> List<&2, TP>:
 
 
 
+
 def ring_go(hs: List<&2, Ty.HCoedge>, +x: Ctx) -> List<&2, TP>:
   match hs:
     case []: []
@@ -217,9 +247,11 @@ def ring_go(hs: List<&2, Ty.HCoedge>, +x: Ctx) -> List<&2, TP>:
 
 
 
+
 def ring(+x: Ctx, +h: Ty.HLoop) -> List<&2, TP>:
   Ctx{vs, es, ces, +lps, sb, smp} = x
   ring_go(Ty.lp_ces(B.tb_get(Ty.Loop, lps, ux(hl_i(h)))), x)
+
 
 
 
@@ -232,9 +264,11 @@ def rings(hs: List<&2, Ty.HLoop>, +x: Ctx) -> List<&2, List<&2, TP>>:
 
 
 
+
 def qx(q: QP) -> F64:
   QP{id, x, y} = q
   x
+
 
 
 
@@ -246,9 +280,11 @@ def qy(q: QP) -> F64:
 
 
 
+
 def qid(q: QP) -> Nat:
   QP{id, x, y} = q
   id
+
 
 
 
@@ -260,9 +296,11 @@ def tp_id(t: TP) -> Nat:
 
 
 
+
 def tp_p(t: TP) -> V.Point:
   TP{id, p} = t
   p
+
 
 
 
@@ -275,6 +313,7 @@ def nw_add(+n: V.Point, +a: V.Point, +b: V.Point) -> V.Point:
 
 
 
+
 def nw_go(xs: List<&2, TP>, +first: V.Point, +prev: V.Point, +n: V.Point) -> V.Point:
   match xs:
     case []: nw_add(n, prev, first)
@@ -283,10 +322,12 @@ def nw_go(xs: List<&2, TP>, +first: V.Point, +prev: V.Point, +n: V.Point) -> V.P
 
 
 
+
 def newell(r: List<&2, TP>) -> V.Point:
   match r:
     case []: pz()
     case +x <> t: nw_go(t, tp_p(x), tp_p(x), pz())
+
 
 
 
@@ -300,11 +341,13 @@ def ax_of(+n: V.Point) -> U64:
 
 
 
+
 def proj(+t: TP, +ax: U64) -> QP:
   match ax:
     case 0u64: QP{tp_id(t), V.pt_y(tp_p(t)), V.pt_z(tp_p(t))}
     case 1u64: QP{tp_id(t), V.pt_z(tp_p(t)), V.pt_x(tp_p(t))}
     case _: QP{tp_id(t), V.pt_x(tp_p(t)), V.pt_y(tp_p(t))}
+
 
 
 
@@ -317,10 +360,12 @@ def projs(xs: List<&2, TP>, +ax: U64) -> List<&2, QP>:
 
 
 
+
 def q_area_go(xs: List<&2, QP>, +first: QP, +prev: QP, +acc: E.Ex) -> E.Ex:
   match xs:
     case []: E.ex_add(acc, F.cr_ex(qx(prev), qy(prev), qx(first), qy(first)))
     case +x <> t: q_area_go(t, first, x, E.ex_add(acc, F.cr_ex(qx(prev), qy(prev), qx(x), qy(x))))
+
 
 
 
@@ -333,10 +378,12 @@ def q_ccw(r: List<&2, QP>) -> Bool:
 
 
 
+
 def q_rev(xs: List<&2, QP>, +acc: List<&2, QP>) -> List<&2, QP>:
   match xs:
     case []: acc
     case x <> t: q_rev(t, x <> acc)
+
 
 
 
@@ -347,8 +394,10 @@ def q_same(+a: QP, +b: QP) -> Bool:
 
 
 
+
 def ori(+a: QP, +b: QP, +c: QP) -> B.Sgn:
   XE.orient2s(qx(a), qy(a), qx(b), qy(b), qx(c), qy(c))
+
 
 
 
@@ -363,8 +412,10 @@ def in_tri(+a: QP, +b: QP, +c: QP, +q: QP) -> Bool:
 
 
 
+
 def ang_in(+v: QP, +w1: QP, +w2: QP, +n: QP) -> Bool:
   Bool.and(F.sgn_pos(ori(v, w1, n)), F.sgn_pos(ori(v, n, w2)))
+
 
 
 
@@ -374,10 +425,12 @@ def dup_block(+q: QP, +nb: QP, +a: QP, +b: QP, +c: QP) -> Bool:
 
 
 
+
 def q_hd(xs: List<&2, QP>, +d: QP) -> QP:
   match xs:
     case []: d
     case x <> t: x
+
 
 
 
@@ -391,16 +444,20 @@ def any_go(xs: List<&2, QP>, +prv: QP, +last: QP, +a: QP, +b: QP, +c: QP) -> Boo
 
 
 
+
 def any_in(+xs: List<&2, QP>, +a: QP, +b: QP, +c: QP) -> Bool:
   any_go(xs, c, a, a, b, c)
+
 
 
 
 def is_ear(+a: QP, +b: QP, +c: QP, +rest: List<&2, QP>) -> Bool:
   Bool.and(F.sgn_pos(ori(a, b, c)), Bool.not(any_in(rest, a, b, c)))
 
+
 def q3(+a: QP, +b: QP, +c: QP) -> Tri:
   Tri{qid(a), qid(b), qid(c)}
+
 
 
 
@@ -426,10 +483,12 @@ def clip(f: Nat, r: List<&2, QP>, +n: Nat, +acc: List<&2, Tri>) -> List<&2, Tri>
 
 
 
+
 def edges_of_go(xs: List<&2, QP>, +first: QP, +prev: QP) -> List<&2, List<&2, QP>>:
   match xs:
     case []: [[prev, first]]
     case +x <> t: [prev, x] <> edges_of_go(t, first, x)
+
 
 
 
@@ -442,6 +501,7 @@ def edges_of(r: List<&2, QP>) -> List<&2, List<&2, QP>>:
 
 
 
+
 def q_nth(xs: List<&2, QP>, +i: Nat) -> QP:
   match xs:
     case []: QP{0n, 0.0f64, 0.0f64}
@@ -449,6 +509,7 @@ def q_nth(xs: List<&2, QP>, +i: Nat) -> QP:
       match i:
         case 0n: x
         case 1n+j: q_nth(t, j)
+
 
 
 
@@ -465,6 +526,7 @@ def vis(+m: QP, +p: QP, es: List<&2, List<&2, QP>>) -> Bool:
 
 
 
+
 def d2(+a: QP, +b: QP) -> F64:
   +dx = F64.sub(qx(a), qx(b))
   +dy = F64.sub(qy(a), qy(b))
@@ -473,10 +535,12 @@ def d2(+a: QP, +b: QP) -> F64:
 
 
 
+
 def id_cnt(xs: List<&2, QP>, +id: Nat) -> Nat:
   match xs:
     case []: 0n
     case x <> t: Nat.add(Bool.pick(Nat, Nat.is_eq(qid(x), id), 1n, 0n), id_cnt(t, id))
+
 
 
 
@@ -493,12 +557,14 @@ def best_go(xs: List<&2, QP>, +all: List<&2, QP>, +m: QP, +es: List<&2, List<&2,
 
 
 
+
 def maxx_go(xs: List<&2, QP>, +i: Nat, +bi: Nat, +bx: F64) -> Nat:
   match xs:
     case []: bi
     case +p <> t:
       +b = F64.is_lt(bx, qx(p))
       maxx_go(t, Nat.add(i, 1n), Bool.pick(Nat, b, i, bi), Bool.pick(F64, b, qx(p), bx))
+
 
 
 
@@ -514,6 +580,7 @@ def q_take(xs: List<&2, QP>, +n: Nat) -> List<&2, QP>:
 
 
 
+
 def q_drop(xs: List<&2, QP>, +n: Nat) -> List<&2, QP>:
   match xs:
     case []: []
@@ -525,10 +592,12 @@ def q_drop(xs: List<&2, QP>, +n: Nat) -> List<&2, QP>:
 
 
 
+
 def edges_all(hs: List<&2, List<&2, QP>>) -> List<&2, List<&2, QP>>:
   match hs:
     case []: []
     case h <> t: List.append(&2, List<&2, QP>, edges_of(h), edges_all(t))
+
 
 
 
@@ -545,10 +614,12 @@ def splice(+o: List<&2, QP>, +h: List<&2, QP>, +others: List<&2, List<&2, QP>>) 
 
 
 
+
 def bridge(hs: List<&2, List<&2, QP>>, +o: List<&2, QP>) -> List<&2, QP>:
   match hs:
     case []: o
     case h <> +t: bridge(t, splice(o, h, t))
+
 
 
 
@@ -559,10 +630,12 @@ def ql_len(+r: List<&2, QP>) -> Nat:
 
 
 
+
 def tri_poly(+o: List<&2, QP>, +hs: List<&2, List<&2, QP>>) -> List<&2, Tri>:
   +r = bridge(hs, o)
   +n = ql_len(r)
   clip(Nat.add(Nat.mul(n, n), 8n), r, n, [])
+
 
 
 
@@ -577,10 +650,12 @@ def tri_flip(xs: List<&2, Tri>) -> List<&2, Tri>:
 
 
 
+
 def qrevs(hs: List<&2, List<&2, QP>>) -> List<&2, List<&2, QP>>:
   match hs:
     case []: []
     case h <> t: q_rev(h, []) <> qrevs(t)
+
 
 
 
@@ -595,10 +670,12 @@ def clip_rings(+o: List<&2, QP>, +hs: List<&2, List<&2, QP>>) -> List<&2, Tri>:
 
 
 
+
 def projs_all(rs: List<&2, List<&2, TP>>, +ax: U64) -> List<&2, List<&2, QP>>:
   match rs:
     case []: []
     case r <> t: projs(r, ax) <> projs_all(t, ax)
+
 
 
 
@@ -611,10 +688,12 @@ def r_hd(rs: List<&2, List<&2, TP>>) -> List<&2, TP>:
 
 
 
+
 def r_tl(rs: List<&2, List<&2, TP>>) -> List<&2, List<&2, TP>>:
   match rs:
     case []: []
     case r <> t: t
+
 
 
 
@@ -627,6 +706,7 @@ def ql_hd(rs: List<&2, List<&2, QP>>) -> List<&2, QP>:
 
 
 
+
 def ql_tl(rs: List<&2, List<&2, QP>>) -> List<&2, List<&2, QP>>:
   match rs:
     case []: []
@@ -635,9 +715,11 @@ def ql_tl(rs: List<&2, List<&2, QP>>) -> List<&2, List<&2, QP>>:
 
 
 
+
 def planar_tris(+rs: List<&2, List<&2, TP>>) -> List<&2, Tri>:
   +qs = projs_all(rs, ax_of(newell(r_hd(rs))))
   clip_rings(ql_hd(qs), ql_tl(qs))
+
 
 
 
@@ -650,10 +732,12 @@ def tp_ids(xs: List<&2, TP>) -> List<&2, Nat>:
 
 
 
+
 def n_rot(xs: List<&2, Nat>) -> List<&2, Nat>:
   match xs:
     case []: []
     case x <> t: List.append(&2, Nat, t, [x])
+
 
 
 
@@ -666,10 +750,12 @@ def n_rev(xs: List<&2, Nat>, +acc: List<&2, Nat>) -> List<&2, Nat>:
 
 
 
+
 def n_last(xs: List<&2, Nat>, +d: Nat) -> Nat:
   match xs:
     case []: d
     case x <> t: n_last(t, x)
+
 
 
 def n_init(xs: List<&2, Nat>) -> List<&2, Nat>:
@@ -681,8 +767,10 @@ def n_init(xs: List<&2, Nat>) -> List<&2, Nat>:
         case y <> u: x <> n_init(y <> u)
 
 
+
 def n_rotr(+xs: List<&2, Nat>) -> List<&2, Nat>:
   Bool.pick(List<&2, Nat>, Nat.is_eq(List.length(&2, Nat, xs), 0n), [], n_last(xs, 0n) <> n_init(xs))
+
 
 
 def n_take(xs: List<&2, Nat>, +k: Nat) -> List<&2, Nat>:
@@ -694,6 +782,7 @@ def n_take(xs: List<&2, Nat>, +k: Nat) -> List<&2, Nat>:
         case 1n+j: x <> n_take(t, j)
 
 
+
 def n_drop(xs: List<&2, Nat>, +k: Nat) -> List<&2, Nat>:
   match xs:
     case []: []
@@ -703,10 +792,12 @@ def n_drop(xs: List<&2, Nat>, +k: Nat) -> List<&2, Nat>:
         case 1n+j: n_drop(t, j)
 
 
+
 def n_hd(xs: List<&2, Nat>) -> Nat:
   match xs:
     case []: 0n
     case x <> t: x
+
 
 
 
@@ -723,8 +814,10 @@ def strip_open(as: List<&2, Nat>, +bs: List<&2, Nat>) -> List<&2, Tri>:
           Tri{a, a2, b2} <> Tri{a, b2, b} <> strip_open(a2 <> au, n_drop(bs, 1n))
 
 
+
 def same_xy(+p: V.Point, +q: V.Point) -> Bool:
   Bool.and(F64.is_eq(V.pt_x(p), V.pt_x(q)), F64.is_eq(V.pt_y(p), V.pt_y(q)))
+
 
 
 def tp_nth(xs: List<&2, TP>, +i: Nat) -> TP:
@@ -736,12 +829,14 @@ def tp_nth(xs: List<&2, TP>, +i: Nat) -> TP:
         case 1n+j: tp_nth(t, j)
 
 
+
 def cyl1_tris(+r: List<&2, TP>) -> List<&2, Tri>:
   +ids0 = tp_ids(r)
   +vfirst = same_xy(tp_p(tp_nth(r, 0n)), tp_p(tp_nth(r, 1n)))
   +ids = Bool.pick(List<&2, Nat>, vfirst, n_rot(ids0), ids0)
   +k = Nat.div(List.length(&2, Nat, ids), 2n)
   strip_open(n_take(ids, k), n_rev(n_drop(ids, k), []))
+
 
 
 def strip_go(bs: List<&2, Nat>, ts: List<&2, Nat>, +b0: Nat, +t0: Nat) -> List<&2, Tri>:
@@ -758,10 +853,12 @@ def strip_go(bs: List<&2, Nat>, ts: List<&2, Nat>, +b0: Nat, +t0: Nat) -> List<&
 
 
 
+
 def band_tris(+rs: List<&2, List<&2, TP>>) -> List<&2, Tri>:
   +b = tp_ids(r_hd(rs))
   +t = n_rotr(n_rev(tp_ids(r_hd(r_tl(rs))), []))
   strip_go(b, t, n_hd(b), n_hd(t))
+
 
 
 
@@ -776,12 +873,14 @@ def cyl_c(s: G.GVal) -> V.Point:
 
 
 
+
 def tri_n(+ps: B.Tb<&2, V.Point>, t: Tri) -> V.Point:
   Tri{+a, +b, +c} = t
   +pa = B.tb_get(V.Point, ps, ux(a))
   +pb = B.tb_get(V.Point, ps, ux(b))
   +pc = B.tb_get(V.Point, ps, ux(c))
   nw_add(nw_add(nw_add(pz(), pa, pb), pb, pc), pc, pa)
+
 
 
 
@@ -796,8 +895,10 @@ def tri_c(+ps: B.Tb<&2, V.Point>, t: Tri) -> V.Point:
 
 
 
+
 def dot3(+a: V.Point, +b: V.Point) -> F64:
   F64.add(F64.add(F64.mul(V.pt_x(a), V.pt_x(b)), F64.mul(V.pt_y(a), V.pt_y(b))), F64.mul(V.pt_z(a), V.pt_z(b)))
+
 
 
 
@@ -810,9 +911,11 @@ def out_n(+k: U64, +same: Bool, +n: V.Point, +c: V.Point, +ctr: V.Point) -> V.Po
 
 
 
+
 def tri_one_flip(t: Tri) -> Tri:
   Tri{a, b, c} = t
   Tri{a, c, b}
+
 
 
 
@@ -827,10 +930,12 @@ def fix_go(ts: List<&2, Tri>, +ps: B.Tb<&2, V.Point>, +k: U64, +same: Bool, +n: 
 
 
 
+
 def surf_k(s: G.GVal) -> U64:
   match s:
     case G.GV_cy{w}: 1u64
     case _: 0u64
+
 
 
 
@@ -845,12 +950,14 @@ def face_go(+k: U64, +rs: List<&2, List<&2, TP>>, +c: V.Point) -> List<&2, Tri>:
 
 
 
+
 def face_tris(f: Ty.Face, +x: Ctx, +ps: B.Tb<&2, V.Point>) -> List<&2, Tri>:
   Ty.Fa{g, +s, ls, +same} = f
   +rs = rings(ls, x)
   +c = cyl_c(s)
   +k = surf_k(s)
   fix_go(face_go(k, rs, c), ps, k, same, newell(r_hd(rs)), c)
+
 
 
 
@@ -863,10 +970,12 @@ def faces_tris(fs: List<&2, Ty.Face>, +x: Ctx, +ps: B.Tb<&2, V.Point>) -> List<&
 
 
 
+
 def pl_pt(+p: V.Point, +pl: M.Pl) -> V.Point:
   M.Pl{m, +tx, +ty, +tz} = pl
   +v = M.m3_ap(m, V.pt_x(p), V.pt_y(p), V.pt_z(p))
   V.Pt{F64.add(M.f_nth(v, 0n), tx), F64.add(M.f_nth(v, 1n), ty), F64.add(M.f_nth(v, 2n), tz)}
+
 
 
 
@@ -881,6 +990,7 @@ def obj_vs(ps: List<&2, V.Point>, +pl: M.Pl) -> String:
 
 
 
+
 def obj_fs(ts: List<&2, Tri>) -> String:
   match ts:
     case []: ""
@@ -891,8 +1001,129 @@ def obj_fs(ts: List<&2, Tri>) -> String:
 
 
 
-def body_obj(+b: M.Body) -> String:
+
+def pri_obj(+b: M.Body) -> String:
   +br = M.bd_brep(b)
   +ps = all_pts(br)
   +tb = B.tb_of(V.Point, ps, pz())
   obj_vs(ps, M.bd_pl(b)) ++ obj_fs(faces_tris(Ty.brep_fas(br), ctx_of(br), tb))
+
+
+def rq2(j: Nat, +w: G.RQBez, +k: Nat) -> List<&2, V.Vec2>:
+  match j:
+    case 0n: []
+    case 1n+(+i):
+      +q = G.gres_p(GO.rqb_eval(w, F64.div(nf(Nat.sub(k, i)), nf(Nat.add(k, 1n)))))
+      V.V2{V.pt_x(q), V.pt_z(q)} <> rq2(i, w, k)
+
+
+def lath_pcs(ps: List<&2, F.Pc>) -> List<&2, V.Vec2>:
+  match ps:
+    case []: []
+    case p <> +t:
+      match p:
+        case F.P_ln{ax, ay, bx, by}: V.V2{ax, ay} <> lath_pcs(t)
+        case F.P_ar{+ax, +ay, px, py, w, bx, by}:
+          List.append(&2, V.Vec2, V.V2{ax, ay} <> rq2(6n, G.Rq{V.Pt{ax, 0.0f64, ay}, V.Pt{px, 0.0f64, py}, V.Pt{bx, 0.0f64, by}, 1.0f64, w, 1.0f64}, 6n),
+            lath_pcs(t))
+
+
+def ring_pts(i: Nat, +r: F64, +h: F64, +n: Nat) -> List<&2, V.Point>:
+  match i:
+    case 0n: []
+    case 1n+(+j):
+      +t = F64.add(F64.neg(1.0f64), F64.div(F64.mul(2.0f64, nf(Nat.sub(n, Nat.add(j, 1n)))), nf(n)))
+      G.gres_p(GO.circ_eval(G.Cc{V.Pt{0.0f64, 0.0f64, h}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}, r}, t)) <> ring_pts(j, r, h, n)
+
+def lath_ring(+q: V.Vec2, +n: Nat) -> List<&2, V.Point>:
+  Bool.pick(List<&2, V.Point>, F64.is_lt(0.0f64, V.v2_x(q)), ring_pts(n, V.v2_x(q), V.v2_y(q), n), [V.Pt{0.0f64, 0.0f64, V.v2_y(q)}])
+
+
+def lath_rings(qs: List<&2, V.Vec2>, +n: Nat) -> List<&2, List<&2, V.Point>>:
+  match qs:
+    case []: []
+    case q <> t: lath_ring(q, n) <> lath_rings(t, n)
+
+
+def n_rep(n: Nat, +b: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: b <> n_rep(m, b)
+
+
+def n_seq(n: Nat, +b: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: b <> n_seq(m, Nat.add(b, 1n))
+
+
+def ring_ids(+pts: List<&2, V.Point>, +b: Nat, +n: Nat) -> List<&2, Nat>:
+  Bool.pick(List<&2, Nat>, Nat.is_eq(List.length(&2, V.Point, pts), 1n), n_rep(n, b), n_seq(n, b))
+
+
+def ids_of(rs: List<&2, List<&2, V.Point>>, +b: Nat, +n: Nat) -> List<&2, List<&2, Nat>>:
+  match rs:
+    case []: []
+    case +r <> t: ring_ids(r, b, n) <> ids_of(t, Nat.add(b, List.length(&2, V.Point, r)), n)
+
+
+def band(as: List<&2, Nat>, +bs: List<&2, Nat>, +a0: Nat, +b0: Nat) -> List<&2, Tri>:
+  match as:
+    case []: []
+    case +a <> +at:
+      +a2 = Bool.pick(Nat, Nat.is_eq(List.length(&2, Nat, at), 0n), a0, n_hd(at))
+      +b = n_hd(bs)
+      +b2 = Bool.pick(Nat, Nat.is_le(List.length(&2, Nat, bs), 1n), b0, n_hd(n_drop(bs, 1n)))
+      +t1 = Bool.pick(List<&2, Tri>, Nat.is_eq(a, a2), [], [Tri{a, a2, b}])
+      +t2 = Bool.pick(List<&2, Tri>, Nat.is_eq(b, b2), [], [Tri{a2, b2, b}])
+      List.append(&2, Tri, t1, List.append(&2, Tri, t2, band(at, n_drop(bs, 1n), a0, b0)))
+
+
+def nl_hd(xs: List<&2, List<&2, Nat>>) -> List<&2, Nat>:
+  match xs:
+    case []: []
+    case x <> t: x
+
+
+def bands(rs: List<&2, List<&2, Nat>>, +first: List<&2, Nat>) -> List<&2, Tri>:
+  match rs:
+    case []: []
+    case +r <> +t:
+      +nx = Bool.pick(List<&2, Nat>, Nat.is_eq(List.length(&2, List<&2, Nat>, t), 0n), first, nl_hd(t))
+      +ax = Bool.and(Nat.is_eq(n_hd(r), n_hd(n_drop(r, 1n))), Nat.is_eq(n_hd(nx), n_hd(n_drop(nx, 1n))))
+      List.append(&2, Tri, Bool.pick(List<&2, Tri>, ax, [], band(r, nx, n_hd(r), n_hd(nx))), bands(t, first))
+
+
+def lath_lp(+l: F.Lp, +b: Nat, +n: Nat) -> List<&2, Tri>:
+  +rs = lath_rings(lath_pcs(F.lp_pcs(l)), n)
+  +ids = ids_of(rs, b, n)
+  bands(ids, nl_hd(ids))
+
+
+def lath_pts(+l: F.Lp, +n: Nat) -> List<&2, V.Point>:
+  cat_pts(lath_rings(lath_pcs(F.lp_pcs(l)), n))
+
+
+def la_add(a: LA, +l: F.Lp, +n: Nat) -> LA:
+  LA{+b, +ps, +ts} = a
+  +p = lath_pts(l, n)
+  LA{Nat.add(b, List.length(&2, V.Point, p)), List.append(&2, V.Point, ps, p), List.append(&2, Tri, ts, lath_lp(l, b, n))}
+
+
+def lath_go(ls: List<&2, F.Lp>, +a: LA, +n: Nat) -> LA:
+  match ls:
+    case []: a
+    case l <> t: lath_go(t, la_add(a, l, n), n)
+
+
+def la_obj(a: LA, +pl: M.Pl) -> String:
+  LA{b, ps, ts} = a
+  obj_vs(ps, pl) ++ obj_fs(ts)
+
+
+def rev_obj(+b: M.Body) -> String:
+  la_obj(lath_go(M.bd_rv(b), LA{0n, [], []}, 32n), M.bd_pl(b))
+
+
+def body_obj(+b: M.Body) -> String:
+  Bool.pick(String, Nat.is_eq(List.length(&2, F.Lp, M.bd_rv(b)), 0n), pri_obj(b), rev_obj(b))
