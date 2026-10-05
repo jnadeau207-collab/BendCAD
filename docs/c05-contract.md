@@ -551,7 +551,7 @@ grid 0.81 s, truss 0.38 s (pinned 16-thread truss 7.03 s), and
 sol-rects-1500 0.97 s (pinned 0.76 s, slower). The truss row is a
 change above 2×. A3 disposition for sol-rects-1500: historical
 regression on the side scheduler, not a number re-measured here.
-Tree-shaped sequences are not in this packet.
+Tree-shaped sequences are not in this packet; each list spine converts in the milestone whose budget first measures it (MASTER_PLAN A5).
 
 ## 9. Limitations (honest scope)
 
@@ -587,10 +587,11 @@ Tree-shaped sequences are not in this packet.
   chain takes 1.4 s on one thread and 1.0 s on 16, and the
   3,200-parameter grid 1.5 s and 0.8 s (R0.1: 3.71 s and 5.02 s).
   There is no incremental re-solve or drag mode yet.
-- **Rigid-cluster decomposition is not done.** Clusters are
-  independent components only; a well-constrained subsystem inside a
-  larger cluster is not solved separately. The latency above did
-  not use that decomposition.
+- **Rigid-cluster decomposition is not done; C09 owns it**
+  (MASTER_PLAN A5). Clusters are independent components only; a
+  well-constrained subsystem inside a larger cluster is not solved
+  separately. The latency above did not use that decomposition, and
+  the R0 budgets are met without it.
 - **Parallel speedup is real and uneven** (§12). A banged GPU call
   on this WSL2 machine fails closed: CUDA has no concurrent managed
   access here, so no GPU speedup is claimed.

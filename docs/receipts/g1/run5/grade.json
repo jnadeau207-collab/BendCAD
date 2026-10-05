@@ -1,0 +1,70 @@
+{
+  "params_values": {
+    "L": 120.0,
+    "S": 30.0,
+    "T": 10.0,
+    "D": 12.0,
+    "K": 40.0,
+    "M": 14.0,
+    "Q": 4.0
+  },
+  "params_final": true,
+  "ops": [
+    "prism",
+    "holes",
+    "pocket"
+  ],
+  "has_arcs": true,
+  "holes_follow_L": true,
+  "every_node_has_intent": true,
+  "exact_volume": 38566.63675999238,
+  "kernel_volume_interval": [
+    38566.636759935805,
+    38566.63676004896
+  ],
+  "kernel_interval_contains_exact": true,
+  "mesh": {
+    "triangles": 396,
+    "watertight": true,
+    "nonmanifold_directed_edges": 0,
+    "unmatched_edges": 0,
+    "volume": 38523.399895996365,
+    "area": 12677.791994660427,
+    "euler_characteristic": -2
+  },
+  "mesh_bbox": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      150.0,
+      30.0,
+      10.000000000000002
+    ]
+  ],
+  "mesh_bbox_ok": true,
+  "mesh_genus_2": true,
+  "mesh_volume_within_1pct": true,
+  "watertight": true,
+  "tool_sequence": [
+    "new",
+    "apply",
+    "eval",
+    "sens",
+    "apply",
+    "show",
+    "apply",
+    "eval",
+    "tess",
+    "show"
+  ],
+  "sensitivity": 300.0,
+  "sensitivity_ok": true,
+  "deep_pocket_rejected": true,
+  "committed_edit_of_L": true,
+  "did_tess": true,
+  "verdict": "PASS",
+  "failed": []
+}

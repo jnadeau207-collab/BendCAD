@@ -1,0 +1,78 @@
+{
+  "params_present": true,
+  "params_values": {
+    "W": 140.0,
+    "H": 80.0,
+    "T": 8.0,
+    "R": 10.0,
+    "D": 8.0,
+    "E": 12.0,
+    "B": 40.0,
+    "P": 12.0,
+    "C": 20.0
+  },
+  "params_final": true,
+  "ops": [
+    "prism",
+    "holes",
+    "pad",
+    "holes"
+  ],
+  "holes_reference_W_and_H": true,
+  "has_arcs": true,
+  "every_node_has_intent": true,
+  "exact_volume": 96101.23811428528,
+  "kernel_volume_interval": [
+    96101.23811419433,
+    96101.23811437626
+  ],
+  "kernel_interval_contains_exact": true,
+  "kernel_interval_width": 1.8192804418504238e-07,
+  "mesh": {
+    "triangles": 912,
+    "watertight": true,
+    "nonmanifold_directed_edges": 0,
+    "unmatched_edges": 0,
+    "volume": 96028.30659261219,
+    "area": 28144.012449188296,
+    "euler_characteristic": -8
+  },
+  "mesh_bbox": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      140.0,
+      80.0,
+      20.0
+    ]
+  ],
+  "mesh_bbox_ok": true,
+  "mesh_genus_5": true,
+  "mesh_volume_within_1pct": true,
+  "tool_sequence": [
+    "new",
+    "apply",
+    "apply",
+    "eval",
+    "show",
+    "eval",
+    "faces",
+    "sens",
+    "apply",
+    "eval",
+    "tess",
+    "show"
+  ],
+  "did_evaluate_twice_or_more": true,
+  "did_show": true,
+  "did_faces": true,
+  "did_sens": true,
+  "did_tess": true,
+  "committed_edit_of_W": true,
+  "watertight": true,
+  "verdict": "PASS",
+  "failed": []
+}

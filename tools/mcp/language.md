@@ -9,15 +9,16 @@ failure is reported as `error KIND | what @ where | why: ... | fix: ...`.
 ## Edits
 
 - `(param NAME NOM)` or `(param NAME NOM LO HI)` — add or change a parameter
-  (nominal value and tolerance zone; units are millimetres by convention).
+  (nominal value and tolerance zone, `LO <= NOM <= HI`; units are millimetres
+  by convention).
 - `(node ID OP INTENT)` — add a node, or replace the node with that id.
   A node may only use nodes with smaller positions in the list as inputs.
 - `(delete ID)` — remove a node.
 
 ## Expressions
 
-Numbers (`12`, `2.5`, `-3`), parameter names (`W`), and `(+ a b)`,
-`(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
+Numbers (`12`, `2.5`, `-3`, `1e-3`; no leading `+`, no `inf`/`nan`),
+parameter names (`W`), and `(+ a b)`, `(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
 
 ## Profiles (in the body's local x-y plane)
 
@@ -44,15 +45,33 @@ Numbers (`12`, `2.5`, `-3`), parameter names (`W`), and `(+ a b)`,
 - `(pocket BASE FACE D REGION ...)` / `(pocket BASE FACE through REGION ...)`
   — remove material to depth D (flat floor) or through the body.
 - `(holes BASE FACE D (hole X Y R) ...)` / `(holes BASE FACE through ...)`.
+- `(rotate BASE AXIS DEG)` — rotate the placed solid about the world `x`, `y`
+  or `z` axis through the origin by DEG degrees (counter-clockwise looking
+  down the axis; |DEG| <= 1000000). Rotations and moves compose in order.
+  Volume and area are unchanged; the bounding box is a certified enclosure
+  (exact to rounding for boxes, cylinders, spheres and tori; arcs inside
+  profiles are enclosed by their full circles).
+- `(revolve REGION ...)` — a full turn about the z axis. Profile x is the
+  radius and profile y is the height (z). The profile must lie in x >= 0; it
+  may run along the axis (x = 0) but not cross it, a hole may not touch it,
+  and the profile may not meet the axis at a single point between two
+  non-axis segments (a pinch). Hole loops become internal cavities.
+- `(cone R H)` — base radius R at z = 0, apex at z = H.
+- `(sphere R)` — centred at the origin.
+- `(torus R r)` — tube radius r about a circle of radius R in the z = 0 plane.
 - `(move BASE DX DY DZ TURN)` — place the solid: TURN 0 none, 1 +90 deg about
   z, 2 180 deg about z, 3 -90 deg about z, 4 +90 deg about x, 5 +90 deg about y.
+
+An unknown operation name is rejected as `unknown-op`.
 
 `FACE` is `(face NODE CELL top)` or `(face NODE CELL bottom)`: the top or
 bottom face of a cell. A node's cells are numbered from 0 in the order its
 loops appear (each region's outer loop, then its holes; for pads, pockets and
 holes, the footprint loops in order). `box` and `cylinder` make cell 0. A
 feature footprint must lie strictly inside the selected face and clear of every
-feature already on it. Features act along the body's z axis.
+feature already on it. Features act along the body's z axis. Pads, pockets
+and holes apply to extruded bodies (box, cylinder, prism and their features,
+moved or not); on a revolved body they are rejected as `unsupported-op`.
 
 ## Intent
 
@@ -79,6 +98,11 @@ Any count may be `any`. The kernel measures every field from the result
   parameters change.
 - `sensitivity`: estimated derivatives (central difference) of volume, area
   and bounding box with respect to a parameter, or the reason none exists.
+- `zone`: volume and area certified over the whole tolerance envelope, i.e.
+  for every parameter value inside its `[LO, HI]` zone. Certified for
+  `box`, `cylinder`, `cone`, `sphere`, `torus` and `move`s or `rotate`s of them (their
+  topology cannot change while dimensions stay positive, and `R > r` for a
+  torus). Other nodes answer `envelope-topology-not-certified`.
 - `tessellate`: a watertight OBJ mesh.
 
 ## Example

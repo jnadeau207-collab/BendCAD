@@ -10,7 +10,8 @@ const LOG = process.env.BENDCAD_LOG || '';
 const REF = readFileSync(join(here, 'language.md'), 'utf8');
 
 function cli(args) {
-  const r = spawnSync('wsl.exe', ['-e', BIN, ...args], { encoding: 'utf8', timeout: 600000 });
+  const [cmd, pre] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
+  const r = spawnSync(cmd, [...pre, ...args], { encoding: 'utf8', timeout: 600000 });
   const out = (r.stdout || '') + (r.stderr || '');
   if (LOG) {
     const rec = JSON.stringify({ t: new Date().toISOString(), args, status: r.status, out }) + '\n';
@@ -28,8 +29,8 @@ const tools = [
   { name: 'new_design', description: 'Create an empty design file.',
     inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'new']) },
   { name: 'apply', description: 'Apply edits atomically. Each edit is (param NAME NOM [LO HI]), (node ID OP INTENT) or (delete ID). The change is committed only if every node builds and meets its declared intent; otherwise nothing changes and each failure is diagnosed.',
-    inputSchema: { type: 'object', properties: { design, edits: { type: 'array', items: { type: 'string' } } }, required: ['design', 'edits'] },
-    run: a => cli([a.design, 'apply', ...a.edits]) },
+    inputSchema: { type: 'object', properties: { design, edits: { type: 'array', items: { type: 'string' }, description: 'One edit per string; a single string holding several edits is also accepted' } }, required: ['design', 'edits'] },
+    run: a => cli([a.design, 'apply', ...(typeof a.edits === 'string' ? [a.edits] : Array.isArray(a.edits) ? a.edits.map(String) : [])]) },
   { name: 'show', description: 'Print the design (parameters and nodes) as stored.',
     inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'show']) },
   { name: 'evaluate', description: 'Evaluate every node: measured effect, certified volume and area intervals, bounding box, entity counts, genus.',
@@ -41,6 +42,8 @@ const tools = [
   { name: 'sensitivity', description: 'Estimated derivatives of volume, area and bounding box of a node with respect to a parameter, or the reason none exists (topology change, failure).',
     inputSchema: { type: 'object', properties: { design, param: { type: 'string' }, node }, required: ['design', 'param', 'node'] },
     run: a => cli([a.design, 'sens', a.param, String(a.node)]) },
+  { name: 'zone', description: 'Volume and area of a node certified over the whole tolerance envelope (every parameter anywhere in its [lo, hi] zone). Certified for box, cylinder, cone, sphere, torus and moves or rotations of them; other nodes are reported as not certified.',
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'zone', String(a.node)]) },
   { name: 'tessellate', description: 'Write a watertight triangle mesh (OBJ) of a node\'s solid to a WSL path.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' } }, required: ['design', 'node', 'out'] },
     run: a => cli([a.design, 'tess', String(a.node), a.out]) },

@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 5 — September 29, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; see Amendment record)**
+**Revision 5 — September 29, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; A4: certified-rounding membership; A5: C06 closeout ownership; see Amendment record)**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend. That kernel is Aethalgard v2: **BendCAD**. It is open source and built to be the world's best CAD kernel for AI agents (§14): never silently wrong, self-explaining, identity by meaning, toleranced and state-aware, fast and massively parallel.
 
@@ -182,7 +182,7 @@ Exit (G1, §18): a parameterized mechanical bracket with a curved boundary and h
 
 Implement curve/curve, curve/surface, and surface/surface intersection with broad-phase bounds, subdivision/root isolation, refinement, endpoint classification, and complete admitted-domain coverage. Include tangency, coincidence, overlapping intervals, seams, and singularities. Newton iteration can refine an isolated candidate; it cannot by itself establish that all intersections were found.
 
-Exit: return intersection curves and topology/parameter correspondence, not only sampled points. Unresolved regions remain explicit uncertainty. C07 owns general geometric self-intersection detection (curved-edge crossings, cross-face and inter-loop penetration) excluded from C04, the broad-phase bounds that coarse cavity nesting checks build on, and the inside/outside classification that global outward shell orientation needs. Prerequisite shared with C06: parametric evaluation and parameter conventions for every C03 surface arm (the C03 surface-evaluation extension).
+Exit: return intersection curves and topology/parameter correspondence, not only sampled points. Unresolved regions remain explicit uncertainty. C07 owns general geometric self-intersection detection (curved-edge crossings, cross-face and inter-loop penetration) excluded from C04, the broad-phase bounds that coarse cavity nesting checks build on, and the inside/outside classification that global outward shell orientation needs. Prerequisite shared with C06: parametric evaluation and parameter conventions for every C03 surface arm (the C03 surface-evaluation extension). C07 also owns certifying that a design's topology is constant over a parameter box, which tolerance-envelope evaluation needs (A5).
 
 ### C08 — General B-rep booleans
 
@@ -196,11 +196,15 @@ Exit: analytic and NURBS cases pass independent geometry checks, volume identiti
 
 Add sweep, loft, fillet, chamfer, draft, offset, shell/thicken, and feature patterns. Cover guide curves, continuity, twist, self-intersection, variable-radius blends, corner construction, and topology evolution. Use the same evaluator path for all future human and agent clients.
 
+C09 also owns rigid-cluster decomposition in the C05 solver, for drag and incremental re-solve over large single clusters (A5).
+
 Exit: each feature family has ordinary mechanical cases, degenerate cases, repeated downstream edits, bounded-error reports, and native Bend implementation evidence. One successful fillet does not qualify the family.
 
 ### C10 — Manufacturing-grade tessellation
 
 Implement trim-aware meshing, consistent shared-edge samples, normal/orientation handling, seam treatment, and explicit LOD/quality controls. Bound error on the delivered mesh after welding, simplification, transforms, and numeric narrowing, not on an intermediate mesh that is later changed.
+
+C06 ships a display tessellator: watertight, oriented and sharing edge samples, with no stated bounds (`docs/c06-contract.md` §10). C10 replaces it.
 
 Exit: valid indices, appropriate watertightness, orientation, and stated chordal/angular bounds hold for the final output. Sampled quality checks are labeled sampled, not certified. Display tessellation and manufacturing export remain distinguishable.
 
@@ -290,7 +294,7 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is recorded through R0.4 (§15). C06 + A0 is in progress (§17).
+`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is closed (§15, A5). C06 + A0 is closed: G1 passed (§18; receipt `docs/receipts/c06.1-2026-10-05.txt`). Next is C07.
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
@@ -433,10 +437,11 @@ general mechanism, and parallel by construction.
   | Comb prism, 80 entities | 24.1 s | 0.24 s |
   | Comb prism, 1,000 entities | — | 3.7 s |
 
-  Still open in C04: `push` is `O(n)` per entity (list stores), so
-  building `n` entities by push is `O(n²)`. The C06 box builds 58
-  entities and needed nothing larger; the tree-backed bulk builder
-  comes with the first builder that pushes many entities.
+  C04 `push` was `O(n)` per entity (list stores), so building `n`
+  entities by push was `O(n²)`. Closed at C06: every builder constructs
+  its B-rep in one bulk pass with final generations, `O(n log n)`
+  (`docs/c06-contract.md` §4); a plate with 1,600 holes builds in
+  0.84 s.
 - **R0.3 — single-cluster latency and the parallel lanes
   (2026-10-01).** The solver starts at the floor of its damping
   clamp (`2^-30 λ₀`) and keeps the ceiling (`2^60 λ₀`). The times
@@ -518,6 +523,17 @@ general mechanism, and parallel by construction.
   10,000-parameter sketches on the pin at R0.4, 16 threads: chain
   1.0 s, grid 0.8 s (one thread: 1.4 s and 1.5 s). The GPU lane was
   run and refused to start on this machine.
+- **R0 closed (2026-10-05, A5).** Every exit budget above is met. The
+  residuals have owners: rigid-cluster decomposition goes to C09, the
+  first milestone with drag and incremental re-solve over large single
+  clusters (the 10,000-parameter budgets are met without it). List
+  spines become trees in the milestone whose budget first measures
+  them: measured hot paths already are (C04 index, C05 sweeps and
+  nesting, the C06 bulk builder and tessellation point grid), and C03
+  knot lists go at C10 as recorded above. The GPU lane belongs to the
+  device gate (§4b): this WSL2 machine has no concurrent managed
+  access, so GPU evidence needs a native Linux or macOS host. No
+  C00–C06 claim depends on a GPU.
 
 ## 16. Interface and scope
 
@@ -541,14 +557,20 @@ general mechanism, and parallel by construction.
 1. **R0: speed and parallelism rebuild of C00–C05** (§15). R0.1
    (C05), R0.2 (C04 validation, C02 exactness), R0.3 (solver
    damping floor, host scheduler, GPU lane attempted) and R0.4 (audit
-   repairs, the scheduler on the pin) are recorded.
-   Rigid-cluster decomposition and tree-shaped sequences remain
-   open and do not block C06.
+   repairs, the scheduler on the pin) are recorded. R0 is closed;
+   its residuals are owned by C09 (rigid-cluster decomposition), by
+   the milestone that measures each list spine, and by the device
+   gate (GPU lane) (A5).
 2. **C06 + A0.** Solids as content-addressed, intent-checked
    operations with lineage names and diagnosed failures; the graph
    evaluator with memoized incremental rebuild; the tolerance model
    (nominal + zone, certified interval evaluation). A0 is the MCP/CLI
-   surface over it. Exit: G1.
+   surface over it. Exit: G1. **Closed 2026-10-05**: G1 passed
+   (`docs/receipts/g1/`). Every dimension carries its zone, and every
+   measure is a certified interval at any parameter point. Volume and
+   area are also certified over the whole envelope for primitives and
+   their placements (`zone`). Envelope evaluation of profiles and
+   features moves to C07 as a G2 prerequisite (A5).
 3. **C07 → C08 → C09.** Intersections, booleans, features. This is
    where existing kernels are weakest, and where agents need the most
    robustness, because an agent cannot hand-repair a failed fillet.
@@ -577,6 +599,10 @@ repeatably across seeds and briefs.
 | G4 | Centrifugal blower with modal analysis and machining DFM | analysis, C10–C11 |
 | G5 | Micro turbojet, KJ-66 class (~100 N), drawings a shop can build from; clearances certified in cold and running states | C16 blades, state-dependent geometry |
 | G6 | Bespoke jet engine from a performance brief | everything |
+
+G1 passed on 2026-10-05. Fresh agents ran brief A three times over two
+transports (CLI, then MCP) and brief B twice, the last run on the final
+C06 binary; an independent grader passed every run (`docs/receipts/g1/`).
 
 ## 19. What stays honest
 
@@ -641,3 +667,16 @@ Owner decisions:
 Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels) are unchanged.
 
 **A4 — 2026-10-05: certified-rounding membership for curved faces.** C04 decided whether a vertex lies on a sphere, cylinder, cone or torus by the exact zero of one F64 evaluation. F64 dimensions cannot meet that rule (a 3.2 mm radius about `x = 10` has no F64 point on it), so every curved solid would fail validation. Owner decision: a vertex is on a quadric when exact arithmetic shows the implicit equation is zero there or changes sign across the vertex's one-ulp box, which proves an exact surface point lies within one ulp per coordinate; operations report that bound as linear uncertainty. Planes and lines stay exact. Recorded in `docs/c03-contract.md` (G11) and `docs/c04-contract.md` §17, with laws that fail on the predecessor.
+
+**A5 — 2026-10-05: C06 closeout ownership.** The owner asked for C00–C06 to be closed clean, with every R0 item closed or owned by a named later milestone in this plan. This amendment records the owners:
+
+- Rigid-cluster decomposition goes to C09. The R0 exit budgets are met without it (10,000-parameter chain 1.0 s, grid 0.8 s). The first need is drag and incremental re-solve over large single clusters, which C09 brings.
+- Tree-shaped sequences: each remaining list spine converts in the milestone whose budget first measures it. The measured hot paths are already trees or sorts (C04 index, C05, the C06 bulk builder). C03 knot lists convert at C10.
+- The GPU lane belongs to the device gate (§4b). It needs a host with concurrent managed access, which this WSL2 machine lacks.
+- The C04 `push` cost is closed by the C06 bulk builder.
+- Tolerance envelope. §17 put "the tolerance model (nominal + zone, certified interval evaluation)" under C06, but §18 makes the tolerance model a G2 prerequisite. C06 ships:
+  - a nominal and a zone on every dimension (`LO <= NOM <= HI`, enforced on edit);
+  - certified interval measures at any parameter point;
+  - `zone`: volume and area certified over the whole envelope wherever topology provably cannot change across it. That covers box, cylinder, cone, sphere and torus while their dimensions stay certified positive (and `R > r` for the torus), and placements of them. This is a superset of the box-only `ms_zone` that C06 had before.
+
+  Profiles and features need a certificate that topology stays constant across the zone. C06 predicates certify single points only, and tangent junctions such as rounded corners defeat simple clearance-margin bounds. That certificate is parameter-box intersection work, so envelope evaluation of profiles and features moves to C07, ahead of G2. Until then `zone` answers `envelope-topology-not-certified` for them.

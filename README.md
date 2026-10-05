@@ -2,7 +2,7 @@
 
 Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the world's best kernel for AI agents. It is never silently wrong and explains its failures. Identity is by meaning. Toleranced, state-dependent geometry is native. Sensitivities come with every answer. It is fast and massively parallel by law (MASTER_PLAN §14–§15).
 
-**Status:** C00–C05 closed with laws, three-lane tests and independent oracles:
+**Status:** C00–C06 closed. C00–C05 have laws, three-lane tests and independent oracles:
 
 - contracts;
 - math foundation;
@@ -11,7 +11,18 @@ Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the
 - B-rep topology;
 - planar arrangements and the sketch solver.
 
-R0, the speed and parallelism rebuild, is recorded through R0.4: C05 rebuilt (R0.1), C04 validation on a store index and C02 exact for all finite doubles (R0.2), the solver started at its damping floor (R0.3), and the audit repairs of 2026-10-04/05 (R0.4, `docs/receipts/r0.4-2026-10-05.txt`). C06 is partial: the box kernel, staged diagnosis, quadric trim checks, measures, and the op-graph evaluator with its intent gate; its exit is challenge G1. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
+R0, the speed and parallelism rebuild, is closed: C05 rebuilt (R0.1), C04 validation on a store index and C02 exact for all finite doubles (R0.2), the solver started at its damping floor (R0.3), and the audit repairs (R0.4). Its residuals are owned by later milestones (MASTER_PLAN A5).
+
+C06 + A0 is closed (`docs/receipts/c06.1-2026-10-05.txt`). It covers:
+
+- primitives, extrusion of multi-region profiles with arcs, pad, pocket, holes, placement and revolution;
+- an intent check on every op, measured from the result;
+- certified volume and area intervals, also over tolerance zones for primitives;
+- the design model with memoized rebuild;
+- sensitivities and watertight tessellation;
+- the `bendcad` CLI and MCP server (`tools/mcp/`).
+
+Challenge G1 passed: fresh agents built and edited a parameterized bracket through MCP, and an independent grader passed every run (`docs/receipts/g1/`). Next is C07. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
 
 ## Pins
 
@@ -23,6 +34,8 @@ R0, the speed and parallelism rebuild, is recorded through R0.4: C05 rebuilt (R0
 
 - [AGENTS.md](AGENTS.md): coding mandate and hard lines
 - [MASTER_PLAN.md](MASTER_PLAN.md): the kernel roadmap (C00–C16), the agent kernel's properties (§14), speed and parallelism law (§15), interface and scope (§16), milestone order (§17), and the challenge ladder (§18)
+- [tools/mcp/language.md](tools/mcp/language.md): the design language agents use through the MCP server (`tools/mcp/bendcad-mcp.mjs`) or the `bendcad` CLI (`src/c06/cli.bend`)
+- [docs/c06-contract.md](docs/c06-contract.md): what C06 builds, measures and refuses
 - [legacy/aethalgard/](legacy/aethalgard/): immutable reference corpus
 - [legacy/PROVENANCE.md](legacy/PROVENANCE.md), [legacy/manifest.json](legacy/manifest.json)
 

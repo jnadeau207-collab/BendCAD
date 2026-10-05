@@ -1,0 +1,578 @@
+{
+ "binary_sha256": "5edb003628f113a12bf55c3ed0afabb0b046435ffb9b825fa1ea4fa3dfd583fc",
+ "passed": 55,
+ "total": 55,
+ "results": [
+  {
+   "name": "bracket.build",
+   "ok": true,
+   "volume": [
+    83301.23811420775,
+    83301.23811436284
+   ],
+   "exact": 83301.23811428528,
+   "seconds": 0.14962410926818848
+  },
+  {
+   "name": "bracket.reopen",
+   "ok": true,
+   "volume": [
+    83301.23811420775,
+    83301.23811436284
+   ]
+  },
+  {
+   "name": "bracket.serialize_stable",
+   "ok": true
+  },
+  {
+   "name": "bracket.sensitivity",
+   "ok": true,
+   "d_volume": 640.0
+  },
+  {
+   "name": "bracket.sensitivity_reuses_cache",
+   "ok": true,
+   "out": "estimated central difference h=0.000019073486328125 d_volume=-628.3185306549072 d_area=0 d_xmin=0 d_xmax=0 d_ymin=0 d_ymax=0 d_zmin=0 d_zmax=0 | reused 3 of 4 nodes per step"
+  },
+  {
+   "name": "bracket.faces",
+   "ok": true,
+   "count": 17
+  },
+  {
+   "name": "bracket.edit",
+   "ok": true,
+   "volume": [
+    96101.23811419433,
+    96101.23811437626
+   ],
+   "exact": 96101.23811428528
+  },
+  {
+   "name": "bracket.mesh",
+   "ok": true,
+   "triangles": 912,
+   "watertight": true,
+   "euler": -8,
+   "mesh_volume": 96028.30659261219,
+   "rel_err": 0.0007589030391716569,
+   "sha256": "01f2ff2f1923fc820494e4331bea3dc94ea83b8acc6d453828e3d56d99835973"
+  },
+  {
+   "name": "bracket.delete",
+   "ok": true,
+   "volume": [
+    102384.4234213741,
+    102384.42342155566
+   ],
+   "exact": 102384.42342146487
+  },
+  {
+   "name": "primitive.box",
+   "ok": true,
+   "volume": [
+    5999.999999994418,
+    6000.000000005582
+   ],
+   "exact": 6000.0,
+   "seconds": 0.1489715576171875
+  },
+  {
+   "name": "primitive.box.mesh",
+   "ok": true,
+   "triangles": 12,
+   "watertight": true,
+   "euler": 2,
+   "mesh_volume": 6000.0,
+   "rel_err": 0.0,
+   "sha256": "abd1200ad2a4e19a0a3dd29bdc32e6015dced2bdd7985f17fe4fa9d456c0187f"
+  },
+  {
+   "name": "primitive.cylinder",
+   "ok": true,
+   "volume": [
+    942.4777960769255,
+    942.4777960769503
+   ],
+   "exact": 942.4777960769379,
+   "seconds": 0.1356666088104248
+  },
+  {
+   "name": "primitive.cylinder.mesh",
+   "ok": true,
+   "triangles": 124,
+   "watertight": true,
+   "euler": 2,
+   "mesh_volume": 935.6902472002267,
+   "rel_err": 0.007201813034709512,
+   "sha256": "1cfa90a91482ca4b74eff2e395693dc2c245802a2d52feed97bf36b85d01c18e"
+  },
+  {
+   "name": "primitive.cone",
+   "ok": true,
+   "volume": [
+    2094.3951023931545,
+    2094.395102393236
+   ],
+   "exact": 2094.3951023931954,
+   "seconds": 0.13421845436096191
+  },
+  {
+   "name": "primitive.cone.mesh",
+   "ok": true,
+   "triangles": 64,
+   "watertight": true,
+   "euler": 2,
+   "mesh_volume": 2079.31166044495,
+   "rel_err": 0.007201813034708667,
+   "sha256": "8fad364c2f36247058434e383bdcd4205c146fe65ba937e3aad70237dbd6287d"
+  },
+  {
+   "name": "primitive.sphere",
+   "ok": true,
+   "volume": [
+    4188.790204779687,
+    4188.790204793095
+   ],
+   "exact": 4188.790204786391,
+   "seconds": 0.14005422592163086
+  },
+  {
+   "name": "primitive.sphere.mesh",
+   "ok": true,
+   "triangles": 832,
+   "watertight": true,
+   "euler": 2,
+   "mesh_volume": 4105.754754135751,
+   "rel_err": 0.01982325363436876,
+   "sha256": "74113ca8a485cc21f88fe740dcd9770528a5686f856a553b586a8f65d9573503"
+  },
+  {
+   "name": "primitive.torus",
+   "ok": true,
+   "volume": [
+    59217.6264064531,
+    59217.62640661919
+   ],
+   "exact": 59217.62640653615,
+   "seconds": 0.1509542465209961
+  },
+  {
+   "name": "primitive.torus.mesh",
+   "ok": true,
+   "triangles": 1792,
+   "watertight": true,
+   "euler": 0,
+   "mesh_volume": 58296.05154748296,
+   "rel_err": 0.015562509255714929,
+   "sha256": "7855e99f111152c41f07c1f0038507fb22bc44fa1cc4f56c9652427f8f7d46ed"
+  },
+  {
+   "name": "revolve.cavity",
+   "ok": true,
+   "volume": [
+    140926.8429712057,
+    140926.84297123572
+   ],
+   "exact": 140926.8429712207
+  },
+  {
+   "name": "revolve.cavity.mesh",
+   "ok": true,
+   "euler": 2,
+   "mesh_volume": 139994.43096078883
+  },
+  {
+   "name": "feature.counterbore",
+   "ok": true,
+   "volume": [
+    22894.15938591377,
+    22894.15938595902
+   ],
+   "exact": 22894.159385936393
+  },
+  {
+   "name": "feature.counterbore.mesh",
+   "ok": true,
+   "triangles": 272,
+   "watertight": true,
+   "euler": 0,
+   "mesh_volume": 22902.123443285076,
+   "rel_err": 0.00034786415235561573,
+   "sha256": "c2a37054233157d3fb5c493823a6f6647c93e51d6f7739ccc4db07fa3844e2e8"
+  },
+  {
+   "name": "feature.island",
+   "ok": true,
+   "volume": [
+    9358.407346398335,
+    9358.407346422078
+   ],
+   "exact": 9358.407346410208
+  },
+  {
+   "name": "feature.island.mesh",
+   "ok": true,
+   "triangles": 268,
+   "watertight": true,
+   "euler": 2,
+   "mesh_volume": 9381.032509332577,
+   "rel_err": 0.0024176296334278043,
+   "sha256": "3f9d0751f3bffe6c18ca966a9e06079c7b058980bf4bc211793ffa32f4a19951"
+  },
+  {
+   "name": "move.rotate_translate",
+   "ok": true,
+   "bbox": [
+    79.99999999999993,
+    100.00000000000007,
+    -5.3290705182007527e-14,
+    10.000000000000057,
+    -5.3290705182007527e-14,
+    30.00000000000006
+   ]
+  },
+  {
+   "name": "reject.0",
+   "ok": true,
+   "why": [
+    "curves-cross-or-touch "
+   ]
+  },
+  {
+   "name": "reject.1",
+   "ok": true,
+   "why": [
+    "declared material=add faces_created=1 faces_modified=2 solids=1 through_holes=1 but measured material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 "
+   ]
+  },
+  {
+   "name": "reject.2",
+   "ok": true,
+   "why": [
+    "depth-reaches-opposite-face "
+   ]
+  },
+  {
+   "name": "reject.3",
+   "ok": true,
+   "why": [
+    "curves-cross-or-touch "
+   ]
+  },
+  {
+   "name": "reject.4",
+   "ok": true,
+   "why": [
+    "profile-crosses-revolve-axis "
+   ]
+  },
+  {
+   "name": "reject.5",
+   "ok": true,
+   "why": [
+    "input-node-missing-or-failed "
+   ]
+  },
+  {
+   "name": "reject.6",
+   "ok": true,
+   "why": [
+    "features-need-an-extruded-body "
+   ]
+  },
+  {
+   "name": "reject.7",
+   "ok": true,
+   "why": [
+    "face-not-found "
+   ]
+  },
+  {
+   "name": "reject.8",
+   "ok": true,
+   "why": [
+    "footprint-contains-or-meets-existing-feature "
+   ]
+  },
+  {
+   "name": "rotate.bbox2",
+   "ok": true,
+   "bbox": [
+    -10.000000000000162,
+    8.660254037844524,
+    -1.0658141036401504e-13,
+    22.320508075688966,
+    -1.0658141036401504e-13,
+    30.000000000000114
+   ],
+   "exact": [
+    -9.999999999999998,
+    8.660254037844387,
+    0,
+    22.320508075688775,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "rotate.bbox5",
+   "ok": true,
+   "bbox": [
+    -5.000000000000048,
+    5.000000000000048,
+    -12.020815280171405,
+    3.5355339059327973,
+    -3.5355339059327964,
+    12.020815280171405
+   ],
+   "exact": [
+    -5,
+    5,
+    -12.020815280171309,
+    3.5355339059327378,
+    -3.5355339059327378,
+    12.020815280171309
+   ]
+  },
+  {
+   "name": "rotate.bbox7",
+   "ok": true,
+   "bbox": [
+    -40.000000000000185,
+    40.000000000000185,
+    -35.98076211353344,
+    35.98076211353344,
+    -25.000000000000266,
+    25.000000000000266
+   ],
+   "exact": [
+    -40,
+    40,
+    -35.98076211353316,
+    35.98076211353316,
+    -25.0,
+    25.0
+   ]
+  },
+  {
+   "name": "rotate.bbox10",
+   "ok": true,
+   "bbox": [
+    -10.000000000000021,
+    10.000000000000021,
+    9.999999999999979,
+    30.000000000000025,
+    -10.000000000000021,
+    10.000000000000021
+   ],
+   "exact": [
+    -10,
+    10,
+    10,
+    30,
+    -10,
+    10
+   ]
+  },
+  {
+   "name": "rotate.volume_invariant",
+   "ok": true,
+   "v2": [
+    5999.999999994418,
+    6000.000000005582
+   ],
+   "v7": [
+    59217.6264064531,
+    59217.62640661919
+   ]
+  },
+  {
+   "name": "rotate.feature_on_rotated",
+   "ok": true,
+   "volume": [
+    5623.008881563623,
+    5623.008881574827
+   ]
+  },
+  {
+   "name": "rotate.mesh_inside_bbox",
+   "ok": true,
+   "kernel_bbox": [
+    -10.000000000000162,
+    8.660254037844524,
+    -1.0658141036401504e-13,
+    22.320508075688966,
+    -1.0658141036401504e-13,
+    30.000000000000114
+   ],
+   "mesh_bbox": [
+    [
+     -10.000000000000004,
+     0.0,
+     0.0
+    ],
+    [
+     8.660254037844386,
+     22.32050807568877,
+     30.0
+    ]
+   ],
+   "triangles": 144,
+   "watertight": true,
+   "euler": 0,
+   "mesh_volume": 5625.723901119908,
+   "rel_err": 0.0004828410567840319,
+   "sha256": "492f933b28bfdeade35f6f2eaed40762edf1d8f70e14ebe011f85254b953fb6d"
+  },
+  {
+   "name": "rotate.arc_bbox_encloses",
+   "ok": true,
+   "kernel_bbox": [
+    -36.3397459621563,
+    100.26279441628905,
+    3.660254037843873,
+    125.62177826491167,
+    -4.2632564145606016e-13,
+    8.000000000000432
+   ],
+   "mesh_bbox": [
+    [
+     -36.29964966167404,
+     3.7003503383259675,
+     0.0
+    ],
+    [
+     100.22269811580665,
+     125.58168196442914,
+     8.0
+    ]
+   ]
+  },
+  {
+   "name": "rotate.rejections",
+   "ok": true,
+   "why": [
+    [
+     "bad-axis-or-angle "
+    ],
+    [
+     "bad-axis-or-angle "
+    ],
+    [
+     "unknown-op "
+    ]
+   ]
+  },
+  {
+   "name": "zone.box",
+   "ok": true,
+   "zone": [
+    5890.598999999997,
+    6110.601000000002,
+    2176.059999999998,
+    2224.0600000000018
+   ],
+   "exact": [
+    5890.598999999999,
+    6110.601000000001
+   ]
+  },
+  {
+   "name": "zone.move",
+   "ok": true,
+   "zone": [
+    5890.598999999997,
+    6110.601000000002,
+    2176.059999999998,
+    2224.0600000000018
+   ]
+  },
+  {
+   "name": "zone.torus",
+   "ok": true,
+   "zone": [
+    46367.40147631775,
+    74041.77221697243,
+    10303.866994737278,
+    13462.140403085896
+   ],
+   "exact": [
+    46367.401476317806,
+    74041.77221697236
+   ]
+  },
+  {
+   "name": "zone.torus_overlap",
+   "ok": true,
+   "out": "error invalid-input | zone @ node 3 | why: dimension-not-certified-positive-over-zone | fix: narrow the zones so every dimension stays positive (torus: R > r)"
+  },
+  {
+   "name": "zone.bracket_not_certified",
+   "ok": true,
+   "out": "error unsupported-op | zone @ node 3 | why: envelope-topology-not-certified | fix: evaluate points with eval and sens; envelope certification of profiles and features is C07 work"
+  },
+  {
+   "name": "zone.bad_params_rejected",
+   "ok": true,
+   "each": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "name": "mcp.session",
+   "ok": true,
+   "handshake": true,
+   "tools": true,
+   "apply_ok": true,
+   "apply_rejected": true,
+   "faces": true,
+   "sensitivity": true,
+   "unknown_tool": true,
+   "edits_as_one_string": true
+  },
+  {
+   "name": "perf.holes100",
+   "ok": true,
+   "build_s": 0.152,
+   "tess_s": 2.532,
+   "budget": [
+    1.0,
+    5.0
+   ]
+  },
+  {
+   "name": "perf.holes100.mesh",
+   "ok": true,
+   "triangles": 13212,
+   "watertight": true,
+   "euler": -198,
+   "mesh_volume": 92743.43406719484,
+   "rel_err": 0.0017595618425267773
+  },
+  {
+   "name": "perf.holes400",
+   "ok": true,
+   "build_s": 0.333,
+   "tess_s": 15.665,
+   "budget": [
+    2.0,
+    20.0
+   ]
+  },
+  {
+   "name": "perf.holes400.mesh",
+   "ok": true,
+   "triangles": 52812,
+   "watertight": true,
+   "euler": -798,
+   "mesh_volume": 297373.7362687795,
+   "rel_err": 0.002196009743874673
+  }
+ ]
+}

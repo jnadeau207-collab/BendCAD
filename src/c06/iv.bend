@@ -108,3 +108,41 @@ def atan01(+x: I) -> I:
 def atan2q(+c: I, +d: I) -> I:
   Bool.pick(I, F64.is_le(i_hi(c), i_lo(d)), atan01(idiv(c, d)),
     isub(half_pi(), atan01(idiv(d, c))))
+
+def clamp1(+a: I) -> I:
+  I{F64.max(F64.neg(1.0f64), i_lo(a)), F64.min(1.0f64, i_hi(a))}
+
+def tay_go(n: Nat, +x2: I, +p: I, +k: F64, +acc: I, +neg: Bool) -> I:
+  match n:
+    case 0n: acc
+    case 1n+m:
+      +q = idiv(imul(p, x2), ipt(F64.mul(k, F64.add(k, 1.0f64))))
+      tay_go(m, x2, q, F64.add(k, 2.0f64), Bool.pick(I, neg, isub(acc, q), iadd(acc, q)), Bool.not(neg))
+
+def sin_small(+t: I) -> I:
+  iwiden(tay_go(14n, isq(t), t, 2.0f64, t, True{}), 1.0e-30f64)
+
+def cos_small(+t: I) -> I:
+  iwiden(tay_go(14n, isq(t), ipt(1.0f64), 1.0f64, ipt(1.0f64), True{}), 1.0e-30f64)
+
+def quad(+k: U64, +c: I, +s: I) -> List<&2, I>:
+  match k:
+    case 0u64: [c, s]
+    case 1u64: [ineg(s), c]
+    case 2u64: [ineg(c), ineg(s)]
+    case _: [s, ineg(c)]
+
+def sc_exact(+k: U64) -> List<&2, I>:
+  quad(k, ipt(1.0f64), ipt(0.0f64))
+
+def sc_red(+d: F64, +kf: F64, +k: U64) -> List<&2, I>:
+  +t = imul(isub(ipt(d), ipt(F64.mul(90.0f64, kf))), idiv(pi_i(), ipt(180.0f64)))
+  quad(k, clamp1(cos_small(t)), clamp1(sin_small(t)))
+
+def sin_cos_deg(+d: F64) -> List<&2, I>:
+  +neg = F64.is_lt(d, 0.0f64)
+  +n = F64.to_u64(F64.add(F64.div(F64.abs(d), 90.0f64), 0.5f64))
+  +kf = Bool.pick(F64, neg, F64.neg(U64.to_f64(n)), U64.to_f64(n))
+  +k = Bool.pick(U64, neg, U64.sub(4u64, U64.mod(n, 4u64)), U64.mod(n, 4u64))
+  +k4 = U64.mod(k, 4u64)
+  Bool.pick(List<&2, I>, F64.is_eq(d, F64.mul(90.0f64, kf)), sc_exact(k4), sc_red(d, kf, k4))
