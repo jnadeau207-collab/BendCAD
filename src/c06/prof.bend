@@ -1036,22 +1036,23 @@ def cn_hd_ch(xs: List<&2, Cn>) -> Nat:
     case []: 0n
     case c <> t: Nat.add(cn_ch(c), 1n)
 
-def par_go(n: Nat, +i: Nat, cs: List<&2, Cn>, +best: Nat) -> List<&2, Nat>:
-  match n:
+def par_go(f: Nat, +i: Nat, cs: List<&2, Cn>, +best: Nat) -> List<&2, Nat>:
+  match f:
     case 0n: []
-    case 1n+(+m):
+    case 1n+(+g):
       match cs:
-        case []: best <> par_go(m, Nat.add(i, 1n), [], 0n)
+        case []: best <> par_go(g, Nat.add(i, 1n), [], 0n)
         case +c <> +t:
-          Bool.pick(List<&2, Nat>, Nat.is_eq(cn_ch(c), i),
-            par_go(1n+m, i, t, Nat.add(cn_pa(c), 1n)),
-            best <> par_go(m, Nat.add(i, 1n), c <> t, 0n))
+          +hit = Nat.is_eq(cn_ch(c), i)
+          List.append(&2, Nat, Bool.pick(List<&2, Nat>, hit, [], [best]),
+            par_go(g, Bool.pick(Nat, hit, i, Nat.add(i, 1n)), Bool.pick(List<&2, Cn>, hit, t, c <> t),
+              Bool.pick(Nat, hit, Nat.add(cn_pa(c), 1n), 0n)))
 
 def parents(+ls: List<&2, Lp>) -> List<&2, Nat>:
   +n = List.length(&2, Lp, ls)
   +tb = B.tb_of(Lp, ls, K_circ{0.0f64, 0.0f64, 1.0f64})
   +cs = so_cn(B.msort(~Cn, ~cn_cmp, cns_of(sweep(lps_lits(ls, 0n)), tb)))
-  par_go(n, 0n, cs, 0n)
+  par_go(Nat.add(n, List.length(&2, Cn, cs)), 0n, cs, 0n)
 
 def ck_ori_go(bad: Nat, +ls: List<&2, Lp>) -> CK:
   match bad:

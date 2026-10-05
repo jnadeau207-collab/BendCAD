@@ -385,10 +385,7 @@ def bb_z(b: Bb, +lo: F64, +hi: F64) -> Bb:
 def bb_cells(cs: List<&2, BD.Cl>, +b: Bb) -> Bb:
   match cs:
     case []: b
-    case +c <> +t:
-      Bool.pick(Bb, BD.cl_mat(c), bb_cells(t, bb_z(bb_lp(BD.cl_lp(c), b), BD.cl_lo(c), BD.cl_hi(c))), bb_cells(t, b))
-
-
+    case +c <> t: bb_cells(t, Bool.pick(Bb, BD.cl_mat(c), bb_z(bb_lp(BD.cl_lp(c), b), BD.cl_lo(c), BD.cl_hi(c)), b))
 
 def inf() -> F64:
   F64.div(1.0f64, 0.0f64)
@@ -658,10 +655,9 @@ def find_cell(cs: List<&2, BD.Cd>, +nd: U64, +k: Nat) -> Nat:
 def kid_lps(cs: List<&2, BD.Cl>, +pid: Nat) -> List<&2, F.Lp>:
   match cs:
     case []: []
-    case +c <> +t:
-      Bool.pick(List<&2, F.Lp>, Nat.is_eq(BD.cl_par(c), pid), BD.cl_lp(c) <> kid_lps(t, pid), kid_lps(t, pid))
-
-
+    case +c <> t:
+      +r = kid_lps(t, pid)
+      Bool.pick(List<&2, F.Lp>, Nat.is_eq(BD.cl_par(c), pid), BD.cl_lp(c) <> r, r)
 
 def obst_rls(n: Nat) -> List<&2, F.Rl>:
   match n:
@@ -1051,11 +1047,12 @@ def diff_go(n: Nat, rs: List<&2, NS>, bs: List<&2, NS>, +fc: Nat, +fm: Nat) -> L
             case []: diff_go(m, rt, [], Nat.add(fc, 1n), fm)
             case +b <> +bt:
               +c = kcmp(ns_k(r), ns_k(b))
+              +lt = F.sgn_neg(c)
+              +gt = F.sgn_pos(c)
               +chg = Bool.or(Bool.not(Nat.is_eq(ns_lp(r), ns_lp(b))), Bool.not(Nat.is_eq(ns_ce(r), ns_ce(b))))
-              Bool.pick(List<&2, Nat>, F.sgn_neg(c), diff_go(m, rt, b <> bt, Nat.add(fc, 1n), fm),
-                Bool.pick(List<&2, Nat>, F.sgn_pos(c), diff_go(1n+m, r <> rt, bt, fc, fm),
-                  diff_go(m, rt, bt, fc, Bool.pick(Nat, chg, Nat.add(fm, 1n), fm))))
-
+              diff_go(m, Bool.pick(List<&2, NS>, gt, r <> rt, rt), Bool.pick(List<&2, NS>, lt, b <> bt, bt),
+                Bool.pick(Nat, lt, Nat.add(fc, 1n), fc),
+                Bool.pick(Nat, Bool.and(Bool.not(lt), Bool.and(Bool.not(gt), chg)), Nat.add(fm, 1n), fm))
 
 def body_ns(+b: Body) -> List<&2, NS>:
   +br = bd_brep(b)
