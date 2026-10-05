@@ -211,8 +211,27 @@ NURBS evaluation is §7. There is no NURBS derivative yet
   points with nonzero F64 value answer `False`, as do
   malformed specs, nonfinite inputs, and true overflow
   (fail-closed, never a guess). The cone is the double
-  cone (both nappes + apex satisfy). For C04
-  trim/surface consistency (vertex-on-quadric).
+  cone (both nappes + apex satisfy). Since Amendment A4
+  C04 no longer uses these for vertex membership; they
+  remain the exact-zero predicates.
+- Certified-rounding membership (`q_on_r`, Amendment A4):
+  total `Bool`, true iff the spec passes the same validity
+  and unit-axis gates, the point is finite, and exact
+  expansion arithmetic (`src/base/ex.bend`) shows the
+  homogeneous implicit form `q_ex` is zero at the point or
+  changes sign across the point's one-ulp box. The box
+  corners are `next_down`/`next_up` of each coordinate; a
+  coordinate equal to zero is held exact (its neighbours are
+  subnormal, whose squares are uncertain). The forms are
+  exact for any axis length: sphere `m.m-r^2`; cylinder
+  `aa(m.m)-(a.m)^2-aa r^2`; cone `aa(m.m)-(1+k^2)(a.m)^2`
+  (double cone); torus `aa w^2-4R^2(aa(m.m)-(a.m)^2)`,
+  `w = m.m+R^2-r^2`, `aa = a.a`, `m = q-o`. A corner whose
+  sign is uncertain never counts as a sign change, so every
+  `True` is a proof: by continuity the box holds an exact
+  point of the surface, and the point is within one ulp per
+  coordinate of it. Cost: at most eight exact evaluations.
+  Used by C04 stage G (`pt_on`).
 - Sphere projection is the SCALED form `c + r*u` with
   `u = (m/M)/(n/M)`, `M = max|m_i|` (C03.1; `sph_proj_q_raw`).
   The scalar `r/n` is never formed: it underflows to zero when
@@ -466,3 +485,12 @@ claim it states; the unbounded claims live here explicitly:
   near-miss, malformed, nonfinite, and overflowed inputs answer
   `False`. Grounded: `sphon_*/cylon_*/conon_*/toron_*` laws (32)
   + `pos_g8`/`pos_g9` runtime pins (32).
+- G11 (certified-rounding membership, A4): `q_on_r` holds for
+  the correctly rounded F64 image of an exact surface point
+  that the exact `*_on` rejects (`cylon_r_round` with
+  `cylon_x_round`, `toron_r_round` with `toron_x_round`,
+  `conon_r_round` with `conon_x_round`, `sphon_r_round`), holds
+  for exact points (`cylon_r_exact`), and rejects a point three
+  ulps out (`cylon_r_far`), a point off by 1e-6
+  (`cylon_r_off`), a non-unit axis (`cylon_r_axis`) and a
+  non-quadric (`qon_r_plane`). Laws: 12.

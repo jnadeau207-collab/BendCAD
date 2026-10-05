@@ -639,3 +639,5 @@ Owner decisions:
 - MCP is the primary transport.
 
 Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels) are unchanged.
+
+**A4 — 2026-10-05: certified-rounding membership for curved faces.** C04 decided whether a vertex lies on a sphere, cylinder, cone or torus by the exact zero of one F64 evaluation. F64 dimensions cannot meet that rule (a 3.2 mm radius about `x = 10` has no F64 point on it), so every curved solid would fail validation. Owner decision: a vertex is on a quadric when exact arithmetic shows the implicit equation is zero there or changes sign across the vertex's one-ulp box, which proves an exact surface point lies within one ulp per coordinate; operations report that bound as linear uncertainty. Planes and lines stay exact. Recorded in `docs/c03-contract.md` (G11) and `docs/c04-contract.md` §17, with laws that fail on the predecessor.

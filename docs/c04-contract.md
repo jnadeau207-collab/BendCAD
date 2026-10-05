@@ -173,9 +173,11 @@ Construction protocol, in order:
    solid-list ownership); G. embedding (C03 interiors +
    vertex-on-curve for all curves + trim coincidence for
    plane/bezp + quadric vertex membership for
-   sphere/cylinder/cone/torus — exact ordered-zero test of
-   this F64 evaluation, overflow rejected, NOT
-   real-arithmetic); H. vertex links (solid: every coedge
+   sphere/cylinder/cone/torus — certified rounding,
+   `GO.q_on_r`, Amendment A4 (§17): exact arithmetic shows
+   the implicit equation is zero at the vertex or changes
+   sign across its one-ulp box, so the vertex is within one
+   ulp per coordinate of an exact surface point); H. vertex links (solid: every coedge
    in exactly one loop, each vertex fan a single
    `twin(prev())` orbit, a vertex whose orbit enters a cycle
    it is not on is invalid; open: vacuous); I. shell
@@ -227,9 +229,9 @@ Implemented rules:
   compound root); no `SK_open`; outer `SK_outer`;
   cavities `SK_inner`; trims meet in `(u,v)`; vertices on
   curves; C03 interiors valid; plane/bezp trim
-  coincidence; quadric vertex membership (exact
-  ordered-zero test of this F64 evaluation, overflow
-  rejected, NOT real-arithmetic); single-orbit vertex
+  coincidence; quadric vertex membership (certified
+  rounding, §17: the vertex is within one ulp per
+  coordinate of an exact surface point); single-orbit vertex
   links (`ck_pinch` rejects disjoint links);
   face-edge-graph-connected shells (shared underlying
   edge = adjacent; vertex-touching does not connect); no
@@ -335,8 +337,8 @@ shells, outer/cavity aliasing, cavity dup, cross-solid
 reuse, solid/compound sharing, solid dup in the compound
 root), trim endpoints unmet, C03 interior invalid, vertex
 off curve, plane/bezp trim coincidence missed, quadric
-vertex off (exact ordered-zero test of this F64 evaluation;
-overflow rejected), same-face segment pair
+vertex off (no exact surface point within one ulp per
+coordinate is certified, §17), same-face segment pair
 uncertain-or-crossing (fail-closed: uncertainty rejects,
 NOT a proven crossing). `resource-exhausted`:
 fuel ran out in any walk (`len/at/resolve/handle_of/issued/
@@ -407,7 +409,7 @@ across pushes). No shared mutable state, no atomics.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c04/types.bend --check-only   # ALL PROOFS CHECK
 bend src/c04/ops.bend --check-only     # ALL PROOFS CHECK
-bend laws/c04.bend --check-only        # ALL PROOFS CHECK (602 laws at R0.4).
+bend laws/c04.bend --check-only        # ALL PROOFS CHECK (603 laws since A4).
 bend tests/c04/check.bend --check-only # ALL PROOFS CHECK
 bend tests/c04/neg.bend                # 128 PASS, selfcheck fails=0
 bend tests/c04/pos.bend                # 283 PASS, selfcheck fails=0
@@ -570,12 +572,9 @@ hand-written ones.
   C03 has no surface eval for those arms, so their trims pass
   on `(u,v)` meets + finiteness while every face vertex is
   checked for implicit quadric membership (`ck_offquad`):
-  the exact ordered-zero test (`F64.is_eq(v, 0.0f64)`,
-  signed zero counts as on) of this F64 evaluation with its
-  documented left-fold association — malformed spec, non-unit
-  axis, nonfinite input, or nonfinite value (true overflow)
-  yields off and rejects; NOT a real-arithmetic test.
-  plane/bezp coincidence IS checked (`ce_coinc_ok`).
+  certified rounding since Amendment A4 (§17); a malformed
+  spec, non-unit axis, or nonfinite vertex is off and
+  rejects. plane/bezp coincidence IS checked (`ce_coinc_ok`).
   Labeled, not silent.
 - Stage I connectedness means the face-edge graph: nodes are
   the shell's faces, adjacency is sharing one underlying
@@ -917,3 +916,32 @@ Times include building the brep with `push` (§3 step 2), which is
 plate's 5.0 s. A tree-backed builder belongs with the
 first operation that creates breps in bulk (C06).
 
+## 17. Amendment A4 — certified-rounding vertex membership (2026-10-05)
+
+Owner-approved (MASTER_PLAN Amendment record, A4). Stage G
+decided quadric vertex membership by the exact ordered-zero test
+of one F64 evaluation. F64 dimensions cannot meet that rule: a
+cylinder of radius `3.2` about `x = 10` has no F64 point with
+`x = 10 + 3.2` exactly, and the correctly rounded point evaluates
+to a nonzero value. Every curved solid C06 builds would fail.
+
+Stage G now calls `GO.q_on_r` (C03 §6, G11). A vertex is on a
+sphere, cylinder, cone or torus when exact expansion arithmetic
+shows the homogeneous implicit form is zero at the vertex or
+changes sign across the vertex's one-ulp box (corners are the
+`next_down`/`next_up` of each coordinate; a zero coordinate is
+held exact). A corner with an uncertain sign never counts, so
+acceptance is a proof that the box holds an exact surface point:
+the vertex is within one ulp per coordinate of the surface. That
+bound is the linear uncertainty a C06 operation reports for its
+curved faces. Planes and lines are unchanged and stay exact
+(trim coincidence and vertex-on-curve compare exact F64
+evaluations).
+
+Discrimination: `ck_cyl_round` builds the `ck_cyl_side` solid
+with radius `3.2` about `y = 10`; it is `ok` here and
+`invalid-input` on the predecessor (`5cb1636`). The C03 pairs
+(`cylon_r_round` / `cylon_x_round`, and the torus and cone pairs)
+show the same point accepted by `q_on_r` and rejected by the
+exact `*_on`. `ck_offquad` and the four `qmem_*` laws keep their
+verdicts. Laws: C03 +12, C04 +1.

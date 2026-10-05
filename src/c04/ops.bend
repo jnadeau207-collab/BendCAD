@@ -741,13 +741,8 @@ def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
   +re = surf_at(surf, V.v2_x(te), V.v2_y(te))
   Bool.and(G.gres_ok(rs), Bool.and(G.gres_ok(re), Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))))
 
-def pt_on(surf: G.GVal, +p: V.Point) -> Bool:
-  match surf:
-    case G.GV_sp{w}: GO.sph_on(w, p)
-    case G.GV_cy{w}: GO.cyl_on(w, p)
-    case G.GV_co{w}: GO.cone_on(w, p)
-    case G.GV_to{w}: GO.tor_on(w, p)
-    case _: False{}
+def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
+  GO.q_on_r(surf, p)
 
 def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
   pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))

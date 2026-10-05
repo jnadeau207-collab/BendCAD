@@ -2,6 +2,7 @@ import Base
 import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
 import ../src/c03/types.bend as G
+import ../src/c03/ops.bend as GO
 import ../src/c04/types.bend as Ty
 import ../src/c04/ops.bend as Op
 import ../src/base/par.bend as B
@@ -6692,4 +6693,93 @@ law ck_embed_nurbs_full:
   {Op.brep_embed_c(b_nb_edge(), 9n) == 3n : Nat}
 
 def ck_embed_nurbs_full():
+  {==}
+
+def cc_rbv() -> G.Circle3:
+  G.Cc{V.Pt{0.0f64, 10.0f64, 0.0f64}, d_0n10(), d001(), 3.2f64}
+
+def cc_rtv() -> G.Circle3:
+  G.Cc{V.Pt{5.0f64, 10.0f64, 0.0f64}, d_0n10(), d001(), 3.2f64}
+
+def cc_rb() -> G.GVal:
+  G.GV_cc{cc_rbv()}
+
+def cc_rt() -> G.GVal:
+  G.GV_cc{cc_rtv()}
+
+def p_cr0() -> V.Point:
+  G.gres_p(GO.circ_eval(cc_rbv(), 1.0f64))
+
+def p_cr1() -> V.Point:
+  G.gres_p(GO.circ_eval(cc_rtv(), 1.0f64))
+
+def d_cr() -> V.Dir:
+  V.Dr{5.0f64, 0.0f64, 0.0f64}
+
+def sf_cr() -> G.GVal:
+  G.GV_cy{G.Cy{V.Pt{0.0f64, 10.0f64, 0.0f64}, d100(), 3.2f64}}
+
+def sf_crb() -> G.GVal:
+  G.GV_pl{G.Pl{p_cr0(), d010(), d001()}}
+
+def sf_crt() -> G.GVal:
+  G.GV_pl{G.Pl{p_cr1(), d010(), d001()}}
+
+def b_cyl_round() -> Ty.Brep:
+  +b0 = Ty.brep_empty()
+  +b1 = Ty.tres_brep(Ty.vx_push(b0, p_cr0()))
+  +b2 = Ty.tres_brep(Ty.vx_push(b1, p_cr1()))
+  +hvB = Ty.mk_hv(0n, 1u64)
+  +hvT = Ty.mk_hv(1n, 2u64)
+  +b3 = Ty.tres_brep(Ty.ed_push(b2, hvB, hvB,
+    Ty.EK_curve{cc_rb(), dom_n11()}))
+  +heB = Ty.mk_he(0n, 3u64)
+  +b4 = Ty.tres_brep(Ty.ed_push(b3, hvB, hvT,
+    Ty.EK_curve{G.GV_ln{G.Ln{p_cr0(), d_cr()}}, dom_01()}))
+  +heS = Ty.mk_he(1n, 4u64)
+  +b5 = Ty.tres_brep(Ty.ed_push(b4, hvT, hvT,
+    Ty.EK_curve{cc_rt(), dom_n11()}))
+  +heT = Ty.mk_he(2n, 5u64)
+  +b6 = Ty.tres_brep(Ty.ce_push(b5, heB, True{}, tr_00_10()))
+  +b7 = Ty.tres_brep(Ty.ce_push(b6, heB, False{}, tr_closed()))
+  +b8 = Ty.tres_brep(Ty.ce_push(b7, heS, True{}, tr_10_11()))
+  +b9 = Ty.tres_brep(Ty.ce_push(b8, heS, False{}, tr_00_01()))
+  +b10 = Ty.tres_brep(Ty.ce_push(b9, heT, True{}, tr_11_01()))
+  +b11 = Ty.tres_brep(Ty.ce_push(b10, heT, False{}, tr_closed()))
+  +hcBT = Ty.mk_hc(0n, 6u64)
+  +hcBF = Ty.mk_hc(1n, 7u64)
+  +hcST = Ty.mk_hc(2n, 8u64)
+  +hcSF = Ty.mk_hc(3n, 9u64)
+  +hcTT = Ty.mk_hc(4n, 10u64)
+  +hcTF = Ty.mk_hc(5n, 11u64)
+  +b12 = Ty.tres_brep(Ty.lp_push(b11,
+    hcBT <> hcST <> hcTT <> hcSF <> Nil{}, Ty.LK_outer{}))
+  +b13 = Ty.tres_brep(Ty.lp_push(b12, hcBF <> Nil{},
+    Ty.LK_outer{}))
+  +b14 = Ty.tres_brep(Ty.lp_push(b13, hcTF <> Nil{},
+    Ty.LK_outer{}))
+  +hlpS = Ty.mk_hlp(0n, 12u64)
+  +hlpB = Ty.mk_hlp(1n, 13u64)
+  +hlpT = Ty.mk_hlp(2n, 14u64)
+  +b15 = Ty.tres_brep(Ty.fa_push(b14, sf_cr(), hlpS <> Nil{},
+    True{}))
+  +b16 = Ty.tres_brep(Ty.fa_push(b15, sf_crb(), hlpB <> Nil{},
+    True{}))
+  +b17 = Ty.tres_brep(Ty.fa_push(b16, sf_crt(), hlpT <> Nil{},
+    True{}))
+  +hfaS = Ty.mk_hfa(0n, 15u64)
+  +hfaB = Ty.mk_hfa(1n, 16u64)
+  +hfaT = Ty.mk_hfa(2n, 17u64)
+  +b18 = Ty.tres_brep(Ty.sh_push(b17,
+    hfaS <> hfaB <> hfaT <> Nil{}, Ty.SK_outer{}))
+  +hshS = Ty.mk_hsh(0n, 18u64)
+  +b19 = Ty.tres_brep(Ty.so_push(b18, hshS, hsh0()))
+  +hsoS = Ty.mk_hso(0n, 19u64)
+  Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+law ck_cyl_round:
+  {String.eq(Ty.tres_show(Op.brep_checked(b_cyl_round(),
+    Ty.P_manifold_solid{}, 20n)), "ok") == True{} : Bool}
+
+def ck_cyl_round():
   {==}

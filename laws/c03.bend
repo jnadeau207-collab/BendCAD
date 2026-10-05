@@ -3,6 +3,7 @@ import ../src/c00/types.bend as T
 import ../src/c01/types.bend as V
 import ../src/c03/types.bend as G
 import ../src/c03/ops.bend as O
+import ../src/base/ex.bend as E
 
 def gok_wrap(v: G.GVal) -> G.GRes:
   G.Gok{v}
@@ -3392,4 +3393,95 @@ law bez_eval_below_hull:
     == 4591870180066957720u64 : U64}
 
 def bez_eval_below_hull():
+  {==}
+
+def cy_r() -> G.Cyl:
+  G.Cy{V.Pt{10.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 3.2f64}
+
+def q_cyr() -> V.Point:
+  V.Pt{(10.0f64 + 3.2f64 : F64), 0.0f64, 5.0f64}
+
+def up3(+x: F64) -> F64:
+  E.f64_next_up(E.f64_next_up(E.f64_next_up(x)))
+
+law cylon_r_round:
+  {O.q_on_r(G.GV_cy{cy_r()}, q_cyr()) == True{} : Bool}
+
+def cylon_r_round():
+  {==}
+
+law cylon_x_round:
+  {O.cyl_on(cy_r(), q_cyr()) == False{} : Bool}
+
+def cylon_x_round():
+  {==}
+
+law cylon_r_far:
+  {O.q_on_r(G.GV_cy{cy_r()}, V.Pt{up3((10.0f64 + 3.2f64 : F64)), 0.0f64, 5.0f64})
+    == False{} : Bool}
+
+def cylon_r_far():
+  {==}
+
+law cylon_r_off:
+  {O.q_on_r(G.GV_cy{cy_r()}, V.Pt{(10.0f64 + 3.200001f64 : F64), 0.0f64, 5.0f64})
+    == False{} : Bool}
+
+def cylon_r_off():
+  {==}
+
+law cylon_r_exact:
+  {O.q_on_r(G.GV_cy{G.Cy{V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 0.5f64}},
+    V.Pt{1.5f64, 0.0f64, 7.0f64}) == True{} : Bool}
+
+def cylon_r_exact():
+  {==}
+
+law cylon_r_axis:
+  {O.q_on_r(G.GV_cy{G.Cy{V.Pt{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 2.0f64}, 0.5f64}},
+    V.Pt{1.5f64, 0.0f64, 7.0f64}) == False{} : Bool}
+
+def cylon_r_axis():
+  {==}
+
+law sphon_r_round:
+  {O.q_on_r(G.GV_sp{G.Sp{V.Pt{0.1f64, 0.2f64, 0.3f64}, 0.7f64}},
+    V.Pt{(0.1f64 + 0.7f64 : F64), 0.2f64, 0.3f64}) == True{} : Bool}
+
+def sphon_r_round():
+  {==}
+
+law toron_r_round:
+  {O.q_on_r(G.GV_to{G.To{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 2.3f64, 0.45f64}},
+    V.Pt{(2.3f64 + 0.45f64 : F64), 0.0f64, 0.0f64}) == True{} : Bool}
+
+def toron_r_round():
+  {==}
+
+law toron_x_round:
+  {O.tor_on(G.To{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 2.3f64, 0.45f64},
+    V.Pt{(2.3f64 + 0.45f64 : F64), 0.0f64, 0.0f64}) == False{} : Bool}
+
+def toron_x_round():
+  {==}
+
+law conon_r_round:
+  {O.q_on_r(G.GV_co{G.Co{V.Pt{1.0f64, 1.0f64, 1.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 0.3f64}},
+    V.Pt{(1.0f64 + (0.3f64 * 2.1f64 : F64) : F64), 1.0f64, (1.0f64 + 2.1f64 : F64)}) == True{} : Bool}
+
+def conon_r_round():
+  {==}
+
+law conon_x_round:
+  {O.cone_on(G.Co{V.Pt{1.0f64, 1.0f64, 1.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 0.3f64},
+    V.Pt{(1.0f64 + (0.3f64 * 2.1f64 : F64) : F64), 1.0f64, (1.0f64 + 2.1f64 : F64)}) == False{} : Bool}
+
+def conon_x_round():
+  {==}
+
+law qon_r_plane:
+  {O.q_on_r(G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}},
+    V.Pt{1.0f64, 1.0f64, 0.0f64}) == False{} : Bool}
+
+def qon_r_plane():
   {==}

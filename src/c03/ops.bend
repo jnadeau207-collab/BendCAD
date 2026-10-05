@@ -2,6 +2,8 @@ import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ./types.bend as G
+import ../base/ex.bend as E
+import ../base/par.bend as P
 
 type Hpt is Data:
   Hp{ x: F64, y: F64, z: F64, w: F64 }
@@ -1500,6 +1502,137 @@ def tor_on(+s: G.Torus, +q: V.Point) -> Bool:
   Bool.and(Bool.and(G.to_valid(G.To{o, a, R, r}), V.pt_fin(q)),
     Bool.and(ax_unit_ok(a),
       Bool.and(T.is_finite(v), F64.is_eq(v, 0.0f64))))
+
+type E3 is Data:
+  E3{ x: E.Ex, y: E.Ex, z: E.Ex }
+
+def e3_sub(+q: V.Point, +o: V.Point) -> E3:
+  V.Pt{+qx, +qy, +qz} = q
+  V.Pt{+ox, +oy, +oz} = o
+  E3{E.ex_dif(qx, ox), E.ex_dif(qy, oy), E.ex_dif(qz, oz)}
+
+def e3_sq(+m: E3) -> E.Ex:
+  E3{+x, +y, +z} = m
+  E.ex_add(E.ex_add(E.ex_mul(x, x), E.ex_mul(y, y)), E.ex_mul(z, z))
+
+def e3_dot(+m: E3, +a: V.Dir) -> E.Ex:
+  E3{+x, +y, +z} = m
+  V.Dr{+ax, +ay, +az} = a
+  E.ex_add(E.ex_add(E.ex_scale(x, ax), E.ex_scale(y, ay)), E.ex_scale(z, az))
+
+def d_sq(+a: V.Dir) -> E.Ex:
+  V.Dr{+ax, +ay, +az} = a
+  E.ex_add(E.ex_add(E.ex_scale(E.ex_of(ax), ax), E.ex_scale(E.ex_of(ay), ay)),
+    E.ex_scale(E.ex_of(az), az))
+
+def f_sq(+x: F64) -> E.Ex:
+  E.ex_scale(E.ex_of(x), x)
+
+def sph_ex(+s: G.Sphere, +q: V.Point) -> E.Ex:
+  G.Sp{+c, +r} = s
+  E.ex_sub(e3_sq(e3_sub(q, c)), f_sq(r))
+
+def cyl_ex(+s: G.Cyl, +q: V.Point) -> E.Ex:
+  G.Cy{+o, +a, +r} = s
+  +m = e3_sub(q, o)
+  +aa = d_sq(a)
+  +am = e3_dot(m, a)
+  E.ex_sub(E.ex_sub(E.ex_mul(aa, e3_sq(m)), E.ex_mul(am, am)),
+    E.ex_mul(aa, f_sq(r)))
+
+def cone_ex(+s: G.Cone, +q: V.Point) -> E.Ex:
+  G.Co{+o, +a, +k} = s
+  +m = e3_sub(q, o)
+  +am = e3_dot(m, a)
+  E.ex_sub(E.ex_mul(d_sq(a), e3_sq(m)),
+    E.ex_mul(E.ex_add(E.ex_of(1.0f64), f_sq(k)), E.ex_mul(am, am)))
+
+def tor_ex(+s: G.Torus, +q: V.Point) -> E.Ex:
+  G.To{+o, +a, +R, +r} = s
+  +m = e3_sub(q, o)
+  +aa = d_sq(a)
+  +am = e3_dot(m, a)
+  +d2 = e3_sq(m)
+  +w = E.ex_sub(E.ex_add(d2, f_sq(R)), f_sq(r))
+  E.ex_sub(E.ex_mul(aa, E.ex_mul(w, w)),
+    E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)),
+      F64.mul(4.0f64, F64.mul(R, R))))
+
+def q_ex(s: G.GVal, +q: V.Point) -> E.Ex:
+  match s:
+    case G.GV_sp{w}: sph_ex(w, q)
+    case G.GV_cy{w}: cyl_ex(w, q)
+    case G.GV_co{w}: cone_ex(w, q)
+    case G.GV_to{w}: tor_ex(w, q)
+    case _: E.Ex{False{}, []}
+
+def q_valid(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_sp{w}: G.sp_valid(w)
+    case G.GV_cy{w}:
+      G.Cy{+o, +a, +r} = w
+      Bool.and(G.cy_valid(G.Cy{o, a, r}), ax_unit_ok(a))
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
+      Bool.and(G.co_valid(G.Co{o, a, k}), ax_unit_ok(a))
+    case G.GV_to{w}:
+      G.To{+o, +a, +R, +r} = w
+      Bool.and(G.to_valid(G.To{o, a, R, r}), ax_unit_ok(a))
+    case _: False{}
+
+def nbs_go(z: Bool, +x: F64) -> List<&2, F64>:
+  match z:
+    case True{}: [x]
+    case False{}: [E.f64_next_down(x), E.f64_next_up(x)]
+
+def nbs(+x: F64) -> List<&2, F64>:
+  nbs_go(F64.is_eq(x, 0.0f64), x)
+
+def cz_go(zs: List<&2, F64>, +x: F64, +y: F64, acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match zs:
+    case Nil{}: acc
+    case z <> t: cz_go(t, x, y, V.Pt{x, y, z} <> acc)
+
+def cy_go(ys: List<&2, F64>, +x: F64, +zs: List<&2, F64>, acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match ys:
+    case Nil{}: acc
+    case y <> t: cy_go(t, x, zs, cz_go(zs, x, y, acc))
+
+def cx_go(xs: List<&2, F64>, +ys: List<&2, F64>, +zs: List<&2, F64>, acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match xs:
+    case Nil{}: acc
+    case x <> t: cx_go(t, ys, zs, cy_go(ys, x, zs, acc))
+
+def corners(+q: V.Point) -> List<&2, V.Point>:
+  V.Pt{+x, +y, +z} = q
+  cx_go(nbs(x), nbs(y), nbs(z), [])
+
+def sgn_opp(s0: P.Sgn, s1: P.Sgn) -> Bool:
+  match s0 s1:
+    case _ P.Sz{}: True{}
+    case P.Sp{} P.Sn{}: True{}
+    case P.Sn{} P.Sp{}: True{}
+    case _ _: False{}
+
+def opp_go(cs: List<&2, V.Point>, +s: G.GVal, +s0: P.Sgn, found: Bool) -> Bool:
+  match cs found:
+    case _ True{}: True{}
+    case Nil{} False{}: False{}
+    case Con{c, t} False{}: opp_go(t, s, s0, sgn_opp(s0, E.ex_sign(q_ex(s, c))))
+
+def rep_go(s0: P.Sgn, +s: G.GVal, +q: V.Point) -> Bool:
+  match s0:
+    case P.Sz{}: True{}
+    case P.Su{}: False{}
+    case _: opp_go(corners(q), s, s0, False{})
+
+def q_on_r_go(ok: Bool, +s: G.GVal, +q: V.Point) -> Bool:
+  match ok:
+    case True{}: rep_go(E.ex_sign(q_ex(s, q)), s, q)
+    case False{}: False{}
+
+def q_on_r(+s: G.GVal, +q: V.Point) -> Bool:
+  q_on_r_go(Bool.and(q_valid(s), V.pt_fin(q)), s, q)
 
 def tseg_eval_go(+a: V.Vec2, +b: V.Vec2, +t: F64, fin: Bool,
     dom: Bool) -> G.GRes:

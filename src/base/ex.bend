@@ -165,3 +165,59 @@ def ex_approx(cs: List<&2, F64>) -> F64:
 
 def ex_est(e: Ex) -> F64:
   ex_approx(ex_cs(e))
+
+def fnu_sg(+b: U64, neg: Bool) -> F64:
+  match neg:
+    case True{}: F64{(b - 1u64 : U64)}
+    case False{}: F64{(b + 1u64 : U64)}
+
+def fnu_nz(+b: U64, nzero: Bool, neg: Bool) -> F64:
+  match nzero:
+    case True{}: F64{1u64}
+    case False{}: fnu_sg(b, neg)
+
+def fnu_pi(+b: U64, pinf: Bool, nzero: Bool, neg: Bool) -> F64:
+  match pinf:
+    case True{}: F64{b}
+    case False{}: fnu_nz(b, nzero, neg)
+
+def fnu_go(+b: U64, nan: Bool, pinf: Bool, nzero: Bool,
+    neg: Bool) -> F64:
+  match nan:
+    case True{}: F64{b}
+    case False{}: fnu_pi(b, pinf, nzero, neg)
+
+def f64_next_up(+x: F64) -> F64:
+  +b = F64.bits(x)
+  fnu_go(b, F64.is_nan(x),
+    U64.is_eq(b, 9218868437227405312u64),
+    U64.is_eq(b, 9223372036854775808u64),
+    U64.is_le(9223372036854775808u64, b))
+
+def fnd_sg(+b: U64, neg: Bool) -> F64:
+  match neg:
+    case True{}: F64{(b + 1u64 : U64)}
+    case False{}: F64{(b - 1u64 : U64)}
+
+def fnd_pz(+b: U64, pzero: Bool, neg: Bool) -> F64:
+  match pzero:
+    case True{}: F64{9223372036854775809u64}
+    case False{}: fnd_sg(b, neg)
+
+def fnd_ni(+b: U64, ninf: Bool, pzero: Bool, neg: Bool) -> F64:
+  match ninf:
+    case True{}: F64{b}
+    case False{}: fnd_pz(b, pzero, neg)
+
+def fnd_go(+b: U64, nan: Bool, ninf: Bool, pzero: Bool,
+    neg: Bool) -> F64:
+  match nan:
+    case True{}: F64{b}
+    case False{}: fnd_ni(b, ninf, pzero, neg)
+
+def f64_next_down(+x: F64) -> F64:
+  +b = F64.bits(x)
+  fnd_go(b, F64.is_nan(x),
+    U64.is_eq(b, 18442240474082181120u64),
+    U64.is_eq(b, 0u64),
+    U64.is_le(9223372036854775808u64, b))

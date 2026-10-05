@@ -14,62 +14,6 @@ import ../base/ex.bend as E
 import ./types.bend as Y
 import ./surfx.bend as SX
 
-def fnu_sg(+b: U64, neg: Bool) -> F64:
-  match neg:
-    case True{}: F64{(b - 1u64 : U64)}
-    case False{}: F64{(b + 1u64 : U64)}
-
-def fnu_nz(+b: U64, nzero: Bool, neg: Bool) -> F64:
-  match nzero:
-    case True{}: F64{1u64}
-    case False{}: fnu_sg(b, neg)
-
-def fnu_pi(+b: U64, pinf: Bool, nzero: Bool, neg: Bool) -> F64:
-  match pinf:
-    case True{}: F64{b}
-    case False{}: fnu_nz(b, nzero, neg)
-
-def fnu_go(+b: U64, nan: Bool, pinf: Bool, nzero: Bool,
-    neg: Bool) -> F64:
-  match nan:
-    case True{}: F64{b}
-    case False{}: fnu_pi(b, pinf, nzero, neg)
-
-def f64_next_up(+x: F64) -> F64:
-  +b = F64.bits(x)
-  fnu_go(b, F64.is_nan(x),
-    U64.is_eq(b, 9218868437227405312u64),
-    U64.is_eq(b, 9223372036854775808u64),
-    U64.is_le(9223372036854775808u64, b))
-
-def fnd_sg(+b: U64, neg: Bool) -> F64:
-  match neg:
-    case True{}: F64{(b + 1u64 : U64)}
-    case False{}: F64{(b - 1u64 : U64)}
-
-def fnd_pz(+b: U64, pzero: Bool, neg: Bool) -> F64:
-  match pzero:
-    case True{}: F64{9223372036854775809u64}
-    case False{}: fnd_sg(b, neg)
-
-def fnd_ni(+b: U64, ninf: Bool, pzero: Bool, neg: Bool) -> F64:
-  match ninf:
-    case True{}: F64{b}
-    case False{}: fnd_pz(b, pzero, neg)
-
-def fnd_go(+b: U64, nan: Bool, ninf: Bool, pzero: Bool,
-    neg: Bool) -> F64:
-  match nan:
-    case True{}: F64{b}
-    case False{}: fnd_ni(b, ninf, pzero, neg)
-
-def f64_next_down(+x: F64) -> F64:
-  +b = F64.bits(x)
-  fnd_go(b, F64.is_nan(x),
-    U64.is_eq(b, 18442240474082181120u64),
-    U64.is_eq(b, 0u64),
-    U64.is_le(9223372036854775808u64, b))
-
 def iv_gate2(ok: Bool, +lo: F64, +hi: F64) -> Y.SRes:
   match ok:
     case True{}: Y.sok_iv(Y.Iv{lo, hi})
@@ -85,14 +29,14 @@ def iv_gate(+lo: F64, +hi: F64) -> Y.SRes:
 def iv_add(a: Y.Iv, b: Y.Iv) -> Y.SRes:
   Y.Iv{+alo, +ahi} = a
   Y.Iv{+blo, +bhi} = b
-  iv_gate(f64_next_down(F64.add(alo, blo)),
-    f64_next_up(F64.add(ahi, bhi)))
+  iv_gate(E.f64_next_down(F64.add(alo, blo)),
+    E.f64_next_up(F64.add(ahi, bhi)))
 
 def iv_sub(a: Y.Iv, b: Y.Iv) -> Y.SRes:
   Y.Iv{+alo, +ahi} = a
   Y.Iv{+blo, +bhi} = b
-  iv_gate(f64_next_down(F64.sub(alo, bhi)),
-    f64_next_up(F64.sub(ahi, blo)))
+  iv_gate(E.f64_next_down(F64.sub(alo, bhi)),
+    E.f64_next_up(F64.sub(ahi, blo)))
 
 def iv_mul4_go(+p1: F64, +p2: F64, +p3: F64, +p4: F64) -> Y.SRes:
   +l1 = Bool.pick(F64, F64.is_lt(p1, p2), p1, p2)
@@ -101,7 +45,7 @@ def iv_mul4_go(+p1: F64, +p2: F64, +p3: F64, +p4: F64) -> Y.SRes:
   +h2 = Bool.pick(F64, F64.is_lt(p3, p4), p4, p3)
   +lo = Bool.pick(F64, F64.is_lt(l1, l2), l1, l2)
   +hi = Bool.pick(F64, F64.is_lt(h1, h2), h2, h1)
-  iv_gate(f64_next_down(lo), f64_next_up(hi))
+  iv_gate(E.f64_next_down(lo), E.f64_next_up(hi))
 
 def iv_mul(a: Y.Iv, b: Y.Iv) -> Y.SRes:
   Y.Iv{+alo, +ahi} = a
@@ -133,19 +77,19 @@ def iv_neg(a: Y.Iv) -> Y.Iv:
 def iv_sq_hp(hi_pos: Bool, +lo: F64, +hi: F64) -> Y.SRes:
   match hi_pos:
     case False{}:
-      iv_gate(f64_next_down(F64.mul(hi, hi)),
-        f64_next_up(F64.mul(lo, lo)))
+      iv_gate(E.f64_next_down(F64.mul(hi, hi)),
+        E.f64_next_up(F64.mul(lo, lo)))
     case True{}:
       +m = Bool.pick(F64, F64.is_lt(F64.neg(lo), hi), hi,
         F64.neg(lo))
-      iv_gate(0.0f64, f64_next_up(F64.mul(m, m)))
+      iv_gate(0.0f64, E.f64_next_up(F64.mul(m, m)))
 
 def iv_sq_go(lo_neg: Bool, hi_pos: Bool, +lo: F64,
     +hi: F64) -> Y.SRes:
   match lo_neg:
     case False{}:
-      iv_gate(f64_next_down(F64.mul(lo, lo)),
-        f64_next_up(F64.mul(hi, hi)))
+      iv_gate(E.f64_next_down(F64.mul(lo, lo)),
+        E.f64_next_up(F64.mul(hi, hi)))
     case True{}: iv_sq_hp(hi_pos, lo, hi)
 
 def iv_sq(a: Y.Iv) -> Y.SRes:
@@ -159,8 +103,8 @@ def iv_sqrt_go(neg: Bool, +lo: F64, +hi: F64) -> Y.SRes:
       Y.serr_invalid("interval sqrt", "iv", "sqrt-negative",
         "clamp the zone at zero")
     case False{}:
-      iv_gate(f64_next_down(F64.sqrt(lo)),
-        f64_next_up(F64.sqrt(hi)))
+      iv_gate(E.f64_next_down(F64.sqrt(lo)),
+        E.f64_next_up(F64.sqrt(hi)))
 
 def iv_sqrt(a: Y.Iv) -> Y.SRes:
   Y.Iv{+lo, +hi} = a

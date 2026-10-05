@@ -7,6 +7,7 @@ import ../src/c06/types.bend as Y
 import ../src/c06/ops.bend as O
 import ../src/c06/eval.bend as EV
 import ../src/c06/surfx.bend as SX
+import ../src/base/ex.bend as E
 
 def sq_loop() -> List<&2, V.Vec2>:
   [V.V2{0.0f64, 0.0f64}, V.V2{1.0f64, 0.0f64}, V.V2{1.0f64, 1.0f64}, V.V2{0.0f64, 1.0f64}]
@@ -776,25 +777,25 @@ def neg_iv_gate_nan():
   {==}
 
 law ok_next_up_zero:
-  {O.f64_next_up(0.0f64) == F64{1u64} : F64}
+  {E.f64_next_up(0.0f64) == F64{1u64} : F64}
 
 def ok_next_up_zero():
   {==}
 
 law ok_next_down_zero:
-  {O.f64_next_down(0.0f64) == F64{9223372036854775809u64} : F64}
+  {E.f64_next_down(0.0f64) == F64{9223372036854775809u64} : F64}
 
 def ok_next_down_zero():
   {==}
 
 law ok_next_up_one:
-  {O.f64_next_up(1.0f64) == F64{4607182418800017409u64} : F64}
+  {E.f64_next_up(1.0f64) == F64{4607182418800017409u64} : F64}
 
 def ok_next_up_one():
   {==}
 
 law ok_next_down_one:
-  {O.f64_next_down(1.0f64) == F64{4607182418800017407u64} : F64}
+  {E.f64_next_down(1.0f64) == F64{4607182418800017407u64} : F64}
 
 def ok_next_down_one():
   {==}
