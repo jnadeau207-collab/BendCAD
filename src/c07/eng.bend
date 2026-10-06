@@ -441,3 +441,8 @@ def solve(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
 def solve_e(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   +rs = solve(d, p, x)
   resc_e(rs, p, accs_of(rs), x, False{})
+
+def solve_ew(+d: Nat, +w: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+  +tol = fscale(p, x)
+  +rs = bb(d, w, code_w(p, x, w, tol), tol, p, x)
+  resc_e(rs, p, accs_of(rs), x, False{})

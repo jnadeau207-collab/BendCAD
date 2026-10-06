@@ -1,0 +1,3862 @@
+[
+ {
+  "name": "solid.box.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.084
+ },
+ {
+  "detail": [
+   {
+    "got": "inside",
+    "p": [
+     2.88599,
+     1.62038,
+     20.4336
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.130765,
+     10.8612,
+     10.1648
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.304013,
+     10.1785,
+     -1.65016
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     4.20375,
+     -0.32347,
+     0.265668
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     4.09423,
+     17.8445,
+     1.45687
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     1.67887,
+     13.0584,
+     31.1175
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.92524,
+     7.52033,
+     32.1452
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.441008,
+     18.6032,
+     7.42593
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.731061,
+     0.827014,
+     8.10535
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     8.79352,
+     2.33743,
+     17.9376
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     6.66696,
+     6.93754,
+     16.7188
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.246532,
+     -0.569572,
+     4.41451
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     7.1648,
+     8.26222,
+     8.3093
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     6.02674,
+     8.87643,
+     7.79161
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     8.53255,
+     14.7759,
+     5.78747
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.89308,
+     10.6047,
+     28.5049
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.75334,
+     4.91051,
+     32.2863
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.416789,
+     8.03495,
+     24.2571
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.823814,
+     9.73511,
+     -1.58854
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     7.01859,
+     16.3497,
+     17.6289
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     9.50573,
+     5.52994,
+     22.0306
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     6.13244,
+     11.9175,
+     13.4234
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     9.07961,
+     20.6723,
+     14.0675
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.96983,
+     -0.543934,
+     22.2537
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.76555,
+     21.8343,
+     26.5893
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.41515,
+     7.25899,
+     21.0715
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.729245,
+     9.08069,
+     3.04974
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.40515,
+     -0.585094,
+     24.6564
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.552083,
+     3.94276,
+     11.0742
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     9.45706,
+     -0.0660488,
+     13.1707
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.59328,
+     19.2012,
+     26.4941
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     9.36781,
+     4.68211,
+     11.9507
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.30525,
+     19.2206,
+     31.4783
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.811051,
+     2.22923,
+     5.35045
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.80003,
+     9.63911,
+     18.2084
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.15296,
+     -1.90175,
+     12.0821
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.43104,
+     11.5922,
+     31.3115
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     7.28592,
+     10.3718,
+     19.2333
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.1144,
+     -0.704171,
+     29.3832
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     8.35963,
+     18.9883,
+     25.7234
+    ],
+    "want": "inside"
+   }
+  ],
+  "median_s": 0.092,
+  "name": "solid.box.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.cylinder.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.112
+ },
+ {
+  "detail": [
+   {
+    "got": "inside",
+    "p": [
+     -1.29145,
+     -1.21225,
+     0.242445
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     1.61147,
+     -5.25303,
+     -0.191829
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.49484,
+     -4.05236,
+     3.08064
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.36909,
+     -5.9972,
+     0.815179
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.78243,
+     -1.63668,
+     -0.693989
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     4.49199,
+     1.36883,
+     0.782606
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -2.97291,
+     -1.83133,
+     3.36996
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.52589,
+     4.18724,
+     10.9172
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -0.408126,
+     -0.193984,
+     0.0306159
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.77375,
+     -1.88837,
+     2.17708
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.94626,
+     -4.06274,
+     -0.722851
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.41183,
+     0.339089,
+     0.75923
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.518069,
+     -5.67549,
+     5.33731
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.74201,
+     4.3599,
+     7.35436
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -2.86662,
+     -1.5996,
+     1.0045
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.26325,
+     0.391109,
+     8.34866
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -2.04402,
+     -3.3235,
+     8.73813
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.81911,
+     4.23155,
+     8.67294
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.82,
+     2.87848,
+     1.72087
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.211665,
+     -1.73325,
+     -0.652238
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.66476,
+     -2.64698,
+     2.11009
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.31026,
+     5.47818,
+     4.36673
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.24425,
+     5.85646,
+     10.46
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -1.62437,
+     -3.35445,
+     1.72215
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.63953,
+     -3.54752,
+     6.4888
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     4.8037,
+     4.08523,
+     4.75368
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.83574,
+     3.59572,
+     0.0173418
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     1.92703,
+     4.91733,
+     8.38763
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.00169,
+     -0.263607,
+     1.14226
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.46963,
+     -2.00979,
+     8.60988
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.65989,
+     -1.24994,
+     3.81664
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.36156,
+     2.69758,
+     1.04004
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.47554,
+     -4.18619,
+     9.85823
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.67802,
+     -4.24591,
+     8.91813
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.76367,
+     1.88722,
+     3.20489
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.583921,
+     -4.42819,
+     -0.829085
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.65068,
+     1.7961,
+     5.31897
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.2035,
+     -0.794287,
+     9.46092
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.91386,
+     -3.46749,
+     2.02202
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -2.4844,
+     -3.11353,
+     6.03725
+    ],
+    "want": "inside"
+   }
+  ],
+  "median_s": 0.096,
+  "name": "solid.cylinder.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.cone.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.092
+ },
+ {
+  "detail": [
+   {
+    "got": "inside",
+    "p": [
+     -3.46515,
+     -1.16622,
+     0.515596
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.90425,
+     -2.10551,
+     4.04814
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     1.20022,
+     5.82187,
+     3.64279
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.01518,
+     0.0237448,
+     4.84371
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.338495,
+     -6.93065,
+     3.85335
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.56325,
+     -7.14337,
+     7.73104
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.71821,
+     -0.381702,
+     6.93209
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.813249,
+     -2.50586,
+     4.69817
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.798363,
+     4.09352,
+     0.245982
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.868264,
+     -3.62168,
+     2.0907
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.92056,
+     0.111081,
+     5.16668
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.7439,
+     5.93983,
+     3.88708
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.6204,
+     0.0799651,
+     4.63134
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.77533,
+     -0.686221,
+     4.85948
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.316277,
+     6.35762,
+     6.65155
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.42211,
+     6.3674,
+     1.9036
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.856999,
+     6.38305,
+     8.172
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.22526,
+     -5.44864,
+     3.87488
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.15534,
+     -3.7348,
+     -0.110296
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.4404,
+     4.08868,
+     8.78789
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.97597,
+     3.11213,
+     6.23077
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.1411,
+     5.51279,
+     9.54948
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.03794,
+     6.51606,
+     3.40117
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.183445,
+     7.05415,
+     8.0904
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.87489,
+     -0.986086,
+     4.66853
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -2.31673,
+     -4.38128,
+     2.54008
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.19897,
+     -6.91945,
+     5.08374
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.857403,
+     -6.93962,
+     2.68018
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     1.78455,
+     0.176577,
+     -0.205659
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.9852,
+     4.15243,
+     9.59432
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.69117,
+     -3.37587,
+     -0.472448
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     4.01756,
+     -3.30558,
+     0.4992
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.11954,
+     5.92436,
+     7.94497
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.47603,
+     -5.0491,
+     9.02705
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.01657,
+     2.88601,
+     0.0661918
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.37162,
+     2.71016,
+     3.69342
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.15724,
+     6.31224,
+     5.95195
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     4.34345,
+     -5.99411,
+     8.34727
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.24064,
+     5.22396,
+     4.00075
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -2.31621,
+     0.764123,
+     9.10803
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.09,
+  "name": "solid.cone.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.sphere.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.084
+ },
+ {
+  "detail": [
+   {
+    "got": "outside",
+    "p": [
+     -3.89996,
+     -6.22902,
+     0.452172
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.39427,
+     -6.56122,
+     -5.68766
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -7.55362,
+     -5.01029,
+     -3.15853
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -3.27591,
+     4.35957,
+     -3.52866
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.00148848,
+     -5.41128,
+     -2.57038
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -8.09486,
+     -4.19246,
+     -8.14219
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.91575,
+     0.857625,
+     -5.21713
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.424021,
+     7.302,
+     -6.61447
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.35786,
+     -1.13942,
+     -0.0839736
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.62151,
+     -1.79615,
+     0.112324
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.15406,
+     8.105,
+     -2.64256
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.58241,
+     3.47299,
+     2.28441
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.60108,
+     -2.56112,
+     -7.48627
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.21905,
+     -7.21186,
+     4.04694
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.10602,
+     -5.65746,
+     -6.98065
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.73332,
+     6.22504,
+     2.86513
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -3.66352,
+     -4.33082,
+     -3.47662
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -0.681191,
+     -5.75345,
+     -0.910147
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.97752,
+     7.75801,
+     7.94007
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.790833,
+     -4.2933,
+     7.8232
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.19959,
+     -2.40939,
+     -8.38204
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -1.98867,
+     -0.425987,
+     0.0464353
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.02354,
+     0.0795587,
+     -8.31683
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.96197,
+     -6.89214,
+     -1.68821
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -7.7,
+     -8.0221,
+     -3.28869
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -4.4888,
+     1.4378,
+     0.490384
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     4.20908,
+     2.64673,
+     3.62869
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.36872,
+     -1.85612,
+     -2.92094
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.14345,
+     -5.88902,
+     3.76582
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.40609,
+     -7.66436,
+     5.63286
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.58463,
+     2.13918,
+     3.92872
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.24528,
+     -6.05963,
+     0.399122
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.0734337,
+     5.62695,
+     5.11858
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.48367,
+     1.41223,
+     6.59954
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.07264,
+     3.24788,
+     -4.537
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -7.8765,
+     -6.16403,
+     -2.34011
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -6.6374,
+     5.6418,
+     0.983258
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.14649,
+     2.1206,
+     3.03516
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.179856,
+     -8.34432,
+     5.00132
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     4.17086,
+     0.0499137,
+     0.591357
+    ],
+    "want": "inside"
+   }
+  ],
+  "median_s": 0.091,
+  "name": "solid.sphere.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.torus.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.08
+ },
+ {
+  "detail": [
+   {
+    "got": "outside",
+    "p": [
+     9.55797,
+     -26.037,
+     2.84146
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -14.8684,
+     -25.533,
+     -2.8133
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     13.7601,
+     -17.6869,
+     2.87794
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     28.5441,
+     -0.363073,
+     -1.40927
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.25939,
+     11.0218,
+     3.20364
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.01844,
+     8.56578,
+     -5.07034
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -21.1545,
+     -14.7636,
+     2.91861
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -11.735,
+     4.0657,
+     -5.85037
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -26.3603,
+     -13.8736,
+     2.06402
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     11.5311,
+     10.5425,
+     -2.50972
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.992142,
+     -2.12023,
+     -0.40393
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -22.8898,
+     23.6198,
+     -3.609
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     28.6875,
+     26.1753,
+     -5.78995
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -2.46175,
+     19.1939,
+     5.6173
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.03294,
+     -13.8806,
+     -3.48195
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     26.7352,
+     -17.3575,
+     0.977668
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -21.4956,
+     1.44394,
+     5.43288
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -22.0437,
+     19.213,
+     0.104932
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     23.2117,
+     12.2002,
+     -3.2234
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     23.8623,
+     -0.831561,
+     -5.70199
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -29.7846,
+     -0.498233,
+     -0.590876
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -11.8829,
+     -21.5576,
+     -1.87248
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -11.0353,
+     20.4139,
+     -5.9791
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     15.044,
+     20.3466,
+     -4.5595
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     25.5839,
+     12.7814,
+     4.8188
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -12.61,
+     -7.66668,
+     -1.28521
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     29.9276,
+     5.3506,
+     -1.67149
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.31683,
+     -13.4907,
+     -5.42078
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -23.8974,
+     20.0806,
+     -2.57252
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     26.1354,
+     -15.0405,
+     -2.81126
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     0.657779,
+     -18.6091,
+     -1.51981
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     27.3699,
+     23.056,
+     3.74355
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.85375,
+     24.8054,
+     5.28839
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.95369,
+     13.1744,
+     -5.40629
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     13.9411,
+     -2.94837,
+     3.03202
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.66944,
+     -12.8275,
+     -5.41228
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     25.6066,
+     -22.3613,
+     -0.333791
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -9.38023,
+     -12.1337,
+     2.86839
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     28.5778,
+     -14.3899,
+     1.87194
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -11.9498,
+     3.4393,
+     -1.26759
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.094,
+  "name": "solid.torus.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.cavity.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.213
+ },
+ {
+  "detail": [
+   {
+    "got": "outside",
+    "p": [
+     -31.9361,
+     -32.4809,
+     4.48341
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     38.9722,
+     -0.280725,
+     4.92091
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     39.0009,
+     47.6616,
+     13.1986
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -34.5988,
+     -29.5289,
+     0.265722
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -15.1723,
+     -39.2549,
+     5.60856
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -23.1977,
+     6.6833,
+     28.9411
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     23.9671,
+     -8.37296,
+     11.8998
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.32014,
+     -11.8209,
+     9.17531
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -42.0423,
+     -21.3584,
+     31.8367
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -35.9161,
+     0.325992,
+     19.6666
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     34.8347,
+     -27.2675,
+     6.75675
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -24.1484,
+     -9.62331,
+     13.0509
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     43.5786,
+     33.4736,
+     28.4241
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -45.9062,
+     -44.9046,
+     22.5424
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     37.9869,
+     -2.56625,
+     18.1384
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -47.9828,
+     -10.414,
+     30.3658
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     31.2566,
+     34.1244,
+     32.0007
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -24.1473,
+     -37.5316,
+     2.55762
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.1471,
+     17.4792,
+     30.8937
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     21.2866,
+     14.1454,
+     24.5328
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.0968,
+     4.94409,
+     -1.57633
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     27.1007,
+     -25.6726,
+     30.1171
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     13.9686,
+     -18.8369,
+     1.60681
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -23.8278,
+     13.0839,
+     22.1489
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -37.2353,
+     -41.2462,
+     15.8797
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     7.95753,
+     -10.7441,
+     5.04899
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     9.70185,
+     -46.9957,
+     7.85477
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.7737,
+     44.0582,
+     20.2047
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     36.8423,
+     -2.37079,
+     5.45165
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -24.2824,
+     44.219,
+     22.3675
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -18.4898,
+     -45.9084,
+     14.9392
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     16.7485,
+     -7.67848,
+     6.26122
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     16.0661,
+     40.8154,
+     5.1643
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -44.7266,
+     -15.547,
+     12.14
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     17.5264,
+     -28.9844,
+     25.6943
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     22.9564,
+     0.468325,
+     4.38787
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     45.1064,
+     -18.0753,
+     26.5202
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -25.8424,
+     -26.7415,
+     24.3769
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -19.6864,
+     43.385,
+     14.8475
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -30.0179,
+     -26.5609,
+     12.013
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.096,
+  "name": "solid.cavity.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.bracket.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.122
+ },
+ {
+  "detail": [
+   {
+    "got": "outside",
+    "p": [
+     55.8682,
+     51.9257,
+     0.453958
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     29.7722,
+     7.77694,
+     6.41366
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.62346,
+     -1.88957,
+     -0.167026
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     29.7589,
+     48.89,
+     5.7618
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     62.3415,
+     54.8518,
+     6.10749
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     23.6073,
+     6.13073,
+     6.13835
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     63.6456,
+     -3.08638,
+     4.1839
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     28.3475,
+     17.433,
+     1.78822
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.24905,
+     -4.82776,
+     1.41461
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     25.7408,
+     52.3309,
+     0.2907
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     84.57,
+     7.44415,
+     1.96773
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     70.8711,
+     44.3205,
+     2.51364
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.2713,
+     23.4078,
+     2.08354
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     80.2726,
+     6.58157,
+     2.02259
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     78.1114,
+     -3.18308,
+     2.35777
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     69.9352,
+     41.0001,
+     -0.307324
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.65398,
+     -1.2452,
+     6.02455
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     16.6735,
+     39.8372,
+     5.86957
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     24.5507,
+     11.3389,
+     6.29537
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     51.2299,
+     10.7303,
+     4.55978
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     22.3824,
+     11.5378,
+     -0.572844
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     64.5426,
+     49.9876,
+     3.96466
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     82.552,
+     -3.5446,
+     1.08384
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     37.6181,
+     52.4067,
+     6.26816
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     29.1054,
+     10.0628,
+     2.49555
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     39.3735,
+     50.686,
+     0.717162
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     69.0466,
+     39.3093,
+     5.32384
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     66.1897,
+     31.4353,
+     1.76016
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     22.6767,
+     16.7115,
+     5.03219
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.414572,
+     6.83871,
+     4.82078
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     15.7415,
+     -1.11602,
+     -0.356181
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     45.0491,
+     14.5455,
+     6.45784
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     76.8136,
+     54.2694,
+     1.30722
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.0719294,
+     0.785355,
+     2.98902
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     60.138,
+     21.8178,
+     1.08621
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     32.0167,
+     32.2185,
+     4.25358
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     63.8058,
+     45.8192,
+     4.18386
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     3.63181,
+     45.4523,
+     1.51523
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     46.4209,
+     17.3783,
+     4.71409
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     11.1222,
+     9.84575,
+     1.16645
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.092,
+  "name": "solid.bracket.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.pocket.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.105
+ },
+ {
+  "detail": [
+   {
+    "got": "inside",
+    "p": [
+     5.0392,
+     38.4401,
+     5.93937
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     17.4963,
+     15.0113,
+     10.9094
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     30.5274,
+     7.10629,
+     8.70131
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     41.0395,
+     43.5659,
+     0.227989
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     28.1829,
+     35.3169,
+     9.08668
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     59.835,
+     -2.06263,
+     2.52413
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     2.5836,
+     5.09951,
+     10.6756
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     35.99,
+     40.6483,
+     3.46684
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     56.3612,
+     17.5575,
+     2.11938
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     49.9999,
+     41.3937,
+     0.269361
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     36.9226,
+     25.7575,
+     1.61175
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     20.547,
+     2.78574,
+     1.44772
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     12.3538,
+     24.7723,
+     6.81971
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.64781,
+     -3.45377,
+     2.92699
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     42.839,
+     4.88696,
+     2.74635
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     8.64536,
+     34.1735,
+     5.57654
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.44448,
+     0.866613,
+     3.74356
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     33.6099,
+     26.6807,
+     0.0938312
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.78563,
+     29.3795,
+     3.91747
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     14.3977,
+     10.7646,
+     10.4383
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     16.4901,
+     23.193,
+     3.28618
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     23.9841,
+     37.4838,
+     10.9594
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     20.1923,
+     5.46568,
+     7.73638
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.66404,
+     -3.71792,
+     9.81957
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     24.5103,
+     35.3777,
+     3.87461
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     57.5643,
+     18.1235,
+     0.950535
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -4.93193,
+     22.4743,
+     6.688
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     59.5052,
+     0.273493,
+     6.46634
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     20.7007,
+     20.2142,
+     0.750642
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     14.3972,
+     21.0156,
+     10.106
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.83308,
+     19.5445,
+     8.65776
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     63.6151,
+     5.4724,
+     0.519804
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     61.9015,
+     42.8262,
+     4.79284
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -2.15703,
+     40.4561,
+     3.65474
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     59.1039,
+     25.7765,
+     8.89467
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     5.53988,
+     33.7196,
+     1.6649
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     23.1229,
+     36.6249,
+     8.95025
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     7.17352,
+     6.47057,
+     3.79695
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     31.2883,
+     14.4117,
+     0.47668
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     11.7882,
+     30.7944,
+     9.76754
+    ],
+    "want": "inside"
+   }
+  ],
+  "median_s": 0.095,
+  "name": "solid.pocket.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.moved-sphere.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.088
+ },
+ {
+  "detail": [
+   {
+    "got": "outside",
+    "p": [
+     -11.0136,
+     21.4962,
+     6.17907
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -11.0849,
+     28.1169,
+     -9.17446
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.38847,
+     21.2012,
+     3.04902
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -4.65086,
+     18.0817,
+     1.98299
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -1.78224,
+     23.8122,
+     -1.27705
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.47954,
+     8.56101,
+     2.85341
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -0.251962,
+     13.646,
+     6.32556
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.7194,
+     18.9989,
+     -7.69034
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.642748,
+     10.5698,
+     -8.91706
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -1.66562,
+     10.2011,
+     -1.39279
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.24387,
+     8.9784,
+     3.27449
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -10.0262,
+     25.6035,
+     6.66327
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.275562,
+     9.30236,
+     0.0941775
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -2.9313,
+     30.8208,
+     -8.73154
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     8.56968,
+     31.907,
+     5.57003
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.55975,
+     12.649,
+     11.5615
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -0.195121,
+     30.9593,
+     9.98499
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -8.03732,
+     26.9212,
+     10.334
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -10.4276,
+     16.4215,
+     6.14831
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -8.18958,
+     29.5169,
+     -5.40018
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     7.57504,
+     11.4457,
+     0.0532304
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     10.0778,
+     12.9998,
+     -5.69118
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     0.144167,
+     15.6579,
+     -11.116
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -7.62969,
+     11.8695,
+     10.4737
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     4.31232,
+     29.4899,
+     -7.95019
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.83686,
+     10.7619,
+     0.73731
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.27165,
+     16.6347,
+     8.95085
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     1.32432,
+     21.921,
+     9.18084
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -9.48939,
+     31.8309,
+     3.11463
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -2.53785,
+     27.1441,
+     -5.6459
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     11.772,
+     21.8567,
+     -3.35397
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     6.35134,
+     18.6148,
+     -7.75785
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.84627,
+     9.15899,
+     7.67578
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.91234,
+     23.3417,
+     11.6173
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.06089,
+     23.9288,
+     -4.49643
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -11.957,
+     8.81104,
+     -8.41525
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     2.78525,
+     18.3736,
+     0.304272
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     9.49302,
+     11.1686,
+     -6.54577
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.6746,
+     8.53495,
+     -11.9372
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.4809,
+     10.5527,
+     -3.42836
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.089,
+  "name": "solid.moved-sphere.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.rotated-torus.check",
+  "ok": true,
+  "out": "ok: shells outward, cavities nested",
+  "secs": 0.13
+ },
+ {
+  "detail": [
+   {
+    "got": "inside",
+    "p": [
+     -26.4711,
+     8.02473,
+     6.4146
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -28.3983,
+     11.8972,
+     -1.80707
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -35.0641,
+     41.9127,
+     -18.4616
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -33.6659,
+     -38.8028,
+     9.95113
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     35.6434,
+     27.087,
+     -7.05939
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -22.633,
+     -46.8964,
+     10.4362
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     5.98379,
+     -14.3681,
+     10.4835
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -5.39959,
+     41.9671,
+     16.8136
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -24.1443,
+     38.7363,
+     -32.8319
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     3.02663,
+     -9.02508,
+     -18.8878
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -42.3956,
+     26.7717,
+     -35.1108
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     4.8886,
+     42.3284,
+     -25.7568
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -28.8462,
+     10.376,
+     0.500271
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     13.5907,
+     30.0846,
+     -23.426
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -18.2993,
+     -19.1744,
+     -32.5087
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     37.3778,
+     27.1655,
+     15.5087
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -47.3905,
+     33.0655,
+     17.6535
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -3.33451,
+     23.2085,
+     -3.42092
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -26.309,
+     -37.893,
+     -19.2746
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -44.2735,
+     -15.7905,
+     17.9751
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     18.7305,
+     33.152,
+     15.2413
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     -22.4652,
+     5.16362,
+     -4.6042
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     27.6912,
+     2.23148,
+     -16.8987
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     13.6323,
+     44.6535,
+     -20.3763
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     36.4843,
+     -46.5381,
+     -17.2535
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -25.3335,
+     23.4124,
+     32.0182
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     23.6305,
+     -16.6203,
+     27.3719
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -16.4588,
+     -25.0399,
+     29.3449
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     12.5468,
+     18.5129,
+     11.897
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     45.9853,
+     -2.92868,
+     24.4592
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     18.9713,
+     34.3222,
+     -4.52059
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     21.5638,
+     6.75269,
+     -13.8419
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -27.6513,
+     11.7717,
+     -30.3982
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     39.4358,
+     -34.1189,
+     -34.063
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -37.7589,
+     41.1791,
+     -11.1698
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -34.3832,
+     -45.2417,
+     -33.0012
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "inside",
+    "p": [
+     18.492,
+     12.8523,
+     14.1846
+    ],
+    "want": "inside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     22.7314,
+     -41.6865,
+     6.51404
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     -13.113,
+     30.4859,
+     23.0086
+    ],
+    "want": "outside"
+   },
+   {
+    "got": "outside",
+    "p": [
+     37.5629,
+     -41.669,
+     26.481
+    ],
+    "want": "outside"
+   }
+  ],
+  "median_s": 0.095,
+  "name": "solid.rotated-torus.classify",
+  "ok": true,
+  "points": 40,
+  "uncertain": 0,
+  "wrong": 0
+ },
+ {
+  "name": "solid.box.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   5,
+   10,
+   30
+  ]
+ },
+ {
+  "name": "solid.sphere.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   0,
+   7,
+   0
+  ]
+ },
+ {
+  "name": "solid.cylinder.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   5,
+   0,
+   4
+  ]
+ },
+ {
+  "name": "solid.torus.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   0,
+   25,
+   0
+  ]
+ },
+ {
+  "name": "solid.cavity.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   0,
+   20,
+   20
+  ]
+ },
+ {
+  "name": "solid.moved-sphere.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   -10,
+   20,
+   0
+  ]
+ },
+ {
+  "name": "solid.torus.seam.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   25,
+   0,
+   0
+  ]
+ },
+ {
+  "name": "solid.cavity.seam.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   20,
+   0,
+   20
+  ]
+ },
+ {
+  "name": "solid.cone.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   0,
+   3,
+   4.5
+  ]
+ },
+ {
+  "name": "solid.bracket.boundary",
+  "ok": true,
+  "out": "boundary",
+  "p": [
+   13,
+   10,
+   3
+  ]
+ }
+]

@@ -272,3 +272,19 @@ def cv_circle(c: V.Point, u: V.Dir, v: V.Dir, +r: F64, +lo: F64, +hi: F64) -> Cv
   V.Dr{+vx, +vy, +vz} = v
   Cv{Rb{circ_coord(cx, r, ux, vx, lo, hi), circ_coord(cy, r, uy, vy, lo, hi), circ_coord(cz, r, uz, vz, lo, hi),
     p2b(tshift(X.vpts(pw_d()), lo, hi))}, lo, hi}
+
+def box_go(d: Nat, fin: Bool, +b: List<&2, I.I>, +c: Cv, +lo: F64, +hi: F64) -> List<&2, I.I>:
+  match d:
+    case 0n: b
+    case 1n+(+e):
+      match fin:
+        case True{}: b
+        case False{}:
+          +m = F64.mul(0.5f64, F64.add(lo, hi))
+          +b1 = cv_box(c, I.I{lo, m})
+          +b2 = cv_box(c, I.I{m, hi})
+          X.vhull(box_go(e, X.vfin(b1), b1, c, lo, m), box_go(e, X.vfin(b2), b2, c, m, hi))
+
+def cv_hbox(+c: Cv) -> List<&2, I.I>:
+  +b = cv_box(c, I.I{0.0f64, 1.0f64})
+  box_go(6n, X.vfin(b), b, c, 0.0f64, 1.0f64)

@@ -277,7 +277,7 @@ def ss_cone(c: CN, +ax: F64, +ay: F64, +bx: F64, +by: F64) -> SS:
   +ym = F64.mul(0.5f64, F64.add(ay, by))
   +sg = Bool.pick(F64, F64.is_lt(ha, ym), 1.0f64, F64.neg(1.0f64))
   +d = F64.add(F64.sub(by, ay), F64.mul(F64.mul(F64.sub(bx, ax), k), sg))
-  SS{ok, G.GV_co{G.Co{V.Pt{0.0f64, 0.0f64, ha}, V.Dr{0.0f64, 0.0f64, 1.0f64}, k}}, F64.is_lt(0.0f64, d), False{}}
+  SS{ok, G.GV_co{G.Co{V.Pt{0.0f64, 0.0f64, ha}, V.Dr{0.0f64, 0.0f64, sg}, k}}, F64.is_lt(0.0f64, d), False{}}
 
 def ss_line(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> SS:
   Bool.pick(SS, F64.is_eq(ax, bx),

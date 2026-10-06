@@ -10,6 +10,8 @@ import ./sx.bend as S
 import ./tess.bend as TS
 import ./zone.bend as Z
 import ../c07/gsx.bend as GQ
+import ../c07/sol.bend as SO
+import ../c01/types.bend as V
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -366,7 +368,8 @@ def apply_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
 def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "show"), 1u64, Bool.pick(U64, String.eq(c, "eval"), 2u64,
   Bool.pick(U64, String.eq(c, "faces"), 3u64, Bool.pick(U64, String.eq(c, "measure"), 4u64,
-  Bool.pick(U64, String.eq(c, "sens"), 5u64, Bool.pick(U64, String.eq(c, "apply"), 6u64, Bool.pick(U64, String.eq(c, "tess"), 7u64, Bool.pick(U64, String.eq(c, "zone"), 8u64, 0u64))))))))
+  Bool.pick(U64, String.eq(c, "sens"), 5u64, Bool.pick(U64, String.eq(c, "apply"), 6u64, Bool.pick(U64, String.eq(c, "tess"), 7u64, Bool.pick(U64, String.eq(c, "zone"), 8u64,
+  Bool.pick(U64, String.eq(c, "classify"), 9u64, Bool.pick(U64, String.eq(c, "check"), 10u64, 0u64))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -380,6 +383,58 @@ def tess_out(r: M.NR, +out: String) -> IO(Unit):
         w : Unit <- write_file(out, TS.body_obj(b))
         IO.print("wrote " ++ out)
 
+def f_or_nan(m: Maybe<&2, F64>) -> F64:
+  match m:
+    case None{}: F64.nan()
+    case Some{v}: v
+
+def f_arg(+xs: List<&2, String>, +i: Nat) -> F64:
+  f_or_nan(S.dec(arg_at(xs, i)))
+
+def imid(+a: I.I) -> F64:
+  F64.mul(0.5f64, F64.add(I.i_lo(a), I.i_hi(a)))
+
+def loc_c(+mi: List<&2, I.I>, +w: List<&2, I.I>, +j: Nat) -> F64:
+  imid(I.iadd(I.iadd(I.imul(M.i_nth(mi, j), M.i_nth(w, 0n)), I.imul(M.i_nth(mi, Nat.add(j, 3n)), M.i_nth(w, 1n))), I.imul(M.i_nth(mi, Nat.add(j, 6n)), M.i_nth(w, 2n))))
+
+def w3(+ti: List<&2, I.I>, +x: F64, +y: F64, +z: F64) -> List<&2, I.I>:
+  [I.isub(I.ipt(x), M.i_nth(ti, 0n)), I.isub(I.ipt(y), M.i_nth(ti, 1n)), I.isub(I.ipt(z), M.i_nth(ti, 2n))]
+
+def loc_w(+mi: List<&2, I.I>, +w: List<&2, I.I>) -> V.Point:
+  V.Pt{loc_c(mi, w, 0n), loc_c(mi, w, 1n), loc_c(mi, w, 2n)}
+
+def loc_pt(+p: M.Pl, +x: F64, +y: F64, +z: F64) -> V.Point:
+  loc_w(M.pl_mi(p), w3(M.pl_ti(p), x, y, z))
+
+def cls_s(+r: U64) -> String:
+  Bool.pick(String, U64.is_eq(r, 0u64), "outside", Bool.pick(String, U64.is_eq(r, 1u64), "inside", Bool.pick(String, U64.is_eq(r, 3u64), "boundary", "uncertain | why: every ray met a tangency, an edge or an unsupported face | fix: move the point off the boundary")))
+
+def fin3(+x: F64, +y: F64, +z: F64) -> Bool:
+  Bool.and(F64.is_eq(F64.sub(x, x), 0.0f64), Bool.and(F64.is_eq(F64.sub(y, y), 0.0f64), F64.is_eq(F64.sub(z, z), 0.0f64)))
+
+def classify_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
+  match r:
+    case M.NR_err{k, d}: "error: node failed; nothing classified"
+    case M.NR_ok{+b, fx}:
+      Bool.pick(String, fin3(x, y, z), cls_s(SO.classify(SO.fds_of(M.bd_brep(b)), loc_pt(M.bd_pl(b), x, y, z))),
+        "error invalid-input | classify | why: the point needs three finite numbers | fix: classify NODE X Y Z")
+
+def fi_s(fs: List<&2, SO.Fi>) -> String:
+  match fs:
+    case []: ""
+    case f <> t:
+      SO.Fi{c, a, b} = f
+      c ++ " " ++ Nat.show(a) ++ " " ++ Nat.show(b) ++ "
+" ++ fi_s(t)
+
+def check_s(r: M.NR) -> String:
+  match r:
+    case M.NR_err{k, d}: "error: node failed; nothing checked"
+    case M.NR_ok{+b, fx}:
+      +br = M.bd_brep(b)
+      +fs = SO.solid_fi(br, SO.fds_of(br))
+      Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n), "ok: shells outward, cavities nested", fi_s(fs))
+
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
@@ -390,7 +445,9 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 6u64: apply_parsed(edits_parse(rest), path, p)
     case 7u64: tess_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), arg_at(rest, 1n))
     case 8u64: IO.print(zone_s(Z.zone(p, S.u64_of(S.Sx_a{arg_at(rest, 0n)})), S.u64_of(S.Sx_a{arg_at(rest, 0n)})))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone")
+    case 9u64: IO.print(classify_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 10u64: IO.print(check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))
