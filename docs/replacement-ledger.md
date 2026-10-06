@@ -97,6 +97,6 @@ are in `laws/c06.bend`.
 | Evaluator, cache, transactions | None mined | `model.bend` `ev_part`: full-key reuse; `cli.bend` atomic `apply` | `cache_partial` | E2E `bracket.edit`, `bracket.delete`, `bracket.sensitivity_reuses_cache`, `reject.*` (file unchanged) | Sequential node walk |
 | Names, sensitivities, serialization | None mined | `nN.cK.top/bottom/wall.I.J`; central differences with topology check; `src/c06/sx.bend` S-expression format with checker-evaluable exact decimal reader | (via `prof_*`/`ev_*` parsing real text) | E2E `bracket.faces`, `bracket.sensitivity`, `bracket.serialize_stable` | Sensitivities estimated, not certified |
 | Tessellation | None mined | `src/c06/tess.bend`, `src/c06/ear.bend`: shared edge samples, indexed ear clipping, strips, lathe grid | `ear_holes4` | E2E `*.mesh` via `tools/grade/mesh.py` | Display quality, no stated bounds (C10); 1,600 holes 59 s |
-| Agent surface (A0) | None mined | `cli.bend`, `tools/mcp/bendcad-mcp.mjs`, `tools/mcp/language.md` | — | E2E `mcp.session`; G1 runs 1–4 (`docs/receipts/g1/`) | Headless `claude -p` needs a logged-in CLI |
+| Agent surface (A0) | None mined | `cli.bend`, `tools/mcp/bendcad-mcp.mjs`, `tools/mcp/language.md` | — | E2E `mcp.session`; G1 runs 1–5 (`docs/receipts/g1/`) | — |
 | Quadric frames and evaluators | None mined | `src/c06/surfx.bend` (unchanged since R0.4) | `ok_*`/`neg_*` surfx laws (47) | — | Feed C07 |
 
