@@ -49,22 +49,15 @@ def pref(n: Nat, +p: N.Pb, +x: List<&2, I.I>, +k: Nat) -> List<&2, I.I>:
 def at_face(+p: N.Pb, +x: List<&2, I.I>, +k: Nat, +c: F64) -> List<&2, I.I>:
   pref(10n, p, X.vset(x, k, I.ipt(c)), k)
 
-def fpts(rs: List<&2, N.Res>, +j: Nat, +c: F64) -> List<&2, Ep>:
-  match rs:
+def fp_eps(fs: List<&2, N.Fp>) -> List<&2, Ep>:
+  match fs:
     case []: []
-    case r <> +t:
-      match r:
-        case N.R_pt{z}: Ep{j, c, z, 0, 0} <> fpts(t, j, c)
-        case _: fpts(t, j, c)
+    case f <> t:
+      N.Fp{x, +j, c} = f
+      Ep{j, c, X.vdrop(x, j), 0, 0} <> fp_eps(t)
 
-def fp_go(n: Nat, +p: N.Pb, +x: List<&2, I.I>, +j: Nat) -> List<&2, Ep>:
-  match n:
-    case 0n: []
-    case 1n+r:
-      +xj = X.vn(x, j)
-      +lo = I.i_lo(xj)
-      +hi = I.i_hi(xj)
-      List.append(&2, Ep, fpts(N.face_res(p, x, j, lo), j, lo), List.append(&2, Ep, fpts(N.face_res(p, x, j, hi), j, hi), fp_go(r, p, x, Nat.add(j, 1n))))
+def fp_go(+p: N.Pb, +x: List<&2, I.I>) -> List<&2, Ep>:
+  fp_eps(N.ff_pts(N.face_all(p, x)))
 
 def tag(es: List<&2, Ep>, +i: U32, +s: U32) -> List<&2, Ep>:
   match es:
@@ -78,7 +71,7 @@ def eps_of(pcs: List<&2, Pc>, +p: N.Pb, +i: U32) -> List<&2, Ep>:
     case []: []
     case q <> t:
       Pc{+x, k} = q
-      List.append(&2, Ep, tag(fp_go(N.pb_n(p), p, x, 0n), i, 0), eps_of(t, p, (i + 1 : U32)))
+      List.append(&2, Ep, tag(fp_go(p, x), i, 0), eps_of(t, p, (i + 1 : U32)))
 
 def ep_k(e: Ep) -> Nat:
   Ep{k, c, z, i, s} = e
@@ -179,7 +172,7 @@ def pair_go(n: Nat, +xs: List<&2, Ep>, +acc: Mt) -> Mt:
     case 1n+m:
       match xs:
         case []: acc
-        case +e <> t:
+        case +e <> +t:
           +ov = has_ov(t, e)
           pair_go(m, Bool.pick(List<&2, Ep>, ov, rm_first_ov(t, e, False{}), t),
             Bool.pick(Mt, ov, Mt{B.Ed{ep_i(e), ep_i(first_ov(t, e))} <> mt_es(acc), mt_open(acc)}, Mt{mt_es(acc), e <> mt_open(acc)}))
@@ -303,7 +296,7 @@ def ep_nth(es: List<&2, Ep>, +i: Nat) -> Ep:
 
 def sample(+p: N.Pb, q: Pc) -> List<&2, I.I>:
   Pc{+x, +k} = q
-  +es = fp_go(N.pb_n(p), p, x, 0n)
+  +es = fp_go(p, x)
   +a = X.vn(ep_full(ep_nth(es, 0n)), k)
   +b = X.vn(ep_full(ep_nth(es, 1n)), k)
   at_face(p, x, k, F64.add(F64.mul(0.5f64, X.imid(a)), F64.mul(0.5f64, X.imid(b))))

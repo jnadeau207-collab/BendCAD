@@ -19,9 +19,6 @@ type Hit is Data:
 type Pn is Data:
   Pn{ o: V.Point, n: List<&2, E.Ex>, ok: Bool }
 
-type Ac is Data:
-  Ac{ k: List<&2, I.I>, b: List<&2, I.I> }
-
 def dom_i(d: G.Dom) -> I.I:
   G.Dom{lo, hi} = d
   I.I{lo, hi}
@@ -427,43 +424,8 @@ def mk_cc(+a: R.Cv, +b: R.Cv, +i: Nat, +j: Nat) -> N.Pb:
 def mk_c3(+a: R.Cv, +b: R.Cv) -> N.Pb:
   N.P_c3{a, b}
 
-def is_dup(accs: List<&2, Ac>, +k: List<&2, I.I>, +b: List<&2, I.I>) -> Bool:
-  match accs:
-    case []: False{}
-    case a <> t:
-      Ac{ak, ab} = a
-      Bool.or(Bool.or(X.vsub_of(ak, b), X.vsub_of(k, ab)), is_dup(t, k, b))
-
-def out_dom(xs: List<&2, I.I>) -> Bool:
-  match xs:
-    case []: False{}
-    case +x <> t: Bool.or(Bool.or(F64.is_lt(I.i_hi(x), 0.0f64), F64.is_lt(1.0f64, I.i_lo(x))), out_dom(t))
-
-def accs_of(rs: List<&2, N.Res>) -> List<&2, Ac>:
-  match rs:
-    case []: []
-    case r <> +t:
-      match r:
-        case N.R_pt{+x}: Ac{x, x} <> accs_of(t)
-        case _: accs_of(t)
-
-def resc(rs: List<&2, N.Res>, +p: N.Pb, +accs: List<&2, Ac>) -> List<&2, N.Res>:
-  match rs:
-    case []: []
-    case +r <> +t:
-      match r:
-        case N.R_un{+u}:
-          +b = X.vinfl(u, 1.0f64)
-          +ok = X.vin(N.kraw(p, b, N.pb_j(p, b), N.pb_n(p)), b)
-          +k = N.refine(12n, p, b)
-          +drop = Bool.and(ok, Bool.or(out_dom(k), is_dup(accs, k, b)))
-          Bool.pick(List<&2, N.Res>, drop, resc(t, p, accs),
-            Bool.pick(List<&2, N.Res>, ok, N.R_pt{k} <> resc(t, p, Ac{k, b} <> accs), N.R_un{u} <> resc(t, p, accs)))
-        case _: r <> resc(t, p, accs)
-
 def solve_r(+d: Nat, +p: N.Pb, +x: List<&2, I.I>) -> List<&2, N.Res>:
-  +rs = N.solve(d, p, x)
-  resc(rs, p, accs_of(rs))
+  N.solve_e(d, p, x)
 
 def i_other(+k: Nat) -> List<&2, Nat>:
   Bool.pick(List<&2, Nat>, Nat.is_eq(k, 0n), [1n, 2n], Bool.pick(List<&2, Nat>, Nat.is_eq(k, 1n), [0n, 2n], [0n, 1n]))

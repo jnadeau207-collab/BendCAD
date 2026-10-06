@@ -320,11 +320,123 @@ def random_ss(n):
     ss_case('ss.plane-plane', 'plane', [0, 0, 1, 1, 0, 0, 0, 1, 0], 'plane', [0, 0, 0, 1, 0, 0, 0, 0.6, 0.8], [-3, 3.1, -3, 3.2, -3, 3.3], 1, False)
 
 
+def bern3(t):
+    s = 1 - t
+    return [s * s * s, 3 * s * s * t, 3 * s * t * t, t * t * t]
+
+
+def patch_eval(P, u, v):
+    bu, bv = bern3(u), bern3(v)
+    return [sum(bv[i] * bu[j] * P[i][j][k] for i in range(4) for j in range(4)) for k in range(3)]
+
+
+def graph_patch(seed):
+    rnd2 = random.Random(seed)
+    P = [[[Fr(j), Fr(i), Fr(round(rnd2.uniform(-1, 1), 1))] for j in range(4)] for i in range(4)]
+    return P
+
+
+def patch_sx(P):
+    return '(bezpatch ' + ' '.join(repr(float(c)) for row in P for pt in row for c in pt) + ')'
+
+
+def contour_topology(P, c, n=240):
+    import itertools
+    vals = [[patch_eval(P, Fr(i, n), Fr(j, n))[2] - c for j in range(n + 1)] for i in range(n + 1)]
+    sign = [[v > 0 for v in row] for row in vals]
+    parent = {}
+
+    def find(x):
+        while parent.setdefault(x, x) != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    cells = []
+    for i in range(n):
+        for j in range(n):
+            cs = {sign[i][j], sign[i + 1][j], sign[i][j + 1], sign[i + 1][j + 1]}
+            if len(cs) == 2:
+                cells.append((i, j))
+    cs = set(cells)
+    for (i, j) in cells:
+        for di, dj in ((1, 0), (0, 1)):
+            if (i + di, j + dj) in cs:
+                parent[find((i, j))] = find((i + di, j + dj))
+    comps = {}
+    for cl in cells:
+        comps.setdefault(find(cl), []).append(cl)
+    out = []
+    for cl in comps.values():
+        bd = any(i == 0 or j == 0 or i == n - 1 or j == n - 1 for i, j in cl)
+        out.append(not bd)
+    return out
+
+
+def random_patch(nn):
+    for i in range(nn):
+        P = graph_patch(100 + i)
+        a, b = Fr(round(random.uniform(0.2, 2.8), 2)), Fr(round(random.uniform(0.2, 2.8), 2))
+        out = run('intersect', sx('line', [float(a), float(b), -5, 0, 0, 1, 0, 10]), patch_sx(P))
+        z = patch_eval(P, a / 3, b / 3)[2]
+        ms = re.findall(r'point s=' + IV + r'.*?at=' + IV + 'x' + IV + 'x' + IV, out)
+        ok = len(ms) == 1 and Fr(float(ms[0][6])) <= z <= Fr(float(ms[0][7]))
+        record(f'patch.{i}.line', ok, z=float(z), out=out[:300])
+        c = Fr(round(random.uniform(-0.5, 0.5), 2))
+        topo = contour_topology(P, c)
+        out = run('intersect', patch_sx(P), sx('plane', [0, 0, float(c), 1, 0, 0, 0, 1, 0]))
+        curves, uns, coin = parse_ss(out)
+        good_pts = all(abs(p[2][0] - c) < Fr(1, 10 ** 9) or (p[2][0] <= c <= p[2][1]) for cv in curves for p in cv['pts'])
+        same = sorted(cv['closed'] for cv in curves) == sorted(topo)
+        record(f'patch.{i}.plane', uns == 0 and same and good_pts, kernel=sorted(cv['closed'] for cv in curves), oracle=sorted(topo))
+
+
+def nb_blossom(ks, ps, ws, s, args):
+    d = [[w * x for x in p] + [w] for p, w in zip(ps[s - 3:s + 1], ws[s - 3:s + 1])]
+    for r, u in enumerate(args, start=1):
+        nd = []
+        for m in range(len(d) - 1):
+            i = s - 3 + r + m
+            lo, hi = ks[i], ks[i + 4 - r]
+            al = Fr(0) if hi == lo else (u - lo) / (hi - lo)
+            nd.append([(1 - al) * a + al * b for a, b in zip(d[m], d[m + 1])])
+        d = nd
+    return d[0]
+
+
+def random_nurbs(nn):
+    rr = random.Random(5)
+    for i in range(nn):
+        nc = rr.choice([4, 5, 6, 7])
+        inner = sorted(rr.choice([1, 2, 3, 4]) for _ in range(nc - 4))
+        ks = [Fr(0)] * 4 + [Fr(k) for k in inner] + [Fr(5)] * 4
+        ps = [[Fr(round(rr.uniform(-3, 3), 1)), Fr(round(rr.uniform(-3, 3), 1)), Fr(0)] for _ in range(nc)]
+        ws = [Fr(rr.choice([1, 1, 2, 0.5])) for _ in range(nc)]
+        c = Fr(round(rr.uniform(-1, 1), 2))
+        total = 0
+        for sidx in range(3, nc):
+            a, b = ks[sidx], ks[sidx + 1]
+            if a == b:
+                continue
+            ctrl = [nb_blossom(ks, ps, ws, sidx, [a] * (3 - j) + [b] * j) for j in range(4)]
+            y = [q[1] - c * q[3] for q in ctrl]
+            coef = [y[0], 3 * (y[1] - y[0]), 3 * (y[2] - 2 * y[1] + y[0]), y[3] - 3 * y[2] + 3 * y[1] - y[0]]
+            f = O.ptrim(coef)
+            if f:
+                total += len(O.isolate(f, Fr(0), Fr(1)))
+        nsx = '(nurbs (knots ' + ' '.join(repr(float(k)) for k in ks) + ') ' + ' '.join('(pt %r %r %r %r)' % (float(p[0]), float(p[1]), float(p[2]), float(w)) for p, w in zip(ps, ws)) + ')'
+        out = run('intersect', nsx, sx('plane', [0, float(c), 0, 1, 0, 0, 0, 0, 1]))
+        pts, uns, ovs, raw = parse(out)
+        record(f'nurbs.{i}.plane', len(pts) == total and not uns, kernel=len(pts), oracle=total, out=raw[:200])
+
+
 def main():
     random_cs(int(os.environ.get('C07_N', '120')))
     special_cs()
     random_cc2(int(os.environ.get('C07_N2', '60')))
     random_ss(int(os.environ.get('C07_N3', '60')))
+    random_patch(int(os.environ.get('C07_N4', '20')))
+    random_nurbs(int(os.environ.get('C07_N5', '30')))
     rep = dict(passed=sum(r['ok'] for r in RESULTS), total=len(RESULTS), mean_query_s=sum(TIMES) / max(len(TIMES), 1),
                max_query_s=max(TIMES) if TIMES else 0, results=RESULTS)
     json.dump(rep, open(OUT, 'w'), indent=1, default=str)

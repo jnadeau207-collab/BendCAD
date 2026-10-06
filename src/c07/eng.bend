@@ -5,6 +5,7 @@ import ./ivx.bend as X
 import ./lin.bend as L
 import ./rb.bend as R
 import ./im.bend as M
+import ./bp.bend as Q
 import ../base/ex.bend as E
 import ./exc.bend as C
 
@@ -15,11 +16,23 @@ type Pb is Data:
   P_c3{ a: R.Cv, b: R.Cv }
   P_ii{ s1: M.Im, s2: M.Im }
   P_fix{ p: Pb, j: Nat, c: F64 }
+  P_cb{ c: R.Cv, q: Q.Bq }
+  P_bi{ q: Q.Bq, s: M.Im }
+  P_bb{ a: Q.Bq, b: Q.Bq }
 
 type Res is Data:
   R_pt{ x: List<&2, I.I> }
   R_pc{ x: List<&2, I.I>, k: Nat }
   R_un{ x: List<&2, I.I> }
+
+type Ac is Data:
+  Ac{ k: List<&2, I.I>, b: List<&2, I.I> }
+
+type Fp is Data:
+  Fp{ x: List<&2, I.I>, j: Nat, c: F64 }
+
+type Ff is Data:
+  Ff{ pts: List<&2, Fp>, un: Bool }
 
 def pb_n(p: Pb) -> Nat:
   match p:
@@ -29,6 +42,9 @@ def pb_n(p: Pb) -> Nat:
     case P_c3{a, b}: 2n
     case P_ii{s1, s2}: 3n
     case P_fix{q, j, c}: Nat.sub(pb_n(q), 1n)
+    case P_cb{c, q}: 3n
+    case P_bi{q, s}: 2n
+    case P_bb{a, b}: 4n
 
 def pb_m(p: Pb) -> Nat:
   match p:
@@ -38,6 +54,9 @@ def pb_m(p: Pb) -> Nat:
     case P_c3{a, b}: 3n
     case P_ii{s1, s2}: 2n
     case P_fix{q, j, c}: pb_m(q)
+    case P_cb{c, q}: 3n
+    case P_bi{q, s}: 1n
+    case P_bb{a, b}: 3n
 
 def horner(es: List<&2, E.Ex>, +t: F64) -> C.He:
   match es:
@@ -56,6 +75,13 @@ def h_val(h: List<&2, I.I>, e: List<&2, E.Ex>, +a: F64, +b: F64, +t: I.I) -> I.I
   +hi = I.i_hi(t)
   Bool.pick(I.I, F64.is_eq(lo, hi), he_iv(horner(e, lo)), R.hull(R.restr(h, tau(a, b, I.ipt(lo)), tau(a, b, I.ipt(hi)))))
 
+def rows3(+a: List<&2, I.I>, +b: List<&2, I.I>, +c: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
+  [[X.vn(a, 0n), X.vn(b, 0n), X.vn(c, 0n)], [X.vn(a, 1n), X.vn(b, 1n), X.vn(c, 1n)], [X.vn(a, 2n), X.vn(b, 2n), X.vn(c, 2n)]]
+
+def rows4(+a: List<&2, I.I>, +b: List<&2, I.I>, +c: List<&2, I.I>, +d: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
+  [[X.vn(a, 0n), X.vn(b, 0n), X.vn(c, 0n), X.vn(d, 0n)], [X.vn(a, 1n), X.vn(b, 1n), X.vn(c, 1n), X.vn(d, 1n)],
+    [X.vn(a, 2n), X.vn(b, 2n), X.vn(c, 2n), X.vn(d, 2n)]]
+
 def neg3(xs: List<&2, I.I>) -> List<&2, I.I>:
   match xs:
     case []: []
@@ -71,6 +97,9 @@ def pb_f(p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
     case P_c3{a, b}: X.vsub(R.cv_box(a, X.vn(x, 0n)), R.cv_box(b, X.vn(x, 1n)))
     case P_ii{s1, s2}: [M.im_val(s1, x), M.im_val(s2, x)]
     case P_fix{q, +j, +c}: pb_f(q, X.vins(j, x, I.ipt(c)))
+    case P_cb{c, q}: X.vsub(R.cv_box(c, X.vn(x, 0n)), Q.bq_box(q, X.vn(x, 1n), X.vn(x, 2n)))
+    case P_bi{q, s}: [M.im_val(s, Q.bq_box(q, X.vn(x, 0n), X.vn(x, 1n)))]
+    case P_bb{a, b}: X.vsub(Q.bq_box(a, X.vn(x, 0n), X.vn(x, 1n)), Q.bq_box(b, X.vn(x, 2n), X.vn(x, 3n)))
 
 def pair_rows(xs: List<&2, I.I>, ys: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   match xs:
@@ -100,6 +129,21 @@ def pb_j(p: Pb, +x: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
     case P_c3{a, b}: pair_rows(R.cv_der(a, X.vn(x, 0n)), R.cv_der(b, X.vn(x, 1n)))
     case P_ii{s1, s2}: [M.im_grad(s1, x), M.im_grad(s2, x)]
     case P_fix{q, +j, +c}: X.mdrop_col(pb_j(q, X.vins(j, x, I.ipt(c))), j)
+    case P_cb{c, +q}:
+      +u = X.vn(x, 1n)
+      +v = X.vn(x, 2n)
+      rows3(R.cv_der(c, X.vn(x, 0n)), neg3(Q.bq_du(q, u, v)), neg3(Q.bq_dv(q, u, v)))
+    case P_bi{+q, s}:
+      +u = X.vn(x, 0n)
+      +v = X.vn(x, 1n)
+      +g = M.im_grad(s, Q.bq_box(q, u, v))
+      [[X.vdot(g, Q.bq_du(q, u, v)), X.vdot(g, Q.bq_dv(q, u, v))]]
+    case P_bb{+a, +b}:
+      +u1 = X.vn(x, 0n)
+      +v1 = X.vn(x, 1n)
+      +u2 = X.vn(x, 2n)
+      +v2 = X.vn(x, 3n)
+      rows4(Q.bq_du(a, u1, v1), Q.bq_dv(a, u1, v1), neg3(Q.bq_du(b, u2, v2)), neg3(Q.bq_dv(b, u2, v2)))
 
 def excl(+f: List<&2, I.I>, +mvf: List<&2, I.I>) -> Bool:
   Bool.or(X.vany0_not(f), X.vany0_not(mvf))
@@ -195,7 +239,7 @@ def refine(n: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
 def pt_box(+p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
   refine(12n, p, x)
 
-def bbq(d: Nat, +w: U64, c: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+def bbq(d: Nat, +w: U64, +c: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   match d:
     case 0n: Bool.pick(List<&2, Res>, U64.is_eq(c, 0u64), [], [R_un{x}])
     case 1n+(+e):
@@ -213,36 +257,104 @@ def bbq(d: Nat, +w: U64, c: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
 def mk_fix(+p: Pb, +j: Nat, +c: F64) -> Pb:
   P_fix{p, j, c}
 
+def is_dup(accs: List<&2, Ac>, +k: List<&2, I.I>, +b: List<&2, I.I>) -> Bool:
+  match accs:
+    case []: False{}
+    case a <> t:
+      Ac{ak, ab} = a
+      Bool.or(Bool.or(X.vsub_of(ak, b), X.vsub_of(k, ab)), is_dup(t, k, b))
+
+def accs_of(rs: List<&2, Res>) -> List<&2, Ac>:
+  match rs:
+    case []: []
+    case r <> +t:
+      match r:
+        case R_pt{+x}: Ac{x, x} <> accs_of(t)
+        case _: accs_of(t)
+
+def resc_e(rs: List<&2, Res>, +p: Pb, +accs: List<&2, Ac>, +dom: List<&2, I.I>, +strict: Bool) -> List<&2, Res>:
+  match rs:
+    case []: []
+    case +r <> +t:
+      match r:
+        case R_un{+u}:
+          +b = X.vinfl(u, 1.0f64)
+          +ok = X.vin(kraw(p, b, pb_j(p, b), pb_n(p)), b)
+          +k = refine(12n, p, b)
+          +drop = Bool.and(ok, Bool.or(X.vdisj(k, dom), is_dup(accs, k, b)))
+          +acc = Bool.and(ok, Bool.or(Bool.not(strict), X.vsub_of(k, dom)))
+          Bool.pick(List<&2, Res>, drop, resc_e(t, p, accs, dom, strict),
+            Bool.pick(List<&2, Res>, acc, R_pt{k} <> resc_e(t, p, Ac{k, b} <> accs, dom, strict), R_un{u} <> resc_e(t, p, accs, dom, strict)))
+        case _: r <> resc_e(t, p, accs, dom, strict)
+
 def face_res(+p: Pb, +x: List<&2, I.I>, +j: Nat, +c: F64) -> List<&2, Res>:
   +q = mk_fix(p, j, c)
   +z = X.vdrop(x, j)
-  bbq(40n, 1024u64, code_qw(q, z, 1024u64), q, z)
+  +rs = bbq(40n, 1024u64, code_qw(q, z, 1024u64), q, z)
+  resc_e(rs, q, accs_of(rs), z, True{})
 
-def faces_go(n: Nat, +p: Pb, +x: List<&2, I.I>, +j: Nat) -> List<&2, Res>:
+def ff_add(acc: Ff, +f: Fp) -> Ff:
+  Ff{ps, un} = acc
+  Ff{f <> ps, un}
+
+def ff_mark(acc: Ff) -> Ff:
+  Ff{ps, un} = acc
+  Ff{ps, True{}}
+
+def fp_step(r: Res, +j: Nat, +c: F64, +acc: Ff) -> Ff:
+  match r:
+    case R_pt{z}: ff_add(acc, Fp{X.vins(j, z, I.ipt(c)), j, c})
+    case R_un{z}: ff_mark(acc)
+    case _: acc
+
+def to_fp(rs: List<&2, Res>, +j: Nat, +c: F64, +acc: Ff) -> Ff:
+  match rs:
+    case []: acc
+    case r <> t: to_fp(t, j, c, fp_step(r, j, c, acc))
+
+def faces_go(n: Nat, +p: Pb, +x: List<&2, I.I>, +j: Nat, +acc: Ff) -> Ff:
   match n:
-    case 0n: []
+    case 0n: acc
     case 1n+r:
       +xj = X.vn(x, j)
-      List.append(&2, Res, face_res(p, x, j, I.i_lo(xj)), List.append(&2, Res, face_res(p, x, j, I.i_hi(xj)), faces_go(r, p, x, Nat.add(j, 1n))))
+      +lo = I.i_lo(xj)
+      +hi = I.i_hi(xj)
+      faces_go(r, p, x, Nat.add(j, 1n), to_fp(face_res(p, x, j, hi), j, hi, to_fp(face_res(p, x, j, lo), j, lo, acc)))
 
-def faces(+p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
-  faces_go(pb_n(p), p, x, 0n)
+def fp_x(f: Fp) -> List<&2, I.I>:
+  Fp{x, j, c} = f
+  x
 
-def n_pt(rs: List<&2, Res>) -> Nat:
-  match rs:
-    case []: 0n
-    case r <> t:
-      match r:
-        case R_pt{x}: Nat.add(1n, n_pt(t))
-        case _: n_pt(t)
-
-def any_un(rs: List<&2, Res>) -> Bool:
-  match rs:
+def fp_seen(fs: List<&2, Fp>, +x: List<&2, I.I>) -> Bool:
+  match fs:
     case []: False{}
-    case r <> t:
-      match r:
-        case R_un{x}: True{}
-        case _: any_un(t)
+    case f <> t: Bool.or(Bool.not(X.vdisj(fp_x(f), x)), fp_seen(t, x))
+
+def fp_dedupe(fs: List<&2, Fp>, +seen: List<&2, Fp>) -> List<&2, Fp>:
+  match fs:
+    case []: []
+    case +f <> +t:
+      +d = fp_seen(seen, fp_x(f))
+      Bool.pick(List<&2, Fp>, d, fp_dedupe(t, seen), f <> fp_dedupe(t, f <> seen))
+
+def ff_dd(f: Ff) -> Ff:
+  Ff{ps, un} = f
+  Ff{fp_dedupe(ps, []), un}
+
+def face_all(+p: Pb, +x: List<&2, I.I>) -> Ff:
+  ff_dd(faces_go(pb_n(p), p, x, 0n, Ff{[], False{}}))
+
+def ff_un(f: Ff) -> Bool:
+  Ff{ps, un} = f
+  un
+
+def ff_n(f: Ff) -> Nat:
+  Ff{ps, un} = f
+  List.length(&2, Fp, ps)
+
+def ff_pts(f: Ff) -> List<&2, Fp>:
+  Ff{ps, un} = f
+  ps
 
 def mnorm_row(r: List<&2, I.I>) -> F64:
   match r:
@@ -268,9 +380,9 @@ def code_cv2(irr: Bool, +k: U64, +p: Pb, +x: List<&2, I.I>) -> U64:
   match irr:
     case True{}: 9u64
     case False{}:
-      +fr = faces(p, x)
-      +np = n_pt(fr)
-      Bool.pick(U64, any_un(fr), 9u64, Bool.pick(U64, Nat.is_eq(np, 0n), 0u64, Bool.pick(U64, Nat.is_eq(np, 2n), U64.add(2u64, k), 9u64)))
+      +fr = face_all(p, x)
+      +np = ff_n(fr)
+      Bool.pick(U64, ff_un(fr), 9u64, Bool.pick(U64, Nat.is_eq(np, 0n), 0u64, Bool.pick(U64, Nat.is_eq(np, 2n), U64.add(2u64, k), 9u64)))
 
 def code_cv(+p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> U64:
   +k = reg_find(pb_n(p), jx, 0n, pb_m(p))
@@ -301,7 +413,7 @@ def code_w(+p: Pb, +x: List<&2, I.I>, +w: U64, +tol: F64) -> U64:
   +c = code_of(p, x, tol, U64.is_lt(w, 16u64))
   Bool.pick(U64, Bool.and(U64.is_eq(c, 9u64), U64.is_lt(w, 2u64)), 8u64, c)
 
-def bb(d: Nat, +w: U64, c: U64, +tol: F64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+def bb(d: Nat, +w: U64, +c: U64, +tol: F64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   match d:
     case 0n: Bool.pick(List<&2, Res>, U64.is_eq(c, 0u64), [], [R_un{x}])
     case 1n+(+e):
@@ -325,3 +437,7 @@ def solve(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   +w = budget(pb_n(p))
   +tol = fscale(p, x)
   bb(d, w, code_w(p, x, w, tol), tol, p, x)
+
+def solve_e(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+  +rs = solve(d, p, x)
+  resc_e(rs, p, accs_of(rs), x, False{})
