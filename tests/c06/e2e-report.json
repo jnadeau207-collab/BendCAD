@@ -1,5 +1,5 @@
 {
- "binary_sha256": "5edb003628f113a12bf55c3ed0afabb0b046435ffb9b825fa1ea4fa3dfd583fc",
+ "binary_sha256": "38b054a1937c03efb95ea735be48cd5b60f44270a023a45f38545e69e617abf7",
  "passed": 55,
  "total": 55,
  "results": [
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.14962410926818848
+   "seconds": 0.10425519943237305
   },
   {
    "name": "bracket.reopen",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.1489715576171875
+   "seconds": 0.0816047191619873
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.1356666088104248
+   "seconds": 0.09118247032165527
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.13421845436096191
+   "seconds": 0.07979750633239746
   },
   {
    "name": "primitive.cone.mesh",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.14005422592163086
+   "seconds": 0.08219194412231445
   },
   {
    "name": "primitive.sphere.mesh",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.1509542465209961
+   "seconds": 0.093109130859375
   },
   {
    "name": "primitive.torus.mesh",
@@ -509,9 +509,13 @@
    "out": "error invalid-input | zone @ node 3 | why: dimension-not-certified-positive-over-zone | fix: narrow the zones so every dimension stays positive (torus: R > r)"
   },
   {
-   "name": "zone.bracket_not_certified",
+   "name": "zone.bracket_certified",
    "ok": true,
-   "out": "error unsupported-op | zone @ node 3 | why: envelope-topology-not-certified | fix: evaluate points with eval and sens; envelope certification of profiles and features is C07 work"
+   "out": "zone node 3: certified over the tolerance envelope | volume=[102384.42342146338, 102384.42342146637] area=[27521.061688674545, 27521.061688675294]",
+   "eval": [
+    102384.4234213741,
+    102384.42342155566
+   ]
   },
   {
    "name": "zone.bad_params_rejected",
@@ -539,8 +543,8 @@
   {
    "name": "perf.holes100",
    "ok": true,
-   "build_s": 0.152,
-   "tess_s": 2.532,
+   "build_s": 0.109,
+   "tess_s": 1.513,
    "budget": [
     1.0,
     5.0
@@ -558,8 +562,8 @@
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.333,
-   "tess_s": 15.665,
+   "build_s": 0.221,
+   "tess_s": 8.059,
    "budget": [
     2.0,
     20.0

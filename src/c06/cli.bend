@@ -18,12 +18,13 @@ def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
 
 def z_kind(+w: String) -> String:
-  Bool.pick(String, String.eq(w, "envelope-topology-not-certified"), "unsupported-op", "invalid-input")
+  Bool.pick(String, String.eq(w, "topology-not-certified-over-zone"), "numerical-uncertainty", "invalid-input")
 
 def z_fix(+w: String) -> String:
-  Bool.pick(String, String.eq(w, "envelope-topology-not-certified"), "evaluate points with eval and sens; envelope certification of profiles and features is C07 work",
+  Bool.pick(String, String.eq(w, "topology-not-certified-over-zone"), "narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value",
+    Bool.pick(String, String.eq(w, "node-failed-at-nominal"), "fix the node at its nominal parameters first (eval)",
     Bool.pick(String, String.eq(w, "dimension-not-certified-positive-over-zone"), "narrow the zones so every dimension stays positive (torus: R > r)",
-      Bool.pick(String, String.eq(w, "zone-not-ordered"), "give every parameter lo <= nom <= hi", "name an existing node")))
+      Bool.pick(String, String.eq(w, "zone-not-ordered"), "give every parameter lo <= nom <= hi", "name an existing node"))))
 
 def zone_s(r: Z.ZR, +id: U64) -> String:
   match r:

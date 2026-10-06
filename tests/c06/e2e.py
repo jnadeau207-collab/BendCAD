@@ -251,7 +251,10 @@ def zones():
     o2, _ = cli('z.bcd', 'zone', '3')
     record('zone.torus_overlap', 'committed' in o and 'dimension-not-certified-positive-over-zone' in o2, out=o2.strip())
     o, _ = cli('bracket.bcd', 'zone', '3')
-    record('zone.bracket_not_certified', 'envelope-topology-not-certified' in o and 'unsupported-op' in o, out=o.strip())
+    ev, _ = cli('bracket.bcd', 'eval')
+    zb = re.search(r'volume=\[([^,]+), ([^\]]+)\]', o)
+    eb = vol(ev, 3)
+    record('zone.bracket_certified', zb is not None and eb is not None and float(zb.group(1)) <= eb[1] and eb[0] <= float(zb.group(2)), out=o.strip(), eval=eb)
     before = read('z.bcd')
     bad = ['(param X 10 11 12)', '(param X 10 9)', '(param X abc)', '(param X 1e400)', '(param X 10 12 9)']
     rej = []
