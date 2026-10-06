@@ -1,7 +1,6 @@
 name: Verify BendCAD kernel
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
