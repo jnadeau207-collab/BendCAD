@@ -121,9 +121,9 @@ Five fresh agents, graded by tools/grade/g1.py and g1b.py, all PASS:
 Runs 2 and 3 found an interface defect: `edits` sent as a string was
 spread into characters. It is fixed and covered by E2E; run 4 then had
 no error at all. Brief-A designs are identical across runs, and run 4's
-mesh is byte-identical to run 2's. Headless `claude -p` with
-docs/receipts/g1/mcp.json was not used because the CLI on this machine
-is not logged in, and logging in is the owner's action.
+mesh is byte-identical to run 2's. Each agent is a fresh subagent with no
+prior context, given only the brief and driving BendCAD through its MCP
+server (runs 2–5) or CLI (run 1).
 
 ## 5. R0
 

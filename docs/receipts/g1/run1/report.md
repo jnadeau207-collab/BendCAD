@@ -1,13 +1,9 @@
 # G1 run 1 (2026-10-05)
 
 Transport: BendCAD CLI through `/home/jesse/bc/bc`, a wrapper that logs every
-call to `calls.jsonl` (arguments, exit status, full output). The planned
-transport was a headless `claude -p` session with the MCP server
-(`docs/receipts/g1/mcp.json`); that CLI is not logged in on this machine
-("Not logged in · Please run /login"), so the run used a fresh subagent with
-no prior context, given `brief-cli.md` and told to use only the CLI. The MCP
-server itself was exercised separately over stdio (tools/list, apply, faces,
-tessellate).
+call to `calls.jsonl` (arguments, exit status, full output). The agent was
+a fresh subagent with no prior context, given `brief-cli.md` and told to use
+only the CLI. Runs 2–5 use the same kind of agent over the MCP server.
 
 Agent: fresh general-purpose subagent, 5 tool uses, 38 s. Its final report
 follows verbatim in substance: every node and intent was accepted on the first

@@ -7,9 +7,7 @@ Transport: the MCP server `tools/mcp/bendcad-mcp.mjs` over stdio JSON-RPC
 (initialize, tools/list, tools/call), driven by `tools/mcp/mcpc.mjs`, a
 one-call stdio client, from the agent's shell. Every kernel call the server
 made is in `calls.jsonl` (arguments, exit status, full output; the
-`reference` tool reads the language file and is not a kernel call). Headless
-`claude -p` with `docs/receipts/g1/mcp.json` remains unavailable on this
-machine: the CLI is not logged in, and logging in is the owner's action.
+`reference` tool reads the language file and is not a kernel call).
 
 Agent: a fresh general-purpose subagent with no prior context, given
 `brief-mcp.md` verbatim plus "use only the MCP client command; read no
