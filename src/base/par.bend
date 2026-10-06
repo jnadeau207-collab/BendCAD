@@ -245,7 +245,7 @@ def pmc_seq(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, +c: C, xs: List<&2, A
     case Nil{}: []
     case h <> t: f(c, h) <> pmc_seq(~A, ~C, ~B, ~f, c, t)
 
-def pmc(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, d: Nat, small: Bool, +n: U32,
+def pmc(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, d: Nat, small: Bool, +g: U32, +n: U32,
     +c: C, +xs: List<&2, A>) -> List<&2, B>:
   match d:
     case 0n: pmc_seq(~A, ~C, ~B, ~f, c, xs)
@@ -255,12 +255,15 @@ def pmc(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, d: Nat, small: Bool, +n: 
         case False{}:
           +h = U32.shr(n)
           +m = U32.sub(n, h)
-          a b = pmc(~A, ~C, ~B, ~f, e, U32.is_lt(h, 128), h, c, take_u(A, xs, h, U32.is_eq(h, 0))) pmc(~A, ~C, ~B, ~f, e, U32.is_lt(m, 128), m, c, drop_u(A, xs, h, U32.is_eq(h, 0)))
+          a b = pmc(~A, ~C, ~B, ~f, e, U32.is_lt(h, g), g, h, c, take_u(A, xs, h, U32.is_eq(h, 0))) pmc(~A, ~C, ~B, ~f, e, U32.is_lt(m, g), g, m, c, drop_u(A, xs, h, U32.is_eq(h, 0)))
           List.append(&2, B, a, b)
 
-def pmap(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, +c: C, +xs: List<&2, A>) -> List<&2, B>:
+def pmap_g(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, +g: U32, +c: C, +xs: List<&2, A>) -> List<&2, B>:
   +n = ulen(A, xs)
-  pmc(~A, ~C, ~B, ~f, 40n, U32.is_lt(n, 128), n, c, xs)
+  pmc(~A, ~C, ~B, ~f, 40n, U32.is_lt(n, g), g, n, c, xs)
+
+def pmap(~A: Data, ~C: Data, ~B: Data, ~f: C -> A -> B, +c: C, +xs: List<&2, A>) -> List<&2, B>:
+  pmap_g(~A, ~C, ~B, ~f, 128, c, xs)
 
 def iota_go(-A: Data, xs: List<&2, A>, +i: U32) -> List<&2, U32>:
   match xs:
