@@ -196,10 +196,135 @@ def random_cc2(n):
         check_1d(f'cc2.{i}.{ck}-line', 'roots', roots, out)
 
 
+def parse_ss(out):
+    curves, uns, coin = [], 0, 'coincide' in out
+    cur = None
+    for ln in out.splitlines():
+        if ln.startswith('curve '):
+            cur = dict(closed=ln.split()[1] == 'closed', pts=[])
+            curves.append(cur)
+        elif ln.startswith('  p ') and cur is not None:
+            iv = re.findall(IV, ln.split(' a=')[0])
+            cur['pts'].append([(Fr(float(a)), Fr(float(b))) for a, b in iv[:3]])
+        elif ln.startswith('summary'):
+            m = re.search(r'unresolved=(\d+)', ln)
+            uns = int(m.group(1)) if m else 0
+    return curves, uns, coin
+
+
+def imp(kind, v, p):
+    x = [Fr(c) for c in p]
+    if kind == 'plane':
+        o, u, w = [Fr(c) for c in v[0:3]], [Fr(c) for c in v[3:6]], [Fr(c) for c in v[6:9]]
+        n = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]]
+        return sum(n[i] * (x[i] - o[i]) for i in range(3)), sum(abs(c) for c in n)
+    o = [Fr(c) for c in v[0:3]]
+    m = [x[i] - o[i] for i in range(3)]
+    mm = sum(c * c for c in m)
+    if kind == 'sphere':
+        return mm - Fr(v[3]) ** 2, 2 * sum(abs(c) for c in m)
+    a = [Fr(c) for c in v[3:6]]
+    aa = sum(c * c for c in a)
+    am = sum(a[i] * m[i] for i in range(3))
+    if kind == 'cylinder':
+        return aa * mm - am * am - aa * Fr(v[6]) ** 2, 2 * aa * sum(abs(c) for c in m) + 2 * abs(am) * sum(abs(c) for c in a)
+    if kind == 'torus':
+        R, r = Fr(v[6]), Fr(v[7])
+        w = mm + R * R - r * r
+        return aa * w * w - 4 * R * R * (aa * mm - am * am), 4 * aa * abs(w) * sum(abs(c) for c in m) + 8 * R * R * aa * sum(abs(c) for c in m)
+
+
+def on_both(k1, v1, k2, v2, curves):
+    for c in curves:
+        for box in c['pts']:
+            mid = [(lo + hi) / 2 for lo, hi in box]
+            diag = sum(hi - lo for lo, hi in box) + Fr(1, 10 ** 12)
+            for k, v in ((k1, v1), (k2, v2)):
+                g, grad = imp(k, v, [float(t) for t in mid])
+                if abs(g) > (grad + 1) * diag * 4:
+                    return False
+    return True
+
+
+def ss_case(name, k1, v1, k2, v2, box, want, closed=None):
+    out = run('intersect', sx(k1, v1), sx(k2, v2), sx('box', box))
+    curves, uns, coin = parse_ss(out)
+    if want == 'coincide':
+        record(name, coin and not curves, out=out[:300])
+        return
+    ok = len(curves) == want and uns == 0 and on_both(k1, v1, k2, v2, curves)
+    if closed is not None:
+        ok = ok and all(c['closed'] == closed for c in curves)
+    record(name, ok, curves=len(curves), want=want, unresolved=uns, closed=[c['closed'] for c in curves])
+
+
+def random_ss(n):
+    random.seed(23)
+    for i in range(n):
+        kind = i % 5
+        if kind == 0:
+            c = [rnd(-1, 1) for _ in range(3)]
+            r = rnd(0.5, 2, 1)
+            z = rnd(-2.5, 2.5)
+            want = 1 if abs(z - c[2]) < r else 0
+            if abs(abs(z - c[2]) - r) < 0.05:
+                continue
+            ss_case(f'ss.{i}.sphere-plane', 'sphere', c + [r], 'plane', [0, 0, z, 1, 0, 0, 0, 1, 0], [-4, 4.1, -4, 4.2, -4, 4.3], want, True)
+        elif kind == 1:
+            c1 = [rnd(-1, 1) for _ in range(3)]
+            c2 = [rnd(-1, 1) for _ in range(3)]
+            r1, r2 = rnd(0.5, 2, 1), rnd(0.5, 2, 1)
+            d = sum((a - b) ** 2 for a, b in zip(c1, c2)) ** 0.5
+            want = 1 if abs(r1 - r2) < d < r1 + r2 else 0
+            if abs(d - (r1 + r2)) < 0.05 or abs(d - abs(r1 - r2)) < 0.05:
+                continue
+            ss_case(f'ss.{i}.sphere-sphere', 'sphere', c1 + [r1], 'sphere', c2 + [r2], [-4, 4.1, -4, 4.2, -4, 4.3], want, True)
+        elif kind == 2:
+            r = rnd(0.5, 1.5, 1)
+            pl = [0, 0, rnd(-1, 1), 1, 0, rnd(0.2, 0.9, 1), 0, 1, 0]
+            ss_case(f'ss.{i}.cylinder-plane', 'cylinder', [0, 0, 0, 0, 0, 1, r], 'plane', pl, [-4, 4.1, -4, 4.2, -4, 4.3], 1, True)
+        elif kind == 3:
+            r1 = rnd(0.8, 1.5, 1)
+            r2 = rnd(0.2, 1.2, 1)
+            c = rnd(-1, 1, 1)
+            import math
+            phis = [2 * math.pi * k / 4000 for k in range(4000)]
+            pos = [r1 * r1 - (c + r2 * math.cos(f)) ** 2 > 0 for f in phis]
+            if all(pos):
+                want = 2
+            elif not any(pos):
+                want = 0
+            else:
+                runs = sum(1 for k in range(4000) if pos[k] and not pos[k - 1])
+                want = runs
+            mins = min(abs(r1 * r1 - (c + r2 * math.cos(f)) ** 2) for f in phis)
+            if mins < 1e-3:
+                continue
+            ss_case(f'ss.{i}.cyl-cyl', 'cylinder', [0, 0, 0, 0, 0, 1, r1], 'cylinder', [0, c, 0, 1, 0, 0, r2], [-3, 3.1, -3, 3.2, -3, 3.3], want, True)
+        else:
+            R = rnd(2, 3, 1)
+            r = rnd(0.3, 1, 1)
+            z = rnd(-1.2, 1.2)
+            if abs(abs(z) - r) < 1e-3:
+                continue
+            want = 2 if abs(z) < r else 0
+            ss_case(f'ss.{i}.torus-plane', 'torus', [0, 0, 0, 0, 0, 1, R, r], 'plane', [0, 0, z, 1, 0, 0, 0, 1, 0], [-5, 5.1, -5, 5.2, -2, 2.3], want, True)
+    ss_case('ss.coincide.planes', 'plane', [0, 0, 1, 1, 0, 0, 0, 1, 0], 'plane', [5, 5, 1, 0, 1, 0, 2, 0, 0], [-3, 3, -3, 3, -3, 3], 'coincide')
+    ss_case('ss.coincide.tori', 'torus', [0, 0, 0, 0, 0, 1, 3, 1], 'torus', [0, 0, 0, 0, 0, 2, 3, 1], [-5, 5, -5, 5, -2, 2], 'coincide')
+    for name, k1, v1, k2, v2 in [('ss.tangent.sphere-plane', 'sphere', [0, 0, 0, 1.5], 'plane', [0, 0, 1.5, 1, 0, 0, 0, 1, 0]),
+                                 ('ss.tangent.spheres', 'sphere', [0, 0, 0, 1], 'sphere', [2, 0, 0, 1]),
+                                 ('ss.tangent.inside', 'sphere', [0, 0, 0, 2], 'sphere', [1, 0, 0, 1])]:
+        out = run('intersect', sx(k1, v1), sx(k2, v2), sx('box', [-4, 4.1, -4, 4.2, -4, 4.3]))
+        curves, uns, coin = parse_ss(out)
+        record(name, uns >= 1 and all(not c['closed'] for c in curves) and on_both(k1, v1, k2, v2, curves), curves=len(curves), unresolved=uns)
+    ss_case('ss.plane-plane', 'plane', [0, 0, 1, 1, 0, 0, 0, 1, 0], 'plane', [0, 0, 0, 1, 0, 0, 0, 0.6, 0.8], [-3, 3.1, -3, 3.2, -3, 3.3], 1, False)
+
+
 def main():
     random_cs(int(os.environ.get('C07_N', '120')))
     special_cs()
     random_cc2(int(os.environ.get('C07_N2', '60')))
+    random_ss(int(os.environ.get('C07_N3', '60')))
     rep = dict(passed=sum(r['ok'] for r in RESULTS), total=len(RESULTS), mean_query_s=sum(TIMES) / max(len(TIMES), 1),
                max_query_s=max(TIMES) if TIMES else 0, results=RESULTS)
     json.dump(rep, open(OUT, 'w'), indent=1, default=str)

@@ -14,6 +14,7 @@ type Pb is Data:
   P_cc{ a: R.Cv, b: R.Cv, i: Nat, j: Nat }
   P_c3{ a: R.Cv, b: R.Cv }
   P_ii{ s1: M.Im, s2: M.Im }
+  P_fix{ p: Pb, j: Nat, c: F64 }
 
 type Res is Data:
   R_pt{ x: List<&2, I.I> }
@@ -27,6 +28,7 @@ def pb_n(p: Pb) -> Nat:
     case P_cc{a, b, i, j}: 2n
     case P_c3{a, b}: 2n
     case P_ii{s1, s2}: 3n
+    case P_fix{q, j, c}: Nat.sub(pb_n(q), 1n)
 
 def pb_m(p: Pb) -> Nat:
   match p:
@@ -35,6 +37,7 @@ def pb_m(p: Pb) -> Nat:
     case P_cc{a, b, i, j}: 2n
     case P_c3{a, b}: 3n
     case P_ii{s1, s2}: 2n
+    case P_fix{q, j, c}: pb_m(q)
 
 def horner(es: List<&2, E.Ex>, +t: F64) -> C.He:
   match es:
@@ -67,6 +70,7 @@ def pb_f(p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
       [X.vn(d, i), X.vn(d, j)]
     case P_c3{a, b}: X.vsub(R.cv_box(a, X.vn(x, 0n)), R.cv_box(b, X.vn(x, 1n)))
     case P_ii{s1, s2}: [M.im_val(s1, x), M.im_val(s2, x)]
+    case P_fix{q, +j, +c}: pb_f(q, X.vins(j, x, I.ipt(c)))
 
 def pair_rows(xs: List<&2, I.I>, ys: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   match xs:
@@ -95,6 +99,7 @@ def pb_j(p: Pb, +x: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
       [L_row(rows, i), L_row(rows, j)]
     case P_c3{a, b}: pair_rows(R.cv_der(a, X.vn(x, 0n)), R.cv_der(b, X.vn(x, 1n)))
     case P_ii{s1, s2}: [M.im_grad(s1, x), M.im_grad(s2, x)]
+    case P_fix{q, +j, +c}: X.mdrop_col(pb_j(q, X.vins(j, x, I.ipt(c))), j)
 
 def excl(+f: List<&2, I.I>, +mvf: List<&2, I.I>) -> Bool:
   Bool.or(X.vany0_not(f), X.vany0_not(mvf))
@@ -144,15 +149,21 @@ def fscale(+p: Pb, +x: List<&2, I.I>) -> F64:
   +m = rowmag(pb_f(p, x))
   Bool.pick(F64, T.is_finite(m), F64.mul(9.094947017729282e-13f64, m), 0.0f64)
 
-def code_of(+p: Pb, +x: List<&2, I.I>, +tol: F64, +small: Bool) -> U64:
-  +n = pb_n(p)
-  +m = pb_m(p)
+def pb_cls(+n: Nat, +m: Nat) -> U64:
+  Bool.pick(U64, Nat.is_eq(m, n), 0u64, Bool.pick(U64, Nat.is_eq(Nat.add(m, 1n), n), 1u64, 2u64))
+
+def code_qa(ex: Bool, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> U64:
+  match ex:
+    case True{}: 0u64
+    case False{}: code_sq(p, x, jx, pb_n(p))
+
+def code_q(+p: Pb, +x: List<&2, I.I>) -> U64:
   +jx = pb_j(p, x)
-  +fx = pb_f(p, x)
-  Bool.pick(U64, excl(fx, mvform(p, x, jx)), 0u64,
-    Bool.pick(U64, Bool.and(small, noisy(fx, tol)), 8u64,
-    Bool.pick(U64, Nat.is_eq(m, n), code_sq(p, x, jx, n),
-      Bool.pick(U64, Nat.is_eq(Nat.add(m, 1n), n), piece_k(n, p, x, jx, 0n, m), 9u64))))
+  code_qa(excl(pb_f(p, x), mvform(p, x, jx)), p, x, jx)
+
+def code_qw(+p: Pb, +x: List<&2, I.I>, +w: U64) -> U64:
+  +c = code_q(p, x)
+  Bool.pick(U64, Bool.and(U64.is_eq(c, 9u64), U64.is_lt(w, 2u64)), 8u64, c)
 
 def widest_go(xs: List<&2, I.I>, +i: Nat, +best: Nat, +bw: F64) -> Nat:
   match xs:
@@ -165,11 +176,16 @@ def widest_go(xs: List<&2, I.I>, +i: Nat, +best: Nat, +bw: F64) -> Nat:
 def widest(+xs: List<&2, I.I>) -> Nat:
   widest_go(xs, 0n, 0n, F64.neg(1.0f64))
 
+def cut(+a: I.I, +i: Nat) -> F64:
+  F64.add(I.i_lo(a), F64.mul(X.iwid(a), F64.add(0.515625f64, F64.mul(0.0078125f64, U64.to_f64(U64.from_nat(i))))))
+
 def half_lo(+x: List<&2, I.I>, +i: Nat) -> List<&2, I.I>:
-  X.vset(x, i, X.ilo_half(X.vn(x, i)))
+  +a = X.vn(x, i)
+  X.vset(x, i, I.I{I.i_lo(a), cut(a, i)})
 
 def half_hi(+x: List<&2, I.I>, +i: Nat) -> List<&2, I.I>:
-  X.vset(x, i, X.ihi_half(X.vn(x, i)))
+  +a = X.vn(x, i)
+  X.vset(x, i, I.I{cut(a, i), I.i_hi(a)})
 
 def refine(n: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
   match n:
@@ -178,6 +194,108 @@ def refine(n: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
 
 def pt_box(+p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
   refine(12n, p, x)
+
+def bbq(d: Nat, +w: U64, c: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+  match d:
+    case 0n: Bool.pick(List<&2, Res>, U64.is_eq(c, 0u64), [], [R_un{x}])
+    case 1n+(+e):
+      match c:
+        case 0u64: []
+        case 1u64: [R_pt{pt_box(p, x)}]
+        case 9u64:
+          +i = widest(x)
+          +lo = half_lo(x, i)
+          +hi = half_hi(x, i)
+          +h = U64.shr(U64.add(w, 1u64))
+          List.append(&2, Res, bbq(e, h, code_qw(p, lo, h), p, lo), bbq(e, h, code_qw(p, hi, h), p, hi))
+        case _: [R_un{x}]
+
+def mk_fix(+p: Pb, +j: Nat, +c: F64) -> Pb:
+  P_fix{p, j, c}
+
+def face_res(+p: Pb, +x: List<&2, I.I>, +j: Nat, +c: F64) -> List<&2, Res>:
+  +q = mk_fix(p, j, c)
+  +z = X.vdrop(x, j)
+  bbq(40n, 1024u64, code_qw(q, z, 1024u64), q, z)
+
+def faces_go(n: Nat, +p: Pb, +x: List<&2, I.I>, +j: Nat) -> List<&2, Res>:
+  match n:
+    case 0n: []
+    case 1n+r:
+      +xj = X.vn(x, j)
+      List.append(&2, Res, face_res(p, x, j, I.i_lo(xj)), List.append(&2, Res, face_res(p, x, j, I.i_hi(xj)), faces_go(r, p, x, Nat.add(j, 1n))))
+
+def faces(+p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
+  faces_go(pb_n(p), p, x, 0n)
+
+def n_pt(rs: List<&2, Res>) -> Nat:
+  match rs:
+    case []: 0n
+    case r <> t:
+      match r:
+        case R_pt{x}: Nat.add(1n, n_pt(t))
+        case _: n_pt(t)
+
+def any_un(rs: List<&2, Res>) -> Bool:
+  match rs:
+    case []: False{}
+    case r <> t:
+      match r:
+        case R_un{x}: True{}
+        case _: any_un(t)
+
+def mnorm_row(r: List<&2, I.I>) -> F64:
+  match r:
+    case []: 0.0f64
+    case +x <> t: I.up(F64.add(X.imag(x), mnorm_row(t)))
+
+def mnorm(ms: List<&2, List<&2, I.I>>) -> F64:
+  match ms:
+    case []: 0.0f64
+    case r <> t: F64.max(mnorm_row(r), mnorm(t))
+
+def reg_k(+jx: List<&2, List<&2, I.I>>, +k: Nat, +m: Nat) -> Bool:
+  +jz = X.mdrop_col(jx, k)
+  +ym = L.inv(X.mmid(jz))
+  Bool.and(Bool.not(Nat.is_eq(List.length(&2, List<&2, F64>, ym), 0n)), F64.is_lt(mnorm(X.id_minus(X.fmm(ym, X.cols(m, jz, 0n)), 0n)), 1.0f64))
+
+def reg_find(n: Nat, +jx: List<&2, List<&2, I.I>>, +k: Nat, +m: Nat) -> U64:
+  match n:
+    case 0n: 99u64
+    case 1n+r: Bool.pick(U64, reg_k(jx, k, m), U64.from_nat(k), reg_find(r, jx, Nat.add(k, 1n), m))
+
+def code_cv2(irr: Bool, +k: U64, +p: Pb, +x: List<&2, I.I>) -> U64:
+  match irr:
+    case True{}: 9u64
+    case False{}:
+      +fr = faces(p, x)
+      +np = n_pt(fr)
+      Bool.pick(U64, any_un(fr), 9u64, Bool.pick(U64, Nat.is_eq(np, 0n), 0u64, Bool.pick(U64, Nat.is_eq(np, 2n), U64.add(2u64, k), 9u64)))
+
+def code_cv(+p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> U64:
+  +k = reg_find(pb_n(p), jx, 0n, pb_m(p))
+  code_cv2(U64.is_eq(k, 99u64), k, p, x)
+
+def code_c(k: U64, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> U64:
+  match k:
+    case 0u64: code_sq(p, x, jx, pb_n(p))
+    case 1u64: code_cv(p, x, jx)
+    case _: 9u64
+
+def code_b(nz: Bool, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> U64:
+  match nz:
+    case True{}: 8u64
+    case False{}: code_c(pb_cls(pb_n(p), pb_m(p)), p, x, jx)
+
+def code_a(ex: Bool, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>, +fx: List<&2, I.I>, +tol: F64, +small: Bool) -> U64:
+  match ex:
+    case True{}: 0u64
+    case False{}: code_b(Bool.and(small, noisy(fx, tol)), p, x, jx)
+
+def code_of(+p: Pb, +x: List<&2, I.I>, +tol: F64, +small: Bool) -> U64:
+  +jx = pb_j(p, x)
+  +fx = pb_f(p, x)
+  code_a(excl(fx, mvform(p, x, jx)), p, x, jx, fx, tol, small)
 
 def code_w(+p: Pb, +x: List<&2, I.I>, +w: U64, +tol: F64) -> U64:
   +c = code_of(p, x, tol, U64.is_lt(w, 16u64))
@@ -201,7 +319,7 @@ def bb(d: Nat, +w: U64, c: U64, +tol: F64, +p: Pb, +x: List<&2, I.I>) -> List<&2
         case _: [R_pc{x, U64.to_nat(U64.sub(c, 2u64))}]
 
 def budget(+n: Nat) -> U64:
-  Bool.pick(U64, Nat.is_eq(n, 1n), 65536u64, Bool.pick(U64, Nat.is_eq(n, 2n), 262144u64, 1048576u64))
+  Bool.pick(U64, Nat.is_eq(n, 1n), 4194304u64, Bool.pick(U64, Nat.is_eq(n, 2n), 67108864u64, Bool.pick(U64, Nat.is_eq(n, 3n), 1073741824u64, 17179869184u64)))
 
 def solve(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   +w = budget(pb_n(p))

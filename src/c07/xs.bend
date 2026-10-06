@@ -591,3 +591,58 @@ def cc_main(+ga: G.GVal, +gb: G.GVal, +da: G.Dom, +db: G.Dom, ma: Maybe<&2, R.Cv
 
 def inter_cc(+ga: G.GVal, +da: G.Dom, +gb: G.GVal, +db: G.Dom, +depth: Nat) -> List<&2, Hit>:
   cc_main(ga, gb, da, db, gv_cv(ga, da), gv_cv(gb, db), depth)
+
+def mk_ii(+a: M.Im, +b: M.Im) -> N.Pb:
+  N.P_ii{a, b}
+
+def p_eq(+a: V.Point, +b: V.Point) -> Bool:
+  Bool.and(F64.is_eq(P.ptx(a), P.ptx(b)), Bool.and(F64.is_eq(P.pty(a), P.pty(b)), F64.is_eq(P.ptz(a), P.ptz(b))))
+
+def par_dirs(+a: V.Dir, +b: V.Dir) -> Bool:
+  P.pzero_all(ecr(edir(a), edir(b)))
+
+def on_axis(+o: V.Point, +a: V.Dir, +q: V.Point) -> Bool:
+  P.pzero_all(ecr(esub3(q, o), edir(a)))
+
+def same_dir(+a: V.Dir, +b: V.Dir) -> Bool:
+  Bool.and(par_dirs(a, b), F64.is_lt(0.0f64, E.ex_est(edot(edir(a), edir(b)))))
+
+def coincide(g1: G.GVal, +g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_pl{w1}:
+      G.Pl{o1, u1, v1} = w1
+      match g2:
+        case G.GV_pl{w2}:
+          G.Pl{+o2, u2, v2} = w2
+          +n1 = ecr(edir(u1), edir(v1))
+          Bool.and(P.pzero_all(ecr(n1, ecr(edir(u2), edir(v2)))), ez(edot(n1, esub3(o2, o1))))
+        case _: False{}
+    case G.GV_sp{w1}:
+      G.Sp{c1, r1} = w1
+      match g2:
+        case G.GV_sp{w2}:
+          G.Sp{c2, r2} = w2
+          Bool.and(p_eq(c1, c2), F64.is_eq(r1, r2))
+        case _: False{}
+    case G.GV_cy{w1}:
+      G.Cy{+o1, +a1, r1} = w1
+      match g2:
+        case G.GV_cy{w2}:
+          G.Cy{o2, a2, r2} = w2
+          Bool.and(par_dirs(a1, a2), Bool.and(on_axis(o1, a1, o2), F64.is_eq(r1, r2)))
+        case _: False{}
+    case G.GV_co{w1}:
+      G.Co{o1, a1, k1} = w1
+      match g2:
+        case G.GV_co{w2}:
+          G.Co{o2, a2, k2} = w2
+          Bool.and(p_eq(o1, o2), Bool.and(same_dir(a1, a2), F64.is_eq(k1, k2)))
+        case _: False{}
+    case G.GV_to{w1}:
+      G.To{o1, a1, b1, r1} = w1
+      match g2:
+        case G.GV_to{w2}:
+          G.To{o2, a2, b2, r2} = w2
+          Bool.and(p_eq(o1, o2), Bool.and(par_dirs(a1, a2), Bool.and(F64.is_eq(b1, b2), F64.is_eq(r1, r2))))
+        case _: False{}
+    case _: False{}

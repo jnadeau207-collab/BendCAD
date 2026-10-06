@@ -1,0 +1,3292 @@
+{
+ "passed": 427,
+ "total": 427,
+ "mean_query_s": 0.08767631573196875,
+ "max_query_s": 0.30939364433288574,
+ "results": [
+  {
+   "name": "cs.0.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.1.circle-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.2.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.3.conic-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.4.line-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.5.circle-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.6.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.7.conic-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.8.line-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.9.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.10.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.11.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.12.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.13.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.14.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.15.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.16.line-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.17.circle-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.18.bezier-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.19.conic-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.20.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.21.circle-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.22.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.23.conic-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.24.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.25.circle-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.26.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.27.conic-sphere",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.28.line-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.29.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.30.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.31.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.32.line-cone",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.33.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.34.bezier-cone",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.35.conic-cone",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.36.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.37.circle-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.38.bezier-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.39.conic-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.40.line-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.41.circle-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.42.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.43.conic-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.44.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.45.circle-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.46.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.47.conic-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.48.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.49.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.50.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.51.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.52.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.53.circle-cone",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.54.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.55.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.56.line-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.57.circle-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.58.bezier-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.59.conic-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.60.line-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.61.circle-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.62.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.63.conic-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.64.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.65.circle-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.66.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.67.conic-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.68.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.69.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.70.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.71.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.72.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.73.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.74.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.75.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.76.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.77.circle-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.78.bezier-torus",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.79.conic-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.80.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.81.circle-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.82.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.83.conic-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.84.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.85.circle-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.86.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.87.conic-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.88.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.89.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.90.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.91.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.92.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.93.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.94.bezier-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.95.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.96.line-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.97.circle-torus",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.98.bezier-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.99.conic-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.100.line-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.101.circle-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.102.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.103.conic-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.104.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.105.circle-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.106.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.107.conic-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.108.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.109.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.110.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.111.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.112.line-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.113.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.114.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.115.conic-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.116.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.117.circle-torus",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.118.bezier-torus",
+   "ok": true,
+   "oracle_roots": 4,
+   "points": 4,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.119.conic-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.120.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.121.circle-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.122.bezier-plane",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.123.conic-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.124.line-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.125.circle-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.126.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.127.conic-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.128.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.129.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.130.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.131.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.132.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.133.circle-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.134.bezier-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.135.conic-cone",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.136.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.137.circle-torus",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.138.bezier-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.139.conic-torus",
+   "ok": true,
+   "oracle_roots": 4,
+   "points": 4,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.140.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.141.circle-plane",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.142.bezier-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.143.conic-plane",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.144.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.145.circle-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.146.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.147.conic-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.148.line-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.149.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.150.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.151.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.152.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.153.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.154.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.155.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.156.line-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.157.circle-torus",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.158.bezier-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.159.conic-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.160.line-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.161.circle-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.162.bezier-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.163.conic-plane",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.164.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.165.circle-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.166.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.167.conic-sphere",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.168.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.169.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.170.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.171.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.172.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.173.circle-cone",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.174.bezier-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.175.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.176.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.177.circle-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.178.bezier-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.179.conic-torus",
+   "ok": true,
+   "oracle_roots": 3,
+   "points": 3,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.180.line-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.181.circle-plane",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.182.bezier-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.183.conic-plane",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.184.line-sphere",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.185.circle-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.186.bezier-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.187.conic-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.188.line-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.189.circle-cylinder",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.190.bezier-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.191.conic-cylinder",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.192.line-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.193.circle-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.194.bezier-cone",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.195.conic-cone",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.196.line-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.197.circle-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.198.bezier-torus",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cs.199.conic-torus",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "tangent.line-sphere",
+   "ok": true,
+   "out": "unresolved s=[4.9999967944095385, 5.000002193509315] t=[0, 0] near=[-0.000003205590467736387, 0.000002193509321735122]x[1.9999999999999984, 2.000000000000002]x[-4e-323, 4e-323]\nsummary points=0 overlaps=0 unresolved=1\n"
+  },
+  {
+   "name": "endpoint.line-plane",
+   "ok": true,
+   "out": "point s=[0.9999999999999998, 1.0000000000000004] t=[0, 0] at=[-5e-323, 5e-323]x[-5e-323, 5e-323]x[-1.3322676295501884e-15, 2.1094237467877986e-15] class=a-end \nsummary points=1 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "seam.circle-plane",
+   "ok": true,
+   "out": "point s=[-8.59415310088276e-104, 8.59415310088276e-104] t=[0, 0] at=[1.9999999999982299, 2.000000000001777]x[-9.825473767936002e-13, 9.856560012625516e-13]x[-1.058e-320, 1.058e-320] class=interior\npoint s=[-1.0000000000000004, -0.9999999999999998] t=[0, 0] at=[-2.0000000000000138, -1.999999999999986]x[-3.774758283725555e-15, 5.551115123125814e-15]x[-8.4e-323, 8.4e-323] class=seam\nsummary points=2 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "tangent.seam-circle-plane",
+   "ok": true,
+   "out": "unresolved s=[-1, -0.9999990616232359] t=[0, 0] near=[-2.000000000000013, -1.9999999999964655]x[-0.000003753508820267955, 3.774758283725549e-15]x[-8.4e-323, 8.4e-323]\nunresolved s=[0.9999997628474316, 1] t=[0, 0] near=[-2.0000000000030367, -1.9999999999967528]x[-1.7639223415255142e-12, 9.486121286958864e-7]x[-1.7273e-320, 1.7273e-320]\nsummary points=0 overlaps=0 unresolved=2\n"
+  },
+  {
+   "name": "near.circle-sphere",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "secs": 0.07868504524230957,
+   "roots": 0
+  },
+  {
+   "name": "on.circle-torus",
+   "ok": true,
+   "out": "overlap s=[-1, 1] t=[0, 0]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "on.circle-sphere",
+   "ok": true,
+   "out": "overlap s=[-1, 1] t=[0, 0]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "on.line-cylinder",
+   "ok": true,
+   "out": "overlap s=[-2, 2] t=[0, 0]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "on.line-cone",
+   "ok": true,
+   "out": "overlap s=[0, 3] t=[0, 0]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "other-nappe.line-cone",
+   "ok": true,
+   "out": "point s=[0, 0] t=[0, 0] at=[-2.5e-323, 2.5e-323]x[-2.5e-323, 2.5e-323]x[-2.5e-323, 2.5e-323] class=a-start \nsummary points=1 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "through-apex.line-cone",
+   "ok": true,
+   "out": "overlap s=[-1e-323, 3] t=[0, 0]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "miss.line-sphere",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cluster.bezier-plane",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 0,
+   "unresolved": 1
+  },
+  {
+   "name": "cc2.0.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.1.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.2.bezier-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.3.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.4.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.5.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.6.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.7.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.8.line-line",
+   "ok": true,
+   "out": "point s=[-3.314285714285733, -3.314285714285697] t=[4.19999999999995, 4.2000000000000535] at=[-1.5900000000000147, -1.5899999999999863]x[0.07999999999998726, 0.08000000000001349]x[-2.5e-323, 2.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.9.circle-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.10.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.11.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.12.line-line",
+   "ok": true,
+   "out": "point s=[-1.5605263157894844, -1.5605263157894627] t=[-1.8421052631579136, -1.8421052631578776] at=[1.087894736842102, 1.0878947368421084]x[-1.1184210526315894, -1.1184210526315685]x[-3.5e-323, 3.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.13.circle-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.14.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.15.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.16.line-line",
+   "ok": true,
+   "out": "point s=[-2.259090909090926, -2.2590909090908893] t=[-0.3045454545454778, -0.3045454545454333] at=[-2.0718181818181876, -2.071818181818176]x[-0.6172727272727426, -0.6172727272727104]x[-3e-323, 3e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.17.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.18.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.19.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.20.line-line",
+   "ok": true,
+   "out": "point s=[-0.500000000000013, -0.49999999999998707] t=[-3.1666666666666825, -3.1666666666666505] at=[1.799999999999997, 1.8000000000000027]x[-2.390000000000016, -2.389999999999984]x[-3.5e-323, 3.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.21.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.22.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.23.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.24.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.25.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.26.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.27.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.28.line-line",
+   "ok": true,
+   "out": "point s=[0.9946428571428471, 0.9946428571428677] t=[-2.7517857142857323, -2.751785714285696] at=[-1.5910714285714322, -1.5910714285714245]x[-0.6751785714285828, -0.67517857142856]x[-4e-323, 4e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.29.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.30.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.31.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.32.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.33.circle-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.34.bezier-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.35.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.36.line-line",
+   "ok": true,
+   "out": "point s=[-1.3687500000000117, -1.3687499999999881] t=[-3.1083333333333525, -3.108333333333316] at=[0.4924999999999945, 0.49250000000000554]x[1.5749999999999882, 1.5750000000000115]x[-3.5e-323, 3.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.37.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.38.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.39.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.40.line-line",
+   "ok": true,
+   "out": "point s=[1.6851063829787039, 1.6851063829787416] t=[-5.395744680851082, -5.3957446808510445] at=[2.0974468085106253, 2.097446808510652]x[3.9365957446808304, 3.93659574468087]x[-4.4e-323, 4.4e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.41.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.42.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.43.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.44.line-line",
+   "ok": true,
+   "out": "point s=[3.590476190476173, 3.5904761904762066] t=[-0.37619047619050333, -0.3761904761904517] at=[0.97714285714285, 0.9771428571428632]x[0.41523809523808475, 0.41523809523810556]x[-5e-323, 5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.45.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.46.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.47.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.48.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.49.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.50.bezier-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.51.conic-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.52.line-line",
+   "ok": true,
+   "out": "point s=[-2.1200000000000085, -2.11999999999999] t=[-2.4400000000000186, -2.439999999999983] at=[0.9159999999999908, 0.9160000000000085]x[-0.7240000000000091, -0.7239999999999918]x[-3e-323, 3e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.53.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.54.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.55.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.56.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.57.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.58.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.59.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.60.line-line",
+   "ok": true,
+   "out": "point s=[0.5111111111110799, 0.5111111111111432] t=[-2.1358024691358204, -2.135802469135783] at=[-2.2222222222222308, -2.222222222222214]x[1.092222222222197, 1.0922222222222466]x[-4e-323, 4e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
+   "roots": 1
+  },
+  {
+   "name": "cc2.61.circle-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.62.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.63.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.64.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.65.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.66.bezier-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.67.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.68.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.69.circle-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.70.bezier-line",
+   "ok": true,
+   "oracle_roots": 2,
+   "points": 2,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.71.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.72.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.73.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.74.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.75.conic-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.76.line-line",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n",
+   "roots": 0
+  },
+  {
+   "name": "cc2.77.circle-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.78.bezier-line",
+   "ok": true,
+   "oracle_roots": 1,
+   "points": 1,
+   "unresolved": 0
+  },
+  {
+   "name": "cc2.79.conic-line",
+   "ok": true,
+   "oracle_roots": 0,
+   "points": 0,
+   "unresolved": 0
+  },
+  {
+   "name": "ss.0.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.1.sphere-sphere",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.2.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.4.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.5.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.6.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.7.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.9.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.10.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.12.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.14.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.15.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.17.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.19.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.20.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.21.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.22.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.23.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.24.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.25.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.26.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.27.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.28.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.29.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.30.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.31.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.32.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.33.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.34.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.35.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.36.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.37.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.38.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.39.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.40.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.41.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.42.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.44.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.45.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.46.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.47.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.48.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.49.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.51.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.52.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.53.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.54.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.55.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.57.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.58.cyl-cyl",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.59.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.60.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.61.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.62.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.64.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.65.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.66.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.67.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.69.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.70.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.71.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.72.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.74.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.75.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.76.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.77.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.78.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.79.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.80.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.81.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.82.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.83.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.84.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.86.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.87.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.89.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.90.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.91.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.92.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.93.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.94.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.95.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.96.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.97.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.98.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.99.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.100.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.101.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.102.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.103.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.104.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.105.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.106.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.107.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.109.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.110.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.112.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.113.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.114.torus-plane",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.115.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.117.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.119.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.120.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.121.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.122.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.124.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.125.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.126.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.127.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.129.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.130.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.131.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.132.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.134.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.135.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.136.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.137.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.139.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.140.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.141.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.142.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.143.cyl-cyl",
+   "ok": true,
+   "curves": 2,
+   "want": 2,
+   "unresolved": 0,
+   "closed": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "ss.144.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.145.sphere-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.146.sphere-sphere",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.147.cylinder-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.148.cyl-cyl",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    true
+   ]
+  },
+  {
+   "name": "ss.149.torus-plane",
+   "ok": true,
+   "curves": 0,
+   "want": 0,
+   "unresolved": 0,
+   "closed": []
+  },
+  {
+   "name": "ss.coincide.planes",
+   "ok": true,
+   "out": "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1\n"
+  },
+  {
+   "name": "ss.coincide.tori",
+   "ok": true,
+   "out": "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1\n"
+  },
+  {
+   "name": "ss.tangent.sphere-plane",
+   "ok": true,
+   "curves": 0,
+   "unresolved": 4
+  },
+  {
+   "name": "ss.tangent.spheres",
+   "ok": true,
+   "curves": 0,
+   "unresolved": 4
+  },
+  {
+   "name": "ss.tangent.inside",
+   "ok": true,
+   "curves": 0,
+   "unresolved": 36
+  },
+  {
+   "name": "ss.plane-plane",
+   "ok": true,
+   "curves": 1,
+   "want": 1,
+   "unresolved": 0,
+   "closed": [
+    false
+   ]
+  }
+ ]
+}
