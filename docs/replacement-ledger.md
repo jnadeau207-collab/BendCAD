@@ -82,7 +82,7 @@ No legacy source was mined for this packet: each row is new Bend code
 over C00–C05. Contract `docs/c06-contract.md`. The 2026-10-03 rows
 (box-only builder, `types`/`ops`/`eval`) are superseded; their R0.4
 repairs are restated in contract §11. Laws named `ev_*`, `ms_*`,
-`cache_partial` and `ear_holes16` live in `laws/c06_build.bend`; the rest
+`cache_partial` and `ear_holes4` live in `laws/c06_build.bend`; the rest
 are in `laws/c06.bend`.
 
 | Operation | Legacy source | Bend implementation | Law obligations | Fixtures | Limitations |
@@ -96,7 +96,7 @@ are in `laws/c06.bend`.
 | Effects, intent gate, staged diagnosis | None mined | `model.bend`: effects measured from the result (volume-interval material, lineage-name faces, B-rep solids/genus); mismatch rejects with declared and measured effect; unknown op names are `unknown-op` | `ev_intent_mismatch`, `ev_bad_input_node`, `ev_dup_ids`, `unknown_op` | E2E `reject.1`, `reject.5`, `rotate.rejections` | — |
 | Evaluator, cache, transactions | None mined | `model.bend` `ev_part`: full-key reuse; `cli.bend` atomic `apply` | `cache_partial` | E2E `bracket.edit`, `bracket.delete`, `bracket.sensitivity_reuses_cache`, `reject.*` (file unchanged) | Sequential node walk |
 | Names, sensitivities, serialization | None mined | `nN.cK.top/bottom/wall.I.J`; central differences with topology check; `src/c06/sx.bend` S-expression format with checker-evaluable exact decimal reader | (via `prof_*`/`ev_*` parsing real text) | E2E `bracket.faces`, `bracket.sensitivity`, `bracket.serialize_stable` | Sensitivities estimated, not certified |
-| Tessellation | None mined | `src/c06/tess.bend`, `src/c06/ear.bend`: shared edge samples, indexed ear clipping, strips, lathe grid | `ear_holes16` | E2E `*.mesh` via `tools/grade/mesh.py` | Display quality, no stated bounds (C10); 1,600 holes 59 s |
+| Tessellation | None mined | `src/c06/tess.bend`, `src/c06/ear.bend`: shared edge samples, indexed ear clipping, strips, lathe grid | `ear_holes4` | E2E `*.mesh` via `tools/grade/mesh.py` | Display quality, no stated bounds (C10); 1,600 holes 59 s |
 | Agent surface (A0) | None mined | `cli.bend`, `tools/mcp/bendcad-mcp.mjs`, `tools/mcp/language.md` | — | E2E `mcp.session`; G1 runs 1–4 (`docs/receipts/g1/`) | Headless `claude -p` needs a logged-in CLI |
 | Quadric frames and evaluators | None mined | `src/c06/surfx.bend` (unchanged since R0.4) | `ok_*`/`neg_*` surfx laws (47) | — | Feed C07 |
 

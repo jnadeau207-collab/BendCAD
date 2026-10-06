@@ -1,0 +1,142 @@
+# C06.1 receipt — 2026-10-05 (C06 + A0 closeout, R0 closed)
+
+Packet: close C00–C06 cleanly. C06 per MASTER_PLAN §10 (primitives,
+extrusion, revolution, pad/pocket, holes, transformations; multi-region,
+axis crossings and degenerate input explicit; per-op intent check;
+evaluator with rebuild on edit) and §17 (tolerance model), A0 (MCP,
+CLI, Bend library), exit G1, and every R0 item closed or owned (A5).
+Contract: docs/c06-contract.md. Plan: MASTER_PLAN §13, §15 (R0
+closed), §17, §18, A5. Ledger: docs/replacement-ledger.md C06 section.
+
+Commits since R0.4 (5cb1636): d114be2 (A4), 6bbf75c, c7c05fd, 5e2cdbe,
+c28c7ec, 0268538, 9214f66, a475bd7, f885649 (closeout).
+
+## 1. Provenance
+
+Compiler: `BEND_PIN` jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920
+(tag numeric/2026-10-05), ~/.bend/bin/bend sha256
+ada00d6850e5fec47692b6274dc7a7d38ac445b984e5c44555469e4f1005f223, the
+same binary as R0.4. WSL2, Ryzen 7 7800X3D, 16 threads, 19 GB.
+
+The fork rebase was verified clean on 2026-10-05, before this packet's
+code: range-diff of 777ee0b5..bc01485d vs 653e391b..1d27fcc1, with the
+conformance commits identical. The full gate ran on upstream (1538/1541)
+and on the pin (1551/1554); the differing failures were flakes.
+
+CLI binary used by E2E and G1 run 5: ~/bc/bendcad built from
+src/c06/cli.bend at f885649, sha256
+5edb003628f113a12bf55c3ed0afabb0b046435ffb9b825fa1ea4fa3dfd583fc.
+
+Law sources at launch (sha256; identical to f885649):
+
+  ff0f47bf637420d0fa2a04e3927a7792cd97b86f859ee0d08340706ec1b559f6  laws/c06.bend
+  a88bf2294f30cbfb06e4992ee20fe52c68f3d92d0778bedcccf45af0fe9e8f2a  laws/c06_build.bend (final; f9a9baaa… had ear_holes16)
+  c3fdf247048bd6d9a3e4094b42c23c0969c2f5edaff752bcc8d11139a0ccae75  src/c06/model.bend
+  bc18edb56ab376080783fc6795da26fc0e432e1bf9a16935cacc23024146f65f  src/c06/cli.bend
+  3d9675b3f6b4e1ca82b6582da6c23fc5d6b119ba5e88b2734e01e6e523082320  src/c06/sx.bend
+  78fff4c58a1635add7dcc76e5dfa579febc6f4a37fa545a6c3818e849427dc91  src/c06/iv.bend
+  eb39441ebc5d4255b3ce4264749bcead49f0f44240fe7c77b41488a3a8873910  src/c06/zone.bend
+  4a26f3936ec3c6f181ca243fee246f410a2cd211b8cc280b6362eff9190318f8  laws/c00.bend
+  9236290d800fc7ab96f48bf126bdba0510f4e2e3cc3a76535abd1b96ee981ddf  laws/c01.bend
+  2732c24e84b721c2a81fb945dfd33db45137ef070c40bbb5008ed014eeb80bca  laws/c02.bend
+  652e77138d0dc0f781e3b8b8a1854e8b28b83973954cd3c1df6ed1b6eabec60d  laws/c03.bend
+  bbfe716bd976f7da8628de64ee43ca1ff1a4149fcbec24bd43d0a3e1d2bfadfa  laws/c04.bend
+  8f1db96f0d86e348b684e2e674923c2fd9f88a0214401b25f60afa1807ce6ca5  laws/c05.bend
+
+C00–C05 sources are unchanged since d114be2 (A4).
+
+## 2. Laws: every law file in full on the pin
+
+Detached, `--check-only`, logs in ~/lawruns/full-c06close and
+~/lawruns/c06final. The machine was shared by up to eleven checkers at
+once, so the times are wall clock under contention (c05 alone has taken
+minutes).
+
+  file              laws  result            wall time
+  laws/c00.bend       38  ALL PROOFS CHECK      44 s
+  laws/c01.bend       34  ALL PROOFS CHECK     313 s
+  laws/c02.bend       50  ALL PROOFS CHECK    1607 s
+  laws/c03.bend      418  ALL PROOFS CHECK    6055 s
+  laws/c04.bend      603  ALL PROOFS CHECK    5973 s
+  laws/c05.bend       62  ALL PROOFS CHECK   16569 s
+  laws/c06.bend       77  ALL PROOFS CHECK    4944 s  (one file)
+  laws/c06_build.bend 25  see below                   (one law per process)
+
+laws/c06_build.bend, one process per law, five at a time, all from the
+same snapshot: 24 of 25 ALL PROOFS CHECK, taking 2 s to 6137 s each
+(ev_bore is the longest). The 25th, ear_holes16 (a 100 x 100 square with
+16 holes, 98 triangles), ran 4 h 07 min at flat memory without finishing
+and was stopped. It was replaced by ear_holes4, which pins the same
+triangle count formula (vertices + 2·holes − 2 = 26) and passed:
+ALL PROOFS CHECK in 3214 s, run alone on the final file. Ear clipping at
+scale is covered by E2E (100 and 400 holes, watertight, genus checked),
+and the 1,600-hole case was measured in a475bd7.
+
+Discrimination: each new zone, trigonometry and placement law was run
+against a mutant of the code it pins, and every mutant failed. The
+mutants: interval env uses hi for lo; torus without R − r; positivity
+on hi; or-for-and zone order; prism certified; sine series truncated
+to 2 terms; exact quarter path removed; `pl_exact` constant true;
+`padd`/`pmul` replaced by `iadd`/`imul`. `zone_unordered` was
+tightened after its first form did not catch the or-for-and mutant.
+
+Profile and evaluator laws were stuck before this packet: `F64.read` and
+`F64.show` are bodiless `law`s, so the checker never reduces them. The
+decimal reader in sx.bend is checker-evaluable and bit-identical to
+`F64.read` on 23 probe strings, including fallbacks. It differs only on
+`inf` and `+5`, which are now names.
+
+## 3. E2E: tests/c06/e2e.py → tests/c06/e2e-report.json
+
+55/55 PASS on the binary above. Every volume check requires the
+closed-form value inside the certified interval. Every mesh is graded by
+tools/grade/mesh.py: watertight, Euler characteristic, signed volume
+within tolerance. Journeys:
+
+- bracket: build, reopen, serialize byte-stable, sensitivity
+  (640 = H·T), cache reuse in sensitivity (3 of 4 nodes), 17 faces,
+  edit, mesh (genus 5), delete;
+- five primitives with meshes; revolve cavity;
+- counterbore and island with meshes;
+- quarter-turn placement;
+- general rotations: tight boxes for box, cylinder, torus and sphere;
+  enclosure for arcs; features on a rotated body; mesh inside the
+  certified box;
+- nine atomic rejections, each with its reason and the file unchanged;
+- tolerance envelope: box, move and torus certified; overlap and
+  not-certified diagnosed; five malformed zones rejected;
+- an MCP JSON-RPC session (handshake, ten tools, apply, rejection,
+  faces, sensitivity, unknown tool, edits as one string);
+- performance: 100 holes build 0.16 s and tessellate 2.3 s; 400 holes
+  0.31 s and 14.9 s, under the law-run load; both meshes watertight
+  with genus 100 and 400.
+
+## 4. G1 (docs/receipts/g1/)
+
+Five fresh agents, graded by tools/grade/g1.py and g1b.py, all PASS:
+- run 1, brief A, CLI transport;
+- runs 2 and 4, brief A, MCP;
+- runs 3 and 5, brief B, MCP; run 5 on the final binary.
+
+Runs 2 and 3 found an interface defect: `edits` sent as a string was
+spread into characters. It is fixed and covered by E2E; run 4 then had
+no error at all. Brief-A designs are identical across runs, and run 4's
+mesh is byte-identical to run 2's. Headless `claude -p` with
+docs/receipts/g1/mcp.json was not used because the CLI on this machine
+is not logged in, and logging in is the owner's action.
+
+## 5. R0
+
+Closed (MASTER_PLAN §15, A5): C04 push O(n) closed by the C06 bulk
+builder. Rigid-cluster decomposition is owned by C09. List spines go
+to the milestone whose budget first measures them, with C03 knots at
+C10. The GPU lane is owned by the device gate (§4b).
+
+## 6. Owned elsewhere (not C06)
+
+- Envelope evaluation of profiles and features: C07 (A5).
+- Booleans and features on revolved bodies: C08/C09.
+- Partial revolution: C09.
+- Tessellation bounds: C10.
+- Tight boxes for rotated profiles with arcs (now certified
+  enclosures): C10/C11.

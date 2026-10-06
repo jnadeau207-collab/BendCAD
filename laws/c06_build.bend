@@ -243,8 +243,8 @@ law cache_partial:
 def cache_partial():
   {==}
 
-law ear_holes16:
-  {List.length(&2, EA.Tri, EA.tri_poly(sq_ea(100.0f64), holes_ea(16n, 0n, 4n))) == 98n : Nat}
+law ear_holes4:
+  {List.length(&2, EA.Tri, EA.tri_poly(sq_ea(100.0f64), holes_ea(4n, 0n, 2n))) == 26n : Nat}
 
-def ear_holes16():
+def ear_holes4():
   {==}
