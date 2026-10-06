@@ -2,7 +2,7 @@
 
 Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the world's best kernel for AI agents. It is never silently wrong and explains its failures. Identity is by meaning. Toleranced, state-dependent geometry is native. Sensitivities come with every answer. It is fast and massively parallel by law (MASTER_PLAN §14–§15).
 
-**Status:** C00–C06 closed. C00–C05 have laws, three-lane tests and independent oracles:
+**Status:** C00–C07 closed. C00–C05 have laws, three-lane tests and independent oracles:
 
 - contracts;
 - math foundation;
@@ -22,7 +22,16 @@ C06 + A0 is closed (`docs/receipts/c06.1-2026-10-05.txt`). It covers:
 - sensitivities and watertight tessellation;
 - the `bendcad` CLI and MCP server (`tools/mcp/`).
 
-Challenge G1 passed: fresh agents built and edited a parameterized bracket through MCP, and an independent grader passed every run (`docs/receipts/g1/`). Next is C07. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
+Challenge G1 passed: fresh agents built and edited a parameterized bracket through MCP, and an independent grader passed every run (`docs/receipts/g1/`).
+
+C07 is closed. It adds:
+
+- certified curve/curve, curve/surface and surface/surface intersection, with every unresolved region reported;
+- point classification (`classify`);
+- an embedding, orientation and cavity check for any solid (`check`);
+- tolerance-envelope measures for every operation, once the topology is certified constant over the zone.
+
+Next is C08. New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
 
 ## Pins
 
@@ -36,6 +45,7 @@ Challenge G1 passed: fresh agents built and edited a parameterized bracket throu
 - [MASTER_PLAN.md](MASTER_PLAN.md): the kernel roadmap (C00–C16), the agent kernel's properties (§14), speed and parallelism law (§15), interface and scope (§16), milestone order (§17), and the challenge ladder (§18)
 - [tools/mcp/language.md](tools/mcp/language.md): the design language agents use through the MCP server (`tools/mcp/bendcad-mcp.mjs`) or the `bendcad` CLI (`src/c06/cli.bend`)
 - [docs/c06-contract.md](docs/c06-contract.md): what C06 builds, measures and refuses
+- [docs/c07-contract.md](docs/c07-contract.md): intersections, classification, embedding and envelope topology
 - [legacy/aethalgard/](legacy/aethalgard/): immutable reference corpus
 - [legacy/PROVENANCE.md](legacy/PROVENANCE.md), [legacy/manifest.json](legacy/manifest.json)
 

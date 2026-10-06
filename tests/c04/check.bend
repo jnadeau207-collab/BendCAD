@@ -2180,3 +2180,20 @@ def b_h_highval() -> Ty.Brep:
   +b19 = Ty.tres_brep(Ty.so_push(b18, hshS, hsh0()))
   +hsoS = Ty.mk_hso(0n, 19u64)
   Ty.brep_set_top(b19, Ty.Cp{hsoS <> Nil{}, hsh0()})
+
+def nb_p0() -> V.Point:
+  V.Pt{0.0f64, 0.0f64, 0.0f64}
+
+def nb_p3() -> V.Point:
+  V.Pt{3.0f64, 0.0f64, 0.0f64}
+
+def nb_curve() -> G.GVal:
+  G.GV_nb{G.Nb{[0.0f64, 0.0f64, 0.0f64, 0.0f64, 1.0f64, 1.0f64, 1.0f64, 1.0f64],
+    [nb_p0(), V.Pt{1.0f64, 1.0f64, 0.0f64}, V.Pt{2.0f64, 1.0f64, 0.0f64}, nb_p3()],
+    [1.0f64, 1.0f64, 1.0f64, 1.0f64]}}
+
+def b_nb_edge() -> Ty.Brep:
+  Ty.Br{[Ty.Vx{1u64, nb_p0()}, Ty.Vx{2u64, nb_p3()}],
+    [Ty.Ed{3u64, Ty.HV{0n, 1u64}, Ty.HV{1n, 2u64},
+      Ty.EK_curve{nb_curve(), G.Dom{0.0f64, 1.0f64}}}],
+    [], [], [], [], [], Ty.Cp{[], []}, 3u64}

@@ -596,3 +596,29 @@ law unknown_op:
 
 def unknown_op():
   {==}
+
+def forge(cs: List<&2, M.CE>) -> List<&2, M.CE>:
+  match cs:
+    case []: []
+    case +c <> t: [M.CE{M.ce_id(c), M.ce_key(c), M.nr_err(T.F_invalid{}, "forged", "-", "forged", "-")}]
+
+def unk_src() -> String:
+  "(bendcad 1) (node 1 (frobnicate 1) (intent create any 0 1 0))"
+
+law ev_dup_param:
+  {r_s(M.ce_r(M.ce_find(ev("(bendcad 1) (param 1 W 1 1 1) (param 1 H 2 2 2) (node 1 (box W H 1) (intent create 6 0 1 0))"), 0u64))) == "err invalid-input duplicate-node-or-parameter-id" : String}
+
+def ev_dup_param():
+  {==}
+
+law cache_hit_republishes:
+  {r_s(M.ce_r(M.ce_find(M.ev_part(part(unk_src()), forge(ev(unk_src()))), 1u64))) == "err invalid-input forged" : String}
+
+def cache_hit_republishes():
+  {==}
+
+law cache_miss_rebuilds:
+  {r_s(M.ce_r(M.ce_find(M.ev_part(part(unk_src()), []), 1u64))) == "err invalid-input unknown-op" : String}
+
+def cache_miss_rebuilds():
+  {==}

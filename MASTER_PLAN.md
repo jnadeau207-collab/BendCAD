@@ -294,7 +294,7 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is closed (§15, A5). C06 + A0 is closed: G1 passed (§18; receipt `docs/receipts/c06.1-2026-10-05.txt`). Next is C07.
+`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is closed (§15, A5). C06 + A0 is closed: G1 passed (§18; receipt `docs/receipts/c06.1-2026-10-05.txt`). C07 is closed (`docs/c07-contract.md`, receipt `docs/receipts/c07-2026-10-06.txt`). Next is C08.
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
@@ -323,8 +323,10 @@ advances them and none may regress them.
    class. The kernel verifies the effect before publishing, so a
    valid-looking wrong result becomes a visible error.
 5. **The design is a pure, content-addressed operation graph.** Each
-   node is hashed from its operation and inputs (C00's `op_id` is the
-   seed). This gives:
+   node is keyed by its full content: its operation, evaluated
+   parameters, declared intent and its inputs' keys. Reuse requires an
+   exact key match; no hash is trusted (C00's `op_id` identifies a
+   request for cancellation and display). This gives:
    - memoized, incremental rebuilds;
    - free branching and exact diffs;
    - bit-identical results on every lane.
@@ -561,7 +563,7 @@ general mechanism, and parallel by construction.
    its residuals are owned by C09 (rigid-cluster decomposition), by
    the milestone that measures each list spine, and by the device
    gate (GPU lane) (A5).
-2. **C06 + A0.** Solids as content-addressed, intent-checked
+2. **C06 + A0.** Solids as content-keyed, intent-checked
    operations with lineage names and diagnosed failures; the graph
    evaluator with memoized incremental rebuild; the tolerance model
    (nominal + zone, certified interval evaluation). A0 is the MCP/CLI
@@ -679,4 +681,4 @@ Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels
   - certified interval measures at any parameter point;
   - `zone`: volume and area certified over the whole envelope wherever topology provably cannot change across it. That covers box, cylinder, cone, sphere and torus while their dimensions stay certified positive (and `R > r` for the torus), and placements of them. This is a superset of the box-only `ms_zone` that C06 had before.
 
-  Profiles and features need a certificate that topology stays constant across the zone. C06 predicates certify single points only, and tangent junctions such as rounded corners defeat simple clearance-margin bounds. That certificate is parameter-box intersection work, so envelope evaluation of profiles and features moves to C07, ahead of G2. Until then `zone` answers `envelope-topology-not-certified` for them.
+  Profiles and features need a certificate that topology stays constant across the zone. C06 predicates certify single points only, and tangent junctions such as rounded corners defeat simple clearance-margin bounds. That certificate is parameter-box intersection work, so envelope evaluation of profiles and features moves to C07, ahead of G2. Delivered in C07 (`docs/c07-contract.md` §6).

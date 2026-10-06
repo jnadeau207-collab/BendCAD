@@ -113,6 +113,12 @@ codes (`pe_why`/`pe_fix` give the reason and the repair):
 | 11 | orientation-uncertain | 23 | consecutive-axis-segments |
 | 12 | hole-outside-outer | 24 | surface-not-representable |
 
+Adjacent segments share their joining point by construction and may
+meet only there: any further common point is a fold-back spike (code
+10), which would leave material of zero width that no solid can bound.
+Clearances (codes 9, 13, 14, 15, 18, 19) are decided by exact expansion
+arithmetic on coordinate differences, never by rounded differences; a
+pair that exact arithmetic cannot separate is code 15, never a pass.
 Simplicity and loop-pair tests run on sweep candidate pairs (sorted
 bounding boxes), not all pairs. Orientation comes from exact area
 bounds; clockwise input is normalized, never rejected. Regions may be
@@ -179,7 +185,14 @@ its evaluated expression words and the keys of its inputs; an entry is
 reused only when the full key matches (no hash trust, R0.4). Editing a
 parameter rebuilds exactly the nodes whose keys changed; law
 `cache_partial` pins reuse `[T, T, T, F]` when only the last node
-changes. A failed input fails its dependents
+changes. A cache entry is trusted as `ev_part`'s own output: on a
+full-key hit the stored result (body and measured effect) is republished
+without rebuilding, so an entry forged with an exact key would be
+published as is (law `cache_hit_republishes` pins this; `cache_miss_rebuilds`
+pins the rebuild). No CLI or MCP path accepts a cache: the only caller
+that passes one is `sensitivity`, which passes `ev_part`'s own result
+for the same part. Duplicate node or parameter ids reject the whole part
+(`ev_dup_ids`, `ev_dup_param`). A failed input fails its dependents
 (`input-node-missing-or-failed`). `apply` is atomic: edits are applied
 to a copy, the whole part is evaluated, and the file is written only
 if every node is valid and meets its intent.
@@ -232,9 +245,10 @@ Results:
   dimension can reach zero or below anywhere in the envelope.
 - `zone-not-ordered` (`invalid-input`) when a stored zone violates
   `lo <= nom <= hi`.
-- `envelope-topology-not-certified` (`unsupported-op`) for profiles and
-  features, which need a topology-constancy certificate over parameter
-  boxes. That certificate is C07 work (MASTER_PLAN A5).
+- Prisms, pads, pockets, holes and revolves are certified by C07's
+  topology-constancy certificate (`docs/c07-contract.md` §6); when it
+  fails the answer is `topology-not-certified-over-zone`
+  (`numerical-uncertainty`).
 
 This replaces and extends the box-only `ms_zone` of the 2026-10-03 C06.
 
@@ -251,8 +265,8 @@ This replaces and extends the box-only `ms_zone` of the 2026-10-03 C06.
 
 ## 12. Evidence
 
-- Laws: 102 in two files.
-  - `laws/c06.bend` has 77: 47 `surfx`, plus expressions, arcs, the
+- Laws: 105 in two files.
+  - `laws/c06.bend` has 80: 47 `surfx`, plus expressions, arcs, the
     twelve profile codes, revolve-axis and missing-input verdicts, the
     tolerance envelope, certified sine/cosine, placement exactness and
     unknown ops. It is checked as one file.
@@ -266,8 +280,7 @@ This replaces and extends the box-only `ms_zone` of the 2026-10-03 C06.
   - Profile and evaluator laws parse real design text. They reduce
     because the decimal reader is checker-evaluable.
   - Each zone, trigonometry and placement law fails on a mutant that
-    breaks the property it pins. Profile and evaluator laws parse real design text; they
-  reduce because the decimal reader is checker-evaluable.
+    breaks the property it pins.
 - E2E `tests/c06/e2e.py` → `tests/c06/e2e-report.json` and
   `tests/c06/e2e-meshes/`: bracket build/reopen/serialize/sensitivity
   (and cache reuse inside it)/faces/edit/mesh/delete, five primitives with meshes, revolve cavity,
@@ -290,8 +303,8 @@ Performance (native, one thread, this machine): bracket build 0.12 s;
 
 - Booleans between solids, features on revolved bodies, fillets and
   chamfers: C08/C09.
-- General curve/surface intersection, self-intersection beyond the
-  profile checks: C07.
+- General intersection, solid classification and self-intersection:
+  delivered by C07 (`docs/c07-contract.md`).
 - Tessellation quality bounds and batch evaluation: C10. Tessellation
   is the slow path at scale (59 s for 1,600 holes).
 - Partial revolution (angle < 360°): C09.

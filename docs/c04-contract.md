@@ -452,7 +452,7 @@ bun 1.4.2, `PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH`,
 `BEND_NO_TELEMETRY=1`. CI-unavailable record carried (BN-12):
 local qualification is the authoritative evidence.
 
-Laws: 592 (`grep -c '^law ' laws/c04.bend` = 592 = 480 L0 +
+Laws at the C04 closeout (`924b9df`): 592 (`grep -c '^law ' laws/c04.bend` = 592 = 480 L0 +
 112 L1; `grep -c '^law ck_'` = 32 = 10 accepts + 21 rejects +
 fuel; L1 = 35 semantic + 33 correspondence/base + 44
 microcase per the §13 taxonomy). C03 predecessor: 403 laws;
@@ -698,8 +698,20 @@ appears in exactly one class):
   `l1_ekind_degen`, curved skip, counter round-trips.
   Valuable regression pins, not universal invariants.
 
-592 laws, all closed (`bend laws/c04.bend --check-only`
-exit 0). Laws cover `src/c04/types.bend` + `src/c04/ops.bend`.
+603 laws today, all closed (`bend laws/c04.bend --check-only`
+exit 0): 486 L0 + 117 L1, 38 `ck_*`. History: 592 at the C04
+closeout (`924b9df`); +5 `l1_*` in R0.2 (`9686ace`, 597); +2
+`ck_fuel_ix`, `ck_stage_fuel` when the box path was requalified on
+the rebased compiler (`c985d99`, 599); +3 NURBS fuel regressions
+`ck_fuel_nurbs`, `ck_embed_nurbs_short`, `ck_embed_nurbs_full` in
+R0.4 (`5cb1636`, 602); +1 `ck_cyl_round` in A4 (`d114be2`, 603).
+Current evidence: `docs/receipts/logs/b45-c04-laws-2026-10-04.log`,
+`docs/receipts/r0.4-2026-10-05.txt` and the C07 closeout receipt,
+which checks every law file on the current pin. Laws cover
+`src/c04/types.bend` + `src/c04/ops.bend`. Suites today: `neg` 126,
+`pos` 285 (the C07 audit added `pos-fuel-nurbs-bound`,
+`pos-embed-nurbs-short-fuel` and `pos-embed-nurbs-full-fuel`, the
+suite counterparts of the three NURBS fuel laws).
 
 ## 14. Historical record (superseded interim states)
 

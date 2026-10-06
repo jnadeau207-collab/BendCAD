@@ -1967,7 +1967,7 @@ def ck_done_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRe
 def ck_after_a(ok: Bool, +ra: Ty.TRes, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
   match ok:
     case False{}: ra
-    case True{}: ck_done_go(ck_done(b, fuel), b, prof, fuel)
+    case True{}: ck_done_go(True{}, b, prof, fuel)
 
 def brep_checked_go(done: Bool, +b: Ty.Brep, +prof: Ty.Profile, +fuel: Nat) -> Ty.TRes:
   match done:

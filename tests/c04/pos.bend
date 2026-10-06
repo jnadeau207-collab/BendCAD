@@ -1018,6 +1018,19 @@ def pos_g14(f262: U64) -> IO(U64):
       f281)
     return f282
 
+def pos_g15(f282: U64) -> IO(U64):
+  do IO<U64>:
+    f283 : U64 <- C.report_pure("pos-fuel-nurbs-bound",
+      Nat.is_eq(Ty.ix_bound(C.b_nb_edge()), 9n),
+      f282)
+    f284 : U64 <- C.report_pure("pos-embed-nurbs-short-fuel",
+      Nat.is_eq(Op.brep_embed_c(C.b_nb_edge(), 2n), 0n),
+      f283)
+    f285 : U64 <- C.report_pure("pos-embed-nurbs-full-fuel",
+      Nat.is_eq(Op.brep_embed_c(C.b_nb_edge(), 9n), 3n),
+      f284)
+    return f285
+
 def main() -> IO(Unit):
   do IO<Unit>:
     a1 : U64 <- pos_g1(0u64)
@@ -1034,4 +1047,5 @@ def main() -> IO(Unit):
     a12 : U64 <- pos_g12(a11)
     a13 : U64 <- pos_g13(a12)
     a14 : U64 <- pos_g14(a13)
-    IO.print("selfcheck fails=" ++ U64.show(a14))
+    a15 : U64 <- pos_g15(a14)
+    IO.print("selfcheck fails=" ++ U64.show(a15))

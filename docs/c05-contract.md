@@ -406,7 +406,7 @@ bend src/base/par.bend --check-only      # ALL PROOFS CHECK
 bend src/base/ex.bend --check-only       # ALL PROOFS CHECK
 bend src/c05/sqr.bend --check-only       # ALL PROOFS CHECK
 bend tests/c05/check.bend --check-only   # ALL PROOFS CHECK
-bend laws/c05.bend --check-only          # ALL PROOFS CHECK (61 laws; timing in the receipt)
+bend laws/c05.bend --check-only          # ALL PROOFS CHECK (62 laws; timing in the receipt)
 bend tests/c05/neg.bend                  # 38 PASS, selfcheck fails=0
 bend tests/c05/pos.bend                  # 42 PASS, selfcheck fails=0
 # native: bend <suite> -o <bin> && <bin>; js: bend <suite> -o <js> && bun <js>

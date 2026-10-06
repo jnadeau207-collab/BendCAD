@@ -1741,14 +1741,21 @@ def lps_mk(cs: List<&2, List<&2, U32>>, +c: WC, +f: U32) -> List<&2, LP>:
     case Nil{}: []
     case h <> t: lp_mk(c, f, h) <> lps_mk(t, c, f)
 
-def ls_mk(r: CR, +c: WC, +f: U32) -> LS:
+def ls_mk(r: CR, +c: WC, +f: U32, +shut: Bool) -> LS:
   CR{ok, cs} = r
-  LS{ok, lps_mk(cs, c, f)}
+  LS{Bool.and(ok, shut), lps_mk(cs, c, f)}
+
+def u32_last(xs: List<&2, U32>, +d: U32) -> U32:
+  match xs:
+    case Nil{}: d
+    case h <> t: u32_last(t, h)
 
 def lps_of_go(+c: WC, s: ST) -> LS:
   ST{+h, +f} = s
-  +hs = walk(wc_fuel(c), False{}, wc_tn(c), h, h, [])
-  ls_mk(cyc_split(hs, orgs(wc_te(c), hs)), c, f)
+  +tn = wc_tn(c)
+  +hs = walk(wc_fuel(c), False{}, tn, h, h, [])
+  +shut = U32.is_eq(P.tb_get(U32, tn, u32_last(hs, h)), h)
+  ls_mk(cyc_split(hs, orgs(wc_te(c), hs)), c, f, shut)
 
 def lps_of(c: WC, s: ST) -> LS:
   lps_of_go(c, s)

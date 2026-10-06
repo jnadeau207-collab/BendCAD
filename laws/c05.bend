@@ -635,3 +635,24 @@ law neg_solve_conflict_localized:
 
 def neg_solve_conflict_localized():
   {==}
+
+law ok_arrange_kiss:
+  {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 2.0f64, 0.0f64}, A.Seg{2u64, 2.0f64, 0.0f64, 2.0f64, 2.0f64}, A.Seg{3u64, 2.0f64, 2.0f64, 0.0f64, 2.0f64}, A.Seg{4u64, 0.0f64, 2.0f64, 0.0f64, 0.0f64}, A.Seg{5u64, 2.0f64, 2.0f64, 4.0f64, 2.0f64}, A.Seg{6u64, 4.0f64, 2.0f64, 4.0f64, 4.0f64}, A.Seg{7u64, 4.0f64, 4.0f64, 2.0f64, 4.0f64}, A.Seg{8u64, 2.0f64, 4.0f64, 2.0f64, 2.0f64}], 100n))
+    == "v=7 e=8 c=1 R { e1.0[1] e1.1[2] e2.1[3] e3.1[4] } { e2.1[5] e5.1[6] e6.1[7] e7.1[8] } D" : String}
+
+def ok_arrange_kiss():
+  {==}
+
+law ok_arrange_dup_segment:
+  {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 2.0f64, 0.0f64}, A.Seg{2u64, 2.0f64, 0.0f64, 2.0f64, 2.0f64}, A.Seg{3u64, 2.0f64, 2.0f64, 0.0f64, 2.0f64}, A.Seg{4u64, 0.0f64, 2.0f64, 0.0f64, 0.0f64}, A.Seg{5u64, 0.0f64, 0.0f64, 2.0f64, 0.0f64}], 100n))
+    == "v=4 e=4 c=1 R { e1.0[1,5] e1.1[2] e2.1[3] e3.1[4] } D" : String}
+
+def ok_arrange_dup_segment():
+  {==}
+
+law ok_arrange_three_petals:
+  {A.ares_show(A.arrange([A.Seg{1u64, 0.0f64, 0.0f64, 4.0f64, 0.0f64}, A.Seg{2u64, 4.0f64, 0.0f64, 4.0f64, 1.0f64}, A.Seg{3u64, 4.0f64, 1.0f64, 0.0f64, 0.0f64}, A.Seg{4u64, 0.0f64, 0.0f64, F64.neg(1.0f64), 4.0f64}, A.Seg{5u64, F64.neg(1.0f64), 4.0f64, F64.neg(2.0f64), 4.0f64}, A.Seg{6u64, F64.neg(2.0f64), 4.0f64, 0.0f64, 0.0f64}, A.Seg{7u64, 0.0f64, 0.0f64, F64.neg(3.0f64), F64.neg(3.0f64)}, A.Seg{8u64, F64.neg(3.0f64), F64.neg(3.0f64), F64.neg(2.0f64), F64.neg(4.0f64)}, A.Seg{9u64, F64.neg(2.0f64), F64.neg(4.0f64), 0.0f64, 0.0f64}], 100n))
+    == "v=7 e=9 c=1 R { e7.1[8] e8.1[9] e1.0[7] } { e5.1[6] e1.0[4] e4.1[5] } { e1.0[1] e1.1[2] e2.1[3] } D" : String}
+
+def ok_arrange_three_petals():
+  {==}
