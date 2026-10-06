@@ -1,0 +1,124 @@
+{
+ "build_s": 155.9,
+ "passed": 13,
+ "results": [
+  {
+   "codes": [
+    "ok"
+   ],
+   "findings": "ok",
+   "name": "ok.box",
+   "ok": true
+  },
+  {
+   "codes": [
+    "ok"
+   ],
+   "findings": "ok",
+   "name": "ok.disjoint",
+   "ok": true
+  },
+  {
+   "codes": [
+    "inverted-shell"
+   ],
+   "findings": "inverted-shell 0 0;",
+   "name": "inverted",
+   "ok": true
+  },
+  {
+   "codes": [
+    "edge-face-penetration"
+   ],
+   "findings": "edge-face-penetration 20 0; edge-face-penetration 15 4; edge-face-penetration 6 11; edge-face-penetration 10 7; edge-face-penetration 5 8; edge-face-penetration 12 3;",
+   "name": "overlap.boxes",
+   "ok": true
+  },
+  {
+   "codes": [
+    "ok"
+   ],
+   "findings": "ok",
+   "name": "cavity.ok",
+   "ok": true
+  },
+  {
+   "codes": [
+    "ok"
+   ],
+   "findings": "ok",
+   "name": "cavity.curved",
+   "ok": true
+  },
+  {
+   "codes": [
+    "inverted-shell"
+   ],
+   "findings": "inverted-shell 1 0;",
+   "name": "cavity.unflipped",
+   "ok": true
+  },
+  {
+   "codes": [
+    "cavity-outside",
+    "inverted-shell"
+   ],
+   "findings": "inverted-shell 1 0; cavity-outside 1 0;",
+   "name": "cavity.outside",
+   "ok": true
+  },
+  {
+   "codes": [
+    "cavities-nested",
+    "inverted-shell"
+   ],
+   "findings": "inverted-shell 2 0; cavities-nested 2 1;",
+   "name": "cavity.nested",
+   "ok": true
+  },
+  {
+   "codes": [
+    "cavity-outside",
+    "edge-face-penetration",
+    "inverted-shell"
+   ],
+   "findings": "inverted-shell 1 0; cavity-outside 1 0; edge-face-penetration 12 3; edge-face-penetration 13 3;",
+   "name": "cavity.crossing",
+   "ok": true
+  },
+  {
+   "codes": [
+    "edge-crossing",
+    "edge-face-uncertain",
+    "edge-overlap",
+    "face-overlap"
+   ],
+   "findings": "edge-face-uncertain 19 0; edge-face-uncertain 20 0; edge-face-uncertain 23 0; edge-face-uncertain 15 1; edge-face-uncertain 20 1; edge-face-uncertain 23 1; edge-face-uncertain 15 2; edge-face-uncertain 19 2; edge-face-uncertain 20 2; edge-face-uncertain 15 4; edge-face-uncertain 19 4; edge-face-uncertain 23 4; edge-crossing 0 15; edge-crossing 0 20; edge-face-uncertain 0 11; edge-crossing 0 12; edge-crossing 2 15; edge-crossing 2 23; edge-face-uncertain 2 11; edge-crossing 2 14; edge-crossing 4 19; edge-crossing 4 20; edge-face-uncertain 4 11; edge-crossing 4 16; edge-crossing 6 19; edge-crossing 6 23; edge-face-uncertain 6 11; edge-crossing 6 18; edge-overlap 1 15; edge-crossing 1 20; edge-crossing 1 23; edge-face-uncertain 1 7; edge-face-uncertain 1 8; edge-face-uncertain 1 10; edge-face-uncertain 1 11; edge-crossing 1 12; edge-crossing 1 14; edge-overlap 5 19; edge-crossing 5 20; edge-crossing 5 23; edge-face-uncertain 5 6; edge-face-uncertain 5 8; edge-face-uncertain 5 10; edge-face-uncertain 5 11; edge-crossing 5 16; edge-crossing 5 18; edge-crossing 9 15; edge-crossing 9 19; edge-overlap 9 20; edge-face-uncertain 9 6; edge-face-uncertain 9 7; edge-face-uncertain 9 8; edge-face-uncertain 9 11; edge-crossing 9 12; edge-crossing 9 16; edge-crossing 10 15; edge-crossing 10 19; edge-overlap 10 23; edge-face-uncertain 10 6; edge-face-uncertain 10 7; edge-face-uncertain 10 10; edge-face-uncertain 10 11; edge-crossing 10 14; edge-crossing 10 18; edge-face-uncertain 15 3; edge-face-uncertain 19 3; edge-face-uncertain 20 3; edge-face-uncertain 23 3; face-overlap 3 11; edge-face-uncertain 12 3; edge-face-uncertain 14 3; edge-face-uncertain 16 3; edge-face-uncertain 18 3;",
+   "name": "touch.face",
+   "ok": true
+  },
+  {
+   "codes": [
+    "edge-crossing",
+    "edge-face-uncertain",
+    "edge-overlap"
+   ],
+   "findings": "edge-face-uncertain 20 0; edge-face-uncertain 20 1; edge-face-uncertain 15 4; edge-face-uncertain 19 4; edge-face-uncertain 20 4; edge-crossing 2 15; edge-crossing 2 20; edge-face-uncertain 2 11; edge-crossing 2 12; edge-crossing 6 19; edge-crossing 6 20; edge-face-uncertain 6 11; edge-crossing 6 16; edge-crossing 1 15; edge-crossing 1 20; edge-face-uncertain 1 8; edge-crossing 1 12; edge-crossing 5 19; edge-crossing 5 20; edge-face-uncertain 5 8; edge-crossing 5 16; edge-crossing 10 15; edge-crossing 10 19; edge-overlap 10 20; edge-face-uncertain 10 6; edge-face-uncertain 10 7; edge-face-uncertain 10 8; edge-face-uncertain 10 11; edge-crossing 10 12; edge-crossing 10 16; edge-face-uncertain 20 3; edge-face-uncertain 12 3; edge-face-uncertain 16 3;",
+   "name": "touch.edge",
+   "ok": true
+  },
+  {
+   "codes": [
+    "edge-crossing",
+    "edge-face-overlap",
+    "edge-face-penetration",
+    "edge-face-uncertain"
+   ],
+   "findings": "edge-crossing 8 15; edge-face-uncertain 15 5; edge-face-penetration 3 6; edge-face-uncertain 8 6; edge-face-uncertain 0 6; edge-face-uncertain 8 7; edge-face-uncertain 0 7; edge-crossing 8 14; edge-face-uncertain 14 1; edge-face-overlap 14 2; edge-face-uncertain 14 5; edge-crossing 0 14; edge-face-uncertain 12 1; edge-crossing 0 12;",
+   "name": "overlap.sphere",
+   "ok": true
+  }
+ ],
+ "run_s": 3.33,
+ "total": 13
+}

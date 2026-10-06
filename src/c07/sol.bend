@@ -426,22 +426,52 @@ def orient_of(m: Maybe<&2, Ip>, +fs: List<&2, Fd>, +bb: List<&2, I.I>) -> U64:
 def orient(+fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat) -> U64:
   orient_of(ip_find(fs, None{}, s, 0n), fs, bb)
 
-def or_all(n: Nat, +fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat) -> List<&2, Fi>:
-  match n:
-    case 0n: []
-    case 1n+m:
-      +r = orient(fs, bb, s)
-      +rest = or_all(m, fs, bb, Nat.add(s, 1n))
-      Bool.pick(List<&2, Fi>, U64.is_eq(r, 1u64), rest, Fi{Bool.pick(String, U64.is_eq(r, 0u64), "inverted-shell", "orientation-uncertain"), s, 0n} <> rest)
+def or_one(+fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat) -> List<&2, Fi>:
+  +r = orient(fs, bb, s)
+  Bool.pick(List<&2, Fi>, U64.is_eq(r, 1u64), [], [Fi{Bool.pick(String, U64.is_eq(r, 0u64), "inverted-shell", "orientation-uncertain"), s, 0n}])
+
+def or_shs(hs: List<&2, Nat>, +fs: List<&2, Fd>, +bb: List<&2, I.I>) -> List<&2, Fi>:
+  match hs:
+    case []: []
+    case h <> t: List.append(&2, Fi, or_one(fs, bb, h), or_shs(t, fs, bb))
+
+def nat_in(xs: List<&2, Nat>, +i: Nat) -> Bool:
+  match xs:
+    case []: False{}
+    case x <> t: Bool.or(Nat.is_eq(x, i), nat_in(t, i))
+
+def in_shs(fs: List<&2, Fd>, +hs: List<&2, Nat>) -> List<&2, Fd>:
+  match fs:
+    case []: []
+    case +f <> +t: Bool.pick(List<&2, Fd>, nat_in(hs, fd_sh(f)), f <> in_shs(t, hs), in_shs(t, hs))
+
+def hs_idx(h: Ty.HShell) -> Nat:
+  Ty.HS{i, g} = h
+  i
+
+def hs_ids(hs: List<&2, Ty.HShell>) -> List<&2, Nat>:
+  match hs:
+    case []: []
+    case h <> t: hs_idx(h) <> hs_ids(t)
+
+def so_ids(o: Ty.HShell, cs: List<&2, Ty.HShell>) -> List<&2, Nat>:
+  hs_idx(o) <> hs_ids(cs)
+
+def so_or(s: Ty.Solid, +fs: List<&2, Fd>) -> List<&2, Fi>:
+  Ty.So{g, o, cs} = s
+  +ids = so_ids(o, cs)
+  +sub = in_shs(fs, ids)
+  or_shs(ids, sub, bbox(sub, []))
+
+def sos_or(ss: List<&2, Ty.Solid>, +fs: List<&2, Fd>) -> List<&2, Fi>:
+  match ss:
+    case []: []
+    case s <> t: List.append(&2, Fi, so_or(s, fs), sos_or(t, fs))
 
 def of_sh(fs: List<&2, Fd>, +s: Nat) -> List<&2, Fd>:
   match fs:
     case []: []
     case +f <> +t: Bool.pick(List<&2, Fd>, Nat.is_eq(fd_sh(f), s), f <> of_sh(t, s), of_sh(t, s))
-
-def hs_idx(h: Ty.HShell) -> Nat:
-  Ty.HS{i, g} = h
-  i
 
 def ip_q(m: Maybe<&2, Ip>) -> Maybe<&2, List<&2, I.I>>:
   match m:
@@ -490,8 +520,8 @@ def sos_nest(ss: List<&2, Ty.Solid>, +fs: List<&2, Fd>) -> List<&2, Fi>:
     case s <> t: List.append(&2, Fi, so_nest(s, fs), sos_nest(t, fs))
 
 def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
-  +bb = bbox(fs, [])
-  List.append(&2, Fi, or_all(List.length(&2, Ty.Shell, Ty.brep_shs(b)), fs, bb, 0n), sos_nest(Ty.brep_sos(b), fs))
+  +ss = Ty.brep_sos(b)
+  List.append(&2, Fi, sos_or(ss, fs), sos_nest(ss, fs))
 
 def fd_dflt() -> Fd:
   Fd{Mm.Fc{M.M_pl{[], []}, True{}, []}, [], [], False{}, 0n}
