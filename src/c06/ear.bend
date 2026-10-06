@@ -411,10 +411,6 @@ def first_vis(cs: List<&2, DC>, +p: Pg, +g: Gr, +bg: B.Tb<&2, List<&2, Nat>>, +l
         case 0n: first_vis(t, p, g, bg, longs, im, Bool.pick(Nat, visible(p, g, bg, longs, im, dc_i(c)), Nat.add(dc_i(c), 1n), 0n))
         case 1n+j: Nat.add(j, 1n)
 
-def gr_cells(g: Gr) -> B.Tb<&2, List<&2, Nat>>:
-  Gr{x0, y0, cs, nx, ny, cells} = g
-  cells
-
 def bg_row(f: Nat, +g: Gr, +bg: B.Tb<&2, List<&2, Nat>>, +cx: Nat, +cy: Nat, +e: Nat) -> B.Tb<&2, List<&2, Nat>>:
   match f:
     case 0n: bg

@@ -85,11 +85,3 @@ def im_side(s: Im, +p: List<&2, I.I>) -> I.I:
   match s:
     case M_co{o, a, k}: X.vdot(a, X.vsub(p, o))
     case _: I.ipt(1.0f64)
-
-def im_kind(s: Im) -> String:
-  match s:
-    case M_pl{o, n}: "plane"
-    case M_sp{o, r}: "sphere"
-    case M_cy{o, a, r}: "cylinder"
-    case M_co{o, a, k}: "cone"
-    case M_to{o, a, bigr, r}: "torus"

@@ -89,10 +89,6 @@ def ep_i(e: Ep) -> U32:
   Ep{k, c, z, i, s} = e
   i
 
-def ep_s(e: Ep) -> U32:
-  Ep{k, c, z, i, s} = e
-  s
-
 def zcmp(xs: List<&2, I.I>, ys: List<&2, I.I>) -> B.Sgn:
   match xs:
     case []: B.Sz{}
@@ -120,9 +116,6 @@ def ep_cmp(a: Ep, b: Ep) -> B.Sgn:
 def so_xs(s: B.So<&2, Ep>) -> List<&2, Ep>:
   B.So{ok, xs} = s
   xs
-
-def same_face(+a: Ep, +b: Ep) -> Bool:
-  Bool.and(Bool.and(Nat.is_eq(ep_k(a), ep_k(b)), F64.is_eq(ep_c(a), ep_c(b))), Bool.not(X.vdisj(ep_z(a), ep_z(b))))
 
 def mt_es(m: Mt) -> List<&2, B.Ed>:
   Mt{es, open} = m
@@ -276,11 +269,6 @@ def start_of(ms: List<&2, U32>, +nb: B.Tb<&2, List<&2, U32>>, +d: U32) -> U32:
   match ms:
     case []: d
     case +m <> t: Bool.pick(U32, Nat.is_lt(deg(nb, m), 2n), m, start_of(t, nb, d))
-
-def pc_at(pcs: List<&2, Pc>, +i: U32) -> Pc:
-  match pcs:
-    case []: Pc{[], 0n}
-    case q <> t: Bool.pick(Pc, U32.is_eq(i, 0), q, pc_at(t, (i - 1 : U32)))
 
 def ep_full(e: Ep) -> List<&2, I.I>:
   Ep{k, c, z, i, s} = e

@@ -169,12 +169,6 @@ def pkraw(+p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>, +k: Nat, +m: 
   Bool.pick(List<&2, I.I>, Nat.is_eq(List.length(&2, List<&2, F64>, ym), 0n), z,
     X.vadd(X.vsub(yz, X.fmv(ym, pb_f(p, yf))), X.mv(mk, X.vsub(z, yz))))
 
-def piece_k(n: Nat, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>, +k: Nat, +m: Nat) -> U64:
-  match n:
-    case 0n: 9u64
-    case 1n+r:
-      Bool.pick(U64, X.vin(pkraw(p, x, jx, k, m), X.vdrop(x, k)), U64.add(2u64, U64.from_nat(k)), piece_k(r, p, x, jx, Nat.add(k, 1n), m))
-
 def code_sq(+p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>, +n: Nat) -> U64:
   +kx = kraw(p, x, jx, n)
   Bool.pick(U64, X.vdisj(kx, x), 0u64, Bool.pick(U64, X.vin(kx, x), 1u64, 9u64))

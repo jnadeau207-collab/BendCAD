@@ -129,9 +129,6 @@ def sx_drop(xs: List<&2, Sx>, +i: Nat) -> List<&2, Sx>:
 def head_is(+x: Sx, +h: String) -> Bool:
   String.eq(sx_s(sx_nth(sx_xs(x), 0n)), h)
 
-def nlen(+x: Sx) -> Nat:
-  List.length(&2, Sx, sx_xs(x))
-
 def f_rt(m: Maybe<&2, F64>, +v: F64) -> Bool:
   match m:
     case None{}: False{}

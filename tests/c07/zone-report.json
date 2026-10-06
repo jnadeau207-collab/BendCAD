@@ -3,7 +3,7 @@
   "name": "zone.plate.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[3880.8979999999938, 4120.902000000007] area=[2169.0999999999967, 2231.1000000000035]",
-  "secs": 0.104
+  "secs": 0.101
  },
  {
   "name": "zone.plate.n1.encloses",
@@ -42,19 +42,19 @@
   "name": "zone.bracket.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[23167.290999992274, 24177.313589212026] area=[9302.627565044619, 9432.989042727135]",
-  "secs": 0.134
+  "secs": 0.129
  },
  {
   "name": "zone.bracket.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[22828.070071938364, 23838.091875759954] area=[9411.90786549974, 9549.903413330478]",
-  "secs": 0.15
+  "secs": 0.149
  },
  {
   "name": "zone.bracket.n3.certified",
   "ok": true,
   "out": "zone node 3: certified over the tolerance envelope | volume=[22395.21829453411, 23465.56496048993] area=[9506.218476960505, 9656.780395405603]",
-  "secs": 0.161
+  "secs": 0.171
  },
  {
   "name": "zone.bracket.n1.encloses",
@@ -147,7 +147,7 @@
   "name": "zone.pad.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[3942.1699347705144, 4201.587861306425] area=[2436.6723739082045, 2500.438744522571]",
-  "secs": 0.095
+  "secs": 0.083
  },
  {
   "name": "zone.pad.n2.encloses",
@@ -186,7 +186,7 @@
   "name": "zone.revolve-cavity.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[136781.76171401056, 145111.15243471385] area=[21117.79938976174, 21966.863443969018]",
-  "secs": 0.098
+  "secs": 0.12
  },
  {
   "name": "zone.revolve-cavity.n1.encloses",
@@ -225,7 +225,7 @@
   "name": "zone.revolve-slant.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[1846.9904921327902, 2078.2410329684412] area=[917.3179574218844, 992.436061175011]",
-  "secs": 0.203
+  "secs": 0.186
  },
  {
   "name": "zone.revolve-slant.n1.encloses",
@@ -264,7 +264,7 @@
   "name": "zone.rotated.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[4670.090200129447, 4901.50612666545] area=[2548.137305384857, 2594.4204906920804]",
-  "secs": 0.076
+  "secs": 0.08
  },
  {
   "name": "zone.rotated.n2.encloses",
@@ -303,24 +303,24 @@
   "name": "zone.neg.hole-crosses-edge",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.091
+  "secs": 0.093
  },
  {
   "name": "zone.neg.holes-collide",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.088
+  "secs": 0.103
  },
  {
   "name": "zone.neg.arc-not-identical",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 1 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.103
+  "secs": 0.109
  },
  {
   "name": "zone.neg.depth-reaches-floor",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.075
+  "secs": 0.088
  }
 ]

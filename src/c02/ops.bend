@@ -5,6 +5,8 @@ import ./types.bend as P
 import ../base/par.bend as O
 import ../base/ex.bend as E
 
+
+
 def d3_raw(a: F64, b: F64, c: F64, +d: F64, +e: F64, +f: F64, +g: F64,
     +h: F64, +i: F64) -> F64:
   +t0 = F64.sub(F64.mul(e, i), F64.mul(f, h))
@@ -430,6 +432,9 @@ def is_gate(+det: F64, +pzero: Bool, +nzero: Bool, +big: Bool,
     case False{}: is_exact(ax, ay, az, bx, by, bz, cx, cy, cz, dx,
       dy, dz, ex, ey, ez)
 
+def cof_p(+t: F64, +p: F64, +n: F64) -> F64:
+  F64.add(F64.mul(F64.max(t, 0.0f64), p), F64.mul(F64.max(F64.neg(t), 0.0f64), n))
+
 def is_run(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
     +bz: F64, +cx: F64, +cy: F64, +cz: F64, +dx: F64, +dy: F64,
     +dz: F64, +ex: F64, +ey: F64, +ez: F64) -> P.PRes:
@@ -463,12 +468,10 @@ def is_run(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64,
   +n3 = d3_neg(bdx, bdy, bdz, cdx, cdy, cdz, ddx, ddy, ddz)
   +det = F64.sub(F64.add(F64.sub(F64.mul(adx, m0), F64.mul(ady, m1)),
     F64.mul(adz, m2)), F64.mul(aq, m3))
-  +pp = F64.add(F64.add(F64.add(F64.mul(F64.abs(adx), p0),
-    F64.mul(F64.abs(ady), p1)), F64.mul(F64.abs(adz), p2)),
-    F64.mul(F64.abs(aq), p3))
-  +nn = F64.add(F64.add(F64.add(F64.mul(F64.abs(adx), n0),
-    F64.mul(F64.abs(ady), n1)), F64.mul(F64.abs(adz), n2)),
-    F64.mul(F64.abs(aq), n3))
+  +pp = F64.add(F64.add(F64.add(cof_p(adx, p0, n0), cof_p(F64.neg(ady), p1, n1)),
+    cof_p(adz, p2, n2)), cof_p(F64.neg(aq), p3, n3))
+  +nn = F64.add(F64.add(F64.add(cof_p(adx, n0, p0), cof_p(F64.neg(ady), n1, p1)),
+    cof_p(adz, n2, p2)), cof_p(F64.neg(aq), n3, p3))
   +detsum = F64.add(pp, nn)
   +gate = Bool.and(T.is_finite(det),
     Bool.and(T.is_finite(pp),
@@ -838,4 +841,3 @@ def tri_class(+p: V.Vec2, +a: V.Vec2, +b: V.Vec2,
             Bool.and(T.is_finite(by),
               Bool.and(T.is_finite(cx), T.is_finite(cy))))))))
   tri_fin(px, py, ax, ay, bx, by, cx, cy, fin)
-

@@ -142,16 +142,10 @@ def zm_ok(m: Zm) -> Bool:
   Zm{ok, v, a} = m
   Bool.and(ok, Bool.and(pos(v), pos(a)))
 
-def zm_bad() -> Zm:
-  Zm{False{}, I.ipt(0.0f64), I.ipt(0.0f64)}
-
 def lzs_of(ls: List<&2, F.Loop>, +z: ZT.Zb) -> List<&2, ZT.Lz>:
   match ls:
     case []: []
     case l <> t: ZT.loop_z(l, z) <> lzs_of(t, z)
-
-def zm_zero() -> Zm:
-  Zm{True{}, I.ipt(0.0f64), I.ipt(0.0f64)}
 
 def rv_ok(ls: List<&2, F.Loop>, rl: List<&2, F.Rl>, +z: ZT.Zb) -> Bool:
   match ls:

@@ -105,19 +105,3 @@ def xp_w(x: Xp, +e: Env, acc: List<&2, U64>) -> List<&2, U64>:
     case X_mul{a, b}: 5u64 <> xp_w(a, e, xp_w(b, e, acc))
     case X_div{a, b}: 6u64 <> xp_w(a, e, xp_w(b, e, acc))
     case X_neg{a}: 7u64 <> xp_w(a, e, acc)
-
-def xp_uses(x: Xp, +id: U64) -> Bool:
-  match x:
-    case X_k{v}: False{}
-    case X_p{i}: U64.is_eq(i, id)
-    case X_add{a, b}: Bool.or(xp_uses(a, id), xp_uses(b, id))
-    case X_sub{a, b}: Bool.or(xp_uses(a, id), xp_uses(b, id))
-    case X_mul{a, b}: Bool.or(xp_uses(a, id), xp_uses(b, id))
-    case X_div{a, b}: Bool.or(xp_uses(a, id), xp_uses(b, id))
-    case X_neg{a}: xp_uses(a, id)
-
-def xk(+v: F64) -> Xp:
-  X_k{v}
-
-def xpar(+id: U64) -> Xp:
-  X_p{id}

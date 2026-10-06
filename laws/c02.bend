@@ -346,6 +346,26 @@ law is_near_exact:
 def is_near_exact():
   {==}
 
+law is_cofactor_signs:
+  {String.eq(P.pres_sign_show(O.insphere(
+    V.Pt{0.0f64, 1.0f64, 0.0f64}, V.Pt{F64.neg(1.0f64), F64.neg(1.0f64), F64.neg(1.0f64)},
+    V.Pt{F64.neg(1.0f64), F64.neg(1.0f64), 0.0f64}, V.Pt{0.0f64, F64.neg(1.0f64), 0.0f64},
+    V.Pt{0.0f64, 0.0f64, 0.0f64})), P.pres_sign_show(O.is_exact(0.0f64, 1.0f64, 0.0f64,
+    F64.neg(1.0f64), F64.neg(1.0f64), F64.neg(1.0f64), F64.neg(1.0f64), F64.neg(1.0f64), 0.0f64,
+    0.0f64, F64.neg(1.0f64), 0.0f64, 0.0f64, 0.0f64, 0.0f64))) == True{} : Bool}
+
+def is_cofactor_signs():
+  {==}
+
+law is_cofactor_signs_pos:
+  {String.eq(P.pres_sign_show(O.insphere(
+    V.Pt{0.0f64, 1.0f64, 0.0f64}, V.Pt{F64.neg(1.0f64), F64.neg(1.0f64), F64.neg(1.0f64)},
+    V.Pt{F64.neg(1.0f64), F64.neg(1.0f64), 0.0f64}, V.Pt{0.0f64, F64.neg(1.0f64), 0.0f64},
+    V.Pt{0.0f64, 0.0f64, 0.0f64})), "pos") == True{} : Bool}
+
+def is_cofactor_signs_pos():
+  {==}
+
 law is_ovf_unc:
   {String.eq(P.pres_show(O.insphere(
     V.Pt{F64{9218868437227405311u64}, 0.0f64, 0.0f64}, V.Pt{0.0f64, F64{9218868437227405311u64}, 0.0f64},

@@ -108,12 +108,6 @@ def ipts(xs: List<&2, F64>) -> List<&2, I.I>:
 def pl_id() -> Pl:
   Pl{m3_id(), 0.0f64, 0.0f64, 0.0f64, ipts([1.0f64, 0.0f64, 0.0f64, 0.0f64, 1.0f64, 0.0f64, 0.0f64, 0.0f64, 1.0f64]), ipts([0.0f64, 0.0f64, 0.0f64])}
 
-def cl_of(+id: Nat, +par: Nat, +nd: U64, +k: Nat, +l: F.Lp, +mat: Bool, +lo: F64, +hi: F64) -> BD.Cl:
-  BD.Cl{id, par, nd, k, l, mat, lo, hi}
-
-def u_hex(+v: U64) -> String:
-  U64.show(v)
-
 def pe_why(+c: U64) -> String:
   match c:
     case 1u64: "nonfinite-coordinate"
@@ -685,14 +679,6 @@ def bt_check(bt: BD.Bt, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String, +rv: List<
 def body_of_cells(+cs: List<&2, BD.Cl>, +pl: Pl, +what: String) -> NR:
   +bt = BD.build(cs)
   bt_check(bt, cs, pl, what, [])
-
-def bt_br(b: BD.Bt) -> Ty.Brep:
-  BD.Bt{brep, fns} = b
-  brep
-
-def bt_fns(b: BD.Bt) -> List<&2, BD.Fn>:
-  BD.Bt{brep, fns} = b
-  fns
 
 def prism_ck(c: F.CK, +rls: List<&2, F.Rl>, +nd: U64, +z0: F64, +z1: F64) -> NR:
   match c:

@@ -579,14 +579,6 @@ def sw_go(xs: List<&2, It>) -> List<&2, Pr>:
 def sweep(+its: List<&2, It>) -> List<&2, Pr>:
   sw_go(so_it(B.msort(~It, ~it_cmp, its)))
 
-def seg_cut(+ax: F64, +ay: F64, +bx: F64, +by: F64, +qx: F64, +qy: F64, +rx: F64,
-    +ry: F64, +sx: F64, +sy: F64) -> Bool:
-  +s1 = ori(ax, ay, bx, by, qx, qy)
-  +s2 = ori(ax, ay, bx, by, rx, ry)
-  +s3 = ori(ax, ay, bx, by, sx, sy)
-  Bool.or(Bool.and(sgn_pos(s1), Bool.and(sgn_pos(s2), sgn_pos(s3))),
-    Bool.and(sgn_neg(s1), Bool.and(sgn_neg(s2), sgn_neg(s3))))
-
 def pts_opp(pts: List<&2, V.Vec2>, +ax: F64, +ay: F64, +bx: F64, +by: F64, +sc: B.Sgn) -> Bool:
   match pts:
     case []: True{}
@@ -985,14 +977,6 @@ def lps_lits(ls: List<&2, Lp>, +i: Nat) -> List<&2, It>:
     case []: []
     case +l <> t: lp_it(l, i) <> lps_lits(t, Nat.add(i, 1n))
 
-def lp_nth(ls: List<&2, Lp>, +i: Nat) -> Lp:
-  match ls:
-    case []: K_circ{0.0f64, 0.0f64, 1.0f64}
-    case l <> t:
-      match i:
-        case 0n: l
-        case 1n+j: lp_nth(t, j)
-
 def cn_one(+tb: B.Tb<&2, Lp>, +a: It, +b: It, +acc: List<&2, Cn>) -> List<&2, Cn>:
   +la = B.tb_get(Lp, tb, U32.from_nat(it_lp(a)))
   +lb = B.tb_get(Lp, tb, U32.from_nat(it_lp(b)))
@@ -1030,11 +1014,6 @@ def cn_cmp(a: Cn, b: Cn) -> B.Sgn:
 def so_cn(s: B.So<&2, Cn>) -> List<&2, Cn>:
   B.So{ok, xs} = s
   xs
-
-def cn_hd_ch(xs: List<&2, Cn>) -> Nat:
-  match xs:
-    case []: 0n
-    case c <> t: Nat.add(cn_ch(c), 1n)
 
 def par_go(f: Nat, +i: Nat, cs: List<&2, Cn>, +best: Nat) -> List<&2, Nat>:
   match f:

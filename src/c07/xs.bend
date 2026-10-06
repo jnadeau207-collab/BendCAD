@@ -152,9 +152,6 @@ def side_ok(s: M.Im, +p: List<&2, I.I>) -> U64:
   +v = M.im_side(s, p)
   Bool.pick(U64, F64.is_le(0.0f64, I.i_lo(v)), 0u64, Bool.pick(U64, F64.is_lt(I.i_hi(v), 0.0f64), 1u64, 2u64))
 
-def mk_ci(+c: R.Cv, +s: M.Im) -> N.Pb:
-  N.P_ci{c, s}
-
 def seam_go(hs: List<&2, Hit>, +first: Bool) -> List<&2, Hit>:
   match hs:
     case []: []

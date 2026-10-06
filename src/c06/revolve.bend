@@ -86,9 +86,6 @@ def ax_code(+l: F.Lp, +hole: Bool) -> U64:
   +c = pcs_ax_code(ps, hole)
   Bool.pick(U64, U64.is_eq(c, 0u64), pinch_go(ps, last_ax(ps, False{}), False{}), c)
 
-def nf(+n: Nat) -> F64:
-  U64.to_f64(U64.from_nat(n))
-
 def vcount(+x: F64) -> Nat:
   Bool.pick(Nat, F64.is_lt(0.0f64, x), 2n, 1n)
 

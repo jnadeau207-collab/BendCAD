@@ -289,7 +289,7 @@ def mcp():
     v = 40 * 30 * 10 - PI * 16 * 10
     checks = dict(
         handshake=rs[1]['result']['serverInfo']['name'] == 'bendcad',
-        tools=set(names) == {'reference', 'new_design', 'apply', 'show', 'evaluate', 'measure', 'faces', 'sensitivity', 'tessellate', 'zone'},
+        tools=set(names) == {'reference', 'new_design', 'apply', 'show', 'evaluate', 'measure', 'faces', 'sensitivity', 'tessellate', 'zone', 'classify', 'check', 'intersect'},
         apply_ok=not rs[4]['result']['isError'] and contains(vol(body(4), 2), v),
         apply_rejected=rs[5]['result']['isError'] and 'rejected' in body(5),
         faces=len(body(6).splitlines()) == 7,

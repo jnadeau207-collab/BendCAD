@@ -564,9 +564,6 @@ def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, R.Cv>:
     case []: []
     case e <> t: eg_c_of(B.tb_get(Eg, te, U32.from_nat(e))) <> all_cvs(t, te)
 
-def mk_ci(+c: R.Cv, +s: M.Im) -> N.Pb:
-  N.P_ci{c, s}
-
 def rad(+p: List<&2, I.I>, +tol: F64) -> F64:
   F64.add(F64.mul(4.0f64, X.vwid(p)), F64.mul(tol, 1024.0f64))
 
@@ -828,7 +825,3 @@ def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64) -> List<&2, SO.Fi>
 def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   +x = Ty.ix_of(b)
   emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds), tol_of(SO.bbox(fds, [])))
-
-def fs_xs(f: Fs) -> List<&2, SO.Fi>:
-  Fs{xs} = f
-  xs

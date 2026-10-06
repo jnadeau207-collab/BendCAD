@@ -22,9 +22,6 @@ def up(+x: F64) -> F64:
 def ipt(+x: F64) -> I:
   I{x, x}
 
-def iok(+a: I) -> Bool:
-  Bool.and(T.is_finite(i_lo(a)), Bool.and(T.is_finite(i_hi(a)), F64.is_le(i_lo(a), i_hi(a))))
-
 def iadd(+a: I, +b: I) -> I:
   I{dn(F64.add(i_lo(a), i_lo(b))), up(F64.add(i_hi(a), i_hi(b)))}
 

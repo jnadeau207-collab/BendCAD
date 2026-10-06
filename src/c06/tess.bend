@@ -212,14 +212,6 @@ def q_rev(xs: List<&2, QP>, +acc: List<&2, QP>) -> List<&2, QP>:
     case []: acc
     case x <> t: q_rev(t, x <> acc)
 
-def q_nth(xs: List<&2, QP>, +i: Nat) -> QP:
-  match xs:
-    case []: QP{0n, 0.0f64, 0.0f64}
-    case x <> t:
-      match i:
-        case 0n: x
-        case 1n+j: q_nth(t, j)
-
 def tri_flip(xs: List<&2, Tri>) -> List<&2, Tri>:
   match xs:
     case []: []

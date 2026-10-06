@@ -29,12 +29,6 @@ def idisj(+a: I.I, +b: I.I) -> Bool:
 def imeet(+a: I.I, +b: I.I) -> I.I:
   I.I{F64.max(I.i_lo(a), I.i_lo(b)), F64.min(I.i_hi(a), I.i_hi(b))}
 
-def ilo_half(+a: I.I) -> I.I:
-  I.I{I.i_lo(a), imid(a)}
-
-def ihi_half(+a: I.I) -> I.I:
-  I.I{imid(a), I.i_hi(a)}
-
 def iinfl(+a: I.I, +f: F64) -> I.I:
   +e = F64.add(F64.mul(f, iwid(a)), F64.mul(4.440892098500626e-16f64, imag(a)))
   I.iwiden(a, F64.add(e, 4.9406564584124654e-324f64))

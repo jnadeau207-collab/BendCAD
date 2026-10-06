@@ -68,7 +68,3 @@ def trunc(+e: E.Ex, +err: F64) -> He:
 def he_step(+c: E.Ex, h: He, +t: F64) -> He:
   He{e, err} = h
   trunc(E.ex_add(c, E.ex_scale(e, t)), E.f64_next_up(F64.mul(err, F64.abs(t))))
-
-def he_ok(h: He) -> Bool:
-  He{e, err} = h
-  E.ex_ok(e)

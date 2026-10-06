@@ -82,9 +82,6 @@ def allone(ws: List<&2, I.I>) -> Bool:
     case []: True{}
     case +w <> t: Bool.and(Bool.and(F64.is_eq(I.i_lo(w), 1.0f64), F64.is_eq(I.i_hi(w), 1.0f64)), allone(t))
 
-def tpt(+t: I.I) -> List<&2, I.I>:
-  [I.ipt(I.i_lo(t)), I.ipt(I.i_hi(t))]
-
 def rs(+cs: List<&2, I.I>, +t: I.I) -> List<&2, I.I>:
   restr(cs, I.ipt(I.i_lo(t)), I.ipt(I.i_hi(t)))
 
@@ -120,14 +117,6 @@ def cv_par(c: Cv, +t: I.I) -> I.I:
   Cv{rb, +a, +b} = c
   X.iaffine(a, b, t)
 
-def cv_a(c: Cv) -> F64:
-  Cv{rb, a, b} = c
-  a
-
-def cv_b(c: Cv) -> F64:
-  Cv{rb, a, b} = c
-  b
-
 def cv_rb(c: Cv) -> Rb:
   Cv{rb, a, b} = c
   rb
@@ -142,11 +131,6 @@ def ones(n: Nat) -> List<&2, I.I>:
   match n:
     case 0n: []
     case 1n+m: I.ipt(1.0f64) <> ones(m)
-
-def zeros(n: Nat) -> List<&2, I.I>:
-  match n:
-    case 0n: []
-    case 1n+m: I.ipt(0.0f64) <> zeros(m)
 
 def cv_line(p: V.Point, d: V.Dir, +lo: F64, +hi: F64) -> Cv:
   V.Pt{+px, +py, +pz} = p
