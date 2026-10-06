@@ -99,11 +99,54 @@ Any count may be `any`. The kernel measures every field from the result
 - `sensitivity`: estimated derivatives (central difference) of volume, area
   and bounding box with respect to a parameter, or the reason none exists.
 - `zone`: volume and area certified over the whole tolerance envelope, i.e.
-  for every parameter value inside its `[LO, HI]` zone. Certified for
-  `box`, `cylinder`, `cone`, `sphere`, `torus` and `move`s or `rotate`s of them (their
-  topology cannot change while dimensions stay positive, and `R > r` for a
-  torus). Other nodes answer `envelope-topology-not-certified`.
+  for every parameter value inside its `[LO, HI]` zone. Every operation is
+  covered: primitives by closed forms; prisms, revolves, pads, pockets and
+  holes once the kernel certifies that the design's topology cannot change
+  anywhere in the zone (arc endpoints stay on their circles for every
+  parameter value, no two profile segments, holes or footprints touch,
+  shared corners stay corners, depths leave material, revolve profiles stay
+  off the axis). If that certificate fails even after splitting the zone
+  the answer is `topology-not-certified-over-zone` (numerical-uncertainty):
+  narrow the zones or move the features apart. Bounds are tight to within
+  rounding when a measure is monotone in each parameter.
 - `tessellate`: a watertight OBJ mesh.
+- `classify NODE X Y Z`: is the world point `inside`, `outside` or on the
+  `boundary` of the node's solid (within 2^-40 of the part size)? Certified
+  by exact ray casting; a point that sits on an edge seen from every
+  direction answers `uncertain`.
+- `check NODE`: certifies that the solid is embedded (no two edges cross,
+  no edge pierces a face, no faces penetrate or overlap), that every shell
+  faces outward and that cavities sit inside the outer shell and apart. It
+  prints `ok: ...` or one line per finding (`edge-crossing E1 E2`,
+  `edge-face-penetration E F`, `face-penetration F1 F2`, `face-overlap F1
+  F2`, `inverted-shell S`, `cavity-outside S O`, `cavities-nested S1 S2`,
+  or a `...-uncertain` variant). Contacts within 2^-20 of the part size of
+  a shared edge or vertex belong to that edge or vertex.
+
+## Geometry queries
+
+`intersect A B [BOX]` intersects two curves, a curve and a surface, or two
+surfaces, independent of any design. It returns certified points (with the
+parameters on each input and a class such as `interior`, `a-start`,
+`a-end`, `seam` or `tangent ...`), overlaps (parameter ranges where the
+inputs coincide), traced intersection curves (closed or open, with sample
+points and parameters on both surfaces) and every unresolved region as an
+explicit box. Nothing found inside a box that is not reported unresolved
+means no intersection there. Surface/surface queries need `BOX`.
+
+- `(line PX PY PZ DX DY DZ T0 T1)` — point plus parameter times direction.
+- `(circle CX CY CZ UX UY UZ VX VY VZ R T0 T1)` — `U`, `V` orthogonal unit
+  directions; parameter `t` in `[-1, 1]` is the full circle, at angle
+  `4 atan t` from `U` toward `V` (the seam is `t = -1 = 1`).
+- `(bezier X0 Y0 Z0 X1 Y1 Z1 X2 Y2 Z2 X3 Y3 Z3 T0 T1)` — cubic.
+- `(conic X0 Y0 Z0 X1 Y1 Z1 X2 Y2 Z2 W0 W1 W2 T0 T1)` — rational quadratic.
+- `(nurbs (knots K...) (pt X Y Z W) ...)` — cubic NURBS curve.
+- `(plane OX OY OZ UX UY UZ VX VY VZ)`, `(sphere CX CY CZ R)`,
+  `(cylinder OX OY OZ AX AY AZ R)`, `(cone OX OY OZ AX AY AZ K)` (apex `O`,
+  axis `A`, radius `K` per unit height, the nappe on the `A` side),
+  `(torus OX OY OZ AX AY AZ R r)`, `(bezpatch X00 Y00 Z00 ... )` (16
+  control points, row by row).
+- `BOX` is `(box X0 X1 Y0 Y1 Z0 Z1)`.
 
 ## Example
 

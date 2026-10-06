@@ -42,8 +42,16 @@ const tools = [
   { name: 'sensitivity', description: 'Estimated derivatives of volume, area and bounding box of a node with respect to a parameter, or the reason none exists (topology change, failure).',
     inputSchema: { type: 'object', properties: { design, param: { type: 'string' }, node }, required: ['design', 'param', 'node'] },
     run: a => cli([a.design, 'sens', a.param, String(a.node)]) },
-  { name: 'zone', description: 'Volume and area of a node certified over the whole tolerance envelope (every parameter anywhere in its [lo, hi] zone). Certified for box, cylinder, cone, sphere, torus and moves or rotations of them; other nodes are reported as not certified.',
+  { name: 'zone', description: 'Volume and area of a node certified over the whole tolerance envelope (every parameter anywhere in its [lo, hi] zone), for every operation once the kernel certifies the topology cannot change in the zone; otherwise topology-not-certified-over-zone.',
     inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'zone', String(a.node)]) },
+  { name: 'classify', description: 'Is a world point inside, outside or on the boundary of the solid of a node (certified ray casting)?',
+    inputSchema: { type: 'object', properties: { design, node, x: { type: 'number' }, y: { type: 'number' }, z: { type: 'number' } }, required: ['design', 'node', 'x', 'y', 'z'] },
+    run: a => cli([a.design, 'classify', String(a.node), String(a.x), String(a.y), String(a.z)]) },
+  { name: 'check', description: 'Certify that the solid of a node is embedded (no crossing edges, piercing edges, penetrating or overlapping faces), that shells face outward and that cavities are nested correctly. Prints ok or one finding per line.',
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'check', String(a.node)]) },
+  { name: 'intersect', description: 'Intersect two curves, a curve and a surface, or two surfaces (see reference: Geometry queries). Returns certified points, overlaps, traced curves and explicit unresolved boxes.',
+    inputSchema: { type: 'object', properties: { a: { type: 'string', description: 'First geometry, e.g. (line 0 0 0 1 0 0 -5 5)' }, b: { type: 'string', description: 'Second geometry' }, box: { type: 'string', description: 'Optional (box X0 X1 Y0 Y1 Z0 Z1); required for surface/surface' } }, required: ['a', 'b'] },
+    run: a => cli(['geom', 'intersect', a.a, a.b, ...(a.box ? [a.box] : [])]) },
   { name: 'tessellate', description: 'Write a watertight triangle mesh (OBJ) of a node\'s solid to a WSL path.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' } }, required: ['design', 'node', 'out'] },
     run: a => cli([a.design, 'tess', String(a.node), a.out]) },
@@ -57,7 +65,7 @@ rl.on('line', line => {
   try { m = JSON.parse(line); } catch { return; }
   if (m.method === 'initialize') {
     send({ jsonrpc: '2.0', id: m.id, result: { protocolVersion: m.params?.protocolVersion || '2024-11-05',
-      capabilities: { tools: {} }, serverInfo: { name: 'bendcad', version: '0.6.0' } } });
+      capabilities: { tools: {} }, serverInfo: { name: 'bendcad', version: '0.7.0' } } });
   } else if (m.method === 'tools/list') {
     send({ jsonrpc: '2.0', id: m.id, result: { tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })) } });
   } else if (m.method === 'tools/call') {
