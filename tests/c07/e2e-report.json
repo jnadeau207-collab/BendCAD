@@ -1,8 +1,8 @@
 {
- "passed": 527,
- "total": 527,
- "mean_query_s": 0.0910527398509364,
- "max_query_s": 0.39199090003967285,
+ "passed": 327,
+ "total": 327,
+ "mean_query_s": 0.09047657123763991,
+ "max_query_s": 0.2905116081237793,
  "results": [
   {
    "name": "cs.0.line-plane",
@@ -845,566 +845,6 @@
    "unresolved": 0
   },
   {
-   "name": "cs.120.line-plane",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.121.circle-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.122.bezier-plane",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.123.conic-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.124.line-sphere",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.125.circle-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.126.bezier-sphere",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.127.conic-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.128.line-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.129.circle-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.130.bezier-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.131.conic-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.132.line-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.133.circle-cone",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.134.bezier-cone",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.135.conic-cone",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.136.line-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.137.circle-torus",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.138.bezier-torus",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.139.conic-torus",
-   "ok": true,
-   "oracle_roots": 4,
-   "points": 4,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.140.line-plane",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.141.circle-plane",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.142.bezier-plane",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.143.conic-plane",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.144.line-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.145.circle-sphere",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.146.bezier-sphere",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.147.conic-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.148.line-cylinder",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.149.circle-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.150.bezier-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.151.conic-cylinder",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.152.line-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.153.circle-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.154.bezier-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.155.conic-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.156.line-torus",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.157.circle-torus",
-   "ok": true,
-   "oracle_roots": 3,
-   "points": 3,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.158.bezier-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.159.conic-torus",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.160.line-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.161.circle-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.162.bezier-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.163.conic-plane",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.164.line-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.165.circle-sphere",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.166.bezier-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.167.conic-sphere",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.168.line-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.169.circle-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.170.bezier-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.171.conic-cylinder",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.172.line-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.173.circle-cone",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.174.bezier-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.175.conic-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.176.line-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.177.circle-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.178.bezier-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.179.conic-torus",
-   "ok": true,
-   "oracle_roots": 3,
-   "points": 3,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.180.line-plane",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.181.circle-plane",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.182.bezier-plane",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.183.conic-plane",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.184.line-sphere",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.185.circle-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.186.bezier-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.187.conic-sphere",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.188.line-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.189.circle-cylinder",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.190.bezier-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.191.conic-cylinder",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.192.line-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.193.circle-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.194.bezier-cone",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.195.conic-cone",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.196.line-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.197.circle-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.198.bezier-torus",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cs.199.conic-torus",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
    "name": "tangent.line-sphere",
    "ok": true,
    "out": "unresolved s=[4.9999967944095385, 5.000002193509315] t=[0, 0] near=[-0.000003205590467736387, 0.000002193509321735122]x[1.9999999999999984, 2.000000000000002]x[-4e-323, 4e-323]\nsummary points=0 overlaps=0 unresolved=1\n"
@@ -1412,23 +852,23 @@
   {
    "name": "endpoint.line-plane",
    "ok": true,
-   "out": "point s=[0.9999999999999998, 1.0000000000000004] t=[0, 0] at=[-5e-323, 5e-323]x[-5e-323, 5e-323]x[-1.3322676295501884e-15, 2.1094237467877986e-15] class=a-end \nsummary points=1 overlaps=0 unresolved=0\n"
+   "out": "point s=[1, 1] t=[0, 0] at=[-5e-323, 5e-323]x[-5e-323, 5e-323]x[-1.1102230246251571e-15, 1.6653345369377354e-15] class=a-end \nsummary points=1 overlaps=0 unresolved=0\n"
   },
   {
    "name": "seam.circle-plane",
    "ok": true,
-   "out": "point s=[-8.59415310088276e-104, 8.59415310088276e-104] t=[0, 0] at=[1.9999999999982299, 2.000000000001777]x[-9.825473767936002e-13, 9.856560012625516e-13]x[-1.058e-320, 1.058e-320] class=interior\npoint s=[-1.0000000000000004, -0.9999999999999998] t=[0, 0] at=[-2.0000000000000138, -1.999999999999986]x[-3.774758283725555e-15, 5.551115123125814e-15]x[-8.4e-323, 8.4e-323] class=seam\nsummary points=2 overlaps=0 unresolved=0\n"
+   "out": "point s=[-1, -1] t=[0, 0] at=[-2.000000000000013, -1.999999999999987]x[-2.8865798640254173e-15, 3.774758283725549e-15]x[-8.4e-323, 8.4e-323] class=seam\npoint s=[-7.129300156351465e-135, 7.129300156351465e-135] t=[0, 0] at=[1.9999999999982299, 2.000000000001777]x[-9.825473767936002e-13, 9.856560012625516e-13]x[-1.058e-320, 1.058e-320] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
   },
   {
    "name": "tangent.seam-circle-plane",
    "ok": true,
-   "out": "unresolved s=[-1, -0.9999990616232359] t=[0, 0] near=[-2.000000000000013, -1.9999999999964655]x[-0.000003753508820267955, 3.774758283725549e-15]x[-8.4e-323, 8.4e-323]\nunresolved s=[0.9999997628474316, 1] t=[0, 0] near=[-2.0000000000030367, -1.9999999999967528]x[-1.7639223415255142e-12, 9.486121286958864e-7]x[-1.7273e-320, 1.7273e-320]\nsummary points=0 overlaps=0 unresolved=2\n"
+   "out": "point s=[-1, -1] t=[0, 0] at=[-2.000000000000013, -1.999999999999987]x[-2.8865798640254173e-15, 3.774758283725549e-15]x[-8.4e-323, 8.4e-323] class=tangent seam\nsummary points=1 overlaps=0 unresolved=0\n"
   },
   {
    "name": "near.circle-sphere",
    "ok": true,
    "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "secs": 0.07136034965515137,
+   "secs": 0.08010745048522949,
    "roots": 0
   },
   {
@@ -1474,6 +914,41 @@
    "oracle_roots": 1,
    "points": 0,
    "unresolved": 1
+  },
+  {
+   "name": "cc.arcs.complementary",
+   "ok": true,
+   "out": "point s=[-4.069800052531042e-13, 4.0725756100926123e-13] t=[-1, 0] at=[1.9999999999999922, 2.000000000000009]x[-3.2558400420248504e-12, 3.2580604880741076e-12]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[-1, 0] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "cc.arcs.overlap",
+   "ok": true,
+   "out": "overlap s=[-3e-323, 0.5] t=[0, 1]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "cc.arcs.disjoint",
+   "ok": true,
+   "out": "summary points=0 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "cc.arcs.reversed-frame",
+   "ok": true,
+   "out": "point s=[-3e-323, 3e-323] t=[0, 1] at=[1.9999999999999922, 2.000000000000009]x[-4.2e-322, 4.2e-322]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[0, 1] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "cc.lines.touch",
+   "ok": true,
+   "out": "point s=[-5e-323, 5e-323] t=[-6, 0] at=[-1.14e-322, 1.14e-322]x[-2.5e-323, 2.5e-323]x[-2.5e-323, 2.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n"
+  },
+  {
+   "name": "cc.lines.overlap",
+   "ok": true,
+   "out": "overlap s=[2.999999999999996, 6] t=[3, 9]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "cs.tangent.conic-plane-end",
+   "ok": true,
+   "out": "point s=[1, 1] t=[0, 0] at=[-1.1546319456101639e-14, 1.154631945610165e-14]x[41.99999999999983, 42.00000000000015]x[-1.1e-322, 1.1e-322] class=tangent a-end \nsummary points=1 overlaps=0 unresolved=0\n"
   },
   {
    "name": "cc2.0.line-line",
@@ -1875,141 +1350,6 @@
   },
   {
    "name": "cc2.59.conic-line",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.60.line-line",
-   "ok": true,
-   "out": "point s=[0.5111111111110799, 0.5111111111111432] t=[-2.1358024691358204, -2.135802469135783] at=[-2.2222222222222308, -2.222222222222214]x[1.092222222222197, 1.0922222222222466]x[-4e-323, 4e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n",
-   "roots": 1
-  },
-  {
-   "name": "cc2.61.circle-line",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.62.bezier-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.63.conic-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.64.line-line",
-   "ok": true,
-   "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "roots": 0
-  },
-  {
-   "name": "cc2.65.circle-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.66.bezier-line",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.67.conic-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.68.line-line",
-   "ok": true,
-   "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "roots": 0
-  },
-  {
-   "name": "cc2.69.circle-line",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.70.bezier-line",
-   "ok": true,
-   "oracle_roots": 2,
-   "points": 2,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.71.conic-line",
-   "ok": true,
-   "oracle_roots": 0,
-   "points": 0,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.72.line-line",
-   "ok": true,
-   "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "roots": 0
-  },
-  {
-   "name": "cc2.73.circle-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.74.bezier-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.75.conic-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.76.line-line",
-   "ok": true,
-   "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "roots": 0
-  },
-  {
-   "name": "cc2.77.circle-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.78.bezier-line",
-   "ok": true,
-   "oracle_roots": 1,
-   "points": 1,
-   "unresolved": 0
-  },
-  {
-   "name": "cc2.79.conic-line",
    "ok": true,
    "oracle_roots": 0,
    "points": 0,
@@ -2517,740 +1857,6 @@
    "closed": []
   },
   {
-   "name": "ss.60.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.61.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.62.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.64.torus-plane",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.65.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.66.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.67.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.69.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.70.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.71.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.72.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.74.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.75.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.76.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.77.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.78.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.79.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.80.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.81.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.82.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.83.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.84.torus-plane",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.86.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.87.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.89.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.90.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.91.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.92.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.93.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.94.torus-plane",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.95.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.96.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.97.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.98.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.99.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.100.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.101.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.102.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.103.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.104.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.105.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.106.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.107.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.109.torus-plane",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.110.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.112.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.113.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.114.torus-plane",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.115.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.117.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.119.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.120.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.121.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.122.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.124.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.125.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.126.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.127.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.129.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.130.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.131.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.132.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.134.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.135.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.136.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.137.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.139.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.140.sphere-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.141.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.142.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.143.cyl-cyl",
-   "ok": true,
-   "curves": 2,
-   "want": 2,
-   "unresolved": 0,
-   "closed": [
-    true,
-    true
-   ]
-  },
-  {
-   "name": "ss.144.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
-   "name": "ss.145.sphere-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.146.sphere-sphere",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.147.cylinder-plane",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.148.cyl-cyl",
-   "ok": true,
-   "curves": 1,
-   "want": 1,
-   "unresolved": 0,
-   "closed": [
-    true
-   ]
-  },
-  {
-   "name": "ss.149.torus-plane",
-   "ok": true,
-   "curves": 0,
-   "want": 0,
-   "unresolved": 0,
-   "closed": []
-  },
-  {
    "name": "ss.coincide.planes",
    "ok": true,
    "out": "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1\n"
@@ -3291,42 +1897,42 @@
   {
    "name": "patch.0.line",
    "ok": true,
-   "z": 0.1182462210828,
-   "out": "point s=[5.118246221082782, 5.118246221082818] u=[0.5299999999999949, 0.5300000000000049] v=[0.2699999999999984, 0.2700000000000014] at=[1.5899999999999987, 1.5900000000000012]x[0.8099999999999994, 0.8100000000000006]x[0.11824622108278054, 0.11824622108281972] class=interior\nsummary points=1 overlap"
+   "z": 0.2271967073446979,
+   "out": "point s=[5.227196707344667, 5.22719670734473] u=[0.7933333333333216, 0.7933333333333449] v=[0.4066666666666634, 0.40666666666666973] at=[2.3799999999999977, 2.380000000000002]x[1.2199999999999989, 1.220000000000001]x[0.22719670734466468, 0.2271967073447315] class=interior\nsummary points=1 overlaps=0"
   },
   {
    "name": "patch.0.plane",
    "ok": true,
    "kernel": [
-    false
+    false,
+    true
    ],
    "oracle": [
-    false
+    false,
+    true
    ]
   },
   {
    "name": "patch.1.line",
    "ok": true,
-   "z": -0.10076298557526363,
-   "out": "point s=[4.899237014424723, 4.89923701442475] u=[0.37666666666666204, 0.37666666666667115] v=[0.4633333333333303, 0.46333333333333604] at=[1.1299999999999988, 1.130000000000001]x[1.3899999999999988, 1.390000000000001]x[-0.10076298557527878, -0.10076298557524849] class=interior\nsummary points=1 overl"
+   "z": -0.0020369249116597935,
+   "out": "point s=[4.997963075088332, 4.997963075088348] u=[0.11666666666666631, 0.11666666666666702] v=[0.09666666666666635, 0.09666666666666696] at=[0.3499999999999997, 0.35000000000000026]x[0.2899999999999997, 0.29000000000000026]x[-0.0020369249116694035, -0.002036924911649861] class=interior\nsummary point"
   },
   {
    "name": "patch.1.plane",
    "ok": true,
    "kernel": [
-    false,
     false
    ],
    "oracle": [
-    false,
     false
    ]
   },
   {
    "name": "patch.2.line",
    "ok": true,
-   "z": 0.0245407209875,
-   "out": "point s=[5.0245407209874795, 5.0245407209875195] u=[0.5699999999999884, 0.5700000000000115] v=[0.5499999999999948, 0.5500000000000049] at=[1.7099999999999986, 1.710000000000001]x[1.6499999999999986, 1.650000000000001]x[0.024540720987477713, 0.024540720987521258] class=interior\nsummary points=1 overl"
+   "z": -0.10202791302469996,
+   "out": "point s=[4.897972086975237, 4.897972086975363] u=[0.9099999999999693, 0.9100000000000308] v=[0.7099999999999899, 0.71000000000001] at=[2.7299999999999978, 2.730000000000002]x[2.1299999999999977, 2.130000000000002]x[-0.10202791302476481, -0.10202791302463504] class=interior\nsummary points=1 overlaps="
   },
   {
    "name": "patch.2.plane",
@@ -3343,24 +1949,26 @@
   {
    "name": "patch.3.line",
    "ok": true,
-   "z": -0.17899058792631115,
-   "out": "point s=[4.821009412073659, 4.821009412073719] u=[0.22999999999999543, 0.23000000000000445] v=[0.7633333333333269, 0.7633333333333395] at=[0.6899999999999994, 0.6900000000000005]x[2.289999999999998, 2.2900000000000023]x[-0.178990587926343, -0.1789905879262789] class=interior\nsummary points=1 overlap"
+   "z": 0.008439531774854311,
+   "out": "point s=[5.008439531774837, 5.008439531774871] u=[0.6466666666666604, 0.6466666666666727] v=[0.3033333333333315, 0.303333333333335] at=[1.9399999999999986, 1.940000000000001]x[0.9099999999999994, 0.9100000000000006]x[0.008439531774834913, 0.008439531774873115] class=interior\nsummary points=1 overlap"
   },
   {
    "name": "patch.3.plane",
    "ok": true,
    "kernel": [
+    false,
     false
    ],
    "oracle": [
+    false,
     false
    ]
   },
   {
    "name": "patch.4.line",
    "ok": true,
-   "z": -0.05469738229668691,
-   "out": "point s=[4.945302617703273, 4.945302617703353] u=[0.7733333333333201, 0.7733333333333464] v=[0.45666666666666283, 0.4566666666666704] at=[2.3199999999999976, 2.320000000000002]x[1.369999999999999, 1.3700000000000012]x[-0.05469738229672851, -0.054697382296644975] class=interior\nsummary points=1 overl"
+   "z": 0.2969068964502074,
+   "out": "point s=[5.296906896450191, 5.296906896450223] u=[0.5899999999999969, 0.590000000000003] v=[0.12333333333333281, 0.1233333333333338] at=[1.7699999999999987, 1.7700000000000011]x[0.3699999999999997, 0.3700000000000003]x[0.29690689645018936, 0.2969068964502252] class=interior\nsummary points=1 overlaps"
   },
   {
    "name": "patch.4.plane",
@@ -3377,8 +1985,8 @@
   {
    "name": "patch.5.line",
    "ok": true,
-   "z": -0.048536051503785156,
-   "out": "point s=[4.951463948496202, 4.951463948496228] u=[0.12999999999999867, 0.1300000000000013] v=[0.46333333333333115, 0.4633333333333353] at=[0.3899999999999997, 0.3900000000000003]x[1.3899999999999988, 1.390000000000001]x[-0.048536051503799825, -0.048536051503770467] class=interior\nsummary points=1 ov"
+   "z": -0.07950219425074569,
+   "out": "point s=[4.920497805749233, 4.920497805749276] u=[0.5133333333333235, 0.5133333333333431] v=[0.5366666666666619, 0.5366666666666712] at=[1.5399999999999987, 1.5400000000000011]x[1.6099999999999988, 1.6100000000000012]x[-0.07950219425076903, -0.07950219425072187] class=interior\nsummary points=1 overl"
   },
   {
    "name": "patch.5.plane",
@@ -3393,8 +2001,8 @@
   {
    "name": "patch.6.line",
    "ok": true,
-   "z": -0.08729220090278142,
-   "out": "point s=[4.912707799097068, 4.91270779909737] u=[0.8899999999999598, 0.89000000000004] v=[0.8433333333333188, 0.8433333333333475] at=[2.6699999999999977, 2.670000000000002]x[2.5299999999999976, 2.530000000000002]x[-0.08729220090293403, -0.08729220090262842] class=interior\nsummary points=1 overlaps=0"
+   "z": 0.11267780855154898,
+   "out": "point s=[5.112677808551535, 5.112677808551563] u=[0.12666666666666512, 0.1266666666666682] v=[0.47666666666666446, 0.4766666666666687] at=[0.37999999999999967, 0.3800000000000003]x[1.4299999999999988, 1.430000000000001]x[0.11267780855153292, 0.11267780855156499] class=interior\nsummary points=1 overl"
   },
   {
    "name": "patch.6.plane",
@@ -3409,19 +2017,17 @@
   {
    "name": "patch.7.line",
    "ok": true,
-   "z": -0.1729818569343482,
-   "out": "point s=[4.827018143065588, 4.8270181430657155] u=[0.7233333333333029, 0.7233333333333636] v=[0.809999999999989, 0.810000000000011] at=[2.1699999999999977, 2.170000000000002]x[2.429999999999998, 2.4300000000000024]x[-0.17298185693441423, -0.1729818569342826] class=interior\nsummary points=1 overlaps="
+   "z": 0.07356133525377234,
+   "out": "point s=[5.07356133525375, 5.073561335253795] u=[0.6233333333333267, 0.62333333333334] v=[0.3333333333333311, 0.3333333333333354] at=[1.8699999999999988, 1.8700000000000012]x[0.9999999999999992, 1.000000000000001]x[0.07356133525374804, 0.07356133525379698] class=interior\nsummary points=1 overlaps=0 "
   },
   {
    "name": "patch.7.plane",
    "ok": true,
    "kernel": [
     false,
-    false,
     false
    ],
    "oracle": [
-    false,
     false,
     false
    ]
@@ -3429,8 +2035,8 @@
   {
    "name": "patch.8.line",
    "ok": true,
-   "z": -0.27403148183434733,
-   "out": "point s=[4.7259685181656295, 4.725968518165676] u=[0.6566666666666593, 0.6566666666666738] v=[0.3533333333333308, 0.3533333333333358] at=[1.9699999999999986, 1.970000000000001]x[1.059999999999999, 1.0600000000000012]x[-0.2740314818343725, -0.2740314818343224] class=interior\nsummary points=1 overlaps"
+   "z": -0.4084730389584362,
+   "out": "point s=[4.591526961041519, 4.591526961041609] u=[0.7166666666666489, 0.7166666666666842] v=[0.5933333333333272, 0.5933333333333393] at=[2.1499999999999977, 2.150000000000002]x[1.7799999999999987, 1.7800000000000011]x[-0.4084730389584827, -0.40847303895838993] class=interior\nsummary points=1 overlap"
   },
   {
    "name": "patch.8.plane",
@@ -3447,53 +2053,51 @@
   {
    "name": "patch.9.line",
    "ok": true,
-   "z": 0.149412728832,
-   "out": "point s=[5.1494127288319875, 5.149412728832013] u=[0.07999999999999906, 0.08000000000000092] v=[0.559999999999997, 0.5600000000000028] at=[0.23999999999999982, 0.24000000000000013]x[1.6799999999999986, 1.680000000000001]x[0.14941272883198567, 0.14941272883201515] class=interior\nsummary points=1 over"
+   "z": 0.1677560163292181,
+   "out": "point s=[5.167756016329205, 5.167756016329231] u=[0.23666666666666505, 0.23666666666666825] v=[0.36666666666666486, 0.36666666666666836] at=[0.7099999999999994, 0.7100000000000005]x[1.099999999999999, 1.1000000000000012]x[0.16775601632920348, 0.16775601632923295] class=interior\nsummary points=1 over"
   },
   {
    "name": "patch.9.plane",
    "ok": true,
    "kernel": [
-    false,
     false
    ],
    "oracle": [
-    false,
     false
    ]
   },
   {
    "name": "patch.10.line",
    "ok": true,
-   "z": -0.12566227306241426,
-   "out": "point s=[4.874337726937532, 4.874337726937639] u=[0.8333333333333122, 0.8333333333333544] v=[0.603333333333326, 0.6033333333333405] at=[2.499999999999998, 2.500000000000002]x[1.8099999999999987, 1.8100000000000012]x[-0.12566227306246977, -0.12566227306235947] class=interior\nsummary points=1 overlaps"
+   "z": -0.0762911644148148,
+   "out": "point s=[4.923708835585172, 4.923708835585199] u=[0.2999999999999978, 0.30000000000000215] v=[0.31333333333333185, 0.31333333333333463] at=[0.8999999999999994, 0.9000000000000006]x[0.9399999999999993, 0.9400000000000005]x[-0.07629116441482968, -0.0762911644147994] class=interior\nsummary points=1 ove"
   },
   {
    "name": "patch.10.plane",
    "ok": true,
    "kernel": [
+    false,
     false
    ],
    "oracle": [
+    false,
     false
    ]
   },
   {
    "name": "patch.11.line",
    "ok": true,
-   "z": 0.11947882518016667,
-   "out": "point s=[5.119478825180155, 5.1194788251801775] u=[0.20999999999999924, 0.21000000000000074] v=[0.09666666666666632, 0.09666666666666696] at=[0.6299999999999994, 0.6300000000000006]x[0.2899999999999997, 0.29000000000000026]x[0.11947882518015346, 0.11947882518017931] class=interior\nsummary points=1 o"
+   "z": -0.2275252228373333,
+   "out": "point s=[4.772474777162636, 4.772474777162697] u=[0.5399999999999833, 0.5400000000000167] v=[0.7533333333333244, 0.753333333333342] at=[1.6199999999999988, 1.6200000000000012]x[2.2599999999999976, 2.260000000000002]x[-0.2275252228373655, -0.22752522283730137] class=interior\nsummary points=1 overlaps"
   },
   {
    "name": "patch.11.plane",
    "ok": true,
    "kernel": [
     false,
-    false,
     false
    ],
    "oracle": [
-    false,
     false,
     false
    ]
@@ -3501,24 +2105,26 @@
   {
    "name": "patch.12.line",
    "ok": true,
-   "z": 0.011249869047940732,
-   "out": "point s=[5.011249869047918, 5.011249869047963] u=[0.7466666666666564, 0.7466666666666769] v=[0.38999999999999696, 0.39000000000000284] at=[2.239999999999998, 2.2400000000000024]x[1.1699999999999988, 1.170000000000001]x[0.011249869047916578, 0.01124986904796455] class=interior\nsummary points=1 overla"
+   "z": 0.14860652583703707,
+   "out": "point s=[5.148606525837022, 5.148606525837051] u=[0.8999999999999952, 0.9000000000000047] v=[0.08666666666666624, 0.08666666666666709] at=[2.699999999999998, 2.7000000000000024]x[0.25999999999999973, 0.2600000000000003]x[0.14860652583702008, 0.1486065258370531] class=interior\nsummary points=1 overla"
   },
   {
    "name": "patch.12.plane",
    "ok": true,
    "kernel": [
+    false,
     false
    ],
    "oracle": [
+    false,
     false
    ]
   },
   {
    "name": "patch.13.line",
    "ok": true,
-   "z": 0.17999481864907407,
-   "out": "point s=[5.179994818649059, 5.179994818649089] u=[0.5499999999999958, 0.550000000000004] v=[0.23666666666666542, 0.23666666666666777] at=[1.6499999999999986, 1.650000000000001]x[0.7099999999999994, 0.7100000000000005]x[0.17999481864905756, 0.1799948186490906] class=interior\nsummary points=1 overlaps"
+   "z": 0.03162682972728888,
+   "out": "point s=[5.031626829727241, 5.031626829727337] u=[0.5599999999999771, 0.5600000000000227] v=[0.8466666666666554, 0.846666666666678] at=[1.6799999999999986, 1.680000000000001]x[2.539999999999998, 2.5400000000000023]x[0.03162682972723905, 0.031626829727338567] class=interior\nsummary points=1 overlaps="
   },
   {
    "name": "patch.13.plane",
@@ -3535,8 +2141,8 @@
   {
    "name": "patch.14.line",
    "ok": true,
-   "z": -0.19015369644049598,
-   "out": "point s=[4.809846303559488, 4.80984630355952] u=[0.3633333333333303, 0.36333333333333645] v=[0.34333333333333127, 0.3433333333333352] at=[1.089999999999999, 1.0900000000000012]x[1.029999999999999, 1.0300000000000011]x[-0.1901536964405138, -0.19015369644047808] class=interior\nsummary points=1 overlap"
+   "z": 0.4387518979181059,
+   "out": "point s=[5.43875189791799, 5.438751897918221] u=[0.6633333333333041, 0.6633333333333624] v=[0.8866666666666541, 0.8866666666666794] at=[1.9899999999999987, 1.990000000000001]x[2.659999999999998, 2.6600000000000024]x[0.43875189791798763, 0.4387518979182234] class=interior\nsummary points=1 overlaps=0 "
   },
   {
    "name": "patch.14.plane",
@@ -3551,8 +2157,8 @@
   {
    "name": "patch.15.line",
    "ok": true,
-   "z": 0.31094357275377227,
-   "out": "point s=[5.310943572753757, 5.3109435727537875] u=[0.28333333333333094, 0.2833333333333357] v=[0.35333333333333145, 0.3533333333333351] at=[0.8499999999999993, 0.8500000000000005]x[1.059999999999999, 1.0600000000000012]x[0.31094357275375534, 0.3109435727537894] class=interior\nsummary points=1 overla"
+   "z": -0.30522727346476464,
+   "out": "point s=[4.694772726535199, 4.694772726535272] u=[0.16333333333332942, 0.1633333333333372] v=[0.8633333333333267, 0.8633333333333396] at=[0.48999999999999966, 0.49000000000000027]x[2.5899999999999976, 2.590000000000002]x[-0.30522727346480333, -0.3052272734647257] class=interior\nsummary points=1 over"
   },
   {
    "name": "patch.15.plane",
@@ -3569,8 +2175,8 @@
   {
    "name": "patch.16.line",
    "ok": true,
-   "z": -0.23832693656699241,
-   "out": "point s=[4.761673063432981, 4.761673063433034] u=[0.8833333333333263, 0.8833333333333402] v=[0.19666666666666544, 0.1966666666666678] at=[2.6499999999999977, 2.650000000000002]x[0.5899999999999994, 0.5900000000000005]x[-0.23832693656702117, -0.23832693656696413] class=interior\nsummary points=1 overl"
+   "z": -0.09496014311664952,
+   "out": "point s=[4.905039856883335, 4.9050398568833655] u=[0.16333333333332997, 0.16333333333333663] v=[0.783333333333328, 0.7833333333333387] at=[0.48999999999999966, 0.49000000000000027]x[2.349999999999998, 2.3500000000000023]x[-0.09496014311666649, -0.09496014311663264] class=interior\nsummary points=1 ov"
   },
   {
    "name": "patch.16.plane",
@@ -3585,8 +2191,8 @@
   {
    "name": "patch.17.line",
    "ok": true,
-   "z": -0.34241365988992595,
-   "out": "point s=[4.657586340110062, 4.657586340110086] u=[0.30333333333333107, 0.3033333333333356] v=[0.33999999999999825, 0.34000000000000163] at=[0.9099999999999994, 0.9100000000000006]x[1.019999999999999, 1.0200000000000011]x[-0.3424136598899398, -0.34241365988991196] class=interior\nsummary points=1 over"
+   "z": -0.20349837979807064,
+   "out": "point s=[4.796501620201915, 4.796501620201944] u=[0.13666666666666397, 0.13666666666666935] v=[0.7566666666666614, 0.7566666666666718] at=[0.40999999999999964, 0.41000000000000025]x[2.269999999999998, 2.2700000000000022]x[-0.20349837979808702, -0.20349837979805396] class=interior\nsummary points=1 ov"
   },
   {
    "name": "patch.17.plane",
@@ -3601,8 +2207,8 @@
   {
    "name": "patch.18.line",
    "ok": true,
-   "z": -0.09312578372651562,
-   "out": "point s=[4.906874216273467, 4.906874216273502] u=[0.7766666666666598, 0.7766666666666734] v=[0.22333333333333205, 0.22333333333333455] at=[2.329999999999998, 2.3300000000000023]x[0.6699999999999995, 0.6700000000000006]x[-0.09312578372653495, -0.09312578372649578] class=interior\nsummary points=1 over"
+   "z": -0.08363919788923786,
+   "out": "point s=[4.916360802110694, 4.91636080211083] u=[0.8966666666666419, 0.8966666666666913] v=[0.6133333333333258, 0.6133333333333407] at=[2.6899999999999977, 2.690000000000002]x[1.8399999999999987, 1.8400000000000012]x[-0.08363919788930745, -0.08363919788916792] class=interior\nsummary points=1 overlap"
   },
   {
    "name": "patch.18.plane",
@@ -3617,169 +2223,11 @@
   {
    "name": "patch.19.line",
    "ok": true,
-   "z": 0.2950315511793778,
-   "out": "point s=[5.295031551179355, 5.295031551179401] u=[0.43999999999999323, 0.44000000000000666] v=[0.5633333333333287, 0.5633333333333377] at=[1.319999999999999, 1.3200000000000012]x[1.6899999999999986, 1.690000000000001]x[0.29503155117935337, 0.29503155117940255] class=interior\nsummary points=1 overlap"
+   "z": 0.34301817100438725,
+   "out": "point s=[5.343018171004369, 5.343018171004406] u=[0.3033333333333292, 0.30333333333333745] v=[0.5633333333333296, 0.563333333333337] at=[0.9099999999999994, 0.9100000000000006]x[1.6899999999999986, 1.690000000000001]x[0.34301817100436677, 0.34301817100440796] class=interior\nsummary points=1 overlaps"
   },
   {
    "name": "patch.19.plane",
-   "ok": true,
-   "kernel": [
-    false
-   ],
-   "oracle": [
-    false
-   ]
-  },
-  {
-   "name": "patch.20.line",
-   "ok": true,
-   "z": 0.11936892905113702,
-   "out": "point s=[5.119368929051121, 5.119368929051154] u=[0.5899999999999955, 0.5900000000000042] v=[0.22333333333333216, 0.22333333333333444] at=[1.7699999999999987, 1.7700000000000011]x[0.6699999999999995, 0.6700000000000006]x[0.11936892905111923, 0.11936892905115574] class=interior\nsummary points=1 overl"
-  },
-  {
-   "name": "patch.20.plane",
-   "ok": true,
-   "kernel": [
-    false,
-    false
-   ],
-   "oracle": [
-    false,
-    false
-   ]
-  },
-  {
-   "name": "patch.21.line",
-   "ok": true,
-   "z": 0.27227681371742113,
-   "out": "point s=[5.2722768137174, 5.272276813717443] u=[0.4166666666666576, 0.4166666666666757] v=[0.746666666666659, 0.7466666666666744] at=[1.249999999999999, 1.250000000000001]x[2.239999999999998, 2.2400000000000024]x[0.2722768137173979, 0.27227681371744533] class=interior\nsummary points=1 overlaps=0 unr"
-  },
-  {
-   "name": "patch.21.plane",
-   "ok": true,
-   "kernel": [
-    false,
-    false
-   ],
-   "oracle": [
-    false,
-    false
-   ]
-  },
-  {
-   "name": "patch.22.line",
-   "ok": true,
-   "z": 0.1323162653728,
-   "out": "point s=[5.132316265372755, 5.132316265372844] u=[0.4199999999999849, 0.420000000000015] v=[0.923333333333322, 0.9233333333333446] at=[1.259999999999999, 1.2600000000000011]x[2.769999999999998, 2.7700000000000022]x[0.13231626537275334, 0.13231626537284588] class=interior\nsummary points=1 overlaps=0 "
-  },
-  {
-   "name": "patch.22.plane",
-   "ok": true,
-   "kernel": [],
-   "oracle": []
-  },
-  {
-   "name": "patch.23.line",
-   "ok": true,
-   "z": -0.3064517631241481,
-   "out": "point s=[4.69354823687584, 4.693548236875864] u=[0.07999999999999968, 0.0800000000000003] v=[0.17333333333333267, 0.17333333333333392] at=[0.23999999999999982, 0.24000000000000013]x[0.5199999999999995, 0.5200000000000006]x[-0.3064517631241623, -0.3064517631241344] class=interior\nsummary points=1 ove"
-  },
-  {
-   "name": "patch.23.plane",
-   "ok": true,
-   "kernel": [
-    false
-   ],
-   "oracle": [
-    false
-   ]
-  },
-  {
-   "name": "patch.24.line",
-   "ok": true,
-   "z": 0.23099916148061236,
-   "out": "point s=[5.23099916148059, 5.230999161480636] u=[0.14666666666666395, 0.14666666666666936] v=[0.7033333333333284, 0.7033333333333379] at=[0.43999999999999967, 0.4400000000000003]x[2.1099999999999977, 2.110000000000002]x[0.23099916148058852, 0.23099916148063757] class=interior\nsummary points=1 overla"
-  },
-  {
-   "name": "patch.24.plane",
-   "ok": true,
-   "kernel": [
-    false
-   ],
-   "oracle": [
-    false
-   ]
-  },
-  {
-   "name": "patch.25.line",
-   "ok": true,
-   "z": 0.0026803412704899995,
-   "out": "point s=[5.002680341270473, 5.002680341270508] u=[0.32333333333332837, 0.32333333333333814] v=[0.6066666666666624, 0.6066666666666707] at=[0.9699999999999993, 0.9700000000000005]x[1.8199999999999987, 1.8200000000000012]x[0.00268034127047123, 0.0026803412705094245] class=interior\nsummary points=1 ove"
-  },
-  {
-   "name": "patch.25.plane",
-   "ok": true,
-   "kernel": [],
-   "oracle": []
-  },
-  {
-   "name": "patch.26.line",
-   "ok": true,
-   "z": 0.029572782598628212,
-   "out": "point s=[5.029572782598596, 5.0295727825986605] u=[0.4433333333333179, 0.44333333333334873] v=[0.9333333333333218, 0.9333333333333447] at=[1.329999999999999, 1.3300000000000012]x[2.7999999999999976, 2.800000000000002]x[0.029572782598593847, 0.02957278259866226] class=interior\nsummary points=1 overla"
-  },
-  {
-   "name": "patch.26.plane",
-   "ok": true,
-   "kernel": [
-    false
-   ],
-   "oracle": [
-    false
-   ]
-  },
-  {
-   "name": "patch.27.line",
-   "ok": true,
-   "z": 0.35986893772487466,
-   "out": "point s=[5.359868937724845, 5.3598689377249045] u=[0.4033333333333207, 0.40333333333334576] v=[0.8533333333333236, 0.8533333333333429] at=[1.2099999999999989, 1.210000000000001]x[2.559999999999998, 2.5600000000000023]x[0.359868937724843, 0.3598689377249064] class=interior\nsummary points=1 overlaps=0"
-  },
-  {
-   "name": "patch.27.plane",
-   "ok": true,
-   "kernel": [
-    false
-   ],
-   "oracle": [
-    false
-   ]
-  },
-  {
-   "name": "patch.28.line",
-   "ok": true,
-   "z": -0.2558940308023148,
-   "out": "point s=[4.744105969197657, 4.744105969197713] u=[0.7699999999999889, 0.7700000000000109] v=[0.36333333333333057, 0.363333333333336] at=[2.309999999999998, 2.3100000000000023]x[1.089999999999999, 1.0900000000000012]x[-0.25589403080234535, -0.2558940308022846] class=interior\nsummary points=1 overlaps"
-  },
-  {
-   "name": "patch.28.plane",
-   "ok": true,
-   "kernel": [
-    false,
-    false
-   ],
-   "oracle": [
-    false,
-    false
-   ]
-  },
-  {
-   "name": "patch.29.line",
-   "ok": true,
-   "z": -0.05614205852667435,
-   "out": "point s=[4.943857941473271, 4.94385794147338] u=[0.6733333333333087, 0.673333333333358] v=[0.726666666666658, 0.7266666666666752] at=[2.019999999999998, 2.0200000000000022]x[2.179999999999998, 2.1800000000000024]x[-0.05614205852673051, -0.05614205852661855] class=interior\nsummary points=1 overlaps=0"
-  },
-  {
-   "name": "patch.29.plane",
    "ok": true,
    "kernel": [
     false,
@@ -3999,76 +2447,6 @@
    "kernel": 2,
    "oracle": 2,
    "out": "point s=[2.209296425640472, 2.209296425640543] t=[0, 0] at=[0.31201714142162823, 0.3120171414218565]x[-0.45000000000010665, -0.44999999999989326]x[-8.25e-322, 8.25e-322] class=interior\npoint s=[4.9545"
-  },
-  {
-   "name": "nurbs.30.plane",
-   "ok": true,
-   "kernel": 1,
-   "oracle": 1,
-   "out": "point s=[3.2883626969288215, 3.288362696928833] t=[0, 0] at=[1.1658360228004496, 1.1658360228004947]x[-0.020000000000016015, -0.019999999999984003]x[-1.33e-322, 1.33e-322] class=interior\nsummary point"
-  },
-  {
-   "name": "nurbs.31.plane",
-   "ok": true,
-   "kernel": 2,
-   "oracle": 2,
-   "out": "point s=[2.8930392361542117, 2.89303923615437] t=[0, 0] at=[1.8203268027014128, 1.8203268027016501]x[0.37999999999991996, 0.3800000000000801]x[-6.8e-322, 6.8e-322] class=interior\npoint s=[4.7137493500"
-  },
-  {
-   "name": "nurbs.32.plane",
-   "ok": true,
-   "kernel": 1,
-   "oracle": 1,
-   "out": "point s=[0.5587808367309438, 0.5587808367309518] t=[0, 0] at=[-0.4715276836626081, -0.4715276836625936]x[0.06999999999999425, 0.07000000000000574]x[-2.5e-322, 2.5e-322] class=interior\nsummary points=1"
-  },
-  {
-   "name": "nurbs.33.plane",
-   "ok": true,
-   "kernel": 3,
-   "oracle": 3,
-   "out": "point s=[0.673950638637334, 0.6739506386373959] t=[0, 0] at=[-1.5922736593611284, -1.5922736593607294]x[-0.3200000000001428, -0.31999999999985695]x[-5e-322, 5e-322] class=interior\npoint s=[1.914947006"
-  },
-  {
-   "name": "nurbs.34.plane",
-   "ok": true,
-   "kernel": 3,
-   "oracle": 3,
-   "out": "point s=[0.2258141323129455, 0.22581413231295105] t=[0, 0] at=[-0.3502908856855488, -0.3502908856855257]x[0.3099999999999715, 0.31000000000002814]x[-1.43e-322, 1.43e-322] class=interior\npoint s=[2.235"
-  },
-  {
-   "name": "nurbs.35.plane",
-   "ok": true,
-   "kernel": 3,
-   "oracle": 3,
-   "out": "point s=[3.499419427817567, 3.499419427817706] t=[0, 0] at=[-1.3194831955176236, -1.3194831955172521]x[-0.3600000000001496, -0.35999999999985094]x[-1.136e-321, 1.136e-321] class=interior\npoint s=[4.49"
-  },
-  {
-   "name": "nurbs.36.plane",
-   "ok": true,
-   "kernel": 3,
-   "oracle": 3,
-   "out": "point s=[2.8764572002926796, 2.8764572002927493] t=[0, 0] at=[0.7044522654652395, 0.70445226546534]x[-0.25000000000004685, -0.2499999999999532]x[-4.35e-322, 4.35e-322] class=interior\npoint s=[3.694328"
-  },
-  {
-   "name": "nurbs.37.plane",
-   "ok": true,
-   "kernel": 4,
-   "oracle": 4,
-   "out": "point s=[0.03851038595710506, 0.03851038595710573] t=[0, 0] at=[0.7641758621676856, 0.7641758621677261]x[0.8099999999999891, 0.8100000000000114]x[-1.5e-322, 1.5e-322] class=interior\npoint s=[0.8000693"
-  },
-  {
-   "name": "nurbs.38.plane",
-   "ok": true,
-   "kernel": 0,
-   "oracle": 0,
-   "out": "summary points=0 overlaps=0 unresolved=0\n"
-  },
-  {
-   "name": "nurbs.39.plane",
-   "ok": true,
-   "kernel": 1,
-   "oracle": 1,
-   "out": "point s=[4.532478347339621, 4.532478347339666] t=[0, 0] at=[-0.4283131616486689, -0.42831316164855415]x[-0.8900000000001583, -0.8899999999998411]x[-6.4e-322, 6.4e-322] class=interior\nsummary points=1 "
   }
  ]
 }

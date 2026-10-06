@@ -16,6 +16,9 @@ type Hit is Data:
   H_un{ s: I.I, t: I.I, p: List<&2, I.I> }
   H_no{ why: String }
 
+type Df is Data:
+  Df{ es: List<&2, E.Ex>, m: Nat }
+
 type Pn is Data:
   Pn{ o: V.Point, n: List<&2, E.Ex>, ok: Bool }
 
@@ -158,8 +161,9 @@ def seam_go(hs: List<&2, Hit>, +first: Bool) -> List<&2, Hit>:
     case +h <> +t:
       match h:
         case H_pt{+s, +tt, +p, +cls}:
-          Bool.pick(List<&2, Hit>, U64.is_eq(cls, 2u64), seam_go(t, first),
-            Bool.pick(List<&2, Hit>, U64.is_eq(cls, 1u64), H_pt{s, tt, p, 16u64} <> seam_go(t, first), H_pt{s, tt, p, cls} <> seam_go(t, first)))
+          +k = U64.and(cls, 31u64)
+          Bool.pick(List<&2, Hit>, U64.is_eq(k, 2u64), seam_go(t, first),
+            Bool.pick(List<&2, Hit>, U64.is_eq(k, 1u64), H_pt{s, tt, p, U64.add(16u64, U64.sub(cls, k))} <> seam_go(t, first), H_pt{s, tt, p, cls} <> seam_go(t, first)))
         case _: h <> seam_go(t, first)
 
 def has_cls(hs: List<&2, Hit>, +c: U64) -> Bool:
@@ -167,7 +171,7 @@ def has_cls(hs: List<&2, Hit>, +c: U64) -> Bool:
     case []: False{}
     case h <> +t:
       match h:
-        case H_pt{s, tt, p, cls}: Bool.or(U64.is_eq(cls, c), has_cls(t, c))
+        case H_pt{s, tt, p, cls}: Bool.or(U64.is_eq(U64.and(cls, 31u64), c), has_cls(t, c))
         case _: has_cls(t, c)
 
 def seam(+hs: List<&2, Hit>, closed: Bool) -> List<&2, Hit>:
@@ -272,10 +276,70 @@ def ci_run(+c: R.Cv, +s: M.Im, +h: List<&2, I.I>, +e: List<&2, E.Ex>, +lo: F64, 
   +ks = pts_of(rs)
   List.append(&2, Hit, ci_pts(ks, c, s, lo, hi), ci_un(merge1(un1(rs), dom01(), False{}), c, s, ks, p, lo, hi))
 
+def ex_horner(es: List<&2, E.Ex>, +t: F64) -> E.Ex:
+  match es:
+    case []: E.ex_zero()
+    case c <> u: E.ex_add(c, E.ex_scale(ex_horner(u, t), t))
+
+def ex_rev(es: List<&2, E.Ex>, +acc: List<&2, E.Ex>) -> List<&2, E.Ex>:
+  match es:
+    case []: acc
+    case e <> t: ex_rev(t, e <> acc)
+
+def syn(hs: List<&2, E.Ex>, +r: F64, +b: E.Ex, +acc: List<&2, E.Ex>) -> List<&2, E.Ex>:
+  match hs:
+    case []: acc
+    case h <> t:
+      +nb = E.ex_add(h, E.ex_scale(b, r))
+      syn(t, r, nb, nb <> acc)
+
+def tl_ex(es: List<&2, E.Ex>) -> List<&2, E.Ex>:
+  match es:
+    case []: []
+    case e <> t: t
+
+def div_go(hs: List<&2, E.Ex>, +r: F64) -> List<&2, E.Ex>:
+  match hs:
+    case []: []
+    case +a <> t: tl_ex(syn(t, r, a, [a]))
+
+def ex_div(+es: List<&2, E.Ex>, +r: F64) -> List<&2, E.Ex>:
+  div_go(ex_rev(es, []), r)
+
+def zero_at(+es: List<&2, E.Ex>, +r: F64) -> Bool:
+  Bool.and(Nat.is_lt(1n, List.length(&2, E.Ex, es)), ez(ex_horner(es, r)))
+
+def defl(n: Nat, z: Bool, +es: List<&2, E.Ex>, +r: F64, +m: Nat) -> Df:
+  match n:
+    case 0n: Df{es, m}
+    case 1n+k:
+      match z:
+        case False{}: Df{es, m}
+        case True{}:
+          +e2 = ex_div(es, r)
+          defl(k, zero_at(e2, r), e2, r, Nat.add(m, 1n))
+
+def df_es(d: Df) -> List<&2, E.Ex>:
+  Df{es, m} = d
+  es
+
+def df_m(d: Df) -> Nat:
+  Df{es, m} = d
+  m
+
+def end_hit(+m: Nat, +c: R.Cv, +s: M.Im, +r: F64, +lo: F64, +hi: F64) -> List<&2, Hit>:
+  Bool.pick(List<&2, Hit>, Nat.is_eq(m, 0n), [], ci_hit(c, s, [I.ipt(r)], U64.add(cls_of(I.ipt(r), 1u64, lo, hi), Bool.pick(U64, Nat.is_lt(1n, m), 32u64, 0u64)), lo, hi))
+
 def ci_pick(on: Bool, +c: R.Cv, +s: M.Im, +es: List<&2, E.Ex>, +sp: List<&2, E.Ex>, +lo: F64, +hi: F64, +d: Nat, +closed: Bool) -> List<&2, Hit>:
   match on:
     case True{}: on_res(c, s, sp, lo, hi)
-    case False{}: seam(ci_run(c, s, bern(es, lo, hi), es, lo, hi, d), closed)
+    case False{}:
+      +dl = defl(32n, zero_at(es, lo), es, lo, 0n)
+      +e1 = df_es(dl)
+      +dh = defl(32n, zero_at(e1, hi), e1, hi, 0n)
+      +e2 = df_es(dh)
+      +ends = List.append(&2, Hit, end_hit(df_m(dl), c, s, lo, lo, hi), end_hit(df_m(dh), c, s, hi, lo, hi))
+      seam(List.append(&2, Hit, ends, ci_run(c, s, bern(e2, lo, hi), e2, lo, hi, d)), closed)
 
 def ci_main(mc: Maybe<&2, R.Cv>, ms: Maybe<&2, M.Im>, +es: List<&2, E.Ex>, +sp: List<&2, E.Ex>, +d: Nat, +lo: F64, +hi: F64, +closed: Bool) -> List<&2, Hit>:
   match mc:
@@ -438,12 +502,18 @@ def nn(xs: List<&2, Nat>, +i: Nat) -> Nat:
         case 0n: x
         case 1n+j: nn(t, j)
 
-def cc_2d(+a: R.Cv, +b: R.Cv, +k: Nat, +d: Nat) -> List<&2, Hit>:
+def cc_2d_in(+a: R.Cv, +b: R.Cv, +k: Nat, +d: Nat, +bx: List<&2, I.I>) -> List<&2, Hit>:
   +o = i_other(k)
-  cc_res(solve_r(d, mk_cc(a, b, nn(o, 0n), nn(o, 1n)), [dom01(), dom01()]), a, b)
+  cc_res(solve_r(d, mk_cc(a, b, nn(o, 0n), nn(o, 1n)), bx), a, b)
+
+def cc_2d(+a: R.Cv, +b: R.Cv, +k: Nat, +d: Nat) -> List<&2, Hit>:
+  cc_2d_in(a, b, k, d, [dom01(), dom01()])
+
+def cc_3d_in(+a: R.Cv, +b: R.Cv, +d: Nat, +bx: List<&2, I.I>) -> List<&2, Hit>:
+  cc_res(N.solve(d, mk_c3(a, b), bx), a, b)
 
 def cc_3d(+a: R.Cv, +b: R.Cv, +d: Nat) -> List<&2, Hit>:
-  cc_res(N.solve(d, mk_c3(a, b), [dom01(), dom01()]), a, b)
+  cc_3d_in(a, b, d, [dom01(), dom01()])
 
 def edot(+a: List<&2, E.Ex>, +b: List<&2, E.Ex>) -> E.Ex:
   E.ex_add(E.ex_add(E.ex_mul(P.nth_e(a, 0n), P.nth_e(b, 0n)), E.ex_mul(P.nth_e(a, 1n), P.nth_e(b, 1n))), E.ex_mul(P.nth_e(a, 2n), P.nth_e(b, 2n)))
@@ -458,16 +528,25 @@ def lpar(+p: V.Point, +d: V.Dir, +q: V.Point, +e: V.Dir, +t: F64) -> I.I:
   +pt = X.vadd(M.p3(q), R_scale(I.ipt(t), M.d3(e)))
   I.idiv(X.vdot(X.vsub(pt, M.p3(p)), dd), X.vdot(dd, dd))
 
-def ll_ov(+p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir, +db: G.Dom) -> List<&2, Hit>:
-  +sr = I.ihull(lpar(p, d, q, e, dlo(db)), lpar(p, d, q, e, dhi(db)))
-  +dom = dom_i(da)
-  +ov = X.imeet(sr, dom)
-  +tr = I.ihull(lpar(q, e, p, d, I.i_lo(ov)), lpar(q, e, p, d, I.i_hi(ov)))
-  Bool.pick(List<&2, Hit>, X.idisj(sr, dom), [], [H_ov{ov, X.imeet(tr, dom_i(db))}])
+def arc_hit(+ca: R.Cv, +a: I.I, +b: I.I, +lo: F64, +hi: F64, +tt: I.I) -> List<&2, Hit>:
+  +l = X.iof(F64.max(I.i_lo(a), lo), F64.max(I.i_hi(a), lo))
+  +h = X.iof(F64.min(I.i_lo(b), hi), F64.min(I.i_hi(b), hi))
+  +t = I.ihull(l, h)
+  Bool.pick(List<&2, Hit>, F64.is_lt(I.i_hi(l), I.i_lo(h)), [H_ov{X.iof(I.i_lo(l), I.i_hi(h)), tt}],
+    Bool.pick(List<&2, Hit>, F64.is_lt(I.i_hi(h), I.i_lo(l)), [],
+      [H_pt{t, tt, R.cv_box(ca, I.idiv(I.isub(t, I.ipt(lo)), I.ipt(F64.sub(hi, lo)))), 0u64}]))
+
+def ll_ov(+ca: R.Cv, +p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir, +db: G.Dom) -> List<&2, Hit>:
+  +a = lpar(p, d, q, e, dlo(db))
+  +b = lpar(p, d, q, e, dhi(db))
+  +sw = F64.is_lt(I.i_lo(b), I.i_lo(a))
+  +lo = Bool.pick(I.I, sw, b, a)
+  +hi = Bool.pick(I.I, sw, a, b)
+  arc_hit(ca, lo, hi, dlo(da), dhi(da), dom_i(db))
 
 def ll_pick(k: U64, +p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir, +db: G.Dom, +ca: R.Cv, +cb: R.Cv, +n: List<&2, E.Ex>, +depth: Nat) -> List<&2, Hit>:
   match k:
-    case 1u64: ll_ov(p, d, da, q, e, db)
+    case 1u64: ll_ov(ca, p, d, da, q, e, db)
     case 2u64: cc_2d(ca, cb, drop_k(n), depth)
     case _: []
 
@@ -488,12 +567,27 @@ def cc_same(+c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64, +xb: Maybe<&2, P.Xc>) ->
   +rr = E.ex_mul(E.ex_mul(E.ex_of(r), E.ex_of(r)), edot(edir(u), edir(u)))
   Bool.and(true_circle(u, v), Bool.and(on_go(xb, Some{P.X_pl{c, ecr(edir(u), edir(v))}}), on_go(xb, Some{P.X_sp{c, rr}})))
 
+def seam_snap(+e: I.I, +m: I.I) -> I.I:
+  +at = Bool.or(F64.is_le(I.i_hi(e), F64.neg(0.999999999999f64)), F64.is_le(0.999999999999f64, I.i_lo(e)))
+  +wide = Bool.and(F64.is_le(I.i_lo(e), F64.neg(0.999999999999f64)), F64.is_le(0.999999999999f64, I.i_hi(e)))
+  Bool.pick(I.I, Bool.or(Bool.or(at, wide), Bool.not(X.ifin(e))), Bool.pick(I.I, F64.is_lt(I.i_hi(m), 0.0f64), I.ipt(F64.neg(1.0f64)), I.ipt(1.0f64)), e)
+
 def circ_ov(+ca: R.Cv, +cb: R.Cv, +c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64, +da: G.Dom, +db: G.Dom) -> List<&2, Hit>:
-  +s0 = circ_par(R.cv_box(cb, I.ipt(0.0f64)), c, u, v, r)
-  +s1 = circ_par(R.cv_box(cb, I.ipt(1.0f64)), c, u, v, r)
-  +dom = dom_i(da)
-  +inside = Bool.and(X.isub_of(s0, dom), Bool.and(X.isub_of(s1, dom), F64.is_lt(I.i_hi(s0), I.i_lo(s1))))
-  Bool.pick(List<&2, Hit>, inside, [H_ov{I.ihull(s0, s1), dom_i(db)}], [H_ov{dom, dom_i(db)}])
+  +sm = circ_par(R.cv_box(cb, I.ipt(0.5f64)), c, u, v, r)
+  +s0 = seam_snap(circ_par(R.cv_box(cb, I.ipt(0.0f64)), c, u, v, r), sm)
+  +s1 = seam_snap(circ_par(R.cv_box(cb, I.ipt(1.0f64)), c, u, v, r), sm)
+  +lo = dlo(da)
+  +hi = dhi(da)
+  +up = Bool.and(F64.is_lt(I.i_hi(s0), I.i_lo(sm)), F64.is_lt(I.i_hi(sm), I.i_lo(s1)))
+  +dn = Bool.and(F64.is_lt(I.i_hi(s1), I.i_lo(sm)), F64.is_lt(I.i_hi(sm), I.i_lo(s0)))
+  +a = Bool.pick(I.I, F64.is_lt(I.i_lo(s0), I.i_lo(s1)), s0, s1)
+  +b = Bool.pick(I.I, F64.is_lt(I.i_lo(s0), I.i_lo(s1)), s1, s0)
+  +w = Bool.or(up, dn)
+  +l = Bool.pick(I.I, w, a, b)
+  +u = Bool.pick(I.I, w, b, I.iadd(a, I.ipt(2.0f64)))
+  +tt = dom_i(db)
+  List.append(&2, Hit, arc_hit(ca, l, u, lo, hi, tt),
+    List.append(&2, Hit, arc_hit(ca, I.isub(l, I.ipt(2.0f64)), I.isub(u, I.ipt(2.0f64)), lo, hi, tt), arc_hit(ca, I.iadd(l, I.ipt(2.0f64)), I.iadd(u, I.ipt(2.0f64)), lo, hi, tt)))
 
 def same_circ(ga: G.GVal, +xb: Maybe<&2, P.Xc>) -> Bool:
   match ga:
@@ -608,3 +702,15 @@ def coincide(g1: G.GVal, +g2: G.GVal) -> Bool:
           Bool.and(p_eq(o1, o2), Bool.and(par_dirs(a1, a2), Bool.and(F64.is_eq(b1, b2), F64.is_eq(r1, r2))))
         case _: False{}
     case _: False{}
+
+def cc_exact(+ga: G.GVal, +gb: G.GVal) -> Bool:
+  Bool.or(Bool.and(is_line(ga), is_line(gb)), same_circ(ga, gv_xc(gb)))
+
+def bb_sel(on: Bool, +ca: R.Cv, +cb: R.Cv, +pn: Pn, +d: Nat, +bx: List<&2, I.I>) -> List<&2, Hit>:
+  match on:
+    case True{}: cc_2d_in(ca, cb, drop_k(pn_n(pn)), d, bx)
+    case False{}: cc_3d_in(ca, cb, d, bx)
+
+def cc_bb(+ga: G.GVal, +gb: G.GVal, +ca: R.Cv, +cb: R.Cv, +d: Nat, +bx: List<&2, I.I>) -> List<&2, Hit>:
+  +pn = cc_plane(ga, gb)
+  bb_sel(both_on(pn, gv_xc(ga), gv_xc(gb)), ca, cb, pn, d, bx)

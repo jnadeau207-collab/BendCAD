@@ -11,6 +11,7 @@ import ./tess.bend as TS
 import ./zone.bend as Z
 import ../c07/gsx.bend as GQ
 import ../c07/sol.bend as SO
+import ../c07/emb.bend as EM
 import ../c01/types.bend as V
 
 def iv_s(+v: I.I) -> String:
@@ -432,8 +433,9 @@ def check_s(r: M.NR) -> String:
     case M.NR_err{k, d}: "error: node failed; nothing checked"
     case M.NR_ok{+b, fx}:
       +br = M.bd_brep(b)
-      +fs = SO.solid_fi(br, SO.fds_of(br))
-      Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n), "ok: shells outward, cavities nested", fi_s(fs))
+      +fd = SO.fds_of(br)
+      +fs = List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd))
+      Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n), "ok: embedded, shells outward, cavities nested", fi_s(fs))
 
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:

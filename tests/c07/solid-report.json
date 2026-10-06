@@ -2,8 +2,8 @@
  {
   "name": "solid.box.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.084
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 0.105
  },
  {
   "detail": [
@@ -368,7 +368,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.092,
+  "median_s": 0.088,
   "name": "solid.box.classify",
   "ok": true,
   "points": 40,
@@ -378,8 +378,8 @@
  {
   "name": "solid.cylinder.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.112
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 0.859
  },
  {
   "detail": [
@@ -744,7 +744,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.096,
+  "median_s": 0.091,
   "name": "solid.cylinder.classify",
   "ok": true,
   "points": 40,
@@ -754,8 +754,8 @@
  {
   "name": "solid.cone.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.092
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 0.154
  },
  {
   "detail": [
@@ -1120,7 +1120,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.09,
+  "median_s": 0.086,
   "name": "solid.cone.classify",
   "ok": true,
   "points": 40,
@@ -1130,8 +1130,8 @@
  {
   "name": "solid.sphere.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.084
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 0.092
  },
  {
   "detail": [
@@ -1496,7 +1496,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.091,
+  "median_s": 0.086,
   "name": "solid.sphere.classify",
   "ok": true,
   "points": 40,
@@ -1506,8 +1506,8 @@
  {
   "name": "solid.torus.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.08
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 1.798
  },
  {
   "detail": [
@@ -1872,7 +1872,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.094,
+  "median_s": 0.091,
   "name": "solid.torus.classify",
   "ok": true,
   "points": 40,
@@ -1882,8 +1882,8 @@
  {
   "name": "solid.cavity.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.213
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 2.067
  },
  {
   "detail": [
@@ -2248,7 +2248,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.096,
+  "median_s": 0.094,
   "name": "solid.cavity.classify",
   "ok": true,
   "points": 40,
@@ -2258,8 +2258,8 @@
  {
   "name": "solid.bracket.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.122
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 4.708
  },
  {
   "detail": [
@@ -2624,7 +2624,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.092,
+  "median_s": 0.091,
   "name": "solid.bracket.classify",
   "ok": true,
   "points": 40,
@@ -2634,8 +2634,8 @@
  {
   "name": "solid.pocket.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.105
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 12.013
  },
  {
   "detail": [
@@ -3000,7 +3000,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.095,
+  "median_s": 0.088,
   "name": "solid.pocket.classify",
   "ok": true,
   "points": 40,
@@ -3010,8 +3010,8 @@
  {
   "name": "solid.moved-sphere.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.088
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 0.083
  },
  {
   "detail": [
@@ -3386,8 +3386,8 @@
  {
   "name": "solid.rotated-torus.check",
   "ok": true,
-  "out": "ok: shells outward, cavities nested",
-  "secs": 0.13
+  "out": "ok: embedded, shells outward, cavities nested",
+  "secs": 1.846
  },
  {
   "detail": [
@@ -3752,7 +3752,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.095,
+  "median_s": 0.093,
   "name": "solid.rotated-torus.classify",
   "ok": true,
   "points": 40,

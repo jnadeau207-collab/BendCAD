@@ -12,7 +12,7 @@ type Er is Data:
   Er{ c: R.Cv, fwd: Bool }
 
 type Fc is Data:
-  Fc{ s: G.GVal, same: Bool, es: List<&2, Er> }
+  Fc{ s: M.Im, same: Bool, es: List<&2, Er> }
 
 type Ax is Data:
   Ax{ o: List<&2, I.I>, a: List<&2, I.I> }
@@ -210,7 +210,7 @@ def leg1(tor: Bool, +o: List<&2, I.I>, +b: List<&2, I.I>, +x: Ax, +mq: List<&2, 
 def leg2(+rp: List<&2, I.I>, +a: List<&2, I.I>, +x: Ax, +mq: List<&2, I.I>, +mr: List<&2, I.I>, +br: U64, +rr: I.I) -> Lg:
   L_par{M.M_pl{rp, a}, x, mq, mr, br, rr}
 
-def ax_fwd(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64) -> Lp:
+def ax_fwd(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: I.I) -> Lp:
   +a = ax_a(x)
   +o = ax_o(x)
   +aa = X.vdot(a, a)
@@ -220,10 +220,10 @@ def ax_fwd(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64
   +hr = height(x, rp)
   +nq = I.isqrt(sq(mq))
   +uq = vs(I.idiv(I.ipt(1.0f64), nq), mq)
-  +cq = X.vadd(o, vs(I.ipt(bigr), uq))
+  +cq = X.vadd(o, vs(bigr, uq))
   +rho = I.idiv(I.isqrt(sq(mr)), aa)
-  +wr = X.vadd(vs(I.isub(rho, I.ipt(bigr)), uq), vs(I.idiv(hr, aa), a))
-  +rr = I.imul(I.isq(aa), I.isq(I.ipt(bigr)))
+  +wr = X.vadd(vs(I.isub(rho, bigr), uq), vs(I.idiv(hr, aa), a))
+  +rr = I.imul(I.isq(aa), I.isq(bigr))
   +b = M.cross(a, mq)
   +l1 = leg1(tor, o, b, x, mq, cq, X.vsub(q, cq), wr, hq, hr)
   +l2 = leg2(rp, a, x, mq, mr, Bool.pick(U64, tor, sgn(I.isub(sq(mr), rr)), 0u64), rr)
@@ -245,7 +245,7 @@ def mer_dir(tor: Bool, +nr: List<&2, I.I>, +b: List<&2, I.I>, +wr: List<&2, I.I>
       +t = M.cross(nr, b)
       vs(Bool.pick(I.I, X.ipos(I.imul(X.vdot(t, a), dh)), I.ipt(1.0f64), I.ipt(F64.neg(1.0f64))), t)
 
-def ax_rev(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64, +nf: M.Im) -> Lp:
+def ax_rev(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: I.I, +nf: M.Im) -> Lp:
   +a = ax_a(x)
   +o = ax_o(x)
   +aa = X.vdot(a, a)
@@ -254,11 +254,11 @@ def ax_rev(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64
   +hq = height(x, q)
   +hr = height(x, rp)
   +ur = vs(I.idiv(I.ipt(1.0f64), I.isqrt(sq(mr))), mr)
-  +cr = X.vadd(o, vs(I.ipt(bigr), ur))
+  +cr = X.vadd(o, vs(bigr, ur))
   +rho = I.idiv(I.isqrt(sq(mq)), aa)
-  +wq = X.vadd(vs(I.isub(rho, I.ipt(bigr)), ur), vs(I.idiv(hq, aa), a))
+  +wq = X.vadd(vs(I.isub(rho, bigr), ur), vs(I.idiv(hq, aa), a))
   +wr = X.vsub(rp, cr)
-  +rr = I.imul(I.isq(aa), I.isq(I.ipt(bigr)))
+  +rr = I.imul(I.isq(aa), I.isq(bigr))
   +b = M.cross(a, mr)
   +dh = I.isub(hr, hq)
   +l1 = leg2(q, a, x, mq, mr, Bool.pick(U64, tor, sgn(I.isub(sq(mq), rr)), 0u64), rr)
@@ -266,32 +266,20 @@ def ax_rev(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64
   +ok = Bool.and(Bool.and(nz(mq), nz(mr)), Bool.and(Bool.not(U64.is_eq(sgn(X.vdot(M.cross(mq, mr), a)), 0u64)), Bool.or(tor, Bool.not(U64.is_eq(sgn(dh), 0u64)))))
   Lp{[l1, l2], mer_dir(tor, M.im_grad(nf, rp), b, wr, a, dh), ok}
 
-def ax_legs(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: F64, rev: Bool, +nf: M.Im) -> Lp:
+def ax_legs(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: I.I, rev: Bool, +nf: M.Im) -> Lp:
   match rev:
     case False{}: ax_fwd(x, q, rp, tor, bigr)
     case True{}: ax_rev(x, q, rp, tor, bigr, nf)
 
-def legs_of(s: G.GVal, +q: List<&2, I.I>, +rp: List<&2, I.I>, +rev: Bool, +nf: M.Im) -> Lp:
+def legs_of(s: M.Im, +q: List<&2, I.I>, +rp: List<&2, I.I>, +rev: Bool, +nf: M.Im) -> Lp:
   match s:
-    case G.GV_pl{w}:
-      G.Pl{o, u, v} = w
-      +n = M.cross(M.d3(u), M.d3(v))
+    case M.M_pl{o, +n}:
       +d = X.vsub(rp, q)
       Lp{[L_seg{M.M_pl{q, M.cross(d, n)}, q, rp}], d, Bool.and(Bool.not(rev), nz(d))}
-    case G.GV_cy{w}:
-      G.Cy{o, a, r} = w
-      ax_legs(Ax{M.p3(o), M.d3(a)}, q, rp, False{}, 0.0f64, rev, nf)
-    case G.GV_co{w}:
-      G.Co{o, a, k} = w
-      ax_legs(Ax{M.p3(o), M.d3(a)}, q, rp, False{}, 0.0f64, rev, nf)
-    case G.GV_sp{w}:
-      G.Sp{c, r} = w
-      +cc = M.p3(c)
-      ax_legs(Ax{cc, sph_axis(q, cc)}, q, rp, False{}, 0.0f64, rev, nf)
-    case G.GV_to{w}:
-      G.To{o, a, bigr, r} = w
-      ax_legs(Ax{M.p3(o), M.d3(a)}, q, rp, True{}, bigr, rev, nf)
-    case _: Lp{[], [], False{}}
+    case M.M_cy{o, a, r}: ax_legs(Ax{o, a}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
+    case M.M_co{o, a, k}: ax_legs(Ax{o, a}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
+    case M.M_sp{+c, r}: ax_legs(Ax{c, sph_axis(q, c)}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
+    case M.M_to{o, a, bigr, r}: ax_legs(Ax{o, a}, q, rp, True{}, bigr, rev, nf)
 
 def lp_ls(l: Lp) -> List<&2, Lg>:
   Lp{ls, d, ok} = l
@@ -340,14 +328,9 @@ def fc_same(f: Fc) -> Bool:
   Fc{s, same, es} = f
   same
 
-def fc_s(f: Fc) -> G.GVal:
+def fc_s(f: Fc) -> M.Im:
   Fc{s, same, es} = f
   s
-
-def im_of(m: Maybe<&2, M.Im>) -> M.Im:
-  match m:
-    case None{}: M.M_pl{[], []}
-    case Some{x}: x
 
 def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
   mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n)

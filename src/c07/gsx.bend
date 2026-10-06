@@ -96,13 +96,16 @@ def sp2(p: List<&2, I.I>) -> String:
     case []: "-"
     case a <> t: "(" ++ si(a) ++ ", " ++ si(X.vn(t, 0n)) ++ ")"
 
-def cls_s(+c: U64) -> String:
+def cls_k(+c: U64) -> String:
   Bool.pick(String, U64.is_eq(c, 0u64), "interior",
     Bool.pick(String, U64.is_eq(c, 16u64), "seam",
       Bool.pick(String, U64.is_eq(U64.and(c, 1u64), 1u64), "a-start ", "") ++
       Bool.pick(String, U64.is_eq(U64.and(c, 2u64), 2u64), "a-end ", "") ++
       Bool.pick(String, U64.is_eq(U64.and(c, 4u64), 4u64), "b-start ", "") ++
       Bool.pick(String, U64.is_eq(U64.and(c, 8u64), 8u64), "b-end ", "")))
+
+def cls_s(+c: U64) -> String:
+  Bool.pick(String, U64.is_eq(U64.and(c, 32u64), 32u64), "tangent ", "") ++ cls_k(U64.and(c, 31u64))
 
 def hit_s(h: Q.Hit) -> String:
   match h:

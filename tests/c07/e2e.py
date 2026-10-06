@@ -161,11 +161,31 @@ def special_cs():
         elif name.startswith('seam'):
             record(name, len(pts) == 2 and sorted(p[4] for p in pts) == ['interior', 'seam'], out=raw)
         elif name.startswith('tangent.seam'):
-            record(name, not pts and len(uns) >= 1, out=raw)
+            record(name, len(pts) == 1 and pts[0][4] == 'tangent seam' and not uns and not ovs, out=raw)
         elif name.startswith('near.'):
             record(name, kind == 'roots' and not pts and not ovs and len(roots) == 0 and not uns and TIMES[-1] < 30, out=raw, secs=TIMES[-1], roots=len(roots))
         else:
             check_1d(name, kind, roots, out)
+
+
+def special_cc():
+    c = [0, 0, 0, 1, 0, 0, 0, 1, 0, 2]
+    cases = [
+        ('arcs.complementary', ('circle', c + [0, 1]), ('circle', c + [-1, 0]), 2, 0),
+        ('arcs.overlap', ('circle', c + [-0.5, 0.5]), ('circle', c + [0, 1]), 0, 1),
+        ('arcs.disjoint', ('circle', c + [-0.5, -0.25]), ('circle', c + [0.25, 0.5]), 0, 0),
+        ('arcs.reversed-frame', ('circle', c + [0, 1]), ('circle', [0, 0, 0, 1, 0, 0, 0, -1, 0, 2, 0, 1]), 2, 0),
+        ('lines.touch', ('line', [0, 0, 0, 1, 0, 0, 0, 6]), ('line', [0, 0, 0, 1, 0, 0, -6, 0]), 1, 0),
+        ('lines.overlap', ('line', [0, 0, 0, 1, 0, 0, 0, 6]), ('line', [0, 0, 0, 1, 0, 0, 3, 9]), 0, 1),
+    ]
+    for name, a, b, npts, novs in cases:
+        out = run('intersect', sx(*a), sx(*b))
+        pts, uns, ovs, raw = parse(out)
+        record(f'cc.{name}', len(pts) == npts and len(ovs) == novs and not uns, out=raw)
+    out = run('intersect', sx('conic', [8, 50, 0, 0, 50, 0, 0, 42, 0, 1, 0.7071067811865476, 1, 0, 1]), sx('plane', [0, 0, 0, 0, 1, 0, 0, 0, 1]))
+    pts, uns, ovs, raw = parse(out)
+    record('cs.tangent.conic-plane-end', len(pts) == 1 and pts[0][4] == 'tangent a-end' and not uns and not ovs
+           and pts[0][2] <= 0 <= pts[0][3], out=raw)
 
 
 def random_cc2(n):
@@ -433,6 +453,7 @@ def random_nurbs(nn):
 def main():
     random_cs(int(os.environ.get('C07_N', '120')))
     special_cs()
+    special_cc()
     random_cc2(int(os.environ.get('C07_N2', '60')))
     random_ss(int(os.environ.get('C07_N3', '60')))
     random_patch(int(os.environ.get('C07_N4', '20')))

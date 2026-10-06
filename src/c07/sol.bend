@@ -11,7 +11,7 @@ import ./xs.bend as S
 import ./mem.bend as Mm
 
 type Fd is Data:
-  Fd{ fc: Mm.Fc, im: M.Im, bx: List<&2, I.I>, ok: Bool, sh: Nat }
+  Fd{ fc: Mm.Fc, g: List<&2, G.GVal>, bx: List<&2, I.I>, ok: Bool, sh: Nat }
 
 type Ea is Data:
   Ea{ es: List<&2, Mm.Er>, ok: Bool }
@@ -100,10 +100,10 @@ def surf_box(s: M.Im, +bx: List<&2, I.I>) -> List<&2, I.I>:
 
 def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat) -> Fd:
   match m:
-    case None{}: Fd{Mm.Fc{s, same, ea_es(ea)}, M.M_pl{[], []}, eb_go(ea_es(ea), []), False{}, sh}
+    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea)}, [s], eb_go(ea_es(ea), []), False{}, sh}
     case Some{+im}:
       +es = ea_es(ea)
-      Fd{Mm.Fc{s, same, es}, im, surf_box(im, eb_go(es, [])), ea_ok(ea), sh}
+      Fd{Mm.Fc{im, same, es}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh}
 
 def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat) -> Fd:
   Ty.Fa{g, +s, ls, same} = f
@@ -127,23 +127,31 @@ def fds_of(+b: Ty.Brep) -> List<&2, Fd>:
   shs_go(Ty.brep_shs(b), Ty.ix_of(b), 0n)
 
 def fd_bx(f: Fd) -> List<&2, I.I>:
-  Fd{fc, im, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh} = f
   bx
 
 def fd_sh(f: Fd) -> Nat:
-  Fd{fc, im, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh} = f
   sh
 
 def fd_fc(f: Fd) -> Mm.Fc:
-  Fd{fc, im, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh} = f
   fc
 
 def fd_im(f: Fd) -> M.Im:
-  Fd{fc, im, bx, ok, sh} = f
-  im
+  Mm.fc_s(fd_fc(f))
+
+def g1(xs: List<&2, G.GVal>) -> G.GVal:
+  match xs:
+    case []: Ty.surf_zero()
+    case x <> t: x
+
+def fd_g(f: Fd) -> G.GVal:
+  Fd{fc, g, bx, ok, sh} = f
+  g1(g)
 
 def fd_ok(f: Fd) -> Bool:
-  Fd{fc, im, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh} = f
   ok
 
 def bbox(fs: List<&2, Fd>, +acc: List<&2, I.I>) -> List<&2, I.I>:
@@ -198,7 +206,7 @@ def ray_face(k: U64, +f: Fd, +p: V.Point, +d: V.Dir, +tmax: F64, +self: Bool, +e
     case 0u64: acc
     case 1u64:
       +fc = fd_fc(f)
-      hits_go(S.inter_cs(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, tmax}, Mm.fc_s(fc), 40n), fc, fd_im(f), self, e0, acc)
+      hits_go(S.inter_cs(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, tmax}, fd_g(f), 40n), fc, Mm.fc_s(fc), self, e0, acc)
     case _: rc_put(acc, False{}, 2u64)
 
 def ray(fs: List<&2, Fd>, stop: Bool, +p: V.Point, +d: V.Dir, +tmax: F64, +sb: List<&2, I.I>, +skip: Nat, +i: Nat, +e0: F64, +acc: Rc) -> Rc:
@@ -486,4 +494,4 @@ def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
   List.append(&2, Fi, or_all(List.length(&2, Ty.Shell, Ty.brep_shs(b)), fs, bb, 0n), sos_nest(Ty.brep_sos(b), fs))
 
 def fd_dflt() -> Fd:
-  Fd{Mm.Fc{Ty.surf_zero(), True{}, []}, M.M_pl{[], []}, [], False{}, 0n}
+  Fd{Mm.Fc{M.M_pl{[], []}, True{}, []}, [], [], False{}, 0n}

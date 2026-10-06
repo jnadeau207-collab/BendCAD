@@ -182,11 +182,19 @@ def wmul(xs: List<&2, I.I>, ws: List<&2, I.I>) -> List<&2, I.I>:
         case []: []
         case w <> u: I.imul(x, w) <> wmul(t, u)
 
-def rb_restr(r: Rb, +lo: F64, +hi: F64) -> Rb:
+def rb_cut(r: Rb, +lo: F64, +hi: F64) -> Rb:
   Rb{x, y, z, w} = r
   +a = I.ipt(lo)
   +b = I.ipt(hi)
   Rb{restr(x, a, b), restr(y, a, b), restr(z, a, b), restr(w, a, b)}
+
+def rb_sel(whole: Bool, +r: Rb, +lo: F64, +hi: F64) -> Rb:
+  match whole:
+    case True{}: r
+    case False{}: rb_cut(r, lo, hi)
+
+def rb_restr(+r: Rb, +lo: F64, +hi: F64) -> Rb:
+  rb_sel(Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64)), r, lo, hi)
 
 def cv_bez(+ps: List<&2, V.Point>, +lo: F64, +hi: F64) -> Cv:
   Cv{rb_restr(Rb{pts_x(ps), pts_y(ps), pts_z(ps), ones(List.length(&2, V.Point, ps))}, lo, hi), lo, hi}
