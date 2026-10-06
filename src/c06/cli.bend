@@ -9,6 +9,7 @@ import ./model.bend as M
 import ./sx.bend as S
 import ./tess.bend as TS
 import ./zone.bend as Z
+import ../c07/gsx.bend as GQ
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -415,9 +416,15 @@ def args_l(xs: List<String>) -> List<&2, String>:
     case []: []
     case x <> t: x <> args_l(t)
 
+def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
+  match isgeo:
+    case True{}: IO.print(GQ.geom(arg_drop(args, 2n)))
+    case False{}:
+      +cmd = arg_at(args, 2n)
+      main_sel(String.eq(cmd, "new"), arg_at(args, 1n), cmd, arg_drop(args, 3n))
+
 def main_go(+args: List<&2, String>) -> IO(Unit):
-  +cmd = arg_at(args, 2n)
-  main_sel(String.eq(cmd, "new"), arg_at(args, 1n), cmd, arg_drop(args, 3n))
+  main_geo(String.eq(arg_at(args, 1n), "geom"), args)
 
 def main() -> IO(Unit):
   do IO<Unit>:
