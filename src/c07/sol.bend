@@ -443,7 +443,9 @@ def nat_in(xs: List<&2, Nat>, +i: Nat) -> Bool:
 def in_shs(fs: List<&2, Fd>, +hs: List<&2, Nat>) -> List<&2, Fd>:
   match fs:
     case []: []
-    case +f <> +t: Bool.pick(List<&2, Fd>, nat_in(hs, fd_sh(f)), f <> in_shs(t, hs), in_shs(t, hs))
+    case +f <> t:
+      +rest = in_shs(t, hs)
+      Bool.pick(List<&2, Fd>, nat_in(hs, fd_sh(f)), f <> rest, rest)
 
 def hs_idx(h: Ty.HShell) -> Nat:
   Ty.HS{i, g} = h
@@ -471,7 +473,9 @@ def sos_or(ss: List<&2, Ty.Solid>, +fs: List<&2, Fd>) -> List<&2, Fi>:
 def of_sh(fs: List<&2, Fd>, +s: Nat) -> List<&2, Fd>:
   match fs:
     case []: []
-    case +f <> +t: Bool.pick(List<&2, Fd>, Nat.is_eq(fd_sh(f), s), f <> of_sh(t, s), of_sh(t, s))
+    case +f <> t:
+      +rest = of_sh(t, s)
+      Bool.pick(List<&2, Fd>, Nat.is_eq(fd_sh(f), s), f <> rest, rest)
 
 def ip_q(m: Maybe<&2, Ip>) -> Maybe<&2, List<&2, I.I>>:
   match m:

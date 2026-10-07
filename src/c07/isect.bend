@@ -111,7 +111,8 @@ def dedupe(hs: List<&2, Hx>, +seen: List<&2, Hx>) -> List<&2, Hx>:
     case []: []
     case +h <> +t:
       +d = Bool.and(hx_pt(h), dup_of(seen, hx_s(h)))
-      Bool.pick(List<&2, Hx>, d, dedupe(t, seen), h <> dedupe(t, h <> seen))
+      +rest = dedupe(t, Bool.pick(List<&2, Hx>, d, seen, h <> seen))
+      Bool.pick(List<&2, Hx>, d, rest, h <> rest)
 
 def mcv_list(m: Maybe<&2, R.Cv>) -> List<&2, R.Cv>:
   match m:

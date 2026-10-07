@@ -187,6 +187,17 @@ def main():
                           ('cavity.seam', 1, (20, 0, 20)), ('cone', 1, (0, 3, 4.5)), ('bracket', 2, (13, 10, 3))]:
         out, _ = cli(f"{name.split('.')[0]}.bcd", 'classify', str(node), *[repr(float(c)) for c in p])
         record(f'solid.{name}.boundary', out.strip().startswith('boundary'), out=out.strip(), p=p)
+    secs = {}
+    for n in (5, 10, 20):
+        d = f'plate{n}.bcd'
+        hs = ' '.join(f'(hole {5 + 10 * i} {5 + 10 * j} 2)' for i in range(n) for j in range(n))
+        cli(d, 'new')
+        out, _ = cli(d, 'apply', f'(node 1 (box {10 * n} {10 * n} 5) (intent create 6 0 1 0))',
+                     f'(node 2 (holes 1 (face 1 0 top) through {hs}) (intent remove any any 1 any))')
+        out, dt = cli(d, 'check', '2')
+        secs[n * n] = dt
+        record(f'solid.scale.{n * n}-holes.check', out.strip().startswith('ok') and dt < 0.15 * n * n + 5, out=out.strip(), secs=round(dt, 3))
+    record('solid.scale.near-linear', secs[400] < 8 * secs[100], ratio_400_100=round(secs[400] / secs[100], 2))
     blob = json.dumps(RESULTS, indent=1, sort_keys=True)
     open(OUT, 'w', newline='\n').write(blob)
     fails = [r['name'] for r in RESULTS if not r['ok']]

@@ -112,10 +112,10 @@ def is_closed(g: G.GVal, +d: G.Dom) -> Bool:
 def merge1(rs: List<&2, I.I>, +cur: I.I, +open: Bool) -> List<&2, I.I>:
   match rs:
     case []: Bool.pick(List<&2, I.I>, open, [cur], [])
-    case +r <> +t:
-      Bool.pick(List<&2, I.I>, Bool.and(open, F64.is_le(I.i_lo(r), I.i_hi(cur))),
-        merge1(t, I.ihull(cur, r), True{}),
-        List.append(&2, I.I, Bool.pick(List<&2, I.I>, open, [cur], []), merge1(t, r, True{})))
+    case +r <> t:
+      +j = Bool.and(open, F64.is_le(I.i_lo(r), I.i_hi(cur)))
+      +rest = merge1(t, Bool.pick(I.I, j, I.ihull(cur, r), r), True{})
+      Bool.pick(List<&2, I.I>, Bool.or(j, Bool.not(open)), rest, cur <> rest)
 
 def un1(rs: List<&2, N.Res>) -> List<&2, I.I>:
   match rs:
@@ -159,8 +159,9 @@ def seam_go(hs: List<&2, Hit>, +first: Bool) -> List<&2, Hit>:
       match h:
         case H_pt{+s, +tt, +p, +cls}:
           +k = U64.and(cls, 31u64)
-          Bool.pick(List<&2, Hit>, U64.is_eq(k, 2u64), seam_go(t, first),
-            Bool.pick(List<&2, Hit>, U64.is_eq(k, 1u64), H_pt{s, tt, p, U64.add(16u64, U64.sub(cls, k))} <> seam_go(t, first), H_pt{s, tt, p, cls} <> seam_go(t, first)))
+          +rest = seam_go(t, first)
+          Bool.pick(List<&2, Hit>, U64.is_eq(k, 2u64), rest,
+            Bool.pick(List<&2, Hit>, U64.is_eq(k, 1u64), H_pt{s, tt, p, U64.add(16u64, U64.sub(cls, k))} <> rest, H_pt{s, tt, p, cls} <> rest))
         case _: h <> seam_go(t, first)
 
 def has_cls(hs: List<&2, Hit>, +c: U64) -> Bool:

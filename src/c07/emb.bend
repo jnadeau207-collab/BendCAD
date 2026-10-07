@@ -559,10 +559,10 @@ def ff_ov(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   +w = U64.max(x, y)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1(Bool.pick(String, U64.is_eq(w, 1u64), "face-overlap", "face-overlap-uncertain"), ia, ib))
 
-def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, R.Cv>:
+def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, Eg>:
   match es:
     case []: []
-    case e <> t: eg_c_of(B.tb_get(Eg, te, U32.from_nat(e))) <> all_cvs(t, te)
+    case e <> t: B.tb_get(Eg, te, U32.from_nat(e)) <> all_cvs(t, te)
 
 def rad(+p: List<&2, I.I>, +tol: F64) -> F64:
   F64.add(F64.mul(4.0f64, X.vwid(p)), F64.mul(tol, 1024.0f64))
@@ -582,12 +582,18 @@ def near_go(d: Nat, +k: U64, +c: R.Cv, +lo: F64, +hi: F64, +tb: List<&2, I.I>) -
           +m = F64.mul(0.5f64, F64.add(lo, hi))
           Bool.or(near_go(e, nr_code(R.cv_box(c, I.I{lo, m}), tb), c, lo, m, tb), near_go(e, nr_code(R.cv_box(c, I.I{m, hi}), tb), c, m, hi, tb))
 
-def near_cv(cs: List<&2, R.Cv>, +p: List<&2, I.I>, +tol: F64) -> Bool:
+def near_one(far: Bool, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
+  match far:
+    case True{}: False{}
+    case False{}: near_go(30n, nr_code(R.cv_box(c, I.I{0.0f64, 1.0f64}), tb), c, 0.0f64, 1.0f64, tb)
+
+def near_cv(cs: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> Bool:
   match cs:
     case []: False{}
-    case +c <> t:
+    case +e <> t:
       +tb = wid(p, rad(p, tol))
-      Bool.or(near_go(30n, nr_code(R.cv_box(c, I.I{0.0f64, 1.0f64}), tb), c, 0.0f64, 1.0f64, tb), near_cv(t, p, tol))
+      +bx = eg_bx(e)
+      Bool.or(near_one(Bool.or(Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 3n)), X.vdisj(bx, tb)), eg_c_of(e), tb), near_cv(t, p, tol))
 
 def m1(+f: SO.Fd, +p: List<&2, I.I>) -> U64:
   Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
@@ -597,7 +603,7 @@ def m1n(nr: Bool, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
     case True{}: 3u64
     case False{}: m1(f, p)
 
-def m2(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +p: List<&2, I.I>, +tol: F64) -> U64:
+def m2(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> U64:
   U64.add(U64.mul(m1n(near_cv(csa, p, tol), fa, p), 4u64), m1n(near_cv(csb, p, tol), fb, p))
 
 def bd_or_in(+m: U64) -> Bool:
@@ -613,7 +619,7 @@ def smp_st(+m: U64, +st: U64) -> U64:
 def smp_fin(+st: U64) -> U64:
   Bool.pick(U64, U64.is_eq(st, 10u64), 0u64, Bool.pick(U64, U64.is_eq(st, 11u64), 1u64, st))
 
-def smp_go(ps: List<&2, List<&2, I.I>>, done: Bool, +st: U64, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64) -> U64:
+def smp_go(ps: List<&2, List<&2, I.I>>, done: Bool, +st: U64, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64) -> U64:
   match ps:
     case []: smp_fin(st)
     case +p <> t:
@@ -623,7 +629,7 @@ def smp_go(ps: List<&2, List<&2, I.I>>, done: Bool, +st: U64, +fa: SO.Fd, +fb: S
           +s2 = smp_st(m2(fa, fb, csa, csb, p, tol), st)
           smp_go(t, U64.is_lt(9u64, s2), s2, fa, fb, csa, csb, tol)
 
-def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   SS.Br{closed, pts, ends} = b
   match closed:
     case False{}: []
@@ -631,19 +637,19 @@ def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2,
       +r = smp_go(pts, False{}, 0u64, fa, fb, csa, csb, tol)
       Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
-def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   match bs:
     case []: []
     case b <> t: List.append(&2, SO.Fi, br_fi(b, fa, fb, csa, csb, tol, ia, ib), brs_fi(t, fa, fb, csa, csb, tol, ia, ib))
 
-def un_fi(us: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def un_fi(us: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   match us:
     case []: []
     case +u <> t:
       +r = smp_go([u], False{}, 0u64, fa, fb, csa, csb, tol)
       List.append(&2, SO.Fi, Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1("face-face-uncertain", ia, ib)), un_fi(t, fa, fb, csa, csb, tol, ia, ib))
 
-def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   Y.Sr{ss, k, co} = r
   SS.Ss{ok, brs, un} = ss
   Bool.pick(List<&2, SO.Fi>, Bool.and(ok, U64.is_eq(k, 0u64)),
@@ -718,7 +724,7 @@ def pl_nv(s: M.Im) -> List<&2, I.I>:
     case M.M_pl{o, n}: n
     case _: []
 
-def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, R.Cv>, +csb: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   +pi = SO.fd_im(pl)
   +ps = circs(pl_on(pi), pl_nv(pi), SO.fd_im(ot))
   +r = smp_go(ps, False{}, 0u64, fa, fb, csa, csb, tol)

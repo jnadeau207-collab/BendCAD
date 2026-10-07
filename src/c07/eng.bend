@@ -277,8 +277,9 @@ def resc_e(rs: List<&2, Res>, +p: Pb, +accs: List<&2, Ac>, +dom: List<&2, I.I>, 
           +k = refine(12n, p, b)
           +drop = Bool.and(ok, Bool.or(X.vdisj(k, dom), is_dup(accs, k, b)))
           +acc = Bool.and(ok, Bool.or(Bool.not(strict), X.vsub_of(k, dom)))
-          Bool.pick(List<&2, Res>, drop, resc_e(t, p, accs, dom, strict),
-            Bool.pick(List<&2, Res>, acc, R_pt{k} <> resc_e(t, p, Ac{k, b} <> accs, dom, strict), R_un{u} <> resc_e(t, p, accs, dom, strict)))
+          +keep = Bool.and(acc, Bool.not(drop))
+          +rest = resc_e(t, p, Bool.pick(List<&2, Ac>, keep, Ac{k, b} <> accs, accs), dom, strict)
+          Bool.pick(List<&2, Res>, drop, rest, Bool.pick(List<&2, Res>, acc, R_pt{k} <> rest, R_un{u} <> rest))
         case _: r <> resc_e(t, p, accs, dom, strict)
 
 def face_res(+p: Pb, +x: List<&2, I.I>, +j: Nat, +c: F64) -> List<&2, Res>:
@@ -329,7 +330,8 @@ def fp_dedupe(fs: List<&2, Fp>, +seen: List<&2, Fp>) -> List<&2, Fp>:
     case []: []
     case +f <> +t:
       +d = fp_seen(seen, fp_x(f))
-      Bool.pick(List<&2, Fp>, d, fp_dedupe(t, seen), f <> fp_dedupe(t, f <> seen))
+      +rest = fp_dedupe(t, Bool.pick(List<&2, Fp>, d, seen, f <> seen))
+      Bool.pick(List<&2, Fp>, d, rest, f <> rest)
 
 def ff_dd(f: Ff) -> Ff:
   Ff{ps, un} = f
