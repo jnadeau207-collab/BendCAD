@@ -223,6 +223,13 @@ tightness, four refusals). Laws: `laws/c07.bend` (one file) and
 
 ## 11. Limits and owners
 
+- Face membership counts crossings with `solve_ew` at depth 40. The
+  checker does not finish that search: depth 0 was still running at 3
+  minutes, depth 4 at 30 minutes, and depth 40 was stopped at 12 hours.
+  Checker laws pin the parity decision
+  (`ok_finish_even_keeps_arrival`, `ok_finish_odd_flips_arrival`,
+  `ok_finish_uncertain`). Inside and outside answers on parts are the
+  solid end-to-end suite.
 - Bézier-patch and NURBS faces: intersections are supported. Membership
   and classification answer uncertain on them. An edge or face the
   embedding checker cannot certify is reported as

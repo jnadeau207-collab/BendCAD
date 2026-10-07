@@ -72,14 +72,8 @@ def p2(+x: F64, +y: F64) -> List<&2, I.I>:
 def seg(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> ZT.Pm:
   ZT.Pl{p2(ax, ay), p2(bx, by), xk(ax), xk(bx)}
 
-def disc() -> Mm.Fc:
-  Mm.Fc{M.M_pl{[i0(), i0(), i0()], [i0(), i0(), i1()]}, True{}, [Mm.Er{full(), True{}}]}
-
 def disc_im() -> M.Im:
   M.M_pl{[i0(), i0(), i0()], [i0(), i0(), i1()]}
-
-def q3(+x: F64, +y: F64) -> List<&2, I.I>:
-  [I.ipt(x), I.ipt(y), i0()]
 
 def flat_line() -> R.Cv:
   R.cv_line(pt(0.0f64, 0.0f64, 0.0f64), dr(1.0f64, 1.0f64, 0.0f64), 0.0f64, 1.0f64)
@@ -177,14 +171,20 @@ law neg_flat_edge_crossing:
 def neg_flat_edge_crossing():
   {==}
 
-law ok_member_inside_disc:
-  {Mm.member(disc(), q3(0.5f64, 0.25f64), disc_im()) == 1u64 : U64}
+law ok_finish_even_keeps_arrival:
+  {Mm.finish(Mm.Cn{2n, False{}}, 1u64) == 1u64 : U64}
 
-def ok_member_inside_disc():
+def ok_finish_even_keeps_arrival():
   {==}
 
-law ok_member_outside_disc:
-  {Mm.member(disc(), q3(3.0f64, 0.5f64), disc_im()) == 0u64 : U64}
+law ok_finish_odd_flips_arrival:
+  {Mm.finish(Mm.Cn{1n, False{}}, 1u64) == 0u64 : U64}
 
-def ok_member_outside_disc():
+def ok_finish_odd_flips_arrival():
+  {==}
+
+law ok_finish_uncertain:
+  {Bool.and(U64.is_eq(Mm.finish(Mm.Cn{1n, True{}}, 1u64), 2u64), U64.is_eq(Mm.finish(Mm.Cn{2n, False{}}, 2u64), 2u64)) == True{} : Bool}
+
+def ok_finish_uncertain():
   {==}
