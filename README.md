@@ -24,7 +24,7 @@ C06 + A0 is closed (`docs/receipts/c06.1-2026-10-05.txt`). It covers:
 
 Challenge G1 passed: fresh agents built and edited a parameterized bracket through MCP, and an independent grader passed every run (`docs/receipts/g1/`).
 
-C07 is closed. It adds:
+C07 is closed (`docs/receipts/c07-2026-10-06.txt`). It adds:
 
 - certified curve/curve, curve/surface and surface/surface intersection, with every unresolved region reported;
 - point classification (`classify`);

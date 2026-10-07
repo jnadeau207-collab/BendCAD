@@ -1,0 +1,203 @@
+# C07 receipt — closed 2026-10-07
+
+Packet: C07.3 classification and embedding, C07.4 envelope topology,
+A0 exposure of classify, check and intersect, and the audit repairs
+that landed with this packet. Contract: docs/c07-contract.md. Ledger:
+docs/replacement-ledger.md, C07 section. The plan and README cite this
+path. The geometry and the law fixes below were committed on 2026-10-07;
+the packet's earlier commits are dated 2026-10-06.
+
+BendCAD commit for the sources hashed here:
+4161c0bb979213639d104db2b5f20f7029be5904.
+This receipt is the following commit and does not change those files.
+
+Commits since C06.1 (f885649), oldest first: 3ee3256, 2ded2e7, b03d5e4,
+90fb802, 3aeca65, 29df681, bddd735, 0e3579c, 3e7b9f4, ac3b08a, 74c5243,
+fc0a531, e45ef2b, 3f29d93, eeb3cef, 4c8aaf8, 4161c0b.
+
+## 1. Provenance
+
+Compiler: `BEND_PIN` jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920
+(tag numeric/2026-10-05). ~/.bend/bin/bend sha256
+ada00d6850e5fec47692b6274dc7a7d38ac445b984e5c44555469e4f1005f223, the
+same binary as the C06.1 receipt. WSL2, Ryzen 7 7800X3D, 16 threads,
+about 20 GB. `--verdict` is not available for F64 laws. The checker
+line `ALL PROOFS CHECK` is the TypeScript checker.
+
+Workflows `.github/workflows/verify-bendcad.yml` and `verify-legacy.yml`
+trigger on `workflow_dispatch` only. This push does not start them.
+
+CLI used by the C07 end-to-end suites: ~/bc/bendcad, sha256
+c69bea722105ed4377509957d292734d2f0b07b125a1eaf34c731eab122e37b9,
+built 2026-10-07 00:06 local from src/c06/cli.bend at the tree committed
+as eeb3cef. The two commits after that change laws and docs only.
+
+Source hashes at 4161c0b:
+
+  4a26f3936ec3c6f181ca243fee246f410a2cd211b8cc280b6362eff9190318f8  laws/c00.bend
+  9236290d800fc7ab96f48bf126bdba0510f4e2e3cc3a76535abd1b96ee981ddf  laws/c01.bend
+  ded2e89086f1907d71e9e83f84cb78a76401d44684f693e0552af4aaded02913  laws/c02.bend
+  652e77138d0dc0f781e3b8b8a1854e8b28b83973954cd3c1df6ed1b6eabec60d  laws/c03.bend
+  bbfe716bd976f7da8628de64ee43ca1ff1a4149fcbec24bd43d0a3e1d2bfadfa  laws/c04.bend
+  6b800b6d1e3692fa557188cb1a73b23b828bf9755303da2e6927cfc288e11e9e  laws/c05.bend
+  4edeacb16b12dea43aca85224ba205b731619c9bb341f2d1b36f14d19b47e100  laws/c06.bend
+  a88bf2294f30cbfb06e4992ee20fe52c68f3d92d0778bedcccf45af0fe9e8f2a  laws/c06_build.bend
+  02f7fd22681f4eb4f89020bcf3085e267299b1aebf1ffff8c3b32df145018ab2  laws/c07.bend
+  745c18000bde3a1804b450143f61dd6c2a5134ef76ae54d425563ccb7f7232b7  laws/c07_build.bend
+  43b974c30d44fa6b811d282372b8499d598bad970fa9f87a08f5dc48c49f0cc8  src/c07/emb.bend
+  31d02bd167092defeab095043348d7e8895e647c2d8d4e0ba7942179846900b2  src/c07/xs.bend
+  c642c5f93e6465d45e8688f255fe4801299191cf82aeb48c9dd2fa827dc4d428  src/c07/mem.bend
+  3ce1429bea3579a5bc972314a1b7563e6f0ac302582162e64287aedb8f7980e1  src/c06/zone.bend
+
+laws/c00.bend, laws/c01.bend and laws/c03.bend match the C06.1 receipt
+hashes. laws/c06_build.bend matches the C06.1 final hash. Their imported
+sources for those files are the 4161c0b tree. The snapshot law run below
+is that tree's parent line at 3f29d93 for every file this packet did not
+edit after the snapshot. eeb3cef edited src/c07/xs.bend and
+src/c07/emb.bend and laws/c07.bend. 4c8aaf8 edited laws/c06.bend.
+4161c0b edited laws/c07_build.bend. Those four files are cited from the
+runs on the edited bytes, not from the 3f29d93 snapshot.
+
+## 2. Laws
+
+`--check-only` on the pin. Times are wall clock under contention.
+
+  file                 laws  result                         wall
+  laws/c00.bend          38  ALL PROOFS CHECK                 40 s   snapshot 3f29d93
+  laws/c01.bend          34  ALL PROOFS CHECK                270 s   snapshot 3f29d93
+  laws/c02.bend          52  ALL PROOFS CHECK               1530 s   snapshot 3f29d93
+  laws/c03.bend         418  ALL PROOFS CHECK               5160 s   snapshot 3f29d93
+  laws/c04.bend         603  ALL PROOFS CHECK               5050 s   snapshot 3f29d93
+  laws/c05.bend          65  ALL PROOFS CHECK              17760 s   snapshot 3f29d93
+  laws/c06_build.bend    25  ALL PROOFS CHECK, each law     10 s–5270 s  snapshot 3f29d93
+  laws/c06.bend          80  ALL PROOFS CHECK              ~75 min  4c8aaf8, log ~/c06law_fix.txt
+  laws/c07.bend          14  ALL PROOFS CHECK                   —   log ~/c07law_fix.txt, EXIT:0, 2026-10-06 23:41
+  laws/c07_build.bend    17  see below
+
+laws/c06.bend on the 3f29d93 snapshot failed in 3530 s: the checker
+reported expected `topology-not-certified-over-zone` and the law literal
+`envelope-topology-not-certified`. 4c8aaf8 changes the law to the string
+zone returns. The snapshot failure is not cited. The recheck log contains
+only `ALL PROOFS CHECK` and `Use --verdict for mathematical validity.`
+The launcher did not append an exit line; the process had exited by
+2026-10-07 02:32 local, about 75 minutes after it started.
+
+laws/c07.bend on the 3f29d93 snapshot also printed ALL PROOFS CHECK, in
+620 s. That file does not contain ok_grad_unit_last, ok_lines_overlap_span
+or ok_full_circle_only_overlap. The cited run is ~/c07law_fix.txt, whose
+source hash is the 02f7fd22 hash above.
+
+laws/c07_build.bend is one process per law. Fourteen laws were checked
+from a copy of the eeb3cef sources (the fixed src/c07/xs.bend). All
+printed ALL PROOFS CHECK:
+
+  ok_full_circle_hbox                    3130 s
+  ok_arcs_complementary_points           4060 s
+  ok_arcs_complementary_no_overlap       4340 s
+  ok_arcs_overlap                        4050 s
+  ok_lines_touch                           60 s
+  neg_lines_touch_overlap                  50 s
+  ok_tangent_endpoint_class                60 s
+  ok_semicircle_sweep                     460 s
+  ok_corner_square                         50 s
+  neg_corner_foldback                      40 s
+  ok_separated_segments                    10 s
+  neg_crossing_segments                   280 s
+  ok_flat_edge_in_cut                      30 s
+  neg_flat_edge_crossing                   20 s
+
+4161c0b does not change those fourteen statements. It removes
+ok_member_inside_disc and ok_member_outside_disc. Those two call
+member, which calls solve_ew at depth 40. On the 3f29d93 snapshot both
+were killed at 43202 s (exit 124). On the eeb3cef copy they were stopped
+at 33851 s and 33721 s (exit 143) for the same reason. A scratch copy at
+depth 4 was still running at 1800 s (exit 124). A scratch copy at depth 0
+was still running at 180 s (exit 124). The checker does not finish that
+search. Inside and outside of real parts are the solid end-to-end suite.
+
+The three laws that replace them pin finish's parity decision and were
+checked on a copy of the 4161c0b sources. Each printed ALL PROOFS CHECK
+and exited 0, in 1 s, 1 s and under 1 s:
+
+  ok_finish_even_keeps_arrival
+  ok_finish_odd_flips_arrival
+  ok_finish_uncertain
+
+The 3f29d93 snapshot's c07_build results are not cited. That copy of
+src/c07/xs.bend is the pre-eeb3cef file.
+
+## 3. C07 end to end
+
+Binary: the CLI in §1.
+
+  suite                         result                         report sha256
+  tests/c07/e2e.py              328/328                        bee7d0e554ce4ea4914e7766db72aafa4fd5551762efa3dc186213ee4a835e2a
+  tests/c07/solid.py            34/34                          d604f5f3938f93afa8de11492c47d09b521e0a640f8b00595b432e3c4676f384
+  tests/c07/solid_neg.py        13/13                          0bee4b2cc1f23a456722656c9dc0c305c0963a148c4c3d5d801fd2f1c5e2fa44
+  tests/c07/zone.py             33/33                          49d0308f7fee1471c927c7abdf45ed5d8290eee00cafca5f7547c015285edf01
+
+e2e.py: mean 0.114 s, max 0.384 s. The overlap cases pin the clipped
+parameter span, including two full circles as one overlap.
+
+solid.py: ten parts, 40 classified points each, boundary points including
+seams, and check. The bracket check is `ok: embedded, shells outward,
+cavities nested` in 0.642 s. Part checks are 0.106–0.798 s. A plate with
+25, 100 and 400 holes checks in 0.583 s, 1.53 s and 5.39 s.
+
+solid_neg.py: the thirteen composed B-reps return the expected verdicts,
+including inverted shells, cavities, overlaps and touches.
+
+zone.py: certified measures enclose the sampled certified evaluations.
+The four invalid topology and identity cases are refused.
+
+## 4. C00–C05 qualification
+
+Snapshot 3f29d93, which is before eeb3cef. C00–C05 suite sources are
+unchanged by the commits after that snapshot. Interpreter, JS and native
+lanes agreed. Every suite printed selfcheck fails=0.
+
+  suite          pass  fail  sha256
+  c00_neg          16     0  197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a
+  c00_positive     13     0  5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79af225b0c0c1ba2be496
+  c01_neg          69     0  e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf
+  c01_pos          44     0  081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd
+  c02_neg          24     0  83f3358bd0b2073305f3bcd60b1939a0fab540942e32de0ef3b6cfa25a870d83
+  c02_pos          36     0  44a3bae441a358066841cff6124578c0b305da2b26cb0e2e96b8098bc6ce7c13
+  c03_neg         191     0  1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638
+  c03_pos         190     0  291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943
+  c04_neg         128     0  cd5ef16d784a5842dd1c9c8154d27f7103e2f2a40a88c95771f5f8ab824239ae
+  c04_pos         286     0  dfb6ec30e6c720b22aa60002b5aeae16b2e57dcaccef66350e1da39eb8560e98
+  c05_neg          38     0  ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684
+  c05_pos          42     0  6a3d9792fd5f16b655a93b36c7ee735ed40ab9c55c1e1e3d775841a564943bbb
+
+Oracles, same snapshot, each exit 0:
+
+- C02 predicate oracle, two runs of 1324 cases, wrong=0. Uncertain 13 and
+  17. Moderate-magnitude 0.
+- C05 arrangement oracle, mismatches=0 on the seven runs in o_c05.txt
+  (300 or 150 cases each). Solver oracle, four runs of 250 cases, wrong=0.
+- C04 differential oracle, seeds 11, 23 and 101, 1712 cases each,
+  mismatches=0. Rejected-by-brep counts differ by seed (1629, 1621, 1611).
+  Non-closing orbits: 49, 49 and 52.
+- The C04 plant oracle wrote no stdout. The wrapper recorded `exit 0`.
+
+## 5. What this packet changed in the geometry
+
+eeb3cef. A sample on a plane or a right cylinder whose box is disjoint
+from the hull of that face's boundary edges is outside, including when
+the point lies on the supporting surface. Sphere, cone and torus faces
+keep the membership answer. An uncertain sample outranks a later outside
+sample. Each unresolved trace box is reported as face-face-uncertain.
+
+Overlap parameters are the clipped span on each curve. Two full circles
+return one overlap, and a seam point inside that overlap is dropped.
+ok_lines_overlap_span and ok_full_circle_only_overlap pin both.
+
+4c8aaf8. zone_prism_not_certified expects topology-not-certified-over-zone.
+
+## 6. Bend-native gate BN-12
+
+This section records BEND_PIN a4d17ace, BendCAD 4161c0b, the bend binary
+hash, the per-file hashes, and the toolchain in §1. The historical BN-12
+rows in the C03, C04 and C05 contracts keep their original pins. Each of
+those contracts now points here for the requalification on a4d17ace.

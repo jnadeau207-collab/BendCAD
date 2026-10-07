@@ -519,7 +519,7 @@ former solver.
 | BN-9 | PASS | Parallelism ships as fork-join (§8): merge sorts, parallel maps over candidate pairs, edges, groups, components, loops and clusters, and the separator-tree factorization. Measured speedup is in §12. |
 | BN-10 | PASS | Exact predicates carry a proven exactness condition and fail closed (`Su` → uncertainty, laws `ex_*_taints`, `ex_uncertain_dominates`). Every solver constant is labeled in §5. Conflict is a first-order certificate, labeled local in §9, and oracle-measured to give 0 false conflicts: 400 distinct consistent sketches, each solved at budgets 10, 20, 40, 100 and 200. |
 | BN-11 | PASS | Error arms carry only a kind; conflicts carry only ids (§4). Laws: `arrange_invalid_publishes_nothing`, `arrange_budget_is_exhaustion`, `solve_invalid_publishes_nothing`, `no_conflict_without_stationarity`. Negative tests assert the exact arm. |
-| BN-12 | PASS | The receipt names `BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3` (`~/.bend/FORK` tag `numeric/2026-09-29`), the predecessor HEAD `e0915b0`, the committing SHA, per-file sha256, and the toolchain. |
+| BN-12 | PASS | The receipt names `BEND_PIN jnadeau207-collab/bend@bc01485d64a4454c08d74e343f9f1964859986c3` (`~/.bend/FORK` tag `numeric/2026-09-29`), the predecessor HEAD `e0915b0`, the committing SHA, per-file sha256, and the toolchain. Requalified on `a4d17ace` in `docs/receipts/c07-2026-10-06.txt`: `laws/c05.bend` ALL PROOFS CHECK, 17760 s. |
 
 Gate count: 12 (BN-1 through BN-12).
 

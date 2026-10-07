@@ -386,7 +386,7 @@ it is not a hidden assumption).
 | BN-9 | PASS | No batch op ships; a batch is SPECIFIED as the left fold of the single push, failing closed on the first `Terr` (§10). |
 | BN-10 | PASS | No numerical shortcut: `brep_checked` evaluates C03 curves/surfaces at endpoints and compares exactly (no tolerance inflation); Euler identities documented-necessary, explicitly not validation (§4). Stage D duplicate-incidence (`hc_nodup_c` + seam + pole) is claimed as loop-handle hygiene only, never as general self-intersection; stage K uncertainty fails closed (uncertain-or-crossing, never a proven crossing). Vertex-link validation is IMPLEMENTED (stage H, `ck_pinch`); orientation is L-plane CERTIFIED with L-varying explicit skip and GLOBAL outwardness deferred (§12). Quadric trim 3D coincidence skip (with exact ordered-zero vertex membership), cavity inside/disjoint, curved-edge crossings, and cross-face/inter-loop penetration are LABELED deferrals (§12), not shortcuts. |
 | BN-11 | PASS | Every `Terr` arm returns no value: projectors yield documented defaults (§2); `neg-*` assert kinds, `pos-dflt-*` assert defaults, `fails=0` on all lanes. |
-| BN-12 | PASS | Single-SHA closeout at predecessor HEAD `6f70197d2dd1005670733f0206903408378f6427` + working-tree C04 bytes (§11, per-file sha256); `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, fork-build `bend`, bun 1.4.2, pinned env; CI-unavailable record carried. No completion claim from any other SHA (§14 records the superseded interim SHAs). |
+| BN-12 | PASS | Single-SHA closeout at predecessor HEAD `6f70197d2dd1005670733f0206903408378f6427` + working-tree C04 bytes (§11, per-file sha256); `BEND_PIN jnadeau207-collab/bend@50ec219a6b5c52316f4d1622816cceedd437fa95`, `~/.bend/FORK` tag `numeric/2026-09-25`, fork-build `bend`, bun 1.4.2, pinned env; CI-unavailable record carried. No completion claim from any other SHA (§14 records the superseded interim SHAs). Requalified on `a4d17ace` in `docs/receipts/c07-2026-10-06.txt`: `laws/c04.bend` ALL PROOFS CHECK, 5050 s. |
 
 Gate count: 12 (BN-1 through BN-12).
 
@@ -708,8 +708,8 @@ R0.4 (`5cb1636`, 602); +1 `ck_cyl_round` in A4 (`d114be2`, 603).
 Current evidence: `docs/receipts/logs/b45-c04-laws-2026-10-04.log`,
 `docs/receipts/r0.4-2026-10-05.txt` and the C07 closeout receipt,
 which checks every law file on the current pin. Laws cover
-`src/c04/types.bend` + `src/c04/ops.bend`. Suites today: `neg` 126,
-`pos` 285 (the C07 audit added `pos-fuel-nurbs-bound`,
+`src/c04/types.bend` + `src/c04/ops.bend`. Suites today: `neg` 128,
+`pos` 286 (the C07 audit added `pos-fuel-nurbs-bound`,
 `pos-embed-nurbs-short-fuel` and `pos-embed-nurbs-full-fuel`, the
 suite counterparts of the three NURBS fuel laws).
 
