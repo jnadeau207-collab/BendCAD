@@ -556,7 +556,7 @@ def zone_unordered():
   {==}
 
 law zone_prism_not_certified:
-  {z_why(Z.zone(zpart(9.0f64, 11.0f64, M.O_prism{[], X.X_k{0.0f64}, X.X_p{1u64}}), 1u64)) == "envelope-topology-not-certified" : String}
+  {z_why(Z.zone(zpart(9.0f64, 11.0f64, M.O_prism{[], X.X_k{0.0f64}, X.X_p{1u64}}), 1u64)) == "topology-not-certified-over-zone" : String}
 
 def zone_prism_not_certified():
   {==}
