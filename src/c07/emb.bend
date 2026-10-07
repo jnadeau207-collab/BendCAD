@@ -595,26 +595,60 @@ def near_cv(cs: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> Bool:
       +bx = eg_bx(e)
       Bool.or(near_one(Bool.or(Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 3n)), X.vdisj(bx, tb)), eg_c_of(e), tb), near_cv(t, p, tol))
 
-def m1(+f: SO.Fd, +p: List<&2, I.I>) -> U64:
-  Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
+def hull_go(es: List<&2, Eg>, +acc: List<&2, I.I>) -> List<&2, I.I>:
+  match es:
+    case []: acc
+    case +e <> t: hull_go(t, X.vhull(acc, eg_bx(e)))
 
-def m1n(nr: Bool, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
+def edge_hull(es: List<&2, Eg>) -> List<&2, I.I>:
+  match es:
+    case []: []
+    case +e <> t: hull_go(t, eg_bx(e))
+
+def flat_im(s: M.Im) -> Bool:
+  match s:
+    case M.M_pl{o, n}: True{}
+    case M.M_cy{o, a, r}: True{}
+    case _: False{}
+
+def off_go(flat: Bool, es: List<&2, Eg>, +p: List<&2, I.I>) -> Bool:
+  match flat:
+    case False{}: False{}
+    case True{}: X.vdisj(p, edge_hull(es))
+
+def off_face(+f: SO.Fd, es: List<&2, Eg>, +p: List<&2, I.I>) -> Bool:
+  off_go(flat_im(SO.fd_im(f)), es, p)
+
+def m_off(far: Bool, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match far:
+    case True{}: 0u64
+    case False{}: Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
+
+def m1n(nr: Bool, +f: SO.Fd, +es: List<&2, Eg>, +p: List<&2, I.I>) -> U64:
   match nr:
     case True{}: 3u64
-    case False{}: m1(f, p)
+    case False{}: m_off(off_face(f, es, p), f, p)
 
 def m2(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> U64:
-  U64.add(U64.mul(m1n(near_cv(csa, p, tol), fa, p), 4u64), m1n(near_cv(csb, p, tol), fb, p))
+  U64.add(U64.mul(m1n(near_cv(csa, p, tol), fa, csa, p), 4u64), m1n(near_cv(csb, p, tol), fb, csb, p))
 
 def bd_or_in(+m: U64) -> Bool:
   Bool.or(U64.is_eq(m, 1u64), U64.is_eq(m, 3u64))
 
-def smp_st(+m: U64, +st: U64) -> U64:
+def smp_rank(+m: U64) -> U64:
   +ma = U64.div(m, 4u64)
   +mb = U64.mod(m, 4u64)
-  Bool.pick(U64, Bool.or(U64.is_eq(ma, 0u64), U64.is_eq(mb, 0u64)), 10u64,
-    Bool.pick(U64, Bool.and(U64.is_eq(ma, 1u64), U64.is_eq(mb, 1u64)), 11u64,
-      Bool.pick(U64, Bool.and(bd_or_in(ma), bd_or_in(mb)), st, 2u64)))
+  Bool.pick(U64, Bool.and(U64.is_eq(ma, 1u64), U64.is_eq(mb, 1u64)), 11u64,
+    Bool.pick(U64, Bool.or(U64.is_eq(ma, 0u64), U64.is_eq(mb, 0u64)), 10u64,
+      Bool.pick(U64, Bool.and(bd_or_in(ma), bd_or_in(mb)), 0u64, 2u64)))
+
+def st_worse(+a: U64, +b: U64) -> U64:
+  Bool.pick(U64, Bool.or(U64.is_eq(a, 11u64), U64.is_eq(b, 11u64)), 11u64,
+    Bool.pick(U64, Bool.or(U64.is_eq(a, 2u64), U64.is_eq(b, 2u64)), 2u64,
+      Bool.pick(U64, Bool.or(U64.is_eq(a, 10u64), U64.is_eq(b, 10u64)), 10u64, 0u64)))
+
+def smp_st(+m: U64, +st: U64) -> U64:
+  st_worse(smp_rank(m), st)
 
 def smp_fin(+st: U64) -> U64:
   Bool.pick(U64, U64.is_eq(st, 10u64), 0u64, Bool.pick(U64, U64.is_eq(st, 11u64), 1u64, st))
@@ -627,7 +661,7 @@ def smp_go(ps: List<&2, List<&2, I.I>>, done: Bool, +st: U64, +fa: SO.Fd, +fb: S
         case True{}: smp_fin(st)
         case False{}:
           +s2 = smp_st(m2(fa, fb, csa, csb, p, tol), st)
-          smp_go(t, U64.is_lt(9u64, s2), s2, fa, fb, csa, csb, tol)
+          smp_go(t, U64.is_eq(s2, 11u64), s2, fa, fb, csa, csb, tol)
 
 def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   SS.Br{closed, pts, ends} = b
@@ -642,18 +676,19 @@ def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb
     case []: []
     case b <> t: List.append(&2, SO.Fi, br_fi(b, fa, fb, csa, csb, tol, ia, ib), brs_fi(t, fa, fb, csa, csb, tol, ia, ib))
 
-def un_fi(us: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def un_one(b: List<&2, I.I>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+  Bool.pick(List<&2, SO.Fi>, X.vfin(b), fi1("face-face-uncertain", ia, ib), fi1("face-face-uncertain", ia, ib))
+
+def un_fi(us: List<&2, List<&2, I.I>>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   match us:
     case []: []
-    case +u <> t:
-      +r = smp_go([u], False{}, 0u64, fa, fb, csa, csb, tol)
-      List.append(&2, SO.Fi, Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1("face-face-uncertain", ia, ib)), un_fi(t, fa, fb, csa, csb, tol, ia, ib))
+    case u <> t: List.append(&2, SO.Fi, un_one(u, ia, ib), un_fi(t, ia, ib))
 
 def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   Y.Sr{ss, k, co} = r
   SS.Ss{ok, brs, un} = ss
   Bool.pick(List<&2, SO.Fi>, Bool.and(ok, U64.is_eq(k, 0u64)),
-    first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib), un_fi(un, fa, fb, csa, csb, tol, ia, ib))),
+    first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib), un_fi(un, ia, ib))),
     fi1("face-face-uncertain", ia, ib))
 
 def pad(+b: List<&2, I.I>) -> List<&2, I.I>:

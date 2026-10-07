@@ -47,8 +47,13 @@ def parse(out):
             continue
         m = re.match(r'overlap s=' + IV + r' t=' + IV, ln)
         if m:
-            ovs.append((Fr(float(m.group(1))), Fr(float(m.group(2)))))
+            ovs.append((Fr(float(m.group(1))), Fr(float(m.group(2))), Fr(float(m.group(3))), Fr(float(m.group(4)))))
     return pts, uns, ovs, out
+
+
+def iv_near(iv, lo, hi, tol=1e-6):
+    a, b = float(iv[0]), float(iv[1])
+    return a <= lo and b >= hi and a >= lo - tol and b <= hi + tol
 
 
 def sx(kind, vals):
@@ -177,11 +182,23 @@ def special_cc():
         ('arcs.reversed-frame', ('circle', c + [0, 1]), ('circle', [0, 0, 0, 1, 0, 0, 0, -1, 0, 2, 0, 1]), 2, 0),
         ('lines.touch', ('line', [0, 0, 0, 1, 0, 0, 0, 6]), ('line', [0, 0, 0, 1, 0, 0, -6, 0]), 1, 0),
         ('lines.overlap', ('line', [0, 0, 0, 1, 0, 0, 0, 6]), ('line', [0, 0, 0, 1, 0, 0, 3, 9]), 0, 1),
+        ('arcs.full', ('circle', c + [-1, 1]), ('circle', c + [-1, 1]), 0, 1),
     ]
+    spans = {
+        'arcs.overlap': ((0.0, 0.5), (0.0, 0.5)),
+        'lines.overlap': ((3.0, 6.0), (3.0, 6.0)),
+        'arcs.full': ((-1.0, 1.0), (-1.0, 1.0)),
+    }
     for name, a, b, npts, novs in cases:
         out = run('intersect', sx(*a), sx(*b))
         pts, uns, ovs, raw = parse(out)
-        record(f'cc.{name}', len(pts) == npts and len(ovs) == novs and not uns, out=raw)
+        ok = len(pts) == npts and len(ovs) == novs and not uns
+        if name in spans and ovs:
+            (slo, shi), (tlo, thi) = spans[name]
+            ok = ok and iv_near(ovs[0][:2], slo, shi) and iv_near(ovs[0][2:], tlo, thi)
+        if name == 'lines.touch' and pts:
+            ok = ok and iv_near(pts[0][:2], 0.0, 0.0) and iv_near(pts[0][2:4], 0.0, 0.0)
+        record(f'cc.{name}', ok, out=raw)
     out = run('intersect', sx('conic', [8, 50, 0, 0, 50, 0, 0, 42, 0, 1, 0.7071067811865476, 1, 0, 1]), sx('plane', [0, 0, 0, 0, 1, 0, 0, 0, 1]))
     pts, uns, ovs, raw = parse(out)
     record('cs.tangent.conic-plane-end', len(pts) == 1 and pts[0][4] == 'tangent a-end' and not uns and not ovs

@@ -130,10 +130,16 @@ pairs, checked in parallel):
   interior points of each face; planes, and planes or cylinders parallel
   to a common direction, cannot meet in closed curves and are skipped;
   planes cut coaxial cylinders, cones and tori, and spheres, in exact
-  circles; everything else is traced. A closed component is a
-  penetration when a sample lies inside both faces, harmless when a
-  sample lies outside either face, and otherwise must stay within
-  tolerance of the faces' boundary edges. Open components end on face
+  circles; everything else is traced. Samples on a closed component
+  keep the worse rank: both interiors is a penetration and ends the
+  walk; an uncertain membership outranks an outside sample; an outside
+  sample alone is harmless; boundary contact that is not two interiors
+  is harmless. A sample on a plane or a right cylinder whose box is
+  disjoint from the hull of that face's boundary-edge boxes is outside,
+  including when the point lies on the supporting surface. Sphere, cone
+  and torus faces keep the membership answer. An empty or non-finite
+  hull keeps the membership answer. Each unresolved trace box is
+  reported as `face-face-uncertain`. Open components end on face
   boundaries and are covered by the edge/face checks.
 
 Tolerances: shared-vertex corners `2^-30` of the part size; boundary
@@ -186,6 +192,10 @@ answers.
   (`cv_hbox`, laws `neg_full_circle_whole_box`, `ok_full_circle_hbox`).
 - Same-circle arcs and collinear lines reported whole-domain overlaps
   when they only touched (laws `ok_arcs_*`, `ok_lines_touch`).
+- An overlap's parameters are the clipped span on each curve. Two full
+  circles of one circle are one overlap; a seam point whose parameter
+  lies inside that overlap is dropped (`ok_lines_overlap_span`,
+  `ok_full_circle_only_overlap`).
 - Whole-domain restriction widened exact control points
   (`ok_restr_whole_exact`).
 - `pmap` ran expensive items sequentially below 128 per chunk;
@@ -199,21 +209,24 @@ analytic oracles on ten parts and boundary points), `solid_neg.py`
 (thirteen composed B-reps: inverted shells, cavities outside, nested or
 crossing, overlapping and touching solids), `zone.py` (envelope
 enclosure against sampled certified evaluations and analytic ranges,
-tightness, four refusals). Laws: `laws/c07.bend`.
+tightness, four refusals). Laws: `laws/c07.bend` (one file) and
+`laws/c07_build.bend` (one law per process).
 
 ## 10. Complexity and latency
 
 | Query | Complexity | Measured (this machine) |
 |---|---|---|
-| `intersect` (curve/surface, curve/curve) | budgeted branch and bound | mean 0.09 s, max 0.3 s over 327 cases |
-| `classify` | rays × faces with box culling | 0.1 s on every E2E part |
-| `check` | `O((E+F) log(E+F) + k)` pairs, parallel | 0.07–0.51 s on every E2E part |
-| `zone` (profiles, features) | pairs of primitives with sweep pruning; eight dual evaluations | 0.05–0.45 s |
+| `intersect` (curve/surface, curve/curve) | budgeted branch and bound | mean 0.114 s, max 0.384 s over 328 cases |
+| `classify` | rays × faces with box culling | median 0.106–0.175 s on every E2E part |
+| `check` | `O((E+F) log(E+F) + k)` pairs, parallel | 0.106–0.798 s on the ten E2E parts; 0.583 / 1.53 / 5.39 s for 25 / 100 / 400 holes |
+| `zone` (profiles, features) | pairs of primitives with sweep pruning; eight dual evaluations | 0.105–0.244 s on the timed calls |
 
 ## 11. Limits and owners
 
-- Bézier-patch and NURBS faces: intersections are supported; membership,
-  classification and embedding answer uncertain on them (C11 with
+- Bézier-patch and NURBS faces: intersections are supported. Membership
+  and classification answer uncertain on them. An edge or face the
+  embedding checker cannot certify is reported as
+  `edge-check-unsupported` or `face-check-unsupported` (C11 with
   freeform trims).
 - Exact containment and interference between solids: C11.
 - Booleans that will call `check` on every result: C08.

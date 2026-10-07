@@ -68,6 +68,12 @@ law ok_grad_unit_mid:
 def ok_grad_unit_mid():
   {==}
 
+law ok_grad_unit_last:
+  {D.ge(3n, 2n) == [i0(), i0(), i1()] : List<&2, I.I>}
+
+def ok_grad_unit_last():
+  {==}
+
 law ok_sym_binomial:
   {Y.is_zero(sq_sum()) == True{} : Bool}
 
@@ -120,4 +126,55 @@ law ok_cone_axis_below_apex:
   {co_az(RV.ss_cone(RV.CN{True{}, 9.0f64, 0.6666666666666666f64}, 6.0f64, 0.0f64, 0.0f64, 9.0f64)) == F64.neg(1.0f64) : F64}
 
 def ok_cone_axis_below_apex():
+  {==}
+
+def dom(+a: F64, +b: F64) -> G.Dom:
+  G.Dom{a, b}
+
+def xline() -> G.GVal:
+  G.GV_ln{G.Ln{pt(0.0f64, 0.0f64, 0.0f64), dr(1.0f64, 0.0f64, 0.0f64)}}
+
+def circ_g() -> G.GVal:
+  G.GV_cc{G.Cc{pt(0.0f64, 0.0f64, 0.0f64), dr(1.0f64, 0.0f64, 0.0f64), dr(0.0f64, 1.0f64, 0.0f64), 2.0f64}}
+
+def n_pt(hs: List<&2, S.Hit>) -> Nat:
+  match hs:
+    case []: 0n
+    case h <> t:
+      match h:
+        case S.H_pt{s, u, p, c}: Nat.add(1n, n_pt(t))
+        case _: n_pt(t)
+
+def n_ov(hs: List<&2, S.Hit>) -> Nat:
+  match hs:
+    case []: 0n
+    case h <> t:
+      match h:
+        case S.H_ov{s, u}: Nat.add(1n, n_ov(t))
+        case _: n_ov(t)
+
+def near_iv(+s: I.I, +lo: F64, +hi: F64) -> Bool:
+  Bool.and(F64.is_le(I.i_lo(s), lo), Bool.and(F64.is_le(hi, I.i_hi(s)), Bool.and(F64.is_lt(F64.sub(lo, 0.000001f64), I.i_lo(s)), F64.is_lt(I.i_hi(s), F64.add(hi, 0.000001f64)))))
+
+def span_le(hs: List<&2, S.Hit>, +slo: F64, +shi: F64, +tlo: F64, +thi: F64) -> Bool:
+  match hs:
+    case []: False{}
+    case h <> t:
+      match h:
+        case S.H_ov{s, u}: Bool.and(near_iv(s, slo, shi), near_iv(u, tlo, thi))
+        case _: span_le(t, slo, shi, tlo, thi)
+
+def one_span(+hs: List<&2, S.Hit>, +slo: F64, +shi: F64, +tlo: F64, +thi: F64) -> Bool:
+  Bool.and(Nat.is_eq(n_pt(hs), 0n), Bool.and(Nat.is_eq(n_ov(hs), 1n), span_le(hs, slo, shi, tlo, thi)))
+
+law ok_lines_overlap_span:
+  {one_span(S.inter_cc(xline(), dom(0.0f64, 6.0f64), xline(), dom(3.0f64, 9.0f64), 8n), 3.0f64, 6.0f64, 3.0f64, 6.0f64) == True{} : Bool}
+
+def ok_lines_overlap_span():
+  {==}
+
+law ok_full_circle_only_overlap:
+  {one_span(S.inter_cc(circ_g(), dom(F64.neg(1.0f64), 1.0f64), circ_g(), dom(F64.neg(1.0f64), 1.0f64), 8n), F64.neg(1.0f64), 1.0f64, F64.neg(1.0f64), 1.0f64) == True{} : Bool}
+
+def ok_full_circle_only_overlap():
   {==}

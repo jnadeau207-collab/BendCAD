@@ -102,19 +102,20 @@ are in `laws/c06.bend`.
 
 ## C07 — general intersections, classification, embedding, envelope topology
 
-No legacy source was mined. Contract `docs/c07-contract.md`. Laws in
-`laws/c07.bend`; end-to-end evidence in `tests/c07/`.
+No legacy source was mined. Contract `docs/c07-contract.md`. Fast laws
+in `laws/c07.bend`; branch-and-bound laws in `laws/c07_build.bend`.
+End-to-end evidence in `tests/c07/`.
 
 | Operation | Legacy source | Bend implementation | Law obligations | Fixtures | Limitations |
 |---|---|---|---|---|---|
 | Curve representation and enclosures | None mined | `src/c07/rb.bend`: rational Béziers with interval controls, exact conversion of lines, cubics, conics, circles; `cv_hbox` | `ok_restr_whole_exact`, `neg_full_circle_whole_box`, `ok_full_circle_hbox` | E2E `cs.*`, `cc.*` | — |
 | Solver | None mined | `src/c07/eng.bend`: branch and bound, Krawczyk, curve-mode faces, budgets, rescue | (exercised through every intersection law) | E2E `cs.*`, `cc2.*`, `ss.*` | Unresolved boxes reported, never dropped |
 | Curve/surface | None mined | `src/c07/xs.bend`: exact composition into implicit forms, exact endpoint deflation, cone nappes, seams | `ok_tangent_endpoint_class`, `ok_class_mask` | E2E `cs.*`, specials | Patches and NURBS through `isect.bend` |
-| Curve/curve | None mined | `xs.bend`: exact line/line, same-circle periodic ranges, 2D/3D branch and bound | `ok_arcs_*`, `ok_lines_touch`, `neg_lines_touch_overlap` | E2E `cc.*`, `cc2.*` | — |
+| Curve/curve | None mined | `xs.bend`: exact line/line, same-circle periodic ranges, clipped overlap spans, 2D/3D branch and bound | `ok_arcs_*`, `ok_lines_touch`, `neg_lines_touch_overlap`, `ok_lines_overlap_span`, `ok_full_circle_only_overlap` | E2E `cc.*`, `cc2.*` | — |
 | Surface/surface | None mined | `src/c07/ss.bend`, `par.bend`, `isect.bend`: traced branches with parameters on both surfaces | (E2E) | E2E `ss.*`, patches, NURBS | Needs a box |
 | Face membership | None mined | `src/c07/mem.bend`: path parity with meridian/parallel legs in both orders | `ok_member_inside_disc`, `ok_member_outside_disc`, `ok_flat_edge_in_cut`, `neg_flat_edge_crossing` | E2E `solid.*` | Planes and quadrics; patches answer uncertain |
 | Classification, orientation, cavities | None mined | `src/c07/sol.bend` | (E2E) | E2E `solid.*.classify`, `solid.*.boundary`, `neg.inverted`, `neg.cavity.*` | Points on edges from every direction answer uncertain |
-| Embedding check | None mined | `src/c07/emb.bend`: sweep-and-prune pairs, corner cone certificates, closed-form circle components, parallel | `ok_corner_square`, `neg_corner_foldback` (corner logic shared with `zt`) | E2E `solid.*.check`, `neg.*` (13 compositions) | Tolerances 2^-30 / 2^-20 of part size |
+| Embedding check | None mined | `src/c07/emb.bend`: sweep-and-prune pairs, corner cone certificates, closed-form circle components, parallel. A plane or right-cylinder sample disjoint from its face's boundary-edge hull is outside | `ok_corner_square`, `neg_corner_foldback` (corner logic shared with `zt`) | E2E `solid.*.check`, `neg.*` (13 compositions) | Tolerances 2^-30 / 2^-20 of part size. Sphere, cone and torus faces do not use the edge hull |
 | Symbolic identities | None mined | `src/c07/sym.bend`: exact rational normal form over parameters | `ok_sym_*`, `neg_sym_distinct`, `ok_arc_identity`, `neg_arc_identity` | E2E `zone.neg.arc-not-identical` | — |
 | Envelope topology and measures | None mined | `src/c07/zt.bend`, `zd.bend`, `src/c06/zone.bend`: separation certificates, interval dual numbers, monotone corners, bisection | `ok_grad_unit_*`, `ok_semicircle_sweep`, `ok_separated_segments`, `neg_crossing_segments` | E2E `zone.*` (33) | Three bisection levels |
 | Revolve cone axis (C06 fix) | None mined | `src/c06/revolve.bend`: the cone's axis points toward the face's nappe | `ok_cone_axis_below_apex` | E2E `solid.cone.*` | — |

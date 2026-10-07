@@ -1,5 +1,5 @@
 {
- "build_s": 159.4,
+ "build_s": 246.1,
  "passed": 13,
  "results": [
   {
@@ -112,13 +112,14 @@
     "edge-crossing",
     "edge-face-overlap",
     "edge-face-penetration",
-    "edge-face-uncertain"
+    "edge-face-uncertain",
+    "face-penetration"
    ],
-   "findings": "edge-crossing 8 15; edge-face-uncertain 15 5; edge-face-penetration 3 6; edge-face-uncertain 8 6; edge-face-uncertain 0 6; edge-face-uncertain 8 7; edge-face-uncertain 0 7; edge-crossing 8 14; edge-face-uncertain 14 1; edge-face-overlap 14 2; edge-face-uncertain 14 5; edge-crossing 0 14; edge-face-uncertain 12 1; edge-crossing 0 12;",
+   "findings": "edge-crossing 8 15; edge-face-uncertain 15 5; edge-face-penetration 3 6; edge-face-uncertain 8 6; face-penetration 1 6; face-penetration 5 6; edge-face-uncertain 0 6; edge-face-uncertain 8 7; edge-face-uncertain 0 7; edge-crossing 8 14; edge-face-uncertain 14 1; edge-face-overlap 14 2; edge-face-uncertain 14 5; edge-crossing 0 14; edge-face-uncertain 12 1; edge-crossing 0 12;",
    "name": "overlap.sphere",
    "ok": true
   }
  ],
- "run_s": 0.72,
+ "run_s": 0.93,
  "total": 13
 }

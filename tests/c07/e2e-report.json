@@ -1,8 +1,8 @@
 {
- "passed": 327,
- "total": 327,
- "mean_query_s": 0.09091223926719176,
- "max_query_s": 0.29308295249938965,
+ "passed": 328,
+ "total": 328,
+ "mean_query_s": 0.11417338179378975,
+ "max_query_s": 0.38370752334594727,
  "results": [
   {
    "name": "cs.0.line-plane",
@@ -868,7 +868,7 @@
    "name": "near.circle-sphere",
    "ok": true,
    "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "secs": 0.07458829879760742,
+   "secs": 0.10245323181152344,
    "roots": 0
   },
   {
@@ -918,12 +918,12 @@
   {
    "name": "cc.arcs.complementary",
    "ok": true,
-   "out": "point s=[-4.069800052531042e-13, 4.0725756100926123e-13] t=[-1, 0] at=[1.9999999999999922, 2.000000000000009]x[-3.2558400420248504e-12, 3.2580604880741076e-12]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[-1, 0] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
+   "out": "point s=[-4.069800052531042e-13, 4.0725756100926123e-13] t=[-8.14903700074865e-13, 8.153477892847151e-13] at=[1.9999999999999922, 2.000000000000009]x[-3.2558400420248504e-12, 3.2580604880741076e-12]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[-1.0000000000000007, -0.9999999999999996] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
   },
   {
    "name": "cc.arcs.overlap",
    "ok": true,
-   "out": "overlap s=[-3e-323, 0.5] t=[0, 1]\nsummary points=0 overlaps=1 unresolved=0\n"
+   "out": "overlap s=[-3e-323, 0.5] t=[-8e-323, 0.5000000000000007]\nsummary points=0 overlaps=1 unresolved=0\n"
   },
   {
    "name": "cc.arcs.disjoint",
@@ -933,17 +933,22 @@
   {
    "name": "cc.arcs.reversed-frame",
    "ok": true,
-   "out": "point s=[-3e-323, 3e-323] t=[0, 1] at=[1.9999999999999922, 2.000000000000009]x[-4.2e-322, 4.2e-322]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[0, 1] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
+   "out": "point s=[-3e-323, 3e-323] t=[-1.1102230246251567e-15, 6.66133814775094e-16] at=[1.9999999999999922, 2.000000000000009]x[-4.2e-322, 4.2e-322]x[-1.04e-322, 1.04e-322] class=interior\npoint s=[0.9999999999999999, 1.0000000000000002] t=[0.9999999999999996, 1.0000000000000007] at=[-2.0000000000002283, -1.9999999999997704]x[-1.4721557306530088e-13, 1.4233059175695024e-13]x[-2.35e-321, 2.35e-321] class=interior\nsummary points=2 overlaps=0 unresolved=0\n"
   },
   {
    "name": "cc.lines.touch",
    "ok": true,
-   "out": "point s=[-5e-323, 5e-323] t=[-6, 0] at=[-1.14e-322, 1.14e-322]x[-2.5e-323, 2.5e-323]x[-2.5e-323, 2.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n"
+   "out": "point s=[-5e-323, 5e-323] t=[-1.8651746813702633e-14, 2.0428103653102883e-14] at=[-1.14e-322, 1.14e-322]x[-2.5e-323, 2.5e-323]x[-2.5e-323, 2.5e-323] class=interior\nsummary points=1 overlaps=0 unresolved=0\n"
   },
   {
    "name": "cc.lines.overlap",
    "ok": true,
-   "out": "overlap s=[2.999999999999996, 6] t=[3, 9]\nsummary points=0 overlaps=1 unresolved=0\n"
+   "out": "overlap s=[2.999999999999996, 6] t=[2.999999999999992, 6.000000000000017]\nsummary points=0 overlaps=1 unresolved=0\n"
+  },
+  {
+   "name": "cc.arcs.full",
+   "ok": true,
+   "out": "overlap s=[-1, 1] t=[-1.0000000000000004, 1.0000000000000029]\nsummary points=0 overlaps=1 unresolved=0\n"
   },
   {
    "name": "cs.tangent.conic-plane-end",

@@ -526,13 +526,35 @@ def lpar(+p: V.Point, +d: V.Dir, +q: V.Point, +e: V.Dir, +t: F64) -> I.I:
   +pt = X.vadd(M.p3(q), R_scale(I.ipt(t), M.d3(e)))
   I.idiv(X.vdot(X.vsub(pt, M.p3(p)), dd), X.vdot(dd, dd))
 
-def arc_hit(+ca: R.Cv, +a: I.I, +b: I.I, +lo: F64, +hi: F64, +tt: I.I) -> List<&2, Hit>:
+def b_of(+s: I.I, +a: I.I, +b: I.I, +ta: F64, +tb: F64) -> I.I:
+  I.iadd(I.ipt(ta), I.imul(I.idiv(I.isub(s, a), I.isub(b, a)), I.isub(I.ipt(tb), I.ipt(ta))))
+
+def arc_hit(+ca: R.Cv, +a: I.I, +b: I.I, +lo: F64, +hi: F64, +ta: F64, +tb: F64) -> List<&2, Hit>:
   +l = X.iof(F64.max(I.i_lo(a), lo), F64.max(I.i_hi(a), lo))
   +h = X.iof(F64.min(I.i_lo(b), hi), F64.min(I.i_hi(b), hi))
-  +t = I.ihull(l, h)
-  Bool.pick(List<&2, Hit>, F64.is_lt(I.i_hi(l), I.i_lo(h)), [H_ov{X.iof(I.i_lo(l), I.i_hi(h)), tt}],
+  +sp = I.ihull(l, h)
+  Bool.pick(List<&2, Hit>, F64.is_lt(I.i_hi(l), I.i_lo(h)), [H_ov{X.iof(I.i_lo(l), I.i_hi(h)), I.ihull(b_of(l, a, b, ta, tb), b_of(h, a, b, ta, tb))}],
     Bool.pick(List<&2, Hit>, F64.is_lt(I.i_hi(h), I.i_lo(l)), [],
-      [H_pt{t, tt, R.cv_box(ca, I.idiv(I.isub(t, I.ipt(lo)), I.ipt(F64.sub(hi, lo)))), 0u64}]))
+      [H_pt{sp, b_of(sp, a, b, ta, tb), R.cv_box(ca, I.idiv(I.isub(sp, I.ipt(lo)), I.ipt(F64.sub(hi, lo)))), 0u64}]))
+
+def pt_in(+s: I.I, hs: List<&2, Hit>) -> Bool:
+  match hs:
+    case []: False{}
+    case h <> t:
+      match h:
+        case H_ov{+os, tt}: Bool.or(X.isub_of(s, os), pt_in(s, t))
+        case _: pt_in(s, t)
+
+def drop_in(hs: List<&2, Hit>, +all: List<&2, Hit>) -> List<&2, Hit>:
+  match hs:
+    case []: []
+    case h <> +t:
+      match h:
+        case H_pt{+s, +tt, +p, +c}:
+          Bool.pick(List<&2, Hit>, pt_in(s, all), drop_in(t, all), H_pt{s, tt, p, c} <> drop_in(t, all))
+        case H_ov{+s, +tt}: H_ov{s, tt} <> drop_in(t, all)
+        case H_un{+s, +tt, +p}: H_un{s, tt, p} <> drop_in(t, all)
+        case H_no{+w}: H_no{w} <> drop_in(t, all)
 
 def ll_ov(+ca: R.Cv, +p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir, +db: G.Dom) -> List<&2, Hit>:
   +a = lpar(p, d, q, e, dlo(db))
@@ -540,7 +562,9 @@ def ll_ov(+ca: R.Cv, +p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir,
   +sw = F64.is_lt(I.i_lo(b), I.i_lo(a))
   +lo = Bool.pick(I.I, sw, b, a)
   +hi = Bool.pick(I.I, sw, a, b)
-  arc_hit(ca, lo, hi, dlo(da), dhi(da), dom_i(db))
+  +ta = Bool.pick(F64, sw, dhi(db), dlo(db))
+  +tb = Bool.pick(F64, sw, dlo(db), dhi(db))
+  arc_hit(ca, lo, hi, dlo(da), dhi(da), ta, tb)
 
 def ll_pick(k: U64, +p: V.Point, +d: V.Dir, +da: G.Dom, +q: V.Point, +e: V.Dir, +db: G.Dom, +ca: R.Cv, +cb: R.Cv, +n: List<&2, E.Ex>, +depth: Nat) -> List<&2, Hit>:
   match k:
@@ -578,14 +602,21 @@ def circ_ov(+ca: R.Cv, +cb: R.Cv, +c: V.Point, +u: V.Dir, +v: V.Dir, +r: F64, +d
   +hi = dhi(da)
   +up = Bool.and(F64.is_lt(I.i_hi(s0), I.i_lo(sm)), F64.is_lt(I.i_hi(sm), I.i_lo(s1)))
   +dn = Bool.and(F64.is_lt(I.i_hi(s1), I.i_lo(sm)), F64.is_lt(I.i_hi(sm), I.i_lo(s0)))
-  +a = Bool.pick(I.I, F64.is_lt(I.i_lo(s0), I.i_lo(s1)), s0, s1)
-  +b = Bool.pick(I.I, F64.is_lt(I.i_lo(s0), I.i_lo(s1)), s1, s0)
+  +t0 = dlo(db)
+  +t1 = dhi(db)
+  +s0_lt = F64.is_lt(I.i_lo(s0), I.i_lo(s1))
+  +a = Bool.pick(I.I, s0_lt, s0, s1)
+  +b = Bool.pick(I.I, s0_lt, s1, s0)
+  +ta0 = Bool.pick(F64, s0_lt, t0, t1)
+  +tb0 = Bool.pick(F64, s0_lt, t1, t0)
   +w = Bool.or(up, dn)
   +l = Bool.pick(I.I, w, a, b)
-  +u = Bool.pick(I.I, w, b, I.iadd(a, I.ipt(2.0f64)))
-  +tt = dom_i(db)
-  List.append(&2, Hit, arc_hit(ca, l, u, lo, hi, tt),
-    List.append(&2, Hit, arc_hit(ca, I.isub(l, I.ipt(2.0f64)), I.isub(u, I.ipt(2.0f64)), lo, hi, tt), arc_hit(ca, I.iadd(l, I.ipt(2.0f64)), I.iadd(u, I.ipt(2.0f64)), lo, hi, tt)))
+  +uu = Bool.pick(I.I, w, b, I.iadd(a, I.ipt(2.0f64)))
+  +ta = Bool.pick(F64, w, ta0, tb0)
+  +tb = Bool.pick(F64, w, tb0, ta0)
+  +raw = List.append(&2, Hit, arc_hit(ca, l, uu, lo, hi, ta, tb),
+    List.append(&2, Hit, arc_hit(ca, I.isub(l, I.ipt(2.0f64)), I.isub(uu, I.ipt(2.0f64)), lo, hi, ta, tb), arc_hit(ca, I.iadd(l, I.ipt(2.0f64)), I.iadd(uu, I.ipt(2.0f64)), lo, hi, ta, tb)))
+  drop_in(raw, raw)
 
 def same_circ(ga: G.GVal, +xb: Maybe<&2, P.Xc>) -> Bool:
   match ga:
