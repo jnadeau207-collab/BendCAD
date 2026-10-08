@@ -11,6 +11,7 @@ import ./prof.bend as F
 import ./build.bend as BD
 import ./revolve.bend as RV
 import ./iv.bend as I
+import ../c08/bool.bend as B8
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64 }
@@ -32,6 +33,9 @@ type Op is Data:
   O_cone{ r: X.Xp, h: X.Xp }
   O_sph{ r: X.Xp }
   O_tor{ bigr: X.Xp, r: X.Xp }
+  O_union{ a: U64, b: U64 }
+  O_difference{ a: U64, b: U64 }
+  O_intersection{ a: U64, b: U64 }
 
 type Mat is Data:
   M_create{}
@@ -65,8 +69,28 @@ type Part is Data:
 type Pl is Data:
   Pl{ m: V.Mat3, tx: F64, ty: F64, tz: F64, mi: List<&2, I.I>, ti: List<&2, I.I> }
 
+type Ms is Data:
+  Ms{ vol: I.I, area: I.I, x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64, nv: Nat, ne: Nat, nf: Nat,
+    ns: Nat, genus: Nat, lin: F64 }
+
+type Acc is Data:
+  Acc{ vol: I.I, area: I.I, per: I.I }
+
+type Bb is Data:
+  Bb{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
+
+# Boolean extension: stored measures for assembled results (mx), the
+# count of trailing revolve loops that lathe as cavities (nc), and
+# whether this body is a C08-assembled result (bo), the disjoint-proof
+# boxes for broad-phase short-circuits (pr, F15), and the deleted lineage
+# (dl, F12). `mx` is a 0/1-list,
+# not a Maybe: the 27-word Ms must ride boxed, else every Body/NR/CE
+# value flattens it and eval frames exceed the 247-word segment limit.
+type Xb is Data:
+  Xb{ mx: List<&2, Ms>, nc: Nat, bo: Bool, pr: String, dl: List<&2, B8.Del> }
+
 type Body is Data:
-  Bd{ cells: List<&2, BD.Cl>, brep: Ty.Brep, fns: List<&2, BD.Fn>, pl: Pl, rv: List<&2, F.Lp> }
+  Bd{ cells: List<&2, BD.Cl>, brep: Ty.Brep, fns: List<&2, BD.Fn>, pl: Pl, rv: List<&2, F.Lp>, xb: Xb }
 
 type Dg is Data:
   Dg{ what: String, loc: String, why: String, fix: String }
@@ -77,16 +101,6 @@ type NR is Data:
 
 type CE is Data:
   CE{ id: U64, key: List<&2, U64>, r: NR }
-
-type Ms is Data:
-  Ms{ vol: I.I, area: I.I, x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64, nv: Nat, ne: Nat, nf: Nat,
-    ns: Nat, genus: Nat, lin: F64 }
-
-type Acc is Data:
-  Acc{ vol: I.I, area: I.I, per: I.I }
-
-type Bb is Data:
-  Bb{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
 type NS is Data:
   NS{ k: List<&2, U64>, lp: Nat, ce: Nat }
@@ -387,6 +401,22 @@ def pl_ti(p: Pl) -> List<&2, I.I>:
   Pl{m, tx, ty, tz, mi, ti} = p
   ti
 
+def pl_m(p: Pl) -> V.Mat3:
+  Pl{m, tx, ty, tz, mi, ti} = p
+  m
+
+def pl_tx(p: Pl) -> F64:
+  Pl{m, tx, ty, tz, mi, ti} = p
+  tx
+
+def pl_ty(p: Pl) -> F64:
+  Pl{m, tx, ty, tz, mi, ti} = p
+  ty
+
+def pl_tz(p: Pl) -> F64:
+  Pl{m, tx, ty, tz, mi, ti} = p
+  tz
+
 def bb_iv(b: Bb, +x: I.I, +y: I.I, +z: I.I) -> Bb:
   Bb{x0, x1, y0, y1, z0, z1} = b
   Bb{F64.min(x0, I.i_lo(x)), F64.max(x1, I.i_hi(x)), F64.min(y0, I.i_lo(y)), F64.max(y1, I.i_hi(y)),
@@ -471,7 +501,7 @@ def bb_gcells(cs: List<&2, BD.Cl>, +b: Bb, +p: Pl) -> Bb:
     case +c <> t: bb_gcells(t, Bool.pick(Bb, BD.cl_mat(c), bb_glp(BD.cl_lp(c), b, p, BD.cl_lo(c), BD.cl_hi(c)), b), p)
 
 def prism_ms(bd: Body) -> Ms:
-  Bd{+cells, brep, fns, +pl, rv} = bd
+  Bd{+cells, brep, fns, +pl, rv, xb} = bd
   +ds = BD.cds_of(cells)
   +tb = B.tb_of(BD.Cd, ds, BD.cd_pad())
   +acc = ms_go(ds, tb, Acc{I.ipt(0.0f64), I.ipt(0.0f64), I.ipt(0.0f64)})
@@ -480,16 +510,43 @@ def prism_ms(bd: Body) -> Ms:
   ms_mk(acc, Bool.pick(Bb, pl_exact(pl), pl_bb(bb_wid(bb0, lin), pl), bb_wid(bb_gcells(cells, bb_empty(), pl), F64.mul(2.0f64, lin))), lin, brep)
 
 def bd_rv(b: Body) -> List<&2, F.Lp>:
-  Bd{cells, brep, fns, pl, rv} = b
+  Bd{cells, brep, fns, pl, rv, xb} = b
   rv
 
 def bd_pl(b: Body) -> Pl:
-  Bd{cells, brep, fns, pl, rv} = b
+  Bd{cells, brep, fns, pl, rv, xb} = b
   pl
 
 def bd_brep(b: Body) -> Ty.Brep:
-  Bd{cells, brep, fns, pl, rv} = b
+  Bd{cells, brep, fns, pl, rv, xb} = b
   brep
+
+def xb_id() -> Xb:
+  Xb{[], 0n, False{}, "", []}
+
+def bd_xb(b: Body) -> Xb:
+  Bd{cells, brep, fns, pl, rv, xb} = b
+  xb
+
+def xb_mx(x: Xb) -> List<&2, Ms>:
+  Xb{mx, nc, bo, pr, dl} = x
+  mx
+
+def xb_nc(x: Xb) -> Nat:
+  Xb{mx, nc, bo, pr, dl} = x
+  nc
+
+def xb_bo(x: Xb) -> Bool:
+  Xb{mx, nc, bo, pr, dl} = x
+  bo
+
+def xb_pr(x: Xb) -> String:
+  Xb{mx, nc, bo, pr, dl} = x
+  pr
+
+def xb_dl(x: Xb) -> List<&2, B8.Del>:
+  Xb{mx, nc, bo, pr, dl} = x
+  dl
 
 def r_line(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> I.I:
   +ra = I.ipt(ax)
@@ -584,8 +641,113 @@ def rev_ms(+rv: List<&2, F.Lp>, +br: Ty.Brep, +pl: Pl) -> Ms:
   +bb = Bool.pick(Bb, pl_exact(pl), pl_bb(bb_wid(bb0, lin), pl), bb_wid(rbb_glps(rv, bb_empty(), pl), F64.mul(2.0f64, lin)))
   ms_mk(Acc{vol, area, I.ipt(F64.mul(4.0f64, F64.mul(bb_m(bb0), 100.0f64)))}, bb, lin, br)
 
+def ms_vol(m: Ms) -> I.I:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  vol
+
+def ms_ns(m: Ms) -> Nat:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  ns
+
+def ms_genus(m: Ms) -> Nat:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  genus
+
+def ms_area(m: Ms) -> I.I:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  area
+
+def ms_x0(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  x0
+
+def ms_x1(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  x1
+
+def ms_y0(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  y0
+
+def ms_y1(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  y1
+
+def ms_z0(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  z0
+
+def ms_z1(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  z1
+
+def ms_lin(m: Ms) -> F64:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  lin
+
+# Stored boolean measures live in the creation frame (bool_body bakes to
+# world and stores pl_id); the body's placement maps creation to current
+# world, so the stored box must ride through it (F3) — verbatim reuse
+# leaves a pre-move box against a world-frame brep. Volume/area/counts
+# are placement-invariant and pass through. Exact placements transform
+# exactly; interval placements widen by the placement slop.
+def ms_bb(+m: Ms) -> Bb:
+  Bb{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}
+
+def ms_with_bb(+m: Ms, b: Bb) -> Ms:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  Bb{nx0, nx1, ny0, ny1, nz0, nz1} = b
+  Ms{vol, area, nx0, nx1, ny0, ny1, nz0, nz1, nv, ne, nf, ns, genus, lin}
+
+def hw_nth(xs: List<&2, F64>, +i: Nat) -> F64:
+  match xs:
+    case []: 0.0f64
+    case x <> t:
+      match i:
+        case 0n: x
+        case 1n+j: hw_nth(t, j)
+
+def i_hw(+x: I.I) -> F64:
+  F64.mul(0.5f64, F64.sub(I.i_hi(x), I.i_lo(x)))
+
+def hw_list(xs: List<&2, I.I>) -> List<&2, F64>:
+  match xs:
+    case []: []
+    case +x <> t: i_hw(x) <> hw_list(t)
+
+def maxabs3(+b: Bb) -> List<&2, F64>:
+  Bb{x0, x1, y0, y1, z0, z1} = b
+  [F64.max(F64.abs(x0), F64.abs(x1)), F64.max(F64.abs(y0), F64.abs(y1)),
+    F64.max(F64.abs(z0), F64.abs(z1))]
+
+def slop_row(+h0: F64, +h1: F64, +h2: F64, +m0: F64, +m1: F64, +m2: F64, +ht: F64) -> F64:
+  F64.add(F64.add(F64.add(F64.mul(h0, m0), F64.mul(h1, m1)), F64.mul(h2, m2)), ht)
+
+def pl_slop(+b: Bb, +p: Pl) -> F64:
+  +hw = hw_list(pl_mi(p))
+  +ht = hw_list(pl_ti(p))
+  +mx = maxabs3(b)
+  +m0 = hw_nth(mx, 0n)
+  +m1 = hw_nth(mx, 1n)
+  +m2 = hw_nth(mx, 2n)
+  F64.max(slop_row(hw_nth(hw, 0n), hw_nth(hw, 1n), hw_nth(hw, 2n), m0, m1, m2, hw_nth(ht, 0n)),
+    F64.max(slop_row(hw_nth(hw, 3n), hw_nth(hw, 4n), hw_nth(hw, 5n), m0, m1, m2, hw_nth(ht, 1n)),
+      slop_row(hw_nth(hw, 6n), hw_nth(hw, 7n), hw_nth(hw, 8n), m0, m1, m2, hw_nth(ht, 2n))))
+
+def ms_placed(+s: Ms, +p: Pl) -> Ms:
+  +b = ms_bb(s)
+  +w = pl_bb(b, p)
+  ms_with_bb(s, Bool.pick(Bb, pl_exact(p), w, bb_wid(w, pl_slop(b, p))))
+
+def body_mx(+bd: Body, m: List<&2, Ms>) -> Ms:
+  match m:
+    case s <> t: ms_placed(s, bd_pl(bd))
+    case []:
+      Bool.pick(Ms, Nat.is_eq(List.length(&2, F.Lp, bd_rv(bd)), 0n), prism_ms(bd),
+        rev_ms(bd_rv(bd), bd_brep(bd), bd_pl(bd)))
+
 def body_ms(+bd: Body) -> Ms:
-  Bool.pick(Ms, Nat.is_eq(List.length(&2, F.Lp, bd_rv(bd)), 0n), prism_ms(bd), rev_ms(bd_rv(bd), bd_brep(bd), bd_pl(bd)))
+  body_mx(bd, xb_mx(bd_xb(bd)))
 
 def xk(+v: F64) -> X.Xp:
   X.X_k{v}
@@ -662,7 +824,7 @@ def stage_of(+b: Ty.Brep, +fuel: Nat) -> U64:
 
 def ck_go(ok: Bool, +b: Ty.Brep, +fns: List<&2, BD.Fn>, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String, +rv: List<&2, F.Lp>) -> NR:
   match ok:
-    case True{}: NR_ok{Bd{cs, b, fns, pl, rv}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
+    case True{}: NR_ok{Bd{cs, b, fns, pl, rv, xb_id()}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
     case False{}:
       nr_err(T.F_uncertain{}, what, "brep stage " ++ stage_why(stage_of(b, fuel_of(b))),
         "the built boundary failed validation; no geometry is published", "report this design")
@@ -782,11 +944,11 @@ def feat_ev(r: F.EV, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>, +
         mat1, BD.cl_lo(o), BD.cl_hi(o), pl, what)
 
 def bd_cells(b: Body) -> List<&2, BD.Cl>:
-  Bd{cells, brep, fns, pl, rv} = b
+  Bd{cells, brep, fns, pl, rv, xb} = b
   cells
 
 def bd_fns(b: Body) -> List<&2, BD.Fn>:
-  Bd{cells, brep, fns, pl, rv} = b
+  Bd{cells, brep, fns, pl, rv, xb} = b
   fns
 
 def ivl(+kind: U64, +side: U64, +lo: F64, +hi: F64, +a: F64, +thru: Bool) -> List<&2, F64>:
@@ -819,6 +981,10 @@ def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>,
     case 1u64: bad(kind_what(kind), "node " ++ U64.show(nd), "face-not-found", "select a face by its creating node, cell and side")
     case 5u64: nr_err(T.F_unsupported{}, kind_what(kind), "node " ++ U64.show(nd), "features-need-an-extruded-body",
       "features act on prism, box and cylinder bodies along z; other placements need booleans (C08)")
+    case 6u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-empty-compound",
+      "features need material to act on; pick a non-empty base node")
+    case 7u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-boolean-result",
+      "features act on prism and revolve bodies; boolean results carry operand-frame cells until selectors lift features (a later item)")
     case 2u64: bad(kind_what(kind), "node " ++ U64.show(nd), "no-such-face", "that cell's top or bottom is part of another face; select the owning cell")
     case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
     case _: bad(kind_what(kind), "node " ++ U64.show(nd), "depth-reaches-opposite-face", "use a smaller depth or a through cut")
@@ -835,8 +1001,13 @@ def op_feat(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, 
   +aok = Bool.or(Bool.and(thru, Bool.not(U64.is_eq(kind, 0u64))), Bool.and(T.is_finite(a), F64.is_lt(0.0f64, a)))
   +iv = ivl(kind, side, BD.cl_lo(o), BD.cl_hi(o), a, thru)
   +nonempty = Bool.or(F64.is_eq(f_nth(iv, 2n), 0.0f64), F64.is_lt(f_nth(iv, 0n), f_nth(iv, 1n)))
-  +code = Bool.pick(U64, Nat.is_eq(List.length(&2, BD.Cl, cs), 0n), 5u64, Bool.pick(U64, Nat.is_eq(ix, 0n), 1u64, Bool.pick(U64, Bool.not(owner), 2u64,
-    Bool.pick(U64, Bool.not(aok), 3u64, Bool.pick(U64, Bool.not(nonempty), 4u64, 0u64)))))
+  +isEmpty = Bool.and(Nat.is_eq(List.length(&2, BD.Cl, cs), 0n),
+    Nat.is_eq(List.length(&2, Ty.Solid, Ty.brep_sos(bd_brep(b))), 0n))
+  +isBool = xb_bo(bd_xb(b))
+  +code = Bool.pick(U64, isEmpty, 6u64, Bool.pick(U64, isBool, 7u64,
+    Bool.pick(U64, Nat.is_eq(List.length(&2, BD.Cl, cs), 0n), 5u64,
+      Bool.pick(U64, Nat.is_eq(ix, 0n), 1u64, Bool.pick(U64, Bool.not(owner), 2u64,
+        Bool.pick(U64, Bool.not(aok), 3u64, Bool.pick(U64, Bool.not(nonempty), 4u64, 0u64)))))))
   feat_go(code, o, cs, rs, e, nd, iv, bd_pl(b), kind)
 
 def q_mat(+q: U64) -> V.Mat3:
@@ -914,13 +1085,13 @@ def op_move(+b: Body, +tx: X.Xp, +ty: X.Xp, +tz: X.Xp, +q: U64, +e: X.Env, +nd: 
   +y = X.xp_ev(ty, e)
   +z = X.xp_ev(tz, e)
   +ok = Bool.and(T.is_finite(x), Bool.and(T.is_finite(y), Bool.and(T.is_finite(z), U64.is_lt(q, 6u64))))
-  Bool.pick(NR, ok, NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), pl_move(bd_pl(b), q, x, y, z), bd_rv(b)}, Fx{M_same{}, 0n, 0n, 0n, 0n}},
+  Bool.pick(NR, ok, NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), pl_move(bd_pl(b), q, x, y, z), bd_rv(b), bd_xb(b)}, Fx{M_same{}, 0n, 0n, 0n, 0n}},
     bad("move", "node " ++ U64.show(nd), "nonfinite-translation-or-bad-turn", "finite offsets and a turn code 0-5"))
 
 def op_rot(+b: Body, +ax: U64, +deg: X.Xp, +e: X.Env, +nd: U64) -> NR:
   +d = X.xp_ev(deg, e)
   +ok = Bool.and(Bool.and(T.is_finite(d), F64.is_le(F64.abs(d), 1000000.0f64)), U64.is_lt(ax, 3u64))
-  Bool.pick(NR, ok, NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), pl_rot(bd_pl(b), ax, I.sin_cos_deg(d)), bd_rv(b)}, Fx{M_same{}, 0n, 0n, 0n, 0n}},
+  Bool.pick(NR, ok, NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), pl_rot(bd_pl(b), ax, I.sin_cos_deg(d)), bd_rv(b), bd_xb(b)}, Fx{M_same{}, 0n, 0n, 0n, 0n}},
     bad("rotate", "node " ++ U64.show(nd), "bad-axis-or-angle", "an axis x, y or z and a finite angle in degrees with |angle| <= 1000000"))
 
 def seg_w(s: F.Seg, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
@@ -979,6 +1150,9 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_cone{r, h}: 9u64 <> X.xp_w(r, e, X.xp_w(h, e, []))
     case O_sph{r}: 10u64 <> X.xp_w(r, e, [])
     case O_tor{bigr, r}: 11u64 <> X.xp_w(bigr, e, X.xp_w(r, e, []))
+    case O_union{a, b}: B8.tag_union() <> a <> b <> []
+    case O_difference{a, b}: B8.tag_diff() <> a <> b <> []
+    case O_intersection{a, b}: B8.tag_inter() <> a <> b <> []
 
 def op_base(o: Op) -> U64:
   match o:
@@ -987,6 +1161,9 @@ def op_base(o: Op) -> U64:
     case O_holes{base, f, hs, d, thru}: base
     case O_move{base, tx, ty, tz, q}: base
     case O_rot{base, ax, deg}: base
+    case O_union{a, b}: a
+    case O_difference{a, b}: a
+    case O_intersection{a, b}: a
     case _: 0u64
 
 def op_has_base(o: Op) -> Bool:
@@ -996,7 +1173,27 @@ def op_has_base(o: Op) -> Bool:
     case O_holes{base, f, hs, d, thru}: True{}
     case O_move{base, tx, ty, tz, q}: True{}
     case O_rot{base, ax, deg}: True{}
+    case O_union{a, b}: True{}
+    case O_difference{a, b}: True{}
+    case O_intersection{a, b}: True{}
     case _: False{}
+
+def op_base2(o: Op) -> U64:
+  match o:
+    case O_union{a, b}: b
+    case O_difference{a, b}: b
+    case O_intersection{a, b}: b
+    case _: 0u64
+
+def op_has_b2(o: Op) -> Bool:
+  match o:
+    case O_union{a, b}: True{}
+    case O_difference{a, b}: True{}
+    case O_intersection{a, b}: True{}
+    case _: False{}
+
+def op_is_bool(o: Op) -> Bool:
+  op_has_b2(o)
 
 def op_name(o: Op) -> String:
   match o:
@@ -1013,6 +1210,9 @@ def op_name(o: Op) -> String:
     case O_cone{r, h}: "cone"
     case O_sph{r}: "sphere"
     case O_tor{bigr, r}: "torus"
+    case O_union{a, b}: "union"
+    case O_difference{a, b}: "difference"
+    case O_intersection{a, b}: "intersection"
 
 def rls_holes(rs: List<&2, F.Rl>) -> List<&2, Bool>:
   match rs:
@@ -1048,7 +1248,62 @@ def sph_rg(+r: X.Xp) -> F.Region:
 def tor_rg(+bigr: X.Xp, +r: X.Xp) -> F.Region:
   F.Rg{F.L_circ{bigr, xk(0.0f64), r}, []}
 
-def op_build(o: Op, +b: Body, +e: X.Env, +nd: U64) -> NR:
+def bool_tag(o: Op) -> U64:
+  match o:
+    case O_union{a, b}: B8.tag_union()
+    case O_difference{a, b}: B8.tag_diff()
+    case O_intersection{a, b}: B8.tag_inter()
+    case _: 0u64
+
+def bool_in(+x: Body) -> B8.In:
+  +m = body_ms(x)
+  +p = bd_pl(x)
+  B8.In{bd_brep(x), bd_cells(x), bd_fns(x), pl_m(p), pl_tx(p), pl_ty(p), pl_tz(p), bd_rv(x), ms_vol(m),
+    ms_area(m), B8.BX{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}, ms_lin(m),
+    xb_bo(bd_xb(x)), pl_exact(p)}
+
+def bool_mat(+t: U64) -> Mat:
+  Bool.pick(Mat, U64.is_eq(t, 1u64), M_add{},
+    Bool.pick(Mat, U64.is_eq(t, 2u64), M_remove{},
+      Bool.pick(Mat, U64.is_eq(t, 3u64), M_same{}, M_unknown{})))
+
+def bool_kind(+t: U64) -> T.FailKind:
+  Bool.pick(T.FailKind, U64.is_eq(t, 0u64), T.F_invalid{},
+    Bool.pick(T.FailKind, U64.is_eq(t, 1u64), T.F_uncertain{}, T.F_unsupported{}))
+
+def bool_stored_ms(+r: B8.Out, +b: Ty.Brep) -> Ms:
+  Ms{B8.Out_vol(r), B8.Out_area(r), B8.BX_x0(B8.Out_bb(r)), B8.BX_x1(B8.Out_bb(r)),
+    B8.BX_y0(B8.Out_bb(r)), B8.BX_y1(B8.Out_bb(r)), B8.BX_z0(B8.Out_bb(r)), B8.BX_z1(B8.Out_bb(r)),
+    List.length(&2, Ty.Vertex, Ty.brep_vs(b)), List.length(&2, Ty.Edge, Ty.brep_es(b)),
+    List.length(&2, Ty.Face, Ty.brep_fas(b)), B8.Out_sh(r), B8.Out_ho(r), B8.Out_lin(r)}
+
+def bool_body(+r: B8.Out) -> Body:
+  +b = B8.Out_brep(r)
+  Bd{B8.Out_cells(r), b, B8.Out_fns(r), pl_id(), B8.Out_rv(r),
+    Xb{[bool_stored_ms(r, b)], B8.Out_nc(r), True{}, B8.Out_proof(r), B8.Out_del(r)}}
+
+# Carries republish the input body unchanged geometrically, but adopt the
+# run's proof and deleted lineage (F12/F15): each result records its own
+# run. Measures, placement and boolean-origin ride with the input.
+def bool_rewrap(+r: B8.Out, +b: Body) -> Body:
+  Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
+    Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), B8.Out_proof(r), B8.Out_del(r)}}
+
+def bool_carry(+r: B8.Out, +b: Body, +b2: Body) -> Body:
+  Bool.pick(Body, U64.is_eq(B8.Out_carry(r), 2u64), bool_rewrap(r, b2),
+    Bool.pick(Body, U64.is_eq(B8.Out_carry(r), 1u64), bool_rewrap(r, b), bool_body(r)))
+
+def bool_nr(+r: B8.Out, +b: Body, +b2: Body) -> NR:
+  Bool.pick(NR, B8.Out_ok(r),
+    NR_ok{bool_carry(r, b, b2),
+      Fx{bool_mat(B8.Out_mat(r)), B8.Out_fc(r), B8.Out_fm(r), B8.Out_sh(r), B8.Out_ho(r)}},
+    nr_err(bool_kind(B8.Out_kind(r)), B8.Out_what(r), B8.Out_loc(r), B8.Out_why(r), B8.Out_fix(r)))
+
+def bool_run(+o: Op, +b: Body, +b2: Body, +nd: U64) -> NR:
+  bool_nr(B8.run(bool_tag(o), bool_in(b), bool_in(b2), nd, op_base(o), op_base2(o),
+    U64.is_eq(op_base(o), op_base2(o))), b, b2)
+
+def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
     case O_box{x, y, z}: op_prism([rect_rg(x, y)], xk(0.0f64), z, e, nd)
@@ -1063,6 +1318,9 @@ def op_build(o: Op, +b: Body, +e: X.Env, +nd: U64) -> NR:
     case O_cone{r, h}: op_rev([cone_rg(r, h)], e, nd)
     case O_sph{r}: op_rev([sph_rg(r)], e, nd)
     case O_tor{bigr, r}: op_rev([tor_rg(bigr, r)], e, nd)
+    case O_union{an, bn}: bool_run(o, b, b2, nd)
+    case O_difference{an, bn}: bool_run(o, b, b2, nd)
+    case O_intersection{an, bn}: bool_run(o, b, b2, nd)
 
 def fn_w(f: BD.Fn) -> List<&2, U64>:
   BD.Fn{nd, k, role, i, j} = f
@@ -1152,17 +1410,6 @@ def body_ns(+b: Body) -> List<&2, NS>:
 def mat_cmp(+r: I.I, +b: I.I) -> Mat:
   Bool.pick(Mat, F64.is_lt(I.i_hi(b), I.i_lo(r)), M_add{}, Bool.pick(Mat, F64.is_lt(I.i_hi(r), I.i_lo(b)), M_remove{}, M_unknown{}))
 
-def ms_vol(m: Ms) -> I.I:
-  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
-  vol
-
-def ms_ns(m: Ms) -> Nat:
-  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
-  ns
-
-def ms_genus(m: Ms) -> Nat:
-  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
-  genus
 
 def fx_of(+o: Op, +hasb: Bool, +b: Body, +r: Body) -> Fx:
   +rm = body_ms(r)
@@ -1226,7 +1473,7 @@ def publish(r: NR, +o: Op, +hasb: Bool, +b: Body, +it: It, +nd: U64) -> NR:
   match r:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+rb, f0}:
-      +f = fx_of(o, hasb, b, rb)
+      +f = Bool.pick(Fx, op_is_bool(o), f0, fx_of(o, hasb, b, rb))
       gate_go(it_ok(it, f), rb, f, it, nd)
 
 def cnt_w(c: Cnt) -> U64:
@@ -1282,20 +1529,20 @@ def nr_ok(r: NR) -> Bool:
 def nr_body(r: NR) -> Body:
   match r:
     case NR_ok{b, f}: b
-    case NR_err{k, d}: Bd{[], Ty.brep_empty(), [], pl_id(), []}
+    case NR_err{k, d}: Bd{[], Ty.brep_empty(), [], pl_id(), [], xb_id()}
 
-def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +e: X.Env, +it: It, +nd: U64) -> NR:
+def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64) -> NR:
   match hit:
     case True{}: ce_r(old)
-    case False{}: publish(op_build(o, b, e, nd), o, hasb, b, it, nd)
+    case False{}: publish(op_build(o, b, b2, e, nd), o, hasb, b, it, nd)
 
-def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +e: X.Env, +it: It, +nd: U64, +key: List<&2, U64>,
-    +old: List<&2, CE>) -> NR:
+def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
+    +key: List<&2, U64>, +old: List<&2, CE>) -> NR:
   match okb:
     case False{}: bad(op_name(o), "node " ++ U64.show(nd), "input-node-missing-or-failed", "fix the input node first")
     case True{}:
       +oc = ce_find(old, nd)
-      hit_go(Bool.and(ce_has(old, nd), keq(ce_key(oc), key)), oc, o, hasb, b, e, it, nd)
+      hit_go(Bool.and(ce_has(old, nd), keq(ce_key(oc), key)), oc, o, hasb, b, b2, e, it, nd)
 
 def ev_nodes(ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, CE>) -> List<&2, CE>:
   match ns:
@@ -1303,10 +1550,15 @@ def ev_nodes(ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, C
     case n <> t:
       Nd{+nd, +o, +it} = n
       +hasb = op_has_base(o)
+      +hasb2 = op_has_b2(o)
       +bc = ce_find(acc, op_base(o))
-      +okb = Bool.or(Bool.not(hasb), Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc))))
-      +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it), Bool.pick(List<&2, U64>, hasb, ce_key(bc), [])))
-      +r = node_go(okb, o, hasb, nr_body(ce_r(bc)), e, it, nd, key, old)
+      +bc2 = ce_find(acc, op_base2(o))
+      +okb = Bool.and(Bool.or(Bool.not(hasb), Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc)))),
+        Bool.or(Bool.not(hasb2), Bool.and(ce_has(acc, op_base2(o)), nr_ok(ce_r(bc2)))))
+      +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it),
+        List.append(&2, U64, Bool.pick(List<&2, U64>, hasb, ce_key(bc), []),
+          Bool.pick(List<&2, U64>, hasb2, ce_key(bc2), []))))
+      +r = node_go(okb, o, hasb, nr_body(ce_r(bc)), nr_body(ce_r(bc2)), e, it, nd, key, old)
       ev_nodes(t, e, old, CE{nd, key, r} <> acc)
 
 def nd_id(n: Node) -> U64:

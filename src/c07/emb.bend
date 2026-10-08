@@ -18,10 +18,10 @@ import ./mem.bend as Mm
 import ./sol.bend as SO
 
 type Eg is Data:
-  Eg{ g: List<&2, G.GVal>, d: G.Dom, a: Nat, b: Nat, pa: List<&2, I.I>, pb: List<&2, I.I>, c: R.Cv, bx: List<&2, I.I>, u: U64 }
+  Eg{ g: List<&2, G.GVal>, d: G.Dom, a: Nat, b: Nat, pa: List<&2, I.I>, pb: List<&2, I.I>, c: R.Cv, bx: List<&2, I.I>, u: U64, so: Nat }
 
 type Fg is Data:
-  Fg{ fd: SO.Fd, es: List<&2, Nat>, vs: List<&2, Nat> }
+  Fg{ fd: SO.Fd, es: List<&2, Nat>, vs: List<&2, Nat>, so: Nat }
 
 type It is Data:
   It{ k: U64, i: Nat, bx: List<&2, I.I> }
@@ -30,7 +30,8 @@ type Pr is Data:
   Pr{ k: U64, a: Nat, b: Nat }
 
 type Cx is Data:
-  Cx{ te: B.Tb<&2, Eg>, tf: B.Tb<&2, Fg>, tef: B.Tb<&2, List<&2, Nat>>, tol: F64 }
+  Cx{ te: B.Tb<&2, Eg>, tf: B.Tb<&2, Fg>, tef: B.Tb<&2, List<&2, Nat>>, tol: F64, ns: Nat,
+    sfs: B.Tb<&2, List<&2, SO.Fd>> }
 
 type Cr is Data:
   Cr{ sa: Bool, sb: Bool }
@@ -57,13 +58,13 @@ def vp(+tv: B.Tb<&2, Ty.Vertex>, +i: Nat) -> List<&2, I.I>:
 
 def eg_c(m: Maybe<&2, R.Cv>, +g: G.GVal, +d: G.Dom, +a: Nat, +b: Nat, +pa: List<&2, I.I>, +pb: List<&2, I.I>) -> Eg:
   match m:
-    case None{}: Eg{[g], d, a, b, pa, pb, cv0(), [], 2u64}
-    case Some{+c}: Eg{[g], d, a, b, pa, pb, c, R.cv_hbox(c), 0u64}
+    case None{}: Eg{[g], d, a, b, pa, pb, cv0(), [], 2u64, 0n}
+    case Some{+c}: Eg{[g], d, a, b, pa, pb, c, R.cv_hbox(c), 0u64, 0n}
 
 def eg_k(k: Ty.EdgeKind, +a: Nat, +b: Nat, +tv: B.Tb<&2, Ty.Vertex>) -> Eg:
   match k:
     case Ty.EK_curve{+g, +d}: eg_c(S.gv_cv(g, d), g, d, a, b, vp(tv, a), vp(tv, b))
-    case Ty.EK_degenerate{}: Eg{[], G.Dom{0.0f64, 1.0f64}, a, b, [], [], cv0(), [], 1u64}
+    case Ty.EK_degenerate{}: Eg{[], G.Dom{0.0f64, 1.0f64}, a, b, [], [], cv0(), [], 1u64, 0n}
 
 def eg_of(e: Ty.Edge, +tv: B.Tb<&2, Ty.Vertex>) -> Eg:
   Ty.Ed{g, v0, v1, k} = e
@@ -75,18 +76,18 @@ def egs_go(es: List<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>) -> List<&2, Eg>:
     case e <> t: eg_of(e, tv) <> egs_go(t, tv)
 
 def eg_u(e: Eg) -> U64:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   u
 
 def eg_bx(e: Eg) -> List<&2, I.I>:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   bx
 
 def ce_ev(ce: Ty.Coedge, +x: Ty.Ix, +acc: Fg) -> Fg:
   Ty.Ce{g, +eh, fwd, tr} = ce
-  Fg{fd, es, vs} = acc
+  Fg{fd, es, vs, so} = acc
   +e = Ty.tres_ed(Ty.ix_ed(x, eh))
-  Fg{fd, he_i(eh) <> es, hv_i(Ty.ed_v0(e)) <> hv_i(Ty.ed_v1(e)) <> vs}
+  Fg{fd, he_i(eh) <> es, hv_i(Ty.ed_v0(e)) <> hv_i(Ty.ed_v1(e)) <> vs, so}
 
 def ces_ev(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +acc: Fg) -> Fg:
   match hs:
@@ -102,17 +103,17 @@ def lps_ev(hs: List<&2, Ty.HLoop>, +x: Ty.Ix, +acc: Fg) -> Fg:
     case []: acc
     case h <> t: lps_ev(t, x, lp_ev(Ty.tres_lp(Ty.ix_lp(x, h)), x, acc))
 
-def fg_of(f: Ty.Face, +x: Ty.Ix, +fd: SO.Fd) -> Fg:
+def fg_of(f: Ty.Face, +x: Ty.Ix, +fd: SO.Fd, +so: Nat) -> Fg:
   Ty.Fa{g, s, ls, same} = f
-  lps_ev(ls, x, Fg{fd, [], []})
+  lps_ev(ls, x, Fg{fd, [], [], so})
 
-def fhs_fg(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +fds: List<&2, SO.Fd>) -> List<&2, Fg>:
+def fhs_fg(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +fds: List<&2, SO.Fd>, +so: Nat) -> List<&2, Fg>:
   match hs:
     case []: []
     case h <> t:
       match fds:
         case []: []
-        case d <> r: fg_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, d) <> fhs_fg(t, x, r)
+        case d <> r: fg_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, d, so) <> fhs_fg(t, x, r, so)
 
 def drop_fd(n: Nat, +xs: List<&2, SO.Fd>) -> List<&2, SO.Fd>:
   match n:
@@ -122,24 +123,41 @@ def drop_fd(n: Nat, +xs: List<&2, SO.Fd>) -> List<&2, SO.Fd>:
         case []: []
         case x <> t: drop_fd(m, t)
 
-def shs_fg(ss: List<&2, Ty.Shell>, +x: Ty.Ix, +fds: List<&2, SO.Fd>) -> List<&2, Fg>:
+def nth_nat(xs: List<&2, Nat>, +i: Nat) -> Nat:
+  match xs:
+    case []: 0n
+    case x <> t:
+      match i:
+        case 0n: x
+        case 1n+j: nth_nat(t, j)
+
+def shs_fg(ss: List<&2, Ty.Shell>, +x: Ty.Ix, +fds: List<&2, SO.Fd>, +mp: List<&2, Nat>, +at: Nat) -> List<&2, Fg>:
   match ss:
     case []: []
     case s <> t:
       Ty.Sh{g, +hs, k} = s
-      List.append(&2, Fg, fhs_fg(hs, x, fds), shs_fg(t, x, drop_fd(List.length(&2, Ty.HFace, hs), fds)))
+      List.append(&2, Fg, fhs_fg(hs, x, fds, nth_nat(mp, at)),
+        shs_fg(t, x, drop_fd(List.length(&2, Ty.HFace, hs), fds), mp, Nat.add(at, 1n)))
 
 def fg_fd(f: Fg) -> SO.Fd:
-  Fg{fd, es, vs} = f
+  Fg{fd, es, vs, so} = f
   fd
 
 def fg_es(f: Fg) -> List<&2, Nat>:
-  Fg{fd, es, vs} = f
+  Fg{fd, es, vs, so} = f
   es
 
 def fg_vs(f: Fg) -> List<&2, Nat>:
-  Fg{fd, es, vs} = f
+  Fg{fd, es, vs, so} = f
   vs
+
+def eg_so(e: Eg) -> Nat:
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
+  so
+
+def fg_so(f: Fg) -> Nat:
+  Fg{fd, es, vs, so} = f
+  so
 
 def it_lo(x: It) -> F64:
   It{k, i, bx} = x
@@ -227,11 +245,94 @@ def sh_pt(+c: Bool, +p: List<&2, I.I>, +rest: List<&2, List<&2, I.I>>) -> List<&
 def fi1(+c: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   [SO.Fi{c, a, b}]
 
-def ee_hit(h: S.Hit, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+# Shared tangent-sampling machinery (F5/F18, used by the ef and ee
+# tangent tests): midpoint of an interval box, sample classification
+# of a curve point against the other solid, two-sided combination
+# (inside wins, then uncertain), and the multi-scale fold.
+def bx_pt(+q: List<&2, I.I>) -> V.Point:
+  V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
+
+def ef_mode_go(+c0: U64, +c1: U64) -> U64:
+  Bool.pick(U64, Bool.or(U64.is_eq(c0, 1u64), U64.is_eq(c1, 1u64)), 1u64,
+    Bool.pick(U64, Bool.or(U64.is_eq(c0, 2u64), U64.is_eq(c1, 2u64)), 2u64, 0u64))
+
+def ef_clamp(+t: F64, +lo: F64, +hi: F64) -> F64:
+  F64.min(hi, F64.max(lo, t))
+
+def ef_smp(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +t: F64, +lo: F64, +hi: F64) -> U64:
+  SO.classify_in(ofds, bb, bx_pt(R.cv_box(c, I.ipt(F64.div(F64.sub(t, lo), F64.sub(hi, lo))))))
+
+def ef_tan_one(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +m: F64, +d: F64, +lo: F64, +hi: F64,
+    +st: U64) -> U64:
+  Bool.pick(U64, U64.is_eq(st, 1u64), 1u64,
+    ef_mode_go(ef_mode_go(ef_smp(ofds, bb, c, ef_clamp(F64.sub(m, d), lo, hi), lo, hi),
+      ef_smp(ofds, bb, c, ef_clamp(F64.add(m, d), lo, hi), lo, hi)), st))
+
+def ef_tan_go(ds: List<&2, F64>, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +m: F64, +lo: F64,
+    +hi: F64, +st: U64) -> U64:
+  match ds:
+    case []: st
+    case d <> t: ef_tan_go(t, ofds, bb, c, m, lo, hi, ef_tan_one(ofds, bb, c, m, d, lo, hi, st))
+
+# Cross-solid edge/edge tangent test (F18, kissing seams): a cross
+# H_un hit is either a true crossing the solver could not certify
+# or a tangent touch (certified points are transverse by
+# construction, so tangency only ever reports H_un). Sample both
+# curves on both sides of the hit against the opposite solid:
+# strictly inside anywhere implies crossing; uncertain anywhere
+# (with no inside) fails as uncertain; outside-or-on everywhere
+# admits contact. Wide hit parameters fail as uncertain. Same-solid
+# pairs keep the legacy uncertain verdict, and certified (H_pt)
+# interior cross hits keep failing as crossings.
+def ee_tan_code(+t: U64) -> String:
+  Bool.pick(String, U64.is_eq(t, 1u64), "edge-crossing",
+    Bool.pick(String, U64.is_eq(t, 2u64), "edge-crossing-uncertain", "contact-edge-edge"))
+
+def ee_tan(+fda: List<&2, SO.Fd>, +bbA: List<&2, I.I>, +ca: R.Cv, +s: I.I, +loa: F64, +hia: F64,
+    +fdb: List<&2, SO.Fd>, +bbB: List<&2, I.I>, +cb: R.Cv, +t: I.I, +lob: F64, +hib: F64) -> U64:
+  +wa = F64.sub(hia, loa)
+  +wb = F64.sub(hib, lob)
+  +ok = Bool.and(Bool.and(F64.is_lt(loa, hia), F64.is_lt(lob, hib)),
+    Bool.and(F64.is_lt(X.iwid(s), F64.div(wa, 1024.0f64)), F64.is_lt(X.iwid(t), F64.div(wb, 1024.0f64))))
+  Bool.pick(U64, ok,
+    ef_tan_go([F64.div(wb, 16.0f64), F64.div(wb, 64.0f64), F64.div(wb, 256.0f64), F64.div(wb, 1024.0f64)],
+      fda, bbA, cb, X.imid(t), lob, hib,
+      ef_tan_go([F64.div(wa, 16.0f64), F64.div(wa, 64.0f64), F64.div(wa, 256.0f64), F64.div(wa, 1024.0f64)],
+        fdb, bbB, ca, X.imid(s), loa, hia, 0u64)),
+    2u64)
+
+def ee_un_go(near: Bool, +cross: Bool, +s: I.I, +t: I.I, +ca: R.Cv, +da: G.Dom, +cb: R.Cv, +db: G.Dom,
+    +fda: List<&2, SO.Fd>, +bbA: List<&2, I.I>, +fdb: List<&2, SO.Fd>, +bbB: List<&2, I.I>, +a: Nat,
+    +b: Nat) -> List<&2, SO.Fi>:
+  match near:
+    case True{}: []
+    case False{}:
+      match cross:
+        case False{}: fi1("edge-crossing-uncertain", a, b)
+        case True{}: fi1(ee_tan_code(ee_tan(fda, bbA, ca, s, S.dlo(da), S.dhi(da), fdb, bbB, cb, t,
+          S.dlo(db), S.dhi(db))), a, b)
+
+# Cross-solid edge/edge point hits at either edge's endpoints are contact
+# (L9): cross pairs never share vertex indices, so the shared-index
+# exclusion `sv` cannot fire for them. Certified interior-interior
+# cross hits are transverse crossings and still fail; uncertain
+# (H_un) cross hits take the tangent test above. See F5's edge/face
+# discriminator for the sibling rule.
+def ee_pt(+excl: Bool, +near_end: Bool, +cross: Bool, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  Bool.pick(List<&2, SO.Fi>, excl, [],
+    Bool.pick(List<&2, SO.Fi>, Bool.and(cross, near_end), fi1("contact-edge-edge", a, b),
+      fi1("edge-crossing", a, b)))
+
+def ee_hit(h: S.Hit, +sv: List<&2, List<&2, I.I>>, +sx: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat,
+    +b: Nat, +cross: Bool, +x: Eg, +y: Eg, +fda: List<&2, SO.Fd>, +bbA: List<&2, I.I>,
+    +fdb: List<&2, SO.Fd>, +bbB: List<&2, I.I>) -> List<&2, SO.Fi>:
   match h:
-    case S.H_pt{s, t, +p, c}: Bool.pick(List<&2, SO.Fi>, near_any(sv, p, tol), [], fi1("edge-crossing", a, b))
-    case S.H_un{s, t, +p}: Bool.pick(List<&2, SO.Fi>, near_any(sv, p, tol), [], fi1("edge-crossing-uncertain", a, b))
-    case S.H_ov{s, t}: fi1("edge-overlap", a, b)
+    case S.H_pt{s, t, +p, c}: ee_pt(near_any(sv, p, tol), near_any(sx, p, tol), cross, a, b)
+    case S.H_un{s, t, +p}:
+      Eg{ga, da, aya, bya, pya, pyb, cya, byya, uya, soya} = x
+      Eg{gyb, dyb, ayb, byb, pyb0, pyb1, cyb, byyb, uyb, soyb} = y
+      ee_un_go(near_any(sv, p, tol), cross, s, t, cya, da, cyb, dyb, fda, bbA, fdb, bbB, a, b)
+    case S.H_ov{s, t}: fi1(Bool.pick(String, cross, "contact-edge-edge", "edge-overlap"), a, b)
     case S.H_no{w}: fi1("edge-check-unsupported", a, b)
 
 def first(xs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
@@ -239,33 +340,36 @@ def first(xs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
     case []: []
     case x <> t: [x]
 
-def ee_hits(hs: List<&2, S.Hit>, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+def ee_hits(hs: List<&2, S.Hit>, +sv: List<&2, List<&2, I.I>>, +sx: List<&2, List<&2, I.I>>, +tol: F64,
+    +a: Nat, +b: Nat, +cross: Bool, +x: Eg, +y: Eg, +fda: List<&2, SO.Fd>, +bbA: List<&2, I.I>,
+    +fdb: List<&2, SO.Fd>, +bbB: List<&2, I.I>) -> List<&2, SO.Fi>:
   match hs:
     case []: []
-    case h <> t: List.append(&2, SO.Fi, ee_hit(h, sv, tol, a, b), ee_hits(t, sv, tol, a, b))
+    case h <> t: List.append(&2, SO.Fi, ee_hit(h, sv, sx, tol, a, b, cross, x, y, fda, bbA, fdb, bbB),
+      ee_hits(t, sv, sx, tol, a, b, cross, x, y, fda, bbA, fdb, bbB))
 
 def eg_g(e: Eg) -> G.GVal:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   SO.g1(g)
 
 def eg_d(e: Eg) -> G.Dom:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   d
 
 def eg_a(e: Eg) -> Nat:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   a
 
 def eg_b(e: Eg) -> Nat:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   b
 
 def eg_pa(e: Eg) -> List<&2, I.I>:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   pa
 
 def eg_pb(e: Eg) -> List<&2, I.I>:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   pb
 
 def crs(+a0: Nat, +a1: Nat, +b0: Nat, +b1: Nat) -> List<&2, Cr>:
@@ -414,7 +518,7 @@ def cells_of(+cs: List<&2, Cr>, +ca: R.Cv, +cb: R.Cv, +tol: F64) -> List<&2, Lis
     cells(9n, cs, ca, cb, pick_dl([0.125f64, 0.015625f64, 0.0009765625f64, 6.103515625e-05f64], cs, ca, cb, tol), tol))
 
 def eg_c_of(e: Eg) -> R.Cv:
-  Eg{g, d, a, b, pa, pb, c, bx, u} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   c
 
 def ee_sel(ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) -> List<&2, S.Hit>:
@@ -425,7 +529,8 @@ def ee_sel(ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) -> List<&2, S
       +cb = eg_c_of(y)
       bb_cells(cells_of(cs, ca, cb, tol), eg_g(x), eg_g(y), ca, cb)
 
-def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64) -> List<&2, SO.Fi>:
+def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
+    +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> List<&2, SO.Fi>:
   +a0 = eg_a(x)
   +a1 = eg_b(x)
   +b0 = eg_a(y)
@@ -433,56 +538,183 @@ def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64) -> List<&2, SO.Fi>:
   +s0 = Bool.or(Nat.is_eq(a0, b0), Nat.is_eq(a0, b1))
   +s1 = Bool.or(Nat.is_eq(a1, b0), Nat.is_eq(a1, b1))
   +sv = sh_pt(s0, eg_pa(x), sh_pt(s1, eg_pb(x), []))
-  first(ee_hits(ee_sel(S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(a0, a1, b0, b1), tol), sv, tol, ia, ib))
+  +sx = Bool.pick(List<&2, List<&2, I.I>>, cross, [eg_pa(x), eg_pb(x), eg_pa(y), eg_pb(y)], [])
+  +fda = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(x)))
+  +fdb = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(y)))
+  +bbA = SO.bbox(fda, [])
+  +bbB = SO.bbox(fdb, [])
+  first(ee_hits(ee_sel(S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(a0, a1, b0, b1), tol), sv, sx, tol, ia, ib,
+    cross, x, y, fda, bbA, fdb, bbB))
 
 def m_code(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad, "edge-face-uncertain"), a, b))
 
-def ef_pt(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+# Cross coplanar-overlap verdict (contact.face): a cross edge overlapping
+# its face's surface is contact-or-disjoint, never a piercing (it lies in
+# the surface), so a trim-boundary membership (2) maps to the contact code
+# rather than failing. Same-solid pairs keep the strict verdict, so C07
+# single-solid behavior is unchanged.
+def m_code_x(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(bad, a, b))
+
+def ef_ov(+m: U64, +badx: String, +bad: String, +cross: Bool, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  match cross:
+    case True{}: m_code_x(m, badx, a, b)
+    case False{}: m_code(m, bad, a, b)
+
+def ef_pt(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +bad1: String, +bad2: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   match near:
     case True{}: []
-    case False{}: m_code(Mm.member(SO.fd_fc(fd), p, SO.fd_im(fd)), bad, a, b)
+    case False{}:
+      +m = Mm.member(SO.fd_fc(fd), p, SO.fd_im(fd))
+      Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [],
+        fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad1, bad2), a, b))
 
 def ov_pt(+c: R.Cv, +s: I.I, +lo: F64, +hi: F64) -> List<&2, I.I>:
   R.cv_box(c, I.ipt(X.imid(I.idiv(I.isub(I.ipt(X.imid(s)), I.ipt(lo)), I.isub(I.ipt(hi), I.ipt(lo))))))
 
-def ef_hit(h: S.Hit, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+# Cross-solid edge/face piercing discriminator (F5): a transverse
+# piercing reports the same H_pt as a tangent touch. Classify the edge's
+# endpoints against the other solid: strictly inside either end implies
+# piercing (keep the failing code); outside-or-on both ends admits
+# contact; uncertain endpoint classification fails as uncertain.
+# Modes: 0 contact, 1 piercing, 2 endpoint-uncertain. Same-solid pairs
+# keep the old codes (mode ignored). See `ee_pt` for the sibling rule.
+# Soundness (F5c): the mode only downgrades trim-boundary hits (m=2).
+# A hit strictly inside the trim (m=1) always fails: an edge can pierce
+# a face and exit elsewhere with both ends outside (rod through a box),
+# so endpoint classification must never silence an interior hit. Only
+# the H_ov arm (edge lying in the surface, which cannot pierce) maps
+# m=1 through the mode.
+def ef_end(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +q: List<&2, I.I>) -> U64:
+  SO.classify_in(ofds, bb, bx_pt(q))
+
+def ef_mode(+ofds: List<&2, SO.Fd>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>, +cross: Bool) -> U64:
+  match cross:
+    case False{}: 0u64
+    case True{}:
+      +bb = SO.bbox(ofds, [])
+      ef_mode_go(ef_end(ofds, bb, pa0), ef_end(ofds, bb, pa1))
+
+def ef_bad2(+mode: U64) -> String:
+  Bool.pick(String, U64.is_eq(mode, 1u64), "edge-face-penetration",
+    Bool.pick(String, U64.is_eq(mode, 2u64), "edge-face-uncertain", "contact-edge-face"))
+
+def ef_bad(+cross: Bool, +mode: U64, +base: String) -> String:
+  match cross:
+    case False{}: base
+    case True{}: ef_bad2(mode)
+
+# Cross-solid tangent-vs-piercing test (F5/F18): a cross H_pt hit
+# strictly inside the trim (m=1) with no endpoint strictly inside is
+# either a transverse piercing (rod through a box: both ends outside)
+# or a tangent touch (sphere seam kissing a plane). Endpoints cannot
+# tell them apart, so sample the edge on both sides of the hit at
+# several scales and classify against the other solid: strictly
+# inside at any sample implies piercing; uncertain anywhere (with no
+# inside) fails as uncertain; outside-or-on everywhere admits
+# contact. The hit parameter must be well localized, else uncertain:
+# sampling around a wide hit box cannot bracket the true hit.
+# Residual risk: a piercing whose inside segment is shorter than the
+# finest scale (2^-10 of the edge domain) reads as contact; such a
+# crossing always involves face area too, which the ff/ee pairs
+# still catch.
+def ef_tan(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +s: I.I, +lo: F64, +hi: F64) -> U64:
+  +w = F64.sub(hi, lo)
+  Bool.pick(U64, Bool.or(F64.is_le(hi, lo), F64.is_le(F64.div(w, 1024.0f64), X.iwid(s))), 2u64,
+    ef_tan_go([F64.div(w, 16.0f64), F64.div(w, 64.0f64), F64.div(w, 256.0f64), F64.div(w, 1024.0f64)],
+      ofds, bb, c, X.imid(s), lo, hi, 0u64))
+
+def ef_tan_code(+t: U64) -> String:
+  Bool.pick(String, U64.is_eq(t, 1u64), "edge-face-penetration",
+    Bool.pick(String, U64.is_eq(t, 2u64), "edge-face-uncertain", "contact-edge-face"))
+
+# Kissing-interior exception (F18): an edge endpoint ON the face with
+# the other endpoint strictly inside is a touch from inside (a
+# contained solid kissing the container wall), not a piercing — but
+# only when the hit sits at the on-face endpoint. A middle hit with
+# an endpoint inside is a true entry and still fails, as does any
+# inside/outside endpoint pair (the edge crosses the surface).
+def ef_m1_in(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>,
+    +p: List<&2, I.I>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  +c0 = ef_end(ofds, bb, pa0)
+  +c1 = ef_end(ofds, bb, pa1)
+  +kiss = Bool.or(
+    Bool.and(Bool.and(U64.is_eq(c0, 1u64), U64.is_eq(c1, 3u64)), near_any([pa1], p, tol)),
+    Bool.and(Bool.and(U64.is_eq(c0, 3u64), U64.is_eq(c1, 1u64)), near_any([pa0], p, tol)))
+  Bool.pick(List<&2, SO.Fi>, kiss, fi1("contact-edge-face", a, b), fi1("edge-face-penetration", a, b))
+
+def ef_m1(+cross: Bool, +mode: U64, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +s: I.I, +lo: F64,
+    +hi: F64, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>, +p: List<&2, I.I>, +tol: F64, +a: Nat,
+    +b: Nat) -> List<&2, SO.Fi>:
+  match cross:
+    case False{}: fi1("edge-face-penetration", a, b)
+    case True{}:
+      match mode:
+        case 1u64: ef_m1_in(ofds, bb, pa0, pa1, p, tol, a, b)
+        case _: fi1(ef_tan_code(ef_tan(ofds, bb, c, s, lo, hi)), a, b)
+
+def ef_pt_x(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv,
+    +s: I.I, +lo: F64, +hi: F64, +cross: Bool, +mode: U64, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>,
+    +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  match near:
+    case True{}: []
+    case False{}:
+      +m = Mm.member(SO.fd_fc(fd), p, SO.fd_im(fd))
+      Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [],
+        Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 1u64), ef_m1(cross, mode, ofds, bb, c, s, lo, hi, pa0, pa1, p,
+          tol, a, b),
+          fi1(Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)))
+
+def ef_hit(h: S.Hit, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat, +cross: Bool, +mode: U64, +ofds: List<&2, SO.Fd>,
+    +bb: List<&2, I.I>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>) -> List<&2, SO.Fi>:
   match h:
-    case S.H_pt{s, t, +p, k}: ef_pt(near_any(sv, p, tol), fd, p, "edge-face-penetration", a, b)
-    case S.H_un{s, t, +p}: ef_pt(near_any(sv, p, tol), fd, p, "edge-face-uncertain", a, b)
-    case S.H_ov{+s, t}: ef_pt(False{}, fd, ov_pt(c, s, lo, hi), "edge-face-overlap", a, b)
+    case S.H_pt{s, t, +p, k}: ef_pt_x(near_any(sv, p, tol), fd, p, ofds, bb, c, s, lo, hi, cross, mode, pa0, pa1,
+      tol, a, b)
+    case S.H_un{s, t, +p}: ef_pt(near_any(sv, p, tol), fd, p, "edge-face-uncertain",
+      Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)
+    case S.H_ov{+s, t}: ef_ov(Mm.member(SO.fd_fc(fd), ov_pt(c, s, lo, hi), SO.fd_im(fd)),
+      ef_bad(cross, mode, "edge-face-overlap"), "edge-face-overlap", cross, a, b)
     case S.H_no{w}: fi1("edge-face-unsupported", a, b)
 
-def ef_hits(hs: List<&2, S.Hit>, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+def ef_hits(hs: List<&2, S.Hit>, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat, +cross: Bool, +mode: U64, +ofds: List<&2, SO.Fd>,
+    +bb: List<&2, I.I>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>) -> List<&2, SO.Fi>:
   match hs:
     case []: []
-    case h <> t: List.append(&2, SO.Fi, ef_hit(h, fd, c, lo, hi, sv, tol, a, b), ef_hits(t, fd, c, lo, hi, sv, tol, a, b))
+    case h <> t: List.append(&2, SO.Fi, ef_hit(h, fd, c, lo, hi, sv, tol, a, b, cross, mode, ofds, bb, pa0, pa1),
+      ef_hits(t, fd, c, lo, hi, sv, tol, a, b, cross, mode, ofds, bb, pa0, pa1))
 
-def mid_ov(+fd: SO.Fd, +c: R.Cv, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
-  ef_pt(False{}, fd, R.cv_box(c, I.ipt(0.5f64)), "edge-face-overlap", a, b)
+def mid_ov(+fd: SO.Fd, +c: R.Cv, +a: Nat, +b: Nat, +cross: Bool, +mode: U64) -> List<&2, SO.Fi>:
+  ef_ov(Mm.member(SO.fd_fc(fd), R.cv_box(c, I.ipt(0.5f64)), SO.fd_im(fd)),
+    ef_bad(cross, mode, "edge-face-overlap"), "edge-face-overlap", cross, a, b)
 
 def any_co(fs: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +g: G.GVal) -> Bool:
   match fs:
     case []: False{}
     case h <> t: Bool.or(S.coincide(SO.fd_g(fg_fd(B.tb_get(Fg, tf, U32.from_nat(h)))), g), any_co(t, tf, g))
 
-def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, +tol: F64) -> List<&2, SO.Fi>:
+def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, +tol: F64, +cross: Bool,
+    +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   match on:
-    case True{}: mid_ov(fd, eg_c_of(x), ie, jf)
+    case True{}: mid_ov(fd, eg_c_of(x), ie, jf, cross, ef_mode(ofds, eg_pa(x), eg_pb(x), cross))
     case False{}:
-      Eg{g, +d, +a0, +a1, pa0, pa1, +c, bx, u} = x
+      Eg{g, +d, +a0, +a1, +pa0, +pa1, +c, bx, u, so} = x
       +sv = sh_pt(has(vs, a0), pa0, sh_pt(has(vs, a1), pa1, []))
-      first(ef_hits(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf))
+      +bb = SO.bbox(ofds, [])
+      first(ef_hits(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf, cross,
+        ef_mode(ofds, pa0, pa1, cross), ofds, bb, pa0, pa1))
 
-def ef_go(own: Bool, +x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64) -> List<&2, SO.Fi>:
+def ef_go(own: Bool, +x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64,
+    +cross: Bool, +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   match own:
     case True{}: []
     case False{}:
       +fd = fg_fd(f)
-      ef_cs(any_co(fe, tf, SO.fd_g(fd)), x, fd, fg_vs(f), ie, jf, tol)
+      ef_cs(any_co(fe, tf, SO.fd_g(fd)), x, fd, fg_vs(f), ie, jf, tol, cross, ofds)
 
-def ef(+x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64) -> List<&2, SO.Fi>:
-  ef_go(has(fg_es(f), ie), x, f, fe, tf, ie, jf, tol)
+def ef(+x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64, +cross: Bool,
+    +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
+  ef_go(has(fg_es(f), ie), x, f, fe, tf, ie, jf, tol, cross, ofds)
 
 def pl_n(g: G.GVal) -> List<&2, E.Ex>:
   match g:
@@ -558,6 +790,22 @@ def ff_ov(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   +y = ov_code(ov_one(SO.interior(fb), fa))
   +w = U64.max(x, y)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1(Bool.pick(String, U64.is_eq(w, 1u64), "face-overlap", "face-overlap-uncertain"), ia, ib))
+
+def ff_ov_x(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat, +cross: Bool) -> List<&2, SO.Fi>:
+  match cross:
+    case False{}: ff_ov(fa, fb, ia, ib)
+    case True{}:
+      +x = ov_code(ov_one(SO.interior(fa), fb))
+      +y = ov_code(ov_one(SO.interior(fb), fa))
+      +w = U64.max(x, y)
+      # Stated backstop (F5): coplanar overlap, certain or
+      # trim-boundary-landing, is contact at the pair level. A genuine
+      # volume overlap behind it mixes one solid's classify samples
+      # strictly inside/outside, which the classify stage reports as
+      # boundaries-cross-or-overlap. Residual: an overlap hiding from
+      # every vertex and face-interior sample slips through (L10).
+      # Same-solid pairs keep the strict verdicts.
+      Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1("contact-face-face", ia, ib))
 
 def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, Eg>:
   match es:
@@ -663,18 +911,35 @@ def smp_go(ps: List<&2, List<&2, I.I>>, done: Bool, +st: U64, +fa: SO.Fd, +fb: S
           +s2 = smp_st(m2(fa, fb, csa, csb, p, tol), st)
           smp_go(t, U64.is_eq(s2, 11u64), s2, fa, fb, csa, csb, tol)
 
-def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def es_share(xs: List<&2, Nat>, +ys: List<&2, Nat>) -> Bool:
+  match xs:
+    case []: False{}
+    case h <> t: Bool.or(has(ys, h), es_share(t, ys))
+
+def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
+    +adj: Bool) -> List<&2, SO.Fi>:
   SS.Br{closed, pts, ends} = b
   match closed:
     case False{}: []
     case True{}:
       +r = smp_go(pts, False{}, 0u64, fa, fb, csa, csb, tol)
-      Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
+      # Adjacent faces share an edge by construction, so a certified
+      # branch with no trim-interior sample is the shared edge landing
+      # on trim boundaries (membership conflates boundary with
+      # uncertain), not a defect. Penetration (a trim-interior sample)
+      # still fails for adjacent pairs, and non-adjacent pairs keep
+      # the strict verdict. Residual: a real crossing hugging a trim
+      # boundary within tolerance on an adjacent pair is forgiven.
+      Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [],
+        Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 1u64), fi1("face-penetration", ia, ib),
+          Bool.pick(List<&2, SO.Fi>, adj, [], fi1("face-face-uncertain", ia, ib))))
 
-def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat,
+    +ib: Nat, +adj: Bool) -> List<&2, SO.Fi>:
   match bs:
     case []: []
-    case b <> t: List.append(&2, SO.Fi, br_fi(b, fa, fb, csa, csb, tol, ia, ib), brs_fi(t, fa, fb, csa, csb, tol, ia, ib))
+    case b <> t: List.append(&2, SO.Fi, br_fi(b, fa, fb, csa, csb, tol, ia, ib, adj),
+      brs_fi(t, fa, fb, csa, csb, tol, ia, ib, adj))
 
 def un_one(b: List<&2, I.I>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, X.vfin(b), fi1("face-face-uncertain", ia, ib), fi1("face-face-uncertain", ia, ib))
@@ -684,15 +949,130 @@ def un_fi(us: List<&2, List<&2, I.I>>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
     case []: []
     case u <> t: List.append(&2, SO.Fi, un_one(u, ia, ib), un_fi(t, ia, ib))
 
-def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def un_widen(+u: List<&2, I.I>, +tol: F64) -> List<&2, I.I>:
+  match u:
+    case []: []
+    case +x <> t: I.iwiden(x, tol) <> un_widen(t, tol)
+
+def un_seg_go(ts: List<&2, F64>, +a: F64, +u: List<&2, I.I>, +c: R.Cv) -> Bool:
+  match ts:
+    case []: False{}
+    case +b <> rest2: Bool.or(Bool.not(X.vdisj(u, R.cv_box(c, I.I{a, b}))), un_seg_go(rest2, b, u, c))
+
+def un_seg(ts: List<&2, F64>, +u: List<&2, I.I>, +c: R.Cv) -> Bool:
+  match ts:
+    case []: False{}
+    case +a <> rest: un_seg_go(rest, a, u, c)
+
+def un_near(+u: List<&2, I.I>, cs: List<&2, R.Cv>, +tol: F64) -> Bool:
+  match cs:
+    case []: False{}
+    case +c <> t:
+      Bool.or(un_seg([0.0f64, 0.125f64, 0.25f64, 0.375f64, 0.5f64, 0.625f64, 0.75f64, 0.875f64, 1.0f64],
+        un_widen(u, tol), c), un_near(u, t, tol))
+
+def sh_cvs(xs: List<&2, Nat>, +ys: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, R.Cv>:
+  match xs:
+    case []: []
+    case +h <> t:
+      List.append(&2, R.Cv, Bool.pick(List<&2, R.Cv>, has(ys, h),
+        [eg_c_of(B.tb_get(Eg, te, U32.from_nat(h)))], []), sh_cvs(t, ys, te))
+
+def un_one_a(+u: List<&2, I.I>, +cvs: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat, +adj: Bool) -> List<&2, SO.Fi>:
+  Bool.pick(List<&2, SO.Fi>, Bool.and(adj, un_near(u, cvs, tol)), [], fi1("face-face-uncertain", ia, ib))
+
+def un_fi_a(us: List<&2, List<&2, I.I>>, +cvs: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat,
+    +adj: Bool) -> List<&2, SO.Fi>:
+  match us:
+    case []: []
+    case u <> t: List.append(&2, SO.Fi, un_one_a(u, cvs, tol, ia, ib, adj), un_fi_a(t, cvs, tol, ia, ib, adj))
+
+def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
+    +adj: Bool, +shc: List<&2, R.Cv>) -> List<&2, SO.Fi>:
   Y.Sr{ss, k, co} = r
   SS.Ss{ok, brs, un} = ss
-  Bool.pick(List<&2, SO.Fi>, Bool.and(ok, U64.is_eq(k, 0u64)),
-    first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib), un_fi(un, ia, ib))),
-    fi1("face-face-uncertain", ia, ib))
+  # Adjacent same-solid faces: uncertain tracer boxes hugging a shared
+  # edge are the boundary-hugging shared intersection the subdivision
+  # cannot resolve, not a defect; boxes away from every shared edge
+  # still fail. Residual: a real crossing within tolerance of a
+  # shared edge on an adjacent pair is forgiven.
+  # Bicubic-involved traces (k != 0) report branches and boxes in
+  # tracer coordinates the trim-membership tests cannot examine, so a
+  # strict verdict is impossible; adjacent pairs are forgiven (their
+  # shared edge explains the intersection) while non-adjacent pairs
+  # keep failing closed. Mapping tracer coordinates back to world
+  # coordinates would let these pairs take the strict path (C11).
+  Bool.pick(List<&2, SO.Fi>, U64.is_eq(k, 0u64),
+    Bool.pick(List<&2, SO.Fi>, ok,
+      first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib, adj),
+        un_fi_a(un, shc, tol, ia, ib, adj))),
+      fi1("face-face-uncertain", ia, ib)),
+    Bool.pick(List<&2, SO.Fi>, adj, [], fi1("face-face-uncertain", ia, ib)))
+
+# Exact cross-solid sphere/sphere tangent predicate (F5/F18): the
+# subdivision tracer degenerates on tangent spheres (singular
+# Jacobian, unresolvable micro-boxes), so decide tangency exactly
+# from center distance vs radii with intervals. External band
+# (d^2 overlaps (r1+r2)^2) and internal band (d^2 overlaps
+# (r1-r2)^2) with the tangent point on both trims is contact;
+# certified disjoint/nested skips the tracer; the certified overlap
+# band falls through to the tracer (non-degenerate circle, decided
+# by sampling). Same-solid pairs always fall through: tangent
+# shells in one solid are pinched and must fail. A micro-overlap
+# inside the tangency band reads as contact (below resolution).
+def ff_iv_overlap(+a: I.I, +b: I.I) -> Bool:
+  Bool.not(Bool.or(F64.is_lt(I.i_hi(a), I.i_lo(b)), F64.is_lt(I.i_hi(b), I.i_lo(a))))
+
+def ff_sph_mem(+t: List<&2, I.I>, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
+  +m1 = Mm.member(SO.fd_fc(fa), t, SO.fd_im(fa))
+  +m2 = Mm.member(SO.fd_fc(fb), t, SO.fd_im(fb))
+  Bool.pick(Maybe<&2, List<&2, SO.Fi>>, Bool.or(U64.is_eq(m1, 0u64), U64.is_eq(m2, 0u64)),
+    Some{[]}, Some{fi1("contact-face-face", ia, ib)})
+
+def ff_sph_tan(+c1: List<&2, I.I>, +r1: I.I, +c2: List<&2, I.I>, +r2: I.I, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat,
+    +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
+  +u = X.vsub(c2, c1)
+  +n = I.isqrt(X.vdot(u, u))
+  Bool.pick(Maybe<&2, List<&2, SO.Fi>>, F64.is_le(I.i_lo(n), 0.0f64), None{},
+    ff_sph_mem(X.vadd(c1, Mm.vs(I.idiv(r1, n), u)), fa, fb, ia, ib))
+
+def ff_sph_ss(+c1: List<&2, I.I>, +r1: I.I, +c2: List<&2, I.I>, +r2: I.I, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat,
+    +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
+  +d2 = X.vdot(X.vsub(c2, c1), X.vsub(c2, c1))
+  +rss = I.isq(I.iadd(r1, r2))
+  +rdd = I.isq(I.isub(r1, r2))
+  Bool.pick(Maybe<&2, List<&2, SO.Fi>>, Bool.or(ff_iv_overlap(d2, rss), ff_iv_overlap(d2, rdd)),
+    ff_sph_tan(c1, r1, c2, r2, fa, fb, ia, ib),
+    Bool.pick(Maybe<&2, List<&2, SO.Fi>>, Bool.or(F64.is_lt(I.i_hi(d2), I.i_lo(rdd)),
+      F64.is_lt(I.i_hi(rss), I.i_lo(d2))), Some{[]}, None{}))
+
+def ff_sph_go(a: M.Im, b: M.Im, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
+  match a:
+    case M.M_sp{+c1, +r1}:
+      match b:
+        case M.M_sp{+c2, +r2}: ff_sph_ss(c1, r1, c2, r2, fa, fb, ia, ib)
+        case _: None{}
+    case _: None{}
+
+def ff_sph(+cross: Bool, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
+  match cross:
+    case False{}: None{}
+    case True{}: ff_sph_go(SO.fd_im(fa), SO.fd_im(fb), fa, fb, ia, ib)
 
 def pad(+b: List<&2, I.I>) -> List<&2, I.I>:
   wid(b, F64.mul(F64.add(X.vwid(b), 1.0f64), 0.0009765625f64))
+
+def ff_or_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
+    +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+  match m:
+    case Some{+v}: v
+    case None{}:
+      +r = Y.inter_ss(SO.fd_g(fa), SO.fd_g(fb), pad(X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb))))
+      +csa = all_cvs(fg_es(x), te)
+      +csb = all_cvs(fg_es(y), te)
+      +exa = fg_es(x)
+      +exb = fg_es(y)
+      ss_fi(r, fa, fb, csa, csb, tol, ia, ib, es_share(exa, exb), sh_cvs(exa, exb, te))
 
 def frame(+n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +m = SO.snap(n)
@@ -765,10 +1145,10 @@ def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, 
   +r = smp_go(ps, False{}, 0u64, fa, fb, csa, csb, tol)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
-def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64) -> List<&2, SO.Fi>:
+def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
   match k:
     case 0u64: []
-    case 1u64: ff_ov(fg_fd(x), fg_fd(y), ia, ib)
+    case 1u64: ff_ov_x(fg_fd(x), fg_fd(y), ia, ib, cross)
     case 3u64:
       +fa = fg_fd(x)
       +fb = fg_fd(y)
@@ -780,21 +1160,39 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
     case _:
       +fa = fg_fd(x)
       +fb = fg_fd(y)
-      ss_fi(Y.inter_ss(SO.fd_g(fa), SO.fd_g(fb), pad(X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)))), fa, fb, all_cvs(fg_es(x), te), all_cvs(fg_es(y), te), tol, ia, ib)
+      ff_or_tr(ff_sph(cross, fa, fb, ia, ib), fa, fb, x, y, te, tol, ia, ib)
 
-def ff(+x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64) -> List<&2, SO.Fi>:
-  ff_go(ff_code(SO.fd_g(fg_fd(x)), SO.fd_g(fg_fd(y))), x, y, te, ia, ib, tol)
+def ff(+x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
+  ff_go(ff_code(SO.fd_g(fg_fd(x)), SO.fd_g(fg_fd(y))), x, y, te, ia, ib, tol, cross)
 
-def chk_k(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>, +tef: B.Tb<&2, List<&2, Nat>>, +tol: F64) -> Fs:
+def chk_ee(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tol: F64, +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
+  +x = B.tb_get(Eg, te, U32.from_nat(a))
+  +y = B.tb_get(Eg, te, U32.from_nat(b))
+  Fs{ee(x, y, a, b, tol, Bool.not(Nat.is_eq(eg_so(x), eg_so(y))), sfs)}
+
+def chk_ef(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>, +tef: B.Tb<&2, List<&2, Nat>>, +tol: F64,
+    +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
+  +x = B.tb_get(Eg, te, U32.from_nat(a))
+  +f = B.tb_get(Fg, tf, U32.from_nat(b))
+  Fs{ef(x, f, B.tb_get(List<&2, Nat>, tef, U32.from_nat(a)), tf, a, b, tol,
+    Bool.not(Nat.is_eq(eg_so(x), fg_so(f))), B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(fg_so(f))))}
+
+def chk_ff(+a: Nat, +b: Nat, +tf: B.Tb<&2, Fg>, +te: B.Tb<&2, Eg>, +tol: F64) -> Fs:
+  +x = B.tb_get(Fg, tf, U32.from_nat(a))
+  +y = B.tb_get(Fg, tf, U32.from_nat(b))
+  Fs{ff(x, y, te, a, b, tol, Bool.not(Nat.is_eq(fg_so(x), fg_so(y))))}
+
+def chk_k(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>, +tef: B.Tb<&2, List<&2, Nat>>, +tol: F64,
+    +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
   match k:
-    case 0u64: Fs{ee(B.tb_get(Eg, te, U32.from_nat(a)), B.tb_get(Eg, te, U32.from_nat(b)), a, b, tol)}
-    case 1u64: Fs{ef(B.tb_get(Eg, te, U32.from_nat(a)), B.tb_get(Fg, tf, U32.from_nat(b)), B.tb_get(List<&2, Nat>, tef, U32.from_nat(a)), tf, a, b, tol)}
-    case _: Fs{ff(B.tb_get(Fg, tf, U32.from_nat(a)), B.tb_get(Fg, tf, U32.from_nat(b)), te, a, b, tol)}
+    case 0u64: chk_ee(a, b, te, tol, sfs)
+    case 1u64: chk_ef(a, b, te, tf, tef, tol, sfs)
+    case _: chk_ff(a, b, tf, te, tol)
 
 def chk(c: Cx, p: Pr) -> Fs:
-  Cx{te, tf, tef, tol} = c
+  Cx{te, tf, tef, tol, ns, sfs} = c
   Pr{k, a, b} = p
-  chk_k(k, a, b, te, tf, tef, tol)
+  chk_k(k, a, b, te, tf, tef, tol, sfs)
 
 def fs_cat(xs: List<&2, Fs>) -> List<&2, SO.Fi>:
   match xs:
@@ -821,14 +1219,14 @@ def un_fs(fs: List<&2, Fg>, +i: Nat) -> List<&2, SO.Fi>:
 def tol_of(+bb: List<&2, I.I>) -> F64:
   F64.mul(F64.add(X.vwid(bb), 1.0f64), 9.313225746154785e-10f64)
 
-def eg_dflt() -> Eg:
-  Eg{[], G.Dom{0.0f64, 1.0f64}, 0n, 0n, [], [], cv0(), [], 1u64}
+def eg_dflt(+ns: Nat) -> Eg:
+  Eg{[], G.Dom{0.0f64, 1.0f64}, 0n, 0n, [], [], cv0(), [], 1u64, ns}
 
 def fd_dflt() -> SO.Fd:
   SO.fd_dflt()
 
-def fg_dflt() -> Fg:
-  Fg{fd_dflt(), [], []}
+def fg_dflt(+ns: Nat) -> Fg:
+  Fg{fd_dflt(), [], [], ns}
 
 def es_ef(es: List<&2, Nat>, +f: Nat, +acc: List<&2, Ef>) -> List<&2, Ef>:
   match es:
@@ -851,8 +1249,43 @@ def ef_add(xs: List<&2, Ef>, +tb: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, 
 def tef_of(+n: Nat, +fgs: List<&2, Fg>) -> B.Tb<&2, List<&2, Nat>>:
   ef_add(fg_efs(fgs, 0n, []), B.tb_of(List<&2, Nat>, B.rep_n(List<&2, Nat>, n, []), []))
 
-def mk_cx(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64) -> Cx:
-  Cx{B.tb_of(Eg, egs, eg_dflt()), B.tb_of(Fg, fgs, fg_dflt()), tef_of(List.length(&2, Eg, egs), fgs), tol}
+def eg_tag(e: Eg, +so: Nat) -> Eg:
+  Eg{g, d, a, b, pa, pb, c, bx, u, s} = e
+  Eg{g, d, a, b, pa, pb, c, bx, u, so}
+
+def eg_so_of(fs: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +nso: Nat) -> Nat:
+  match fs:
+    case []: nso
+    case f <> t: fg_so(B.tb_get(Fg, tf, U32.from_nat(f)))
+
+def egs_tag(es: List<&2, Eg>, +tef: B.Tb<&2, List<&2, Nat>>, +tf: B.Tb<&2, Fg>, +nso: Nat, +at: Nat) -> List<&2, Eg>:
+  match es:
+    case []: []
+    case e <> t:
+      eg_tag(e, eg_so_of(B.tb_get(List<&2, Nat>, tef, U32.from_nat(at)), tf, nso)) <>
+        egs_tag(t, tef, tf, nso, Nat.add(at, 1n))
+
+# Per-solid face-descriptor rows for the F5 piercing discriminator: row
+# `so` holds the Fds of solid `so` (row `nso` is the empty default).
+def fds_of_so(fs: List<&2, Fg>, +so: Nat) -> List<&2, SO.Fd>:
+  match fs:
+    case []: []
+    case +f <> t:
+      +rest = fds_of_so(t, so)
+      Bool.pick(List<&2, SO.Fd>, Nat.is_eq(fg_so(f), so), fg_fd(f) <> rest, rest)
+
+def sfs_go(+fgs: List<&2, Fg>, rem: Nat, +at: Nat) -> List<&2, List<&2, SO.Fd>>:
+  match rem:
+    case 0n: []
+    case 1n+m: fds_of_so(fgs, at) <> sfs_go(fgs, m, Nat.add(at, 1n))
+
+def sfs_of(+fgs: List<&2, Fg>, +nso: Nat) -> B.Tb<&2, List<&2, SO.Fd>>:
+  B.tb_of(List<&2, SO.Fd>, sfs_go(fgs, Nat.add(nso, 1n), 0n), [])
+
+def mk_cx(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat) -> Cx:
+  +tf = B.tb_of(Fg, fgs, fg_dflt(nso))
+  +tef = tef_of(List.length(&2, Eg, egs), fgs)
+  Cx{B.tb_of(Eg, egs_tag(egs, tef, tf, nso, 0n), eg_dflt(nso)), tf, tef, tol, nso, sfs_of(fgs, nso)}
 
 def its_of(+egs: List<&2, Eg>, +fgs: List<&2, Fg>) -> List<&2, It>:
   it_so(B.msort(~It, ~it_cmp, List.append(&2, It, ed_its(egs, 0n), fa_its(fgs, 0n))))
@@ -860,9 +1293,11 @@ def its_of(+egs: List<&2, Eg>, +fgs: List<&2, Fg>) -> List<&2, It>:
 def run_prs(+cx: Cx, +prs: List<&2, Pr>) -> List<&2, SO.Fi>:
   fs_cat(B.pmap_g(~Pr, ~Cx, ~Fs, ~chk, 2, cx, prs))
 
-def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64) -> List<&2, SO.Fi>:
-  List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)), run_prs(mk_cx(egs, fgs, tol), sweep(its_of(egs, fgs))))
+def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat) -> List<&2, SO.Fi>:
+  List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)),
+    run_prs(mk_cx(egs, fgs, tol, nso), sweep(its_of(egs, fgs))))
 
 def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   +x = Ty.ix_of(b)
-  emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds), tol_of(SO.bbox(fds, [])))
+  emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n),
+    tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b)))

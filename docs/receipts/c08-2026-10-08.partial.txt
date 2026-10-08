@@ -1,0 +1,144 @@
+# C08 verification receipt — 2026-10-08 (PARTIAL, not closeout)
+
+Packet: C08 regularized booleans (MASTER_PLAN §10 C08).
+Scope: every item in docs/c08-adversarial-findings.md (F1–F25).
+Status: all 25 findings are fixed in the working tree with committed
+tests; the final verification runs (fresh binary + full E2E + neg +
+law sweep) are BLOCKED — shell execution died in this session after
+the last green-board run, so nothing below the "Rerun protocol" line
+has been observed on the final tree. Do NOT treat this as a closeout
+receipt. Nothing committed or pushed.
+
+## 1. Provenance
+
+BendCAD HEAD: 1be018b (branch state per git log; C07 closeout receipt
+on a4d17ace).
+git status --porcelain at last observation:
+   M src/c04/types.bend
+   M src/c06/cli.bend
+   M src/c06/model.bend
+   M src/c06/sx.bend
+   M src/c06/zone.bend
+   M src/c07/emb.bend
+   M src/c07/xs.bend
+  ?? docs/c08-adversarial-findings.md
+  ?? docs/c08-intent.md
+  ?? docs/c08-laws.md
+  ?? laws/c08.bend
+  ?? laws/c08_build.bend
+  ?? src/c08/
+  ?? tests/c08/
+Plus (this session, after that listing): M tools/mcp/language.md,
+M docs/replacement-ledger.md, M tests/c08/e2e-report.json,
+M tests/c08/neg-report.json (both reports rewritten by runs).
+Scratch to delete before closeout: tests/c08/zzprobe*.bend
+(no delete tool in this session; they are probe files, not tests).
+
+Last binary: /home/jesse/bc/bendcad-c08,
+sha256 98e5aafb3d9a0ba3af430bc92e0da56f189c1d6247bd80136ef1c057df818ef7
+(per tests/c08/e2e-report.json; built from the pre-sampling-fix tree).
+
+## 2. Fix inventory (F1–F25 + 1 new)
+
+- F1 laws/c08.bend elaborates (src_op_go + {==} proof defs; 477 laws).
+- F2 fresh binary built; E2E ran (see §3).
+- F3 bake-first world boxes; moved-boolean regression journey.
+- F4 interval-placement refusal; rotated quarter-turn + rot45 refusal.
+- F5 cross edge/face piercing discriminator (classify endpoints) +
+  tangent sampler + ff exact/coplanar handling; pole/sphere piercing
+  journeys; tangent publishes.
+- F6 cross edge/edge position-based endpoint exclusion (contact-*).
+- F7 bp_pick fallback triples restored to du x dv + orientation laws.
+- F8 full c00..c08 sweep: NOT RUN (blocked; see §5).
+- F9 unknown finding codes → unknown-finding (uncertainty), transverse
+  allowlist keeps boundaries-cross-or-overlap.
+- F10 stored boxes widened by bake scale (bx_widen).
+- F11 arm parity: per-arm edge_code/surf_admit refuse-laws plus
+  per-arm non-identity xf_gval laws; catch-all unreachable on
+  admitted operands.
+- F12 Del deleted-with-reason lineage in Out + faces -v.
+- F13 fn_s role-4 renders .cav. (parity with kernel); resolve still
+  has no CLI/MCP caller (deferred, recorded in ledger).
+- F14 R_amb accumulates matching indices + micro-store law.
+- F15 disjoint-proof operand boxes in the publish proof string.
+- F16 laws/c08_build.bend: 40 ev_* laws (cavity, contact, crossing,
+  piercing, tangent, kiss, rot45, volumes).
+- F17 tests/c08/neg.py: 20 cases; kinds with no public-op trigger are
+  pinned at Layer A and listed in the file header with probe recipes
+  for uncertain-classification, operand-failed-check,
+  intersect-rejected; inconsistent-classification is geometrically
+  impossible (decide 1,1) and law-pinned.
+- F18 curved journeys: curved.*, tangent.*, tangent_cyl.* with volume
+  oracles.
+- F19 chained.*, multi-region, mixed-solid-relations, moved chain.
+- F20 mirror.*, kiss_inside (touching-from-inside).
+- F21 L20 identity on every E2E case; sens_flip refusal; faces
+  bit-identity across reopen (disjoint.replay_lineage).
+- F22 PARTIAL: E2E per-journey timings recorded (§4); scaling curve,
+  16-thread speedup and OCCT fuzz not run (intent §13 deferral +
+  scaling infeasible in non-crossing scope). Small-case latencies
+  OVER budget (flagged, §4).
+- F23 xb_vc renamed to xb_bo + constructor laws.
+- F24 loopless faces skipped (Maybe) + coin_contact in CLI check_s.
+- F25 tools/mcp/language.md gained Operations booleans + Booleans
+  section with verbatim diagnoses (also served as MCP `reference`);
+  docs/replacement-ledger.md gained the C08 section.
+- NEW (this session, P0 soundness): seam-vertex sampling could strand
+  a solid's samples in a sub-feature patch — exact-tangent cylinders
+  refused as contact-not-certified (L9 violation) and 1e-6-overlap
+  cylinders silently carried one operand (wrong volume 402.12 vs
+  804.25, observed on the old binary). Fix: every admitted edge also
+  contributes its parametric midpoint (bool.bend ed_mid/cv_mid/
+  mid_pt/ce_mid/lp_mids/fa_mids); 12 new laws; 7 new E2E records
+  (tangent_cyl.*); neg contact.not_certified + diff.no_container.
+  NOT YET RUN (blocked; see §5).
+
+## 3. Last observed results (final tree NOT yet run)
+
+- tests/c08/e2e.py full run on binary 98e5aafb: 91/94.
+  Fails were test-side only, all three fixed after the run (not
+  re-run): kiss.union (atomic-apply split), replay.lineage (n2
+  carried-face prefix), crossing.failed_nodes_commit →
+  crossing.failed_nodes_absent (atomicity semantic).
+  Plus 7 new tangent_cyl.* records added after the run.
+- tests/c08/neg.py on binary 98e5aafb: 16/18. Fails were stale
+  ok.* regexes, both fixed after the run (not re-run).
+  Plus contact.not_certified + diff.no_container added after.
+- bend laws/c08.bend --check-only (477 laws incl. 12 new):
+  NOT RUN (blocked). Same for laws/c08_build.bend and the
+  c00..c08 sweep.
+
+## 4. F22 timings (from the 91/94 e2e-report.json, seconds per journey)
+
+disjoint 0.29, containment 0.33, mirror 0.31, kiss 0.36,
+contact 10.76, identical 17.71, slanted 104.02, crossing 3.00,
+plus sub-4 s for the rest. contact/identical/slanted small-case
+latencies exceed any §8 small budget and block per L15 until
+profiled; the added midpoint samples grow classify cost and must
+be re-measured on the rerun. No medium-case, scaling, speedup or
+fuzz evidence exists.
+
+## 5. Rerun protocol (exact commands, in order)
+
+  cd /mnt/c/dev/BendCAD
+  rm tests/c08/zzprobe*.bend
+  bend src/c08/bool.bend --check-only        # must be ALL PROOFS CHECK
+  bend laws/c08.bend --check-only            # 477 laws incl. 12 ed_mid_*
+  bend laws/c08_build.bend --check-only      # 40 ev_* laws (slow; detach)
+  bend src/c06/cli.bend -o /home/jesse/bc/bendcad-c08
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08 python3 tests/c08/e2e.py     # expect 101/101
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08 python3 tests/c08/neg.py     # expect 20/20
+  # then the c00..c08 full sweep per AGENTS.md detached protocol with
+  # sha256 recorded at launch (F8), and profile contact/identical/
+  # slanted (F22/L15) before closeout.
+
+## 6. Residual risks and open scope
+
+- The sampling fix, 12 laws, 7 E2E records and 2 neg cases are
+  statically derived but UNEXECUTED (see §5).
+- L10 residual: a solid whose whole 1-skeleton plus face interiors
+  fits a sub-feature lens still hides (no public-op witness).
+- Crossing fusion (face splitting), per-solid measures, certified
+  interval placements: C11, refused loudly.
+- F22 budgets fail on small cases until profiled (L15 blocker).
+- `resolve` has no CLI/MCP surface (F13 wiring deferred).

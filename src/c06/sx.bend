@@ -379,7 +379,10 @@ def op_of(+x: Sx, +ns: List<&2, NI>) -> M.Op:
   Bool.pick(M.Op, String.eq(h, "sphere"), M.O_sph{to_xp(e1, ns)},
   Bool.pick(M.Op, String.eq(h, "torus"), M.O_tor{to_xp(e1, ns), to_xp(e2, ns)},
   Bool.pick(M.Op, String.eq(h, "move"), M.O_move{u64_of(e1), to_xp(e2, ns), to_xp(e3, ns), to_xp(sx_nth(xs, 4n), ns), u64_of(sx_nth(xs, 5n))},
-  Bool.pick(M.Op, String.eq(h, "rotate"), M.O_rot{u64_of(e1), axis_of(sx_s(e2)), to_xp(e3, ns)}, M.O_unk{h}))))))))))))
+  Bool.pick(M.Op, String.eq(h, "rotate"), M.O_rot{u64_of(e1), axis_of(sx_s(e2)), to_xp(e3, ns)},
+  Bool.pick(M.Op, String.eq(h, "union"), M.O_union{u64_of(e1), u64_of(e2)},
+  Bool.pick(M.Op, String.eq(h, "difference"), M.O_difference{u64_of(e1), u64_of(e2)},
+  Bool.pick(M.Op, String.eq(h, "intersection"), M.O_intersection{u64_of(e1), u64_of(e2)}, M.O_unk{h})))))))))))))))
 
 def cnt_of(+x: Sx) -> M.Cnt:
   Bool.pick(M.Cnt, String.eq(sx_s(x), "any"), M.C_any{}, M.C_eq{U64.to_nat(u64_of(x))})
@@ -453,6 +456,9 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
     case M.O_cone{r, h}: ls([at("cone"), xp_sx(r, ns), xp_sx(h, ns)])
     case M.O_sph{r}: ls([at("sphere"), xp_sx(r, ns)])
     case M.O_tor{bigr, r}: ls([at("torus"), xp_sx(bigr, ns), xp_sx(r, ns)])
+    case M.O_union{a, b}: ls([at("union"), at(U64.show(a)), at(U64.show(b))])
+    case M.O_difference{a, b}: ls([at("difference"), at(U64.show(a)), at(U64.show(b))])
+    case M.O_intersection{a, b}: ls([at("intersection"), at(U64.show(a)), at(U64.show(b))])
 
 def cnt_sx(c: M.Cnt) -> Sx:
   match c:

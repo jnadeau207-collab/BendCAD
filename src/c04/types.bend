@@ -588,6 +588,26 @@ def brep_stamp(b: Brep) -> U64:
   Br{vs, es, ces, lps, fas, shs, sos, top, stamp} = b
   stamp
 
+def sh_in_cs(+shi: Nat, cs: List<&2, HShell>) -> Bool:
+  match cs:
+    case []: False{}
+    case h <> t: Bool.or(Nat.is_eq(hsh_idx(h), shi), sh_in_cs(shi, t))
+
+def sh_owner_n(ss: List<&2, Solid>, +shi: Nat, +at: Nat, +nso: Nat) -> Nat:
+  match ss:
+    case []: nso
+    case So{g, ou, cs} <> t:
+      Bool.pick(Nat, Bool.or(Nat.is_eq(hsh_idx(ou), shi), sh_in_cs(shi, cs)), at,
+        sh_owner_n(t, shi, Nat.add(at, 1n), nso))
+
+def shmap_go(rem: Nat, +ss: List<&2, Solid>, +nso: Nat, +at: Nat) -> List<&2, Nat>:
+  match rem:
+    case 0n: []
+    case 1n+m: sh_owner_n(ss, at, 0n, nso) <> shmap_go(m, ss, nso, Nat.add(at, 1n))
+
+def shmap_of(+b: Brep) -> List<&2, Nat>:
+  shmap_go(List.length(&2, Shell, brep_shs(b)), brep_sos(b), List.length(&2, Solid, brep_sos(b)), 0n)
+
 def hv_eq(a: HVertex, b: HVertex) -> Bool:
   HV{ai, ag} = a
   HV{bi, bg} = b

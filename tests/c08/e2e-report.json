@@ -1,0 +1,971 @@
+{
+ "binary_sha256": "98e5aafb3d9a0ba3af430bc92e0da56f189c1d6247bd80136ef1c057df818ef7",
+ "passed": 94,
+ "total": 94,
+ "results": [
+  {
+   "name": "disjoint.union",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "seconds": 0.2951335906982422
+  },
+  {
+   "name": "disjoint.diff",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    999.9999999990786,
+    1000.0000000009214
+   ]
+  },
+  {
+   "name": "disjoint.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "disjoint.volume_identity",
+   "ok": true,
+   "union": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "inter": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "disjoint.proof",
+   "ok": true,
+   "count": 3
+  },
+  {
+   "name": "disjoint.check",
+   "ok": true,
+   "union": "ok: embedded, shells outward, cavities nested",
+   "diff": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "disjoint.classify",
+   "ok": true,
+   "got": {
+    "5 5 5": "inside",
+    "25 5 5": "inside",
+    "15 5 5": "outside",
+    "-5 5 5": "outside"
+   }
+  },
+  {
+   "name": "disjoint.faces",
+   "ok": true,
+   "count": 12
+  },
+  {
+   "name": "disjoint.measure",
+   "ok": true,
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "disjoint.mesh",
+   "ok": true,
+   "triangles": 24,
+   "watertight": true,
+   "euler": 4,
+   "mesh_volume": 1999.9999999999993,
+   "rel_err": 3.410605131648481e-16,
+   "sha256": "56557f3f0208cc5af9d35d7e912bf11edc346f0cdc33630516674cb572c169c4"
+  },
+  {
+   "name": "disjoint.deleted_union_empty",
+   "ok": true,
+   "verbose": 12
+  },
+  {
+   "name": "disjoint.deleted_diff_carry",
+   "ok": true,
+   "count": 6
+  },
+  {
+   "name": "disjoint.deleted_inter_empty",
+   "ok": true,
+   "count": 12
+  },
+  {
+   "name": "disjoint.reopen",
+   "ok": true,
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "disjoint.replay_lineage",
+   "ok": true
+  },
+  {
+   "name": "disjoint.serialize_stable",
+   "ok": true
+  },
+  {
+   "name": "containment.cavity",
+   "ok": true,
+   "fx": [
+    "remove",
+    "6",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7935.9999999925685,
+    7936.0000000074315
+   ],
+   "seconds": 0.33139681816101074
+  },
+  {
+   "name": "containment.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "containment.union",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7999.999999992629,
+    8000.000000007371
+   ]
+  },
+  {
+   "name": "containment.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "containment.classify",
+   "ok": true,
+   "got": {
+    "1 1 1": "inside",
+    "10 10 10": "outside",
+    "19 19 19": "inside",
+    "30 30 30": "outside"
+   }
+  },
+  {
+   "name": "containment.faces",
+   "ok": true,
+   "count": 12
+  },
+  {
+   "name": "containment.faces_verbose_empty_del",
+   "ok": true,
+   "verbose_count": 12,
+   "plain_count": 12
+  },
+  {
+   "name": "containment.mesh",
+   "ok": true,
+   "triangles": 24,
+   "watertight": true,
+   "euler": 4,
+   "mesh_volume": 7935.999999999997,
+   "rel_err": 3.43811001174242e-16,
+   "sha256": "7c2698645b97098ff9dd4f746decb2e22e4a430175256ec42e488a00fb45a1eb"
+  },
+  {
+   "name": "containment.volume_identity",
+   "ok": true,
+   "union": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "inter": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "mirror.union",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "seconds": 0.3009793758392334
+  },
+  {
+   "name": "mirror.diff",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "mirror.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "mirror.volume_identity",
+   "ok": true,
+   "union": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "inter": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "mirror.deleted_emptied",
+   "ok": true,
+   "count": 12
+  },
+  {
+   "name": "kiss.union",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "seconds": 0.21125102043151855
+  },
+  {
+   "name": "kiss.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "kiss.diff_pinched",
+   "ok": true,
+   "why": "validation-rejected: edge-face-overlap 15 5"
+  },
+  {
+   "name": "contact.face",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "seconds": 10.822756290435791
+  },
+  {
+   "name": "contact.edge",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "contact.vertex",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "contact.check",
+   "ok": true,
+   "face": "ok: embedded, shells outward, cavities nested",
+   "edge": "ok: embedded, shells outward, cavities nested",
+   "vertex": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "contact.classify",
+   "ok": true,
+   "got": {
+    "5 5 5": "inside",
+    "15 5 5": "inside",
+    "10 5 15": "outside"
+   }
+  },
+  {
+   "name": "contact.mesh",
+   "ok": true,
+   "triangles": 24,
+   "watertight": true,
+   "euler": 4,
+   "mesh_volume": 1999.9999999999998,
+   "rel_err": 1.1368683772161603e-16,
+   "sha256": "b8260b1024f887044c5a499bbaa953722990a8cff87a004eae25209b4c40783b"
+  },
+  {
+   "name": "contact.inter_empty",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "contact.volume_identity",
+   "ok": true,
+   "union": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "inter": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "identical.union",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "seconds": 17.027114391326904
+  },
+  {
+   "name": "identical.diff",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "identical.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    999.9999999990786,
+    1000.0000000009214
+   ]
+  },
+  {
+   "name": "empty.union_empty_left",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "seconds": 0.29046082496643066
+  },
+  {
+   "name": "empty.diff_empty_left",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "empty.union_both_empty",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "empty.diff_empty_right",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    999.9999999990786,
+    1000.0000000009214
+   ]
+  },
+  {
+   "name": "empty.inter_empty_right",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "empty.feature_on_empty",
+   "ok": true,
+   "why": [
+    "feature-on-empty-compound "
+   ]
+  },
+  {
+   "name": "empty.feature_on_carry_ok",
+   "ok": true,
+   "committed": false
+  },
+  {
+   "name": "empty.volume_identity",
+   "ok": true,
+   "union": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "inter": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "boolean.feature_refused",
+   "ok": true,
+   "why": [
+    "feature-on-boolean-result "
+   ]
+  },
+  {
+   "name": "slanted.union",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    999.9999999990735,
+    1000.0000000009265
+   ],
+   "seconds": 104.80470514297485
+  },
+  {
+   "name": "slanted.bicubic_wall_present",
+   "ok": true,
+   "faces": "n1.c0.top plane loops=1\nn1.c0.bottom plane loops=1\nn1.c0.wall.0.0 plane loops=1\nn1.c0.wall.1.0 planar-patch loops=1\nn1.c0.wall.2.0 plane loops=1"
+  },
+  {
+   "name": "slanted.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "slanted.mesh",
+   "ok": true,
+   "triangles": 16,
+   "watertight": true,
+   "euler": 4,
+   "mesh_volume": 1000.0,
+   "rel_err": 0.0,
+   "sha256": "2aff758ce1c681652154af6111c5df1d95e18294b4db834a65a7b027eedeb10e"
+  },
+  {
+   "name": "crossing.union_refused",
+   "ok": true,
+   "seconds": 2.928295373916626
+  },
+  {
+   "name": "crossing.diff_refused",
+   "ok": true
+  },
+  {
+   "name": "crossing.inter_refused",
+   "ok": true
+  },
+  {
+   "name": "crossing.failed_nodes_absent",
+   "ok": true,
+   "faces": "node failed"
+  },
+  {
+   "name": "crossing.straddle_refused",
+   "ok": true
+  },
+  {
+   "name": "intent.mismatch",
+   "ok": true,
+   "why": [
+    "declared material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 but measured material=add faces_created=0 faces_modified=0 solids=2 through_holes=0 "
+   ]
+  },
+  {
+   "name": "zone.boolean_refused",
+   "ok": true,
+   "out": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value"
+  },
+  {
+   "name": "sens.union",
+   "ok": true,
+   "d_volume": 100.0,
+   "seconds": 0.09779167175292969
+  },
+  {
+   "name": "rotated.union",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "seconds": 0.18438339233398438
+  },
+  {
+   "name": "rotated.quarter_turn",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "rotated.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "rotated.inexact_refused",
+   "ok": true,
+   "why": "interval-placement: operand placement is not certified exact"
+  },
+  {
+   "name": "moved.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    63.999999999941046,
+    64.00000000005902
+   ],
+   "seconds": 3.6385576725006104
+  },
+  {
+   "name": "moved.diff_cavity",
+   "ok": true,
+   "fx": [
+    "remove",
+    "6",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1935.9999999980976,
+    1936.0000000019022
+   ]
+  },
+  {
+   "name": "moved.union_carry",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1999.999999998157,
+    2000.000000001843
+   ]
+  },
+  {
+   "name": "moved.world_box",
+   "ok": true,
+   "bbox": [
+    99.99999999999996,
+    130.0000000000001
+   ]
+  },
+  {
+   "name": "moved.volume_identity",
+   "ok": true,
+   "union": [
+    1999.999999998157,
+    2000.000000001843
+   ],
+   "inter": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "pierce.union_refused",
+   "ok": true,
+   "seconds": 0.4948408603668213
+  },
+  {
+   "name": "pierce.diff_refused",
+   "ok": true
+  },
+  {
+   "name": "pierce.inter_refused",
+   "ok": true
+  },
+  {
+   "name": "pierce.sphere_cross_refused",
+   "ok": true
+  },
+  {
+   "name": "curved.disjoint",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    238.7610416726404,
+    238.76104167300815
+   ],
+   "seconds": 0.37939953804016113
+  },
+  {
+   "name": "curved.cavity",
+   "ok": true,
+   "fx": [
+    "remove",
+    "2",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7731.91742688587,
+    7731.917426901472
+   ]
+  },
+  {
+   "name": "curved.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    268.0825731059,
+    268.0825731067581
+   ]
+  },
+  {
+   "name": "curved.union_carry",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7999.999999992629,
+    8000.000000007371
+   ]
+  },
+  {
+   "name": "curved.volume_identity",
+   "ok": true,
+   "union": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "inter": [
+    268.0825731059,
+    268.0825731067581
+   ]
+  },
+  {
+   "name": "curved.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "tangent.sphere_on_plane",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1523.598775596539,
+    1523.5987756000584
+   ],
+   "seconds": 0.6692230701446533
+  },
+  {
+   "name": "tangent.inter_empty",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "tangent.kissing",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1047.1975511949215,
+    1047.197551198274
+   ]
+  },
+  {
+   "name": "chained.union_then_diff",
+   "ok": true,
+   "fx": [
+    "remove",
+    "6",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    1935.9999999980976,
+    1936.0000000019022
+   ],
+   "seconds": 1.2999610900878906
+  },
+  {
+   "name": "chained.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "chained.multi_region",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "3",
+    "0"
+   ],
+   "volume": [
+    1409.99999998945,
+    1410.0000000105497
+   ]
+  },
+  {
+   "name": "chained.mixed_refused",
+   "ok": true,
+   "why": "mixed-solid-relations: one operand has solids both inside and outside the other"
+  },
+  {
+   "name": "sens.step",
+   "ok": true,
+   "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
+   "seconds": 0.1070857048034668
+  },
+  {
+   "name": "replay.lineage",
+   "ok": true,
+   "count": 12,
+   "sample": [
+    "n1.c0.top plane loops=1",
+    "n1.c0.bottom plane loops=1"
+   ]
+  },
+  {
+   "name": "sens.flip_refused",
+   "ok": true,
+   "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
+   "seconds": 0.10416293144226074
+  }
+ ]
+}

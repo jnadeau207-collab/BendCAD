@@ -123,6 +123,9 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_tor{bigr, r}: z_tor(xp_iv(bigr, z), xp_iv(r, z))
             case M.O_move{base, tx, ty, tz, q}: z_go(m, nd_find(ns, base), ns, z)
             case M.O_rot{base, ax, deg}: z_go(m, nd_find(ns, base), ns, z)
+            case M.O_union{a, b}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_difference{a, b}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_intersection{a, b}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
 
 def zones_ok(ps: List<&2, M.Param>) -> Bool:

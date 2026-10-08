@@ -12,6 +12,7 @@ import ./zone.bend as Z
 import ../c07/gsx.bend as GQ
 import ../c07/sol.bend as SO
 import ../c07/emb.bend as EM
+import ../c08/bool.bend as BO
 import ../c01/types.bend as V
 
 def iv_s(+v: I.I) -> String:
@@ -38,12 +39,15 @@ def ms_s(m: M.Ms) -> String:
     Nat.show(nv) ++ " edges=" ++ Nat.show(ne) ++ " faces=" ++ Nat.show(nf) ++ " solids=" ++ Nat.show(ns) ++
     " genus=" ++ Nat.show(genus) ++ " linear_uncertainty=" ++ S.f_show(lin)
 
+def proof_s(+pr: String) -> String:
+  Bool.pick(String, String.eq(pr, ""), "", " | proof: " ++ pr)
+
 def nr_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}:
       M.Dg{w, l, y, f} = d
       "error " ++ T.FailKind.show(k) ++ " | " ++ w ++ " @ " ++ l ++ " | why: " ++ y ++ " | fix: " ++ f
-    case M.NR_ok{b, fx}: "ok " ++ M.fx_show(fx) ++ " | " ++ ms_s(M.body_ms(b))
+    case M.NR_ok{+b, fx}: "ok " ++ M.fx_show(fx) ++ " | " ++ ms_s(M.body_ms(b)) ++ proof_s(M.xb_pr(M.bd_xb(b)))
 
 def ces_s(cs: List<&2, M.CE>) -> String:
   match cs:
@@ -155,9 +159,11 @@ def str_cat(xs: List<&2, String>) -> String:
     case x <> t: x ++ " " ++ str_cat(t)
 
 def fn_s(f: BD.Fn) -> String:
-  BD.Fn{nd, k, +role, i, j} = f
-  "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
-    Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j)))
+  BD.Fn{+nd, +k, +role, +i, +j} = f
+  Bool.pick(String, U64.is_eq(role, 4u64),
+    "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
+    "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
+      Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
 
 def surf_s(s: G.GVal) -> String:
   match s:
@@ -179,10 +185,23 @@ def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>) -> String:
           Ty.Fa{g, s, ls, same} = a
           fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ faces_s(t, u)
 
-def node_faces(r: M.NR) -> String:
+def delv_s(d: BO.Del) -> String:
+  "deleted " ++ BO.del_show(d) ++ "\n"
+
+def dels_v(ds: List<&2, BO.Del>) -> String:
+  match ds:
+    case []: ""
+    case d <> t: delv_s(d) ++ dels_v(t)
+
+def node_faces_v(r: M.NR, +verbose: Bool) -> String:
   match r:
     case M.NR_err{k, d}: "node failed\n"
-    case M.NR_ok{+b, fx}: faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)))
+    case M.NR_ok{+b, fx}:
+      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)))
+      Bool.pick(String, verbose, s ++ dels_v(M.xb_dl(M.bd_xb(b))), s)
+
+def node_faces(r: M.NR) -> String:
+  node_faces_v(r, False{})
 
 def node_res(cs: List<&2, M.CE>, +id: U64) -> M.NR:
   M.ce_r(M.ce_find(cs, id))
@@ -429,20 +448,38 @@ def fi_s(fs: List<&2, SO.Fi>) -> String:
       c ++ " " ++ Nat.show(a) ++ " " ++ Nat.show(b) ++ "
 " ++ fi_s(t)
 
+def fi_real_go(fs: List<&2, SO.Fi>, +acc: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
+  match fs:
+    case []: acc
+    case SO.Fi{+c, +a, +b} <> t:
+      fi_real_go(t, Bool.pick(List<&2, SO.Fi>, BO.is_contact(c), acc, SO.Fi{c, a, b} <> acc))
+
+def fi_real(fs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
+  List.reverse(&2, SO.Fi, fi_real_go(fs, []))
+
+# CLI re-verification matches the kernel publish gate's contact-aware
+# coincidence check (F24): per-solid exact duplicates fail, inter-solid
+# touch is admitted. Full C04 ran at publish; `.bcd` files store ops, so
+# re-eval always re-runs the gate.
 def check_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing checked"
     case M.NR_ok{+b, fx}:
       +br = M.bd_brep(b)
       +fd = SO.fds_of(br)
-      +fs = List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd))
-      Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n), "ok: embedded, shells outward, cavities nested", fi_s(fs))
+      +fs = fi_real(List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd)))
+      +cc = BO.coin_contact(br)
+      Bool.pick(String, Bool.not(BO.CR_ok(cc)),
+        "coincident-vertices " ++ Nat.show(BO.CR_a(cc)) ++ " " ++ Nat.show(BO.CR_b(cc)) ++
+          " within one solid",
+        Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n),
+          "ok: embedded, shells outward, cavities nested", fi_s(fs)))
 
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
     case 2u64: IO.print(ces_s(M.ev_part(p, [])))
-    case 3u64: IO.print(node_faces(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
+    case 3u64: IO.print(node_faces_v(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), String.eq(arg_at(rest, 1n), "-v")))
     case 4u64: IO.print(nr_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
     case 5u64: IO.print(sens(p, arg_at(rest, 0n), S.u64_of(S.Sx_a{arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)

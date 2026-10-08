@@ -9,6 +9,7 @@ import ./rb.bend as R
 import ./im.bend as M
 import ./poly.bend as P
 import ./eng.bend as N
+import ../base/par.bend as B
 
 type Hit is Data:
   H_pt{ s: I.I, t: I.I, p: List<&2, I.I>, cls: U64 }
@@ -66,8 +67,117 @@ def gv_xc(g: G.GVal) -> Maybe<&2, P.Xc>:
       Some{P.xc_rq(p0, p1, p2, w0, w1, w2)}
     case _: None{}
 
+# Exact flat-patch reduction (C08 decision D2): a bicubic patch whose
+# control net is exactly planar yields the exact plane through its first
+# corner with an expansion-arithmetic normal. Curved or degenerate
+# patches stay None. Backup orientation matches the patch (du x dv), so
+# face `same` flags keep their meaning.
+type E3 is Data:
+  E3{ x: E.Ex, y: E.Ex, z: E.Ex }
+
+def pd_x(a: V.Point, b: V.Point) -> E.Ex:
+  V.Pt{ax, ay, az} = a
+  V.Pt{bx, by, bz} = b
+  E.ex_dif(bx, ax)
+
+def pd_y(a: V.Point, b: V.Point) -> E.Ex:
+  V.Pt{ax, ay, az} = a
+  V.Pt{bx, by, bz} = b
+  E.ex_dif(by, ay)
+
+def pd_z(a: V.Point, b: V.Point) -> E.Ex:
+  V.Pt{ax, ay, az} = a
+  V.Pt{bx, by, bz} = b
+  E.ex_dif(bz, az)
+
+def bp_nrm(+a: V.Point, +b: V.Point, +c: V.Point) -> E3:
+  +ux = pd_x(a, b)
+  +uy = pd_y(a, b)
+  +uz = pd_z(a, b)
+  +vx = pd_x(a, c)
+  +vy = pd_y(a, c)
+  +vz = pd_z(a, c)
+  E3{E.ex_sub(E.ex_mul(uy, vz), E.ex_mul(uz, vy)), E.ex_sub(E.ex_mul(uz, vx), E.ex_mul(ux, vz)),
+    E.ex_sub(E.ex_mul(ux, vy), E.ex_mul(uy, vx))}
+
+def sgn_zero(s: B.Sgn) -> Bool:
+  match s:
+    case B.Sz{}: True{}
+    case _: False{}
+
+def e3_zero(n: E3) -> Bool:
+  E3{x, y, z} = n
+  Bool.and(sgn_zero(E.ex_sign(x)), Bool.and(sgn_zero(E.ex_sign(y)), sgn_zero(E.ex_sign(z))))
+
+def dot_ex(+nx: E.Ex, +ny: E.Ex, +nz: E.Ex, +dx: E.Ex, +dy: E.Ex, +dz: E.Ex) -> E.Ex:
+  E.ex_add(E.ex_add(E.ex_mul(nx, dx), E.ex_mul(ny, dy)), E.ex_mul(nz, dz))
+
+def e3_x(n: E3) -> E.Ex:
+  E3{x, y, z} = n
+  x
+
+def e3_y(n: E3) -> E.Ex:
+  E3{x, y, z} = n
+  y
+
+def e3_z(n: E3) -> E.Ex:
+  E3{x, y, z} = n
+  z
+
+def bp_copl(+n: E3, +a: V.Point, +p: V.Point) -> Bool:
+  sgn_zero(E.ex_sign(dot_ex(e3_x(n), e3_y(n), e3_z(n), pd_x(a, p), pd_y(a, p), pd_z(a, p))))
+
+def bp_all_copl(+n: E3, +a: V.Point, ps: List<&2, V.Point>) -> Bool:
+  match ps:
+    case []: True{}
+    case p <> t: Bool.and(bp_copl(n, a, p), bp_all_copl(n, a, t))
+
+def bp_try_go(+ok: Bool, +n: E3) -> Maybe<&2, E3>:
+  match ok:
+    case True{}: Some{n}
+    case False{}: None{}
+
+def bp_try(+a: V.Point, +b: V.Point, +c: V.Point, +ps: List<&2, V.Point>) -> Maybe<&2, E3>:
+  +n = bp_nrm(a, b, c)
+  bp_try_go(Bool.and(Bool.not(e3_zero(n)), bp_all_copl(n, a, ps)), n)
+
+def bp_pick4(m3: Maybe<&2, E3>, +a: V.Point, +b: V.Point, +c: V.Point, +ps: List<&2, V.Point>) -> Maybe<&2, E3>:
+  match m3:
+    case Some{n}: Some{n}
+    case None{}: bp_try(a, b, c, ps)
+
+def bp_pick3(m2: Maybe<&2, E3>, +p00: V.Point, +p03: V.Point, +p30: V.Point, +p33: V.Point,
+    +ps: List<&2, V.Point>) -> Maybe<&2, E3>:
+  match m2:
+    case Some{n}: Some{n}
+    case None{}: bp_pick4(bp_try(p00, p33, p30, ps), p03, p33, p30, ps)
+
+def bp_pick2(m1: Maybe<&2, E3>, +p00: V.Point, +p03: V.Point, +p30: V.Point, +p33: V.Point,
+    +ps: List<&2, V.Point>) -> Maybe<&2, E3>:
+  match m1:
+    case Some{n}: Some{n}
+    case None{}: bp_pick3(bp_try(p00, p03, p33, ps), p00, p03, p30, p33, ps)
+
+def bp_pick(+p00: V.Point, +p03: V.Point, +p30: V.Point, +p33: V.Point, +ps: List<&2, V.Point>) -> Maybe<&2, E3>:
+  bp_pick2(bp_try(p00, p03, p30, ps), p00, p03, p30, p33, ps)
+
+def bp_mk(+n: E3, +o: V.Point) -> M.Im:
+  E3{nx, ny, nz} = n
+  M.M_pl{M.p3(o), [I.of_ex(nx), I.of_ex(ny), I.of_ex(nz)]}
+
+def bp_fin(m: Maybe<&2, E3>, +o: V.Point) -> Maybe<&2, M.Im>:
+  match m:
+    case None{}: None{}
+    case Some{n}: Some{bp_mk(n, o)}
+
+def bp_im_opt(+b: G.BezP) -> Maybe<&2, M.Im>:
+  G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, +p33} = b
+  bp_fin(bp_pick(p00, p03, p30, p33, [p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30,
+    p31, p32, p33]), p00)
+
 def gv_im(g: G.GVal) -> Maybe<&2, M.Im>:
   match g:
+    case G.GV_bp{w}: bp_im_opt(w)
     case G.GV_pl{w}:
       G.Pl{o, u, v} = w
       Some{M.im_plane(o, u, v)}

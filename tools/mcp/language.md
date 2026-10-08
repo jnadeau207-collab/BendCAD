@@ -1,4 +1,4 @@
-# BendCAD design language (C06)
+# BendCAD design language (C06–C08)
 
 A design is a list of parameters and nodes. Every node is one operation with a
 declared intent. Edits are atomic: a change is committed only if every node
@@ -61,8 +61,49 @@ parameter names (`W`), and `(+ a b)`, `(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
 - `(torus R r)` — tube radius r about a circle of radius R in the z = 0 plane.
 - `(move BASE DX DY DZ TURN)` — place the solid: TURN 0 none, 1 +90 deg about
   z, 2 180 deg about z, 3 -90 deg about z, 4 +90 deg about x, 5 +90 deg about y.
+- `(union A B)`, `(difference A B)`, `(intersection A B)` — regularized
+  booleans over closed solids whose boundaries do not cross (see Booleans).
 
 An unknown operation name is rejected as `unknown-op`.
+
+## Booleans
+
+Operands must be closed solids with plane, cylinder, cone, sphere, torus or
+exactly-flat-patch faces, line, cubic, circle or rational-quadratic edges,
+and certified-exact placements (`move` and quarter turns). Disjoint,
+contained, contact-only and identical operands evaluate; anything else is
+refused loudly and nothing is published. Contact never fuses: solids meeting
+in a point, a curve or a zero-volume patch keep one solid per
+volume-connected component. Cavity faces are named `nN.cav.K.I.J`.
+
+Refusals, with the `why:` text the kernel returns verbatim:
+
+- `boundaries-cross-or-overlap` (unsupported-op): boundaries genuinely cross
+  (face splitting is not implemented); move the operands apart or nest one
+  inside the other.
+- `mixed-solid-relations` (unsupported-op): one operand has solids both
+  inside and outside the other.
+- `interval-placement` (unsupported-op): a general-angle rotation baked at an
+  uncertified midpoint; use `move` or quarter turns.
+- `open-shell-operand`, `nurbs-operand`, `bezier-patch-operand`,
+  `face-kind-not-supported`, `edge-kind-not-supported` (unsupported-op): the
+  operand is outside the admitted domain.
+- `contact-not-certified` (numerical-uncertainty): touching-only solids with
+  no strict sample either way (e.g. distinct-node identicals).
+- `uncertain-classification`, `no-container-sample`,
+  `inconsistent-classification`, `validation-rejected`,
+  `intersect-rejected`, `operand-failed-check` (numerical-uncertainty):
+  classification or validation could not certify; an unrecognized future
+  finding code reports as `unknown-finding: <code>` (numerical-uncertainty).
+- `feature-on-boolean-result` (invalid-input): pads, pockets and holes apply
+  to extruded bodies, not to boolean results; carried faces stay addressable
+  through their original selectors.
+- `zone` on a boolean node answers `topology-not-certified-over-zone`.
+
+Disjoint unions carry their proof: `proof: disjoint-boxes A[...] B[...]` with
+both operand world boxes. Deleted lineage (`faces N -v`) lists consumed
+input faces with reasons (`classified-away`, ...); most non-crossing cases
+have empty deleted lists.
 
 `FACE` is `(face NODE CELL top)` or `(face NODE CELL bottom)`: the top or
 bottom face of a cell. A node's cells are numbered from 0 in the order its
