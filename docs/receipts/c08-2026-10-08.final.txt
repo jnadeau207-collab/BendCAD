@@ -1,0 +1,249 @@
+# C08 verification receipt — 2026-10-08 (FINAL closeout)
+
+Packet: C08 regularized booleans (MASTER_PLAN §10 C08).
+Scope: every item in docs/c08-adversarial-findings.md (F1–F25)
+plus one new P0 found during verification (seam-vertex sampling).
+Verdict: CLOSEOUT with recorded deferrals (§6). Nothing committed
+or pushed by this receipt. Supersedes c08-2026-10-08.partial.txt.
+
+GREEN vs OPEN (one line): runtime behavior is fully green —
+c08 e2e 106/106, c08 neg 20/20, c06 e2e 55/55, c07 e2e 328/328,
+c07 solid 34/34, c07 zone 33/33, laws/c08.bend ALL PROOFS CHECK.
+Still open: c08_build checker verdicts for 34/40 laws (7 slow
+timeouts, 27 unrun, 0 failures; all 40 behaviorally green),
+F22 latency budgets (confirmed over budget, deferred to a packet),
+canonical single-file --check-only records for c02–c08, and the
+pre-existing solid_neg stale expects (11/13 at HEAD, out of scope).
+
+## 1. Provenance
+
+- BendCAD HEAD: fd5694ec7b39d8f5d60227042ac75f3c47a6630b
+  ("C08: regularized booleans — implementation, laws, tests,
+  adversarial fixes"). C08 sources/laws/tests are committed.
+- Working tree (UNCOMMITTED, no commit/push per task):
+    M src/c07/mem.bend      P0 seam-dedup fix (§4), the only src change
+    M laws/c07.bend         trailing newline only (no law change)
+    M tests/*/*-report.json rewritten by the runs below (evidence)
+    ?? laws/zz-probe-timing.bend  scratch probe, not part of the build
+- Candidate binary: /home/jesse/bc/bendcad-c08-fix
+  - pre-fix build (pristine HEAD): sha256
+    9addff205d34ba85f661b41dda4a5941787d32ca20fce3f3f3e8823174a1e475
+    (134153432 bytes)
+  - post-fix build (HEAD + §4 fix): sha256
+    7bf6ac88b7be29a90a137d937d407951f019368c4147f8b37e0bb6832591597d
+    (134263272 bytes; re-verified at receipt time)
+  - All runtime verdicts below are on the post-fix binary
+    (reports carry matching binary_sha256).
+- laws/c08.bend sha256
+  08cadd9be6a4bc2bfe683dad04ebe26f2f8bc815d1959bd752a8a38c5ef77b40
+- laws/c08_build.bend sha256
+  36912783782f6afda26105121103fed69aac98efea2869d1d7aeacbf3aa8ec7b
+  (13594 bytes)
+- src/c08/bool.bend: 89782 bytes, git blob
+  411329b20edbc596e2b2c4990c747a6be78377eb, sha512
+  bf768ce3635519b76b5d0af4e576cf0b8cfa1435f91ef16af1161eb60c1cdd0
+  16cb01ded6facc28f90861c9e48812629d0759dbc66f0f04e6c5c5b1c9f8fa824
+  (Note: sha256 reads of exactly this file returned the empty
+  digest in this session across sha256sum/python/openssl while
+  size/content reads were fine; alternate digests recorded instead.)
+- src/c07/mem.bend (working tree, with fix) sha256
+  cd0fb406c4eea652a283dba2fde7f839c7c5dcc405e8de78ff2e86117f518cec
+
+## 2. Observed results (post-fix binary 7bf6ac88 unless noted)
+
+- bend src/c08/bool.bend --check-only → ALL PROOFS CHECK, exit 0.
+- bend laws/c08.bend --check-only → ALL PROOFS CHECK, exit 0
+  (477 laws; 189 s post-fix; incl. F14 ambiguity and F23
+  bool-origin constructor laws, all PASS).
+- bend laws/c08_build.bend --check-only (whole file) → NO VERDICT:
+  3h00m+ with zero stdout/stderr across 6×30m polls, terminated
+  by agent (Bend 2.0.35). Verbatim per-law chunks instead: 40
+  chunks, 6 PASS (04,13,22,23,25,39), 7 TIMEOUT (00@60+@120,01,
+  02,03,05@60,26,27@40; classifying laws need 45–120+ min each,
+  ev_union_disjoint exceeds 120 min), 27 unrun (session cost),
+  0 FAIL. All 40 oracles behaviorally green via e2e+neg.
+- BENDCAD_BIN=…/bendcad-c08-fix python3 tests/c08/e2e.py →
+  106/106 passed, 0 fails, exit 0. Families: disjoint16
+  containment9 contact8 empty8 tangent_cyl7 curved6 mirror5
+  crossing5 sens5 moved5 kiss4 identical4 slanted4 rotated4
+  pierce4 tangent4 chained4 boolean1 intent1 zone1 replay1
+  (re-verified from tests/c08/e2e-report.json at receipt time).
+- BENDCAD_BIN=…/bendcad-c08-fix python3 tests/c08/neg.py →
+  20/20 passed, 0 fails (tests/c08/neg-report.json re-verified).
+- Regression on the same binary: tests/c06/e2e.py 55/55,
+  tests/c07/e2e.py 328/328, tests/c07/solid.py 34/34,
+  tests/c07/zone.py 33/33 (all re-verified from reports).
+- Law sweep (per-law one-per-process; full-file --check-only
+  times out at 120–600 s probes for c02+): c00 38/38, c01 34/34,
+  c02 52/52, c03 417/418, c04 603/603, c05 58/65, c06 80/80,
+  c06_build 12/25, c07 13/14, c07_build 12/17. Remainder in §6.
+- F22 re-measure on post-fix binary (no perf edits): contact
+  10.39 s, identical 16.53 s, slanted 100.37 s — all over the
+  intent §8 <1 s small-case budget. F22 CONFIRMED, deferred (§6).
+
+## 3. Per-finding verdicts F1–F25 (+ P0)
+
+- F1 (laws/c08.bend elaboration): FIXED + VERIFIED —
+  ALL PROOFS CHECK, 477 laws, exit 0.
+- F2 (no C08 binary / e2e never ran): FIXED + VERIFIED —
+  binary built; e2e 106/106.
+- F3 (stale bbox on moved booleans): FIXED + VERIFIED —
+  bake-first world boxes; moved-boolean regression chain green
+  (moved 5/5).
+- F4 (interval placements baked at midpoint): FIXED + VERIFIED —
+  inexact placements refused as interval-placement (neg
+  place.rot45_union/diff green); rotated journeys use exact
+  quarter-turns (rotated 4/4).
+- F5 (piercings admitted as contact): FIXED + VERIFIED —
+  endpoint-classify discriminator; neg cross.* piercing refusals
+  4/4; tangent publishes (tangent 4/4, tangent_cyl 7/7).
+- F6 (cross edge/edge always fails): FIXED + VERIFIED —
+  position-based endpoint exclusion; contact.face/edge/vertex
+  publish (contact 8/8).
+- F7 (D2 fallback normal flip): FIXED + VERIFIED —
+  triples restored to du x dv; orientation laws pass in §2 run.
+- F8 (full law sweep never ran): PARTIAL — runtime regression
+  green (c06 55/55, c07 328/328+34/34+33/33); law sweep partial
+  per §2 (c00–c02 complete; c03–c07_build partial). Remainder
+  deferred, §6. No C07 law was edited to match new behavior
+  (laws/c07.bend diff is a trailing newline only).
+- F9 (unknown finding codes mislabeled): FIXED + VERIFIED —
+  unknown-finding uncertainty mapping; partition laws pass.
+- F10 (stored bbox ignores bake rounding): FIXED + VERIFIED —
+  bx_widen on stored boxes; framestep assertions green.
+- F11 (xf_gval catch-all): FIXED + VERIFIED — per-arm
+  refuse/non-identity parity laws pass; catch-all unreachable
+  on admitted operands.
+- F12 (deleted lineage not recorded): FIXED + VERIFIED — Del
+  deleted-with-reason in Out + faces -v; e2e asserts green.
+- F13 (lineage rendering split): FIXED + VERIFIED (rendering
+  unified to .cav. with parity law); resolve CLI/MCP wiring
+  DEFERRED (no caller; recorded in replacement-ledger §6 note).
+- F14 (R_amb drops indices): FIXED + VERIFIED —
+  resolve_ambiguous + res_show_ambiguous PASS in §2 run.
+- F15 (disjoint-proof boxes missing): FIXED + VERIFIED —
+  operand boxes in publish proof; disjoint 16/16 + neg
+  ok.disjoint_proof green.
+- F16 (no cavity/contact/refusal build laws): PARTIAL — 40 ev_*
+  laws written; checker: 6 PASS / 7 TIMEOUT / 27 unrun / 0 FAIL;
+  all 40 oracles behaviorally green (e2e 106/106 + neg 20/20).
+  Checker verdicts deferred, §6.
+- F17 (no negative suite): FIXED + VERIFIED — tests/c08/neg.py
+  20/20 (stage-isolated, verbatim diagnoses).
+- F18 (no curved-operand e2e): FIXED + VERIFIED — curved 6/6,
+  tangent 4/4, tangent_cyl 7/7 with volume oracles.
+- F19 (no chained/multi-solid e2e): FIXED + VERIFIED —
+  chained 4/4, moved 5/5, mixed.regions refusal green.
+- F20 (one-directional containment): FIXED + VERIFIED —
+  mirror 5/5, kiss 4/4 incl. touching-from-inside.
+- F21 (L20/sens/replay assertions): FIXED + VERIFIED — L20
+  identity on every case; sens 5/5 incl. flip refusal (no code
+  bug found, sens path unchanged); replay 1/1 bit-identity.
+- F22 (budgets/fuzz/scaling): OPEN, DEFERRED — §6. Timings
+  recorded; no budget met on contact/identical/slanted.
+- F23 (vc overload): FIXED + VERIFIED — xb_bo + model_ck_go_
+  origin/model_carry_*/model_bool_body_* PASS in §2 run.
+- F24 (loopless phantom samples / weak CLI check): FIXED +
+  VERIFIED — Maybe skip + coin_contact in check_s;
+  contact.check green.
+- F25 (docs): FIXED + VERIFIED — tools/mcp/language.md
+  Operations/Booleans section (verbatim diagnoses) and
+  replacement-ledger C08 rows present (re-verified).
+- P0-NEW (sampling): FIXED + VERIFIED, two parts. (a) Committed
+  at HEAD: admitted edges contribute parametric midpoints
+  (ed_mid/cv_mid/mid_pt/ce_mid/lp_mids/fa_mids) + 12 laws +
+  tangent_cyl journeys + 2 neg cases. (b) Working-tree fix in
+  src/c07/mem.bend roots_go (UNCOMMITTED, §1): closed-trim seam
+  double-report (fractions 0.0+1.0, same point) flipped parity
+  → tangent cylinders contact-not-certified + 1e-6-overlap
+  containment misclassification; skip the 1.0-end root when
+  cv_closed; open curves provably unaffected. Effect:
+  tangent_cyl e2e 99/106 FAIL → 106/106 PASS; neg 20/20;
+  c07 solid 34/34. See §4.
+
+## 4. The P0 fix (uncommitted; the only src change vs HEAD)
+
+File: src/c07/mem.bend, roots_go (+ cv_closed/k_end1/skip_seam
+helpers). A closed trim curve (full-circle rim) reports its seam
+crossing twice, at fractions 0.0 and 1.0 (same point); counting
+both flips member parity: exact-tangent cylinders refused as
+contact-not-certified (L9 violation) and 1e-6-overlap cylinders
+silently carried one operand (wrong volume 402.12 vs 804.25).
+Fix skips the 1.0-end root when the curve is closed (endpoint
+boxes overlap). Open curves cannot satisfy cv_closed, so they
+are unaffected by construction. Verified: §2 e2e fail→pass on
+the rebuilt binary; c07 solid/zone/e2e regression green, so no
+C07 behavior regressed. Commit is left to the owner (no
+commit/push by this task).
+
+## 5. Exact rerun commands (in order)
+
+  cd /mnt/c/dev/BendCAD
+  bend src/c08/bool.bend --check-only
+  bend laws/c08.bend --check-only            # 477 laws, ~189 s
+  # laws/c08_build.bend whole file exceeds 3 h with no output;
+  # run it detached per AGENTS.md, or per-law one-per-process:
+  bend laws/c08_build.bend --check-only
+  bend src/c06/cli.bend -o /home/jesse/bc/bendcad-c08-fix
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c08/e2e.py
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c08/neg.py
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c06/e2e.py
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c07/e2e.py
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c07/solid.py
+  BENDCAD_BIN=/home/jesse/bc/bendcad-c08-fix python3 tests/c07/zone.py
+  # law sweep: per-law one-per-process with sha256 recorded at
+  # launch (see §2 for expected per-file tallies and §6 for
+  # known-slow laws needing 900 s–8 h each).
+
+## 6. Remaining deferrals (with evidence; none is a silent pass)
+
+- D1 c08_build checker verdicts (34/40): 7 TIMEOUT — ev_union_
+  disjoint >120 min solo, 4 more >900 s; 27 unrun (session
+  cost). 0 failures observed. All 40 oracles behaviorally green
+  (e2e 106/106 + neg 20/20). Needs hours one-per-process.
+- D2 F22 latency packet: contact 10.39 s (face/edge/vertex/
+  inter 3.06/1.96/1.41/3.70 s), identical 16.53 s, slanted
+  100.37 s vs <1 s budget. Causes localized: vcore cross-pair
+  ee/ef discriminator storms (S.inter_cs fuel 40, multi-scale
+  classify_in) for contact/identical; unskipped Y.inter_ss
+  subdivision tracers (~19 s) + ~61 s inside stage10_of C04
+  for slanted. No cheap certified win exists (flat-patch plane
+  dispatch and sameab shortcut both flip fail-closed verdicts).
+  Packet: per-stage C04 timing harness → localize the 61 s;
+  certified flat-patch plane fast-path incl. coincide + laws
+  (est. slanted 100 s → ~0.2 s); ef_mode/endpoint-classify
+  cache + pair-count audit for contact (needs 10×).
+  Open sub-questions: which C04 stage holds the 61 s (needs an
+  instrumented probe build); exact ee/ef/ff pair counts.
+- D3 Canonical single-file --check-only records missing for
+  c02–c08 (history 1530 s–17760 s each). Known-slow per-law
+  remainder: c03 toron_r_round >900 s; c05 ×7 >900 s
+  (neg_axes_never_collapse, neg_coincidence_collapse_not_ok,
+  neg_negative_radius_not_ok, neg_solve_conflict_localized,
+  neg_solve_conflict_named, ok_angle_from_flipped_side,
+  ok_solve_zero_pivot); c06_build ×11 >900 s (ear_holes4,
+  ev_bore, ev_cavity, ev_foot_on_feature, ev_holes,
+  ev_intent_mismatch, ev_pad, ev_pocket_blind, ev_torus,
+  ms_holes_vol, ms_rounded_vol; ms_sphere_vol/ms_torus_vol
+  verdicts lost at cutoff); c07 ok_full_circle_only_overlap
+  >300 s; c07_build 4 circle/arc laws (receipt cites
+  3130–4340 s each; ok_semicircle_sweep verdict lost at
+  cutoff); c08_build per D1. Per-law tallies achieved are in §2.
+- D4 laws/c07.bend full --check-only: pre-existing slowness,
+  timeout at 3600 s. 5 added mechanism laws were removed again
+  to avoid unverified slow-law liability; the §4 fix is covered
+  by e2e fail→pass instead.
+- D5 tests/c07/solid_neg.py touch.face/touch.edge 11/13:
+  PRE-EXISTING at HEAD — pristine-clone rerun bit-identical
+  incl. results-sha 720a40b3. Stale WANT expects PEN codes;
+  code correctly reports contact-* per the L9 contact-aware
+  design. Left untouched (out of scope; no oracle weakening).
+  Also: solid_neg.py has no BENDCAD_BIN support, so it was not
+  run against the candidate binary.
+- D6 F13 resolve wiring: no CLI/MCP caller (rendering unified,
+  parity law green). Recorded in the replacement ledger.
+- Scope (not deferrals, documented intent): crossing fusion
+  (face splitting), per-solid measures, certified interval
+  placements → C11, refused loudly; L10 residual (solid whose
+  whole 1-skeleton + face interiors fit a sub-feature lens
+  still hides; no public-op witness).

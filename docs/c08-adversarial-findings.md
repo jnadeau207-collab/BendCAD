@@ -1,6 +1,9 @@
-# C08 adversarial findings — triage
+# C08 adversarial findings — triage + closeout
 
-Status: triage only. No source was changed by this review.
+Status: triaged, then fixed and verified per
+docs/receipts/c08-2026-10-08.final.txt (closeout with recorded
+deferrals). The triage bodies below are kept verbatim as history;
+authoritative per-finding verdicts are in "Closeout verdicts".
 Packet scope: `src/c08/bool.bend`, C08 wiring in
 `src/c06/{model,sx,cli,zone}.bend`, C07 changes in
 `src/c07/{emb,xs}.bend`, `src/c04/types.bend`,
@@ -37,7 +40,62 @@ plus execution where cheap (see Evidence).
   `e956513d…` laws/c08.bend, `03de4082…` laws/c08_build.bend,
   `afa4323d…` src/c08/bool.bend (full hashes in /tmp/c08-sha.txt).
 
-## Ordered fix list
+## Closeout verdicts (2026-10-08 final; evidence in the receipt)
+
+Binary 7bf6ac88 (HEAD fd5694e + uncommitted src/c07/mem.bend seam
+fix): c08 e2e 106/106, c08 neg 20/20, c06 e2e 55/55, c07 e2e
+328/328, c07 solid 34/34, c07 zone 33/33; laws/c08.bend ALL PROOFS
+CHECK (477 laws); src/c08/bool.bend ALL PROOFS CHECK.
+
+- F1 FIXED+VERIFIED (laws elaborate, all check).
+- F2 FIXED+VERIFIED (fresh binary, e2e 106/106).
+- F3 FIXED+VERIFIED (bake-first world boxes; moved chain green).
+- F4 FIXED+VERIFIED (interval-placement refusal; exact rotated).
+- F5 FIXED+VERIFIED (piercing discriminator; cross.* refuse,
+  tangent publishes).
+- F6 FIXED+VERIFIED (endpoint exclusion; contact.face/edge/
+  vertex publish).
+- F7 FIXED+VERIFIED (du x dv triples; orientation laws pass).
+- F8 PARTIAL (runtime regression green; law sweep partial:
+  c00 38/38, c01 34/34, c02 52/52, c03 417/418, c04 603/603,
+  c05 58/65, c06 80/80, c06_build 12/25, c07 13/14, c07_build
+  12/17; canonical single-file records missing for c02–c08).
+  No C07 law edited to match new behavior.
+- F9 FIXED+VERIFIED (unknown-finding mapping; laws pass).
+- F10 FIXED+VERIFIED (bx_widen; framestep assertions green).
+- F11 FIXED+VERIFIED (arm-parity laws pass).
+- F12 FIXED+VERIFIED (Del lineage + faces -v; asserted).
+- F13 RENDERING FIXED+VERIFIED (.cav. parity law); resolve
+  CLI/MCP wiring DEFERRED (ledger-recorded).
+- F14 FIXED+VERIFIED (ambiguity laws PASS).
+- F15 FIXED+VERIFIED (disjoint proof boxes; asserted).
+- F16 PARTIAL (40 ev_* laws written; checker 6 PASS / 7 TIMEOUT
+  / 27 unrun / 0 FAIL; all 40 oracles behaviorally green).
+- F17 FIXED+VERIFIED (neg.py 20/20).
+- F18 FIXED+VERIFIED (curved/tangent/tangent_cyl green).
+- F19 FIXED+VERIFIED (chained/moved/mixed-relations green).
+- F20 FIXED+VERIFIED (mirror/kiss incl. inside-touch green).
+- F21 FIXED+VERIFIED (L20 every case; sens flip refusal;
+  replay bit-identity). No sens code bug; path unchanged.
+- F22 OPEN, DEFERRED to a perf packet (contact 10.39 s,
+  identical 16.53 s, slanted 100.37 s vs <1 s budget; causes
+  localized, no cheap certified win; packet plan in receipt).
+- F23 FIXED+VERIFIED (xb_bo constructor laws PASS).
+- F24 FIXED+VERIFIED (Maybe skip + coin_contact; check green).
+- F25 FIXED+VERIFIED (language.md + ledger C08 rows present).
+- P0-NEW (sampling) FIXED+VERIFIED: (a) committed edge-midpoint
+  sampling + 12 laws + tangent_cyl/neg cases; (b) uncommitted
+  roots_go closed-seam dedup in src/c07/mem.bend (tangent_cyl
+  99/106 FAIL → 106/106 PASS; open curves unaffected).
+
+Deferrals: c08_build checker verdicts 34/40 (D1), F22 packet
+(D2), canonical c02–c08 single-file records (D3), laws/c07.bend
+full verdict (D4, pre-existing slowness), solid_neg 11/13
+pre-existing stale expects at HEAD (D5, out of scope), resolve
+wiring (D6). C11 scope (crossing fusion, per-solid measures,
+certified interval placements) refused loudly, not deferred.
+
+## Ordered fix list (triage history; verdicts above win)
 
 ### F1 (P0, blocker) — `laws/c08.bend` does not elaborate; zero laws checked
 

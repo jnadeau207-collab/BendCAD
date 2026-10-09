@@ -1,7 +1,7 @@
 {
- "binary_sha256": "98e5aafb3d9a0ba3af430bc92e0da56f189c1d6247bd80136ef1c057df818ef7",
- "passed": 94,
- "total": 94,
+ "binary_sha256": "7bf6ac88b7be29a90a137d937d407951f019368c4147f8b37e0bb6832591597d",
+ "passed": 106,
+ "total": 106,
  "results": [
   {
    "name": "disjoint.union",
@@ -17,7 +17,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.2951335906982422
+   "seconds": 0.3024177551269531
   },
   {
    "name": "disjoint.diff",
@@ -150,7 +150,7 @@
     7935.9999999925685,
     7936.0000000074315
    ],
-   "seconds": 0.33139681816101074
+   "seconds": 0.40169858932495117
   },
   {
    "name": "containment.inter",
@@ -244,7 +244,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.3009793758392334
+   "seconds": 0.7017431259155273
   },
   {
    "name": "mirror.diff",
@@ -307,7 +307,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.21125102043151855
+   "seconds": 0.2388143539428711
   },
   {
    "name": "kiss.inter",
@@ -320,6 +320,18 @@
     "0"
    ],
    "volume": [
+    63.999999999941046,
+    64.00000000005902
+   ]
+  },
+  {
+   "name": "kiss.volume_identity",
+   "ok": true,
+   "union": [
+    7999.999999992629,
+    8000.000000007371
+   ],
+   "inter": [
     63.999999999941046,
     64.00000000005902
    ]
@@ -343,7 +355,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 10.822756290435791
+   "seconds": 14.497047424316406
   },
   {
    "name": "contact.edge",
@@ -442,7 +454,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 17.027114391326904
+   "seconds": 17.886245250701904
   },
   {
    "name": "identical.diff",
@@ -475,6 +487,18 @@
    ]
   },
   {
+   "name": "identical.volume_identity",
+   "ok": true,
+   "union": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "inter": [
+    999.9999999990786,
+    1000.0000000009214
+   ]
+  },
+  {
    "name": "empty.union_empty_left",
    "ok": true,
    "fx": [
@@ -488,7 +512,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.29046082496643066
+   "seconds": 0.29874134063720703
   },
   {
    "name": "empty.diff_empty_left",
@@ -595,7 +619,7 @@
     999.9999999990735,
     1000.0000000009265
    ],
-   "seconds": 104.80470514297485
+   "seconds": 107.0977737903595
   },
   {
    "name": "slanted.bicubic_wall_present",
@@ -620,7 +644,7 @@
   {
    "name": "crossing.union_refused",
    "ok": true,
-   "seconds": 2.928295373916626
+   "seconds": 3.2800731658935547
   },
   {
    "name": "crossing.diff_refused",
@@ -655,7 +679,7 @@
    "name": "sens.union",
    "ok": true,
    "d_volume": 100.0,
-   "seconds": 0.09779167175292969
+   "seconds": 0.09461188316345215
   },
   {
    "name": "rotated.union",
@@ -671,7 +695,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.18438339233398438
+   "seconds": 0.1750650405883789
   },
   {
    "name": "rotated.quarter_turn",
@@ -712,7 +736,7 @@
     63.999999999941046,
     64.00000000005902
    ],
-   "seconds": 3.6385576725006104
+   "seconds": 0.6486990451812744
   },
   {
    "name": "moved.diff_cavity",
@@ -767,7 +791,7 @@
   {
    "name": "pierce.union_refused",
    "ok": true,
-   "seconds": 0.4948408603668213
+   "seconds": 0.47153592109680176
   },
   {
    "name": "pierce.diff_refused",
@@ -795,7 +819,7 @@
     238.7610416726404,
     238.76104167300815
    ],
-   "seconds": 0.37939953804016113
+   "seconds": 0.3756899833679199
   },
   {
    "name": "curved.cavity",
@@ -873,7 +897,7 @@
     1523.598775596539,
     1523.5987756000584
    ],
-   "seconds": 0.6692230701446533
+   "seconds": 0.6754341125488281
   },
   {
    "name": "tangent.inter_empty",
@@ -886,6 +910,18 @@
     "0"
    ],
    "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "tangent.volume_identity",
+   "ok": true,
+   "union": [
+    1523.598775596539,
+    1523.5987756000584
+   ],
+   "inter": [
     0.0,
     0.0
    ]
@@ -906,6 +942,66 @@
    ]
   },
   {
+   "name": "tangent_cyl.union",
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "2",
+    "0"
+   ],
+   "volume": [
+    804.2477193189775,
+    804.2477193189968
+   ],
+   "seconds": 10.05469536781311
+  },
+  {
+   "name": "tangent_cyl.inter_empty",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "volume": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "tangent_cyl.volume_identity",
+   "ok": true,
+   "union": [
+    804.2477193189775,
+    804.2477193189968
+   ],
+   "inter": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "tangent_cyl.check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "tangent_cyl.micro_union_refused",
+   "ok": true
+  },
+  {
+   "name": "tangent_cyl.micro_diff_refused",
+   "ok": true
+  },
+  {
+   "name": "tangent_cyl.micro_inter_refused",
+   "ok": true
+  },
+  {
    "name": "chained.union_then_diff",
    "ok": true,
    "fx": [
@@ -919,7 +1015,7 @@
     1935.9999999980976,
     1936.0000000019022
    ],
-   "seconds": 1.2999610900878906
+   "seconds": 0.3086371421813965
   },
   {
    "name": "chained.check",
@@ -950,7 +1046,7 @@
    "name": "sens.step",
    "ok": true,
    "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
-   "seconds": 0.1070857048034668
+   "seconds": 0.09499168395996094
   },
   {
    "name": "replay.lineage",
@@ -965,7 +1061,26 @@
    "name": "sens.flip_refused",
    "ok": true,
    "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
-   "seconds": 0.10416293144226074
+   "seconds": 0.11443614959716797
+  },
+  {
+   "name": "sens.flip_cache",
+   "ok": true,
+   "reused": [
+    "2",
+    "4"
+   ]
+  },
+  {
+   "name": "sens.flip_fns",
+   "ok": true,
+   "carried": 6,
+   "appended": 12,
+   "reused": [
+    "2",
+    "4"
+   ],
+   "out": "estimated central difference h=0.00003814697265625 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=0 d_ymax=0 d_zmin=0 d_zmax=0 | reused 2 of 4 nodes per step"
   }
  ]
 }

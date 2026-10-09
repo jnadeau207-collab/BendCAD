@@ -3,7 +3,7 @@
   "name": "solid.box.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.113
+  "secs": 0.014
  },
  {
   "detail": [
@@ -368,7 +368,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.11,
+  "median_s": 0.007,
   "name": "solid.box.classify",
   "ok": true,
   "points": 40,
@@ -379,7 +379,7 @@
   "name": "solid.cylinder.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.158
+  "secs": 0.065
  },
  {
   "detail": [
@@ -744,7 +744,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.113,
+  "median_s": 0.027,
   "name": "solid.cylinder.classify",
   "ok": true,
   "points": 40,
@@ -755,7 +755,7 @@
   "name": "solid.cone.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.257
+  "secs": 0.099
  },
  {
   "detail": [
@@ -1120,7 +1120,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.109,
+  "median_s": 0.005,
   "name": "solid.cone.classify",
   "ok": true,
   "points": 40,
@@ -1131,7 +1131,7 @@
   "name": "solid.sphere.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.11
+  "secs": 0.024
  },
  {
   "detail": [
@@ -1496,7 +1496,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.111,
+  "median_s": 0.009,
   "name": "solid.sphere.classify",
   "ok": true,
   "points": 40,
@@ -1507,7 +1507,7 @@
   "name": "solid.torus.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.506
+  "secs": 0.335
  },
  {
   "detail": [
@@ -1872,7 +1872,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.11,
+  "median_s": 0.011,
   "name": "solid.torus.classify",
   "ok": true,
   "points": 40,
@@ -1883,7 +1883,7 @@
   "name": "solid.cavity.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.798
+  "secs": 0.601
  },
  {
   "detail": [
@@ -2248,7 +2248,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.116,
+  "median_s": 0.027,
   "name": "solid.cavity.classify",
   "ok": true,
   "points": 40,
@@ -2259,7 +2259,7 @@
   "name": "solid.bracket.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.642
+  "secs": 0.196
  },
  {
   "detail": [
@@ -2624,7 +2624,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.175,
+  "median_s": 0.023,
   "name": "solid.bracket.classify",
   "ok": true,
   "points": 40,
@@ -2635,7 +2635,7 @@
   "name": "solid.pocket.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.336
+  "secs": 0.108
  },
  {
   "detail": [
@@ -3000,7 +3000,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.112,
+  "median_s": 0.021,
   "name": "solid.pocket.classify",
   "ok": true,
   "points": 40,
@@ -3011,7 +3011,7 @@
   "name": "solid.moved-sphere.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.106
+  "secs": 0.026
  },
  {
   "detail": [
@@ -3376,7 +3376,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.106,
+  "median_s": 0.009,
   "name": "solid.moved-sphere.classify",
   "ok": true,
   "points": 40,
@@ -3387,7 +3387,7 @@
   "name": "solid.rotated-torus.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.543
+  "secs": 0.399
  },
  {
   "detail": [
@@ -3752,7 +3752,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.113,
+  "median_s": 0.012,
   "name": "solid.rotated-torus.classify",
   "ok": true,
   "points": 40,
@@ -3863,23 +3863,23 @@
   "name": "solid.scale.25-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.583
+  "secs": 0.5
  },
  {
   "name": "solid.scale.100-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 1.53
+  "secs": 1.326
  },
  {
   "name": "solid.scale.400-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 5.39
+  "secs": 5.032
  },
  {
   "name": "solid.scale.near-linear",
   "ok": true,
-  "ratio_400_100": 3.52
+  "ratio_400_100": 3.79
  }
 ]

@@ -1,5 +1,5 @@
 {
- "binary_sha256": "98e5aafb3d9a0ba3af430bc92e0da56f189c1d6247bd80136ef1c057df818ef7",
+ "binary_sha256": "7bf6ac88b7be29a90a137d937d407951f019368c4147f8b37e0bb6832591597d",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 0.95
+   "seconds": 1.38
   },
   {
    "name": "cross.straddle",
@@ -25,13 +25,13 @@
    "name": "cross.sphere",
    "ok": true,
    "info": "boundaries-cross-or-overlap: edge-face-penetration 3 6 between nodes 1 and 2",
-   "seconds": 0.69
+   "seconds": 1.08
   },
   {
    "name": "mixed.regions",
    "ok": true,
    "info": "mixed-solid-relations: one operand has solids both inside and outside the other",
-   "seconds": 1.13
+   "seconds": 0.21
   },
   {
    "name": "place.rot45_union",
@@ -43,25 +43,25 @@
    "name": "place.rot45_diff",
    "ok": true,
    "info": "interval-placement: operand placement is not certified exact",
-   "seconds": 0.1
+   "seconds": 0.11
   },
   {
    "name": "feature.on_boolean",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.22
+   "seconds": 0.23
   },
   {
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.21
+   "seconds": 0.24
   },
   {
    "name": "intent.mismatch",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.11
+   "seconds": 0.12
   },
   {
    "name": "zone.boolean",
@@ -73,55 +73,55 @@
    "name": "diff.pinched",
    "ok": true,
    "info": "('numerical-uncertainty', 'validation-rejected: edge-face-overlap 15 5')",
-   "seconds": 0.14
+   "seconds": 0.21
   },
   {
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 5.89
+   "seconds": 7.56
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 3.79
+   "seconds": 5.25
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.95
+   "seconds": 1.33
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 3.64
+   "seconds": 4.97
   },
   {
    "name": "ok.identical",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 6.2
+   "seconds": 7.36
   },
   {
    "name": "ok.contained",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7999.999999992629, 8000.0",
-   "seconds": 0.12
+   "seconds": 0.13
   },
   {
    "name": "ok.disjoint_proof",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.7763568394002",
-   "seconds": 0.1
+   "seconds": 0.15
   },
   {
    "name": "ok.quarter_turn",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.1
+   "seconds": 0.16
   }
  ]
 }

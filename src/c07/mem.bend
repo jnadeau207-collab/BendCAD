@@ -113,13 +113,28 @@ def cn_add(acc: Cn, +k: U64) -> Cn:
 def is_r(+self: Bool, +tau: F64, +k: List<&2, I.I>) -> Bool:
   Bool.and(self, Bool.not(X.idisj(X.vn(k, 0n), I.ipt(tau))))
 
+# Closed-trim seam dedup: a closed trim curve (full-circle rim) reports a
+# crossing at its seam twice, at fractions 0.0 and 1.0 (same point);
+# counting both flips parity (spurious inside, e.g. tangent cylinders
+# failing as contact-not-certified). Skip the 1.0-end root when the curve
+# is closed (endpoint boxes overlap). Open curves are unaffected.
+def cv_closed(+c: R.Cv) -> Bool:
+  Bool.not(X.vdisj(R.cv_box(c, I.ipt(0.0f64)), R.cv_box(c, I.ipt(1.0f64))))
+
+def k_end1(+k: List<&2, I.I>) -> Bool:
+  +t = X.vn(k, 0n)
+  Bool.and(F64.is_le(I.i_lo(t), 1.0f64), F64.is_le(1.0f64, I.i_hi(t)))
+
+def skip_seam(+c: R.Cv, +k: List<&2, I.I>) -> Bool:
+  Bool.and(cv_closed(c), k_end1(k))
+
 def roots_go(rs: List<&2, N.Res>, +c: R.Cv, +l: Lg, +self: Bool, +tau: F64, +acc: Cn) -> Cn:
   match rs:
     case []: acc
     case r <> +t:
       match r:
-        case N.R_pt{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, cn_add(acc, pred(l, R.cv_box(c, X.vn(k, 0n))))))
-        case N.R_un{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, cn_add(acc, Bool.pick(U64, U64.is_eq(pred(l, R.cv_box(c, X.vn(k, 0n))), 0u64), 0u64, 2u64))))
+        case N.R_pt{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, Bool.pick(Cn, skip_seam(c, k), acc, cn_add(acc, pred(l, R.cv_box(c, X.vn(k, 0n)))))))
+        case N.R_un{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, Bool.pick(Cn, skip_seam(c, k), acc, cn_add(acc, Bool.pick(U64, U64.is_eq(pred(l, R.cv_box(c, X.vn(k, 0n))), 0u64), 0u64, 2u64)))))
         case _: roots_go(t, c, l, self, tau, acc)
 
 def flat_go(xs: List<&2, I.I>, ys: List<&2, I.I>, zs: List<&2, I.I>, ws: List<&2, I.I>, +o: List<&2, I.I>, +n: List<&2, I.I>) -> Bool:
