@@ -1,0 +1,180 @@
+# C09 verification receipt — 2026-10-09 (BLOCKED: cone uncertifiable)
+
+Packet: C09 professional feature modeling (MASTER_PLAN §10 C09).
+Scope: docs/c09-intent.md + docs/c09-laws.md (L1–L18).
+Verdict: NOT CLOSED. Everything certifiable is implemented, green, and
+pinned; the single-edge variable-radius cone (R0 != R1) is PROVEN
+uncertifiable in this kernel (§5) and honestly refused. The packet needs
+an owner amendment of intent §2, L9, and §5 before it can close. Nothing
+committed or pushed by this receipt. README/MASTER_PLAN still say
+"Next is C08" per S6 (no flip without a green e2e).
+
+GREEN vs OPEN (one line): c09 e2e 28/29 (only fillet.edge_cone red, by
+honest refusal), c09 neg 27/27 (incl. a new fillet.cone refusal pin),
+laws/c09.bend ALL PROOFS CHECK, regressions c06 55/55, c08 108/108 +
+20/20, c07 328/328 + 34/34 + 33/33. Open: the cone case (§5), c09_build
+checker verdicts for 8/9 laws (1 PASS, 4 TIMEOUT@60, 3 unrun, 0 FAIL;
+all 9 behaviorally green), one latency miss (shell.closed_box 1.96 s).
+
+## 1. Provenance
+
+- BendCAD HEAD: 6f1b71c4f020b2d2581164c471c9c364225e8c1e
+  ("C08: fix-workflow closeout"). All C09 work is UNCOMMITTED on top
+  (no commit/push per task): the grok-drafted packet (§2 of the
+  discovery handoff) plus three minimal fixes made in this session (§4).
+- Candidate binary: /home/jesse/bc/bendcad-c09
+  sha256 cb13f0e2a062886a2610170d7b0941797d3439ae25159c60fc35f3a6af6dfee0
+  (149826984 bytes; built 2026-10-10 ~09:55 UTC via
+  `bend src/c06/cli.bend -o /home/jesse/bc/bendcad-c09`, pinned
+  toolchain BEND_PIN a4d17ace, bend 2.0.35). All runtime verdicts below
+  are on this binary (reports carry matching binary_sha256).
+- laws/c09.bend sha256
+  e81a8108e233f1e9023530132a20bd1f762b7563fa08e86bead5478e84a04941
+  (10164 bytes, 55 laws)
+- laws/c09_build.bend sha256
+  eb2045b60c0041402d88d07f36815a1016ad13668d30995e7e9d73dfc72aa41f
+  (3992 bytes, 9 laws)
+- src/c09/feat.bend sha256
+  b56ebe3db66e8605e8eee01938abfc68682af9a0cb4d97942f48bb9861b82b09
+  (43215 bytes)
+- tests/c09/e2e-report.json sha256
+  1afa0ba9f4eb13fbee4f87664a3b82634337779ecf6ee7832f1415bf3fca0952
+- tests/c09/neg-report.json sha256
+  4aaacf07fca420c5cca420d0dd5dd1ea0e69bbdbf038a6adad8e0ae31b748b89
+- tests/c06/c07/c08 *-report.json were rewritten by the regression runs
+  below (same-binary evidence, left uncommitted).
+
+## 2. Observed results (binary cb13f0e2 unless noted)
+
+- bend src/c06/cli.bend --check-only → ALL PROOFS CHECK, exit 0 (~3 s).
+- bend laws/c09.bend --check-only → ALL PROOFS CHECK, exit 0
+  (55 laws; 23:32 wall on the final tree; an identical pre-fix run also
+  passed in 21:04, confirming the sx split in §4 is behavior-preserving).
+- bend laws/c09_build.bend --check-only (whole file) → NO VERDICT:
+  63 min with zero stdout, terminated for memory safety (5 concurrent
+  checkers). Verbatim per-law chunks (laws/zz-c09b-*.bend, since
+  removed) at -P 4 instead: 9 chunks, 1 PASS (ev_loft_g1_refuses, 25 s),
+  4 TIMEOUT@60 (ev_fillet_box, ev_fillet_not_cube, ev_fillet_volume,
+  ev_chamfer_box; all still accumulating CPU at 60 min), 4 unrun
+  (session time-box), 0 FAIL. All 9 claims are behaviorally green via
+  e2e (same evaluator, same assertions). C08-precedented deferral (§6).
+- BENDCAD_BIN=…/bendcad-c09 python3 tests/c09/e2e.py → 28/29 passed,
+  0 unexpected fails, exit 1 (sole red is fillet.edge_cone, §5).
+  Green: sweep 3/3, loft 3/3 (incl. identical-vs-prism interval
+  identity), chamfer 2/2, fillet box/cyl/edge-equal/param-edit,
+  draft 2/2, offset/thicken 3/3, shell 3/3, patterns 6/6, replay,
+  rigid law-names.
+- BENDCAD_BIN=…/bendcad-c09 python3 tests/c09/neg.py → 27/27 passed,
+  exit 0 (26 grok journeys + new fillet.cone pin, §4).
+- Regression on the same binary (parser split in §4 touches every
+  design file): tests/c06/e2e.py 55/55, tests/c08/e2e.py 108/108
+  (106 + 2 new identical.deleted_* journeys), tests/c08/neg.py 20/20,
+  tests/c07/e2e.py 328/328, tests/c07/solid.py 34/34,
+  tests/c07/zone.py 33/33. No regressions.
+- F22-style latency: shell.closed_box 1.96 s exceeds the intent §4
+  <1 s direct-feature budget. Recorded miss, not a dropped case.
+
+## 3. Per-family verdicts (intent §5 journeys)
+
+- Sweep (line/arc/guide/twist): GREEN. Line matches prism bit-wise;
+  arcs 9π/18π/27π/36π; 360 face-count equals revolve; angle/guide/
+  twist/degenerate refusals verbatim.
+- Loft: GREEN. Squares 980/3, prismatoid 296, identical-prism
+  interval identity (fixed §4), mismatch/g1/nonplanar/self refusals.
+- Chamfer: GREEN. Box 980 + 10 faces, cylinder 722π/3, moved-base
+  and consumes refusals.
+- Fillet box + cylinder + single-edge cylinder: GREEN. Box
+  896+76π/3 with 26/8/12/6 faces, cylinder 232π+4π², edge-equal
+  990+2.5π with 7 faces, param edit follows §2, moved/consumes/zero/
+  edge refusals, pad-on-fillet refused.
+- Fillet single-edge CONE (R0 != R1): BLOCKED, §5. Honestly refused
+  as numerical-uncertainty / surface-not-representable; pinned by
+  neg fillet.cone; e2e fillet.edge_cone red by design-assertion
+  conflict (asserts publish per §5; kernel cannot certify per §0/L3).
+- Draft/offset/thicken/shell/patterns/hole-patterns: GREEN, all
+  volumes/faces/checks/replay per §5.
+- Rigid clusters: GREEN. rigid_report/solve_drag present, solve bits
+  untouched (c05 suites unaffected), 5 law pins check, drag
+  bit-identity holds; kind/budget pins green.
+
+## 4. Fixes made in this session (minimal, behavior-preserving)
+
+- F1 (build arity): `bend -o` died with "an arity over 247" in
+  sx:op_of (the 26-deep strict Bool.pick dispatch; diagnosed by
+  running a copied compiler with a debug print — the installed
+  toolchain is untouched). Split into op_is_feat + op_of_core (16
+  classic arms, the C08 shape that built) + op_of_feat (10 C09 arms).
+  Same total evaluation, same values. Verified by c09.bend ALL CHECK
+  plus the full regression sweep in §2.
+- F2 (loft delegation): identical-rectangle loft overrode the prism
+  volume with an analytic recomputation, breaking the e2e interval
+  identity. Now returns op_prism(...) verbatim ("delegate", §2).
+- F3 (build-law linearity): laws/c09_build.bend never elaborated
+  (`rg` params missing `+`; SOME PROOFS FAIL in 2 s). Annotated.
+  This file was never checked before this session.
+- Harness: e2e fillet journey applies node 8 (cone) separately so
+  its honest refusal no longer vetoes the atomic commit of nodes
+  1–7 (same journeys, same asserts); neg.py gains the fillet.cone
+  pin. No expectation was weakened: the cone publish assert still
+  stands and still fails, pending owner amendment.
+
+## 5. THE CONE FINDING (load-bearing, needs owner review)
+
+Claim: no honest G.GV_co cone through the single-edge blend's exact
+tangent-point vertices can satisfy q_on_r (hence C04 brep_checked and
+C07 check), so intent §2's "quarter-cone when they differ" + L9 + the
+§5 cone journey are unsatisfiable. The kernel's refusal is correct
+per §0/L1–L3 (uncertainty is failure; never publish a stand-in).
+
+Evidence (all measured on the pinned toolchain with compiled probes;
+reproducible from src/c03/ops.bend + src/c09/feat.bend):
+
+- The 4 tangent vertices sit at exact 0.0 in the surface-normal
+  directions (box at origin forces y=0/z=0), so q_on_r's 1-ulp corner
+  neighborhoods extend ONLY along surface-tangent directions.
+- At p0=(1,0,0) (R0=1,R1=2,H=10): cone residual +4.835638167094562e-14
+  (exact sign, positive); the two x-corner implicits differ by exactly
+  3.37052637048715e-31. A corner flip needs |I| < ~1.7e-31, but one k
+  ulp moves I by ~2.8e-16: hitting the window needs ~1e15 samples
+  (~60 years at 2 µs each). The only pass is exact Sz (I == 0).
+- Sz needs (1+f_sq(k))·A² = N·m2 exactly. Scans of ±8192 k-ulps
+  around the naive k0 (root provably inside at ≈-170 ulps) find no
+  Sz and no flip at any single point, let alone all four; per-point
+  bands are empty too. With the exact axis the equation needs
+  k² = 1/101, impossible for a double (101 prime); with any rounded
+  axis each candidate needs an independent ~2^-60 algebraic miracle.
+- Tilting the cone cannot help: residual and corner span both scale
+  with the tilt, keeping their ~1e16 ratio; only a ~60° kink (a
+  different, dishonest solid) would open the window.
+- Contrast the cylinder case (R0=R1): axis-exact + integer tangent
+  math gives Sz exactly — certifiable by luck of alignment. The cone
+  has no such alignment for any R0 != R1.
+
+Consequence: (fillet BASE (edge N) R0 R1) with R0 != R1 is refused as
+numerical-uncertainty | why: surface-not-representable | fix: report
+this design. The e2e cone journey cannot pass as written. Requested
+owner amendment (MASTER_PLAN §11): either name a cone refusal
+(e.g. fillet-cone-not-certified, invalid-input or unsupported-op) and
+repoint §5/L9/e2e at it, or narrow the admitted variable-radius blend
+to a certifiable family. Until then S6 blocks the C09 closeout flip.
+
+## 6. Deferrals (C08-precedented form)
+
+- D1 (cone): §5. Blocks closeout. Not a performance or coverage gap.
+- D2 (c09_build checker verdicts): 1/9 PASS, 4/9 TIMEOUT@60, 4/9
+  unrun, 0 FAIL; whole-file run terminated at 63 min for memory
+  safety. All 9 claims behaviorally green on the shipped binary.
+  Re-run chunks on a bigger machine or after checker speedups; not in
+  the S6 gate.
+- D3 (shell latency): closed-box shell 1.96 s vs §4 <1 s. Recorded.
+- D4 (pre-existing): solid_neg stale expects and any c00–c07 law
+  sweep remainder are untouched by this packet.
+
+## 7. What the next session does
+
+1. Get the §5/L9/§2 cone amendment, then flip the e2e cone journey
+   to the amended expectation and re-run (expect 29/29).
+2. Re-run the 8 deferred c09_build chunks to verdict.
+3. Re-run this receipt's §2 commands verbatim, then flip README +
+   MASTER_PLAN to C09 closed / next is C10 per S6, and only then
+   consider commit (owner decision; this session never commits).

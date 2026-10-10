@@ -27,10 +27,20 @@ def z_fix(+w: String) -> String:
     Bool.pick(String, String.eq(w, "dimension-not-certified-positive-over-zone"), "narrow the zones so every dimension stays positive (torus: R > r)",
       Bool.pick(String, String.eq(w, "zone-not-ordered"), "give every parameter lo <= nom <= hi", "name an existing node"))))
 
-def zone_s(r: Z.ZR, +id: U64) -> String:
+def z_fix_on(+w: String, +bo: Bool) -> String:
+  match bo:
+    case False{}: z_fix(w)
+    case True{}: Bool.pick(String, String.eq(w, "topology-not-certified-over-zone"),
+      "union, difference and intersection refuse before any zone split; narrowing zones or separating profile features does not certify them",
+      z_fix(w))
+
+def zone_s(r: Z.ZR, +id: U64, +bo: Bool) -> String:
   match r:
     case Z.Z_ok{v, a}: "zone node " ++ U64.show(id) ++ ": certified over the tolerance envelope | volume=" ++ iv_s(v) ++ " area=" ++ iv_s(a)
-    case Z.Z_err{+w}: "error " ++ z_kind(w) ++ " | zone @ node " ++ U64.show(id) ++ " | why: " ++ w ++ " | fix: " ++ z_fix(w)
+    case Z.Z_err{+w}: "error " ++ z_kind(w) ++ " | zone @ node " ++ U64.show(id) ++ " | why: " ++ w ++ " | fix: " ++ z_fix_on(w, bo)
+
+def zone_line(+p: M.Part, +id: U64) -> String:
+  zone_s(Z.zone(p, id), id, Z.z_bool(p, id))
 
 def ms_s(m: M.Ms) -> String:
   M.Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
@@ -484,7 +494,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 5u64: IO.print(sens(p, arg_at(rest, 0n), S.u64_of(S.Sx_a{arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
     case 7u64: tess_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), arg_at(rest, 1n))
-    case 8u64: IO.print(zone_s(Z.zone(p, S.u64_of(S.Sx_a{arg_at(rest, 0n)})), S.u64_of(S.Sx_a{arg_at(rest, 0n)})))
+    case 8u64: IO.print(zone_line(p, S.u64_of(S.Sx_a{arg_at(rest, 0n)})))
     case 9u64: IO.print(classify_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
     case 10u64: IO.print(check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
     case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check")

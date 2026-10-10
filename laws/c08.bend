@@ -1172,6 +1172,21 @@ law d2_bp_kind_is_bezier:
 def d2_bp_kind_is_bezier():
   {==}
 
+def flat_line() -> G.GVal:
+  G.GV_ln{G.Ln{fq(1.0f64, 1.0f64, F64.neg(1.0f64)), V.Dr{0.0f64, 0.0f64, 1.0f64}}}
+
+law flat_bp_line_on_plane:
+  {XS.ez(XS.ex_horner(XS.comp_go(XS.gv_xc(flat_line()), XS.gv_xs(G.GV_bp{flat_bp()})), 1.0f64)) == True{} : Bool}
+
+def flat_bp_line_on_plane():
+  {==}
+
+law curved_bp_xs_none:
+  {XS.gv_xs_is(G.GV_bp{curved_bp()}) == False{} : Bool}
+
+def curved_bp_xs_none():
+  {==}
+
 # --- Lineage and selectors (L11, L12) ---
 law fn_nd_reads:
   {B8.fn_nd(BD.Fn{9u64, 1n, 4u64, 2n, 3n}) == 9u64 : U64}
@@ -2830,6 +2845,33 @@ law del_classified_one:
   {B8.del_classified([BD.Fn{1u64, 0n, 0u64, 0n, 0n}]) == [B8.Del{BD.Fn{1u64, 0n, 0u64, 0n, 0n}, 0u64}] : List<&2, B8.Del>}
 
 def del_classified_one():
+  {==}
+
+def face_del() -> B8.Del:
+  B8.Del{BD.Fn{1u64, 0n, 0u64, 0n, 0n}, 0u64}
+
+law same_carry_not_classified:
+  {B8.carry_dels(True{}, [face_del()]) == [] : List<&2, B8.Del>}
+
+def same_carry_not_classified():
+  {==}
+
+law same_diff_lists_once:
+  {B8.empty_dels(True{}, [face_del()], [face_del()]) == [face_del()] : List<&2, B8.Del>}
+
+def same_diff_lists_once():
+  {==}
+
+law other_carry_classified:
+  {B8.carry_dels(False{}, [face_del()]) == [face_del()] : List<&2, B8.Del>}
+
+def other_carry_classified():
+  {==}
+
+law other_empty_lists_both:
+  {B8.empty_dels(False{}, [face_del()], [face_del()]) == [face_del(), face_del()] : List<&2, B8.Del>}
+
+def other_empty_lists_both():
   {==}
 
 law del_why_words:

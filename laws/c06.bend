@@ -591,8 +591,20 @@ law rot_general_inexact:
 def rot_general_inexact():
   {==}
 
+law move_unit_stays_exact:
+  {M.pl_exact(M.pl_move(M.pl_id(), 0u64, 1.0f64, 2.0f64, 3.0f64)) == True{} : Bool}
+
+def move_unit_stays_exact():
+  {==}
+
+law move_fast2sum_not_exact:
+  {M.pl_exact(M.pl_move(M.pl_move(M.pl_id(), 0u64, 9007199254740992.0f64, 0.0f64, 0.0f64), 0u64, 1.0f64, 0.0f64, 0.0f64)) == False{} : Bool}
+
+def move_fast2sum_not_exact():
+  {==}
+
 law unknown_op:
-  {M.op_name(S.op_of(S.sx_nth(ps_xs(S.parse("(fillet 1 2)")), 0n), [])) == "unknown" : String}
+  {M.op_name(S.op_of(S.sx_nth(ps_xs(S.parse("(frobnicate 1 2)")), 0n), [])) == "unknown" : String}
 
 def unknown_op():
   {==}

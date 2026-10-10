@@ -1,8 +1,8 @@
 {
  "passed": 328,
  "total": 328,
- "mean_query_s": 0.013933348219569137,
- "max_query_s": 0.26080751419067383,
+ "mean_query_s": 0.013371757617810877,
+ "max_query_s": 0.24281525611877441,
  "results": [
   {
    "name": "cs.0.line-plane",
@@ -868,7 +868,7 @@
    "name": "near.circle-sphere",
    "ok": true,
    "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "secs": 0.002254009246826172,
+   "secs": 0.002250194549560547,
    "roots": 0
   },
   {

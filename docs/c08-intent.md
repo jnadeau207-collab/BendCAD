@@ -392,10 +392,10 @@ NURBS; it needs the amendment this section anticipated, deferring
 NURBS booleans to C11. Until amended, the packet ships analytic-only.
 
 **D2: closed.** Flat bicubic walls reduce to planes exactly in
-`gv_im` (`src/c07/xs.bend`, expansion-arithmetic normal), pinned by
-discriminating laws (`d2_flat_patch_admitted`,
-`d2_curved_patch_refused` in `laws/c08.bend`: the old behavior fails
-the first). General prisms boolean.
+`gv_im` and `gv_xs` (`src/c07/xs.bend`, expansion-arithmetic normal),
+pinned by discriminating laws (`d2_flat_patch_admitted`,
+`d2_curved_patch_refused`, `flat_bp_line_on_plane` in `laws/c08.bend`:
+the old behavior fails the first and the line law). General prisms boolean.
 
 **D3: non-crossing scope (owner review).** This packet implements
 every stage for operand pairs whose boundaries do not cross:

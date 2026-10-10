@@ -14,8 +14,9 @@
 #   answers uncertain on NURBS faces, so no boolean over them can certify
 #   classification; extending membership is C11 freeform-trims work.
 # - D2: flat bicubic walls are reduced to planes exactly, in `gv_im`
-#   (src/c07/xs.bend): an exactly-planar control net yields the exact plane
-#   with an expansion-arithmetic normal, so general prisms boolean.
+#   and `gv_xs` (src/c07/xs.bend): an exactly-planar control net yields
+#   the exact plane with an expansion-arithmetic normal, so a ray that
+#   meets only that wall still counts and general prisms boolean.
 # - Section 6: carried faces stay feature-addressable through their
 #   original selectors; created cavity faces are not cells and answer
 #   face-not-found; features on an empty compound are invalid-input.
@@ -403,8 +404,10 @@ def fn_show(+f: BD.Fn) -> String:
 
 # Deleted lineage (F12/L11): consumed input entities with reasons.
 # 0 classified-away, 1 regularized-away, 2 merged. In non-crossing scope
-# every deletion is classified-away (carries consume the other operand's
-# faces; empties consume both); appends and cavity transplants delete
+# every deletion is classified-away. A carry consumes the other operand's
+# faces; an empty consumes both. Same-node union and intersection keep
+# the operand's faces, so they record no deletion; difference(A, A)
+# lists each consumed face once. Appends and cavity transplants delete
 # nothing. The field is the contract: empty lists are asserted too.
 
 def del_classified(fs: List<&2, BD.Fn>) -> List<&2, Del>:
@@ -412,9 +415,18 @@ def del_classified(fs: List<&2, BD.Fn>) -> List<&2, Del>:
     case []: []
     case +f <> t: Del{f, 0u64} <> del_classified(t)
 
-def del_why_s(+w: U64) -> String:
-  Bool.pick(String, U64.is_eq(w, 0u64), "classified-away",
-    Bool.pick(String, U64.is_eq(w, 1u64), "regularized-away", "merged"))
+def del_why_s(w: U64) -> String:
+  match w:
+    case 0u64: "classified-away"
+    case 1u64: "regularized-away"
+    case 2u64: "merged"
+    case 3u64: "chamfered"
+    case 4u64: "filleted"
+    case 5u64: "drafted"
+    case 6u64: "offset"
+    case 7u64: "shelled"
+    case 8u64: "thickened"
+    case _: "patterned"
 
 def del_show(d: Del) -> String:
   Del{f, w} = d
@@ -2201,15 +2213,25 @@ def run_admit(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
     in_px(b))
   Bool.pick(Out, U64.is_eq(code, 0u64), run_broad(op, a, b, nd, an, bn), admit_fail(op, code, a, b, nd, an, bn))
 
+def carry_dels(same: Bool, +gone: List<&2, Del>) -> List<&2, Del>:
+  match same:
+    case True{}: []
+    case False{}: gone
+
+def empty_dels(same: Bool, +a: List<&2, Del>, +b: List<&2, Del>) -> List<&2, Del>:
+  match same:
+    case True{}: a
+    case False{}: List.append(&2, Del, a, b)
+
 def run_empty(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64, +sameab: Bool) -> Out:
   +ea = Nat.is_eq(nsolids(in_brep(a)), 0n)
   +eb = Nat.is_eq(nsolids(in_brep(b)), 0n)
   +eo = empty_outcome(op, ea, eb, sameab)
   Bool.pick(Out, U64.is_eq(eo, 10u64), run_admit(op, a, b, nd, an, bn),
     Bool.pick(Out, U64.is_eq(eo, 3u64),
-      out_empty(nd, "", List.append(&2, Del, del_classified(in_fns(a)), del_classified(in_fns(b)))),
-      Bool.pick(Out, U64.is_eq(eo, 0u64), carry_out(a, 1u64, nd, "", del_classified(in_fns(b))),
-        carry_out(b, 2u64, nd, "", del_classified(in_fns(a))))))
+      out_empty(nd, "", empty_dels(sameab, del_classified(in_fns(a)), del_classified(in_fns(b)))),
+      Bool.pick(Out, U64.is_eq(eo, 0u64), carry_out(a, 1u64, nd, "", carry_dels(sameab, del_classified(in_fns(b)))),
+        carry_out(b, 2u64, nd, "", carry_dels(sameab, del_classified(in_fns(a)))))))
 
 # The pipeline entry. `an`/`bn` are the operand node ids (for diagnoses),
 # `sameab` says both operands are the same node.

@@ -69,9 +69,10 @@ def gv_xc(g: G.GVal) -> Maybe<&2, P.Xc>:
 
 # Exact flat-patch reduction (C08 decision D2): a bicubic patch whose
 # control net is exactly planar yields the exact plane through its first
-# corner with an expansion-arithmetic normal. Curved or degenerate
-# patches stay None. Backup orientation matches the patch (du x dv), so
-# face `same` flags keep their meaning.
+# corner with an expansion-arithmetic normal. `gv_im` and `gv_xs` share
+# that plane, so a ray that meets only the wall still produces hits.
+# Curved or degenerate patches stay None. Backup orientation matches
+# the patch (du x dv), so face `same` flags keep their meaning.
 type E3 is Data:
   E3{ x: E.Ex, y: E.Ex, z: E.Ex }
 
@@ -170,10 +171,43 @@ def bp_fin(m: Maybe<&2, E3>, +o: V.Point) -> Maybe<&2, M.Im>:
     case None{}: None{}
     case Some{n}: Some{bp_mk(n, o)}
 
-def bp_im_opt(+b: G.BezP) -> Maybe<&2, M.Im>:
+type BpN is Data:
+  BpN{ n: Maybe<&2, E3>, o: V.Point }
+
+def bp_n(+b: G.BezP) -> BpN:
   G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, +p33} = b
-  bp_fin(bp_pick(p00, p03, p30, p33, [p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30,
-    p31, p32, p33]), p00)
+  BpN{bp_pick(p00, p03, p30, p33, [p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30,
+    p31, p32, p33]), p00}
+
+def bp_im_of(k: BpN) -> Maybe<&2, M.Im>:
+  BpN{n, o} = k
+  bp_fin(n, o)
+
+def bp_im_opt(+b: G.BezP) -> Maybe<&2, M.Im>:
+  bp_im_of(bp_n(b))
+
+def bp_xs_fin(m: Maybe<&2, E3>, +o: V.Point) -> Maybe<&2, P.Xs>:
+  match m:
+    case None{}: None{}
+    case Some{n}:
+      E3{nx, ny, nz} = n
+      Some{P.X_pl{o, [nx, ny, nz]}}
+
+def bp_xs_of(k: BpN) -> Maybe<&2, P.Xs>:
+  BpN{n, o} = k
+  bp_xs_fin(n, o)
+
+def bp_xs(+b: G.BezP) -> Maybe<&2, P.Xs>:
+  bp_xs_of(bp_n(b))
+
+def xs_yes(s: P.Xs) -> Bool:
+  match s:
+    case _: True{}
+
+def xs_is(m: Maybe<&2, P.Xs>) -> Bool:
+  match m:
+    case None{}: False{}
+    case Some{s}: xs_yes(s)
 
 def gv_im(g: G.GVal) -> Maybe<&2, M.Im>:
   match g:
@@ -197,6 +231,7 @@ def gv_im(g: G.GVal) -> Maybe<&2, M.Im>:
 
 def gv_xs(g: G.GVal) -> Maybe<&2, P.Xs>:
   match g:
+    case G.GV_bp{w}: bp_xs(w)
     case G.GV_pl{w}:
       G.Pl{o, u, v} = w
       Some{P.xs_plane(o, u, v)}
@@ -213,6 +248,9 @@ def gv_xs(g: G.GVal) -> Maybe<&2, P.Xs>:
       G.To{o, a, bigr, r} = w
       Some{P.X_to{o, a, bigr, r}}
     case _: None{}
+
+def gv_xs_is(+g: G.GVal) -> Bool:
+  xs_is(gv_xs(g))
 
 def is_closed(g: G.GVal, +d: G.Dom) -> Bool:
   match g:

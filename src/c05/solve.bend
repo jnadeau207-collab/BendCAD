@@ -1291,3 +1291,423 @@ def sol_show(s: Sol) -> String:
       "ok dof=" ++ Nat.show(dof) ++ " red=[" ++ ids_show(red) ++ "] ps=" ++ vals_show(ps)
     case Sv_conflict{ids}: "conflict [" ++ ids_show(ids) ++ "]"
     case Sv_err{kind}: "err " ++ T.FailKind.show(kind)
+
+type Rpt is Data:
+  Rpt{ pts: List<&2, Nat>, ids: List<&2, U64> }
+
+type RRep is Data:
+  R_cls{ cs: List<&2, Rpt> }
+  R_whole{ why: String }
+
+type SD is Data:
+  SD{ sol: Sol, rep: RRep }
+
+type CM is Data:
+  CM{ ok: Bool, cls: List<&2, Rpt> }
+
+type Hit is Data:
+  H_no{}
+  H_yes{ i: Nat }
+
+type LS is Data:
+  LS{ sol: Sol, refs: List<&2, U32> }
+
+def bit0(+n: Nat) -> Bool:
+  Bool.not(Nat.is_eq(Nat.mul(Nat.div(n, 2n), 2n), n))
+
+def div2_go(odd: Bool, +n: Nat) -> Nat:
+  match odd:
+    case True{}: Nat.div(n, 2n)
+    case False{}: Nat.div(n, 2n)
+
+def div2(+n: Nat) -> Nat:
+  div2_go(bit0(n), n)
+
+def cn_decomp(c: Cn) -> Bool:
+  match c:
+    case K_coinc{id, p, q}: True{}
+    case K_horiz{id, a, b}: True{}
+    case K_vert{id, a, b}: True{}
+    case K_dist{id, p, q, d}: True{}
+    case K_fix{id, i, v}: True{}
+    case K_on_line{id, p, a, b}: True{}
+    case K_midpoint{id, m, a, b}: True{}
+    case K_equal{id, a, b, c, d}: True{}
+    case K_hdist{id, p, q, d}: True{}
+    case K_vdist{id, p, q, d}: True{}
+    case K_same{id, i, j}: True{}
+    case _: False{}
+
+def all_decomp(cs: List<&2, Cn>) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case c <> t: Bool.and(cn_decomp(c), all_decomp(t))
+
+def ins_nat(+x: Nat, +xs: List<&2, Nat>) -> List<&2, Nat>:
+  match xs:
+    case Nil{}: [x]
+    case +h <> +t: Bool.pick(List<&2, Nat>, Nat.is_lt(x, h), x <> h <> t, Bool.pick(List<&2, Nat>, Nat.is_eq(x, h), h <> t, h <> ins_nat(x, t)))
+
+def uni(a: List<&2, Nat>, +b: List<&2, Nat>) -> List<&2, Nat>:
+  match a:
+    case Nil{}: b
+    case h <> t: uni(t, ins_nat(h, b))
+
+def pts_go(xs: List<&2, Nat>, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match xs:
+    case Nil{}: acc
+    case h <> t: pts_go(t, ins_nat(div2(h), acc))
+
+def pts_of(xs: List<&2, Nat>) -> List<&2, Nat>:
+  pts_go(xs, Nil{})
+
+def all_pts(cs: List<&2, Cn>, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match cs:
+    case Nil{}: acc
+    case c <> t: all_pts(t, uni(pts_of(cn_refs(c)), acc))
+
+def too_big(cs: List<&2, Cn>) -> Bool:
+  Nat.is_lt(32n, List.length(&2, Nat, all_pts(cs, Nil{})))
+
+def has_nat_sorted(b: List<&2, Nat>, +h: Nat) -> Bool:
+  match b:
+    case Nil{}: False{}
+    case +x <> xs: Bool.pick(Bool, Nat.is_eq(x, h), True{}, Bool.pick(Bool, Nat.is_lt(x, h), has_nat_sorted(xs, h), False{}))
+
+def drop_through(+b: List<&2, Nat>, +h: Nat) -> List<&2, Nat>:
+  match b:
+    case Nil{}: Nil{}
+    case +x <> +xs: Bool.pick(List<&2, Nat>, Nat.is_eq(x, h), xs, Bool.pick(List<&2, Nat>, Nat.is_lt(x, h), drop_through(xs, h), x <> xs))
+
+def subset(a: List<&2, Nat>, +b: List<&2, Nat>) -> Bool:
+  match a:
+    case Nil{}: True{}
+    case +h <> t: Bool.pick(Bool, has_nat_sorted(b, h), subset(t, drop_through(b, h)), False{})
+
+def longer(a: List<&2, Nat>, +b: List<&2, Nat>) -> Bool:
+  Nat.is_lt(List.length(&2, Nat, b), List.length(&2, Nat, a))
+
+def seed_one(+c: Cn) -> Rpt:
+  Rpt{pts_of(cn_refs(c)), [cn_id(c)]}
+
+def seeds_of(cs: List<&2, Cn>) -> List<&2, Rpt>:
+  match cs:
+    case Nil{}: Nil{}
+    case c <> t: seed_one(c) <> seeds_of(t)
+
+def abs_add(ok: Bool, +ids: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match ok:
+    case True{}: List.append(&2, U64, acc, ids)
+    case False{}: acc
+
+def absorb(seeds: List<&2, Rpt>, +uni0: List<&2, Nat>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match seeds:
+    case Nil{}: acc
+    case h <> t:
+      Rpt{pts, ids} = h
+      absorb(t, uni0, abs_add(subset(pts, uni0), ids, acc))
+
+def drop_cons(ok: Bool, +h: Rpt, +rest: List<&2, Rpt>) -> List<&2, Rpt>:
+  match ok:
+    case True{}: rest
+    case False{}: h <> rest
+
+def rpt_pts(r: Rpt) -> List<&2, Nat>:
+  Rpt{pts, ids} = r
+  pts
+
+def drop_sub(xs: List<&2, Rpt>, +uni0: List<&2, Nat>) -> List<&2, Rpt>:
+  match xs:
+    case Nil{}: Nil{}
+    case +h <> t: drop_cons(subset(rpt_pts(h), uni0), h, drop_sub(t, uni0))
+
+def csk_cons(ok: Bool, +c: Cn, +rest: List<&2, Cn>) -> List<&2, Cn>:
+  match ok:
+    case True{}: c <> rest
+    case False{}: rest
+
+def cs_keep(cs: List<&2, Cn>, +seeds: List<&2, Rpt>, +uni0: List<&2, Nat>) -> List<&2, Cn>:
+  match cs:
+    case Nil{}: Nil{}
+    case c <> t:
+      match seeds:
+        case Nil{}: Nil{}
+        case h <> st:
+          Rpt{pts, ids} = h
+          csk_cons(subset(pts, uni0), c, cs_keep(t, st, uni0))
+
+def trues(n: Nat) -> List<&2, Bool>:
+  match n:
+    case 0n: Nil{}
+    case 1n+k: True{} <> trues(k)
+
+def dof_rank(+k: Nat, +lcs: List<&2, Cn>, +lpt: P.Tb<&2, F64>, +tl: F64, +ta: F64) -> Nat:
+  +ft = P.tb_of(Bool, trues(k), False{})
+  +ds = drows(all_rows(lcs, lpt, lpt), ft, tl, ta)
+  +cq = Q.rank(P.ulen(Dr, ds), P.tb_of(F64, dr_nrms(ds), 0.0f64), brows(so_tj(P.msort(~Tj, ~tj_cmp, tj_all(ds, 0)))))
+  Nat.sub(k, cq_kept(cq))
+
+def dof_go(good: Bool, +k: Nat, +lcs: List<&2, Cn>, +lpt: P.Tb<&2, F64>, +tl: F64, +ta: F64) -> Nat:
+  match good:
+    case False{}: 99n
+    case True{}: dof_rank(k, lcs, lpt, tl, ta)
+
+def dof_prep(+cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> Nat:
+  +refs = refs_of(cs)
+  +m = P.tb_of(U32, refs, P.inf())
+  +lcs = cns_map(m, cs)
+  +lps = gets_f(ptb(ps), refs)
+  +k = U32.to_nat(P.ulen(U32, refs))
+  +lpt = ptb(lps)
+  dof_go(Bool.and(rad_ok(lcs, lpt), rows_ok(all_rows(lcs, lpt, lpt))), k, lcs, lpt, tl, ta)
+
+def try_dof_b(ok: Bool, +uni0: List<&2, Nat>, +ids: List<&2, U64>, +all: List<&2, Rpt>) -> CM:
+  match ok:
+    case False{}: CM{False{}, all}
+    case True{}: CM{True{}, Rpt{uni0, ids} <> drop_sub(all, uni0)}
+
+def try_dof(dof: Nat, +uni0: List<&2, Nat>, +ids: List<&2, U64>, +all: List<&2, Rpt>) -> CM:
+  try_dof_b(Nat.is_lt(dof, 4n), uni0, ids, all)
+
+def try_more(more: Bool, +uni0: List<&2, Nat>, +ids: List<&2, U64>, +all: List<&2, Rpt>, +cs: List<&2, Cn>, +seeds: List<&2, Rpt>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  match more:
+    case False{}: CM{False{}, all}
+    case True{}: try_dof(dof_prep(cs_keep(cs, seeds, uni0), ps, tl, ta), uni0, ids, all)
+
+def try_abs(+uni0: List<&2, Nat>, +a: Rpt, +b: Rpt, +all: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  Rpt{pa, ia} = a
+  Rpt{pb, ib} = b
+  +ids = absorb(seeds, uni0, Nil{})
+  +na = List.length(&2, U64, ids)
+  try_more(Bool.and(Nat.is_lt(List.length(&2, U64, ia), na), Nat.is_lt(List.length(&2, U64, ib), na)), uni0, ids, all, cs, seeds, ps, tl, ta)
+
+def try_big(big: Bool, +uni0: List<&2, Nat>, +a: Rpt, +b: Rpt, +all: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  match big:
+    case False{}: CM{False{}, all}
+    case True{}: try_abs(uni0, a, b, all, seeds, cs, ps, tl, ta)
+
+def try_merge(+a: Rpt, +b: Rpt, +all: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  +u = uni(rpt_pts(a), rpt_pts(b))
+  try_big(Bool.and(longer(u, rpt_pts(a)), longer(u, rpt_pts(b))), u, a, b, all, seeds, cs, ps, tl, ta)
+
+def cm_ok(m: CM) -> Bool:
+  CM{ok, cls} = m
+  ok
+
+def cm_cls(m: CM) -> List<&2, Rpt>:
+  CM{ok, cls} = m
+  cls
+
+def mg_j(rest: List<&2, Rpt>, +a: Rpt, +all: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  match rest:
+    case Nil{}: CM{False{}, all}
+    case +b <> t: Bool.pick(CM, cm_ok(try_merge(a, b, all, seeds, cs, ps, tl, ta)), try_merge(a, b, all, seeds, cs, ps, tl, ta), mg_j(t, a, all, seeds, cs, ps, tl, ta))
+
+def mg_i(rest: List<&2, Rpt>, +all: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> CM:
+  match rest:
+    case Nil{}: CM{False{}, all}
+    case +a <> +t: Bool.pick(CM, cm_ok(mg_j(t, a, all, seeds, cs, ps, tl, ta)), mg_j(t, a, all, seeds, cs, ps, tl, ta), mg_i(t, all, seeds, cs, ps, tl, ta))
+
+def rg_loop(fuel: Nat, +cls: List<&2, Rpt>, +seeds: List<&2, Rpt>, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tl: F64, +ta: F64) -> List<&2, Rpt>:
+  match fuel:
+    case 0n: cls
+    case 1n+f: Bool.pick(List<&2, Rpt>, cm_ok(mg_i(cls, cls, seeds, cs, ps, tl, ta)), rg_loop(f, cm_cls(mg_i(cls, cls, seeds, cs, ps, tl, ta)), seeds, cs, ps, tl, ta), cls)
+
+def cap_b(small: Bool, +fuel: Nat) -> Nat:
+  match small:
+    case True{}: fuel
+    case False{}: 32n
+
+def cap_fuel(+fuel: Nat) -> Nat:
+  cap_b(Nat.is_lt(fuel, 33n), fuel)
+
+def lin_of(lin: F64, +pos: Bool) -> F64:
+  match pos:
+    case True{}: lin
+    case False{}: lin
+
+def ang_of(ang: F64, +pos: Bool) -> F64:
+  match pos:
+    case True{}: ang
+    case False{}: ang
+
+def rg_cls(+cs: List<&2, Cn>, +ps: List<&2, F64>, +tol: T.Tol, +fuel: Nat) -> RRep:
+  T.Tol{lin, ang, par, apx, imp} = tol
+  +seeds = seeds_of(cs)
+  R_cls{rg_loop(cap_fuel(fuel), seeds, seeds, cs, ps, lin_of(lin, F64.is_lt(0.0f64, F64.add(par, imp))), ang_of(ang, F64.is_lt(0.0f64, apx)))}
+
+def rg_budget(bad: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tol: T.Tol, +fuel: Nat) -> RRep:
+  match bad:
+    case True{}: R_whole{"rigid-budget"}
+    case False{}: rg_cls(cs, ps, tol, fuel)
+
+def rg_kind(ok: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tol: T.Tol, +fuel: Nat) -> RRep:
+  match ok:
+    case False{}: R_whole{"kind-not-decomposed"}
+    case True{}: rg_budget(too_big(cs), cs, ps, tol, fuel)
+
+def rg_main(+cs: List<&2, Cn>, +ps: List<&2, F64>, +tol: T.Tol, +fuel: Nat) -> RRep:
+  rg_kind(all_decomp(cs), cs, ps, tol, fuel)
+
+def rg_free(same: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +tol: T.Tol, +fuel: Nat) -> RRep:
+  match same:
+    case True{}: rg_main(cs, ps, tol, fuel)
+    case False{}: rg_main(cs, ps, tol, fuel)
+
+def rpt_n(xs: List<&2, Rpt>) -> Nat:
+  match xs:
+    case Nil{}: 0n
+    case h <> t: 1n+rpt_n(t)
+
+def rr_n(r: RRep) -> Nat:
+  match r:
+    case R_cls{cs}: rpt_n(cs)
+    case R_whole{why}: 0n
+
+def rr_why(r: RRep) -> String:
+  match r:
+    case R_cls{cs}: ""
+    case R_whole{why}: why
+
+def keep_red(red: List<&2, U64>, +ps: List<&2, F64>) -> List<&2, F64>:
+  match red:
+    case Nil{}: ps
+    case h <> t: ps
+
+def keep_ps(dof: Nat, +ps: List<&2, F64>) -> List<&2, F64>:
+  match dof:
+    case 0n: ps
+    case 1n+k: ps
+
+def sol_ps(s: Sol) -> List<&2, F64>:
+  match s:
+    case Sv_ok{ps, dof, red}: keep_ps(dof, keep_red(red, ps))
+    case Sv_conflict{ids}: Nil{}
+    case Sv_err{kind}: Nil{}
+
+def sd_ps(s: SD) -> List<&2, F64>:
+  SD{sol, rep} = s
+  sol_ps(sol)
+
+def rigid_report(+ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, tol: T.Tol, +fuel: Nat) -> SD:
+  SD{Sv_ok{ps, 0n, Nil{}}, rg_free(Nat.is_eq(blen(free), flen(ps)), cs, ps, tol, fuel)}
+
+def has_nat(+x: Nat, +xs: List<&2, Nat>) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case h <> t: Bool.or(Nat.is_eq(h, x), has_nat(x, t))
+
+def cls_dirty(+pts: List<&2, Nat>, +dirty: List<&2, Nat>) -> Bool:
+  match dirty:
+    case Nil{}: False{}
+    case h <> t: Bool.or(has_nat(div2(h), pts), cls_dirty(pts, t))
+
+def has_id(+id: U64, +ids: List<&2, U64>) -> Bool:
+  match ids:
+    case Nil{}: False{}
+    case h <> t: Bool.or(U64.is_eq(h, id), has_id(id, t))
+
+def cs_cons(ok: Bool, +c: Cn, +rest: List<&2, Cn>) -> List<&2, Cn>:
+  match ok:
+    case True{}: c <> rest
+    case False{}: rest
+
+def cs_ids(cs: List<&2, Cn>, +ids: List<&2, U64>) -> List<&2, Cn>:
+  match cs:
+    case Nil{}: Nil{}
+    case +c <> t: cs_cons(has_id(cn_id(c), ids), c, cs_ids(t, ids))
+
+def at_f(xs: List<&2, F64>, +i: Nat) -> F64:
+  match xs:
+    case Nil{}: 0.0f64
+    case h <> t: Bool.pick(F64, Nat.is_eq(i, 0n), h, at_f(t, Nat.sub(i, 1n)))
+
+def ref_find(+i: Nat, +rs: List<&2, U32>, +k: Nat) -> Hit:
+  match rs:
+    case Nil{}: H_no{}
+    case h <> t: Bool.pick(Hit, Nat.is_eq(U32.to_nat(h), i), H_yes{k}, ref_find(i, t, Nat.add(k, 1n)))
+
+def blend_h(h: Hit, +ps: List<&2, F64>, +i: Nat, +loc: List<&2, F64>) -> F64:
+  match h:
+    case H_no{}: at_f(ps, i)
+    case H_yes{j}: at_f(loc, j)
+
+def blend_i(+i: Nat, +ps: List<&2, F64>, +refs: List<&2, U32>, +loc: List<&2, F64>) -> F64:
+  blend_h(ref_find(i, refs, 0n), ps, i, loc)
+
+def rebuild(n: Nat, +i: Nat, +ps: List<&2, F64>, +refs: List<&2, U32>, +loc: List<&2, F64>) -> List<&2, F64>:
+  match n:
+    case 0n: Nil{}
+    case 1n+k: blend_i(i, ps, refs, loc) <> rebuild(k, Nat.add(i, 1n), ps, refs, loc)
+
+def run_tol(tol: T.Tol, +ok: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +free: List<&2, Bool>, +k: Nat, +fuel: Nat, +refs: List<&2, U32>) -> LS:
+  T.Tol{lin, ang, par, apx, imp} = tol
+  LS{run(ok, cs, ps, free, k, lin_of(lin, F64.is_lt(0.0f64, F64.add(par, imp))), ang_of(ang, F64.is_lt(0.0f64, apx)), fuel), refs}
+
+def run_sub(ids: List<&2, U64>, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat) -> LS:
+  +sub = cs_ids(cs, ids)
+  +refs = refs_of(sub)
+  +m = P.tb_of(U32, refs, P.inf())
+  +lcs = cns_map(m, sub)
+  +lps = gets_f(ptb(ps), refs)
+  +lfr = gets_b(P.tb_of(Bool, free, False{}), refs)
+  +k = U32.to_nat(P.ulen(U32, refs))
+  +lpt = ptb(lps)
+  +ok = Bool.and(rad_ok(lcs, lpt), rows_ok(all_rows(lcs, lpt, lpt)))
+  run_tol(tol, ok, lcs, lps, lfr, k, fuel, refs)
+
+def sol_ok(s: Sol) -> Bool:
+  match s:
+    case Sv_ok{ps, dof, red}: True{}
+    case Sv_conflict{ids}: False{}
+    case Sv_err{kind}: False{}
+
+def sd_ok(s: SD) -> Bool:
+  SD{sol, rep} = s
+  sol_ok(sol)
+
+def drag_yes(+s: Sol, +old: List<&2, F64>, +refs: List<&2, U32>, +rep: RRep) -> SD:
+  match s:
+    case Sv_ok{ps, dof, red}: SD{Sv_ok{keep_ps(dof, keep_red(red, rebuild(flen(old), 0n, old, refs, ps))), 0n, Nil{}}, rep}
+    case Sv_conflict{ids}: SD{Sv_conflict{ids}, rep}
+    case Sv_err{kind}: SD{Sv_err{kind}, rep}
+
+def drag_ok(+s: Sol, +old: List<&2, F64>, +refs: List<&2, U32>, +rep: RRep) -> SD:
+  Bool.pick(SD, sol_ok(s), drag_yes(s, old, refs, rep), SD{s, rep})
+
+def drag_one_ls(ls: LS, +old: List<&2, F64>, +rep: RRep) -> SD:
+  LS{sol, refs} = ls
+  drag_ok(sol, old, refs, rep)
+
+def drag_one(flag: Bool, +ids: List<&2, U64>, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +rep: RRep) -> SD:
+  match flag:
+    case False{}: SD{Sv_ok{ps, 0n, Nil{}}, rep}
+    case True{}: drag_one_ls(run_sub(ids, ps, free, cs, tol, fuel), ps, rep)
+
+def drag_step(rest: List<&2, Rpt>, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +dirty0: List<&2, Nat>, +rep: RRep) -> SD:
+  match rest:
+    case Nil{}: SD{Sv_ok{ps, 0n, Nil{}}, rep}
+    case h <> t:
+      Rpt{pts, ids} = h
+      +sd = drag_one(cls_dirty(pts, dirty0), ids, ps, free, cs, tol, fuel, rep)
+      Bool.pick(SD, sd_ok(sd), drag_step(t, sd_ps(sd), free, cs, tol, fuel, dirty0, rep), sd)
+
+def drag_fold(cls: List<&2, Rpt>, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +dirty: List<&2, Nat>, +rep: RRep) -> SD:
+  drag_step(cls, ps, free, cs, tol, fuel, dirty, rep)
+
+def drag_whole(empty: Bool, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +rep: RRep) -> SD:
+  match empty:
+    case True{}: SD{Sv_ok{ps, 0n, Nil{}}, rep}
+    case False{}: SD{solve(ps, free, cs, tol, fuel), rep}
+
+def drag_named(why: String, +empty: Bool, +ps: List<&2, F64>, +free: List<&2, Bool>, +cns: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +rep: RRep) -> SD:
+  match why:
+    case _: drag_whole(empty, ps, free, cns, tol, fuel, rep)
+
+def drag_rep(rep: RRep, +ps: List<&2, F64>, +free: List<&2, Bool>, +cns: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +dirty: List<&2, Nat>) -> SD:
+  match rep:
+    case R_whole{+why}: drag_named(why, Nat.is_eq(List.length(&2, Nat, dirty), 0n), ps, free, cns, tol, fuel, R_whole{why})
+    case R_cls{+cs}: drag_fold(cs, ps, free, cns, tol, fuel, dirty, R_cls{cs})
+
+def solve_drag(+ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tol: T.Tol, +fuel: Nat, +dirty: List<&2, Nat>) -> SD:
+  drag_rep(rg_free(Nat.is_eq(blen(free), flen(ps)), cs, ps, tol, fuel), ps, free, cs, tol, fuel, dirty)

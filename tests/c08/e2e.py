@@ -277,6 +277,16 @@ def identical():
            fx=fx(out, 3), volume=vol(out, 3))
     record('identical.inter', fx(out, 4) == ('same', '0', '0', '1', '0') and contains(vol(out, 4), 1000.0),
            fx=fx(out, 4), volume=vol(out, 4))
+    v2, _ = cli('ident.bcd', 'faces', '2', '-v')
+    v3, _ = cli('ident.bcd', 'faces', '3', '-v')
+    v4, _ = cli('ident.bcd', 'faces', '4', '-v')
+    d2 = [ln for ln in v2.strip().splitlines() if ln.startswith('deleted ')]
+    d3 = [ln for ln in v3.strip().splitlines() if ln.startswith('deleted ')]
+    d4 = [ln for ln in v4.strip().splitlines() if ln.startswith('deleted ')]
+    record('identical.deleted_carry_empty', d2 == [] and d4 == [] and sum(ln.startswith('n1.c') for ln in v2.strip().splitlines()) == 6,
+           union=len(d2), inter=len(d4))
+    record('identical.deleted_diff_once', len(d3) == 6 and len(set(d3)) == 6 and all('classified-away' in ln for ln in d3),
+           count=len(d3))
     ok20, info20 = l20_ok(out, 2, 4, 1, 1, 2000.0)
     record('identical.volume_identity', ok20, **info20)
 
@@ -304,9 +314,11 @@ def empty_algebra():
            fx=fx(out, 9), volume=vol(out, 9))
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
     record('empty.feature_on_empty', 'feature-on-empty-compound' in o, why=re.findall(r'why: ([^|]+)', o))
+    # Node 5 carries node 1. Selectors name the creating node, so (face 5 ...) is face-not-found.
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 5 (face 5 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
-    record('empty.feature_on_carry_ok', 'feature-on-empty-compound' not in o and 'feature-on-boolean-result' not in o,
-           committed='committed' in o)
+    record('empty.feature_on_carry_ok', 'face-not-found' in o and 'committed' not in o
+           and 'feature-on-empty-compound' not in o and 'feature-on-boolean-result' not in o,
+           why=re.findall(r'why: ([^|]+)', o))
     ok20, info20 = l20_ok(out, 5, 9, 4, 1, 1000.0)
     record('empty.volume_identity', ok20, **info20)
 
@@ -380,7 +392,8 @@ def zone_refusal():
           '(node 3 (move 2 20 0 0 0) (intent same 0 0 1 0))',
           '(node 4 (union 1 3) (intent add 0 0 2 0))')
     o, _ = cli('zbool.bcd', 'zone', '4')
-    record('zone.boolean_refused', 'topology-not-certified-over-zone' in o, out=o.strip())
+    record('zone.boolean_refused', 'topology-not-certified-over-zone' in o
+           and 'refuse before any zone split' in o and 'keep profile segments' not in o, out=o.strip())
 
 
 def sens_cache():

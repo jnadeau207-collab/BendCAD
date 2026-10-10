@@ -457,3 +457,379 @@ def ax_codes(ls: List<&2, F.Lp>, hs: List<&2, Bool>, +i: Nat) -> F.Er:
           +c = ax_code(l, h)
           +c2 = Bool.pick(U64, U64.is_eq(c, 0u64), Bool.pick(U64, sgs_ssok(lp_sgs(l)), 0u64, 24u64), c)
           Bool.pick(F.Er, U64.is_eq(c2, 0u64), ax_codes(t, u, Nat.add(i, 1n)), F.er(c2, i, 0n))
+
+# Partial revolution (90/180/270). Stations are exact quarter turns.
+# 360 stays on rev_brep. An arc profile is code 24, not a stand-in.
+
+def sec_mod4(+n: Nat) -> Nat:
+  Nat.sub(n, Nat.mul(Nat.div(n, 4n), 4n))
+
+def sec_cos(+m: Nat) -> F64:
+  match m:
+    case 0n: 1.0f64
+    case 1n: 0.0f64
+    case 2n: F64.neg(1.0f64)
+    case _: 0.0f64
+
+def sec_sin(+m: Nat) -> F64:
+  match m:
+    case 0n: 0.0f64
+    case 1n: 1.0f64
+    case 2n: 0.0f64
+    case _: F64.neg(1.0f64)
+
+def sec_bad(+c: U64) -> RR:
+  RR{c, 0n, BD.Bt{Ty.brep_empty(), []}}
+
+def sec_arc(ss: List<&2, F.Sg>) -> Bool:
+  match ss:
+    case []: False{}
+    case s <> t:
+      match s:
+        case F.G_ar{cx, cy, r, ccw, ps}: True{}
+        case F.G_ln{p}: sec_arc(t)
+
+def sec_one(ls: List<&2, F.Lp>, hs: List<&2, Bool>) -> Bool:
+  match ls:
+    case []: False{}
+    case l <> t:
+      match t:
+        case []:
+          match hs:
+            case []: False{}
+            case h <> u:
+              match u:
+                case []: Bool.and(Bool.not(h), Bool.not(sec_arc(lp_sgs(l))))
+                case _: False{}
+        case _: False{}
+
+def sec_lp0(ls: List<&2, F.Lp>) -> F.Lp:
+  match ls:
+    case []: F.K_circ{0.0f64, 0.0f64, 0.0f64}
+    case l <> t: l
+
+def pc_nth(ps: List<&2, F.Pc>, +i: Nat) -> F.Pc:
+  match ps:
+    case []: F.P_ln{0.0f64, 0.0f64, 0.0f64, 0.0f64}
+    case p <> t:
+      match i:
+        case 0n: p
+        case 1n+j: pc_nth(t, j)
+
+def sec_r(+p: F.Pc) -> F64:
+  F.pc_ax(p)
+
+def sec_z(+p: F.Pc) -> F64:
+  F.pc_ay(p)
+
+def sec_pt(+ps: List<&2, F.Pc>, +n: Nat, +vi: Nat) -> V.Point:
+  +s = Nat.div(vi, n)
+  +i = Nat.sub(vi, Nat.mul(s, n))
+  +p = pc_nth(ps, i)
+  +m = sec_mod4(s)
+  +r = sec_r(p)
+  V.Pt{F64.mul(r, sec_cos(m)), F64.mul(r, sec_sin(m)), sec_z(p)}
+
+def sec_vs_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +i: Nat) -> List<&2, Ty.Vertex>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      Ty.Vx{0u64, sec_pt(ps, n, Nat.add(Nat.mul(s, n), i))} <> sec_vs_row(k, ps, n, s, Nat.add(i, 1n))
+
+def sec_vs_all(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat) -> List<&2, Ty.Vertex>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      List.append(&2, Ty.Vertex, sec_vs_row(n, ps, n, s, 0n), sec_vs_all(k, ps, n, Nat.add(s, 1n)))
+
+def sec_vs(+ps: List<&2, F.Pc>, +n: Nat, +stations: Nat) -> List<&2, Ty.Vertex>:
+  sec_vs_all(stations, ps, n, 0n)
+
+def rq_gv(r: G.GRes) -> G.GVal:
+  match r:
+    case G.Gok{v}: v
+    case G.Gerr{kind}: G.GV_f{0.0f64}
+
+def sec_arc_gv(+ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +i: Nat) -> G.GVal:
+  +p = pc_nth(ps, i)
+  +m = sec_mod4(s)
+  +c = sec_cos(m)
+  +sn = sec_sin(m)
+  rq_gv(GO.rq_quarter(V.Pt{0.0f64, 0.0f64, sec_z(p)}, V.Dr{c, sn, 0.0f64}, V.Dr{F64.neg(sn), c, 0.0f64}, sec_r(p)))
+
+def sec_bz(+a: V.Point, +b: V.Point) -> G.GVal:
+  G.GV_bz{G.Bz{a, a, b, b}}
+
+def sec_imod_go(w: Bool, +i: Nat, +n: Nat) -> Nat:
+  match w:
+    case True{}: 0n
+    case False{}: Nat.add(i, 1n)
+
+def sec_imod(+i: Nat, +n: Nat) -> Nat:
+  sec_imod_go(Nat.is_eq(Nat.add(i, 1n), n), i, n)
+
+def v_at(+s: Nat, +i: Nat, +n: Nat) -> Nat:
+  Nat.add(Nat.mul(s, n), i)
+
+def a_at(+s: Nat, +i: Nat, +n: Nat) -> Nat:
+  Nat.add(Nat.mul(s, n), i)
+
+def p_at(+s: Nat, +i: Nat, +n: Nat, +quads: Nat) -> Nat:
+  Nat.add(Nat.mul(quads, n), Nat.add(Nat.mul(s, n), i))
+
+def sec_ed(+v0: Nat, +v1: Nat, +g: G.GVal) -> Ty.Edge:
+  Ty.Ed{0u64, BD.hv(v0), BD.hv(v1), Ty.EK_curve{g, G.Dom{0.0f64, 1.0f64}}}
+
+def sec_arcs_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +i: Nat) -> List<&2, Ty.Edge>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      sec_ed(v_at(s, i, n), v_at(Nat.add(s, 1n), i, n), sec_arc_gv(ps, n, s, i)) <>
+        sec_arcs_row(k, ps, n, s, Nat.add(i, 1n))
+
+def sec_arcs_all(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat) -> List<&2, Ty.Edge>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      List.append(&2, Ty.Edge, sec_arcs_row(n, ps, n, s, 0n), sec_arcs_all(k, ps, n, Nat.add(s, 1n)))
+
+def sec_prof_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +i: Nat) -> List<&2, Ty.Edge>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      +j = sec_imod(i, n)
+      sec_ed(v_at(s, i, n), v_at(s, j, n), sec_bz(sec_pt(ps, n, v_at(s, i, n)), sec_pt(ps, n, v_at(s, j, n)))) <>
+        sec_prof_row(k, ps, n, s, Nat.add(i, 1n))
+
+def sec_prof_all(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat) -> List<&2, Ty.Edge>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      List.append(&2, Ty.Edge, sec_prof_row(n, ps, n, s, 0n), sec_prof_all(k, ps, n, Nat.add(s, 1n)))
+
+def sec_es(+ps: List<&2, F.Pc>, +n: Nat, +quads: Nat) -> List<&2, Ty.Edge>:
+  List.append(&2, Ty.Edge, sec_arcs_all(quads, ps, n, 0n), sec_prof_all(Nat.add(quads, 1n), ps, n, 0n))
+
+def z2() -> V.Vec2:
+  V.V2{0.0f64, 0.0f64}
+
+def dot3(+px: F64, +py: F64, +pz: F64, +ox: F64, +oy: F64, +oz: F64, +ux: F64, +uy: F64, +uz: F64) -> F64:
+  F64.add(F64.add(F64.mul(F64.sub(px, ox), ux), F64.mul(F64.sub(py, oy), uy)), F64.mul(F64.sub(pz, oz), uz))
+
+def trim_uv(+p: V.Point, +o: V.Point, +u: V.Dir, +v: V.Dir) -> V.Vec2:
+  V.Pt{+px, +py, +pz} = p
+  V.Pt{+ox, +oy, +oz} = o
+  V.Dr{+ux, +uy, +uz} = u
+  V.Dr{+vx, +vy, +vz} = v
+  V.V2{dot3(px, py, pz, ox, oy, oz, ux, uy, uz), dot3(px, py, pz, ox, oy, oz, vx, vy, vz)}
+
+def trim_pl_go(pl: G.Plane3, +p: V.Point) -> V.Vec2:
+  G.Pl{o, u, v} = pl
+  trim_uv(p, o, u, v)
+
+def trim_pl(+s: G.GVal, +p: V.Point) -> V.Vec2:
+  match s:
+    case G.GV_pl{pl}: trim_pl_go(pl, p)
+    case _: z2()
+
+def trim_of(plane: Bool, +s: G.GVal, +p: V.Point) -> V.Vec2:
+  match plane:
+    case False{}: z2()
+    case True{}: trim_pl(s, p)
+
+def us_e(+e: Nat, +fwd: Bool, +ta: V.Vec2, +tb: V.Vec2) -> BD.Use:
+  BD.Us{e, fwd, ta, tb}
+
+def sec_use(+e: Nat, +fwd: Bool, +v0: Nat, +v1: Nat, +plane: Bool, +s: G.GVal, +ps: List<&2, F.Pc>, +n: Nat) -> BD.Use:
+  us_e(e, fwd, trim_of(plane, s, sec_pt(ps, n, v0)), trim_of(plane, s, sec_pt(ps, n, v1)))
+
+def side_ss_p(+p: F.Pc) -> SS:
+  match p:
+    case F.P_ln{ax, ay, bx, by}: ss_line(ax, ay, bx, by)
+    case F.P_ar{ax, ay, px, py, w, bx, by}: SS{False{}, G.GV_f{0.0f64}, True{}, False{}}
+
+def pcs_ssok_t(ps: List<&2, F.Pc>) -> Bool:
+  match ps:
+    case []: True{}
+    case p <> t: Bool.and(ss_ok(side_ss_p(p)), pcs_ssok_t(t))
+
+def pcs_ssok(ps: List<&2, F.Pc>) -> Bool:
+  pcs_ssok_t(ps)
+
+def side_ss(+ps: List<&2, F.Pc>, +i: Nat) -> SS:
+  side_ss_p(pc_nth(ps, i))
+
+def cap_start() -> G.GVal:
+  G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}}}
+
+def cap_end(+s: Nat) -> G.GVal:
+  +m = sec_mod4(s)
+  G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Dr{sec_cos(m), sec_sin(m), 0.0f64}}}
+
+def nw_add(+ax: F64, +ay: F64, +az: F64, +bx: F64, +by: F64, +bz: F64, +nx: F64, +ny: F64, +nz: F64) -> List<&2, F64>:
+  [F64.add(nx, F64.mul(F64.sub(ay, by), F64.add(az, bz))),
+    F64.add(ny, F64.mul(F64.sub(az, bz), F64.add(ax, bx))),
+    F64.add(nz, F64.mul(F64.sub(ax, bx), F64.add(ay, by)))]
+
+def f3(+xs: List<&2, F64>, +i: Nat) -> F64:
+  match xs:
+    case []: 0.0f64
+    case x <> t:
+      match i:
+        case 0n: x
+        case 1n+j: f3(t, j)
+
+def sec_px(+p: V.Point) -> F64:
+  V.Pt{x, y, z} = p
+  x
+
+def sec_py(+p: V.Point) -> F64:
+  V.Pt{x, y, z} = p
+  y
+
+def sec_pz(+p: V.Point) -> F64:
+  V.Pt{x, y, z} = p
+  z
+
+def nw_go(ps: List<&2, V.Point>, +fx: F64, +fy: F64, +fz: F64, +px: F64, +py: F64, +pz: F64, +nx: F64, +ny: F64, +nz: F64, +first: Bool) -> List<&2, F64>:
+  match ps:
+    case []: nw_add(px, py, pz, fx, fy, fz, nx, ny, nz)
+    case +p <> t:
+      match first:
+        case True{}:
+          +x = sec_px(p)
+          +y = sec_py(p)
+          +z = sec_pz(p)
+          nw_go(t, x, y, z, x, y, z, nx, ny, nz, False{})
+        case False{}:
+          +x = sec_px(p)
+          +y = sec_py(p)
+          +z = sec_pz(p)
+          +a = nw_add(px, py, pz, x, y, z, nx, ny, nz)
+          nw_go(t, fx, fy, fz, x, y, z, f3(a, 0n), f3(a, 1n), f3(a, 2n), False{})
+
+def cross_uv(+ux: F64, +uy: F64, +uz: F64, +vx: F64, +vy: F64, +vz: F64) -> List<&2, F64>:
+  [F64.sub(F64.mul(uy, vz), F64.mul(uz, vy)), F64.sub(F64.mul(uz, vx), F64.mul(ux, vz)),
+    F64.sub(F64.mul(ux, vy), F64.mul(uy, vx))]
+
+def cap_dirs(+u: V.Dir, +v: V.Dir, +n: List<&2, F64>) -> Bool:
+  V.Dr{+ux, +uy, +uz} = u
+  V.Dr{+vx, +vy, +vz} = v
+  +c = cross_uv(ux, uy, uz, vx, vy, vz)
+  F64.is_lt(0.0f64, F64.add(F64.add(F64.mul(f3(n, 0n), f3(c, 0n)), F64.mul(f3(n, 1n), f3(c, 1n))), F64.mul(f3(n, 2n), f3(c, 2n))))
+
+def cap_pl(pl: G.Plane3, +n: List<&2, F64>) -> Bool:
+  G.Pl{o, u, v} = pl
+  cap_dirs(u, v, n)
+
+def cap_dot(+s: G.GVal, +n: List<&2, F64>) -> Bool:
+  match s:
+    case G.GV_pl{pl}: cap_pl(pl, n)
+    case _: True{}
+
+def cap_same(+ps: List<&2, V.Point>, +s: G.GVal) -> Bool:
+  cap_dot(s, nw_go(ps, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, True{}))
+
+def pts_start_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +i: Nat) -> List<&2, V.Point>:
+  match left:
+    case 0n: []
+    case 1n+k: sec_pt(ps, n, i) <> pts_start_row(k, ps, n, Nat.add(i, 1n))
+
+def pts_start(+ps: List<&2, F.Pc>, +n: Nat) -> List<&2, V.Point>:
+  pts_start_row(n, ps, n, 0n)
+
+def pts_end_ord(+k: Nat, +n: Nat) -> Nat:
+  match k:
+    case 0n: 0n
+    case 1n+j: Nat.sub(n, Nat.add(j, 1n))
+
+def pts_end_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +k: Nat) -> List<&2, V.Point>:
+  match left:
+    case 0n: []
+    case 1n+j: sec_pt(ps, n, v_at(s, pts_end_ord(k, n), n)) <> pts_end_row(j, ps, n, s, Nat.add(k, 1n))
+
+def pts_end(+ps: List<&2, F.Pc>, +n: Nat, +s: Nat) -> List<&2, V.Point>:
+  pts_end_row(n, ps, n, s, 0n)
+
+def side_loop(+s: Nat, +i: Nat, +n: Nat, +quads: Nat, +plane: Bool, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  +j = sec_imod(i, n)
+  [sec_use(a_at(s, i, n), True{}, v_at(s, i, n), v_at(Nat.add(s, 1n), i, n), plane, surf, ps, n),
+    sec_use(p_at(Nat.add(s, 1n), i, n, quads), True{}, v_at(Nat.add(s, 1n), i, n), v_at(Nat.add(s, 1n), j, n), plane, surf, ps, n),
+    sec_use(a_at(s, j, n), False{}, v_at(s, j, n), v_at(Nat.add(s, 1n), j, n), plane, surf, ps, n),
+    sec_use(p_at(s, i, n, quads), False{}, v_at(s, i, n), v_at(s, j, n), plane, surf, ps, n)]
+
+def cap0_row(left: Nat, +k: Nat, +n: Nat, +quads: Nat, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  match left:
+    case 0n: []
+    case 1n+j:
+      sec_use(p_at(0n, k, n, quads), True{}, v_at(0n, k, n), v_at(0n, sec_imod(k, n), n), True{}, surf, ps, n) <>
+        cap0_row(j, Nat.add(k, 1n), n, quads, surf, ps)
+
+def cap0_loop(+i: Nat, +n: Nat, +quads: Nat, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  cap0_row(i, Nat.sub(n, i), n, quads, surf, ps)
+
+def cap1_row(left: Nat, +k: Nat, +n: Nat, +s: Nat, +quads: Nat, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  match left:
+    case 0n: []
+    case 1n+j:
+      sec_use(p_at(s, k, n, quads), False{}, v_at(s, k, n), v_at(s, sec_imod(k, n), n), True{}, surf, ps, n) <>
+        cap1_row(j, Nat.sub(k, 1n), n, s, quads, surf, ps)
+
+def cap1_go(z: Bool, +i: Nat, +n: Nat, +s: Nat, +quads: Nat, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  match z:
+    case True{}: []
+    case False{}: cap1_row(i, Nat.sub(i, 1n), n, s, quads, surf, ps)
+
+def cap1_loop(+i: Nat, +n: Nat, +s: Nat, +quads: Nat, +surf: G.GVal, +ps: List<&2, F.Pc>) -> List<&2, BD.Use>:
+  cap1_go(Nat.is_eq(i, 0n), i, n, s, quads, surf, ps)
+
+def sides_row(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +i: Nat, +quads: Nat, +nd: U64, +fi: Nat) -> List<&2, BD.FS>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      +ss = side_ss(ps, i)
+      +surf = ss_s(ss)
+      +pl = ss_plane(ss)
+      BD.FS{0n, surf, ss_same(ss), [side_loop(s, i, n, quads, pl, surf, ps)], BD.Fn{nd, 0n, 2u64, fi, 0n}} <>
+        sides_row(k, ps, n, s, Nat.add(i, 1n), quads, nd, Nat.add(fi, 1n))
+
+def sides_all(left: Nat, +ps: List<&2, F.Pc>, +n: Nat, +s: Nat, +quads: Nat, +nd: U64, +fi: Nat) -> List<&2, BD.FS>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      List.append(&2, BD.FS, sides_row(n, ps, n, s, 0n, quads, nd, fi), sides_all(k, ps, n, Nat.add(s, 1n), quads, nd, Nat.add(fi, n)))
+
+def sec_fs(+ps: List<&2, F.Pc>, +n: Nat, +quads: Nat, +nd: U64) -> List<&2, BD.FS>:
+  +s0 = cap_start()
+  +s1 = cap_end(quads)
+  +p0 = pts_start(ps, n)
+  +p1 = pts_end(ps, n, quads)
+  List.append(&2, BD.FS, sides_all(quads, ps, n, 0n, quads, nd, 0n),
+    [BD.FS{0n, s0, cap_same(p0, s0), [cap0_loop(n, n, quads, s0, ps)], BD.Fn{nd, 0n, 0u64, 0n, 0n}},
+      BD.FS{0n, s1, cap_same(p1, s1), [cap1_loop(n, n, quads, quads, s1, ps)], BD.Fn{nd, 0n, 1u64, 0n, 0n}}])
+
+def sec_bt(+vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>, +fs: List<&2, BD.FS>) -> BD.Bt:
+  +st = BD.fs_emit(fs, BD.St{0n, 0n, [], [], []}, 0n)
+  +runs = BD.sol_runs(fs, 0n, 0n, [])
+  +ns = List.length(&2, List<&2, Ty.HFace>, runs)
+  BD.Bt{BD.st_br(st, vx_gen(vs, 0n), BD.ed_gen(es, 0n), BD.shs_of(runs, 0n), BD.sos_of(ns, 0n), Ty.Cp{BD.hsos_of(ns, 0n), []}),
+    BD.fs_names(fs)}
+
+def sec_build(ok: Bool, +ps: List<&2, F.Pc>, +n: Nat, +quads: Nat, +nd: U64) -> RR:
+  match ok:
+    case False{}: sec_bad(24u64)
+    case True{}:
+      +stations = Nat.add(quads, 1n)
+      RR{0u64, 0n, sec_bt(sec_vs(ps, n, stations), sec_es(ps, n, quads), sec_fs(ps, n, quads, nd))}
+
+def sec_go(ok: Bool, +ps: List<&2, F.Pc>, +n: Nat, +quads: Nat, +nd: U64) -> RR:
+  match ok:
+    case False{}: sec_bad(24u64)
+    case True{}: sec_build(True{}, ps, n, quads, nd)
+
+def sec_rr(+ls: List<&2, F.Lp>, +hs: List<&2, Bool>, +nd: U64, +quads: Nat) -> RR:
+  +ok = Bool.and(sec_one(ls, hs), Bool.not(Nat.is_eq(quads, 0n)))
+  +lp = sec_lp0(ls)
+  +ps = F.lp_pcs(lp)
+  +n = List.length(&2, F.Pc, ps)
+  sec_go(Bool.and(ok, Bool.and(Bool.not(Nat.is_eq(n, 0n)), pcs_ssok(ps))), ps, n, quads, nd)

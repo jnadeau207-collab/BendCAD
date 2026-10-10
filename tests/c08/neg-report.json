@@ -1,5 +1,5 @@
 {
- "binary_sha256": "7bf6ac88b7be29a90a137d937d407951f019368c4147f8b37e0bb6832591597d",
+ "binary_sha256": "cb13f0e2a062886a2610170d7b0941797d3439ae25159c60fc35f3a6af6dfee0",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,37 +7,37 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 1.38
+   "seconds": 1.14
   },
   {
    "name": "cross.straddle",
    "ok": true,
    "info": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 3",
-   "seconds": 0.13
+   "seconds": 0.12
   },
   {
    "name": "cross.pierce_rod",
    "ok": true,
    "info": "boundaries-cross-or-overlap: edge-face-penetration 20 0 between nodes 1 and 3",
-   "seconds": 0.17
+   "seconds": 0.16
   },
   {
    "name": "cross.sphere",
    "ok": true,
    "info": "boundaries-cross-or-overlap: edge-face-penetration 3 6 between nodes 1 and 2",
-   "seconds": 1.08
+   "seconds": 0.66
   },
   {
    "name": "mixed.regions",
    "ok": true,
    "info": "mixed-solid-relations: one operand has solids both inside and outside the other",
-   "seconds": 0.21
+   "seconds": 0.16
   },
   {
    "name": "place.rot45_union",
    "ok": true,
    "info": "interval-placement: operand placement is not certified exact",
-   "seconds": 0.11
+   "seconds": 0.1
   },
   {
    "name": "place.rot45_diff",
@@ -49,79 +49,79 @@
    "name": "feature.on_boolean",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.23
+   "seconds": 0.21
   },
   {
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.24
+   "seconds": 0.21
   },
   {
    "name": "intent.mismatch",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.12
+   "seconds": 0.1
   },
   {
    "name": "zone.boolean",
    "ok": true,
-   "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: narrow th",
+   "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: union, difference and intersection refuse before any zone split; narrowing zones or separ",
    "seconds": 0.11
   },
   {
    "name": "diff.pinched",
    "ok": true,
    "info": "('numerical-uncertainty', 'validation-rejected: edge-face-overlap 15 5')",
-   "seconds": 0.21
+   "seconds": 0.15
   },
   {
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 7.56
+   "seconds": 6.09
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 5.25
+   "seconds": 3.99
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 1.33
+   "seconds": 1.1
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 4.97
+   "seconds": 3.78
   },
   {
    "name": "ok.identical",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 7.36
+   "seconds": 6.28
   },
   {
    "name": "ok.contained",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7999.999999992629, 8000.0",
-   "seconds": 0.13
+   "seconds": 0.12
   },
   {
    "name": "ok.disjoint_proof",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.7763568394002",
-   "seconds": 0.15
+   "seconds": 0.11
   },
   {
    "name": "ok.quarter_turn",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.16
+   "seconds": 0.09
   }
  ]
 }

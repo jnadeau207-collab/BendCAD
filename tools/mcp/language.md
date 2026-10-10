@@ -1,4 +1,4 @@
-# BendCAD design language (C06–C08)
+# BendCAD design language (C06–C09)
 
 A design is a list of parameters and nodes. Every node is one operation with a
 declared intent. Edits are atomic: a change is committed only if every node
@@ -66,6 +66,77 @@ parameter names (`W`), and `(+ a b)`, `(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
 
 An unknown operation name is rejected as `unknown-op`.
 
+## Features (C09)
+
+Lengths are ordinary expressions. Angles, twist counts, continuity tags,
+edge indices and pattern counts are exact non-negative integers, not
+expressions. A combination that is not in this list is `unknown-op` or
+`invalid-input` and publishes nothing.
+
+- `(sweep (line Z) REGION ...)` — prism of the regions from height 0 to Z.
+  `(guide (line _))` is the same straight path; the proof contains
+  `guide: path`. `(twist 0)` is the only twist.
+- `(sweep (arc DEG) REGION ...)` — revolve convention (profile x is the
+  radius, profile y is the height). DEG is 90, 180, 270, or 360. 90, 180
+  and 270 are constructed sectors; 360 is the full revolve. A matching
+  `(guide (arc DEG))` records `guide: path`. Partial sweeps are not a
+  boolean cut.
+- `(loft Z REGION_BOT REGION_TOP)` — bottom at z = 0, top at z = Z.
+  Optional `(twist K)` rotates the top loop by K segments. Optional
+  `(continuity g0)` or `(continuity g1)`.
+- `(chamfer BASE D)` — equal setback on the four vertical edges of a box,
+  or both rims of a cylinder. BASE is that box or cylinder node.
+- `(fillet BASE R)` — rolling-ball radius on all 12 box edges, or both
+  rims of a cylinder.
+- `(fillet BASE (edge N) R0 R1)` — one vertical box edge, N = 0, 1, 2 or 3.
+  Equal radii are a quarter-cylinder; unequal radii are a quarter-cone.
+- `(draft BASE INSET)` — box only. The top rectangle is inset by INSET on
+  every side (a negative inset grows the top). The slope is
+  `atan(INSET / Z)` and is not an exact bit, so the op stores the setback.
+- `(offset BASE D)` — sharp normal offset, not a rolling-ball. Box becomes
+  `[−D, X+D] × [−D, Y+D] × [−D, Z+D]`. Cylinder radius becomes `R+D` and
+  the height grows by D at each end. Edges stay sharp.
+- `(shell BASE T)` — closed wall: the outer solid minus a strictly interior
+  solid, one cavity. `(shell BASE T open)` on a box is a blind pocket of
+  depth `Z−T`, still a manifold solid.
+- `(thicken BASE T)` — outward layer. For T > 0 on a box or cylinder the
+  solid equals `(offset BASE T)`. Thicken does not take a negative
+  distance. Offset and thicken are sharp normal offsets, not rolling-ball.
+- `(pattern BASE (linear NX DX NY DY NZ DZ))` — NX, NY, NZ copies translated
+  by multiples of (DX, DY, DZ). Copies must be strictly box-disjoint.
+  `1×1×1` carries the base (`pattern-identity`).
+- `(pattern BASE (circular N R))` — N = 4 only. Copies at `(R,0,0)`,
+  `(0,R,0)`, `(−R,0,0)`, `(0,−R,0)`. The untranslated base is not extra.
+- `(pattern-holes BASE FACE (linear NX NY DX DY X0 Y0) (hole R) DEPTH)` and
+  `(pattern-holes BASE FACE (circular N RAD CX CY) (hole R) DEPTH)` — the
+  existing holes evaluator. DEPTH is a length or `through`. Circular N is 4.
+  FACE is `(face NODE CELL top)` or `(face NODE CELL bottom)`.
+
+`zone` on every feature above answers `topology-not-certified-over-zone`.
+
+Refusals, with the `why:` text verbatim:
+
+- `sweep-angle-not-certified`, `guide-not-admitted`, `twist-not-admitted`,
+  `continuity-not-met`, `chamfer-base-not-admitted`,
+  `fillet-base-not-admitted`, `fillet-edge-not-admitted`,
+  `draft-base-not-admitted`, `offset-base-not-admitted`,
+  `shell-base-not-admitted`, `pattern-copies-overlap`,
+  `pattern-angle-not-certified`, `pattern-count-not-admitted`
+  (unsupported-op).
+- `degenerate-feature`, `loft-face-not-planar`, `loft-self-intersection`,
+  `loft-topology-mismatch`, `chamfer-consumes-face`, `fillet-consumes-face`,
+  `draft-consumes-face`, `offset-self-intersection`, `shell-consumes-solid`
+  (invalid-input).
+- `features-need-an-extruded-body` (unsupported-op): pad, pocket and holes
+  on a fillet, chamfer, loft, arc sweep, draft, offset, shell or pattern.
+- `loft-not-certified` (numerical-uncertainty): a loft the rectangle
+  classifier does not own. A boolean or validator inside shell, pattern or
+  sweep that cannot certify returns that failure and publishes nothing.
+- `kind-not-decomposed`, `rigid-budget`: `rigid_report` / `solve_drag`
+  answers for a constraint kind outside the decomposable set, or a
+  component with more than 32 points. There is no design-file syntax;
+  `solve` itself is unchanged.
+
 ## Booleans
 
 Operands must be closed solids with plane, cylinder, cone, sphere, torus or
@@ -99,6 +170,8 @@ Refusals, with the `why:` text the kernel returns verbatim:
   to extruded bodies, not to boolean results; carried faces stay addressable
   through their original selectors.
 - `zone` on a boolean node answers `topology-not-certified-over-zone`.
+  Union, difference and intersection refuse before any zone split;
+  narrowing zones or separating profile features does not certify them.
 
 Disjoint unions carry their proof: `proof: disjoint-boxes A[...] B[...]` with
 both operand world boxes. Deleted lineage (`faces N -v`) lists consumed

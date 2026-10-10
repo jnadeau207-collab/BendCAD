@@ -1,0 +1,169 @@
+{
+ "binary_sha256": "cb13f0e2a062886a2610170d7b0941797d3439ae25159c60fc35f3a6af6dfee0",
+ "passed": 27,
+ "total": 27,
+ "results": [
+  {
+   "name": "sweep.angle",
+   "ok": true,
+   "info": "('unsupported-op', 'sweep-angle-not-certified', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "sweep.degenerate",
+   "ok": true,
+   "info": "('invalid-input', 'degenerate-feature', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "sweep.guide",
+   "ok": true,
+   "info": "('unsupported-op', 'guide-not-admitted', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "sweep.twist",
+   "ok": true,
+   "info": "('unsupported-op', 'twist-not-admitted', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "loft.mismatch",
+   "ok": true,
+   "info": "('invalid-input', 'loft-topology-mismatch', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "loft.g1",
+   "ok": true,
+   "info": "('unsupported-op', 'continuity-not-met', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "loft.nonplanar",
+   "ok": true,
+   "info": "('invalid-input', 'loft-face-not-planar', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "loft.self",
+   "ok": true,
+   "info": "('invalid-input', 'loft-self-intersection', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "chamfer.moved",
+   "ok": true,
+   "info": "('unsupported-op', 'chamfer-base-not-admitted', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "chamfer.consumes",
+   "ok": true,
+   "info": "('invalid-input', 'chamfer-consumes-face', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.moved",
+   "ok": true,
+   "info": "('unsupported-op', 'fillet-base-not-admitted', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.consumes",
+   "ok": true,
+   "info": "('invalid-input', 'fillet-consumes-face', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.zero",
+   "ok": true,
+   "info": "('invalid-input', 'degenerate-feature', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.edge",
+   "ok": true,
+   "info": "('unsupported-op', 'fillet-edge-not-admitted', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.cone",
+   "ok": true,
+   "info": "('numerical-uncertainty', 'surface-not-representable', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "draft.consumes",
+   "ok": true,
+   "info": "('invalid-input', 'draft-consumes-face', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "draft.base",
+   "ok": true,
+   "info": "('unsupported-op', 'draft-base-not-admitted', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "offset.self",
+   "ok": true,
+   "info": "('invalid-input', 'offset-self-intersection', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "offset.base",
+   "ok": true,
+   "info": "('unsupported-op', 'offset-base-not-admitted', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "shell.consumes",
+   "ok": true,
+   "info": "('invalid-input', 'shell-consumes-solid', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "shell.open_cyl",
+   "ok": true,
+   "info": "('unsupported-op', 'shell-base-not-admitted', True)",
+   "seconds": 0.01
+  },
+  {
+   "name": "pattern.overlap",
+   "ok": true,
+   "info": "('unsupported-op', 'pattern-copies-overlap', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "pattern.angle",
+   "ok": true,
+   "info": "('unsupported-op', 'pattern-angle-not-certified', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "pattern.count",
+   "ok": true,
+   "info": "('unsupported-op', 'pattern-count-not-admitted', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "fillet.pad",
+   "ok": true,
+   "info": "('unsupported-op', 'features-need-an-extruded-body', True)",
+   "seconds": 0.04
+  },
+  {
+   "name": "rigid.kind",
+   "ok": true,
+   "info": "kind-not-decomposed",
+   "seconds": 0.0
+  },
+  {
+   "name": "rigid.budget",
+   "ok": true,
+   "info": "rigid-budget",
+   "seconds": 0.0
+  }
+ ]
+}

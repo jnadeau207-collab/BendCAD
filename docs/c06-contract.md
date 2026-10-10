@@ -307,4 +307,4 @@ Performance (native, one thread, this machine): bracket build 0.12 s;
   delivered by C07 (`docs/c07-contract.md`).
 - Tessellation quality bounds and batch evaluation: C10. Tessellation
   is the slow path at scale (59 s for 1,600 holes).
-- Partial revolution (angle < 360°): C09.
+- Partial revolution (angle < 360°): C09 (`docs/c09-intent.md`). Admitted arc sweeps are 90/180/270 constructed in `src/c06/revolve.bend` (`sec_rr`) and published from `src/c09/feat.bend`; 360 is the full revolve.

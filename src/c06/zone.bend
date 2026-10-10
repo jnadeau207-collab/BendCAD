@@ -126,7 +126,58 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_union{a, b}: Z_err{"topology-not-certified-over-zone"}
             case M.O_difference{a, b}: Z_err{"topology-not-certified-over-zone"}
             case M.O_intersection{a, b}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_sw_line{z, rs, g, gd, tw}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_sw_arc{deg, rs, g, gd, tw}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_loft{z, bot, top, twist, cont}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_chamfer{base, d}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_fillet{base, r}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_fillet_e{base, n, r0, r1}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_draft{base, inset}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_offset{base, d}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_shell{base, t, open}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_thicken{base, t}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_pat_circ{base, n, r}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
+
+# Same walk as `z_go`, but only "this refusal is a boolean op". The why
+# string stays `topology-not-certified-over-zone`; the flag selects a
+# repair that is not the profile-topology one, which cannot certify a
+# union, difference or intersection.
+def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+m):
+      match mo:
+        case None{}: False{}
+        case Some{o}:
+          match o:
+            case M.O_move{base, tx, ty, tz, q}: z_bool_go(m, nd_find(ns, base), ns)
+            case M.O_rot{base, ax, deg}: z_bool_go(m, nd_find(ns, base), ns)
+            case M.O_union{a, b}: True{}
+            case M.O_difference{a, b}: True{}
+            case M.O_intersection{a, b}: True{}
+            case M.O_sw_line{z, rs, g, gd, tw}: False{}
+            case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
+            case M.O_loft{z, bot, top, twist, cont}: False{}
+            case M.O_chamfer{base, d}: False{}
+            case M.O_fillet{base, r}: False{}
+            case M.O_fillet_e{base, n, r0, r1}: False{}
+            case M.O_draft{base, inset}: False{}
+            case M.O_offset{base, d}: False{}
+            case M.O_shell{base, t, open}: False{}
+            case M.O_thicken{base, t}: False{}
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: False{}
+            case M.O_pat_circ{base, n, r}: False{}
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
+            case _: False{}
+
+def z_bool(+p: M.Part, +id: U64) -> Bool:
+  M.Pt{+ps, +ns} = p
+  z_bool_go(Nat.add(1n, List.length(&2, M.Node, ns)), nd_find(ns, id), ns)
 
 def zones_ok(ps: List<&2, M.Param>) -> Bool:
   match ps:
@@ -280,6 +331,20 @@ def sc_op(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +k: Nat) -> Sc:
             case M.O_pad{base, +f, rs, h}: sc_feat(sc_op(m, nd_find(ns, sel_nd(f)), ns, sel_k(f)), rs, k, 0u64, sel_side(f), h, False{})
             case M.O_pocket{base, +f, rs, d, thru}: sc_feat(sc_op(m, nd_find(ns, sel_nd(f)), ns, sel_k(f)), rs, k, 1u64, sel_side(f), d, thru)
             case M.O_holes{base, +f, hs, d, thru}: sc_feat(sc_op(m, nd_find(ns, sel_nd(f)), ns, sel_k(f)), hl_rgs(hs), k, 2u64, sel_side(f), d, thru)
+            case M.O_sw_line{z, rs, g, gd, tw}: sc_none()
+            case M.O_sw_arc{deg, rs, g, gd, tw}: sc_none()
+            case M.O_loft{z, bot, top, twist, cont}: sc_none()
+            case M.O_chamfer{base, d}: sc_none()
+            case M.O_fillet{base, r}: sc_none()
+            case M.O_fillet_e{base, n, r0, r1}: sc_none()
+            case M.O_draft{base, inset}: sc_none()
+            case M.O_offset{base, d}: sc_none()
+            case M.O_shell{base, t, open}: sc_none()
+            case M.O_thicken{base, t}: sc_none()
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: sc_none()
+            case M.O_pat_circ{base, n, r}: sc_none()
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: sc_none()
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: sc_none()
             case _: sc_none()
 
 def sc_lp(s: Sc) -> F.Loop:
@@ -330,6 +395,20 @@ def node_ok(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +cs: List<&2, BD
             case M.O_pad{+base, f, rs, h}: Bool.and(feat_node(m, f, rs, 0u64, h, False{}, ns, cs, nd, z), node_ok(m, nd_find(ns, base), ns, cs, base, z))
             case M.O_pocket{+base, f, rs, d, thru}: Bool.and(feat_node(m, f, rs, 1u64, d, thru, ns, cs, nd, z), node_ok(m, nd_find(ns, base), ns, cs, base, z))
             case M.O_holes{+base, f, hs, d, thru}: Bool.and(feat_node(m, f, hl_rgs(hs), 2u64, d, thru, ns, cs, nd, z), node_ok(m, nd_find(ns, base), ns, cs, base, z))
+            case M.O_sw_line{z, rs, g, gd, tw}: False{}
+            case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
+            case M.O_loft{z, bot, top, twist, cont}: False{}
+            case M.O_chamfer{base, d}: False{}
+            case M.O_fillet{base, r}: False{}
+            case M.O_fillet_e{base, n, r0, r1}: False{}
+            case M.O_draft{base, inset}: False{}
+            case M.O_offset{base, d}: False{}
+            case M.O_shell{base, t, open}: False{}
+            case M.O_thicken{base, t}: False{}
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: False{}
+            case M.O_pat_circ{base, n, r}: False{}
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
             case _: False{}
 
 def rel_ok(+a: X.Xp, +b: X.Xp, +na: F64, +nb: F64, +z: ZT.Zb) -> Bool:
@@ -453,6 +532,20 @@ def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id
             case M.O_revolve{rs}: rv_ok_all(rs, z)
             case M.O_move{+base, tx, ty, tz, q}: prof_ok(m, nd_find(ns, base), ns, b, base, z)
             case M.O_rot{+base, ax, deg}: prof_ok(m, nd_find(ns, base), ns, b, base, z)
+            case M.O_sw_line{z, rs, g, gd, tw}: False{}
+            case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
+            case M.O_loft{z, bot, top, twist, cont}: False{}
+            case M.O_chamfer{base, d}: False{}
+            case M.O_fillet{base, r}: False{}
+            case M.O_fillet_e{base, n, r0, r1}: False{}
+            case M.O_draft{base, inset}: False{}
+            case M.O_offset{base, d}: False{}
+            case M.O_shell{base, t, open}: False{}
+            case M.O_thicken{base, t}: False{}
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: False{}
+            case M.O_pat_circ{base, n, r}: False{}
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
             case _:
               +cs = M.bd_cells(b)
               +ds = BD.cds_of(cs)
@@ -472,6 +565,20 @@ def prof_dz(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +z:
             case M.O_revolve{rs}: rv_dz(rs, z)
             case M.O_move{base, tx, ty, tz, q}: prof_dz(m, nd_find(ns, base), ns, b, z)
             case M.O_rot{base, ax, deg}: prof_dz(m, nd_find(ns, base), ns, b, z)
+            case M.O_sw_line{zh, rs, g, gd, tw}: dz_zero(ZT.zd_n(z))
+            case M.O_sw_arc{deg, rs, g, gd, tw}: dz_zero(ZT.zd_n(z))
+            case M.O_loft{zh, bot, top, twist, cont}: dz_zero(ZT.zd_n(z))
+            case M.O_chamfer{base, d}: dz_zero(ZT.zd_n(z))
+            case M.O_fillet{base, r}: dz_zero(ZT.zd_n(z))
+            case M.O_fillet_e{base, n, r0, r1}: dz_zero(ZT.zd_n(z))
+            case M.O_draft{base, inset}: dz_zero(ZT.zd_n(z))
+            case M.O_offset{base, d}: dz_zero(ZT.zd_n(z))
+            case M.O_shell{base, t, open}: dz_zero(ZT.zd_n(z))
+            case M.O_thicken{base, t}: dz_zero(ZT.zd_n(z))
+            case M.O_pat_lin{base, nx, dx, ny, dy, nz, dz}: dz_zero(ZT.zd_n(z))
+            case M.O_pat_circ{base, n, r}: dz_zero(ZT.zd_n(z))
+            case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: dz_zero(ZT.zd_n(z))
+            case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: dz_zero(ZT.zd_n(z))
             case _:
               +ds = BD.cds_of(M.bd_cells(b))
               cells_md(ds, B.tb_of(BD.Cd, ds, BD.cd_pad()), ns, z, n)

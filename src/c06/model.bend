@@ -12,6 +12,7 @@ import ./build.bend as BD
 import ./revolve.bend as RV
 import ./iv.bend as I
 import ../c08/bool.bend as B8
+import ../c09/feat.bend as F9
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64 }
@@ -36,6 +37,20 @@ type Op is Data:
   O_union{ a: U64, b: U64 }
   O_difference{ a: U64, b: U64 }
   O_intersection{ a: U64, b: U64 }
+  O_sw_line{ z: X.Xp, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
+  O_sw_arc{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
+  O_loft{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
+  O_chamfer{ base: U64, d: X.Xp }
+  O_fillet{ base: U64, r: X.Xp }
+  O_fillet_e{ base: U64, n: U64, r0: X.Xp, r1: X.Xp }
+  O_draft{ base: U64, inset: X.Xp }
+  O_offset{ base: U64, d: X.Xp }
+  O_shell{ base: U64, t: X.Xp, open: Bool }
+  O_thicken{ base: U64, t: X.Xp }
+  O_pat_lin{ base: U64, nx: U64, dx: X.Xp, ny: U64, dy: X.Xp, nz: U64, dz: X.Xp }
+  O_pat_circ{ base: U64, n: U64, r: X.Xp }
+  O_ph_lin{ base: U64, f: Sel, nx: U64, ny: U64, dx: X.Xp, dy: X.Xp, x0: X.Xp, y0: X.Xp, r: X.Xp, d: X.Xp, thru: Bool }
+  O_ph_circ{ base: U64, f: Sel, n: U64, rad: X.Xp, cx: X.Xp, cy: X.Xp, r: X.Xp, d: X.Xp, thru: Bool }
 
 type Mat is Data:
   M_create{}
@@ -381,9 +396,35 @@ def ipt_exact(xs: List<&2, I.I>) -> Bool:
     case +x <> t:
       Bool.and(Bool.and(F64.is_eq(I.i_lo(x), I.i_hi(x)), Bool.or(F64.is_eq(F64.abs(I.i_lo(x)), 1.0f64), F64.is_eq(I.i_lo(x), 0.0f64))), ipt_exact(t))
 
+def ti_pt(+t: F64, +a: I.I) -> Bool:
+  Bool.and(F64.is_eq(I.i_lo(a), I.i_hi(a)), F64.is_eq(I.i_lo(a), t))
+
+def ti_tail(xs: List<&2, I.I>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: ti_tail(t)
+
+def ti3z(+ok: Bool, +tz: F64, xs: List<&2, I.I>) -> Bool:
+  match xs:
+    case []: False{}
+    case z <> t: Bool.and(Bool.and(ok, ti_pt(tz, z)), ti_tail(t))
+
+def ti3y(+ok: Bool, +ty: F64, +tz: F64, xs: List<&2, I.I>) -> Bool:
+  match xs:
+    case []: False{}
+    case +y <> t: ti3z(Bool.and(ok, ti_pt(ty, y)), tz, t)
+
+def ti3(+tx: F64, +ty: F64, +tz: F64, xs: List<&2, I.I>) -> Bool:
+  match xs:
+    case []: False{}
+    case +x <> t: ti3y(ti_pt(tx, x), ty, tz, t)
+
+# Exact only when the rotation is a signed permutation and tx/ty/tz are
+# the point stored in ti. A failed Fast2Sum leaves an interval in ti;
+# mapping by the rounded float would not contain that image.
 def pl_exact(p: Pl) -> Bool:
-  Pl{m, tx, ty, tz, mi, ti} = p
-  ipt_exact(mi)
+  Pl{m, +tx, +ty, +tz, mi, +ti} = p
+  Bool.and(ipt_exact(mi), ti3(tx, ty, tz, ti))
 
 def i_nth(xs: List<&2, I.I>, +i: Nat) -> I.I:
   match xs:
@@ -984,7 +1025,7 @@ def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>,
     case 6u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-empty-compound",
       "features need material to act on; pick a non-empty base node")
     case 7u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-boolean-result",
-      "features act on prism and revolve bodies; boolean results carry operand-frame cells until selectors lift features (a later item)")
+      "features act on prism, box and cylinder bodies along z; revolved bodies are unsupported, and boolean results carry operand-frame cells until selectors lift features (a later item)")
     case 2u64: bad(kind_what(kind), "node " ++ U64.show(nd), "no-such-face", "that cell's top or bottom is part of another face; select the owning cell")
     case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
     case _: bad(kind_what(kind), "node " ++ U64.show(nd), "depth-reaches-opposite-face", "use a smaller depth or a through cut")
@@ -1153,6 +1194,23 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_union{a, b}: B8.tag_union() <> a <> b <> []
     case O_difference{a, b}: B8.tag_diff() <> a <> b <> []
     case O_intersection{a, b}: B8.tag_inter() <> a <> b <> []
+    case O_sw_line{z, rs, g, gd, tw}: 17u64 <> g <> gd <> tw <> X.xp_w(z, e, rgs_w(rs, e, []))
+    case O_sw_arc{deg, rs, g, gd, tw}: 18u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
+    case O_loft{z, bot, top, twist, cont}: 19u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
+    case O_chamfer{base, d}: 20u64 <> base <> X.xp_w(d, e, [])
+    case O_fillet{base, r}: 21u64 <> base <> X.xp_w(r, e, [])
+    case O_fillet_e{base, n, r0, r1}: 22u64 <> base <> n <> X.xp_w(r0, e, X.xp_w(r1, e, []))
+    case O_draft{base, inset}: 23u64 <> base <> X.xp_w(inset, e, [])
+    case O_offset{base, d}: 24u64 <> base <> X.xp_w(d, e, [])
+    case O_shell{base, t, open}: 25u64 <> base <> Bool.pick(U64, open, 1u64, 0u64) <> X.xp_w(t, e, [])
+    case O_thicken{base, t}: 26u64 <> base <> X.xp_w(t, e, [])
+    case O_pat_lin{base, nx, dx, ny, dy, nz, dz}:
+      27u64 <> base <> nx <> ny <> nz <> X.xp_w(dx, e, X.xp_w(dy, e, X.xp_w(dz, e, [])))
+    case O_pat_circ{base, n, r}: 28u64 <> base <> n <> X.xp_w(r, e, [])
+    case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}:
+      29u64 <> base <> nx <> ny <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(dx, e, X.xp_w(dy, e, X.xp_w(x0, e, X.xp_w(y0, e, X.xp_w(r, e, X.xp_w(d, e, [])))))))
+    case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}:
+      30u64 <> base <> n <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(rad, e, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(d, e, []))))))
 
 def op_base(o: Op) -> U64:
   match o:
@@ -1164,6 +1222,17 @@ def op_base(o: Op) -> U64:
     case O_union{a, b}: a
     case O_difference{a, b}: a
     case O_intersection{a, b}: a
+    case O_chamfer{base, d}: base
+    case O_fillet{base, r}: base
+    case O_fillet_e{base, n, r0, r1}: base
+    case O_draft{base, inset}: base
+    case O_offset{base, d}: base
+    case O_shell{base, t, open}: base
+    case O_thicken{base, t}: base
+    case O_pat_lin{base, nx, dx, ny, dy, nz, dz}: base
+    case O_pat_circ{base, n, r}: base
+    case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: base
+    case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: base
     case _: 0u64
 
 def op_has_base(o: Op) -> Bool:
@@ -1176,6 +1245,17 @@ def op_has_base(o: Op) -> Bool:
     case O_union{a, b}: True{}
     case O_difference{a, b}: True{}
     case O_intersection{a, b}: True{}
+    case O_chamfer{base, d}: True{}
+    case O_fillet{base, r}: True{}
+    case O_fillet_e{base, n, r0, r1}: True{}
+    case O_draft{base, inset}: True{}
+    case O_offset{base, d}: True{}
+    case O_shell{base, t, open}: True{}
+    case O_thicken{base, t}: True{}
+    case O_pat_lin{base, nx, dx, ny, dy, nz, dz}: True{}
+    case O_pat_circ{base, n, r}: True{}
+    case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: True{}
+    case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: True{}
     case _: False{}
 
 def op_base2(o: Op) -> U64:
@@ -1213,6 +1293,20 @@ def op_name(o: Op) -> String:
     case O_union{a, b}: "union"
     case O_difference{a, b}: "difference"
     case O_intersection{a, b}: "intersection"
+    case O_sw_line{z, rs, g, gd, tw}: "sweep"
+    case O_sw_arc{deg, rs, g, gd, tw}: "sweep"
+    case O_loft{z, bot, top, twist, cont}: "loft"
+    case O_chamfer{base, d}: "chamfer"
+    case O_fillet{base, r}: "fillet"
+    case O_fillet_e{base, n, r0, r1}: "fillet"
+    case O_draft{base, inset}: "draft"
+    case O_offset{base, d}: "offset"
+    case O_shell{base, t, open}: "shell"
+    case O_thicken{base, t}: "thicken"
+    case O_pat_lin{base, nx, dx, ny, dy, nz, dz}: "pattern"
+    case O_pat_circ{base, n, r}: "pattern"
+    case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: "pattern-holes"
+    case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: "pattern-holes"
 
 def rls_holes(rs: List<&2, F.Rl>) -> List<&2, Bool>:
   match rs:
@@ -1303,25 +1397,6 @@ def bool_run(+o: Op, +b: Body, +b2: Body, +nd: U64) -> NR:
   bool_nr(B8.run(bool_tag(o), bool_in(b), bool_in(b2), nd, op_base(o), op_base2(o),
     U64.is_eq(op_base(o), op_base2(o))), b, b2)
 
-def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64) -> NR:
-  match o:
-    case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
-    case O_box{x, y, z}: op_prism([rect_rg(x, y)], xk(0.0f64), z, e, nd)
-    case O_cyl{r, h}: op_prism([circ_rg(r)], xk(0.0f64), h, e, nd)
-    case O_pad{base, f, rs, h}: op_feat(0u64, b, f, rs, h, False{}, e, nd)
-    case O_pocket{base, f, rs, d, thru}: op_feat(1u64, b, f, rs, d, thru, e, nd)
-    case O_holes{base, f, hs, d, thru}: op_feat(2u64, b, f, hls_rgs(hs), d, thru, e, nd)
-    case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
-    case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
-    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere or torus")
-    case O_revolve{rs}: op_rev(rs, e, nd)
-    case O_cone{r, h}: op_rev([cone_rg(r, h)], e, nd)
-    case O_sph{r}: op_rev([sph_rg(r)], e, nd)
-    case O_tor{bigr, r}: op_rev([tor_rg(bigr, r)], e, nd)
-    case O_union{an, bn}: bool_run(o, b, b2, nd)
-    case O_difference{an, bn}: bool_run(o, b, b2, nd)
-    case O_intersection{an, bn}: bool_run(o, b, b2, nd)
-
 def fn_w(f: BD.Fn) -> List<&2, U64>:
   BD.Fn{nd, k, role, i, j} = f
   [nd, U64.from_nat(k), role, U64.from_nat(i), U64.from_nat(j)]
@@ -1407,8 +1482,16 @@ def body_ns(+b: Body) -> List<&2, NS>:
   +br = bd_brep(b)
   ns_sort(ns_of(bd_fns(b), Ty.brep_fas(br), br))
 
+def mat_eq(+r: I.I, +b: I.I) -> Bool:
+  Bool.and(F64.is_eq(I.i_lo(r), I.i_lo(b)), F64.is_eq(I.i_hi(r), I.i_hi(b)))
+
+def mat_go(eq: Bool, +r: I.I, +b: I.I) -> Mat:
+  match eq:
+    case True{}: M_same{}
+    case False{}: Bool.pick(Mat, F64.is_lt(I.i_hi(b), I.i_lo(r)), M_add{}, Bool.pick(Mat, F64.is_lt(I.i_hi(r), I.i_lo(b)), M_remove{}, M_unknown{}))
+
 def mat_cmp(+r: I.I, +b: I.I) -> Mat:
-  Bool.pick(Mat, F64.is_lt(I.i_hi(b), I.i_lo(r)), M_add{}, Bool.pick(Mat, F64.is_lt(I.i_hi(r), I.i_lo(b)), M_remove{}, M_unknown{}))
+  mat_go(mat_eq(r, b), r, b)
 
 
 def fx_of(+o: Op, +hasb: Bool, +b: Body, +r: Body) -> Fx:
@@ -1531,36 +1614,6 @@ def nr_body(r: NR) -> Body:
     case NR_ok{b, f}: b
     case NR_err{k, d}: Bd{[], Ty.brep_empty(), [], pl_id(), [], xb_id()}
 
-def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64) -> NR:
-  match hit:
-    case True{}: ce_r(old)
-    case False{}: publish(op_build(o, b, b2, e, nd), o, hasb, b, it, nd)
-
-def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
-    +key: List<&2, U64>, +old: List<&2, CE>) -> NR:
-  match okb:
-    case False{}: bad(op_name(o), "node " ++ U64.show(nd), "input-node-missing-or-failed", "fix the input node first")
-    case True{}:
-      +oc = ce_find(old, nd)
-      hit_go(Bool.and(ce_has(old, nd), keq(ce_key(oc), key)), oc, o, hasb, b, b2, e, it, nd)
-
-def ev_nodes(ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, CE>) -> List<&2, CE>:
-  match ns:
-    case []: List.reverse(&2, CE, acc)
-    case n <> t:
-      Nd{+nd, +o, +it} = n
-      +hasb = op_has_base(o)
-      +hasb2 = op_has_b2(o)
-      +bc = ce_find(acc, op_base(o))
-      +bc2 = ce_find(acc, op_base2(o))
-      +okb = Bool.and(Bool.or(Bool.not(hasb), Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc)))),
-        Bool.or(Bool.not(hasb2), Bool.and(ce_has(acc, op_base2(o)), nr_ok(ce_r(bc2)))))
-      +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it),
-        List.append(&2, U64, Bool.pick(List<&2, U64>, hasb, ce_key(bc), []),
-          Bool.pick(List<&2, U64>, hasb2, ce_key(bc2), []))))
-      +r = node_go(okb, o, hasb, nr_body(ce_r(bc)), nr_body(ce_r(bc2)), e, it, nd, key, old)
-      ev_nodes(t, e, old, CE{nd, key, r} <> acc)
-
 def nd_id(n: Node) -> U64:
   Nd{id, op, it} = n
   id
@@ -1597,13 +1650,849 @@ def u_dup(xs: List<&2, U64>, +prev: U64, +first: Bool) -> Bool:
 def ids_dup(+xs: List<&2, U64>) -> Bool:
   u_dup(so_u(B.msort(~U64, ~u_cmp, xs)), 0u64, True{})
 
+def n2f(+n: Nat) -> F64:
+  U64.to_f64(U64.from_nat(n))
+
+def fpos(+v: F64) -> Bool:
+  Bool.and(T.is_finite(v), F64.is_lt(0.0f64, v))
+
+def eq0(+v: F64) -> Bool:
+  F64.is_eq(v, 0.0f64)
+
+def why_unsup(+y: String) -> Bool:
+  Bool.or(String.eq(y, "guide-not-admitted"), Bool.or(String.eq(y, "twist-not-admitted"),
+    Bool.or(String.eq(y, "sweep-angle-not-certified"), Bool.or(String.eq(y, "continuity-not-met"),
+      Bool.or(String.eq(y, "chamfer-base-not-admitted"), Bool.or(String.eq(y, "fillet-base-not-admitted"),
+        Bool.or(String.eq(y, "fillet-edge-not-admitted"), Bool.or(String.eq(y, "draft-base-not-admitted"),
+          Bool.or(String.eq(y, "offset-base-not-admitted"), Bool.or(String.eq(y, "shell-base-not-admitted"),
+            Bool.or(String.eq(y, "pattern-copies-overlap"), Bool.or(String.eq(y, "pattern-angle-not-certified"),
+              String.eq(y, "pattern-count-not-admitted")))))))))))))
+
+def why_k(u: Bool, +c: Bool) -> T.FailKind:
+  match u:
+    case True{}: T.F_unsupported{}
+    case False{}:
+      match c:
+        case True{}: T.F_uncertain{}
+        case False{}: T.F_invalid{}
+
+def why_nr(+what: String, +nd: U64, +y: String) -> NR:
+  nr_err(why_k(why_unsup(y), String.eq(y, "loft-not-certified")), what, "node " ++ U64.show(nd), y, "stay inside the admitted feature")
+
+def unc_nr(+what: String, +nd: U64, +y: String) -> NR:
+  nr_err(T.F_uncertain{}, what, "node " ++ U64.show(nd), y, "report this design")
+
+def nd_op(ns: List<&2, Node>, +id: U64) -> Op:
+  match ns:
+    case []: O_unk{"missing"}
+    case n <> t:
+      Nd{nid, op, it} = n
+      Bool.pick(Op, U64.is_eq(nid, id), op, nd_op(t, id))
+
+def base_kind(o: Op) -> U64:
+  match o:
+    case O_box{x, y, z}: 1u64
+    case O_cyl{r, h}: 2u64
+    case _: 0u64
+
+def bb_vx(b: Bb, v: Ty.Vertex) -> Bb:
+  Ty.Vx{id, p} = v
+  V.Pt{x, y, +z} = p
+  bb_z(bb_pt(b, x, y), z, z)
+
+def bb_vs(vs: List<&2, Ty.Vertex>, +b: Bb) -> Bb:
+  match vs:
+    case []: b
+    case v <> t: bb_vs(t, bb_vx(b, v))
+
+def ms_formula(+vol: F64, +br: Ty.Brep) -> Ms:
+  +bb0 = bb_vs(Ty.brep_vs(br), bb_empty())
+  +lin = F64.mul(bb_m(bb0), 1.7763568394002505e-15f64)
+  +bm = bb_m(bb0)
+  ms_mk(Acc{I.ipt(vol), I.ipt(F64.mul(24.0f64, F64.mul(bm, bm))), I.ipt(F64.mul(8.0f64, bm))}, bb_wid(bb0, lin), lin, br)
+
+def ms_set_vol(+m: Ms, +v: F64) -> Ms:
+  Ms{vol, +area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, +lin} = m
+  Ms{I.iwiden(I.ipt(v), F64.mul(I.i_hi(area), lin)), area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin}
+
+def ms_scale_vol(+m: Ms, +k: F64) -> Ms:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  I.I{lo, hi} = vol
+  Ms{I.I{F64.mul(lo, k), F64.mul(hi, k)}, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin}
+
+def ms_put_vol(+m: Ms, +v: I.I) -> Ms:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  Ms{v, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin}
+
+def dels_why(fs: List<&2, BD.Fn>, +w: U64) -> List<&2, B8.Del>:
+  match fs:
+    case []: []
+    case f <> t: B8.Del{f, w} <> dels_why(t, w)
+
+def nr_rv(clear: Bool, +rv: List<&2, F.Lp>) -> List<&2, F.Lp>:
+  match clear:
+    case True{}: []
+    case False{}: rv
+
+def nr_take_ok(+b: Body, +fx: Fx, +vol: F64, +pr: String, +dl: List<&2, B8.Del>, +bo: Bool, +clear: Bool) -> NR:
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), nr_rv(clear, bd_rv(b)), Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), bo, pr, dl}}, fx}
+
+def nr_take(r: NR, +vol: F64, +pr: String, +dl: List<&2, B8.Del>, +bo: Bool, +clear: Bool) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: nr_take_ok(b, fx, vol, pr, dl, bo, clear)
+
+def nr_pr_ok(+b: Body, +fx: Fx, +pr: String) -> NR:
+  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), pr, xb_dl(bd_xb(b))}}, fx}
+
+def nr_pr(r: NR, +pr: String) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: nr_pr_ok(b, fx, pr)
+
+def nr_ident(+b: Body, +pr: String) -> NR:
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[body_ms(b)], xb_nc(bd_xb(b)), False{}, pr, []}},
+    Fx{M_same{}, 0n, 0n, 0n, 0n}}
+
+def nr_rewhy_ok(+b: Body, +fx: Fx, +w: U64) -> NR:
+  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), dels_why(bd_fns(b), w)}}, fx}
+
+def nr_rewhy(r: NR, +w: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: nr_rewhy_ok(b, fx, w)
+
+def mesh_nr(r: NR, +vol: F64, +dl: List<&2, B8.Del>, +pr: String) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}:
+      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_formula(vol, bd_brep(b))], 0n, False{}, pr, dl}}, fx}
+
+def mesh_go(bt: BD.Bt, +vol: F64, +what: String, +dl: List<&2, B8.Del>, +pr: String) -> NR:
+  mesh_nr(bt_check(bt, [], pl_id(), what, []), vol, dl, pr)
+
+def sw_pe_go(z: Bool, +e: F.Er, +nd: U64) -> NR:
+  match z:
+    case True{}: why_nr("sweep", nd, "degenerate-feature")
+    case False{}: pe_nr(e, "sweep profile")
+
+def sw_pe(e: F.Er, +nd: U64) -> NR:
+  F.Er{+code, lp, sg} = e
+  sw_pe_go(U64.is_eq(code, 7u64), F.Er{code, lp, sg}, nd)
+
+def sw_lp(c: F.CK, +z: X.Xp, +rs: List<&2, F.Region>, +g: U64, +e: X.Env, +nd: U64) -> NR:
+  match c:
+    case F.CK_err{e}: sw_pe(e, nd)
+    case F.CK_ok{ls, ps}: nr_pr(op_prism(rs, xk(0.0f64), z, e, nd), F9.guide_pr(g))
+
+def sw_lt(ok: Bool, +z: X.Xp, +rs: List<&2, F.Region>, +g: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "twist-not-admitted")
+    case True{}: sw_lp(F.prof_check(rs, e), z, rs, g, e, nd)
+
+def sw_lg(ok: Bool, +z: X.Xp, +rs: List<&2, F.Region>, +g: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "guide-not-admitted")
+    case True{}: sw_lt(String.eq(F9.why_twist(tw), ""), z, rs, g, e, nd)
+
+def sw_lz(ok: Bool, +z: X.Xp, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "degenerate-feature")
+    case True{}: sw_lg(String.eq(F9.why_guide(0u64, g, gd, 0u64), ""), z, rs, g, tw, e, nd)
+
+def op_sw_line(+z: X.Xp, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  sw_lz(fpos(X.xp_ev(z, e)), z, rs, g, gd, tw, e, nd)
+
+def sw_scale(r: NR, +pp: List<&2, F.Lp>, +deg: U64, +g: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}:
+      +m = ms_scale_vol(rev_ms(pp, bd_brep(b), pl_id()), F9.sw_k(deg))
+      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[m], 0n, False{}, F9.guide_pr(g), []}}, fx}
+
+def sw_sec_go(ok: Bool, +code: U64, +lp: Nat, +b: BD.Bt, +pp: List<&2, F.Lp>, +deg: U64, +g: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(F.Er{code, lp, 0n}, "sweep profile")
+    case True{}: sw_scale(bt_check(b, [], pl_id(), "sweep", []), pp, deg, g)
+
+def sw_sec(r: RV.RR, +pp: List<&2, F.Lp>, +deg: U64, +g: U64) -> NR:
+  RV.RR{+code, lp, b} = r
+  sw_sec_go(U64.is_eq(code, 0u64), code, lp, b, pp, deg, g)
+
+def sw_full(full: Bool, +pp: List<&2, F.Lp>, +ps: List<&2, Nat>, +hs: List<&2, Bool>, +deg: U64, +g: U64, +nd: U64) -> NR:
+  match full:
+    case True{}: nr_pr(rev_go(F.Er{0u64, 0n, 0n}, pp, ps, hs, nd), F9.guide_pr(g))
+    case False{}: sw_sec(RV.sec_rr(pp, hs, nd, F9.sw_quads(deg)), pp, deg, g)
+
+def sw_ax_go(ok: Bool, +e: F.Er, +pp: List<&2, F.Lp>, +ps: List<&2, Nat>, +hs: List<&2, Bool>, +deg: U64, +g: U64, +nd: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(e, "sweep profile")
+    case True{}: sw_full(U64.is_eq(deg, 360u64), pp, ps, hs, deg, g, nd)
+
+def sw_ax(e: F.Er, +pp: List<&2, F.Lp>, +ps: List<&2, Nat>, +hs: List<&2, Bool>, +deg: U64, +g: U64, +nd: U64) -> NR:
+  F.Er{+code, lp, sg} = e
+  sw_ax_go(U64.is_eq(code, 0u64), F.Er{code, lp, sg}, pp, ps, hs, deg, g, nd)
+
+def sw_ap(c: F.CK, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +nd: U64) -> NR:
+  match c:
+    case F.CK_err{e}: sw_pe(e, nd)
+    case F.CK_ok{ls, ps}:
+      +hs = rls_holes(F.rg_rls(rs, 0n, F.K_free{}))
+      +pp = RV.lps_prep(ls, hs)
+      sw_ax(RV.ax_codes(pp, hs, 0n), pp, ps, hs, deg, g, nd)
+
+def sw_at(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "twist-not-admitted")
+    case True{}: sw_ap(F.prof_check(rs, e), deg, rs, g, nd)
+
+def sw_ag(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "guide-not-admitted")
+    case True{}: sw_at(String.eq(F9.why_twist(tw), ""), deg, rs, g, e, nd)
+
+def sw_aa(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep", nd, "sweep-angle-not-certified")
+    case True{}: sw_ag(String.eq(F9.why_guide(1u64, g, gd, deg), ""), deg, rs, g, tw, e, nd)
+
+def op_sw_arc(+deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  sw_aa(String.eq(F9.why_sw_ang(deg), ""), deg, rs, g, gd, tw, e, nd)
+
+def rg_out(r: F.Region) -> F.Loop:
+  F.Rg{o, hs} = r
+  o
+
+def rg_has_h(r: F.Region) -> Bool:
+  F.Rg{o, hs} = r
+  Bool.not(Nat.is_eq(List.length(&2, F.Loop, hs), 0n))
+
+def ev_code(ev: F.EV) -> U64:
+  match ev:
+    case F.EV_ok{ls}: 0u64
+    case F.EV_err{e}:
+      F.Er{code, lp, sg} = e
+      code
+
+def lp0(ls: List<&2, F.Lp>) -> F.Lp:
+  match ls:
+    case []: F.K_circ{0.0f64, 0.0f64, 1.0f64}
+    case h <> t: h
+
+def ev_lp(ev: F.EV) -> F.Lp:
+  match ev:
+    case F.EV_ok{ls}: lp0(ls)
+    case F.EV_err{e}: F.K_circ{0.0f64, 0.0f64, 1.0f64}
+
+def loft_pe(ev: F.EV, +nd: U64) -> NR:
+  match ev:
+    case F.EV_ok{ls}: why_nr("loft", nd, "loft-topology-mismatch")
+    case F.EV_err{e}: pe_nr(e, "loft profile")
+
+def loft_which(bot_ok: Bool, +eb: F.EV, +et: F.EV, +nd: U64) -> NR:
+  match bot_ok:
+    case True{}: loft_pe(et, nd)
+    case False{}: loft_pe(eb, nd)
+
+def loft_kind(k: U64, +why: String, +l: F9.LF, +bot: F.Region, +zv: F64, +e: X.Env, +nd: U64) -> NR:
+  match k:
+    case 0u64: why_nr("loft", nd, why)
+    case 1u64: op_prism([bot], xk(0.0f64), xk(zv), e, nd)
+    case 2u64: mesh_go(F9.frust_bt(F9.lf_x0(l), F9.lf_y0(l), F9.lf_x1(l), F9.lf_y1(l), F9.lf_u0(l), F9.lf_v0(l), F9.lf_u1(l), F9.lf_v1(l), zv, nd), F9.vol_frust(zv, F9.lf_x0(l), F9.lf_y0(l), F9.lf_x1(l), F9.lf_y1(l), F9.lf_u0(l), F9.lf_v0(l), F9.lf_u1(l), F9.lf_v1(l)), "loft", [], "")
+    case _: unc_nr("loft", nd, "loft-not-certified")
+
+def loft_use(+l: F9.LF, +bot: F.Region, +zv: F64, +e: X.Env, +nd: U64) -> NR:
+  loft_kind(F9.lf_kind(l), F9.lf_why(l), l, bot, zv, e, nd)
+
+def loft_err(bad: Bool, +cb: U64, +eb: F.EV, +et: F.EV, +zv: F64, +bot: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: loft_which(U64.is_eq(cb, 0u64), eb, et, nd)
+    case False{}: loft_use(F9.loft_lf(False{}, ev_lp(eb), ev_lp(et), U64.to_nat(twist), cont, zv), bot, zv, e, nd)
+
+def loft_c7(bad: Bool, +cb: U64, +eb: F.EV, +et: F.EV, +zv: F64, +bot: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("loft", nd, "degenerate-feature")
+    case False{}: loft_err(Bool.or(Bool.not(U64.is_eq(cb, 0u64)), Bool.not(U64.is_eq(ev_code(et), 0u64))), cb, eb, et, zv, bot, twist, cont, e, nd)
+
+def loft_ev2(+cb: U64, +ct: U64, +eb: F.EV, +et: F.EV, +zv: F64, +bot: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  loft_c7(Bool.or(U64.is_eq(cb, 7u64), U64.is_eq(ct, 7u64)), cb, eb, et, zv, bot, twist, cont, e, nd)
+
+def loft_ev(+eb: F.EV, +et: F.EV, +zv: F64, +bot: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  loft_ev2(ev_code(eb), ev_code(et), eb, et, zv, bot, twist, cont, e, nd)
+
+def loft_holes(bad: Bool, +zv: F64, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("loft", nd, "loft-topology-mismatch")
+    case False{}: loft_ev(F.loops_ev([rg_out(bot)], e, 0n), F.loops_ev([rg_out(top)], e, 0n), zv, bot, twist, cont, e, nd)
+
+def loft_z(ok: Bool, +zv: F64, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("loft", nd, "degenerate-feature")
+    case True{}: loft_holes(Bool.or(rg_has_h(bot), rg_has_h(top)), zv, bot, top, twist, cont, e, nd)
+
+def op_loft(+z: X.Xp, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +e: X.Env, +nd: U64) -> NR:
+  +zv = X.xp_ev(z, e)
+  loft_z(Bool.and(T.is_finite(zv), F64.is_lt(0.0f64, zv)), zv, bot, top, twist, cont, e, nd)
+
+def ch_box_c(bad: Bool, +x: F64, +y: F64, +z: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("chamfer", nd, "chamfer-consumes-face")
+    case False{}: nr_take(op_prism([F9.chamfer_rg(x, y, d)], xk(0.0f64), xk(z), e, nd), F9.vol_chamfer_box(x, y, z, d), "", dels_why(bd_fns(b), 3u64), False{}, True{})
+
+def ch_box(o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      ch_box_c(Bool.not(Bool.and(F64.is_lt(F64.mul(2.0f64, d), xv), F64.is_lt(F64.mul(2.0f64, d), yv))), xv, yv, zv, d, b, e, nd)
+    case _: why_nr("chamfer", nd, "chamfer-base-not-admitted")
+
+def ch_cyl_c(bad: Bool, +r: F64, +h: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("chamfer", nd, "chamfer-consumes-face")
+    case False{}: nr_take(op_rev([F9.cyl_chamfer_rg(r, h, d)], e, nd), F9.vol_chamfer_cyl(r, h, d), "", dels_why(bd_fns(b), 3u64), False{}, True{})
+
+def ch_cyl(o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_cyl{r, h}:
+      +rv = X.xp_ev(r, e)
+      +hv = X.xp_ev(h, e)
+      ch_cyl_c(Bool.not(Bool.and(F64.is_lt(d, rv), F64.is_lt(F64.mul(2.0f64, d), hv))), rv, hv, d, b, e, nd)
+    case _: why_nr("chamfer", nd, "chamfer-base-not-admitted")
+
+def ch_kind(k: U64, +o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match k:
+    case 1u64: ch_box(o, d, b, e, nd)
+    case 2u64: ch_cyl(o, d, b, e, nd)
+    case _: why_nr("chamfer", nd, "chamfer-base-not-admitted")
+
+def ch_d(bad: Bool, +dv: F64, +o: Op, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("chamfer", nd, "degenerate-feature")
+    case False{}: ch_kind(base_kind(o), o, dv, b, e, nd)
+
+def op_chamfer(+base: U64, +d: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +dv = X.xp_ev(d, e)
+  ch_d(Bool.not(fpos(dv)), dv, nd_op(ns, base), b, e, nd)
+
+def fi_box_c(bad: Bool, +x: F64, +y: F64, +z: F64, +r: F64, +b: Body, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("fillet", nd, "fillet-consumes-face")
+    case False{}: mesh_go(F9.fillet_bt(x, y, z, r, nd), F9.vol_fillet_box(x, y, z, r), "fillet", dels_why(bd_fns(b), 4u64), "")
+
+def fi_box(o: Op, +r: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      +two = F64.mul(2.0f64, r)
+      fi_box_c(Bool.not(Bool.and(F64.is_lt(two, xv), Bool.and(F64.is_lt(two, yv), F64.is_lt(two, zv)))), xv, yv, zv, r, b, nd)
+    case _: why_nr("fillet", nd, "fillet-base-not-admitted")
+
+def fi_cyl_c(bad: Bool, +rc: F64, +h: F64, +r: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("fillet", nd, "fillet-consumes-face")
+    case False{}: nr_take(op_rev([F9.cyl_fillet_rg(rc, h, r)], e, nd), F9.vol_fillet_cyl(rc, h, r), "", dels_why(bd_fns(b), 4u64), False{}, True{})
+
+def fi_cyl(o: Op, +r: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_cyl{rc0, h0}:
+      +rc = X.xp_ev(rc0, e)
+      +hv = X.xp_ev(h0, e)
+      fi_cyl_c(Bool.not(Bool.and(F64.is_lt(r, rc), F64.is_lt(F64.mul(2.0f64, r), hv))), rc, hv, r, b, e, nd)
+    case _: why_nr("fillet", nd, "fillet-base-not-admitted")
+
+def fi_kind(k: U64, +o: Op, +r: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match k:
+    case 1u64: fi_box(o, r, b, e, nd)
+    case 2u64: fi_cyl(o, r, b, e, nd)
+    case _: why_nr("fillet", nd, "fillet-base-not-admitted")
+
+def fi_d(bad: Bool, +rv: F64, +o: Op, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("fillet", nd, "degenerate-feature")
+    case False{}: fi_kind(base_kind(o), o, rv, b, e, nd)
+
+def op_fillet(+base: U64, +r: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +rv = X.xp_ev(r, e)
+  fi_d(Bool.not(fpos(rv)), rv, nd_op(ns, base), b, e, nd)
+
+def larger(+a: F64, +b: F64) -> F64:
+  Bool.pick(F64, F64.is_lt(a, b), b, a)
+
+def fe_cone_go(ok: Bool, +bt: BD.Bt, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: unc_nr("fillet", nd, "surface-not-representable")
+    case True{}: mesh_go(bt, F9.vol_fillet_edge(x, y, z, r0, r1), "fillet", dels_why(bd_fns(b), 4u64), "")
+
+def fe_cone(+c: F9.CB, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +b: Body, +nd: U64) -> NR:
+  fe_cone_go(F9.cb_ok(c), F9.cb_b(c), x, y, z, r0, r1, b, nd)
+
+def fe_eq(eq: Bool, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +n: U64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match eq:
+    case True{}: nr_take(op_prism([F9.fil_edge_rg(n, x, y, r0)], xk(0.0f64), xk(z), e, nd), F9.vol_fillet_edge(x, y, z, r0, r1), "", dels_why(bd_fns(b), 4u64), False{}, True{})
+    case False{}: fe_cone(F9.cone_bt(U64.to_nat(n), x, y, z, r0, r1, nd), x, y, z, r0, r1, b, nd)
+
+def fe_cons(bad: Bool, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +n: U64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("fillet", nd, "fillet-consumes-face")
+    case False{}: fe_eq(F64.is_eq(r0, r1), x, y, z, r0, r1, n, b, e, nd)
+
+def fe_box(o: Op, +n: U64, +r0: F64, +r1: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      +two = F64.mul(2.0f64, larger(r0, r1))
+      fe_cons(Bool.not(Bool.and(F64.is_lt(two, xv), F64.is_lt(two, yv))), xv, yv, zv, r0, r1, n, b, e, nd)
+    case _: why_nr("fillet", nd, "fillet-edge-not-admitted")
+
+def fe_admit(ok: Bool, +o: Op, +n: U64, +r0: F64, +r1: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("fillet", nd, "fillet-edge-not-admitted")
+    case True{}: fe_box(o, n, r0, r1, b, e, nd)
+
+def fe_d(bad: Bool, +a: F64, +c: F64, +n: U64, +o: Op, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("fillet", nd, "degenerate-feature")
+    case False{}: fe_admit(Bool.and(U64.is_eq(base_kind(o), 1u64), U64.is_lt(n, 4u64)), o, n, a, c, b, e, nd)
+
+def op_fillet_e(+base: U64, +n: U64, +r0: X.Xp, +r1: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +a = X.xp_ev(r0, e)
+  +c = X.xp_ev(r1, e)
+  fe_d(Bool.not(Bool.and(fpos(a), fpos(c))), a, c, n, nd_op(ns, base), b, e, nd)
+
+def dr_build(id0: Bool, +x: F64, +y: F64, +z: F64, +inset: F64, +b: Body, +nd: U64) -> NR:
+  match id0:
+    case True{}: nr_ident(b, "draft-identity")
+    case False{}: mesh_go(F9.frust_bt(0.0f64, 0.0f64, x, y, inset, inset, F64.sub(x, inset), F64.sub(y, inset), z, nd), F9.vol_draft(x, y, z, inset), "draft", dels_why(bd_fns(b), 5u64), "")
+
+def dr_cons(bad: Bool, +x: F64, +y: F64, +z: F64, +inset: F64, +b: Body, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("draft", nd, "draft-consumes-face")
+    case False{}: dr_build(eq0(inset), x, y, z, inset, b, nd)
+
+def dr_box(o: Op, +inset: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      +two = F64.mul(2.0f64, inset)
+      dr_cons(Bool.and(F64.is_lt(0.0f64, inset), Bool.not(Bool.and(F64.is_lt(two, xv), F64.is_lt(two, yv)))), xv, yv, zv, inset, b, nd)
+    case _: why_nr("draft", nd, "draft-base-not-admitted")
+
+def dr_k(ok: Bool, +o: Op, +inset: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("draft", nd, "draft-base-not-admitted")
+    case True{}: dr_box(o, inset, b, e, nd)
+
+def op_draft(+base: U64, +inset: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +o = nd_op(ns, base)
+  dr_k(U64.is_eq(base_kind(o), 1u64), o, X.xp_ev(inset, e), b, e, nd)
+
+def of_box_b(ok: Bool, +x: F64, +y: F64, +z: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("offset", nd, "offset-self-intersection")
+    case True{}: nr_take(op_prism([F9.rg(F64.neg(d), F64.neg(d), [F9.ln(F64.add(x, d), F64.neg(d)), F9.ln(F64.add(x, d), F64.add(y, d)), F9.ln(F64.neg(d), F64.add(y, d))])], xk(F64.neg(d)), xk(F64.add(z, d)), e, nd), F9.vol_offset_box(x, y, z, d), "", dels_why(bd_fns(b), 6u64), False{}, True{})
+
+def of_id(id0: Bool, +px: Bool, +py: Bool, +pz: Bool, +x: F64, +y: F64, +z: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match id0:
+    case True{}: nr_ident(b, "offset-identity")
+    case False{}: of_box_b(Bool.and(px, Bool.and(py, pz)), x, y, z, d, b, e, nd)
+
+def of_box(o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      of_id(eq0(d), fpos(F64.add(xv, F64.mul(2.0f64, d))), fpos(F64.add(yv, F64.mul(2.0f64, d))), fpos(F64.add(zv, F64.mul(2.0f64, d))), xv, yv, zv, d, b, e, nd)
+    case _: why_nr("offset", nd, "offset-base-not-admitted")
+
+def of_cyl_b(ok: Bool, +r: F64, +h: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("offset", nd, "offset-self-intersection")
+    case True{}: nr_take(op_prism([circ_rg(xk(F64.add(r, d)))], xk(F64.neg(d)), xk(F64.add(h, d)), e, nd), F9.vol_offset_cyl(r, h, d), "", dels_why(bd_fns(b), 6u64), False{}, True{})
+
+def of_cyl_id(id0: Bool, +pr: Bool, +ph: Bool, +r: F64, +h: F64, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match id0:
+    case True{}: nr_ident(b, "offset-identity")
+    case False{}: of_cyl_b(Bool.and(pr, ph), r, h, d, b, e, nd)
+
+def of_cyl(o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_cyl{r, h}:
+      +rv = X.xp_ev(r, e)
+      +hv = X.xp_ev(h, e)
+      of_cyl_id(eq0(d), fpos(F64.add(rv, d)), fpos(F64.add(hv, F64.mul(2.0f64, d))), rv, hv, d, b, e, nd)
+    case _: why_nr("offset", nd, "offset-base-not-admitted")
+
+def of_kind(k: U64, +o: Op, +d: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match k:
+    case 1u64: of_box(o, d, b, e, nd)
+    case 2u64: of_cyl(o, d, b, e, nd)
+    case _: why_nr("offset", nd, "offset-base-not-admitted")
+
+def op_offset(+base: U64, +d: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +o = nd_op(ns, base)
+  of_kind(base_kind(o), o, X.xp_ev(d, e), b, e, nd)
+
+def nr_shell_ok(+b: Body, +fx: Fx, +vol: F64, +dl: List<&2, B8.Del>) -> NR:
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), True{}, xb_pr(bd_xb(b)), dl}}, fx}
+
+def nr_shell(r: NR, +vol: F64, +dl: List<&2, B8.Del>) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: nr_shell_ok(b, fx, vol, dl)
+
+def sh_diff(inner: NR, +outer: Body, +vol: F64, +nd: U64) -> NR:
+  match inner:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+ib, fx}: nr_shell(bool_nr(B8.run(B8.tag_diff(), bool_in(outer), bool_in(ib), nd, 0u64, 0u64, False{}), outer, ib), vol, dels_why(bd_fns(outer), 7u64))
+
+def sh_box_go(open: Bool, +x: F64, +y: F64, +z: F64, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match open:
+    case True{}: nr_take(op_feat(1u64, b, Sel{base, 0n, 0u64}, [F9.rg(t, t, [F9.ln(F64.sub(x, t), t), F9.ln(F64.sub(x, t), F64.sub(y, t)), F9.ln(t, F64.sub(y, t))])], xk(F64.sub(z, t)), False{}, e, nd), F9.vol_shell_open(x, y, z, t), "", dels_why(bd_fns(b), 7u64), False{}, True{})
+    case False{}: sh_diff(op_prism([F9.rg(t, t, [F9.ln(F64.sub(x, t), t), F9.ln(F64.sub(x, t), F64.sub(y, t)), F9.ln(t, F64.sub(y, t))])], xk(t), xk(F64.sub(z, t)), e, nd), b, F9.vol_shell_box(x, y, z, t), nd)
+
+def sh_box_c(bad: Bool, +open: Bool, +x: F64, +y: F64, +z: F64, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("shell", nd, "shell-consumes-solid")
+    case False{}: sh_box_go(open, x, y, z, t, b, base, e, nd)
+
+def sh_box(o: Op, +open: Bool, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_box{x, y, z}:
+      +xv = X.xp_ev(x, e)
+      +yv = X.xp_ev(y, e)
+      +zv = X.xp_ev(z, e)
+      +two = F64.mul(2.0f64, t)
+      sh_box_c(Bool.or(Bool.not(F64.is_lt(two, xv)), Bool.or(Bool.not(F64.is_lt(two, yv)), Bool.or(Bool.not(F64.is_lt(two, zv)), Bool.and(open, Bool.not(F64.is_lt(t, zv)))))), open, xv, yv, zv, t, b, base, e, nd)
+    case _: why_nr("shell", nd, "shell-base-not-admitted")
+
+def sh_cyl_c(bad: Bool, +r: F64, +h: F64, +t: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("shell", nd, "shell-consumes-solid")
+    case False{}: sh_diff(op_prism([circ_rg(xk(F64.sub(r, t)))], xk(t), xk(F64.sub(h, t)), e, nd), b, F9.vol_shell_cyl(r, h, t), nd)
+
+def sh_cyl_ev(+r: X.Xp, +h: X.Xp, +t: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  +rv = X.xp_ev(r, e)
+  +hv = X.xp_ev(h, e)
+  sh_cyl_c(Bool.or(Bool.not(F64.is_lt(t, rv)), Bool.not(F64.is_lt(F64.mul(2.0f64, t), hv))), rv, hv, t, b, e, nd)
+
+def sh_cyl_o(open: Bool, +r: X.Xp, +h: X.Xp, +t: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match open:
+    case True{}: why_nr("shell", nd, "shell-base-not-admitted")
+    case False{}: sh_cyl_ev(r, h, t, b, e, nd)
+
+def sh_cyl(o: Op, +open: Bool, +t: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_cyl{r, h}: sh_cyl_o(open, r, h, t, b, e, nd)
+    case _: why_nr("shell", nd, "shell-base-not-admitted")
+
+def sh_kind(k: U64, +o: Op, +open: Bool, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match k:
+    case 1u64: sh_box(o, open, t, b, base, e, nd)
+    case 2u64: sh_cyl(o, open, t, b, e, nd)
+    case _: why_nr("shell", nd, "shell-base-not-admitted")
+
+def sh_t(bad: Bool, +o: Op, +open: Bool, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("shell", nd, "degenerate-feature")
+    case False{}: sh_kind(base_kind(o), o, open, t, b, base, e, nd)
+
+def sh_base(foreign: Bool, +badt: Bool, +o: Op, +open: Bool, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
+  match foreign:
+    case True{}: why_nr("shell", nd, "shell-base-not-admitted")
+    case False{}: sh_t(badt, o, open, t, b, base, e, nd)
+
+def op_shell(+base: U64, +t: X.Xp, +open: Bool, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +tv = X.xp_ev(t, e)
+  +o = nd_op(ns, base)
+  sh_base(U64.is_eq(base_kind(o), 0u64), Bool.not(fpos(tv)), o, open, tv, b, base, e, nd)
+
+def th_d(bad: Bool, +tv: F64, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>, +base: U64) -> NR:
+  match bad:
+    case True{}: why_nr("thicken", nd, "degenerate-feature")
+    case False{}: nr_rewhy(op_offset(base, xk(tv), b, e, nd, ns), 8u64)
+
+def op_thicken(+base: U64, +t: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +tv = X.xp_ev(t, e)
+  th_d(Bool.not(fpos(tv)), tv, b, e, nd, ns, base)
+
+def p_ix(+p: Nat, +nx: Nat) -> Nat:
+  F9.modn(p, nx)
+
+def p_iy(+p: Nat, +nx: Nat, +ny: Nat) -> Nat:
+  F9.modn(Nat.div(p, nx), ny)
+
+def p_iz(+p: Nat, +nx: Nat, +ny: Nat) -> Nat:
+  Nat.div(p, Nat.mul(nx, ny))
+
+def shf(+a: F64, +i: Nat, +d: F64) -> F64:
+  F64.add(a, F64.mul(n2f(i), d))
+
+def sep1(+a0: F64, +a1: F64, +b0: F64, +b1: F64) -> Bool:
+  Bool.or(F64.is_lt(a1, b0), F64.is_lt(b1, a0))
+
+def sep3(+ax0: F64, +ax1: F64, +ay0: F64, +ay1: F64, +az0: F64, +az1: F64, +bx0: F64, +bx1: F64, +by0: F64, +by1: F64, +bz0: F64, +bz1: F64) -> Bool:
+  Bool.or(sep1(ax0, ax1, bx0, bx1), Bool.or(sep1(ay0, ay1, by0, by1), sep1(az0, az1, bz0, bz1)))
+
+def ov_pair(+j: Nat, +i: Nat, +x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +dx: F64, +dy: F64, +dz: F64, +nx: Nat, +ny: Nat) -> Bool:
+  Bool.not(sep3(shf(x0, p_ix(j, nx), dx), shf(x1, p_ix(j, nx), dx), shf(y0, p_iy(j, nx, ny), dy), shf(y1, p_iy(j, nx, ny), dy), shf(z0, p_iz(j, nx, ny), dz), shf(z1, p_iz(j, nx, ny), dz), shf(x0, p_ix(i, nx), dx), shf(x1, p_ix(i, nx), dx), shf(y0, p_iy(i, nx, ny), dy), shf(y1, p_iy(i, nx, ny), dy), shf(z0, p_iz(i, nx, ny), dz), shf(z1, p_iz(i, nx, ny), dz)))
+
+def ov_j(j: Nat, +i: Nat, +x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +dx: F64, +dy: F64, +dz: F64, +nx: Nat, +ny: Nat) -> Bool:
+  match j:
+    case 0n: False{}
+    case 1n++k: Bool.pick(Bool, ov_pair(k, i, x0, x1, y0, y1, z0, z1, dx, dy, dz, nx, ny), True{}, ov_j(k, i, x0, x1, y0, y1, z0, z1, dx, dy, dz, nx, ny))
+
+def ov_i(i: Nat, +x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +dx: F64, +dy: F64, +dz: F64, +nx: Nat, +ny: Nat) -> Bool:
+  match i:
+    case 0n: False{}
+    case 1n++k: Bool.pick(Bool, ov_j(k, k, x0, x1, y0, y1, z0, z1, dx, dy, dz, nx, ny), True{}, ov_i(k, x0, x1, y0, y1, z0, z1, dx, dy, dz, nx, ny))
+
+def retag(fs: List<&2, BD.Fn>, +nd: U64, +i: Nat) -> List<&2, BD.Fn>:
+  match fs:
+    case []: []
+    case f <> t: BD.Fn{nd, 0n, 2u64, i, 0n} <> retag(t, nd, Nat.add(i, 1n))
+
+def nr_pat_go(+acc: Body, +bv: I.I, +base: Body, +n: Nat, +nd: U64) -> NR:
+  NR_ok{Bd{[], bd_brep(acc), retag(bd_fns(acc), nd, 0n), bd_pl(acc), [], Xb{[ms_put_vol(body_ms(acc), I.I{F64.mul(I.i_lo(bv), n2f(n)), F64.mul(I.i_hi(bv), n2f(n))})], xb_nc(bd_xb(acc)), True{}, xb_pr(bd_xb(acc)), dels_why(bd_fns(base), 9u64)}}, Fx{M_add{}, 0n, 0n, 0n, 0n}}
+
+def nr_pat_body(+acc: Body, +base: Body, +n: Nat, +nd: U64) -> NR:
+  nr_pat_go(acc, ms_vol(body_ms(base)), base, n, nd)
+
+def pat_finish(r: NR, +b0: Body, +n: Nat, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{b, fx}: nr_pat_body(b, b0, n, nd)
+
+def pat_union_mv(mv: NR, +acc: Body, +nd: U64) -> NR:
+  match mv:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+mb, fx}: bool_nr(B8.run(B8.tag_union(), bool_in(acc), bool_in(mb), nd, 0u64, 0u64, False{}), acc, mb)
+
+def pat_union(+b0: Body, +acc: Body, +i: Nat, +dx: F64, +dy: F64, +dz: F64, +nx: Nat, +ny: Nat, +e: X.Env, +nd: U64) -> NR:
+  pat_union_mv(op_move(b0, xk(shf(0.0f64, p_ix(i, nx), dx)), xk(shf(0.0f64, p_iy(i, nx, ny), dy)), xk(shf(0.0f64, p_iz(i, nx, ny), dz)), 0u64, e, nd), acc, nd)
+
+def pat_step(left: Nat, +r: NR, +i: Nat, +n: Nat, +b0: Body, +dx: F64, +dy: F64, +dz: F64, +nx: Nat, +ny: Nat, +e: X.Env, +nd: U64) -> NR:
+  match left:
+    case 0n: pat_finish(r, b0, n, nd)
+    case 1n+k:
+      match r:
+        case NR_err{k0, d}: NR_err{k0, d}
+        case NR_ok{b, fx}: pat_step(k, pat_union(b0, b, i, dx, dy, dz, nx, ny, e, nd), Nat.add(i, 1n), n, b0, dx, dy, dz, nx, ny, e, nd)
+
+def pat_lin_id(id0: Bool, +b: Body, +nx: Nat, +ny: Nat, +nz: Nat, +dx: F64, +dy: F64, +dz: F64, +e: X.Env, +nd: U64) -> NR:
+  match id0:
+    case True{}: nr_ident(b, "pattern-identity")
+    case False{}: pat_step(Nat.sub(Nat.mul(nx, Nat.mul(ny, nz)), 1n), NR_ok{b, Fx{M_same{}, 0n, 0n, 0n, 0n}}, 1n, Nat.mul(nx, Nat.mul(ny, nz)), b, dx, dy, dz, nx, ny, e, nd)
+
+def pat_lin_ov(hit: Bool, +b: Body, +nx: Nat, +ny: Nat, +nz: Nat, +dx: F64, +dy: F64, +dz: F64, +e: X.Env, +nd: U64) -> NR:
+  match hit:
+    case True{}: why_nr("pattern", nd, "pattern-copies-overlap")
+    case False{}: pat_lin_id(Bool.and(Nat.is_eq(nx, 1n), Bool.and(Nat.is_eq(ny, 1n), Nat.is_eq(nz, 1n))), b, nx, ny, nz, dx, dy, dz, e, nd)
+
+def pat_lin_z(bad: Bool, +b: Body, +nx: Nat, +ny: Nat, +nz: Nat, +dx: F64, +dy: F64, +dz: F64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("pattern", nd, "pattern-count-not-admitted")
+    case False{}:
+      +m = body_ms(b)
+      pat_lin_ov(ov_i(Nat.mul(nx, Nat.mul(ny, nz)), ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m), dx, dy, dz, nx, ny), b, nx, ny, nz, dx, dy, dz, e, nd)
+
+def op_pat_lin(+base: U64, +nx: U64, +dx: X.Xp, +ny: U64, +dy: X.Xp, +nz: U64, +dz: X.Xp, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  pat_lin_z(Bool.or(U64.is_eq(nx, 0u64), Bool.or(U64.is_eq(ny, 0u64), U64.is_eq(nz, 0u64))), b, U64.to_nat(nx), U64.to_nat(ny), U64.to_nat(nz), X.xp_ev(dx, e), X.xp_ev(dy, e), X.xp_ev(dz, e), e, nd)
+
+def cdx3(k: Nat, +r: F64) -> F64:
+  match k:
+    case 0n: F64.neg(r)
+    case _: 0.0f64
+
+def cdx2(j: Nat, +r: F64) -> F64:
+  match j:
+    case 0n: 0.0f64
+    case 1n+k: cdx3(k, r)
+
+def cdx1(i: Nat, +r: F64) -> F64:
+  match i:
+    case 0n: r
+    case 1n+j: cdx2(j, r)
+
+def cdx(i: Nat, +r: F64) -> F64:
+  cdx1(i, r)
+
+def cdy3(k: Nat, +r: F64) -> F64:
+  match k:
+    case 0n: 0.0f64
+    case _: F64.neg(r)
+
+def cdy2(j: Nat, +r: F64) -> F64:
+  match j:
+    case 0n: r
+    case 1n+k: cdy3(k, r)
+
+def cdy1(i: Nat, +r: F64) -> F64:
+  match i:
+    case 0n: 0.0f64
+    case 1n+j: cdy2(j, r)
+
+def cdy(i: Nat, +r: F64) -> F64:
+  cdy1(i, r)
+
+def circ_sep(+i: Nat, +j: Nat, +x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +r: F64) -> Bool:
+  sep3(F64.add(x0, cdx(i, r)), F64.add(x1, cdx(i, r)), F64.add(y0, cdy(i, r)), F64.add(y1, cdy(i, r)), z0, z1, F64.add(x0, cdx(j, r)), F64.add(x1, cdx(j, r)), F64.add(y0, cdy(j, r)), F64.add(y1, cdy(j, r)), z0, z1)
+
+def circ_ov(+x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +r: F64) -> Bool:
+  Bool.not(Bool.and(circ_sep(0n, 1n, x0, x1, y0, y1, z0, z1, r), Bool.and(circ_sep(0n, 2n, x0, x1, y0, y1, z0, z1, r), Bool.and(circ_sep(0n, 3n, x0, x1, y0, y1, z0, z1, r), Bool.and(circ_sep(1n, 2n, x0, x1, y0, y1, z0, z1, r), Bool.and(circ_sep(1n, 3n, x0, x1, y0, y1, z0, z1, r), circ_sep(2n, 3n, x0, x1, y0, y1, z0, z1, r)))))))
+
+def circ_mv(mv: NR, +acc: Body, +e: X.Env, +nd: U64) -> NR:
+  match mv:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+mb, fx}: bool_nr(B8.run(B8.tag_union(), bool_in(acc), bool_in(mb), nd, 0u64, 0u64, False{}), acc, mb)
+
+def circ_u(r: NR, +src: Body, +tx: F64, +ty: F64, +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{acc, fx}: circ_mv(op_move(src, xk(tx), xk(ty), xk(0.0f64), 0u64, e, nd), acc, e, nd)
+
+def circ_fin(r: NR, +b: Body, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{acc, fx}: nr_pat_body(acc, b, 4n, nd)
+
+def pat_circ_ov(hit: Bool, +b: Body, +r: F64, +e: X.Env, +nd: U64) -> NR:
+  match hit:
+    case True{}: why_nr("pattern", nd, "pattern-copies-overlap")
+    case False{}: circ_fin(circ_u(circ_u(circ_u(op_move(b, xk(r), xk(0.0f64), xk(0.0f64), 0u64, e, nd), b, 0.0f64, r, e, nd), b, F64.neg(r), 0.0f64, e, nd), b, 0.0f64, F64.neg(r), e, nd), b, nd)
+
+def pat_circ_r(bad: Bool, +b: Body, +r: F64, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("pattern", nd, "pattern-angle-not-certified")
+    case False{}:
+      +m = body_ms(b)
+      pat_circ_ov(circ_ov(ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m), r), b, r, e, nd)
+
+def pat_circ_n(z: Bool, +bad: Bool, +b: Body, +r: F64, +e: X.Env, +nd: U64) -> NR:
+  match z:
+    case True{}: why_nr("pattern", nd, "pattern-count-not-admitted")
+    case False{}: pat_circ_r(bad, b, r, e, nd)
+
+def op_pat_circ(+base: U64, +n: U64, +r: X.Xp, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  +rv = X.xp_ev(r, e)
+  pat_circ_n(U64.is_eq(n, 0u64), Bool.not(Bool.and(U64.is_eq(n, 4u64), Bool.and(T.is_finite(rv), Bool.not(eq0(rv))))), b, rv, e, nd)
+
+def hl_cell(+i: Nat, +j: Nat, +dx: F64, +dy: F64, +x0: F64, +y0: F64, +r: F64) -> Hl:
+  Hl{xk(F64.add(x0, F64.mul(n2f(i), dx))), xk(F64.add(y0, F64.mul(n2f(j), dy))), xk(r)}
+
+def hl_row(left: Nat, +j: Nat, +i: Nat, +dx: F64, +dy: F64, +x0: F64, +y0: F64, +r: F64) -> List<&2, Hl>:
+  match left:
+    case 0n: []
+    case 1n+k: hl_cell(i, j, dx, dy, x0, y0, r) <> hl_row(k, Nat.add(j, 1n), i, dx, dy, x0, y0, r)
+
+def hl_grid(left: Nat, +i: Nat, +ny: Nat, +dx: F64, +dy: F64, +x0: F64, +y0: F64, +r: F64) -> List<&2, Hl>:
+  match left:
+    case 0n: []
+    case 1n+k: List.append(&2, Hl, hl_row(ny, 0n, i, dx, dy, x0, y0, r), hl_grid(k, Nat.add(i, 1n), ny, dx, dy, x0, y0, r))
+
+def ph_lin_z(bad: Bool, +f: Sel, +nx: Nat, +ny: Nat, +dx: F64, +dy: F64, +x0: F64, +y0: F64, +r: F64, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("pattern-holes", nd, "pattern-count-not-admitted")
+    case False{}: op_feat(2u64, b, f, hls_rgs(hl_grid(nx, 0n, ny, dx, dy, x0, y0, r)), d, thru, e, nd)
+
+def op_ph_lin(+base: U64, +f: Sel, +nx: U64, +ny: U64, +dx: X.Xp, +dy: X.Xp, +x0: X.Xp, +y0: X.Xp, +r: X.Xp, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  ph_lin_z(Bool.or(U64.is_eq(nx, 0u64), U64.is_eq(ny, 0u64)), f, U64.to_nat(nx), U64.to_nat(ny), X.xp_ev(dx, e), X.xp_ev(dy, e), X.xp_ev(x0, e), X.xp_ev(y0, e), X.xp_ev(r, e), d, thru, b, e, nd)
+
+def hl_circ(+rad: F64, +cx: F64, +cy: F64, +r: F64) -> List<&2, Hl>:
+  [Hl{xk(F64.add(cx, rad)), xk(cy), xk(r)}, Hl{xk(cx), xk(F64.add(cy, rad)), xk(r)}, Hl{xk(F64.sub(cx, rad)), xk(cy), xk(r)}, Hl{xk(cx), xk(F64.sub(cy, rad)), xk(r)}]
+
+def ph_circ_a(four: Bool, +f: Sel, +rad: F64, +cx: F64, +cy: F64, +r: F64, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match four:
+    case False{}: why_nr("pattern-holes", nd, "pattern-angle-not-certified")
+    case True{}: op_feat(2u64, b, f, hls_rgs(hl_circ(rad, cx, cy, r)), d, thru, e, nd)
+
+def ph_circ_n(z: Bool, +four: Bool, +f: Sel, +rad: F64, +cx: F64, +cy: F64, +r: F64, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match z:
+    case True{}: why_nr("pattern-holes", nd, "pattern-count-not-admitted")
+    case False{}: ph_circ_a(four, f, rad, cx, cy, r, d, thru, b, e, nd)
+
+def op_ph_circ(+base: U64, +f: Sel, +n: U64, +rad: X.Xp, +cx: X.Xp, +cy: X.Xp, +r: X.Xp, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  ph_circ_n(U64.is_eq(n, 0u64), U64.is_eq(n, 4u64), f, X.xp_ev(rad, e), X.xp_ev(cx, e), X.xp_ev(cy, e), X.xp_ev(r, e), d, thru, b, e, nd)
+def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  match o:
+    case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
+    case O_box{x, y, z}: op_prism([rect_rg(x, y)], xk(0.0f64), z, e, nd)
+    case O_cyl{r, h}: op_prism([circ_rg(r)], xk(0.0f64), h, e, nd)
+    case O_pad{base, f, rs, h}: op_feat(0u64, b, f, rs, h, False{}, e, nd)
+    case O_pocket{base, f, rs, d, thru}: op_feat(1u64, b, f, rs, d, thru, e, nd)
+    case O_holes{base, f, hs, d, thru}: op_feat(2u64, b, f, hls_rgs(hs), d, thru, e, nd)
+    case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
+    case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
+    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern or pattern-holes")
+    case O_revolve{rs}: op_rev(rs, e, nd)
+    case O_cone{r, h}: op_rev([cone_rg(r, h)], e, nd)
+    case O_sph{r}: op_rev([sph_rg(r)], e, nd)
+    case O_tor{bigr, r}: op_rev([tor_rg(bigr, r)], e, nd)
+    case O_union{an, bn}: bool_run(o, b, b2, nd)
+    case O_difference{an, bn}: bool_run(o, b, b2, nd)
+    case O_intersection{an, bn}: bool_run(o, b, b2, nd)
+    case O_sw_line{z, rs, g, gd, tw}: op_sw_line(z, rs, g, gd, tw, e, nd)
+    case O_sw_arc{deg, rs, g, gd, tw}: op_sw_arc(deg, rs, g, gd, tw, e, nd)
+    case O_loft{z, bot, top, twist, cont}: op_loft(z, bot, top, twist, cont, e, nd)
+    case O_chamfer{base, d}: op_chamfer(base, d, b, e, nd, ns)
+    case O_fillet{base, r}: op_fillet(base, r, b, e, nd, ns)
+    case O_fillet_e{base, n, r0, r1}: op_fillet_e(base, n, r0, r1, b, e, nd, ns)
+    case O_draft{base, inset}: op_draft(base, inset, b, e, nd, ns)
+    case O_offset{base, d}: op_offset(base, d, b, e, nd, ns)
+    case O_shell{base, t, open}: op_shell(base, t, open, b, e, nd, ns)
+    case O_thicken{base, t}: op_thicken(base, t, b, e, nd, ns)
+    case O_pat_lin{base, nx, dx, ny, dy, nz, dz}: op_pat_lin(base, nx, dx, ny, dy, nz, dz, b, e, nd)
+    case O_pat_circ{base, n, r}: op_pat_circ(base, n, r, b, e, nd)
+    case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: op_ph_lin(base, f, nx, ny, dx, dy, x0, y0, r, d, thru, b, e, nd)
+    case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: op_ph_circ(base, f, n, rad, cx, cy, r, d, thru, b, e, nd)
+
+def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  match hit:
+    case True{}: ce_r(old)
+    case False{}: publish(op_build(o, b, b2, e, nd, ns), o, hasb, b, it, nd)
+
+def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
+    +key: List<&2, U64>, +old: List<&2, CE>, +ns: List<&2, Node>) -> NR:
+  match okb:
+    case False{}: bad(op_name(o), "node " ++ U64.show(nd), "input-node-missing-or-failed", "fix the input node first")
+    case True{}:
+      +oc = ce_find(old, nd)
+      hit_go(Bool.and(ce_has(old, nd), keq(ce_key(oc), key)), oc, o, hasb, b, b2, e, it, nd, ns)
+
+def ev_nodes(ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, CE>, +all: List<&2, Node>) -> List<&2, CE>:
+  match ns:
+    case []: List.reverse(&2, CE, acc)
+    case n <> t:
+      Nd{+nd, +o, +it} = n
+      +hasb = op_has_base(o)
+      +hasb2 = op_has_b2(o)
+      +bc = ce_find(acc, op_base(o))
+      +bc2 = ce_find(acc, op_base2(o))
+      +okb = Bool.and(Bool.or(Bool.not(hasb), Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc)))),
+        Bool.or(Bool.not(hasb2), Bool.and(ce_has(acc, op_base2(o)), nr_ok(ce_r(bc2)))))
+      +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it),
+        List.append(&2, U64, Bool.pick(List<&2, U64>, hasb, ce_key(bc), []),
+          Bool.pick(List<&2, U64>, hasb2, ce_key(bc2), []))))
+      +r = node_go(okb, o, hasb, nr_body(ce_r(bc)), nr_body(ce_r(bc2)), e, it, nd, key, old, all)
+      ev_nodes(t, e, old, CE{nd, key, r} <> acc, all)
+
 def ev_go(ok: Bool, +p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   match ok:
     case False{}: [CE{0u64, [], bad("part", "-", "duplicate-node-or-parameter-id", "give every node and parameter a distinct id")}]
     case True{}:
-      Pt{ps, ns} = p
-      ev_nodes(ns, X.env_of(pvs_of(ps)), old, [])
+      Pt{ps, +ns} = p
+      ev_nodes(ns, X.env_of(pvs_of(ps)), old, [], ns)
 
 def ev_part(+p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   Pt{+ps, +ns} = p
   ev_go(Bool.not(Bool.or(ids_dup(nd_ids(ns)), ids_dup(pm_ids(ps)))), p, old)
+

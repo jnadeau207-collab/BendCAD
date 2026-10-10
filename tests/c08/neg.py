@@ -194,7 +194,8 @@ def c_zone():
           '(node 3 (move 2 20 0 0 0) (intent same 0 0 1 0))',
           '(node 4 (union 1 3) (intent add 0 0 2 0))')
     o, _ = cli('n.bcd', 'zone', '4')
-    return ('topology-not-certified-over-zone' in o, o.strip()[:100])
+    return ('topology-not-certified-over-zone' in o and 'refuse before any zone split' in o
+            and 'keep profile segments' not in o, o.strip()[:180])
 
 
 @case('diff.pinched')

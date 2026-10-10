@@ -222,7 +222,7 @@ def rotation():
     before = read('rot.bcd')
     rej = []
     for e in ['(node 11 (rotate 1 w 30) (intent same 0 0 1 0))', '(node 11 (rotate 1 z 1e7) (intent same 0 0 1 0))',
-              '(node 11 (fillet 1 2) (intent same 0 0 1 0))']:
+              '(node 11 (frobnicate 1 2) (intent same 0 0 1 0))']:
         o, _ = cli('rot.bcd', 'apply', e)
         rej.append(re.findall(r'why: ([^|]+)', o)[-1:])
     ok = (read('rot.bcd') == before and rej[0] == ['bad-axis-or-angle '] and rej[1] == ['bad-axis-or-angle '] and rej[2] == ['unknown-op '])

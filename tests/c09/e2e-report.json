@@ -1,0 +1,325 @@
+{
+ "binary_sha256": "cb13f0e2a062886a2610170d7b0941797d3439ae25159c60fc35f3a6af6dfee0",
+ "passed": 28,
+ "total": 29,
+ "results": [
+  {
+   "name": "sweep.line_matches_prism",
+   "ok": true,
+   "prism": [
+    59.999999999944514,
+    60.000000000055486
+   ],
+   "sweep": [
+    59.999999999944514,
+    60.000000000055486
+   ],
+   "seconds": 0.013299226760864258,
+   "budget": "ok"
+  },
+  {
+   "name": "sweep.arc_volumes",
+   "ok": true,
+   "volumes": [
+    [
+     28.274333882307726,
+     28.274333882308554
+    ],
+    [
+     56.54866776461545,
+     56.54866776461711
+    ],
+    [
+     84.82300164692317,
+     84.82300164692566
+    ],
+    [
+     113.0973355292309,
+     113.09733552923421
+    ]
+   ],
+   "revolve": [
+    113.0973355292309,
+    113.09733552923421
+   ],
+   "seconds": 0.035997629165649414,
+   "budget": "ok"
+  },
+  {
+   "name": "sweep.arc360_faces_match_revolve",
+   "ok": true,
+   "sweep": 8,
+   "revolve": 8
+  },
+  {
+   "name": "loft.squares",
+   "ok": true,
+   "volume": [
+    326.6666666666613,
+    326.6666666666721
+   ],
+   "seconds": 0.016807079315185547,
+   "budget": "ok"
+  },
+  {
+   "name": "loft.prismatoid",
+   "ok": true,
+   "volume": [
+    295.9999999999573,
+    296.0000000000427
+   ]
+  },
+  {
+   "name": "loft.identical_prism",
+   "ok": true,
+   "loft": [
+    59.999999999944514,
+    60.00000000005549
+   ],
+   "prism": [
+    59.999999999944514,
+    60.00000000005549
+   ]
+  },
+  {
+   "name": "chamfer.box",
+   "ok": true,
+   "volume": [
+    979.9999999999898,
+    980.0000000000102
+   ],
+   "faces": 10,
+   "seconds": 0.02156829833984375,
+   "budget": "ok"
+  },
+  {
+   "name": "chamfer.cyl",
+   "ok": true,
+   "volume": [
+    756.0766319639357,
+    756.0766319639512
+   ]
+  },
+  {
+   "name": "fillet.box",
+   "ok": true,
+   "volume": [
+    975.5870138908987,
+    975.5870138909842
+   ],
+   "faces": 26,
+   "seconds": 0.03128671646118164,
+   "budget": "ok"
+  },
+  {
+   "name": "fillet.cyl",
+   "ok": true,
+   "volume": [
+    768.3279132371815,
+    768.3279132371974
+   ]
+  },
+  {
+   "name": "fillet.edge_equal",
+   "ok": true,
+   "volume": [
+    997.8539816339638,
+    997.8539816339852
+   ],
+   "faces": 7
+  },
+  {
+   "name": "fillet.edge_cone",
+   "ok": false,
+   "volume": null,
+   "faces": 1
+  },
+  {
+   "name": "fillet.param_edit",
+   "ok": true,
+   "before": [
+    975.5870138908987,
+    975.5870138909842
+   ],
+   "after": [
+    1173.8701991980472,
+    1173.870199198195
+   ],
+   "seconds": 0.014821529388427734,
+   "budget": "ok"
+  },
+  {
+   "name": "draft.inset",
+   "ok": true,
+   "volume": [
+    379.9999999999573,
+    380.0000000000427
+   ],
+   "faces": 6,
+   "seconds": 0.00929117202758789,
+   "budget": "ok"
+  },
+  {
+   "name": "draft.identity",
+   "ok": true,
+   "volume": [
+    479.9999999995561,
+    480.00000000044395
+   ],
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ]
+  },
+  {
+   "name": "offset.box",
+   "ok": true,
+   "volume": [
+    1727.999999999983,
+    1728.000000000017
+   ],
+   "seconds": 0.013589859008789062,
+   "budget": "ok"
+  },
+  {
+   "name": "thicken.matches_offset",
+   "ok": true,
+   "offset": [
+    1727.999999999983,
+    1728.000000000017
+   ],
+   "thicken": [
+    1727.999999999983,
+    1728.000000000017
+   ]
+  },
+  {
+   "name": "offset.cyl",
+   "ok": true,
+   "volume": [
+    1357.1680263507772,
+    1357.168026350804
+   ]
+  },
+  {
+   "name": "shell.closed_box",
+   "ok": true,
+   "volume": [
+    487.99999999997567,
+    488.00000000002433
+   ],
+   "cavity": 6,
+   "check": "ok: embedded, shells outward, cavities nested",
+   "seconds": 2.0062875747680664,
+   "budget": "miss"
+  },
+  {
+   "name": "shell.open_box",
+   "ok": true,
+   "volume": [
+    423.99999999998414,
+    424.00000000001586
+   ]
+  },
+  {
+   "name": "shell.closed_cyl",
+   "ok": true,
+   "volume": [
+    383.2743037379331,
+    383.2743037379764
+   ]
+  },
+  {
+   "name": "pattern.linear",
+   "ok": true,
+   "volume": [
+    1999.9999999981571,
+    2000.0000000018429
+   ],
+   "fx": [
+    "add",
+    "12",
+    "0",
+    "2",
+    "0"
+   ],
+   "seconds": 0.6143028736114502,
+   "budget": "ok"
+  },
+  {
+   "name": "pattern.move_union",
+   "ok": true,
+   "volume": [
+    2999.999999997235,
+    3000.000000002765
+   ],
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "3",
+    "0"
+   ]
+  },
+  {
+   "name": "pattern.circular",
+   "ok": true,
+   "volume": [
+    3999.9999999963143,
+    4000.0000000036857
+   ],
+   "fx": [
+    "add",
+    "24",
+    "0",
+    "4",
+    "0"
+   ],
+   "budget": "ok"
+  },
+  {
+   "name": "pattern.holes_linear_through",
+   "ok": true,
+   "volume": [
+    968.584073463178,
+    968.5840734650259
+   ],
+   "check": "ok: embedded, shells outward, cavities nested",
+   "seconds": 0.02194499969482422,
+   "budget": "ok"
+  },
+  {
+   "name": "pattern.holes_linear_blind",
+   "ok": true,
+   "volume": [
+    993.7168146918979,
+    993.7168146937425
+   ],
+   "check": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "pattern.holes_circular",
+   "ok": true,
+   "volume": [
+    968.584073463178,
+    968.5840734650259
+   ],
+   "check": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "replay.volume_text",
+   "ok": true,
+   "first": "volume=[975.5870138908987, 975.5870138909842]",
+   "second": "volume=[975.5870138908987, 975.5870138909842]",
+   "seconds": 0.01528787612915039
+  },
+  {
+   "name": "rigid.law_names",
+   "ok": true,
+   "missing": []
+  }
+ ]
+}
