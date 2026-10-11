@@ -1,0 +1,149 @@
+[
+ {
+  "pkt": "c00",
+  "law": "failure keeps the model",
+  "file": "src/c00/eval.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c00",
+  "law": "outcome attributed to its request",
+  "file": "src/c00/eval.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c01",
+  "law": "transpose involution",
+  "file": "src/c01/types.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c01",
+  "law": "negation involution",
+  "file": "src/c01/types.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c01",
+  "law": "frame/rigid round trip",
+  "file": "src/c01/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c02",
+  "law": "triangle winding invariance",
+  "file": "src/c02/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c02",
+  "law": "proper crossing",
+  "file": "src/c02/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "base",
+  "law": "parallel map is map",
+  "file": "src/base/par.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "base",
+  "law": "table read after write",
+  "file": "src/base/par.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "base",
+  "law": "split rejoins",
+  "file": "src/base/par.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c03",
+  "law": "split halves meet",
+  "file": "src/c03/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c03",
+  "law": "domain split",
+  "file": "src/c03/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c04",
+  "law": "validator returns its input",
+  "file": "src/c04/ops.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c06",
+  "law": "one entry per node",
+  "file": "src/c06/model.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c06",
+  "law": "intent mismatch refused",
+  "file": "src/c06/model.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c07",
+  "law": "key order reflexive",
+  "file": "src/c07/sym.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c07",
+  "law": "polynomial negation involution",
+  "file": "src/c07/sym.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c08",
+  "law": "regularized outcome table",
+  "file": "src/c08/bool.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c08",
+  "law": "empty algebra",
+  "file": "src/c08/bool.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c09",
+  "law": "frustum loops closed and balanced",
+  "file": "src/c09/feat.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c09",
+  "law": "frustum edge ends",
+  "file": "src/c09/feat.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ }
+]

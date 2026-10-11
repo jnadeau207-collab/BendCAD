@@ -1,8 +1,8 @@
 # C08 governing laws — regularized B-rep booleans
 
 Status: binding on all C08 work. These laws govern the C08
-implementation, its machine-checked laws (`laws/c08.bend`,
-`laws/c08_build.bend`), and its closeout. They are ordered; where
+implementation, its laws (`laws/c08/`, kernel-checked since A6), its pins
+(`tests/c08/pins*.bend`), and its closeout. They are ordered; where
 two laws appear to conflict, the earlier one wins. Changing a law
 to make a failing implementation pass requires explicit owner
 review (MASTER_PLAN §11). Closeout qualifications that need that
@@ -12,6 +12,22 @@ contact-validation reading) are recorded in
 
 Scope authority: MASTER_PLAN §10 C08. Method authority: A2 proof
 layers, §14 agent properties, §15 speed law, AGENTS.md boundaries.
+
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c08/LAWS.bend`, proven in `laws/c08/PROOF.bend`. All 3 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c08/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `outcome_is_regularized`: the boolean outcome table equals the regularized set algebra for every operation and configuration.
+- `empty_algebra`: empty and identical operands follow the empty-set algebra.
+- `uncertain_fragment_fails`: an uncertain fragment fails every operation.
+
+Pins: `tests/c08/pins*.bend`, 527 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c08/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
 
 ## Regularization and validity
 
@@ -109,16 +125,16 @@ layers, §14 agent properties, §15 speed law, AGENTS.md boundaries.
 
 - **L17 (A2 layers).** Closeout qualifies under Amendment A2: Layer
   A semantic laws (regularization predicate, selection tables, no
-  exit fixture referenced), Layer B closed implementation theorems,
+  exit fixture referenced), Layer B closed implementation checks (pins since A6),
   Layer C stage-isolated fixtures (each negative fails exactly one
   stage), Layer D independent evidence — recorded in the exit
   receipt matrix.
-- **L18 (discriminating laws).** Every semantic fix ships a closed
-  law the old behavior fails, demonstrated against the predecessor
+- **L18 (discriminating laws).** Every semantic fix ships a law or pin
+  the old behavior fails, demonstrated against the predecessor
   (AGENTS.md). Floats pinned by `F64.bits`, never `F64.show`.
-- **L19 (full check).** Closeout checks every law file in full on
-  the pinned `bend` (`laws/c00.bend` … `laws/c08.bend`), with the
-  sha256 of law and source bytes recorded at launch (AGENTS.md).
+- **L19 (full check).** Closeout runs `tools/laws/check.sh` (every
+  `laws/*/PROOF.bend` under `--check-only` and `--verdict`) and every
+  pins file, with the sha256 of law and source bytes recorded (AGENTS.md).
 - **L20 (volume identities).** Certified volume intervals obey
   `V(A∪B) + V(A∩B) = V(A) + V(B)` (interval containment) on every
   E2E case, and each result's closed-form volume lies inside its

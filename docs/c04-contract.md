@@ -31,12 +31,29 @@ Delivered against that scope: representation (first paragraph)
 and profile validation (second paragraph) are implemented, pinned by
 laws, and tested. The exit fixtures (seams/cavities accepted,
 counterexamples diagnosed) are runnable via `brep_checked` and
-pinned in `laws/c04.bend` (32 `ck_*`: 10 accepts + 21 rejects
+pinned in `tests/c04/pins.bend` (32 `ck_*`: 10 accepts + 21 rejects
 + fuel) and asserted at runtime by the suite appends
 (`pos_g10`–`pos_g14`: 13 accepts; `neg_g7`–`neg_g10`:
 32 rejects, incl. the C04.1 outer-kind/ownership and
 the C04.2 vertex-link / connectedness / quadric-membership /
 coincidence / segment-crossing / orientation diagnoses).
+
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c04/LAWS.bend`, proven in `laws/c04/PROOF.bend`. All 104 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c04/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `checked_returns_input`: for every B-rep, profile and fuel, an accepted validation returns exactly the input B-rep.
+- `l1_* (69)`: fixture-independent stage semantics: use rules, closure, trims, loops, seams, poles, ownership, orientation certificates.
+- `mk_h*_idx / mk_h*_gen`: handle constructors keep index and generation (BN-7).
+- `tok_* / terr_*`: result accessors and the default value of every error arm.
+
+Pins: `tests/c04/pins*.bend`, 500 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c04/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
 
 ## 1. Representation policy: the edge is not its uses
 
@@ -409,7 +426,8 @@ across pushes). No shared mutable state, no atomics.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c04/types.bend --check-only   # ALL PROOFS CHECK
 bend src/c04/ops.bend --check-only     # ALL PROOFS CHECK
-bend laws/c04.bend --check-only        # ALL PROOFS CHECK (603 laws since A4).
+bend laws/c04/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c04/pins*.bend
 bend tests/c04/check.bend --check-only # ALL PROOFS CHECK
 bend tests/c04/neg.bend                # 128 PASS, selfcheck fails=0
 bend tests/c04/pos.bend                # 283 PASS, selfcheck fails=0
@@ -488,7 +506,8 @@ Receipts: the predecessor receipts
 own bytes and stand; THIS section is the closeout record for
 the bytes above, and §15 is the exit receipt matrix
 (Amendment A2 format). Pre-commit gate (explicit, not
-silent): full `bend laws/c04.bend --check-only` closure over
+silent): full `bend laws/c04/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c04/pins*.bend
 the 592 laws (re-run this turn: `All terms check.`, exit 0,
 1:14:51 wall; prior full run 1:07:29 at 466 laws).
 Oracle provenance (stated exactly once, no gate attached):
@@ -599,9 +618,12 @@ hand-written ones.
   (§11).
 - U64 stamp wraps past 2^64 pushes (§8).
 
-## 13. Explicit general laws (for `laws/c04.bend`)
+## 13. Explicit general laws
 
-Two layers, every law closed by the proof beneath it.
+Two layers, as stated at the C04 closeout. Since A6 the L0 instances and
+the closed `ck_*` fixtures are pins in `tests/c04/pins.bend` (500), and the
+quantified L1 laws are in `laws/c04/` with the A6 validator law (104, all
+kernel-checked); see "Laws and pins" above.
 
 L0 implementation algebra (480 laws: sections A–M/L/F1 plus
 the ops-fixture `brep_checked` instances — kept):
@@ -698,7 +720,8 @@ appears in exactly one class):
   `l1_ekind_degen`, curved skip, counter round-trips.
   Valuable regression pins, not universal invariants.
 
-603 laws today, all closed (`bend laws/c04.bend --check-only`
+603 laws today, all closed (`bend laws/c04/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c04/pins*.bend
 exit 0): 486 L0 + 117 L1, 38 `ck_*`. History: 592 at the C04
 closeout (`924b9df`); +5 `l1_*` in R0.2 (`9686ace`, 597); +2
 `ck_fuel_ix`, `ck_stage_fuel` when the box path was requalified on

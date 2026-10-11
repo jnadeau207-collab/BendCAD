@@ -1,0 +1,58 @@
+[
+ {
+  "name": "neg_arc_identity",
+  "ok": true
+ },
+ {
+  "name": "neg_full_circle_whole_box",
+  "ok": true
+ },
+ {
+  "name": "neg_sym_distinct",
+  "ok": true
+ },
+ {
+  "name": "ok_arc_identity",
+  "ok": true
+ },
+ {
+  "name": "ok_class_mask",
+  "ok": true
+ },
+ {
+  "name": "ok_cone_axis_below_apex",
+  "ok": true
+ },
+ {
+  "name": "ok_full_circle_only_overlap",
+  "ok": true
+ },
+ {
+  "name": "ok_grad_unit_first",
+  "ok": true
+ },
+ {
+  "name": "ok_grad_unit_last",
+  "ok": true
+ },
+ {
+  "name": "ok_grad_unit_mid",
+  "ok": true
+ },
+ {
+  "name": "ok_lines_overlap_span",
+  "ok": true
+ },
+ {
+  "name": "ok_restr_whole_exact",
+  "ok": true
+ },
+ {
+  "name": "ok_sym_binomial",
+  "ok": true
+ },
+ {
+  "name": "ok_sym_quotient",
+  "ok": true
+ }
+]

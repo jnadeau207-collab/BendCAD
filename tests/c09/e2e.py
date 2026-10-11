@@ -267,11 +267,10 @@ def replay():
 
 
 def rigid():
-    law = open(os.path.join(HERE, '..', '..', 'laws', 'c09.bend'), encoding='utf-8').read()
-    names = ('law rigid_path:', 'law rigid_triangle:', 'law rigid_rectangle:',
-             'law rigid_tangent_whole:', 'law rigid_drag_clean:')
-    record('rigid.law_names', all(n in law for n in names) and 'kind-not-decomposed' in law,
-           missing=[n for n in names if n not in law])
+    rep = json.load(open(os.path.join(HERE, 'pins-report.json'), encoding='utf-8'))
+    ok = {r['name']: r['ok'] for r in rep}
+    names = ('rigid_path', 'rigid_triangle', 'rigid_rectangle', 'rigid_tangent_whole', 'rigid_drag_clean')
+    record('rigid.pins_hold', all(ok.get(n) for n in names), missing=[n for n in names if not ok.get(n)])
 
 
 def main():

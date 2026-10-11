@@ -1,0 +1,70 @@
+[
+ {
+  "name": "neg_corner_foldback",
+  "ok": true
+ },
+ {
+  "name": "neg_crossing_segments",
+  "ok": true
+ },
+ {
+  "name": "neg_flat_edge_crossing",
+  "ok": true
+ },
+ {
+  "name": "neg_lines_touch_overlap",
+  "ok": true
+ },
+ {
+  "name": "ok_arcs_complementary_no_overlap",
+  "ok": true
+ },
+ {
+  "name": "ok_arcs_complementary_points",
+  "ok": true
+ },
+ {
+  "name": "ok_arcs_overlap",
+  "ok": true
+ },
+ {
+  "name": "ok_corner_square",
+  "ok": true
+ },
+ {
+  "name": "ok_finish_even_keeps_arrival",
+  "ok": true
+ },
+ {
+  "name": "ok_finish_odd_flips_arrival",
+  "ok": true
+ },
+ {
+  "name": "ok_finish_uncertain",
+  "ok": true
+ },
+ {
+  "name": "ok_flat_edge_in_cut",
+  "ok": true
+ },
+ {
+  "name": "ok_full_circle_hbox",
+  "ok": true
+ },
+ {
+  "name": "ok_lines_touch",
+  "ok": true
+ },
+ {
+  "name": "ok_semicircle_sweep",
+  "ok": true
+ },
+ {
+  "name": "ok_separated_segments",
+  "ok": true
+ },
+ {
+  "name": "ok_tangent_endpoint_class",
+  "ok": true
+ }
+]

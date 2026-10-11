@@ -1,0 +1,126 @@
+[
+ {
+  "name": "neg_angle90_is_directed",
+  "ok": true
+ },
+ {
+  "name": "neg_angle_is_directed",
+  "ok": true
+ },
+ {
+  "name": "neg_arrange_budget",
+  "ok": true
+ },
+ {
+  "name": "neg_arrange_degenerate",
+  "ok": true
+ },
+ {
+  "name": "neg_arrange_underflow",
+  "ok": true
+ },
+ {
+  "name": "neg_axes_never_collapse",
+  "ok": true
+ },
+ {
+  "name": "neg_coincidence_collapse_not_ok",
+  "ok": true
+ },
+ {
+  "name": "neg_negative_radius_not_ok",
+  "ok": true
+ },
+ {
+  "name": "neg_nonpositive_radius_start",
+  "ok": true
+ },
+ {
+  "name": "neg_solve_bad_index",
+  "ok": true
+ },
+ {
+  "name": "neg_solve_budget_not_conflict",
+  "ok": true
+ },
+ {
+  "name": "neg_solve_conflict_localized",
+  "ok": true
+ },
+ {
+  "name": "neg_solve_conflict_named",
+  "ok": true
+ },
+ {
+  "name": "neg_solve_grounded_conflict",
+  "ok": true
+ },
+ {
+  "name": "ok_angle_from_flipped_side",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_antenna_dangles",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_cross_dangles",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_dup_segment",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_hole",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_islands",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_kiss",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_overlap_lineage",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_pinch",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_square",
+  "ok": true
+ },
+ {
+  "name": "ok_arrange_three_petals",
+  "ok": true
+ },
+ {
+  "name": "ok_parallel_is_undirected",
+  "ok": true
+ },
+ {
+  "name": "ok_solve_clusters_merge",
+  "ok": true
+ },
+ {
+  "name": "ok_solve_linear",
+  "ok": true
+ },
+ {
+  "name": "ok_solve_redundant_named",
+  "ok": true
+ },
+ {
+  "name": "ok_solve_tangent_circles",
+  "ok": true
+ },
+ {
+  "name": "ok_solve_zero_pivot",
+  "ok": true
+ }
+]

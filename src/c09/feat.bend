@@ -1036,7 +1036,7 @@ def cn_ia() -> List<&2, Nat>:
   [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 0n, 1n, 2n, 3n, 4n]
 
 def cn_ib() -> List<&2, Nat>:
-  [1n, 2n, 3n, 0n, 0n, 6n, 7n, 8n, 9n, 5n, 5n, 6n, 7n, 8n, 9n]
+  [1n, 2n, 3n, 4n, 0n, 6n, 7n, 8n, 9n, 5n, 5n, 6n, 7n, 8n, 9n]
 
 def cn_loc8(e: Nat, +x: F64, +y: F64, +h: F64) -> V.Point:
   match e:

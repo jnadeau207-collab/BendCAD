@@ -1,0 +1,1950 @@
+[
+ {
+  "name": "admit_clean",
+  "ok": true
+ },
+ {
+  "name": "admit_edge_a",
+  "ok": true
+ },
+ {
+  "name": "admit_edge_b",
+  "ok": true
+ },
+ {
+  "name": "admit_edge_beats_interval",
+  "ok": true
+ },
+ {
+  "name": "admit_eds_at_empty",
+  "ok": true
+ },
+ {
+  "name": "admit_eds_at_second",
+  "ok": true
+ },
+ {
+  "name": "admit_eds_bad",
+  "ok": true
+ },
+ {
+  "name": "admit_eds_empty",
+  "ok": true
+ },
+ {
+  "name": "admit_eds_line",
+  "ok": true
+ },
+ {
+  "name": "admit_face_a",
+  "ok": true
+ },
+ {
+  "name": "admit_face_b",
+  "ok": true
+ },
+ {
+  "name": "admit_fas_at_second",
+  "ok": true
+ },
+ {
+  "name": "admit_fas_empty",
+  "ok": true
+ },
+ {
+  "name": "admit_fas_nurbs",
+  "ok": true
+ },
+ {
+  "name": "admit_fas_plane",
+  "ok": true
+ },
+ {
+  "name": "admit_interval_a",
+  "ok": true
+ },
+ {
+  "name": "admit_interval_b",
+  "ok": true
+ },
+ {
+  "name": "admit_open_a_first",
+  "ok": true
+ },
+ {
+  "name": "admit_open_b",
+  "ok": true
+ },
+ {
+  "name": "admit_open_beats_interval",
+  "ok": true
+ },
+ {
+  "name": "admit_shs_closed",
+  "ok": true
+ },
+ {
+  "name": "admit_shs_empty",
+  "ok": true
+ },
+ {
+  "name": "admit_shs_mixed",
+  "ok": true
+ },
+ {
+  "name": "admit_shs_open",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_both",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_boundary_only",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_in",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_in_boundary",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_none",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_out",
+  "ok": true
+ },
+ {
+  "name": "ag_agg_out_boundary",
+  "ok": true
+ },
+ {
+  "name": "ag_masks_reads",
+  "ok": true
+ },
+ {
+  "name": "ag_unc_reads",
+  "ok": true
+ },
+ {
+  "name": "agg_code_in",
+  "ok": true
+ },
+ {
+  "name": "agg_code_other_is_out",
+  "ok": true
+ },
+ {
+  "name": "agg_code_out",
+  "ok": true
+ },
+ {
+  "name": "agg_in_is_1",
+  "ok": true
+ },
+ {
+  "name": "agg_of_boundary",
+  "ok": true
+ },
+ {
+  "name": "agg_of_in",
+  "ok": true
+ },
+ {
+  "name": "agg_of_mixed",
+  "ok": true
+ },
+ {
+  "name": "agg_of_out",
+  "ok": true
+ },
+ {
+  "name": "agg_of_unsampled",
+  "ok": true
+ },
+ {
+  "name": "agg_ok_boundary",
+  "ok": true
+ },
+ {
+  "name": "agg_ok_in",
+  "ok": true
+ },
+ {
+  "name": "agg_ok_mixed",
+  "ok": true
+ },
+ {
+  "name": "agg_ok_out",
+  "ok": true
+ },
+ {
+  "name": "agg_out_is_2",
+  "ok": true
+ },
+ {
+  "name": "append_out_no_del",
+  "ok": true
+ },
+ {
+  "name": "append_out_proof",
+  "ok": true
+ },
+ {
+  "name": "append_out_rebox",
+  "ok": true
+ },
+ {
+  "name": "bake_eps_covers_lin",
+  "ok": true
+ },
+ {
+  "name": "br_counts_empty",
+  "ok": true
+ },
+ {
+  "name": "bx_diag_sums",
+  "ok": true
+ },
+ {
+  "name": "bx_disjoint_far",
+  "ok": true
+ },
+ {
+  "name": "bx_disjoint_overlap",
+  "ok": true
+ },
+ {
+  "name": "bx_disjoint_touching_is_not_disjoint",
+  "ok": true
+ },
+ {
+  "name": "bx_hull_grows",
+  "ok": true
+ },
+ {
+  "name": "bx_mag_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_widen_contains",
+  "ok": true
+ },
+ {
+  "name": "bx_x0_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_x1_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_y0_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_y1_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_z0_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_z1_reads",
+  "ok": true
+ },
+ {
+  "name": "bx_zero_is_origin",
+  "ok": true
+ },
+ {
+  "name": "cav_add_cav_hit",
+  "ok": true
+ },
+ {
+  "name": "cav_add_cav_miss",
+  "ok": true
+ },
+ {
+  "name": "cav_cavs_collects",
+  "ok": true
+ },
+ {
+  "name": "cav_fces_collects_marked",
+  "ok": true
+ },
+ {
+  "name": "cav_fces_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_ces_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_ces_marked_flips",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_ces_unmarked_keeps",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_fas_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_fas_minuend_keeps",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_fas_tool_flips",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_lps_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_lps_reverses",
+  "ok": true
+ },
+ {
+  "name": "cav_flip_lps_unmarked_keeps",
+  "ok": true
+ },
+ {
+  "name": "cav_floops_collects_tool",
+  "ok": true
+ },
+ {
+  "name": "cav_floops_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_floops_skips_minuend",
+  "ok": true
+ },
+ {
+  "name": "cav_islands_empty",
+  "ok": true
+ },
+ {
+  "name": "cav_islands_one",
+  "ok": true
+ },
+ {
+  "name": "cav_kind_minuend_keeps",
+  "ok": true
+ },
+ {
+  "name": "cav_kind_tool_cavity_is_outer",
+  "ok": true
+ },
+ {
+  "name": "cav_kind_tool_outer_is_inner",
+  "ok": true
+ },
+ {
+  "name": "cav_outs_collects",
+  "ok": true
+ },
+ {
+  "name": "cav_topsos_two",
+  "ok": true
+ },
+ {
+  "name": "cav_topsos_zero",
+  "ok": true
+ },
+ {
+  "name": "ce_flip_negates",
+  "ok": true
+ },
+ {
+  "name": "ce_flip_twice_is_identity",
+  "ok": true
+ },
+ {
+  "name": "contact_edge_edge",
+  "ok": true
+ },
+ {
+  "name": "contact_edge_face",
+  "ok": true
+ },
+ {
+  "name": "contact_face_face",
+  "ok": true
+ },
+ {
+  "name": "contact_fail_closed",
+  "ok": true
+ },
+ {
+  "name": "cr_a_reads",
+  "ok": true
+ },
+ {
+  "name": "cr_b_reads",
+  "ok": true
+ },
+ {
+  "name": "cr_nc_reads",
+  "ok": true
+ },
+ {
+  "name": "cr_reads",
+  "ok": true
+ },
+ {
+  "name": "curved_bp_xs_none",
+  "ok": true
+ },
+ {
+  "name": "cv_brep_reads",
+  "ok": true
+ },
+ {
+  "name": "cv_fns_reads",
+  "ok": true
+ },
+ {
+  "name": "cv_mid_none",
+  "ok": true
+ },
+ {
+  "name": "cv_ok_reads",
+  "ok": true
+ },
+ {
+  "name": "d2_bp_kind_is_bezier",
+  "ok": true
+ },
+ {
+  "name": "d2_curved_patch_refused",
+  "ok": true
+ },
+ {
+  "name": "d2_fallback3_sign",
+  "ok": true
+ },
+ {
+  "name": "d2_flat_patch_admitted",
+  "ok": true
+ },
+ {
+  "name": "d2_old4_order_flipped",
+  "ok": true
+ },
+ {
+  "name": "d2_old_order_flipped",
+  "ok": true
+ },
+ {
+  "name": "d2_pick_degenerate_net",
+  "ok": true
+ },
+ {
+  "name": "d2_primary_sign",
+  "ok": true
+ },
+ {
+  "name": "dec_aggA_ainb",
+  "ok": true
+ },
+ {
+  "name": "dec_aggA_other_is_out",
+  "ok": true
+ },
+ {
+  "name": "dec_aggB_bina",
+  "ok": true
+ },
+ {
+  "name": "dec_aggB_other_is_out",
+  "ok": true
+ },
+ {
+  "name": "dec_ainb_is_1",
+  "ok": true
+ },
+ {
+  "name": "dec_bina_is_2",
+  "ok": true
+ },
+ {
+  "name": "dec_sep_is_0",
+  "ok": true
+ },
+ {
+  "name": "decide_ainb",
+  "ok": true
+ },
+ {
+  "name": "decide_bina",
+  "ok": true
+ },
+ {
+  "name": "decide_both_in_fails",
+  "ok": true
+ },
+ {
+  "name": "decide_boundary_fails",
+  "ok": true
+ },
+ {
+  "name": "decide_sep",
+  "ok": true
+ },
+ {
+  "name": "del_classified_empty",
+  "ok": true
+ },
+ {
+  "name": "del_classified_one",
+  "ok": true
+ },
+ {
+  "name": "del_show_created",
+  "ok": true
+ },
+ {
+  "name": "del_why_words",
+  "ok": true
+ },
+ {
+  "name": "disjoint_proof_empty_default",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_circle_one",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_cubic_one",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_degenerate_none",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_line_one",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_rational_one",
+  "ok": true
+ },
+ {
+  "name": "ed_mid_uncurved_none",
+  "ok": true
+ },
+ {
+  "name": "edge_code_circle",
+  "ok": true
+ },
+ {
+  "name": "edge_code_cubic",
+  "ok": true
+ },
+ {
+  "name": "edge_code_degenerate",
+  "ok": true
+ },
+ {
+  "name": "edge_code_line",
+  "ok": true
+ },
+ {
+  "name": "edge_code_other",
+  "ok": true
+ },
+ {
+  "name": "edge_code_plane",
+  "ok": true
+ },
+ {
+  "name": "edge_code_rational",
+  "ok": true
+ },
+ {
+  "name": "ef_bad2_boundary_mode_is_contact",
+  "ok": true
+ },
+ {
+  "name": "ef_bad2_contact",
+  "ok": true
+ },
+ {
+  "name": "ef_bad2_pierce",
+  "ok": true
+ },
+ {
+  "name": "ef_bad2_uncertain",
+  "ok": true
+ },
+ {
+  "name": "ef_bad_cross_contact",
+  "ok": true
+ },
+ {
+  "name": "ef_bad_cross_pierce",
+  "ok": true
+ },
+ {
+  "name": "ef_bad_cross_uncertain",
+  "ok": true
+ },
+ {
+  "name": "ef_bad_same_ignores_mode",
+  "ok": true
+ },
+ {
+  "name": "ef_clamp_hi",
+  "ok": true
+ },
+ {
+  "name": "ef_clamp_lo",
+  "ok": true
+ },
+ {
+  "name": "ef_clamp_mid",
+  "ok": true
+ },
+ {
+  "name": "ef_mode_go_inside",
+  "ok": true
+ },
+ {
+  "name": "ef_mode_go_inside_beats_uncertain",
+  "ok": true
+ },
+ {
+  "name": "ef_mode_go_outside",
+  "ok": true
+ },
+ {
+  "name": "ef_mode_go_uncertain",
+  "ok": true
+ },
+ {
+  "name": "ef_mode_same_is_contact",
+  "ok": true
+ },
+ {
+  "name": "ef_ov_cross_lenient",
+  "ok": true
+ },
+ {
+  "name": "ef_ov_same_strict",
+  "ok": true
+ },
+ {
+  "name": "ef_tan_code_contact",
+  "ok": true
+ },
+ {
+  "name": "ef_tan_code_pierce",
+  "ok": true
+ },
+ {
+  "name": "ef_tan_code_uncertain",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_cross_endpoint_is_contact",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_cross_interior_still_fails",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_crossing_cross_still_fails",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_overlap_cross_is_contact",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_overlap_same_is_fail",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_same_endpoint_excluded",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_uncertain_cross_still_fails",
+  "ok": true
+ },
+ {
+  "name": "emb_ee_unsupported_cross_still_fails",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_a_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_a_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_b_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_b_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_both_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_full",
+  "ok": true
+ },
+ {
+  "name": "empty_diff_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_a_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_a_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_b_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_b_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_both_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_full",
+  "ok": true
+ },
+ {
+  "name": "empty_inter_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_union_a_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_union_a_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_union_b_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_union_b_empty_identical",
+  "ok": true
+ },
+ {
+  "name": "empty_union_both_empty",
+  "ok": true
+ },
+ {
+  "name": "empty_union_full",
+  "ok": true
+ },
+ {
+  "name": "empty_union_identical",
+  "ok": true
+ },
+ {
+  "name": "es_share_empty",
+  "ok": true
+ },
+ {
+  "name": "es_share_hit",
+  "ok": true
+ },
+ {
+  "name": "es_share_miss",
+  "ok": true
+ },
+ {
+  "name": "fa_mids_empty",
+  "ok": true
+ },
+ {
+  "name": "fa_v0_empty_is_none",
+  "ok": true
+ },
+ {
+  "name": "face_pts_skips_loopless",
+  "ok": true
+ },
+ {
+  "name": "fc_codes",
+  "ok": true
+ },
+ {
+  "name": "fc_in_is_1",
+  "ok": true
+ },
+ {
+  "name": "fc_opp_is_3",
+  "ok": true
+ },
+ {
+  "name": "fc_same_is_2",
+  "ok": true
+ },
+ {
+  "name": "fc_unc_is_4",
+  "ok": true
+ },
+ {
+  "name": "ff_iv_overlap_hit",
+  "ok": true
+ },
+ {
+  "name": "ff_iv_overlap_miss_hi",
+  "ok": true
+ },
+ {
+  "name": "ff_iv_overlap_miss_lo",
+  "ok": true
+ },
+ {
+  "name": "ff_iv_overlap_touch",
+  "ok": true
+ },
+ {
+  "name": "fk_invalid_is_0",
+  "ok": true
+ },
+ {
+  "name": "fk_uncertain_is_1",
+  "ok": true
+ },
+ {
+  "name": "fk_unsupported_is_2",
+  "ok": true
+ },
+ {
+  "name": "flat_bp_line_on_plane",
+  "ok": true
+ },
+ {
+  "name": "fn_created_here_counts",
+  "ok": true
+ },
+ {
+  "name": "fn_created_here_empty",
+  "ok": true
+ },
+ {
+  "name": "fn_created_n_counts_role",
+  "ok": true
+ },
+ {
+  "name": "fn_created_words",
+  "ok": true
+ },
+ {
+  "name": "fn_full_eq_hit",
+  "ok": true
+ },
+ {
+  "name": "fn_full_eq_miss",
+  "ok": true
+ },
+ {
+  "name": "fn_i_reads",
+  "ok": true
+ },
+ {
+  "name": "fn_j_reads",
+  "ok": true
+ },
+ {
+  "name": "fn_k_reads",
+  "ok": true
+ },
+ {
+  "name": "fn_nd_reads",
+  "ok": true
+ },
+ {
+  "name": "fn_pre_eq_hit",
+  "ok": true
+ },
+ {
+  "name": "fn_pre_eq_miss",
+  "ok": true
+ },
+ {
+  "name": "fn_role_reads",
+  "ok": true
+ },
+ {
+  "name": "fn_show_created_role",
+  "ok": true
+ },
+ {
+  "name": "genus_empty",
+  "ok": true
+ },
+ {
+  "name": "hc_ids_go_empty",
+  "ok": true
+ },
+ {
+  "name": "hc_ids_go_one",
+  "ok": true
+ },
+ {
+  "name": "hl_ids_go_acc",
+  "ok": true
+ },
+ {
+  "name": "hl_ids_go_one",
+  "ok": true
+ },
+ {
+  "name": "in_bo_reads",
+  "ok": true
+ },
+ {
+  "name": "in_brep_reads",
+  "ok": true
+ },
+ {
+  "name": "in_fns_reads",
+  "ok": true
+ },
+ {
+  "name": "in_lin_reads",
+  "ok": true
+ },
+ {
+  "name": "in_px_reads",
+  "ok": true
+ },
+ {
+  "name": "intersect_transverse_still_crosses",
+  "ok": true
+ },
+ {
+  "name": "intersect_unknown_is_uncertain",
+  "ok": true
+ },
+ {
+  "name": "intersect_unknown_why",
+  "ok": true
+ },
+ {
+  "name": "is_bool_op_diff",
+  "ok": true
+ },
+ {
+  "name": "is_bool_op_inter",
+  "ok": true
+ },
+ {
+  "name": "is_bool_op_other",
+  "ok": true
+ },
+ {
+  "name": "is_bool_op_union",
+  "ok": true
+ },
+ {
+  "name": "iv_bx_reads",
+  "ok": true
+ },
+ {
+  "name": "keep_diff_in",
+  "ok": true
+ },
+ {
+  "name": "keep_diff_opp",
+  "ok": true
+ },
+ {
+  "name": "keep_diff_out",
+  "ok": true
+ },
+ {
+  "name": "keep_diff_same",
+  "ok": true
+ },
+ {
+  "name": "keep_diff_unc",
+  "ok": true
+ },
+ {
+  "name": "keep_inter_in",
+  "ok": true
+ },
+ {
+  "name": "keep_inter_opp",
+  "ok": true
+ },
+ {
+  "name": "keep_inter_out",
+  "ok": true
+ },
+ {
+  "name": "keep_inter_same",
+  "ok": true
+ },
+ {
+  "name": "keep_inter_unc",
+  "ok": true
+ },
+ {
+  "name": "keep_other_op_is_inter",
+  "ok": true
+ },
+ {
+  "name": "keep_union_in",
+  "ok": true
+ },
+ {
+  "name": "keep_union_opp",
+  "ok": true
+ },
+ {
+  "name": "keep_union_out",
+  "ok": true
+ },
+ {
+  "name": "keep_union_same",
+  "ok": true
+ },
+ {
+  "name": "keep_union_unc",
+  "ok": true
+ },
+ {
+  "name": "lp_mids_empty",
+  "ok": true
+ },
+ {
+  "name": "lp_v0_empty_is_none",
+  "ok": true
+ },
+ {
+  "name": "m_code_x_boundary_is_contact",
+  "ok": true
+ },
+ {
+  "name": "m_code_x_inside_is_contact",
+  "ok": true
+ },
+ {
+  "name": "m_code_x_outside_is_empty",
+  "ok": true
+ },
+ {
+  "name": "mat_carry_a_is_same",
+  "ok": true
+ },
+ {
+  "name": "mat_carry_b_is_same",
+  "ok": true
+ },
+ {
+  "name": "mat_diff_cavity_flat_tool_is_unknown",
+  "ok": true
+ },
+ {
+  "name": "mat_diff_cavity_reads_tool_side",
+  "ok": true
+ },
+ {
+  "name": "mat_diff_cavity_shrinks",
+  "ok": true
+ },
+ {
+  "name": "mat_empty_is_same",
+  "ok": true
+ },
+ {
+  "name": "mat_inter_append_is_unknown",
+  "ok": true
+ },
+ {
+  "name": "mat_union_append_flat_is_unknown",
+  "ok": true
+ },
+ {
+  "name": "mat_union_append_grows",
+  "ok": true
+ },
+ {
+  "name": "mat_union_cavity_is_unknown",
+  "ok": true
+ },
+ {
+  "name": "mid_cons_none",
+  "ok": true
+ },
+ {
+  "name": "mid_cons_some",
+  "ok": true
+ },
+ {
+  "name": "mid_pt_exact",
+  "ok": true
+ },
+ {
+  "name": "model_body_mx_moved",
+  "ok": true
+ },
+ {
+  "name": "model_body_mx_stored",
+  "ok": true
+ },
+ {
+  "name": "model_body_mx_vol_passthrough",
+  "ok": true
+ },
+ {
+  "name": "model_bool_body_origin",
+  "ok": true
+ },
+ {
+  "name": "model_bool_body_proof",
+  "ok": true
+ },
+ {
+  "name": "model_bool_kind_invalid",
+  "ok": true
+ },
+ {
+  "name": "model_bool_kind_uncertain",
+  "ok": true
+ },
+ {
+  "name": "model_bool_kind_unsupported",
+  "ok": true
+ },
+ {
+  "name": "model_bool_mat_add",
+  "ok": true
+ },
+ {
+  "name": "model_bool_mat_other_unknown",
+  "ok": true
+ },
+ {
+  "name": "model_bool_mat_remove",
+  "ok": true
+ },
+ {
+  "name": "model_bool_mat_same",
+  "ok": true
+ },
+ {
+  "name": "model_bool_mat_unknown",
+  "ok": true
+ },
+ {
+  "name": "model_bool_tag_diff",
+  "ok": true
+ },
+ {
+  "name": "model_bool_tag_inter",
+  "ok": true
+ },
+ {
+  "name": "model_bool_tag_other",
+  "ok": true
+ },
+ {
+  "name": "model_bool_tag_union",
+  "ok": true
+ },
+ {
+  "name": "model_carry_keeps_assembled",
+  "ok": true
+ },
+ {
+  "name": "model_carry_keeps_plain",
+  "ok": true
+ },
+ {
+  "name": "model_ck_go_origin",
+  "ok": true
+ },
+ {
+  "name": "model_ms_area",
+  "ok": true
+ },
+ {
+  "name": "model_ms_genus",
+  "ok": true
+ },
+ {
+  "name": "model_ms_lin",
+  "ok": true
+ },
+ {
+  "name": "model_ms_ns",
+  "ok": true
+ },
+ {
+  "name": "model_ms_vol",
+  "ok": true
+ },
+ {
+  "name": "model_ms_x0",
+  "ok": true
+ },
+ {
+  "name": "model_ms_x1",
+  "ok": true
+ },
+ {
+  "name": "model_ms_y0",
+  "ok": true
+ },
+ {
+  "name": "model_ms_y1",
+  "ok": true
+ },
+ {
+  "name": "model_ms_z0",
+  "ok": true
+ },
+ {
+  "name": "model_ms_z1",
+  "ok": true
+ },
+ {
+  "name": "model_op_base2_bool",
+  "ok": true
+ },
+ {
+  "name": "model_op_base2_other",
+  "ok": true
+ },
+ {
+  "name": "model_op_base_bool",
+  "ok": true
+ },
+ {
+  "name": "model_op_has_b2_bool",
+  "ok": true
+ },
+ {
+  "name": "model_op_has_b2_other",
+  "ok": true
+ },
+ {
+  "name": "model_op_is_bool",
+  "ok": true
+ },
+ {
+  "name": "model_op_is_bool_other",
+  "ok": true
+ },
+ {
+  "name": "model_op_name_diff",
+  "ok": true
+ },
+ {
+  "name": "model_op_name_inter",
+  "ok": true
+ },
+ {
+  "name": "model_op_name_union",
+  "ok": true
+ },
+ {
+  "name": "model_pl_m",
+  "ok": true
+ },
+ {
+  "name": "model_pl_tx",
+  "ok": true
+ },
+ {
+  "name": "model_pl_ty",
+  "ok": true
+ },
+ {
+  "name": "model_pl_tz",
+  "ok": true
+ },
+ {
+  "name": "model_xb_bo",
+  "ok": true
+ },
+ {
+  "name": "model_xb_dl_default",
+  "ok": true
+ },
+ {
+  "name": "model_xb_id",
+  "ok": true
+ },
+ {
+  "name": "model_xb_mx",
+  "ok": true
+ },
+ {
+  "name": "model_xb_nc",
+  "ok": true
+ },
+ {
+  "name": "model_xb_pr_default",
+  "ok": true
+ },
+ {
+  "name": "n_has_empty",
+  "ok": true
+ },
+ {
+  "name": "n_has_hit",
+  "ok": true
+ },
+ {
+  "name": "n_has_miss",
+  "ok": true
+ },
+ {
+  "name": "nsolids_empty",
+  "ok": true
+ },
+ {
+  "name": "nth_nat_hit",
+  "ok": true
+ },
+ {
+  "name": "nth_nat_miss",
+  "ok": true
+ },
+ {
+  "name": "op_carry_nm_a",
+  "ok": true
+ },
+ {
+  "name": "op_carry_nm_b",
+  "ok": true
+ },
+ {
+  "name": "op_carry_nm_other_is_b",
+  "ok": true
+ },
+ {
+  "name": "op_name_diff",
+  "ok": true
+ },
+ {
+  "name": "op_name_inter",
+  "ok": true
+ },
+ {
+  "name": "op_name_other_is_inter",
+  "ok": true
+ },
+ {
+  "name": "op_name_union",
+  "ok": true
+ },
+ {
+  "name": "other_carry_classified",
+  "ok": true
+ },
+ {
+  "name": "other_empty_lists_both",
+  "ok": true
+ },
+ {
+  "name": "out_carry_brep",
+  "ok": true
+ },
+ {
+  "name": "out_carry_holes",
+  "ok": true
+ },
+ {
+  "name": "out_carry_lin",
+  "ok": true
+ },
+ {
+  "name": "out_carry_mat",
+  "ok": true
+ },
+ {
+  "name": "out_carry_side",
+  "ok": true
+ },
+ {
+  "name": "out_carry_solids",
+  "ok": true
+ },
+ {
+  "name": "out_carry_vol",
+  "ok": true
+ },
+ {
+  "name": "out_del_empty_default",
+  "ok": true
+ },
+ {
+  "name": "out_del_fail_default",
+  "ok": true
+ },
+ {
+  "name": "out_empty_bb",
+  "ok": true
+ },
+ {
+  "name": "out_empty_carry",
+  "ok": true
+ },
+ {
+  "name": "out_empty_cells",
+  "ok": true
+ },
+ {
+  "name": "out_empty_has_measures",
+  "ok": true
+ },
+ {
+  "name": "out_empty_holes",
+  "ok": true
+ },
+ {
+  "name": "out_empty_kind",
+  "ok": true
+ },
+ {
+  "name": "out_empty_mat",
+  "ok": true
+ },
+ {
+  "name": "out_empty_ok",
+  "ok": true
+ },
+ {
+  "name": "out_empty_solids",
+  "ok": true
+ },
+ {
+  "name": "out_empty_vol",
+  "ok": true
+ },
+ {
+  "name": "out_fail_fix",
+  "ok": true
+ },
+ {
+  "name": "out_fail_kind",
+  "ok": true
+ },
+ {
+  "name": "out_fail_mat_unknown",
+  "ok": true
+ },
+ {
+  "name": "out_fail_not_ok",
+  "ok": true
+ },
+ {
+  "name": "out_fail_what",
+  "ok": true
+ },
+ {
+  "name": "out_fail_why",
+  "ok": true
+ },
+ {
+  "name": "out_proof_plumbing",
+  "ok": true
+ },
+ {
+  "name": "outcome_diff_ainb",
+  "ok": true
+ },
+ {
+  "name": "outcome_diff_bad",
+  "ok": true
+ },
+ {
+  "name": "outcome_diff_bina",
+  "ok": true
+ },
+ {
+  "name": "outcome_diff_sep",
+  "ok": true
+ },
+ {
+  "name": "outcome_inter_ainb",
+  "ok": true
+ },
+ {
+  "name": "outcome_inter_bad",
+  "ok": true
+ },
+ {
+  "name": "outcome_inter_bina",
+  "ok": true
+ },
+ {
+  "name": "outcome_inter_sep",
+  "ok": true
+ },
+ {
+  "name": "outcome_union_ainb",
+  "ok": true
+ },
+ {
+  "name": "outcome_union_bad",
+  "ok": true
+ },
+ {
+  "name": "outcome_union_bina",
+  "ok": true
+ },
+ {
+  "name": "outcome_union_sep",
+  "ok": true
+ },
+ {
+  "name": "partition_unknown_is_none",
+  "ok": true
+ },
+ {
+  "name": "pos_vol_straddling_zero",
+  "ok": true
+ },
+ {
+  "name": "pos_vol_strict",
+  "ok": true
+ },
+ {
+  "name": "pos_vol_touching_zero",
+  "ok": true
+ },
+ {
+  "name": "rel_class_agg_mixed",
+  "ok": true
+ },
+ {
+  "name": "rel_class_all_in",
+  "ok": true
+ },
+ {
+  "name": "rel_class_all_out",
+  "ok": true
+ },
+ {
+  "name": "rel_class_bad",
+  "ok": true
+ },
+ {
+  "name": "rel_class_empty",
+  "ok": true
+ },
+ {
+  "name": "rel_class_mixed",
+  "ok": true
+ },
+ {
+  "name": "rel_has_hit",
+  "ok": true
+ },
+ {
+  "name": "rel_has_miss",
+  "ok": true
+ },
+ {
+  "name": "rel_list_empty",
+  "ok": true
+ },
+ {
+  "name": "rel_list_maps",
+  "ok": true
+ },
+ {
+  "name": "rel_why_contact",
+  "ok": true
+ },
+ {
+  "name": "rel_why_mixed_is_crossing",
+  "ok": true
+ },
+ {
+  "name": "res_show_ambiguous",
+  "ok": true
+ },
+ {
+  "name": "resolve_ambiguous",
+  "ok": true
+ },
+ {
+  "name": "resolve_empty_missing",
+  "ok": true
+ },
+ {
+  "name": "resolve_missing",
+  "ok": true
+ },
+ {
+  "name": "resolve_second",
+  "ok": true
+ },
+ {
+  "name": "resolve_set",
+  "ok": true
+ },
+ {
+  "name": "resolve_set_missing",
+  "ok": true
+ },
+ {
+  "name": "resolve_unique",
+  "ok": true
+ },
+ {
+  "name": "role_created_is_4",
+  "ok": true
+ },
+ {
+  "name": "same_carry_not_classified",
+  "ok": true
+ },
+ {
+  "name": "same_diff_lists_once",
+  "ok": true
+ },
+ {
+  "name": "sh_ids_go",
+  "ok": true
+ },
+ {
+  "name": "sh_ids_go_empty",
+  "ok": true
+ },
+ {
+  "name": "shell_open_inner",
+  "ok": true
+ },
+ {
+  "name": "shell_open_is_open",
+  "ok": true
+ },
+ {
+  "name": "shell_open_outer",
+  "ok": true
+ },
+ {
+  "name": "sm_int_fd_empty",
+  "ok": true
+ },
+ {
+  "name": "sm_mid_pt_none",
+  "ok": true
+ },
+ {
+  "name": "sm_mid_pt_some",
+  "ok": true
+ },
+ {
+  "name": "stage_coin",
+  "ok": true
+ },
+ {
+  "name": "stage_crossing",
+  "ok": true
+ },
+ {
+  "name": "stage_edge_use",
+  "ok": true
+ },
+ {
+  "name": "stage_embedding",
+  "ok": true
+ },
+ {
+  "name": "stage_face_kind",
+  "ok": true
+ },
+ {
+  "name": "stage_incidence",
+  "ok": true
+ },
+ {
+  "name": "stage_loop",
+  "ok": true
+ },
+ {
+  "name": "stage_orientation",
+  "ok": true
+ },
+ {
+  "name": "stage_ownership",
+  "ok": true
+ },
+ {
+  "name": "stage_shell",
+  "ok": true
+ },
+ {
+  "name": "stage_unknown",
+  "ok": true
+ },
+ {
+  "name": "stage_vertex_link",
+  "ok": true
+ },
+ {
+  "name": "surf_admit_go_none",
+  "ok": true
+ },
+ {
+  "name": "surf_admit_nb_nurbs",
+  "ok": true
+ },
+ {
+  "name": "surf_admit_nb_other",
+  "ok": true
+ },
+ {
+  "name": "surf_admit_plane",
+  "ok": true
+ },
+ {
+  "name": "surf_why_bezier",
+  "ok": true
+ },
+ {
+  "name": "surf_why_nurbs",
+  "ok": true
+ },
+ {
+  "name": "surf_why_other",
+  "ok": true
+ },
+ {
+  "name": "surf_why_zero",
+  "ok": true
+ },
+ {
+  "name": "sx_parse_diff",
+  "ok": true
+ },
+ {
+  "name": "sx_parse_inter",
+  "ok": true
+ },
+ {
+  "name": "sx_parse_union",
+  "ok": true
+ },
+ {
+  "name": "sx_print_diff",
+  "ok": true
+ },
+ {
+  "name": "sx_print_inter",
+  "ok": true
+ },
+ {
+  "name": "sx_print_union",
+  "ok": true
+ },
+ {
+  "name": "tag_diff_is_15",
+  "ok": true
+ },
+ {
+  "name": "tag_inter_is_16",
+  "ok": true
+ },
+ {
+  "name": "tag_union_is_14",
+  "ok": true
+ },
+ {
+  "name": "transverse_edge_crossing",
+  "ok": true
+ },
+ {
+  "name": "transverse_nesting",
+  "ok": true
+ },
+ {
+  "name": "transverse_unknown_false",
+  "ok": true
+ },
+ {
+  "name": "unc_edge_crossing",
+  "ok": true
+ },
+ {
+  "name": "unc_edge_face",
+  "ok": true
+ },
+ {
+  "name": "unc_face_face",
+  "ok": true
+ },
+ {
+  "name": "unc_face_overlap",
+  "ok": true
+ },
+ {
+  "name": "unc_fail_closed",
+  "ok": true
+ },
+ {
+  "name": "unc_nesting",
+  "ok": true
+ },
+ {
+  "name": "unc_orientation",
+  "ok": true
+ },
+ {
+  "name": "unsup_edge",
+  "ok": true
+ },
+ {
+  "name": "unsup_edge_face",
+  "ok": true
+ },
+ {
+  "name": "unsup_face",
+  "ok": true
+ },
+ {
+  "name": "unsup_fail_closed",
+  "ok": true
+ },
+ {
+  "name": "vcode_finding",
+  "ok": true
+ },
+ {
+  "name": "vcode_stage",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_a",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_b",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_code",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_nc_zero",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_not_ok",
+  "ok": true
+ },
+ {
+  "name": "vr_fail_stage",
+  "ok": true
+ },
+ {
+  "name": "vr_nc_reads",
+  "ok": true
+ },
+ {
+  "name": "vr_ok_true",
+  "ok": true
+ },
+ {
+  "name": "wbox_empty_is_zero",
+  "ok": true
+ },
+ {
+  "name": "xf_dr_identity",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_bb",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_bp",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_bz",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_cc",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_co",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_cy",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_ln",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_nb",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_pl",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_rq",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_sp",
+  "ok": true
+ },
+ {
+  "name": "xf_moves_to",
+  "ok": true
+ },
+ {
+  "name": "xf_pt_identity",
+  "ok": true
+ },
+ {
+  "name": "xf_pt_translate_origin",
+  "ok": true
+ }
+]

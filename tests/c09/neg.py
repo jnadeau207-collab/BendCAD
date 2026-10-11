@@ -232,9 +232,10 @@ def c_pad():
 
 @case('rigid.kind')
 def c_kind():
-    law = open(os.path.join(HERE, '..', '..', 'laws', 'c09.bend'), encoding='utf-8').read()
-    line = '{SV.rr_why(sd_rep(tancc())) == "kind-not-decomposed" : String}'
-    return (line in law, 'kind-not-decomposed')
+    rep = json.load(open(os.path.join(HERE, 'pins-report.json'), encoding='utf-8'))
+    src = open(os.path.join(HERE, 'pins.bend'), encoding='utf-8').read()
+    held = any(r['name'] == 'rigid_tangent_whole' and r['ok'] for r in rep)
+    return (held and 'def rigid_tangent_whole__want() -> String:\n  "kind-not-decomposed"' in src, 'kind-not-decomposed')
 
 
 @case('rigid.budget')

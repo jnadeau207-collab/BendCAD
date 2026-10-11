@@ -7,7 +7,7 @@ partial or nonfinite geometry.
 
 Implementation: `src/c00/types.bend` (data + total predicates),
 `src/c00/eval.bend` (boundary, fuel threading, identity, publish).
-Laws+proofs: `laws/c00.bend` (38 laws, all proven).
+Laws: `laws/c00/LAWS.bend`, proofs `laws/c00/PROOF.bend` (8 laws over every model and request, kernel-checked; MASTER_PLAN A6). Pins: `tests/c00/pins.bend` (33 fixed-input checks).
 Tests: `tests/c00/check.bend` (support), `tests/c00/neg.bend` (16 checks),
 `tests/c00/positive.bend` (13 checks).
 
@@ -65,8 +65,7 @@ Exactly MASTER_PLAN §8's six failures, plus two non-failure outcomes:
 
 Every outcome arm carries the deterministic op id: failures are attributed
 by construction (legacy `kernelErrorSchema` requires TIMEOUT attribution via
-`operationId`; C00 attributes every outcome, `laws/c00.bend`
-`failed_attributed`, `incomplete_attributed`, `empty_attributed`).
+`operationId`; C00 attributes every outcome: law `outcome_attributed`, for every model and request; pins `failed_attributed`, `incomplete_attributed`, `empty_attributed`).
 
 `Incomplete` is never trusted geometry: it carries no candidate and the
 input model. There is no `@unsafe` in C00 sources (verified by grep).
@@ -118,49 +117,54 @@ scalar. Each witness is exactly specified, not a placeholder:
   overlap's lower bound; a disjoint pair is `S_empty` success. Full
   intersection curves arrive in C07.
 
-## 8. Explicit general laws
+## 8. Laws
 
-Bend rejects open laws (`bend` fails a file containing any law without a
-proving def), so `laws/c00.bend` proves every claim it states: 3 fully
-general laws plus 35 arm instances. The unbounded claims are stated here
-explicitly; each is grounded by the proven instances and adversarial tests
-named beside it.
+Every law quantifies over its inputs and passes the Lean-proven kernel
+(`bend laws/c00/PROOF.bend --verdict`). The fixed-input checks that used
+to be stated as laws are pins in `tests/c00/pins.bend` (MASTER_PLAN A6).
 
 - L1 (cancellation atomicity): for every model `m` and request `r`,
   `run(m, cancel_req(r))` publishes nothing and returns `m`.
-  Proven: `cancel_atomic`, `cancel_explicit`. Tested: `neg-cancelled`,
+  Laws: `cancel_atomic`, `cancel_explicit`. Tested: `neg-cancelled`,
   `neg-cancel-beats-malformed`.
-- L2 (failure atomicity): every `Failed`/`Incomplete` arm returns the input
-  model and no candidate. Proven per arm: `fuel0_keeps_model`,
-  `bytes_keeps_model`, `nan_keeps_model`, `unknown_keeps_model`,
-  `overflow_keeps_model`. Tested: all 16 `neg-*` checks assert
-  `model_equal(outcome, pre)`.
+- L2 (failure atomicity): for every model and request, a `Failed` or
+  `Incomplete` outcome carries the input model. Law:
+  `failure_keeps_model`, by induction over the staged pipeline with every
+  stage's Bool generalized. Pins: `fuel0_keeps_model`, `bytes_keeps_model`,
+  `nan_keeps_model`, `unknown_keeps_model`, `overflow_keeps_model`. Tested:
+  all 16 `neg-*` checks assert `model_equal(outcome, pre)`.
 - L3 (nonfinite never publishes): no `Ok(S_value)` carries a nonfinite
-  witness. Proven per path: boundary rejection (`nan_rejected`,
+  witness. This rests on F64 classification, which a proof cannot compute,
+  so it is pinned per path: boundary rejection (`nan_rejected`,
   `inftol_rejected`), candidate re-validation (`overflow_uncertain`),
   exact finite witnesses (`len_value_bits`, `isect_hit_value`, `unit_*`).
   Tested: `neg-nan-param`, `neg-inf-param`, `neg-ninf-unused-slot`,
   `neg-overflow-uncertain`, all `pos-*` bit pins.
 - L4 (empty succeeds distinctly): disjoint intersection is `Ok(S_empty)`,
-  never failure, and advances no revision. Proven: `empty_is_success`,
+  never failure, and advances no revision. Pins: `empty_is_success`,
   `empty_keeps_model`, `empty_attributed`. Tested: `pos-isect-empty`,
   `pos-empty-attributed`, `pos-isect-touch` (boundary).
 - L5 (fuel honesty): fuel 0/1 yields explicit `Incomplete` (or a learned
-  `invalid-input`), never geometry and never a false verdict. Proven:
+  `invalid-input`), never geometry and never a false verdict. Pins:
   `fuel0_incomplete`, `fuel1_incomplete`, `fuel1_reports_invalid`.
   Tested: `neg-fuel-zero`, `neg-fuel-one`, `neg-fuel-one-reports-invalid`.
 - L6 (identity excludes execution): `op_id` is constant across fuel, byte,
-  and cancellation changes. Proven generally: `opid_excludes_fuel`,
+  and cancellation changes. Laws: `opid_excludes_fuel`,
   `opid_excludes_cancel`, `opid_excludes_bytes`. Tested:
   `pos-opid-ignores-fuel`, `pos-opid-ignores-cancel`,
   `pos-opid-deterministic`, `pos-opid-content-sensitive`,
   `pos-opid-unit-sensitive`.
-- L7 (attribution): every outcome carries its request's `op_id`. Proven:
-  `failed_attributed`, `incomplete_attributed`, `empty_attributed`.
-- L8 (single publication): a valid request advances the model exactly one
-  revision with the specified witness. Proven: `len_advances_rev`,
-  `len_advances_count`, `len_checksum`, `len_value_bits`, `isect_hit_*`.
-  Tested: all `pos-len-*`, `pos-isect-overlap`.
+- L7 (attribution): every outcome carries its request's `op_id`. Law:
+  `outcome_attributed`, for every model and request.
+- L8 (single publication): a publish advances the model exactly one
+  revision. Law: `publish_bumps_rev`, for every model and witness. Pins:
+  `len_advances_rev`, `len_advances_count`, `len_checksum`,
+  `len_value_bits`, `isect_hit_*`. Tested: all `pos-len-*`,
+  `pos-isect-overlap`.
+
+`st_fuel0` takes its fuel-is-zero test as a Bool, like every other stage,
+so the failure law can generalize it (a match on a `U64` literal splits the
+word bit by bit and never reduces symbolically).
 
 ## 9. Verification
 
@@ -173,11 +177,12 @@ independent python FNV-1a implementation.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c00/types.bend --check-only   # ALL PROOFS CHECK
 bend src/c00/eval.bend --check-only    # ALL PROOFS CHECK
-bend laws/c00.bend --check-only        # ALL PROOFS CHECK (38 laws proven).
+bend laws/c00/PROOF.bend --verdict    # ALL PROOFS CHECK (8 laws, Lean kernel)
+bash tools/pins/run.sh tests/c00/pins.bend  # 33/33 pins hold
 bend tests/c00/check.bend --check-only # ALL PROOFS CHECK
 bend tests/c00/neg.bend                # 16 PASS, selfcheck fails=0
 bend tests/c00/positive.bend           # 13 PASS, selfcheck fails=0
-grep -rn '@unsafe' src/c00 laws/c00.bend tests/c00  # no matches
+grep -rn '@unsafe' src/c00 laws/c00 tests/c00  # no matches
 ```
 
 ## 10. Limitations (honest scope, not placeholders)

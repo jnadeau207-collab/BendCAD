@@ -9,9 +9,27 @@ bounds.
 
 Implementation: `src/c01/types.bend` (data + validated constructors +
 one result type), `src/c01/ops.bend` (arithmetic core, conditioning,
-frames, rigids). Laws+proofs: `laws/c01.bend`. Tests:
+frames, rigids). Laws: `laws/c01/` (kernel-checked); pins: `tests/c01/pins.bend`. Tests:
 `tests/c01/check.bend` (support), `tests/c01/neg.bend`,
 `tests/c01/pos.bend`.
+
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c01/LAWS.bend`, proven in `laws/c01/PROOF.bend`. All 10 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c01/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `neg_involution`: F64 negation is an involution for every bit pattern (proven on the 64-bit word).
+- `v3_neg_involution / v2_neg_involution`: vector negation is an involution.
+- `trans_involution`: matrix transpose is an involution.
+- `frame_rigid_frame / rigid_frame_rigid`: frame and rigid transform convert both ways without loss.
+- `cres_* / cerr_*`: result accessors: ok results read ok, errors read their kind and documented zeroes.
+
+Pins: `tests/c01/pins*.bend`, 30 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c01/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
 
 ## 1. Point-vs-direction distinction
 
@@ -214,32 +232,32 @@ input yields `False` via its explicit `m3_fin` conjunct.
 
 ## 8. Explicit general laws
 
-Bend rejects open laws, so `laws/c01.bend` proves every claim it
-states; the unbounded claims live here explicitly, grounded by the
-proven instances and tests named beside them.
+The unbounded claims are stated here; the instances named beside them are
+pins in `tests/c01/pins.bend`, executed, not proven (A6). The quantified laws
+are listed in "Laws and pins" above and pass the Lean kernel.
 
 - M1 (scaled norm never spuriously overflows): for finite v with
-  exact ‖v‖ ≤ DBL_MAX, `v3_norm` publishes. Proven: axis-DBL_MAX,
+  exact ‖v‖ ≤ DBL_MAX, `v3_norm` publishes. Pinned: axis-DBL_MAX,
   1e300-cube, min-subnormal instances. Tested: `pos-norm-*`.
 - M2 (zero/degenerate never publishes): normalize of zero,
   `seg_dir` of coincident points, inverse of singular matrices are
   `Cerr`, and `Cerr` projectors yield documented zeroes, never NaN.
-  Proven: `normalize_zero_*`, `seg_coincident_inv`, `inv_*`
+  Pinned: `normalize_zero_*`, `seg_coincident_inv`, `inv_*`
   instances + `cerr_zero_*`. Tested: all `neg-*`.
 - M3 (round-trip identity): invert-then-apply and compose-with-
-  inverse restore the input within §5 bounds. Proven: exact Rz90
+  inverse restore the input within §5 bounds. Pinned: exact Rz90
   round-trip instance. Tested: `pos-rt-*`.
 - M4 (point/direction separation): translation never affects `Dir`
   application; no point+point exists (by construction — the symbol
-  is absent, grep-verified). Proven: `dir_notrans`.
+  is absent, grep-verified). Pinned: `dir_notrans`.
   Tested: `pos-dir-notrans`.
 - M5 (frame obligation): every published `Frame`/`Rigid` satisfies
   `m3_is_rot`; `frame_basis` output is right-handed orthonormal
-  within §2 thresholds. Proven: `frame_ident_ok`,
+  within §2 thresholds. Pinned: `frame_ident_ok`,
   `frame_basis_ok` instances + rejection instances. Tested:
   `pos-frame-*`, `neg-frame-*`.
 - M6 (entry boundary): nonfinite in any component of any
-  constructor fails as `invalid-input`. Proven: per-type instances.
+  constructor fails as `invalid-input`. Pinned: per-type instances.
   Tested: `neg-nan-*`, `neg-inf-*` for every entry path. The norm
   family gates identically (§3): `neg-norm-*`, `neg-unit-*`,
   `neg-dist-*`, `neg-seg-nan`, `neg-pdist-nan`, `neg-drunit-nan`,
@@ -252,12 +270,13 @@ proven instances and tests named beside them.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c01/types.bend --check-only
 bend src/c01/ops.bend --check-only
-bend laws/c01.bend --check-only
+bend laws/c01/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c01/pins*.bend
 bend tests/c01/check.bend --check-only
 bend tests/c01/neg.bend
 bend tests/c01/pos.bend
-grep -rn '@unsafe' src/c01 laws/c01.bend tests/c01  # no matches
-grep -rn 'F32\|f32' src/c01 laws/c01.bend tests/c01  # no matches
+grep -rn '@unsafe' src/c01 laws/c01 tests/c01  # no matches
+grep -rn 'F32\|f32' src/c01 laws/c01 tests/c01  # no matches
 ```
 
 Bit pins come from python `struct` (independent oracle); norm pins

@@ -1,0 +1,178 @@
+[
+ {
+  "name": "ic_in",
+  "ok": true
+ },
+ {
+  "name": "ic_inf_inv",
+  "ok": true
+ },
+ {
+  "name": "ic_near_exact",
+  "ok": true
+ },
+ {
+  "name": "ic_on_zero",
+  "ok": true
+ },
+ {
+  "name": "ic_out",
+  "ok": true
+ },
+ {
+  "name": "ic_ovf_unc",
+  "ok": true
+ },
+ {
+  "name": "is_cofactor_signs",
+  "ok": true
+ },
+ {
+  "name": "is_cofactor_signs_pos",
+  "ok": true
+ },
+ {
+  "name": "is_in",
+  "ok": true
+ },
+ {
+  "name": "is_nan_inv",
+  "ok": true
+ },
+ {
+  "name": "is_near_exact",
+  "ok": true
+ },
+ {
+  "name": "is_on_zero",
+  "ok": true
+ },
+ {
+  "name": "is_out",
+  "ok": true
+ },
+ {
+  "name": "is_ovf_unc",
+  "ok": true
+ },
+ {
+  "name": "o2_big150",
+  "ok": true
+ },
+ {
+  "name": "o2_ccw",
+  "ok": true
+ },
+ {
+  "name": "o2_coll_zero",
+  "ok": true
+ },
+ {
+  "name": "o2_cw",
+  "ok": true
+ },
+ {
+  "name": "o2_flip",
+  "ok": true
+ },
+ {
+  "name": "o2_nan_inv",
+  "ok": true
+ },
+ {
+  "name": "o2_near_exact",
+  "ok": true
+ },
+ {
+  "name": "o2_near_neg",
+  "ok": true
+ },
+ {
+  "name": "o2_ovf_unc",
+  "ok": true
+ },
+ {
+  "name": "o2_rep_zero",
+  "ok": true
+ },
+ {
+  "name": "o2_tiny_exact",
+  "ok": true
+ },
+ {
+  "name": "o3_coplanar_zero",
+  "ok": true
+ },
+ {
+  "name": "o3_nan_inv",
+  "ok": true
+ },
+ {
+  "name": "o3_near_exact",
+  "ok": true
+ },
+ {
+  "name": "o3_neg",
+  "ok": true
+ },
+ {
+  "name": "o3_ovf_unc",
+  "ok": true
+ },
+ {
+  "name": "o3_pos",
+  "ok": true
+ },
+ {
+  "name": "seg_ctouch",
+  "ok": true
+ },
+ {
+  "name": "seg_disjoint",
+  "ok": true
+ },
+ {
+  "name": "seg_near_exact",
+  "ok": true
+ },
+ {
+  "name": "seg_overlap",
+  "ok": true
+ },
+ {
+  "name": "seg_ovf_unc",
+  "ok": true
+ },
+ {
+  "name": "seg_point_on",
+  "ok": true
+ },
+ {
+  "name": "seg_proper",
+  "ok": true
+ },
+ {
+  "name": "seg_touch",
+  "ok": true
+ },
+ {
+  "name": "tri_bound",
+  "ok": true
+ },
+ {
+  "name": "tri_degen_inv",
+  "ok": true
+ },
+ {
+  "name": "tri_in",
+  "ok": true
+ },
+ {
+  "name": "tri_nan_inv",
+  "ok": true
+ },
+ {
+  "name": "tri_out",
+  "ok": true
+ }
+]

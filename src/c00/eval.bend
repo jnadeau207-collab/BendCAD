@@ -193,11 +193,11 @@ def st_boundary(m: T.Model, +r: T.Request, id: U64, ok: Bool) -> T.Outcome:
     case False{}:
       T.mk_failed(T.F_invalid{}, m, id)
 
-def st_fuel0(m: T.Model, +r: T.Request, id: U64, fuel: U64) -> T.Outcome:
-  match fuel:
-    case 0u64:
+def st_fuel0(m: T.Model, +r: T.Request, id: U64, zero: Bool) -> T.Outcome:
+  match zero:
+    case True{}:
       T.mk_incomplete(id, 0u64, m)
-    case _:
+    case False{}:
       st_boundary(m, r, id, req_boundary_ok(r))
 
 def st_bytes(m: T.Model, +r: T.Request, id: U64, over: Bool) -> T.Outcome:
@@ -205,7 +205,7 @@ def st_bytes(m: T.Model, +r: T.Request, id: U64, over: Bool) -> T.Outcome:
     case True{}:
       T.mk_failed(T.F_exhausted{}, m, id)
     case False{}:
-      st_fuel0(m, r, id, req_fuel(r))
+      st_fuel0(m, r, id, U64.is_eq(req_fuel(r), 0u64))
 
 def run_cancel(m: T.Model, +r: T.Request, id: U64,
     cancelled: Bool) -> T.Outcome:

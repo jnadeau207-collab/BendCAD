@@ -33,6 +33,25 @@ Code carries no comments; this document is the explanation.
 PlaneGCS (vendored in `legacy/`) was mined for vocabulary only
 and is not called, linked or ported (BN-5).
 
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c05/LAWS.bend`, proven in `laws/c05/PROOF.bend`. All 34 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c05/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `solve_invalid_publishes_nothing / arrange_invalid_publishes_nothing`: invalid input publishes nothing.
+- `ok_iff_solved / classify_is_solved_at / solved_needs_geometry / geometry_veto`: the solver reports success exactly when the system is solved.
+- `steps_keep_radii_positive`: every solver step keeps radii positive.
+- `*_self_invalid / self_coincidence_invalid`: degenerate self-constraints are invalid.
+- `conflict_names_violations / no_conflict_without_stationarity / conflict_never_ok`: conflict diagnosis is sound.
+- `lm_budget_returns_state / lm_done_returns_state`: the solver loop returns its state on budget and on convergence.
+
+Pins: `tests/c05/pins*.bend`, 31 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c05/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
+
 ## 1. Exact predicates (`exact.bend`)
 
 An `Ex{ok, cs}` is a nonoverlapping expansion: `cs` sums exactly
@@ -406,7 +425,8 @@ bend src/base/par.bend --check-only      # ALL PROOFS CHECK
 bend src/base/ex.bend --check-only       # ALL PROOFS CHECK
 bend src/c05/sqr.bend --check-only       # ALL PROOFS CHECK
 bend tests/c05/check.bend --check-only   # ALL PROOFS CHECK
-bend laws/c05.bend --check-only          # ALL PROOFS CHECK (62 laws; timing in the receipt)
+bend laws/c05/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c05/pins*.bend
 bend tests/c05/neg.bend                  # 38 PASS, selfcheck fails=0
 bend tests/c05/pos.bend                  # 42 PASS, selfcheck fails=0
 # native: bend <suite> -o <bin> && <bin>; js: bend <suite> -o <js> && bun <js>
@@ -509,8 +529,8 @@ former solver.
 | Gate | Verdict | Evidence |
 |------|---------|----------|
 | BN-1 | PASS | The implementation is `src/c05/{exact,arrange,solve,sqr}.bend` (10 + 321 + 205 + 130 defs) plus `src/base/ex.bend` (34 defs) and `src/base/par.bend` (69 defs). The old count 48 + 321 + 205 + 65 + 130 put expansions and the parallel primitives under `src/c05`; R0.2 moved them, and `par` gained the sign defs (65 → 69). `src/c05/par.bend` is gone. Each `--check-only` → `ALL PROOFS CHECK`. The Python under `tools/oracle/c05/` and `tools/bench/` is test-only code, never on a runtime path. |
-| BN-2 | PASS | `grep -rn "@unsafe" src/c05 laws/c05.bend tests/c05` is empty. |
-| BN-3 | PASS | `grep -rn F32 src/c05 laws/c05.bend tests/c05` is empty; every scalar is the pinned as-bits F64. |
+| BN-2 | PASS | `grep -rn "@unsafe" src/c05 laws/c05 tests/c05` is empty. |
+| BN-3 | PASS | `grep -rn F32 src/c05 laws/c05 tests/c05` is empty; every scalar is the pinned as-bits F64. |
 | BN-4 | PASS | No foreign or FFI code; imports are `Base`, `../c00/types.bend`, `../base/par.bend`, `../base/ex.bend` and the C05 files themselves. Boundary list: none. |
 | BN-5 | PASS | `grep -rni "occt\|freecad\|planegcs" src/c05` is empty. The oracles (numpy, scipy, shapely/GEOS, `Fraction`) live under `tools/oracle/` as comparators only. PlaneGCS is not used, even as a comparator. |
 | BN-6 | PASS | No GPU claim in this packet. |
@@ -602,9 +622,11 @@ Tree-shaped sequences are not in this packet; each list spine converts in the mi
   rests on `ex_oracle` plus the `pos-arr-tenth` and `pos-arr-star`
   pins.
 
-## 10. General laws (`laws/c05.bend`)
+## 10. General laws
 
-62 laws.
+At the C05 closeout: 62 laws in `laws/c05.bend`. Since A6 the 34 Layer A
+laws are in `laws/c05/` (kernel-checked) and the 31 closed instances are pins
+in `tests/c05/pins.bend`; see "Laws and pins" above.
 
 **Layer A (general, quantified)**: 34.
 

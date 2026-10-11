@@ -26,7 +26,7 @@ ICR = '(intent create 6 0 1 0)'
 #     touching five container walls), input-node-missing-or-failed
 #     (chain.failed_operand), plus ok.* control journeys.
 #   defensive arms with no public-op trigger (pinned at Layer A,
-#     laws/c08.bend): inconsistent-classification (decide_both_in_
+#     tests/c08/pins.bend): inconsistent-classification (decide_both_in_
 #     fails + outcome_*_bad; (in,in) is geometrically impossible),
 #     nurbs-operand (surf_admit_nb_nurbs; no C06 constructor emits
 #     GV_nb faces), bezier-patch-operand (surf_why arm; build.bend

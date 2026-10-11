@@ -12,9 +12,25 @@ analytic/high-precision references within declared bounds.
 Implementation: `src/c03/types.bend` (data + total predicates +
 validated constructors + one result type), `src/c03/ops.bend`
 (evaluation, derivatives, subdivision, enclosures, projection,
-NURBS de Boor). Laws+proofs: `laws/c03.bend` (sibling packet).
+NURBS de Boor). Laws: `laws/c03/` (kernel-checked); pins: `tests/c03/pins.bend`.
 Tests: `tests/c03/check.bend`, `tests/c03/neg.bend`,
 `tests/c03/pos.bend` (sibling packet).
+
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c03/LAWS.bend`, proven in `laws/c03/PROOF.bend`. All 10 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c03/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `bez_split_lo / bez_split_hi`: a split Bézier half either fails or keeps its curve endpoint and meets the other half at the de Casteljau point, for every curve and parameter.
+- `dom_split_lo / dom_split_hi`: a split domain either fails or keeps its outer bound and ends at the split parameter.
+- `gok_* / gerr_*`: result accessors for every geometry value.
+
+Pins: `tests/c03/pins*.bend`, 408 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c03/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
 
 ## 1. Representation policy: a trig-free rational core
 
@@ -411,7 +427,8 @@ state, no atomics, no GPU claim until the device gate closes.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c03/types.bend --check-only  # ALL PROOFS CHECK
 bend src/c03/ops.bend --check-only    # ALL PROOFS CHECK
-bend laws/c03.bend --check-only       # ALL PROOFS CHECK (sibling).
+bend laws/c03/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c03/pins*.bend
 bend tests/c03/check.bend --check-only
 bend tests/c03/neg.bend               # selfcheck fails=0 (sibling)
 bend tests/c03/pos.bend               # selfcheck fails=0 (sibling)
@@ -445,10 +462,11 @@ caught by this oracle and replaced with the quartic map (§5).
 - Trim composition exists for planes only; other surfaces in
   C07/C08.
 
-## 15. Explicit general laws (for `laws/c03.bend`)
+## 15. Explicit general laws
 
-Bend rejects open laws, so sibling `laws/c03.bend` proves every
-claim it states; the unbounded claims live here explicitly:
+The unbounded claims are stated here; the instances named beside them are
+pins in `tests/c03/pins.bend`, executed, not proven (A6). The quantified laws
+are listed in "Laws and pins" above and pass the Lean kernel.
 
 - G1 (entry boundary): nonfinite in any slot of any entry fails
   as `invalid-input`. Grounded: per-type `mk_*`/`*_fin` instances

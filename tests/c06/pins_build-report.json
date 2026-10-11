@@ -1,0 +1,102 @@
+[
+ {
+  "name": "cache_partial",
+  "ok": true
+ },
+ {
+  "name": "ear_holes4",
+  "ok": true
+ },
+ {
+  "name": "ev_bore",
+  "ok": true
+ },
+ {
+  "name": "ev_box",
+  "ok": true
+ },
+ {
+  "name": "ev_cavity",
+  "ok": true
+ },
+ {
+  "name": "ev_cone",
+  "ok": true
+ },
+ {
+  "name": "ev_dup_ids",
+  "ok": true
+ },
+ {
+  "name": "ev_face_missing",
+  "ok": true
+ },
+ {
+  "name": "ev_feature_on_revolve",
+  "ok": true
+ },
+ {
+  "name": "ev_foot_on_feature",
+  "ok": true
+ },
+ {
+  "name": "ev_foot_outside",
+  "ok": true
+ },
+ {
+  "name": "ev_holes",
+  "ok": true
+ },
+ {
+  "name": "ev_intent_mismatch",
+  "ok": true
+ },
+ {
+  "name": "ev_move_same",
+  "ok": true
+ },
+ {
+  "name": "ev_pad",
+  "ok": true
+ },
+ {
+  "name": "ev_pocket_blind",
+  "ok": true
+ },
+ {
+  "name": "ev_pocket_too_deep",
+  "ok": true
+ },
+ {
+  "name": "ev_sphere",
+  "ok": true
+ },
+ {
+  "name": "ev_torus",
+  "ok": true
+ },
+ {
+  "name": "ev_two_solids",
+  "ok": true
+ },
+ {
+  "name": "ms_box_vol",
+  "ok": true
+ },
+ {
+  "name": "ms_holes_vol",
+  "ok": true
+ },
+ {
+  "name": "ms_rounded_vol",
+  "ok": true
+ },
+ {
+  "name": "ms_sphere_vol",
+  "ok": true
+ },
+ {
+  "name": "ms_torus_vol",
+  "ok": true
+ }
+]

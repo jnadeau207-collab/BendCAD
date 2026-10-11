@@ -16,6 +16,20 @@ mechanical cases, degenerate cases, repeated downstream edits,
 bounded-error reports, and native Bend implementation evidence. One
 successful fillet does not qualify the family."
 
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c09/LAWS.bend`, proven in `laws/c09/PROOF.bend`. All 3 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c09/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `frustum_closed_solid / fillet_closed_solid / cone_closed_solid`: for every input, each builder's face loops are closed oriented-use cycles on its own edges, each edge is used once each way, edge ends are valid vertices, and V − E + F = 2.
+
+Pins: `tests/c09/pins*.bend`, 59 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c09/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
+
 ## 0. Decisions that keep the packet honest
 
 Every published solid is built in Bend from C03 surfaces the kernel
@@ -424,12 +438,13 @@ chamfer and fillet on a moved body, consuming radii, zero radius,
 draft consume, offset self-intersection, shell consume, pattern
 overlap, circular N = 3, pad on a fillet result.
 
-`laws/c09.bend`: parser round-trips, cache tags, the volume-formula
-helpers' `F64.bits`, refusal classifiers, and the five rigid-cluster
-laws. `laws/c09_build.bend`: one full evaluation per ordinary family
-member (box fillet, box chamfer, square loft, arc-90 sweep, closed
-shell), floats by `F64.bits`. A law must fail on the old behavior it
-exists to forbid (a fillet that returns the untouched box, a drag
+Pins (A6): `tests/c09/pins.bend` holds parser round-trips, cache tags,
+the volume-formula helpers' `F64.bits`, refusal classifiers, and the five
+rigid-cluster checks; `tests/c09/pins_build.bend` holds one full
+evaluation per ordinary family member (box fillet, box chamfer, square
+loft, arc-90 sweep, closed shell), floats by `F64.bits`. Laws in
+`laws/c09/` prove the builders' topology for every input. A law or pin
+must fail on the old behavior it exists to forbid (a fillet that returns the untouched box, a drag
 that rewrites a clean cluster, a g1 loft that publishes).
 
 ## 6. Docs
@@ -441,7 +456,7 @@ packet once the arc sweep publishes. Do not edit `legacy/`.
 
 README and MASTER_PLAN "Next is C08" flip to C09 closed / next is C10
 only after the check phase has a green e2e, a green neg suite, and
-`laws/c09.bend` printing `ALL PROOFS CHECK`. The receipt is
+`tools/laws/check.sh` printing `ALL PROOFS CHECK` for every law file. The receipt is
 `docs/receipts/c09-2026-10-09.txt`, written from those runs, not
 before them.
 

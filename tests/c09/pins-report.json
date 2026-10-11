@@ -1,0 +1,202 @@
+[
+ {
+  "name": "fillet_arity_unknown",
+  "ok": true
+ },
+ {
+  "name": "fillet_is_admitted",
+  "ok": true
+ },
+ {
+  "name": "guide_line_code",
+  "ok": true
+ },
+ {
+  "name": "guide_line_drops_distance",
+  "ok": true
+ },
+ {
+  "name": "loft_g2_unknown",
+  "ok": true
+ },
+ {
+  "name": "rigid_drag_clean",
+  "ok": true
+ },
+ {
+  "name": "rigid_path",
+  "ok": true
+ },
+ {
+  "name": "rigid_rectangle",
+  "ok": true
+ },
+ {
+  "name": "rigid_tangent_whole",
+  "ok": true
+ },
+ {
+  "name": "rigid_triangle",
+  "ok": true
+ },
+ {
+  "name": "rt_fillet",
+  "ok": true
+ },
+ {
+  "name": "rt_shell_open",
+  "ok": true
+ },
+ {
+  "name": "rt_sweep",
+  "ok": true
+ },
+ {
+  "name": "sw_quarter",
+  "ok": true
+ },
+ {
+  "name": "tag_chamfer",
+  "ok": true
+ },
+ {
+  "name": "tag_draft",
+  "ok": true
+ },
+ {
+  "name": "tag_fillet",
+  "ok": true
+ },
+ {
+  "name": "tag_fillet_edge",
+  "ok": true
+ },
+ {
+  "name": "tag_holes_circular",
+  "ok": true
+ },
+ {
+  "name": "tag_holes_linear",
+  "ok": true
+ },
+ {
+  "name": "tag_loft",
+  "ok": true
+ },
+ {
+  "name": "tag_offset",
+  "ok": true
+ },
+ {
+  "name": "tag_pattern_circular",
+  "ok": true
+ },
+ {
+  "name": "tag_pattern_linear",
+  "ok": true
+ },
+ {
+  "name": "tag_shell",
+  "ok": true
+ },
+ {
+  "name": "tag_sweep_arc",
+  "ok": true
+ },
+ {
+  "name": "tag_sweep_line",
+  "ok": true
+ },
+ {
+  "name": "tag_thicken",
+  "ok": true
+ },
+ {
+  "name": "thicken_matches_offset",
+  "ok": true
+ },
+ {
+  "name": "vol_chamfer_box_980",
+  "ok": true
+ },
+ {
+  "name": "vol_chamfer_cyl",
+  "ok": true
+ },
+ {
+  "name": "vol_draft_380",
+  "ok": true
+ },
+ {
+  "name": "vol_fillet_box_closed",
+  "ok": true
+ },
+ {
+  "name": "vol_fillet_box_not_cube",
+  "ok": true
+ },
+ {
+  "name": "vol_fillet_cyl",
+  "ok": true
+ },
+ {
+  "name": "vol_fillet_edge_cone",
+  "ok": true
+ },
+ {
+  "name": "vol_fillet_edge_equal",
+  "ok": true
+ },
+ {
+  "name": "vol_loft_prismatoid",
+  "ok": true
+ },
+ {
+  "name": "vol_loft_squares",
+  "ok": true
+ },
+ {
+  "name": "vol_offset_box",
+  "ok": true
+ },
+ {
+  "name": "vol_offset_cyl",
+  "ok": true
+ },
+ {
+  "name": "vol_shell_box",
+  "ok": true
+ },
+ {
+  "name": "vol_shell_cyl",
+  "ok": true
+ },
+ {
+  "name": "vol_shell_open",
+  "ok": true
+ },
+ {
+  "name": "why_angle_admits",
+  "ok": true
+ },
+ {
+  "name": "why_angle_refuses",
+  "ok": true
+ },
+ {
+  "name": "why_g1_refuses",
+  "ok": true
+ },
+ {
+  "name": "why_guide_foreign",
+  "ok": true
+ },
+ {
+  "name": "why_twist_refuses",
+  "ok": true
+ },
+ {
+  "name": "zone_ops_loaded",
+  "ok": true
+ }
+]

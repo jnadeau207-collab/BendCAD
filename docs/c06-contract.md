@@ -14,6 +14,25 @@ suites and their laws were removed; the R0.4 repairs that lived in
 them (full-key cache, fail-fast evaluation, exact clearance, duplicate
 ids) are restated against the new code in §11.
 
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c06/LAWS.bend`, proven in `laws/c06/PROOF.bend`. All 6 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c06/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `eval_one_entry_per_node`: evaluation yields exactly one cache entry per node, in node order, for every node list and old cache.
+- `duplicate_ids_evaluate_nothing`: a part with duplicate ids evaluates to a single refusal.
+- `failed_input_refused`: a node whose input failed is refused.
+- `build_error_not_masked`: the intent gate never masks a build error.
+- `intent_mismatch_refused`: an intent mismatch never publishes.
+- `cache_hit_reuses_entry`: a cache hit republishes the stored result.
+
+Pins: `tests/c06/pins*.bend`, 107 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c06/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
+
 ## 1. Files
 
 | File | Role |
@@ -265,18 +284,17 @@ This replaces and extends the box-only `ms_zone` of the 2026-10-03 C06.
 
 ## 12. Evidence
 
-- Laws: 105 in two files.
-  - `laws/c06.bend` has 80: 47 `surfx`, plus expressions, arcs, the
-    twelve profile codes, revolve-axis and missing-input verdicts, the
-    tolerance envelope, certified sine/cosine, placement exactness and
-    unknown ops. It is checked as one file.
-  - `laws/c06_build.bend` has 25 that each run a full evaluation (parse,
-    build, C04 `brep_checked`, certified measures, effects) inside the
-    normalizer: verdict strings for every op family and rejection,
-    volume containment, cache reuse and ear clipping. Each costs 10–45
-    minutes there (soft-float B-rep validation), so the file is checked
-    one law per process in parallel, on the same pinned compiler and
-    snapshot.
+- Laws (A6): the six in `laws/c06/` (see "Laws and pins" above),
+  kernel-checked.
+- Pins: 107 in two files, run as compiled code.
+  - `tests/c06/pins.bend` has 82: `surfx`, expressions, arcs, the twelve
+    profile codes, revolve-axis and missing-input verdicts, the tolerance
+    envelope, certified sine/cosine, placement exactness and unknown ops.
+  - `tests/c06/pins_build.bend` has 25 full evaluations (parse, build, C04
+    `brep_checked`, certified measures, effects): verdict strings for every
+    op family and rejection, volume containment, cache reuse and ear
+    clipping. As checker laws each cost 10–45 minutes; as pins they run in
+    seconds.
   - Profile and evaluator laws parse real design text. They reduce
     because the decimal reader is checker-evaluable.
   - Each zone, trigonometry and placement law fails on a mutant that

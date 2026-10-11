@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 5 — September 29, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; A4: certified-rounding membership; A5: C06 closeout ownership; see Amendment record)**
+**Revision 6 — October 11, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; A4: certified-rounding membership; A5: C06 closeout ownership; A6: laws are proofs, pins are tests; see Amendment record)**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend. That kernel is Aethalgard v2: **BendCAD**. It is open source and built to be the world's best CAD kernel for AI agents (§14): never silently wrong, self-explaining, identity by meaning, toleranced and state-aware, fast and massively parallel.
 
@@ -256,7 +256,7 @@ Keep owner-reviewed laws separate from implementation proofs. Changing a law, ad
 
 The trusted computing base includes Bend's checker, elaboration/erasure/compiler passes, numeric primitive assumptions, runtime, device compiler, and hardware. A proof about source terms does not automatically prove those implementations correct. Record that boundary and reduce it incrementally rather than claiming infallibility.
 
-Proof methodology (Amendment A2, binding on every packet closeout from C04 on): Layer A semantic invariants, Layer B implementation theorems, Layer C stage-isolated adversarial fixtures, Layer D independent qualification — recorded in a per-packet exit receipt matrix with columns exit req, formal spec, predicate, pos witness, neg witness, stage-isolated, independent evidence, status. See the Amendment record.
+Laws and pins (Amendment A6): a law quantifies over its inputs and passes the Lean-proven kernel (`--verdict`); a fixed-input check is a pin, run as compiled code. Proof methodology (Amendment A2, binding on every packet closeout from C04 on, as restated by A6): Layer A semantic invariants, Layer B implementation theorems, Layer C stage-isolated adversarial fixtures, Layer D independent qualification — recorded in a per-packet exit receipt matrix with columns exit req, formal spec, predicate, pos witness, neg witness, stage-isolated, independent evidence, status. See the Amendment record.
 
 ## 12. Repository structure and delivery discipline
 
@@ -294,7 +294,7 @@ Work allowed in parallel:
 - inventory operation semantics and adversarial fixtures;
 - specify CAD-side contracts whose correctness does not depend on pretending F64 already exists.
 
-`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is closed (§15, A5). C06 + A0 is closed: G1 passed (§18; receipt `docs/receipts/c06.1-2026-10-05.txt`). C07 is closed (`docs/c07-contract.md`, receipt `docs/receipts/c07-2026-10-06.txt`). Next is C08.
+`BEND_PIN` named a qualified numeric commit (`numeric/2026-09-29`) when BendCAD began, so it started at C00/C01/C02: failure semantics, mathematical foundation, then robust predicates, not an OCCT bridge or a box demo. C00–C05 are closed (C05.1 at `48ab78c`). R0, the speed and parallelism rebuild of C00–C05, is closed (§15, A5). C06 + A0 is closed: G1 passed (§18; receipt `docs/receipts/c06.1-2026-10-05.txt`). C07 is closed (`docs/c07-contract.md`, receipt `docs/receipts/c07-2026-10-06.txt`). C08 is closed with recorded deferrals (`docs/receipts/c08-2026-10-08.final.txt`; crossing boundaries refused until face splitting). C09 is open, waiting on the cone-fillet decision (`docs/receipts/c09-2026-10-09.txt` §5). Every law was restated under A6 (receipt `docs/receipts/a6-2026-10-11.txt`).
 
 **Dependency order:** Bend representation soundness → full-width U64/F64 transport → qualified core binary64 → pinned host handoff → BendCAD numerics/predicates → B-rep foundations → intersections/booleans/features → interchange and professional qualification, with device qualification alongside (CUDA receipted; Metal execution pending a Mac).
 
@@ -682,3 +682,14 @@ Correctness rules (laws, A2 proof layers, failure semantics, no borrowed kernels
   - `zone`: volume and area certified over the whole envelope wherever topology provably cannot change across it. That covers box, cylinder, cone, sphere and torus while their dimensions stay certified positive (and `R > r` for the torus), and placements of them. This is a superset of the box-only `ms_zone` that C06 had before.
 
   Profiles and features need a certificate that topology stays constant across the zone. C06 predicates certify single points only, and tangent junctions such as rounded corners defeat simple clearance-margin bounds. That certificate is parameter-box intersection work, so envelope evaluation of profiles and features moves to C07, ahead of G2. Delivered in C07 (`docs/c07-contract.md` §6).
+
+**A6 — 2026-10-11: laws are proofs, pins are tests.** Bend's guide defines a law as a claim about every input, proven by induction and rewriting, with `--verdict` (the Lean-proven BendTT kernel) as the trusted check; its README says floats are axiomatic and cannot be proven. BendCAD had used `law` differently. Of 1,934 laws, about 1,770 applied a function to a fixed input and compared the result by `{==}`: unit tests run inside the type checker, some for 12 hours. None of the law files passed `--verdict`, because every package reaches the fork's soft-float F64, which the kernel cannot compute (it runs out of fuel on `1.0 + 2.0`). Every "ALL PROOFS CHECK" in earlier receipts came from the checker alone, which has no proof. Owner direction: fix it.
+
+The amendment:
+
+- A law quantifies over its inputs, lives in `laws/<pkt>/LAWS.bend`, is proven in `laws/<pkt>/PROOF.bend`, and must pass both `--check-only` and `--verdict` (`tools/laws/check.sh`). No law depends on F64 arithmetic computing. F64 values flow through laws symbolically, and bit-level F64 facts (negation is an involution) are proven on the words.
+- Every law family must kill a planted bug (`tools/laws/mutate.py`).
+- Fixed-input checks become pins, `tests/<pkt>/pins*.bend`, compiled to an ES module and compared bit-exactly by `tools/pins/run.sh`. They are regression evidence, as the per-packet suites are, not proofs.
+- A2 is restated: Layer A is the quantified laws; Layer B ("closed laws over the implementation") is the pins and suites. Layer B is no longer counted as proof.
+- The laws now cover the plan's named invariants: failure keeps the accepted model (C00, C06), parallel map equals sequential map and tables read back what was written (base), the validator returns exactly the B-rep it accepts (C04), evaluation yields one cache entry per node in order (C06), the boolean outcome table is the regularized set algebra (C08), and feature builders produce closed oriented-use cycles with V − E + F = 2 for every input (C09). That last law found a real defect: the variable-radius cone builder wired edge 3 back to vertex 0, so its bottom face loop never closed.
+

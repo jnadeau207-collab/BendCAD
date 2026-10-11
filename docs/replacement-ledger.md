@@ -81,9 +81,9 @@ law obligations | fixtures | limitations.
 No legacy source was mined for this packet: each row is new Bend code
 over C00–C05. Contract `docs/c06-contract.md`. The 2026-10-03 rows
 (box-only builder, `types`/`ops`/`eval`) are superseded; their R0.4
-repairs are restated in contract §11. Laws named `ev_*`, `ms_*`,
-`cache_partial` and `ear_holes4` live in `laws/c06_build.bend`; the rest
-are in `laws/c06.bend`.
+repairs are restated in contract §11. Since A6 the closed checks named below are pins: `ev_*`, `ms_*`,
+`cache_partial` and `ear_holes4` in `tests/c06/pins_build.bend`, the rest in
+`tests/c06/pins.bend`. Quantified laws are in `laws/c06/`.
 
 | Operation | Legacy source | Bend implementation | Law obligations | Fixtures | Limitations |
 |---|---|---|---|---|---|
@@ -102,8 +102,8 @@ are in `laws/c06.bend`.
 
 ## C07 — general intersections, classification, embedding, envelope topology
 
-No legacy source was mined. Contract `docs/c07-contract.md`. Fast laws
-in `laws/c07.bend`; branch-and-bound laws in `laws/c07_build.bend`.
+No legacy source was mined. Contract `docs/c07-contract.md`. Laws in
+`laws/c07/`; the former closed laws are pins in `tests/c07/pins*.bend`.
 End-to-end evidence in `tests/c07/`.
 
 | Operation | Legacy source | Bend implementation | Law obligations | Fixtures | Limitations |
@@ -125,12 +125,12 @@ End-to-end evidence in `tests/c07/`.
 
 No legacy source was mined. Intent `docs/c08-intent.md`; laws `docs/c08-laws.md`
 (L1–L20); adversarial triage `docs/c08-adversarial-findings.md` (F1–F25, all
-closed). Fast laws in `laws/c08.bend`; full-evaluation laws in
-`laws/c08_build.bend`. End-to-end evidence in `tests/c08/`.
+closed). Laws in `laws/c08/`; the former closed laws are pins in
+`tests/c08/pins.bend` and `tests/c08/pins_build.bend`. End-to-end evidence in `tests/c08/`.
 
 | Operation | Legacy source | Bend implementation | Law obligations | Fixtures | Limitations |
 |---|---|---|---|---|---|
-| Regularized union / difference / intersection | None mined | `src/c08/bool.bend`: admit → broad-phase (recomputed world boxes) → intersect (contact-aware `vcore`) → classify (per-solid sampling) → assemble (carry / append / cavity transplant / empty) → validate → publish; empty-compound algebra; same-node identical short-circuit | `laws/c08.bend` (477 laws: `decide`/`outcome`/`keep_frag`, aggregates, admit order, `rel_why`, finding partition, lineage); `laws/c08_build.bend` (40 `ev_*` full-evaluation laws incl. cavity, contact, crossing/piercing/tangent refusals and volumes) | `tests/c08/e2e.py` (101 records: disjoint/containment/mirror/kiss/contact/identical/empty/slanted/crossing/pierce/curved/tangent/tangent_cyl/chained/moved/sens journeys, L20 identity on every case); `tests/c08/neg.py` (20 cases) | Boundaries that cross or overlap refuse as `boundaries-cross-or-overlap` (face splitting and shell assembly are C11); `mixed-solid-relations` needs per-solid measures (C11); `resolve` has no CLI/MCP caller (rendering unified, wiring deferred) |
+| Regularized union / difference / intersection | None mined | `src/c08/bool.bend`: admit → broad-phase (recomputed world boxes) → intersect (contact-aware `vcore`) → classify (per-solid sampling) → assemble (carry / append / cavity transplant / empty) → validate → publish; empty-compound algebra; same-node identical short-circuit | `laws/c08/` (outcome table, empty algebra, uncertain fragments, kernel-checked) and pins `tests/c08/pins.bend` (487: `decide`/`outcome`/`keep_frag`, aggregates, admit order, `rel_why`, finding partition, lineage); `tests/c08/pins_build.bend` (40 `ev_*` full-evaluation pins incl. cavity, contact, crossing/piercing/tangent refusals and volumes) | `tests/c08/e2e.py` (101 records: disjoint/containment/mirror/kiss/contact/identical/empty/slanted/crossing/pierce/curved/tangent/tangent_cyl/chained/moved/sens journeys, L20 identity on every case); `tests/c08/neg.py` (20 cases) | Boundaries that cross or overlap refuse as `boundaries-cross-or-overlap` (face splitting and shell assembly are C11); `mixed-solid-relations` needs per-solid measures (C11); `resolve` has no CLI/MCP caller (rendering unified, wiring deferred) |
 | Admit domain and placement exactness | None mined | `surf_admit` (plane/cylinder/cone/sphere/torus/flat-patch via `gv_im`), `edge_code` (degenerate/line/cubic/circle/rational-quadratic), `admit_shs`, `pl_exact` threading with `interval-placement` refusal; first-match-wins stage order | `edge_code_*`, `surf_admit_*`, `admit_*`, per-arm `xf_gval` transform laws (F11 parity); contract L5 | `place.rot45_*`, `mixed.regions`, `ok.quarter_turn`; nurbs/bezier/edge/open-shell arms unreachable via public constructors, pinned at Layer A only | NURBS (D1), curved bicubics, open shells, general-angle placements all refuse; no certified-interval placement consumption (C11) |
 | Classify sampling (seam-vertex soundness) | None mined | `face_pts`: loop-first vertices plus every admitted edge's parametric midpoint (`ed_mid` via `gv_cv` + `R.cv_box`, total on the admitted domain) plus trim-certified `SO.interior` points; seam/antipodal pairs cannot both hide in a sub-feature-scale lens | `mid_pt_exact`, `cv_mid_none`, `ed_mid_*`, `mid_cons_*`, `lp/fa_mids_empty`; spanning pinned at Layer C | `tangent_cyl.*` (line-contact publishes per L9, 1e-6 overlap refuses), `tangent.*`, `contact.*` | Residual L10: a solid whose whole 1-skeleton plus face interiors fits a sub-feature lens still hides (no public-op witness) |
 | Transverse/uncertain finding partition | None mined | `is_contact/is_uncertain_code/is_unsupported_code/is_transverse_code` + `intersect_fail` (F9: unknown codes → `unknown-finding`, fail-closed to uncertainty); edge/face piercing discriminator and tangent sampler in `src/c07/emb.bend` | `unc_*`, `contact_*`, `rel_why_*`, `emb_ee_cross_*`, `emb_ef_*` | `pierce.*`, `cross.*`, `kiss.diff_pinched`, `diff.pinched` | Verbatim diagnoses in `tools/mcp/language.md` (MCP `reference`) |
@@ -140,10 +140,12 @@ closed). Fast laws in `laws/c08.bend`; full-evaluation laws in
 ## C09 — sweep, loft, fillet, chamfer, draft, offset, shell, patterns, rigid clusters
 
 No legacy source was mined. Intent `docs/c09-intent.md`; laws `docs/c09-laws.md`.
-Fast laws in `laws/c09.bend` (parser round-trip, cache tags 17–30, formula
-`F64.bits`, refusal classifiers, five rigid-cluster laws). Full-evaluation
-laws in `laws/c09_build.bend` (box fillet, box chamfer, square loft, arc-90
-sweep, closed shell, loft g1 refusal, thicken volume equals offset).
+Laws in `laws/c09/` (frustum, fillet and cone builders are closed solids
+for every input). Pins in `tests/c09/pins.bend` (parser round-trip, cache
+tags 17–30, formula `F64.bits`, refusal classifiers, five rigid-cluster
+checks) and `tests/c09/pins_build.bend` (box fillet, box chamfer, square
+loft, arc-90 sweep, closed shell, loft g1 refusal, thicken volume equals
+offset).
 End-to-end journeys in `tests/c09/e2e.py` and `tests/c09/neg.py`. Receipt is
 written by the check phase after green runs, not by this packet.
 
@@ -158,4 +160,4 @@ written by the check phase after green runs, not by this packet.
 | Shell | None mined | Closed shell is a C08 containment difference (one cavity, boolean origin kept). Open shell is a blind pocket on a box. Tag 25. Deleted reason `shelled` | `tag_shell`, `vol_shell_box`, `vol_shell_open`, `vol_shell_cyl`, `rt_shell_open`; `ev_shell_closed` | closed box T=1 volume 488; open box 424; closed cylinder 122π | If the boolean cannot certify, the boolean's failure is returned and the outer solid is not published. Open on a cylinder refuses |
 | Patterns | None mined | Disjoint copies unioned without a crossing boolean. Linear counts and the N=4 circular placement. Hole patterns call the existing holes evaluator. Tags 27–30. Deleted reason `patterned` | `tag_pattern_linear`, `tag_pattern_circular`, `tag_holes_linear`, `tag_holes_circular` | 2×1×1 DX=20 volume 2000 then move and disjoint union; circular N=4 R=20 volume 4000; hole volumes box−nπr²depth | Overlap refuses before a boolean. Circular N other than 4, or R=0, is `pattern-angle-not-certified`. Count 0 refuses. `1×1×1` is `pattern-identity` |
 | Rigid clusters | None mined | `rigid_report` and `solve_drag` appended in `src/c05/solve.bend`. `solve`, `solve_go`, `solve_cl` are unchanged | `rigid_path`, `rigid_triangle`, `rigid_rectangle`, `rigid_tangent_whole`, `rigid_drag_clean` | path 3 clusters; triangle 1; rectangle plus one diagonal 1; `K_tan_cc` is `kind-not-decomposed`; disjoint-pair drag keeps clean coordinates | More than 32 points is `whole` / `rigid-budget`. Not wired into the default solve path. No design-file op |
-| Zone and cache | None mined | Every new `Op` arm in `src/c06/zone.bend` returns `topology-not-certified-over-zone` before the wildcard. `op_w` tags 17–30. Parser and printer in `src/c06/sx.bend` | `zone_ops_loaded`, `tag_*`, `rt_fillet`, `fillet_is_admitted`, `fillet_arity_unknown`, `guide_line_code`, `guide_line_drops_distance` | parser round-trips in `laws/c09.bend` | Zone does not certify feature topology. `(fillet 1 2)` is the constant-radius fillet; the old unknown-op pin is `(frobnicate 1 2)` |
+| Zone and cache | None mined | Every new `Op` arm in `src/c06/zone.bend` returns `topology-not-certified-over-zone` before the wildcard. `op_w` tags 17–30. Parser and printer in `src/c06/sx.bend` | `zone_ops_loaded`, `tag_*`, `rt_fillet`, `fillet_is_admitted`, `fillet_arity_unknown`, `guide_line_code`, `guide_line_drops_distance` | parser round-trip pins in `tests/c09/pins.bend` | Zone does not certify feature topology. `(fillet 1 2)` is the constant-radius fillet; the old unknown-op pin is `(frobnicate 1 2)` |

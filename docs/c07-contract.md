@@ -14,6 +14,21 @@ which lets `zone` cover profiles and features (A5). Unresolved regions
 are always reported, never dropped. No existing CAD kernel is used at
 runtime.
 
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c07/LAWS.bend`, proven in `laws/c07/PROOF.bend`. All 4 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c07/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `key_order_reflexive / key_equal_reflexive`: monomial key order is reflexive for every key list (from Word.cmp reflexivity on 64-bit words).
+- `poly_neg_involution / ratfun_neg_involution`: polynomial and rational-function negation are involutions.
+
+Pins: `tests/c07/pins*.bend`, 31 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c07/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
+
 ## 1. Files
 
 | File | Role |
@@ -209,8 +224,8 @@ analytic oracles on ten parts and boundary points), `solid_neg.py`
 (thirteen composed B-reps: inverted shells, cavities outside, nested or
 crossing, overlapping and touching solids), `zone.py` (envelope
 enclosure against sampled certified evaluations and analytic ranges,
-tightness, four refusals). Laws: `laws/c07.bend` (one file) and
-`laws/c07_build.bend` (one law per process).
+tightness, four refusals). Laws: `laws/c07/` (kernel-checked). Pins: `tests/c07/pins.bend` and
+`tests/c07/pins_build.bend` (31).
 
 ## 10. Complexity and latency
 

@@ -1,9 +1,14 @@
 import Base
-import ../src/c00/types.bend as T
-import ../src/c06/iv.bend as I
-import ../src/c06/model.bend as M
-import ../src/c06/sx.bend as S
-import ../src/c09/feat.bend as F9
+
+import ../../src/c00/types.bend as T
+
+import ../../src/c06/iv.bend as I
+
+import ../../src/c06/model.bend as M
+
+import ../../src/c06/sx.bend as S
+
+import ../../src/c09/feat.bend as F9
 
 def ps_xs(r: S.PS) -> List<&2, S.Sx>:
   S.PS{ok, xs} = r
@@ -78,56 +83,56 @@ def offset_src() -> String:
 def thicken_src() -> String:
   box() ++ "(node 2 (thicken 1 1) (intent add 6 0 1 0))"
 
-law ev_fillet_box:
-  {last_s(fillet_src()) == "ok material=remove faces_created=26 faces_modified=0 solids=1 through_holes=0" : String}
+def ev_fillet_box__got() -> String:
+  last_s(fillet_src())
 
-def ev_fillet_box():
-  {==}
+def ev_fillet_box__want() -> String:
+  "ok material=remove faces_created=26 faces_modified=0 solids=1 through_holes=0"
 
-law ev_fillet_not_cube:
-  {vol_has(fillet_src(), 1000.0f64) == False{} : Bool}
+def ev_fillet_not_cube__got() -> Bool:
+  vol_has(fillet_src(), 1000.0f64)
 
-def ev_fillet_not_cube():
-  {==}
+def ev_fillet_not_cube__want() -> Bool:
+  False{}
 
-law ev_fillet_volume:
-  {vol_has(fillet_src(), F9.vol_fillet_box(10.0f64, 10.0f64, 10.0f64, 1.0f64)) == True{} : Bool}
+def ev_fillet_volume__got() -> Bool:
+  vol_has(fillet_src(), F9.vol_fillet_box(10.0f64, 10.0f64, 10.0f64, 1.0f64))
 
-def ev_fillet_volume():
-  {==}
+def ev_fillet_volume__want() -> Bool:
+  True{}
 
-law ev_chamfer_box:
-  {Bool.and(String.eq(last_s(chamfer_src()), "ok material=remove faces_created=10 faces_modified=0 solids=1 through_holes=0"), vol_has(chamfer_src(), 980.0f64)) == True{} : Bool}
+def ev_chamfer_box__got() -> Bool:
+  Bool.and(String.eq(last_s(chamfer_src()), "ok material=remove faces_created=10 faces_modified=0 solids=1 through_holes=0"), vol_has(chamfer_src(), 980.0f64))
 
-def ev_chamfer_box():
-  {==}
+def ev_chamfer_box__want() -> Bool:
+  True{}
 
-law ev_loft_square:
-  {Bool.and(String.eq(last_s(loft_src()), "ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0"), vol_has(loft_src(), F64.div(980.0f64, 3.0f64))) == True{} : Bool}
+def ev_loft_square__got() -> Bool:
+  Bool.and(String.eq(last_s(loft_src()), "ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0"), vol_has(loft_src(), F64.div(980.0f64, 3.0f64)))
 
-def ev_loft_square():
-  {==}
+def ev_loft_square__want() -> Bool:
+  True{}
 
-law ev_sweep_arc90:
-  {Bool.and(published(arc_src()), vol_has(arc_src(), F64.mul(9.0f64, F9.pi()))) == True{} : Bool}
+def ev_sweep_arc90__got() -> Bool:
+  Bool.and(published(arc_src()), vol_has(arc_src(), F64.mul(9.0f64, F9.pi())))
 
-def ev_sweep_arc90():
-  {==}
+def ev_sweep_arc90__want() -> Bool:
+  True{}
 
-law ev_shell_closed:
-  {Bool.and(published(shell_src()), Bool.and(vol_has(shell_src(), 488.0f64), Bool.not(vol_has(shell_src(), 1000.0f64)))) == True{} : Bool}
+def ev_shell_closed__got() -> Bool:
+  Bool.and(published(shell_src()), Bool.and(vol_has(shell_src(), 488.0f64), Bool.not(vol_has(shell_src(), 1000.0f64))))
 
-def ev_shell_closed():
-  {==}
+def ev_shell_closed__want() -> Bool:
+  True{}
 
-law ev_loft_g1_refuses:
-  {last_s(g1_src()) == "err unsupported-op continuity-not-met" : String}
+def ev_loft_g1_refuses__got() -> String:
+  last_s(g1_src())
 
-def ev_loft_g1_refuses():
-  {==}
+def ev_loft_g1_refuses__want() -> String:
+  "err unsupported-op continuity-not-met"
 
-law ev_thicken_matches_offset:
-  {Bool.and(vol_has(offset_src(), 1728.0f64), vol_has(thicken_src(), 1728.0f64)) == True{} : Bool}
+def ev_thicken_matches_offset__got() -> Bool:
+  Bool.and(vol_has(offset_src(), 1728.0f64), vol_has(thicken_src(), 1728.0f64))
 
-def ev_thicken_matches_offset():
-  {==}
+def ev_thicken_matches_offset__want() -> Bool:
+  True{}

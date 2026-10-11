@@ -333,13 +333,12 @@ known fix (C05 diagnosis template, §14.2):
 
 ## 11. Test plan
 
-- **Laws.** `laws/c08.bend`: Layer A semantic laws (regularized
-  selection tables, tie-breaks, intent comparison, empty/compound
-  semantics, lineage well-formedness) on micro-stores, plus fast
-  Layer B verdict laws. `laws/c08_build.bend`: one law per full
-  boolean evaluation (parse → boolean → C04 + C07 validation →
-  measures → lineage), checked one-per-process in parallel, C06/C07
-  `_build` precedent. Floats by `F64.bits`.
+- **Laws (A6).** `laws/c08/`: quantified laws over the selection
+  tables and the empty/compound algebra, kernel-checked. Pins:
+  `tests/c08/pins.bend` (tie-breaks, intent comparison, lineage, fast
+  verdicts) and `tests/c08/pins_build.bend` (one full boolean
+  evaluation each: parse → boolean → C04 + C07 validation → measures →
+  lineage), run as compiled code. Floats by `F64.bits`.
 - **E2E.** `tests/c08/e2e.py` → `tests/c08/e2e-report.json`,
   following the `tests/c07/e2e.py` + `solid.py` + `zone.py`
   pattern: one journey per §5 bullet with analytic volume
@@ -358,8 +357,8 @@ known fix (C05 diagnosis template, §14.2):
   asserted verbatim.
 - **Lanes.** Three-lane byte-identity where the harness supports
   it (C05 precedent); thread-lane speedup measured for the §8
-  medium case. `--verdict` unavailable for F64 laws (AGENTS.md);
-  report `--check-only` evidence.
+  medium case. Laws pass `--verdict` (A6); F64 behavior
+  is evidenced by pins and E2E.
 - **Ledger.** `docs/replacement-ledger.md` gains the C08 rows
   (operation, mined source or "none mined", Bend implementation,
   laws, fixtures, limits) at closeout.
@@ -394,7 +393,7 @@ NURBS booleans to C11. Until amended, the packet ships analytic-only.
 **D2: closed.** Flat bicubic walls reduce to planes exactly in
 `gv_im` and `gv_xs` (`src/c07/xs.bend`, expansion-arithmetic normal),
 pinned by discriminating laws (`d2_flat_patch_admitted`,
-`d2_curved_patch_refused`, `flat_bp_line_on_plane` in `laws/c08.bend`:
+`d2_curved_patch_refused`, `flat_bp_line_on_plane`, now pins in `tests/c08/pins.bend`:
 the old behavior fails the first and the line law). General prisms boolean.
 
 **D3: non-crossing scope (owner review).** This packet implements

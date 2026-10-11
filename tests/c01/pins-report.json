@@ -1,0 +1,122 @@
+[
+ {
+  "name": "cross_pins",
+  "ok": true
+ },
+ {
+  "name": "det_diag123",
+  "ok": true
+ },
+ {
+  "name": "det_ident",
+  "ok": true
+ },
+ {
+  "name": "dir_notrans",
+  "ok": true
+ },
+ {
+  "name": "dot32",
+  "ok": true
+ },
+ {
+  "name": "drunit_zero_inv",
+  "ok": true
+ },
+ {
+  "name": "entry_pdm",
+  "ok": true
+ },
+ {
+  "name": "entry_vec",
+  "ok": true
+ },
+ {
+  "name": "frame_basis_ok",
+  "ok": true
+ },
+ {
+  "name": "frame_basis_par_unc",
+  "ok": true
+ },
+ {
+  "name": "frame_ident_ok",
+  "ok": true
+ },
+ {
+  "name": "frame_lefthand_inv",
+  "ok": true
+ },
+ {
+  "name": "frame_ortho_inv",
+  "ok": true
+ },
+ {
+  "name": "inv_diag248",
+  "ok": true
+ },
+ {
+  "name": "inv_ident",
+  "ok": true
+ },
+ {
+  "name": "inv_near_unc",
+  "ok": true
+ },
+ {
+  "name": "inv_sing_unc",
+  "ok": true
+ },
+ {
+  "name": "mk_rigid_ok",
+  "ok": true
+ },
+ {
+  "name": "norm345",
+  "ok": true
+ },
+ {
+  "name": "norm_1e300",
+  "ok": true
+ },
+ {
+  "name": "norm_dbl_axis",
+  "ok": true
+ },
+ {
+  "name": "norm_dbl_diag_unc",
+  "ok": true
+ },
+ {
+  "name": "norm_sub",
+  "ok": true
+ },
+ {
+  "name": "norm_zero",
+  "ok": true
+ },
+ {
+  "name": "pt_algebra",
+  "ok": true
+ },
+ {
+  "name": "rt_back",
+  "ok": true
+ },
+ {
+  "name": "rt_fwd",
+  "ok": true
+ },
+ {
+  "name": "seg_coincident_inv",
+  "ok": true
+ },
+ {
+  "name": "unit340",
+  "ok": true
+ },
+ {
+  "name": "unit_zero_inv",
+  "ok": true
+ }
+]

@@ -9,9 +9,28 @@ a side.
 Implementation: `src/c02/types.bend` (signs, results, constants),
 `src/base/ex.bend` (floating-point expansion arithmetic, shared with
 C05), `src/c02/ops.bend` (filters, exact expansion kernels, the four
-predicates, segment relation, triangle classification). Laws+proofs: `laws/c02.bend`. Tests:
+predicates, segment relation, triangle classification). Laws: `laws/c02/` (kernel-checked); pins: `tests/c02/pins.bend`. Tests:
 `tests/c02/check.bend` (support), `tests/c02/neg.bend`,
 `tests/c02/pos.bend`.
+
+## Laws and pins (A6, 2026-10-11)
+
+Laws: `laws/c02/LAWS.bend`, proven in `laws/c02/PROOF.bend`. All 16 quantify over their
+inputs and pass both the checker and the Lean-proven kernel (`bend
+laws/c02/PROOF.bend --verdict`; MASTER_PLAN A6):
+
+- `tri_winding_invariant`: point-in-triangle classification is unchanged when the winding and all three edge signs flip.
+- `tri_relabel_invariant`: classification is unchanged under cyclic relabelling of the vertices.
+- `tri_mixed_is_outside`: opposite edge signs always classify outside.
+- `seg_proper_*`: opposite orientations on both segments are a proper crossing at every coordinate (4 sign patterns).
+- `sign_neg_inv / sign_neg_swaps`: sign negation is an involution and swaps positive and negative.
+- `pok_ok … terr_cls_out`: result accessors for signs, segment relations and triangle classes.
+
+Pins: `tests/c02/pins*.bend`, 44 fixed-input checks, run as compiled code
+(`bash tools/pins/run.sh tests/c02/pins*.bend`). Where this contract names a closed law
+(an instance with no quantified input), it names the pin of the same name: it is pinned and
+executed, not proven.
+
 
 ## 1. Signs and result types
 
@@ -189,24 +208,24 @@ documented order (§6).
 
 ## 8. Explicit general laws
 
-Bend rejects open laws, so `laws/c02.bend` proves every claim it
-states; the unbounded claims live here explicitly, grounded by the
-proven instances and tests named beside them.
+The unbounded claims are stated here; the instances named beside them are
+pins in `tests/c02/pins.bend`, executed, not proven (A6). The quantified laws
+are listed in "Laws and pins" above and pass the Lean kernel.
 
 - P1 (filter soundness): every filter-certified nonzero sign equals
-  the exact determinant sign of the supplied coordinates. Proven:
+  the exact determinant sign of the supplied coordinates. Pinned:
   shortcut/bound instances per predicate (`o2-ccw/cw/big150`,
   `o3-neg/pos`, `ic-in/out`, `is-in/out`). Tested: `pos-*` pins +
   1717-case differential vs independent Fraction truth, 0
   contradictions (§9).
 - P2 (zero exactness): zero is published only by exact paths.
-  Proven: rep-shortcut on NON-INTEGRAL duplicates (`o2-rep-zero`),
+  Pinned: rep-shortcut on NON-INTEGRAL duplicates (`o2-rep-zero`),
   expansion zeros (`o2-coll-zero`, `o3-coplanar-zero`, `ic-on-zero`,
   `is-on-zero`). Tested: computed-zero-with-nonzero-truth pins are
   decided with the true sign (`pos-tri-far-exact`), stress
   truth-zero non-integral cases decided zero.
 - P3 (exact completeness): every finite input whose expansion is
-  representable (§4) is decided exactly. Proven: non-integral
+  representable (§4) is decided exactly. Pinned: non-integral
   near-degenerate instances per predicate (`o2_near_exact`,
   `o2_tiny_exact`, `o3_near_exact`, `ic_near_exact`,
   `is_near_exact`, and `seg_near_exact` for the combinator), each of
@@ -215,13 +234,13 @@ proven instances and tests named beside them.
   uncertain results; the pre-R0.2 kernel gives 464–468 per seed on
   the same cases.
 - P4 (entry boundary): nonfinite in any component of any entry
-  fails as `invalid-input`. Proven: per-predicate instances.
+  fails as `invalid-input`. Pinned: per-predicate instances.
   Tested: `neg-*-nan/inf/ninf` for every entry path.
 - P5 (combinator exactness): seg/tri relations are exact on
-  decided signs. Proven: all-relation instances. Tested: seg/tri
+  decided signs. Pinned: all-relation instances. Tested: seg/tri
   stress vs independent barycentric/parametric oracles (404/404).
 - P6 (orientation conventions): antisymmetry and the §5 geometric
-  readings. Proven: `o2-flip`. Tested: `pos-o2-flip`, `pos-tri-cw`
+  readings. Pinned: `o2-flip`. Tested: `pos-o2-flip`, `pos-tri-cw`
   (mirrored-triangle inside), in/out/on pins per predicate.
 
 ## 9. Verification
@@ -230,12 +249,13 @@ proven instances and tests named beside them.
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH; export BEND_NO_TELEMETRY=1
 bend src/c02/types.bend --check-only
 bend src/c02/ops.bend --check-only
-bend laws/c02.bend --check-only
+bend laws/c02/PROOF.bend --verdict   # ALL PROOFS CHECK (Lean kernel)
+bash tools/pins/run.sh tests/c02/pins*.bend
 bend tests/c02/check.bend --check-only
 bend tests/c02/neg.bend
 bend tests/c02/pos.bend
-grep -rn '@unsafe' src/c02 laws/c02.bend tests/c02  # no matches
-grep -rn 'F32\|f32' src/c02 laws/c02.bend tests/c02  # no matches
+grep -rn '@unsafe' src/c02 laws/c02 tests/c02  # no matches
+grep -rn 'F32\|f32' src/c02 laws/c02 tests/c02  # no matches
 ```
 
 R0.2 oracle: `python tools/oracle/c02/oracles.py` generates 1324
