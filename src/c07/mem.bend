@@ -113,11 +113,6 @@ def cn_add(acc: Cn, +k: U64) -> Cn:
 def is_r(+self: Bool, +tau: F64, +k: List<&2, I.I>) -> Bool:
   Bool.and(self, Bool.not(X.idisj(X.vn(k, 0n), I.ipt(tau))))
 
-# Closed-trim seam dedup: a closed trim curve (full-circle rim) reports a
-# crossing at its seam twice, at fractions 0.0 and 1.0 (same point);
-# counting both flips parity (spurious inside, e.g. tangent cylinders
-# failing as contact-not-certified). Skip the 1.0-end root when the curve
-# is closed (endpoint boxes overlap). Open curves are unaffected.
 def cv_closed(+c: R.Cv) -> Bool:
   Bool.not(X.vdisj(R.cv_box(c, I.ipt(0.0f64)), R.cv_box(c, I.ipt(1.0f64))))
 

@@ -142,10 +142,6 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
 
-# Same walk as `z_go`, but only "this refusal is a boolean op". The why
-# string stays `topology-not-certified-over-zone`; the flag selects a
-# repair that is not the profile-topology one, which cannot certify a
-# union, difference or intersection.
 def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
   match n:
     case 0n: False{}

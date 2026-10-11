@@ -21,8 +21,8 @@ WANT = {
     'cavity.outside': lambda c: 'cavity-outside' in c,
     'cavity.nested': lambda c: 'cavities-nested' in c,
     'cavity.crossing': lambda c: 'edge-face-penetration' in c,
-    'touch.face': lambda c: c != ['ok'] and any(k in c for k in PEN),
-    'touch.edge': lambda c: c != ['ok'] and any(k in c for k in PEN),
+    'touch.face': lambda c: 'contact-face-face' in c and all(k.startswith('contact-') for k in c),
+    'touch.edge': lambda c: 'contact-edge-edge' in c and all(k.startswith('contact-') for k in c),
     'overlap.sphere': lambda c: any(k in c for k in PEN),
 }
 

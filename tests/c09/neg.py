@@ -158,10 +158,6 @@ def c_edge():
 
 @case('fillet.cone')
 def c_cone():
-    # Pending owner amendment of intent S2: the R0!=R1 cone is honestly
-    # refused (its tangent-point vertices cannot satisfy the exact cone
-    # predicate; see receipt). Pin the refusal so it cannot rot into a
-    # silent publish or a different diagnosis.
     return reject([BOX], f'(node 2 (fillet 1 (edge 0) 1 2) {IR})', 2,
                   'numerical-uncertainty', 'surface-not-representable')
 

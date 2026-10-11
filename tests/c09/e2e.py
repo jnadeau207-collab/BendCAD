@@ -136,9 +136,6 @@ def chamfer():
 
 
 def fillet():
-    # Node 8 (variable-radius cone) goes in its own apply: it is honestly
-    # refused (surface-not-representable; see receipt), and bundling it here
-    # would veto the atomic commit of nodes 1-7. Same journeys, same asserts.
     out, dt = fresh('fil.bcd',
                     f'(node 1 (box 10 10 10) {IC})',
                     f'(node 2 (fillet 1 1) {IR})',

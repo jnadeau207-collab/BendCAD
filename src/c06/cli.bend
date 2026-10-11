@@ -467,10 +467,6 @@ def fi_real_go(fs: List<&2, SO.Fi>, +acc: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
 def fi_real(fs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
   List.reverse(&2, SO.Fi, fi_real_go(fs, []))
 
-# CLI re-verification matches the kernel publish gate's contact-aware
-# coincidence check (F24): per-solid exact duplicates fail, inter-solid
-# touch is admitted. Full C04 ran at publish; `.bcd` files store ops, so
-# re-eval always re-runs the gate.
 def check_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing checked"

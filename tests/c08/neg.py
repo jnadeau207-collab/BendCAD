@@ -14,34 +14,6 @@ BOX10 = '(box 10 10 10)'
 I11 = '(intent same 0 0 1 0)'
 ICR = '(intent create 6 0 1 0)'
 
-# F17 failure-kind coverage (docs/c08-intent.md section 7; each journey
-# below fails exactly one stage, first-match-wins in stage order):
-#   staged journeys here: boundaries-cross-or-overlap (cross.*),
-#     mixed-solid-relations (mixed.regions), interval-placement
-#     (place.*), feature-on-boolean/empty (feature.*),
-#     intent-mismatch (intent.*), zone refusal (zone.boolean),
-#     validation-rejected (diff.pinched),
-#     contact-not-certified (contact.not_certified: distinct-node
-#     identicals), no-container-sample (diff.no_container: tool
-#     touching five container walls), input-node-missing-or-failed
-#     (chain.failed_operand), plus ok.* control journeys.
-#   defensive arms with no public-op trigger (pinned at Layer A,
-#     tests/c08/pins.bend): inconsistent-classification (decide_both_in_
-#     fails + outcome_*_bad; (in,in) is geometrically impossible),
-#     nurbs-operand (surf_admit_nb_nurbs; no C06 constructor emits
-#     GV_nb faces), bezier-patch-operand (surf_why arm; build.bend
-#     only emits planar GV_bp walls), edge-kind-not-supported
-#     (edge_code_other/plane; all C06 edges are ln/bz/cc/rq),
-#     open-shell-operand (admit_shs_*; all C06 constructors close
-#     their shells).
-#   probe candidates (mechanism derived, verdict unobserved):
-#     uncertain-classification (sample with all-grazing rays, e.g.
-#     torus-operand booleans), operand-failed-check (carry of a
-#     committed-but-check-failing body, e.g. cone-apex or
-#     touching-regions prism), intersect-rejected (latent C04
-#     defect on the combined append, e.g. fuel-out on a
-#     hundred-region operand).
-
 
 def wsl(*args, timeout=900):
     t = time.time()
@@ -211,11 +183,6 @@ def c_pinch():
 
 @case('contact.not_certified')
 def c_contactnc():
-    # Distinct-node identicals: every pair finding is contact-only
-    # (coplanar overlap, on-surface edges, shared positions), so the
-    # intersect stage passes, but every classify sample (vertices,
-    # edge midpoints, face interiors) lies on the other boundary:
-    # all-boundary aggregates, no strict sample either way.
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
                    f'(node 2 {BOX10} {ICR})',
@@ -226,10 +193,6 @@ def c_contactnc():
 
 @case('diff.no_container')
 def c_nocont():
-    # Tool touches five container walls: every loop vertex and edge
-    # midpoint lies on the container boundary, but the tool top-face
-    # interior is strictly inside, so classify says contained while
-    # cavity assembly finds no strictly-inside container sample.
     out, _ = fresh('n.bcd',
                    '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
                    '(node 2 (box 20 20 10) (intent create 6 0 1 0))',

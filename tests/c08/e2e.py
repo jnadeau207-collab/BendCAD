@@ -314,7 +314,6 @@ def empty_algebra():
            fx=fx(out, 9), volume=vol(out, 9))
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
     record('empty.feature_on_empty', 'feature-on-empty-compound' in o, why=re.findall(r'why: ([^|]+)', o))
-    # Node 5 carries node 1. Selectors name the creating node, so (face 5 ...) is face-not-found.
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 5 (face 5 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
     record('empty.feature_on_carry_ok', 'face-not-found' in o and 'committed' not in o
            and 'feature-on-empty-compound' not in o and 'feature-on-boolean-result' not in o,
@@ -605,7 +604,6 @@ def face_lines(text):
 
 
 def sens_flip():
-    # h = max(|D|, 1) * 2^-20, so D = 10.000005 overlaps on the minus side.
     out, dt = fresh('flip.bcd', '(param D 10.000005)',
                     '(node 1 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 2 (box 10 10 10) (intent create 6 0 1 0))',
@@ -617,8 +615,6 @@ def sens_flip():
            seconds=dt)
     record('sens.flip_cache', reused is not None and reused.group(1) == '2' and reused.group(2) == '4',
            reused=reused.groups() if reused else None)
-    # h cannot publish both a carry and an append: the overlap between them fails.
-    # fns_eq is the kept face lists of those two successful outcomes.
     inn, _ = fresh('flip2.bcd', '(param D 3)',
                    '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
                    '(node 2 (box 4 4 4) (intent create 6 0 1 0))',

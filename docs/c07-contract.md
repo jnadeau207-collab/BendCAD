@@ -157,6 +157,15 @@ pairs, checked in parallel):
   reported as `face-face-uncertain`. Open components end on face
   boundaries and are covered by the edge/face checks.
 
+- **Contact between solids (C08, L9).** Solids that meet without sharing
+  volume are not a failure: an edge/edge hit at an edge end of either
+  solid, an edge touching a face at its end, and a coplanar face overlap
+  between two solids are reported as `contact-edge-edge`,
+  `contact-edge-face` and `contact-face-face`. Within one solid the strict
+  verdicts stand. A genuine volume overlap behind coplanar contact mixes a
+  solid's classification samples inside and outside, which C08's classify
+  stage reports as `boundaries-cross-or-overlap`.
+
 Tolerances: shared-vertex corners `2^-30` of the part size; boundary
 proximity `2^-20` of the part size. Findings name the entities; anything
 not certified is reported as `...-uncertain`.

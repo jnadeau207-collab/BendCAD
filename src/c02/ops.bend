@@ -5,8 +5,6 @@ import ./types.bend as P
 import ../base/par.bend as O
 import ../base/ex.bend as E
 
-
-
 def d3_raw(a: F64, b: F64, c: F64, +d: F64, +e: F64, +f: F64, +g: F64,
     +h: F64, +i: F64) -> F64:
   +t0 = F64.sub(F64.mul(e, i), F64.mul(f, h))

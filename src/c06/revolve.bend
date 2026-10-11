@@ -458,9 +458,6 @@ def ax_codes(ls: List<&2, F.Lp>, hs: List<&2, Bool>, +i: Nat) -> F.Er:
           +c2 = Bool.pick(U64, U64.is_eq(c, 0u64), Bool.pick(U64, sgs_ssok(lp_sgs(l)), 0u64, 24u64), c)
           Bool.pick(F.Er, U64.is_eq(c2, 0u64), ax_codes(t, u, Nat.add(i, 1n)), F.er(c2, i, 0n))
 
-# Partial revolution (90/180/270). Stations are exact quarter turns.
-# 360 stays on rev_brep. An arc profile is code 24, not a stand-in.
-
 def sec_mod4(+n: Nat) -> Nat:
   Nat.sub(n, Nat.mul(Nat.div(n, 4n), 4n))
 

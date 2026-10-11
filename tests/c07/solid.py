@@ -143,8 +143,6 @@ PARTS = [
 ]
 
 
-
-
 def main():
     wsl('mkdir', '-p', WORK)
     rng = random.Random(7)

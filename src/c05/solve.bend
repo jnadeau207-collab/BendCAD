@@ -534,7 +534,6 @@ def p2(n: Nat) -> F64:
 def ptb(+ps: List<&2, F64>) -> P.Tb<&2, F64>:
   P.tb_of(F64, ps, 0.0f64)
 
-
 type Od is Data:
   Od{ pm: P.Tb<&2, U32>, nt: Q.NT, fp: P.Tb<&2, Bool> }
 

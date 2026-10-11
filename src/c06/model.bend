@@ -94,13 +94,6 @@ type Acc is Data:
 type Bb is Data:
   Bb{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
-# Boolean extension: stored measures for assembled results (mx), the
-# count of trailing revolve loops that lathe as cavities (nc), and
-# whether this body is a C08-assembled result (bo), the disjoint-proof
-# boxes for broad-phase short-circuits (pr, F15), and the deleted lineage
-# (dl, F12). `mx` is a 0/1-list,
-# not a Maybe: the 27-word Ms must ride boxed, else every Body/NR/CE
-# value flattens it and eval frames exceed the 247-word segment limit.
 type Xb is Data:
   Xb{ mx: List<&2, Ms>, nc: Nat, bo: Bool, pr: String, dl: List<&2, B8.Del> }
 
@@ -419,9 +412,6 @@ def ti3(+tx: F64, +ty: F64, +tz: F64, xs: List<&2, I.I>) -> Bool:
     case []: False{}
     case +x <> t: ti3y(ti_pt(tx, x), ty, tz, t)
 
-# Exact only when the rotation is a signed permutation and tx/ty/tz are
-# the point stored in ti. A failed Fast2Sum leaves an interval in ti;
-# mapping by the rounded float would not contain that image.
 def pl_exact(p: Pl) -> Bool:
   Pl{m, +tx, +ty, +tz, mi, +ti} = p
   Bool.and(ipt_exact(mi), ti3(tx, ty, tz, ti))
@@ -726,12 +716,6 @@ def ms_lin(m: Ms) -> F64:
   Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
   lin
 
-# Stored boolean measures live in the creation frame (bool_body bakes to
-# world and stores pl_id); the body's placement maps creation to current
-# world, so the stored box must ride through it (F3) — verbatim reuse
-# leaves a pre-move box against a world-frame brep. Volume/area/counts
-# are placement-invariant and pass through. Exact placements transform
-# exactly; interval placements widen by the placement slop.
 def ms_bb(+m: Ms) -> Bb:
   Bb{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}
 
@@ -1376,9 +1360,6 @@ def bool_body(+r: B8.Out) -> Body:
   Bd{B8.Out_cells(r), b, B8.Out_fns(r), pl_id(), B8.Out_rv(r),
     Xb{[bool_stored_ms(r, b)], B8.Out_nc(r), True{}, B8.Out_proof(r), B8.Out_del(r)}}
 
-# Carries republish the input body unchanged geometrically, but adopt the
-# run's proof and deleted lineage (F12/F15): each result records its own
-# run. Measures, placement and boolean-origin ride with the input.
 def bool_rewrap(+r: B8.Out, +b: Body) -> Body:
   Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
     Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), B8.Out_proof(r), B8.Out_del(r)}}
@@ -1492,7 +1473,6 @@ def mat_go(eq: Bool, +r: I.I, +b: I.I) -> Mat:
 
 def mat_cmp(+r: I.I, +b: I.I) -> Mat:
   mat_go(mat_eq(r, b), r, b)
-
 
 def fx_of(+o: Op, +hasb: Bool, +b: Body, +r: Body) -> Fx:
   +rm = body_ms(r)

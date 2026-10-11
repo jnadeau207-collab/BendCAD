@@ -63,15 +63,11 @@ def in0() -> B8.In:
 def fq(+x: F64, +y: F64, +z: F64) -> V.Point:
   V.Pt{x, y, z}
 
-# Exactly-flat bicubic patch: bilinear z=0 grid (D2 admits it).
-
 def flat_bp() -> G.BezP:
   G.Bp{fq(0.0f64, 0.0f64, 0.0f64), fq(1.0f64, 0.0f64, 0.0f64), fq(2.0f64, 0.0f64, 0.0f64), fq(3.0f64, 0.0f64, 0.0f64),
     fq(0.0f64, 1.0f64, 0.0f64), fq(1.0f64, 1.0f64, 0.0f64), fq(2.0f64, 1.0f64, 0.0f64), fq(3.0f64, 1.0f64, 0.0f64),
     fq(0.0f64, 2.0f64, 0.0f64), fq(1.0f64, 2.0f64, 0.0f64), fq(2.0f64, 2.0f64, 0.0f64), fq(3.0f64, 2.0f64, 0.0f64),
     fq(0.0f64, 3.0f64, 0.0f64), fq(1.0f64, 3.0f64, 0.0f64), fq(2.0f64, 3.0f64, 0.0f64), fq(3.0f64, 3.0f64, 0.0f64)}
-
-# Genuinely curved bicubic patch: one lifted corner (D2 still refuses it).
 
 def curved_bp() -> G.BezP:
   G.Bp{fq(0.0f64, 0.0f64, 0.0f64), fq(1.0f64, 0.0f64, 0.0f64), fq(2.0f64, 0.0f64, 0.0f64), fq(3.0f64, 0.0f64, 0.0f64),
@@ -96,8 +92,6 @@ def src_op_go(p: M.Part) -> M.Op:
 
 def src_op(+src: String) -> M.Op:
   src_op_go(S.part_of(ps_xs(S.parse(src))))
-
-# --- Tags and codes (Layer A vocabulary) ---
 
 def flat_line() -> G.GVal:
   G.GV_ln{G.Ln{fq(1.0f64, 1.0f64, F64.neg(1.0f64)), V.Dr{0.0f64, 0.0f64, 1.0f64}}}

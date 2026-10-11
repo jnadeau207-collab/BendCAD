@@ -67,12 +67,6 @@ def gv_xc(g: G.GVal) -> Maybe<&2, P.Xc>:
       Some{P.xc_rq(p0, p1, p2, w0, w1, w2)}
     case _: None{}
 
-# Exact flat-patch reduction (C08 decision D2): a bicubic patch whose
-# control net is exactly planar yields the exact plane through its first
-# corner with an expansion-arithmetic normal. `gv_im` and `gv_xs` share
-# that plane, so a ray that meets only the wall still produces hits.
-# Curved or degenerate patches stay None. Backup orientation matches
-# the patch (du x dv), so face `same` flags keep their meaning.
 type E3 is Data:
   E3{ x: E.Ex, y: E.Ex, z: E.Ex }
 

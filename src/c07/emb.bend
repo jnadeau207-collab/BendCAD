@@ -245,10 +245,6 @@ def sh_pt(+c: Bool, +p: List<&2, I.I>, +rest: List<&2, List<&2, I.I>>) -> List<&
 def fi1(+c: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   [SO.Fi{c, a, b}]
 
-# Shared tangent-sampling machinery (F5/F18, used by the ef and ee
-# tangent tests): midpoint of an interval box, sample classification
-# of a curve point against the other solid, two-sided combination
-# (inside wins, then uncertain), and the multi-scale fold.
 def bx_pt(+q: List<&2, I.I>) -> V.Point:
   V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
 
@@ -274,16 +270,6 @@ def ef_tan_go(ds: List<&2, F64>, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c:
     case []: st
     case d <> t: ef_tan_go(t, ofds, bb, c, m, lo, hi, ef_tan_one(ofds, bb, c, m, d, lo, hi, st))
 
-# Cross-solid edge/edge tangent test (F18, kissing seams): a cross
-# H_un hit is either a true crossing the solver could not certify
-# or a tangent touch (certified points are transverse by
-# construction, so tangency only ever reports H_un). Sample both
-# curves on both sides of the hit against the opposite solid:
-# strictly inside anywhere implies crossing; uncertain anywhere
-# (with no inside) fails as uncertain; outside-or-on everywhere
-# admits contact. Wide hit parameters fail as uncertain. Same-solid
-# pairs keep the legacy uncertain verdict, and certified (H_pt)
-# interior cross hits keep failing as crossings.
 def ee_tan_code(+t: U64) -> String:
   Bool.pick(String, U64.is_eq(t, 1u64), "edge-crossing",
     Bool.pick(String, U64.is_eq(t, 2u64), "edge-crossing-uncertain", "contact-edge-edge"))
@@ -312,12 +298,6 @@ def ee_un_go(near: Bool, +cross: Bool, +s: I.I, +t: I.I, +ca: R.Cv, +da: G.Dom, 
         case True{}: fi1(ee_tan_code(ee_tan(fda, bbA, ca, s, S.dlo(da), S.dhi(da), fdb, bbB, cb, t,
           S.dlo(db), S.dhi(db))), a, b)
 
-# Cross-solid edge/edge point hits at either edge's endpoints are contact
-# (L9): cross pairs never share vertex indices, so the shared-index
-# exclusion `sv` cannot fire for them. Certified interior-interior
-# cross hits are transverse crossings and still fail; uncertain
-# (H_un) cross hits take the tangent test above. See F5's edge/face
-# discriminator for the sibling rule.
 def ee_pt(+excl: Bool, +near_end: Bool, +cross: Bool, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, excl, [],
     Bool.pick(List<&2, SO.Fi>, Bool.and(cross, near_end), fi1("contact-edge-edge", a, b),
@@ -549,11 +529,6 @@ def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
 def m_code(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad, "edge-face-uncertain"), a, b))
 
-# Cross coplanar-overlap verdict (contact.face): a cross edge overlapping
-# its face's surface is contact-or-disjoint, never a piercing (it lies in
-# the surface), so a trim-boundary membership (2) maps to the contact code
-# rather than failing. Same-solid pairs keep the strict verdict, so C07
-# single-solid behavior is unchanged.
 def m_code_x(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(bad, a, b))
 
@@ -573,19 +548,6 @@ def ef_pt(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +bad1: String, +bad2: Strin
 def ov_pt(+c: R.Cv, +s: I.I, +lo: F64, +hi: F64) -> List<&2, I.I>:
   R.cv_box(c, I.ipt(X.imid(I.idiv(I.isub(I.ipt(X.imid(s)), I.ipt(lo)), I.isub(I.ipt(hi), I.ipt(lo))))))
 
-# Cross-solid edge/face piercing discriminator (F5): a transverse
-# piercing reports the same H_pt as a tangent touch. Classify the edge's
-# endpoints against the other solid: strictly inside either end implies
-# piercing (keep the failing code); outside-or-on both ends admits
-# contact; uncertain endpoint classification fails as uncertain.
-# Modes: 0 contact, 1 piercing, 2 endpoint-uncertain. Same-solid pairs
-# keep the old codes (mode ignored). See `ee_pt` for the sibling rule.
-# Soundness (F5c): the mode only downgrades trim-boundary hits (m=2).
-# A hit strictly inside the trim (m=1) always fails: an edge can pierce
-# a face and exit elsewhere with both ends outside (rod through a box),
-# so endpoint classification must never silence an interior hit. Only
-# the H_ov arm (edge lying in the surface, which cannot pierce) maps
-# m=1 through the mode.
 def ef_end(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +q: List<&2, I.I>) -> U64:
   SO.classify_in(ofds, bb, bx_pt(q))
 
@@ -605,20 +567,6 @@ def ef_bad(+cross: Bool, +mode: U64, +base: String) -> String:
     case False{}: base
     case True{}: ef_bad2(mode)
 
-# Cross-solid tangent-vs-piercing test (F5/F18): a cross H_pt hit
-# strictly inside the trim (m=1) with no endpoint strictly inside is
-# either a transverse piercing (rod through a box: both ends outside)
-# or a tangent touch (sphere seam kissing a plane). Endpoints cannot
-# tell them apart, so sample the edge on both sides of the hit at
-# several scales and classify against the other solid: strictly
-# inside at any sample implies piercing; uncertain anywhere (with no
-# inside) fails as uncertain; outside-or-on everywhere admits
-# contact. The hit parameter must be well localized, else uncertain:
-# sampling around a wide hit box cannot bracket the true hit.
-# Residual risk: a piercing whose inside segment is shorter than the
-# finest scale (2^-10 of the edge domain) reads as contact; such a
-# crossing always involves face area too, which the ff/ee pairs
-# still catch.
 def ef_tan(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +s: I.I, +lo: F64, +hi: F64) -> U64:
   +w = F64.sub(hi, lo)
   Bool.pick(U64, Bool.or(F64.is_le(hi, lo), F64.is_le(F64.div(w, 1024.0f64), X.iwid(s))), 2u64,
@@ -629,12 +577,6 @@ def ef_tan_code(+t: U64) -> String:
   Bool.pick(String, U64.is_eq(t, 1u64), "edge-face-penetration",
     Bool.pick(String, U64.is_eq(t, 2u64), "edge-face-uncertain", "contact-edge-face"))
 
-# Kissing-interior exception (F18): an edge endpoint ON the face with
-# the other endpoint strictly inside is a touch from inside (a
-# contained solid kissing the container wall), not a piercing — but
-# only when the hit sits at the on-face endpoint. A middle hit with
-# an endpoint inside is a true entry and still fails, as does any
-# inside/outside endpoint pair (the edge crosses the surface).
 def ef_m1_in(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>,
     +p: List<&2, I.I>, +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   +c0 = ef_end(ofds, bb, pa0)
@@ -798,13 +740,6 @@ def ff_ov_x(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat, +cross: Bool) -> List<&2
       +x = ov_code(ov_one(SO.interior(fa), fb))
       +y = ov_code(ov_one(SO.interior(fb), fa))
       +w = U64.max(x, y)
-      # Stated backstop (F5): coplanar overlap, certain or
-      # trim-boundary-landing, is contact at the pair level. A genuine
-      # volume overlap behind it mixes one solid's classify samples
-      # strictly inside/outside, which the classify stage reports as
-      # boundaries-cross-or-overlap. Residual: an overlap hiding from
-      # every vertex and face-interior sample slips through (L10).
-      # Same-solid pairs keep the strict verdicts.
       Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1("contact-face-face", ia, ib))
 
 def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, Eg>:
@@ -923,13 +858,6 @@ def br_fi(b: SS.Br, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, E
     case False{}: []
     case True{}:
       +r = smp_go(pts, False{}, 0u64, fa, fb, csa, csb, tol)
-      # Adjacent faces share an edge by construction, so a certified
-      # branch with no trim-interior sample is the shared edge landing
-      # on trim boundaries (membership conflates boundary with
-      # uncertain), not a defect. Penetration (a trim-interior sample)
-      # still fails for adjacent pairs, and non-adjacent pairs keep
-      # the strict verdict. Residual: a real crossing hugging a trim
-      # boundary within tolerance on an adjacent pair is forgiven.
       Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [],
         Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 1u64), fi1("face-penetration", ia, ib),
           Bool.pick(List<&2, SO.Fi>, adj, [], fi1("face-face-uncertain", ia, ib))))
@@ -991,17 +919,6 @@ def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg
     +adj: Bool, +shc: List<&2, R.Cv>) -> List<&2, SO.Fi>:
   Y.Sr{ss, k, co} = r
   SS.Ss{ok, brs, un} = ss
-  # Adjacent same-solid faces: uncertain tracer boxes hugging a shared
-  # edge are the boundary-hugging shared intersection the subdivision
-  # cannot resolve, not a defect; boxes away from every shared edge
-  # still fail. Residual: a real crossing within tolerance of a
-  # shared edge on an adjacent pair is forgiven.
-  # Bicubic-involved traces (k != 0) report branches and boxes in
-  # tracer coordinates the trim-membership tests cannot examine, so a
-  # strict verdict is impossible; adjacent pairs are forgiven (their
-  # shared edge explains the intersection) while non-adjacent pairs
-  # keep failing closed. Mapping tracer coordinates back to world
-  # coordinates would let these pairs take the strict path (C11).
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(k, 0u64),
     Bool.pick(List<&2, SO.Fi>, ok,
       first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib, adj),
@@ -1009,17 +926,6 @@ def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg
       fi1("face-face-uncertain", ia, ib)),
     Bool.pick(List<&2, SO.Fi>, adj, [], fi1("face-face-uncertain", ia, ib)))
 
-# Exact cross-solid sphere/sphere tangent predicate (F5/F18): the
-# subdivision tracer degenerates on tangent spheres (singular
-# Jacobian, unresolvable micro-boxes), so decide tangency exactly
-# from center distance vs radii with intervals. External band
-# (d^2 overlaps (r1+r2)^2) and internal band (d^2 overlaps
-# (r1-r2)^2) with the tangent point on both trims is contact;
-# certified disjoint/nested skips the tracer; the certified overlap
-# band falls through to the tracer (non-degenerate circle, decided
-# by sampling). Same-solid pairs always fall through: tangent
-# shells in one solid are pinched and must fail. A micro-overlap
-# inside the tangency band reads as contact (below resolution).
 def ff_iv_overlap(+a: I.I, +b: I.I) -> Bool:
   Bool.not(Bool.or(F64.is_lt(I.i_hi(a), I.i_lo(b)), F64.is_lt(I.i_hi(b), I.i_lo(a))))
 
@@ -1265,8 +1171,6 @@ def egs_tag(es: List<&2, Eg>, +tef: B.Tb<&2, List<&2, Nat>>, +tf: B.Tb<&2, Fg>, 
       eg_tag(e, eg_so_of(B.tb_get(List<&2, Nat>, tef, U32.from_nat(at)), tf, nso)) <>
         egs_tag(t, tef, tf, nso, Nat.add(at, 1n))
 
-# Per-solid face-descriptor rows for the F5 piercing discriminator: row
-# `so` holds the Fds of solid `so` (row `nso` is the empty default).
 def fds_of_so(fs: List<&2, Fg>, +so: Nat) -> List<&2, SO.Fd>:
   match fs:
     case []: []
