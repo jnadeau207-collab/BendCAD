@@ -2,6 +2,12 @@ import Base
 import ../../src/base/par.bend as B
 import ../../src/c07/sym.bend as Y
 
+def flip(c: Cmp) -> Cmp:
+  match c:
+    case LT{}: GT{}
+    case EQ{}: EQ{}
+    case GT{}: LT{}
+
 law key_order_reflexive:
   for +a: List<&2, U64>
   {Y.k_cmp(a, a) == B.Sz{} : B.Sgn}
@@ -17,3 +23,8 @@ law poly_neg_involution:
 law ratfun_neg_involution:
   for +r: Y.Rf
   {Y.rf_neg(Y.rf_neg(r)) == r : Y.Rf}
+
+law key_order_antisymmetric:
+  for +a: List<&2, U64>
+  for +b: List<&2, U64>
+  {Y.k_cmp(b, a) == B.sgn_neg(Y.k_cmp(a, b)) : B.Sgn}

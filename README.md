@@ -33,7 +33,7 @@ C07 is closed (`docs/receipts/c07-2026-10-06.txt`). It adds:
 
 C08 closed with recorded deferrals (`docs/receipts/c08-2026-10-08.final.txt`): regularized union, difference and intersection of operands whose boundaries do not cross (disjoint, contained, contact-only, identical, empty); crossing boundaries are refused as `boundaries-cross-or-overlap` until face splitting lands. C09, feature modeling, is open: everything certifiable is implemented, and the variable-radius cone fillet waits on an owner decision (`docs/receipts/c09-2026-10-09.txt` §5).
 
-Laws (MASTER_PLAN A6): every packet states its laws in `laws/<pkt>/LAWS.bend` and proves them in `laws/<pkt>/PROOF.bend`. All 211 laws quantify over their inputs, and all pass both the checker and the Lean-proven kernel (`bash tools/laws/check.sh`). Each law family kills a planted bug (`python3 tools/laws/mutate.py`). Fixed-input checks are pins (`tests/<pkt>/pins*.bend`, 1,770 of them), run as compiled code by `bash tools/pins/run.sh`.
+Laws (MASTER_PLAN A6): every packet states its laws in `laws/<pkt>/LAWS.bend` and proves them in `laws/<pkt>/PROOF.bend`. All 213 laws quantify over their inputs, and all pass both the checker and the Lean-proven kernel (`bash tools/laws/check.sh`). Each law family kills a planted bug (`python3 tools/laws/mutate.py`). Fixed-input checks are pins (`tests/<pkt>/pins*.bend`, 1,770 of them), run as compiled code by `bash tools/pins/run.sh`.
 
 New code is Apache-2.0. The LICENSE file ships with release packaging; `legacy/` is reference-only and never released.
 

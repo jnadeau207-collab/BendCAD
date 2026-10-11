@@ -88,3 +88,102 @@ def Laws.uncertain_fragment_fails(o):
       {==}
     case Laws.O_inter{}:
       {==}
+
+def Laws.samples_decide_regularized(o, a, b):
+  match o a b:
+    case Laws.O_union{} Laws.G_in{} Laws.G_in{}:
+      {==}
+    case Laws.O_union{} Laws.G_in{} Laws.G_out{}:
+      {==}
+    case Laws.O_union{} Laws.G_in{} Laws.G_on{}:
+      {==}
+    case Laws.O_union{} Laws.G_in{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_union{} Laws.G_out{} Laws.G_in{}:
+      {==}
+    case Laws.O_union{} Laws.G_out{} Laws.G_out{}:
+      {==}
+    case Laws.O_union{} Laws.G_out{} Laws.G_on{}:
+      {==}
+    case Laws.O_union{} Laws.G_out{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_union{} Laws.G_on{} Laws.G_in{}:
+      {==}
+    case Laws.O_union{} Laws.G_on{} Laws.G_out{}:
+      {==}
+    case Laws.O_union{} Laws.G_on{} Laws.G_on{}:
+      {==}
+    case Laws.O_union{} Laws.G_on{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_union{} Laws.G_mixed{} Laws.G_in{}:
+      {==}
+    case Laws.O_union{} Laws.G_mixed{} Laws.G_out{}:
+      {==}
+    case Laws.O_union{} Laws.G_mixed{} Laws.G_on{}:
+      {==}
+    case Laws.O_union{} Laws.G_mixed{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_diff{} Laws.G_in{} Laws.G_in{}:
+      {==}
+    case Laws.O_diff{} Laws.G_in{} Laws.G_out{}:
+      {==}
+    case Laws.O_diff{} Laws.G_in{} Laws.G_on{}:
+      {==}
+    case Laws.O_diff{} Laws.G_in{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_diff{} Laws.G_out{} Laws.G_in{}:
+      {==}
+    case Laws.O_diff{} Laws.G_out{} Laws.G_out{}:
+      {==}
+    case Laws.O_diff{} Laws.G_out{} Laws.G_on{}:
+      {==}
+    case Laws.O_diff{} Laws.G_out{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_diff{} Laws.G_on{} Laws.G_in{}:
+      {==}
+    case Laws.O_diff{} Laws.G_on{} Laws.G_out{}:
+      {==}
+    case Laws.O_diff{} Laws.G_on{} Laws.G_on{}:
+      {==}
+    case Laws.O_diff{} Laws.G_on{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_diff{} Laws.G_mixed{} Laws.G_in{}:
+      {==}
+    case Laws.O_diff{} Laws.G_mixed{} Laws.G_out{}:
+      {==}
+    case Laws.O_diff{} Laws.G_mixed{} Laws.G_on{}:
+      {==}
+    case Laws.O_diff{} Laws.G_mixed{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_inter{} Laws.G_in{} Laws.G_in{}:
+      {==}
+    case Laws.O_inter{} Laws.G_in{} Laws.G_out{}:
+      {==}
+    case Laws.O_inter{} Laws.G_in{} Laws.G_on{}:
+      {==}
+    case Laws.O_inter{} Laws.G_in{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_inter{} Laws.G_out{} Laws.G_in{}:
+      {==}
+    case Laws.O_inter{} Laws.G_out{} Laws.G_out{}:
+      {==}
+    case Laws.O_inter{} Laws.G_out{} Laws.G_on{}:
+      {==}
+    case Laws.O_inter{} Laws.G_out{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_inter{} Laws.G_on{} Laws.G_in{}:
+      {==}
+    case Laws.O_inter{} Laws.G_on{} Laws.G_out{}:
+      {==}
+    case Laws.O_inter{} Laws.G_on{} Laws.G_on{}:
+      {==}
+    case Laws.O_inter{} Laws.G_on{} Laws.G_mixed{}:
+      {==}
+    case Laws.O_inter{} Laws.G_mixed{} Laws.G_in{}:
+      {==}
+    case Laws.O_inter{} Laws.G_mixed{} Laws.G_out{}:
+      {==}
+    case Laws.O_inter{} Laws.G_mixed{} Laws.G_on{}:
+      {==}
+    case Laws.O_inter{} Laws.G_mixed{} Laws.G_mixed{}:
+      {==}

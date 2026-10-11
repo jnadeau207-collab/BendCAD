@@ -15,11 +15,12 @@ layers, §14 agent properties, §15 speed law, AGENTS.md boundaries.
 
 ## Laws and pins (A6, 2026-10-11)
 
-Laws: `laws/c08/LAWS.bend`, proven in `laws/c08/PROOF.bend`. All 3 quantify over their
+Laws: `laws/c08/LAWS.bend`, proven in `laws/c08/PROOF.bend`. All 4 quantify over their
 inputs and pass both the checker and the Lean-proven kernel (`bend
 laws/c08/PROOF.bend --verdict`; MASTER_PLAN A6):
 
 - `outcome_is_regularized`: the boolean outcome table equals the regularized set algebra for every operation and configuration.
+- `samples_decide_regularized`: from every pair of per-operand sample aggregates (inside, outside, boundary-only, mixed), `decide` then `outcome` give the regularized result of the configuration the samples prove, and fail when they prove none.
 - `empty_algebra`: empty and identical operands follow the empty-set algebra.
 - `uncertain_fragment_fails`: an uncertain fragment fails every operation.
 

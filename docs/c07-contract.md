@@ -16,11 +16,11 @@ runtime.
 
 ## Laws and pins (A6, 2026-10-11)
 
-Laws: `laws/c07/LAWS.bend`, proven in `laws/c07/PROOF.bend`. All 4 quantify over their
+Laws: `laws/c07/LAWS.bend`, proven in `laws/c07/PROOF.bend`. All 5 quantify over their
 inputs and pass both the checker and the Lean-proven kernel (`bend
 laws/c07/PROOF.bend --verdict`; MASTER_PLAN A6):
 
-- `key_order_reflexive / key_equal_reflexive`: monomial key order is reflexive for every key list (from Word.cmp reflexivity on 64-bit words).
+- `key_order_reflexive / key_equal_reflexive / key_order_antisymmetric`: monomial key order is reflexive and antisymmetric for every pair of key lists (from `Word.cmp` reflexivity and antisymmetry on 64-bit words), so canonical polynomial forms do not depend on argument order.
 - `poly_neg_involution / ratfun_neg_involution`: polynomial and rational-function negation are involutions.
 
 Pins: `tests/c07/pins*.bend`, 31 fixed-input checks, run as compiled code

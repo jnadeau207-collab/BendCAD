@@ -78,6 +78,26 @@ def with_empty(ea: Bool, eb: Bool, same: Bool, o: BOp) -> Res:
         case True{} _: R_carry_a{}
         case False{} _: R_continue{}
 
+type Agg is Data:
+  G_in{}
+  G_out{}
+  G_on{}
+  G_mixed{}
+
+def agg(g: Agg) -> U64:
+  match g:
+    case G_in{}: B.agg_in()
+    case G_out{}: B.agg_out()
+    case G_on{}: 0u64
+    case G_mixed{}: 3u64
+
+def cfg(a: Agg, b: Agg) -> Cfg:
+  match a b:
+    case G_out{} G_out{}: C_apart{}
+    case G_in{} G_out{}: C_a_in_b{}
+    case G_out{} G_in{}: C_b_in_a{}
+    case _ _: C_crossing{}
+
 law outcome_is_regularized:
   for +o: BOp
   for +c: Cfg
@@ -93,3 +113,9 @@ law empty_algebra:
 law uncertain_fragment_fails:
   for o: BOp
   {B.keep_frag(tag(o), B.fc_unc()) == 2u64 : U64}
+
+law samples_decide_regularized:
+  for +o: BOp
+  for +a: Agg
+  for +b: Agg
+  {B.outcome(tag(o), B.decide(agg(a), agg(b))) == res_code(regularized(o, cfg(a, b))) : U64}
