@@ -1,0 +1,2 @@
+differential: 1712 cases, mismatches=0, rejected by brep_checked=1629, non-closing orbits (ref fuel-out at 4x, new invalid)=49
+exit 0

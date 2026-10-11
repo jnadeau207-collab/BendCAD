@@ -119,6 +119,20 @@
   "verdict": "SOME PROOFS FAIL"
  },
  {
+  "pkt": "c07",
+  "law": "key order antisymmetric",
+  "file": "src/c07/sym.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c08",
+  "law": "samples decide the regularized outcome",
+  "file": "src/c08/bool.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
   "pkt": "c08",
   "law": "regularized outcome table",
   "file": "src/c08/bool.bend",
@@ -135,6 +149,20 @@
  {
   "pkt": "c09",
   "law": "frustum loops closed and balanced",
+  "file": "src/c09/feat.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c09",
+  "law": "cone closed solid (the bottom-ring defect this law found)",
+  "file": "src/c09/feat.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c09",
+  "law": "fillet closed solid",
   "file": "src/c09/feat.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"

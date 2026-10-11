@@ -1,5 +1,5 @@
 {
- "build_s": 310.9,
+ "build_s": 293.0,
  "passed": 13,
  "results": [
   {
@@ -117,6 +117,6 @@
    "ok": true
   }
  ],
- "run_s": 4.02,
+ "run_s": 3.36,
  "total": 13
 }

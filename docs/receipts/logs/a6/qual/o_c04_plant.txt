@@ -1,0 +1,10 @@
+incid_ok: differential: 172 cases, mismatches=11, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+use_ok: differential: 172 cases, mismatches=27, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+lps_loop_ok: differential: 172 cases, mismatches=108, rejected by brep_checked=141, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+fas_kind_ok: differential: 172 cases, mismatches=12, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+embed_ok: differential: 172 cases, mismatches=87, rejected by brep_checked=145, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+link_ok: differential: 172 cases, mismatches=34, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=0
+shs_conn_ok: differential: 172 cases, mismatches=15, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+coin_ok: differential: 172 cases, mismatches=12, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+fas_xing_ok: differential: 172 cases, mismatches=11, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3
+recheck_ok: differential: 172 cases, mismatches=25, rejected by brep_checked=158, non-closing orbits (ref fuel-out at 4x, new invalid)=3

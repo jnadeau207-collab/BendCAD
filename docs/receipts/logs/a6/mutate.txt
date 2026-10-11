@@ -1,0 +1,27 @@
+PASS c00 failure keeps the model -> SOME PROOFS FAIL
+PASS c00 outcome attributed to its request -> SOME PROOFS FAIL
+PASS c01 transpose involution -> SOME PROOFS FAIL
+PASS c01 negation involution -> SOME PROOFS FAIL
+PASS c01 frame/rigid round trip -> SOME PROOFS FAIL
+PASS c02 triangle winding invariance -> SOME PROOFS FAIL
+PASS c02 proper crossing -> SOME PROOFS FAIL
+PASS base parallel map is map -> SOME PROOFS FAIL
+PASS base table read after write -> SOME PROOFS FAIL
+PASS base split rejoins -> SOME PROOFS FAIL
+PASS c03 split halves meet -> SOME PROOFS FAIL
+PASS c03 domain split -> SOME PROOFS FAIL
+PASS c04 validator returns its input -> SOME PROOFS FAIL
+PASS c06 one entry per node -> SOME PROOFS FAIL
+PASS c06 intent mismatch refused -> SOME PROOFS FAIL
+PASS c07 key order reflexive -> SOME PROOFS FAIL
+PASS c07 polynomial negation involution -> SOME PROOFS FAIL
+PASS c07 key order antisymmetric -> SOME PROOFS FAIL
+PASS c08 samples decide the regularized outcome -> SOME PROOFS FAIL
+PASS c08 regularized outcome table -> SOME PROOFS FAIL
+PASS c08 empty algebra -> SOME PROOFS FAIL
+PASS c09 frustum loops closed and balanced -> SOME PROOFS FAIL
+PASS c09 cone closed solid (the bottom-ring defect this law found) -> SOME PROOFS FAIL
+PASS c09 fillet closed solid -> SOME PROOFS FAIL
+PASS c09 frustum edge ends -> SOME PROOFS FAIL
+25/25 mutants killed; sha256 cf7582237f2896860afffdc34d36e008e7f1b908d145635298306b4d06366783
+DONE

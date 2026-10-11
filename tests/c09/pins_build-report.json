@@ -1,0 +1,38 @@
+[
+ {
+  "name": "ev_chamfer_box",
+  "ok": true
+ },
+ {
+  "name": "ev_fillet_box",
+  "ok": true
+ },
+ {
+  "name": "ev_fillet_not_cube",
+  "ok": true
+ },
+ {
+  "name": "ev_fillet_volume",
+  "ok": true
+ },
+ {
+  "name": "ev_loft_g1_refuses",
+  "ok": true
+ },
+ {
+  "name": "ev_loft_square",
+  "ok": true
+ },
+ {
+  "name": "ev_shell_closed",
+  "ok": true
+ },
+ {
+  "name": "ev_sweep_arc90",
+  "ok": true
+ },
+ {
+  "name": "ev_thicken_matches_offset",
+  "ok": true
+ }
+]

@@ -1,0 +1,14 @@
+ex_oracle: filtered orient2s: wrong=0, differs from exact path=213 [] | 2000/2000 cases, wrong=0, uncertain=340 (of which finite-input 327) []
+arr_oracle_7: arrangement oracle: 300 cases, mismatches=0
+arr_oracle_11: arrangement oracle: 300 cases, mismatches=0
+arr_oracle_12: arrangement oracle: 300 cases, mismatches=0
+arr_oracle_13: arrangement oracle: 300 cases, mismatches=0
+arr_oracle_nest_1: arrangement oracle: 150 cases, mismatches=0
+arr_oracle_nest_2: arrangement oracle: 150 cases, mismatches=0
+arr_oracle_nest_3: arrangement oracle: 150 cases, mismatches=0
+arr_oracle_nest_4: arrangement oracle: 150 cases, mismatches=0
+sol_oracle_1: solver oracle: 250 cases, wrong=0, arms=[(('collapse', 'conflict'), 17), (('consistent', 'ok'), 100), (('flip', 'ok'), 17), (('multi', 'conflict'), 29), (('multi', 'ok'), 21), (('negrad', 'err nonconvergence'), 16), (('poison', 'conflict'), 50)]
+sol_oracle_2: solver oracle: 250 cases, wrong=0, arms=[(('collapse', 'conflict'), 17), (('consistent', 'ok'), 100), (('flip', 'ok'), 17), (('multi', 'conflict'), 32), (('multi', 'err nonconvergence'), 1), (('multi', 'ok'), 17), (('negrad', 'err nonconvergence'), 16), (('poison', 'conflict'), 50)]
+sol_oracle_3: solver oracle: 250 cases, wrong=0, arms=[(('collapse', 'conflict'), 17), (('consistent', 'ok'), 100), (('flip', 'ok'), 17), (('multi', 'conflict'), 27), (('multi', 'ok'), 23), (('negrad', 'err nonconvergence'), 16), (('poison', 'conflict'), 49), (('poison', 'err nonconvergence'), 1)]
+sol_oracle_4: solver oracle: 250 cases, wrong=0, arms=[(('collapse', 'conflict'), 17), (('consistent', 'ok'), 100), (('flip', 'ok'), 17), (('multi', 'conflict'), 34), (('multi', 'ok'), 16), (('negrad', 'err nonconvergence'), 16), (('poison', 'conflict'), 49), (('poison', 'err nonconvergence'), 1)]
+exit 0

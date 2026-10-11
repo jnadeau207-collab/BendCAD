@@ -1,0 +1,3 @@
+pred_oracle_2: predicate oracle: 1324 cases, wrong=0, uncertain=13 (moderate-magnitude 0)
+pred_oracle_3: predicate oracle: 1324 cases, wrong=0, uncertain=17 (moderate-magnitude 0)
+exit 0

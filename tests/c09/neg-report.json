@@ -1,5 +1,5 @@
 {
- "binary_sha256": "3e4d72c55bc654137788bd92349a63f875d136aecef0b4371e6188b8644ae20c",
+ "binary_sha256": "cac68aaad5658282e120d54fc2546eef064003ad5b8557bc857598d598cfa324",
  "passed": 27,
  "total": 27,
  "results": [
@@ -7,49 +7,49 @@
    "name": "sweep.angle",
    "ok": true,
    "info": "('unsupported-op', 'sweep-angle-not-certified', True)",
-   "seconds": 0.45
+   "seconds": 0.48
   },
   {
    "name": "sweep.degenerate",
    "ok": true,
    "info": "('invalid-input', 'degenerate-feature', True)",
-   "seconds": 0.45
+   "seconds": 0.47
   },
   {
    "name": "sweep.guide",
    "ok": true,
    "info": "('unsupported-op', 'guide-not-admitted', True)",
-   "seconds": 0.46
+   "seconds": 0.48
   },
   {
    "name": "sweep.twist",
    "ok": true,
    "info": "('unsupported-op', 'twist-not-admitted', True)",
-   "seconds": 0.45
+   "seconds": 0.48
   },
   {
    "name": "loft.mismatch",
    "ok": true,
    "info": "('invalid-input', 'loft-topology-mismatch', True)",
-   "seconds": 0.45
+   "seconds": 0.47
   },
   {
    "name": "loft.g1",
    "ok": true,
    "info": "('unsupported-op', 'continuity-not-met', True)",
-   "seconds": 0.45
+   "seconds": 0.46
   },
   {
    "name": "loft.nonplanar",
    "ok": true,
    "info": "('invalid-input', 'loft-face-not-planar', True)",
-   "seconds": 0.43
+   "seconds": 0.49
   },
   {
    "name": "loft.self",
    "ok": true,
    "info": "('invalid-input', 'loft-self-intersection', True)",
-   "seconds": 0.45
+   "seconds": 0.46
   },
   {
    "name": "chamfer.moved",
@@ -61,97 +61,97 @@
    "name": "chamfer.consumes",
    "ok": true,
    "info": "('invalid-input', 'chamfer-consumes-face', True)",
-   "seconds": 0.46
+   "seconds": 0.44
   },
   {
    "name": "fillet.moved",
    "ok": true,
    "info": "('unsupported-op', 'fillet-base-not-admitted', True)",
-   "seconds": 0.45
+   "seconds": 0.46
   },
   {
    "name": "fillet.consumes",
    "ok": true,
    "info": "('invalid-input', 'fillet-consumes-face', True)",
-   "seconds": 0.46
+   "seconds": 0.45
   },
   {
    "name": "fillet.zero",
    "ok": true,
    "info": "('invalid-input', 'degenerate-feature', True)",
-   "seconds": 0.46
+   "seconds": 0.48
   },
   {
    "name": "fillet.edge",
    "ok": true,
    "info": "('unsupported-op', 'fillet-edge-not-admitted', True)",
-   "seconds": 0.45
+   "seconds": 0.48
   },
   {
    "name": "fillet.cone",
    "ok": true,
    "info": "('numerical-uncertainty', 'surface-not-representable', True)",
-   "seconds": 0.47
+   "seconds": 0.49
   },
   {
    "name": "draft.consumes",
    "ok": true,
    "info": "('invalid-input', 'draft-consumes-face', True)",
-   "seconds": 0.47
+   "seconds": 0.48
   },
   {
    "name": "draft.base",
    "ok": true,
    "info": "('unsupported-op', 'draft-base-not-admitted', True)",
-   "seconds": 0.45
+   "seconds": 0.49
   },
   {
    "name": "offset.self",
    "ok": true,
    "info": "('invalid-input', 'offset-self-intersection', True)",
-   "seconds": 0.45
+   "seconds": 0.47
   },
   {
    "name": "offset.base",
    "ok": true,
    "info": "('unsupported-op', 'offset-base-not-admitted', True)",
-   "seconds": 0.46
+   "seconds": 0.45
   },
   {
    "name": "shell.consumes",
    "ok": true,
    "info": "('invalid-input', 'shell-consumes-solid', True)",
-   "seconds": 0.44
+   "seconds": 0.45
   },
   {
    "name": "shell.open_cyl",
    "ok": true,
    "info": "('unsupported-op', 'shell-base-not-admitted', True)",
-   "seconds": 0.48
+   "seconds": 0.46
   },
   {
    "name": "pattern.overlap",
    "ok": true,
    "info": "('unsupported-op', 'pattern-copies-overlap', True)",
-   "seconds": 0.48
+   "seconds": 0.45
   },
   {
    "name": "pattern.angle",
    "ok": true,
    "info": "('unsupported-op', 'pattern-angle-not-certified', True)",
-   "seconds": 0.44
+   "seconds": 0.45
   },
   {
    "name": "pattern.count",
    "ok": true,
    "info": "('unsupported-op', 'pattern-count-not-admitted', True)",
-   "seconds": 0.44
+   "seconds": 0.46
   },
   {
    "name": "fillet.pad",
    "ok": true,
    "info": "('unsupported-op', 'features-need-an-extruded-body', True)",
-   "seconds": 0.46
+   "seconds": 0.48
   },
   {
    "name": "rigid.kind",

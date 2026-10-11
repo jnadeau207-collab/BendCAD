@@ -1,0 +1,5 @@
+fork: https://github.com/jnadeau207-collab/bend
+commit: a4d17acecf79c71696610f0683d8d003bc392920
+tag: numeric/2026-10-05
+date: 2026-10-05T05:22:03Z
+built: bun build --compile --target=bun-linux-x64 ./bend2/main.ts

@@ -1,0 +1,12 @@
+c00_neg lanes=same sha=197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a pass=16 fail=0 last=selfcheck fails=0
+c00_positive lanes=same sha=5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79af225b0c0c1ba2be496 pass=13 fail=0 last=selfcheck fails=0
+c01_neg lanes=same sha=e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf pass=69 fail=0 last=selfcheck fails=0
+c01_pos lanes=same sha=081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd pass=44 fail=0 last=selfcheck fails=0
+c02_neg lanes=same sha=83f3358bd0b2073305f3bcd60b1939a0fab540942e32de0ef3b6cfa25a870d83 pass=24 fail=0 last=selfcheck fails=0
+c02_pos lanes=same sha=44a3bae441a358066841cff6124578c0b305da2b26cb0e2e96b8098bc6ce7c13 pass=36 fail=0 last=selfcheck fails=0
+c03_neg lanes=same sha=1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638 pass=191 fail=0 last=selfcheck fails=0
+c03_pos lanes=same sha=291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943 pass=190 fail=0 last=selfcheck fails=0
+c04_neg lanes=same sha=cd5ef16d784a5842dd1c9c8154d27f7103e2f2a40a88c95771f5f8ab824239ae pass=128 fail=0 last=selfcheck fails=0
+c04_pos lanes=same sha=dfb6ec30e6c720b22aa60002b5aeae16b2e57dcaccef66350e1da39eb8560e98 pass=286 fail=0 last=selfcheck fails=0
+c05_neg lanes=same sha=ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684 pass=38 fail=0 last=selfcheck fails=0
+c05_pos lanes=same sha=6a3d9792fd5f16b655a93b36c7ee735ed40ab9c55c1e1e3d775841a564943bbb pass=42 fail=0 last=selfcheck fails=0

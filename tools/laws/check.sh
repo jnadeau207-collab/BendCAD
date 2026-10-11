@@ -1,6 +1,7 @@
 #!/bin/bash
 set -u
 export PATH=$HOME/.bend/bin:$PATH
+export BEND_NO_TELEMETRY=1
 cd "$(dirname "$0")/../.."
 log=${1:-/tmp/bendcad-laws}
 mkdir -p "$log"

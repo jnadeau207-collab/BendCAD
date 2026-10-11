@@ -1,6 +1,7 @@
 #!/bin/bash
 set -u
 export PATH=$HOME/.bend/bin:$HOME/.bun/bin:$PATH
+export BEND_NO_TELEMETRY=1
 cd "$(dirname "$0")/../.."
 jobs=${PINS_JOBS:-8}
 st=0

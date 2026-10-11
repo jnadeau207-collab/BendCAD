@@ -1,0 +1,230 @@
+# A6 receipt — 2026-10-11 (laws are proofs, pins are tests)
+
+Owner direction: "apparently we have been using the laws wrong … read
+bend", then "make all fixes". MASTER_PLAN amendment A6 records the
+decision; this receipt records the evidence.
+
+Commits: 8ccbcf5 (A6 restructure), 4b9c55e (zero comments in code; C07
+contact findings), 9b682cb (two more laws). Law and source evidence
+below is from a snapshot of 9b682cb (`git archive`, ~/a6snap).
+
+## 1. What was wrong (measured)
+
+Bend's guide: a law states a fact for every input (`for x: T`), is
+proven by a def of the same name through case analysis, induction and
+`%` rewriting, and `--verdict` rechecks it with the Lean-proven BendTT
+kernel; the bend2 checker alone "has no proof and may have bugs". Its
+README: "F32 is axiomatic: nothing about floating point can be proven."
+
+BendCAD at da48c7a (before A6): 1,934 laws, 164 with any quantifier;
+about 1,770 were `{f(fixed input) == fixed output}` closed by `{==}`,
+which is a unit test run inside the checker's normalizer (c08_build
+laws ran for hours; 34 of 40 never got a verdict). No law file passed
+`--verdict`. Probes on the pin:
+
+- ground Nat, U32, U64 and List laws pass `--check-only` and `--verdict`;
+- a ground F64 law (`1.0 + 2.0 == 3.0`) passes `--check-only` and fails
+  `--verdict`: the kernel runs out of fuel evaluating the fork's
+  soft-float (`bendtt f64.bendtt` → "In f64_add: out of fuel"; a 1000×
+  fuel kernel overflows its stack);
+- F64 values that flow through a law symbolically, and F64 code in an
+  untaken branch, pass `--verdict`;
+- `laws/c00.bend` and `laws/c01.bend` fail `--verdict`; every src
+  package reaches F64.
+
+## 2. What changed
+
+- Laws: `laws/<pkt>/LAWS.bend` (claims) and `laws/<pkt>/PROOF.bend`
+  (proofs, `def Laws.<name>`), shared lemmas `laws/lib/F64.bend` (Word
+  xor/take/drop/cat lemmas, F64 negation involution) and
+  `laws/lib/Ex.bend` (expansion negation involution). 213 laws across
+  base and C00–C09, every one quantified.
+- Pins: the 1,770 closed laws became `name__got()` / `name__want()`
+  pairs in `tests/<pkt>/pins*.bend` (14 files), compiled to an ES module
+  and compared bit-exactly (F64 as bits) by `tools/pins/run.sh`.
+- Gates: `tools/laws/check.sh` (every PROOF under `--check-only` and
+  `--verdict`), `tools/laws/mutate.py` (a planted bug per law family).
+- Source: `st_fuel0` takes its zero test as a Bool (a `0u64` literal
+  match never reduces symbolically); the C09 cone builder's edge 3 ran
+  `3→0` instead of `3→4`, so the cone's bottom face loop never closed —
+  found by `cone_closed_solid`, fixed; 427 whole-line comments left by
+  the C08/C09 sessions removed (the repo carries none); `zone.bend` from
+  CRLF to LF.
+- Tests: `tests/c07/solid_neg.py` touch journeys expect C08's contact
+  findings (L9), 11/13 → 13/13; `tests/c09/{e2e,neg}.py` read the pins
+  report for the rigid-cluster checks instead of grepping a law file.
+- Docs: AGENTS.md law rules, MASTER_PLAN A6 and status, README, every
+  contract's "Laws and pins" section, C08/C09 intent and law docs, the
+  replacement ledger.
+
+## 3. Provenance
+
+- BendCAD: 9b682cb5aa419a0c4dc68a58bdf0791edbd90fe2 (law/src evidence).
+- Compiler: `BEND_PIN` jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920
+  (tag numeric/2026-10-05), bend 2.0.35 fork build,
+  ~/.bend/bin/bend sha256 ada00d6850e5fec47692b6274dc7a7d38ac445b984e5c44555469e4f1005f223.
+- Kernel: Lean leanprover/lean4:v4.34.0, ~/.bend/bendtt/e15042434e73aab0/bendtt
+  sha256 72e11a86f44563e9decb26fe1c586ed7d5465e98ca282ada5ae8753b1156cad5.
+- Env: `BEND_NO_TELEMETRY=1`, bun 1.4.2, clang 20.1.2 (~/bin), WSL2,
+  Ryzen 7 7800X3D, 16 threads, 19 GB.
+- src manifest: 51 files, sha256 of the manifest
+  ca36eb51623c07b3837fdfd6e8beade8be9310cbad9f95d66efdd5f18a456481.
+- Law files (sha256):
+
+  974f5c64705e8e304ae216a8fbb8381a008aa20d2cce070f6fbe77b609e94922  laws/base/LAWS.bend
+  a0a231f10a850c5bca3824bc8949d6a325e2f43ab9bff759adef9a40cdac7f61  laws/base/PROOF.bend
+  4c859333e3fe4c718407c62ba6f21f52c0a867e78ab07c075e61bd504b38de88  laws/c00/LAWS.bend
+  1c28d2ed0e207bfe8bac719d55c2c5207180fde299a2842b9caa7bce25969f56  laws/c00/PROOF.bend
+  1a3d240b232ba6b5c528d3542222371be51447ebdda3f7ed77e20f4bcb2a9d60  laws/c01/LAWS.bend
+  d226949ee13cf9d356116b8bb0e8b3387de1b64f06d5e537e432e0f464070010  laws/c01/PROOF.bend
+  cd66bf1af112501232cbd95009403ec08cac7389c209c986e0cd8dad83c9cade  laws/c02/LAWS.bend
+  737dd9ee28e794c52b3349fc3c4263e9db070320346e8fb41676eeb0c3b90199  laws/c02/PROOF.bend
+  f631d4861e16d8170b2468921f08878770594ef36117427be3bf45850f9b495b  laws/c03/LAWS.bend
+  d007f70898d0e01bb29af2e632183d85c04ade46a42d48862190da40771c457a  laws/c03/PROOF.bend
+  6973db797679743d44250cf05fd366137131338d37b449338c69dfbce4725901  laws/c04/LAWS.bend
+  c9a154c9997f656586af06a6767c9fc32f625d79a7c4f3767906cd86fe576e53  laws/c04/PROOF.bend
+  0a9224f092a7afde59c0adb0462790b9f9e0d74ae2c339adc8c37e64f5db5b12  laws/c05/LAWS.bend
+  b5621676c02dfabbf5d4b0b9b9151beba396b338f2fc8b13652151cb55c1650f  laws/c05/PROOF.bend
+  a14f33cc14484b9f3f9e36f3d394b317d8e2c936e33e0fb1169064df92472abd  laws/c06/LAWS.bend
+  08888f5e4e66bc892b3aa55f73a2289ba7aa17f8575908143eeaf609e9822fc8  laws/c06/PROOF.bend
+  01245d1ffcb6e39bc5ad4003eed244a880cb6e2cfc2ded605a6a682384efb380  laws/c07/LAWS.bend
+  623b1ea19e9639eab17c02c694a65b46b612a9195eafd7b135661f69d4e5eaa6  laws/c07/PROOF.bend
+  4e2892ce208e4cde18745bb91be5ae815449564ca632fcbf5757aa7c5d3a0dc0  laws/c08/LAWS.bend
+  2f3b97ba1b0c80d931f7442225c673810aa4f717a2d7fd734b240acfbb38533d  laws/c08/PROOF.bend
+  fab38eed40238e66bba36347fae665d89e5ff04dd59d3dd9abccaeb728741aa9  laws/c09/LAWS.bend
+  c8fc21b3caad98b8129cf5c9dc89a0d71ef57e41f7f223ddbe91e13843cbc219  laws/c09/PROOF.bend
+  b4a450d1a6b7df1183f569117e123a610e434af4de5e4f131e168b197084bc22  laws/lib/Ex.bend
+  980db144772f7f55bfe0b2ca8cd0480410bb34f8e7bf8605418fc11f63301615  laws/lib/F64.bend
+
+## 4. Laws: every file, both checkers
+
+`bash tools/laws/check.sh ~/a6snap/log/laws` (whole gate ≈ 8 min):
+
+  packet  laws  --check-only       --verdict (Lean)
+  base      13  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c00        8  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c01       10  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c02       16  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c03       10  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c04      104  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c05       34  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c06        6  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c07        5  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c08        4  ALL PROOFS CHECK   ALL PROOFS CHECK
+  c09        3  ALL PROOFS CHECK   ALL PROOFS CHECK
+  total    213
+
+Discrimination: `python3 tools/laws/mutate.py` on the same snapshot
+planted 25 bugs, one or more per law family, and every one made its
+packet print SOME PROOFS FAIL: 25/25 killed, report
+`tools/laws/mutate-report.json` (file sha256
+d3b14eb0347dd1681ba3e4968a4e161c0a35a17e3e126bbb7c3f941f4c1da72a). One
+mutant restores the cone defect of §2.
+
+Not stated as a law, and why: "the C04 verdict is the conjunction of
+its twelve stages" overflows the checker's stack when it head-normalizes
+the symbolic stage chain; stage isolation stays evidenced by the C04
+negative fixtures, each of which fails exactly one stage.
+
+## 5. Pins
+
+`bash tools/pins/run.sh` (6–8 shards; a sharded report is identical to
+an unsharded one), JS lane, on the final tree. Reports beside each file
+(`pins-report.json`, sha256 of the report body as printed):
+
+  file                         pins  held  report sha256
+  tests/c00/pins.bend            33    33  cdba3802cd2f783f6ddb1aaf68f26311c647c210272497a97c1cc05424c5f688
+  tests/c01/pins.bend            30    30  0116d1126251410627af12ce0db6bf983c32897917bd7aa88afd426da2f06e67
+  tests/c02/pins.bend            44    44  759484153abb26838cbf0c8f2ba3e781bdffe3c259e281b94c50400df62d12d5
+  tests/c03/pins.bend           408   408  1c1661253f807a9105ff4f11cb4dadc2703f54fb919595fadfb2152850e683b1
+  tests/c04/pins.bend           500   500  0b484b61969bd7bcfb865a8e25b1b5750841ac869a8168241900c96990d0be4c
+  tests/c05/pins.bend            31    31  e5cd9c80a537fc0a55fa65e39f17567facc4c42bf1c14c3864221688e3287eeb
+  tests/c06/pins.bend            82    82  1055142257c89a58e85f8e5f91631d2af684e8f9dd976473f15c6819337a68ab
+  tests/c06/pins_build.bend      25    25  64fcb8a224afccef99f4cd0951ed5a9eae7574cd8f532ad2ba31c881ae00b801
+  tests/c07/pins.bend            14    14  1c9db76c0393288db858e5b65840c270dac677814f648dbc084f8069d17257e7
+  tests/c07/pins_build.bend      17    17  816dbcb3ee2c7f782dc15be53bfc98aadf8fd1f012c2399427e3144bc5bf3b16
+  tests/c08/pins.bend           487   487  21e2a62996a45c47dc1209d0fd61d3084a368ef9e6ae55575a267d92a11a3e3b
+  tests/c08/pins_build.bend      40    40  929106e0a3099dbb165ed282f96f29e65f4245b52cc0259393705ab81b87a8e5
+  tests/c09/pins.bend            50    50  dd512cb108a9d6ee6279d9e5e9ad3c203fd968834fab52b160832d4f76beba67
+  tests/c09/pins_build.bend       9     9  34ea726941e33692d36305f9a7dfad7e801f6e52e85193872627cca5b26921b0
+  total                        1770  1770
+
+As checker laws, c06_build took 4–90 min each, c07_build two never
+finished in 12 h, and 34 of the 40 c08_build laws never got a verdict.
+As pins, c06_build and c07_build run in seconds; c08_build runs 20 s to
+45 min per full boolean on one JS core (identical operands are the
+slowest), merged from shards and single-pin runs of one compiled module
+whose bytes match a build from the final tree.
+
+## 6. End-to-end suites (binary ~/bc/bendcad built from 4b9c55e/9b682cb src, sha256 cac68aaad5658282e120d54fc2546eef064003ad5b8557bc857598d598cfa324)
+
+  suite                      result   report sha256 / note
+  tests/c06/e2e.py           55/55
+  tests/c07/e2e.py           328/328  mean 0.101 s, max 0.323 s
+  tests/c07/solid.py         34/34    fd18da66c5668406278f11335bd677bb6d41eae93598f6d39858b13578bbf3e4
+  tests/c07/solid_neg.py     13/13    c683ee596ed19ac104449ad8b06eddd02ae1a776f2b955eaa648cb280b00ea0d
+  tests/c07/zone.py          33/33    7c5be8b91d9fa110a61bf8e67e6c44bbde53f48d5f18a88f4bda3fa1ff392b58
+  tests/c08/e2e.py           108/108
+  tests/c08/neg.py           20/20
+  tests/c09/e2e.py           28/29    fillet.edge_cone refused, the open owner item of §8
+  tests/c09/neg.py           27/27
+
+Run while the law gate, mutations and qualification shared the machine;
+no latency is claimed from these runs.
+
+## 7. Qualification C00–C05 on the pin (BN-12, review M-3)
+
+Suites on all three lanes (interpreter, JS, native) from the snapshot of
+9b682cb, `BEND_NO_TELEMETRY=1` (without it the interpreter lane prints
+the daily "bend 2.0.36 is available" notice and every lane comparison
+reads DIFF). 2026-10-11T18:21Z–20:06Z. Logs in `docs/receipts/logs/a6/qual/`.
+
+  suite          lanes  pass  fail  interpreter output sha256
+  c00_neg        same     16     0  197a114f36d926d9d745a21523cc77d6bb4b1aacb3d1825c2ebe0d85743c9d2a
+  c00_positive   same     13     0  5556d51d6880f5d21e46e13e3b6fa00995cb59d827f79af225b0c0c1ba2be496
+  c01_neg        same     69     0  e4234ed7904a2bf4d156a0f31a1736e6d6a53695e18dca036478c5ac8a5d14cf
+  c01_pos        same     44     0  081d7716a78f44c775b32d1bf44f77deefe98f4d57410a3c4800811db7f42cfd
+  c02_neg        same     24     0  83f3358bd0b2073305f3bcd60b1939a0fab540942e32de0ef3b6cfa25a870d83
+  c02_pos        same     36     0  44a3bae441a358066841cff6124578c0b305da2b26cb0e2e96b8098bc6ce7c13
+  c03_neg        same    191     0  1b8b0880acf6fab22bccd880ae84af5ddda79a29e3aa5f38e5b9c37e87449638
+  c03_pos        same    190     0  291781b397823bc7532eca9fe5d26e66bafb1611a466899149e10c50b7d38943
+  c04_neg        same    128     0  cd5ef16d784a5842dd1c9c8154d27f7103e2f2a40a88c95771f5f8ab824239ae
+  c04_pos        same    286     0  dfb6ec30e6c720b22aa60002b5aeae16b2e57dcaccef66350e1da39eb8560e98
+  c05_neg        same     38     0  ea53da646b243bd9c8d6bef9bc25334bcfbad9c5ab9686deffa9732823b07684
+  c05_pos        same     42     0  6a3d9792fd5f16b655a93b36c7ee735ed40ab9c55c1e1e3d775841a564943bbb
+
+Every suite hash equals the one recorded on this pin before A6 (the
+3f29d93 run of 2026-10-06), so the `st_fuel0` change and the comment
+removal changed no output.
+
+Oracles:
+- C02 predicates (`tools/oracle/c02/oracles.py`): 2 × 1,324 cases,
+  wrong 0.
+- C05 (`tools/oracle/c05/oracles.py`): exact orient 2,000 cases wrong 0;
+  arrangements 2 × 300 mismatches 0; solver 3 × 250 wrong 0.
+- C04 differential (`diff_oracle.py SEED 342`), seeds 11, 23, 101:
+  3 × 1,712 cases, mismatches 0.
+- C04 planted bugs (`plant.py 53 34` with the ten stage predicates):
+  each stage predicate forced to True in turn is detected, mismatches
+  per 172 cases: incid_ok 11, use_ok 27, lps_loop_ok 108, fas_kind_ok
+  12, embed_ok 87, link_ok 34, shs_conn_ok 15, coin_ok 12, fas_xing_ok
+  11, recheck_ok 25 — the same counts as R0.2.
+
+BN-12 for C03, C04 and C05 (review finding M-3): each packet's laws and
+suites are now evidenced on the current pin a4d17ace by this receipt.
+
+## 8. Not changed by A6 (owner items)
+
+- C08 deferrals stand as recorded (c08 final receipt §6): crossing
+  boundaries are refused until face splitting lands, and the F22
+  latency budgets are missed (contact 10 s, identical 16 s, slanted
+  100 s against < 1 s).
+- C09 stays open on the cone-fillet decision (c09 receipt §5): the
+  variable-radius cone through the exact tangent points has no F64 cone
+  that passes certified membership, so it is refused; the owner chooses
+  a named refusal or a narrower family. The topology defect fixed here
+  was latent behind that refusal.
+- The pin stays at numeric/2026-10-05 (bend 2.0.35). Upstream has 91
+  newer commits (2.0.36: faster checks, native builds that free the
+  compiler's memory before clang); moving the pin is a separate numeric
+  gate, never `bend update`.

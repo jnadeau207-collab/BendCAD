@@ -1,0 +1,11 @@
+base laws=13 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 0s
+c00 laws=8 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 3s
+c01 laws=10 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c02 laws=16 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 0s
+c03 laws=10 check=[ALL PROOFS CHECK] 38s verdict=[ALL PROOFS CHECK] 37s
+c04 laws=104 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 2s
+c05 laws=34 check=[ALL PROOFS CHECK] 182s verdict=[ALL PROOFS CHECK] 182s
+c06 laws=6 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 8s
+c07 laws=5 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c08 laws=4 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 4s
+c09 laws=3 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 5s

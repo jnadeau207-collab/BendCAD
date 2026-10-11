@@ -17,8 +17,9 @@ function show(v) {
   return JSON.stringify(v, (_, x) => (typeof x === "bigint" ? x.toString() + "n" : x)).slice(0, 400);
 }
 
+const only = process.env.PINS_ONLY ? new Set(process.env.PINS_ONLY.split(",")) : null;
 const names = Object.keys(M).filter((k) => k.endsWith("__got")).map((k) => k.slice(0, -5)).sort()
-  .filter((_, i) => i % sn === si);
+  .filter((n) => !only || only.has(n)).filter((_, i) => i % sn === si);
 const rows = [];
 let fails = 0;
 for (const n of names) {
