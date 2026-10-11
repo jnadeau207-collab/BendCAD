@@ -13,8 +13,3 @@ def Laws.fillet_closed_solid(fm):
   match fm:
     case F9.FM{x, y, z, r, nd}:
       {==}
-
-def Laws.cone_closed_solid(c):
-  match c:
-    case F9.CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf}:
-      {==}

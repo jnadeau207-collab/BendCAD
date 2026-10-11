@@ -1,6 +1,6 @@
 {
- "binary_sha256": "cac68aaad5658282e120d54fc2546eef064003ad5b8557bc857598d598cfa324",
- "passed": 28,
+ "binary_sha256": "301666749df5120977c3bb96cfae53c2c78e36d2eeef68ec0e38b22ba0c87321",
+ "passed": 29,
  "total": 29,
  "results": [
   {
@@ -14,7 +14,7 @@
     59.999999999944514,
     60.000000000055486
    ],
-   "seconds": 0.10478425025939941,
+   "seconds": 0.08116030693054199,
    "budget": "ok"
   },
   {
@@ -42,7 +42,7 @@
     113.0973355292309,
     113.09733552923421
    ],
-   "seconds": 0.11596155166625977,
+   "seconds": 0.09380125999450684,
    "budget": "ok"
   },
   {
@@ -58,7 +58,7 @@
     326.6666666666613,
     326.6666666666721
    ],
-   "seconds": 0.08900761604309082,
+   "seconds": 0.09412026405334473,
    "budget": "ok"
   },
   {
@@ -89,7 +89,7 @@
     980.0000000000102
    ],
    "faces": 10,
-   "seconds": 0.09933638572692871,
+   "seconds": 0.07597923278808594,
    "budget": "ok"
   },
   {
@@ -108,7 +108,7 @@
     975.5870138909842
    ],
    "faces": 26,
-   "seconds": 0.5490963459014893,
+   "seconds": 0.2455916404724121,
    "budget": "ok"
   },
   {
@@ -129,10 +129,9 @@
    "faces": 7
   },
   {
-   "name": "fillet.edge_cone",
-   "ok": false,
-   "volume": null,
-   "faces": 1
+   "name": "fillet.edge_cone_refused",
+   "ok": true,
+   "out": "s=0 linear_uncertainty=1.7763568394002505e-14\nnode 8: error unsupported-op | fillet @ node 8 | why: fillet-cone-not-certified | fix: give the edge equal end radii\n\nrejected: the design was not changed"
   },
   {
    "name": "fillet.param_edit",
@@ -145,7 +144,7 @@
     1173.8701991980472,
     1173.870199198195
    ],
-   "seconds": 0.10219383239746094,
+   "seconds": 0.09236598014831543,
    "budget": "ok"
   },
   {
@@ -156,7 +155,7 @@
     380.0000000000427
    ],
    "faces": 6,
-   "seconds": 0.1005394458770752,
+   "seconds": 0.07608747482299805,
    "budget": "ok"
   },
   {
@@ -181,7 +180,7 @@
     1727.999999999983,
     1728.000000000017
    ],
-   "seconds": 0.10493326187133789,
+   "seconds": 0.08641242980957031,
    "budget": "ok"
   },
   {
@@ -213,7 +212,7 @@
    ],
    "cavity": 6,
    "check": "ok: embedded, shells outward, cavities nested",
-   "seconds": 2.169518232345581,
+   "seconds": 2.413973093032837,
    "budget": "miss"
   },
   {
@@ -246,7 +245,7 @@
     "2",
     "0"
    ],
-   "seconds": 0.7593576908111572,
+   "seconds": 0.687197208404541,
    "budget": "ok"
   },
   {
@@ -288,7 +287,7 @@
     968.5840734650259
    ],
    "check": "ok: embedded, shells outward, cavities nested",
-   "seconds": 0.0942540168762207,
+   "seconds": 0.08319568634033203,
    "budget": "ok"
   },
   {
@@ -314,7 +313,7 @@
    "ok": true,
    "first": "volume=[975.5870138908987, 975.5870138909842]",
    "second": "volume=[975.5870138908987, 975.5870138909842]",
-   "seconds": 0.08911371231079102
+   "seconds": 0.08303499221801758
   },
   {
    "name": "rigid.pins_hold",

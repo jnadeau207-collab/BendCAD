@@ -89,7 +89,9 @@ expressions. A combination that is not in this list is `unknown-op` or
 - `(fillet BASE R)` — rolling-ball radius on all 12 box edges, or both
   rims of a cylinder.
 - `(fillet BASE (edge N) R0 R1)` — one vertical box edge, N = 0, 1, 2 or 3.
-  Equal radii are a quarter-cylinder; unequal radii are a quarter-cone.
+  Equal radii are a quarter-cylinder. Unequal radii refuse as
+  `fillet-cone-not-certified`: no certified cone exists through the
+  blend's exact tangent points.
 - `(draft BASE INSET)` — box only. The top rectangle is inset by INSET on
   every side (a negative inset grows the top). The slope is
   `atan(INSET / Z)` and is not an exact bit, so the op stores the setback.
@@ -119,6 +121,7 @@ Refusals, with the `why:` text verbatim:
 - `sweep-angle-not-certified`, `guide-not-admitted`, `twist-not-admitted`,
   `continuity-not-met`, `chamfer-base-not-admitted`,
   `fillet-base-not-admitted`, `fillet-edge-not-admitted`,
+  `fillet-cone-not-certified`,
   `draft-base-not-admitted`, `offset-base-not-admitted`,
   `shell-base-not-admitted`, `pattern-copies-overlap`,
   `pattern-angle-not-certified`, `pattern-count-not-admitted`

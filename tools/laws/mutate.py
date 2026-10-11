@@ -61,8 +61,6 @@ MUTANTS = [
      '    case False{}: Bool.pick(U64, U64.is_eq(op, tag_diff()), 3u64, 0u64)'),
     ('c09', 'frustum loops closed and balanced', 'src/c09/feat.bend',
      'use_of(9n, True{}, v2(1.0f64, 0.0f64), v2(1.0f64, 1.0f64))', 'use_of(9n, False{}, v2(1.0f64, 0.0f64), v2(1.0f64, 1.0f64))'),
-    ('c09', 'cone closed solid (the bottom-ring defect this law found)', 'src/c09/feat.bend',
-     '  [1n, 2n, 3n, 4n, 0n, 6n, 7n, 8n, 9n, 5n, 5n, 6n, 7n, 8n, 9n]', '  [1n, 2n, 3n, 0n, 0n, 6n, 7n, 8n, 9n, 5n, 5n, 6n, 7n, 8n, 9n]'),
     ('c09', 'fillet closed solid', 'src/c09/feat.bend',
      '  [2n, 8n, 11n, 5n, 17n, 23n, 20n, 14n, 1n, 4n, 16n, 13n, 19n, 22n, 10n, 7n, 12n, 18n, 6n, 0n, 3n, 9n, 21n, 15n]',
      '  [2n, 8n, 11n, 5n, 17n, 23n, 20n, 14n, 1n, 4n, 16n, 13n, 19n, 22n, 10n, 7n, 12n, 18n, 6n, 0n, 3n, 9n, 15n, 21n]'),
@@ -96,6 +94,12 @@ def main():
         ok = v == 'SOME PROOFS FAIL'
         rows.append(dict(pkt=pkt, law=name, file=path, ok=ok, verdict=v))
         print('PASS' if ok else 'FAIL', pkt, name, '->', v, flush=True)
+    if only:
+        rp = os.path.join(ROOT, 'tools', 'laws', 'mutate-report.json')
+        names = {(m[0], m[1]) for m in MUTANTS}
+        old = json.load(open(rp)) if os.path.exists(rp) else []
+        rows = [r for r in old if r['pkt'] not in only and (r['pkt'], r['law']) in names] + rows
+        rows.sort(key=lambda r: [m[:2] for m in MUTANTS].index((r['pkt'], r['law'])))
     blob = json.dumps(rows, indent=1)
     open(os.path.join(ROOT, 'tools', 'laws', 'mutate-report.json'), 'w', newline='\n').write(blob + '\n')
     bad = [r for r in rows if not r['ok']]

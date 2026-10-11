@@ -1,0 +1,58 @@
+# C09.1 receipt — 2026-10-11 (C09 closed)
+
+Packet: C09 professional feature modeling (MASTER_PLAN §10 C09):
+sweep, loft, chamfer, fillet, draft, offset, shell, linear and
+circular patterns, and rigid-cluster drag in the C05 solver. Intent
+`docs/c09-intent.md`, laws `docs/c09-laws.md` (L1–L18). Supersedes the
+blocked verdict of `docs/receipts/c09-2026-10-09.txt`.
+
+## 1. The owner decision (MASTER_PLAN A7)
+
+The 2026-10-09 check phase proved that no F64 cone through the
+single-edge blend's exact tangent vertices passes certified membership
+(§5 of that receipt), so `(fillet BASE (edge N) R0 R1)` with `R0 ≠ R1`
+could only refuse as numerical uncertainty, and intent §2/§5 and L9,
+which asked for a quarter-cone, could not be met. Owner decision
+(2026-10-11): a named refusal. Unequal end radii now refuse before
+anything is built:
+
+  node N: error unsupported-op | fillet @ node N | why: fillet-cone-not-certified | fix: give the edge equal end radii
+
+and the design is unchanged. Intent §2 and §5, L9, the MCP reference
+(`tools/mcp/language.md`) and the replacement ledger say so. The cone
+builder became unreachable and is deleted from `src/c09/feat.bend`
+(383 lines, with seven helpers that were already dead). The A6 law
+`cone_closed_solid`, which had found and fixed that builder's open
+bottom loop, goes with it.
+
+## 2. Evidence
+
+- CLI `~/bc/bendcad` built from the closing tree, sha256
+  301666749df5120977c3bb96cfae53c2c78e36d2eeef68ec0e38b22ba0c87321;
+  pin `BEND_PIN` a4d17ace (numeric/2026-10-05), bend 2.0.35,
+  `BEND_NO_TELEMETRY=1`.
+- `tests/c09/e2e.py`: 29/29. The cone journey is now
+  `fillet.edge_cone_refused`: kind, why and fix verbatim, the design
+  unchanged, node 8 reports failure.
+- `tests/c09/neg.py`: 27/27 (`fillet.cone` expects
+  `unsupported-op` / `fillet-cone-not-certified`).
+- Laws `laws/c09/` (2: frustum and fillet builders are closed solids
+  with V − E + F = 2 for every input): ALL PROOFS CHECK under
+  `--check-only` and `--verdict`. Mutants: 3/3 caught;
+  `tools/laws/mutate-report.json` now 24/24.
+- Pins: `tests/c09/pins.bend` 50/50, `tests/c09/pins_build.bend` 9/9
+  (the nine full evaluations that never all reached a checker verdict
+  as laws in the 2026-10-09 run).
+- Regressions after the `model.bend` change: `laws/c06/` both checkers,
+  `tests/c06/e2e.py` 55/55, C06 pins 82/82 + 25/25, C08 pins 487/487.
+  Everything else is unchanged from `docs/receipts/a6-2026-10-11.txt`.
+
+## 3. Deferrals (recorded, not silent)
+
+- Latency: `shell.closed_box` 2.41 s against the §4 budget of < 1 s
+  (1.96 s on 2026-10-09). The closed shell is a C08 containment
+  difference, so it rides on C08's open latency deferral (c08 final
+  receipt D2: contact, identical and slanted booleans over budget);
+  the C08 latency packet owns both.
+- The other C09 journeys meet their < 1 s budgets on this run (budgets
+  are recorded per journey in `tests/c09/e2e-report.json`).

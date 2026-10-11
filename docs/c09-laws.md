@@ -44,7 +44,8 @@ AGENTS.md.
 - **L9 (corners and variable radius).** The all-edge box fillet
   publishes eight spherical corner faces and twelve cylindrical edge
   faces. The single-edge form publishes a cylinder when the end radii
-  are equal and a cone when they differ, and it does not invent sphere
+  are equal and refuses unequal radii as `fillet-cone-not-certified`
+  (unsupported-op, MASTER_PLAN A7), and it does not invent sphere
   corners. One constant-radius solid does not qualify the family.
 - **L10 (topology evolution).** Chamfer of the four vertical edges of
   a box publishes 10 faces. The all-edge fillet publishes 26. The

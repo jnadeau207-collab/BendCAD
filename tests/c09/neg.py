@@ -159,7 +159,7 @@ def c_edge():
 @case('fillet.cone')
 def c_cone():
     return reject([BOX], f'(node 2 (fillet 1 (edge 0) 1 2) {IR})', 2,
-                  'numerical-uncertainty', 'surface-not-representable')
+                  'unsupported-op', 'fillet-cone-not-certified')
 
 
 @case('draft.consumes')

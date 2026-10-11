@@ -155,13 +155,6 @@
  },
  {
   "pkt": "c09",
-  "law": "cone closed solid (the bottom-ring defect this law found)",
-  "file": "src/c09/feat.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "c09",
   "law": "fillet closed solid",
   "file": "src/c09/feat.bend",
   "ok": true,

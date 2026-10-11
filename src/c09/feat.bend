@@ -11,9 +11,6 @@ import ../c06/xp.bend as X
 type LF is Data:
   LF{ why: String, kind: U64, x0: F64, y0: F64, x1: F64, y1: F64, u0: F64, v0: F64, u1: F64, v1: F64 }
 
-type CB is Data:
-  CB{ ok: Bool, b: BD.Bt }
-
 type Rw is Data:
   Rw{ a: V.Point, b: V.Point, c: V.Point, d: V.Point }
 
@@ -22,9 +19,6 @@ type FM is Data:
 
 type FR is Data:
   FR{ x0: F64, y0: F64, x1: F64, y1: F64, u0: F64, v0: F64, u1: F64, v1: F64, z: F64, nd: U64 }
-
-type CN is Data:
-  CN{ e: Nat, x: F64, y: F64, h: F64, r0: F64, r1: F64, za: F64, ax: F64, ay: F64, az: F64, k: F64, nd: U64, surf: G.GVal }
 
 def pi() -> F64:
   F64{4614256656552045848u64}
@@ -203,9 +197,6 @@ def cyl_fillet_rg(+rc: F64, +h: F64, +r: F64) -> F.Region:
   rg(0.0f64, 0.0f64, [ln(F64.sub(rc, r), 0.0f64), ar(F64.sub(rc, r), r, r, rc, r, True{}),
     ln(rc, F64.sub(h, r)), ar(F64.sub(rc, r), F64.sub(h, r), r, F64.sub(rc, r), h, True{}), ln(0.0f64, h)])
 
-def lf_z() -> LF:
-  LF{"", 0u64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64}
-
 def lf_bad(+why: String) -> LF:
   LF{why, 0u64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64}
 
@@ -249,14 +240,6 @@ def lf_v1(l: LF) -> F64:
   LF{why, kind, x0, y0, x1, y1, u0, v0, u1, v1} = l
   v1
 
-def cb_ok(c: CB) -> Bool:
-  CB{ok, b} = c
-  ok
-
-def cb_b(c: CB) -> BD.Bt:
-  CB{ok, b} = c
-  b
-
 def modn(+k: Nat, +n: Nat) -> Nat:
   Nat.sub(k, Nat.mul(Nat.div(k, n), n))
 
@@ -272,16 +255,6 @@ def div3(+n: Nat) -> Nat:
 def mod3(+n: Nat) -> Nat:
   Nat.sub(n, Nat.mul(Nat.div(n, 3n), 3n))
 
-def nat_head(xs: List<&2, Nat>) -> Nat:
-  match xs:
-    case []: 0n
-    case h <> t: h
-
-def nat_tail(xs: List<&2, Nat>) -> List<&2, Nat>:
-  match xs:
-    case []: []
-    case h <> t: t
-
 def n_at(xs: List<&2, Nat>, +i: Nat) -> Nat:
   match xs:
     case []: 0n
@@ -289,16 +262,6 @@ def n_at(xs: List<&2, Nat>, +i: Nat) -> Nat:
       match i:
         case 0n: h
         case 1n+j: n_at(t, j)
-
-def pc_head(ps: List<&2, F.Pc>) -> F.Pc:
-  match ps:
-    case []: F.P_ln{0.0f64, 0.0f64, 0.0f64, 0.0f64}
-    case h <> t: h
-
-def pc_tail(ps: List<&2, F.Pc>) -> List<&2, F.Pc>:
-  match ps:
-    case []: []
-    case h <> t: t
 
 def pc_nth(ps: List<&2, F.Pc>, +i: Nat) -> F.Pc:
   match ps:
@@ -445,11 +408,6 @@ def loft_lf(holes: Bool, +bot: F.Lp, +top: F.Lp, +tw: Nat, +cont: U64, +z: F64) 
 def pt(+x: F64, +y: F64, +z: F64) -> V.Point:
   V.Pt{x, y, z}
 
-def sub_pt(+a: V.Point, +b: V.Point) -> V.Point:
-  V.Pt{ax, ay, az} = a
-  V.Pt{bx, by, bz} = b
-  V.Pt{F64.sub(ax, bx), F64.sub(ay, by), F64.sub(az, bz)}
-
 def lerp_pt(+a: V.Point, +b: V.Point, +t: F64) -> V.Point:
   V.Pt{ax, ay, az} = a
   V.Pt{bx, by, bz} = b
@@ -543,9 +501,6 @@ def pack(+vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>, +fs: List<&2, BD.FS>)
   +n = List.length(&2, List<&2, Ty.HFace>, runs)
   BD.Bt{BD.st_br(st, vx_gen(vs, 0n), BD.ed_gen(es, 0n), BD.shs_of(runs, 0n), BD.sos_of(n, 0n), Ty.Cp{BD.hsos_of(n, 0n), []}),
     BD.fs_names(fs)}
-
-def bt_empty() -> BD.Bt:
-  BD.Bt{Ty.brep_empty(), []}
 
 def fr_ia() -> List<&2, Nat>:
   [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 0n, 1n, 2n, 3n]
@@ -924,9 +879,6 @@ def take_u(left: Nat, +i: Nat, +base: Nat, +es: List<&2, Nat>, +fw: List<&2, Nat
       +k = Nat.add(base, i)
       use0(n_at(es, k), Nat.is_eq(n_at(fw, k), 1n)) <> take_u(j, Nat.add(i, 1n), base, es, fw)
 
-def done_n(+n: Nat) -> Nat:
-  n
-
 def cy_v(+sx: Bool, +sy: Bool, +fm: FM) -> G.GVal:
   FM{x, y, z, r, nd} = fm
   G.GV_cy{G.Cy{pt(pf(sx, x, r), pf(sy, y, r), 0.0f64), dz(), r}}
@@ -974,338 +926,3 @@ def fil_fs(left: Nat, +i: Nat, +fm: FM) -> List<&2, BD.FS>:
 def fillet_bt(+x: F64, +y: F64, +z: F64, +r: F64, +nd: U64) -> BD.Bt:
   +fm = {FM{x, y, z, r, nd} : FM}
   pack(fil_vs(24n, 0n, fm), fil_es(48n, 0n, fm), fil_fs(26n, 0n, fm))
-
-def flip_x2(k: Nat) -> Bool:
-  match k:
-    case 0n: True{}
-    case _: False{}
-
-def flip_x1(j: Nat) -> Bool:
-  match j:
-    case 0n: True{}
-    case 1n+k: flip_x2(k)
-
-def flip_x(e: Nat) -> Bool:
-  match e:
-    case 0n: False{}
-    case 1n+j: flip_x1(j)
-
-def flip_y(e: Nat) -> Bool:
-  Bool.not(Nat.is_eq(div2(e), 0n))
-
-def mir_f(flip: Bool, +v: F64, +span: F64) -> F64:
-  match flip:
-    case True{}: F64.sub(span, v)
-    case False{}: v
-
-def mir_d(flip: Bool, +v: F64) -> F64:
-  match flip:
-    case True{}: F64.neg(v)
-    case False{}: v
-
-def mir_pt(+e: Nat, +spanx: F64, +spany: F64, +p: V.Point) -> V.Point:
-  V.Pt{x, y, z} = p
-  pt(mir_f(flip_x(e), x, spanx), mir_f(flip_y(e), y, spany), z)
-
-def mir_dr(+e: Nat, +d: V.Dir) -> V.Dir:
-  V.Dr{x, y, z} = d
-  V.Dr{mir_d(flip_x(e), x), mir_d(flip_y(e), y), z}
-
-def dr_x(d: V.Dir) -> F64:
-  V.Dr{x, y, z} = d
-  x
-
-def dr_y(d: V.Dir) -> F64:
-  V.Dr{x, y, z} = d
-  y
-
-def dr_z(d: V.Dir) -> F64:
-  V.Dr{x, y, z} = d
-  z
-
-def unit3(+x: F64, +y: F64, +z: F64) -> V.Dir:
-  +l = F64.sqrt(F64.add(F64.mul(x, x), F64.add(F64.mul(y, y), F64.mul(z, z))))
-  V.Dr{F64.div(x, l), F64.div(y, l), F64.div(z, l)}
-
-def cone_k(+mx: F64, +my: F64, +mz: F64, +ax: F64, +ay: F64, +az: F64) -> F64:
-  +mm = F64.add(F64.mul(mx, mx), F64.add(F64.mul(my, my), F64.mul(mz, mz)))
-  +ad = F64.add(F64.mul(mx, ax), F64.add(F64.mul(my, ay), F64.mul(mz, az)))
-  F64.div(F64.sqrt(F64.sub(mm, F64.mul(ad, ad))), F64.abs(ad))
-
-def cn_ia() -> List<&2, Nat>:
-  [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 0n, 1n, 2n, 3n, 4n]
-
-def cn_ib() -> List<&2, Nat>:
-  [1n, 2n, 3n, 4n, 0n, 6n, 7n, 8n, 9n, 5n, 5n, 6n, 7n, 8n, 9n]
-
-def cn_loc8(e: Nat, +x: F64, +y: F64, +h: F64) -> V.Point:
-  match e:
-    case 0n: pt(x, y, h)
-    case _: pt(x, 0.0f64, h)
-
-def cn_loc7(d: Nat, +x: F64, +y: F64, +h: F64) -> V.Point:
-  match d:
-    case 0n: pt(0.0f64, y, h)
-    case 1n+e: cn_loc8(e, x, y, h)
-
-def cn_loc6(c: Nat, +x: F64, +y: F64, +h: F64, +r1: F64) -> V.Point:
-  match c:
-    case 0n: pt(0.0f64, r1, h)
-    case 1n+d: cn_loc7(d, x, y, h)
-
-def cn_loc5(b: Nat, +x: F64, +y: F64, +h: F64, +r1: F64) -> V.Point:
-  match b:
-    case 0n: pt(r1, 0.0f64, h)
-    case 1n+c: cn_loc6(c, x, y, h, r1)
-
-def cn_loc4(a: Nat, +x: F64, +y: F64, +h: F64, +r1: F64) -> V.Point:
-  match a:
-    case 0n: pt(x, 0.0f64, 0.0f64)
-    case 1n+b: cn_loc5(b, x, y, h, r1)
-
-def cn_loc3(m: Nat, +x: F64, +y: F64, +h: F64, +r1: F64) -> V.Point:
-  match m:
-    case 0n: pt(x, y, 0.0f64)
-    case 1n+a: cn_loc4(a, x, y, h, r1)
-
-def cn_loc2(k: Nat, +x: F64, +y: F64, +h: F64, +r1: F64) -> V.Point:
-  match k:
-    case 0n: pt(0.0f64, y, 0.0f64)
-    case 1n+m: cn_loc3(m, x, y, h, r1)
-
-def cn_loc1(j: Nat, +x: F64, +y: F64, +h: F64, +r0: F64, +r1: F64) -> V.Point:
-  match j:
-    case 0n: pt(0.0f64, r0, 0.0f64)
-    case 1n+k: cn_loc2(k, x, y, h, r1)
-
-def cn_loc_go(i: Nat, +x: F64, +y: F64, +h: F64, +r0: F64, +r1: F64) -> V.Point:
-  match i:
-    case 0n: pt(r0, 0.0f64, 0.0f64)
-    case 1n+j: cn_loc1(j, x, y, h, r0, r1)
-
-def cn_loc(i: Nat, +c: CN) -> V.Point:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  cn_loc_go(i, x, y, h, r0, r1)
-
-def cn_w(i: Nat, +c: CN) -> V.Point:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  mir_pt(e, x, y, cn_loc(i, c))
-
-def cn_trim4(n: Nat, +p: V.Point) -> V.Vec2:
-  match n:
-    case 0n: V.V2{pt_y(p), pt_z(p)}
-    case _: V.V2{pt_x(p), F64.neg(pt_z(p))}
-
-def cn_trim3(m: Nat, +p: V.Point) -> V.Vec2:
-  match m:
-    case 0n: V.V2{pt_y(p), F64.neg(pt_z(p))}
-    case 1n+n: cn_trim4(n, p)
-
-def cn_trim2(k: Nat, +p: V.Point) -> V.Vec2:
-  match k:
-    case 0n: V.V2{pt_x(p), pt_z(p)}
-    case 1n+m: cn_trim3(m, p)
-
-def cn_trim1(j: Nat, +p: V.Point) -> V.Vec2:
-  match j:
-    case 0n: V.V2{pt_x(p), pt_y(p)}
-    case 1n+k: cn_trim2(k, p)
-
-def cn_trim(face: Nat, +p: V.Point) -> V.Vec2:
-  match face:
-    case 0n: V.V2{pt_x(p), F64.neg(pt_y(p))}
-    case 1n+j: cn_trim1(j, p)
-
-def cn_use_go(quad: Bool, +e: Nat, +fwd: Bool, +face: Nat, +c: CN) -> BD.Use:
-  match quad:
-    case True{}: use0(e, fwd)
-    case False{}: use_of(e, fwd, cn_trim(face, cn_loc(n_at(cn_ia(), e), c)), cn_trim(face, cn_loc(n_at(cn_ib(), e), c)))
-
-def cn_fes5(b: Nat) -> List<&2, Nat>:
-  match b:
-    case 0n: [12n, 7n, 13n, 2n]
-    case _: [0n, 10n, 5n, 11n]
-
-def cn_fes4(a: Nat) -> List<&2, Nat>:
-  match a:
-    case 0n: [3n, 13n, 8n, 14n]
-    case 1n+b: cn_fes5(b)
-
-def cn_fes3(m: Nat) -> List<&2, Nat>:
-  match m:
-    case 0n: [11n, 6n, 12n, 1n]
-    case 1n+a: cn_fes4(a)
-
-def cn_fes2(k: Nat) -> List<&2, Nat>:
-  match k:
-    case 0n: [4n, 14n, 9n, 10n]
-    case 1n+m: cn_fes3(m)
-
-def cn_fes1(j: Nat) -> List<&2, Nat>:
-  match j:
-    case 0n: [9n, 8n, 7n, 6n, 5n]
-    case 1n+k: cn_fes2(k)
-
-def cn_fes(face: Nat) -> List<&2, Nat>:
-  match face:
-    case 0n: [0n, 1n, 2n, 3n, 4n]
-    case 1n+j: cn_fes1(j)
-
-def cn_ffw5(b: Nat) -> List<&2, Nat>:
-  match b:
-    case 0n: [1n, 1n, 0n, 0n]
-    case _: [0n, 1n, 1n, 0n]
-
-def cn_ffw4(a: Nat) -> List<&2, Nat>:
-  match a:
-    case 0n: [0n, 1n, 1n, 0n]
-    case 1n+b: cn_ffw5(b)
-
-def cn_ffw3(m: Nat) -> List<&2, Nat>:
-  match m:
-    case 0n: [1n, 1n, 0n, 0n]
-    case 1n+a: cn_ffw4(a)
-
-def cn_ffw2(k: Nat) -> List<&2, Nat>:
-  match k:
-    case 0n: [0n, 1n, 1n, 0n]
-    case 1n+m: cn_ffw3(m)
-
-def cn_ffw1(j: Nat) -> List<&2, Nat>:
-  match j:
-    case 0n: [0n, 0n, 0n, 0n, 0n]
-    case 1n+k: cn_ffw2(k)
-
-def cn_ffw(face: Nat) -> List<&2, Nat>:
-  match face:
-    case 0n: [1n, 1n, 1n, 1n, 1n]
-    case 1n+j: cn_ffw1(j)
-
-def cn_loop(left: Nat, +i: Nat, +face: Nat, +c: CN) -> List<&2, BD.Use>:
-  match left:
-    case 0n: []
-    case 1n+k: cn_use_go(Nat.is_eq(face, 6n), n_at(cn_fes(face), i), Nat.is_eq(n_at(cn_ffw(face), i), 1n), face, c) <> cn_loop(k, Nat.add(i, 1n), face, c)
-
-def mir_pl(+c: CN, +o: V.Point, +u: V.Dir, +v: V.Dir) -> G.GVal:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  G.GV_pl{G.Pl{mir_pt(e, x, y, o), mir_dr(e, u), mir_dr(e, v)}}
-
-def cn_surf5(b: Nat, +c: CN, +y: F64, +surf: G.GVal) -> G.GVal:
-  match b:
-    case 0n: mir_pl(c, pt(0.0f64, y, 0.0f64), dx(), dnz())
-    case _: surf
-
-def cn_surf4(a: Nat, +c: CN, +x: F64, +y: F64, +surf: G.GVal) -> G.GVal:
-  match a:
-    case 0n: mir_pl(c, pt(x, 0.0f64, 0.0f64), dy(), dz())
-    case 1n+b: cn_surf5(b, c, y, surf)
-
-def cn_surf3(m: Nat, +c: CN, +x: F64, +y: F64, +surf: G.GVal) -> G.GVal:
-  match m:
-    case 0n: mir_pl(c, pt(0.0f64, 0.0f64, 0.0f64), dy(), dnz())
-    case 1n+a: cn_surf4(a, c, x, y, surf)
-
-def cn_surf2(k: Nat, +c: CN, +x: F64, +y: F64, +h: F64, +surf: G.GVal) -> G.GVal:
-  match k:
-    case 0n: mir_pl(c, pt(0.0f64, 0.0f64, 0.0f64), dx(), dz())
-    case 1n+m: cn_surf3(m, c, x, y, surf)
-
-def cn_surf1(j: Nat, +c: CN, +x: F64, +y: F64, +h: F64, +surf: G.GVal) -> G.GVal:
-  match j:
-    case 0n: mir_pl(c, pt(0.0f64, 0.0f64, h), dx(), dy())
-    case 1n+k: cn_surf2(k, c, x, y, h, surf)
-
-def cn_surf_go(face: Nat, +c: CN, +x: F64, +y: F64, +h: F64, +surf: G.GVal) -> G.GVal:
-  match face:
-    case 0n: mir_pl(c, pt(0.0f64, 0.0f64, 0.0f64), dx(), dny())
-    case 1n+j: cn_surf1(j, c, x, y, h, surf)
-
-def cn_surf(face: Nat, +c: CN) -> G.GVal:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  cn_surf_go(face, c, x, y, h, surf)
-
-def cn_nd(c: CN) -> U64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  nd
-
-def cn_fs(left: Nat, +i: Nat, +c: CN) -> List<&2, BD.FS>:
-  match left:
-    case 0n: []
-    case 1n+k: face1(cn_surf(i, c), cn_loop(List.length(&2, Nat, cn_fes(i)), 0n, i, c), cn_nd(c), i) <> cn_fs(k, Nat.add(i, 1n), c)
-
-def cn_vs(left: Nat, +i: Nat, +c: CN) -> List<&2, Ty.Vertex>:
-  match left:
-    case 0n: []
-    case 1n+k: Ty.Vx{0u64, cn_w(i, c)} <> cn_vs(k, Nat.add(i, 1n), c)
-
-def mir_gv(gv: G.GVal, +e: Nat, +x: F64, +y: F64) -> G.GVal:
-  match gv:
-    case G.GV_rq{q}:
-      G.Rq{p0, p1, p2, w0, w1, w2} = q
-      G.GV_rq{G.Rq{mir_pt(e, x, y, p0), mir_pt(e, x, y, p1), mir_pt(e, x, y, p2), w0, w1, w2}}
-    case _: G.GV_f{0.0f64}
-
-def cn_e(c: CN) -> Nat:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  e
-
-def cn_x(c: CN) -> F64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  x
-
-def cn_y(c: CN) -> F64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  y
-
-def cn_h(c: CN) -> F64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  h
-
-def cn_r0(c: CN) -> F64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  r0
-
-def cn_r1(c: CN) -> F64:
-  CN{e, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf} = c
-  r1
-
-def cn_arc(bot: Bool, +e: Nat, +x: F64, +y: F64, +h: F64, +r0: F64, +r1: F64, +a: Nat, +b: Nat) -> Ty.Edge:
-  match bot:
-    case True{}: ed_rq(a, b, mir_gv(gv_rq(pt(r0, r0, 0.0f64), V.Dr{0.0f64, F64.neg(1.0f64), 0.0f64}, V.Dr{F64.neg(1.0f64), 0.0f64, 0.0f64}, r0), e, x, y))
-    case False{}: ed_rq(a, b, mir_gv(gv_rq(pt(r1, r1, h), V.Dr{0.0f64, F64.neg(1.0f64), 0.0f64}, V.Dr{F64.neg(1.0f64), 0.0f64, 0.0f64}, r1), e, x, y))
-
-def cn_ed_go(arc: Bool, +i: Nat, +c: CN) -> Ty.Edge:
-  match arc:
-    case False{}: ed_ln(n_at(cn_ia(), i), n_at(cn_ib(), i), cn_w(n_at(cn_ia(), i), c), cn_w(n_at(cn_ib(), i), c))
-    case True{}: cn_arc(Nat.is_eq(i, 0n), cn_e(c), cn_x(c), cn_y(c), cn_h(c), cn_r0(c), cn_r1(c), n_at(cn_ia(), i), n_at(cn_ib(), i))
-
-def cn_es(left: Nat, +i: Nat, +c: CN) -> List<&2, Ty.Edge>:
-  match left:
-    case 0n: []
-    case 1n+k: cn_ed_go(Bool.or(Nat.is_eq(i, 0n), Nat.is_eq(i, 5n)), i, c) <> cn_es(k, Nat.add(i, 1n), c)
-
-def cone_go(ok: Bool, +c: CN) -> CB:
-  match ok:
-    case False{}: CB{False{}, bt_empty()}
-    case True{}: CB{True{}, pack(cn_vs(10n, 0n, c), cn_es(15n, 0n, c), cn_fs(7n, 0n, c))}
-
-def cone_bt(+edge: Nat, +x: F64, +y: F64, +h: F64, +r0: F64, +r1: F64, +nd: U64) -> CB:
-  +za = F64.div(F64.mul(F64.neg(r0), h), F64.sub(r1, r0))
-  +ud = unit3(r0, r0, F64.neg(za))
-  +ax = dr_x(ud)
-  +ay = dr_y(ud)
-  +az = dr_z(ud)
-  +k = cone_k(r0, 0.0f64, F64.neg(za), ax, ay, az)
-  +apex = mir_pt(edge, x, y, pt(0.0f64, 0.0f64, za))
-  +axis = mir_dr(edge, ud)
-  +bx = dr_x(axis)
-  +by = dr_y(axis)
-  +bz = dr_z(axis)
-  +surf = {G.GV_co{G.Co{apex, V.Dr{bx, by, bz}, k}} : G.GVal}
-  +p0 = mir_pt(edge, x, y, pt(r0, 0.0f64, 0.0f64))
-  +p1 = mir_pt(edge, x, y, pt(0.0f64, r0, 0.0f64))
-  +p5 = mir_pt(edge, x, y, pt(r1, 0.0f64, h))
-  +p6 = mir_pt(edge, x, y, pt(0.0f64, r1, h))
-  +ok = Bool.and(Bool.and(T.is_finite(k), F64.is_lt(0.0f64, k)),
-    Bool.and(Bool.and(GO.q_on_r(surf, p0), GO.q_on_r(surf, p1)), Bool.and(GO.q_on_r(surf, p5), GO.q_on_r(surf, p6))))
-  cone_go(ok, CN{edge, x, y, h, r0, r1, za, ax, ay, az, k, nd, surf})

@@ -99,7 +99,3 @@ law frustum_closed_solid:
 law fillet_closed_solid:
   for +fm: F9.FM
   {closed_solid(F9.fil_vs(24n, 0n, fm), F9.fil_es(48n, 0n, fm), F9.fil_fs(26n, 0n, fm)) == True{} : Bool}
-
-law cone_closed_solid:
-  for +c: F9.CN
-  {closed_solid(F9.cn_vs(10n, 0n, c), F9.cn_es(15n, 0n, c), F9.cn_fs(7n, 0n, c)) == True{} : Bool}

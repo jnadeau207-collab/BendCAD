@@ -18,11 +18,11 @@ successful fillet does not qualify the family."
 
 ## Laws and pins (A6, 2026-10-11)
 
-Laws: `laws/c09/LAWS.bend`, proven in `laws/c09/PROOF.bend`. All 3 quantify over their
+Laws: `laws/c09/LAWS.bend`, proven in `laws/c09/PROOF.bend`. All 2 quantify over their
 inputs and pass both the checker and the Lean-proven kernel (`bend
 laws/c09/PROOF.bend --verdict`; MASTER_PLAN A6):
 
-- `frustum_closed_solid / fillet_closed_solid / cone_closed_solid`: for every input, each builder's face loops are closed oriented-use cycles on its own edges, each edge is used once each way, edge ends are valid vertices, and V − E + F = 2.
+- `frustum_closed_solid / fillet_closed_solid`: for every input, each builder's face loops are closed oriented-use cycles on its own edges, each edge is used once each way, edge ends are valid vertices, and V − E + F = 2.
 
 Pins: `tests/c09/pins*.bend`, 59 fixed-input checks, run as compiled code
 (`bash tools/pins/run.sh tests/c09/pins*.bend`). Where this contract names a closed law
@@ -198,11 +198,13 @@ Rolling-ball constant radius, plus one variable-radius edge.
   the vertical edge at `(x, y)` in `{(0,0), (X,0), (X,Y), (0,Y)}`
   respectively. `R0 > 0`, `R1 > 0`, and twice the larger radius is
   strictly less than both X and Y. The blend is a quarter-cylinder
-  when `R0 = R1` and a quarter-cone when they differ (linear radius
-  along the edge). No sphere corner on this single-edge form: the
-  edge's vertices stay on the unfilled horizontal edges. Faces: 7.
-  Let `I = H (R0² + R0 R1 + R1²) / 3`. Removed volume
-  `(1 − π/4) I`. Result volume is `X Y Z` minus that.
+  (`R0 = R1`). No sphere corner on this single-edge form: the edge's
+  vertices stay on the unfilled horizontal edges. Faces: 7. Removed
+  volume `(1 − π/4) H R0²`; result volume is `X Y Z` minus that.
+  Unequal radii refuse before anything is built: `unsupported-op`,
+  `fillet-cone-not-certified`, fix "give the edge equal end radii"
+  (MASTER_PLAN A7: no F64 cone through the exact tangent vertices
+  passes certified membership, receipt `c09-2026-10-09.txt` §5).
 - Other N, a cylinder plus an edge selector, or a nonpositive radius:
   `fillet-edge-not-admitted` or `degenerate-feature`, whichever
   applies (nonpositive radius wins).
@@ -411,8 +413,9 @@ writes `tests/c09/e2e-report.json`. Minimum journeys:
   26 faces, 8 sphere faces, 12 cylinder faces, 6 planes);
 - fillet both rims of cylinder R = 5, H = 10, fillet radius 1
   (volume `232 π + 4 π²`);
-- fillet edge 0 of a 10-cube, R0 = 1, R1 = 1, and again R0 = 1,
-  R1 = 2 (constant and variable volumes from §2, 7 faces);
+- fillet edge 0 of a 10-cube, R0 = 1, R1 = 1 (volume from §2, 7
+  faces), and R0 = 1, R1 = 2 refused as `fillet-cone-not-certified`
+  with the design unchanged;
 - draft of box 10×8×6, inset 1 (volume 380) and inset 0 (identity);
 - offset box by 1 (volume 1728) and cylinder R = 5, H = 10 by 1
   (volume `432 π`);

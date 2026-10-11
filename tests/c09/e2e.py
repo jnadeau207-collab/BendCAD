@@ -156,9 +156,13 @@ def fillet():
     e2, _ = cli('fil.bcd', 'faces', '8')
     record('fillet.edge_equal', contains(vol(out, 6), 990.0 + 2.5 * PI) and len(face_lines(e1)) == 7,
            volume=vol(out, 6), faces=len(face_lines(e1)))
-    record('fillet.edge_cone',
-           contains(vol(cone_out, 8), 1000.0 - 70.0 / 3.0 + 70.0 * PI / 12.0) and len(face_lines(e2)) == 7,
-           volume=vol(cone_out, 8), faces=len(face_lines(e2)))
+    refusal = re.search(r'node 8: error (\S+).*?why: ([^|]+)\|\s*fix: (.*)', cone_out)
+    record('fillet.edge_cone_refused',
+           refusal is not None and refusal.group(1) == 'unsupported-op'
+           and refusal.group(2).strip() == 'fillet-cone-not-certified'
+           and refusal.group(3).strip() == 'give the edge equal end radii'
+           and 'rejected: the design was not changed' in cone_out and 'node failed' in e2,
+           out=cone_out.strip()[-200:])
 
 
 def fillet_edit():

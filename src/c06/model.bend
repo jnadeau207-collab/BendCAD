@@ -2002,18 +2002,10 @@ def op_fillet(+base: U64, +r: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2,
 def larger(+a: F64, +b: F64) -> F64:
   Bool.pick(F64, F64.is_lt(a, b), b, a)
 
-def fe_cone_go(ok: Bool, +bt: BD.Bt, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +b: Body, +nd: U64) -> NR:
-  match ok:
-    case False{}: unc_nr("fillet", nd, "surface-not-representable")
-    case True{}: mesh_go(bt, F9.vol_fillet_edge(x, y, z, r0, r1), "fillet", dels_why(bd_fns(b), 4u64), "")
-
-def fe_cone(+c: F9.CB, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +b: Body, +nd: U64) -> NR:
-  fe_cone_go(F9.cb_ok(c), F9.cb_b(c), x, y, z, r0, r1, b, nd)
-
 def fe_eq(eq: Bool, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +n: U64, +b: Body, +e: X.Env, +nd: U64) -> NR:
   match eq:
     case True{}: nr_take(op_prism([F9.fil_edge_rg(n, x, y, r0)], xk(0.0f64), xk(z), e, nd), F9.vol_fillet_edge(x, y, z, r0, r1), "", dels_why(bd_fns(b), 4u64), False{}, True{})
-    case False{}: fe_cone(F9.cone_bt(U64.to_nat(n), x, y, z, r0, r1, nd), x, y, z, r0, r1, b, nd)
+    case False{}: nr_err(T.F_unsupported{}, "fillet", "node " ++ U64.show(nd), "fillet-cone-not-certified", "give the edge equal end radii")
 
 def fe_cons(bad: Bool, +x: F64, +y: F64, +z: F64, +r0: F64, +r1: F64, +n: U64, +b: Body, +e: X.Env, +nd: U64) -> NR:
   match bad:
