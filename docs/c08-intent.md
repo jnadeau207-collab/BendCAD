@@ -474,4 +474,24 @@ unsupported findings still fail). The `contact-*` codes are
 information, admitted by both the kernel gate and CLI `check`.
 This reading needs owner review at closeout.
 
+**Latency addendum (2026-10-12, fixed in the C10 tree).** The C09.1
+receipt §3 deferral (`shell.closed_box` 2.41 s vs the 1 s budget,
+riding on c08 final receipt D2) is closed: the journey now runs in
+0.89 s with byte-identical verdicts. Root cause was algorithmic,
+in `src/c07/emb.bend`, not a timeout: the face-face rank `m2`
+evaluated point-in-face member tests whose result the rank logic
+provably discards, and plane×quadric pairs ran the expensive
+quadric member before the cheap plane test. Both are removed
+(`m2_fin_b`/`m2_ma` short-circuit, `ff_go` k=4 tests the plane
+face first); the rank is identical on all sixteen input
+combinations, so every finding is unchanged. Same-tree
+re-measurement of the D2 cases: identical 16.53 s → 0.03 s
+(budget met), contact.face journey 5.46 s, slanted.union journey
+20.80 s (from 100.37 s). D2 stays open — contact and slanted are
+still over budget and stay owned by the latency packet — with
+updated evidence and a CLI-level probe in
+`docs/receipts/c10-2026-10-12.txt` §5.
+Regression: c08 e2e 108/108, c08 neg 20/20, c09 e2e 29/29, c09 neg
+27/27 on the fixed kernel.
+
 

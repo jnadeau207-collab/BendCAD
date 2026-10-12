@@ -635,6 +635,15 @@ def any_co(fs: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +g: G.GVal) -> Bool:
     case []: False{}
     case h <> t: Bool.or(S.coincide(SO.fd_g(fg_fd(B.tb_get(Fg, tf, U32.from_nat(h)))), g), any_co(t, tf, g))
 
+def ef_hits_go(+hs: List<&2, S.Hit>, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64,
+    +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat, +cross: Bool, +ofds: List<&2, SO.Fd>,
+    +pa0: List<&2, I.I>, +pa1: List<&2, I.I>) -> List<&2, SO.Fi>:
+  match hs:
+    case []: []
+    case _ <> _:
+      first(ef_hits(hs, fd, c, lo, hi, sv, tol, a, b, cross, ef_mode(ofds, pa0, pa1, cross), ofds,
+        SO.bbox(ofds, []), pa0, pa1))
+
 def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, +tol: F64, +cross: Bool,
     +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   match on:
@@ -642,9 +651,8 @@ def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, 
     case False{}:
       Eg{g, +d, +a0, +a1, +pa0, +pa1, +c, bx, u, so} = x
       +sv = sh_pt(has(vs, a0), pa0, sh_pt(has(vs, a1), pa1, []))
-      +bb = SO.bbox(ofds, [])
-      first(ef_hits(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf, cross,
-        ef_mode(ofds, pa0, pa1, cross), ofds, bb, pa0, pa1))
+      ef_hits_go(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf,
+        cross, ofds, pa0, pa1)
 
 def ef_go(own: Bool, +x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64,
     +cross: Bool, +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
@@ -802,18 +810,39 @@ def off_go(flat: Bool, es: List<&2, Eg>, +p: List<&2, I.I>) -> Bool:
 def off_face(+f: SO.Fd, es: List<&2, Eg>, +p: List<&2, I.I>) -> Bool:
   off_go(flat_im(SO.fd_im(f)), es, p)
 
-def m_off(far: Bool, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
-  match far:
+def m1pre_off(+off: Bool) -> U64:
+  match off:
     case True{}: 0u64
-    case False{}: Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
+    case False{}: 4u64
 
-def m1n(nr: Bool, +f: SO.Fd, +es: List<&2, Eg>, +p: List<&2, I.I>) -> U64:
+def m1pre(+nr: Bool, +off: Bool) -> U64:
   match nr:
     case True{}: 3u64
-    case False{}: m_off(off_face(f, es, p), f, p)
+    case False{}: m1pre_off(off)
+
+def m1fin(+pre: U64, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match pre:
+    case 4u64: Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
+    case _: pre
+
+def m2_ma(+ma: U64, +preb: U64, +fb: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match ma:
+    case 0u64: 0u64
+    case _: U64.add(U64.mul(ma, 4u64), m1fin(preb, fb, p))
+
+def m2_fin_b(+preb: U64, +prea: U64, +fa: SO.Fd, +fb: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match preb:
+    case 0u64: 0u64
+    case _: m2_ma(m1fin(prea, fa, p), preb, fb, p)
+
+def m2_fin(+prea: U64, +preb: U64, +fa: SO.Fd, +fb: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match prea:
+    case 0u64: 0u64
+    case _: m2_fin_b(preb, prea, fa, fb, p)
 
 def m2(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> U64:
-  U64.add(U64.mul(m1n(near_cv(csa, p, tol), fa, csa, p), 4u64), m1n(near_cv(csb, p, tol), fb, csb, p))
+  m2_fin(m1pre(near_cv(csa, p, tol), off_face(fa, csa, p)),
+    m1pre(near_cv(csb, p, tol), off_face(fb, csb, p)), fa, fb, p)
 
 def bd_or_in(+m: U64) -> Bool:
   Bool.or(U64.is_eq(m, 1u64), U64.is_eq(m, 3u64))
@@ -1062,7 +1091,7 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
     case 4u64:
       +fa = fg_fd(x)
       +fb = fg_fd(y)
-      circ_fi(fb, fa, fa, fb, all_cvs(fg_es(x), te), all_cvs(fg_es(y), te), tol, ia, ib)
+      circ_fi(fb, fa, fb, fa, all_cvs(fg_es(y), te), all_cvs(fg_es(x), te), tol, ia, ib)
     case _:
       +fa = fg_fd(x)
       +fb = fg_fd(y)

@@ -166,5 +166,47 @@
   "file": "src/c09/feat.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "quality constructor keeps fields",
+  "file": "src/c10/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "success marks ok",
+  "file": "src/c10/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "over budget refuses and keeps the estimate",
+  "file": "src/c06/tess.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "side strip delivers the estimate",
+  "file": "src/c06/tess.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "ring indices in range",
+  "file": "src/c06/tess.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c10",
+  "law": "open curves sample from one",
+  "file": "src/c10/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

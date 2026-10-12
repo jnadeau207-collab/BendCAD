@@ -1143,11 +1143,20 @@ def fi_partition(fs: List<&2, SO.Fi>, +acc: VR) -> VR:
       fi_partition(t, Bool.pick(VR, is_contact(c), VR{ok, st, Nat.add(nc, 1n), co, ca, cb},
         Bool.pick(VR, ok, VR{False{}, st, nc, c, a, b}, acc)))
 
-def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
-  Bool.pick(VR, Bool.not(U64.is_eq(f10, 0u64)), vr_fail(f10, "c04-" ++ stage_why(f10), 0n, 0n),
-    Bool.pick(VR, Bool.not(CR_ok(cr)), vr_fail(10u64, "coincident-vertices", CR_a(cr), CR_b(cr)),
+def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
+  match bad:
+    case True{}: vr_fail(10u64, "coincident-vertices", CR_a(cr), CR_b(cr))
+    case False{}:
       fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi(b, fds)),
-        VR{True{}, 0u64, CR_nc(cr), "", 0n, 0n})))
+        VR{True{}, 0u64, CR_nc(cr), "", 0n, 0n})
+
+def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
+  match bad10:
+    case True{}: vr_fail(f10, "c04-" ++ stage_why(f10), 0n, 0n)
+    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds)
+
+def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
+  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds)
 
 def VR_ok(v: VR) -> Bool:
   VR{ok, stage, nc, code, a, b} = v
@@ -1743,9 +1752,13 @@ def carry_check(x: In, +side: U64, +nd: U64, v: VR, +proof: String, +del: List<&
       "operand-failed-check: " ++ code ++ " " ++ Nat.show(a) ++ " " ++ Nat.show(b),
       "fix the operand so it passes check, then retry the boolean"))
 
+def carry_out_go(+bo: Bool, +x: In, +side: U64, +nd: U64, +proof: String, +del: List<&2, Del>) -> Out:
+  match bo:
+    case True{}: out_carry_direct(x, side, proof, del)
+    case False{}: carry_check(x, side, nd, vcore(in_brep(x)), proof, del)
+
 def carry_out(+x: In, +side: U64, +nd: U64, +proof: String, +del: List<&2, Del>) -> Out:
-  Bool.pick(Out, in_bo(x), out_carry_direct(x, side, proof, del),
-    carry_check(x, side, nd, vcore(in_brep(x)), proof, del))
+  carry_out_go(in_bo(x), x, side, nd, proof, del)
 
 def admit_code(+sha: Bool, +shb: Bool, +faa: U64, +fab: U64, +eda: U64, +edb: U64, +pxa: Bool,
     +pxb: Bool) -> U64:
@@ -1864,13 +1877,20 @@ def run_append(+a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, +wb: BX, +nd
   +bc = brep_append(ba, bb)
   append_valid(a, b, bc, nd, wa, wb, proof)
 
+def run_disjoint_go(+is_union: Bool, +is_diff: Bool, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep,
+    +wa: BX, +wb: BX, +nd: U64, +proof: String) -> Out:
+  match is_union:
+    case True{}: run_append(a, b, ba, bb, wa, wb, nd, proof)
+    case False{}:
+      match is_diff:
+        case True{}: carry_out(a, 1u64, nd, proof, del_classified(in_fns(b)))
+        case False{}:
+          out_empty(nd, proof, List.append(&2, Del, del_classified(in_fns(a)), del_classified(in_fns(b))))
+
 def run_disjoint(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, +wb: BX, +nd: U64,
     +an: U64, +bn: U64) -> Out:
   +proof = "disjoint-boxes A" ++ bx_show(wa) ++ " B" ++ bx_show(wb)
-  Bool.pick(Out, U64.is_eq(op, tag_union()), run_append(a, b, ba, bb, wa, wb, nd, proof),
-    Bool.pick(Out, U64.is_eq(op, tag_diff()), carry_out(a, 1u64, nd, proof, del_classified(in_fns(b))),
-      out_empty(nd, proof,
-        List.append(&2, Del, del_classified(in_fns(a)), del_classified(in_fns(b))))))
+  run_disjoint_go(U64.is_eq(op, tag_union()), U64.is_eq(op, tag_diff()), a, b, ba, bb, wa, wb, nd, proof)
 
 def cavity_valid(+op: U64, a: In, b: In, +cv: CV, +nd: U64, +wm: BX) -> Out:
   In{brep, cells, fns, m, tx, ty, tz, +rv, +vol, area, +bb, lin, bo, pxa} = a
@@ -1886,15 +1906,20 @@ def cavity_valid(+op: U64, a: In, b: In, +cv: CV, +nd: U64, +wm: BX) -> Out:
     out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
       "validation-rejected: " ++ vcode(v), "report these operands"))
 
+def run_cavity_go(+ok: Bool, +op: U64, +a: In, +b: In, +cv: CV, +nd: U64, +wm: BX) -> Out:
+  match ok:
+    case True{}: cavity_valid(op, a, b, cv, nd, wm)
+    case False{}:
+      out_fail(fk_uncertain(), "assemble",
+        "node " ++ U64.show(nd), "no-container-sample: a tool solid has no strictly-inside sample",
+        "nest the tool strictly inside the minuend")
+
 def run_cavity(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bx: Ty.Brep, +nd: U64) -> Out:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, pxa} = a
   In{brep2, cells2, fns2, m2, tx2, ty2, tz2, rv2, vol2, area2, bb2, lin2, bo2, pxb} = b
   +fa = SO.fds_of(ba)
   +cv = cavity(ba, fns, bx, fa, SO.bbox(fa, []), nd, 1u64)
-  Bool.pick(Out, CV_ok(cv), cavity_valid(op, a, b, cv, nd, world_box(ba, in_lin(a))),
-    out_fail(fk_uncertain(), "assemble",
-      "node " ++ U64.show(nd), "no-container-sample: a tool solid has no strictly-inside sample",
-      "nest the tool strictly inside the minuend"))
+  run_cavity_go(CV_ok(cv), op, a, b, cv, nd, world_box(ba, in_lin(a)))
 
 def run_assemble(+op: U64, +outc: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
     +nd: U64, +nc: Nat) -> Out:
@@ -1905,34 +1930,67 @@ def run_assemble(+op: U64, +outc: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Bre
     case 2u64: append_rebox(op, a, b, bc, ba, bb, nd, nc)
     case _: run_cavity(op, a, b, ba, bb, nd)
 
+def run_outcome_go(+bad: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
+    +outc: U64, +nd: U64, +an: U64, +bn: U64, +nc: Nat) -> Out:
+  match bad:
+    case True{}:
+      out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
+        "inconsistent-classification between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
+        "separate the operands or nest one strictly inside the other")
+    case False{}: run_assemble(op, outc, a, b, ba, bb, bc, nd, nc)
+
 def run_outcome(+op: U64, a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep, +ca: U64,
     +cb: U64, +nd: U64, +an: U64, +bn: U64, +nc: Nat) -> Out:
   +agga = Bool.pick(U64, U64.is_eq(ca, 1u64), agg_in(), agg_out())
   +aggb = Bool.pick(U64, U64.is_eq(cb, 1u64), agg_in(), agg_out())
   +outc = outcome(op, decide(agga, aggb))
-  Bool.pick(Out, U64.is_eq(outc, 5u64),
-    out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
-      "inconsistent-classification between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
-      "separate the operands or nest one strictly inside the other"),
-    run_assemble(op, outc, a, b, ba, bb, bc, nd, nc))
+  run_outcome_go(U64.is_eq(outc, 5u64), op, a, b, ba, bb, bc, outc, nd, an, bn, nc)
+
+def run_rels_has(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64,
+    +bn: U64) -> Out:
+  match has3:
+    case True{}:
+      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
+        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
+        "move the operands apart or nest one inside the other; general intersecting booleans need face splitting")
+    case False{}:
+      out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
+        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
+        "separate the operands or nest one strictly inside the other")
+
+def run_rels_mix(+mix: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
+    +nd: U64, +an: U64, +bn: U64, +nc: Nat, +ca: U64, +cb: U64) -> Out:
+  match mix:
+    case True{}:
+      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
+        "mixed-solid-relations: one operand has solids both inside and outside the other",
+        "boolean operands with mixed containment need per-solid measures (a C11 item)")
+    case False{}: run_outcome(op, a, b, ba, bb, bc, ca, cb, nd, an, bn, nc)
+
+def run_rels_bad(+bad6: Bool, +has3: Bool, +mix5: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
+    +bb: Ty.Brep, +bc: Ty.Brep, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64, +bn: U64,
+    +nc: Nat, +ca: U64, +cb: U64) -> Out:
+  match bad6:
+    case True{}: run_rels_has(has3, ra, rb, nd, an, bn)
+    case False{}: run_rels_mix(mix5, op, a, b, ba, bb, bc, nd, an, bn, nc, ca, cb)
 
 def run_rels(+op: U64, +a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep, +ra: List<&2, U64>,
     +rb: List<&2, U64>, +nd: U64, +an: U64, +bn: U64, +nc: Nat) -> Out:
   +ca = rel_class(ra, 0n, 0n, 0n)
   +cb = rel_class(rb, 0n, 0n, 0n)
-  Bool.pick(Out, Bool.or(U64.is_eq(ca, 6u64), U64.is_eq(cb, 6u64)),
-    Bool.pick(Out, Bool.or(rel_has(ra, 3u64), rel_has(rb, 3u64)),
-      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
-        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
-        "move the operands apart or nest one inside the other; general intersecting booleans need face splitting"),
+  run_rels_bad(Bool.or(U64.is_eq(ca, 6u64), U64.is_eq(cb, 6u64)),
+    Bool.or(rel_has(ra, 3u64), rel_has(rb, 3u64)), Bool.or(U64.is_eq(ca, 5u64), U64.is_eq(cb, 5u64)),
+    op, a, b, ba, bb, bc, ra, rb, nd, an, bn, nc, ca, cb)
+
+def run_classify_go(+bad: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
+    +nd: U64, +an: U64, +bn: U64, +unca: Bool, +aga: AG, +agb: AG, +nc: Nat) -> Out:
+  match bad:
+    case True{}:
       out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
-        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
-        "separate the operands or nest one strictly inside the other")),
-    Bool.pick(Out, Bool.or(U64.is_eq(ca, 5u64), U64.is_eq(cb, 5u64)),
-      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
-        "mixed-solid-relations: one operand has solids both inside and outside the other",
-        "boolean operands with mixed containment need per-solid measures (a C11 item)"),
-      run_outcome(op, a, b, ba, bb, bc, ca, cb, nd, an, bn, nc)))
+        "uncertain-classification against node " ++ U64.show(Bool.pick(U64, unca, bn, an)),
+        "separate the operands or nest one inside the other")
+    case False{}:
+      run_rels(op, a, b, ba, bb, bc, rel_list(AG_masks(aga)), rel_list(AG_masks(agb)), nd, an, bn, nc)
 
 def run_classify(+op: U64, +a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep, +nd: U64,
     +an: U64, +bn: U64, +nc: Nat) -> Out:
@@ -1942,26 +2000,37 @@ def run_classify(+op: U64, +a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Br
   +agb = ag_run(bb, fa, SO.bbox(fa, []), fb)
   +unca = AG_unc(aga)
   +uncb = AG_unc(agb)
-  Bool.pick(Out, Bool.or(unca, uncb),
-    out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
-      "uncertain-classification against node " ++ U64.show(Bool.pick(U64, unca, bn, an)),
-      "separate the operands or nest one inside the other"),
-    run_rels(op, a, b, ba, bb, bc, rel_list(AG_masks(aga)), rel_list(AG_masks(agb)), nd, an, bn, nc))
+  run_classify_go(Bool.or(unca, uncb), op, a, b, ba, bb, bc, nd, an, bn, unca, aga, agb, nc)
+
+def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
+    +nd: U64, +an: U64, +bn: U64, +v: VR) -> Out:
+  match ok:
+    case True{}: run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v))
+    case False{}: intersect_fail(nd, an, bn, v)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64) -> Out:
   +bc = brep_append(ba, bb)
   +v = vcore(bc)
-  Bool.pick(Out, VR_ok(v), run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v)),
-    intersect_fail(nd, an, bn, v))
+  run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v)
+
+def run_broad_go(+disj: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX,
+    +wb: BX, +nd: U64, +an: U64, +bn: U64) -> Out:
+  match disj:
+    case True{}: run_disjoint(op, a, b, ba, bb, wa, wb, nd, an, bn)
+    case False{}: run_intersect(op, a, b, ba, bb, nd, an, bn)
 
 def run_broad(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +ba = bake_of(a)
   +bb = bake_of(b)
   +wa = world_box(ba, in_lin(a))
   +wb = world_box(bb, in_lin(b))
-  Bool.pick(Out, bx_disjoint(wa, wb), run_disjoint(op, a, b, ba, bb, wa, wb, nd, an, bn),
-    run_intersect(op, a, b, ba, bb, nd, an, bn))
+  run_broad_go(bx_disjoint(wa, wb), op, a, b, ba, bb, wa, wb, nd, an, bn)
+
+def run_admit_go(+ok: Bool, +op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64, +code: U64) -> Out:
+  match ok:
+    case True{}: run_broad(op, a, b, nd, an, bn)
+    case False{}: admit_fail(op, code, a, b, nd, an, bn)
 
 def run_admit(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +br = in_brep(a)
@@ -1969,7 +2038,7 @@ def run_admit(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +code = admit_code(admit_shs(Ty.brep_shs(br)), admit_shs(Ty.brep_shs(bb)), admit_fas(Ty.brep_fas(br), 0n),
     admit_fas(Ty.brep_fas(bb), 0n), admit_eds(Ty.brep_es(br)), admit_eds(Ty.brep_es(bb)), in_px(a),
     in_px(b))
-  Bool.pick(Out, U64.is_eq(code, 0u64), run_broad(op, a, b, nd, an, bn), admit_fail(op, code, a, b, nd, an, bn))
+  run_admit_go(U64.is_eq(code, 0u64), op, a, b, nd, an, bn, code)
 
 def carry_dels(same: Bool, +gone: List<&2, Del>) -> List<&2, Del>:
   match same:
@@ -1981,15 +2050,19 @@ def empty_dels(same: Bool, +a: List<&2, Del>, +b: List<&2, Del>) -> List<&2, Del
     case True{}: a
     case False{}: List.append(&2, Del, a, b)
 
+def run_empty_go(+eo: U64, +op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64,
+    +sameab: Bool) -> Out:
+  match eo:
+    case 10u64: run_admit(op, a, b, nd, an, bn)
+    case 3u64: out_empty(nd, "", empty_dels(sameab, del_classified(in_fns(a)), del_classified(in_fns(b))))
+    case 0u64: carry_out(a, 1u64, nd, "", carry_dels(sameab, del_classified(in_fns(b))))
+    case _: carry_out(b, 2u64, nd, "", carry_dels(sameab, del_classified(in_fns(a))))
+
 def run_empty(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64, +sameab: Bool) -> Out:
   +ea = Nat.is_eq(nsolids(in_brep(a)), 0n)
   +eb = Nat.is_eq(nsolids(in_brep(b)), 0n)
   +eo = empty_outcome(op, ea, eb, sameab)
-  Bool.pick(Out, U64.is_eq(eo, 10u64), run_admit(op, a, b, nd, an, bn),
-    Bool.pick(Out, U64.is_eq(eo, 3u64),
-      out_empty(nd, "", empty_dels(sameab, del_classified(in_fns(a)), del_classified(in_fns(b)))),
-      Bool.pick(Out, U64.is_eq(eo, 0u64), carry_out(a, 1u64, nd, "", carry_dels(sameab, del_classified(in_fns(b)))),
-        carry_out(b, 2u64, nd, "", carry_dels(sameab, del_classified(in_fns(a)))))))
+  run_empty_go(eo, op, a, b, nd, an, bn, sameab)
 
 def run(+op: U64, a: In, b: In, +nd: U64, +an: U64, +bn: U64, +sameab: Bool) -> Out:
   run_empty(op, a, b, nd, an, bn, sameab)

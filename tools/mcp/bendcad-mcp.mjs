@@ -52,9 +52,16 @@ const tools = [
   { name: 'intersect', description: 'Intersect two curves, a curve and a surface, or two surfaces (see reference: Geometry queries). Returns certified points, overlaps, traced curves and explicit unresolved boxes.',
     inputSchema: { type: 'object', properties: { a: { type: 'string', description: 'First geometry, e.g. (line 0 0 0 1 0 0 -5 5)' }, b: { type: 'string', description: 'Second geometry' }, box: { type: 'string', description: 'Optional (box X0 X1 Y0 Y1 Z0 Z1); required for surface/surface' } }, required: ['a', 'b'] },
     run: a => cli(['geom', 'intersect', a.a, a.b, ...(a.box ? [a.box] : [])]) },
-  { name: 'tessellate', description: 'Write a watertight triangle mesh (OBJ) of a node\'s solid to a WSL path.',
-    inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' } }, required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, 'tess', String(a.node), a.out]) },
+  { name: 'tessellate', description: 'Write a watertight triangle mesh (OBJ) of a node\'s solid to a WSL path, with stated chord/angle quality, a triangle budget, and sampled (not certified) measurements. Refuses as tess-budget-exceeded when the estimate tops the budget.',
+    inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' },
+        preset: { type: 'integer', description: '0 draft, 1 default, 2 fine, 3 manufacturing (default 1)' },
+        chord: { type: 'number', description: 'Chord tolerance in mm (preset default)' },
+        angle: { type: 'number', description: 'Angle tolerance in radians (preset default)' },
+        maxTris: { type: 'integer', description: 'Triangle budget (preset default)' },
+        profile: { type: 'string', description: 'display or manufacturing (preset default)' } },
+      required: ['design', 'node', 'out'] },
+    run: a => cli([a.design, 'tess', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+      a.maxTris ?? '', a.profile ?? ''].map(String)) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }

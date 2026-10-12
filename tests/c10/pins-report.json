@@ -1,0 +1,170 @@
+[
+ {
+  "name": "budget_equal",
+  "ok": true
+ },
+ {
+  "name": "budget_over",
+  "ok": true
+ },
+ {
+  "name": "budget_under",
+  "ok": true
+ },
+ {
+  "name": "cc_span_full",
+  "ok": true
+ },
+ {
+  "name": "cc_span_part",
+  "ok": true
+ },
+ {
+  "name": "preset_angle_0",
+  "ok": true
+ },
+ {
+  "name": "preset_angle_1",
+  "ok": true
+ },
+ {
+  "name": "preset_angle_2",
+  "ok": true
+ },
+ {
+  "name": "preset_angle_3",
+  "ok": true
+ },
+ {
+  "name": "preset_chord_0",
+  "ok": true
+ },
+ {
+  "name": "preset_chord_1",
+  "ok": true
+ },
+ {
+  "name": "preset_chord_2",
+  "ok": true
+ },
+ {
+  "name": "preset_chord_3",
+  "ok": true
+ },
+ {
+  "name": "preset_max_0",
+  "ok": true
+ },
+ {
+  "name": "preset_max_1",
+  "ok": true
+ },
+ {
+  "name": "preset_max_2",
+  "ok": true
+ },
+ {
+  "name": "preset_max_3",
+  "ok": true
+ },
+ {
+  "name": "preset_max_tag",
+  "ok": true
+ },
+ {
+  "name": "preset_ok_0",
+  "ok": true
+ },
+ {
+  "name": "preset_ok_1",
+  "ok": true
+ },
+ {
+  "name": "preset_ok_2",
+  "ok": true
+ },
+ {
+  "name": "preset_ok_3",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_0",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_1",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_2",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_3",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_ok_0",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_ok_1",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_ok_2",
+  "ok": true
+ },
+ {
+  "name": "preset_prof_ok_3",
+  "ok": true
+ },
+ {
+  "name": "q_display_tag",
+  "ok": true
+ },
+ {
+  "name": "q_manufacturing_tag",
+  "ok": true
+ },
+ {
+  "name": "segs_ang_pi_02",
+  "ok": true
+ },
+ {
+  "name": "segs_edge_cc_full",
+  "ok": true
+ },
+ {
+  "name": "segs_edge_ln10",
+  "ok": true
+ },
+ {
+  "name": "segs_len_10_1",
+  "ok": true
+ },
+ {
+  "name": "segs_min_cc_full",
+  "ok": true
+ },
+ {
+  "name": "segs_min_cc_part",
+  "ok": true
+ },
+ {
+  "name": "tri_add",
+  "ok": true
+ },
+ {
+  "name": "tri_fan",
+  "ok": true
+ },
+ {
+  "name": "tri_strip",
+  "ok": true
+ },
+ {
+  "name": "two_pi_bits",
+  "ok": true
+ }
+]

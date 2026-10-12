@@ -2,7 +2,7 @@
 
 Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the world's best kernel for AI agents. It is never silently wrong and explains its failures. Identity is by meaning. Toleranced, state-dependent geometry is native. Sensitivities come with every answer. It is fast and massively parallel by law (MASTER_PLAN §14–§15).
 
-**Status:** C00–C09 closed; C08 with recorded deferrals. C00–C05 have three-lane tests and independent oracles:
+**Status:** C00–C10 closed; C08 with recorded deferrals. C00–C05 have three-lane tests and independent oracles:
 
 - contracts;
 - math foundation;
@@ -31,9 +31,9 @@ C07 is closed (`docs/receipts/c07-2026-10-06.txt`). It adds:
 - an embedding, orientation and cavity check for any solid (`check`);
 - tolerance-envelope measures for every operation, once the topology is certified constant over the zone.
 
-C08 closed with recorded deferrals (`docs/receipts/c08-2026-10-08.final.txt`): regularized union, difference and intersection of operands whose boundaries do not cross (disjoint, contained, contact-only, identical, empty); crossing boundaries are refused as `boundaries-cross-or-overlap` until face splitting lands. C09 is closed (`docs/receipts/c09.1-2026-10-11.txt`): sweep, loft, chamfer, fillet, draft, offset, shell, linear and circular patterns, and rigid-cluster drag in the solver. A single-edge fillet with unequal end radii refuses as `fillet-cone-not-certified` (MASTER_PLAN A7). Next is C10.
+C08 closed with recorded deferrals (`docs/receipts/c08-2026-10-08.final.txt`): regularized union, difference and intersection of operands whose boundaries do not cross (disjoint, contained, contact-only, identical, empty); crossing boundaries are refused as `boundaries-cross-or-overlap` until face splitting lands. C09 is closed (`docs/receipts/c09.1-2026-10-11.txt`): sweep, loft, chamfer, fillet, draft, offset, shell, linear and circular patterns, and rigid-cluster drag in the solver. A single-edge fillet with unequal end radii refuses as `fillet-cone-not-certified` (MASTER_PLAN A7). C10 is closed (`docs/receipts/c10-2026-10-12.txt`): stated chord/angle tessellation quality with presets, a pre-build estimate with a triangle-budget gate, sampled measurement on the delivered mesh, and display/manufacturing profiles; the C06 display tessellator is replaced, its triangulation core preserved. The shell latency deferral is closed (`shell.closed_box` 0.89 s, verdicts identical). Next is C11.
 
-Laws (MASTER_PLAN A6): every packet states its laws in `laws/<pkt>/LAWS.bend` and proves them in `laws/<pkt>/PROOF.bend`. All 212 laws quantify over their inputs, and all pass both the checker and the Lean-proven kernel (`bash tools/laws/check.sh`). Each law family kills a planted bug (`python3 tools/laws/mutate.py`). Fixed-input checks are pins (`tests/<pkt>/pins*.bend`, 1,770 of them), run as compiled code by `bash tools/pins/run.sh`.
+Laws (MASTER_PLAN A6): every packet states its laws in `laws/<pkt>/LAWS.bend` and proves them in `laws/<pkt>/PROOF.bend`. All 230 laws quantify over their inputs, and all pass both the checker and the Lean-proven kernel (`bash tools/laws/check.sh`). Each law family kills a planted bug (`python3 tools/laws/mutate.py`). Fixed-input checks are pins (`tests/<pkt>/pins*.bend`, 1,812 of them), run as compiled code by `bash tools/pins/run.sh`.
 
 New code is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). `legacy/` is reference-only, keeps its own provenance (`legacy/PROVENANCE.md`) and is never released.
 

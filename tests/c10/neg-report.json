@@ -1,0 +1,79 @@
+{
+ "binary_sha256": "69a5ecc9c7c007ec70b5aa7808d919c895d63318564e7356269fcc8a04cb2464",
+ "passed": 12,
+ "total": 12,
+ "results": [
+  {
+   "name": "tess.preset_range",
+   "ok": true,
+   "info": "(('preset 4 needs 0..3', 'nofile', True), ('preset 9 needs 0..3', 'nofile', True))",
+   "seconds": 0.04
+  },
+  {
+   "name": "tess.preset_garbage",
+   "ok": true,
+   "info": "('preset abc needs 0..3', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.chord_zero",
+   "ok": true,
+   "info": "('chord needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.chord_neg",
+   "ok": true,
+   "info": "('chord needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.chord_garbage",
+   "ok": true,
+   "info": "('chord needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.angle_zero",
+   "ok": true,
+   "info": "('angle needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.angle_neg",
+   "ok": true,
+   "info": "('angle needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.angle_garbage",
+   "ok": true,
+   "info": "('angle needs a positive finite number', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.max_zero",
+   "ok": true,
+   "info": "('max-tris needs a positive integer', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.max_garbage",
+   "ok": true,
+   "info": "('max-tris needs a positive integer', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.profile_bad",
+   "ok": true,
+   "info": "('profile needs display or manufacturing', 'nofile', True)",
+   "seconds": 0.02
+  },
+  {
+   "name": "tess.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing tessellated",
+   "seconds": 0.02
+  }
+ ]
+}

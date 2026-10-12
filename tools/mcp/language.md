@@ -226,7 +226,18 @@ Any count may be `any`. The kernel measures every field from the result
   the answer is `topology-not-certified-over-zone` (numerical-uncertainty):
   narrow the zones or move the features apart. Bounds are tight to within
   rounding when a measure is monotone in each parameter.
-- `tessellate`: a watertight OBJ mesh.
+- `tessellate`: a watertight OBJ mesh with stated quality. Optional
+  `preset` 0 (draft: chord 2 mm, angle 0.4 rad), 1 (default: 1 mm,
+  0.2 rad), 2 (fine: 0.25 mm, 0.05 rad) or 3 (manufacturing:
+  0.05 mm, 0.01 rad); `chord`, `angle`, `maxTris` and
+  `profile` (`display` or `manufacturing`) override the preset.
+  Shared edges share samples, indices are valid, and every edge
+  of a closed solid belongs to exactly two triangles. The reply
+  names vertex/triangle counts, the pre-build estimate, and the
+  sampled chord/angle maxima, labeled sampled, not certified.
+  When the estimate tops the budget nothing is written and the
+  answer is `refused tess-budget-exceeded` with the estimate, the
+  budget, and the fix (coarsen quality or raise the budget).
 - `classify NODE X Y Z`: is the world point `inside`, `outside` or on the
   `boundary` of the node's solid (within 2^-40 of the part size)? Certified
   by exact ray casting; a point that sits on an edge seen from every

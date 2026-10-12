@@ -1,0 +1,148 @@
+{
+ "binary_sha256": "69a5ecc9c7c007ec70b5aa7808d919c895d63318564e7356269fcc8a04cb2464",
+ "passed": 11,
+ "total": 11,
+ "results": [
+  {
+   "name": "tess.box",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/box.obj nverts 8 ntris 12 est 36 chord 0 ang 0 nsamp 12 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 8,
+    "nf": 12,
+    "bad": 0,
+    "e1": 0,
+    "e2": 18,
+    "ex": 0,
+    "euler": 2
+   },
+   "seconds": 0.007092952728271484
+  },
+  {
+   "name": "tess.cyl",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/cyl.obj nverts 64 ntris 124 est 196 chord 0.038915227586487106 ang 0.19634954084936207 nsamp 64 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 64,
+    "nf": 124,
+    "bad": 0,
+    "e1": 0,
+    "e2": 186,
+    "ex": 0,
+    "euler": 2
+   },
+   "seconds": 0.0028655529022216797
+  },
+  {
+   "name": "tess.presets",
+   "ok": true,
+   "detail": {
+    "0": {
+     "ok": true,
+     "line": "wrote /tmp/bc-e2e-c10/p0.obj nverts 32 ntris 60 est 100 chord 0.15391950845843255 ang 0.39269908169872414 nsamp 32 profile display (sampled, not certified)"
+    },
+    "2": {
+     "ok": true,
+     "line": "wrote /tmp/bc-e2e-c10/p2.obj nverts 252 ntris 500 est 760 chord 0.0025189115126276196 ang 0.049866550056980846 nsamp 252 profile display (sampled, not certified"
+    },
+    "3": {
+     "ok": true,
+     "line": "wrote /tmp/bc-e2e-c10/p3.obj nverts 1258 ntris 2512 est 3778 chord 0.00010110124531426123 ang 0.009989165830174222 nsamp 1258 profile manufacturing (sampled, no"
+    }
+   }
+  },
+  {
+   "name": "tess.rev",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/rev.obj nverts 128 ntris 256 est 256 chord 0.39269908169872414 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 128,
+    "nf": 256,
+    "bad": 0,
+    "e1": 0,
+    "e2": 384,
+    "ex": 0,
+    "euler": 0
+   },
+   "seconds": 0.009485006332397461
+  },
+  {
+   "name": "tess.rev_fine",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/rev3.obj nverts 2516 ntris 5032 est 5032 chord 0.019978331660348445 ang 0.009989165830174222 nsamp 629 profile manufacturing (sampled, not certified)",
+   "mesh": {
+    "nv": 2516,
+    "nf": 5032,
+    "bad": 0,
+    "e1": 0,
+    "e2": 7548,
+    "ex": 0,
+    "euler": 0
+   },
+   "seconds": 0.04487895965576172
+  },
+  {
+   "name": "tess.overrides",
+   "ok": true,
+   "chord": 0.00040311608731613546,
+   "ntris": 1256,
+   "prof2": "manufacturing"
+  },
+  {
+   "name": "tess.refusal",
+   "ok": true,
+   "line": "refused tess-budget-exceeded | tess @ node 1 | est 196 max 10 | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris",
+   "design_same": true
+  },
+  {
+   "name": "tess.replay",
+   "ok": true,
+   "bytes": 16709
+  },
+  {
+   "name": "tess.prism_slant",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/tri.obj nverts 6 ntris 8 est 28 chord 0 ang 0 nsamp 9 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 6,
+    "nf": 8,
+    "bad": 0,
+    "e1": 0,
+    "e2": 12,
+    "ex": 0,
+    "euler": 2
+   },
+   "seconds": 0.006059169769287109
+  },
+  {
+   "name": "tess.prism_arc",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/darc.obj nverts 22 ntris 40 est 76 chord 0.027264545780130003 ang 0 nsamp 24 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 22,
+    "nf": 40,
+    "bad": 0,
+    "e1": 0,
+    "e2": 60,
+    "ex": 0,
+    "euler": 2
+   },
+   "seconds": 0.005497455596923828
+  },
+  {
+   "name": "tess.shell_cavity",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/sh.obj nverts 16 ntris 24 est 72 chord 0 ang 0 nsamp 24 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 16,
+    "nf": 24,
+    "bad": 0,
+    "e1": 0,
+    "e2": 36,
+    "ex": 0,
+    "euler": 4
+   },
+   "seconds": 0.0953519344329834
+  }
+ ]
+}

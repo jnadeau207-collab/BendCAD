@@ -233,7 +233,7 @@ reducible by the checker. Reopening and rewriting is byte-stable
 
 ## 10. A0: CLI, MCP, library
 
-CLI: `bendcad FILE new|show|eval|faces N|measure N|sens P N|zone N|apply EDIT...|tess N OUT`.
+CLI: `bendcad FILE new|show|eval|faces N|measure N|sens P N|zone N|apply EDIT...|tess N OUT [PRESET] [CHORD] [ANGLE] [MAXTRIS] [PROFILE]`.
 Failures print `error KIND | what @ where | why: … | fix: …` with
 `KIND` one of `invalid-input`, `numerical-uncertainty`,
 `unsupported-op`. MCP (`tools/mcp/bendcad-mcp.mjs`): tools
@@ -241,13 +241,20 @@ Failures print `error KIND | what @ where | why: … | fix: …` with
 `faces`, `sensitivity`, `zone`, `tessellate`; a rejected apply returns
 `isError`. `apply` takes an array of edits or one string holding
 several. The Bend library is the modules above
-(`M.ev_part`, `S.part_of`, `S.part_show`, `T.body_obj`).
+(`M.ev_part`, `S.part_of`, `S.part_show`, `TS.body_q`).
 
 Tessellation writes a watertight OBJ: shared samples per edge, planar
 faces by indexed ear clipping (point grid, candidate stack, bridged
-holes), walls and bands as aligned strips, revolved bodies on a
-32-step lathe grid. Manufacturing-grade tessellation (chordal and
-angular bounds) is C10.
+holes), walls and bands as aligned strips, revolved bodies on shared
+lathe rings. C10 (amendment 2026-10-12, `docs/c10-intent.md`,
+`docs/c10-laws.md`) replaces the C06 display tessellator: the
+triangulation core above is preserved, and sampling is now driven by
+a stated chord/angle quality with presets, a pre-build estimate with
+a triangle-budget gate (`refused tess-budget-exceeded` writes
+nothing), and a sampled (not certified) measurement on the delivered
+mesh. CLI: `tess NODE OUT [PRESET] [CHORD] [ANGLE] [MAXTRIS]
+[PROFILE]`; MCP `tessellate` mirrors it. Display and manufacturing
+are a printed profile on every reply.
 
 ## 10a. Tolerance envelope (`zone.bend`)
 

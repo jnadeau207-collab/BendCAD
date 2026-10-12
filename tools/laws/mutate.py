@@ -66,6 +66,23 @@ MUTANTS = [
      '  [2n, 8n, 11n, 5n, 17n, 23n, 20n, 14n, 1n, 4n, 16n, 13n, 19n, 22n, 10n, 7n, 12n, 18n, 6n, 0n, 3n, 9n, 15n, 21n]'),
     ('c09', 'frustum edge ends', 'src/c09/feat.bend',
      '  [1n, 2n, 3n, 0n, 5n, 6n, 7n, 4n, 4n, 5n, 6n, 7n]', '  [1n, 2n, 3n, 0n, 5n, 6n, 7n, 4n, 4n, 5n, 6n, 8n]'),
+    ('c10', 'quality constructor keeps fields', 'src/c10/mesh.bend',
+     'def q_mk(+chord: F64, +angle: F64, +max_tris: Nat, +profile: U64) -> Q:\n  Q{chord, angle, max_tris, profile}',
+     'def q_mk(+chord: F64, +angle: F64, +max_tris: Nat, +profile: U64) -> Q:\n  Q{angle, chord, max_tris, profile}'),
+    ('c10', 'success marks ok', 'src/c10/mesh.bend',
+     '  Tres{True{}, "", obj, nv, nt, est, chord, ang, nsamp}',
+     '  Tres{False{}, "", obj, nv, nt, est, chord, ang, nsamp}'),
+    ('c10', 'over budget refuses and keeps the estimate', 'src/c06/tess.bend',
+     '    case False{}: M10.tres_fail_est("tess-budget-exceeded", est)\n    case True{}: pri_emit(b, q, est)',
+     '    case False{}: pri_emit(b, q, est)\n    case True{}: M10.tres_fail_est("tess-budget-exceeded", est)'),
+    ('c10', 'side strip delivers the estimate', 'src/c06/tess.bend',
+     '          Tri{b, bn, tn} <> Tri{b, tn, t} <> strip_go(bt, tt, b0, t0)',
+     '          Tri{b, bn, tn} <> strip_go(bt, tt, b0, t0)'),
+    ('c10', 'ring indices in range', 'src/c06/tess.bend',
+     '    case 1n+m: b <> n_seq(m, Nat.add(b, 1n))',
+     '    case 1n+m: Nat.add(b, 1n) <> n_seq(m, Nat.add(b, 1n))'),
+    ('c10', 'open curves sample from one', 'src/c10/mesh.bend',
+     '  Bool.pick(Nat, edge_closed(g, d), 3n, 1n)', '  Bool.pick(Nat, edge_closed(g, d), 3n, 2n)'),
 ]
 
 

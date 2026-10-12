@@ -1,0 +1,189 @@
+# C10 receipt — 2026-10-12 (C10 closed)
+
+Packet: C10 manufacturing-grade tessellation (MASTER_PLAN §10 C10):
+stated chord/angle quality with presets, per-edge sampling, a
+pre-build triangle estimate with a budget gate, sampled measurement
+on the delivered mesh, and display/manufacturing profiles. Intent
+`docs/c10-intent.md`, laws `docs/c10-laws.md` (L1–L13). Amends
+`docs/c06-contract.md` §10: the C06 display tessellator is replaced,
+its triangulation core preserved. This packet also closes the C09.1
+latency deferral (§5).
+
+## 1. What shipped
+
+- `src/c10/mesh.bend`: `Q{chord, angle, max_tris, profile}`, four
+  presets, validators, per-edge segment rules, the estimator
+  arithmetic, the budget gate, and the `Tres` result record.
+- `src/c06/tess.bend`: quality-threaded sampling over the closed
+  curve kinds (lines exact, circles by chord+angle, rationals and
+  true cubics sampled, degenerate cubics exact-empty), shared-edge
+  `Ctx` on prisms, uniform shared rings on lathes, the
+  estimate-then-build gate, and sampled chord/angle measurement.
+  `body_q` replaces `body_obj`; the ear-clipping, strip, band, and
+  orientation machinery is unchanged.
+- `src/c06/cli.bend`: `tess NODE OUT [PRESET] [CHORD] [ANGLE]
+  [MAXTRIS] [PROFILE]` with verbatim replies (`wrote ... (sampled,
+  not certified)`, `refused tess-budget-exceeded`, six
+  `invalid-input` diagnoses, node-failed passthrough). Strict preset
+  parsing: garbage refuses, nothing is silently defaulted.
+- MCP `tessellate` takes the five optionals; `tools/mcp/language.md`
+  documents quality, replies, the sampled label, and the refusal.
+- Laws `laws/c10/` (13, every input): constructor round-trips,
+  result marking, gate behavior, open-curve minima.
+- `src/c08/bool.bend` (+118/−45): the boolean dispatch is
+  converted from eager `Bool.pick` chains to `match`-dispatched
+  helpers (`vr_stage_go`, `vr_fi`, `carry_out_go`,
+  `run_disjoint_go`, `run_cavity_go`, `run_outcome_go`,
+  `run_rels_bad/mix/has`, `run_classify_go`, `run_intersect_go`,
+  `run_broad_go`, `run_admit_go`, `run_empty_go`). Guards and
+  arms are unchanged text; only the untaken arm stops
+  evaluating. Entry names and signatures are untouched, so no
+  caller, law, or pin changes; c08/c09 e2e+neg stay green
+  (see §2).
+
+## 2. Evidence
+
+- CLI `~/bc/bendcad` built from the closing tree
+  (`bend src/c06/cli.bend -o`, `BEND_NO_TELEMETRY=1`), sha256
+  56f97139279449d5fbe8d3f6ab4b7c22e19d280334632affc97838c79626db32;
+  pin `BEND_PIN` a4d17ace (numeric/2026-10-05), bend 2.0.35.
+  Build shas are NOT stable across builds: two builds of a
+  snapshot-identical tree gave 56f97139… and 22108ba0… (same
+  149077040 bytes; 15 bytes differ — the random zig build-tmp
+  path `/tmp/…/bend-XXXXXXXX` is embedded in the binary
+  twice). Behavior is bit-identical across builds (same-tree
+  smoke mesh sha256 equal; every c06/c08/c09 report identical
+  modulo timings). A sha here identifies the run's binary,
+  nothing more; every e2e/neg report in this tree carries
+  56f97139….
+- `tests/c10/e2e.py`: 11/11. Every mesh journey pins exact counts,
+  valid indices, every edge in exactly two triangles, the Euler
+  characteristic, `est >= ntris`, and measured within requested
+  bounds: box (8/12, euler 2), cylinder default and presets 0/2/3
+  (60/124/500/2512 tris), revolve default and preset 3 (256/5032
+  tris, euler 0), chord and profile overrides, budget refusal (est
+  196, max 10, no file, design unchanged), byte-identical replay,
+  slanted triangle prism (6/8, chord 0), arc D-prism (22/40),
+  closed-box shell cavity (euler 4, two closed shells).
+- `tests/c10/neg.py`: 12/12. Every §1 diagnosis verbatim with the
+  fix present, no file written, the design byte-identical.
+- Pins: `tests/c10/pins.bend` 42/42 (preset bits, profile tags,
+  budget boundaries, estimator arithmetic, closed segment counts,
+  span corners).
+- Laws: 230/230 `ALL PROOFS CHECK` under both `--check-only` and
+  `--verdict` (`bash tools/laws/check.sh`): the 212-law baseline
+  plus the 18 C10 laws (§6). Mutants: 6/6 C10 caught;
+  `tools/laws/mutate-report.json` now 30/30.
+- Regressions on the closing kernel: `tests/c08/e2e.py` 108/108,
+  `tests/c08/neg.py` 20/20, `tests/c09/e2e.py` 29/29,
+  `tests/c09/neg.py` 27/27.
+
+## 3. Deferrals (recorded, not silent)
+
+- D2 (c08 final receipt §6) stays open with updated evidence (§5):
+  contact and slanted are still over the 1 s budget. The shell
+  item that rode on D2 is closed.
+- STL/3MF export is C12. Certified error bounds need C11 query
+  machinery; this packet's measurements are sampled, never
+  certified. No adaptive subdivision past chord-plus-angle.
+
+## 4. C06 amendment record
+
+`docs/c06-contract.md` §10 now points at this packet: the display
+tessellator's fixed 6/7-sample curves and 32-step lathe grid are
+gone, replaced by quality-driven sampling; shared samples,
+watertightness, orientation, ear clipping, strips, and bands are
+the same code. The library entry is `TS.body_q`.
+
+## 5. C08 latency: shell item closed, D2 re-measured
+
+The C09.1 §3 deferral (`shell.closed_box` 2.41 s vs < 1 s) is
+closed: the identical journey now runs in 0.89 s with
+byte-identical verdicts (old-vs-new `diff` on all five node lines:
+empty; volume interval bit-identical to the C09.1 baseline).
+Root cause was algorithmic, in `src/c07/emb.bend`: the
+face-face rank `m2` evaluated point-in-face member tests whose
+result the rank provably discards (any zero side ranks 10 whatever
+the other side computes), and plane×quadric pairs ran the
+expensive quadric member before the cheap plane test. The fix
+short-circuits both (`m2_fin_b` returns 0 on a zero pre-side,
+`m2_ma` returns 0 on a zero member, `ff_go` k=4 tests the plane
+face first). The rank is identical on all sixteen input
+combinations, so no finding can change; the probe pair that cost
+0.19 s now costs 0.03 s with `nfi=0` before and after.
+
+Same-tree re-measurement of the c08 D2 cases: identical
+16.53 s → 0.03 s (budget met, assertions unchanged),
+contact.face journey 5.46 s, slanted.union journey 20.80 s (from
+100.37 s; run-to-run variance here is ±0.2 s). Contact and
+slanted stay owned by the latency packet.
+
+D2 probe (closing kernel, 16 cores; CLI-level only — `perf`
+is absent here and the binary carries HVM-runtime symbols
+only, so OS attribution was infeasible and per-pair /
+per-C04-stage timing still needs an instrumented build).
+`check`/`tess` re-evaluate the whole design first, so proper
+costs are totals minus re-eval: slanted build (nodes 1–3)
+0.01 s, union (node 4) 21.45 s, check_proper (node 4)
+21.1 s, check_proper (single prism) 19.8 s, tess_proper ~0 s.
+`check_s` runs solid_fi + emb_fi + coin_contact only
+(`src/c06/cli.bend`:541–553: no C04 stages, no
+classify/assemble), so union − check nets stage10 +
+classify + assemble ≈ 0.3 s: the ~21 s slanted residual
+sits in the emb pair machinery (plus solid_fi/coin), not in
+C04 validation or boolean assembly. Contact splits per
+boolean: face 1.85 s, edge 0.94 s, vertex 0.82 s,
+intersection 1.68 s (the journey is four booleans plus ~0.1 s
+of builds); check_proper (face union) 1.9 s ≈ union_face,
+same inference, and all contact ff pairs are plane-plane
+ruled-skips, so contact cost is ee/ef fuel-40
+discriminators only. Census from apply output: slanted
+prism 6V/9E/5F, contact box 8V/12E/6F. Enumeration law
+(`src/c07/emb.bend`: x-sorted sweep over u==0 edges plus
+faces, full-bbox vdisj, k = kx+ky): slanted cross-solid
+candidates are 0 (x [0,10] vs [20,30] disjoint); intra-solid
+upper bounds per solid are ee ≤ 36, ef ≤ 45 (own-face pairs
+short-circuit in `ef_go`), ff ≤ 10, of which 6 plane-plane
+ruled-skip (`ff_code` k=0) and ≤ 4 patch-plane fall to
+`Y.inter_ss` tracers (`ff_or_tr`; `ff_sph` fires only on
+sphere-sphere cross pairs) — ≤ 8 tracers per `emb_fi` call.
+Exact open questions for the latency packet: (1) exact
+post-vdisj sweep counts per kind for slanted + contact;
+(2) slowest-pair identity (patch-plane `inter_ss` tracer vs
+an ee/ef fuel-40 call); (3) the solid_fi vs emb_fi vs coin
+split inside check_proper.
+`docs/c08-intent.md` §13 carries the addendum; the replacement
+ledger's C10 section records the repair.
+
+## 6. Independent verification (2026-10-12)
+
+The implementing session left the tree uncommitted; the owner's
+verifier re-ran every gate on it before commit.
+
+- Laws: the first C10 law set proved only accessor round-trips and
+  two facts about `M10.gate`, a function no production path called.
+  `gate` is deleted, and its laws and the two `tres_fail_est_*`
+  laws are replaced by laws over the production builders
+  (`docs/c10-intent.md`, Laws and pins): `pri_go` / `rev_go` refuse over budget
+  and keep the estimate (L2); the side strip delivers exactly
+  `two(min(|bs|, |ts|))` triangles and `tri_est_strip(n)` is exactly
+  that count (L9); every lathe ring has n indices, all below b + n
+  (L6). 18 laws, both gates; three new mutants (budget refusal,
+  dropped strip triangle, shifted ring index) are each caught.
+- Full run on the uncommitted tree (CLI sha256 c429f462…, before the
+  dead-code removal): laws 225/225 both gates, mutants 28/28, pins
+  1,812/1,812 across 15 files, `tests/c06/e2e.py` 55/55,
+  `tests/c07/e2e.py` 328/328, `solid.py` 34/34, `solid_neg.py`
+  13/13, `zone.py` 33/33, `tests/c08/e2e.py` 108/108, `neg.py` 20/20,
+  `tests/c09/e2e.py` 29/29, `neg.py` 27/27, `tests/c10/e2e.py` 11/11,
+  `neg.py` 12/12.
+- After the law change (closing CLI sha256 69a5ecc9…): laws 230/230
+  both gates, mutants 30/30, `tests/c10/pins.bend` 42/42,
+  `tests/c06/e2e.py` 55/55, `tests/c10/e2e.py` 11/11, `neg.py` 12/12.
+  The c07–c09 reports carry c429f462…; the only source difference
+  is the deleted dead `gate`.
+- `src/c07/emb.bend` rank equivalence checked by hand: `smp_rank`
+  maps every value with a zero side to 10 and is symmetric in its
+  two sides, so the zero short-circuits and the k=4 operand swap
+  cannot change a rank.
+

@@ -8,6 +8,7 @@ import ./build.bend as BD
 import ./model.bend as M
 import ./sx.bend as S
 import ./tess.bend as TS
+import ../c10/mesh.bend as M10
 import ./zone.bend as Z
 import ../c07/gsx.bend as GQ
 import ../c07/sol.bend as SO
@@ -406,18 +407,88 @@ def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
   apply_go(Bool.and(ok, edits_ok(xs)), path, edits(xs, p))
 
-def tess_out(r: M.NR, +out: String) -> IO(Unit):
-  match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing tessellated")
-    case M.NR_ok{+b, fx}:
-      do IO<Unit>:
-        w : Unit <- write_file(out, TS.body_obj(b))
-        IO.print("wrote " ++ out)
-
 def f_or_nan(m: Maybe<&2, F64>) -> F64:
   match m:
     case None{}: F64.nan()
     case Some{v}: v
+
+def tess_pn(m: Maybe<&2, U64>) -> U64:
+  match m:
+    case None{}: 99u64
+    case Some{v}: v
+
+def tess_p_go(+e: Bool, +arg: String) -> U64:
+  match e:
+    case True{}: 1u64
+    case False{}: tess_pn(U64.read(arg))
+
+def tess_p(+arg: String) -> U64:
+  tess_p_go(String.eq(arg, ""), arg)
+
+def tess_f(+arg: String, +dflt: F64) -> F64:
+  Bool.pick(F64, String.eq(arg, ""), dflt, f_or_nan(S.dec(arg)))
+
+def tess_mx(+arg: String, +dflt: Nat) -> Nat:
+  Bool.pick(Nat, String.eq(arg, ""), dflt, U64.to_nat(S.u64_of(S.Sx_a{arg})))
+
+def tess_prof(+arg: String, +dflt: U64) -> U64:
+  Bool.pick(U64, String.eq(arg, ""), dflt, Bool.pick(U64, String.eq(arg, "display"), 0u64,
+    Bool.pick(U64, String.eq(arg, "manufacturing"), 1u64, 9u64)))
+
+def tess_q_err(+a2: String, +p: U64, +q: M10.Q) -> String:
+  Bool.pick(String, Bool.not(U64.is_le(p, M10.q_preset_max())),
+    "error invalid-input | tess | why: preset " ++ a2 ++ " needs 0..3" ++
+      " | fix: tess NODE OUT [0|1|2|3] [CHORD] [ANGLE] [MAXTRIS] [display|manufacturing]",
+  Bool.pick(String, Bool.not(T.tol_pos(M10.q_chord(q))),
+    "error invalid-input | tess | why: chord needs a positive finite number" ++
+      " | fix: give CHORD in millimetres, or omit it for the preset value",
+  Bool.pick(String, Bool.not(T.tol_pos(M10.q_angle(q))),
+    "error invalid-input | tess | why: angle needs a positive finite number" ++
+      " | fix: give ANGLE in radians, or omit it for the preset value",
+  Bool.pick(String, Nat.is_eq(M10.q_max(q), 0n),
+    "error invalid-input | tess | why: max-tris needs a positive integer" ++
+      " | fix: give MAXTRIS, or omit it for the preset value",
+  Bool.pick(String, Bool.not(M10.q_prof_ok(q)),
+    "error invalid-input | tess | why: profile needs display or manufacturing" ++
+      " | fix: give display or manufacturing, or omit it for the preset value", "")))))
+
+def prof_s(+p: U64) -> String:
+  Bool.pick(String, U64.is_eq(p, 1u64), "manufacturing", "display")
+
+def tess_write_ok(+t: M10.Tres, +out: String, +q: M10.Q) -> IO(Unit):
+  do IO<Unit>:
+    w : Unit <- write_file(out, M10.tres_obj(t))
+    IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(M10.tres_nv(t)) ++ " ntris " ++ Nat.show(M10.tres_nt(t)) ++
+      " est " ++ Nat.show(M10.tres_est(t)) ++ " chord " ++ S.f_show(M10.tres_chord(t)) ++
+      " ang " ++ S.f_show(M10.tres_ang(t)) ++ " nsamp " ++ Nat.show(M10.tres_nsamp(t)) ++
+      " profile " ++ prof_s(M10.q_prof(q)) ++ " (sampled, not certified)")
+
+def tess_write_go(+ok: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match ok:
+    case True{}: tess_write_ok(t, out, q)
+    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | tess @ node " ++ U64.show(id) ++
+      " | est " ++ Nat.show(M10.tres_est(t)) ++ " max " ++ Nat.show(M10.q_max(q)) ++
+      " | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris")
+
+def tess_write(+t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  tess_write_go(M10.tres_ok_of(t), t, out, id, q)
+
+def tess_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing tessellated")
+    case M.NR_ok{+b, fx}: tess_write(TS.body_q(b, q), out, id, q)
+
+def tess_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) -> IO(Unit):
+  match bad:
+    case True{}: IO.print(tess_q_err(a2, p, q))
+    case False{}: tess_out(r, out, id, q)
+
+def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String, +a6: String) -> IO(Unit):
+  +p = tess_p(a2)
+  +base = M10.q_preset(p)
+  +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
+    tess_prof(a6, M10.q_prof(base)))
+  tess_with(Bool.not(String.eq(tess_q_err(a2, p, q), "")), r, out, id, a2, p, q)
 
 def f_arg(+xs: List<&2, String>, +i: Nat) -> F64:
   f_or_nan(S.dec(arg_at(xs, i)))
@@ -489,7 +560,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 4u64: IO.print(nr_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
     case 5u64: IO.print(sens(p, arg_at(rest, 0n), S.u64_of(S.Sx_a{arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
-    case 7u64: tess_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), arg_at(rest, 1n))
+    case 7u64: tess_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), arg_at(rest, 1n),
+      S.u64_of(S.Sx_a{arg_at(rest, 0n)}), arg_at(rest, 2n), arg_at(rest, 3n), arg_at(rest, 4n), arg_at(rest, 5n), arg_at(rest, 6n))
     case 8u64: IO.print(zone_line(p, S.u64_of(S.Sx_a{arg_at(rest, 0n)})))
     case 9u64: IO.print(classify_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
     case 10u64: IO.print(check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
