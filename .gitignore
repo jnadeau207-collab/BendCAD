@@ -1,3 +1,4 @@
 .lawchunks/
 tests/c06/e2e-meshes/perf*.obj
 .probe/
+__pycache__/
