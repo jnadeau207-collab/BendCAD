@@ -206,3 +206,15 @@ ANLYT column — closed-form values no kernel code path computes.
   commit (src + laws + proofs + mutants + pins + e2e/neg +
   docs + this receipt). Push to origin main after the
   pre-push gates in §3 re-run green on the committed tree.
+
+## 8. Independent verification (2026-10-13)
+
+The owner's verifier re-ran every gate on the committed tree 154ac60
+with a fresh two-stage build (CLI sha256 74598312…): laws 295/295
+under `--check-only` and `--verdict`, mutants 42/42 (report sha256
+792ce763…), pins 1,970/1,970 across 16 files, `tests/c06/e2e.py`
+55/55, `tests/c07/e2e.py` 328/328, `solid.py` 34/34, `solid_neg.py`
+13/13, `zone.py` 33/33, `tests/c08/e2e.py` 108/108, `neg.py` 20/20,
+`tests/c09/e2e.py` 29/29, `neg.py` 27/27, `tests/c10/e2e.py` 11/11,
+`neg.py` 12/12, `tests/c11/e2e.py` 33/33, `neg.py` 19/19. The report
+files in this commit carry that binary's sha.
