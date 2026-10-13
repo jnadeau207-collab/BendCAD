@@ -379,7 +379,7 @@
   "name": "solid.cylinder.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.065
+  "secs": 0.069
  },
  {
   "detail": [
@@ -755,7 +755,7 @@
   "name": "solid.cone.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.111
+  "secs": 0.064
  },
  {
   "detail": [
@@ -1496,7 +1496,7 @@
     "want": "inside"
    }
   ],
-  "median_s": 0.009,
+  "median_s": 0.01,
   "name": "solid.sphere.classify",
   "ok": true,
   "points": 40,
@@ -1507,7 +1507,7 @@
   "name": "solid.torus.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.275
+  "secs": 0.282
  },
  {
   "detail": [
@@ -1883,7 +1883,7 @@
   "name": "solid.cavity.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.529
+  "secs": 0.546
  },
  {
   "detail": [
@@ -2248,7 +2248,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.026,
+  "median_s": 0.027,
   "name": "solid.cavity.classify",
   "ok": true,
   "points": 40,
@@ -2259,7 +2259,7 @@
   "name": "solid.bracket.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.106
+  "secs": 0.108
  },
  {
   "detail": [
@@ -2624,7 +2624,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.023,
+  "median_s": 0.024,
   "name": "solid.bracket.classify",
   "ok": true,
   "points": 40,
@@ -2635,7 +2635,7 @@
   "name": "solid.pocket.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.104
+  "secs": 0.095
  },
  {
   "detail": [
@@ -3387,7 +3387,7 @@
   "name": "solid.rotated-torus.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.39
+  "secs": 0.349
  },
  {
   "detail": [
@@ -3752,7 +3752,7 @@
     "want": "outside"
    }
   ],
-  "median_s": 0.011,
+  "median_s": 0.012,
   "name": "solid.rotated-torus.classify",
   "ok": true,
   "points": 40,
@@ -3863,23 +3863,23 @@
   "name": "solid.scale.25-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 0.336
+  "secs": 0.382
  },
  {
   "name": "solid.scale.100-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 1.096
+  "secs": 1.13
  },
  {
   "name": "solid.scale.400-holes.check",
   "ok": true,
   "out": "ok: embedded, shells outward, cavities nested",
-  "secs": 4.251
+  "secs": 4.43
  },
  {
   "name": "solid.scale.near-linear",
   "ok": true,
-  "ratio_400_100": 3.88
+  "ratio_400_100": 3.92
  }
 ]

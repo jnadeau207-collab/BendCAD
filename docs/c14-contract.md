@@ -11,7 +11,7 @@ are hand-derived analytic expectations computed by no kernel code path.
 
 ## Laws and pins (A6)
 
-Laws: `laws/c14/LAWS.bend`, proven in `laws/c14/PROOF.bend`. All 181
+Laws: `laws/c14/LAWS.bend`, proven in `laws/c14/PROOF.bend`. All 154
 quantify over their inputs and pass both the checker and the Lean-proven
 kernel (`bash tools/laws/check.sh`; MASTER_PLAN A6). Nineteen planted
 mutants are all killed (`python3 tools/laws/mutate.py`).

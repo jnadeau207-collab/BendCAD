@@ -73,22 +73,10 @@ def Laws.sdrop_cons(x, t, j):
 def Laws.fnum_some(v):
   {==}
 
-def Laws.fnum_wiring(x):
-  {==}
-
-def Laws.sdec_wiring(s):
-  {==}
-
 def Laws.isu64_some(v):
   {==}
 
-def Laws.isu64_wiring(x):
-  {==}
-
 def Laws.uval_some(v):
-  {==}
-
-def Laws.uval_wiring(x):
   {==}
 
 def Laws.p6_len(a, b, c, d, e, f):
@@ -101,15 +89,6 @@ def Laws.p9_len(a, b, c, d, e, f, g, h, i):
   {==}
 
 def Laws.fins_cons(x, t):
-  {==}
-
-def Laws.nzn_unfold(x, y, z):
-  {==}
-
-def Laws.entry_kind_unfold(h):
-  {==}
-
-def Laws.mate_of_unfold(x):
   {==}
 
 def Laws.inst_has_nil(nm):
@@ -172,9 +151,6 @@ def Laws.insts_go_nil(acc):
 def Laws.insts_go_cons(x, t, acc):
   {==}
 
-def Laws.mate_ref_unfold(m, il):
-  {==}
-
 def Laws.mates_ref_yes(rec):
   {==}
 
@@ -232,9 +208,6 @@ def Laws.asm_join_empty(r, il):
 def Laws.asm_join_some(r, il):
   {==}
 
-def Laws.asm_join_unfold(il, r):
-  {==}
-
 def Laws.asm_ir_ok(l, xs):
   {==}
 
@@ -247,19 +220,10 @@ def Laws.asm_head_no(x):
 def Laws.asm_head_yes(x):
   {==}
 
-def Laws.asm_head_wiring(x):
-  {==}
-
-def Laws.asm_one_unfold(xs):
-  {==}
-
 def Laws.asm_ps_no(xs):
   {==}
 
 def Laws.asm_ps_yes(xs):
-  {==}
-
-def Laws.asm_parse_wiring(s):
   {==}
 
 def Laws.col_of_layout(k, i):
@@ -289,9 +253,6 @@ def Laws.mate_rows_plane(m, il, cs):
 def Laws.mate_rows_axis_len(m, il, cs):
   {==}
 
-def Laws.mate_rows_wiring(m, il, cs):
-  {==}
-
 def Laws.asm_rows_nil(il, cs):
   {==}
 
@@ -316,9 +277,6 @@ def Laws.u_has_nil(v):
 def Laws.u_has_cons(x, t, v):
   {==}
 
-def Laws.u_add_unfold(xs, v):
-  {==}
-
 def Laws.viol_nil(sol, acc):
   {==}
 
@@ -329,9 +287,6 @@ def Laws.redup_nil(it, acc):
   {==}
 
 def Laws.redup_cons(j, t, it, acc):
-  {==}
-
-def Laws.nd_t_unfold(ord, t):
   {==}
 
 def Laws.verdict_ok(dof, red, sol, res):
@@ -355,12 +310,6 @@ def Laws.lin_nil(first):
 def Laws.lin_cons(i, t, first):
   {==}
 
-def Laws.lineage_unfold(il, ml):
-  {==}
-
-def Laws.inst_line_unfold(i, x, y, z):
-  {==}
-
 def Laws.insts_rep_nil(xs, k):
   {==}
 
@@ -373,16 +322,10 @@ def Laws.solve_rep_solved(il, ml, xs, red, res):
 def Laws.solve_rep_under(il, ml, xs, j, red, res):
   {==}
 
-def Laws.conf_rep_unfold(il, ml, ids, res):
-  {==}
-
 def Laws.placed_nr_err(k, d, q, x, y, z):
   {==}
 
 def Laws.placed_nr_ok(b, fx, q, x, y, z):
-  {==}
-
-def Laws.inst_nr_wiring(cs, i, x, y, z):
   {==}
 
 def Laws.place_all_nil(xs, cs, k):
@@ -406,16 +349,10 @@ def Laws.pairs_go_nil(cl):
 def Laws.pairs_go_cons(x, t, cl):
   {==}
 
-def Laws.pairs_rep_unfold(il, ml, xs, cs, cl):
-  {==}
-
 def Laws.explode_go_nil(xs, k, o, dx, dy, dz, gap):
   {==}
 
 def Laws.explode_go_cons(i, t, xs, k, o, dx, dy, dz, gap):
-  {==}
-
-def Laws.explode_rep_unfold(il, ml, xs, d):
   {==}
 
 def Laws.afn_cav(nd, k, i, j, pre):
@@ -463,9 +400,6 @@ def Laws.faces_has_unknown(a, xs, cs, nm):
 def Laws.faces_has_known(a, xs, cs, nm):
   {==}
 
-def Laws.faces_rep_wiring(a, xs, cs, nm):
-  {==}
-
 def Laws.ok_solve(a, xs, dof, red, res, cs, nm, d):
   {==}
 
@@ -511,28 +445,16 @@ def Laws.asm_q_parse_err(p, why, fix, rq):
 def Laws.asm_q_ok(p, il, ml, rq):
   {==}
 
-def Laws.ex_ok_unfold(dx, dy, dz, gap):
-  {==}
-
 def Laws.explode_go_no(p, xs, dx, dy, dz, gap):
   {==}
 
 def Laws.explode_go_yes(p, xs, dx, dy, dz, gap):
   {==}
 
-def Laws.explode_v_wiring(p, xs):
-  {==}
-
 def Laws.faces_go_needy(p, xs, nm):
   {==}
 
 def Laws.faces_go_yes(p, xs, nm):
-  {==}
-
-def Laws.faces_v_wiring(p, xs):
-  {==}
-
-def Laws.verb_code_unfold(v):
   {==}
 
 def Laws.asm_verb_solve(p, xs):
@@ -551,7 +473,4 @@ def Laws.asm_verb_faces(p, xs):
   {==}
 
 def Laws.asm_verb_unknown(p, xs):
-  {==}
-
-def Laws.asm_go_wiring(p, xs):
   {==}

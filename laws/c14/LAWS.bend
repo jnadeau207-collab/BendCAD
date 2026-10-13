@@ -150,29 +150,13 @@ law fnum_some:
   for v: F64
   {AS.fnum_m(Some{v}) == v : F64}
 
-law fnum_wiring:
-  for x: S.Sx
-  {AS.fnum(x) == AS.fnum_m(S.dec(S.sx_s(x))) : F64}
-
-law sdec_wiring:
-  for s: String
-  {AS.sdec(s) == AS.fnum_m(S.dec(s)) : F64}
-
 law isu64_some:
   for v: U64
   {AS.is_u64_m(Some{v}) == True{} : Bool}
 
-law isu64_wiring:
-  for x: S.Sx
-  {AS.is_u64(x) == AS.is_u64_m(U64.read(S.sx_s(x))) : Bool}
-
 law uval_some:
   for v: U64
   {AS.uval_m(Some{v}) == v : U64}
-
-law uval_wiring:
-  for x: S.Sx
-  {AS.uval(x) == AS.uval_m(U64.read(S.sx_s(x))) : U64}
 
 law p6_len:
   for a: F64
@@ -209,20 +193,6 @@ law fins_cons:
   for x: F64
   for t: List<&2, F64>
   {AS.fins(x <> t) == Bool.and(T.is_finite(x), AS.fins(t)) : Bool}
-
-law nzn_unfold:
-  for x: F64
-  for y: F64
-  for z: F64
-  {AS.nzn(x, y, z) == Bool.not(Bool.and(F64.is_eq(x, 0.0f64), Bool.and(F64.is_eq(y, 0.0f64), F64.is_eq(z, 0.0f64)))) : Bool}
-
-law entry_kind_unfold:
-  for h: String
-  {AS.entry_kind(h) == Bool.pick(U64, String.eq(h, "inst"), 1u64, Bool.pick(U64, Bool.or(String.eq(h, "fix"), Bool.or(String.eq(h, "coinc"), Bool.or(String.eq(h, "plane"), String.eq(h, "axis")))), 2u64, 0u64)) : U64}
-
-law mate_of_unfold:
-  for x: S.Sx
-  {AS.mate_of(x) == Bool.pick(AS.ER, String.eq(S.sx_s(S.sx_nth(S.sx_xs(x), 0n)), "fix"), AS.mate_fix(S.sx_xs(x)), Bool.pick(AS.ER, String.eq(S.sx_s(S.sx_nth(S.sx_xs(x), 0n)), "coinc"), AS.mate_coinc(S.sx_xs(x)), Bool.pick(AS.ER, String.eq(S.sx_s(S.sx_nth(S.sx_xs(x), 0n)), "plane"), AS.mate_plane(S.sx_xs(x)), Bool.pick(AS.ER, String.eq(S.sx_s(S.sx_nth(S.sx_xs(x), 0n)), "axis"), AS.mate_axis(S.sx_xs(x)), AS.ER_err{"unknown-mate", "use fix, coinc, plane or axis"})))) : AS.ER}
 
 law inst_has_nil:
   for nm: String
@@ -333,11 +303,6 @@ law insts_go_cons:
   for acc: List<&2, AS.Inst>
   {AS.insts_go(x <> t, acc) == AS.insts_wrap(AS.entry_kind(S.sx_s(S.sx_nth(S.sx_xs(x), 0n))), AS.inst_of(x), AS.insts_go(t, AS.insts_nacc(AS.entry_kind(S.sx_s(S.sx_nth(S.sx_xs(x), 0n))), AS.inst_of(x), acc)), acc) : AS.IR}
 
-law mate_ref_unfold:
-  for m: AS.Mate
-  for il: List<&2, AS.Inst>
-  {AS.mate_ref_ok(m, il) == Bool.pick(Bool, U64.is_eq(AS.mate_kind(m), 2u64), Bool.and(AS.inst_has(il, AS.mate_a(m)), AS.inst_has(il, AS.mate_b(m))), AS.inst_has(il, AS.mate_b(m))) : Bool}
-
 law mates_ref_yes:
   for rec: AS.MR
   {AS.mates_wrap_ref(True{}, rec) == rec : AS.MR}
@@ -447,11 +412,6 @@ law asm_join_some:
   for il: List<&2, AS.Inst>
   {AS.asm_join_e(False{}, r, il) == AS.asm_join_ml(r, il) : AS.AR}
 
-law asm_join_unfold:
-  for il: List<&2, AS.Inst>
-  for r: AS.MR
-  {AS.asm_join(il, r) == AS.asm_join_e(Nat.is_eq(List.length(&2, AS.Inst, il), 0n), r, il) : AS.AR}
-
 law asm_ir_ok:
   for l: List<&2, AS.Inst>
   for xs: List<&2, S.Sx>
@@ -471,14 +431,6 @@ law asm_head_yes:
   for x: S.Sx
   {AS.asm_head_go(True{}, x) == AS.asm_ir(AS.insts_go(S.sx_drop(S.sx_xs(x), 1n), []), S.sx_drop(S.sx_xs(x), 1n)) : AS.AR}
 
-law asm_head_wiring:
-  for x: S.Sx
-  {AS.asm_head(x) == AS.asm_head_go(S.head_is(x, "assembly"), x) : AS.AR}
-
-law asm_one_unfold:
-  for xs: List<&2, S.Sx>
-  {AS.asm_one(xs) == Bool.pick(AS.AR, Nat.is_eq(List.length(&2, S.Sx, xs), 1n), AS.asm_head(S.sx_nth(xs, 0n)), AS.AR_err{"assembly-parse-failed", "write one (assembly ...) form"}) : AS.AR}
-
 law asm_ps_no:
   for xs: List<&2, S.Sx>
   {AS.asm_ps(S.PS{False{}, xs}) == AS.AR_err{"assembly-parse-failed", "write one (assembly ...) form"} : AS.AR}
@@ -486,10 +438,6 @@ law asm_ps_no:
 law asm_ps_yes:
   for xs: List<&2, S.Sx>
   {AS.asm_ps(S.PS{True{}, xs}) == AS.asm_one(xs) : AS.AR}
-
-law asm_parse_wiring:
-  for s: String
-  {AS.asm_parse(s) == AS.asm_ps(S.parse(s)) : AS.AR}
 
 law col_of_layout:
   for k: Nat
@@ -544,12 +492,6 @@ law mate_rows_axis_len:
   for cs: List<&2, M.CE>
   {List.length(&2, SL.Dr, AS.mate_rows_go(4u64, m, il, cs)) == 2n : Nat}
 
-law mate_rows_wiring:
-  for m: AS.Mate
-  for il: List<&2, AS.Inst>
-  for cs: List<&2, M.CE>
-  {AS.mate_rows(m, il, cs) == AS.mate_rows_go(AS.mate_kind(m), m, il, cs) : List<&2, SL.Dr>}
-
 law asm_rows_nil:
   for il: List<&2, AS.Inst>
   for cs: List<&2, M.CE>
@@ -594,11 +536,6 @@ law u_has_cons:
   for v: U64
   {AS.u_has(x <> t, v) == Bool.or(U64.is_eq(x, v), AS.u_has(t, v)) : Bool}
 
-law u_add_unfold:
-  for xs: List<&2, U64>
-  for v: U64
-  {AS.u_add(xs, v) == Bool.pick(List<&2, U64>, AS.u_has(xs, v), xs, v <> xs) : List<&2, U64>}
-
 law viol_nil:
   for sol: List<&2, F64>
   for acc: List<&2, U64>
@@ -622,11 +559,6 @@ law redup_cons:
   for it: P.Tb<&2, U64>
   for acc: List<&2, U64>
   {AS.redup(j <> t, it, acc) == AS.redup(t, it, AS.u_add(acc, P.tb_get(U64, it, j))) : List<&2, U64>}
-
-law nd_t_unfold:
-  for ord: List<&2, U32>
-  for t: Q.NT
-  {AS.nd_t(Q.ND{ord, t}) == t : Q.NT}
 
 law verdict_ok:
   for dof: Nat
@@ -669,18 +601,6 @@ law lin_cons:
   for first: Bool
   {AS.lin_go(i <> t, first) == Bool.pick(String, first, "", ",") ++ AS.inst_name(i) ++ "=n" ++ U64.show(AS.inst_node(i)) ++ AS.lin_go(t, False{}) : String}
 
-law lineage_unfold:
-  for il: List<&2, AS.Inst>
-  for ml: List<&2, AS.Mate>
-  {AS.lineage(il, ml) == "lineage asm(" ++ AS.lin_go(il, True{}) ++ ") mates" ++ AS.ids_show(AS.mate_ids(ml)) ++ "\n" : String}
-
-law inst_line_unfold:
-  for i: AS.Inst
-  for x: F64
-  for y: F64
-  for z: F64
-  {AS.inst_line(i, x, y, z) == "inst " ++ AS.inst_name(i) ++ " node " ++ U64.show(AS.inst_node(i)) ++ " t=" ++ S.f_show(x) ++ " " ++ S.f_show(y) ++ " " ++ S.f_show(z) ++ " q=" ++ U64.show(AS.inst_q(i)) ++ "\n" : String}
-
 law insts_rep_nil:
   for xs: List<&2, F64>
   for k: Nat
@@ -710,13 +630,6 @@ law solve_rep_under:
   for res: F64
   {AS.solve_rep(AS.Asm{il, ml}, xs, Nat.add(1n, j), red, res) == "asm " ++ "underconstrained" ++ " ninst " ++ Nat.show(List.length(&2, AS.Inst, il)) ++ " nmates " ++ Nat.show(List.length(&2, AS.Mate, ml)) ++ " dof " ++ Nat.show(Nat.add(1n, j)) ++ " max-residual " ++ S.f_show(res) ++ "\n" ++ AS.insts_rep(il, xs, 0n) ++ "redundant " ++ AS.ids_show(red) ++ "\n" ++ AS.lineage(il, ml) : String}
 
-law conf_rep_unfold:
-  for il: List<&2, AS.Inst>
-  for ml: List<&2, AS.Mate>
-  for ids: List<&2, U64>
-  for res: F64
-  {AS.conf_rep(AS.Asm{il, ml}, ids, res) == "asm conflict ninst " ++ Nat.show(List.length(&2, AS.Inst, il)) ++ " nmates " ++ Nat.show(List.length(&2, AS.Mate, ml)) ++ " viol " ++ AS.ids_show(ids) ++ " max-residual " ++ S.f_show(res) ++ " | fix: loosen or correct the violating mates" : String}
-
 law placed_nr_err:
   for k: T.FailKind
   for d: M.Dg
@@ -734,14 +647,6 @@ law placed_nr_ok:
   for y: F64
   for z: F64
   {AS.placed_nr(M.NR_ok{b, fx}, q, x, y, z) == M.NR_ok{M.Bd{M.bd_cells(b), M.bd_brep(b), M.bd_fns(b), M.pl_move(M.bd_pl(b), q, x, y, z), M.bd_rv(b), M.bd_xb(b)}, fx} : M.NR}
-
-law inst_nr_wiring:
-  for cs: List<&2, M.CE>
-  for i: AS.Inst
-  for x: F64
-  for y: F64
-  for z: F64
-  {AS.inst_nr(cs, i, x, y, z) == AS.placed_nr(M.ce_r(M.ce_find(cs, AS.inst_node(i))), AS.inst_q(i), x, y, z) : M.NR}
 
 law place_all_nil:
   for xs: List<&2, F64>
@@ -784,14 +689,6 @@ law pairs_go_cons:
   for cl: Bool
   {AS.pairs_go(x <> t, cl) == AS.pairs_inner(x, t, cl) ++ AS.pairs_go(t, cl) : String}
 
-law pairs_rep_unfold:
-  for il: List<&2, AS.Inst>
-  for ml: List<&2, AS.Mate>
-  for xs: List<&2, F64>
-  for cs: List<&2, M.CE>
-  for cl: Bool
-  {AS.pairs_rep(AS.Asm{il, ml}, xs, cs, cl) == "assembly pairs ninst " ++ Nat.show(List.length(&2, AS.Inst, il)) ++ "\n" ++ AS.pairs_go(AS.place_all(il, xs, cs, 0n), cl) : String}
-
 law explode_go_nil:
   for xs: List<&2, F64>
   for k: Nat
@@ -813,13 +710,6 @@ law explode_go_cons:
   for dz: F64
   for gap: F64
   {AS.explode_go(i <> t, xs, k, o, dx, dy, dz, gap) == AS.inst_line(i, F64.add(M.f_nth(xs, Nat.mul(k, 3n)), F64.mul(o, dx)), F64.add(M.f_nth(xs, Nat.add(Nat.mul(k, 3n), 1n)), F64.mul(o, dy)), F64.add(M.f_nth(xs, Nat.add(Nat.mul(k, 3n), 2n)), F64.mul(o, dz))) ++ AS.explode_go(t, xs, Nat.add(k, 1n), F64.add(o, gap), dx, dy, dz, gap) : String}
-
-law explode_rep_unfold:
-  for il: List<&2, AS.Inst>
-  for ml: List<&2, AS.Mate>
-  for xs: List<&2, F64>
-  for d: List<&2, F64>
-  {AS.explode_rep(AS.Asm{il, ml}, xs, d) == "asm exploded ninst " ++ Nat.show(List.length(&2, AS.Inst, il)) ++ " dir=" ++ S.f_show(M.f_nth(d, 0n)) ++ " " ++ S.f_show(M.f_nth(d, 1n)) ++ " " ++ S.f_show(M.f_nth(d, 2n)) ++ " gap=" ++ S.f_show(M.f_nth(d, 3n)) ++ "\n" ++ AS.explode_go(il, xs, 0n, 0.0f64, M.f_nth(d, 0n), M.f_nth(d, 1n), M.f_nth(d, 2n), M.f_nth(d, 3n)) : String}
 
 law afn_cav:
   for nd: U64
@@ -910,13 +800,6 @@ law faces_has_known:
   for cs: List<&2, M.CE>
   for nm: String
   {AS.faces_has(True{}, a, xs, cs, nm) == AS.afaces_go(M.bd_fns(M.nr_body(AS.inst_nr(cs, AS.inst_at(AS.asm_insts(a), nm), M.f_nth(xs, Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n)), M.f_nth(xs, Nat.add(Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n), 1n)), M.f_nth(xs, Nat.add(Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n), 2n))))), Ty.brep_fas(M.bd_brep(M.nr_body(AS.inst_nr(cs, AS.inst_at(AS.asm_insts(a), nm), M.f_nth(xs, Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n)), M.f_nth(xs, Nat.add(Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n), 1n)), M.f_nth(xs, Nat.add(Nat.mul(AS.inst_idx(AS.asm_insts(a), nm, 0n), 3n), 2n)))))), nm ++ ".") : String}
-
-law faces_rep_wiring:
-  for a: AS.Asm
-  for xs: List<&2, F64>
-  for cs: List<&2, M.CE>
-  for nm: String
-  {AS.faces_rep(a, xs, cs, nm) == AS.faces_has(AS.inst_has(AS.asm_insts(a), nm), a, xs, cs, nm) : String}
 
 law ok_solve:
   for a: AS.Asm
@@ -1044,13 +927,6 @@ law asm_q_ok:
   for rq: AS.RQ
   {AS.asm_q_go(p, AS.AR_ok{AS.Asm{il, ml}}, rq) == Bool.pick(String, String.eq(AS.nodes_err(il, ml, M.ev_part(p, [])), ""), AS.asm_out(AS.Asm{il, ml}, AS.asm_solve(AS.Asm{il, ml}, M.ev_part(p, [])), M.ev_part(p, []), rq), AS.nodes_err(il, ml, M.ev_part(p, []))) : String}
 
-law ex_ok_unfold:
-  for dx: F64
-  for dy: F64
-  for dz: F64
-  for gap: F64
-  {AS.ex_ok(dx, dy, dz, gap) == Bool.and(T.is_finite(dx), Bool.and(T.is_finite(dy), Bool.and(T.is_finite(dz), Bool.and(T.is_finite(gap), AS.nzn(dx, dy, dz))))) : Bool}
-
 law explode_go_no:
   for p: M.Part
   for xs: List<&2, String>
@@ -1069,11 +945,6 @@ law explode_go_yes:
   for gap: F64
   {AS.asm_explode_go(True{}, p, xs, dx, dy, dz, gap) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 5n))), AS.RQ{4u64, "", [dx, dy, dz, gap]}) : String}
 
-law explode_v_wiring:
-  for p: M.Part
-  for xs: List<&2, String>
-  {AS.asm_explode_v(p, xs) == AS.asm_explode_go(AS.ex_ok(AS.sdec(S.arg_at(xs, 1n)), AS.sdec(S.arg_at(xs, 2n)), AS.sdec(S.arg_at(xs, 3n)), AS.sdec(S.arg_at(xs, 4n))), p, xs, AS.sdec(S.arg_at(xs, 1n)), AS.sdec(S.arg_at(xs, 2n)), AS.sdec(S.arg_at(xs, 3n)), AS.sdec(S.arg_at(xs, 4n))) : String}
-
 law faces_go_needy:
   for p: M.Part
   for xs: List<&2, String>
@@ -1085,15 +956,6 @@ law faces_go_yes:
   for xs: List<&2, String>
   for nm: String
   {AS.asm_faces_go(False{}, p, xs, nm) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 2n))), AS.RQ{5u64, nm, []}) : String}
-
-law faces_v_wiring:
-  for p: M.Part
-  for xs: List<&2, String>
-  {AS.asm_faces_v(p, xs) == AS.asm_faces_go(String.eq(S.arg_at(xs, 1n), ""), p, xs, S.arg_at(xs, 1n)) : String}
-
-law verb_code_unfold:
-  for v: String
-  {AS.verb_code(v) == Bool.pick(U64, String.eq(v, "solve"), 1u64, Bool.pick(U64, String.eq(v, "interf"), 2u64, Bool.pick(U64, String.eq(v, "clear"), 3u64, Bool.pick(U64, String.eq(v, "explode"), 4u64, Bool.pick(U64, String.eq(v, "faces"), 5u64, 0u64))))) : U64}
 
 law asm_verb_solve:
   for p: M.Part
@@ -1124,8 +986,3 @@ law asm_verb_unknown:
   for p: M.Part
   for xs: List<&2, String>
   {AS.asm_verb(0u64, p, xs) == "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..." : String}
-
-law asm_go_wiring:
-  for p: M.Part
-  for xs: List<&2, String>
-  {AS.asm_go(p, xs) == AS.asm_verb(AS.verb_code(S.arg_at(xs, 0n)), p, xs) : String}

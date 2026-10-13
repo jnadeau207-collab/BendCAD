@@ -5,7 +5,7 @@
 <p align="center"><b>The CAD kernel AI agents can trust.</b><br>
 Open source. Written in <a href="https://github.com/HigherOrderCO/Bend">Bend</a>. Proven where it can be, certified where it must be, honest everywhere else.</p>
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="media/hero_dark.gif"><img src="media/hero.gif" width="860" alt="A mounting bracket built by BendCAD, spinning, beside the claims: certified volume, 230 proven laws, named refusals, parallel by construction"></picture></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="media/hero_dark.gif"><img src="media/hero.gif" width="860" alt="A mounting bracket built by BendCAD, spinning, beside the claims: certified volume, proven laws, named refusals, parallel by construction"></picture></p>
 
 Every CAD program you have used sits on a geometry kernel: the engine that turns "a plate, four bolt holes and a boss" into an exact solid you can measure, mesh and machine. The kernels in use today are decades-old C++ built for humans clicking buttons. When they fail, they fail quietly, or with an error only an expert can read.
 
@@ -48,7 +48,7 @@ Back comes a certified volume interval for every node, durable face names that s
 
 ## How we keep it honest
 
-- **Laws, not just tests.** 540 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Laws, not just tests.** Over 500 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
 - **Pins.** 2,167 fixed-input checks run as compiled code and are compared bit-for-bit.
 - **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).

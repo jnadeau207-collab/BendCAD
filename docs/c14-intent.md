@@ -110,7 +110,7 @@ convention. Reuse is by direct call, never by copy.
 
 ## 9. Evidence map
 
-- `laws/c14/LAWS.bend`, `laws/c14/PROOF.bend`: 181 laws over accessors,
+- `laws/c14/LAWS.bend`, `laws/c14/PROOF.bend`: 154 laws over
   scans, parse stages, solver wiring, the residual audit, reports,
   placement, faces, and dispatch; see `docs/c14-laws.md`.
 - `tests/c14/pins.bend`: 164 hand-derived fixed-input pins over the

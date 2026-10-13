@@ -22,7 +22,7 @@ THEMES = {
 
 CAPTIONS = [
     ('volume', 'certified interval, not a guess'),
-    ('230 laws', 'proven for every input'),
+    ('proven laws', 'true for every input'),
     ('refusals', 'named, with a fix, never silent'),
     ('parallel', 'every core, by construction'),
 ]

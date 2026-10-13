@@ -1,5 +1,5 @@
 {
- "binary_sha256": "bc19cd67e4a276a417dab1237533d0b71d4824a1949426a9d60f77c100103cda",
+ "binary_sha256": "3153dbd6ab791580ede32f8a53bd463891fe91f9f6092abdcb2875fb5eaa5ac9",
  "passed": 15,
  "total": 15,
  "results": [
@@ -81,13 +81,13 @@
   {
    "name": "interf.overlap",
    "ok": true,
-   "seconds": 0.26,
+   "seconds": 0.25,
    "detail": "assembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
   },
   {
    "name": "interf.touch",
    "ok": true,
-   "seconds": 6.6,
+   "seconds": 6.49,
    "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
   },
   {

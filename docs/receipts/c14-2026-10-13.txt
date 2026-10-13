@@ -289,3 +289,21 @@ lines. Nothing under legacy/ touched; no `bend update`; no CI raised.
   MASTER_PLAN §10 keeps the aspirational exit
   wording per the C08 convention; the shipped profile is contract
   §8 plus §6 here.
+
+## Independent verification (2026-10-14)
+
+The owner's verifier re-ran every gate on the committed tree 130a446
+with a fresh two-stage build (CLI sha256 3153dbd6…): laws 540/540
+under `--check-only` and `--verdict`, mutants 70/70, pins
+2,167/2,167 across 18 files, and every suite: c06 55/55, c07 328/328
++ 34/34 + 13/13 + 33/33, c08 108/108 + 20/20 (the c08 miss reported
+above did not recur), c09 29/29 + 27/27, c10 11/11 + 12/12, c11
+33/33 + 19/19, c12 16/16 + 24/24, c14 15/15 + 18/18.
+
+Then 27 laws were removed: every `*_unfold` and `*_wiring` law, each of
+which restated its function's own definition (`f(x) == body of f`) and
+so proved nothing beyond the source text. C14 keeps 154 laws (513 in
+all); both gates still print ALL PROOFS CHECK on laws/c14, and all 19
+c14 mutants are still killed (70/70 overall), so no planted bug relied
+on a removed law. Counts above this section are as of 130a446.
+
