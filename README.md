@@ -48,8 +48,8 @@ Back comes a certified volume interval for every node, durable face names that s
 
 ## How we keep it honest
 
-- **Laws, not just tests.** 295 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
-- **Pins.** 1,970 fixed-input checks run as compiled code and are compared bit-for-bit.
+- **Laws, not just tests.** 540 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Pins.** 2,167 fixed-input checks run as compiled code and are compared bit-for-bit.
 - **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
 
@@ -70,7 +70,8 @@ And the kernel milestones that carry it there:
 
 - **Shipped:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
 - **Shipped:** interchange: a versioned B-rep archive, a declared STEP read/write profile validated by independent readers, and STL/3MF mesh exports on CLI and MCP paths.
-- **Now:** specialized modeling, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
+- **Shipped:** assemblies: mates solved exactly with kinematic degrees of freedom, certified interference and clearance, exploded views, and assembly lineage with durable selectors.
+- **Now:** specialized modeling, then tolerances and GD&T bound to geometry.
 - **Then:** sheet metal, surface modeling, and blade and airfoil design, followed by a qualified public release.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).

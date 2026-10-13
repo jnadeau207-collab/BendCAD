@@ -355,5 +355,138 @@
   "file": "src/c12/blob.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "instance accessor keeps its field",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "parse failure keeps its name",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "fix mates build fix rows",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "axis mates build two rows",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "conflicts publish no solution",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "declared translations cover three axes",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "column layout packs three per instance",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "interference renders relations",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "surface classifier names its kind",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "empty scan accepts no instances",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "placement keeps failure silent",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "coincident mate takes six numbers",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "solve verb renders the solution",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "unknown node refusal keeps its name",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "pair flag selects clearance",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "empty assembly refused",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "lineage names its nodes",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "identifier list keeps its brackets",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c14",
+  "law": "face rows count their loops",
+  "file": "src/c14/asm.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

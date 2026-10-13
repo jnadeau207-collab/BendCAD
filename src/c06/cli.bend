@@ -19,6 +19,7 @@ import ../c12/blob.bend as BL
 import ../c12/stepw.bend as SW
 import ../c12/stepr.bend as SR
 import ../c12/mesh.bend as MO
+import ../c14/asm.bend as AS
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -407,7 +408,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "interf"), 15u64, Bool.pick(U64, String.eq(c, "clearance"), 16u64,
   Bool.pick(U64, String.eq(c, "wall"), 17u64, Bool.pick(U64, String.eq(c, "step"), 18u64,
   Bool.pick(U64, String.eq(c, "archive"), 19u64, Bool.pick(U64, String.eq(c, "stl"), 20u64,
-  Bool.pick(U64, String.eq(c, "3mf"), 21u64, 0u64)))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "3mf"), 21u64, Bool.pick(U64, String.eq(c, "asm"), 22u64, 0u64))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -787,7 +788,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 21u64: mf3_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf")
+    case 22u64: IO.print(AS.asm_go(p, rest))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))

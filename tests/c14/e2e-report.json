@@ -1,0 +1,186 @@
+{
+ "binary_sha256": "bc19cd67e4a276a417dab1237533d0b71d4824a1949426a9d60f77c100103cda",
+ "passed": 15,
+ "total": 15,
+ "results": [
+  {
+   "name": "solve.basic",
+   "ok": true,
+   "ta": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tb": [
+    13.999999999999998,
+    3.0,
+    3.0
+   ],
+   "dof": 0.0,
+   "res": 1.7763568394002505e-15,
+   "seconds": 0.01,
+   "detail": "asm solved ninst 2 nmates 2 dof 0 max-residual 1.7763568394002505e-15\ninst a node 1 t=0 0 0 q=0\ninst b node 2 t=13.999999999999998 3 3 q=0\nredundant []\nlineage asm(a=n1,b=n2) mates[1,2]\n\n"
+  },
+  {
+   "name": "solve.under",
+   "ok": true,
+   "ta": [
+    1.0,
+    2.0,
+    3.0
+   ],
+   "dof": 3.0,
+   "seconds": 0.01,
+   "detail": "asm underconstrained ninst 1 nmates 0 dof 3 max-residual 0\ninst a node 1 t=1 2 3 q=0\nredundant []\nlineage asm(a=n1) mates[]\n\n"
+  },
+  {
+   "name": "solve.redundant",
+   "ok": true,
+   "ta": [
+    0.9999999999999999,
+    1.9999999999999998,
+    2.9999999999999996
+   ],
+   "dof": 0.0,
+   "red": [
+    2
+   ],
+   "seconds": 0.01,
+   "detail": "asm solved ninst 1 nmates 2 dof 0 max-residual 4.440892098500626e-16\ninst a node 1 t=0.9999999999999999 1.9999999999999998 2.9999999999999996 q=0\nredundant [2]\nlineage asm(a=n1) mates[1,2]\n\n"
+  },
+  {
+   "name": "solve.conflict",
+   "ok": true,
+   "viol": [
+    1,
+    2
+   ],
+   "res": 5.000000000000001,
+   "seconds": 0.01,
+   "detail": "asm conflict ninst 1 nmates 2 viol [1,2] max-residual 5.000000000000001 | fix: loosen or correct the violating mates\n"
+  },
+  {
+   "name": "solve.plane_axis",
+   "ok": true,
+   "ta": [
+    5.0,
+    6.0,
+    9.0
+   ],
+   "dof": 0.0,
+   "res": 0.0,
+   "seconds": 0.01,
+   "detail": "asm solved ninst 1 nmates 2 dof 0 max-residual 0\ninst a node 1 t=5 6 9 q=0\nredundant []\nlineage asm(a=n1) mates[1,2]\n\n"
+  },
+  {
+   "name": "interf.disjoint",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "assembly pairs ninst 2\npair a b\nrelation disjoint status=certified\n\n"
+  },
+  {
+   "name": "interf.overlap",
+   "ok": true,
+   "seconds": 0.26,
+   "detail": "assembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
+  },
+  {
+   "name": "interf.touch",
+   "ok": true,
+   "seconds": 6.6,
+   "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
+  },
+  {
+   "name": "clear.certified",
+   "ok": true,
+   "lo": 3.9999999999999667,
+   "hi": 4.999999999999998,
+   "expect": 4.0,
+   "seconds": 0.01,
+   "detail": "assembly pairs ninst 2\npair a b\nclearance [3.9999999999999667, 4.999999999999998] estimated lo=certified samples=30x30\n\n"
+  },
+  {
+   "name": "clear.interference",
+   "ok": true,
+   "seconds": 0.25,
+   "detail": "assembly pairs ninst 2\npair a b\nclearance 0 status=certified state=interference\n\n"
+  },
+  {
+   "name": "explode.basic",
+   "ok": true,
+   "ta": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tb": [
+    13.999999999999998,
+    3.0,
+    8.0
+   ],
+   "seconds": 0.01,
+   "detail": "asm exploded ninst 2 dir=0 0 1 gap=5\ninst a node 1 t=0 0 0 q=0\ninst b node 2 t=13.999999999999998 3 8 q=0\n\n"
+  },
+  {
+   "name": "faces.box",
+   "ok": true,
+   "n": 6,
+   "kinds": [
+    "plane",
+    "plane",
+    "plane",
+    "plane",
+    "plane",
+    "plane"
+   ],
+   "loops": [
+    "1",
+    "1",
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   "seconds": 0.01,
+   "detail": "b.n2.c0.top plane loops=1\nb.n2.c0.bottom plane loops=1\nb.n2.c0.wall.0.0 plane loops=1\nb.n2.c0.wall.1.0 plane loops=1\nb.n2.c0.wall.2.0 plane loops=1\nb.n2.c0.wall.3.0 plane loops=1\n\n"
+  },
+  {
+   "name": "faces.hole",
+   "ok": true,
+   "n": 7,
+   "kinds": [
+    "cylinder",
+    "plane",
+    "plane",
+    "plane",
+    "plane",
+    "plane",
+    "plane"
+   ],
+   "seconds": 0.01,
+   "detail": "c.n2.c0.top plane loops=2\nc.n2.c0.bottom plane loops=2\nc.n2.c0.wall.0.0 plane loops=1\nc.n2.c0.wall.1.0 plane loops=1\nc.n2.c0.wall.2.0 plane loops=1\nc.n2.c0.wall.3.0 plane loops=1\nc.n3.c0.wall.0.0 cylinder loops=2\n\n"
+  },
+  {
+   "name": "edit.propagate",
+   "ok": true,
+   "tb1": [
+    13.999999999999998,
+    3.0,
+    3.0
+   ],
+   "tb2": [
+    13.999999999999998,
+    3.0,
+    3.0
+   ],
+   "seconds": 0.14,
+   "detail": "BEFORE:\nassembly pairs ninst 2\npair a b\nrelation disjoint status=certified\n\n\nAFTER:\nassembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "tools": true,
+   "text_match": true
+  }
+ ]
+}

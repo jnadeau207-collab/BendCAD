@@ -1,5 +1,5 @@
 {
- "binary_sha256": "e8d1e6f2424dae98881b3a16e1268148cadde2d5958d60978c64edf08c00e550",
+ "binary_sha256": "bc19cd67e4a276a417dab1237533d0b71d4824a1949426a9d60f77c100103cda",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 0.6
+   "seconds": 0.65
   },
   {
    "name": "cross.straddle",
@@ -79,7 +79,7 @@
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 2.4
+   "seconds": 2.69
   },
   {
    "name": "diff.no_container",
@@ -91,7 +91,7 @@
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.64
+   "seconds": 0.59
   },
   {
    "name": "ok.touch_face",

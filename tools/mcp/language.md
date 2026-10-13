@@ -322,6 +322,44 @@ means no intersection there. Surface/surface queries need `BOX`.
   control points, row by row).
 - `BOX` is `(box X0 X1 Y0 Y1 Z0 Z1)`.
 
+## Assemblies
+
+`assembly` solves and queries an assembly: named instances of design nodes
+with placements, plus mates. Actions: `solve` (solved placements, kinematic
+dof, redundant mates, lineage), `interf` and `clear` (pairwise certified
+interference and clearance over the solved placements), `explode` (exploded
+placements along a direction) and `faces` (assembly-qualified durable face
+names `INST.nN.cK.top|bottom|wall.I.J`). The assembly text is one
+`(assembly ...)` form; it is solved fresh on every call, so design edits
+propagate through it.
+
+- `(inst NAME NODE TX TY TZ Q)` — instance of design node `NODE` with
+  initial translation and turn code `Q` (0-5, as `move`).
+- `(fix ID INST)` — pin the instance to its declared translation.
+- `(coinc ID A AX AY AZ B BX BY BZ)` — the point `(AX,AY,AZ)` in A's node
+  frame coincides with `(BX,BY,BZ)` in B's node frame.
+- `(plane ID INST BX BY BZ NX NY NZ D)` — the instance point lies on the
+  world plane `NX x + NY y + NZ z = D`.
+- `(axis ID INST BX BY BZ PX PY PZ DX DY DZ)` — the instance point lies on
+  the world axis through `P` along `D`.
+
+Orientations are fixed per instance; mates solve translations exactly as a
+linear system through the C05 rank machinery, so `dof` is 3 per instance
+minus the rank, redundant mate ids are reported, and an inconsistent set is
+a named `conflict` with the violating mate ids and no placements published.
+`solve` on an underconstrained assembly reports `underconstrained` with one
+satisfying configuration. `explode` needs `dx dy dz gap`: instance `k` moves
+`k * gap * dir` from its solved placement.
+
+```
+(assembly
+  (inst housing 1 0 0 0 0)
+  (inst shaft 2 0 0 10 0)
+  (fix 1 housing)
+  (axis 2 shaft 0 0 0 0 0 0 0 0 1)
+  (plane 3 shaft 0 0 5 0 0 1 10))
+```
+
 ## Example
 
 ```

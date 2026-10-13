@@ -126,6 +126,15 @@ const tools = [
         profile: { type: 'string' } }, required: ['file', 'out'] },
     run: a => cli(['geom', '3mf_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
+  { name: 'assembly', description: 'Solve an assembly of design-node instances with mates (see reference: Assemblies). Actions: solve (placements, dof, redundant mates, lineage), interf/clear (pairwise certified interference/clearance over solved placements), explode (exploded placements along dx,dy,dz with gap), faces (assembly-qualified face names of one instance).',
+    inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'solve, interf, clear, explode or faces' },
+        assembly: { type: 'string', description: 'One (assembly ...) form' }, inst: { type: 'string', description: 'Instance name (faces only)' },
+        dx: { type: 'number' }, dy: { type: 'number' }, dz: { type: 'number' }, gap: { type: 'number' } },
+      required: ['design', 'action', 'assembly'] },
+    run: a => a.action === 'explode'
+      ? cli([a.design, 'asm', 'explode', a.dx ?? '', a.dy ?? '', a.dz ?? '', a.gap ?? '', a.assembly].map(String))
+      : a.action === 'faces' ? cli([a.design, 'asm', 'faces', a.inst ?? '', a.assembly])
+      : cli([a.design, 'asm', String(a.action), a.assembly]) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }

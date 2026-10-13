@@ -1,0 +1,97 @@
+{
+ "binary_sha256": "bc19cd67e4a276a417dab1237533d0b71d4824a1949426a9d60f77c100103cda",
+ "passed": 18,
+ "total": 18,
+ "results": [
+  {
+   "name": "verb.unknown",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..."
+  },
+  {
+   "name": "parse.failed",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: assembly-parse-failed | fix: write one (assembly ...) form"
+  },
+  {
+   "name": "parse.needs_instance",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: assembly-needs-instance | fix: add (inst NAME NODE TX TY TZ Q)"
+  },
+  {
+   "name": "inst.bad_q",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: bad-instance | fix: write (inst NAME NODE TX TY TZ Q) with finite numbers and a turn code 0-5"
+  },
+  {
+   "name": "inst.duplicate",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: duplicate-instance | fix: give every instance a different name"
+  },
+  {
+   "name": "entry.unknown",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: unknown-assembly-entry | fix: use (inst ...) or a mate (fix, coinc, plane, axis)"
+  },
+  {
+   "name": "mate.bad_arity",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: bad-mate | fix: write (fix ID INST)"
+  },
+  {
+   "name": "mate.unknown_inst",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: unknown-instance | fix: name an instance from the assembly"
+  },
+  {
+   "name": "mate.coinc_self",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: bad-mate | fix: write (coinc ID A AX AY AZ B BX BY BZ) naming two different instances with finite numbers"
+  },
+  {
+   "name": "mate.plane_zeron",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: bad-mate | fix: write (plane ID INST BX BY BZ NX NY NZ D) with finite numbers and a nonzero normal"
+  },
+  {
+   "name": "mate.axis_zerod",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: bad-mate | fix: write (axis ID INST BX BY BZ PX PY PZ DX DY DZ) with finite numbers and a nonzero direction"
+  },
+  {
+   "name": "node.unknown",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: unknown-node b | fix: name a node from the design (eval)"
+  },
+  {
+   "name": "node.failed",
+   "ok": true,
+   "detail": "error: node 2; nothing assembled"
+  },
+  {
+   "name": "explode.zero_dir",
+   "ok": true,
+   "detail": "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)"
+  },
+  {
+   "name": "explode.nonnumeric",
+   "ok": true,
+   "detail": "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)"
+  },
+  {
+   "name": "faces.needy",
+   "ok": true,
+   "detail": "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)"
+  },
+  {
+   "name": "faces.unknown_inst",
+   "ok": true,
+   "detail": "error invalid-input | asm faces | why: unknown-instance zzz | fix: name an instance from the assembly"
+  },
+  {
+   "name": "delete.propagate",
+   "ok": true,
+   "detail": "error invalid-input | asm | why: unknown-node b | fix: name a node from the design (eval)"
+  }
+ ]
+}

@@ -42,7 +42,7 @@
   "name": "zone.bracket.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[23167.290999992274, 24177.313589212026] area=[9302.627565044619, 9432.989042727135]",
-  "secs": 0.075
+  "secs": 0.072
  },
  {
   "name": "zone.bracket.n2.certified",
@@ -54,7 +54,7 @@
   "name": "zone.bracket.n3.certified",
   "ok": true,
   "out": "zone node 3: certified over the tolerance envelope | volume=[22395.21829453411, 23465.56496048993] area=[9506.218476960505, 9656.780395405603]",
-  "secs": 0.091
+  "secs": 0.088
  },
  {
   "name": "zone.bracket.n1.encloses",
@@ -147,7 +147,7 @@
   "name": "zone.pad.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[3942.1699347705144, 4201.587861306425] area=[2436.6723739082045, 2500.438744522571]",
-  "secs": 0.012
+  "secs": 0.011
  },
  {
   "name": "zone.pad.n2.encloses",
@@ -303,7 +303,7 @@
   "name": "zone.neg.hole-crosses-edge",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.015
+  "secs": 0.016
  },
  {
   "name": "zone.neg.holes-collide",
@@ -315,7 +315,7 @@
   "name": "zone.neg.arc-not-identical",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 1 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.041
+  "secs": 0.043
  },
  {
   "name": "zone.neg.depth-reaches-floor",
