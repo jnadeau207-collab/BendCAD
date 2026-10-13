@@ -1,0 +1,122 @@
+{
+ "binary_sha256": "1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2",
+ "passed": 23,
+ "total": 23,
+ "results": [
+  {
+   "name": "step.node_failed",
+   "ok": true,
+   "detail": "error: node failed; nothing exported"
+  },
+  {
+   "name": "archive.node_failed",
+   "ok": true,
+   "detail": "error: node failed; nothing archived"
+  },
+  {
+   "name": "stl.node_failed",
+   "ok": true,
+   "detail": "error: node failed; nothing exported"
+  },
+  {
+   "name": "mf3.node_failed",
+   "ok": true,
+   "detail": "error: node failed; nothing exported"
+  },
+  {
+   "name": "stl.budget",
+   "ok": true,
+   "detail": "refused tess-budget-exceeded | stl @ node 1 | est 36 max 1 | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris"
+  },
+  {
+   "name": "mf3.budget",
+   "ok": true,
+   "detail": "refused tess-budget-exceeded | 3mf @ node 1 | est 36 max 1 | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris"
+  },
+  {
+   "name": "import.garbage",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/garbage.step | error invalid-input | import @ step data | why: step-no-solid | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.badent",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/badent.step | error invalid-input | import @ step data | why: step-entity-parse-failed | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.cone",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/cone.step | error invalid-input | import @ step data | why: step-conical-surface-not-in-profile | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.open",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/open.step | error invalid-input | import @ step data | why: step-open-shell-not-in-profile | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.inch",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/inch.step | error invalid-input | import @ step data | why: step-units-not-supported | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.nosolid",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/nosolid.step | error invalid-input | import @ step data | why: step-no-solid | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.dupid",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/dupid.step | error invalid-input | import @ step data | why: step-duplicate-id | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.vloop",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/vloop.step | error invalid-input | import @ step data | why: step-vertex-loop-not-in-profile face #131 | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.voids",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/voids.step | error invalid-input | import @ step data | why: step-voids-not-in-profile | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.sphere_vloop",
+   "ok": true,
+   "detail": "imported /tmp/oracle_sphere.step | error invalid-input | import @ step data | why: step-vertex-loop-not-in-profile face #17 | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.torus_dust",
+   "ok": true,
+   "detail": "imported /tmp/oracle_torus.step | error invalid-input | import @ node 0 | why: import-validation-failed at brep stage embedding | fix: re-import the STEP file"
+  },
+  {
+   "name": "reopen.garbage",
+   "ok": true,
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rg.bca | why: archive-sections-count | fix: reopen a BendCAD BCAD1 archive"
+  },
+  {
+   "name": "reopen.badver",
+   "ok": true,
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rv.bca | why: archive-bad-version | fix: reopen a BendCAD BCAD1 archive"
+  },
+  {
+   "name": "reopen.badunits",
+   "ok": true,
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/ru.bca | why: archive-units-not-supported | fix: reopen a BendCAD BCAD1 archive"
+  },
+  {
+   "name": "step_of.garbage",
+   "ok": true,
+   "detail": "error invalid-input | step_of | why: archive-sections-count | fix: export from a BendCAD BCAD1 archive"
+  },
+  {
+   "name": "stl_of.garbage",
+   "ok": true,
+   "detail": "error: node failed; nothing exported"
+  },
+  {
+   "name": "mf3_of.garbage",
+   "ok": true,
+   "detail": "error: node failed; nothing exported"
+  }
+ ]
+}

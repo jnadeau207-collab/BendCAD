@@ -15,6 +15,10 @@ import ../c11/qdist.bend as QD
 import ../c11/qmass.bend as QM
 import ../c11/qsect.bend as QN
 import ../c11/qinterf.bend as QI
+import ../c12/blob.bend as BL
+import ../c12/stepw.bend as SW
+import ../c12/stepr.bend as SR
+import ../c12/mesh.bend as MO
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -361,6 +365,17 @@ def write_file(path, data):
     w : File & Result<&1, &1, (U32 & String), Unit> <- File.write(f, data)
     write_go(w)
 
+law write_bytes:
+  for path: String
+  for data: List<&2, U32>
+  IO(Unit)
+
+def write_bytes(path, data):
+  do IO<Unit>:
+    f : File <- IO.try(File, File.open(path, "w"))
+    w : File & Result<&1, &1, (U32 & String), Unit> <- File.write_bytes(f, data)
+    write_go(w)
+
 def load(+src: String) -> M.Part:
   S.part_of(S.ps_xs(S.parse(src)))
 
@@ -390,7 +405,9 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "dist"), 11u64, Bool.pick(U64, String.eq(c, "extrema"), 12u64,
   Bool.pick(U64, String.eq(c, "mass"), 13u64, Bool.pick(U64, String.eq(c, "section"), 14u64,
   Bool.pick(U64, String.eq(c, "interf"), 15u64, Bool.pick(U64, String.eq(c, "clearance"), 16u64,
-  Bool.pick(U64, String.eq(c, "wall"), 17u64, 0u64)))))))))))))))))
+  Bool.pick(U64, String.eq(c, "wall"), 17u64, Bool.pick(U64, String.eq(c, "step"), 18u64,
+  Bool.pick(U64, String.eq(c, "archive"), 19u64, Bool.pick(U64, String.eq(c, "stl"), 20u64,
+  Bool.pick(U64, String.eq(c, "3mf"), 21u64, 0u64)))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -482,6 +499,267 @@ def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: St
 def f_arg(+xs: List<&2, String>, +i: Nat) -> F64:
   f_or_nan(S.dec(S.arg_at(xs, i)))
 
+def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(Unit):
+  match w:
+    case True{}:
+      do IO<Unit>:
+        u : Unit <- write_file(out, SW.ws_s(r))
+        IO.print("wrote " ++ out ++ " entities " ++ Nat.show(SW.ws_nent(r)) ++ " products " ++
+          Nat.show(SW.ws_nprod(r)))
+    case False{}: IO.print("refused " ++ SW.ws_why(r) ++ " | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces")
+
+def step_out(r: M.NR, +out: String) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_ok{+b, fx}:
+      +w = SW.sw_ms(b)
+      step_write_go(SW.ws_ok(w), w, out)
+
+def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(Unit):
+  match w:
+    case True{}:
+      do IO<Unit>:
+        u : Unit <- write_file(out, BL.es_s(e))
+        IO.print("wrote " ++ out ++ " archive BCAD1")
+    case False{}: IO.print("refused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic curves and plane/sphere/cylinder/torus/bezier-patch faces")
+
+def arc_out(r: M.NR, +out: String, +lin: String) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing archived")
+    case M.NR_ok{+b, fx}:
+      +e = BL.ar_mk("mm", lin, M.bd_brep(b))
+      arc_write_go(BL.es_ok_of(e), e, out)
+
+def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(Unit):
+  match w:
+    case True{}:
+      do IO<Unit>:
+        u : Unit <- write_file(out, MO.mo_r_s(r))
+        IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_r_nv(r)) ++ " ntris " ++
+          Nat.show(MO.mo_r_nt(r)) ++ " (sampled, not certified)")
+    case False{}: IO.print("refused " ++ MO.mo_r_why(r) ++ " | stl | fix: tessellate the node first (tess)")
+
+def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match w:
+    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | stl @ node " ++ U64.show(id) ++
+      " | est " ++ Nat.show(M10.tres_est(t)) ++ " max " ++ Nat.show(M10.q_max(q)) ++
+      " | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris")
+    case True{}:
+      +r = MO.mo_stl(M10.tres_obj(t))
+      stl_write_go(MO.mo_r_ok(r), r, out)
+
+def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_ok{+b, fx}:
+      +t = TS.body_q(b, q)
+      stl_tres_go(M10.tres_ok_of(t), t, out, id, q)
+
+def stl_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
+    IO(Unit):
+  match bad:
+    case True{}: IO.print(tess_q_err(a2, p, q))
+    case False{}: stl_out(r, out, id, q)
+
+def stl_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String,
+    +a6: String) -> IO(Unit):
+  +p = tess_p(a2)
+  +base = M10.q_preset(p)
+  +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
+    tess_prof(a6, M10.q_prof(base)))
+  stl_with(Bool.not(String.eq(tess_q_err(a2, p, q), "")), r, out, id, a2, p, q)
+
+def mf3_write_go(+w: Bool, +r: MO.MO_B, +out: String) -> IO(Unit):
+  match w:
+    case True{}:
+      do IO<Unit>:
+        u : Unit <- write_bytes(out, MO.mo_b_xs(r))
+        IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_b_nv(r)) ++ " ntris " ++
+          Nat.show(MO.mo_b_nt(r)) ++ " (sampled, not certified)")
+    case False{}: IO.print("refused " ++ MO.mo_b_why(r) ++ " | 3mf | fix: tessellate the node first (tess)")
+
+def mf3_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match w:
+    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | 3mf @ node " ++ U64.show(id) ++
+      " | est " ++ Nat.show(M10.tres_est(t)) ++ " max " ++ Nat.show(M10.q_max(q)) ++
+      " | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris")
+    case True{}:
+      +r = MO.mo_threemf(M10.tres_obj(t))
+      mf3_write_go(MO.mo_b_ok(r), r, out)
+
+def mf3_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_ok{+b, fx}:
+      +t = TS.body_q(b, q)
+      mf3_tres_go(M10.tres_ok_of(t), t, out, id, q)
+
+def mf3_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
+    IO(Unit):
+  match bad:
+    case True{}: IO.print(tess_q_err(a2, p, q))
+    case False{}: mf3_out(r, out, id, q)
+
+def mf3_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String,
+    +a6: String) -> IO(Unit):
+  +p = tess_p(a2)
+  +base = M10.q_preset(p)
+  +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
+    tess_prof(a6, M10.q_prof(base)))
+  mf3_with(Bool.not(String.eq(tess_q_err(a2, p, q), "")), r, out, id, a2, p, q)
+
+def op_blob_tol_go(+ok: Bool, +b: Ty.Brep, +pr: BL.PR, +nd: U64) -> M.NR:
+  match ok:
+    case False{}: M.bad("import", "node " ++ U64.show(nd),
+      "import-validation-failed at brep stage " ++ M.stage_why(M.stage_of(b, M.fuel_of(b))),
+      "re-import the STEP file")
+    case True{}: M.op_blob_pay(True{}, pr, nd)
+
+def op_blob_tol_pay(+w: Bool, +pr: BL.PR, +nd: U64) -> M.NR:
+  match w:
+    case False{}: M.bad("import", "node " ++ U64.show(nd), BL.pr_why(pr), "re-import the STEP file")
+    case True{}:
+      +b = BL.pr_b(pr)
+      +te = SR.sr_brep_tol(b, Ty.P_manifold_solid{}, M.fuel_of(b))
+      op_blob_tol_go(SR.sr_te_ok(te), b, pr, nd)
+
+def op_blob_tol(+payload: String, +nd: U64) -> M.NR:
+  +pr = BL.pay_brep(payload)
+  op_blob_tol_pay(BL.pr_ok_of(pr), pr, nd)
+
+def imp_nr(+w: Bool, +e: BL.ES) -> M.NR:
+  match w:
+    case False{}: M.bad("import", "step data", BL.es_why(e), "re-import the STEP file")
+    case True{}: op_blob_tol(BL.es_s(e), 0u64)
+
+def imp_b1(+w: Bool, +p: BL.PR) -> M.NR:
+  match w:
+    case False{}: M.bad("import", "step data", BL.pr_why(p), "re-import the STEP file")
+    case True{}:
+      +e = BL.brep_s(BL.pr_b(p))
+      imp_nr(BL.es_ok_of(e), e)
+
+def imp_step(+data: String) -> M.NR:
+  +p = SR.sr_file(data)
+  imp_b1(BL.pr_ok_of(p), p)
+
+def imp_apr_nr(+w: Bool, +e: BL.ES, +tol: Bool) -> M.NR:
+  match w:
+    case False{}: M.bad("import", "archive data", BL.es_why(e), "use a BendCAD BCAD1 archive")
+    case True{}:
+      match tol:
+        case True{}: op_blob_tol(BL.es_s(e), 0u64)
+        case False{}: M.op_blob(1u64, BL.es_s(e), 0u64)
+
+def imp_apr(+w: Bool, +a: BL.APR) -> M.NR:
+  match w:
+    case False{}: M.bad("import", "archive data", BL.apr_why(a), "use a BendCAD BCAD1 archive")
+    case True{}:
+      +e = BL.brep_s(BL.apr_b(a))
+      imp_apr_nr(BL.es_ok_of(e), e, SR.sr_has_tol(BL.apr_lineage(a)))
+
+def imp_arc(+data: String) -> M.NR:
+  +a = BL.ar_parse(data)
+  imp_apr(BL.apr_ok(a), a)
+
+def imp_line(+tag: String, +src: String, +r: M.NR) -> String:
+  tag ++ " " ++ src ++ " | " ++ nr_s(r)
+
+def imp_save_go(+w: Bool, +e: BL.ES, +out: String, +rep: String) -> IO(Unit):
+  match w:
+    case False{}: IO.print(rep ++ "\nrefused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic geometry")
+    case True{}:
+      do IO<Unit>:
+        u : Unit <- write_file(out, BL.es_s(e))
+        IO.print(rep ++ "\nwrote " ++ out ++ " archive BCAD1")
+
+def imp_save(+save: Bool, +out: String, r: M.NR, +lin: String, +rep: String) -> IO(Unit):
+  match save:
+    case False{}: IO.print(rep)
+    case True{}:
+      match r:
+        case M.NR_err{k, d}: IO.print(rep)
+        case M.NR_ok{+b, fx}:
+          +e = BL.ar_mk("mm", lin, M.bd_brep(b))
+          imp_save_go(BL.es_ok_of(e), e, out, rep)
+
+def geo_step_import_go(+data: String, +file: String, +out: String) -> IO(Unit):
+  +r = imp_step(data)
+  imp_save(Bool.not(String.eq(out, "")), out, r, "step:" ++ file ++ ":tol", imp_line("imported", file, r))
+
+def geo_step_import(+file: String, +out: String) -> IO(Unit):
+  do IO<Unit>:
+    data : String <- read_file(file)
+    geo_step_import_go(data, file, out)
+
+def geo_reopen_v(+v: Bool, r: M.NR) -> String:
+  match v:
+    case False{}: ""
+    case True{}: "\n" ++ node_faces(r)
+
+def geo_reopen_go(+w: Bool, +a: BL.APR, +file: String, +verb: String) -> IO(Unit):
+  match w:
+    case False{}: IO.print("error invalid-input | reopen " ++ file ++ " | why: " ++ BL.apr_why(a) ++
+      " | fix: reopen a BendCAD BCAD1 archive")
+    case True{}:
+      +r = imp_apr(True{}, a)
+      IO.print("reopened " ++ file ++ " units " ++ BL.apr_units(a) ++ " lineage " ++
+        BL.apr_lineage(a) ++ " | " ++ nr_s(r) ++ geo_reopen_v(String.eq(verb, "-v"), r))
+
+def geo_reopen_data(+data: String, +file: String, +verb: String) -> IO(Unit):
+  +a = BL.ar_parse(data)
+  geo_reopen_go(BL.apr_ok(a), a, file, verb)
+
+def geo_reopen(+file: String, +verb: String) -> IO(Unit):
+  do IO<Unit>:
+    data : String <- read_file(file)
+    geo_reopen_data(data, file, verb)
+
+def geo_step_of_go(+w: Bool, +a: BL.APR, +out: String) -> IO(Unit):
+  match w:
+    case False{}: IO.print("error invalid-input | step_of | why: " ++ BL.apr_why(a) ++
+      " | fix: export from a BendCAD BCAD1 archive")
+    case True{}:
+      +s = SW.sw_pr(BL.pr_ok(BL.apr_b(a)), M.pl_id())
+      step_write_go(SW.ws_ok(s), s, out)
+
+def geo_step_of_data(+data: String, +out: String) -> IO(Unit):
+  +a = BL.ar_parse(data)
+  geo_step_of_go(BL.apr_ok(a), a, out)
+
+def geo_step_of(+file: String, +out: String) -> IO(Unit):
+  do IO<Unit>:
+    data : String <- read_file(file)
+    geo_step_of_data(data, out)
+
+def geo_stl_of(+file: String, +out: String, +a2: String, +a3: String, +a4: String, +a5: String,
+    +a6: String) -> IO(Unit):
+  do IO<Unit>:
+    data : String <- read_file(file)
+    stl_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+
+def geo_mf3_of(+file: String, +out: String, +a2: String, +a3: String, +a4: String, +a5: String,
+    +a6: String) -> IO(Unit):
+  do IO<Unit>:
+    data : String <- read_file(file)
+    mf3_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+
+def geo12(+c: String) -> U64:
+  Bool.pick(U64, String.eq(c, "step_import"), 1u64, Bool.pick(U64, String.eq(c, "reopen"), 2u64,
+    Bool.pick(U64, String.eq(c, "step_of"), 3u64, Bool.pick(U64, String.eq(c, "stl_of"), 4u64,
+      Bool.pick(U64, String.eq(c, "3mf_of"), 5u64, 0u64)))))
+
+def geo_go(code: U64, +args: List<&2, String>) -> IO(Unit):
+  match code:
+    case 1u64: geo_step_import(S.arg_at(args, 3n), S.arg_at(args, 4n))
+    case 2u64: geo_reopen(S.arg_at(args, 3n), S.arg_at(args, 4n))
+    case 3u64: geo_step_of(S.arg_at(args, 3n), S.arg_at(args, 4n))
+    case 4u64: geo_stl_of(S.arg_at(args, 3n), S.arg_at(args, 4n), S.arg_at(args, 5n), S.arg_at(args, 6n),
+      S.arg_at(args, 7n), S.arg_at(args, 8n), S.arg_at(args, 9n))
+    case 5u64: geo_mf3_of(S.arg_at(args, 3n), S.arg_at(args, 4n), S.arg_at(args, 5n), S.arg_at(args, 6n),
+      S.arg_at(args, 7n), S.arg_at(args, 8n), S.arg_at(args, 9n))
+    case _: IO.print(GQ.geom(arg_drop(args, 2n)))
+
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
@@ -502,7 +780,14 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 15u64: IO.print(QI.rel_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
     case 16u64: IO.print(QD.clear_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
     case 17u64: IO.print(QD.wall_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall")
+    case 18u64: step_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n))
+    case 19u64: arc_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+      S.arg_at(rest, 2n))
+    case 20u64: stl_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+      S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
+    case 21u64: mf3_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+      S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))
@@ -525,7 +810,7 @@ def main_sel(isnew: Bool, +path: String, +cmd: String, +rest: List<&2, String>) 
 
 def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
   match isgeo:
-    case True{}: IO.print(GQ.geom(arg_drop(args, 2n)))
+    case True{}: geo_go(geo12(S.arg_at(args, 2n)), args)
     case False{}:
       +cmd = S.arg_at(args, 2n)
       main_sel(String.eq(cmd, "new"), S.arg_at(args, 1n), cmd, arg_drop(args, 3n))

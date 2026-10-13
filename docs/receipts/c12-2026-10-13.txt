@@ -1,0 +1,282 @@
+# C12 receipt — 2026-10-13 (C12 closed)
+
+Packet: C12 interchange and durable identity (MASTER_PLAN §10 C12):
+versioned B-rep archive, declared STEP read/write profile, mesh
+exports including STL/3MF. Intent `docs/c12-intent.md`, contract
+`docs/c12-contract.md`, laws `docs/c12-laws.md` (64 laws, 8 families).
+FreeCAD/OCCT/build123d and trimesh appear only as oracle comparators;
+no existing kernel is used at runtime.
+
+Verdict: CLOSED. All exit requirements are implemented, green, and
+evidenced: laws pass both `--check-only` and `--verdict` (all 14
+packets), every law family kills its mutant (51/51 tree-wide, 9/9
+c12), pins hold bit-exactly (2003/2003 tree-wide, 33/33 c12), E2E
+journeys are validated by independent readers (16/16), refusals are
+verbatim (23/23), and every earlier gate still passes on the same
+binary. Four semantic bugs died with the law, pin, or journey each
+one fails, plus seven E2E-phase fixes each regression-covered by a
+named witness (§5). Deferrals are recorded in §6, none of them
+silent.
+
+## 1. Provenance and build recipe
+
+- BendCAD HEAD at close: 9ffa0ff4aa108d58411d198d131b6d6316d109f7
+  ("C11 independent verification: every gate green on 154ac60").
+  The C12 change set is committed on top (see §7); the tree was
+  dirty through the qualification runs below.
+- Candidate binary: /home/jesse/bc/bendcad
+  sha256 1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2
+  (197736496 bytes; built 2026-10-13 ~06:39 EDT, third build,
+  covers all fixes). Every runtime verdict below is on this
+  binary; e2e-report.json carries the matching binary_sha256.
+- Toolchain: BEND_PIN a4d17ace (tag numeric/2026-10-05), bend
+  2.0.35, BEND_NO_TELEMETRY=1, all bend invocations through
+  ~/bin/bendcap (11 GB scope) unless noted. `~/.bend/FORK`
+  records the pin; no `bend update` was run.
+- laws/c12/LAWS.bend sha256
+  9e5bd9ae0b4085c0bcf3c99e5e8699b4624d4f44a26e2bf8b664686992237af2
+  (9036 bytes, 64 laws)
+- laws/c12/PROOF.bend sha256
+  dba83a462c1f59eb56473dcaf1aa3e034a84a1423354979274cb502829a1fb93
+  (2764 bytes, 64 defs)
+- src/c12 total 288457 bytes: blob 55484, stepw 41876,
+  stepr 174838, mesh 16259.
+- tests/c12/e2e-report.json sha256
+  403ca4b749bf6fe61255bf3fabcaf90aa39912afaa3c47b2b6d8854e6ab6407d
+- tests/c12/neg-report.json sha256
+  189b4645fcd7667030bcc88e5aa90d9d3372eecf1c0ff1feaedd585e8eabc960
+- tests/c12/pins-report.json sha256
+  4710bc60486289966383ac1bb344e337bfdd232abb8d59083e8df24883701dd3
+- tools/laws/mutate-report.json sha256
+  80e0b2c8cb6382c3217286fdca04fc76a57a89b1ca368d59fb171568c622e229
+- Earlier-packet *-report.json files were rewritten by the
+  regression runs in §3 (same-binary evidence).
+
+Two-stage build (required; single-command `zig cc -O3` needs ~14.3 GB
+and OOMs even a 17 GB scope is now routine):
+
+```sh
+bendcap src/c06/cli.bend -o /tmp/cli.c
+systemd-run --user --scope -p MemoryMax=17G zig cc -O3 -c /tmp/cli.c -o /tmp/cli-o3.o
+systemd-run --user --scope -p MemoryMax=11G zig cc /tmp/cli-o3.o -o ~/bc/bendcad
+```
+
+Build shas are NOT stable across builds (observed on C10/C11 too);
+the sha above identifies this binary, not the tree.
+
+## 2. A2 exit matrix
+
+One row per C12 exit requirement (MASTER_PLAN §10 C12 plus the
+agent-interface parity the packet implements). Columns per
+Amendment A2: exit req, formal spec, predicate, pos witness, neg
+witness, stage-isolated, independent evidence, status.
+
+Legend. Formal spec cites intent § and laws-doc family (F1–F8).
+Stage-isolated = the witness fixture exercises the named
+production branch exactly, corroborated by the cited law/pin
+names. Independent evidence tags: ORCL = independent oracle reader
+(build123d/OCCT for STEP, trimesh + zipfile for STL/3MF — no kernel
+code path computes these values); PIN = bit-exact fixed-input pins;
+MUT = the family's planted mutant is killed; MCP = Model Context
+Protocol parity journey. Status PASS = law witness closed (§3 full
+closure) AND runtime witness green on the candidate binary.
+
+| Exit req | Formal spec | Predicate | Pos witness | Neg witness | Stage-isolated | Independent evidence | Status |
+|----------|-------------|-----------|-------------|-------------|----------------|----------------------|--------|
+| Independent readers validate dimensions, units, orientation | intent §2; F3 | `step` file read by oracle | `step.box` (vol/bbox/units/valid) | `step.node_failed` | yes (`sw_units_head`, `sw_wrap_count`, units pins) | ORCL + PIN + MUT | PASS |
+| Holes read back with analytic wall | intent §5; F2, F4 | cylinder face + volume | `step.hole` | `import.cone` | yes (`kind_cylinder`, `fail_surf_cone`) | ORCL + PIN + MUT | PASS |
+| Surfaces stay analytic (sphere/torus) | intent §5; F2 | oracle face kinds | `step.sphere`, `step.torus` | `import.sphere_vloop`, `import.torus_dust` | yes (`kind_sphere`, `kind_torus`, `fail_loop_dup`) | ORCL + MUT | PASS |
+| Multiple solids + product structure | intent §3; F4 | 2 solids round-trip | `imp.multi` (import/archive/step_of) | `import.voids`, `import.dupid` | yes (`parse_nso_refused`, `parse_du_refused`) | ORCL + PIN + MUT | PASS |
+| Save/reopen keeps analytic geometry | contract §2; F1 | measures + face kinds equal | `arc.box`, `arc.sphere` | `reopen.garbage/badver/badunits` | yes (`ar_*_refused`, `ar_mk_ok_shape`) | PIN + MUT | PASS |
+| Oracle files import with memory/count bounds | contract §4; F4, F5 | `step_import` measures | `imp.box/hole/multi` | `import.garbage/badent/nosolid` | yes (`parse_cap/en/du/un/op/v/o/s/nso`, `sec_*`) | ORCL + PIN + MUT | PASS |
+| STL export validates independently | contract §5; F6 | trimesh watertight + volume | `stl.box`, `stl.text`, `stl.of` | `stl.node_failed`, `stl.budget` | yes (`mo_head_*`, `stl_tri` pins) | ORCL + PIN + MUT | PASS |
+| 3MF export validates independently | contract §5; F6 | trimesh + zip CRC | `mf3.box`, `mf3.of` | `mf3.node_failed`, `mf3.budget` | yes (`mo_crc_*`, `mo_l2_len`, `crc_std`, `zip_*` pins) | ORCL + PIN + MUT | PASS |
+| Unsupported entities are explicit | contract §3, §6; F2, F4 | named refusal + id | `import.cone/open/inch/vloop/voids` | — (refusals are the witness) | yes (`fail_curve_spline`, `fail_surf_cone`, `fail_loop_dup`, `fail_ce_trim`, `kind_assembly`, `parse_as_refused`) | PIN + MUT | PASS |
+| No partial geometry on failure | intent §6 | no output file + design intact | every neg asserts absence | every neg | yes (single-write architecture) | PIN | PASS |
+| Agent interface parity | intent §2; tools/mcp | MCP tools = CLI strings | `mcp.parity` (9 tools) | — (parity) | yes (byte-compared tool outputs) | MCP | PASS |
+
+Matrix closure: all 64 laws appear above by family; all 16 e2e
+journeys and all 23 neg journeys appear above. Oracle sphere/torus
+source files refuse on import (`import.sphere_vloop`: oracle sphere
+pole vertex-loops outside the profile; `import.torus_dust`:
+degenerate trim dust caught by C04 embedding validation) — the
+surfaces row is proven by oracle-validated exports, and the
+refusals are the honest negative half (see §5 dust note and §6).
+
+## 3. Observed results (binary 1fa52ab3)
+
+- `bendcap src/c06/cli.bend --check-only` → ALL PROOFS CHECK
+  (full closure incl. src/c12).
+- `bash tools/laws/check.sh` → all 14 packets ALL PROOFS CHECK
+  under both --check-only and --verdict: base 13, c00 8, c01 10,
+  c02 16, c03 10, c04 104, c05 34, c06 6, c07 5, c08 4, c09 2,
+  c10 18, c11 65, c12 64 (c12: 3 s check + 22 s verdict).
+- `python3 tools/laws/mutate.py` → 51/51 mutants killed
+  (9/9 c12; every verdict SOME PROOFS FAIL).
+- `bash tools/pins/run.sh tests/c12/pins.bend` → 33/33 hold
+  (sha256 2be56996719d28cc43e74f47137e54b3f55adb596ca82329dc6e258869bdecb8).
+- `python3 tests/c12/e2e.py` → 16/16 passed, exit 0:
+  step.box (oracle nsol 1, vol 1000.0, 6 planes, bbox exact,
+  158 entities), step.hole (oracle 874.336293856408 vs
+  874.3362938564082, CYLINDER+PLANE), step.sphere (oracle
+  4188.7903636058345 vs 4188.790204786391, SPHERE), step.torus
+  (oracle 59217.628468515046 vs 59217.62640653615, TORUS),
+  arc.box (BCAD1 head, 6 faces), arc.sphere, imp.box,
+  imp.hole, imp.multi (nsol 2, vols 1000/1000, back-read
+  oracle nsol 2), stl.box/text/of + mf3.box/of (trimesh vol
+  1000.0, watertight, 12 faces; 3MF parts + CRC), step.of
+  (re-export oracle nsol 1), mcp.parity (9 tools byte-equal).
+  Slowest journey 0.07 s (imp.hole); budgets (§7: import
+  < 30 s, export < 10 s, mesh < 60 s) met by 2+ orders.
+- `python3 tests/c12/neg.py` → 23/23 passed, exit 0;
+  every refusal verbatim with stage + id and no output file.
+- Regression on the same binary: laws all-packets green
+  (above); pins 2003/2003 (c00 33, c01 30, c02 44, c03 408,
+  c04 500, c05 31, c06 82 + 25 build, c07 14 + 17 build,
+  c08 487 + 40 build, c09 50 + 9 build, c10 42, c11 158,
+  c12 33); e2e c06 55/55, c07 328/328, c07 solid 34/34,
+  c07 solid_neg 13/13, c07 zone 33/33, c08 108/108, c09
+  29/29, c10 11/11, c11 33/33; neg c08 20/20, c09 27/27,
+  c10 12/12, c11 19/19. No regressions.
+
+## 4. Shipped delta
+
+- `src/c12/blob.bend`: B1 payload sections, canonical re-encode
+  gate, `BCAD1` archive envelope, import measures.
+- `src/c12/stepw.bend`: STEP writer with staged entities, mm SI
+  units block, header/footer, multi-solid staging.
+- `src/c12/stepr.bend`: STEP reader (scan, tables, recovery walks,
+  staged refusals, `sr_file` entry).
+- `src/c12/mesh.bend`: OBJ parse, ASCII STL, 3MF model XML, CRC32,
+  store-mode OPC zip.
+- `src/c06/cli.bend`: `step`, `archive`, `stl`, `3mf`,
+  `geom step_import/reopen/step_of/stl_of/3mf_of`; the dead
+  `op_blob_tol` arm that failed every tol import is deleted and
+  success delegates to `op_blob_pay` (one import mechanism).
+- `src/c06/model.bend`: `O_blob` import op with full C04
+  manifold validation; `op_blob` display/measure paths.
+- `src/base/num.bend` (new): pure `f_show`/`chr_code`
+  extraction shared by `sx.bend`.
+- `tools/mcp/bendcad-mcp.mjs`: nine C12 tools; `tests/c06/e2e.py`
+  MCP tool-set expectation extended by the same nine.
+- Laws, proofs, mutants (9 c12), pins (33 c12), journeys
+  (16 e2e + 23 neg), contract/intent/laws docs.
+
+## 5. Semantic bugs
+
+Demonstrated kills (old behavior fails the named witness):
+
+1. Reversed strings in the STEP reader (`sr_mkstr` applied a
+   spurious `List.reverse`): every line, token, name, and entity
+   body came out backwards, so all imports died with
+   `step-no-solid`. Failing witness: probe `sr_sec_go` returned 0
+   of 2 DATA lines before the fix, 2 after; law
+   `mkstr_unreverses` fails on the old code (demonstrated
+   `SOME PROOFS FAIL`), as do the `sec_extract`, `kind_si`, and
+   `units_*` pins. Mutant `string builder un-reverses` is killed.
+2. Zero stamp on parsed breps (`br_mk` set `stamp = 0u64`):
+   `mk_brep` requires `0 < gen ≤ stamp`, so every import and
+   reopen died with `import-validation-failed at brep stage
+   stage-unknown` (all `ck_*` stages passed; only the index build
+   refused). Failing witness: probe `brep_checked` returned
+   `terr:invalid-input` before the fix, `tok` after; law
+   `br_mk_stamp` and pin `ar_stamp` fail on the old code
+   (demonstrated). Mutant `brep stamp covers its gens` is killed.
+3. Entity-kind collision (`BREP_WITH_VOIDS` and `SI_UNIT` both
+   mapped to kind 29): voided solids would have imported with
+   their voids silently dropped. Failing witness: law
+   `kind_voids` (expects 30) and neg journey `import.voids`
+   (`step-voids-not-in-profile`). Fixed by moving voids to kind 30
+   with an explicit refusal stage (`sr_parse_vd`).
+4. Dead tol-import arm (`op_blob_tol` True branch returned
+   `M.bad(..., "r2probe", ...)`): every `step_import` and tol
+   archive import failed. Failing witness: `imp.box/hole/multi`
+   journeys fail on the old code. Fixed by deleting the dead arm
+   and delegating to `M.op_blob_pay`, the one general import
+   mechanism; dead tag/dev parameters dropped.
+
+E2E-phase fixes, each regression-covered by its witness (revert
+the fix and the witness fails; old-fail demonstrations were not
+re-recorded after the fixes landed):
+
+5. `sr_edge_tol` 306-arity argument reorder — `imp.box/hole`.
+6. Writer face grouping parentheses — `step.box` oracle nsol/vol.
+7. 17-entity AP203 envelope shape — all `step.*` oracle reads.
+8. Rational-quadratic/bezier 0-based index recovery —
+   `kind_*`/recovery pins and `imp.*`.
+9. Closed-circle seam rotation — `step.sphere`/`step.torus`
+   oracle volumes.
+10. Vertex-loop silent drop converted to refusal (`fail_loop_dup`,
+    `step-vertex-loop-not-in-profile`) — `import.vloop`,
+    `import.sphere_vloop`.
+11. Multi-solid sid-range staging — `imp.multi` (nsol 2).
+12. `zip_len` placeholder pin corrected to the independently
+    derived 1424 (30/46/22 headers + part lengths) — `zip_len`
+    pin; component `xml`/`le`/`crc`/`sig` pins already passed.
+
+Harness (not kernel): `e2e` solids parser takes the last match;
+`neg` dupid fixture corrected to the DATA section; c06 MCP tool
+set +9 tools; oracle env gained networkx + lxml.
+
+Dust note (honest refusal, not a bug): foreign torus STEP files
+whose pole/seam trims degenerate to dust refuse at C04 embedding
+validation (`import.torus_dust`: `import-validation-failed at
+brep stage embedding`) instead of importing bad geometry; our own
+torus STEP self-read likewise refuses seam-crossing circle trim,
+a profile circle-domain limit, not an exit path. Both journeys
+are green as refusals.
+
+## 6. Deferrals
+
+See contract §8: unit conversion, STEP cavities, cone/NURBS
+geometry, deflate 3MF, mesh import, binary STL, assembly
+round-trip (one product per solid only). Each refuses by name;
+none is silent. Packet-specific additions:
+
+- D-torus-dust: foreign torus files with degenerate pole/seam
+  trim refuse at embedding validation (see §5 dust note);
+  seam-crossing circle trim is outside the profile domain.
+- D-assembly-neg: no assembly-import neg journey exists;
+  `step-assembly-not-in-profile` is law-closed
+  (`kind_assembly`, `parse_as_refused`) and pin-adjacent only.
+- D-dead-tol: `src/c12/stepr.bend` carries a dead tolerance
+  chain (`sr_ck_h`, `sr_mc_h/g/f/e/d/c`, `sr_verdict_tol`,
+  `sr_checked_tol_a/go`, face-tol walk): zero callers, no
+  law/pin references. Kept verbatim this packet; deletion is
+  law/pin-safe future cleanup.
+
+## 7. Change set
+
+Committed on top of 9ffa0ff4 (see §1). Tracked modifications:
+MASTER_PLAN.md, README.md (C12-closed status lines),
+src/c06/cli.bend (+291/-1: C12 verbs, tol-arm deletion),
+src/c06/model.bend (+59/-1: `O_blob`, blob display/measure),
+src/c06/sx.bend (num extraction import), tests/c06/e2e.py
+(MCP +9 tools), tools/laws/mutate.py (+9 c12 mutants),
+tools/mcp/bendcad-mcp.mjs (+9 tools), tools/mcp/language.md,
+plus rewritten same-binary *-report.json (c06–c11 e2e/neg,
+solid/zone, mutate-report). New: docs/c12-contract.md,
+docs/c12-intent.md, docs/c12-laws.md, this receipt,
+laws/c12/LAWS.bend + PROOF.bend, src/base/num.bend,
+src/c12/{blob,stepw,stepr,mesh}.bend, tests/c12/{e2e,neg,
+pins}.bend + e2e/neg/pins reports + make_oracles.py.
+Nothing under legacy/ touched; no `bend update`; no CI raised.
+
+## 8. Independent verification
+
+- Oracles: build123d 0.13.0 over cadquery-ocp 8.0.1.1.0
+  (OCCT 8.0.1) for STEP; trimesh 5.1.1 + stdlib zipfile for
+  STL/3MF; networkx 3.7, lxml 6.1.3 in the harness env.
+  Oracle values (nsol, vols, face kinds, bbox, watertight,
+  CRC) are computed by no kernel code path.
+- Report shas: §1 (c12 e2e/neg/pins, mutate). All c06–c12
+  e2e/neg reports carry binary_sha256 1fa52ab3…
+  (c07 e2e/solid/zone/neg predate the sha field; they were
+  re-run on the candidate binary in the same session:
+  328/328, 34/34, 33/33, 13/13).
+- Regression table: §3, last bullet. Laws 14/14 packets both
+  gates, mutants 51/51, pins 2003/2003, e2e/neg all green.
+- A follow-up session may re-run the §3 commands on the
+  committed tree for a second pair of eyes (C11 pattern);
+  this receipt's numbers are the committed tree's first
+  qualification, not a re-verification.

@@ -1,0 +1,293 @@
+{
+ "binary_sha256": "1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2",
+ "passed": 16,
+ "total": 16,
+ "results": [
+  {
+   "name": "step.box",
+   "ok": true,
+   "entities": "158",
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     999.9999999999998
+    ],
+    "nfaces": 6,
+    "kinds": [
+     "GeomType.PLANE"
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "valid": true
+   },
+   "seconds": 0.01
+  },
+  {
+   "name": "step.hole",
+   "ok": true,
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     874.336293856408
+    ],
+    "nfaces": 7,
+    "kinds": [
+     "GeomType.CYLINDER",
+     "GeomType.PLANE"
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     -1e-07,
+     10.0,
+     10.0,
+     10.0000001
+    ],
+    "valid": true
+   },
+   "expect": 874.3362938564082,
+   "seconds": 0.01
+  },
+  {
+   "name": "step.sphere",
+   "ok": true,
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     4188.7903636058345
+    ],
+    "nfaces": 2,
+    "kinds": [
+     "GeomType.SPHERE"
+    ],
+    "bbox": [
+     -10.0,
+     -10.0,
+     -10.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "valid": true
+   },
+   "expect": 4188.790204786391,
+   "seconds": 0.01
+  },
+  {
+   "name": "step.torus",
+   "ok": true,
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     59217.628468515046
+    ],
+    "nfaces": 8,
+    "kinds": [
+     "GeomType.TORUS"
+    ],
+    "bbox": [
+     -40.0000001,
+     -40.0000001,
+     -10.0000001,
+     40.0000001,
+     40.0000001,
+     10.0000001
+    ],
+    "valid": true
+   },
+   "expect": 59217.62640653615,
+   "seconds": 0.01
+  },
+  {
+   "name": "arc.box",
+   "ok": true,
+   "head": "BCAD1|mm|shoebox demo|B1",
+   "vol": [
+    0.0,
+    1000.0000000000018
+   ],
+   "faces": 6
+  },
+  {
+   "name": "arc.sphere",
+   "ok": true,
+   "vol": [
+    0.0,
+    8000.000000000015
+   ]
+  },
+  {
+   "name": "imp.box",
+   "ok": true,
+   "vol": [
+    0.0,
+    1000.0000000000018
+   ],
+   "expect": [
+    999.9999999999998
+   ],
+   "nfaces": 6,
+   "seconds": 0.05
+  },
+  {
+   "name": "imp.hole",
+   "ok": true,
+   "vol": [
+    0.0,
+    1000.0000000000018
+   ],
+   "expect": [
+    874.3362938564036
+   ],
+   "nfaces": 7,
+   "seconds": 0.07
+  },
+  {
+   "name": "imp.multi",
+   "ok": true,
+   "vol": [
+    0.0,
+    3000.0000000000055
+   ],
+   "expect": [
+    999.9999999999998,
+    999.9999999999998
+   ],
+   "back": {
+    "nsol": 2,
+    "vols": [
+     999.9999999999998,
+     999.9999999999998
+    ],
+    "nfaces": 12,
+    "kinds": [
+     "GeomType.PLANE"
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     30.0,
+     10.0,
+     10.0
+    ],
+    "valid": true
+   },
+   "seconds": 0.14
+  },
+  {
+   "name": "stl.box",
+   "ok": true,
+   "mesh": {
+    "vol": 1000.0,
+    "bounds": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "watertight": true,
+    "nfaces": 12
+   },
+   "seconds": 0.01
+  },
+  {
+   "name": "stl.text",
+   "ok": true
+  },
+  {
+   "name": "mf3.box",
+   "ok": true,
+   "mesh": {
+    "vol": 1000.0,
+    "bounds": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "watertight": true,
+    "nfaces": 12
+   },
+   "parts": [
+    "3D/3dmodel.model",
+    "[Content_Types].xml",
+    "_rels/.rels"
+   ],
+   "seconds": 0.01
+  },
+  {
+   "name": "stl.of",
+   "ok": true,
+   "mesh": {
+    "vol": 1000.0,
+    "bounds": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "watertight": true,
+    "nfaces": 12
+   }
+  },
+  {
+   "name": "mf3.of",
+   "ok": true,
+   "mesh": {
+    "vol": 1000.0,
+    "bounds": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "watertight": true,
+    "nfaces": 12
+   }
+  },
+  {
+   "name": "step.of",
+   "ok": true,
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     999.9999999999998
+    ],
+    "nfaces": 6,
+    "kinds": [
+     "GeomType.PLANE"
+    ],
+    "bbox": [
+     0.0,
+     0.0,
+     0.0,
+     10.0,
+     10.0,
+     10.0
+    ],
+    "valid": true
+   }
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "tools": true,
+   "text_match": true
+  }
+ ]
+}

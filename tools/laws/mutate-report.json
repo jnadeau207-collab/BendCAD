@@ -292,5 +292,68 @@
   "file": "src/c11/qinterf.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "archive units gate",
+  "file": "src/c12/blob.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "entity classifier names its kind",
+  "file": "src/c12/stepr.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "writer counts its units block",
+  "file": "src/c12/stepw.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "entity cap refusal keeps its name",
+  "file": "src/c12/stepr.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "section scan enters data",
+  "file": "src/c12/stepr.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "mesh vertex header byte",
+  "file": "src/c12/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "archive drops its envelope",
+  "file": "src/c12/blob.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "string builder un-reverses",
+  "file": "src/c12/stepr.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c12",
+  "law": "brep stamp covers its gens",
+  "file": "src/c12/blob.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

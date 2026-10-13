@@ -69,7 +69,8 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 And the kernel milestones that carry it there:
 
 - **Shipped:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
-- **Now:** interchange (STEP, STL, 3MF) with a durable, versioned archive, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
+- **Shipped:** interchange: a versioned B-rep archive, a declared STEP read/write profile validated by independent readers, and STL/3MF mesh exports on CLI and MCP paths.
+- **Now:** specialized modeling, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
 - **Then:** sheet metal, surface modeling, and blade and airfoil design, followed by a qualified public release.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).

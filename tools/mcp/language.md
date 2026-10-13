@@ -1,4 +1,4 @@
-# BendCAD design language (C06–C11)
+# BendCAD design language (C06–C12)
 
 A design is a list of parameters and nodes. Every node is one operation with a
 declared intent. Edits are atomic: a change is committed only if every node
@@ -63,6 +63,9 @@ parameter names (`W`), and `(+ a b)`, `(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
   z, 2 180 deg about z, 3 -90 deg about z, 4 +90 deg about x, 5 +90 deg about y.
 - `(union A B)`, `(difference A B)`, `(intersection A B)` — regularized
   booleans over closed solids whose boundaries do not cross (see Booleans).
+- `(import 1 PAYLOAD)` — adopt an encoded format-1 B-rep body (the B1
+  section of a BCAD1 archive). The body is fully validated by the B-rep
+  checker; anything else is refused loudly and nothing is published.
 
 An unknown operation name is rejected as `unknown-op`.
 

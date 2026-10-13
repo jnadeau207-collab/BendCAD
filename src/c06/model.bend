@@ -13,6 +13,7 @@ import ./revolve.bend as RV
 import ./iv.bend as I
 import ../c08/bool.bend as B8
 import ../c09/feat.bend as F9
+import ../c12/blob.bend as BL
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64 }
@@ -30,6 +31,7 @@ type Op is Data:
   O_move{ base: U64, tx: X.Xp, ty: X.Xp, tz: X.Xp, q: U64 }
   O_rot{ base: U64, ax: U64, deg: X.Xp }
   O_unk{ name: String }
+  O_blob{ fmt: U64, payload: String }
   O_revolve{ rs: List<&2, F.Region> }
   O_cone{ r: X.Xp, h: X.Xp }
   O_sph{ r: X.Xp }
@@ -1168,6 +1170,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_move{base, tx, ty, tz, q}: 7u64 <> base <> q <> X.xp_w(tx, e, X.xp_w(ty, e, X.xp_w(tz, e, [])))
     case O_rot{base, ax, deg}: 12u64 <> base <> ax <> X.xp_w(deg, e, [])
     case O_unk{name}: [13u64]
+    case O_blob{fmt, +payload}: 31u64 <> fmt <> BL.fnv_s(payload) <> U64.from_nat(BL.s_len(payload)) <> []
     case O_revolve{rs}: 8u64 <> rgs_w(rs, e, [])
     case O_cone{r, h}: 9u64 <> X.xp_w(r, e, X.xp_w(h, e, []))
     case O_sph{r}: 10u64 <> X.xp_w(r, e, [])
@@ -1267,6 +1270,7 @@ def op_name(o: Op) -> String:
     case O_move{base, tx, ty, tz, q}: "move"
     case O_rot{base, ax, deg}: "rotate"
     case O_unk{name}: "unknown"
+    case O_blob{fmt, payload}: "import"
     case O_revolve{rs}: "revolve"
     case O_cone{r, h}: "cone"
     case O_sph{r}: "sphere"
@@ -2390,6 +2394,58 @@ def ph_circ_n(z: Bool, +four: Bool, +f: Sel, +rad: F64, +cx: F64, +cy: F64, +r: 
 
 def op_ph_circ(+base: U64, +f: Sel, +n: U64, +rad: X.Xp, +cx: X.Xp, +cy: X.Xp, +r: X.Xp, +d: X.Xp, +thru: Bool, +b: Body, +e: X.Env, +nd: U64) -> NR:
   ph_circ_n(U64.is_eq(n, 0u64), U64.is_eq(n, 4u64), f, X.xp_ev(rad, e), X.xp_ev(cx, e), X.xp_ev(cy, e), X.xp_ev(r, e), d, thru, b, e, nd)
+def blob_fns_go(+k: Nat, +nd: U64, +acc: List<&2, BD.Fn>) -> List<&2, BD.Fn>:
+  match k:
+    case 0n: acc
+    case 1n+j:
+      +i = Nat.sub(k, 1n)
+      blob_fns_go(j, nd, BD.Fn{nd, i, 2u64, i, 0n} <> acc)
+
+def blob_fns(+nf: Nat, +nd: U64) -> List<&2, BD.Fn>:
+  blob_fns_go(nf, nd, [])
+
+def blob_ms(+ir: BL.IR) -> Ms:
+  +m = BL.ir_m(ir)
+  +vol = BL.im_vol(m)
+  +ar = BL.im_ar(m)
+  +bb = BL.im_bb(m)
+  +ct = BL.im_ct(m)
+  Ms{I.I{BL.li_lo(vol), BL.li_hi(vol)}, I.I{BL.li_lo(ar), BL.li_hi(ar)}, BL.lb_x0(bb), BL.lb_x1(bb),
+    BL.lb_y0(bb), BL.lb_y1(bb), BL.lb_z0(bb), BL.lb_z1(bb), BL.lc_nv(ct), BL.lc_ne(ct), BL.lc_nf(ct),
+    BL.lc_ns(ct), BL.lc_genus(ct), BL.im_lin(m)}
+
+def op_blob_ms(+w: Bool, +ir: BL.IR, +b: Ty.Brep, +nd: U64) -> NR:
+  match w:
+    case False{}: bad("import", "node " ++ U64.show(nd), BL.ir_why(ir), "re-import the STEP file")
+    case True{}: NR_ok{Bd{[], b, blob_fns(BL.lc_nf(BL.im_ct(BL.ir_m(ir))), nd), pl_id(), [],
+      Xb{blob_ms(ir) <> [], 0n, False{}, "import:step", []}}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
+
+def op_blob_go(+ir: BL.IR, +b: Ty.Brep, +nd: U64) -> NR:
+  op_blob_ms(BL.ir_ok_of(ir), ir, b, nd)
+
+def op_blob_ck(+t: Ty.TRes, +b: Ty.Brep, +nd: U64) -> NR:
+  match t:
+    case Ty.Tok{v}: op_blob_go(BL.imp_ms(b), b, nd)
+    case Ty.Terr{k}: bad("import", "node " ++ U64.show(nd),
+      "import-validation-failed at brep stage " ++ stage_why(stage_of(b, fuel_of(b))), "re-import the STEP file")
+
+def op_blob_pay(+w: Bool, +pr: BL.PR, +nd: U64) -> NR:
+  match w:
+    case False{}: bad("import", "node " ++ U64.show(nd), BL.pr_why(pr), "re-import the STEP file")
+    case True{}:
+      +b = BL.pr_b(pr)
+      op_blob_ck(B4.brep_checked(b, Ty.P_manifold_solid{}, fuel_of(b)), b, nd)
+
+def op_blob_fmt(+w: Bool, +payload: String, +nd: U64) -> NR:
+  match w:
+    case False{}: bad("import", "node " ++ U64.show(nd), "import-format-unknown", "use format 1 payloads")
+    case True{}:
+      +pr = BL.pay_brep(payload)
+      op_blob_pay(BL.pr_ok_of(pr), pr, nd)
+
+def op_blob(+fmt: U64, +payload: String, +nd: U64) -> NR:
+  op_blob_fmt(U64.is_eq(fmt, 1u64), payload, nd)
+
 def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
@@ -2400,7 +2456,8 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_holes{base, f, hs, d, thru}: op_feat(2u64, b, f, hls_rgs(hs), d, thru, e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
-    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern or pattern-holes")
+    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes or import")
+    case O_blob{fmt, payload}: op_blob(fmt, payload, nd)
     case O_revolve{rs}: op_rev(rs, e, nd)
     case O_cone{r, h}: op_rev([cone_rg(r, h)], e, nd)
     case O_sph{r}: op_rev([sph_rg(r)], e, nd)

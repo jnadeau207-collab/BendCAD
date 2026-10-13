@@ -1,5 +1,5 @@
 {
- "binary_sha256": "7459831237702700825000f8b70c51d688c77114307a74f61dd2c6aee546c5cb",
+ "binary_sha256": "1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2",
  "passed": 108,
  "total": 108,
  "results": [
@@ -17,7 +17,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.041951894760131836
+   "seconds": 0.04258251190185547
   },
   {
    "name": "disjoint.diff",
@@ -150,7 +150,7 @@
     7935.9999999925685,
     7936.0000000074315
    ],
-   "seconds": 0.19211840629577637
+   "seconds": 0.19142794609069824
   },
   {
    "name": "containment.inter",
@@ -244,7 +244,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.14351820945739746
+   "seconds": 0.1472768783569336
   },
   {
    "name": "mirror.diff",
@@ -307,7 +307,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.10759592056274414
+   "seconds": 0.1075289249420166
   },
   {
    "name": "kiss.inter",
@@ -355,7 +355,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 5.4919373989105225
+   "seconds": 5.430266857147217
   },
   {
    "name": "contact.edge",
@@ -454,7 +454,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.030112028121948242
+   "seconds": 0.028852462768554688
   },
   {
    "name": "identical.diff",
@@ -523,7 +523,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.03445911407470703
+   "seconds": 0.033057212829589844
   },
   {
    "name": "empty.diff_empty_left",
@@ -632,7 +632,7 @@
     999.9999999990735,
     1000.0000000009265
    ],
-   "seconds": 21.57175374031067
+   "seconds": 20.950706958770752
   },
   {
    "name": "slanted.bicubic_wall_present",
@@ -657,7 +657,7 @@
   {
    "name": "crossing.union_refused",
    "ok": true,
-   "seconds": 1.8057377338409424
+   "seconds": 1.8711867332458496
   },
   {
    "name": "crossing.diff_refused",
@@ -692,7 +692,7 @@
    "name": "sens.union",
    "ok": true,
    "d_volume": 100.0,
-   "seconds": 0.031064748764038086
+   "seconds": 0.03212761878967285
   },
   {
    "name": "rotated.union",
@@ -708,7 +708,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.05149531364440918
+   "seconds": 0.04998469352722168
   },
   {
    "name": "rotated.quarter_turn",
@@ -749,7 +749,7 @@
     63.999999999941046,
     64.00000000005902
    ],
-   "seconds": 0.29386305809020996
+   "seconds": 0.30159735679626465
   },
   {
    "name": "moved.diff_cavity",
@@ -804,7 +804,7 @@
   {
    "name": "pierce.union_refused",
    "ok": true,
-   "seconds": 0.13129472732543945
+   "seconds": 0.15181231498718262
   },
   {
    "name": "pierce.diff_refused",
@@ -832,7 +832,7 @@
     238.7610416726404,
     238.76104167300815
    ],
-   "seconds": 0.0886843204498291
+   "seconds": 0.112457275390625
   },
   {
    "name": "curved.cavity",
@@ -910,7 +910,7 @@
     1523.598775596539,
     1523.5987756000584
    ],
-   "seconds": 0.1936628818511963
+   "seconds": 0.19282078742980957
   },
   {
    "name": "tangent.inter_empty",
@@ -968,7 +968,7 @@
     804.2477193189775,
     804.2477193189968
    ],
-   "seconds": 5.031783580780029
+   "seconds": 6.37575888633728
   },
   {
    "name": "tangent_cyl.inter_empty",
@@ -1028,7 +1028,7 @@
     1935.9999999980976,
     1936.0000000019022
    ],
-   "seconds": 0.15333914756774902
+   "seconds": 0.15350127220153809
   },
   {
    "name": "chained.check",
@@ -1059,7 +1059,7 @@
    "name": "sens.step",
    "ok": true,
    "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
-   "seconds": 0.030209064483642578
+   "seconds": 0.029505252838134766
   },
   {
    "name": "replay.lineage",
@@ -1074,7 +1074,7 @@
    "name": "sens.flip_refused",
    "ok": true,
    "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
-   "seconds": 0.03076171875
+   "seconds": 0.02972888946533203
   },
   {
    "name": "sens.flip_cache",
