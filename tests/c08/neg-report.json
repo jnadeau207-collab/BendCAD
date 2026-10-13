@@ -1,5 +1,5 @@
 {
- "binary_sha256": "dfd3adc6f08817d43529382df3dee392ba5bde030909a45d1fe9b6423458a9fe",
+ "binary_sha256": "e8d1e6f2424dae98881b3a16e1268148cadde2d5958d60978c64edf08c00e550",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 0.59
+   "seconds": 0.6
   },
   {
    "name": "cross.straddle",
@@ -79,19 +79,19 @@
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 2.85
+   "seconds": 2.4
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 2.24
+   "seconds": 2.14
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.65
+   "seconds": 0.64
   },
   {
    "name": "ok.touch_face",

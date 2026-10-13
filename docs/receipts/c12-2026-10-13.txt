@@ -352,3 +352,16 @@ copies of `check.sh`/`run.sh`, `BEND=~/bin/bendcap` for
 `mutate.py`, patched `solid_neg.py`) under
 `flock /tmp/bend-heavy.lock`; no `bend update`, nothing under
 `legacy/`, no CI raised.
+
+## Independent verification (2026-10-13)
+
+The owner's verifier re-ran every gate on the committed tree deebc17
+with a fresh two-stage build (CLI sha256 e8d1e6f2…): laws 359/359
+(14 packets) under `--check-only` and `--verdict`, mutants 51/51
+(report sha256 57e73499…), pins 2,003/2,003 across 17 files,
+`tests/c06/e2e.py` 55/55, `tests/c07/e2e.py` 328/328, `solid.py`
+34/34, `solid_neg.py` 13/13, `zone.py` 33/33, `tests/c08/e2e.py`
+108/108, `neg.py` 20/20, `tests/c09/e2e.py` 29/29, `neg.py` 27/27,
+`tests/c10/e2e.py` 11/11, `neg.py` 12/12, `tests/c11/e2e.py` 33/33,
+`neg.py` 19/19, `tests/c12/e2e.py` 16/16, `neg.py` 24/24. The report
+files in this commit carry that binary's sha.
