@@ -91,12 +91,13 @@ closure) AND runtime witness green on the candidate binary.
 | Oracle files import with memory/count bounds | contract §4; F4, F5 | `step_import` measures | `imp.box/hole/multi` | `import.garbage/badent/nosolid` | yes (`parse_cap/en/du/un/op/v/o/s/nso`, `sec_*`) | ORCL + PIN + MUT | PASS |
 | STL export validates independently | contract §5; F6 | trimesh watertight + volume | `stl.box`, `stl.text`, `stl.of` | `stl.node_failed`, `stl.budget` | yes (`mo_head_*`, `stl_tri` pins) | ORCL + PIN + MUT | PASS |
 | 3MF export validates independently | contract §5; F6 | trimesh + zip CRC | `mf3.box`, `mf3.of` | `mf3.node_failed`, `mf3.budget` | yes (`mo_crc_*`, `mo_l2_len`, `crc_std`, `zip_*` pins) | ORCL + PIN + MUT | PASS |
-| Unsupported entities are explicit | contract §3, §6; F2, F4 | named refusal + id | `import.cone/open/inch/vloop/voids` | — (refusals are the witness) | yes (`fail_curve_spline`, `fail_surf_cone`, `fail_loop_dup`, `fail_ce_trim`, `kind_assembly`, `parse_as_refused`) | PIN + MUT | PASS |
+| Unsupported entities are explicit | contract §3, §6; F2, F4 | named refusal + id | `import.cone/open/inch/vloop/voids/assembly` | — (refusals are the witness) | yes (`fail_curve_spline`, `fail_surf_cone`, `fail_loop_dup`, `fail_ce_trim`, `kind_assembly`, `parse_as_refused`) | PIN + MUT | PASS |
 | No partial geometry on failure | intent §6 | no output file + design intact | every neg asserts absence | every neg | yes (single-write architecture) | PIN | PASS |
 | Agent interface parity | intent §2; tools/mcp | MCP tools = CLI strings | `mcp.parity` (9 tools) | — (parity) | yes (byte-compared tool outputs) | MCP | PASS |
 
 Matrix closure: all 64 laws appear above by family; all 16 e2e
-journeys and all 23 neg journeys appear above. Oracle sphere/torus
+journeys and all 24 neg journeys appear above (`import.assembly`
+added by the §9 repair). Oracle sphere/torus
 source files refuse on import (`import.sphere_vloop`: oracle sphere
 pole vertex-loops outside the profile; `import.torus_dust`:
 degenerate trim dust caught by C04 embedding validation) — the
@@ -239,11 +240,13 @@ none is silent. Packet-specific additions:
 - D-assembly-neg: no assembly-import neg journey exists;
   `step-assembly-not-in-profile` is law-closed
   (`kind_assembly`, `parse_as_refused`) and pin-adjacent only.
+  (Closed by the §9 repair: `import.assembly` journey added.)
 - D-dead-tol: `src/c12/stepr.bend` carries a dead tolerance
   chain (`sr_ck_h`, `sr_mc_h/g/f/e/d/c`, `sr_verdict_tol`,
   `sr_checked_tol_a/go`, face-tol walk): zero callers, no
   law/pin references. Kept verbatim this packet; deletion is
-  law/pin-safe future cleanup.
+  law/pin-safe future cleanup. (Closed by the §9 repair:
+  chain deleted, -96 lines.)
 
 ## 7. Change set
 
@@ -280,3 +283,72 @@ Nothing under legacy/ touched; no `bend update`; no CI raised.
   committed tree for a second pair of eyes (C11 pattern);
   this receipt's numbers are the committed tree's first
   qualification, not a re-verification.
+
+## 9. Repair (2026-10-13, uncommitted)
+
+Follow-up repair closed two §6 deferrals at root cause on top
+of 19c26af. D-dead-tol: deleted the dead tolerance chain from
+`src/c12/stepr.bend` (-96 lines: `sr_coinc_tol`,
+`sr_hctol_go`, `sr_hlstol_go`, `sr_fctol_m/q`, `sr_fctol`,
+`sr_fastol_go`, `sr_ck_h`, `sr_mc_c/d/e/f/g/h`,
+`sr_verdict_tol`, `sr_checked_tol_a/go`; zero callers, zero
+law/pin references repo-wide). The live import path is
+unchanged: `op_blob_tol` via `sr_brep_tol`/`sr_embed_tol`/
+`sr_estol_go`/`sr_edge_tol`. D-assembly-neg: added the
+`import.assembly` neg journey to `tests/c12/neg.py` (box STEP
+plus an injected `NEXT_ASSEMBLY_USAGE_OCCURRENCE` line with a
+fresh id; refuses `step-assembly-not-in-profile`, publishes
+no `.bca`). Harness: `tests/c07/solid_neg.py` now builds
+through `$HOME/bin/bendcap` instead of bare `bend`.
+D-torus-dust stays as §5 documents it: refusing degenerate
+foreign trims at embedding validation is the designed failure
+semantic, and both journeys are green as refusals. MASTER_PLAN
+§10 keeps the aspirational archive target per the C08
+convention; the shipped profile is contract §8 plus §6 here.
+
+Fresh two-stage build from the repaired tree (CLI sha256
+856f65bd92ae693e64a71190fbdd5ae0739877a6b9862cb4aa95ab996c8a68a1,
+197736504 bytes; `src/c12/stepr.bend` sha256 240f1c8f…):
+laws c12 64/64 `ALL PROOFS CHECK` under `--check-only` (4 s)
+and `--verdict` (21 s), mutants c12 9/9 (report sha256
+57e73499…, byte-identical to the §3 report), pins c12 33/33
+(sha256 2be56996…, byte-identical report), E2E 762/762:
+`tests/c06/e2e.py` 55/55, `tests/c07/e2e.py` 328/328,
+`solid.py` 34/34, `solid_neg.py` 13/13, `zone.py` 33/33,
+`tests/c08/e2e.py` 108/108, `neg.py` 20/20, `tests/c09/e2e.py`
+29/29, `neg.py` 27/27, `tests/c10/e2e.py` 11/11, `neg.py`
+12/12, `tests/c11/e2e.py` 33/33, `neg.py` 19/19,
+`tests/c12/e2e.py` 16/16, `neg.py` 24/24. The report files
+carry the fresh binary's sha. All bend invocations went
+through `~/bin/bendcap` under `flock /tmp/bend-heavy.lock`;
+no `bend update`, nothing under `legacy/`, no CI raised.
+
+## 10. Final verification (2026-10-13, this commit)
+
+The final agent re-ran every gate from the repaired tree with
+a fresh two-stage build (CLI sha256
+dfd3adc6f08817d43529382df3dee392ba5bde030909a45d1fe9b6423458a9fe,
+197736520 bytes; build shas are unstable across builds, §1):
+laws 14/14 packets `ALL PROOFS CHECK` under `--check-only` and
+`--verdict` (359 laws: base 13, c00 8, c01 10, c02 16, c03 10,
+c04 104, c05 34, c06 6, c07 5, c08 4, c09 2, c10 18, c11 65,
+c12 64), mutants 51/51 killed (report sha256 57e73499…,
+byte-identical to §3), pins 2003/2003 across 17/17 files (c12
+33/33, sha256 2be56996…, byte-identical report), E2E 762/762:
+`tests/c06/e2e.py` 55/55, `tests/c07/e2e.py` 328/328,
+`solid.py` 34/34, `solid_neg.py` 13/13, `zone.py` 33/33,
+`tests/c08/e2e.py` 108/108, `neg.py` 20/20, `tests/c09/e2e.py`
+29/29, `neg.py` 27/27, `tests/c10/e2e.py` 11/11, `neg.py`
+12/12, `tests/c11/e2e.py` 33/33, `neg.py` 19/19,
+`tests/c12/e2e.py` 16/16, `neg.py` 24/24. Every report in this
+commit carries the dfd3adc6 sha (c07 e2e/solid/zone/neg
+predate the sha field; re-run on this binary in-session).
+The §2 matrix now names `import.assembly` and closes over all
+24 neg journeys; the §6 D-assembly-neg/D-dead-tol bullets are
+annotated closed by §9; D-torus-dust stays as §5 documents it.
+README and MASTER_PLAN C12-closed status lines verified
+correct. All bend invocations through `~/bin/bendcap` (faithful
+copies of `check.sh`/`run.sh`, `BEND=~/bin/bendcap` for
+`mutate.py`, patched `solid_neg.py`) under
+`flock /tmp/bend-heavy.lock`; no `bend update`, nothing under
+`legacy/`, no CI raised.

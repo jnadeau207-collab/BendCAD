@@ -1,5 +1,5 @@
 {
- "binary_sha256": "1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2",
+ "binary_sha256": "dfd3adc6f08817d43529382df3dee392ba5bde030909a45d1fe9b6423458a9fe",
  "passed": 33,
  "total": 33,
  "results": [
@@ -98,7 +98,7 @@
      41278.703545005876
     ]
    ],
-   "seconds": 0.62
+   "seconds": 0.6
   },
   {
    "name": "mass.depths",
@@ -110,8 +110,8 @@
    },
    "seconds": {
     "2": 0.02,
-    "3": 0.08,
-    "4": 0.55
+    "3": 0.07,
+    "4": 0.53
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 32.9
+   "seconds": 32.8
   },
   {
    "name": "mass.moved_invariance",
@@ -257,7 +257,7 @@
      6.397058823529622
     ]
    ],
-   "seconds": 0.7
+   "seconds": 0.6
   },
   {
    "name": "section.cyl_circle",
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 164.7
+   "seconds": 147.7
   },
   {
    "name": "section.mapped",
@@ -313,7 +313,7 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 188.0
+   "seconds": 157.6
   },
   {
    "name": "section.coin",
@@ -359,7 +359,7 @@
    "cavities": [
     "cavity 1 inside 0 status=certified"
    ],
-   "seconds": 2.2
+   "seconds": 2.3
   },
   {
    "name": "clearance.disjoint",

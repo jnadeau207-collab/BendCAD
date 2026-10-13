@@ -170,6 +170,14 @@ def c_imp_w():
     return imp_refused('voids', txt, 'step-voids-not-in-profile')
 
 
+@case('import.assembly')
+def c_imp_a():
+    txt = setup_box_step()
+    ids = [int(m.group(1)) for l in txt.splitlines() for m in [re.match(r'#(\d+)\s*=', l)] if m]
+    asm = f'#{max(ids) + 1} = NEXT_ASSEMBLY_USAGE_OCCURRENCE(\'a\',\'b\',\'c\',#1,#2);\n'
+    return imp_refused('assembly', txt.replace('DATA;\n', 'DATA;\n' + asm, 1), 'step-assembly-not-in-profile')
+
+
 @case('import.sphere_vloop')
 def c_imp_sv():
     out, _ = geom('step_import', ORACLE_SPHERE, f'{WORK}/sploop.bca')

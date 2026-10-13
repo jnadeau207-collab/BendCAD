@@ -35,7 +35,7 @@ def wsl(cmd, timeout):
 def main():
     t = time.time()
     b = wsl(f'cd /mnt/c/dev/BendCAD 2>/dev/null || cd {os.path.dirname(os.path.dirname(HERE))}; '
-            f'PATH=$HOME/.bend/bin:$PATH bend tests/c07/solid_neg.bend -o {BIN}', 3600)
+            f'$HOME/bin/bendcap tests/c07/solid_neg.bend -o {BIN}', 3600)
     build_s = time.time() - t
     t = time.time()
     r = wsl(BIN, 3600)

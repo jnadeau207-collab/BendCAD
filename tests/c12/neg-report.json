@@ -1,7 +1,7 @@
 {
- "binary_sha256": "1fa52ab3952feab5fa2bfa5ebb17a6feed27ef724eb8b0324b2cd93869a941d2",
- "passed": 23,
- "total": 23,
+ "binary_sha256": "dfd3adc6f08817d43529382df3dee392ba5bde030909a45d1fe9b6423458a9fe",
+ "passed": 24,
+ "total": 24,
  "results": [
   {
    "name": "step.node_failed",
@@ -77,6 +77,11 @@
    "name": "import.voids",
    "ok": true,
    "detail": "imported /tmp/bc-neg-c12/voids.step | error invalid-input | import @ step data | why: step-voids-not-in-profile | fix: re-import the STEP file"
+  },
+  {
+   "name": "import.assembly",
+   "ok": true,
+   "detail": "imported /tmp/bc-neg-c12/assembly.step | error invalid-input | import @ step data | why: step-assembly-not-in-profile | fix: re-import the STEP file"
   },
   {
    "name": "import.sphere_vloop",
