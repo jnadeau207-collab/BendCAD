@@ -96,8 +96,8 @@ def zcmp(xs: List<&2, I.I>, ys: List<&2, I.I>) -> B.Sgn:
       match ys:
         case []: B.Sz{}
         case +y <> u:
-          +a = X.imid(x)
-          +b = X.imid(y)
+          +a = I.imid(x)
+          +b = I.imid(y)
           Bool.pick(B.Sgn, F64.is_lt(a, b), B.Sn{}, Bool.pick(B.Sgn, F64.is_lt(b, a), B.Sp{}, zcmp(t, u)))
 
 def ep_cmp_go(+a: Ep, +b: Ep) -> B.Sgn:
@@ -287,7 +287,7 @@ def sample(+p: N.Pb, q: Pc) -> List<&2, I.I>:
   +es = fp_go(p, x)
   +a = X.vn(ep_full(ep_nth(es, 0n)), k)
   +b = X.vn(ep_full(ep_nth(es, 1n)), k)
-  at_face(p, x, k, F64.add(F64.mul(0.5f64, X.imid(a)), F64.mul(0.5f64, X.imid(b))))
+  at_face(p, x, k, F64.add(F64.mul(0.5f64, I.imid(a)), F64.mul(0.5f64, I.imid(b))))
 
 def samples(ixs: List<&2, U32>, +pt: B.Tb<&2, Pc>, +p: N.Pb) -> List<&2, List<&2, I.I>>:
   match ixs:

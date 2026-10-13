@@ -530,12 +530,6 @@ def pt_mid(+a: V.Point, +b: V.Point) -> V.Point:
   V.Pt{F64.mul(0.5f64, F64.add(V.pt_x(a), V.pt_x(b))), F64.mul(0.5f64, F64.add(V.pt_y(a), V.pt_y(b))),
     F64.mul(0.5f64, F64.add(V.pt_z(a), V.pt_z(b)))}
 
-def pt_dist(+a: V.Point, +b: V.Point) -> F64:
-  V.Pt{+ax, +ay, +az} = a
-  V.Pt{+bx, +by, +bz} = b
-  F64.sqrt(F64.add(F64.add(F64.mul(F64.sub(bx, ax), F64.sub(bx, ax)), F64.mul(F64.sub(by, ay), F64.sub(by, ay))),
-    F64.mul(F64.sub(bz, az), F64.sub(bz, az))))
-
 def ev_at(+c: G.GVal, +t: F64) -> V.Point:
   match c:
     case G.GV_rq{+w}: G.gres_p(GO.rqb_eval(w, t))
@@ -544,7 +538,7 @@ def ev_at(+c: G.GVal, +t: F64) -> V.Point:
     case _: pz()
 
 def seg_chord(+c: G.GVal, +ps: List<&2, V.Point>, +j: Nat, +tm: F64) -> F64:
-  pt_dist(ev_at(c, tm), pt_mid(pt_nth(ps, j), pt_nth(ps, Nat.add(j, 1n))))
+  M10.pt_dist(ev_at(c, tm), pt_mid(pt_nth(ps, j), pt_nth(ps, Nat.add(j, 1n))))
 
 def segs_go(+c: G.GVal, +ps: List<&2, V.Point>, +lo: F64, +hi: F64, +s: Nat, +j: Nat, +acc: F64) -> F64:
   match j:

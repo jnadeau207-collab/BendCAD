@@ -46,7 +46,7 @@ executed, not proven.
 | `src/c07/emb.bend` | Embedding (self-intersection) check |
 | `src/c07/sym.bend` | Exact rational normal form of parameter expressions; identity proofs |
 | `src/c07/zt.bend`, `zd.bend` | Zone primitives, separation and corner certificates, interval dual numbers, envelope measures |
-| `src/c07/gsx.bend`, `gmain.bend` | `geom intersect` syntax and report |
+| `src/c07/gsx.bend` | `geom intersect` syntax and dispatch; report lines owned by `src/c11/qsect.bend` (C11) |
 | `src/c06/zone.bend`, `src/c06/cli.bend` | `zone`, `classify`, `check` wiring |
 
 ## 2. Intersection engine

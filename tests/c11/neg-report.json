@@ -1,0 +1,121 @@
+{
+ "binary_sha256": "500eb8afc56a89bfb43de5dd84b1945ebae4f8c4edbb5af5fe44c105260bc231",
+ "passed": 19,
+ "total": 19,
+ "results": [
+  {
+   "name": "dist.nan",
+   "ok": true,
+   "info": "('the point needs three finite numbers', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "dist.garbage",
+   "ok": true,
+   "info": "('the point needs three finite numbers', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "dist.missing",
+   "ok": true,
+   "info": "('the point needs three finite numbers', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "dist.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing measured",
+   "seconds": 0.02
+  },
+  {
+   "name": "extrema.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing measured",
+   "seconds": 0.02
+  },
+  {
+   "name": "mass.depth_7",
+   "ok": true,
+   "info": "('depth needs 0..6', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "mass.depth_garbage",
+   "ok": true,
+   "info": "('depth needs 0..6', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "mass.depth_neg",
+   "ok": true,
+   "info": "('depth needs 0..6', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "mass.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing measured",
+   "seconds": 0.02
+  },
+  {
+   "name": "section.degenerate",
+   "ok": true,
+   "info": "('the plane needs four finite numbers with a nonzero normal', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "section.nan",
+   "ok": true,
+   "info": "('the plane needs four finite numbers with a nonzero normal', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "section.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing sectioned",
+   "seconds": 0.02
+  },
+  {
+   "name": "interf.node_a",
+   "ok": true,
+   "info": "error: node failed; nothing compared",
+   "seconds": 0.02
+  },
+  {
+   "name": "interf.node_b",
+   "ok": true,
+   "info": "error: node failed; nothing compared",
+   "seconds": 0.02
+  },
+  {
+   "name": "clearance.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing measured",
+   "seconds": 0.02
+  },
+  {
+   "name": "wall.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing measured",
+   "seconds": 0.02
+  },
+  {
+   "name": "classify.nan",
+   "ok": true,
+   "info": "('the point needs three finite numbers', 'same')",
+   "seconds": 0.02
+  },
+  {
+   "name": "classify.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing classified",
+   "seconds": 0.02
+  },
+  {
+   "name": "check.node_failed",
+   "ok": true,
+   "info": "error: node failed; nothing checked",
+   "seconds": 0.02
+  }
+ ]
+}

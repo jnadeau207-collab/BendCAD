@@ -5,10 +5,8 @@ import ../c03/types.bend as G
 import ../c06/iv.bend as I
 import ../c06/sx.bend as S
 import ./ivx.bend as X
-import ./xs.bend as Q
-import ./par.bend as PA
-import ./ss.bend as SS
 import ./isect.bend as Y
+import ../c11/qsect.bend as QN
 
 type Gq is Data:
   Q_cv{ g: G.GVal, d: G.Dom }
@@ -82,153 +80,8 @@ def gq_of(+x: S.Sx) -> Gq:
   +v = nums(S.sx_drop(xs, 1n))
   Bool.pick(Gq, String.eq(h, "nurbs"), nb_of(xs), Bool.pick(Gq, allfin(v), gq_go(h, List.length(&2, F64, v), v), Q_bad{"nonfinite-or-missing-number"}))
 
-def fs(+x: F64) -> String:
-  S.f_show(x)
-
-def si(+a: I.I) -> String:
-  "[" ++ fs(I.i_lo(a)) ++ ", " ++ fs(I.i_hi(a)) ++ "]"
-
-def sp3(+p: List<&2, I.I>) -> String:
-  si(X.vn(p, 0n)) ++ "x" ++ si(X.vn(p, 1n)) ++ "x" ++ si(X.vn(p, 2n))
-
-def sp2(p: List<&2, I.I>) -> String:
-  match p:
-    case []: "-"
-    case a <> t: "(" ++ si(a) ++ ", " ++ si(X.vn(t, 0n)) ++ ")"
-
-def cls_k(+c: U64) -> String:
-  Bool.pick(String, U64.is_eq(c, 0u64), "interior",
-    Bool.pick(String, U64.is_eq(c, 16u64), "seam",
-      Bool.pick(String, U64.is_eq(U64.and(c, 1u64), 1u64), "a-start ", "") ++
-      Bool.pick(String, U64.is_eq(U64.and(c, 2u64), 2u64), "a-end ", "") ++
-      Bool.pick(String, U64.is_eq(U64.and(c, 4u64), 4u64), "b-start ", "") ++
-      Bool.pick(String, U64.is_eq(U64.and(c, 8u64), 8u64), "b-end ", "")))
-
-def cls_s(+c: U64) -> String:
-  Bool.pick(String, U64.is_eq(U64.and(c, 32u64), 32u64), "tangent ", "") ++ cls_k(U64.and(c, 31u64))
-
-def hit_s(h: Q.Hit) -> String:
-  match h:
-    case Q.H_pt{s, t, p, cls}: "point s=" ++ si(s) ++ " t=" ++ si(t) ++ " at=" ++ sp3(p) ++ " class=" ++ cls_s(cls)
-    case Q.H_ov{s, t}: "overlap s=" ++ si(s) ++ " t=" ++ si(t)
-    case Q.H_un{s, t, p}: "unresolved s=" ++ si(s) ++ " t=" ++ si(t) ++ " near=" ++ sp3(p)
-    case Q.H_no{w}: "error unsupported-op | intersect | why: " ++ w
-
-def hit_k(h: Q.Hit) -> U64:
-  match h:
-    case Q.H_pt{s, t, p, c}: 0u64
-    case Q.H_ov{s, t}: 1u64
-    case Q.H_un{s, t, p}: 2u64
-    case Q.H_no{w}: 3u64
-
-def hx_str(h: Y.Hx) -> String:
-  match h:
-    case Y.Hx_c{w}: hit_s(w)
-    case Y.Hx_uv{s, u, v, p, cls}: "point s=" ++ si(s) ++ " u=" ++ si(u) ++ " v=" ++ si(v) ++ " at=" ++ sp3(p) ++ " class=" ++ cls_s(cls)
-    case Y.Hx_un3{s, u, v}: "unresolved s=" ++ si(s) ++ " u=" ++ si(u) ++ " v=" ++ si(v)
-
-def hx_k(h: Y.Hx) -> U64:
-  match h:
-    case Y.Hx_c{w}: hit_k(w)
-    case Y.Hx_uv{s, u, v, p, cls}: 0u64
-    case Y.Hx_un3{s, u, v}: 2u64
-
-def hxs_s(hs: List<&2, Y.Hx>) -> String:
-  match hs:
-    case []: ""
-    case h <> t: hx_str(h) ++ "\n" ++ hxs_s(t)
-
-def cnt(hs: List<&2, Y.Hx>, +k: U64) -> Nat:
-  match hs:
-    case []: 0n
-    case h <> t:
-      +me = Bool.pick(Nat, U64.is_eq(hx_k(h), k), 1n, 0n)
-      Nat.add(me, cnt(t, k))
-
-def report(+hs: List<&2, Y.Hx>) -> String:
-  hxs_s(hs) ++ "summary points=" ++ Nat.show(cnt(hs, 0u64)) ++ " overlaps=" ++ Nat.show(cnt(hs, 1u64)) ++ " unresolved=" ++ Nat.show(cnt(hs, 2u64))
-
 def depth() -> Nat:
   40n
-
-def coord_name(+kind: U64, +k: Nat) -> String:
-  Bool.pick(String, U64.is_eq(kind, 0u64), Bool.pick(String, Nat.is_eq(k, 0n), "x", Bool.pick(String, Nat.is_eq(k, 1n), "y", "z")),
-    Bool.pick(String, U64.is_eq(kind, 3u64), Bool.pick(String, Nat.is_eq(k, 0n), "u1", Bool.pick(String, Nat.is_eq(k, 1n), "v1", Bool.pick(String, Nat.is_eq(k, 2n), "u2", "v2"))),
-      Bool.pick(String, Nat.is_eq(k, 0n), "u", "v")))
-
-def ep_s(e: SS.Ep, +kind: U64) -> String:
-  SS.Ep{k, c, z, i, s} = e
-  "  end at " ++ coord_name(kind, k) ++ "=" ++ fs(c) ++ "\n"
-
-def eps_s(es: List<&2, SS.Ep>, +kind: U64) -> String:
-  match es:
-    case []: ""
-    case e <> t: ep_s(e, kind) ++ eps_s(t, kind)
-
-def drop2(xs: List<&2, I.I>) -> List<&2, I.I>:
-  match xs:
-    case []: []
-    case a <> t:
-      match t:
-        case []: []
-        case b <> u: u
-
-def par_a(+kind: U64, +ga: G.GVal, +x: List<&2, I.I>, +p: List<&2, I.I>) -> List<&2, I.I>:
-  Bool.pick(List<&2, I.I>, Bool.or(U64.is_eq(kind, 1u64), U64.is_eq(kind, 3u64)), x, PA.sf_par(ga, p))
-
-def par_b(+kind: U64, +gb: G.GVal, +x: List<&2, I.I>, +p: List<&2, I.I>) -> List<&2, I.I>:
-  Bool.pick(List<&2, I.I>, U64.is_eq(kind, 2u64), x, Bool.pick(List<&2, I.I>, U64.is_eq(kind, 3u64), drop2(x), PA.sf_par(gb, p)))
-
-def pts_s(ps: List<&2, List<&2, I.I>>, +kind: U64, +ga: G.GVal, +gb: G.GVal) -> String:
-  match ps:
-    case []: ""
-    case +x <> t:
-      +p = Y.sample3(kind, ga, gb, x)
-      "  p " ++ sp3(p) ++ " a=" ++ sp2(par_a(kind, ga, x, p)) ++ " b=" ++ sp2(par_b(kind, gb, x, p)) ++ "\n" ++ pts_s(t, kind, ga, gb)
-
-def br_s(b: SS.Br, +kind: U64, +ga: G.GVal, +gb: G.GVal) -> String:
-  SS.Br{closed, +pts, ends} = b
-  "curve " ++ Bool.pick(String, closed, "closed", "open") ++ " samples=" ++ Nat.show(List.length(&2, List<&2, I.I>, pts)) ++ "\n" ++ pts_s(pts, kind, ga, gb) ++ eps_s(ends, kind)
-
-def brs_s(bs: List<&2, SS.Br>, +kind: U64, +ga: G.GVal, +gb: G.GVal) -> String:
-  match bs:
-    case []: ""
-    case b <> t: br_s(b, kind, ga, gb) ++ brs_s(t, kind, ga, gb)
-
-def uns_go(n: Nat, us: List<&2, List<&2, I.I>>) -> String:
-  match n:
-    case 0n: ""
-    case 1n+m:
-      match us:
-        case []: ""
-        case u <> t: "unresolved box " ++ sp3(u) ++ "\n" ++ uns_go(m, t)
-
-def hull_all(us: List<&2, List<&2, I.I>>, +acc: List<&2, I.I>) -> List<&2, I.I>:
-  match us:
-    case []: acc
-    case u <> t: hull_all(t, X.vhull(acc, u))
-
-def first_box(us: List<&2, List<&2, I.I>>) -> List<&2, I.I>:
-  match us:
-    case []: []
-    case u <> t: u
-
-def uns_s(+us: List<&2, List<&2, I.I>>) -> String:
-  +n = List.length(&2, List<&2, I.I>, us)
-  uns_go(32n, us) ++ Bool.pick(String, Nat.is_lt(32n, n), "unresolved more=" ++ Nat.show(Nat.sub(n, 32n)) ++ " hull=" ++ sp3(hull_all(us, first_box(us))) ++ "\n", "")
-
-def ss_body(s: SS.Ss, +kind: U64, +ga: G.GVal, +gb: G.GVal) -> String:
-  SS.Ss{ok, +brs, +un} = s
-  brs_s(brs, kind, ga, gb) ++ uns_s(un) ++ "summary curves=" ++ Nat.show(List.length(&2, SS.Br, brs)) ++ " unresolved=" ++ Nat.show(List.length(&2, List<&2, I.I>, un))
-
-def sr_go(coin: Bool, s: SS.Ss, +kind: U64, +ga: G.GVal, +gb: G.GVal) -> String:
-  match coin:
-    case True{}: "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1"
-    case False{}: ss_body(s, kind, ga, gb)
-
-def sr_s(r: Y.Sr, +ga: G.GVal, +gb: G.GVal) -> String:
-  Y.Sr{ss, kind, coin} = r
-  sr_go(coin, ss, kind, ga, gb)
 
 def box_of(+x: S.Sx) -> List<&2, I.I>:
   +xs = S.sx_xs(x)
@@ -238,7 +91,7 @@ def box_of(+x: S.Sx) -> List<&2, I.I>:
 
 def ss_box(ok: Bool, +ga: G.GVal, +gb: G.GVal, +bx: List<&2, I.I>) -> String:
   match ok:
-    case True{}: sr_s(Y.inter_ss(ga, gb, bx), ga, gb)
+    case True{}: QN.sr_s(Y.inter_ss(ga, gb, bx), ga, gb)
     case False{}: "error invalid-input | intersect | why: surface-surface of planes and quadrics needs a box | fix: add (box X0 X1 Y0 Y1 Z0 Z1)"
 
 def bad_s(+w: String) -> String:
@@ -248,27 +101,15 @@ def isect(+a: Gq, +b: Gq, +bx: List<&2, I.I>) -> String:
   match a:
     case Q_cv{+ga, +da}:
       match b:
-        case Q_cv{gb, db}: report(Y.inter_cc(ga, da, gb, db, depth()))
-        case Q_sf{gb}: report(Y.inter_cs(ga, da, gb, depth()))
+        case Q_cv{gb, db}: QN.report(Y.inter_cc(ga, da, gb, db, depth()))
+        case Q_sf{gb}: QN.report(Y.inter_cs(ga, da, gb, depth()))
         case Q_bad{w}: bad_s(w)
     case Q_sf{+ga}:
       match b:
-        case Q_cv{gb, db}: report(Y.inter_cs(gb, db, ga, depth()))
+        case Q_cv{gb, db}: QN.report(Y.inter_cs(gb, db, ga, depth()))
         case Q_sf{+gb}: ss_box(Bool.or(Nat.is_eq(List.length(&2, I.I, bx), 3n), Bool.or(Y.is_bp(ga), Y.is_bp(gb))), ga, gb, bx)
         case Q_bad{w}: bad_s(w)
     case Q_bad{w}: bad_s(w)
-
-def ps_xs(r: S.PS) -> List<&2, S.Sx>:
-  S.PS{ok, xs} = r
-  xs
-
-def Q_arg(xs: List<&2, String>, +i: Nat) -> String:
-  match xs:
-    case []: ""
-    case x <> t:
-      match i:
-        case 0n: x
-        case 1n+j: Q_arg(t, j)
 
 def Q_join(xs: List<&2, String>) -> String:
   match xs:
@@ -276,6 +117,6 @@ def Q_join(xs: List<&2, String>) -> String:
     case +x <> t: Bool.pick(String, String.eq(x, "intersect"), "", x ++ " ") ++ Q_join(t)
 
 def geom(+args: List<&2, String>) -> String:
-  +xs = ps_xs(S.parse(Q_join(args)))
-  Bool.pick(String, String.eq(Q_arg(args, 0n), "intersect"), isect(gq_of(S.sx_nth(xs, 0n)), gq_of(S.sx_nth(xs, 1n)), box_of(S.sx_nth(xs, 2n))),
+  +xs = S.ps_xs(S.parse(Q_join(args)))
+  Bool.pick(String, String.eq(S.arg_at(args, 0n), "intersect"), isect(gq_of(S.sx_nth(xs, 0n)), gq_of(S.sx_nth(xs, 1n)), box_of(S.sx_nth(xs, 2n))),
     "error invalid-input | geom | why: unknown geometry command | fix: geom intersect A B [BOX]")

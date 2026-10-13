@@ -949,3 +949,20 @@ def nds_of(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.Node>:
 def part_of(+xs: List<&2, Sx>) -> M.Part:
   +ps = pms_of(xs)
   M.Pt{ps, nds_of(xs, nis_of(ps))}
+
+def arg_at(xs: List<&2, String>, +i: Nat) -> String:
+  match xs:
+    case []: ""
+    case x <> t:
+      match i:
+        case 0n: x
+        case 1n+j: arg_at(t, j)
+
+def ps_xs(r: PS) -> List<&2, Sx>:
+  PS{ok, xs} = r
+  xs
+
+def args_l(xs: List<String>) -> List<&2, String>:
+  match xs:
+    case []: []
+    case x <> t: x <> args_l(t)

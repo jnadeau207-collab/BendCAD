@@ -2,7 +2,6 @@ import Base
 import ../c00/types.bend as T
 import ../c03/types.bend as G
 import ../c04/types.bend as Ty
-import ./xp.bend as X
 import ./iv.bend as I
 import ./build.bend as BD
 import ./model.bend as M
@@ -11,10 +10,11 @@ import ./tess.bend as TS
 import ../c10/mesh.bend as M10
 import ./zone.bend as Z
 import ../c07/gsx.bend as GQ
-import ../c07/sol.bend as SO
-import ../c07/emb.bend as EM
 import ../c08/bool.bend as BO
-import ../c01/types.bend as V
+import ../c11/qdist.bend as QD
+import ../c11/qmass.bend as QM
+import ../c11/qsect.bend as QN
+import ../c11/qinterf.bend as QI
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -233,12 +233,9 @@ def pm_bump(ps: List<&2, M.Param>, +name: String, +dv: F64) -> List<&2, M.Param>
       M.Dm{+nom, +lo, +hi} = d
       Bool.pick(M.Param, String.eq(n, name), M.Pm{id, n, M.Dm{F64.add(nom, dv), lo, hi}}, M.Pm{id, n, d}) <> pm_bump(t, name, dv)
 
-def mid(+v: I.I) -> F64:
-  F64.mul(0.5f64, F64.add(I.i_lo(v), I.i_hi(v)))
-
 def ms_vec(m: M.Ms) -> List<&2, F64>:
   M.Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
-  [mid(vol), mid(area), x0, x1, y0, y1, z0, z1]
+  [I.imid(vol), I.imid(area), x0, x1, y0, y1, z0, z1]
 
 def fd(xs: List<&2, F64>, ys: List<&2, F64>, +h2: F64) -> List<&2, F64>:
   match xs:
@@ -299,14 +296,6 @@ def sens(+p: M.Part, +name: String, +id: U64) -> String:
   +cp = M.ev_part(M.Pt{pm_bump(ps, name, h), ns}, c0)
   +cm = M.ev_part(M.Pt{pm_bump(ps, name, F64.neg(h)), ns}, c0)
   Bool.pick(String, T.is_finite(nom), sens_rep(sens_go(node_res(c0, id), node_res(cp, id), node_res(cm, id), h), c0, cp), "error: unknown parameter " ++ name)
-
-def arg_at(xs: List<&2, String>, +i: Nat) -> String:
-  match xs:
-    case []: ""
-    case x <> t:
-      match i:
-        case 0n: x
-        case 1n+j: arg_at(t, j)
 
 def arg_drop(xs: List<&2, String>, +i: Nat) -> List<&2, String>:
   match xs:
@@ -372,12 +361,8 @@ def write_file(path, data):
     w : File & Result<&1, &1, (U32 & String), Unit> <- File.write(f, data)
     write_go(w)
 
-def ps_xs(r: S.PS) -> List<&2, S.Sx>:
-  S.PS{ok, xs} = r
-  xs
-
 def load(+src: String) -> M.Part:
-  S.part_of(ps_xs(S.parse(src)))
+  S.part_of(S.ps_xs(S.parse(src)))
 
 def commit_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
   match ok:
@@ -401,7 +386,11 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "show"), 1u64, Bool.pick(U64, String.eq(c, "eval"), 2u64,
   Bool.pick(U64, String.eq(c, "faces"), 3u64, Bool.pick(U64, String.eq(c, "measure"), 4u64,
   Bool.pick(U64, String.eq(c, "sens"), 5u64, Bool.pick(U64, String.eq(c, "apply"), 6u64, Bool.pick(U64, String.eq(c, "tess"), 7u64, Bool.pick(U64, String.eq(c, "zone"), 8u64,
-  Bool.pick(U64, String.eq(c, "classify"), 9u64, Bool.pick(U64, String.eq(c, "check"), 10u64, 0u64))))))))))
+  Bool.pick(U64, String.eq(c, "classify"), 9u64, Bool.pick(U64, String.eq(c, "check"), 10u64,
+  Bool.pick(U64, String.eq(c, "dist"), 11u64, Bool.pick(U64, String.eq(c, "extrema"), 12u64,
+  Bool.pick(U64, String.eq(c, "mass"), 13u64, Bool.pick(U64, String.eq(c, "section"), 14u64,
+  Bool.pick(U64, String.eq(c, "interf"), 15u64, Bool.pick(U64, String.eq(c, "clearance"), 16u64,
+  Bool.pick(U64, String.eq(c, "wall"), 17u64, 0u64)))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -491,81 +480,29 @@ def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: St
   tess_with(Bool.not(String.eq(tess_q_err(a2, p, q), "")), r, out, id, a2, p, q)
 
 def f_arg(+xs: List<&2, String>, +i: Nat) -> F64:
-  f_or_nan(S.dec(arg_at(xs, i)))
-
-def imid(+a: I.I) -> F64:
-  F64.mul(0.5f64, F64.add(I.i_lo(a), I.i_hi(a)))
-
-def loc_c(+mi: List<&2, I.I>, +w: List<&2, I.I>, +j: Nat) -> F64:
-  imid(I.iadd(I.iadd(I.imul(M.i_nth(mi, j), M.i_nth(w, 0n)), I.imul(M.i_nth(mi, Nat.add(j, 3n)), M.i_nth(w, 1n))), I.imul(M.i_nth(mi, Nat.add(j, 6n)), M.i_nth(w, 2n))))
-
-def w3(+ti: List<&2, I.I>, +x: F64, +y: F64, +z: F64) -> List<&2, I.I>:
-  [I.isub(I.ipt(x), M.i_nth(ti, 0n)), I.isub(I.ipt(y), M.i_nth(ti, 1n)), I.isub(I.ipt(z), M.i_nth(ti, 2n))]
-
-def loc_w(+mi: List<&2, I.I>, +w: List<&2, I.I>) -> V.Point:
-  V.Pt{loc_c(mi, w, 0n), loc_c(mi, w, 1n), loc_c(mi, w, 2n)}
-
-def loc_pt(+p: M.Pl, +x: F64, +y: F64, +z: F64) -> V.Point:
-  loc_w(M.pl_mi(p), w3(M.pl_ti(p), x, y, z))
-
-def cls_s(+r: U64) -> String:
-  Bool.pick(String, U64.is_eq(r, 0u64), "outside", Bool.pick(String, U64.is_eq(r, 1u64), "inside", Bool.pick(String, U64.is_eq(r, 3u64), "boundary", "uncertain | why: every ray met a tangency, an edge or an unsupported face | fix: move the point off the boundary")))
-
-def fin3(+x: F64, +y: F64, +z: F64) -> Bool:
-  Bool.and(F64.is_eq(F64.sub(x, x), 0.0f64), Bool.and(F64.is_eq(F64.sub(y, y), 0.0f64), F64.is_eq(F64.sub(z, z), 0.0f64)))
-
-def classify_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
-  match r:
-    case M.NR_err{k, d}: "error: node failed; nothing classified"
-    case M.NR_ok{+b, fx}:
-      Bool.pick(String, fin3(x, y, z), cls_s(SO.classify(SO.fds_of(M.bd_brep(b)), loc_pt(M.bd_pl(b), x, y, z))),
-        "error invalid-input | classify | why: the point needs three finite numbers | fix: classify NODE X Y Z")
-
-def fi_s(fs: List<&2, SO.Fi>) -> String:
-  match fs:
-    case []: ""
-    case f <> t:
-      SO.Fi{c, a, b} = f
-      c ++ " " ++ Nat.show(a) ++ " " ++ Nat.show(b) ++ "
-" ++ fi_s(t)
-
-def fi_real_go(fs: List<&2, SO.Fi>, +acc: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
-  match fs:
-    case []: acc
-    case SO.Fi{+c, +a, +b} <> t:
-      fi_real_go(t, Bool.pick(List<&2, SO.Fi>, BO.is_contact(c), acc, SO.Fi{c, a, b} <> acc))
-
-def fi_real(fs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
-  List.reverse(&2, SO.Fi, fi_real_go(fs, []))
-
-def check_s(r: M.NR) -> String:
-  match r:
-    case M.NR_err{k, d}: "error: node failed; nothing checked"
-    case M.NR_ok{+b, fx}:
-      +br = M.bd_brep(b)
-      +fd = SO.fds_of(br)
-      +fs = fi_real(List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd)))
-      +cc = BO.coin_contact(br)
-      Bool.pick(String, Bool.not(BO.CR_ok(cc)),
-        "coincident-vertices " ++ Nat.show(BO.CR_a(cc)) ++ " " ++ Nat.show(BO.CR_b(cc)) ++
-          " within one solid",
-        Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n),
-          "ok: embedded, shells outward, cavities nested", fi_s(fs)))
+  f_or_nan(S.dec(S.arg_at(xs, i)))
 
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
     case 2u64: IO.print(ces_s(M.ev_part(p, [])))
-    case 3u64: IO.print(node_faces_v(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), String.eq(arg_at(rest, 1n), "-v")))
-    case 4u64: IO.print(nr_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
-    case 5u64: IO.print(sens(p, arg_at(rest, 0n), S.u64_of(S.Sx_a{arg_at(rest, 1n)})))
+    case 3u64: IO.print(node_faces_v(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v")))
+    case 4u64: IO.print(nr_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 5u64: IO.print(sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
-    case 7u64: tess_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), arg_at(rest, 1n),
-      S.u64_of(S.Sx_a{arg_at(rest, 0n)}), arg_at(rest, 2n), arg_at(rest, 3n), arg_at(rest, 4n), arg_at(rest, 5n), arg_at(rest, 6n))
-    case 8u64: IO.print(zone_line(p, S.u64_of(S.Sx_a{arg_at(rest, 0n)})))
-    case 9u64: IO.print(classify_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
-    case 10u64: IO.print(check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{arg_at(rest, 0n)}))))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check")
+    case 7u64: tess_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+      S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
+    case 8u64: IO.print(zone_line(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
+    case 9u64: IO.print(QI.classify_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 10u64: IO.print(QI.check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 11u64: IO.print(QD.dist_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 12u64: IO.print(QD.extrema_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 13u64: IO.print(QM.mass_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), QM.mass_depth(S.arg_at(rest, 1n))))
+    case 14u64: IO.print(QN.sect_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
+    case 15u64: IO.print(QI.rel_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
+    case 16u64: IO.print(QD.clear_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
+    case 17u64: IO.print(QD.wall_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))
@@ -586,23 +523,18 @@ def main_sel(isnew: Bool, +path: String, +cmd: String, +rest: List<&2, String>) 
     case True{}: main_new(path)
     case False{}: main_old(path, cmd, rest)
 
-def args_l(xs: List<String>) -> List<&2, String>:
-  match xs:
-    case []: []
-    case x <> t: x <> args_l(t)
-
 def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
   match isgeo:
     case True{}: IO.print(GQ.geom(arg_drop(args, 2n)))
     case False{}:
-      +cmd = arg_at(args, 2n)
-      main_sel(String.eq(cmd, "new"), arg_at(args, 1n), cmd, arg_drop(args, 3n))
+      +cmd = S.arg_at(args, 2n)
+      main_sel(String.eq(cmd, "new"), S.arg_at(args, 1n), cmd, arg_drop(args, 3n))
 
 def main_go(+args: List<&2, String>) -> IO(Unit):
-  main_geo(String.eq(arg_at(args, 1n), "geom"), args)
+  main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)
 
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    main_go(args_l(args))
+    main_go(S.args_l(args))
 

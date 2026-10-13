@@ -208,5 +208,89 @@
   "file": "src/c10/mesh.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "box constructor keeps fields",
+  "file": "src/c11/qaccel.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "overlap is not disjoint",
+  "file": "src/c11/qaccel.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "bound constructor keeps fields",
+  "file": "src/c11/qcert.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "failure measures nothing",
+  "file": "src/c11/qdist.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "disjoint verdict says disjoint",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "empty summary counts zero",
+  "file": "src/c11/qsect.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "nothing is a member of nothing",
+  "file": "src/c11/qaccel.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "depth parses its digits",
+  "file": "src/c11/qmass.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "inside names its side",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "witness refusal stays silent",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "witness verdict says interference",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "witness search short-circuits",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

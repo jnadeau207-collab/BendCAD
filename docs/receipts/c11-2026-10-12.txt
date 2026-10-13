@@ -1,0 +1,208 @@
+# C11 receipt — 2026-10-12 (C11 closed)
+
+Packet: C11 professional queries (MASTER_PLAN §10 C11): closest
+point/distance, extrema, sections, intersections, area, volume,
+centroid, inertia, interference, clearance, and acceleration
+structures, with certified bounds or explicitly bounded integration.
+Intent `docs/c11-intent.md`, laws `docs/c11-laws.md` (65 laws,
+9 families). C11 owns exact cavity inside/disjoint classification
+and the inside/outside/interference machinery behind it.
+
+Verdict: CLOSED. All exit requirements are implemented, green, and
+evidenced: laws pass both `--check-only` and `--verdict`, every law
+family kills its mutant, pins hold bit-exactly, E2E journeys agree
+with analytic fixtures (33/33), refusals are verbatim (19/19), and
+every earlier gate still passes. Five semantic bugs died with the
+law, pin, or journey each one fails (§5). Deferrals are recorded
+in §6, none of them silent.
+
+## 1. Provenance and build recipe
+
+- BendCAD HEAD at close: d2bfd5cbd1f951cae1b9df85fa8a9e4f642ec263
+  ("README for people ..."). The C11 change set is committed on top
+  (see §7); the tree was dirty through the qualification runs below.
+- Candidate binary: /home/jesse/bc/bendcad
+  sha256 500eb8afc56a89bfb43de5dd84b1945ebae4f8c4edbb5af5fe44c105260bc231
+  (163851784 bytes; built 2026-10-12 ~22:23 EDT). Every runtime
+  verdict below is on this binary; e2e-report.json carries the
+  matching binary_sha256.
+- Toolchain: BEND_PIN a4d17ace (tag numeric/2026-10-05), bend
+  2.0.35, BEND_NO_TELEMETRY=1, all bend invocations through
+  ~/bin/bendcap (11 GB scope) unless noted. `~/.bend/FORK`
+  records the pin; no `bend update` was run.
+- laws/c11/LAWS.bend sha256
+  58aa0b72f092b56564e311811626221cf92f1a59b4d31ff21d3be25714f895f0
+  (10319 bytes, 65 laws)
+- laws/c11/PROOF.bend sha256
+  c8178318588f84ec990a8a64d7f63af8c79f58ce08df48eb8cbee52c0bdafe5a
+  (3485 bytes)
+- src/c11 total 70703 bytes: qaccel 9301, qcert 1127, qdist 15123,
+  qinterf 14397, qmass 13399, qsect 12853.
+- tests/c11/e2e-report.json sha256
+  ff3c9a98d286855c84366635bc30a6ad7fbe200990cf316ab42c646e4c675b10
+- tests/c11/neg-report.json sha256
+  a8938834a6d9f0c8a635cb8ba013cf7b4d7edeac06e2332981967ca6f139b969
+- tests/c11/pins-report.json sha256
+  029cdadf005d8b8d33fa0e7359ba1d7248115fe88690b449f2ba1e131c9c0412
+- Earlier-packet *-report.json files were rewritten by the
+  regression runs in §3 (same-binary evidence).
+
+Two-stage build (required): a single-command `bendcap
+src/c06/cli.bend -o` no longer fits any safe scope — `zig cc -O3`
+needs ~14.3 GB and OOMs even an 11 GB scope on the pre-C11 tree,
+so this is growth, not a C11 regression. The packet recipe:
+
+```sh
+bendcap src/c06/cli.bend -o /tmp/cli.c
+systemd-run --user --scope -p MemoryMax=17G zig cc -O3 -c /tmp/cli.c -o /tmp/cli-o3.o
+systemd-run --user --scope -p MemoryMax=11G zig cc /tmp/cli-o3.o -o ~/bc/bendcad
+```
+
+Build shas are NOT stable across builds (observed on C10 too);
+the sha above identifies this binary, not the tree.
+
+## 2. A2 exit matrix
+
+One row per C11 exit requirement (MASTER_PLAN §10 C11 plus the
+agent-interface parity the packet implements). Columns per
+Amendment A2: exit req, formal spec, predicate, pos witness, neg
+witness, stage-isolated, independent evidence, status.
+
+Legend. Formal spec cites intent § and laws-doc family (F1–F9).
+Stage-isolated = the witness fixture exercises the named
+production branch exactly, corroborated by the cited law/pin
+names. Independent evidence tags: ANLYT = closed-form analytic
+fixture (box/cylinder/sphere/slab/cone values, not kernel
+output); PIN = bit-exact fixed-input pins; MUT = the family's
+planted mutant is killed; MCP = Model Context Protocol parity
+journey. Status PASS = law witness closed (§3 full closure) AND
+runtime witness green on the candidate binary.
+
+| Exit req | Formal spec | Predicate | Pos witness | Neg witness | Stage-isolated | Independent evidence | Status |
+|----------|-------------|-----------|-------------|-------------|----------------|----------------------|--------|
+| Distance agrees with analytic fixtures | intent §2; F2, F5 | `dist` lo/hi/state | `dist.box_out/box_in/box_boundary/cyl_radial` | `dist.nan/garbage/missing/node_failed` | yes (`dist_in_inside`, `dist_fin_*`, dec pins) | ANLYT + PIN + MUT | PASS |
+| Extrema bound the solid | intent §2; F1, F2 | `extrema` certified box | `extrema.box` | `extrema.node_failed` | yes (`ab_*`, hull laws) | ANLYT + PIN + MUT | PASS |
+| Mass contains analytic integrals | intent §4; F5, F8 | `mass` vol/cen/ine @ depth | `mass.box4/depths/box6/moved_invariance/cylinder/sphere` | `mass.depth_7/depth_garbage/depth_neg/node_failed` | yes (`mass_dn`, `mass_*`, sh9/mm9/cen6 pins) | ANLYT + PIN + MUT | PASS |
+| Sections match analytic circles honestly | intent §5; F5, F6, F8 | `section` curves/unresolved + status | `section.cyl_circle/sphere_circle/box_estimated/mapped/coin` | `section.degenerate/nan/node_failed` | yes (`sect_with_none`, `sect_at_none`, `cnt_*`) | ANLYT + PIN + MUT | PASS |
+| Interference is exact, not AABB overlap | intent §6; F4, F5, F9 | `interf` relation + witness | `interf.disjoint/overlap/inside_a/inside_b/contact/cavity` | `interf.node_a/node_b` | yes (`rel_*`, `wit_*`) | ANLYT + PIN + MUT | PASS |
+| AABB trap stays disjoint | intent §6 (trap) | `interf` disjoint under box overlap | `interf.aabb_trap` (cavity tool) | — (accept) | yes (`rel_pair_go_dis`, witness miss path) | ANLYT + MUT | PASS |
+| Clearance: no proof from partial search | intent §7; F5 | `clearance` lo/hi/state | `clearance.disjoint/interf/contained` | `clearance.node_failed` | yes (`rel_interf_go_dis`, dist F5) | ANLYT + PIN + MUT | PASS |
+| Min wall by qualified method, not ray samples | intent §8; F2, F5 | `wall` lo + face pairs + prune counts | `wall.box/slab/cone_none` | `wall.node_failed` | yes (hull + verdict laws, pruned/face counts) | ANLYT + PIN + MUT | PASS |
+| Cavity inside/disjoint is exact | intent §6; F5 | `cavity`/`cavities` lines | `interf.cavity`, `interf.aabb_trap` cavity lines | — (accept) | yes (`cav_*` verdict laws) | ANLYT + PIN + MUT | PASS |
+| Inside/outside machinery answers | intent §9; F4 | `classify`, `check` | `carried.classify/check/geom` | `classify.nan/node_failed`, `check.node_failed` | yes (`classify_bd_false`, `fin3`, dec pins) | ANLYT + PIN + MUT | PASS |
+| Honest incomplete/approximate status | intent §3 ladder | status ∈ certified/estimated/incomplete | every journey asserts its status word | every neg asserts its refusal word | yes (F4 refusal + F5 verdict laws) | PIN + MUT | PASS |
+| Agent interface parity | intent §9; tools/mcp | MCP tools = CLI strings | `mcp.queries` (7 tools) | — (parity) | yes (byte-compared tool outputs) | MCP | PASS |
+
+Matrix closure: all 65 laws appear above by family; all 33 e2e
+journeys and all 19 neg journeys appear above. No oracle script
+exists for C11 (FreeCAD/OCCT/PlaneGCS are permitted comparators
+but none was run); per A2 Layer D the independent check is the
+ANLYT column — closed-form values no kernel code path computes.
+
+## 3. Observed results (binary 500eb8af unless noted)
+
+- `bendcap src/c06/cli.bend --check-only` → ALL PROOFS CHECK.
+- `bash tools/laws/check.sh /tmp/bc-laws-c11` → all 13 packets
+  ALL PROOFS CHECK under both --check-only and --verdict:
+  base 13, c00 8, c01 10, c02 16, c03 10, c04 104, c05 34,
+  c06 6, c07 5, c08 4, c09 2, c10 18, c11 65
+  (c11: 5 s check + 22 s verdict; full log /tmp/bc-laws-c11).
+- `python3 tools/laws/mutate.py c11` → 42/42 mutants killed
+  (12 c11 families incl. 3 new witness mutants; sha256
+  792ce763b2cca64faf856eb4c48249737a91f55af5e14f22d440bedf58b65e22).
+- `bash tools/pins/run.sh tests/c11/pins.bend` → 158/158 hold
+  (sha256 1d598271014e1237f3cf3ebee3747a2974c9ff016f0bec1a24984896067408d7).
+- `python3 tests/c11/e2e.py` → 33/33 passed: dist 4/4, extrema
+  1/1, mass 6/6 (box4 0.6 s, depths 0.02/0.08/0.6 s, box6
+  32.5 s, cylinder 2.6 s, sphere 0.7 s), section 5/5
+  (circles 0.1 s, box_estimated 146.6 s, mapped 160.4 s),
+  interf 6/6 (overlap 1.8 s, cavity 2.2 s, aabb_trap 14.6 s),
+  clearance 3/3, wall 3/3, carried 3/3, mcp 7/7.
+- `python3 tests/c11/neg.py` → 19/19 passed, exit 0.
+- Regression on the same binary: laws all-packets green (above);
+  pins c00 33/33, c01 30/30, c02 44/44, c03 408/408, c04
+  500/500, c05 31/31, c06 82/82 + 25/25 build, c07 14/14 +
+  17/17 build, c08 487/487 + 40/40 build, c09 50/50 + 9/9
+  build, c10 42/42; e2e c06 55/55, c07 328/328, c07 solid
+  34/34, c07 solid_neg 13/13, c07 zone 33/33, c08 108/108,
+  c09 29/29, c10 11/11; neg c08 20/20, c09 27/27, c10 12/12.
+  No regressions.
+
+## 4. What shipped (beyond the resumed WIP)
+
+- `src/c11/qinterf.bend`: subdivision witness search
+  (`wov_bx`, `wit_hit/map/any/batch_go/batches/go/line`):
+  depth-4 cell centers over the overlap box classified
+  strictly inside both solids, gated on neither body
+  containing the other, short-circuiting in 8-cell batches
+  (hit path 9.6 s → 1.8 s). Wired into `rel_pair_go` and
+  `rel_interf_go`; `rel_vb` untouched.
+- `src/c11/qmass.bend`: uncertain cells carry full
+  coordinate-range moment hulls (`cell_mr`, `h2/h3/h5`,
+  `maxpt/mx2`) instead of midpoint moments; the octree root
+  stays the local face-box hull (an Ms world-box attempt
+  broke placed bodies and was reverted same-session).
+- Laws +4 (65): `wit_go_dis`, `wit_line_true/false`
+  (first String-quantified laws), `wit_batches_true`
+  (quantified cons reduction). Proofs `{==}`. Mutants +3.
+  Pins +3 pairs (`wit_line_t/f`, `wov_bx`); deleted the
+  `unc_rg` pin with its dead function.
+- `tests/c11/e2e.py`: the AABB-trap journey uses a nested
+  cavity tool (the protruding tool needs face splitting,
+  which C08 honestly refuses — trap intent unchanged).
+- Docs: `docs/c11-intent.md` (§6 witness, §10 deferrals, §11
+  reproduction), `docs/c11-laws.md` (65 laws, 9 families,
+  5 bugs), this receipt.
+
+## 5. Semantic bugs killed (each with its failing witness)
+
+- Inside verdicts unreachable: `rel_vb` tested interference
+  before inside. Laws `rel_vb_ainb`/`rel_vb_bina` fail on the
+  old order.
+- Inertia assembly reversed: `mmul`/`mmult` pins fail on the
+  old order.
+- Midpoint uncertain-moments unsound: the old sums miss the
+  empty subset and off-center subsets (corner-product proof
+  in session log). Journey `mass.cylinder` fails on the old
+  sums (z misses 5.0); passes on the hulls.
+- World-frame octree root: Ms-box root vs local-frame faces
+  classified every moved cell outside. Journey
+  `mass.moved_invariance` fails on the old root (0/512/0);
+  passes on the local hull.
+- Ungated witness fired on containment: the first search
+  reported interference for a contained box (observed on a
+  stale binary). Journeys `interf.inside_a/inside_b` fail on
+  the ungated search; pass with the `in_either` gate.
+
+## 6. Deferrals (recorded, not silent)
+
+- D1 exact planar-section lines: axis-degenerate plane/face
+  pairs report estimated with unresolved boxes (journeys
+  `section.box_estimated/mapped`, ~150 s each). An exact
+  interval line-plus-clip path would certify them; not built.
+- D2 mass tightening: range moments are honest but coarse
+  (box6 cenwidth 0.96, inewidth 37070; cylinder cen widths
+  ~60–150). Planar-face halfspace certification or affine /
+  Taylor tightening would narrow them; not built. Depth
+  ceiling stays 6 (8^d cells).
+- D3 section latency on degenerate faces: the tracer
+  subdivides to fuel before admitting defeat (~150 s worst
+  case); a degeneracy pre-check would fail fast. Slanted
+  planes and grazing planes are not journeyed.
+- D4 witness negative-path latency: a full 4096-cell miss
+  costs ~15 s on a 12-face solid (`interf.aabb_trap` 14.6 s,
+  no journey bound). Parallel search with early exit would
+  cut it; not built.
+- D5 toolchain (out of scope): native F64 comparisons can
+  spin on NaN instead of returning false; every untrusted
+  float is routed through `T.is_finite` under `match` first.
+  Single-command build OOMs past 11 GB (§1 recipe required).
+
+## 7. What the next session does
+
+- Packet C12 (interchange and durable identity) is next;
+  MASTER_PLAN "Next is C11" flips to C12 by this closeout.
+- The closeout commit for this receipt is the C11 packet
+  commit (src + laws + proofs + mutants + pins + e2e/neg +
+  docs + this receipt). Push to origin main after the
+  pre-push gates in §3 re-run green on the committed tree.

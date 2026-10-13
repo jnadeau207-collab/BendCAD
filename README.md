@@ -43,12 +43,13 @@ Back comes a certified volume interval for every node, durable face names that s
 - **Features:** sweep, loft, chamfer, fillet, draft, offset, shell, and linear and circular patterns.
 - **Truth about geometry:** certified curve and surface intersections, inside/outside classification, and embedding and cavity checks.
 - **Meshes:** display and manufacturing tessellation with stated chord and angle quality and a triangle budget.
+- **Queries:** closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
 - **For agents:** the `bendcad` CLI and an MCP server. In our first challenge, fresh AI agents built and edited a parameterized bracket from a written brief, and an independent grader passed every run.
 
 ## How we keep it honest
 
-- **Laws, not just tests.** 230 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
-- **Pins.** 1,812 fixed-input checks run as compiled code and are compared bit-for-bit.
+- **Laws, not just tests.** 295 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Pins.** 1,970 fixed-input checks run as compiled code and are compared bit-for-bit.
 - **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
 
@@ -67,8 +68,8 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 
 And the kernel milestones that carry it there:
 
-- **Now:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
-- **Next:** interchange (STEP, STL, 3MF) with a durable, versioned archive, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
+- **Shipped:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
+- **Now:** interchange (STEP, STL, 3MF) with a durable, versioned archive, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
 - **Then:** sheet metal, surface modeling, and blade and airfoil design, followed by a qualified public release.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).

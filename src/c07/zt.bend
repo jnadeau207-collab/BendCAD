@@ -79,7 +79,7 @@ def sang(+u0: List<&2, I.I>, +u: List<&2, I.I>) -> I.I:
   Bool.pick(I.I, pos(c), atan2p(c, d), Bool.pick(I.I, neg(c), I.ineg(atan2p(I.ineg(c), d)), I.ihull(I.ineg(m), m)))
 
 def mids(+v: List<&2, I.I>) -> List<&2, I.I>:
-  [I.ipt(V.imid(V.vn(v, 0n))), I.ipt(V.imid(V.vn(v, 1n)))]
+  [I.ipt(I.imid(V.vn(v, 0n))), I.ipt(I.imid(V.vn(v, 1n)))]
 
 def sweep(+c: List<&2, I.I>, +a: List<&2, I.I>, +b: List<&2, I.I>, +ccw: Bool) -> I.I:
   +u = V.vsub(a, c)
@@ -172,11 +172,11 @@ def lz_ok(l: Lz) -> Bool:
 
 def cossin(+f: I.I) -> List<&2, I.I>:
   +hp = I.half_pi()
-  +q = F64.to_u64(F64.add(F64.div(F64.max(V.imid(f), 0.0f64), V.imid(hp)), 0.5f64))
+  +q = F64.to_u64(F64.add(F64.div(F64.max(I.imid(f), 0.0f64), I.imid(hp)), 0.5f64))
   +t = I.isub(f, I.imul(I.ipt(U64.to_f64(q)), hp))
   +c = I.clamp1(I.iwiden(I.cos_small(t), 1.0e-20f64))
   +s = I.clamp1(I.iwiden(I.sin_small(t), 1.0e-20f64))
-  Bool.pick(List<&2, I.I>, F64.is_lt(V.iwid(f), V.imid(hp)), I.quad(U64.mod(q, 4u64), c, s), [V.iof(F64.neg(1.0f64), 1.0f64), V.iof(F64.neg(1.0f64), 1.0f64)])
+  Bool.pick(List<&2, I.I>, F64.is_lt(V.iwid(f), I.imid(hp)), I.quad(U64.mod(q, 4u64), c, s), [V.iof(F64.neg(1.0f64), 1.0f64), V.iof(F64.neg(1.0f64), 1.0f64)])
 
 def rot(+u: List<&2, I.I>, +f: I.I, +ccw: Bool) -> List<&2, I.I>:
   +cs = cossin(f)
@@ -209,7 +209,7 @@ def pder(p: Pm, +s: I.I) -> List<&2, I.I>:
     case Pc{c, +r, xc, xr}: tan_of(rot([r, I.ipt(0.0f64)], I.imul(two_pi(), s), True{}), True{})
 
 def half(+s: I.I, +left: Bool) -> I.I:
-  +m = V.imid(s)
+  +m = I.imid(s)
   Bool.pick(I.I, left, V.iof(I.i_lo(s), m), V.iof(m, I.i_hi(s)))
 
 def sep_code(+bp: List<&2, I.I>, +bq: List<&2, I.I>) -> U64:

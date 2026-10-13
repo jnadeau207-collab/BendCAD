@@ -1,4 +1,4 @@
-# BendCAD design language (C06–C09)
+# BendCAD design language (C06–C11)
 
 A design is a list of parameters and nodes. Every node is one operation with a
 declared intent. Edits are atomic: a change is committed only if every node
@@ -250,6 +250,49 @@ Any count may be `any`. The kernel measures every field from the result
   F2`, `inverted-shell S`, `cavity-outside S O`, `cavities-nested S1 S2`,
   or a `...-uncertain` variant). Contacts within 2^-20 of the part size of
   a shared edge or vertex belong to that edge or vertex.
+- `dist NODE X Y Z`: closest point and distance from the world point to
+  the node's solid. Inside or on the boundary answers `distance 0` with
+  `status=certified`; otherwise the answer is an interval `[lo, hi]` with
+  `status=estimated`: the lower bound is certified (no surface point is
+  nearer than the face boxes), the upper bound is the nearest evaluated
+  sample (`nearest=X,Y,Z`, `samples=N`).
+- `extrema NODE`: the certified world-coordinate bounds of the node's
+  solid (`status=certified`), plus the nearest vertex witness per bound
+  (`status=sampled`: a witness need not attain the bound on curved faces).
+- `mass NODE [DEPTH]`: mass properties at unit density. `volume` and
+  `area` are the certified measure intervals; `centroid` and the
+  centroidal `inertia` tensor (xx yy zz xy xz yz) come from bounded
+  octree integration at depth DEPTH (0-6, default 4) with
+  `cells=in/out/uncertain`. A cell counts as inside or outside only when
+  its centre classifies strictly and no face box meets the cell, so the
+  volume interval is certified; every sum is accumulated in outward
+  rounded intervals. Empty certain volume answers `incomplete`.
+- `section NODE A B C D`: section of the node's solid by the world plane
+  `ax+by+cz=d`. One block per face with the plane/surface intersection
+  curves (sample points with parameters on both surfaces), explicit
+  unresolved boxes, and `coincident` faces lying in the plane, then
+  `summary faces= curves= unresolved= coincident= status=`: `certified`
+  when every face resolved, else `estimated`.
+- `interf A B`: the exact relation between the solids of two nodes:
+  `disjoint`, `inside a-in-b`, `inside b-in-a` or `interference`, each
+  with `status=certified`, else `uncertain` with per-side
+  in/out/uncertain sample counts. Disjointness and containment are
+  certified by strict samples plus disjoint face boxes; interference is
+  certified by a strictly inside sample. AABB overlap alone is never
+  reported as interference. The reply starts with the exact per-solid
+  cavity verdicts (`cavity C inside O`, `cavities C D disjoint`, each
+  `certified` or `estimated`).
+- `clearance A B`: clearance between the solids of two nodes. Proven
+  interference answers `clearance 0` with `status=certified`; otherwise
+  the answer is an interval `[lo, hi]` with `status=estimated` and a
+  certified lower bound (`lo=certified`).
+- `wall NODE`: minimum wall thickness by the qualified exhaustive method:
+  every non-adjacent face pair contributes a certified lower bound, and
+  samples contribute the upper bound (`status=estimated lo=certified`,
+  with face/pair/prune counts). Faces sharing a vertex are adjacent and
+  excluded; a solid with no non-adjacent pair answers `min-wall none`.
+  A depth or plane argument outside its domain is `invalid-input` and
+  publishes nothing, as do all query failures.
 
 ## Geometry queries
 

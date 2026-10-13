@@ -1081,9 +1081,6 @@ def pl_move(p: Pl, +q: U64, +dx: F64, +dy: F64, +dz: F64) -> Pl:
   Pl{m3_mul(r, m), F64.add(f_nth(t, 0n), dx), F64.add(f_nth(t, 1n), dy), F64.add(f_nth(t, 2n), dz), im_mul(ri, mi),
     [padd(i_nth(tr, 0n), I.ipt(dx)), padd(i_nth(tr, 1n), I.ipt(dy)), padd(i_nth(tr, 2n), I.ipt(dz))]}
 
-def imid(+a: I.I) -> F64:
-  F64.add(F64.mul(0.5f64, I.i_lo(a)), F64.mul(0.5f64, I.i_hi(a)))
-
 def rot_im(+ax: U64, +c: I.I, +s: I.I) -> List<&2, I.I>:
   +o = I.ipt(1.0f64)
   +z = I.ipt(0.0f64)
@@ -1093,7 +1090,7 @@ def rot_im(+ax: U64, +c: I.I, +s: I.I) -> List<&2, I.I>:
 def im_mid(xs: List<&2, I.I>) -> List<&2, F64>:
   match xs:
     case []: []
-    case +x <> t: imid(x) <> im_mid(t)
+    case +x <> t: I.imid(x) <> im_mid(t)
 
 def m3_of(+xs: List<&2, F64>) -> V.Mat3:
   V.M3{f_nth(xs, 0n), f_nth(xs, 1n), f_nth(xs, 2n), f_nth(xs, 3n), f_nth(xs, 4n), f_nth(xs, 5n), f_nth(xs, 6n), f_nth(xs, 7n), f_nth(xs, 8n)}

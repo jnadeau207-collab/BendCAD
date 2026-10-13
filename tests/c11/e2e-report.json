@@ -1,0 +1,443 @@
+{
+ "binary_sha256": "500eb8afc56a89bfb43de5dd84b1945ebae4f8c4edbb5af5fe44c105260bc231",
+ "passed": 33,
+ "total": 33,
+ "results": [
+  {
+   "name": "dist.box_out",
+   "ok": true,
+   "lo": 4.999999999999987,
+   "hi": 6.643841132959155,
+   "st": "estimated",
+   "locert": "certified",
+   "near": "10,0.6250000000000009,5",
+   "nsamp": 26
+  },
+  {
+   "name": "dist.box_in",
+   "ok": true,
+   "zero": true,
+   "st": "certified",
+   "state": "inside"
+  },
+  {
+   "name": "dist.box_boundary",
+   "ok": true,
+   "zero": true,
+   "st": "certified",
+   "state": "boundary"
+  },
+  {
+   "name": "dist.cyl_radial",
+   "ok": true,
+   "lo": 6.9999999999999964,
+   "hi": 8.09344835345199,
+   "st": "estimated",
+   "locert": "certified",
+   "near": "5,1.83880688453612e-15,9.062499999999352",
+   "nsamp": 7
+  },
+  {
+   "name": "extrema.box",
+   "ok": true,
+   "bounds": [
+    "[-1.776356839400251e-14, 10.000000000000021]",
+    "[-1.776356839400251e-14, 10.000000000000021]",
+    "[-1.776356839400251e-14, 10.000000000000021]"
+   ]
+  },
+  {
+   "name": "mass.box4",
+   "ok": true,
+   "vol": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "cells": [
+    2744,
+    0,
+    1352
+   ],
+   "cen": [
+    [
+     3.3496093749987916,
+     7.617529154521741
+    ],
+    [
+     3.3496093749987175,
+     7.617529154521888
+    ],
+    [
+     3.3496093749986713,
+     7.617529154521985
+    ]
+   ],
+   "ine": [
+    [
+     -74008.92483089842,
+     76341.82510279506
+    ],
+    [
+     -74008.92483089586,
+     76341.82510279266
+    ],
+    [
+     -74008.9248308942,
+     76341.82510279196
+    ],
+    [
+     -18547.283299277464,
+     41278.70354500319
+    ],
+    [
+     -18547.283299277908,
+     41278.70354500417
+    ],
+    [
+     -18547.283299278883,
+     41278.703545005876
+    ]
+   ],
+   "seconds": 0.62
+  },
+  {
+   "name": "mass.depths",
+   "ok": true,
+   "widths": {
+    "2": 48.125000000000384,
+    "3": 10.598958333333906,
+    "4": 4.26791977952295
+   },
+   "seconds": {
+    "2": 0.02,
+    "3": 0.08,
+    "4": 0.59
+   },
+   "cells": {
+    "2": [
+     8,
+     0,
+     56
+    ],
+    "3": [
+     216,
+     0,
+     296
+    ],
+    "4": [
+     2744,
+     0,
+     1352
+    ]
+   }
+  },
+  {
+   "name": "mass.box6",
+   "ok": true,
+   "cells": [
+    238328,
+    0,
+    23816
+   ],
+   "cenwidth": 0.9617,
+   "inewidth": 37070.54,
+   "seconds": 32.5
+  },
+  {
+   "name": "mass.moved_invariance",
+   "ok": true,
+   "cen": [
+    [
+     22.109374999999925,
+     32.70833333333384
+    ],
+    [
+     2.1093749999999236,
+     12.708333333333846
+    ],
+    [
+     2.1093749999999223,
+     12.70833333333387
+    ]
+   ],
+   "ine": [
+    [
+     -297954.6440972576,
+     105132.48443603891
+    ],
+    [
+     -297954.64409725735,
+     105132.48443603869
+    ],
+    [
+     -297954.64409725653,
+     105132.48443603855
+    ],
+    [
+     -26961.994171143506,
+     150954.86111112827
+    ],
+    [
+     -26961.994171143517,
+     150954.86111112862
+    ],
+    [
+     -26961.99417114359,
+     150954.8611111287
+    ]
+   ],
+   "ine1": [
+    [
+     -297954.6440972576,
+     105132.48443603891
+    ],
+    [
+     -297954.64409725735,
+     105132.48443603869
+    ],
+    [
+     -297954.64409725653,
+     105132.48443603855
+    ],
+    [
+     -26961.994171143506,
+     150954.86111112827
+    ],
+    [
+     -26961.994171143517,
+     150954.86111112862
+    ],
+    [
+     -26961.99417114359,
+     150954.8611111287
+    ]
+   ]
+  },
+  {
+   "name": "mass.cylinder",
+   "ok": true,
+   "vol": [
+    785.3981633974389,
+    785.3981633974577
+   ],
+   "cen": [
+    [
+     -31.375000000066333,
+     31.375000000039837
+    ],
+    [
+     -40.687499999979764,
+     40.687500000092996
+    ],
+    [
+     -17.24999999998849,
+     132.75000000019205
+    ]
+   ],
+   "seconds": 2.6
+  },
+  {
+   "name": "mass.sphere",
+   "ok": true,
+   "vol": [
+    4188.790204779687,
+    4188.790204793095
+   ],
+   "cen": [
+    [
+     -6.3970588235297035,
+     6.397058823529578
+    ],
+    [
+     -6.397058823529666,
+     6.397058823529604
+    ],
+    [
+     -6.397058823529651,
+     6.397058823529622
+    ]
+   ],
+   "seconds": 0.7
+  },
+  {
+   "name": "section.cyl_circle",
+   "ok": true,
+   "summary": {
+    "faces": 3,
+    "curves": 4,
+    "unres": 4,
+    "coin": 0,
+    "st": "estimated",
+    "mapped": false
+   },
+   "samples": 36,
+   "on_circle": 36,
+   "seconds": 0.1
+  },
+  {
+   "name": "section.sphere_circle",
+   "ok": true,
+   "summary": {
+    "faces": 2,
+    "curves": 8,
+    "unres": 8,
+    "coin": 0,
+    "st": "estimated",
+    "mapped": false
+   },
+   "samples": 74,
+   "on_circle": 74,
+   "seconds": 0.1
+  },
+  {
+   "name": "section.box_estimated",
+   "ok": true,
+   "summary": {
+    "faces": 6,
+    "curves": 2,
+    "unres": 65537,
+    "coin": 0,
+    "st": "estimated",
+    "mapped": false
+   },
+   "seconds": 146.6
+  },
+  {
+   "name": "section.mapped",
+   "ok": true,
+   "summary": {
+    "faces": 6,
+    "curves": 2,
+    "unres": 66233,
+    "coin": 0,
+    "st": "estimated",
+    "mapped": true
+   },
+   "seconds": 160.4
+  },
+  {
+   "name": "section.coin",
+   "ok": true,
+   "line": "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1",
+   "seconds": 0.0
+  },
+  {
+   "name": "interf.disjoint",
+   "ok": true,
+   "line": "relation disjoint status=certified"
+  },
+  {
+   "name": "interf.overlap",
+   "ok": true,
+   "line": "relation interference status=certified witness=subdiv"
+  },
+  {
+   "name": "interf.inside_a",
+   "ok": true,
+   "line": "relation inside a-in-b status=certified"
+  },
+  {
+   "name": "interf.inside_b",
+   "ok": true,
+   "line": "relation inside b-in-a status=certified"
+  },
+  {
+   "name": "interf.contact",
+   "ok": true,
+   "line": "relation uncertain status=estimated a:in=0 out=21 uncertain=9 b:in=0 out=17 uncertain=13 boxes-overlap=1"
+  },
+  {
+   "name": "interf.aabb_trap",
+   "ok": true,
+   "line": "relation disjoint status=certified",
+   "seconds": 14.6
+  },
+  {
+   "name": "interf.cavity",
+   "ok": true,
+   "line": "relation interference status=certified witness=subdiv",
+   "cavities": [
+    "cavity 1 inside 0 status=certified"
+   ],
+   "seconds": 2.2
+  },
+  {
+   "name": "clearance.disjoint",
+   "ok": true,
+   "lo": 9.999999999999952,
+   "hi": 10.0,
+   "st": "estimated",
+   "locert": "lo=certified"
+  },
+  {
+   "name": "clearance.interf",
+   "ok": true,
+   "zero": true,
+   "st": "certified",
+   "state": "interference"
+  },
+  {
+   "name": "clearance.contained",
+   "ok": true,
+   "lo": 0.0,
+   "hi": 5.656854249492381,
+   "st": "estimated",
+   "locert": "lo=certified"
+  },
+  {
+   "name": "wall.box",
+   "ok": true,
+   "lo": 9.999999999999984,
+   "hi": 10.0,
+   "st": "estimated",
+   "locert": "lo=certified",
+   "faces": 6,
+   "pairs": 3,
+   "pruned": 0
+  },
+  {
+   "name": "wall.slab",
+   "ok": true,
+   "lo": 9.999999999999984,
+   "hi": 10.0,
+   "st": "estimated",
+   "locert": "lo=certified",
+   "faces": 6,
+   "pairs": 3,
+   "pruned": 2
+  },
+  {
+   "name": "wall.cone_none",
+   "ok": true,
+   "none": true,
+   "st": "certified",
+   "reason": "all-faces-adjacent"
+  },
+  {
+   "name": "carried.classify",
+   "ok": true,
+   "line": "inside"
+  },
+  {
+   "name": "carried.check",
+   "ok": true,
+   "line": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "name": "carried.geom",
+   "ok": true,
+   "line": "point s=[-7.993605777301129e-15, 9.769962616701379e-15] t=[-7.993605777301129e-15, 9.769962616701379e-15] at=[-1.1546319"
+  },
+  {
+   "name": "mcp.queries",
+   "ok": true,
+   "distance": true,
+   "extrema": true,
+   "mass": true,
+   "section": true,
+   "interference": true,
+   "clearance": true,
+   "min_wall": true
+  }
+ ]
+}

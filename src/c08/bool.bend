@@ -963,7 +963,7 @@ def face_pts_go(+mp: Maybe<&2, V.Point>, +rest: List<&2, V.Point>) -> List<&2, V
     case Some{p}: p <> rest
 
 def mid_pt(+q: List<&2, I.I>) -> V.Point:
-  V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
+  V.Pt{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}
 
 def cv_mid(+m: Maybe<&2, R.Cv>) -> Maybe<&2, V.Point>:
   match m:
@@ -1083,7 +1083,7 @@ def sh_ids(o: Ty.HShell, cs: List<&2, Ty.HShell>) -> List<&2, Nat>:
 def sm_mid_pt(+m: Maybe<&2, List<&2, I.I>>, +at: Nat) -> List<&2, SM>:
   match m:
     case None{}: []
-    case Some{+q}: [SM{V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}, at}]
+    case Some{+q}: [SM{V.Pt{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}, at}]
 
 def sm_int_fd(fs: List<&2, SO.Fd>, +at: Nat) -> List<&2, SM>:
   match fs:

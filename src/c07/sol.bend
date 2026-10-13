@@ -11,7 +11,7 @@ import ./xs.bend as S
 import ./mem.bend as Mm
 
 type Fd is Data:
-  Fd{ fc: Mm.Fc, g: List<&2, G.GVal>, bx: List<&2, I.I>, ok: Bool, sh: Nat }
+  Fd{ fc: Mm.Fc, g: List<&2, G.GVal>, bx: List<&2, I.I>, ok: Bool, sh: Nat, fi: Nat }
 
 type Ea is Data:
   Ea{ es: List<&2, Mm.Er>, ok: Bool }
@@ -98,21 +98,23 @@ def surf_box(s: M.Im, +bx: List<&2, I.I>) -> List<&2, I.I>:
       axial_box(o, a, bx, rho, h)
     case M.M_to{o, a, bigr, r}: ball(o, I.iadd(bigr, r))
 
-def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat) -> Fd:
+def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat) -> Fd:
   match m:
-    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea)}, [s], eb_go(ea_es(ea), []), False{}, sh}
+    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea)}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
     case Some{+im}:
       +es = ea_es(ea)
-      Fd{Mm.Fc{im, same, es}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh}
+      Fd{Mm.Fc{im, same, es}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh, fi}
 
-def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat) -> Fd:
+def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
   Ty.Fa{g, +s, ls, same} = f
-  fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh)
+  fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi)
 
 def fhs_go(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +sh: Nat) -> List<&2, Fd>:
   match hs:
     case []: []
-    case h <> t: fd_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, sh) <> fhs_go(t, x, sh)
+    case +h <> t:
+      Ty.HF{+fi, +g} = h
+      fd_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, sh, fi) <> fhs_go(t, x, sh)
 
 def sh_fds(s: Ty.Shell, +x: Ty.Ix, +i: Nat) -> List<&2, Fd>:
   Ty.Sh{g, hs, k} = s
@@ -127,15 +129,15 @@ def fds_of(+b: Ty.Brep) -> List<&2, Fd>:
   shs_go(Ty.brep_shs(b), Ty.ix_of(b), 0n)
 
 def fd_bx(f: Fd) -> List<&2, I.I>:
-  Fd{fc, g, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh, fi} = f
   bx
 
 def fd_sh(f: Fd) -> Nat:
-  Fd{fc, g, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh, fi} = f
   sh
 
 def fd_fc(f: Fd) -> Mm.Fc:
-  Fd{fc, g, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh, fi} = f
   fc
 
 def fd_im(f: Fd) -> M.Im:
@@ -147,12 +149,16 @@ def g1(xs: List<&2, G.GVal>) -> G.GVal:
     case x <> t: x
 
 def fd_g(f: Fd) -> G.GVal:
-  Fd{fc, g, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh, fi} = f
   g1(g)
 
 def fd_ok(f: Fd) -> Bool:
-  Fd{fc, g, bx, ok, sh} = f
+  Fd{fc, g, bx, ok, sh, fi} = f
   ok
+
+def fd_fi(f: Fd) -> Nat:
+  Fd{fc, g, bx, ok, sh, fi} = f
+  fi
 
 def bbox(fs: List<&2, Fd>, +acc: List<&2, I.I>) -> List<&2, I.I>:
   match fs:
@@ -232,10 +238,10 @@ def dirs() -> List<&2, V.Dir>:
     dr(0.4264014327112209f64, F64.neg(0.4264014327112209f64), F64.neg(0.7977240352174656f64))]
 
 def pt_of(+q: List<&2, I.I>) -> V.Point:
-  V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
+  V.Pt{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}
 
 def dr_of(+q: List<&2, I.I>) -> V.Dir:
-  V.Dr{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
+  V.Dr{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}
 
 def reach(+bb: List<&2, I.I>, +p: V.Point, +d: V.Dir) -> F64:
   +w = X.vsub(bb, M.p3(p))
@@ -528,4 +534,4 @@ def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
   List.append(&2, Fi, sos_or(ss, fs), sos_nest(ss, fs))
 
 def fd_dflt() -> Fd:
-  Fd{Mm.Fc{M.M_pl{[], []}, True{}, []}, [], [], False{}, 0n}
+  Fd{Mm.Fc{M.M_pl{[], []}, True{}, []}, [], [], False{}, 0n, 0n}

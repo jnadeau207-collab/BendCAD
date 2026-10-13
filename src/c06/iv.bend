@@ -22,6 +22,9 @@ def up(+x: F64) -> F64:
 def ipt(+x: F64) -> I:
   I{x, x}
 
+def imid(+a: I) -> F64:
+  F64.add(F64.mul(0.5f64, i_lo(a)), F64.mul(0.5f64, i_hi(a)))
+
 def iadd(+a: I, +b: I) -> I:
   I{dn(F64.add(i_lo(a), i_lo(b))), up(F64.add(i_hi(a), i_hi(b)))}
 

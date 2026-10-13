@@ -1,5 +1,5 @@
 {
- "binary_sha256": "c429f4626f43283b2d521eb488eafc8e057b1dd6e76623ece472a51bcc66d2df",
+ "binary_sha256": "500eb8afc56a89bfb43de5dd84b1945ebae4f8c4edbb5af5fe44c105260bc231",
  "passed": 27,
  "total": 27,
  "results": [
@@ -151,7 +151,7 @@
    "name": "fillet.pad",
    "ok": true,
    "info": "('unsupported-op', 'features-need-an-extruded-body', True)",
-   "seconds": 0.03
+   "seconds": 0.04
   },
   {
    "name": "rigid.kind",

@@ -246,7 +246,7 @@ def fi1(+c: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   [SO.Fi{c, a, b}]
 
 def bx_pt(+q: List<&2, I.I>) -> V.Point:
-  V.Pt{X.imid(X.vn(q, 0n)), X.imid(X.vn(q, 1n)), X.imid(X.vn(q, 2n))}
+  V.Pt{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}
 
 def ef_mode_go(+c0: U64, +c1: U64) -> U64:
   Bool.pick(U64, Bool.or(U64.is_eq(c0, 1u64), U64.is_eq(c1, 1u64)), 1u64,
@@ -282,9 +282,9 @@ def ee_tan(+fda: List<&2, SO.Fd>, +bbA: List<&2, I.I>, +ca: R.Cv, +s: I.I, +loa:
     Bool.and(F64.is_lt(X.iwid(s), F64.div(wa, 1024.0f64)), F64.is_lt(X.iwid(t), F64.div(wb, 1024.0f64))))
   Bool.pick(U64, ok,
     ef_tan_go([F64.div(wb, 16.0f64), F64.div(wb, 64.0f64), F64.div(wb, 256.0f64), F64.div(wb, 1024.0f64)],
-      fda, bbA, cb, X.imid(t), lob, hib,
+      fda, bbA, cb, I.imid(t), lob, hib,
       ef_tan_go([F64.div(wa, 16.0f64), F64.div(wa, 64.0f64), F64.div(wa, 256.0f64), F64.div(wa, 1024.0f64)],
-        fdb, bbB, ca, X.imid(s), loa, hia, 0u64)),
+        fdb, bbB, ca, I.imid(s), loa, hia, 0u64)),
     2u64)
 
 def ee_un_go(near: Bool, +cross: Bool, +s: I.I, +t: I.I, +ca: R.Cv, +da: G.Dom, +cb: R.Cv, +db: G.Dom,
@@ -546,7 +546,7 @@ def ef_pt(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +bad1: String, +bad2: Strin
         fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad1, bad2), a, b))
 
 def ov_pt(+c: R.Cv, +s: I.I, +lo: F64, +hi: F64) -> List<&2, I.I>:
-  R.cv_box(c, I.ipt(X.imid(I.idiv(I.isub(I.ipt(X.imid(s)), I.ipt(lo)), I.isub(I.ipt(hi), I.ipt(lo))))))
+  R.cv_box(c, I.ipt(I.imid(I.idiv(I.isub(I.ipt(I.imid(s)), I.ipt(lo)), I.isub(I.ipt(hi), I.ipt(lo))))))
 
 def ef_end(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +q: List<&2, I.I>) -> U64:
   SO.classify_in(ofds, bb, bx_pt(q))
@@ -571,7 +571,7 @@ def ef_tan(+ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv, +s: I.I, +lo: F
   +w = F64.sub(hi, lo)
   Bool.pick(U64, Bool.or(F64.is_le(hi, lo), F64.is_le(F64.div(w, 1024.0f64), X.iwid(s))), 2u64,
     ef_tan_go([F64.div(w, 16.0f64), F64.div(w, 64.0f64), F64.div(w, 256.0f64), F64.div(w, 1024.0f64)],
-      ofds, bb, c, X.imid(s), lo, hi, 0u64))
+      ofds, bb, c, I.imid(s), lo, hi, 0u64))
 
 def ef_tan_code(+t: U64) -> String:
   Bool.pick(String, U64.is_eq(t, 1u64), "edge-face-penetration",

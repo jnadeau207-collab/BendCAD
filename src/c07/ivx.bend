@@ -8,9 +8,6 @@ def iz() -> I.I:
 def has0(+a: I.I) -> Bool:
   Bool.not(Bool.or(F64.is_lt(0.0f64, I.i_lo(a)), F64.is_lt(I.i_hi(a), 0.0f64)))
 
-def imid(+a: I.I) -> F64:
-  F64.add(F64.mul(0.5f64, I.i_lo(a)), F64.mul(0.5f64, I.i_hi(a)))
-
 def iwid(+a: I.I) -> F64:
   I.up(F64.sub(I.i_hi(a), I.i_lo(a)))
 
@@ -110,7 +107,7 @@ def vsub(xs: List<&2, I.I>, ys: List<&2, I.I>) -> List<&2, I.I>:
 def vmid(xs: List<&2, I.I>) -> List<&2, F64>:
   match xs:
     case []: []
-    case +x <> t: imid(x) <> vmid(t)
+    case +x <> t: I.imid(x) <> vmid(t)
 
 def vpts(xs: List<&2, F64>) -> List<&2, I.I>:
   match xs:
@@ -241,7 +238,7 @@ def mdrop_col(ms: List<&2, List<&2, I.I>>, +k: Nat) -> List<&2, List<&2, I.I>>:
 def mmid_row(r: List<&2, I.I>) -> List<&2, F64>:
   match r:
     case []: []
-    case +x <> t: imid(x) <> mmid_row(t)
+    case +x <> t: I.imid(x) <> mmid_row(t)
 
 def mmid(ms: List<&2, List<&2, I.I>>) -> List<&2, List<&2, F64>>:
   match ms:
