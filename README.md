@@ -1,66 +1,94 @@
-# BendCAD
+<p align="center"><img src="media/logo.svg" width="112" alt="BendCAD logo: an isometric block with one filleted edge"></p>
 
-Aethalgard v2: an open-source professional CAD kernel in Bend 2, built to be the world's best kernel for AI agents. It is never silently wrong and explains its failures. Identity is by meaning. Toleranced, state-dependent geometry is native. Sensitivities come with every answer. It is fast and massively parallel by law (MASTER_PLAN §14–§15).
+<h1 align="center">BendCAD</h1>
 
-**Status:** C00–C10 closed; C08 with recorded deferrals. C00–C05 have three-lane tests and independent oracles:
+<p align="center"><b>The CAD kernel AI agents can trust.</b><br>
+Open source. Written in <a href="https://github.com/HigherOrderCO/Bend">Bend</a>. Proven where it can be, certified where it must be, honest everywhere else.</p>
 
-- contracts;
-- math foundation;
-- exact predicates;
-- curves and surfaces;
-- B-rep topology;
-- planar arrangements and the sketch solver.
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="media/hero_dark.gif"><img src="media/hero.gif" width="860" alt="A mounting bracket built by BendCAD, spinning, beside the claims: certified volume, 230 proven laws, named refusals, parallel by construction"></picture></p>
 
-R0, the speed and parallelism rebuild, is closed: C05 rebuilt (R0.1), C04 validation on a store index and C02 exact for all finite doubles (R0.2), the solver started at its damping floor (R0.3), and the audit repairs (R0.4). Its residuals are owned by later milestones (MASTER_PLAN A5).
+Every CAD program you have used sits on a geometry kernel: the engine that turns "a plate, four bolt holes and a boss" into an exact solid you can measure, mesh and machine. The kernels in use today are decades-old C++ built for humans clicking buttons. When they fail, they fail quietly, or with an error only an expert can read.
 
-C06 + A0 is closed (`docs/receipts/c06.1-2026-10-05.txt`). It covers:
+BendCAD is a new kernel built for a different user: an AI agent that has to design real parts alone and know when to believe the answer.
 
-- primitives, extrusion of multi-region profiles with arcs, pad, pocket, holes, placement and revolution;
-- an intent check on every op, measured from the result;
-- certified volume and area intervals, also over tolerance zones for primitives;
-- the design model with memoized rebuild;
-- sensitivities and watertight tessellation;
-- the `bendcad` CLI and MCP server (`tools/mcp/`).
+- **Never silently wrong.** Every number says what it is: proven, certified to a bound, estimated, or assumed.
+- **Failures explain themselves.** A refused edit names what went wrong, where, why, and how to fix it, and leaves the design untouched.
+- **Intent is checked.** Each operation declares what it should do ("remove material, add two faces, make one through-hole"), and the kernel measures the result and rejects a mismatch.
+- **Tolerances are native.** Parameters carry tolerance zones, and the kernel reports how answers move inside them.
+- **Fast and parallel by law.** Bend spreads work across every core with no threads or locks to manage, and the kernel is written to use it: balanced trees and divide-and-conquer, never a quadratic loop where a fast one exists.
 
-Challenge G1 passed: fresh agents built and edited a parameterized bracket through MCP, and an independent grader passed every run (`docs/receipts/g1/`).
+## A taste
 
-C07 is closed (`docs/receipts/c07-2026-10-06.txt`). It adds:
+This is the bracket in the animation above. An agent (or you) sends these edits to the `bendcad` CLI or its MCP server:
 
-- certified curve/curve, curve/surface and surface/surface intersection, with every unresolved region reported;
-- point classification (`classify`);
-- an embedding, orientation and cavity check for any solid (`check`);
-- tolerance-envelope measures for every operation, once the topology is certified constant over the zone.
-
-C08 closed with recorded deferrals (`docs/receipts/c08-2026-10-08.final.txt`): regularized union, difference and intersection of operands whose boundaries do not cross (disjoint, contained, contact-only, identical, empty); crossing boundaries are refused as `boundaries-cross-or-overlap` until face splitting lands. C09 is closed (`docs/receipts/c09.1-2026-10-11.txt`): sweep, loft, chamfer, fillet, draft, offset, shell, linear and circular patterns, and rigid-cluster drag in the solver. A single-edge fillet with unequal end radii refuses as `fillet-cone-not-certified` (MASTER_PLAN A7). C10 is closed (`docs/receipts/c10-2026-10-12.txt`): stated chord/angle tessellation quality with presets, a pre-build estimate with a triangle-budget gate, sampled measurement on the delivered mesh, and display/manufacturing profiles; the C06 display tessellator is replaced, its triangulation core preserved. The shell latency deferral is closed (`shell.closed_box` 0.89 s, verdicts identical). Next is C11.
-
-Laws (MASTER_PLAN A6): every packet states its laws in `laws/<pkt>/LAWS.bend` and proves them in `laws/<pkt>/PROOF.bend`. All 230 laws quantify over their inputs, and all pass both the checker and the Lean-proven kernel (`bash tools/laws/check.sh`). Each law family kills a planted bug (`python3 tools/laws/mutate.py`). Fixed-input checks are pins (`tests/<pkt>/pins*.bend`, 1,812 of them), run as compiled code by `bash tools/pins/run.sh`.
-
-New code is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). `legacy/` is reference-only, keeps its own provenance (`legacy/PROVENANCE.md`) and is never released.
-
-## Pins
-
-- Bend language: [`BEND_PIN`](BEND_PIN) — `jnadeau207-collab/bend@a4d17acecf79c71696610f0683d8d003bc392920` (tag `numeric/2026-10-05`, branch `numeric-on-upstream`; `numeric/2026-09-29` is the earlier pin `bc01485d`)
-- Numeric contract lives in that fork: `bend2/docs/F64_CONTRACT.md`, `bend2/docs/F64_IMPLEMENTATION.md`
-- Advance `BEND_PIN` only after a Bend numeric gate. Never track floating `main`.
-
-## Start here
-
-- [AGENTS.md](AGENTS.md): coding mandate and hard lines
-- [MASTER_PLAN.md](MASTER_PLAN.md): the kernel roadmap (C00–C16), the agent kernel's properties (§14), speed and parallelism law (§15), interface and scope (§16), milestone order (§17), and the challenge ladder (§18)
-- [tools/mcp/language.md](tools/mcp/language.md): the design language agents use through the MCP server (`tools/mcp/bendcad-mcp.mjs`) or the `bendcad` CLI (`src/c06/cli.bend`)
-- [docs/c06-contract.md](docs/c06-contract.md): what C06 builds, measures and refuses
-- [docs/c07-contract.md](docs/c07-contract.md): intersections, classification, embedding and envelope topology
-- [legacy/aethalgard/](legacy/aethalgard/): immutable reference corpus
-- [legacy/PROVENANCE.md](legacy/PROVENANCE.md), [legacy/manifest.json](legacy/manifest.json)
-
-Recovered core: 249 files, 4,161,578 bytes, from `jnadeau207-collab/reepo@eeca9ad782640f97bc15423e72319acea310d36f`. Not a desktop restore.
-
-```sh
-python3 tools/verify_legacy.py
+```lisp
+(param W 120 119.9 120.1)  (param H 80)  (param T 8)  (param R 10)
+(node 1 (prism 0 T (region (path R 0 (line (- W R) 0) (arc (- W R) R R W R ccw)
+   (line W (- H R)) (arc (- W R) (- H R) R (- W R) H ccw) (line R H)
+   (arc R (- H R) R 0 (- H R) ccw) (line 0 R) (arc R R R R 0 ccw))))
+   (intent create 10 0 1 0))
+(node 2 (holes 1 (face 1 0 top) through (hole 12 12 4) (hole (- W 12) 12 4)
+   (hole 12 (- H 12) 4) (hole (- W 12) (- H 12) 4)) (intent remove 4 2 1 4))
+(node 3 (pad 2 (face 1 0 top) 12 (region (circle (/ W 2) (/ H 2) 20))) (intent add 2 1 1 4))
+(node 4 (holes 3 (face 3 0 top) through (hole (/ W 2) (/ H 2) 10)) (intent remove 1 2 1 5))
 ```
 
-Hash verification is not a build, test, or qualification result.
+Back comes a certified volume interval for every node, durable face names that survive parameter changes, and the sensitivity of the volume to `W`. Change `W` to 140 and only what depends on it rebuilds. Ask for something impossible and you get a structured refusal with a fix, never a broken solid. The full language is in [tools/mcp/language.md](tools/mcp/language.md).
 
-## Boundaries
+## What works today
 
-Production Aethalgard is untouched. Scalar/compiler/F64 work is in the Bend fork. Geometry and topology live here and must be written in Bend. OCCT/FreeCAD/PlaneGCS are oracles only. Mesh/voxel is not a B-rep substitute.
+- **Sketching and solving:** profiles with lines and arcs, islands and holes, and a constraint solver that reports rank and degrees of freedom.
+- **Solids:** boxes, cylinders, cones, spheres, tori, extrusions, revolves, pads, pockets, holes, placement and rotation.
+- **Booleans:** union, difference and intersection of solids whose boundaries don't cross. Crossing boundaries are refused by name until face splitting lands.
+- **Features:** sweep, loft, chamfer, fillet, draft, offset, shell, and linear and circular patterns.
+- **Truth about geometry:** certified curve and surface intersections, inside/outside classification, and embedding and cavity checks.
+- **Meshes:** display and manufacturing tessellation with stated chord and angle quality and a triangle budget.
+- **For agents:** the `bendcad` CLI and an MCP server. In our first challenge, fresh AI agents built and edited a parameterized bracket from a written brief, and an independent grader passed every run.
+
+## How we keep it honest
+
+- **Laws, not just tests.** 230 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Pins.** 1,812 fixed-input checks run as compiled code and are compared bit-for-bit.
+- **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
+- **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
+
+## Where it's going
+
+The goal is a kernel an agent can take from a written brief all the way to a part a machine shop can build, and eventually to a whole machine. The road there is a ladder of graded challenges:
+
+| | Challenge | Status |
+|---|---|---|
+| G1 | Parameterized mounting bracket with curved edges and holes | ✅ passed |
+| G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | next |
+| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | planned |
+| G4 | Centrifugal blower with modal analysis and machining checks | planned |
+| G5 | A ~100 N micro turbojet, with drawings a shop can build from | planned |
+| G6 | A bespoke jet engine from a performance brief | the summit |
+
+And the kernel milestones that carry it there:
+
+- **Now:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
+- **Next:** interchange (STEP, STL, 3MF) with a durable, versioned archive, then assemblies with mates and kinematics, then tolerances and GD&T bound to geometry.
+- **Then:** sheet metal, surface modeling, and blade and airfoil design, followed by a qualified public release.
+
+The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
+
+## Try it
+
+BendCAD builds with a pinned build of the Bend language that adds 64-bit integers and floats ([`BEND_PIN`](BEND_PIN) names the exact commit; never track floating `main`). On Linux or WSL:
+
+```sh
+bend src/c06/cli.bend -o bendcad
+./bendcad bracket.bcd apply '(param W 120)' '(node 1 (box W 80 8) (intent create 6 0 1 0))'
+./bendcad bracket.bcd eval
+```
+
+To drive it from an agent, point your MCP client at `node tools/mcp/bendcad-mcp.mjs`.
+
+## Contributing
+
+BendCAD is young, ambitious and open. Geometry people, proof people, Bend people and CAD users are all welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get set up and to learn the few rules that keep the kernel trustworthy.
+
+## License
+
+[Apache License 2.0](LICENSE).
