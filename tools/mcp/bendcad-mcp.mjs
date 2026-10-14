@@ -135,6 +135,12 @@ const tools = [
       ? cli([a.design, 'asm', 'explode', a.dx ?? '', a.dy ?? '', a.dz ?? '', a.gap ?? '', a.assembly].map(String))
       : a.action === 'faces' ? cli([a.design, 'asm', 'faces', a.inst ?? '', a.assembly])
       : cli([a.design, 'asm', String(a.action), a.assembly]) },
+  { name: 'pmi', description: 'Semantic PMI and GD&T (see reference: Semantic PMI). Actions: check (validate and evaluate), stack (worst-case stack-ups over envelope and states), toler (per-state interference/clearance plus envelope), step42 (STEP AP242 export with PMI).',
+    inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'check, stack, toler or step42' },
+        pmi: { type: 'string', description: 'One (pmi ...) form' }, out: { type: 'string', description: 'Output file (step42 only)' } },
+      required: ['design', 'action', 'pmi'] },
+    run: a => a.action === 'step42' ? cli([a.design, 'pmi', 'step42', a.out ?? '', a.pmi])
+      : cli([a.design, 'pmi', String(a.action), a.pmi]) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }

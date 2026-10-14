@@ -1,4 +1,4 @@
-# BendCAD design language (C06–C12)
+# BendCAD design language (C06–C15)
 
 A design is a list of parameters and nodes. Every node is one operation with a
 declared intent. Edits are atomic: a change is committed only if every node
@@ -358,6 +358,41 @@ satisfying configuration. `explode` needs `dx dy dz gap`: instance `k` moves
   (fix 1 housing)
   (axis 2 shaft 0 0 0 0 0 0 0 0 1)
   (plane 3 shaft 0 0 5 0 0 1 10))
+```
+
+## Semantic PMI
+
+`pmi` binds dimensions, tolerances and datum reference frames to durable
+face selectors, with ISO GPS / ASME Y14.5 semantics. Actions: `check`
+(validate and evaluate every entry), `stack` (worst-case 1-D stack-ups
+over the tolerance envelope and operating states), `toler` (per-state
+interference/clearance plus the envelope estimate) and `step42` (STEP
+AP242 export carrying the PMI). The PMI text is one `(pmi ...)` form,
+evaluated fresh on every call, so design edits propagate through it.
+
+- `(node N)` or `(nodes A B)` — the design node every selector resolves
+  against (`check`, `stack`, `step42`), or the toler pair.
+- `(datum NAME SEL)` — datum bound to a face selector exactly as printed
+  by `faces` (`nN.cK.top|bottom|wall.I.J`).
+- `(dim NAME PARAM)` — size dimension bound to a design parameter (nominal
+  and zone come from the parameter); `(dim NAME NOM LO HI)` — explicit
+  numbers.
+- `(tol NAME KIND T SEL rfs DATUM...)` — tolerance of kind `flatness`,
+  `perpendicularity` or `parallelism` with value `T` on face `SEL`; the
+  datum references list in DRF order (`flatness` takes none, orientation
+  takes exactly one).
+- `(state NAME GROW)` — operating state: uniform growth `GROW` about the
+  design origin (finite, positive).
+- `(stack NAME DIM...)` — a 1-D stack-up over one or more dims.
+
+```
+(pmi (node 1)
+  (datum A n1.c0.top)
+  (dim dW W)
+  (tol t1 flatness 0.02 n1.c0.bottom rfs)
+  (tol t2 perpendicularity 0.05 n1.c0.wall.0.0 rfs A)
+  (state cold 1) (state hot 1.002)
+  (stack s1 dW))
 ```
 
 ## Example

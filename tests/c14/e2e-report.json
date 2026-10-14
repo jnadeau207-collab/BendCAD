@@ -1,5 +1,5 @@
 {
- "binary_sha256": "3153dbd6ab791580ede32f8a53bd463891fe91f9f6092abdcb2875fb5eaa5ac9",
+ "binary_sha256": "318e1ec96b5f0b433e035069b48785cf073411cd43328e26a07c23905f5e91b5",
  "passed": 15,
  "total": 15,
  "results": [
@@ -81,13 +81,13 @@
   {
    "name": "interf.overlap",
    "ok": true,
-   "seconds": 0.25,
+   "seconds": 0.26,
    "detail": "assembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
   },
   {
    "name": "interf.touch",
    "ok": true,
-   "seconds": 6.49,
+   "seconds": 6.55,
    "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
   },
   {
@@ -102,7 +102,7 @@
   {
    "name": "clear.interference",
    "ok": true,
-   "seconds": 0.25,
+   "seconds": 0.26,
    "detail": "assembly pairs ninst 2\npair a b\nclearance 0 status=certified state=interference\n\n"
   },
   {
@@ -173,7 +173,7 @@
     3.0,
     3.0
    ],
-   "seconds": 0.14,
+   "seconds": 0.15,
    "detail": "BEFORE:\nassembly pairs ninst 2\npair a b\nrelation disjoint status=certified\n\n\nAFTER:\nassembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
   },
   {

@@ -20,6 +20,7 @@ import ../c12/stepw.bend as SW
 import ../c12/stepr.bend as SR
 import ../c12/mesh.bend as MO
 import ../c14/asm.bend as AS
+import ../c15/pmi.bend as PM
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -408,7 +409,8 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "interf"), 15u64, Bool.pick(U64, String.eq(c, "clearance"), 16u64,
   Bool.pick(U64, String.eq(c, "wall"), 17u64, Bool.pick(U64, String.eq(c, "step"), 18u64,
   Bool.pick(U64, String.eq(c, "archive"), 19u64, Bool.pick(U64, String.eq(c, "stl"), 20u64,
-  Bool.pick(U64, String.eq(c, "3mf"), 21u64, Bool.pick(U64, String.eq(c, "asm"), 22u64, 0u64))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "3mf"), 21u64, Bool.pick(U64, String.eq(c, "asm"), 22u64,
+  Bool.pick(U64, String.eq(c, "pmi"), 23u64, 0u64)))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -761,6 +763,24 @@ def geo_go(code: U64, +args: List<&2, String>) -> IO(Unit):
       S.arg_at(args, 7n), S.arg_at(args, 8n), S.arg_at(args, 9n))
     case _: IO.print(GQ.geom(arg_drop(args, 2n)))
 
+def pmi_fr(+fr: PM.FR, +out: String) -> IO(Unit):
+  match fr:
+    case PM.FR_ok{+s, +n}:
+      do IO<Unit>:
+        w : Unit <- write_file(out, s)
+        IO.print("wrote " ++ out ++ " ap242 PMI " ++ Nat.show(n) ++ " entities")
+    case PM.FR_err{+why, +fix}: IO.print("error invalid-input | pmi step42 | why: " ++ why ++
+      " | fix: " ++ fix)
+    case PM.FR_line{+l}: IO.print(l)
+
+def pmi_vc_go(+code: U64, +p: M.Part, +rest: List<&2, String>) -> IO(Unit):
+  match code:
+    case 4u64: pmi_fr(PM.pmi_file(p, rest), S.arg_at(rest, 1n))
+    case _: IO.print(PM.pmi_go(p, rest))
+
+def pmi_run(+p: M.Part, +rest: List<&2, String>) -> IO(Unit):
+  pmi_vc_go(PM.verb_code(S.arg_at(rest, 0n)), p, rest)
+
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
@@ -789,7 +809,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 21u64: mf3_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 22u64: IO.print(AS.asm_go(p, rest))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm")
+    case 23u64: pmi_run(p, rest)
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))

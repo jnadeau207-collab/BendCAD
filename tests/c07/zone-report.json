@@ -42,13 +42,13 @@
   "name": "zone.bracket.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[23167.290999992274, 24177.313589212026] area=[9302.627565044619, 9432.989042727135]",
-  "secs": 0.073
+  "secs": 0.074
  },
  {
   "name": "zone.bracket.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[22828.070071938364, 23838.091875759954] area=[9411.90786549974, 9549.903413330478]",
-  "secs": 0.086
+  "secs": 0.084
  },
  {
   "name": "zone.bracket.n3.certified",
@@ -186,7 +186,7 @@
   "name": "zone.revolve-cavity.n1.certified",
   "ok": true,
   "out": "zone node 1: certified over the tolerance envelope | volume=[136781.76171401056, 145111.15243471385] area=[21117.79938976174, 21966.863443969018]",
-  "secs": 0.048
+  "secs": 0.049
  },
  {
   "name": "zone.revolve-cavity.n1.encloses",
@@ -264,7 +264,7 @@
   "name": "zone.rotated.n2.certified",
   "ok": true,
   "out": "zone node 2: certified over the tolerance envelope | volume=[4670.090200129447, 4901.50612666545] area=[2548.137305384857, 2594.4204906920804]",
-  "secs": 0.009
+  "secs": 0.01
  },
  {
   "name": "zone.rotated.n2.encloses",
@@ -303,13 +303,13 @@
   "name": "zone.neg.hole-crosses-edge",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.016
+  "secs": 0.015
  },
  {
   "name": "zone.neg.holes-collide",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.018
+  "secs": 0.017
  },
  {
   "name": "zone.neg.arc-not-identical",
@@ -321,6 +321,6 @@
   "name": "zone.neg.depth-reaches-floor",
   "ok": true,
   "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-  "secs": 0.016
+  "secs": 0.015
  }
 ]

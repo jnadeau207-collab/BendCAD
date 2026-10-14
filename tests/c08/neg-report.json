@@ -1,5 +1,5 @@
 {
- "binary_sha256": "3153dbd6ab791580ede32f8a53bd463891fe91f9f6092abdcb2875fb5eaa5ac9",
+ "binary_sha256": "318e1ec96b5f0b433e035069b48785cf073411cd43328e26a07c23905f5e91b5",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 0.62
+   "seconds": 0.63
   },
   {
    "name": "cross.straddle",
@@ -25,13 +25,13 @@
    "name": "cross.sphere",
    "ok": true,
    "info": "boundaries-cross-or-overlap: edge-face-penetration 3 6 between nodes 1 and 2",
-   "seconds": 0.26
+   "seconds": 0.24
   },
   {
    "name": "mixed.regions",
    "ok": true,
    "info": "mixed-solid-relations: one operand has solids both inside and outside the other",
-   "seconds": 0.06
+   "seconds": 0.07
   },
   {
    "name": "place.rot45_union",
@@ -79,25 +79,25 @@
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 2.94
+   "seconds": 2.89
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 2.15
+   "seconds": 2.22
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.53
+   "seconds": 0.63
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 1.77
+   "seconds": 1.83
   },
   {
    "name": "ok.identical",

@@ -71,8 +71,9 @@ And the kernel milestones that carry it there:
 - **Shipped:** professional queries: closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
 - **Shipped:** interchange: a versioned B-rep archive, a declared STEP read/write profile validated by independent readers, and STL/3MF mesh exports on CLI and MCP paths.
 - **Shipped:** assemblies: mates solved exactly with kinematic degrees of freedom, certified interference and clearance, exploded views, and assembly lineage with durable selectors.
-- **Now:** specialized modeling, then tolerances and GD&T bound to geometry.
-- **Then:** sheet metal, surface modeling, and blade and airfoil design, followed by a qualified public release.
+- **Shipped:** semantic PMI and GD&T: dimensions, tolerances and datum reference frames bound to durable selectors, evaluated over envelopes and operating states, exported as STEP AP242.
+- **Now:** specialized modeling: sheet metal, surface modeling, and blade and airfoil design.
+- **Then:** a qualified public release.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 

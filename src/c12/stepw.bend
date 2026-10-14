@@ -1010,6 +1010,52 @@ def sw_pr_go(+w: Bool, +p: BL.PR, +pl: M.Pl) -> WS:
 def sw_pr(+p: BL.PR, +pl: M.Pl) -> WS:
   sw_pr_go(BL.pr_ok_of(p), p, pl)
 
+def sw_head42() -> String:
+  "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('BendCAD AP242 PMI export'),'2;1');\nFILE_NAME('bendcad.step','',('BendCAD'),('BendCAD'),'BendCAD','BendCAD','');\nFILE_SCHEMA(('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF'));\nENDSEC;\nDATA;\n"
+
+def sw_env42(+u0: Nat, +e0: Nat, +sids: List<&2, Nat>) -> String:
+  sw_ent(e0, "APPLICATION_CONTEXT('managed model based 3d engineering')") ++
+    sw_ent(Nat.add(e0, 1n), "APPLICATION_PROTOCOL_DEFINITION('international standard','managed_model_based_3d_engineering',2020," ++
+      sw_ref(e0) ++ ")") ++
+    sw_ent(Nat.add(e0, 2n), "PRODUCT_CONTEXT(''," ++ sw_ref(e0) ++ ",'mechanical')") ++
+    sw_ent(Nat.add(e0, 3n), "PRODUCT_DEFINITION_CONTEXT('part definition'," ++ sw_ref(e0) ++
+      ",'design')") ++
+    sw_ent(Nat.add(e0, 4n), "PRODUCT('BENDCAD','BENDCAD','',(" ++ sw_ref(Nat.add(e0, 2n)) ++ "))") ++
+    sw_ent(Nat.add(e0, 5n), "PRODUCT_DEFINITION_FORMATION('',''," ++ sw_ref(Nat.add(e0, 4n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 6n), "PRODUCT_DEFINITION('design',''," ++ sw_ref(Nat.add(e0, 5n)) ++ "," ++
+      sw_ref(Nat.add(e0, 3n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 7n), "PRODUCT_DEFINITION_SHAPE('',''," ++ sw_ref(Nat.add(e0, 6n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 8n), "CARTESIAN_POINT('',(0.0,0.0,0.0))") ++
+    sw_ent(Nat.add(e0, 9n), "DIRECTION('',(0.0,0.0,1.0))") ++
+    sw_ent(Nat.add(e0, 10n), "DIRECTION('',(1.0,0.0,0.0))") ++
+    sw_ent(Nat.add(e0, 11n), "AXIS2_PLACEMENT_3D(''," ++ sw_ref(Nat.add(e0, 8n)) ++ "," ++
+      sw_ref(Nat.add(e0, 9n)) ++ "," ++ sw_ref(Nat.add(e0, 10n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 12n), "ADVANCED_BREP_SHAPE_REPRESENTATION('',(" ++ sw_ref(Nat.add(e0, 11n)) ++
+      sw_env_sids(sids) ++ ")," ++ sw_ref(Nat.add(e0, 13n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 13n), "( GEOMETRIC_REPRESENTATION_CONTEXT(3) " ++
+      "GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((" ++ sw_ref(Nat.add(e0, 15n)) ++ ")) " ++
+      "GLOBAL_UNIT_ASSIGNED_CONTEXT((" ++ sw_ref(u0) ++ "," ++ sw_ref(Nat.add(u0, 1n)) ++ "," ++
+      sw_ref(Nat.add(u0, 2n)) ++ ")) REPRESENTATION_CONTEXT('','') )") ++
+    sw_ent(Nat.add(e0, 14n), "SHAPE_DEFINITION_REPRESENTATION(" ++ sw_ref(Nat.add(e0, 7n)) ++ "," ++
+      sw_ref(Nat.add(e0, 12n)) ++ ")") ++
+    sw_ent(Nat.add(e0, 15n), "UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.0000001)," ++
+      sw_ref(u0) ++ ",'distance_accuracy_value','confusion accuracy')") ++
+    sw_ent(Nat.add(e0, 16n), "PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(" ++
+      sw_ref(Nat.add(e0, 4n)) ++ "))")
+
+def sw_wrap42_t(+w: Bool, +r: ER2, +np: Nat, +pmi_s: String, +pmi_n: Nat) -> WS:
+  match w:
+    case False{}: WS{False{}, "", er2_why(r), 0n, 0n}
+    case True{}: WS{True{}, sw_head42() ++ er2_s(r) ++ sw_units(er2_n(r)) ++
+      sw_env42(er2_n(r), Nat.add(er2_n(r), 3n), er2_ids(r)) ++ pmi_s ++ sw_foot(), "",
+      Nat.add(Nat.add(er2_n(r), 19n), pmi_n), np}
+
+def sw_wrap42(+r: ER2, +np: Nat, +pmi_s: String, +pmi_n: Nat) -> WS:
+  sw_wrap42_t(er2_ok_of(r), r, np, pmi_s, pmi_n)
+
+def sw_ms42(+b: M.Body, +pmi_s: String, +pmi_n: Nat) -> WS:
+  sw_wrap42(sw_stage(M.bd_brep(b), M.bd_pl(b), 1n), 1n, pmi_s, pmi_n)
+
 def sw_plen_go(ps: List<&2, BL.PR>, +n: Nat) -> Nat:
   match ps:
     case []: n

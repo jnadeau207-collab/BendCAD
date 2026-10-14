@@ -1,0 +1,137 @@
+{
+ "binary_sha256": "318e1ec96b5f0b433e035069b48785cf073411cd43328e26a07c23905f5e91b5",
+ "passed": 13,
+ "total": 13,
+ "results": [
+  {
+   "name": "check.ok",
+   "ok": true,
+   "checks": {
+    "header": true,
+    "datum": true,
+    "dimw": true,
+    "dimh": true,
+    "flat": true,
+    "perp": true,
+    "cold": true,
+    "hot": true,
+    "stack": true,
+    "footer": true
+   }
+  },
+  {
+   "name": "check.parallelism",
+   "ok": true,
+   "checks": {
+    "conforms": true,
+    "violates": true
+   }
+  },
+  {
+   "name": "stack.basic",
+   "ok": true,
+   "checks": {
+    "header": true,
+    "nominal": true,
+    "env": true,
+    "cold": true,
+    "hot": true
+   }
+  },
+  {
+   "name": "stack.default_state",
+   "ok": true,
+   "checks": {
+    "nominal": true
+   }
+  },
+  {
+   "name": "toler.states",
+   "ok": true,
+   "checks": {
+    "header": true,
+    "nominal": true,
+    "rel_cold": true,
+    "rel_hot": true,
+    "cold": true,
+    "hot": true,
+    "samples": true
+   }
+  },
+  {
+   "name": "toler.interf",
+   "ok": true,
+   "checks": {
+    "nominal": true,
+    "invariant": true,
+    "cold": true,
+    "hot": true,
+    "widen": true,
+    "env_rel": true
+   }
+  },
+  {
+   "name": "toler.inside",
+   "ok": true,
+   "checks": {
+    "nominal": true,
+    "state": true,
+    "clear": true,
+    "env_rel": true
+   }
+  },
+  {
+   "name": "toler.envelope",
+   "ok": true,
+   "checks": {
+    "lo": true,
+    "hi": true,
+    "rel": true
+   }
+  },
+  {
+   "name": "step42.export",
+   "ok": true,
+   "checks": {
+    "msg": true,
+    "identity": true,
+    "count": true,
+    "geom": true
+   }
+  },
+  {
+   "name": "step42.violates_exports",
+   "ok": true,
+   "checks": {
+    "msg": true,
+    "tol": true
+   }
+  },
+  {
+   "name": "edit.propagate",
+   "ok": true,
+   "checks": {
+    "zone": true,
+    "env": true
+   }
+  },
+  {
+   "name": "faces.crosscheck",
+   "ok": true,
+   "checks": {
+    "count": true,
+    "names": true
+   }
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "checks": {
+    "tool": true,
+    "check": true,
+    "toler": true,
+    "step42": true
+   }
+  }
+ ]
+}

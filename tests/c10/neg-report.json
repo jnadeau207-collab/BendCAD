@@ -1,5 +1,5 @@
 {
- "binary_sha256": "3153dbd6ab791580ede32f8a53bd463891fe91f9f6092abdcb2875fb5eaa5ac9",
+ "binary_sha256": "318e1ec96b5f0b433e035069b48785cf073411cd43328e26a07c23905f5e91b5",
  "passed": 12,
  "total": 12,
  "results": [
@@ -7,7 +7,7 @@
    "name": "tess.preset_range",
    "ok": true,
    "info": "(('preset 4 needs 0..3', 'nofile', True), ('preset 9 needs 0..3', 'nofile', True))",
-   "seconds": 0.05
+   "seconds": 0.04
   },
   {
    "name": "tess.preset_garbage",
