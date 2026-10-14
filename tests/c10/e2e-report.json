@@ -1,5 +1,5 @@
 {
- "binary_sha256": "318e1ec96b5f0b433e035069b48785cf073411cd43328e26a07c23905f5e91b5",
+ "binary_sha256": "1d8a4a6e12e292de451ee5ab4a9e2dfd7f3d9e7bd45aad8cc9c8f732477b7435",
  "passed": 11,
  "total": 11,
  "results": [
@@ -16,7 +16,7 @@
     "ex": 0,
     "euler": 2
    },
-   "seconds": 0.007065773010253906
+   "seconds": 0.007295370101928711
   },
   {
    "name": "tess.cyl",
@@ -31,7 +31,7 @@
     "ex": 0,
     "euler": 2
    },
-   "seconds": 0.0035719871520996094
+   "seconds": 0.004053592681884766
   },
   {
    "name": "tess.presets",
@@ -64,7 +64,7 @@
     "ex": 0,
     "euler": 0
    },
-   "seconds": 0.009509801864624023
+   "seconds": 0.009523153305053711
   },
   {
    "name": "tess.rev_fine",
@@ -79,7 +79,7 @@
     "ex": 0,
     "euler": 0
    },
-   "seconds": 0.04442620277404785
+   "seconds": 0.04604983329772949
   },
   {
    "name": "tess.overrides",
@@ -112,7 +112,7 @@
     "ex": 0,
     "euler": 2
    },
-   "seconds": 0.00601649284362793
+   "seconds": 0.006197690963745117
   },
   {
    "name": "tess.prism_arc",
@@ -127,7 +127,7 @@
     "ex": 0,
     "euler": 2
    },
-   "seconds": 0.005949735641479492
+   "seconds": 0.00592350959777832
   },
   {
    "name": "tess.shell_cavity",
@@ -142,7 +142,7 @@
     "ex": 0,
     "euler": 4
    },
-   "seconds": 0.09459424018859863
+   "seconds": 0.09575343132019043
   }
  ]
 }

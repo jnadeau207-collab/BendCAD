@@ -533,13 +533,6 @@
  },
  {
   "pkt": "c15",
-  "law": "F4 envelope bounds are swapped",
-  "file": "src/c15/pmi.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "c15",
   "law": "F4 bad states are accepted",
   "file": "src/c15/pmi.bend",
   "ok": true,

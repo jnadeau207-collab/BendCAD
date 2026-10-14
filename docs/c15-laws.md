@@ -1,6 +1,6 @@
 # C15 laws
 
-22 laws in 6 families. Every law quantifies over its inputs and passes
+20 laws in 6 families. Every law quantifies over its inputs and passes
 both the checker and the Lean-proven kernel. Every family kills its
 planted mutants (`python3 tools/laws/mutate.py c15`). There are no
 accessor laws and no whole-body restatements: a fixed input with a
@@ -31,12 +31,12 @@ first-state-drop.
 failure publishes nothing. `check_empty_ok`: the empty set checks ok.
 Mutants killed: first-failure-skipped, failure-smuggled-as-line.
 
-## F4 — state gating and envelope rendering (3 laws)
+## F4 — state gating (1 law)
 
-`st_go_false`: a bad grow refuses as `bad-state`. `env_rep`: the
-envelope line renders bounds in order (kills the bound swap).
-`sr_rep`: a per-state row carries its state's name, grow, nominal
-and interval. Mutants killed: bound-swap, bad-state-accepted.
+`st_go_false`: a bad grow refuses as `bad-state`. Mutant killed:
+bad-state-accepted. Envelope bound order and per-state row content are
+formatting, evidenced by the `toler.envelope` and `stack.*` journeys,
+which check each bound exactly.
 
 ## F5 — emission base and failure propagation (3 laws)
 

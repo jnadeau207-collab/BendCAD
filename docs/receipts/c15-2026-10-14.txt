@@ -307,3 +307,22 @@ solid_neg 13/13, zone 33/33, c08 e2e 108/108, neg 20/20, c09 e2e
 e2e 13/13, neg 29/29 — 837/837 journeys, zero passed/total
 changes. Report shas in §1 are the fresh-run files.
 
+## Independent verification (2026-10-14)
+
+The owner's verifier re-ran every gate on the committed tree e3c8241
+with a fresh ~/bin/bendbuild binary (sha256 1d8a4a6e…): laws 535/535
+(16 packets) under `--check-only` and `--verdict`, mutants 82/82, pins
+2,321/2,321 across 19 files, and every suite: c06 55/55, c07 328/328 +
+34/34 + 13/13 + 33/33, c08 108/108 + 20/20, c09 29/29 + 27/27, c10
+11/11 + 12/12, c11 33/33 + 19/19, c12 16/16 + 24/24, c14 15/15 + 18/18,
+c15 13/13 + 29/29.
+
+Then two laws were removed, `env_rep` and `sr_rep`: each restated a
+formatting function's own body. C15 keeps 20 laws (533 in all). The
+mutant "F4 envelope bounds are swapped" was killed only by `env_rep`;
+it is dropped from tools/laws/mutate.py because no law can state float
+bound order, and the `toler.envelope` journey checks both bounds exactly
+(lo = clearance lo - widen, hi = clearance hi + widen). Both gates still
+print ALL PROOFS CHECK on laws/c15; mutants 81/81. Counts above this
+section are as of e3c8241.
+

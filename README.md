@@ -82,10 +82,14 @@ The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 BendCAD builds with a pinned build of the Bend language that adds 64-bit integers and floats ([`BEND_PIN`](BEND_PIN) names the exact commit; never track floating `main`). On Linux or WSL:
 
 ```sh
-bend src/c06/cli.bend -o bendcad
+bend src/c06/cli.bend -o bendcad.c
+cc -O3 bendcad.c -o bendcad -lpthread -lm
+./bendcad bracket.bcd new
 ./bendcad bracket.bcd apply '(param W 120)' '(node 1 (box W 80 8) (intent create 6 0 1 0))'
 ./bendcad bracket.bcd eval
 ```
+
+The kernel compiles to one large C file, so the `cc` step needs about 20 GB of memory (RAM plus swap) and several minutes.
 
 To drive it from an agent, point your MCP client at `node tools/mcp/bendcad-mcp.mjs`.
 

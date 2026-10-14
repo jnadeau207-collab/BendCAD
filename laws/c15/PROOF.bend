@@ -56,12 +56,6 @@ def Laws.check_empty_ok(hdr):
 def Laws.st_go_false(nm, g):
   {==}
 
-def Laws.env_rep(a, b, c):
-  {==}
-
-def Laws.sr_rep(nm, g, nom, lo, hi):
-  {==}
-
 def Laws.emit_nil(b, u0, pds, ctx):
   {==}
 

@@ -51,7 +51,7 @@ writer, which the E2E differential proves rather than asserts.
 
 ## Evidence map
 
-- Laws (`laws/c15/`, `docs/c15-laws.md`): 22 real laws in 6 families —
+- Laws (`laws/c15/`, `docs/c15-laws.md`): 20 real laws in 6 families —
   selector validity, per-state counts, refusal closure and
   non-publishing, state gating and envelope rendering, emission base
   and failure propagation, parse gates. No accessor laws, no

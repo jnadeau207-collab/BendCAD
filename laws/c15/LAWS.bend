@@ -69,20 +69,6 @@ law st_go_false:
   for g: F64
   {PM.st_go(False{}, nm, g) == PM.ER_err{"bad-state", "write (state NAME GROW) with finite GROW > 0"} : PM.ER}
 
-law env_rep:
-  for a: String
-  for b: String
-  for c: String
-  {PM.env_rep_s(a, b, c) == "envelope clearance [" ++ a ++ ", " ++ b ++ "] estimated widen=" ++ c ++ "\n" : String}
-
-law sr_rep:
-  for nm: String
-  for g: F64
-  for nom: F64
-  for lo: F64
-  for hi: F64
-  {PM.sr_rep(PM.SR{PM.State{nm, g}, nom, lo, hi}) == "state " ++ nm ++ " grow " ++ S.f_show(g) ++ " [" ++ S.f_show(lo) ++ ", " ++ S.f_show(hi) ++ "]\n" : String}
-
 law emit_nil:
   for b: Nat
   for u0: Nat
