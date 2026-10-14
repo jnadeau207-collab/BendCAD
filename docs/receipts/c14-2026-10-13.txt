@@ -307,3 +307,12 @@ all); both gates still print ALL PROOFS CHECK on laws/c14, and all 19
 c14 mutants are still killed (70/70 overall), so no planted bug relied
 on a removed law. Counts above this section are as of 130a446.
 
+## Fix (2026-10-14, found by G3)
+
+`asm_rank` solved without permuting columns into the nested-dissection
+order, so assemblies above 16 unknowns (6+ instances) reported a false
+`conflict` for consistent mates. Fixed in src/c14/asm.bend with C05's
+`lsq_rows`/`gather`; `lsq_of`, its law `lsq_of_cons` (C14 now 153 laws)
+and two pins removed, a pin of `nd_pm` added; journey `solve.chain_large`
+added (fails on the old binary, passes on the fix). See
+docs/receipts/g3/receipt.md §2.2.

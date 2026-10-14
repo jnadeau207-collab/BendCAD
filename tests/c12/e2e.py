@@ -110,6 +110,18 @@ def step_hole():
     record('step.hole', ok and good, oracle=info, expect=exp, seconds=round(dt, 2))
 
 
+def step_slanted():
+    fresh('sl.bcd', f'(node 1 (prism 0 10 (region (path 0 0 (line 10 0) (line 0 10)))) {IC})')
+    o, dt = cli('sl.bcd', 'step', '1', f'{WORK}/slanted.step')
+    ok = o.startswith('wrote ')
+    txt = open(f'{WORK}/slanted.step').read() if ok else ''
+    info = step_info(f'{WORK}/slanted.step') if ok else None
+    good = (info is not None and info['nsol'] == 1 and abs(info['vols'][0] - 500.0) < 1e-6
+            and info['nfaces'] == 5 and info['valid'])
+    record('step.slanted', ok and good, bspline_surfaces=txt.count('B_SPLINE_SURFACE_WITH_KNOTS'),
+           oracle=info, seconds=round(dt, 2))
+
+
 def step_curved():
     fresh('s.bcd', f'(node 1 (sphere 10) {IC})')
     o, dt = cli('s.bcd', 'step', '1', f'{WORK}/sphere.step')
@@ -288,7 +300,7 @@ def mcp_parity():
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
-    for f in (step_box, step_hole, step_curved, arc_roundtrip, imp_oracle, imp_multi, stl_box,
+    for f in (step_box, step_hole, step_slanted, step_curved, arc_roundtrip, imp_oracle, imp_multi, stl_box,
               mf3_box, mesh_of, mcp_parity):
         f()
     rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=sum(r['ok'] for r in RESULTS),

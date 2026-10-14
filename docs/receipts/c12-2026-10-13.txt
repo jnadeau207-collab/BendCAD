@@ -365,3 +365,12 @@ with a fresh two-stage build (CLI sha256 e8d1e6f2…): laws 359/359
 `tests/c10/e2e.py` 11/11, `neg.py` 12/12, `tests/c11/e2e.py` 33/33,
 `neg.py` 19/19, `tests/c12/e2e.py` 16/16, `neg.py` 24/24. The report
 files in this commit carry that binary's sha.
+
+## Fix (2026-10-14, found by G3)
+
+The STEP writer emitted B_SPLINE_SURFACE_WITH_KNOTS with `.POLYNOMIAL.`
+in the self-intersect slot and the knot lists out of order, so every
+Bezier-patch face (every slanted prism wall) was unreadable by an
+independent reader. Fixed in src/c12/stepw.bend; journey `step.slanted`
+added (fails on the old binary, passes on the fix). See
+docs/receipts/g3/receipt.md §2.1.

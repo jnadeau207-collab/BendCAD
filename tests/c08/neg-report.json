@@ -1,5 +1,5 @@
 {
- "binary_sha256": "1d8a4a6e12e292de451ee5ab4a9e2dfd7f3d9e7bd45aad8cc9c8f732477b7435",
+ "binary_sha256": "24d6861e73036eb245d6fd268cc36b87e0aa4981a1046b18e5ec9f762210fad2",
  "passed": 20,
  "total": 20,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "boundaries-cross-or-overlap: one solid samples strictly inside and outside the other between nodes 1 and 3",
-   "seconds": 0.67
+   "seconds": 0.64
   },
   {
    "name": "cross.straddle",
@@ -31,7 +31,7 @@
    "name": "mixed.regions",
    "ok": true,
    "info": "mixed-solid-relations: one operand has solids both inside and outside the other",
-   "seconds": 0.06
+   "seconds": 0.07
   },
   {
    "name": "place.rot45_union",
@@ -49,7 +49,7 @@
    "name": "feature.on_boolean",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.06
+   "seconds": 0.07
   },
   {
    "name": "feature.on_empty",
@@ -73,31 +73,31 @@
    "name": "diff.pinched",
    "ok": true,
    "info": "('numerical-uncertainty', 'validation-rejected: edge-face-overlap 15 5')",
-   "seconds": 0.09
+   "seconds": 0.1
   },
   {
    "name": "contact.not_certified",
    "ok": true,
    "info": "('numerical-uncertainty', 'contact-not-certified between nodes 1 and 2')",
-   "seconds": 2.86
+   "seconds": 3.46
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 2.19
+   "seconds": 2.33
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.63
+   "seconds": 0.69
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 1.83
+   "seconds": 1.97
   },
   {
    "name": "ok.identical",

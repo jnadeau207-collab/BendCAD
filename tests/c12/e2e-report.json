@@ -1,7 +1,7 @@
 {
- "binary_sha256": "1d8a4a6e12e292de451ee5ab4a9e2dfd7f3d9e7bd45aad8cc9c8f732477b7435",
- "passed": 16,
- "total": 16,
+ "binary_sha256": "24d6861e73036eb245d6fd268cc36b87e0aa4981a1046b18e5ec9f762210fad2",
+ "passed": 17,
+ "total": 17,
  "results": [
   {
    "name": "step.box",
@@ -52,6 +52,32 @@
     "valid": true
    },
    "expect": 874.3362938564082,
+   "seconds": 0.01
+  },
+  {
+   "name": "step.slanted",
+   "ok": true,
+   "bspline_surfaces": 1,
+   "oracle": {
+    "nsol": 1,
+    "vols": [
+     499.99999999999875
+    ],
+    "nfaces": 5,
+    "kinds": [
+     "GeomType.BSPLINE",
+     "GeomType.PLANE"
+    ],
+    "bbox": [
+     -1e-07,
+     -1e-07,
+     -1e-07,
+     10.0000001,
+     10.0000001,
+     10.0000001
+    ],
+    "valid": true
+   },
    "seconds": 0.01
   },
   {

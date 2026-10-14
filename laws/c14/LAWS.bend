@@ -509,11 +509,6 @@ law decl_ts_cons:
   for t: List<&2, AS.Inst>
   {AS.decl_ts(i <> t) == AS.inst_tx(i) <> AS.inst_ty(i) <> AS.inst_tz(i) <> AS.decl_ts(t) : List<&2, F64>}
 
-law lsq_of_cons:
-  for d: SL.Dr
-  for t: List<&2, SL.Dr>
-  {AS.lsq_of(d <> t) == Q.Rr{SL.dr_v(d), F64.neg(SL.dr_r(d))} <> AS.lsq_of(t) : List<&2, Q.Rr>}
-
 law maxres_nil:
   for sol: List<&2, F64>
   for m: F64

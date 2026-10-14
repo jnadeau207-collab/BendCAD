@@ -100,11 +100,6 @@ def sv_head_v(+xs: List<&2, Q.Sv>) -> F64:
     case []: 999.0f64
     case s <> t: Q.sv_v(s)
 
-def rr_head_b(+xs: List<&2, Q.Rr>) -> F64:
-  match xs:
-    case []: 999.0f64
-    case r <> t: Q.rr_b(r)
-
 def empty_nr() -> M.NR:
   M.NR_ok{M.Bd{[], Ty.brep_empty(), [], M.pl_id(), [], M.xb_id()}, M.Fx{M.M_create{}, 0n, 0n, 0n, 0n}}
 
@@ -687,17 +682,11 @@ def decl_nth__got() -> F64:
 def decl_nth__want() -> F64:
   4.0f64
 
-def lsq_len__got() -> Nat:
-  List.length(&2, Q.Rr, AS.lsq_of([SL.Dr{1u64, 2.0f64, []}]))
+def nd_pm_inverse__got() -> U32:
+  P.tb_get(U32, AS.nd_pm(Q.ND{[2, 0, 1], Q.NL{3}}, 3), 0)
 
-def lsq_len__want() -> Nat:
-  1n
-
-def lsq_b__got() -> F64:
-  rr_head_b(AS.lsq_of([SL.Dr{1u64, 2.0f64, []}]))
-
-def lsq_b__want() -> F64:
-  F64.neg(2.0f64)
+def nd_pm_inverse__want() -> U32:
+  1
 
 def ev_xs0__got() -> F64:
   AS.ev_xs([], [1.0f64])

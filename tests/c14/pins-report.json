@@ -240,14 +240,6 @@
   "ok": true
  },
  {
-  "name": "lsq_b",
-  "ok": true
- },
- {
-  "name": "lsq_len",
-  "ok": true
- },
- {
   "name": "mate_ids_show",
   "ok": true
  },
@@ -265,6 +257,10 @@
  },
  {
   "name": "maxres_nil",
+  "ok": true
+ },
+ {
+  "name": "nd_pm_inverse",
   "ok": true
  },
  {

@@ -1,10 +1,10 @@
 # C14 laws: what the kernel proves about assemblies
 
-C14 proves 154 laws over the production assembly path (`asm
+C14 proves 153 laws over the production assembly path (`asm
 solve|interf|clear|explode|faces`). Every law quantifies over its
 inputs, lives in `laws/c14/LAWS.bend`, and is proven in
 `laws/c14/PROOF.bend` through reduction (`{==}` after unfolding one
-stage). All 154 pass both `--check-only` and `--verdict`. Nineteen
+stage). All 153 pass both `--check-only` and `--verdict`. Nineteen
 planted mutants are all killed. A dead-code audit shows all 125
 `src/c14/asm.bend` definitions reachable from `asm_go`.
 

@@ -1,0 +1,580 @@
+{
+ "meshes": {
+  "pinion1-gear1": {
+   "vertices": [
+    180,
+    450
+   ],
+   "min_distance": 0.09742845128813785,
+   "crossing": false,
+   "inside": 0,
+   "ok": true
+  },
+  "pinion2-gear2": {
+   "vertices": [
+    180,
+    450
+   ],
+   "min_distance": 0.09742845128813818,
+   "crossing": false,
+   "inside": 0,
+   "ok": true
+  }
+ },
+ "parts": {
+  "base": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 268463.71940710716,
+   "box": [
+    -40.0,
+    -65.0,
+    -10.0000001,
+    190.0,
+    65.0,
+    1e-07
+   ]
+  },
+  "brg_in_hi": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.1675440411345,
+   "box": [
+    -18.0000001,
+    -18.0000001,
+    69.9999999,
+    18.0000001,
+    18.0000001,
+    80.0000001
+   ]
+  },
+  "brg_in_lo": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.1675440411345,
+   "box": [
+    -18.0000001,
+    -18.0000001,
+    -10.0000001,
+    18.0000001,
+    18.0000001,
+    1e-07
+   ]
+  },
+  "brg_mid_hi": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.167544041136,
+   "box": [
+    41.9999999,
+    -18.0000001,
+    69.99999990000002,
+    78.0000001,
+    18.0000001,
+    80.00000010000001
+   ]
+  },
+  "brg_mid_lo": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.167544041136,
+   "box": [
+    41.9999999,
+    -18.0000001,
+    -10.000000099999994,
+    78.0000001,
+    18.0000001,
+    1.0000000532907051e-07
+   ]
+  },
+  "brg_out_hi": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.167544041137,
+   "box": [
+    101.9999999,
+    -18.0000001,
+    69.99999990000003,
+    138.0000001,
+    18.0000001,
+    80.00000010000002
+   ]
+  },
+  "brg_out_lo": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7037.167544041137,
+   "box": [
+    101.99999990000003,
+    -18.0000001,
+    -10.000000099999989,
+    138.00000010000002,
+    18.0000001,
+    1.0000001065814103e-07
+   ]
+  },
+  "cover": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 268463.71940710716,
+   "box": [
+    -40.0,
+    -65.0,
+    69.9999999,
+    190.0,
+    65.0,
+    80.0000001
+   ]
+  },
+  "gear1": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 119247.56524012156,
+   "box": [
+    13.264533899999998,
+    -46.7927401,
+    9.999999900000008,
+    106.7930041,
+    46.79274010000001,
+    30.00000010000001
+   ]
+  },
+  "gear2": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 119247.56524012177,
+   "box": [
+    73.26453389999999,
+    -46.7927401,
+    39.9999999,
+    166.7930041,
+    46.79274010000001,
+    60.0000001
+   ]
+  },
+  "pinion1": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7185.000622043374,
+   "box": [
+    -16.742827100000003,
+    -16.9590281,
+    9.9999999,
+    16.989423100000003,
+    16.959028100000005,
+    30.0000001
+   ]
+  },
+  "pinion2": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 7185.0006220433725,
+   "box": [
+    43.25717289999999,
+    -16.9590281,
+    39.999999900000006,
+    76.9894231,
+    16.959028100000005,
+    60.00000010000001
+   ]
+  },
+  "seal_in": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 1960.3538158400304,
+   "box": [
+    -16.0000001,
+    -16.0000001,
+    79.9999999,
+    16.0000001,
+    16.0000001,
+    84.0000001
+   ]
+  },
+  "seal_out": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 1960.3538158400293,
+   "box": [
+    103.99999990000002,
+    -16.0000001,
+    -14.00000009999999,
+    136.0000001,
+    16.0000001,
+    -9.999999899999992
+   ]
+  },
+  "shaft_in": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 34557.51918948772,
+   "box": [
+    -10.0000001,
+    -10.0000001,
+    -10.0000001,
+    10.0000001,
+    10.0000001,
+    100.0000001
+   ]
+  },
+  "shaft_mid": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 28274.333882308136,
+   "box": [
+    49.9999999,
+    -10.0000001,
+    -10.000000099999992,
+    70.0000001,
+    10.0000001,
+    80.0000001
+   ]
+  },
+  "shaft_out": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 34557.51918948775,
+   "box": [
+    109.99999989999999,
+    -10.0000001,
+    -30.00000009999999,
+    130.0000001,
+    10.0000001,
+    80.00000010000001
+   ]
+  },
+  "wall": {
+   "nsol": 1,
+   "valid": true,
+   "volume": 552999.9999999995,
+   "box": [
+    -40.0,
+    -65.0,
+    0.0,
+    190.0,
+    65.0,
+    70.0
+   ]
+  }
+ },
+ "pairs": [
+  {
+   "a": "base",
+   "b": "brg_in_lo",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "base",
+   "b": "brg_mid_lo",
+   "common_volume": 0.0,
+   "distance": 5.329070518200751e-15,
+   "relation": "contact"
+  },
+  {
+   "a": "base",
+   "b": "brg_out_lo",
+   "common_volume": 0.0,
+   "distance": 3.03543989777123e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "base",
+   "b": "seal_out",
+   "common_volume": 0.0,
+   "distance": 2.000000000000014,
+   "relation": "clear"
+  },
+  {
+   "a": "base",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 7.999999999999999,
+   "relation": "clear"
+  },
+  {
+   "a": "base",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 7.999999999999992,
+   "relation": "clear"
+  },
+  {
+   "a": "base",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 7.999999999999978,
+   "relation": "clear"
+  },
+  {
+   "a": "base",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_in_hi",
+   "b": "cover",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_in_hi",
+   "b": "seal_in",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_in_hi",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_in_hi",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 7.0,
+   "relation": "clear"
+  },
+  {
+   "a": "brg_in_lo",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_in_lo",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 7.0,
+   "relation": "clear"
+  },
+  {
+   "a": "brg_mid_hi",
+   "b": "cover",
+   "common_volume": 0.0,
+   "distance": 1.4210854715202004e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_mid_hi",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 1.4210854715202004e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_mid_hi",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 37.0,
+   "relation": "clear"
+  },
+  {
+   "a": "brg_mid_lo",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_mid_lo",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 37.0,
+   "relation": "clear"
+  },
+  {
+   "a": "brg_out_hi",
+   "b": "cover",
+   "common_volume": 0.0,
+   "distance": 2.842170943040401e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_out_hi",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 1.4210854715202004e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_out_hi",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 37.0,
+   "relation": "clear"
+  },
+  {
+   "a": "brg_out_lo",
+   "b": "seal_out",
+   "common_volume": 0.0,
+   "distance": 1.7763568394002505e-15,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_out_lo",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 4.263696126103356e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "brg_out_lo",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 36.99999999999997,
+   "relation": "clear"
+  },
+  {
+   "a": "cover",
+   "b": "seal_in",
+   "common_volume": 0.0,
+   "distance": 2.0,
+   "relation": "clear"
+  },
+  {
+   "a": "cover",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 7.999999999999997,
+   "relation": "clear"
+  },
+  {
+   "a": "cover",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 7.999999999999992,
+   "relation": "clear"
+  },
+  {
+   "a": "cover",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 7.999999999999975,
+   "relation": "clear"
+  },
+  {
+   "a": "cover",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 0.0,
+   "relation": "contact"
+  },
+  {
+   "a": "gear1",
+   "b": "pinion1",
+   "common_volume": 0.0,
+   "distance": 0.09742845128813646,
+   "relation": "clear"
+  },
+  {
+   "a": "gear1",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "gear1",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 8.207259999999998,
+   "relation": "clear"
+  },
+  {
+   "a": "gear2",
+   "b": "pinion2",
+   "common_volume": 0.0,
+   "distance": 0.09742845128813224,
+   "relation": "clear"
+  },
+  {
+   "a": "gear2",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 1.422404062431785e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "gear2",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 8.206996000000004,
+   "relation": "clear"
+  },
+  {
+   "a": "pinion1",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "pinion1",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 8.257173000000002,
+   "relation": "clear"
+  },
+  {
+   "a": "pinion2",
+   "b": "shaft_mid",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "pinion2",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 38.040972,
+   "relation": "clear"
+  },
+  {
+   "a": "seal_in",
+   "b": "shaft_in",
+   "common_volume": 0.0,
+   "distance": 6.123233995736766e-16,
+   "relation": "contact"
+  },
+  {
+   "a": "seal_out",
+   "b": "shaft_out",
+   "common_volume": 0.0,
+   "distance": 2.848374888445806e-14,
+   "relation": "contact"
+  },
+  {
+   "a": "shaft_in",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 15.0,
+   "relation": "clear"
+  },
+  {
+   "a": "shaft_mid",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 45.0,
+   "relation": "clear"
+  },
+  {
+   "a": "shaft_out",
+   "b": "wall",
+   "common_volume": 0.0,
+   "distance": 45.0,
+   "relation": "clear"
+  }
+ ],
+ "interference": [],
+ "all_valid": true,
+ "pass": true
+}

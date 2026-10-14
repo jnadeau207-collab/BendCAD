@@ -543,7 +543,7 @@ def sw_bp_pts_t(+w: Bool, +e00: BL.ES, +e01: BL.ES, +e02: BL.ES, +e03: BL.ES, +e
           sw_ref(Nat.add(ctr, 9n)) ++ "," ++ sw_ref(Nat.add(ctr, 10n)) ++ "," ++
           sw_ref(Nat.add(ctr, 11n)) ++ "),(" ++ sw_ref(Nat.add(ctr, 12n)) ++ "," ++
           sw_ref(Nat.add(ctr, 13n)) ++ "," ++ sw_ref(Nat.add(ctr, 14n)) ++ "," ++
-          sw_ref(Nat.add(ctr, 15n)) ++ ")),.UNSPECIFIED.,.F.,.F.,.POLYNOMIAL.,(4,4),(0.,1.),(4,4)," ++
+          sw_ref(Nat.add(ctr, 15n)) ++ ")),.UNSPECIFIED.,.F.,.F.,.F.,(4,4),(4,4),(0.,1.)," ++
           "(0.,1.),.PIECEWISE_BEZIER_KNOTS.)"),
         Nat.add(ctr, 17n), [Nat.add(ctr, 16n)])
 

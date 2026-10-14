@@ -66,6 +66,20 @@ def solve_basic():
     record('solve.basic', ok, ta=ta, tb=tb, dof=dof, res=res, seconds=round(dt, 2), detail=o)
 
 
+def solve_chain_large():
+    fresh('ch.bcd', BOX10)
+    insts = ' '.join(f'(inst i{k} 1 {20 * k} 0 0 0)' for k in range(3, 7))
+    fixes = ' '.join(f'(fix {k + 1} i{k})' for k in range(3, 7))
+    asm = ('(assembly (inst a 1 0 0 0 0) (inst b 1 20 0 0 0) (inst c 1 40 0 0 0) ' + insts +
+           ' (fix 1 a) (coinc 2 a 10 0 0 b 0 0 0) (coinc 3 b 10 0 0 c 0 0 0) ' + fixes + ')')
+    o, dt = cli('ch.bcd', 'asm', 'solve', asm)
+    ta, tb, tc = t_of(o, 'a'), t_of(o, 'b'), t_of(o, 'c')
+    dof, res = num_of(o, 'dof'), num_of(o, 'max-residual')
+    ok = (o.startswith('asm solved') and dof == 0 and close(ta, (0, 0, 0)) and close(tb, (10, 0, 0))
+          and close(tc, (20, 0, 0)) and close(t_of(o, 'i6'), (120, 0, 0)) and res is not None and res < 1e-6)
+    record('solve.chain_large', ok, ninst=7, ta=ta, tb=tb, tc=tc, dof=dof, res=res, seconds=round(dt, 2), detail=o)
+
+
 def solve_under():
     fresh('u.bcd', BOX10)
     asm = '(assembly (inst a 1 1 2 3 0))'
@@ -245,7 +259,7 @@ def mcp_parity():
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
-    for f in (solve_basic, solve_under, solve_redundant, solve_conflict, solve_plane_axis,
+    for f in (solve_basic, solve_chain_large, solve_under, solve_redundant, solve_conflict, solve_plane_axis,
               interf_disjoint, interf_overlap, interf_touch, clear_certified,
               clear_interference, explode_basic, faces_box, faces_hole, edit_propagate,
               mcp_parity):

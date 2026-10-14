@@ -7,11 +7,12 @@ import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 const BIN = process.env.BENDCAD_BIN || '/home/jesse/bc/bendcad';
 const LOG = process.env.BENDCAD_LOG || '';
+const TIMEOUT = Number(process.env.BENDCAD_TIMEOUT_MS) || 600000;
 const REF = readFileSync(join(here, 'language.md'), 'utf8');
 
 function cli(args) {
   const [cmd, pre] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
-  const r = spawnSync(cmd, [...pre, ...args], { encoding: 'utf8', timeout: 600000 });
+  const r = spawnSync(cmd, [...pre, ...args], { encoding: 'utf8', timeout: TIMEOUT });
   const out = (r.stdout || '') + (r.stderr || '');
   if (LOG) {
     const rec = JSON.stringify({ t: new Date().toISOString(), args, status: r.status, out }) + '\n';

@@ -481,11 +481,6 @@ def decl_ts(+il: List<&2, Inst>) -> List<&2, F64>:
     case []: []
     case +i <> t: inst_tx(i) <> inst_ty(i) <> inst_tz(i) <> decl_ts(t)
 
-def lsq_of(ds: List<&2, SL.Dr>) -> List<&2, Q.Rr>:
-  match ds:
-    case []: []
-    case +d <> t: Q.Rr{SL.dr_v(d), F64.neg(SL.dr_r(d))} <> lsq_of(t)
-
 def ev_xs(xs: List<&2, Q.Sv>, +sol: List<&2, F64>) -> F64:
   match xs:
     case []: 0.0f64
@@ -527,6 +522,10 @@ def nd_t(x: Q.ND) -> Q.NT:
   Q.ND{+ord, +t} = x
   t
 
+def nd_pm(x: Q.ND, +np: U32) -> P.Tb<&2, U32>:
+  Q.ND{+ord, +t} = x
+  Q.mp_set(ord, 0, P.tb_of(U32, P.rep_n(U32, U32.to_nat(np), 0), 0))
+
 def asm_verdict(+dof: Nat, +red: List<&2, U64>, +sol: List<&2, F64>, +res: F64,
     +viol: List<&2, U64>) -> AS:
   match viol:
@@ -540,7 +539,9 @@ def asm_rank(+n: Nat, +ds: List<&2, SL.Dr>) -> AS:
   +cq = Q.rank(m, nb, SL.brows(srt))
   +red = redup(SL.cq_red(cq), P.tb_of(U64, SL.dr_ids(ds), 0u64), [])
   +np = U32.from_nat(n)
-  +sol = Q.lsq_nt(np, nd_t(Q.nd_order(np, SL.ds_es(ds))), lsq_of(ds))
+  +nd = Q.nd_order(np, SL.ds_es(ds))
+  +pm = nd_pm(nd, np)
+  +sol = SL.gather(n, 0, pm, SL.ptb(Q.lsq_nt(np, nd_t(nd), SL.lsq_rows(ds, pm))))
   +res = maxres_go(ds, sol, 0.0f64)
   asm_verdict(Nat.sub(n, SL.cq_kept(cq)), red, sol, res, viol_go(ds, sol, []))
 

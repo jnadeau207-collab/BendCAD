@@ -262,9 +262,6 @@ def Laws.asm_rows_cons(m, t, il, cs):
 def Laws.decl_ts_cons(i, t):
   {==}
 
-def Laws.lsq_of_cons(d, t):
-  {==}
-
 def Laws.maxres_nil(sol, m):
   {==}
 
