@@ -1,5 +1,5 @@
 {
- "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "binary_sha256": "a82a4fd9d02b8a97318bf27ac421692b07bd28537f45ca1706d069e2f431f652",
  "passed": 11,
  "total": 11,
  "results": [
@@ -21,7 +21,7 @@
    "name": "bend.single90",
    "ok": true,
    "checks": {
-    "seconds": 0.012128591537475586,
+    "seconds": 0.01233673095703125,
     "committed": true,
     "check": true,
     "volume": true,
@@ -67,7 +67,7 @@
    "name": "bend.bracket",
    "ok": true,
    "checks": {
-    "seconds": 0.026897430419921875,
+    "seconds": 0.02727508544921875,
     "committed": true,
     "check": true,
     "volume": true,

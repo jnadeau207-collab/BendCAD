@@ -1,5 +1,5 @@
 {
- "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "binary_sha256": "a82a4fd9d02b8a97318bf27ac421692b07bd28537f45ca1706d069e2f431f652",
  "passed": 11,
  "total": 11,
  "results": [
@@ -44,7 +44,7 @@
     "verdict": "ruled",
     "check_n": 129,
     "committed": true,
-    "build_s": 0.11,
+    "build_s": 0.12,
     "header": true,
     "rows": true,
     "sched": true,

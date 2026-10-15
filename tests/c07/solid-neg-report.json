@@ -1,6 +1,6 @@
 {
- "binary_sha256": "2aefb2985f70bdb3e9d98d303535375d4f9a36601178b513eafe413ae84e16d5",
- "build_s": 303.7,
+ "binary_sha256": "019a1e80ca63410271416a514c96630950f25da8ab301d3c8cdfdd4923f0a46e",
+ "build_s": 302.6,
  "passed": 13,
  "results": [
   {
@@ -118,6 +118,6 @@
    "ok": true
   }
  ],
- "run_s": 3.25,
+ "run_s": 3.16,
  "total": 13
 }
