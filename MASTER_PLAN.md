@@ -602,6 +602,8 @@ repeatably across seeds and briefs.
 | G5 | Micro turbojet, KJ-66 class (~100 N), drawings a shop can build from; clearances certified in cold and running states | C16 blades, state-dependent geometry |
 | G6 | Bespoke jet engine from a performance brief | everything |
 
+Gates G2–G6 follow `docs/gates/README.md`: each gate's result decides what BendCAD must become, and a missing capability is built into the kernel rather than designed around. G6 is the HUMPHREY-1 pressure-gain turbojet (`docs/gates/g6-humphrey-1.md`). Order: C16, C13, then G2, G4, G5, G6.
+
 G1 passed on 2026-10-05. Fresh agents ran brief A three times over two
 transports (CLI, then MCP) and brief B twice, the last run on the final
 C06 binary; an independent grader passed every run (`docs/receipts/g1/`).
