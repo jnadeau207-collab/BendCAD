@@ -1,4 +1,5 @@
 import Base
+import ../../src/c06/model.bend as M
 import ../../src/c06/xp.bend as X
 import ../../src/c16/sheet.bend as SH
 import ./LAWS.bend as Laws
@@ -40,32 +41,20 @@ def Laws.flat_rows_nil(t, klo, khi):
 def Laws.flat_legs_flat(l, w, t):
   {==}
 
-def Laws.base_go_false(nf):
+def Laws.bend_base_refused(base, b, e, nd):
   {==}
 
-def Laws.fin_go_false(l, w, t, r, lh):
+def Laws.bend_fin_refused(n, deg, it, b, e, nd):
   {==}
 
-def Laws.ang_go_false(d):
+def Laws.bend_angle_refused(n, it, b, e, nd):
   {==}
 
-def Laws.edge_go_false(n):
+def Laws.bend_edge_refused(it, b, e, nd):
   {==}
 
-def Laws.rt_go_false(r, t):
+def Laws.hem_len_refused(it, b, e, nd):
   {==}
 
-def Laws.size_go_false(l, ro):
-  {==}
-
-def Laws.len_go_false(lh, leg):
-  {==}
-
-def Laws.k_go_false(klo, khi):
-  {==}
-
-def Laws.gram_bad_base(nf):
-  {==}
-
-def Laws.gram_bad_edge(nf):
+def Laws.flat_kzone_refused(sc, e, id):
   {==}

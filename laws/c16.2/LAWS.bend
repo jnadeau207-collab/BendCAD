@@ -1,7 +1,11 @@
 import Base
+import ../../src/c00/types.bend as T
 import ../../src/c04/types.bend as Ty
 import ../../src/c06/build.bend as BD
+import ../../src/c06/model.bend as M
+import ../../src/c06/prof.bend as FP
 import ../../src/c06/revolve.bend as RV
+import ../../src/c06/xp.bend as X
 import ../../src/c09/feat.bend as F9
 import ../../src/c16/surf.bend as SU
 
@@ -147,31 +151,42 @@ law surf_rows_nil:
   for +i: Nat
   {SU.bnd_rows([], i) == [] : List<&2, SU.BR>}
 
-law lo_go_false:
-  {SU.lo_go(False{}) == SU.GR_no{"loft-open-not-planar", "loft-open axis-aligned rect pairs with planar walls"} : SU.GR}
+law sweep_angle_refused:
+  for rs: List<&2, FP.Region>
+  for g: U64
+  for gd: U64
+  for tw: U64
+  for e: X.Env
+  for nd: U64
+  {M.op_sw_open(45u64, rs, g, gd, tw, e, nd) == M.NR_err{T.F_unsupported{}, M.Dg{"sweep-open", "node " ++ U64.show(nd), "sweep-angle-not-certified", "sweep-open 90, 180 or 270 degrees"}} : M.NR}
 
-law sa_go_false:
-  for +deg: U64
-  {SU.sa_go(False{}, deg) == SU.GR_no{"sweep-angle-not-certified", "sweep-open 90, 180 or 270 degrees"} : SU.GR}
+law patch_degenerate_refused:
+  for e: X.Env
+  for nd: U64
+  {M.op_patch([X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{3.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{3.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{1.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{2.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{3.0f64}, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}, X.X_k{1.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}, X.X_k{2.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}, X.X_k{3.0f64}, X.X_k{2.0f64}, X.X_k{0.0f64}], e, nd) == M.NR_err{T.F_invalid{}, M.Dg{"patch", "node " ++ U64.show(nd), "patch-degenerate", "give 16 finite control points with distinct rows, columns and corners"}} : M.NR}
 
-law sp_go_false:
-  {SU.sp_go(False{}) == SU.GR_no{"sweep-profile-not-admitted", "sweep-open one axis-aligned rect profile off the axis"} : SU.GR}
+law surf_needs_open_refused:
+  for x: X.Xp
+  for y: X.Xp
+  for z: X.Xp
+  for it: M.It
+  for e: X.Env
+  {SU.surf_rep(7u64, M.su_chain([M.Nd{7u64, M.O_box{x, y, z}, it}], 7u64), e) == "error invalid-input | surf | why: " ++ "surf-needs-open-shell" ++ " | fix: " ++ "run surf on a loft-open, sweep-open or patch node" : String}
 
-law pa_go_false:
-  {SU.pa_go(False{}) == SU.GR_no{"patch-degenerate", "give 16 finite control points with distinct rows, columns and corners"} : SU.GR}
+law thicken_needs_open_refused:
+  for x: X.Xp
+  for y: X.Xp
+  for z: X.Xp
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_thicken_open(7u64, X.X_k{1.0f64}, b, e, nd, [M.Nd{7u64, M.O_box{x, y, z}, it}]) == M.NR_err{T.F_invalid{}, M.Dg{"thicken-open", "node " ++ U64.show(nd), "thicken-needs-open-shell", "thicken-open an open-shell node"}} : M.NR}
 
-law tc_go_false:
-  {SU.tc_go(False{}) == SU.GR_no{"thicken-curvature-not-certified", "thicken rect patches, rect ducts and rect sectors only"} : SU.GR}
-
-law ts_go_false:
-  {SU.ts_go(False{}) == SU.GR_no{"thicken-consumes-shell", "keep wall thickness below the shell minimum"} : SU.GR}
-
-law su_go_false:
-  {SU.su_go(False{}) == SU.GR_no{"surf-needs-open-shell", "run surf on a loft-open, sweep-open or patch node"} : SU.GR}
-
-law th_go_false:
-  {SU.th_go(False{}) == SU.GR_no{"thicken-needs-open-shell", "thicken-open an open-shell node"} : SU.GR}
-
-law dg_go_false:
-  for +t: F64
-  {SU.dg_go(False{}, t) == SU.GR_no{"degenerate-feature", "give finite positive wall thickness"} : SU.GR}
+law thicken_thickness_refused:
+  for ps: List<&2, X.Xp>
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_thicken_open(7u64, X.X_k{0.0f64}, b, e, nd, [M.Nd{7u64, M.O_patch{ps}, it}]) == M.NR_err{T.F_invalid{}, M.Dg{"thicken-open", "node " ++ U64.show(nd), "degenerate-feature", "give finite positive wall thickness"}} : M.NR}

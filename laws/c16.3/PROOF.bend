@@ -3,6 +3,8 @@ import ../../src/c01/types.bend as V
 import ../../src/c03/types.bend as G
 import ../../src/c04/types.bend as Ty
 import ../../src/c06/build.bend as BD
+import ../../src/c06/model.bend as M
+import ../../src/c06/xp.bend as X
 import ../../src/c16/blade.bend as BA
 import ./LAWS.bend as Laws
 
@@ -56,26 +58,26 @@ def Laws.blade_rows_len(ses, m, i):
 def Laws.blade_rows_nil(m, i):
   {==}
 
-def Laws.fin_go_false():
+def Laws.blade_sections_refused(s0, s1, s2, s3, s4, s5, s6, s7, s8, z, tw, tp, e, nd, ns):
   {==}
 
-def Laws.dg_go_false():
+def Laws.blade_twist_refused(s0, s1, z, tp, e, nd, ns):
   {==}
 
-def Laws.np_go_false():
+def Laws.blade_taper_refused(s0, s1, z, e, nd, ns):
   {==}
 
-def Laws.ns_go_false():
+def Laws.naca_digits_refused(p, t, c, n, e, nd):
   {==}
 
-def Laws.tw_go_false(tw):
+def Laws.naca_points_refused(e, nd):
   {==}
 
-def Laws.tp_go_false(tp):
+def Laws.blade_span_refused(s0, s1, e, nd, ns):
   {==}
 
-def Laws.rl_go_false():
+def Laws.blade_ruled_refused(x0, y0, z0, it0, x1, y1, z1, it1, e, nd):
   {==}
 
-def Laws.bl_go_false():
+def Laws.blade_needs_blade_refused(x, y, z, it, e):
   {==}

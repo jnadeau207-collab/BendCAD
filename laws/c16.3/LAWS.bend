@@ -1,8 +1,11 @@
 import Base
+import ../../src/c00/types.bend as T
 import ../../src/c01/types.bend as V
 import ../../src/c03/types.bend as G
 import ../../src/c04/types.bend as Ty
 import ../../src/c06/build.bend as BD
+import ../../src/c06/model.bend as M
+import ../../src/c06/xp.bend as X
 import ../../src/c16/blade.bend as BA
 
 def sg_a(+s: BA.Sg) -> Nat:
@@ -223,28 +226,82 @@ law blade_rows_nil:
   for +i: Nat
   {BA.blade_rows_go([], m, i) == [] : List<&2, BA.BR>}
 
-law fin_go_false:
-  {BA.fin_go(False{}) == BA.GR_no{"degenerate-feature", "give finite positive chord and span"} : BA.GR}
+law blade_sections_refused:
+  for s0: U64
+  for s1: U64
+  for s2: U64
+  for s3: U64
+  for s4: U64
+  for s5: U64
+  for s6: U64
+  for s7: U64
+  for s8: U64
+  for z: X.Xp
+  for tw: U64
+  for tp: U64
+  for e: X.Env
+  for nd: U64
+  for ns: List<&2, M.Node>
+  {M.op_blade([s0, s1, s2, s3, s4, s5, s6, s7, s8], z, tw, tp, e, nd, ns) == M.NR_err{T.F_unsupported{}, M.Dg{"blade", "node " ++ U64.show(nd), "blade-sections-not-admitted", "stack 2 to 8 naca4 sections"}} : M.NR}
 
-law dg_go_false:
-  {BA.dg_go(False{}) == BA.GR_no{"naca-digits-not-admitted", "use M 0-9, P 0-9 with P nonzero when M is nonzero, T 06-24"} : BA.GR}
+law blade_twist_refused:
+  for s0: U64
+  for s1: U64
+  for z: X.Xp
+  for tp: U64
+  for e: X.Env
+  for nd: U64
+  for ns: List<&2, M.Node>
+  {M.op_blade([s0, s1], z, 15u64, tp, e, nd, ns) == M.NR_err{T.F_unsupported{}, M.Dg{"blade", "node " ++ U64.show(nd), "twist-not-admitted", "twist 0, 10, 20 or 30 degrees"}} : M.NR}
 
-law np_go_false:
-  {BA.np_go(False{}) == BA.GR_no{"naca-points-not-admitted", "use 17, 33 or 65 points per surface"} : BA.GR}
+law blade_taper_refused:
+  for s0: U64
+  for s1: U64
+  for z: X.Xp
+  for e: X.Env
+  for nd: U64
+  for ns: List<&2, M.Node>
+  {M.op_blade([s0, s1], z, 0u64, 60u64, e, nd, ns) == M.NR_err{T.F_unsupported{}, M.Dg{"blade", "node " ++ U64.show(nd), "taper-not-admitted", "taper 50, 75 or 100 tip-chord percent"}} : M.NR}
 
-law ns_go_false:
-  {BA.ns_go(False{}) == BA.GR_no{"blade-sections-not-admitted", "stack 2 to 8 naca4 sections"} : BA.GR}
+law naca_digits_refused:
+  for p: U64
+  for t: U64
+  for c: X.Xp
+  for n: U64
+  for e: X.Env
+  for nd: U64
+  {M.op_naca4(10u64, p, t, c, n, e, nd) == M.NR_err{T.F_unsupported{}, M.Dg{"naca4", "node " ++ U64.show(nd), "naca-digits-not-admitted", "use M 0-9, P 0-9 with P nonzero when M is nonzero, T 06-24"}} : M.NR}
 
-law tw_go_false:
-  for +tw: U64
-  {BA.tw_go(False{}, tw) == BA.GR_no{"twist-not-admitted", "twist 0, 10, 20 or 30 degrees"} : BA.GR}
+law naca_points_refused:
+  for e: X.Env
+  for nd: U64
+  {M.op_naca4(0u64, 0u64, 12u64, X.X_k{0.0f64}, 20u64, e, nd) == M.NR_err{T.F_unsupported{}, M.Dg{"naca4", "node " ++ U64.show(nd), "naca-points-not-admitted", "use 17, 33 or 65 points per surface"}} : M.NR}
 
-law tp_go_false:
-  for +tp: U64
-  {BA.tp_go(False{}, tp) == BA.GR_no{"taper-not-admitted", "taper 50, 75 or 100 tip-chord percent"} : BA.GR}
+law blade_span_refused:
+  for s0: U64
+  for s1: U64
+  for e: X.Env
+  for nd: U64
+  for ns: List<&2, M.Node>
+  {M.op_blade([s0, s1], X.X_k{0.0f64}, 0u64, 100u64, e, nd, ns) == M.NR_err{T.F_invalid{}, M.Dg{"blade", "node " ++ U64.show(nd), "degenerate-feature", "give finite positive chord and span"}} : M.NR}
 
-law rl_go_false:
-  {BA.rl_go(False{}) == BA.GR_no{"blade-stack-not-ruled", "stack admitted naca4 sections with equal points and chord"} : BA.GR}
+law blade_ruled_refused:
+  for x0: X.Xp
+  for y0: X.Xp
+  for z0: X.Xp
+  for it0: M.It
+  for x1: X.Xp
+  for y1: X.Xp
+  for z1: X.Xp
+  for it1: M.It
+  for e: X.Env
+  for nd: U64
+  {M.op_blade([1u64, 7u64], X.X_k{50.0f64}, 0u64, 100u64, e, nd, [M.Nd{1u64, M.O_box{x0, y0, z0}, it0}, M.Nd{7u64, M.O_box{x1, y1, z1}, it1}]) == M.NR_err{T.F_uncertain{}, M.Dg{"blade", "node " ++ U64.show(nd), "blade-stack-not-ruled", "stack admitted naca4 sections with equal points and chord"}} : M.NR}
 
-law bl_go_false:
-  {BA.bl_go(False{}) == BA.GR_no{"blade-needs-blade", "run blade on a blade node"} : BA.GR}
+law blade_needs_blade_refused:
+  for x: X.Xp
+  for y: X.Xp
+  for z: X.Xp
+  for it: M.It
+  for e: X.Env
+  {BA.blade_rep(7u64, M.bl_chain([M.Nd{7u64, M.O_box{x, y, z}, it}], 7u64), e) == "error invalid-input | blade | why: " ++ "blade-needs-blade" ++ " | fix: " ++ "run blade on a blade node" : String}

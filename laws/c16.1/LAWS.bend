@@ -1,4 +1,7 @@
 import Base
+import ../../src/c00/types.bend as T
+import ../../src/c06/cli.bend as C
+import ../../src/c06/model.bend as M
 import ../../src/c06/xp.bend as X
 import ../../src/c16/sheet.bend as SH
 
@@ -67,50 +70,46 @@ law flat_legs_flat:
   for t: X.Xp
   {SH.flat_legs(SH.SC_ok{l, w, t, []}) == [l] : List<&2, X.Xp>}
 
-law base_go_false:
-  for nf: Nat
-  {SH.base_go(False{}, nf) == SH.GR_no{"bend-base-not-admitted", "bend flat or single-bent sheet, hem once at most"} : SH.GR}
+law bend_base_refused:
+  for base: U64
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_sheet(SH.FT_bend{0u64, X.X_k{2.0f64}, 90u64}, base, b, e, nd, []) == M.NR_err{T.F_invalid{}, M.Dg{"bend", "node " ++ U64.show(nd), "bend-base-not-admitted", "bend flat or single-bent sheet, hem once at most"}} : M.NR}
 
-law fin_go_false:
-  for l: F64
-  for w: F64
-  for t: F64
-  for r: F64
-  for lh: F64
-  {SH.fin_go(False{}, l, w, t, r, lh) == SH.GR_no{"degenerate-feature", "give finite positive lengths for the blank, radius and hem"} : SH.GR}
-
-law ang_go_false:
-  for d: U64
-  {SH.ang_go(False{}, d) == SH.GR_no{"bend-angle-not-certified", "bend 90 or 180 degrees"} : SH.GR}
-
-law edge_go_false:
+law bend_fin_refused:
   for n: U64
-  {SH.edge_go(False{}, n) == SH.GR_no{"bend-edge-not-admitted", "bend or hem edge 0, 1, 2 or 3 on an unworked end"} : SH.GR}
+  for deg: U64
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_sheet(SH.FT_bend{n, X.X_k{2.0f64}, deg}, 1u64, b, e, nd, [M.Nd{1u64, M.O_flat{X.X_k{120.0f64}, X.X_k{80.0f64}, X.X_k{0.0f64}}, it}]) == M.NR_err{T.F_invalid{}, M.Dg{"bend", "node " ++ U64.show(nd), "degenerate-feature", "give finite positive lengths for the blank, radius and hem"}} : M.NR}
 
-law rt_go_false:
-  for r: F64
-  for t: F64
-  {SH.rt_go(False{}, r, t) == SH.GR_no{"bend-radius-too-tight", "keep inner radius over the certified R/T bound"} : SH.GR}
+law bend_angle_refused:
+  for n: U64
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_sheet(SH.FT_bend{n, X.X_k{2.0f64}, 45u64}, 1u64, b, e, nd, [M.Nd{1u64, M.O_flat{X.X_k{120.0f64}, X.X_k{80.0f64}, X.X_k{2.0f64}}, it}]) == M.NR_err{T.F_unsupported{}, M.Dg{"bend", "node " ++ U64.show(nd), "bend-angle-not-certified", "bend 90 or 180 degrees"}} : M.NR}
 
-law size_go_false:
-  for l: F64
-  for ro: F64
-  {SH.size_go(False{}, l, ro) == SH.GR_no{"bend-consumes-face", "keep the blank longer than twice outer radius"} : SH.GR}
+law bend_edge_refused:
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_sheet(SH.FT_bend{4u64, X.X_k{1.0f64}, 90u64}, 1u64, b, e, nd, [M.Nd{1u64, M.O_flat{X.X_k{120.0f64}, X.X_k{80.0f64}, X.X_k{2.0f64}}, it}]) == M.NR_err{T.F_unsupported{}, M.Dg{"bend", "node " ++ U64.show(nd), "bend-edge-not-admitted", "bend or hem edge 0, 1, 2 or 3 on an unworked end"}} : M.NR}
 
-law len_go_false:
-  for lh: F64
-  for leg: F64
-  {SH.len_go(False{}, lh, leg) == SH.GR_no{"hem-consumes-face", "keep the hem shorter than its leg"} : SH.GR}
+law hem_len_refused:
+  for it: M.It
+  for b: M.Body
+  for e: X.Env
+  for nd: U64
+  {M.op_sheet(SH.FT_hem{0u64, X.X_k{120.0f64}}, 1u64, b, e, nd, [M.Nd{1u64, M.O_flat{X.X_k{100.0f64}, X.X_k{80.0f64}, X.X_k{2.0f64}}, it}]) == M.NR_err{T.F_invalid{}, M.Dg{"hem", "node " ++ U64.show(nd), "hem-consumes-face", "keep the hem shorter than its leg"}} : M.NR}
 
-law k_go_false:
-  for klo: F64
-  for khi: F64
-  {SH.k_go(False{}, klo, khi) == SH.GR_no{"bad-k-zone", "give a K-factor zone with 0 < KLO <= KHI < 1"} : SH.GR}
-
-law gram_bad_base:
-  for nf: Nat
-  {SH.gram_go(False{}, True{}, nf) == SH.GR_no{"bend-base-not-admitted", "bend flat or single-bent sheet, hem once at most"} : SH.GR}
-
-law gram_bad_edge:
-  for nf: Nat
-  {SH.gram_go(False{}, False{}, nf) == SH.GR_no{"bend-edge-not-admitted", "bend opposite ends alike, hem the bent end once"} : SH.GR}
+law flat_kzone_refused:
+  for sc: SH.SC
+  for e: X.Env
+  for id: U64
+  {C.flat_sc(True{}, sc, e, id, 0.7f64, 0.3f64) == "error invalid-input | flat | why: " ++ "bad-k-zone" ++ " | fix: " ++ "give a K-factor zone with 0 < KLO <= KHI < 1" : String}

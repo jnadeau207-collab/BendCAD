@@ -189,3 +189,44 @@ C16 verdict on the verification binary: 47 new laws inside 579/579,
 10/10 C16 mutant families killed inside 91/91, 216 new pins inside
 2536/2536 over 22 files, 34 new E2E + 78 new neg inside 958/958 over
 25 suites, G3 green — CLOSED.
+
+## 9. Addendum 2026-10-15 — refusal restatements replaced by entry-point laws
+
+The owner's verifier found the C16 `*_go_false` laws were definitional
+restatements (`x_go(False{}, ...) == GR_no{...}` where `x_go` is
+defined as exactly that arm): 10 in c16.1 F3, 9 in c16.2 F3, 8 in
+c16.3 F4. All 27 are deleted. In their place, 19 laws drive a
+representative out-of-domain value through the production entry the
+CLI and MCP call (`M.op_sheet`, `M.op_sw_open`, `M.op_patch`,
+`M.op_thicken_open`, `M.op_blade`, `M.op_naca4`, `SU.surf_rep`,
+`BA.blade_rep`, `C.flat_sc`) and pin the exact refusal record —
+code, fix, what, node rendering and FailKind — quantifying every
+input the refusal does not depend on. Eight refusal codes carry no
+law because their gate chains need F64 arithmetic the verdict kernel
+cannot compute (`rt`, `size`, `lo`, `sp`, `tc`, `ts`, plus the sheet
+grammar paths): pins and neg journeys are their cover, recorded per
+code in `docs/c16.N-laws.md`. No `src/` change was needed — no law
+exposed a defect — so no rebuild was run; pins, journeys and G3 are
+unaffected and stand as receipted above.
+
+Before/after law table (every cell `ALL PROOFS CHECK` both modes):
+
+| Packet | Before | After | Refusal laws now |
+|---|---|---|---|
+| c16.1 | 15 (F1 2, F2 3, F3 10) | 11 (F1 2, F2 3, F3 6) | base, fin, angle, edge, len, k-zone through entries |
+| c16.2 | 17 (F1 3, F2 5, F3 9) | 13 (F1 3, F2 5, F3 5) | sweep-angle, patch, surf-open, thicken-open, thickness |
+| c16.3 | 15 (F1 1, F2 2, F3 4, F4 8) | 15 (F1 1, F2 2, F3 4, F4 8) | sections, twist, taper, digits, points, span, ruled, needs-blade |
+| Tree | 579 | 571 | 39 C16 laws, all entry-point or structural |
+
+Mutants: 107/107 killed, report sha256 `f29d2283…`. The angle,
+twist and sweep-angle flips are killed by their new entry laws (the
+curved-thicken flip is retired — no passing law can reach the `tc`
+gate — and replaced by the sweep-angle flip); every other new law
+has its own flip mutant except `len`, `pa` and `k`, whose flips
+reach expensive accept paths (measured: a full concrete build, a
+patch build, a 20-minute symbolic hole) and are pinned by reword
+mutants instead. Full sweep log: `/tmp/c16laws-vfy/results.txt`;
+c16 packet times c16.1 6s/40s, c16.2 4s/18s, c16.3 4s/18s
+(check-only/verdict). `docs/c16.N-laws.md` rewritten for
+the new families; the packet prompt's ban (no restatements, no
+ground `{==}` laws) now holds over the whole C16 law set.

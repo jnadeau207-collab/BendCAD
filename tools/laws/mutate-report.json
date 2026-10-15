@@ -588,6 +588,41 @@
   "verdict": "SOME PROOFS FAIL"
  },
  {
+  "pkt": "c16.1",
+  "law": "F3 missing bases are accepted",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F3 degenerate blanks are accepted",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F3 bad edges are accepted",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F3 hem refusal reworded",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F3 k-zone refusal reworded",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
   "pkt": "c16.2",
   "law": "F1 interior wall use flipped breaks balance",
   "file": "src/c16/surf.bend",
@@ -603,7 +638,35 @@
  },
  {
   "pkt": "c16.2",
-  "law": "F3 curved thickens are accepted",
+  "law": "F3 bad sweep angles are accepted",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F3 patch refusal reworded",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F3 surf on solids is accepted",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F3 thickens of solids are accepted",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F3 zero thickness is accepted",
   "file": "src/c16/surf.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
@@ -632,6 +695,55 @@
  {
   "pkt": "c16.3",
   "law": "F4 bad twists are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 nine sections are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 bad tapers are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 bad digits are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 bad point counts are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 zero spans are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 unruled stacks are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 blade on non-blades is accepted",
   "file": "src/c16/blade.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"

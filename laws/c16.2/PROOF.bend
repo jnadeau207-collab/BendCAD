@@ -1,7 +1,9 @@
 import Base
 import ../../src/c04/types.bend as Ty
 import ../../src/c06/build.bend as BD
+import ../../src/c06/model.bend as M
 import ../../src/c06/revolve.bend as RV
+import ../../src/c06/xp.bend as X
 import ../../src/c09/feat.bend as F9
 import ../../src/c16/surf.bend as SU
 import ./LAWS.bend as Laws
@@ -59,29 +61,17 @@ def Laws.surf_rows_len(bs, i):
 def Laws.surf_rows_nil(i):
   {==}
 
-def Laws.lo_go_false():
+def Laws.sweep_angle_refused(rs, g, gd, tw, e, nd):
   {==}
 
-def Laws.sa_go_false(deg):
+def Laws.patch_degenerate_refused(e, nd):
   {==}
 
-def Laws.sp_go_false():
+def Laws.surf_needs_open_refused(x, y, z, it, e):
   {==}
 
-def Laws.pa_go_false():
+def Laws.thicken_needs_open_refused(x, y, z, it, b, e, nd):
   {==}
 
-def Laws.tc_go_false():
-  {==}
-
-def Laws.ts_go_false():
-  {==}
-
-def Laws.su_go_false():
-  {==}
-
-def Laws.th_go_false():
-  {==}
-
-def Laws.dg_go_false(t):
+def Laws.thicken_thickness_refused(ps, it, b, e, nd):
   {==}
