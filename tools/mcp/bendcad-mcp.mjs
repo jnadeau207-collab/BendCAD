@@ -142,6 +142,20 @@ const tools = [
       required: ['design', 'action', 'pmi'] },
     run: a => a.action === 'step42' ? cli([a.design, 'pmi', 'step42', a.out ?? '', a.pmi])
       : cli([a.design, 'pmi', String(a.action), a.pmi]) },
+  { name: 'surface', description: 'Boundary report of an open-shell node (see reference: Surface modeling). Per-edge durable names with certified or estimated lengths, area, boundary length and bounding box for a loft-open, sweep-open or patch node.',
+    inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Open-shell node id' } },
+      required: ['design', 'node'] },
+    run: a => cli([a.design, 'surf', String(a.node)]) },
+  { name: 'blade', description: 'Blade section report of a blade node (see reference: Blade sections). Per-section certified area, centroid, max thickness and max camber intervals, chord, stacking height, stacking-axis deviation and the twist schedule for a blade node.',
+    inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Blade node id' } },
+      required: ['design', 'node'] },
+    run: a => cli([a.design, 'blade', String(a.node)]) },
+  { name: 'flat_pattern', description: 'Sheet-metal flat pattern (see reference: Sheet metal). Certified bend allowances over a K-factor zone, developed runs, developed length interval and blank box for a flat, bend or hem node.',
+    inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Sheet node id' },
+        klo: { type: 'number', description: 'K-factor zone low end, 0 < KLO' },
+        khi: { type: 'number', description: 'K-factor zone high end, KHI < 1' } },
+      required: ['design', 'node', 'klo', 'khi'] },
+    run: a => cli([a.design, 'flat', String(a.node), String(a.klo), String(a.khi)]) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }

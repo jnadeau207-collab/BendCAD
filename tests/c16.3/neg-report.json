@@ -1,0 +1,212 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 25,
+ "total": 25,
+ "results": [
+  {
+   "name": "digits.m_high",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "naca-digits-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "digits.p_zero",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "naca-digits-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "digits.t_low",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "naca-digits-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "digits.t_high",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "naca-digits-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "points.bad",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "naca-points-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "chord.zero",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "degenerate-feature",
+    true
+   ]
+  },
+  {
+   "name": "naca.malformed",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "unknown-op",
+    true
+   ]
+  },
+  {
+   "name": "sections.one",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "blade-sections-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "sections.nine",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "blade-sections-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "twist.bad",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "twist-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "taper.bad",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "taper-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "span.zero",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "degenerate-feature",
+    true
+   ]
+  },
+  {
+   "name": "blade.malformed",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "unknown-op",
+    true
+   ]
+  },
+  {
+   "name": "stack.nonaca",
+   "ok": true,
+   "info": [
+    "numerical-uncertainty",
+    "blade-stack-not-ruled",
+    true
+   ]
+  },
+  {
+   "name": "stack.npts",
+   "ok": true,
+   "info": [
+    "numerical-uncertainty",
+    "blade-stack-not-ruled",
+    true
+   ]
+  },
+  {
+   "name": "stack.chord",
+   "ok": true,
+   "info": [
+    "numerical-uncertainty",
+    "blade-stack-not-ruled",
+    true
+   ]
+  },
+  {
+   "name": "stack.missing",
+   "ok": true,
+   "info": [
+    "numerical-uncertainty",
+    "blade-stack-not-ruled",
+    true
+   ]
+  },
+  {
+   "name": "query.nonblade",
+   "ok": true,
+   "info": "error invalid-input | blade | why: blade-needs-blade | fix: run blade on a blade node"
+  },
+  {
+   "name": "query.naca4",
+   "ok": true,
+   "info": "error invalid-input | blade | why: blade-needs-blade | fix: run blade on a blade node"
+  },
+  {
+   "name": "query.unknown",
+   "ok": true,
+   "info": "error invalid-input | blade | why: unknown-node 99 | fix: name an evaluated node"
+  },
+  {
+   "name": "query.failed",
+   "ok": true,
+   "info": "error invalid-input | blade | why: unknown-node 2 | fix: name an evaluated node"
+  },
+  {
+   "name": "zone.blade",
+   "ok": true,
+   "info": "error numerical-uncertainty | zone @ node 3 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprin"
+  },
+  {
+   "name": "feature.onblade",
+   "ok": true,
+   "info": [
+    "unsupported-op",
+    "features-need-an-extruded-body",
+    true
+   ]
+  },
+  {
+   "name": "ring.inherit",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "footprint-contains-or-meets-existing-feature",
+    true
+   ]
+  },
+  {
+   "name": "obstacle.inherit",
+   "ok": true,
+   "info": [
+    "invalid-input",
+    "depth-reaches-opposite-face",
+    true
+   ]
+  }
+ ]
+}

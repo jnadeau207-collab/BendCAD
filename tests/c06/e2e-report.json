@@ -1,5 +1,5 @@
 {
- "binary_sha256": "62947fa2abfac14c9f8b559143d8444b50d73ed30936df8bcc7aacee58f8ac9b",
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
  "passed": 62,
  "total": 62,
  "results": [
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.03247404098510742
+   "seconds": 0.03315901756286621
   },
   {
    "name": "bracket.reopen",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.007004261016845703
+   "seconds": 0.006525278091430664
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.003370046615600586
+   "seconds": 0.0035004615783691406
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.004776477813720703
+   "seconds": 0.004704952239990234
   },
   {
    "name": "primitive.cone.mesh",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.004214286804199219
+   "seconds": 0.004016399383544922
   },
   {
    "name": "primitive.sphere.mesh",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.0077550411224365234
+   "seconds": 0.0074672698974609375
   },
   {
    "name": "primitive.torus.mesh",
@@ -601,7 +601,7 @@
    "name": "perf.holes100",
    "ok": true,
    "build_s": 0.043,
-   "tess_s": 1.499,
+   "tess_s": 1.482,
    "budget": [
     1.0,
     5.0
@@ -619,8 +619,8 @@
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.153,
-   "tess_s": 8.2,
+   "build_s": 0.16,
+   "tess_s": 8.186,
    "budget": [
     2.0,
     20.0

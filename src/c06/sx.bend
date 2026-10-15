@@ -617,6 +617,177 @@ def open_xs(o: Bool) -> List<&2, Sx>:
 def sx_cat(a: List<&2, Sx>, +b: List<&2, Sx>) -> List<&2, Sx>:
   List.append(&2, Sx, a, b)
 
+def flat_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case True{}: M.O_flat{to_xp(sx_nth(xs, 1n), ns), to_xp(sx_nth(xs, 2n), ns), to_xp(sx_nth(xs, 3n), ns)}
+    case False{}: M.O_unk{"flat"}
+
+def flat_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  flat_go(Nat.is_eq(List.length(&2, Sx, xs), 4n), xs, ns)
+
+def bend5c(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case True{}: M.O_bend{u64_of(sx_nth(xs, 1n)), u64_of(sx_nth(sx_xs(sx_nth(xs, 2n)), 1n)), to_xp(sx_nth(xs, 3n), ns), u64_of(sx_nth(xs, 4n))}
+    case False{}: M.O_unk{"bend"}
+
+def bend5b(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"bend"}
+    case True{}: bend5c(Bool.and(nat_ok(sx_nth(xs, 1n)), nat_ok(sx_nth(xs, 4n))), xs, ns)
+
+def bend5(a5: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match a5:
+    case False{}: M.O_unk{"bend"}
+    case True{}: bend5b(fil_edge_ok(sx_nth(xs, 2n)), xs, ns)
+
+def bend_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  bend5(Nat.is_eq(List.length(&2, Sx, xs), 5n), xs, ns)
+
+def hem4c(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case True{}: M.O_hem{u64_of(sx_nth(xs, 1n)), u64_of(sx_nth(sx_xs(sx_nth(xs, 2n)), 1n)), to_xp(sx_nth(xs, 3n), ns)}
+    case False{}: M.O_unk{"hem"}
+
+def hem4b(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"hem"}
+    case True{}: hem4c(nat_ok(sx_nth(xs, 1n)), xs, ns)
+
+def hem4(a4: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match a4:
+    case False{}: M.O_unk{"hem"}
+    case True{}: hem4b(fil_edge_ok(sx_nth(xs, 2n)), xs, ns)
+
+def hem_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  hem4(Nat.is_eq(List.length(&2, Sx, xs), 4n), xs, ns)
+
+def op_is_sheet(+h: String) -> Bool:
+  Bool.or(String.eq(h, "flat"), Bool.or(String.eq(h, "bend"), String.eq(h, "hem")))
+
+def op_of_sheet(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  Bool.pick(M.Op, String.eq(h, "flat"), flat_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "bend"), bend_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "hem"), hem_op(xs, ns), M.O_unk{h})))
+
+def lop_fin_b(ok: Bool, +tw: U64, +cont: U64, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"loft-open"}
+    case True{}: M.O_loft_open{to_xp(sx_nth(xs, 1n), ns), rg_of(sx_nth(xs, 2n), ns), rg_of(sx_nth(xs, 3n), ns), tw, cont}
+
+def lop_fin(st: LP, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  LP{ok, tw, cont, tt, cc} = st
+  lop_fin_b(ok, tw, cont, xs, ns)
+
+def lop_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"loft-open"}
+    case True{}: lop_fin(lf_walk(sx_drop(xs, 4n), LP{True{}, 0u64, 0u64, False{}, False{}}), xs, ns)
+
+def lop_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  lop_go(Bool.and(Nat.is_le(4n, List.length(&2, Sx, xs)), Bool.and(head_is(sx_nth(xs, 2n), "region"), head_is(sx_nth(xs, 3n), "region"))), xs, ns)
+
+def sw_open_fin(st: SW) -> M.Op:
+  SW{+ok, kind, z, deg, +rs, g, gd, tw, gg, tt} = st
+  Bool.pick(M.Op, Bool.and(Bool.and(ok, sw_has(rs)), U64.is_eq(kind, 2u64)), M.O_sw_open{deg, rs, g, gd, tw},
+    M.O_unk{"sweep-open"})
+
+def sw_open_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  sw_open_fin(sw_walk(sx_drop(xs, 2n), sw_path(sx_nth(xs, 1n), ns), ns))
+
+def pt_ok(+x: Sx) -> Bool:
+  +ys = sx_xs(x)
+  Bool.and(head_is(x, "pt"), Nat.is_eq(List.length(&2, Sx, ys), 4n))
+
+def all_pt(xs: List<&2, Sx>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: Bool.and(pt_ok(x), all_pt(t))
+
+def pt_xps(+x: Sx, +ns: List<&2, NI>) -> List<&2, X.Xp>:
+  +ys = sx_xs(x)
+  [to_xp(sx_nth(ys, 1n), ns), to_xp(sx_nth(ys, 2n), ns), to_xp(sx_nth(ys, 3n), ns)]
+
+def pts_go(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, X.Xp>:
+  match xs:
+    case []: []
+    case +x <> t: List.append(&2, X.Xp, pt_xps(x, ns), pts_go(t, ns))
+
+def patch_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  Bool.pick(M.Op, Bool.and(Nat.is_eq(List.length(&2, Sx, xs), 17n), all_pt(sx_drop(xs, 1n))),
+    M.O_patch{pts_go(sx_drop(xs, 1n), ns)}, M.O_unk{"patch"})
+
+def tko_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case True{}: M.O_thicken_open{u64_of(sx_nth(xs, 1n)), to_xp(sx_nth(xs, 2n), ns)}
+    case False{}: M.O_unk{"thicken-open"}
+
+def tko_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  tko_go(len3(xs), xs, ns)
+
+def op_is_surf(+h: String) -> Bool:
+  Bool.or(String.eq(h, "loft-open"), Bool.or(String.eq(h, "sweep-open"), Bool.or(String.eq(h, "patch"),
+    String.eq(h, "thicken-open"))))
+
+def op_of_surf(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  Bool.pick(M.Op, String.eq(h, "loft-open"), lop_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "sweep-open"), sw_open_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "patch"), patch_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "thicken-open"), tko_op(xs, ns), M.O_unk{h}))))
+
+def naca_nat(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"naca4"}
+    case True{}:
+      M.O_naca4{u64_of(sx_nth(xs, 1n)), u64_of(sx_nth(xs, 2n)), u64_of(sx_nth(xs, 3n)),
+        to_xp(sx_nth(xs, 4n), ns), u64_of(sx_nth(xs, 5n))}
+
+def naca_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"naca4"}
+    case True{}:
+      naca_nat(Bool.and(nat_ok(sx_nth(xs, 1n)),
+        Bool.and(nat_ok(sx_nth(xs, 2n)), Bool.and(nat_ok(sx_nth(xs, 3n)), nat_ok(sx_nth(xs, 5n))))),
+        xs, ns)
+
+def naca_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  naca_go(Nat.is_eq(List.length(&2, Sx, xs), 6n), xs, ns)
+
+def blade_us(xs: List<&2, Sx>, +k: Nat) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +h <> t: Bool.pick(List<&2, U64>, Nat.is_eq(k, 0n), [], u64_of(h) <> blade_us(t, Nat.sub(k, 1n)))
+
+def blade_nok(xs: List<&2, Sx>, +k: Nat) -> Bool:
+  match xs:
+    case []: Nat.is_eq(k, 0n)
+    case +h <> t:
+      Bool.pick(Bool, Nat.is_eq(k, 0n), True{}, Bool.and(nat_ok(h), blade_nok(t, Nat.sub(k, 1n))))
+
+def blade_nat(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>, +n: Nat) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"blade"}
+    case True{}:
+      M.O_blade{blade_us(sx_drop(xs, 1n), n), to_xp(sx_nth(xs, Nat.add(n, 1n)), ns),
+        u64_of(sx_nth(xs, Nat.add(n, 2n))), u64_of(sx_nth(xs, Nat.add(n, 3n)))}
+
+def blade_len(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>, +n: Nat) -> M.Op:
+  match ok:
+    case False{}: M.O_unk{"blade"}
+    case True{}:
+      blade_nat(Bool.and(blade_nok(sx_drop(xs, 1n), n),
+        Bool.and(nat_ok(sx_nth(xs, Nat.add(n, 2n))), nat_ok(sx_nth(xs, Nat.add(n, 3n))))), xs, ns, n)
+
+def blade_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  +l = List.length(&2, Sx, xs)
+  blade_len(Bool.and(Nat.is_le(5n, l), Nat.is_le(l, 13n)), xs, ns, Nat.sub(l, 4n))
+
+def op_is_blade(+h: String) -> Bool:
+  Bool.or(String.eq(h, "naca4"), String.eq(h, "blade"))
+
+def op_of_blade(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  Bool.pick(M.Op, String.eq(h, "naca4"), naca_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "blade"), blade_op(xs, ns), M.O_unk{h}))
+
 def op_is_feat(+h: String) -> Bool:
   Bool.or(String.eq(h, "sweep"), Bool.or(String.eq(h, "loft"), Bool.or(String.eq(h, "chamfer"),
     Bool.or(String.eq(h, "fillet"), Bool.or(String.eq(h, "draft"), Bool.or(String.eq(h, "offset"),
@@ -660,7 +831,10 @@ def op_of(+x: Sx, +ns: List<&2, NI>) -> M.Op:
   +e1 = sx_nth(xs, 1n)
   +e2 = sx_nth(xs, 2n)
   +e3 = sx_nth(xs, 3n)
-  Bool.pick(M.Op, op_is_feat(h), op_of_feat(h, xs, ns), op_of_core(h, xs, e1, e2, e3, ns))
+  Bool.pick(M.Op, op_is_sheet(h), op_of_sheet(h, xs, ns),
+    Bool.pick(M.Op, op_is_surf(h), op_of_surf(h, xs, ns),
+      Bool.pick(M.Op, op_is_blade(h), op_of_blade(h, xs, ns),
+      Bool.pick(M.Op, op_is_feat(h), op_of_feat(h, xs, ns), op_of_core(h, xs, e1, e2, e3, ns)))))
 
 def cnt_of(+x: Sx) -> M.Cnt:
   Bool.pick(M.Cnt, String.eq(sx_s(x), "any"), M.C_any{}, M.C_eq{U64.to_nat(u64_of(x))})
@@ -716,6 +890,32 @@ def sel_sx(s: M.Sel) -> Sx:
 def amt_sx(+thru: Bool, x: X.Xp, +ns: List<&2, NI>) -> Sx:
   Bool.pick(Sx, thru, at("through"), xp_sx(x, ns))
 
+def pt_sx(+a: X.Xp, +b: X.Xp, +c: X.Xp, +ns: List<&2, NI>) -> Sx:
+  ls([at("pt"), xp_sx(a, ns), xp_sx(b, ns), xp_sx(c, ns)])
+
+def xp_nth(xs: List<&2, X.Xp>, +i: Nat) -> X.Xp:
+  match xs:
+    case []: X.X_k{0.0f64}
+    case x <> t:
+      match i:
+        case 0n: x
+        case 1n+j: xp_nth(t, j)
+
+def ptg_go2(left: Nat, +xs: List<&2, X.Xp>, +o: Nat, +ns: List<&2, NI>) -> List<&2, Sx>:
+  match left:
+    case 0n: []
+    case 1n+k:
+      pt_sx(xp_nth(xs, o), xp_nth(xs, Nat.add(o, 1n)), xp_nth(xs, Nat.add(o, 2n)), ns) <>
+        ptg_go2(k, xs, Nat.add(o, 3n), ns)
+
+def ptg_go(+xs: List<&2, X.Xp>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  ptg_go2(Nat.div(List.length(&2, X.Xp, xs), 3n), xs, 0n, ns)
+
+def us_sx(xs: List<&2, U64>) -> List<&2, Sx>:
+  match xs:
+    case []: []
+    case +h <> t: at(U64.show(h)) <> us_sx(t)
+
 def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
   match o:
     case M.O_prism{rs, z0, z1}: ls(at("prism") <> xp_sx(z0, ns) <> xp_sx(z1, ns) <> rgs_sx(rs, ns))
@@ -759,6 +959,21 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
       ls([at("pattern-holes"), at(U64.show(base)), sel_sx(f), ls([at("linear"), at(U64.show(nx)), at(U64.show(ny)), xp_sx(dx, ns), xp_sx(dy, ns), xp_sx(x0, ns), xp_sx(y0, ns)]), ls([at("hole"), xp_sx(r, ns)]), amt_sx(thru, d, ns)])
     case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}:
       ls([at("pattern-holes"), at(U64.show(base)), sel_sx(f), ls([at("circular"), at(U64.show(n)), xp_sx(rad, ns), xp_sx(cx, ns), xp_sx(cy, ns)]), ls([at("hole"), xp_sx(r, ns)]), amt_sx(thru, d, ns)])
+    case M.O_flat{l, w, t}: ls([at("flat"), xp_sx(l, ns), xp_sx(w, ns), xp_sx(t, ns)])
+    case M.O_bend{base, n, r, deg}:
+      ls([at("bend"), at(U64.show(base)), ls([at("edge"), at(U64.show(n))]), xp_sx(r, ns), at(U64.show(deg))])
+    case M.O_hem{base, n, l}:
+      ls([at("hem"), at(U64.show(base)), ls([at("edge"), at(U64.show(n))]), xp_sx(l, ns)])
+    case M.O_loft_open{z, bot, top, twist, cont}:
+      ls(at("loft-open") <> xp_sx(z, ns) <> sx_cat(rgs_sx([bot], ns), sx_cat(rgs_sx([top], ns), sx_cat(tw_xs(twist), cont_xs(cont)))))
+    case M.O_sw_open{deg, rs, g, gd, tw}:
+      ls(at("sweep-open") <> ls([at("arc"), at(U64.show(deg))]) <> sx_cat(rgs_sx(rs, ns), sx_cat(guide_xs(g, gd), tw_xs(tw))))
+    case M.O_patch{ps}: ls(at("patch") <> ptg_go(ps, ns))
+    case M.O_thicken_open{base, t}: ls([at("thicken-open"), at(U64.show(base)), xp_sx(t, ns)])
+    case M.O_naca4{m, p, t, c, n}:
+      ls([at("naca4"), at(U64.show(m)), at(U64.show(p)), at(U64.show(t)), xp_sx(c, ns), at(U64.show(n))])
+    case M.O_blade{secs, z, tw, tp}:
+      ls(sx_cat([at("blade")], sx_cat(us_sx(secs), [xp_sx(z, ns), at(U64.show(tw)), at(U64.show(tp))])))
     case M.O_blob{fmt, payload}: ls([at("import"), at(U64.show(fmt)), at(payload)])
 
 def cnt_sx(c: M.Cnt) -> Sx:

@@ -14,6 +14,9 @@ import ./iv.bend as I
 import ../c08/bool.bend as B8
 import ../c09/feat.bend as F9
 import ../c12/blob.bend as BL
+import ../c16/sheet.bend as SH
+import ../c16/surf.bend as SU
+import ../c16/blade.bend as BA
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64 }
@@ -53,6 +56,15 @@ type Op is Data:
   O_pat_circ{ base: U64, n: U64, r: X.Xp }
   O_ph_lin{ base: U64, f: Sel, nx: U64, ny: U64, dx: X.Xp, dy: X.Xp, x0: X.Xp, y0: X.Xp, r: X.Xp, d: X.Xp, thru: Bool }
   O_ph_circ{ base: U64, f: Sel, n: U64, rad: X.Xp, cx: X.Xp, cy: X.Xp, r: X.Xp, d: X.Xp, thru: Bool }
+  O_flat{ l: X.Xp, w: X.Xp, t: X.Xp }
+  O_bend{ base: U64, n: U64, r: X.Xp, deg: U64 }
+  O_hem{ base: U64, n: U64, l: X.Xp }
+  O_loft_open{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
+  O_sw_open{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
+  O_patch{ ps: List<&2, X.Xp> }
+  O_thicken_open{ base: U64, t: X.Xp }
+  O_naca4{ m: U64, p: U64, t: U64, c: X.Xp, n: U64 }
+  O_blade{ secs: List<&2, U64>, z: X.Xp, tw: U64, tp: U64 }
 
 type Mat is Data:
   M_create{}
@@ -849,6 +861,14 @@ def stage_of(+b: Ty.Brep, +fuel: Nat) -> U64:
           pk0(okc(B4.brep_coin_c(b, fuel), 10u64), pk0(okc(B4.brep_xing_c(b, fuel), 11u64),
             okc(B4.brep_orient_c(b, fuel), 12u64)))))))))))
 
+def stage_of_open(+b: Ty.Brep, +fuel: Nat) -> U64:
+  pk0(okc(B4.brep_incid_c(b, fuel), 2u64), pk0(okc(B4.brep_use_c(b, Ty.P_open_shell{}, fuel), 3u64),
+    pk0(okc(B4.brep_loop_c(b, fuel), 4u64), pk0(okc(B4.brep_facekind_c(b, fuel), 5u64),
+      pk0(okc(B4.brep_prof_c(b, Ty.P_open_shell{}, fuel), 6u64), pk0(okc(B4.brep_embed_c(b, fuel), 7u64),
+        pk0(okc(B4.brep_link_c(b, Ty.P_open_shell{}, fuel), 8u64), pk0(okc(B4.brep_conn_c(b, fuel), 9u64),
+          pk0(okc(B4.brep_coin_c(b, fuel), 10u64), pk0(okc(B4.brep_xing_c(b, fuel), 11u64),
+            okc(B4.brep_orient_c(b, fuel), 12u64)))))))))))
+
 def ck_go(ok: Bool, +b: Ty.Brep, +fns: List<&2, BD.Fn>, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String, +rv: List<&2, F.Lp>) -> NR:
   match ok:
     case True{}: NR_ok{Bd{cs, b, fns, pl, rv, xb_id()}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
@@ -864,6 +884,23 @@ def tres_ok(r: Ty.TRes) -> Bool:
 def bt_check(bt: BD.Bt, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String, +rv: List<&2, F.Lp>) -> NR:
   BD.Bt{+b, +fns} = bt
   ck_go(tres_ok(B4.brep_checked(b, Ty.P_manifold_solid{}, fuel_of(b))), b, fns, cs, pl, what, rv)
+
+def ck_go_open(ok: Bool, +b: Ty.Brep, +fns: List<&2, BD.Fn>, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String,
+    +rv: List<&2, F.Lp>) -> NR:
+  match ok:
+    case True{}: NR_ok{Bd{cs, b, fns, pl, rv, xb_id()}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
+    case False{}:
+      nr_err(T.F_uncertain{}, what, "brep stage " ++ stage_why(stage_of_open(b, fuel_of(b))),
+        "the built boundary failed validation; no geometry is published", "report this design")
+
+def bt_check_open(bt: BD.Bt, +cs: List<&2, BD.Cl>, +pl: Pl, +what: String, +rv: List<&2, F.Lp>) -> NR:
+  BD.Bt{+b, +fns} = bt
+  ck_go_open(tres_ok(B4.brep_checked(b, Ty.P_open_shell{}, fuel_of(b))), b, fns, cs, pl, what, rv)
+
+def bd_open(+b: Body) -> Bool:
+  +br = bd_brep(b)
+  Bool.and(Ty.okd_ok(B4.brep_use_c(br, Ty.P_open_shell{}, fuel_of(br))),
+    Bool.not(Ty.okd_ok(B4.brep_use_c(br, Ty.P_manifold_solid{}, fuel_of(br)))))
 
 def body_of_cells(+cs: List<&2, BD.Cl>, +pl: Pl, +what: String) -> NR:
   +bt = BD.build(cs)
@@ -1157,6 +1194,19 @@ def sel_w(s: Sel, +acc: List<&2, U64>) -> List<&2, U64>:
   Sel{nd, k, side} = s
   nd <> U64.from_nat(k) <> side <> acc
 
+def xps_w(xs: List<&2, X.Xp>, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
+  match xs:
+    case []: 61u64 <> acc
+    case x <> t: X.xp_w(x, e, xps_w(t, e, acc))
+
+def us_w_go(xs: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match xs:
+    case []: acc
+    case +h <> t: h <> us_w_go(t, acc)
+
+def us_w(+xs: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
+  U64.from_nat(List.length(&2, U64, xs)) <> us_w_go(xs, acc)
+
 def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
   match o:
     case O_prism{rs, z0, z1}: 1u64 <> rgs_w(rs, e, X.xp_w(z0, e, X.xp_w(z1, e, [])))
@@ -1195,6 +1245,15 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
       29u64 <> base <> nx <> ny <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(dx, e, X.xp_w(dy, e, X.xp_w(x0, e, X.xp_w(y0, e, X.xp_w(r, e, X.xp_w(d, e, [])))))))
     case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}:
       30u64 <> base <> n <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(rad, e, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(d, e, []))))))
+    case O_flat{l, w, t}: 32u64 <> X.xp_w(l, e, X.xp_w(w, e, X.xp_w(t, e, [])))
+    case O_bend{base, n, r, deg}: 33u64 <> base <> n <> deg <> X.xp_w(r, e, [])
+    case O_hem{base, n, l}: 34u64 <> base <> n <> X.xp_w(l, e, [])
+    case O_loft_open{z, bot, top, twist, cont}: 35u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
+    case O_sw_open{deg, rs, g, gd, tw}: 36u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
+    case O_patch{ps}: 37u64 <> xps_w(ps, e, [])
+    case O_thicken_open{base, t}: 38u64 <> base <> X.xp_w(t, e, [])
+    case O_naca4{m, p, t, c, n}: 39u64 <> m <> p <> t <> n <> X.xp_w(c, e, [])
+    case O_blade{secs, z, tw, tp}: 40u64 <> tw <> tp <> us_w(secs, X.xp_w(z, e, []))
 
 def op_base(o: Op) -> U64:
   match o:
@@ -1217,6 +1276,9 @@ def op_base(o: Op) -> U64:
     case O_pat_circ{base, n, r}: base
     case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: base
     case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: base
+    case O_bend{base, n, r, deg}: base
+    case O_hem{base, n, l}: base
+    case O_thicken_open{base, t}: base
     case _: 0u64
 
 def op_has_base(o: Op) -> Bool:
@@ -1240,6 +1302,9 @@ def op_has_base(o: Op) -> Bool:
     case O_pat_circ{base, n, r}: True{}
     case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: True{}
     case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: True{}
+    case O_bend{base, n, r, deg}: True{}
+    case O_hem{base, n, l}: True{}
+    case O_thicken_open{base, t}: True{}
     case _: False{}
 
 def op_base2(o: Op) -> U64:
@@ -1292,6 +1357,15 @@ def op_name(o: Op) -> String:
     case O_pat_circ{base, n, r}: "pattern"
     case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: "pattern-holes"
     case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: "pattern-holes"
+    case O_flat{l, w, t}: "flat"
+    case O_bend{base, n, r, deg}: "bend"
+    case O_hem{base, n, l}: "hem"
+    case O_loft_open{z, bot, top, twist, cont}: "loft-open"
+    case O_sw_open{deg, rs, g, gd, tw}: "sweep-open"
+    case O_patch{ps}: "patch"
+    case O_thicken_open{base, t}: "thicken-open"
+    case O_naca4{m, p, t, c, n}: "naca4"
+    case O_blade{secs, z, tw, tp}: "blade"
 
 def rls_holes(rs: List<&2, F.Rl>) -> List<&2, Bool>:
   match rs:
@@ -1647,7 +1721,12 @@ def why_unsup(+y: String) -> Bool:
         Bool.or(String.eq(y, "fillet-edge-not-admitted"), Bool.or(String.eq(y, "draft-base-not-admitted"),
           Bool.or(String.eq(y, "offset-base-not-admitted"), Bool.or(String.eq(y, "shell-base-not-admitted"),
             Bool.or(String.eq(y, "pattern-copies-overlap"), Bool.or(String.eq(y, "pattern-angle-not-certified"),
-              String.eq(y, "pattern-count-not-admitted")))))))))))))
+              Bool.or(String.eq(y, "pattern-count-not-admitted"), Bool.or(String.eq(y, "bend-angle-not-certified"),
+                Bool.or(String.eq(y, "bend-edge-not-admitted"), Bool.or(String.eq(y, "bend-radius-too-tight"),
+  Bool.or(String.eq(y, "loft-open-not-planar"), Bool.or(String.eq(y, "sweep-profile-not-admitted"),
+    Bool.or(String.eq(y, "thicken-curvature-not-certified"), Bool.or(String.eq(y, "naca-digits-not-admitted"),
+      Bool.or(String.eq(y, "naca-points-not-admitted"), Bool.or(String.eq(y, "blade-sections-not-admitted"),
+        String.eq(y, "taper-not-admitted")))))))))))))))))))))))
 
 def why_k(u: Bool, +c: Bool) -> T.FailKind:
   match u:
@@ -1751,6 +1830,9 @@ def mesh_nr(r: NR, +vol: F64, +dl: List<&2, B8.Del>, +pr: String) -> NR:
 
 def mesh_go(bt: BD.Bt, +vol: F64, +what: String, +dl: List<&2, B8.Del>, +pr: String) -> NR:
   mesh_nr(bt_check(bt, [], pl_id(), what, []), vol, dl, pr)
+
+def mesh_go_open(bt: BD.Bt, +what: String) -> NR:
+  mesh_nr(bt_check_open(bt, [], pl_id(), what, []), 0.0f64, [], "open-shell-1")
 
 def sw_pe_go(z: Bool, +e: F.Er, +nd: U64) -> NR:
   match z:
@@ -2414,6 +2496,400 @@ def blob_ms(+ir: BL.IR) -> Ms:
     BL.lb_y0(bb), BL.lb_y1(bb), BL.lb_z0(bb), BL.lb_z1(bb), BL.lc_nv(ct), BL.lc_ne(ct), BL.lc_nf(ct),
     BL.lc_ns(ct), BL.lc_genus(ct), BL.im_lin(m)}
 
+def sh_rec(+fuel: Nat, +o: Op, +ns: List<&2, Node>) -> SH.SC:
+  match fuel:
+    case 0n: SH.SC_bad{}
+    case 1n+k:
+      match o:
+        case O_flat{l, w, t}: SH.SC_ok{l, w, t, []}
+        case O_bend{base, n, r, deg}: SH.sc_push(sh_rec(k, nd_op(ns, base), ns), SH.FT_bend{n, r, deg})
+        case O_hem{base, n, l}: SH.sc_push(sh_rec(k, nd_op(ns, base), ns), SH.FT_hem{n, l})
+        case _: SH.SC_bad{}
+def sh_chain(+ns: List<&2, Node>, +id: U64) -> SH.SC:
+  sh_rec(Nat.add(List.length(&2, Node, ns), 1n), nd_op(ns, id), ns)
+def sheet_pr(+rot: Bool, +pr: SH.PR, +mx: X.Xp, +my: X.Xp) -> SH.PR:
+  match rot:
+    case True{}: SH.rot180(pr, mx, my)
+    case False{}: pr
+def sheet_build(+sc: SH.SC, +b: Body, +e: X.Env, +nd: U64, +l: F64, +t: F64, +w: F64) -> NR:
+  +fs = SH.sc_feats(sc)
+  +kp = SH.sc_prof(sc)
+  +kk = SH.kp_k(kp)
+  +lx = SH.sc_l(sc)
+  +tx = SH.sc_t(sc)
+  +rx = SH.first_rx(fs)
+  +lhx = SH.first_lhx(fs)
+  +pr = sheet_pr(SH.kp_rot(kp), SH.sh_prof(SH.pk_of_k(kk), lx, tx, rx, lhx), SH.prof_w(kk, lx, tx, rx, lhx),
+    SH.prof_h(kk, lx, tx, rx, lhx))
+  nr_take(op_prism([SH.to_region(pr)], xk(0.0f64), SH.sc_w(sc), e, nd),
+    SH.sh_vol(kk, l, t, SH.first_r(fs, e), w, SH.first_lh(fs, e)), "", dels_why(bd_fns(b), 8u64), False{}, True{})
+def sheet_go(+g: SH.GR, +sc: SH.SC, +b: Body, +e: X.Env, +nd: U64, +what: String, +l: F64, +t: F64,
+    +w: F64) -> NR:
+  match g:
+    case SH.GR_ok{}: sheet_build(sc, b, e, nd, l, t, w)
+    case SH.GR_no{+why, +fix}: nr_err(why_k(why_unsup(why), False{}), what, "node " ++ U64.show(nd), why, fix)
+def op_sheet(+f: SH.FT, +base: U64, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +sc = SH.sc_push(sh_chain(ns, base), f)
+  +l = X.xp_ev(SH.sc_l(sc), e)
+  +w = X.xp_ev(SH.sc_w(sc), e)
+  +t = X.xp_ev(SH.sc_t(sc), e)
+  sheet_go(SH.ck_chain(sc, e, l, w, t), sc, b, e, nd, Bool.pick(String, SH.ft_is_bend(f), "bend", "hem"), l, t, w)
+
+def su_refuse(+g: SU.GR, +what: String, +nd: U64) -> NR:
+  match g:
+    case SU.GR_ok{}: bad(what, "node " ++ U64.show(nd), "refusal-missing", "report this design")
+    case SU.GR_no{+why, +fix}: nr_err(why_k(why_unsup(why), False{}), what, "node " ++ U64.show(nd), why, fix)
+
+def su_go(o: Op) -> SU.SO:
+  match o:
+    case O_loft_open{z, bot, top, twist, cont}: SU.SO_lo{z, bot, top, twist, cont}
+    case O_sw_open{deg, rs, g, gd, tw}: SU.SO_sw{deg, rs, g, gd, tw}
+    case O_patch{ps}: SU.SO_pt{ps}
+    case _: SU.SO_bad{}
+
+def su_chain(+ns: List<&2, Node>, +id: U64) -> SU.SO:
+  su_go(nd_op(ns, id))
+
+def loft_open_0(+why: String, +nd: U64) -> NR:
+  Bool.pick(NR, String.eq(why, "loft-face-not-planar"), su_refuse(SU.lo_go(False{}), "loft-open", nd),
+    why_nr("loft-open", nd, why))
+
+def loft_open_kind(k: U64, +why: String, +l: F9.LF, +zv: F64, +nd: U64) -> NR:
+  match k:
+    case 0u64: loft_open_0(why, nd)
+    case 1u64: mesh_go_open(SU.loft_open_bt(SU.lo_of_lf(l, zv), nd), "loft-open")
+    case 2u64: mesh_go_open(SU.loft_open_bt(SU.lo_of_lf(l, zv), nd), "loft-open")
+    case _: unc_nr("loft-open", nd, "loft-not-certified")
+
+def loft_open_use(+l: F9.LF, +zv: F64, +nd: U64) -> NR:
+  loft_open_kind(F9.lf_kind(l), F9.lf_why(l), l, zv, nd)
+
+def loft_open_err(bad: Bool, +cb: U64, +eb: F.EV, +et: F.EV, +zv: F64, +twist: U64, +cont: U64, +nd: U64) -> NR:
+  match bad:
+    case True{}: loft_which(U64.is_eq(cb, 0u64), eb, et, nd)
+    case False{}:
+      loft_open_use(F9.loft_lf(False{}, ev_lp(eb), ev_lp(et), U64.to_nat(twist), cont, zv), zv, nd)
+
+def loft_open_c7(bad: Bool, +cb: U64, +eb: F.EV, +et: F.EV, +zv: F64, +twist: U64, +cont: U64, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("loft-open", nd, "degenerate-feature")
+    case False{}:
+      loft_open_err(Bool.or(Bool.not(U64.is_eq(cb, 0u64)), Bool.not(U64.is_eq(ev_code(et), 0u64))), cb, eb,
+        et, zv, twist, cont, nd)
+
+def loft_open_ev2(+cb: U64, +ct: U64, +eb: F.EV, +et: F.EV, +zv: F64, +twist: U64, +cont: U64, +nd: U64) -> NR:
+  loft_open_c7(Bool.or(U64.is_eq(cb, 7u64), U64.is_eq(ct, 7u64)), cb, eb, et, zv, twist, cont, nd)
+
+def loft_open_ev(+eb: F.EV, +et: F.EV, +zv: F64, +twist: U64, +cont: U64, +nd: U64) -> NR:
+  loft_open_ev2(ev_code(eb), ev_code(et), eb, et, zv, twist, cont, nd)
+
+def loft_open_holes(bad: Bool, +zv: F64, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64,
+    +e: X.Env, +nd: U64) -> NR:
+  match bad:
+    case True{}: why_nr("loft-open", nd, "loft-topology-mismatch")
+    case False{}: loft_open_ev(F.loops_ev([rg_out(bot)], e, 0n), F.loops_ev([rg_out(top)], e, 0n), zv, twist, cont, nd)
+
+def loft_open_z(ok: Bool, +zv: F64, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +e: X.Env,
+    +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("loft-open", nd, "degenerate-feature")
+    case True{}: loft_open_holes(Bool.or(rg_has_h(bot), rg_has_h(top)), zv, bot, top, twist, cont, e, nd)
+
+def op_loft_open(+z: X.Xp, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +e: X.Env,
+    +nd: U64) -> NR:
+  +zv = X.xp_ev(z, e)
+  loft_open_z(Bool.and(T.is_finite(zv), F64.is_lt(0.0f64, zv)), zv, bot, top, twist, cont, e, nd)
+
+def sw_open_rect(ok: Bool, +deg: U64, +r: SU.RT, +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.sp_go(False{}), "sweep-open", nd)
+    case True{}: mesh_go_open(SU.swo_open_bt(SU.swo_of(deg, r), SU.qd_of(deg), nd), "sweep-open")
+
+def sw_open_single(ok: Bool, +deg: U64, +pp: List<&2, F.Lp>, +nd: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(F.Er{24u64, 0n, 0n}, "sweep profile")
+    case True{}:
+      +r = SU.sw_rect_of(F.lp_pcs(SU.lp0(pp)))
+      sw_open_rect(SU.rt_ok(r), deg, r, nd)
+
+def sw_open_ax_go(ok: Bool, +e: F.Er, +pp: List<&2, F.Lp>, +hs: List<&2, Bool>, +deg: U64, +nd: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(e, "sweep profile")
+    case True{}: sw_open_single(SU.pp_single(pp, hs), deg, pp, nd)
+
+def sw_open_ax(e: F.Er, +pp: List<&2, F.Lp>, +hs: List<&2, Bool>, +deg: U64, +nd: U64) -> NR:
+  F.Er{+code, +lp, +sg} = e
+  sw_open_ax_go(U64.is_eq(code, 0u64), F.Er{code, lp, sg}, pp, hs, deg, nd)
+
+def sw_open_ap(c: F.CK, +deg: U64, +rs: List<&2, F.Region>, +nd: U64) -> NR:
+  match c:
+    case F.CK_err{e}: sw_pe(e, nd)
+    case F.CK_ok{ls, ps}:
+      +hs = rls_holes(F.rg_rls(rs, 0n, F.K_free{}))
+      +pp = RV.lps_prep(ls, hs)
+      sw_open_ax(RV.ax_codes(pp, hs, 0n), pp, hs, deg, nd)
+
+def sw_open_at(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep-open", nd, "twist-not-admitted")
+    case True{}: sw_open_ap(F.prof_check(rs, e), deg, rs, nd)
+
+def sw_open_ag(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: why_nr("sweep-open", nd, "guide-not-admitted")
+    case True{}: sw_open_at(String.eq(F9.why_twist(tw), ""), deg, rs, e, nd)
+
+def sw_open_aa(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env,
+    +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.sa_go(False{}, deg), "sweep-open", nd)
+    case True{}: sw_open_ag(String.eq(F9.why_guide(1u64, g, gd, deg), ""), deg, rs, tw, e, nd)
+
+def op_sw_open(+deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
+  sw_open_aa(Bool.and(String.eq(F9.why_sw_ang(deg), ""), U64.is_ne(deg, 360u64)), deg, rs, g, gd, tw, e, nd)
+
+def op_patch(+ps: List<&2, X.Xp>, +e: X.Env, +nd: U64) -> NR:
+  +p = SU.pp_ev(ps, e)
+  Bool.pick(NR, SU.pa_ok(p), mesh_go_open(SU.patch_open_bt(p, nd), "patch"),
+    su_refuse(SU.pa_go(False{}), "patch", nd))
+
+def th_base_ok(o: Op) -> Bool:
+  match o:
+    case O_loft_open{z, bot, top, twist, cont}: True{}
+    case O_sw_open{deg, rs, g, gd, tw}: True{}
+    case O_patch{ps}: True{}
+    case _: False{}
+
+def th_lo_size(ok: Bool, +d: SU.DD, +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.ts_go(False{}), "thicken-open", nd)
+    case True{}: mesh_nr(bt_check(SU.duct_bt(d, nd), [], pl_id(), "thicken-open", []), SU.duct_vol(d),
+      dels_why(bd_fns(b), 10u64), "")
+
+def th_lo_kind(k: U64, +l: F9.LF, +zv: F64, +tv: F64, +b: Body, +nd: U64) -> NR:
+  match k:
+    case 1u64: th_lo_size(SU.duct_inner_ok(SU.duct_dims(SU.lo_of_lf(l, zv), tv)), SU.duct_dims(SU.lo_of_lf(l, zv), tv), b, nd)
+    case 2u64: th_lo_size(SU.duct_inner_ok(SU.duct_dims(SU.lo_of_lf(l, zv), tv)), SU.duct_dims(SU.lo_of_lf(l, zv), tv), b, nd)
+    case 0u64: loft_open_0(F9.lf_why(l), nd)
+    case _: unc_nr("thicken-open", nd, "loft-not-certified")
+
+def th_lo_ev(+eb: F.EV, +et: F.EV, +zv: F64, +tv: F64, +twist: U64, +cont: U64, +b: Body, +nd: U64) -> NR:
+  +l = F9.loft_lf(False{}, ev_lp(eb), ev_lp(et), U64.to_nat(twist), cont, zv)
+  th_lo_kind(F9.lf_kind(l), l, zv, tv, b, nd)
+
+def thicken_loft(+z: X.Xp, +bot: F.Region, +top: F.Region, +twist: U64, +cont: U64, +tv: F64, +b: Body,
+    +e: X.Env, +nd: U64) -> NR:
+  th_lo_ev(F.loops_ev([rg_out(bot)], e, 0n), F.loops_ev([rg_out(top)], e, 0n), X.xp_ev(z, e), tv, twist,
+    cont, b, nd)
+
+def th_sw_size(ok: Bool, +s: SU.SWO, +tv: F64, +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.ts_go(False{}), "thicken-open", nd)
+    case True{}:
+      mesh_nr(bt_check(SU.sec_bt(SU.sec_dims(s, tv), SU.qd_n(SU.qd_of(SU.swo_deg(s))), nd), [],
+        pl_id(), "thicken-open", []), SU.sec_vol(s, tv), dels_why(bd_fns(b), 10u64), "")
+
+def th_sw_rect(ok: Bool, +deg: U64, +r: SU.RT, +tv: F64, +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.sp_go(False{}), "thicken-open", nd)
+    case True{}:
+      +s = SU.swo_of(deg, r)
+      th_sw_size(SU.sec_t_ok(s, tv), s, tv, b, nd)
+
+def th_sw_single(ok: Bool, +deg: U64, +pp: List<&2, F.Lp>, +tv: F64, +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(F.Er{24u64, 0n, 0n}, "sweep profile")
+    case True{}:
+      +r = SU.sw_rect_of(F.lp_pcs(SU.lp0(pp)))
+      th_sw_rect(SU.rt_ok(r), deg, r, tv, b, nd)
+
+def th_sw_ax_go(ok: Bool, +e: F.Er, +pp: List<&2, F.Lp>, +hs: List<&2, Bool>, +deg: U64, +tv: F64,
+    +b: Body, +nd: U64) -> NR:
+  match ok:
+    case False{}: pe_nr(e, "sweep profile")
+    case True{}: th_sw_single(SU.pp_single(pp, hs), deg, pp, tv, b, nd)
+
+def th_sw_ax(e: F.Er, +pp: List<&2, F.Lp>, +hs: List<&2, Bool>, +deg: U64, +tv: F64, +b: Body,
+    +nd: U64) -> NR:
+  F.Er{+code, +lp, +sg} = e
+  th_sw_ax_go(U64.is_eq(code, 0u64), F.Er{code, lp, sg}, pp, hs, deg, tv, b, nd)
+
+def th_sw_ap(c: F.CK, +deg: U64, +rs: List<&2, F.Region>, +tv: F64, +b: Body, +nd: U64) -> NR:
+  match c:
+    case F.CK_err{e}: sw_pe(e, nd)
+    case F.CK_ok{ls, ps}:
+      +hs = rls_holes(F.rg_rls(rs, 0n, F.K_free{}))
+      +pp = RV.lps_prep(ls, hs)
+      th_sw_ax(RV.ax_codes(pp, hs, 0n), pp, hs, deg, tv, b, nd)
+
+def thicken_swo(+deg: U64, +rs: List<&2, F.Region>, +tv: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  th_sw_ap(F.prof_check(rs, e), deg, rs, tv, b, nd)
+
+def thicken_patch(+ps: List<&2, X.Xp>, +tv: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  +p = SU.pp_ev(ps, e)
+  Bool.pick(NR, SU.rect_slab_ok(p),
+    mesh_nr(bt_check(SU.slab_bt(p, tv, nd), [], pl_id(), "thicken-open", []), SU.slab_vol(p, tv),
+      dels_why(bd_fns(b), 10u64), ""),
+    su_refuse(SU.tc_go(False{}), "thicken-open", nd))
+
+def th_kind(o: Op, +tv: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match o:
+    case O_loft_open{z, bot, top, twist, cont}: thicken_loft(z, bot, top, twist, cont, tv, b, e, nd)
+    case O_sw_open{deg, rs, g, gd, tw}: thicken_swo(deg, rs, tv, b, e, nd)
+    case O_patch{ps}: thicken_patch(ps, tv, b, e, nd)
+    case _: su_refuse(SU.th_go(False{}), "thicken-open", nd)
+
+def th_t(ok: Bool, +o: Op, +tv: F64, +b: Body, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: su_refuse(SU.dg_go(False{}, tv), "thicken-open", nd)
+    case True{}: th_kind(o, tv, b, e, nd)
+
+def op_thicken_open(+base: U64, +t: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  +o = nd_op(ns, base)
+  +tv = X.xp_ev(t, e)
+  Bool.pick(NR, th_base_ok(o), th_t(Bool.and(T.is_finite(tv), F64.is_lt(0.0f64, tv)), o, tv, b, e, nd),
+    su_refuse(SU.th_go(False{}), "thicken-open", nd))
+def bl_refuse(+g: BA.GR, +what: String, +nd: U64) -> NR:
+  match g:
+    case BA.GR_ok{}: bad(what, "node " ++ U64.show(nd), "refusal-missing", "report this design")
+    case BA.GR_no{+why, +fix}:
+      nr_err(why_k(why_unsup(why), String.eq(why, "blade-stack-not-ruled")), what, "node " ++ U64.show(nd),
+        why, fix)
+
+def bl_mesh(r: NR, +v: I.I) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}:
+      NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
+        Xb{[ms_put_vol(body_ms(b), v)], xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), xb_dl(bd_xb(b))}},
+        fx}
+
+def bl_mesh_go(bt: BD.Bt, +v: I.I, +what: String) -> NR:
+  bl_mesh(mesh_go(bt, I.imid(v), what, [], ""), v)
+
+def na_build(+sec: BA.Sec, +nd: U64) -> NR:
+  +ses = BA.place_secs([sec, sec], 1.0f64, 0u64, 100u64)
+  +m = BA.ring_m(BA.sec_k(sec))
+  +z0 = I.imid(BA.se_z(BA.se_at(ses, 0n)))
+  +z1 = I.imid(BA.se_z(BA.se_at(ses, 1n)))
+  bl_mesh_go(BA.blade_bt(ses, 2n, m, nd, z0, z1), BA.blade_vol_I(ses, m, 1.0f64, 2n), "naca4")
+
+def na_fin(+fin: Bool, +sec: BA.Sec, +nd: U64) -> NR:
+  match fin:
+    case False{}: bl_refuse(BA.fin_go(False{}), "naca4", nd)
+    case True{}: na_build(sec, nd)
+
+def na_np(+np: Bool, +fin: Bool, +sec: BA.Sec, +nd: U64) -> NR:
+  match np:
+    case False{}: bl_refuse(BA.np_go(False{}), "naca4", nd)
+    case True{}: na_fin(fin, sec, nd)
+
+def na_dg(+dg: Bool, +m: U64, +p: U64, +t: U64, +cv: F64, +n: U64, +e: X.Env, +nd: U64) -> NR:
+  match dg:
+    case False{}: bl_refuse(BA.dg_go(False{}), "naca4", nd)
+    case True{}: na_np(BA.np_ok(n), Bool.and(T.is_finite(cv), F64.is_lt(0.0f64, cv)),
+      BA.Sec{m, p, t, cv, BA.ring_k(BA.nq_of(n))}, nd)
+
+def op_naca4(+m: U64, +p: U64, +t: U64, +c: X.Xp, +n: U64, +e: X.Env, +nd: U64) -> NR:
+  +cv = X.xp_ev(c, e)
+  na_dg(BA.dg_ok(m, p, t), m, p, t, cv, n, e, nd)
+
+def bl_is_na(o: Op) -> Bool:
+  match o:
+    case O_naca4{m, p, t, c, n}: True{}
+    case _: False{}
+
+def bl_na(o: Op) -> BA.NA:
+  match o:
+    case O_naca4{m, p, t, c, n}: BA.NA{m, p, t, c, n}
+    case _: BA.NA{10u64, 0u64, 5u64, xk(0.0f64), 0u64}
+
+def bl_nas_go(+ns: List<&2, Node>, ids: List<&2, U64>) -> List<&2, BA.NA>:
+  match ids:
+    case []: []
+    case +h <> t: bl_na(nd_op(ns, h)) <> bl_nas_go(ns, t)
+
+def bl_nas_ok_go(+ns: List<&2, Node>, ids: List<&2, U64>) -> Bool:
+  match ids:
+    case []: True{}
+    case +h <> t: Bool.and(bl_is_na(nd_op(ns, h)), bl_nas_ok_go(ns, t))
+
+def bl_build(+ss: List<&2, BA.Sec>, +zv: F64, +tw: U64, +tp: U64, +nd: U64) -> NR:
+  +n = List.length(&2, BA.Sec, ss)
+  +ses = BA.place_secs(ss, zv, tw, tp)
+  +m = BA.ring_m(BA.sec_k(BA.se_at_sec(ss)))
+  +z0 = I.imid(BA.se_z(BA.se_at(ses, 0n)))
+  +z1 = I.imid(BA.se_z(BA.se_at(ses, Nat.sub(n, 1n))))
+  bl_mesh_go(BA.blade_bt(ses, n, m, nd, z0, z1), BA.blade_vol_I(ses, m, zv, n), "blade")
+
+def bl_rl(+ruled: Bool, +ss: List<&2, BA.Sec>, +zv: F64, +tw: U64, +tp: U64, +nd: U64) -> NR:
+  match ruled:
+    case False{}: bl_refuse(BA.rl_go(False{}), "blade", nd)
+    case True{}: bl_build(ss, zv, tw, tp, nd)
+
+def bl_cf(+fin: Bool, +ss: List<&2, BA.Sec>, +zv: F64, +tw: U64, +tp: U64, +nd: U64) -> NR:
+  match fin:
+    case False{}: bl_refuse(BA.fin_go(False{}), "blade", nd)
+    case True{}: bl_rl(BA.ruled_ok(ss), ss, zv, tw, tp, nd)
+
+def bl_np(+np: Bool, +nas: List<&2, BA.NA>, +ss: List<&2, BA.Sec>, +zv: F64, +tw: U64, +tp: U64,
+    +nd: U64) -> NR:
+  match np:
+    case False{}: bl_refuse(BA.np_go(False{}), "blade", nd)
+    case True{}: bl_cf(BA.secs_fin_ok(ss), ss, zv, tw, tp, nd)
+
+def bl_dg(+dg: Bool, +nas: List<&2, BA.NA>, +ss: List<&2, BA.Sec>, +zv: F64, +tw: U64, +tp: U64,
+    +nd: U64) -> NR:
+  match dg:
+    case False{}: bl_refuse(BA.dg_go(False{}), "blade", nd)
+    case True{}: bl_np(BA.nas_np_ok(nas), nas, ss, zv, tw, tp, nd)
+
+def bl_secs(+ok: Bool, +nas: List<&2, BA.NA>, +e: X.Env, +zv: F64, +tw: U64, +tp: U64, +nd: U64) -> NR:
+  match ok:
+    case False{}: bl_refuse(BA.rl_go(False{}), "blade", nd)
+    case True{}:
+      +ss = BA.secs_of(nas, e)
+      bl_dg(BA.secs_dg_ok(ss), nas, ss, zv, tw, tp, nd)
+
+def bl_zv(+fin: Bool, +secs: List<&2, U64>, +zv: F64, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  match fin:
+    case False{}: bl_refuse(BA.fin_go(False{}), "blade", nd)
+    case True{}: bl_secs(bl_nas_ok_go(ns, secs), bl_nas_go(ns, secs), e, zv, tw, tp, nd)
+
+def bl_tp(+ok: Bool, +secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  match ok:
+    case False{}: bl_refuse(BA.tp_go(False{}, tp), "blade", nd)
+    case True{}:
+      +zv = X.xp_ev(z, e)
+      bl_zv(Bool.and(T.is_finite(zv), F64.is_lt(0.0f64, zv)), secs, zv, tw, tp, e, nd, ns)
+
+def bl_tw(+ok: Bool, +secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  match ok:
+    case False{}: bl_refuse(BA.tw_go(False{}, tw), "blade", nd)
+    case True{}: bl_tp(BA.tp_ok(tp), secs, z, tw, tp, e, nd, ns)
+
+def bl_ns(+ok: Bool, +secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  match ok:
+    case False{}: bl_refuse(BA.ns_go(False{}), "blade", nd)
+    case True{}: bl_tw(BA.tw_ok(tw), secs, z, tw, tp, e, nd, ns)
+
+def op_blade(+secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
+    +ns: List<&2, Node>) -> NR:
+  bl_ns(BA.ns_ok(List.length(&2, U64, secs)), secs, z, tw, tp, e, nd, ns)
+
+def bl_bo(o: Op, +ns: List<&2, Node>) -> BA.BO:
+  match o:
+    case O_blade{+secs, z, tw, tp}:
+      Bool.pick(BA.BO, bl_nas_ok_go(ns, secs), BA.BO_bd{bl_nas_go(ns, secs), z, tw, tp}, BA.BO_bad{})
+    case _: BA.BO_bad{}
+
+def bl_chain(+ns: List<&2, Node>, +id: U64) -> BA.BO:
+  bl_bo(nd_op(ns, id), ns)
+
 def op_blob_ms(+w: Bool, +ir: BL.IR, +b: Ty.Brep, +nd: U64) -> NR:
   match w:
     case False{}: bad("import", "node " ++ U64.show(nd), BL.ir_why(ir), "re-import the STEP file")
@@ -2456,7 +2932,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_holes{base, f, hs, d, thru}: op_feat(2u64, b, f, hls_rgs(hs), d, thru, e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
-    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes or import")
+    case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import")
     case O_blob{fmt, payload}: op_blob(fmt, payload, nd)
     case O_revolve{rs}: op_rev(rs, e, nd)
     case O_cone{r, h}: op_rev([cone_rg(r, h)], e, nd)
@@ -2479,6 +2955,15 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_pat_circ{base, n, r}: op_pat_circ(base, n, r, b, e, nd)
     case O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: op_ph_lin(base, f, nx, ny, dx, dy, x0, y0, r, d, thru, b, e, nd)
     case O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: op_ph_circ(base, f, n, rad, cx, cy, r, d, thru, b, e, nd)
+    case O_flat{l, w, t}: op_prism([rect_rg(l, w)], xk(0.0f64), t, e, nd)
+    case O_bend{base, n, r, deg}: op_sheet(SH.FT_bend{n, r, deg}, base, b, e, nd, ns)
+    case O_hem{base, n, l}: op_sheet(SH.FT_hem{n, l}, base, b, e, nd, ns)
+    case O_loft_open{z, bot, top, twist, cont}: op_loft_open(z, bot, top, twist, cont, e, nd)
+    case O_sw_open{deg, rs, g, gd, tw}: op_sw_open(deg, rs, g, gd, tw, e, nd)
+    case O_patch{ps}: op_patch(ps, e, nd)
+    case O_thicken_open{base, t}: op_thicken_open(base, t, b, e, nd, ns)
+    case O_naca4{m, p, t, c, n}: op_naca4(m, p, t, c, n, e, nd)
+    case O_blade{secs, z, tw, tp}: op_blade(secs, z, tw, tp, e, nd, ns)
 
 def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
     +ns: List<&2, Node>) -> NR:

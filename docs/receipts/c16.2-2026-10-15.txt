@@ -1,0 +1,223 @@
+# C16.2 receipt — 2026-10-15 (surface modeling closed)
+
+C16.2 adds open-shell surface modeling on top of C16.1: loft-open walls,
+sweep-open walls, bicubic patch cowls, the certified `surf` boundary reporter,
+and thicken-open panels (slabs, ducts, sectors) that close to ordinary solids.
+Four new ops (`loft-open`, `sweep-open`, `patch`, `thicken-open`), one new verb
+(`surf`), one new MCP tool (`surface`), 17 new laws, 72 new pins, 12 E2E and
+28 negative journeys. Every gate below ran on the final tree with the final
+binary unless a section says otherwise.
+
+## 1. Provenance and build recipe
+
+- HEAD `5e8de26` (G3 v3 reference gearbox; certify concentric arc clearance
+  (C06)); C16.1 and C16.2 both ride uncommitted, as C16.1 did. The law matrix
+  in §3 runs the baseline from a HEAD worktree so the before-state is exact.
+- `bend 2.0.35`, fork `a4d17a` tag `numeric/2026-10-05`
+  (`~/.bend/bin/bend` sha256 `ada00d68…`), never `bend update`.
+- `BEND_PIN` is `a4d17acecf79c71696610f0683d8d003bc392920`, unchanged.
+- Binary `/home/jesse/bc/bendcad` sha256
+  `2b0d787461006b9fb4ef6b18c1148504d10384338c132ab6aadeb9957b66b643`,
+  built by `~/bin/bendbuild` (bendcap + zig, in that order) from
+  `src/c06/cli.bend` after the last source edit; a `bendbuild` preceded every
+  E2E run in this packet.
+- Every `bend` invocation ran under `~/bin/bendcap` with a timeout, one heavy
+  op at a time; `BEND_NO_TELEMETRY=1` throughout. `tools/laws/check.sh` and
+  `tools/pins/run.sh` call raw `bend`, so the sweeps ran through capped copies
+  with that single substitution (in-tree temp copies, removed after);
+  `mutate.py` ran with `BEND=~/bin/bendcap`, which it honors natively.
+- Law/source bytes: `laws/c16.2/LAWS.bend` `c5d48e75…`,
+  `laws/c16.2/PROOF.bend` `b279c7d8…`, `src/c16/surf.bend` `d1eb3a84…`
+  (1149 lines), `tests/c16.2/pins.bend` `b13efdcb…`.
+- No `legacy/` reads; no placeholder, fallback, weakened tolerance, disabled
+  test, or restated theorem. Zero `//` comments in every touched `.bend` file.
+
+## 2. A2 exit matrix
+
+| Behavior | Contract/law anchor | Proof artifact | E2E journey | Neg journey | Pins | Oracle / mutant | Verdict |
+|---|---|---|---|---|---|---|---|
+| Loft-open builds 4 planar walls, open top/bottom | contract §1; F1 | open-shell-1 profile | `loft.duct` (area 240, blen 60, 8 edges) | `loft.nonplanar/continuity/hole/zeroheight/badpair/nonquad` | `tok_loft`, `os_loft`, `bnd_loft`, `be_loft0` | ORCL + MUT F1 | PASS |
+| Sweep-open builds rect-sector walls, open seams | contract §1; F1 | open-shell-1 profile | `sweep.sector` (area 32π, blen 32) | `sweep.angle45/angle360/slant/twist` | `tok_swo`, `os_swo`, `bnd_swo`, `rect_sec` | ORCL + MUT F1 | PASS |
+| Patch builds a curved estimate-labeled cowl | contract §1; F1 | estimates labeled | `patch.cowl` (area ≈50.08 ±1%) | `patch.rows/corners/short` | `tok_patch`, `os_patch`, `bnd_patch` | ORCL + MUT F1 | PASS |
+| Thicken closes slabs/ducts/sectors to solids | contract §1; F2 | 11 manifold stages | `patch.slab` (100), `loft.taper` (209.6187), `sweep.thick` (32π) | `thicken.curve/boxbase/closedbase/consumes/zeroT` | `stv_slab/duct/sec`, `vol_slab/duct/sec` | ORCL + MUT F3 | PASS |
+| `surf` reports certified open boundaries | contract §2; F2/F3 | `surf_rep` intervals | `loft.duct`, `sweep.sector`, `surf.edit` | `surf.closed/thickened/unknown_node/failed_node` | `rep_patch`, `be_loft0`, `rows_*` | ORCL + MUT F2 | PASS |
+| Volume/area/boundary formulas exact | F3 (9 laws) | interval identities | all E2E (bit-exact oracle match) | — (formulas) | `area_*`, `vol_*`, `chi_*`, `lo_of_lf` | ORCL | PASS |
+| Open refusals named on every verb | contract §2 | GR guards + bd_open | `union.export` (thickened only) | `zone.surf`, `feature.onpatch`, `step.open`, `archive.open`, `check.open`, `classify.open` | `gr_*` (10 guards) | ORCL | PASS |
+| Tessellation shows curved patches, welds planar | contract §5 | 8×8 grid + ring path | `surf.tess` (crown 0.162, 128 tris) | — (export) | n/a (mesh shape) | ORCL crown | PASS |
+| STEP round-trips thickened panels exactly | contract §5 | closed solids only | `surf.step` (slab 6 planes; duct 8+8, vol 1e-14) | `step.open` refuses | n/a (STEP profile) | ORCL + build123d | PASS |
+| Replay and archive of thickened solids | contract §5 | show/apply + BCAD1 | `surf.replay` (byte-exact eval, 16-face reopen) | `archive.open` refuses | n/a (round-trip) | — | PASS |
+| MCP surface parity | language.md | same CLI path | `mcp.parity` (surf/apply/eval agree) | — | n/a | CLI diff | PASS |
+
+Matrix closure: all 17 laws appear above by family (F1 3, F2 5, F3 9),
+all 28 neg cases, all 12 E2E journeys.
+
+## 3. Before-and-after law matrix
+
+`tools/laws/check.sh` (capped copy) over every `laws/*/PROOF.bend`, both modes.
+Before = fresh HEAD worktree (removed after), 16 packets / 532 laws.
+After = final tree, 18 packets / 564 laws. Every cell is
+`ALL PROOFS CHECK`; times are check-only / verdict.
+
+| Packet | Laws | Before check/verdict | After check/verdict |
+|---|---|---|---|
+| base | 13 | 1s / 0s | 0s / 1s |
+| c00 | 8 | 2s / 2s | 2s / 2s |
+| c01 | 10 | 0s / 1s | 0s / 1s |
+| c02 | 16 | 0s / 1s | 0s / 0s |
+| c03 | 10 | 28s / 28s | 28s / 29s |
+| c04 | 104 | 1s / 1s | 1s / 1s |
+| c05 | 34 | 142s / 142s | 143s / 145s |
+| c06 | 6 | 2s / 7s | 3s / 10s |
+| c07 | 5 | 0s / 1s | 0s / 0s |
+| c08 | 4 | 1s / 4s | 2s / 4s |
+| c09 | 2 | 1s / 4s | 1s / 5s |
+| c10 | 18 | 1s / 17s | 3s / 18s |
+| c11 | 65 | 4s / 19s | 6s / 22s |
+| c12 | 64 | 3s / 20s | 5s / 23s |
+| c14 | 153 | 35s / 52s | 37s / 55s |
+| c15 | 20 | 2s / 19s | 4s / 22s |
+| c16.1 | 15 | n/a (rides uncommitted, as in its receipt) | 1s / 2s |
+| c16.2 | 17 | n/a (this packet) | 1s / 9s |
+
+No law changed verdict in either direction: 532/532 before, 564/564 after,
+all `ALL PROOFS CHECK` under `--check-only` and again under `--verdict`.
+Full logs: `/tmp/c162-base-laws/results.txt`, `/tmp/c162-vfy-laws2/results.txt`.
+
+## 4. Observed results (binary 2b0d7874)
+
+- Laws: §3, 564/564 both modes, exit 0.
+- Mutation (`BEND=~/bin/bendcap python3 tools/laws/mutate.py`): 87/87 killed,
+  report sha256 `a503a7ab…`. The three C16.2 families each kill: F1 (flipped
+  wall use breaks balance), F2 (dropped boundary row), F3 (curved thickens
+  accepted). One rerun note: the F1 site went non-unique when duct walls
+  reused the same use pattern, so the mutant now carries loft-wall context;
+  all three re-killed on final sources.
+- Pins (capped `run.sh` over all 21 files): 2485/2485 hold. Per file: c00 33,
+  c01 30, c02 44, c03 408, c04 500, c05 31, c06 82 + 25, c07 14 + 17,
+  c08 487 + 40, c09 50 + 9, c10 42, c11 158, c12 33, c14 163, c15 154,
+  c16.1 93, c16.2 72. Reconciliation note: the C16.1 receipt counts 2438 over
+  20 files with a c07 "25" no current file reproduces (`pins.bend` holds 14 at
+  HEAD and now; no c07 file was ever deleted); every pins file in the tree is
+  listed above and green. New C16.2 pins: 72/72, report sha256 `0c4231d2…`.
+  Nine wants were measured then hand-verified (interval contents, bit decodes,
+  oracle match) before fill; one more want (`lo_of_lf` u1 bits) was corrected
+  the same way (got exactly 9.0, want had a fat-fingered ulp).
+- `tests/c16.2/e2e.py`: 12/12 journeys hold. Oracle cross-checks, all against
+  `tests/c16.2/oracle.py` unless noted: cowl area ≈ 50.0818 within 1%;
+  slab 100.0 exact, STEP solid 99.99999999999997; duct wall area 240.0 with
+  sub-ulp interval width, boundary 60.0; taper volume 209.61870145576222
+  oracle vs kernel [209.61870145571285, …117] and STEP 209.61870145576228;
+  sector area 32π, boundary 32.0; 90° sector thicken 32π; tess crown 0.162
+  exact vs oracle bicubic center; replay eval byte-exact, reopen 16 loops +
+  240.0; union 200.0; MCP outputs identical to CLI.
+- `tests/c16.2/neg.py`: 28/28 journeys hold; every refusal leaves the design
+  byte-identical and publishes no geometry.
+- Regressions on the same binary, zero changes required: c06 e2e 62/62
+  (perf.holes400 build 0.16s vs 2.0s budget after the §6 fix), c07 e2e 328,
+  solid 34, solid_neg 13, zone 33; c08 e2e 108, neg 20; c09 e2e 29, neg 27;
+  c10 e2e 11, neg 12; c11 e2e 33, neg 19; c12 e2e 17, neg 24; c14 e2e 16,
+  neg 18; c15 e2e 13, neg 29; c16.1 e2e 11, neg 25. Total 882 earlier + 40
+  new = 922 journeys green.
+- G3 parts gate (`tools/g3/gearbox.py /tmp/g3-c162 parts`): housing, lid,
+  drivetrain, purchased all committed; asm solved 119 instances, 122 mates,
+  dof 0, max residual 8.5e-14. Green.
+
+## 5. Shipped delta
+
+- `src/c16/surf.bend` (new, 1149 lines): open-shell kernel. Rect/plane guard
+  lattice (10 GR guards), loft-open walls (minus C09 caps), sweep-open walls
+  (rect profiles, 90/180/270°), single bicubic patch, slab/duct/sector
+  thickens with closed-form volumes, certified interval areas, estimated
+  patch area (32×32) and boundary lengths (depth-10 subdivision), `surf`
+  reporter with canonical `nN.eI` boundary names.
+- `src/c06/model.bend`: `O_loft_open` (35) … `O_thicken_open` (38), evaluators,
+  `bt_check_open`/`bd_open` plumbing, open-shell mass convention (vol 0).
+- `src/c06/sx.bend`: `(loft-open Z R1 R2)`, `(sweep-open (arc D) R)`,
+  `(patch PT×16)`, `(thicken-open BASE T)` node forms + `sx_show` round-trip.
+- `src/c06/cli.bend`: `surf` verb (25), `archive-open-shell-not-in-profile`
+  refusal.
+- `src/c06/zone.bend`, `src/c11/qinterf.bend`, `src/c11/qdist.bend`: open-shell
+  refusals (`topology-not-certified-over-zone`, `*-needs-solid`).
+- `src/c06/build.bend` + one-line call sites in `src/c06/revolve.bend` and
+  `src/c09/feat.bend`: shell kinds derived from edge-use counts
+  (`shs_of_runs`, sort-based O(U log U)) instead of unconditional outer.
+  Only shells with boundary edges change kind; every previously shippable
+  product is manifold-closed (shell-open included: its opening is a face
+  hole, verified), so no existing kind flips.
+- `src/c06/tess.bend`: single-loop bezier faces deviating from their corner
+  plane by more than 1e-9 relative tessellate on a fixed 8×8 grid through the
+  shared `bezp_eval`; planar bezier faces keep the welded ring path exactly.
+- `tools/mcp/bendcad-mcp.mjs` + `tools/mcp/language.md`: `surface` tool and
+  Surface modeling section (with a corrected paren-balanced example).
+- `tests/c06/e2e.py`: MCP tool-set gains `surface`.
+- `tools/laws/mutate.py`: three C16.2 families (one per law family).
+- Docs: `docs/c16.2-contract.md`, `docs/c16.2-intent.md`, `docs/c16.2-laws.md`.
+
+## 6. Semantic bugs
+
+Seven, each fixed at the root cause with a witnessing journey, pin or law:
+
+1. `sw_rect_of` seeded its min/max fold with `F64.max(1,0)`/`neg(1)`, so any
+   profile outside [−1, 1] misranged and sweep-open refused. Fix: head-seeded
+   `sw_rect_go`. Witness: sweep-open smoke + `rect_sec` pin.
+2. Taper-duct walls used plane frames that embedding cannot round-trip
+   bit-exactly (`trim_uv` projects, `plane_eval` reconstructs; only axis
+   frames and bezier corners are exact). First fix (Gram–Schmidt) attacked
+   the wrong layer; the real fix represents all eight duct walls as
+   bilinear beziers through exact corners, like C09 loft walls. Witness:
+   `loft.taper` journey + `stv_duct` pin. Side effect, honestly carried:
+   duct walls read back as STEP BSPLINE (8+8 split asserted) and the `check`
+   query reports the C09-identical bezier verdict (D-surf-checkbez).
+3. STEP exported open shells as CLOSED_SHELL: the packer marked every shell
+   outer. Fix: kinds derived from use counts (§5). Witness: `step.open` neg,
+   which previously received a 78-entity file.
+4. `archive` wrote open-shell archives `reopen` then rejected under the solid
+   profile. Fix: refuse at write time by name. Witness: `archive.open` neg;
+   `surf.replay` archives the thickened solid instead.
+5. Tessellation flattened curved patches (boundary-only fans). Fix: 8×8
+   interior grid for curved bezier faces. Witness: `surf.tess` crown 0.162.
+6. The grid, applied uniformly, unwelded planar-patch solids (c08
+   `slanted.mesh` watertight/euler, c10 `tess.prism_slant` counts regressed).
+   Fix: planarity gate — planar bezier faces keep the old ring path bit for
+   bit; only curved faces grid. Both regressions restored, cowl kept.
+7. Use-counting at O(U²) blew the perf.holes400 build budget (4.16s vs 2.0s).
+   Fix: sort-based singleton scan, O(U log U); build now 0.16s. Witness:
+   `perf.holes400` green with 12× headroom.
+
+## 7. Deferrals
+
+D-surf-queries (only `surf` is the certified open reporter; mass/extrema/
+section/tess run uncertified), D-surf-gensec (rect sweep profiles only),
+D-surf-thickcurv (no curved offsets), D-surf-360 (no closed tubes),
+D-surf-est (patch area/lengths are estimates, oracle-checked within 1%),
+D-surf-checkbez (duct `check` carries the C09 bezier verdict). All six are in
+contract §8 with the same IDs. No silent behavior anywhere: every deferred
+input is refused by name or labeled estimated.
+
+## 8. Change set
+
+Modified (vs HEAD; includes C16.1's still-uncommitted work): `src/c06/build`,
+`cli`, `model`, `revolve`, `sx`, `tess`, `zone`, `src/c09/feat.bend`,
+`src/c11/qdist.bend`, `src/c11/qinterf.bend` (837 insertions, 37 deletions
+total), `tests/c06/e2e.py`, `tools/laws/mutate.py`, `tools/mcp/bendcad-mcp.mjs`,
+`tools/mcp/language.md`, plus regenerated `*-report.json` artifacts. New for
+C16.2: `src/c16/surf.bend`, `laws/c16.2/{LAWS,PROOF}.bend`,
+`tests/c16.2/{pins.bend,e2e.py,neg.py,oracle.py}`, `docs/c16.2-{contract,
+intent,laws}.md`, this receipt. Capped gate-script copies and the HEAD
+worktree were removed after their runs.
+
+## 9. Independent verification
+
+- Reproduce the binary: `~/bin/bendbuild`, expect sha256 `2b0d7874…`.
+- Laws: capped `tools/laws/check.sh` copy → 18/18 `ALL PROOFS CHECK` both
+  modes; HEAD worktree → 16/16; the two new packets exist only after.
+- Mutants: `BEND=~/bin/bendcap python3 tools/laws/mutate.py` → 87/87 killed,
+  report sha256 `a503a7ab…`.
+- Pins: capped `tools/pins/run.sh` over the 21 files in §4 → 2485/2485.
+- Journeys: `python3 tests/c16.2/e2e.py` → 12/12;
+  `python3 tests/c16.2/neg.py` → 28/28; every earlier suite per §4;
+  `python3 tools/g3/gearbox.py <out> parts` → four commits + solved assembly.
+- Oracles are independent: `tests/c16.2/oracle.py` (closed forms + 200×200
+  patch grid), build123d read-back of both STEP files, trimesh mesh checks,
+  and the C09-behavior comparisons noted in §6.
+

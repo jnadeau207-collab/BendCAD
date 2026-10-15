@@ -1,0 +1,181 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 12,
+ "total": 12,
+ "results": [
+  {
+   "name": "patch.cowl",
+   "ok": true,
+   "checks": {
+    "oracle_area": 50.081797515158236,
+    "committed": true,
+    "header": true,
+    "edges": true,
+    "area": true,
+    "blen": true,
+    "sbbox": true,
+    "faces": true,
+    "vol": true
+   }
+  },
+  {
+   "name": "patch.slab",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "check": true,
+    "vol": true,
+    "faces": true,
+    "planes": true,
+    "genus": true,
+    "bbox": true
+   }
+  },
+  {
+   "name": "loft.duct",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "header": true,
+    "edges": true,
+    "area": true,
+    "blen": true,
+    "sbbox": true
+   }
+  },
+  {
+   "name": "loft.taper",
+   "ok": true,
+   "checks": {
+    "oracle_vol": 209.61870145576222,
+    "check_lines": 14,
+    "committed": true,
+    "check": true,
+    "vol": true,
+    "faces": true,
+    "genus": true
+   }
+  },
+  {
+   "name": "sweep.sector",
+   "ok": true,
+   "checks": {
+    "oracle_area": 100.53096491487338,
+    "committed": true,
+    "header": true,
+    "edges": true,
+    "area": true,
+    "blen": true
+   }
+  },
+  {
+   "name": "sweep.thick",
+   "ok": true,
+   "checks": {
+    "oracle_vol": 100.53096491487338,
+    "committed": true,
+    "check": true,
+    "vol": true,
+    "faces": true,
+    "genus": true
+   }
+  },
+  {
+   "name": "surf.edit",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "sbbox0": true,
+    "sbbox1": true,
+    "changed": true
+   }
+  },
+  {
+   "name": "surf.tess",
+   "ok": true,
+   "checks": {
+    "mesh_bb": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      10.0,
+      5.0,
+      0.16199999999999998
+     ]
+    ],
+    "oracle_crown": 0.16199999999999998,
+    "obj_verts": 115,
+    "obj_tris": 128,
+    "obj": true,
+    "bbox": true,
+    "crown": true,
+    "verts": true,
+    "tris": true
+   }
+  },
+  {
+   "name": "surf.step",
+   "ok": true,
+   "checks": {
+    "stp_volume": 99.99999999999997,
+    "duct_faces": 16,
+    "duct_kinds": [
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "PLANE",
+     "PLANE",
+     "PLANE",
+     "PLANE",
+     "PLANE",
+     "PLANE",
+     "PLANE",
+     "PLANE"
+    ],
+    "slab": true,
+    "solids": true,
+    "faces": true,
+    "volume": true,
+    "duct": true,
+    "dkinds": true,
+    "dvol": true
+   }
+  },
+  {
+   "name": "surf.replay",
+   "ok": true,
+   "checks": {
+    "oracle_vol": 240.0,
+    "nodes": true,
+    "committed": true,
+    "replay": true,
+    "archive": true,
+    "reopen": true
+   }
+  },
+  {
+   "name": "union.export",
+   "ok": true,
+   "checks": {
+    "solids": true,
+    "step": true
+   }
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "checks": {
+    "tool": true,
+    "parity": true
+   }
+  }
+ ]
+}

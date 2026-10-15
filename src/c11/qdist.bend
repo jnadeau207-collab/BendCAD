@@ -337,7 +337,9 @@ def dist_fin(ok: Bool, +b: M.Body, +x: F64, +y: F64, +z: F64) -> String:
 def dist_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing measured"
-    case M.NR_ok{+b, fx}: dist_fin(QI.fin3(x, y, z), b, x, y, z)
+    case M.NR_ok{+b, fx}:
+      Bool.pick(String, M.bd_open(b), "refused dist-needs-solid | dist | fix: thicken-open the shell to a solid first",
+        dist_fin(QI.fin3(x, y, z), b, x, y, z))
 
 def clear_go(+a: M.Body, +b: M.Body) -> String:
   clear_int(QI.rel_interf(a, b), a, b)
@@ -374,7 +376,9 @@ def clear_s(ra: M.NR, rb: M.NR) -> String:
     case M.NR_ok{+a, fa}:
       match rb:
         case M.NR_err{k, d}: "error: node failed; nothing measured"
-        case M.NR_ok{+b, fb}: clear_go(a, b)
+        case M.NR_ok{+b, fb}:
+          Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
+            "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_go(a, b))
 
 def bb_of(+b: Ty.Brep) -> QA.Ab:
   bb_seed(pt_abs(v_pts(Ty.brep_vs(b))), B.tb_of(Ty.Vertex, Ty.brep_vs(b), vx_dflt()), Ty.brep_es(b))
@@ -404,4 +408,5 @@ def wall_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing measured"
     case M.NR_ok{+b, fx}:
-      wall_body(Bool.not(Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(M.bd_brep(b))), 0n)), b)
+      Bool.pick(String, M.bd_open(b), "refused wall-needs-solid | wall | fix: thicken-open the shell to a solid first",
+        wall_body(Bool.not(Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(M.bd_brep(b))), 0n)), b))

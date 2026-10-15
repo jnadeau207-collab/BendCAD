@@ -3,9 +3,13 @@ import ../c00/types.bend as T
 import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 import ./iv.bend as I
+import ./xp.bend as X
 import ./build.bend as BD
 import ./model.bend as M
 import ./sx.bend as S
+import ../c16/sheet.bend as SH
+import ../c16/surf.bend as SU
+import ../c16/blade.bend as BA
 import ./tess.bend as TS
 import ../c10/mesh.bend as M10
 import ./zone.bend as Z
@@ -410,7 +414,10 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "wall"), 17u64, Bool.pick(U64, String.eq(c, "step"), 18u64,
   Bool.pick(U64, String.eq(c, "archive"), 19u64, Bool.pick(U64, String.eq(c, "stl"), 20u64,
   Bool.pick(U64, String.eq(c, "3mf"), 21u64, Bool.pick(U64, String.eq(c, "asm"), 22u64,
-  Bool.pick(U64, String.eq(c, "pmi"), 23u64, 0u64)))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "pmi"), 23u64,
+  Bool.pick(U64, String.eq(c, "flat"), 24u64,
+  Bool.pick(U64, String.eq(c, "surf"), 25u64,
+  Bool.pick(U64, String.eq(c, "blade"), 26u64, 0u64))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -526,12 +533,17 @@ def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(Unit):
         IO.print("wrote " ++ out ++ " archive BCAD1")
     case False{}: IO.print("refused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic curves and plane/sphere/cylinder/torus/bezier-patch faces")
 
+def arc_out_open(+open: Bool, +b: M.Body, +out: String, +lin: String) -> IO(Unit):
+  match open:
+    case True{}: IO.print("refused archive-open-shell-not-in-profile | archive | fix: thicken-open the shell to a solid first")
+    case False{}:
+      +e = BL.ar_mk("mm", lin, M.bd_brep(b))
+      arc_write_go(BL.es_ok_of(e), e, out)
+
 def arc_out(r: M.NR, +out: String, +lin: String) -> IO(Unit):
   match r:
     case M.NR_err{k, d}: IO.print("error: node failed; nothing archived")
-    case M.NR_ok{+b, fx}:
-      +e = BL.ar_mk("mm", lin, M.bd_brep(b))
-      arc_write_go(BL.es_ok_of(e), e, out)
+    case M.NR_ok{+b, fx}: arc_out_open(M.bd_open(b), b, out, lin)
 
 def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(Unit):
   match w:
@@ -781,6 +793,67 @@ def pmi_vc_go(+code: U64, +p: M.Part, +rest: List<&2, String>) -> IO(Unit):
 def pmi_run(+p: M.Part, +rest: List<&2, String>) -> IO(Unit):
   pmi_vc_go(PM.verb_code(S.arg_at(rest, 0n)), p, rest)
 
+def flat_k(+g: SH.GR, +id: U64, +sc: SH.SC, +e: X.Env, +klo: F64, +khi: F64) -> String:
+  match g:
+    case SH.GR_ok{}: SH.flat_rep(id, sc, e, klo, khi)
+    case SH.GR_no{+why, +fix}: "error invalid-input | flat | why: " ++ why ++ " | fix: " ++ fix
+
+def flat_sc(+ok: Bool, +sc: SH.SC, +e: X.Env, +id: U64, +klo: F64, +khi: F64) -> String:
+  match ok:
+    case False{}: "error invalid-input | flat | why: flat-needs-sheet | fix: run flat on a flat, bend or hem node"
+    case True{}: flat_k(SH.k_go(SH.k_ok(klo, khi), klo, khi), id, sc, e, klo, khi)
+
+def flat_nr(+ok: Bool, +sc: SH.SC, +e: X.Env, +id: U64, +klo: F64, +khi: F64) -> String:
+  match ok:
+    case False{}: "error: node " ++ U64.show(id) ++ "; nothing flattened"
+    case True{}: flat_sc(SH.sc_sc_ok(sc), sc, e, id, klo, khi)
+
+def flat_has(+has: Bool, +cs: List<&2, M.CE>, +ns: List<&2, M.Node>, +e: X.Env, +id: U64, +klo: F64,
+    +khi: F64) -> String:
+  match has:
+    case False{}: "error invalid-input | flat | why: unknown-node " ++ U64.show(id) ++ " | fix: name an evaluated node"
+    case True{}: flat_nr(M.nr_ok(node_res(cs, id)), M.sh_chain(ns, id), e, id, klo, khi)
+
+def flat_go(+p: M.Part, +xs: List<&2, String>) -> String:
+  M.Pt{+ps, +ns} = p
+  +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
+  +klo = f_or_nan(S.dec(S.arg_at(xs, 1n)))
+  +khi = f_or_nan(S.dec(S.arg_at(xs, 2n)))
+  +cs = M.ev_part(p, [])
+  flat_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id, klo, khi)
+
+def surf_nr(+ok: Bool, +so: SU.SO, +e: X.Env, +id: U64) -> String:
+  match ok:
+    case False{}: "error: node " ++ U64.show(id) ++ "; nothing surfaced"
+    case True{}: SU.surf_rep(id, so, e)
+
+def surf_has(+has: Bool, +cs: List<&2, M.CE>, +ns: List<&2, M.Node>, +e: X.Env, +id: U64) -> String:
+  match has:
+    case False{}: "error invalid-input | surf | why: unknown-node " ++ U64.show(id) ++ " | fix: name an evaluated node"
+    case True{}: surf_nr(M.nr_ok(node_res(cs, id)), M.su_chain(ns, id), e, id)
+
+def blade_nr(+ok: Bool, +bo: BA.BO, +e: X.Env, +id: U64) -> String:
+  match ok:
+    case False{}: "error: node " ++ U64.show(id) ++ "; nothing bladed"
+    case True{}: BA.blade_rep(id, bo, e)
+
+def blade_has(+has: Bool, +cs: List<&2, M.CE>, +ns: List<&2, M.Node>, +e: X.Env, +id: U64) -> String:
+  match has:
+    case False{}: "error invalid-input | blade | why: unknown-node " ++ U64.show(id) ++ " | fix: name an evaluated node"
+    case True{}: blade_nr(M.nr_ok(node_res(cs, id)), M.bl_chain(ns, id), e, id)
+
+def blade_go(+p: M.Part, +xs: List<&2, String>) -> String:
+  M.Pt{+ps, +ns} = p
+  +cs = M.ev_part(p, [])
+  +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
+  blade_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id)
+
+def surf_go(+p: M.Part, +xs: List<&2, String>) -> String:
+  M.Pt{+ps, +ns} = p
+  +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
+  +cs = M.ev_part(p, [])
+  surf_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id)
+
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   match code:
     case 1u64: IO.print(S.part_show(p))
@@ -810,7 +883,10 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 22u64: IO.print(AS.asm_go(p, rest))
     case 23u64: pmi_run(p, rest)
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi")
+    case 24u64: IO.print(flat_go(p, rest))
+    case 25u64: IO.print(surf_go(p, rest))
+    case 26u64: IO.print(blade_go(p, rest))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade")
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
   run_go(cmd_code(cmd), cmd, path, rest, load(src))

@@ -140,6 +140,15 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_pat_circ{base, n, r}: Z_err{"topology-not-certified-over-zone"}
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: Z_err{"topology-not-certified-over-zone"}
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_flat{l, w, t}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_bend{base, n, r, deg}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_hem{base, n, l}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_loft_open{z, bot, top, twist, cont}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_sw_open{deg, rs, g, gd, tw}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_patch{ps}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_thicken_open{base, t}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_naca4{m, p, t, c, n}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_blade{secs, z, tw, tp}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
 
 def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
@@ -169,6 +178,15 @@ def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
             case M.O_pat_circ{base, n, r}: False{}
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
+            case M.O_flat{l, w, t}: False{}
+            case M.O_bend{base, n, r, deg}: False{}
+            case M.O_hem{base, n, l}: False{}
+            case M.O_loft_open{z, bot, top, twist, cont}: False{}
+            case M.O_sw_open{deg, rs, g, gd, tw}: False{}
+            case M.O_patch{ps}: False{}
+            case M.O_thicken_open{base, t}: False{}
+            case M.O_naca4{m, p, t, c, n}: False{}
+            case M.O_blade{secs, z, tw, tp}: False{}
             case _: False{}
 
 def z_bool(+p: M.Part, +id: U64) -> Bool:
@@ -341,6 +359,15 @@ def sc_op(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +k: Nat) -> Sc:
             case M.O_pat_circ{base, n, r}: sc_none()
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: sc_none()
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: sc_none()
+            case M.O_flat{l, w, t}: sc_none()
+            case M.O_bend{base, n, r, deg}: sc_none()
+            case M.O_hem{base, n, l}: sc_none()
+            case M.O_loft_open{z, bot, top, twist, cont}: sc_none()
+            case M.O_sw_open{deg, rs, g, gd, tw}: sc_none()
+            case M.O_patch{ps}: sc_none()
+            case M.O_thicken_open{base, t}: sc_none()
+            case M.O_naca4{m, p, t, c, n}: sc_none()
+            case M.O_blade{secs, z, tw, tp}: sc_none()
             case _: sc_none()
 
 def sc_lp(s: Sc) -> F.Loop:
@@ -405,6 +432,15 @@ def node_ok(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +cs: List<&2, BD
             case M.O_pat_circ{base, n, r}: False{}
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
+            case M.O_flat{l, w, t}: False{}
+            case M.O_bend{base, n, r, deg}: False{}
+            case M.O_hem{base, n, l}: False{}
+            case M.O_loft_open{z, bot, top, twist, cont}: False{}
+            case M.O_sw_open{deg, rs, g, gd, tw}: False{}
+            case M.O_patch{ps}: False{}
+            case M.O_thicken_open{base, t}: False{}
+            case M.O_naca4{m, p, t, c, n}: False{}
+            case M.O_blade{secs, z, tw, tp}: False{}
             case _: False{}
 
 def rel_ok(+a: X.Xp, +b: X.Xp, +na: F64, +nb: F64, +z: ZT.Zb) -> Bool:
@@ -542,6 +578,15 @@ def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id
             case M.O_pat_circ{base, n, r}: False{}
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: False{}
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: False{}
+            case M.O_flat{l, w, t}: False{}
+            case M.O_bend{base, n, r, deg}: False{}
+            case M.O_hem{base, n, l}: False{}
+            case M.O_loft_open{z, bot, top, twist, cont}: False{}
+            case M.O_sw_open{deg, rs, g, gd, tw}: False{}
+            case M.O_patch{ps}: False{}
+            case M.O_thicken_open{base, t}: False{}
+            case M.O_naca4{m, p, t, c, n}: False{}
+            case M.O_blade{secs, z, tw, tp}: False{}
             case _:
               +cs = M.bd_cells(b)
               +ds = BD.cds_of(cs)
@@ -575,6 +620,15 @@ def prof_dz(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +z:
             case M.O_pat_circ{base, n, r}: dz_zero(ZT.zd_n(z))
             case M.O_ph_lin{base, f, nx, ny, dx, dy, x0, y0, r, d, thru}: dz_zero(ZT.zd_n(z))
             case M.O_ph_circ{base, f, n, rad, cx, cy, r, d, thru}: dz_zero(ZT.zd_n(z))
+            case M.O_flat{l, w, t}: dz_zero(ZT.zd_n(z))
+            case M.O_bend{base, n, r, deg}: dz_zero(ZT.zd_n(z))
+            case M.O_hem{base, n, l}: dz_zero(ZT.zd_n(z))
+            case M.O_loft_open{zh, bot, top, twist, cont}: dz_zero(ZT.zd_n(z))
+            case M.O_sw_open{deg, rs, g, gd, tw}: dz_zero(ZT.zd_n(z))
+            case M.O_patch{ps}: dz_zero(ZT.zd_n(z))
+            case M.O_thicken_open{base, t}: dz_zero(ZT.zd_n(z))
+            case M.O_naca4{m, p, t, c, n}: dz_zero(ZT.zd_n(z))
+            case M.O_blade{secs, zz, tw, tp}: dz_zero(ZT.zd_n(z))
             case _:
               +ds = BD.cds_of(M.bd_cells(b))
               cells_md(ds, B.tb_of(BD.Cd, ds, BD.cd_pad()), ns, z, n)

@@ -1,0 +1,180 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 11,
+ "total": 11,
+ "results": [
+  {
+   "name": "flat.blank",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "eval_vol": true,
+    "check": true,
+    "faces": true,
+    "header": true,
+    "legs": true,
+    "dev": true,
+    "blank": true
+   }
+  },
+  {
+   "name": "bend.single90",
+   "ok": true,
+   "checks": {
+    "seconds": 0.012128591537475586,
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "cyl": true,
+    "bbox": true,
+    "header": true,
+    "allow": true,
+    "legs": true,
+    "dev": true
+   }
+  },
+  {
+   "name": "bend.variants",
+   "ok": true,
+   "checks": {
+    "90n0": true,
+    "90n1": true,
+    "90n2": true,
+    "90n3": true,
+    "180n0": true,
+    "180n1": true,
+    "180n2": true,
+    "180n3": true,
+    "Uup": true,
+    "Udn": true,
+    "Uswap": true,
+    "hemT": true,
+    "hemB": true,
+    "hem2": true,
+    "hem3": true,
+    "tipU": true,
+    "tipD": true,
+    "tip2": true,
+    "tip3": true,
+    "tipUR": true,
+    "tipUL": true,
+    "tipUDR": true,
+    "tipUDL": true
+   }
+  },
+  {
+   "name": "bend.bracket",
+   "ok": true,
+   "checks": {
+    "seconds": 0.026897430419921875,
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "cyl": true,
+    "bbox": true,
+    "header": true,
+    "allows": true,
+    "hem": true,
+    "legs": true,
+    "dev": true
+   }
+  },
+  {
+   "name": "bend.hemflat",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "header": true,
+    "hem": true,
+    "legs": true,
+    "dev": true
+   }
+  },
+  {
+   "name": "bend.fold180",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "cyl": true,
+    "allow": true,
+    "bbox": true
+   }
+  },
+  {
+   "name": "bend.edit",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "dev0": true,
+    "dev1": true,
+    "vol1": true,
+    "legs1": true,
+    "sens": true
+   }
+  },
+  {
+   "name": "bend.tess",
+   "ok": true,
+   "checks": {
+    "mesh_bb": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      55.0,
+      50.0,
+      50.00000000000001
+     ]
+    ],
+    "mesh_vol": 10127.940583340067,
+    "obj": true,
+    "bbox": true,
+    "meshvol": true,
+    "verts": true
+   }
+  },
+  {
+   "name": "bend.step",
+   "ok": true,
+   "checks": {
+    "stp_volume": 15756.637060945108,
+    "stp_faces": 16,
+    "stp_cyl": 4,
+    "step": true,
+    "solids": true,
+    "faces": true,
+    "cyl": true,
+    "volume": true
+   }
+  },
+  {
+   "name": "bend.replay",
+   "ok": true,
+   "checks": {
+    "nodes": true,
+    "committed": true,
+    "replay": true,
+    "archive": true,
+    "reopen": true
+   }
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "checks": {
+    "tool": true,
+    "parity": true
+   }
+  }
+ ]
+}

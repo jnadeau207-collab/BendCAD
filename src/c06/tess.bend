@@ -319,6 +319,132 @@ def planar_tris(+rs: List<&2, List<&2, TP>>) -> List<&2, Tri>:
   +qs = projs_all(rs, ax_of(newell(r_hd(rs))))
   clip_rings(ql_hd(qs), ql_tl(qs))
 
+def bp_n() -> Nat:
+  8n
+
+def bp_dsub(+a: V.Point, +b: V.Point) -> V.Dir:
+  V.Dr{F64.sub(V.pt_x(a), V.pt_x(b)), F64.sub(V.pt_y(a), V.pt_y(b)), F64.sub(V.pt_z(a), V.pt_z(b))}
+
+def bp_cros(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.sub(F64.mul(V.dr_y(a), V.dr_z(b)), F64.mul(V.dr_z(a), V.dr_y(b))),
+    F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
+    F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
+
+def bp_nr2(+d: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(V.dr_x(d), V.dr_x(d)), F64.mul(V.dr_y(d), V.dr_y(d))),
+    F64.mul(V.dr_z(d), V.dr_z(d)))
+
+def bp_dot(+a: V.Dir, +b: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(V.dr_x(a), V.dr_x(b)), F64.mul(V.dr_y(a), V.dr_y(b))),
+    F64.mul(V.dr_z(a), V.dr_z(b)))
+
+def bp_dev(+p: V.Point, +o: V.Point, +n: V.Dir, +tol: F64) -> Bool:
+  F64.is_le(F64.abs(bp_dot(bp_dsub(p, o), n)), tol)
+
+def bp_flat(+w: G.BezP, +o: V.Point, +n: V.Dir, +tol: F64) -> Bool:
+  G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30,
+    +p31, +p32, +p33} = w
+  Bool.and(bp_dev(p00, o, n, tol),
+    Bool.and(bp_dev(p01, o, n, tol),
+      Bool.and(bp_dev(p02, o, n, tol),
+        Bool.and(bp_dev(p03, o, n, tol),
+          Bool.and(bp_dev(p10, o, n, tol),
+            Bool.and(bp_dev(p11, o, n, tol),
+              Bool.and(bp_dev(p12, o, n, tol),
+                Bool.and(bp_dev(p13, o, n, tol),
+                  Bool.and(bp_dev(p20, o, n, tol),
+                    Bool.and(bp_dev(p21, o, n, tol),
+                      Bool.and(bp_dev(p22, o, n, tol),
+                        Bool.and(bp_dev(p23, o, n, tol),
+                          Bool.and(bp_dev(p30, o, n, tol),
+                            Bool.and(bp_dev(p31, o, n, tol),
+                              Bool.and(bp_dev(p32, o, n, tol), bp_dev(p33, o, n, tol))))))))))))))))
+
+def bp_planar(+w: G.BezP) -> Bool:
+  G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30,
+    +p31, +p32, +p33} = w
+  +e1 = bp_dsub(p03, p00)
+  +e2 = bp_dsub(p30, p00)
+  +n = bp_cros(e1, e2)
+  +nl = F64.sqrt(bp_nr2(n))
+  +ex = F64.max(F64.sqrt(bp_nr2(e1)), F64.sqrt(bp_nr2(e2)))
+  Bool.pick(Bool, F64.is_eq(nl, 0.0f64), False{},
+    bp_flat(G.Bp{p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33},
+      p00, n, F64.mul(1.0e-9f64, F64.mul(nl, ex))))
+
+def bp_curved(+s: G.GVal) -> Bool:
+  match s:
+    case G.GV_bp{+w}: Bool.not(bp_planar(w))
+    case _: False{}
+
+def bp_ev(+b: G.BezP, +u: F64, +v: F64) -> V.Point:
+  G.gres_p(GO.bezp_eval(b, u, v))
+
+def bp_row_go(+k: Nat, +b: G.BezP, +v: F64, +n: Nat) -> List<&2, V.Point>:
+  match k:
+    case 0n: [bp_ev(b, 1.0f64, v)]
+    case 1n+j: List.append(&2, V.Point, [bp_ev(b, F64.div(nf(Nat.sub(n, k)), nf(n)), v)],
+      bp_row_go(j, b, v, n))
+
+def bp_grid_go(+k: Nat, +b: G.BezP, +n: Nat) -> List<&2, V.Point>:
+  match k:
+    case 0n: bp_row_go(n, b, 1.0f64, n)
+    case 1n+j: List.append(&2, V.Point, bp_row_go(n, b, F64.div(nf(Nat.sub(n, k)), nf(n)), n),
+      bp_grid_go(j, b, n))
+
+def bp_grid(+b: G.BezP) -> List<&2, V.Point>:
+  +n = bp_n()
+  bp_grid_go(n, b, n)
+
+def bp_cell(+i: Nat, +j: Nat, +base: Nat, +w: Nat) -> List<&2, Tri>:
+  +a = Nat.add(base, Nat.add(Nat.mul(j, w), i))
+  +b = Nat.add(a, 1n)
+  +c = Nat.add(a, w)
+  +d = Nat.add(c, 1n)
+  [Tri{a, b, d}, Tri{a, d, c}]
+
+def bp_trow_go(+k: Nat, +j: Nat, +base: Nat, +w: Nat, +n: Nat) -> List<&2, Tri>:
+  match k:
+    case 0n: []
+    case 1n+t: List.append(&2, Tri, bp_cell(Nat.sub(n, k), j, base, w), bp_trow_go(t, j, base, w, n))
+
+def bp_tgrid_go(+k: Nat, +base: Nat, +w: Nat, +n: Nat) -> List<&2, Tri>:
+  match k:
+    case 0n: []
+    case 1n+t: List.append(&2, Tri, bp_trow_go(n, Nat.sub(n, k), base, w, n),
+      bp_tgrid_go(t, base, w, n))
+
+def bp_tris(+base: Nat) -> List<&2, Tri>:
+  +n = bp_n()
+  bp_tgrid_go(n, base, Nat.add(n, 1n), n)
+
+def bp_grid_of(+s: G.GVal) -> List<&2, V.Point>:
+  match s:
+    case G.GV_bp{+w}: bp_grid(w)
+    case _: []
+
+def face_bp_go(+solo: Bool, +s: G.GVal) -> List<&2, V.Point>:
+  match solo:
+    case False{}: []
+    case True{}: Bool.pick(List<&2, V.Point>, bp_curved(s), bp_grid_of(s), [])
+
+def bp_used() -> Nat:
+  +w = Nat.add(bp_n(), 1n)
+  Nat.mul(w, w)
+
+def bp_est() -> Nat:
+  Nat.mul(2n, Nat.mul(bp_n(), bp_n()))
+
+def bp_solo(ls: List<&2, Ty.HLoop>) -> Bool:
+  Nat.is_eq(List.length(&2, Ty.HLoop, ls), 1n)
+
+def bp_ps_of(fs: List<&2, Ty.Face>) -> List<&2, V.Point>:
+  match fs:
+    case []: []
+    case f <> t:
+      Ty.Fa{g, +s, ls, +same} = f
+      List.append(&2, V.Point, face_bp_go(bp_solo(ls), s), bp_ps_of(t))
+
 def tp_ids(xs: List<&2, TP>) -> List<&2, Nat>:
   match xs:
     case []: []
@@ -459,6 +585,7 @@ def fix_go(ts: List<&2, Tri>, +ps: B.Tb<&2, V.Point>, +k: U64, +same: Bool, +n: 
 def surf_k(s: G.GVal) -> U64:
   match s:
     case G.GV_cy{w}: 1u64
+    case G.GV_bp{w}: 2u64
     case _: 0u64
 
 def face_go(+k: U64, +rs: List<&2, List<&2, TP>>, +c: V.Point) -> List<&2, Tri>:
@@ -468,17 +595,24 @@ def face_go(+k: U64, +rs: List<&2, List<&2, TP>>, +c: V.Point) -> List<&2, Tri>:
         cyl1_tris(r_hd(rs)))
     case _: planar_tris(rs)
 
-def face_tris(f: Ty.Face, +x: Ctx, +ps: B.Tb<&2, V.Point>) -> List<&2, Tri>:
+def face_bp_used(f: Ty.Face) -> Nat:
   Ty.Fa{g, +s, ls, +same} = f
+  Bool.pick(Nat, Bool.and(Bool.and(U64.is_eq(surf_k(s), 2u64), bp_solo(ls)), bp_curved(s)), bp_used(), 0n)
+
+def face_tris(f: Ty.Face, +x: Ctx, +ps: B.Tb<&2, V.Point>, +base: Nat) -> List<&2, Tri>:
+  Ty.Fa{g, +s, +ls, +same} = f
   +rs = rings(ls, x)
   +c = cyl_c(s)
   +k = surf_k(s)
-  fix_go(face_go(k, rs, c), ps, k, same, newell(r_hd(rs)), c)
+  +isbp = Bool.and(Bool.and(U64.is_eq(k, 2u64), bp_solo(ls)), bp_curved(s))
+  fix_go(Bool.pick(List<&2, Tri>, isbp, bp_tris(base), face_go(k, rs, c)), ps, k, same,
+    newell(r_hd(rs)), c)
 
-def faces_tris(fs: List<&2, Ty.Face>, +x: Ctx, +ps: B.Tb<&2, V.Point>) -> List<&2, Tri>:
+def faces_tris(fs: List<&2, Ty.Face>, +x: Ctx, +ps: B.Tb<&2, V.Point>, +base: Nat) -> List<&2, Tri>:
   match fs:
     case []: []
-    case f <> t: List.append(&2, Tri, face_tris(f, x, ps), faces_tris(t, x, ps))
+    case +f <> t:
+      List.append(&2, Tri, face_tris(f, x, ps, base), faces_tris(t, x, ps, Nat.add(base, face_bp_used(f))))
 
 def rings_n(rs: List<&2, List<&2, TP>>) -> Nat:
   match rs:
@@ -495,8 +629,10 @@ def est_face(f: Ty.Face, +x: Ctx) -> Nat:
   +rs = rings(ls, x)
   +n = rings_n(rs)
   +h = rings_h(rs)
-  Bool.pick(Nat, U64.is_eq(surf_k(s), 1u64), M10.tri_est_strip(n),
-    M10.tri_est_add(n, Nat.mul(2n, h)))
+  +k = surf_k(s)
+  Bool.pick(Nat, U64.is_eq(k, 1u64), M10.tri_est_strip(n),
+    Bool.pick(Nat, Bool.and(Bool.and(U64.is_eq(k, 2u64), Nat.is_eq(h, 1n)), bp_curved(s)), bp_est(),
+      M10.tri_est_add(n, Nat.mul(2n, h))))
 
 def est_faces(fs: List<&2, Ty.Face>, +x: Ctx) -> Nat:
   match fs:
@@ -618,11 +754,12 @@ def obj_fs(ts: List<&2, Tri>) -> String:
 def pri_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   +br = M.bd_brep(b)
   +ps = all_pts(br, q)
-  +tb = B.tb_of(V.Point, ps, pz())
+  +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
+  +tb = B.tb_of(V.Point, all, pz())
   +mq = meas_go(Ty.brep_es(br), smps(Ty.brep_es(br), q), vx_pts(Ty.brep_vs(br)))
-  +ts = faces_tris(Ty.brep_fas(br), ctx_of(br, q), tb)
-  M10.tres_ok(obj_vs(ps, M.bd_pl(b)) ++ obj_fs(ts),
-    List.length(&2, V.Point, ps), List.length(&2, Tri, ts), est,
+  +ts = faces_tris(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps))
+  M10.tres_ok(obj_vs(all, M.bd_pl(b)) ++ obj_fs(ts),
+    List.length(&2, V.Point, all), List.length(&2, Tri, ts), est,
     mq_chord(mq), mq_ang(mq), mq_n(mq))
 
 def pri_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:

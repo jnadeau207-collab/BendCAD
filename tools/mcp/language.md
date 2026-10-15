@@ -360,6 +360,82 @@ satisfying configuration. `explode` needs `dx dy dz gap`: instance `k` moves
   (plane 3 shaft 0 0 5 0 0 1 10))
 ```
 
+## Sheet metal (C16.1)
+
+`(flat L W T)` is the blank: the block [0,L] x [0,W] x [0,T].
+`(bend BASE (edge N) R DEG)` bends the flange past edge N of a flat or
+single-bent sheet with inner radius R: N 0 is the +x end up, 1 the +x
+end down, 2 the -x end up, 3 the -x end down; DEG is 90 or 180. The
+bend line sits at mid-length; R/T must clear the certified bound and
+the blank must exceed twice the outer radius. `(hem BASE (edge N) L)`
+folds a closed hem of length L: on a flat end it doubles the sheet
+over L, after a single 90-degree bend it folds the bent flange tip.
+Double bends form U channels (opposite ends, same direction, equal
+radii); a hem may then fold one flange tip. Anything else — a third
+bend, a Z, a 180 with a hem, a bend after a hem, a second hem — is
+refused by name and publishes nothing. Bends keep every dimension an
+expression of the design parameters, so param edits propagate through
+the part and its flat pattern. Pockets, holes and zones do not apply
+to sheet bodies: they answer the existing refusals.
+
+`flat NODE KLO KHI` reports the flat pattern of a sheet node over the
+K-factor zone 0 < KLO <= KHI < 1: one certified allowance interval
+per bend, the hem lines, the developed runs, the developed length
+interval and the blank box. The MCP `flat_pattern` tool takes
+(design, node, klo, khi) and prints the same text.
+
+## Surface modeling (C16.2)
+
+`(loft-open Z BOT TOP)` is the open walls of the C09 admitted planar loft:
+two axis-aligned rect loops, G0, no caps. `(sweep-open (arc DEG) REGION)`
+is the open walls of one axis-aligned rect profile revolved DEG degrees
+(90, 180 or 270) about the z axis, no end caps. `(patch (pt X Y Z) x 16)`
+is one bicubic Bezier face through 16 control points. `(thicken-open BASE T)`
+closes an open shell into a solid with wall thickness T: rect patches close
+to slabs, rect ducts and rect sectors to tubes with a through-channel.
+Curved patches, cone walls and oversize T refuse by name and publish nothing.
+Open shells validate under the open-shell-1 profile; check, classify, dist,
+interf, clearance and wall refuse open shells by name, and STEP export and
+archive of an open shell are refused — thicken first, then measure and export.
+
+`surf NODE` reports an open-shell node: one row per boundary edge with its
+durable name `nN.eI` and certified or estimated length, the area, the
+boundary length and the bounding box. The MCP `surface` tool takes
+(design, node) and prints the same text.
+
+```
+(node 1 (loft-open 8
+  (region (path 0 0 (line 10 0) (line 10 5) (line 0 5)))
+  (region (path 1 1 (line 9 1) (line 9 4) (line 1 4))))
+  (intent create any any any any))
+```
+
+## Blade sections (C16.3)
+
+`(naca4 M P T C NPTS)` is a NACA 4-digit section of chord C: max
+camber M percent, camber position P tenths, max thickness T percent,
+NPTS uniform stations per surface (17, 33 or 65). Digits admit M 0-9,
+P 0-9 with P nonzero when M is nonzero, T 06-24; the section publishes
+as the unit-span slab so it measures like any solid. `(blade S0 S1 ...
+Z TWIST TAPER)` stacks 2 to 8 naca4 sections into one ruled-loft solid
+over span Z: linear twist schedule to TWIST degrees (0, 10, 20 or 30)
+about the quarter-chord stacking axis, linear taper to TAPER tip-chord
+percent (50, 75 or 100). Sections must share points and chord; anything
+else is refused by name and publishes nothing. Blades are closed solids:
+measure, check, tessellate, STEP and archive all apply; features, zones
+and pockets answer the existing refusals.
+
+`blade NODE` reports a blade node: one row per section with its digits,
+chord, stacking height, certified area, centroid, max thickness and max
+camber intervals, the stacking-axis deviation and the twist schedule.
+The MCP `blade` tool takes (design, node) and prints the same text.
+
+```
+(node 1 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 2 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 3 (blade 1 2 200 20 75) (intent create any any any any))
+```
+
 ## Semantic PMI
 
 `pmi` binds dimensions, tolerances and datum reference frames to durable

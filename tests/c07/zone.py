@@ -154,10 +154,11 @@ def main():
             continue
         out, dt = cli(d, 'zone', str(t))
         record(f'zone.neg.{name}', 'topology-not-certified-over-zone' in out and 'numerical-uncertainty' in out, out=out.strip()[:200], secs=round(dt, 3))
-    blob = json.dumps(RESULTS, indent=1, sort_keys=True)
-    open(OUT, 'w', newline='\n').write(blob)
     fails = [r['name'] for r in RESULTS if not r['ok']]
-    print(f'{len(RESULTS) - len(fails)}/{len(RESULTS)} passed; sha256 {hashlib.sha256(blob.encode()).hexdigest()}')
+    rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=len(RESULTS) - len(fails), total=len(RESULTS), results=RESULTS)
+    blob = json.dumps(rep, indent=1, sort_keys=True)
+    open(OUT, 'w', newline='\n').write(blob)
+    print(f'{rep["passed"]}/{rep["total"]} passed; sha256 {hashlib.sha256(json.dumps(RESULTS, sort_keys=True).encode()).hexdigest()}')
     if fails:
         print('FAILED:', fails)
         sys.exit(1)

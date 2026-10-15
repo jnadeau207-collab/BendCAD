@@ -55,7 +55,8 @@ def main():
         if name not in seen:
             results.append(dict(name=name, ok=False, codes=[], findings='missing'))
             print('FAIL ' + name, 'missing', b.stderr[-400:])
-    rep = dict(passed=sum(x['ok'] for x in results), total=len(results), build_s=round(build_s, 1), run_s=round(run_s, 2), results=results)
+    sha = wsl(f'sha256sum {BIN}', 60).stdout.split()[0]
+    rep = dict(binary_sha256=sha, passed=sum(x['ok'] for x in results), total=len(results), build_s=round(build_s, 1), run_s=round(run_s, 2), results=results)
     blob = json.dumps(rep, indent=1, sort_keys=True)
     open(OUT, 'w', newline='\n').write(blob)
     print(f"{rep['passed']}/{rep['total']} passed in {rep['run_s']}s; sha256 {hashlib.sha256(json.dumps(results, sort_keys=True).encode()).hexdigest()}")

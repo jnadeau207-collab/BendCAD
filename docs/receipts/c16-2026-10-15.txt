@@ -1,0 +1,191 @@
+# C16 receipt — 2026-10-15 (specialized modeling closed)
+
+C16 delivers specialized modeling in ladder order as three sub-packets:
+C16.1 sheet metal, C16.2 surface modeling, C16.3 blade/airfoil sections and
+stacking (for G5). Each sub-packet carries its own laws, pins, E2E/neg
+journeys, contract/intent/laws docs, MCP tooling, and receipt
+(`docs/receipts/c16.1-2026-10-14.txt`, `docs/receipts/c16.2-2026-10-15.txt`,
+`docs/receipts/c16.3-2026-10-15.txt`); this receipt closes the packet with
+the combined A2 exit matrix and measured evidence on the final binary.
+
+Verdict: CLOSED. 47 new laws (579/579 tree-wide both modes), 10 new mutant
+families (91/91 tree-wide), 216 new pins (51/51 c16.3 fresh on final
+sources; tree-wide 22-file re-run in §8), 34 new E2E + 78 new neg journeys,
+every earlier gate re-proven, and the G3 parts gate green.
+
+## 1. Provenance and build recipe
+
+- HEAD `5e8de26` at close; the whole of C16 was built uncommitted on top.
+  Commit and push follow the verification pass (§7).
+- `bend 2.0.35`, fork `a4d17a` tag `numeric/2026-10-05`, never `bend update`;
+  `BEND_PIN` unchanged; `BEND_NO_TELEMETRY=1`; every `bend` through
+  `~/bin/bendcap` with a timeout, one heavy op at a time.
+- Final binary `/home/jesse/bc/bendcad` sha256 `43ec497d…` (full:
+  `43ec497d6e3219d4cf857a4c3ab88141de79a5a485c1fb80dc2377d00eaefcb5`),
+  built by `~/bin/bendbuild` from `src/c06/cli.bend` after the last source
+  edit. Build shas are NOT stable across builds; the sha identifies this
+  binary, not the tree.
+- Nothing under `legacy/` touched; no placeholder, fallback, weakened
+  tolerance, disabled test, or restated theorem. Zero `//` comments in
+  every new `.bend` file.
+
+## 2. A2 exit matrix (packet roll-up)
+
+One row per sub-packet; each sub-receipt holds the full per-behavior matrix
+with the same columns.
+
+| Behavior | Contract/law anchor | Proof artifact | E2E journey | Neg journey | Pins | Oracle / mutant | Verdict |
+|---|---|---|---|---|---|---|---|
+| C16.1 sheet metal: flat/bend/hem solids, certified allowances, exact legs/developed/blank | c16.1 contract; F1–F3 (15 laws) | c16.1 receipt §2 (7 rows) | 11/11 (`flat.blank`, `bend.*`, `bend.tess/step/replay`, `mcp.parity`) | 25/25 verbatim, design untouched | 93/93 | ORCL + MUT (3 families) | PASS |
+| C16.2 surface modeling: loft/sweep-open walls, patch cowls, certified surf reporter, thicken to solids | c16.2 contract; F1–F3 (17 laws) | c16.2 receipt §2 (11 rows) | 12/12 (`loft.duct`, `sweep.sector`, `patch.*`, `surf.*`, `union.export`, `mcp.parity`) | 28/28 verbatim, design untouched | 72/72 | ORCL + MUT (3 families) | PASS |
+| C16.3 blades: NACA sections as slabs, ruled stacks, certified section reports | c16.3 contract; F1–F4 (15 laws) | c16.3 receipt §2 (10 rows) | 11/11 on 43ec497d (`section.*`, `blade.*`, `tip.clearance`, `mcp.parity`) | 25/25 on 43ec497d, design untouched | 51/51 (report newer than all sources) | ORCL + MUT (4 families) | PASS |
+| Agent interface parity across C16 | tools/mcp/language.md | same CLI path | `mcp.parity` × 3 (flat_pattern, surface, blade text-equal) | — | n/a | CLI diff | PASS |
+| Earlier gates still pass | every prior receipt | re-proof | verification re-run §7 | verification re-run §7 | verification re-run §7 | — | PASS |
+| G3 gearbox still builds and assembles | docs/g3-gearbox-design.md | parts gate | four commits + `asm solved … dof 0` (§4) | — | n/a | residual 8.5e-14 | PASS |
+
+Matrix closure: all 47 C16 laws appear above by sub-packet family, all 34
+new E2E and all 78 new neg journeys, all 216 new pins.
+
+## 3. Combined law proof
+
+19/19 packets, 579/579 laws, `ALL PROOFS CHECK` under `--check-only` and
+again under `--verdict` (log `/tmp/c163-laws/results.txt`; per-packet table
+in the c16.3 receipt §3). No law changed verdict in either direction from
+the C16.2 close-out (564/564 then): the 18 prior packets re-prove against
+final shared sources with identical verdicts.
+
+Mutation (`BEND=~/bin/bendcap python3 tools/laws/mutate.py`): 91/91 killed,
+report sha256 `bfef6c32…`, every verdict `SOME PROOFS FAIL`, including all
+10 C16 families (3 + 3 + 4).
+
+## 4. Observed results (final binary 43ec497d unless noted)
+
+- Laws: §3, 579/579 both modes, exit 0.
+- Mutation: 91/91 killed, report sha256 `bfef6c32…`.
+- Pins: c16.3 51/51 fresh on final sources (report `ff11cf16…`); c16.1 93/93
+  and c16.2 72/72 last measured on 2b0d7874-tree sources. Tree-wide re-run
+  over all 22 files in §7.
+- Journeys: c16.3 11/11 E2E + 25/25 neg on 43ec497d (§4 of its receipt).
+  c16.1/c16.2 and all earlier suites last green on 2b0d7874 (922 journeys
+  per the c16.2 receipt §4); every suite is re-run on the final binary in
+  §7 before commit.
+- G3 parts gate (`python3 tools/g3/gearbox.py /tmp/g3-c163 parts`): housing,
+  lid, drivetrain, purchased all committed; asm solved 119 instances,
+  122 mates, dof 0, max residual 8.526512829121202e-14. Green.
+
+## 5. G3 section-3 disposition (explicit)
+
+Where a C16 sub-packet touched a kernel limit from section 3 of
+`docs/g3-gearbox-design.md`, the fix-or-record rule applied:
+
+- Side-blind cell obstacles, contact unions that do not fuse, thin tori
+  failing validation, ring pockets around a face hole: untouched by all
+  three sub-packets. C16.3 proves the existing refusals still answer
+  verbatim (`ring.inherit`, `obstacle.inherit`); no C16 builder depends on
+  the deferred behavior.
+- No CONICAL_SURFACE in the STEP writer: untriggered — no C16 builder
+  emits cone or torus surfaces (C16.1 emits planes/cylinders, C16.2 planes
+  and bilinear beziers, C16.3 planes and bilinear beziers; the exact
+  face-kind splits are asserted on read-back in each sub-packet's STEP
+  journey).
+- C16.2 repaired adjacent STEP/archive honesty gaps at the root cause
+  (shell kinds derived from edge-use counts instead of unconditional
+  outer; archive refuses open shells at write time); see its receipt §6.
+  Nothing was worked around silently.
+
+## 6. Shipped delta (whole packet)
+
+- `src/c16/{sheet,surf,blade}.bend` (new, 891 + 1149 + 629 lines): the
+  three C16 kernels; zero `//` comments in all three.
+- `src/c06/model.bend`: `O_flat/O_bend/O_hem`, `O_loft_open/O_sw_open/
+  O_patch/O_thicken_open`, `O_naca4/O_blade` with evaluators, staged
+  gates, `why_unsup` arms, and split sheet dispatch (the 13-branch
+  `op_of_feat` trips the C-backend WIDE=247 limit; see the c16.1
+  receipt §5).
+- `src/c06/sx.bend`: all C16 node forms + `sx_show` round-trips.
+- `src/c06/cli.bend`: `flat` (24), `surf` (25), `blade` (26) verbs.
+- `src/c06/zone.bend`: explicit C16 arms answering
+  `topology-not-certified-over-zone`.
+- `src/c06/build.bend` + call sites in `src/c06/revolve.bend`,
+  `src/c09/feat.bend`: shell kinds from edge-use counts (sort-based
+  O(U log U)); `src/c06/tess.bend`: 8×8 interior grid for curved bezier
+  faces behind a planarity gate (planar path bit-identical);
+  `src/c11/qdist.bend`, `src/c11/qinterf.bend`: open-shell refusals.
+- `tools/mcp/bendcad-mcp.mjs` + `tools/mcp/language.md`: `flat_pattern`,
+  `surface`, `blade` tools with Sheet metal, Surface modeling, Blade
+  sections reference sections.
+- `tests/c06/e2e.py` (1 line): exact MCP tool-set gains the three tools.
+- Laws/proofs (47/47), mutants (10 families), pins (216), journeys
+  (34 E2E + 78 neg), oracles, contracts/intents/laws docs, three
+  sub-receipts, this receipt.
+- `README.md`: specialized modeling moved Shipped; `MASTER_PLAN.md`: C16
+  closed, next is C13 (§10 exit wording kept aspirational per the C08
+  convention; shipped profiles are the three contract §8 sections plus
+  the deferrals below).
+
+## 7. Deferrals carried (explicit, not silent)
+
+Contract §8 of each sub-packet with the same IDs: D-sheet-z/asym/side/
+hembend/features, OM-rtfloor, D-buildmem (c16.1); D-surf-queries/gensec/
+thickcurv/360/est/checkbez (c16.2); D-blade-checkbez/curve/feat/lean/
+cosine (c16.3). Every deferred input is refused by name or labeled
+estimated in the shipped verbs.
+
+## 8. Independent verification
+
+- Reproduce the binary: `~/bin/bendbuild` on the commit below.
+- Laws: capped `tools/laws/check.sh` copy → 19/19 both modes.
+- Mutants: `BEND=~/bin/bendcap python3 tools/laws/mutate.py` → 91/91 killed,
+  report sha256 `bfef6c32…`.
+- Pins: `tools/pins/run.sh` over `tests/*/pins*.bend` → 2536/2536 over 22 files (PINS-EXIT=0).
+- Journeys: every `tests/c*/e2e.py`, `neg.py` and the c07 suites on the
+  final binary → 958/958 over 25 suites (every exit=0).
+- G3: `python3 tools/g3/gearbox.py <out> parts` → four commits + solved
+  assembly.
+- C16 verification workflow appendix: appended below before commit.
+
+### 8.1 C16 verification appendix — 2026-10-15 (verification binary 25457028)
+
+Independent close-out sweep over the final tree, discharging the §4
+deferral. Verification binary `/home/jesse/bc/bendcad` sha256
+`25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d`,
+built by `~/bin/bendbuild` (no args); it differs from the §1 `43ec497d`
+sha as expected — build shas are NOT stable across builds, and the sha
+identifies the binary, not the tree. `BEND_NO_TELEMETRY=1` throughout;
+every bend via `~/bin/bendcap` with a timeout, max one heavy bend op at
+a time; temp gate-script copies removed after their runs; no
+source/law/pin edits and no commits during the sweep.
+
+- Laws: 19/19 `laws/*/PROOF.bend` print `ALL PROOFS CHECK` under
+  `--check-only` and again under `--verdict`; 579/579 laws total
+  (13+8+10+16+10+104+34+6+5+4+2+18+65+64+153+20+15+17+15), 0 bad
+  lines (log `/tmp/bendcad-laws-c16verify/results.txt`).
+- Mutation (`BEND=~/bin/bendcap python3 tools/laws/mutate.py`): 91/91
+  mutants killed, every verdict `SOME PROOFS FAIL`, report sha256
+  `bfef6c32736db3918e6cdc9ae312ba944bccf43286b8ef7a6beba70f08c9973c`
+  (log `/tmp/bendcad-mut-c16verify.log`), including all 10 C16
+  families (3 + 3 + 4).
+- Pins: tree-wide 2536/2536 over all 22 `tests/*/pins*.bend` files,
+  PINS-EXIT=0, 0 build fails, 0 pin fails — including c16.1 93/93,
+  c16.2 72/72, c16.3 51/51 (log `/tmp/bendcad-pins-c16verify.log`).
+- Journeys: 25/25 suites green, 958/958 journeys, every exit=0, 0 FAIL
+  lines (log `/tmp/bendcad-e2e-c16verify.log`): c06/e2e 62/62; c07/e2e
+  328/328, solid 34/34, solid_neg 13/13, zone 33/33; c08 e2e 108/108,
+  neg 20/20; c09 e2e 29/29, neg 27/27; c10 e2e 11/11, neg 12/12;
+  c11 e2e 33/33, neg 19/19; c12 e2e 17/17, neg 24/24; c14 e2e 16/16,
+  neg 18/18; c15 e2e 13/13, neg 29/29; c16.1 e2e 11/11, neg 25/25;
+  c16.2 e2e 12/12, neg 28/28; c16.3 e2e 11/11, neg 25/25. All 25
+  reports carry binary_sha256 of the verification binary (solid-neg
+  carries the sha of its `/tmp/bc-solid-neg` test binary, as
+  designed); the 4 c07 report writers gained binary_sha256 in a
+  harness-only change (no `.bend` touched, zero weakening).
+- G3 parts gate (`python3 tools/g3/gearbox.py /tmp/bc-g3-c16verify
+  parts`, exit 0): housing committed 0.2s, lid committed 0.4s,
+  drivetrain committed 1.4s, purchased committed 1.4s; `asm solved
+  ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14`;
+  report stages all committed (`/tmp/bc-g3-c16verify/report.json`).
+
+C16 verdict on the verification binary: 47 new laws inside 579/579,
+10/10 C16 mutant families killed inside 91/91, 216 new pins inside
+2536/2536 over 22 files, 34 new E2E + 78 new neg inside 958/958 over
+25 suites, G3 green — CLOSED.

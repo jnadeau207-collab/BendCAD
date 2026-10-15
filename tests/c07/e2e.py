@@ -475,7 +475,9 @@ def main():
     random_ss(int(os.environ.get('C07_N3', '60')))
     random_patch(int(os.environ.get('C07_N4', '20')))
     random_nurbs(int(os.environ.get('C07_N5', '30')))
-    rep = dict(passed=sum(r['ok'] for r in RESULTS), total=len(RESULTS), mean_query_s=sum(TIMES) / max(len(TIMES), 1),
+    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
+    sha = subprocess.run([*pre, 'sha256sum', BIN], capture_output=True, text=True, timeout=120).stdout.split()[0]
+    rep = dict(binary_sha256=sha, passed=sum(r['ok'] for r in RESULTS), total=len(RESULTS), mean_query_s=sum(TIMES) / max(len(TIMES), 1),
                max_query_s=max(TIMES) if TIMES else 0, results=RESULTS)
     json.dump(rep, open(OUT, 'w'), indent=1, default=str)
     print(f"{rep['passed']}/{rep['total']} passed; mean {rep['mean_query_s']:.3f}s max {rep['max_query_s']:.3f}s")

@@ -565,5 +565,75 @@
   "file": "src/c15/pmi.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F1 loop edge skips its successor",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F2 flat rows drop every bend row",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.1",
+  "law": "F3 bad angles are accepted",
+  "file": "src/c16/sheet.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F1 interior wall use flipped breaks balance",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F2 surf rows drop every boundary row",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.2",
+  "law": "F3 curved thickens are accepted",
+  "file": "src/c16/surf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F1 ring step skips its successor",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F2 wall loop use flipped breaks balance",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F3 blade rows drop every section row",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c16.3",
+  "law": "F4 bad twists are accepted",
+  "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

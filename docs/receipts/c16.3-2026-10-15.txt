@@ -1,0 +1,277 @@
+# C16.3 receipt — 2026-10-15 (blade/airfoil sections and stacking closed)
+
+C16.3 adds blade/airfoil modeling for G5 on top of C16.1/C16.2: NACA 4-digit
+sections published as unit-span slabs, ruled-loft blade stacks with certified
+twist/taper schedules, and the certified `blade` section reporter. Two new ops
+(`naca4`, `blade`), one new verb (`blade`), one new MCP tool (`blade`), 15 new
+laws, 51 new pins, 11 E2E and 25 negative journeys. Every gate below ran on the
+final tree with the final binary unless a section says otherwise.
+
+## 1. Provenance and build recipe
+
+- HEAD `5e8de26` (G3 v3 reference gearbox; certify concentric arc clearance
+  (C06)); all of C16 rides uncommitted. The law matrix in §3 restates the
+  C16.2 close-out sweep as the before-state (HEAD is unchanged since, so a
+  pristine-HEAD baseline would measure identical bytes).
+- `bend 2.0.35`, fork `a4d17a` tag `numeric/2026-10-05`
+  (`~/.bend/bin/bend` sha256 `ada00d68…`), never `bend update`.
+- `BEND_PIN` is `jnadeau207-collab/bend@a4d17a…392920`, unchanged.
+- Binary `/home/jesse/bc/bendcad` sha256
+  `43ec497d6e3219d4cf857a4c3ab88141de79a5a485c1fb80dc2377d00eaefcb5`,
+  built by `~/bin/bendbuild` (bendcap + zig, in that order) from
+  `src/c06/cli.bend` after the last source edit; a `bendbuild` preceded every
+  E2E run in this packet's close-out. Handoff note: the implementation session
+  went idle with E2E/neg reports carrying the empty-file sha (they raced a
+  rebuild); this session rebuilt and reran both suites green on the first
+  fresh-binary pass with zero source changes.
+- Every `bend` invocation ran under `~/bin/bendcap` with a timeout, one heavy
+  op at a time; `BEND_NO_TELEMETRY=1` throughout. `tools/laws/check.sh` calls
+  raw `bend`, so the sweep ran through an in-tree capped copy with that single
+  substitution (removed after); `mutate.py` ran with `BEND=~/bin/bendcap`,
+  which it honors natively.
+- Law/source bytes: `laws/c16.3/LAWS.bend` `d4d0e9e6…`,
+  `laws/c16.3/PROOF.bend` `c5c03958…`, `src/c16/blade.bend` `0ce979d8…`
+  (629 lines, 153 defs), `tests/c16.3/pins.bend` `bdd42fae…`.
+- Nothing under `legacy/` touched; no placeholder, fallback, weakened
+  tolerance, disabled test, or restated theorem. Zero `//` comments in every
+  touched `.bend` file (verified by grep over the C16.3 files).
+
+## 2. A2 exit matrix
+
+| Behavior | Contract/law anchor | Proof artifact | E2E journey | Neg journey | Pins | Oracle / mutant | Verdict |
+|---|---|---|---|---|---|---|---|
+| naca4 builds certified section slabs | contract §1; F1 | prismatic profile | `section.slab` (area 805.0337, 34 faces, vol tight 1e-9, genus 0) | `digits.m_high/p_zero/t_low/t_high`, `points.bad`, `chord.zero`, `naca.malformed` | `adm_digits/npts`, `area0012/4412`, `cen_*`, `stn_*`, `th*` | ORCL + MUT F1 | PASS |
+| blade stacks 2-8 sections to ruled solids | contract §1; F2 | 11 manifold stages | `blade.twisted` (5-sec tw20/tp75, frustum 124514.91), `blade.eight` (8-sec NPTS-65, 898 faces, 0.68s) | `sections.one/nine`, `twist.bad`, `taper.bad`, `span.zero`, `blade.malformed`, `stack.*` | `adm_ns/tw/tp`, `counts_2_17`, `ruled`, `vol_blade2/taper` | ORCL + MUT F2 | PASS |
+| blade reports certified section rows | contract §1; F3 | `blade_rep` intervals | `section.report` (rows/chord/tmax/cmax/dev/sched), `blade.twisted` rows | `query.nonblade/naca4/unknown/failed` | `rows_len`, `dev_plain/taper`, `gr_blade` | ORCL + MUT F3 | PASS |
+| Refusals verbatim, design untouched | contract §2; F4 | GR guards | — (refusal-only) | all 25 neg journeys | `gr_*` (8 guards), `parse_*`, `op_*` | PIN + MUT F4 | PASS |
+| Prismoidal volume exact | contract §3; F3 | Simpson on area schedule | `section.slab` vol tight, `blade.replay` reopen containment | — (formulas) | `vol_slab/blade2/taper` | ORCL | PASS |
+| Clearance + PMI stacks over blades | intent; C11/C15 unchanged | certified/estimated labels | `tip.clearance` (gap 10.0 in [0, 31.6] lo=certified; s1 envelope [299.99, 300.00]) | `zone.blade` (existing refusal) | n/a (kernel paths) | ORCL | PASS |
+| Edits propagate | intent | re-evaluation | `blade.edit` (chord 100→120, vol recomputed) | — (propagation) | n/a | ORCL | PASS |
+| Tess/STEP/archive roundtrips | contract §5 | closed solids | `blade.tess` (5280v/8252t, tip 3.6e-15), `blade.step` (34 faces 32 BSPLINE+2 PLANE, vol 40251.6868), `blade.replay` (byte-exact, 34-loop reopen) | — (roundtrip) | `ring_m/next`, `show_*` | trimesh/build123d/geom | PASS |
+| G3 kernel limits untriggered, refusals preserved | contract §5; G3 §3 | no cone/torus builders | `ring.inherit`, `obstacle.inherit` | `ring_m`, `ring_next` | E2E | PASS |
+| MCP blade parity | language.md | same CLI path | `mcp.parity` (tool + text-equal) | — | n/a | CLI diff | PASS |
+
+Matrix closure: all 15 laws appear above by family (F1 1, F2 2, F3 4, F4 8),
+all 25 neg cases, all 11 E2E journeys.
+
+## 3. Before-and-after law matrix
+
+`tools/laws/check.sh` (in-tree capped copy, single substitution, removed
+after) over every `laws/*/PROOF.bend`, both modes. Before = the C16.2
+close-out sweep restated (HEAD unchanged since, so the pristine-HEAD baseline
+bytes are identical; 18 packets / 564 laws). After = final tree, 19 packets /
+579 laws (`/tmp/c163-laws/results.txt`). Every cell is `ALL PROOFS CHECK`;
+times are check-only / verdict.
+
+| Packet | Laws | Before check/verdict | After check/verdict |
+|---|---|---|---|
+| base | 13 | 0s / 1s | 1s / 0s |
+| c00 | 8 | 2s / 2s | 2s / 2s |
+| c01 | 10 | 0s / 1s | 1s / 0s |
+| c02 | 16 | 0s / 0s | 1s / 0s |
+| c03 | 10 | 28s / 29s | 28s / 29s |
+| c04 | 104 | 1s / 1s | 1s / 2s |
+| c05 | 34 | 143s / 145s | 143s / 144s |
+| c06 | 6 | 3s / 10s | 3s / 11s |
+| c07 | 5 | 0s / 0s | 0s / 1s |
+| c08 | 4 | 2s / 4s | 2s / 5s |
+| c09 | 2 | 1s / 5s | 1s / 4s |
+| c10 | 18 | 3s / 18s | 3s / 19s |
+| c11 | 65 | 6s / 22s | 7s / 23s |
+| c12 | 64 | 5s / 23s | 4s / 24s |
+| c14 | 153 | 37s / 55s | 37s / 57s |
+| c15 | 20 | 4s / 22s | 4s / 22s |
+| c16.1 | 15 | 1s / 2s | 1s / 3s |
+| c16.2 | 17 | 1s / 9s | 1s / 9s |
+| c16.3 | 15 | n/a (this packet) | 2s / 9s |
+
+No law changed verdict in either direction: 564/564 before, 579/579 after,
+all `ALL PROOFS CHECK` under `--check-only` and again under `--verdict`.
+The 18 prior packets re-prove against final (C16.3-era) shared sources with
+identical verdicts; only the new packet's 15 laws are new.
+
+## 4. Observed results (binary 43ec497d)
+
+- Laws: §3, 579/579 both modes, exit 0.
+- Mutation (`BEND=~/bin/bendcap python3 tools/laws/mutate.py`): 91/91 killed,
+  report sha256 `bfef6c32…`, every verdict `SOME PROOFS FAIL`. The four C16.3
+  families each kill: F1 (ring step skips its successor), F2 (flipped
+  wall-loop use breaks balance), F3 (dropped section row), F4 (bad twists
+  accepted).
+- Pins: c16.3 51/51 hold, report sha256 `ff11cf16…`. The report (06:00)
+  postdates every `.bend` source it depends on (`pins.bend` 04:41,
+  `blade.bend` 04:45, all shared sources older), so it evidences final
+  sources. Tree-wide pins (22 files with c16.3's 51) are re-run by the C16
+  verification workflow (§9); the last tree-wide measure is the C16.2
+  close-out 2485/2485 over 21 files.
+- `tests/c16.3/e2e.py`: 11/11 journeys hold on binary 43ec497d. Oracle
+  cross-checks, all against `tests/c16.3/oracle.py` unless noted: slab area
+  805.0337361834073 with sub-1e-9 interval width, 34 faces, genus 0,
+  prismatic verdict; report rows/chord/tmax/cmax/dev/sched all contained;
+  twisted-stack frustum 124514.90693028129 within 0.5%, 5 rows, schedule
+  [0,5,10,15,20], deviation contained; 8-section NPTS-65 blade builds in
+  0.68s against the 30s budget with 898 faces; tip gap 10.0 inside
+  clearance [0, 31.62] estimated lo=certified, PMI s1 envelope
+  [299.99, 300.00] certified; edit 100→120 recomputes volume; tess mesh
+  5280 verts / 8252 tris with tip vertex 3.6e-15 from the oracle station;
+  STEP solid 40251.686809170154 with the exact 32-BSPLINE + 2-PLANE split;
+  replay eval and blade text byte-exact, archive reopens 34 loops with
+  contained volume; T06–T24 sweep commits all 19 sections; MCP text
+  identical to CLI.
+- `tests/c16.3/neg.py`: 25/25 journeys hold on binary 43ec497d; every
+  refusal leaves the design byte-identical and publishes no geometry.
+- Regressions: earlier suites were last green on 2b0d7874 per the C16.2
+  receipt §4 (882 earlier + 40 new = 922 journeys). Every suite is re-run
+  on the final binary by the C16 verification workflow before commit;
+  results are appended in §9. This deferral is explicit, not silent.
+- G3 parts gate (`python3 tools/g3/gearbox.py /tmp/g3-c163 parts`): housing,
+  lid, drivetrain, purchased all committed; asm solved 119 instances,
+  122 mates, dof 0, max residual 8.526512829121202e-14. Green.
+
+## 5. Shipped delta
+
+- `src/c16/blade.bend` (new, 629 lines, 153 defs): NACA 4-digit sections as
+  perpendicular-offset rings (0.1036 closed-trailing-edge coefficient,
+  camber line, normals from sqrt(1+dyc^2), chordal TE close), published as
+  unit-span slabs through the same ruled builder as blades; ruled-loft
+  blade stacks (root/tip plane caps, bilinear-bezier walls through exact
+  corners); certified interval section reporter (area, centroid, tmax,
+  cmax, deviation, schedule); prismoidal volume exact by Simpson on the
+  quadratic area schedule; 8-guard refusal lattice; content-key tags 39/40.
+- `src/c06/model.bend`: `O_naca4`/`O_blade` ops, evaluators, staged gates
+  (sections → twist → taper → span → ruled → per-section re-validation),
+  `why_unsup` arms, baseless-`create` intent materials.
+- `src/c06/sx.bend`: `(naca4 M P T C NPTS)` / `(blade SECS Z TW TP)` node
+  forms + `sx_show` round-trip.
+- `src/c06/cli.bend`: `blade` verb (26) + help text.
+- `src/c06/zone.bend`: explicit naca4/blade arms answering the existing
+  `topology-not-certified-over-zone` refusal (12 lines, same pattern as
+  C16.1/C16.2).
+- `src/c06/build.bend`, `src/c06/tess.bend`, `src/c11/qdist.bend`,
+  `src/c11/qinterf.bend`, `src/c06/revolve.bend`, `src/c09/feat.bend`: zero
+  blade lines — blades thread the unchanged shared paths (C16.2's 8×8 grid
+  tessellates twisted walls; the C11 certified clearance path is untouched).
+- `tools/mcp/bendcad-mcp.mjs` + `tools/mcp/language.md`: `blade` tool and
+  Blade sections section (sheet/surface sections ride along in the diff).
+- `tests/c06/e2e.py` (1 line): the exact MCP tool-set expectation gains
+  `flat_pattern`, `surface` and `blade` — the only exact-set assertion in
+  the tree, so the intentional additions stay green.
+- `tools/laws/mutate.py`: four C16.3 families (one per law family).
+- Docs: `docs/c16.3-contract.md`, `docs/c16.3-intent.md`, `docs/c16.3-laws.md`.
+
+## 6. Audit trail (no semantic bugs in close-out)
+
+No production-code semantic bugs were found during this session's close-out:
+every rerun passed on the first fresh-binary attempt with zero source
+changes. Two kernel-boundary findings from implementation are carried
+honestly in `docs/c16.3-laws.md`, not worked around:
+
+1. The TypeScript evaluator proves closed-solid at every admitted size, but
+   the BendTT verdict kernel reports a TS/kernel mismatch once endpoint
+   forcing (production div/mod index arithmetic in `edge_a`/`edge_b`)
+   passes roughly 48 edges. F2 is therefore proven small (N in {2,3} at
+   ring 8, M in {8,16} at 2 sections); production sizes are carried by
+   bit-exact pins at NPTS 17/33/65 and the E2E oracle sweep with C04
+   instance certification of every admitted size.
+2. The verdict kernel rejects all concrete F64 arithmetic in laws, even in
+   uninspected positions (probed). Laws run over law-local dummy
+   coordinates; production coordinates are covered by bit-exact pins.
+
+Harness note: the implementation session's E2E/neg reports carried the
+empty-file sha (they raced a rebuild); this session rebuilt via
+`~/bin/bendbuild` and reran both suites (§4) with matching `43ec497d`
+report shas.
+
+## 7. Deferrals
+
+D-blade-checkbez (build-time certified, but `check` reports
+`face-check-unsupported` on bilinear-bezier walls plus one honest
+`orientation-uncertain` line on non-prismatic stacks), D-blade-curve
+(certified intervals of the stored NPTS-gon, not the smooth curve),
+D-blade-feat (features refuse with `features-need-an-extruded-body`),
+D-blade-lean (taper-only lean, no explicit lean/sweep), D-blade-cosine
+(uniform stations, no cosine clustering). All five are in contract §8 with
+the same IDs. G3 section-3 disposition: no C16.3 builder emits cone or
+torus surfaces, so the CONICAL_SURFACE limit is untriggered; side-blind
+cell obstacles, contact unions, thin tori and ring pockets are untouched
+by this packet, and `ring.inherit` / `obstacle.inherit` prove the
+existing refusals still answer verbatim. No silent behavior anywhere:
+every deferred input is refused by name or labeled estimated.
+
+## 8. Change set
+
+Modified (vs HEAD; includes C16.1's and C16.2's still-uncommitted work):
+`src/c06/build`, `cli`, `model`, `revolve`, `sx`, `tess`, `zone`,
+`src/c09/feat.bend`, `src/c11/qdist.bend`, `src/c11/qinterf.bend` (1091
+insertions, 36 deletions over those 9 files), `tests/c06/e2e.py`,
+`tools/laws/mutate.py`, `tools/mcp/bendcad-mcp.mjs`, `tools/mcp/language.md`,
+plus regenerated `*-report.json` artifacts. New for C16.3:
+`src/c16/blade.bend`, `laws/c16.3/{LAWS,PROOF}.bend`,
+`tests/c16.3/{pins.bend,e2e.py,neg.py,oracle.py}`,
+`docs/c16.3-{contract,intent,laws}.md`, this receipt. The capped
+gate-script copy was removed after its run.
+
+## 9. Independent verification
+
+- Reproduce the binary: `~/bin/bendbuild`, expect sha256 `43ec497d…`
+  (build shas are NOT stable across builds; the sha identifies this
+  binary, not the tree).
+- Laws: capped `tools/laws/check.sh` copy → 19/19 `ALL PROOFS CHECK` both
+  modes (`/tmp/c163-laws/results.txt`).
+- Mutants: `BEND=~/bin/bendcap python3 tools/laws/mutate.py` → 91/91 killed,
+  report sha256 `bfef6c32…`.
+- Pins: c16.3 51/51, report sha256 `ff11cf16…`, report newer than every
+  source it depends on.
+- Journeys: `python3 tests/c16.3/e2e.py` → 11/11;
+  `python3 tests/c16.3/neg.py` → 25/25; both reports carry binary_sha256
+  `43ec497d…`.
+- G3: `python3 tools/g3/gearbox.py <out> parts` → four commits + solved
+  assembly (`/tmp/g3-c163`).
+- Oracles are independent: `tests/c16.3/oracle.py` (closed-form section
+  geometry, frustum/prismoidal volumes, tip-station placement), trimesh
+  mesh checks, build123d STEP read-back, and geom-archive reopen.
+- C16 verification workflow appendix: appended below before commit.
+
+### 9.1 C16 verification appendix — 2026-10-15 (verification binary 25457028)
+
+Independent close-out sweep over the final tree. Verification binary
+`/home/jesse/bc/bendcad` sha256
+`25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d`,
+built by `~/bin/bendbuild` (no args); it differs from the §1 `43ec497d`
+sha as expected — build shas are NOT stable across builds, and the sha
+identifies the binary, not the tree. `BEND_NO_TELEMETRY=1` throughout;
+every bend via `~/bin/bendcap` with a timeout, max one heavy bend op at
+a time; temp gate-script copies removed after their runs; no
+source/law/pin edits and no commits during the sweep.
+
+- Laws: 19/19 `laws/*/PROOF.bend` print `ALL PROOFS CHECK` under
+  `--check-only` and again under `--verdict`; 579/579 laws total
+  (13+8+10+16+10+104+34+6+5+4+2+18+65+64+153+20+15+17+15), 0 bad
+  lines (log `/tmp/bendcad-laws-c16verify/results.txt`).
+- Mutation (`BEND=~/bin/bendcap python3 tools/laws/mutate.py`): 91/91
+  mutants killed, every verdict `SOME PROOFS FAIL`, report sha256
+  `bfef6c32736db3918e6cdc9ae312ba944bccf43286b8ef7a6beba70f08c9973c`
+  (log `/tmp/bendcad-mut-c16verify.log`).
+- Pins: tree-wide 2536/2536 over all 22 `tests/*/pins*.bend` files,
+  PINS-EXIT=0, 0 build fails, 0 pin fails — including c16.1 93/93,
+  c16.2 72/72, c16.3 51/51 (log `/tmp/bendcad-pins-c16verify.log`).
+- Journeys: 25/25 suites green, 958/958 journeys, every exit=0, 0 FAIL
+  lines (log `/tmp/bendcad-e2e-c16verify.log`): c06/e2e 62/62; c07/e2e
+  328/328, solid 34/34, solid_neg 13/13, zone 33/33; c08 e2e 108/108,
+  neg 20/20; c09 e2e 29/29, neg 27/27; c10 e2e 11/11, neg 12/12;
+  c11 e2e 33/33, neg 19/19; c12 e2e 17/17, neg 24/24; c14 e2e 16/16,
+  neg 18/18; c15 e2e 13/13, neg 29/29; c16.1 e2e 11/11, neg 25/25;
+  c16.2 e2e 12/12, neg 28/28; c16.3 e2e 11/11, neg 25/25. All 25
+  reports carry binary_sha256 of the verification binary (solid-neg
+  carries the sha of its `/tmp/bc-solid-neg` test binary, as
+  designed); the 4 c07 report writers gained binary_sha256 in a
+  harness-only change (no `.bend` touched, zero weakening).
+- G3 parts gate (`python3 tools/g3/gearbox.py /tmp/bc-g3-c16verify
+  parts`, exit 0): housing committed 0.2s, lid committed 0.4s,
+  drivetrain committed 1.4s, purchased committed 1.4s; `asm solved
+  ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14`;
+  report stages all committed (`/tmp/bc-g3-c16verify/report.json`).
+
+C16.3 verdict on the verification binary: 15/15 laws, 4/4 C16.3 mutant
+families killed, 51/51 pins, 11/11 E2E + 25/25 neg — PASS. The §4
+deferral is discharged: every suite re-ran green on the final binary.

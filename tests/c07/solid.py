@@ -196,10 +196,11 @@ def main():
         secs[n * n] = dt
         record(f'solid.scale.{n * n}-holes.check', out.strip().startswith('ok') and dt < 0.15 * n * n + 5, out=out.strip(), secs=round(dt, 3))
     record('solid.scale.near-linear', secs[400] < 8 * secs[100], ratio_400_100=round(secs[400] / secs[100], 2))
-    blob = json.dumps(RESULTS, indent=1, sort_keys=True)
-    open(OUT, 'w', newline='\n').write(blob)
     fails = [r['name'] for r in RESULTS if not r['ok']]
-    print(f'{len(RESULTS) - len(fails)}/{len(RESULTS)} passed; sha256 {hashlib.sha256(blob.encode()).hexdigest()}')
+    rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=len(RESULTS) - len(fails), total=len(RESULTS), results=RESULTS)
+    blob = json.dumps(rep, indent=1, sort_keys=True)
+    open(OUT, 'w', newline='\n').write(blob)
+    print(f'{rep["passed"]}/{rep["total"]} passed; sha256 {hashlib.sha256(json.dumps(RESULTS, sort_keys=True).encode()).hexdigest()}')
     if fails:
         print('FAILED:', fails)
         sys.exit(1)

@@ -809,7 +809,7 @@ def sec_bt(+vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>, +fs: List<&2, BD.FS
   +st = BD.fs_emit(fs, BD.St{0n, 0n, [], [], []}, 0n)
   +runs = BD.sol_runs(fs, 0n, 0n, [])
   +ns = List.length(&2, List<&2, Ty.HFace>, runs)
-  BD.Bt{BD.st_br(st, vx_gen(vs, 0n), BD.ed_gen(es, 0n), BD.shs_of(runs, 0n), BD.sos_of(ns, 0n), Ty.Cp{BD.hsos_of(ns, 0n), []}),
+  BD.Bt{BD.st_br(st, vx_gen(vs, 0n), BD.ed_gen(es, 0n), BD.shs_of_runs(fs, runs), BD.sos_of(ns, 0n), Ty.Cp{BD.hsos_of(ns, 0n), []}),
     BD.fs_names(fs)}
 
 def sec_build(ok: Bool, +ps: List<&2, F.Pc>, +n: Nat, +quads: Nat, +nd: U64) -> RR:

@@ -72,8 +72,8 @@ And the kernel milestones that carry it there:
 - **Shipped:** interchange: a versioned B-rep archive, a declared STEP read/write profile validated by independent readers, and STL/3MF mesh exports on CLI and MCP paths.
 - **Shipped:** assemblies: mates solved exactly with kinematic degrees of freedom, certified interference and clearance, exploded views, and assembly lineage with durable selectors.
 - **Shipped:** semantic PMI and GD&T: dimensions, tolerances and datum reference frames bound to durable selectors, evaluated over envelopes and operating states, exported as STEP AP242.
-- **Now:** specialized modeling: sheet metal, surface modeling, and blade and airfoil design.
-- **Then:** a qualified public release.
+- **Shipped:** specialized modeling: sheet metal with certified flat patterns, open-shell surface modeling with thickening to solids, and NACA blade sections with ruled stacking and certified section reports.
+- **Now:** a qualified public release.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 

@@ -1,0 +1,225 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 25,
+ "total": 25,
+ "results": [
+  {
+   "name": "bend.angle",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "unsupported-op",
+    "bend-angle-not-certified",
+    true
+   ]
+  },
+  {
+   "name": "bend.edge",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.boxbase",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "bend-base-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "hem.toolong",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "hem-consumes-face",
+    true
+   ]
+  },
+  {
+   "name": "hem.tip_boundary",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "invalid-input",
+    "hem-consumes-face",
+    true
+   ]
+  },
+  {
+   "name": "bend.toosmall",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "bend-consumes-face",
+    true
+   ]
+  },
+  {
+   "name": "bend.tight",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "unsupported-op",
+    "bend-radius-too-tight",
+    true
+   ]
+  },
+  {
+   "name": "bend.malformed",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "unknown-op",
+    true
+   ]
+  },
+  {
+   "name": "bend.third",
+   "ok": true,
+   "seconds": 0.04,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.zshape",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.sameend",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.afterhem",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "invalid-input",
+    "bend-base-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "hem.afterhem",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "hem.on180",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.asymmetric_u",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "bend-edge-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "bend.degenerate",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "degenerate-feature",
+    true
+   ]
+  },
+  {
+   "name": "flat.boxnode",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | flat | why: flat-needs-sheet | fix: run flat on a flat, bend or hem node"
+  },
+  {
+   "name": "flat.badk_inverted",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | flat | why: bad-k-zone | fix: give a K-factor zone with 0 < KLO <= KHI < 1"
+  },
+  {
+   "name": "flat.badk_zero",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | flat | why: bad-k-zone | fix: give a K-factor zone with 0 < KLO <= KHI < 1"
+  },
+  {
+   "name": "flat.badk_one",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": "error invalid-input | flat | why: bad-k-zone | fix: give a K-factor zone with 0 < KLO <= KHI < 1"
+  },
+  {
+   "name": "flat.badk_missing",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | flat | why: bad-k-zone | fix: give a K-factor zone with 0 < KLO <= KHI < 1"
+  },
+  {
+   "name": "flat.unknown_node",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | flat | why: unknown-node 99 | fix: name an evaluated node"
+  },
+  {
+   "name": "flat.failed_node",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "error: node 2; nothing flattened"
+  },
+  {
+   "name": "zone.sheet",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprin"
+  },
+  {
+   "name": "feature.onbend",
+   "ok": true,
+   "seconds": 0.03,
+   "detail": [
+    "unsupported-op",
+    "features-need-an-extruded-body",
+    true
+   ]
+  }
+ ]
+}

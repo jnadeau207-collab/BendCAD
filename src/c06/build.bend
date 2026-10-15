@@ -687,10 +687,84 @@ def sol_runs(fs: List<&2, FS>, +i: Nat, +cur: Nat, +acc: List<&2, Ty.HFace>) -> 
       List.append(&2, List<&2, Ty.HFace>, Bool.pick(List<&2, List<&2, Ty.HFace>>, same, [], [hf_rev(acc)]),
         sol_runs(t, Nat.add(i, 1n), s, Bool.pick(List<&2, Ty.HFace>, same, h <> acc, [h])))
 
-def shs_of(rs: List<&2, List<&2, Ty.HFace>>, +i: Nat) -> List<&2, Ty.Shell>:
+def flat_uses(ls: List<&2, List<&2, Use>>) -> List<&2, Use>:
+  match ls:
+    case []: []
+    case l <> t: List.append(&2, Use, l, flat_uses(t))
+
+def fs_uses(f: FS) -> List<&2, Use>:
+  FS{sol, surf, same, lps, nm} = f
+  flat_uses(lps)
+
+def all_uses(fs: List<&2, FS>) -> List<&2, Use>:
+  match fs:
+    case []: []
+    case f <> t: List.append(&2, Use, fs_uses(f), all_uses(t))
+
+def use_e(+u: Use) -> Nat:
+  Us{+e, fwd, ta, tb} = u
+  e
+
+def use_cmp_go(+a: Use, +b: Use) -> B.Sgn:
+  B.sgn_pick(Nat.is_lt(use_e(a), use_e(b)), Nat.is_lt(use_e(b), use_e(a)))
+
+def use_cmp(a: Use, b: Use) -> B.Sgn:
+  use_cmp_go(a, b)
+
+def flush_single(+run1: Bool, +prev: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  Bool.pick(List<&2, Nat>, run1, prev <> acc, acc)
+
+def skel_go(us: List<&2, Use>, +prev: Nat, +run: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match us:
+    case []: flush_single(Nat.is_eq(run, 1n), prev, acc)
+    case u <> t:
+      +e = use_e(u)
+      +same = Nat.is_eq(e, prev)
+      skel_go(t, e, Bool.pick(Nat, same, Nat.add(run, 1n), 1n),
+        Bool.pick(List<&2, Nat>, same, acc, flush_single(Nat.is_eq(run, 1n), prev, acc)))
+
+def singles_sorted(us: List<&2, Use>) -> List<&2, Nat>:
+  match us:
+    case []: []
+    case u <> t: skel_go(t, use_e(u), 1n, [])
+
+def e_mem(es: List<&2, Nat>, +e: Nat) -> Bool:
+  match es:
+    case []: False{}
+    case h <> t: Bool.or(Nat.is_eq(h, e), e_mem(t, e))
+
+def run_open2(rs: List<&2, Use>, +ss: List<&2, Nat>) -> Bool:
+  match rs:
+    case []: False{}
+    case u <> t: Bool.or(e_mem(ss, use_e(u)), run_open2(t, ss))
+
+def runs_open(fs: List<&2, FS>, +ss: List<&2, Nat>, +cur: Nat, +acc: List<&2, Use>, +n: Nat) -> List<&2, Bool>:
+  match fs:
+    case []: Bool.pick(List<&2, Bool>, Nat.is_eq(n, 0n), [], [run_open2(acc, ss)])
+    case +f <> t:
+      +s = fs_sol(f)
+      +same = Bool.or(Nat.is_eq(s, cur), Nat.is_eq(n, 0n))
+      List.append(&2, Bool, Bool.pick(List<&2, Bool>, same, [], [run_open2(acc, ss)]),
+        runs_open(t, ss, s, Bool.pick(List<&2, Use>, same, List.append(&2, Use, fs_uses(f), acc), fs_uses(f)),
+          Bool.pick(Nat, same, Nat.add(n, 1n), 1n)))
+
+def sh_kind_of(+open: Bool) -> Ty.ShellKind:
+  Bool.pick(Ty.ShellKind, open, Ty.SK_open{}, Ty.SK_outer{})
+
+def shs_of_open(rs: List<&2, List<&2, Ty.HFace>>, +os: List<&2, Bool>, +i: Nat) -> List<&2, Ty.Shell>:
   match rs:
     case []: []
-    case r <> t: Ty.Sh{U64.from_nat(Nat.add(i, 1n)), r, Ty.SK_outer{}} <> shs_of(t, Nat.add(i, 1n))
+    case r <> t:
+      match os:
+        case []: Ty.Sh{U64.from_nat(Nat.add(i, 1n)), r, Ty.SK_outer{}} <> shs_of_open(t, [], Nat.add(i, 1n))
+        case o <> u: Ty.Sh{U64.from_nat(Nat.add(i, 1n)), r, sh_kind_of(o)} <> shs_of_open(t, u, Nat.add(i, 1n))
+
+def so_use(s: B.So<&2, Use>) -> List<&2, Use>:
+  B.So{ok, xs} = s
+  xs
+
+def shs_of_runs(+fs: List<&2, FS>, +rs: List<&2, List<&2, Ty.HFace>>) -> List<&2, Ty.Shell>:
+  shs_of_open(rs, runs_open(fs, singles_sorted(so_use(B.msort(~Use, ~use_cmp, all_uses(fs)))), 0n, [], 0n), 0n)
 
 def sos_of(n: Nat, +i: Nat) -> List<&2, Ty.Solid>:
   match n:
@@ -726,5 +800,5 @@ def build(+cs: List<&2, Cl>) -> Bt:
   +st = fs_emit(fs, St{0n, 0n, [], [], []}, 0n)
   +runs = sol_runs(fs, 0n, 0n, [])
   +ns = List.length(&2, List<&2, Ty.HFace>, runs)
-  Bt{st_br(st, cds_vs(ds), ed_gen(cds_es(ds), 0n), shs_of(runs, 0n), sos_of(ns, 0n), Ty.Cp{hsos_of(ns, 0n), []}),
+  Bt{st_br(st, cds_vs(ds), ed_gen(cds_es(ds), 0n), shs_of_runs(fs, runs), sos_of(ns, 0n), Ty.Cp{hsos_of(ns, 0n), []}),
     fs_names(fs)}

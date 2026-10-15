@@ -1,0 +1,174 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 11,
+ "total": 11,
+ "results": [
+  {
+   "name": "section.slab",
+   "ok": true,
+   "checks": {
+    "oracle_area": 805.0337361834073,
+    "verdict": "prismatic",
+    "check_n": 30,
+    "committed": true,
+    "vol": true,
+    "vol_tight": true,
+    "faces": true,
+    "genus": true,
+    "check": true,
+    "bbox": true
+   }
+  },
+  {
+   "name": "section.report",
+   "ok": true,
+   "checks": {
+    "oracle_area": 815.6243974726469,
+    "committed": true,
+    "header": true,
+    "rows": true,
+    "area": true,
+    "chord": true,
+    "tmax": true,
+    "cmax": true,
+    "vol": true,
+    "dev": true,
+    "sched": true
+   }
+  },
+  {
+   "name": "blade.twisted",
+   "ok": true,
+   "checks": {
+    "oracle_frustum": 124514.90693028129,
+    "verdict": "ruled",
+    "check_n": 129,
+    "committed": true,
+    "build_s": 0.11,
+    "header": true,
+    "rows": true,
+    "sched": true,
+    "dev": true,
+    "vol": true,
+    "faces": true,
+    "genus": true,
+    "check": true
+   }
+  },
+  {
+   "name": "blade.eight",
+   "ok": true,
+   "checks": {
+    "verdict": "ruled",
+    "check_n": 897,
+    "committed": true,
+    "build_s": 0.68,
+    "budget": true,
+    "faces": true,
+    "rows": true,
+    "sched": true,
+    "check": true
+   }
+  },
+  {
+   "name": "tip.clearance",
+   "ok": true,
+   "checks": {
+    "oracle_gap": 10.0,
+    "raw": "clearance [0, 31.622776601683825] estimated lo=certified samples=226x35",
+    "stackrows": [
+     "stack s1 nominal 300 envelope [299.99999999999994, 300.00000000000006] certified"
+    ],
+    "clearance": true,
+    "no_zero": true,
+    "stack": true
+   }
+  },
+  {
+   "name": "blade.edit",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "changed": true,
+    "chord0": true,
+    "chord1": true,
+    "vol": true
+   }
+  },
+  {
+   "name": "blade.tess",
+   "ok": true,
+   "checks": {
+    "mesh_bb": [
+     [
+      0.0,
+      -6.387595459395504,
+      0.0
+     ],
+     [
+      100.00000000000001,
+      19.394113024105195,
+      200.0
+     ]
+    ],
+    "tip_near": 3.552713678800501e-15,
+    "obj_verts": 5280,
+    "obj_tris": 8252,
+    "obj": true,
+    "bbox": true,
+    "tip": true,
+    "verts": true,
+    "tris": true
+   }
+  },
+  {
+   "name": "blade.step",
+   "ok": true,
+   "checks": {
+    "stp_volume": 40251.686809170154,
+    "kindsample": [
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "BSPLINE",
+     "..."
+    ],
+    "step": true,
+    "solids": true,
+    "faces": true,
+    "kinds": true,
+    "volume": true
+   }
+  },
+  {
+   "name": "blade.replay",
+   "ok": true,
+   "checks": {
+    "nodes": true,
+    "committed": true,
+    "replay": true,
+    "breplay": true,
+    "archive": true,
+    "reopen": true
+   }
+  },
+  {
+   "name": "blade.sweep",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "all19": true,
+    "sweep_s": 0.27,
+    "thin": true
+   }
+  },
+  {
+   "name": "mcp.parity",
+   "ok": true,
+   "checks": {
+    "tool": true,
+    "parity": true
+   }
+  }
+ ]
+}

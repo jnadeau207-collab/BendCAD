@@ -41,7 +41,9 @@ def classify_bd(ok: Bool, +b: M.Body, +x: F64, +y: F64, +z: F64) -> String:
 def classify_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing classified"
-    case M.NR_ok{+b, fx}: classify_bd(fin3(x, y, z), b, x, y, z)
+    case M.NR_ok{+b, fx}:
+      Bool.pick(String, M.bd_open(b), "refused classify-needs-solid | classify | fix: thicken-open the shell to a solid first",
+        classify_bd(fin3(x, y, z), b, x, y, z))
 
 def fi_s(fs: List<&2, SO.Fi>) -> String:
   match fs:
@@ -60,19 +62,23 @@ def fi_real_go(fs: List<&2, SO.Fi>, +acc: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
 def fi_real(fs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
   List.reverse(&2, SO.Fi, fi_real_go(fs, []))
 
+def check_bd(+b: M.Body) -> String:
+  +br = M.bd_brep(b)
+  +fd = SO.fds_of(br)
+  +fs = fi_real(List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd)))
+  +cc = BO.coin_contact(br)
+  Bool.pick(String, Bool.not(BO.CR_ok(cc)),
+    "coincident-vertices " ++ Nat.show(BO.CR_a(cc)) ++ " " ++ Nat.show(BO.CR_b(cc)) ++
+      " within one solid",
+    Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n),
+      "ok: embedded, shells outward, cavities nested", fi_s(fs)))
+
 def check_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}: "error: node failed; nothing checked"
     case M.NR_ok{+b, fx}:
-      +br = M.bd_brep(b)
-      +fd = SO.fds_of(br)
-      +fs = fi_real(List.append(&2, SO.Fi, SO.solid_fi(br, fd), EM.emb_fi(br, fd)))
-      +cc = BO.coin_contact(br)
-      Bool.pick(String, Bool.not(BO.CR_ok(cc)),
-        "coincident-vertices " ++ Nat.show(BO.CR_a(cc)) ++ " " ++ Nat.show(BO.CR_b(cc)) ++
-          " within one solid",
-        Bool.pick(String, Nat.is_eq(List.length(&2, SO.Fi, fs), 0n),
-          "ok: embedded, shells outward, cavities nested", fi_s(fs)))
+      Bool.pick(String, M.bd_open(b), "refused check-needs-solid | check | fix: thicken-open the shell to a solid first",
+        check_bd(b))
 
 def wbox(+b: M.Body) -> QA.Ab:
   +m = M.body_ms(b)
@@ -339,4 +345,7 @@ def rel_s(ra: M.NR, rb: M.NR) -> String:
     case M.NR_ok{+a, fa}:
       match rb:
         case M.NR_err{k, d}: "error: node failed; nothing compared"
-        case M.NR_ok{+b, fb}: cav_exact(a) ++ cav_exact(b) ++ rel_pair(a, b)
+        case M.NR_ok{+b, fb}:
+          Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
+            "refused interf-needs-solid | interf | fix: thicken-open the shell to a solid first",
+            cav_exact(a) ++ cav_exact(b) ++ rel_pair(a, b))

@@ -1,0 +1,319 @@
+# C16.1 receipt — 2026-10-14 (sheet metal closed)
+
+Packet: C16.1 sheet metal (MASTER_PLAN §10 C16, first sub-packet):
+flat/bend/hem ops building certified prism solids from
+arc-carrying profiles, bend-allowance rows certified over the
+k-zone, exact legs/developed/blank reporting, verbatim staged
+refusals, tessellation/STEP/archive roundtrips, and MCP parity.
+Intent `docs/c16.1-intent.md`, contract `docs/c16.1-contract.md`,
+laws `docs/c16.1-laws.md` (15 laws, 3 families). E2E oracles are
+hand-derived analytic expectations (volumes, allowances, legs,
+developed lengths, face counts, bboxes) plus independent-reader
+checks (trimesh, build123d, geom reopen) computed by no kernel
+code path; no existing kernel is used at runtime.
+
+Verdict: CLOSED. All exit requirements are implemented, green,
+and evidenced: laws pass both `--check-only` and `--verdict`
+(all 17 packets, 547 laws), every law family kills its mutant
+(84/84 tree-wide, 3/3 c16.1), pins hold bit-exactly (2438/2438
+tree-wide across 20 files, 93/93 c16.1), E2E journeys match
+analytic oracles (11/11), refusals are verbatim (25/25) with
+the design byte-unchanged each, and every earlier gate still
+passes on the same binary (882/882 journeys). Two
+production-code semantic bugs were found and fixed during
+close-out (§5); both now carry pins the old behavior fails.
+
+## 1. Provenance and build recipe
+
+- BendCAD HEAD at close: 5e8de2622e8a7c15ae60c4f5e144e9661bf9fea4.
+  The C16.1 change set is uncommitted on top (see §7); the tree
+  was dirty through the qualification runs below. Commit and
+  push follow the verification pass per the closeout orders.
+- Candidate binary: /home/jesse/bc/bendcad
+  sha256 7dad9f3a9eaf6b20742893c1438a3261975752b1fd0719526483abf4aa213ad9
+  (223454560 bytes; built 2026-10-14 ~22:30 EDT via
+  ~/bin/bendbuild). Every runtime verdict below is on this
+  binary; every e2e/neg report carries the matching
+  binary_sha256 (c07 e2e/solid/zone/neg predate the sha field;
+  they were re-run on this binary in-session: 328/328, 34/34,
+  13/13, 33/33).
+- Toolchain: BEND_PIN a4d17ace (tag numeric/2026-10-05), bend
+  2.0.35, BEND_NO_TELEMETRY=1, every bend invocation through
+  ~/bin/bendcap, one heavy op at a time (the committed gate
+  scripts call raw `bend`, so the sweeps ran through capped
+  copies with that single substitution; verdict semantics
+  identical; the copies were removed after). `~/.bend/FORK`
+  records the pin; no `bend update` was run.
+- laws/c16.1/LAWS.bend sha256
+  fbd39848a5f264a4f16935db48edf5b265a630003e606a10e1b99142fb80b234
+  (3417 bytes, 15 laws)
+- laws/c16.1/PROOF.bend sha256
+  45944c4199f74cbeed8f4ce51cbfdf49c6b52088ca1ce2a529b50d05074f2079
+  (1451 bytes, 15 defs)
+- src/c16/sheet.bend sha256
+  671911666309f5c8538c68f8430e07af43a1a351e69b5e28c2fe9a9aa00364f0
+  (31937 bytes, 891 lines, zero comments, 175 defs)
+- tests/c16.1/e2e-report.json sha256 (file)
+  e56962737d02bf26233f8bc952e8eb9a6175220ad443224327c0ca794a67a9be
+- tests/c16.1/neg-report.json sha256 (file)
+  b77ce2cc33c6c6a325c9d09529a9653cde170d94be1e2d258886920c321d4791
+- tests/c16.1/pins-report.json sha256 (file)
+  4748b0b4c05e456f5835054d847a55d3906f3c946aab93889e2144e4dce0bd91
+  (pins blob sha256
+  c672fcecb6b4afee09c1a70144647bcd1e06ac3fc22fcb9f94bc7994b45a3fd7)
+- tools/laws/mutate-report.json sha256 (file)
+  135b8b9dc4cec87064818a0f64e524f81a74035fb3aec7975d51393803dbb6a2
+- Earlier-packet *-report.json files were rewritten by the
+  regression runs in §3 (same-binary evidence; sha+timing-only
+  diffs, zero passed/total changes).
+
+Build recipe (required; only ~/bin/bendbuild — a direct bend -o or
+zig cc of the CLI runs out of memory):
+
+```sh
+~/bin/bendbuild
+```
+
+It emits C through bendcap, compiles under a 15G scope that may
+spill into swap, links, and prints the sha256. Build shas are
+NOT stable across builds (observed on every packet); the sha
+above identifies this binary, not the tree.
+
+## 2. A2 exit matrix
+
+One row per C16.1 exit requirement (MASTER_PLAN §10 C16.1 plus
+the agent-interface parity the packet implements). Columns per
+Amendment A2: exit req, formal spec, predicate, pos witness, neg
+witness, stage-isolated, independent evidence, status.
+
+Legend. Formal spec cites contract § and laws-doc family
+(F1–F3). Stage-isolated = the witness fixture exercises the
+named production branch exactly, corroborated by the cited
+law/pin names. Independent evidence tags: ORCL = hand-derived
+analytic oracle or independent-reader check (suite-side exact
+arithmetic; no kernel code path computes these values); PIN =
+bit-exact fixed-input pins; MUT = the family's planted mutant
+is killed; MCP = Model Context Protocol parity journey. Status
+PASS = law witness closed (§3 full closure) AND runtime witness
+green on the candidate binary.
+
+| Exit req | Formal spec | Predicate | Pos witness | Neg witness | Stage-isolated | Independent evidence | Status |
+|----------|-------------|-----------|-------------|-------------|----------------|----------------------|--------|
+| flat/bend/hem build certified solids | contract §2; F1 | prism builds, `check` ok, faces/volumes/bboxes match oracle | `flat.blank`, `bend.single90/variants/bracket/hemflat/fold180` | `bend.badangle/badedge/badgram/badrt/badsize/badlen/nou`, `flat.badbase`, `bend.afterhem/hem.afterhem` | yes (`sh_loop_closed`, counts + vol pins) | ORCL + PIN + MUT | PASS |
+| Bend allowance rows certified over k-zone | contract §3; F2 | one row per bend, lo<=hi, endpoints text-equal oracle | `flat.blank`, `bend.single90/variants`, `bend.edit` (recompute) | `flat.badk_zero/one/missing` | yes (`flat_rows_len/nil`, `allow_i` pins) | ORCL + PIN + MUT | PASS |
+| Legs/developed/blank exact | contract §3; F2 | legs/dev text-equal oracle | `bend.single90/bracket/hemflat/fold180` | — (covered by badk) | yes (`flat_legs_flat`, legs/dev pins) | ORCL + PIN | PASS |
+| Staged refusals verbatim, design untouched | contract §4; F3 | exact reason + fix, file byte-identical | — (refusal-only) | all 25 neg journeys | yes (`ck_chain` gates, refusal pins) | PIN + MUT | PASS |
+| tess/STEP/archive/reopen roundtrips | contract §2; F1 | reader identity, volume/face agreement | `bend.tess/step/replay` (16-face Utip in 3 readers) | — (roundtrip) | yes (face + volume agreement) | ORCL | PASS |
+| Edits propagate, sensitivity honest | intent; F2 | evaluated fresh every call | `bend.edit` | — (propagation) | yes (recompute after edit) | ORCL | PASS |
+| Agent interface parity | tools/mcp | MCP tool text = CLI text | `mcp.parity` (flat text-equal) | — (parity) | yes (byte-compared tool outputs) | MCP | PASS |
+
+Matrix closure: all 15 laws appear above by family (F1 2, F2 3,
+F3 10); all 11 e2e journeys and all 25 neg journeys appear
+above.
+
+## 3. Observed results (binary 7dad9f3a)
+
+- Full law sweep (capped check.sh copy, log /tmp/c161-vfy-laws,
+  exit 0, HEAD + dirty state recorded in the log) → all 17
+  packets ALL PROOFS CHECK under both --check-only and
+  --verdict: base 13 (1 s + 0 s), c00 8 (2 s + 2 s), c01 10
+  (1 s + 0 s), c02 16 (1 s + 0 s), c03 10 (28 s + 29 s), c04
+  104 (1 s + 1 s), c05 34 (145 s + 145 s, still dominant),
+  c06 6 (3 s + 9 s), c07 5 (1 s + 0 s), c08 4 (3 s + 4 s),
+  c09 2 (1 s + 5 s), c10 18 (3 s + 18 s), c11 65 (6 s + 21 s),
+  c12 64 (5 s + 22 s), c14 153 (38 s + 54 s), c15 20 (4 s +
+  22 s), c16.1 15 (1 s + 2 s). 547 laws total.
+- `BEND=~/bin/bendcap python3 tools/laws/mutate.py` (full
+  tree, fresh, exit 0) → 84/84 mutants killed (3/3 c16.1,
+  every verdict SOME PROOFS FAIL).
+- Capped pins run over all 20 files → 2438/2438 hold:
+  c00 33, c01 30, c02 44, c03 408, c04 500, c05 31, c06 82 +
+  25, c07 25 + 14 + 17, c08 487 + 40, c09 50 + 9, c10 42,
+  c11 158, c12 33, c14 163, c15 154, c16.1 93 (blob sha256
+  c672fcec…). Every want hand-derived before running,
+  incl. exact volumes/allowances/legs/developed, gate
+  refusal tags, profile counts, and rotated arc centers.
+- `python3 tests/c16.1/e2e.py` → 11/11 passed, exit 0:
+  flat.blank (6 faces, vol 10000, allowance rows),
+  bend.single90 (10 faces, vol 10128.31853071796, legs
+  [50,45], developed text-equal), bend.variants (all 23
+  profile/edge combos: check-ok, faces, volumes, bboxes),
+  bend.bracket (U channel 14 faces), bend.hemflat (hem 8
+  faces), bend.fold180 (10 faces, vol 10756.637061435917),
+  bend.edit (edit + sensitivity), bend.tess (trimesh:
+  watertight, vol within 1%), bend.step (build123d: 1
+  solid, 16 faces, 4 cylinders, vol within 1e-6),
+  bend.replay (show/apply byte-equal eval, archive +
+  reopen 16 faces + volume), mcp.parity (flat text-equal).
+- `python3 tests/c16.1/neg.py` → 25/25 passed, exit 0:
+  every refusal verbatim (angle/edge/grammar/R/T/size/
+  hem-length/base/k-zone/zone/feature-base), design
+  byte-unchanged each.
+- Regression on the same binary, zero passed/total
+  changes: c06 e2e 62/62, c07 e2e 328/328, solid 34/34,
+  solid_neg 13/13, zone 33/33, c08 e2e 108/108, neg
+  20/20, c09 e2e 29/29, neg 27/27, c10 e2e 11/11, neg
+  12/12, c11 e2e 33/33, neg 19/19, c12 e2e 17/17, neg
+  24/24, c14 e2e 16/16, neg 18/18, c15 e2e 13/13, neg
+  29/29, c16.1 e2e 11/11, neg 25/25 — 882/882 journeys.
+- G3 gearbox (`python3 tools/g3/gearbox.py /tmp/g3check`):
+  housing/lid/drivetrain/purchased/placed committed,
+  parts + placed exported, `asm solved ninst 119 nmates
+  122 dof 0 max-residual 8.526512829121202e-14`.
+
+## 4. Shipped delta
+
+- `src/c16/sheet.bend` (new, 891 lines): 12 explicit
+  profile builders + in-plane 180° rotation for -x
+  variants, staged gate chain (base → finiteness →
+  angle → edge → grammar → R/T → size → hem length),
+  closed-form volumes, flat rows/legs/developed/report.
+- `src/c06/model.bend` (additive + split dispatch):
+  `O_flat/O_bend/O_hem`, `op_sheet/sh_chain/sheet_build/
+  sheet_go`, `why_unsup` sheet arms. Sheet dispatch is
+  split (`op_is_sheet`/`op_of_sheet` before `op_of_feat`)
+  because a 13-branch `op_of_feat` trips the C-backend
+  WIDE=247 live-values limit (`bend -o` arity fault;
+  see §5).
+- `src/c06/sx.bend` (+sheet ctors): `flat_op/bend_op/
+  hem_op`, `op_is_sheet/op_of_sheet`, `op_sx` round-trip.
+- `src/c06/zone.bend` (additive arms): explicit sheet
+  handling in the zone walker.
+- `src/c06/cli.bend` (+verb): cmd_code 24 `flat`,
+  `flat_go/has/nr/sc/k` arms, help text.
+- `tools/mcp/bendcad-mcp.mjs` (+1 tool): `flat_pattern`
+  (design/node/klo/khi) mapping to the CLI argv.
+- `tools/mcp/language.md` (+sheet section): Sheet metal
+  section plus the C06–C16.1 title bump.
+- `tests/c06/e2e.py` (1 line): the exact MCP tool-set
+  expectation gains `flat_pattern` — the only exact-set
+  assertion in the tree, so the intentional addition
+  stays green.
+- Laws, proofs (15/15), mutants (3 c16.1), pins (93
+  c16.1), journeys (11 e2e + 25 neg), oracle,
+  contract/intent/laws docs, this receipt.
+
+## 5. Semantic bugs
+
+Two production-code semantic bugs were found during
+close-out; both are fixed, and each now carries a pin the
+old behavior fails:
+
+- 180° folds built from two 90° arcs left arc-arc tangent
+  joints the C07 checker cannot certify (`edge-face-
+  uncertain`, not `ok:`). The profiles now use single
+  180° arcs per side, which the kernel's own splitter
+  (`splits_go`, built for exactly this: the `hw` half
+  flag, axis-crossing splits) lowers internally with no
+  edge-edge tangent joints. 180° folds now check `ok:`
+  (10 faces, 2 cylinders, same volume/bbox). Pins
+  `counts_k2` (7/8) and `arcs_all` (2/2/4/0) fail on the
+  two-arc tables.
+- `rot180` rotated profile points but left arc-segment
+  centers unrotated, so every -x variant (edges 2/3)
+  failed with `arc-start-off-circle`. Rotation now maps
+  centers too (`sg_rot`/`segs_rot`); orientation and
+  ccw flags are preserved (det +1). Pins `rot_k0`
+  (5.0/45.0 bits) and `rot_k2` (5.0/5.0 bits) fail on
+  the unrotated centers.
+
+Further audit trail (harness/spec, no production change
+except where noted):
+
+- One C-backend fault bisected during the build: growing
+  `op_of_feat` to 13 branches fails `bend -o` with an
+  arity-over-247 fault while the JS backend emits fine
+  (upstream `bendlang/bend#1069`, `WIDE=247` live values
+  in `emit_clo`). Fixed by the split sheet dispatch in
+  §4 (production change, behavior-preserving for all
+  existing ops; proven by the 882/882 regression).
+- Intent material rule documented (contract §2):
+  `create` for flat, `add` for every bend/hem (each
+  stores strictly more volume than its base at R/T ≥ 1).
+- The F1 mutant site had to be anchored to the full
+  `sh180up` body: the 90° and 180° profiles share
+  identical seg-index text (same combinatorics, only
+  point coordinates differ), so the seg-only site
+  matched twice.
+- Suite-only repairs, each re-run green: `geom_type`
+  property (not a method), two record-kwarg collisions,
+  numpy→JSON scalar wrapping, the reopen assertion
+  (nodes print as `n0.*`; now asserts 16 `loops=` lines
+  + volume containment).
+
+## 6. Deferrals
+
+See contract §8. Each refuses by name or reports its honest
+status; none is silent. Packet-specific notes:
+
+- D-sheet-z: Z/S doubles (opposite-direction doubles)
+  refused; U pairs must share direction. Closes with the
+  Z-fold sub-packet.
+- D-sheet-asym: unequal U radii refused; U channels need
+  equal radii (bit-compared). Closes with asymmetric-U
+  tables.
+- D-sheet-side: width-edge bends refused; N selects only
+  among the four admitted (±x end, up/down) pairs. Closes
+  with the width-edge construction.
+- D-sheet-hembend: flat-leg hems on bent parts and bends
+  after hems refused (a hem folds the bent flange tip
+  only; the base-first gate reports
+  `bend-base-not-admitted`). Closes with hem-aware
+  bend tables.
+- D-sheet-features: pockets/holes on sheet bodies refused
+  (needs a base_kind extension); INT7 answers the existing
+  refusals verbatim. Closes with sheet-feature pockets.
+- OM-rtfloor: the R/T ≥ 1.0 floor is an industry
+  minimum with margin, pinned both sides; the true
+  C04/C07 floor is unprobed.
+- D-buildmem: the CLI builds only via ~/bin/bendbuild
+  (15G compile scope, may spill into swap). Further
+  growth still needs the WSL cap raised or backend
+  no-fuse work.
+
+## 7. Change set
+
+Uncommitted on top of 5e8de26 (see §1); commit and push
+follow the verification pass. Tracked modifications:
+src/c06/cli.bend + model.bend + sx.bend + zone.bend
+(sheet wiring), tests/c06/e2e.py (tool-set +1),
+tools/laws/mutate.py (+3 c16.1 mutants),
+tools/mcp/bendcad-mcp.mjs (+1 tool),
+tools/mcp/language.md (+sheet section), plus rewritten
+same-binary *-report.json (c06–c15 e2e/neg/solid/zone,
+pins, mutate-report; zero passed/total changes). New:
+docs/c16.1-contract.md, docs/c16.1-intent.md,
+docs/c16.1-laws.md, this receipt,
+laws/c16.1/LAWS.bend + PROOF.bend, src/c16/sheet.bend,
+tests/c16.1/{oracle,e2e,neg,pins}.py/.bend + e2e/neg/
+pins reports. Nothing under legacy/ touched; no
+`bend update`; no CI raised.
+
+## 8. Independent verification
+
+- Oracles: hand-derived analytic expectations in the
+  suite (volumes 10128.31853071796 / 10756.637061435917 /
+  14756.637061435918 / 11000.0 / 11128.31853071796 /
+  15756.637061435918, allowances π(R+T/2)/2 and π(R+T/2)
+  over k ∈
+  [0.3, 0.5], legs, developed lengths, face counts
+  6/8/10/12/14/16, bboxes) plus independent readers
+  (trimesh watertight + volume, build123d solid/face/
+  cylinder counts + volume, geom reopen faces + volume).
+  No kernel code path computes these values.
+- Report shas: §1 (c16.1 e2e/neg/pins file shas, mutate
+  file sha; c16.1 pins blob sha c672fcec…). All
+  c06–c16.1 e2e/neg reports carry binary_sha256
+  7dad9f3a… (c07 e2e/solid/zone/neg predate the sha
+  field; re-run on this binary in-session: 328/328,
+  34/34, 13/13, 33/33).
+- Regression table: §3, last bullet. Laws 17/17 packets
+  both gates (547 laws), mutants 84/84, pins 2438/2438,
+  journeys 882/882.
+- A separate verification workflow re-runs every gate on
+  a fresh ~/bin/bendbuild binary (laws, mutants, all
+  pins, every e2e/neg suite incl. the c07 suites); its
+  results are appended below before commit. MASTER_PLAN
+  §10 keeps the aspirational exit wording per the C08
+  convention; the shipped profile is contract §8 plus §6
+  here.

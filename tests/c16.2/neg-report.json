@@ -1,0 +1,251 @@
+{
+ "binary_sha256": "25457028ab38d8bfa6bd9af810cef744f39841249dc2accb88296206e7e2f32d",
+ "passed": 28,
+ "total": 28,
+ "results": [
+  {
+   "name": "loft.nonplanar",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "loft-open-not-planar",
+    true
+   ]
+  },
+  {
+   "name": "loft.continuity",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "continuity-not-met",
+    true
+   ]
+  },
+  {
+   "name": "loft.hole",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "loft-topology-mismatch",
+    true
+   ]
+  },
+  {
+   "name": "loft.zeroheight",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "degenerate-feature",
+    true
+   ]
+  },
+  {
+   "name": "loft.badpair",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "loft-topology-mismatch",
+    true
+   ]
+  },
+  {
+   "name": "loft.nonquad",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "numerical-uncertainty",
+    "loft-not-certified",
+    true
+   ]
+  },
+  {
+   "name": "sweep.angle45",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "sweep-angle-not-certified",
+    true
+   ]
+  },
+  {
+   "name": "sweep.angle360",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "sweep-angle-not-certified",
+    true
+   ]
+  },
+  {
+   "name": "sweep.slant",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "sweep-profile-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "sweep.twist",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "twist-not-admitted",
+    true
+   ]
+  },
+  {
+   "name": "patch.rows",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "patch-degenerate",
+    true
+   ]
+  },
+  {
+   "name": "patch.corners",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "patch-degenerate",
+    true
+   ]
+  },
+  {
+   "name": "patch.short",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "unknown-op",
+    true
+   ]
+  },
+  {
+   "name": "thicken.curve",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "unsupported-op",
+    "thicken-curvature-not-certified",
+    true
+   ]
+  },
+  {
+   "name": "thicken.boxbase",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "thicken-needs-open-shell",
+    true
+   ]
+  },
+  {
+   "name": "thicken.closedbase",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": [
+    "invalid-input",
+    "thicken-needs-open-shell",
+    true
+   ]
+  },
+  {
+   "name": "thicken.consumes",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "thicken-consumes-shell",
+    true
+   ]
+  },
+  {
+   "name": "thicken.zeroT",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "invalid-input",
+    "degenerate-feature",
+    true
+   ]
+  },
+  {
+   "name": "surf.closed",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | surf | why: surf-needs-open-shell | fix: run surf on a loft-open, sweep-open or patch node"
+  },
+  {
+   "name": "surf.thickened",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "error invalid-input | surf | why: surf-needs-open-shell | fix: run surf on a loft-open, sweep-open or patch node"
+  },
+  {
+   "name": "surf.unknown_node",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "error invalid-input | surf | why: unknown-node 99 | fix: name an evaluated node"
+  },
+  {
+   "name": "surf.failed_node",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "error: node 2; nothing surfaced"
+  },
+  {
+   "name": "zone.surf",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "error numerical-uncertainty | zone @ node 1 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprin"
+  },
+  {
+   "name": "feature.onpatch",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": [
+    "unsupported-op",
+    "features-need-an-extruded-body",
+    true
+   ]
+  },
+  {
+   "name": "step.open",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "refused step-open-shell-not-in-profile | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces"
+  },
+  {
+   "name": "archive.open",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "refused archive-open-shell-not-in-profile | archive | fix: thicken-open the shell to a solid first"
+  },
+  {
+   "name": "check.open",
+   "ok": true,
+   "seconds": 0.02,
+   "detail": "refused check-needs-solid | check | fix: thicken-open the shell to a solid first"
+  },
+  {
+   "name": "classify.open",
+   "ok": true,
+   "seconds": 0.01,
+   "detail": "refused classify-needs-solid | classify | fix: thicken-open the shell to a solid first"
+  }
+ ]
+}
