@@ -165,6 +165,30 @@ def move():
     record('move.rotate_translate', b is not None and abs(b[0] - 80) < 1e-9 and abs(b[1] - 100) < 1e-9 and abs(b[3] - 10) < 1e-9, bbox=b)
 
 
+def concentric_arcs():
+    semi12 = '(path 12 0 (arc 0 0 12 -12 0 ccw) (arc 0 0 12 12 0 ccw))'
+    semi10 = '(path 10 0 (arc 0 0 10 -10 0 ccw) (arc 0 0 10 10 0 ccw))'
+    ring = ('(path 0 -18 (line 10 -18) (arc 10 -10 8 18 -10 ccw) (line 18 10) (arc 10 10 8 10 18 ccw) (line 0 18) '
+            '(arc 0 10 8 -8 10 ccw) (line -8 -10) (arc 0 -10 8 0 -18 ccw))')
+    inner = ('(path 0 -15 (line 10 -15) (arc 10 -10 5 15 -10 ccw) (line 15 10) (arc 10 10 5 10 15 ccw) (line 0 15) '
+             '(arc 0 10 5 -5 10 ccw) (line -5 -10) (arc 0 -10 5 0 -15 ccw))')
+    cases = [('arcs_vs_circle', semi12, '(circle 0 0 10)', PI * 44 * 5),
+             ('circle_vs_arcs', '(circle 0 0 12)', semi10, PI * 44 * 5),
+             ('arcs_vs_arcs', semi12, semi10, PI * 44 * 5),
+             ('rounded_ring', ring, inner, ((26 * 36 - (4 - PI) * 64) - (20 * 30 - (4 - PI) * 25)) * 5)]
+    for name, outer, hole, exact in cases:
+        out, _ = fresh('ca_%s.bcd' % name, f'(node 1 (prism 0 5 (region {outer} {hole})) (intent create any 0 1 1))')
+        record(f'concentric.{name}', 'committed' in out and contains(vol(out, 1), exact), volume=vol(out, 1), exact=exact)
+    bad = [('touching', semi12, '(path 12 0 (arc 0 0 12 -12 0 ccw) (arc 0 0 12 12 0 ccw))'),
+           ('crossing', semi12, '(path 13 0 (arc 0 0 13 -13 0 ccw) (arc 0 0 13 13 0 ccw))'),
+           ('tangent_inside', semi12, '(circle 1 0 11)')]
+    for name, outer, hole in bad:
+        out, _ = fresh('cb_%s.bcd' % name, f'(node 1 (prism 0 5 (region {outer} {hole})) (intent create any 0 1 1))')
+        record(f'concentric.refuse_{name}', 'rejected' in out and ('curves-cross-or-touch' in out or 'clearance-not-certified' in out
+                                                                  or 'hole-outside-outer' in out),
+               why=re.findall(r'why: ([^|]+)', out)[-1:])
+
+
 def atomic_rejections():
     fresh('rej.bcd', '(node 1 (box 10 20 30) (intent create 6 0 1 0))')
     before = read('rej.bcd')
@@ -316,7 +340,7 @@ def performance():
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
-    for f in (bracket, primitives, revolve_cavity, counterbore_island, move, atomic_rejections, rotation, zones, mcp, performance):
+    for f in (bracket, primitives, revolve_cavity, counterbore_island, move, concentric_arcs, atomic_rejections, rotation, zones, mcp, performance):
         f()
     rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=sum(r['ok'] for r in RESULTS),
                total=len(RESULTS), results=RESULTS)

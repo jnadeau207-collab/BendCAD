@@ -10,9 +10,13 @@ from PIL import Image, ImageDraw, ImageFont
 SS = 2
 FONT = 'C:/Windows/Fonts/segoeui.ttf'
 BG = (250, 251, 253)
-COLORS = [('housing', (176, 184, 196)), ('frame', (176, 184, 196)), ('wall', (176, 184, 196)), ('brg', (210, 90, 80)), ('base', (160, 168, 182)), ('cover', (190, 198, 210)),
-          ('shaft', (205, 160, 70)), ('pinion', (64, 120, 220)), ('gear', (40, 170, 160)),
-          ('bearing', (210, 90, 80)), ('seal', (60, 60, 70))]
+COLORS = [('spacer', (184, 115, 51)), ('ball', (225, 228, 232)), ('_s0', (35, 35, 40)), ('_s1', (35, 35, 40)),
+          ('bearing_seal', (35, 35, 40)), ('_outer', (150, 160, 175)), ('_inner', (150, 160, 175)), ('bearing', (150, 160, 175)),
+          ('lip_seal', (40, 40, 48)), ('seal_', (40, 40, 48)), ('gasket', (200, 170, 110)), ('screw', (70, 72, 80)),
+          ('insert', (205, 170, 60)), ('dowel', (120, 125, 135)), ('vent', (30, 30, 34)),
+          ('housing', (176, 184, 196)), ('lid', (196, 204, 216)), ('frame', (176, 184, 196)), ('wall', (176, 184, 196)),
+          ('brg', (210, 90, 80)), ('base', (160, 168, 182)), ('cover', (190, 198, 210)),
+          ('shaft', (205, 160, 70)), ('pinion', (64, 120, 220)), ('gear', (40, 170, 160)), ('seal', (60, 60, 70))]
 
 
 def color(name):
@@ -34,6 +38,29 @@ def load_stl(path):
                 tri.append(cur)
                 cur = []
     return np.array(tri)
+
+
+def clip(m, axis=1, keep_below=0.0):
+    out = []
+    for t in m:
+        d = t[:, axis] - keep_below
+        inside = d <= 0
+        if inside.all():
+            out.append(t)
+            continue
+        if not inside.any():
+            continue
+        poly = []
+        for i in range(3):
+            a, b = t[i], t[(i + 1) % 3]
+            da, db = d[i], d[(i + 1) % 3]
+            if da <= 0:
+                poly.append(a)
+            if (da <= 0) != (db <= 0):
+                poly.append(a + (b - a) * (da / (da - db)))
+        for i in range(1, len(poly) - 1):
+            out.append(np.array([poly[0], poly[i], poly[i + 1]]))
+    return np.array(out) if out else np.zeros((0, 3, 3))
 
 
 def view(tilt, spin):
@@ -109,8 +136,12 @@ def main(root, out, explode_json=None):
     placed = [(os.path.splitext(os.path.basename(p))[0], load_stl(p)) for p in sorted(glob.glob(os.path.join(root, 'placed', '*.stl')))]
     grid(parts, 4, 420, 340).save(os.path.join(out, 'g3_parts.png'))
     render(placed, 1400, 1000, title='G3 gearbox: assembled').save(os.path.join(out, 'g3_assembly.png'))
-    inner = [(n, m) for n, m in placed if not any(k in n.lower() for k in ('frame', 'wall', 'cover'))]
+    inner = [(n, m) for n, m in placed if not any(k in n.lower() for k in ('frame', 'wall', 'cover', 'lid', 'gasket', 'screw', 'vent', 'housing'))]
     render(inner, 1400, 1000, tilt=0.6, spin=-0.5, title='G3 gearbox: cover and walls removed').save(os.path.join(out, 'g3_gear_train.png'))
+    flip = np.array([1.0, -1.0, 1.0])
+    sec = [(n, clip(m * flip) * flip) for n, m in placed]
+    render([(n, m) for n, m in sec if len(m)], 1400, 1000, tilt=0.25, spin=0.25,
+           title='G3 gearbox: half section through the shafts').save(os.path.join(out, 'g3_section.png'))
     if explode_json:
         off = json.load(open(explode_json))
         ex = [(n, m + np.array(off.get(n, [0, 0, 0]))) for n, m in placed]

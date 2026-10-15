@@ -54,7 +54,7 @@ type LR is Data:
 
 type Shp is Data:
   Sh_seg{ ax: F64, ay: F64, bx: F64, by: F64 }
-  Sh_tri{ ax: F64, ay: F64, px: F64, py: F64, bx: F64, by: F64 }
+  Sh_tri{ ax: F64, ay: F64, px: F64, py: F64, w: F64, bx: F64, by: F64 }
   Sh_cir{ cx: F64, cy: F64, r: F64 }
 
 type It is Data:
@@ -481,8 +481,8 @@ def it_of(+l: Nat, +k: Nat, +n: Nat, p: Pc) -> It:
     case P_ln{+ax, +ay, +bx, +by}:
       It{l, k, n, Sh_seg{ax, ay, bx, by}, F64.min(ax, bx), F64.max(ax, bx), F64.min(ay, by),
         F64.max(ay, by)}
-    case P_ar{+ax, +ay, +px, +py, w, +bx, +by}:
-      It{l, k, n, Sh_tri{ax, ay, px, py, bx, by}, mn3(ax, px, bx), mx3(ax, px, bx),
+    case P_ar{+ax, +ay, +px, +py, +w, +bx, +by}:
+      It{l, k, n, Sh_tri{ax, ay, px, py, w, bx, by}, mn3(ax, px, bx), mx3(ax, px, bx),
         mn3(ay, py, by), mx3(ay, py, by)}
 
 def its_go(ps: List<&2, Pc>, +l: Nat, +k: Nat, +n: Nat) -> List<&2, It>:
@@ -611,13 +611,13 @@ def tri_sep(+ax: F64, +ay: F64, +px: F64, +py: F64, +bx: F64, +by: F64,
 def sh_pts(s: Shp) -> List<&2, V.Vec2>:
   match s:
     case Sh_seg{ax, ay, bx, by}: [V.V2{ax, ay}, V.V2{bx, by}]
-    case Sh_tri{ax, ay, px, py, bx, by}: [V.V2{ax, ay}, V.V2{px, py}, V.V2{bx, by}]
+    case Sh_tri{ax, ay, px, py, w, bx, by}: [V.V2{ax, ay}, V.V2{px, py}, V.V2{bx, by}]
     case Sh_cir{cx, cy, r}: []
 
 def sh_sep1(s: Shp, +pts: List<&2, V.Vec2>) -> Bool:
   match s:
     case Sh_seg{ax, ay, bx, by}: seg_sep(ax, ay, bx, by, pts)
-    case Sh_tri{ax, ay, px, py, bx, by}: tri_sep(ax, ay, px, py, bx, by, pts)
+    case Sh_tri{ax, ay, px, py, w, bx, by}: tri_sep(ax, ay, px, py, bx, by, pts)
     case Sh_cir{cx, cy, r}: False{}
 
 def cvx_sep(+a: Shp, +b: Shp) -> Bool:
@@ -653,7 +653,7 @@ def tri_has(+ax: F64, +ay: F64, +px: F64, +py: F64, +bx: F64, +by: F64, +cx: F64
 def cir_out(+cx: F64, +cy: F64, +r: F64, s: Shp) -> Bool:
   match s:
     case Sh_seg{ax, ay, bx, by}: seg_dist_gt(cx, cy, r, ax, ay, bx, by)
-    case Sh_tri{+ax, +ay, +px, +py, +bx, +by}:
+    case Sh_tri{+ax, +ay, +px, +py, w, +bx, +by}:
       Bool.and(Bool.not(tri_has(ax, ay, px, py, bx, by, cx, cy)),
         Bool.and(seg_dist_gt(cx, cy, r, ax, ay, px, py),
           Bool.and(seg_dist_gt(cx, cy, r, px, py, bx, by), seg_dist_gt(cx, cy, r, bx, by, ax, ay))))
@@ -686,7 +686,7 @@ def code_of(c: Bool, +bad: U64) -> U64:
 def sh_tag(s: Shp) -> U64:
   match s:
     case Sh_seg{ax, ay, bx, by}: 0u64
-    case Sh_tri{ax, ay, px, py, bx, by}: 1u64
+    case Sh_tri{ax, ay, px, py, w, bx, by}: 1u64
     case Sh_cir{cx, cy, r}: 2u64
 
 def ss_code(a: Shp, b: Shp) -> U64:
@@ -717,9 +717,53 @@ def pair_tag(+t: U64, +a: Shp, +b: Shp) -> U64:
 def pair_code(+a: Shp, +b: Shp) -> U64:
   pair_tag((U64.mul(sh_tag(a), 3u64) + sh_tag(b) : U64), a, b)
 
+def tri_half(+ax: F64, +ay: F64, +px: F64, +py: F64, +w: F64, +bx: F64, +by: F64, +lo: Bool) -> Shp:
+  +d = F64.add(1.0f64, w)
+  +mx = F64.div(F64.add(F64.add(ax, bx), F64.mul(F64.mul(2.0f64, w), px)), F64.mul(2.0f64, d))
+  +my = F64.div(F64.add(F64.add(ay, by), F64.mul(F64.mul(2.0f64, w), py)), F64.mul(2.0f64, d))
+  +h = F64.sqrt(F64.mul(0.5f64, d))
+  Bool.pick(Shp, lo, Sh_tri{ax, ay, F64.div(F64.add(ax, F64.mul(w, px)), d), F64.div(F64.add(ay, F64.mul(w, py)), d), h, mx, my},
+    Sh_tri{mx, my, F64.div(F64.add(F64.mul(w, px), bx), d), F64.div(F64.add(F64.mul(w, py), by), d), h, bx, by})
+
+def sh_half(s: Shp, lo: Bool) -> Shp:
+  match s:
+    case Sh_tri{+ax, +ay, +px, +py, +w, +bx, +by}: tri_half(ax, ay, px, py, w, bx, by, lo)
+    case Sh_seg{ax, ay, bx, by}: Sh_seg{ax, ay, bx, by}
+    case Sh_cir{cx, cy, r}: Sh_cir{cx, cy, r}
+
+def is_tri(s: Shp) -> Bool:
+  match s:
+    case Sh_tri{ax, ay, px, py, w, bx, by}: True{}
+    case _: False{}
+
+def worse(+x: U64, +y: U64) -> U64:
+  Bool.pick(U64, Bool.or(U64.is_eq(x, 9u64), U64.is_eq(y, 9u64)), 9u64,
+    Bool.pick(U64, Bool.or(U64.is_eq(x, 15u64), U64.is_eq(y, 15u64)), 15u64, 0u64))
+
+def ref_kind(+c: U64, +ta: Bool, +tb: Bool) -> U64:
+  Bool.pick(U64, U64.is_eq(c, 0u64), 4u64,
+    Bool.pick(U64, U64.is_eq(c, 9u64), 5u64,
+      Bool.pick(U64, Bool.and(ta, tb), 3u64,
+        Bool.pick(U64, ta, 1u64, Bool.pick(U64, tb, 2u64, 6u64)))))
+
+def pair_ref(fuel: Nat, mode: U64, +a: Shp, +b: Shp) -> U64:
+  match fuel:
+    case 0n: pair_code(a, b)
+    case 1n+(+f):
+      match mode:
+        case 0u64: pair_ref(f, ref_kind(pair_code(a, b), is_tri(a), is_tri(b)), a, b)
+        case 1u64: worse(pair_ref(f, 0u64, sh_half(a, True{}), b), pair_ref(f, 0u64, sh_half(a, False{}), b))
+        case 2u64: worse(pair_ref(f, 0u64, a, sh_half(b, True{})), pair_ref(f, 0u64, a, sh_half(b, False{})))
+        case 3u64:
+          worse(worse(pair_ref(f, 0u64, sh_half(a, True{}), sh_half(b, True{})), pair_ref(f, 0u64, sh_half(a, True{}), sh_half(b, False{}))),
+            worse(pair_ref(f, 0u64, sh_half(a, False{}), sh_half(b, True{})), pair_ref(f, 0u64, sh_half(a, False{}), sh_half(b, False{}))))
+        case 4u64: 0u64
+        case 5u64: 9u64
+        case _: 15u64
+
 def pr_code(c: Unit, p: Pr) -> Er:
   Pr{+a, +b} = p
-  er(pair_code(it_sh(a), it_sh(b)), it_lp(a), it_k(a))
+  er(pair_ref(11n, 0u64, it_sh(a), it_sh(b)), it_lp(a), it_k(a))
 
 def first_er(es: List<&2, Er>) -> Er:
   match es:

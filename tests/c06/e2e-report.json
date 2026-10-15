@@ -1,7 +1,7 @@
 {
- "binary_sha256": "24d6861e73036eb245d6fd268cc36b87e0aa4981a1046b18e5ec9f762210fad2",
- "passed": 55,
- "total": 55,
+ "binary_sha256": "62947fa2abfac14c9f8b559143d8444b50d73ed30936df8bcc7aacee58f8ac9b",
+ "passed": 62,
+ "total": 62,
  "results": [
   {
    "name": "bracket.build",
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.03355979919433594
+   "seconds": 0.03247404098510742
   },
   {
    "name": "bracket.reopen",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.006989955902099609
+   "seconds": 0.007004261016845703
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.0038394927978515625
+   "seconds": 0.003370046615600586
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.0050394535064697266
+   "seconds": 0.004776477813720703
   },
   {
    "name": "primitive.cone.mesh",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.004520893096923828
+   "seconds": 0.004214286804199219
   },
   {
    "name": "primitive.sphere.mesh",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.00822305679321289
+   "seconds": 0.0077550411224365234
   },
   {
    "name": "primitive.torus.mesh",
@@ -231,6 +231,63 @@
     10.000000000000057,
     -5.3290705182007527e-14,
     30.00000000000006
+   ]
+  },
+  {
+   "name": "concentric.arcs_vs_circle",
+   "ok": true,
+   "volume": [
+    691.1503837857969,
+    691.1503837937113
+   ],
+   "exact": 691.1503837897544
+  },
+  {
+   "name": "concentric.circle_vs_arcs",
+   "ok": true,
+   "volume": [
+    691.1503837869988,
+    691.1503837925108
+   ],
+   "exact": 691.1503837897544
+  },
+  {
+   "name": "concentric.arcs_vs_arcs",
+   "ok": true,
+   "volume": [
+    691.1503837830661,
+    691.1503837964425
+   ],
+   "exact": 691.1503837897544
+  },
+  {
+   "name": "concentric.rounded_ring",
+   "ok": true,
+   "volume": [
+    1512.610567442148,
+    1512.6105674578705
+   ],
+   "exact": 1512.61056745001
+  },
+  {
+   "name": "concentric.refuse_touching",
+   "ok": true,
+   "why": [
+    "clearance-not-certified "
+   ]
+  },
+  {
+   "name": "concentric.refuse_crossing",
+   "ok": true,
+   "why": [
+    "hole-outside-outer "
+   ]
+  },
+  {
+   "name": "concentric.refuse_tangent_inside",
+   "ok": true,
+   "why": [
+    "clearance-not-certified "
    ]
   },
   {
@@ -544,7 +601,7 @@
    "name": "perf.holes100",
    "ok": true,
    "build_s": 0.043,
-   "tess_s": 1.5,
+   "tess_s": 1.499,
    "budget": [
     1.0,
     5.0
@@ -562,8 +619,8 @@
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.167,
-   "tess_s": 8.424,
+   "build_s": 0.153,
+   "tess_s": 8.2,
    "budget": [
     2.0,
     20.0

@@ -1,6 +1,8 @@
 import glob
 import itertools
 import math
+
+import numpy as np
 import json
 import os
 import sys
@@ -48,13 +50,43 @@ def inside(p, poly):
     return c
 
 
-def mesh2d(a, b, z):
-    A, B = outline(a, z), outline(b, z)
+def mesh2d(a, b):
+    A, B = outline(a, box(a)[2]), outline(b, box(b)[2])
     sa, sb = list(zip(A, A[1:] + A[:1])), list(zip(B, B[1:] + B[:1]))
     d = min(min(min(seg_d(p, *e) for e in sb) for p in A), min(min(seg_d(p, *e) for e in sa) for p in B))
     return dict(vertices=[len(A), len(B)], min_distance=d,
                 crossing=any(crosses(p, q, r, t) for p, q in sa for r, t in sb),
                 inside=sum(inside(p, B) for p in A) + sum(inside(p, A) for p in B))
+
+
+def stl_points(path, n):
+    v = []
+    for line in open(path):
+        q = line.split()
+        if q and q[0] == 'vertex':
+            v.append([float(x) for x in q[1:4]])
+    v = np.unique(np.array(v), axis=0)
+    step = max(1, len(v) // n)
+    return v[::step]
+
+
+def mesh_check(placed, na, nb, sa, sb):
+    from OCP.BRepClass3d import BRepClass3d_SolidClassifier
+    from OCP.BRepExtrema import BRepExtrema_DistShapeShape
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+    from OCP.TopAbs import TopAbs_IN
+    from OCP.gp import gp_Pnt
+    inside, dmin = 0, float('inf')
+    for pts, other in ((stl_points(os.path.join(placed, na + '.stl'), 600), sb), (stl_points(os.path.join(placed, nb + '.stl'), 600), sa)):
+        for x, y, z in pts:
+            c = BRepClass3d_SolidClassifier(other.wrapped, gp_Pnt(x, y, z), 1e-7)
+            inside += c.State() == TopAbs_IN
+        for x, y, z in pts[::10]:
+            dd = BRepExtrema_DistShapeShape(BRepBuilderAPI_MakeVertex(gp_Pnt(x, y, z)).Vertex(), other.wrapped)
+            dd.Perform()
+            dmin = min(dmin, dd.Value())
+    return dict(method='occt-boolean-implausible; point-classified', occt_common_volume_rejected=True, samples_inside=int(inside),
+                sampled_distance=dmin, relation='interference' if inside > 0 else ('contact' if dmin < 1e-3 else 'clear'))
 
 
 def box(s):
@@ -64,6 +96,10 @@ def box(s):
 
 def boxes_touch(a, b, eps=1e-6):
     return all(a[i] <= b[i + 3] + eps and b[i] <= a[i + 3] + eps for i in range(3))
+
+
+MESHES = (('pinion1', 'gear1'), ('pinion2', 'gear2'))
+EXPECT = 18
 
 
 def main(placed, out):
@@ -79,19 +115,22 @@ def main(placed, out):
         common = a['solid'].intersect(b['solid'])
         cv = sum(x.volume for x in common.solids()) if common is not None else 0.0
         dist = a['solid'].distance(b['solid'])
-        pairs.append(dict(a=na, b=nb, common_volume=cv, distance=dist,
-                          relation='interference' if cv > 1e-6 else ('contact' if dist < 1e-6 else 'clear')))
+        rec = dict(a=na, b=nb, common_volume=cv, distance=dist, method='occt-boolean',
+                   relation='interference' if cv > 1e-6 else ('contact' if dist < 1e-6 else 'clear'))
+        if cv > 1e-6 and cv > 1.000001 * min(a['volume'], b['volume']):
+            rec.update(mesh_check(placed, na, nb, a['solid'], b['solid']))
+        pairs.append(rec)
     meshes = {}
-    for pa, ga in (('pinion1', 'gear1'), ('pinion2', 'gear2')):
+    for pa, ga in MESHES:
         if pa in parts and ga in parts:
-            m = mesh2d(parts[pa]['solid'], parts[ga]['solid'], parts[pa]['box'][2])
+            m = mesh2d(parts[pa]['solid'], parts[ga]['solid'])
             m['ok'] = not m['crossing'] and m['inside'] == 0 and m['min_distance'] > 0.05
             meshes[pa + '-' + ga] = m
     rep = dict(meshes=meshes, parts={k: dict(nsol=v['nsol'], valid=v['valid'], volume=v['volume'], box=v['box']) for k, v in parts.items()},
                pairs=pairs,
                interference=[p for p in pairs if p['relation'] == 'interference'],
                all_valid=all(v['valid'] and v['nsol'] == 1 for v in parts.values()))
-    rep['pass'] = rep['all_valid'] and not rep['interference'] and len(parts) == 18 and all(m['ok'] for m in meshes.values()) and len(meshes) == 2
+    rep['pass'] = rep['all_valid'] and not rep['interference'] and len(parts) == EXPECT and all(m['ok'] for m in meshes.values()) and len(meshes) == 2
     export_step(Compound([v['solid'] for v in parts.values()]), os.path.join(out, 'gearbox_assembly.step'))
     json.dump(rep, open(os.path.join(out, 'grade.json'), 'w'), indent=1)
     print(json.dumps(meshes))
@@ -102,4 +141,7 @@ def main(placed, out):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 3:
+        EXPECT = int(sys.argv[3])
+        MESHES = tuple(tuple(x.split(':')) for x in sys.argv[4:])
     main(sys.argv[1], sys.argv[2])

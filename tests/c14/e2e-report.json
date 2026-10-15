@@ -1,5 +1,5 @@
 {
- "binary_sha256": "24d6861e73036eb245d6fd268cc36b87e0aa4981a1046b18e5ec9f762210fad2",
+ "binary_sha256": "62947fa2abfac14c9f8b559143d8444b50d73ed30936df8bcc7aacee58f8ac9b",
  "passed": 16,
  "total": 16,
  "results": [
@@ -111,7 +111,7 @@
   {
    "name": "interf.touch",
    "ok": true,
-   "seconds": 6.72,
+   "seconds": 6.58,
    "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
   },
   {
