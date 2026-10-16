@@ -1,0 +1,56 @@
+{
+ "binary": "/home/jesse/bc/bendcad",
+ "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "passed": 6,
+ "total": 6,
+ "results": [
+  {
+   "name": "box.eval",
+   "ok": true,
+   "seconds": 0.0,
+   "budget": 30,
+   "wall": 0.0,
+   "error": null
+  },
+  {
+   "name": "bracket.commit",
+   "ok": true,
+   "seconds": 0.1,
+   "budget": 30,
+   "wall": 0.2,
+   "error": null
+  },
+  {
+   "name": "bracket.tess",
+   "ok": true,
+   "seconds": 0.0,
+   "budget": 30,
+   "wall": 0.1,
+   "error": null
+  },
+  {
+   "name": "bracket.step",
+   "ok": true,
+   "seconds": 0.0,
+   "budget": 30,
+   "wall": 0.1,
+   "error": null
+  },
+  {
+   "name": "slab.archive",
+   "ok": true,
+   "seconds": 0.0,
+   "budget": 30,
+   "wall": 0.0,
+   "error": null
+  },
+  {
+   "name": "g3.parts",
+   "ok": true,
+   "seconds": 4.9,
+   "budget": 40,
+   "wall": 4.9,
+   "error": null
+  }
+ ]
+}

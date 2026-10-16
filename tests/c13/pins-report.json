@@ -1,0 +1,134 @@
+[
+ {
+  "name": "cap_max_val",
+  "ok": true
+ },
+ {
+  "name": "code_cancelled",
+  "ok": true
+ },
+ {
+  "name": "code_exhausted",
+  "ok": true
+ },
+ {
+  "name": "code_invalid",
+  "ok": true
+ },
+ {
+  "name": "code_nonconverged",
+  "ok": true
+ },
+ {
+  "name": "code_uncertain",
+  "ok": true
+ },
+ {
+  "name": "code_unsupported",
+  "ok": true
+ },
+ {
+  "name": "dec_cancel",
+  "ok": true
+ },
+ {
+  "name": "dec_cancel_wins",
+  "ok": true
+ },
+ {
+  "name": "dec_go",
+  "ok": true
+ },
+ {
+  "name": "dec_over",
+  "ok": true
+ },
+ {
+  "name": "esc_backslash",
+  "ok": true
+ },
+ {
+  "name": "esc_newline",
+  "ok": true
+ },
+ {
+  "name": "esc_plain",
+  "ok": true
+ },
+ {
+  "name": "esc_quote",
+  "ok": true
+ },
+ {
+  "name": "json_err_basic",
+  "ok": true
+ },
+ {
+  "name": "json_ok",
+  "ok": true
+ },
+ {
+  "name": "line_basic",
+  "ok": true
+ },
+ {
+  "name": "over_empty",
+  "ok": true
+ },
+ {
+  "name": "over_exact",
+  "ok": true
+ },
+ {
+  "name": "over_over",
+  "ok": true
+ },
+ {
+  "name": "over_under",
+  "ok": true
+ },
+ {
+  "name": "over_zero",
+  "ok": true
+ },
+ {
+  "name": "parse_badval",
+  "ok": true
+ },
+ {
+  "name": "parse_both",
+  "ok": true
+ },
+ {
+  "name": "parse_cancel",
+  "ok": true
+ },
+ {
+  "name": "parse_cap",
+  "ok": true
+ },
+ {
+  "name": "parse_empty",
+  "ok": true
+ },
+ {
+  "name": "parse_huge",
+  "ok": true
+ },
+ {
+  "name": "parse_lastwins",
+  "ok": true
+ },
+ {
+  "name": "parse_missing",
+  "ok": true
+ },
+ {
+  "name": "parse_plain",
+  "ok": true
+ },
+ {
+  "name": "parse_unknown",
+  "ok": true
+ }
+]

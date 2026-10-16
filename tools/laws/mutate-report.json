@@ -91,6 +91,237 @@
   "verdict": "SOME PROOFS FAIL"
  },
  {
+  "pkt": "c05",
+  "law": "sgn neg involution",
+  "file": "src/base/par.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "sgn is reflexive",
+  "file": "src/base/par.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "sgn neg of neg",
+  "file": "src/base/ex.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "uncertain dominates ex sign",
+  "file": "src/base/ex.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "ex neg keeps ok",
+  "file": "src/base/ex.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "ex add taints",
+  "file": "src/base/ex.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "ex mul taints",
+  "file": "src/base/ex.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "arrange invalid publishes nothing",
+  "file": "src/c05/arrange.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "arrange budget is exhaustion",
+  "file": "src/c05/arrange.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "ares err show",
+  "file": "src/c05/arrange.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "solve invalid publishes nothing",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "lm budget returns state",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "lm done returns state",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "no conflict without stationarity",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "conflict names violations",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "sol err show",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "gather len",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "nat eq refl is not vacuous",
+  "file": "laws/c05/LAWS.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "self coincidence invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "pt eq refl",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "or true r is not vacuous",
+  "file": "laws/c05/LAWS.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "self pair invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "same line invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "reversed line invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "par self invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "perp self invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "horiz self invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "dist self invalid",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "conflict never ok",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "ok iff solved",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "classify is solved at",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "solved needs geometry",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "steps keep radii positive",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
   "pkt": "c06",
   "law": "one entry per node",
   "file": "src/c06/model.bend",
@@ -745,6 +976,34 @@
   "pkt": "c16.3",
   "law": "F4 blade on non-blades is accepted",
   "file": "src/c16/blade.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c13",
+  "law": "error codes stay in range",
+  "file": "src/c13/err.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c13",
+  "law": "exact budget evaluates",
+  "file": "src/c13/req.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c13",
+  "law": "zero budget refuses",
+  "file": "src/c13/req.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c13",
+  "law": "cancel wins over budget",
+  "file": "src/c13/req.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
  }

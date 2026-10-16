@@ -1,0 +1,7 @@
+n2.c0.wall.0.0 plane loops=1
+n2.c0.wall.1.0 plane loops=1
+n2.c0.wall.2.0 plane loops=1
+n2.c0.wall.3.0 plane loops=1
+n2.c0.wall.4.0 plane loops=1
+n2.c0.wall.5.0 plane loops=1
+

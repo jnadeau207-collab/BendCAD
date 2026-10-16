@@ -1,0 +1,17 @@
+n2.c0.wall.0.0 planar-patch loops=1
+n2.c0.wall.1.0 planar-patch loops=1
+n2.c0.wall.2.0 planar-patch loops=1
+n2.c0.wall.3.0 planar-patch loops=1
+n2.c0.wall.4.0 planar-patch loops=1
+n2.c0.wall.5.0 planar-patch loops=1
+n2.c0.wall.6.0 planar-patch loops=1
+n2.c0.wall.7.0 planar-patch loops=1
+n2.c0.wall.8.0 plane loops=1
+n2.c0.wall.9.0 plane loops=1
+n2.c0.wall.10.0 plane loops=1
+n2.c0.wall.11.0 plane loops=1
+n2.c0.wall.12.0 plane loops=1
+n2.c0.wall.13.0 plane loops=1
+n2.c0.wall.14.0 plane loops=1
+n2.c0.wall.15.0 plane loops=1
+

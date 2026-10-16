@@ -1,0 +1,92 @@
+{
+ "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "passed": 14,
+ "total": 14,
+ "results": [
+  {
+   "name": "diag.ok",
+   "ok": true,
+   "secs": 0.02,
+   "design_sha256": "0a71e913c4c467be6ad5a411dddd27d5f14005ad82d508857027d548a6e9d645",
+   "sha256": "d8e54840d3e807b6e881d340cbed120bae15e4818ed55c7afe88c578ae032fcd"
+  },
+  {
+   "name": "diag.fail",
+   "ok": true,
+   "secs": 0.014,
+   "sha256": "2d0e38b5eadb39318e16da7d1e437d264847facc197a68ed98f8ab49c80f4fd3"
+  },
+  {
+   "name": "diag.empty",
+   "ok": true,
+   "secs": 0.001
+  },
+  {
+   "name": "cap.under",
+   "ok": true,
+   "secs": 0.027
+  },
+  {
+   "name": "cap.huge",
+   "ok": true,
+   "secs": 0.014
+  },
+  {
+   "name": "cap.over",
+   "ok": true,
+   "secs": 0.005
+  },
+  {
+   "name": "cap.atomic",
+   "ok": true,
+   "secs": 0.001
+  },
+  {
+   "name": "cancel",
+   "ok": true,
+   "secs": 0.004
+  },
+  {
+   "name": "flags",
+   "ok": true,
+   "secs": 0.018
+  },
+  {
+   "name": "mcp.structured",
+   "ok": true,
+   "secs": 0.083
+  },
+  {
+   "name": "mcp.cancel",
+   "ok": true,
+   "secs": 0.051
+  },
+  {
+   "name": "mcp.cap",
+   "ok": true,
+   "secs": 0.087
+  },
+  {
+   "name": "sweep",
+   "ok": true,
+   "items": 35,
+   "secs": 0.2,
+   "unparsed": [],
+   "bad_code": [],
+   "missing": []
+  },
+  {
+   "name": "observed.missing_file",
+   "ok": true,
+   "eval_code": 2,
+   "eval_bytes": 26,
+   "eval_sha256": "7833838098dff21a62433384c486ade9ca1da78ee9f7995fa051640e4a6db5e4",
+   "reopen_code": 2,
+   "reopen_bytes": 26,
+   "reopen_sha256": "7833838098dff21a62433384c486ade9ca1da78ee9f7995fa051640e4a6db5e4",
+   "eval_head": "No such file or directory",
+   "reopen_head": "No such file or directory",
+   "secs": 0.002
+  }
+ ]
+}

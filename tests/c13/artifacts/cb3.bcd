@@ -1,0 +1,7 @@
+(bendcad 1)
+(node 1 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 2 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 3 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 4 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 5 (naca4 4 4 12 100 17) (intent create any any any any))
+(node 6 (blade 1 2 3 4 5 200 20 75) (intent create any any any any))

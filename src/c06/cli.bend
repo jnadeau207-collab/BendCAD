@@ -25,6 +25,8 @@ import ../c12/stepr.bend as SR
 import ../c12/mesh.bend as MO
 import ../c14/asm.bend as AS
 import ../c15/pmi.bend as PM
+import ../c13/err.bend as E
+import ../c13/req.bend as R
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -67,7 +69,7 @@ def nr_s(r: M.NR) -> String:
   match r:
     case M.NR_err{k, d}:
       M.Dg{w, l, y, f} = d
-      "error " ++ T.FailKind.show(k) ++ " | " ++ w ++ " @ " ++ l ++ " | why: " ++ y ++ " | fix: " ++ f
+      E.line(k, w, l, y, f)
     case M.NR_ok{+b, fx}: "ok " ++ M.fx_show(fx) ++ " | " ++ ms_s(M.body_ms(b)) ++ proof_s(M.xb_pr(M.bd_xb(b)))
 
 def ces_s(cs: List<&2, M.CE>) -> String:
@@ -83,6 +85,20 @@ def ces_ok(cs: List<&2, M.CE>) -> Bool:
     case c <> t:
       M.CE{id, key, r} = c
       Bool.and(M.nr_ok(r), ces_ok(t))
+
+def diag_ce(c: M.CE) -> String:
+  match c:
+    case M.CE{+id, key, +r}:
+      match r:
+        case M.NR_ok{b, fx}: E.json_ok(id)
+        case M.NR_err{k, d}:
+          M.Dg{w, l, y, f} = d
+          E.json_err(id, k, w, l, y, f)
+
+def diag_s(cs: List<&2, M.CE>) -> String:
+  match cs:
+    case []: ""
+    case c <> t: diag_ce(c) ++ "\n" ++ diag_s(t)
 
 def pm_name(p: M.Param) -> String:
   M.Pm{id, name, dim} = p
@@ -417,7 +433,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "pmi"), 23u64,
   Bool.pick(U64, String.eq(c, "flat"), 24u64,
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
-  Bool.pick(U64, String.eq(c, "blade"), 26u64, 0u64))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64, 0u64)))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -886,10 +902,31 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 24u64: IO.print(flat_go(p, rest))
     case 25u64: IO.print(surf_go(p, rest))
     case 26u64: IO.print(blade_go(p, rest))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade")
+    case 27u64: IO.print(diag_s(M.ev_part(p, [])))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag")
 
-def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String) -> IO(Unit):
-  run_go(cmd_code(cmd), cmd, path, rest, load(src))
+def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
+  match is_diag:
+    case True{}: IO.print(E.json_err(0u64, T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
+    case False{}: IO.print(E.line(T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
+
+def run_over_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
+  match is_diag:
+    case True{}: IO.print(E.json_err(0u64, T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
+    case False{}: IO.print(E.line(T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
+
+def run_dec(d: R.Dec, +code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
+  match d:
+    case R.D_go{}: run_go(code, cmd, path, rest, p)
+    case R.D_cancel{}: run_cancel_go(String.eq(cmd, "diag"), cmd, path)
+    case R.D_over{}: run_over_go(String.eq(cmd, "diag"), cmd, path)
+
+def run_part(+cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +cap: U64, +cancel: Bool) -> IO(Unit):
+  M.Pt{+ps, +ns} = p
+  run_dec(R.dec_of(cancel, R.over_ids(M.nd_ids(ns), U64.to_nat(cap))), cmd_code(cmd), cmd, path, rest, p)
+
+def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String, +cap: U64, +cancel: Bool) -> IO(Unit):
+  run_part(cmd, path, rest, load(src), cap, cancel)
 
 def main_new(+path: String) -> IO(Unit):
   do IO<Unit>:
@@ -897,22 +934,32 @@ def main_new(+path: String) -> IO(Unit):
 ")
     IO.print("created " ++ path)
 
-def main_old(+path: String, +cmd: String, +rest: List<&2, String>) -> IO(Unit):
+def main_old_go(+path: String, +cmd: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(Unit):
   do IO<Unit>:
     src : String <- read_file(path)
-    run(cmd, path, rest, src)
+    run(cmd, path, rest, src, cap, cancel)
 
-def main_sel(isnew: Bool, +path: String, +cmd: String, +rest: List<&2, String>) -> IO(Unit):
+def main_isnew_go(isnew: Bool, +path: String, +verb: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(Unit):
   match isnew:
     case True{}: main_new(path)
-    case False{}: main_old(path, cmd, rest)
+    case False{}: main_old_go(path, verb, rest, cap, cancel)
+
+def main_flag_go(bad: Bool, +path: String, +verb: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool, +err: String) -> IO(Unit):
+  match bad:
+    case True{}: IO.print(E.line(T.F_invalid{}, "args", path, err, "use [--max-nodes N] [--cancelled] before the verb"))
+    case False{}: main_isnew_go(String.eq(verb, "new"), path, verb, rest, cap, cancel)
+
+def main_fl(+path: String, +fl: R.Fl) -> IO(Unit):
+  R.Fl{+cap, +cancel, +verb, +rest, +err} = fl
+  main_flag_go(Bool.not(String.eq(err, "")), path, verb, rest, cap, cancel, err)
+
+def main_sel(+path: String, +tokens: List<&2, String>) -> IO(Unit):
+  main_fl(path, R.parse(tokens))
 
 def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
   match isgeo:
     case True{}: geo_go(geo12(S.arg_at(args, 2n)), args)
-    case False{}:
-      +cmd = S.arg_at(args, 2n)
-      main_sel(String.eq(cmd, "new"), S.arg_at(args, 1n), cmd, arg_drop(args, 3n))
+    case False{}: main_sel(S.arg_at(args, 1n), arg_drop(args, 2n))
 
 def main_go(+args: List<&2, String>) -> IO(Unit):
   main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)

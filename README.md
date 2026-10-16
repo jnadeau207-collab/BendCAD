@@ -48,8 +48,8 @@ Back comes a certified volume interval for every node, durable face names that s
 
 ## How we keep it honest
 
-- **Laws, not just tests.** Over 500 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
-- **Pins.** 2,167 fixed-input checks run as compiled code and are compared bit-for-bit.
+- **Laws, not just tests.** 575 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Pins.** 2,569 fixed-input checks run as compiled code and are compared bit-for-bit.
 - **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
 
@@ -73,7 +73,8 @@ And the kernel milestones that carry it there:
 - **Shipped:** assemblies: mates solved exactly with kinematic degrees of freedom, certified interference and clearance, exploded views, and assembly lineage with durable selectors.
 - **Shipped:** semantic PMI and GD&T: dimensions, tolerances and datum reference frames bound to durable selectors, evaluated over envelopes and operating states, exported as STEP AP242.
 - **Shipped:** specialized modeling: sheet metal with certified flat patterns, open-shell surface modeling with thickening to solids, and NACA blade sections with ruled stacking and certified section reports.
-- **Now:** a qualified public release.
+- **Shipped:** professional release qualification: a stable CLI with structured errors and resource/cancellation gates, a documented SDK boundary, reproducible builds, diagnostics, a versioned corpus, and regression gates every future capability re-runs.
+- **Now:** the G2 proof gate: a flanged pump housing with a bolt pattern, a gasket groove, and fits certified over tolerances.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 

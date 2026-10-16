@@ -1,0 +1,11 @@
+{
+ "budgets": {
+  "box.eval": 30,
+  "bracket.commit": 30,
+  "bracket.step": 30,
+  "bracket.tess": 30,
+  "g3.parts": 40,
+  "slab.archive": 30
+ },
+ "version": 1
+}

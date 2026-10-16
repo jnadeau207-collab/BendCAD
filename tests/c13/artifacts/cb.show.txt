@@ -1,0 +1,6 @@
+(bendcad 1)
+(node 1 (flat 100 50 2) (intent create any any any any))
+(node 2 (bend 1 (edge 0) 3 90) (intent add any any any any))
+(node 3 (bend 2 (edge 2) 3 90) (intent add any any any any))
+(node 4 (hem 3 (edge 0) 10) (intent add any any any any))
+

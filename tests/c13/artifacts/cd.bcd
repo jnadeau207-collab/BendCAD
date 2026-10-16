@@ -1,0 +1,3 @@
+(bendcad 1)
+(node 1 (loft-open 8 (region (path 0 0 (line 10 0) (line 10 5) (line 0 5))) (region (path 1 1 (line 9 1) (line 9 4) (line 1 4)))) (intent create any any any any))
+(node 2 (thicken-open 1 1) (intent add any any any any))

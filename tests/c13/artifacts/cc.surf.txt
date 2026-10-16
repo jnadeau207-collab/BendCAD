@@ -1,0 +1,9 @@
+surf node 1 kind patch faces 1 boundary 4
+edge n1.e0 len [10, 10] estimated
+edge n1.e1 len [5, 5] estimated
+edge n1.e2 len [10, 10] estimated
+edge n1.e3 len [5, 5] estimated
+area [50.08177319271058, 50.08177319271058] estimated
+blen [30, 30] estimated
+bbox 0 10 0 5 0 0.288
+

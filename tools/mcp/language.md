@@ -296,6 +296,10 @@ Any count may be `any`. The kernel measures every field from the result
   excluded; a solid with no non-adjacent pair answers `min-wall none`.
   A depth or plane argument outside its domain is `invalid-input` and
   publishes nothing, as do all query failures.
+- `diagnose`: one JSON object per evaluated node (`{"node":N,"ok":true}`
+  or `{"node":N,"ok":false,"code":C,"kind":...,"what":...,"loc":...,
+  `"why":...,"fix":...}`), one per line. Machine-readable form of the
+  eval failures; see Errors and resources.
 
 ## Geometry queries
 
@@ -470,6 +474,25 @@ evaluated fresh on every call, so design edits propagate through it.
   (state cold 1) (state hot 1.002)
   (stack s1 dW))
 ```
+
+## Errors and resources
+
+Every kernel failure is `error KIND | what @ where | why: ... | fix: ...`
+(request-level failures without a known location omit the `@ where`;
+per-node failures prefix the line with `node N: `)
+with KIND one of `invalid-input` (1), `unsupported-op` (2),
+`numerical-uncertainty` (3), `nonconvergence` (4), `cancelled` (5),
+`resource-exhausted` (6). Budget and profile refusals are
+`refused WHY | ... | fix: ...` and write nothing, as do all failures.
+`diagnose` renders the same failures as JSON lines. Flags before the verb
+bound a request: `--max-nodes N` refuses designs with more than N nodes
+(`node-budget-exceeded`, nothing evaluated) and `--cancelled` refuses at
+once (`request-cancelled`); both default off. The MCP server reports its
+own timeout as `cancelled`/`cli-exceeded-timeout` (raise
+`BENDCAD_TIMEOUT_MS`), honours `BENDCAD_MAX_NODES` on every design call,
+and attaches a `diagnostics` array with the parsed failures to every tool
+result. A printed verdict always exits 0; nonzero means the CLI never
+reached its verdict (crash or unreadable file).
 
 ## Example
 

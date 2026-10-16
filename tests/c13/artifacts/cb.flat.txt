@@ -1,0 +1,8 @@
+flat node 4 bends 2 hems 1
+bend 0 edge 0 deg 90 r 3 allowance [5.654866776461623, 6.283185307179592] certified
+bend 1 edge 2 deg 90 r 3 allowance [5.654866776461623, 6.283185307179592] certified
+hem 0 edge 0 len 10
+legs [12.5, 2, 10, 10, 90, 22.5]
+developed [158.30973355292315, 159.5663706143593] certified
+blank 100 50
+

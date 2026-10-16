@@ -8,17 +8,66 @@ const here = dirname(fileURLToPath(import.meta.url));
 const BIN = process.env.BENDCAD_BIN || '/home/jesse/bc/bendcad';
 const LOG = process.env.BENDCAD_LOG || '';
 const TIMEOUT = Number(process.env.BENDCAD_TIMEOUT_MS) || 600000;
+const MAXN = process.env.BENDCAD_MAX_NODES || '';
 const REF = readFileSync(join(here, 'language.md'), 'utf8');
+const CODES = {'invalid-input':1,'unsupported-op':2,'numerical-uncertainty':3,'nonconvergence':4,'cancelled':5,'resource-exhausted':6};
+
+function withCap(args) {
+  if (MAXN === '' || args[0] === 'geom') return args;
+  return [args[0], '--max-nodes', MAXN, ...args.slice(1)];
+}
+
+function endState(r) {
+  if (r.error && (r.error.code === 'ETIMEDOUT' || /timed?out/i.test(r.error.message || ''))) return 'timeout';
+  if (r.status === null && r.signalCode) return 'signal';
+  return 'exit';
+}
+
+function parseErr(text) {
+  const diags = [];
+  for (const ln0 of String(text).split('\n')) {
+    let m;
+    const pm = /^node (\d+): (.*)$/.exec(ln0);
+    const ln = pm ? pm[2] : ln0;
+    const pnode = pm ? Number(pm[1]) : null;
+    if (ln.startsWith('{"node"')) {
+      try {
+        const o = JSON.parse(ln);
+        if (o && o.ok === false) diags.push({node: o.node ?? null, ok: false, code: o.code ?? null, kind: o.kind ?? null, what: o.what ?? null, loc: o.loc ?? null, why: o.why ?? null, fix: o.fix ?? null});
+      } catch {}
+      continue;
+    }
+    if ((m = /^error (\S+) \| (.*?) @ (.*?) \| why: (.*?) \| fix: (.*)$/.exec(ln))) {
+      diags.push({node: pnode, ok: false, code: CODES[m[1]] ?? null, kind: m[1], what: m[2], loc: m[3], why: m[4], fix: m[5]});
+      continue;
+    }
+    if ((m = /^error (\S+) \| (.*?) \| why: (.*?) \| fix: (.*)$/.exec(ln))) {
+      diags.push({node: pnode, ok: false, code: CODES[m[1]] ?? null, kind: m[1], what: m[2], loc: null, why: m[3], fix: m[4]});
+      continue;
+    }
+    if ((m = /^refused (\S+) \| (.*)$/.exec(ln))) { diags.push({ok: false, code: null, kind: 'refused', why: m[1], raw: m[2]}); continue; }
+    if ((m = /^error unknown command (.*)$/.exec(ln))) { diags.push({ok: false, code: null, kind: 'unknown-command', raw: m[1]}); continue; }
+    if ((m = /^error: (.*)$/.exec(ln))) { diags.push({ok: false, code: null, kind: 'legacy', raw: m[1]}); continue; }
+    if ((m = /^rejected: (.*)$/.exec(ln))) { diags.push({ok: false, code: null, kind: 'rejected', raw: m[1]}); continue; }
+    if (ln0 === 'node failed') { diags.push({ok: false, code: null, kind: 'legacy', raw: ln0}); continue; }
+  }
+  return diags;
+}
 
 function cli(args) {
   const [cmd, pre] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
-  const r = spawnSync(cmd, [...pre, ...args], { encoding: 'utf8', timeout: TIMEOUT });
-  const out = (r.stdout || '') + (r.stderr || '');
+  const full = [...pre, ...withCap(args)];
+  const r = spawnSync(cmd, full, { encoding: 'utf8', timeout: TIMEOUT });
+  const st = endState(r);
+  let out = (r.stdout || '') + (r.stderr || '');
+  if (st === 'timeout') out += (out === '' || out.endsWith('\n') ? '' : '\n') + `error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current ${TIMEOUT})\n`;
+  if (st === 'signal') out += (out === '' || out.endsWith('\n') ? '' : '\n') + `error cancelled | mcp-signal @ bendcad-mcp | why: cli-killed-by-signal-${r.signalCode} | fix: retry the request\n`;
   if (LOG) {
-    const rec = JSON.stringify({ t: new Date().toISOString(), args, status: r.status, out }) + '\n';
+    const rec = JSON.stringify({ t: new Date().toISOString(), args: full, status: r.status, out }) + '\n';
     try { appendFileSync(LOG, rec); } catch {}
   }
-  return { ok: r.status === 0 && !/^error|rejected/m.test(out), text: out.trim() || `exit ${r.status}` };
+  const ok = r.status === 0 && st === 'exit' && !/^error|^node \d+: error|^node failed|rejected/m.test(out) && !/"ok":false/.test(out);
+  return { ok, text: out.trim() || `exit ${r.status}`, diags: parseErr(out) };
 }
 
 const design = { type: 'string', description: 'Design file path inside WSL, e.g. /home/jesse/work/bracket.bcd' };
@@ -26,7 +75,7 @@ const node = { type: 'integer', description: 'Node id' };
 
 const tools = [
   { name: 'reference', description: 'The BendCAD design language: parameters, profiles, operations, faces, intents. Read this first.',
-    inputSchema: { type: 'object', properties: {} }, run: () => ({ ok: true, text: REF }) },
+    inputSchema: { type: 'object', properties: {} }, run: () => ({ ok: true, text: REF, diags: [] }) },
   { name: 'new_design', description: 'Create an empty design file.',
     inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'new']) },
   { name: 'apply', description: 'Apply edits atomically. Each edit is (param NAME NOM [LO HI]), (node ID OP INTENT) or (delete ID). The change is committed only if every node builds and meets its declared intent; otherwise nothing changes and each failure is diagnosed.',
@@ -36,6 +85,8 @@ const tools = [
     inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'show']) },
   { name: 'evaluate', description: 'Evaluate every node: measured effect, certified volume and area intervals, bounding box, entity counts, genus.',
     inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'eval']) },
+  { name: 'diagnose', description: 'Structured failures of the design as JSON lines: one {"node","ok"} object per evaluated node; failures carry code, kind, what, loc, why and fix.',
+    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'diag']) },
   { name: 'measure', description: 'Measures of one node\'s solid.',
     inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'measure', String(a.node)]) },
   { name: 'faces', description: 'Faces of one node\'s solid by durable lineage name (nN.cK.top|bottom|wall.I.J), surface type and loop count. Use these names to select faces for features.',
@@ -173,7 +224,7 @@ rl.on('line', line => {
     const t = tools.find(x => x.name === m.params?.name);
     if (!t) { send({ jsonrpc: '2.0', id: m.id, error: { code: -32602, message: 'unknown tool' } }); return; }
     const r = t.run(m.params.arguments || {});
-    send({ jsonrpc: '2.0', id: m.id, result: { content: [{ type: 'text', text: r.text }], isError: !r.ok } });
+    send({ jsonrpc: '2.0', id: m.id, result: { content: [{ type: 'text', text: r.text }], isError: !r.ok, diagnostics: r.diags || [] } });
   } else if (m.method === 'ping') {
     send({ jsonrpc: '2.0', id: m.id, result: {} });
   } else if (m.id !== undefined) {

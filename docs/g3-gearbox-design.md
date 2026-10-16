@@ -77,26 +77,32 @@ through the vent port.
 
 ## 3. What BendCAD could not model, and how the design responds
 
-Recorded as kernel limits, not hidden:
+Recorded as kernel limits, not hidden. Each carries its registry ID and
+the first gate needing the fix (`docs/c13-limits.md`); the responses below
+were the v3 reference design's, and later gates must not reuse them as
+workarounds:
 
-- Features on the two faces of one cell interact even when they cannot meet
-  in z (the C06 cell tree treats every child cell as an obstacle on both
-  sides). Response: every bore chain is cut from one side (bearing pocket,
-  then seal bore, then through hole).
-- Booleans of touching solids keep them separate (C08), and pads must lie
-  strictly inside the face they grow from. Response: separate gears on
-  D-shafts rather than gear-shafts cut in one piece.
-- A pocket in a head over a shank grown beneath it is refused. Response:
-  hex head screws rather than socket head.
-- A ring pocket whose inner edge encloses a hole of the face (an O-ring
-  groove round the cavity) is refused. Response: the flat gasket.
-- The STEP writer has no CONICAL_SURFACE. Response: seal lips modelled with
-  cylinders, planes and a torus.
-- Thin tori (R/r beyond about 8-12) fail validation. Response: the seal's
-  garter spring is not modelled.
-- No threads (tapped holes and screws at nominal diameters), no chamfers on
-  pad edges (seal lead-in chamfers are a drawing note), no side holes.
-- Meshing-gear disjointness and clearance are estimated, not certified (C11).
+- [G3-L1, needs G5] Features on the two faces of one cell interact even
+  when they cannot meet in z (the C06 cell tree treats every child cell as
+  an obstacle on both sides). Response: every bore chain is cut from one
+  side (bearing pocket, then seal bore, then through hole).
+- [G3-L2, needs G5] Booleans of touching solids keep them separate (C08),
+  and pads must lie strictly inside the face they grow from. Response:
+  separate gears on D-shafts rather than gear-shafts cut in one piece.
+- [G3-L3, needs G5] A pocket in a head over a shank grown beneath it is
+  refused. Response: hex head screws rather than socket head.
+- [G3-L4, needs G2] A ring pocket whose inner edge encloses a hole of the
+  face (an O-ring groove round the cavity) is refused. Response: the flat
+  gasket.
+- [G3-L5, needs G5] The STEP writer has no CONICAL_SURFACE. Response: seal
+  lips modelled with cylinders, planes and a torus.
+- [G3-L6, needs G5] Thin tori (R/r beyond about 8-12) fail validation.
+  Response: the seal's garter spring is not modelled.
+- [G3-L7a/b/c, need G2/G5/G4] No threads (tapped holes and screws at
+  nominal diameters; G2), no chamfers on pad edges (seal lead-in chamfers
+  are a drawing note; G5), no side holes (G4).
+- [G3-L8, needs G5] Meshing-gear disjointness and clearance are estimated,
+  not certified (C11).
 
 One defect found here was fixed rather than designed around: profile
 clearance between concentric arcs was never certified (a 2 mm-thick ring

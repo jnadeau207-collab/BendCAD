@@ -1,0 +1,256 @@
+{
+ "corpus_version": 1,
+ "binary": "/home/jesse/bc/bendcad",
+ "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "passed": 13,
+ "total": 13,
+ "results": [
+  {
+   "name": "g3.gearbox",
+   "ok": true,
+   "checks": {
+    "solve_line": "asm solved ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14",
+    "seconds": [
+     4.9,
+     4.9
+    ],
+    "exit0": true,
+    "stages": true,
+    "solve": true,
+    "eval_eq": true,
+    "bcd_eq": true,
+    "asm_eq": true
+   },
+   "artifacts": {
+    "g3a/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7",
+    "g3a/gearbox.bcd": "b3fb0f1fe6b7e52ea1f0f70198f4744fdb60cea657c0dc2153cb535695f89699",
+    "g3a/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f",
+    "g3b/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7",
+    "g3b/gearbox.bcd": "b3fb0f1fe6b7e52ea1f0f70198f4744fdb60cea657c0dc2153cb535695f89699",
+    "g3b/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f"
+   },
+   "seconds": 9.9
+  },
+  {
+   "name": "sheet.bracket",
+   "ok": true,
+   "checks": {
+    "stp_volume": 15756.637060945108,
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "cyl": true,
+    "bbox": true,
+    "header": true,
+    "allows": true,
+    "legs": true,
+    "dev": true,
+    "mesh": true,
+    "step": true,
+    "replay": true,
+    "reopen": true
+   },
+   "artifacts": {
+    "cb.bcd": "6bb3a6abb67cfa9d20db1002f25962552dfb4822a5f3da73e228d0ce1c4176a5",
+    "cb.obj": "f002ff5fb211c24b647512be541e2fa6859ba026fd6f64435439f56471150c19",
+    "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
+    "cb.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21"
+   },
+   "seconds": 1.9
+  },
+  {
+   "name": "sheet.edits",
+   "ok": true,
+   "checks": {
+    "edits": true,
+    "cycle": true,
+    "dev1": true,
+    "legs1": true,
+    "sens": true
+   },
+   "artifacts": {
+    "ce.bcd": "c90b1dc5cf8d7b8d4f93070b1a340fdcd6cc8a02376300ba94c36e48ed122c05"
+   },
+   "seconds": 0.1
+  },
+  {
+   "name": "sheet.fold180",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "check": true,
+    "volume": true,
+    "faces": true,
+    "cyl": true,
+    "bbox": true
+   },
+   "artifacts": {
+    "cf.bcd": "09babc132ce71076f1e9db697aa19275b4098060f404c40283d1770eced9bff8"
+   },
+   "seconds": 0.1
+  },
+  {
+   "name": "surf.cowl",
+   "ok": true,
+   "checks": {
+    "oracle_area": 50.081797515158236,
+    "committed": true,
+    "header": true,
+    "edges": true,
+    "area": true,
+    "slab": true,
+    "step": true,
+    "replay": true,
+    "reopen": true
+   },
+   "artifacts": {
+    "cc.bcd": "b405c2b88f5a45697d2c05448ce3195d27fc96867d20d116b84f6e69071c25d7",
+    "cs.bcd": "ee877e019ec860b3a92fd1c085f127a6816e21b8be2d2ad7926f0f686e24c7ad",
+    "cs.stp": "bab6316aa3d5815df4d62d79379a0f880cf848829e6a83513677c25a10c8d3a1",
+    "cs.bin": "1e2a7feb00c76f28ae87f95b556dde2aaf9e9b940cc15c0fcdc63f3a4676733e"
+   },
+   "seconds": 0.3
+  },
+  {
+   "name": "surf.duct",
+   "ok": true,
+   "checks": {
+    "oracle_vol": 209.61870145576222,
+    "committed": true,
+    "check": true,
+    "vol": true,
+    "faces": true,
+    "genus": true,
+    "reopen": true
+   },
+   "artifacts": {
+    "cd.bcd": "88380363638ed51615af31b688b4e418706d8b63fd548b115cc6949cff2f4687",
+    "cd.bin": "ed17c2df6d205d9fec4db4997fc5ac54f42432620e6ad9b59356d2a8dd36da2a"
+   },
+   "seconds": 0.2
+  },
+  {
+   "name": "blade.stack",
+   "ok": true,
+   "checks": {
+    "stp_volume": 40251.686809170154,
+    "committed": true,
+    "header": true,
+    "sched": true,
+    "faces": true,
+    "genus": true,
+    "check": true,
+    "step": true,
+    "replay": true,
+    "reopen": true
+   },
+   "artifacts": {
+    "cb3.bcd": "37c4c73ed59e4a40131e752d185f115be8e9d2287608f01d5d9bddaae83fb32f",
+    "cp.bcd": "9a6caac473080551f2d400d59766cfda1b04222a6f527b41190c50c763a9fcba",
+    "cp.stp": "67e1e4267ac13eb8a643c5dc57277ad0c85bae41cc0a2ff3ab52d9c16eb7b227",
+    "cp.bin": "05f10357381f3da1f3a61d92af5727a6647807cdd903cf8d43930f7c885d5aa6"
+   },
+   "seconds": 1.2
+  },
+  {
+   "name": "scale.sweep",
+   "ok": true,
+   "checks": {
+    "0p01": true,
+    "1": true,
+    "100": true,
+    "1000": true
+   },
+   "artifacts": {
+    "sc0p01.bcd": "5f74aafbad01c71c38142d5ea098ed09dd933a154381965e52cf43c14103d36a",
+    "sc1.bcd": "c34b6fd2f53a19fcda11a0c056eae267f1314439ccf564680690b7da729c735c",
+    "sc100.bcd": "49c680559a15bb2c4c0a50783474844aa0cb790a5ca4f73e69388db818669842",
+    "sc1000.bcd": "8bf86deed5f21d712f5c9f5c552eab9f39b5df775e014681a2a1c3617087b945"
+   },
+   "seconds": 0.1
+  },
+  {
+   "name": "mixed.union",
+   "ok": true,
+   "checks": {
+    "committed": true,
+    "solids": true,
+    "refused": true,
+    "step": true
+   },
+   "artifacts": {
+    "mx.bcd": "0227859c5490962f550f47614d6b12ee38ea43ef6b1541ca0f77826d75e7e75d",
+    "mx2.stp": "bab6316aa3d5815df4d62d79379a0f880cf848829e6a83513677c25a10c8d3a1",
+    "mx5.stp": "974d16adb73ae4bb577c533853b33a34851049cabeb875d7c2ca3b7ad7deb616"
+   },
+   "seconds": 0.1
+  },
+  {
+   "name": "ring.arcs",
+   "ok": true,
+   "checks": {
+    "arcs_vs_arcs": true,
+    "rounded_ring": true,
+    "refuse_touching": true,
+    "refuse_crossing": true,
+    "refuse_tangent_inside": true
+   },
+   "artifacts": {
+    "ra_arcs_vs_arcs.bcd": "32d3984c7249ffe83e0bcc21c8d214eb29f00f544c165bc283f18a5645fe14aa",
+    "ra_rounded_ring.bcd": "a1587e21e7eec8f2317703635e8bd0abeb75c676221e1124806b5b34fc91c023"
+   },
+   "seconds": 0.0
+  },
+  {
+   "name": "corrupt.inputs",
+   "ok": true,
+   "checks": {
+    "import_garbage": true,
+    "import_badent": true,
+    "import_cone": true,
+    "reopen_garbage": true,
+    "reopen_badver": true,
+    "reopen_badunits": true,
+    "step_of": true,
+    "stl_of": true,
+    "3mf_of": true,
+    "node_failed": true
+   },
+   "artifacts": {
+    "kbox.step": "8bde318e8eec5af56ae83204bad55c7d930a387e1760564a2c7412fd4ff75eb6",
+    "kbox.bca": "38dadd2cc5f4ce3dffd4f827e257085020a5c6c0ee4069ffa7eee227e6913a04"
+   },
+   "seconds": 0.1
+  },
+  {
+   "name": "crash.recovery",
+   "ok": true,
+   "checks": {
+    "truncated_head": "",
+    "reject_atomic": true,
+    "archive_restore": true,
+    "transcript": true,
+    "truncated_no_commit": true
+   },
+   "artifacts": {
+    "kr.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21",
+    "kr2.bcd": "6bb3a6abb67cfa9d20db1002f25962552dfb4822a5f3da73e228d0ce1c4176a5"
+   },
+   "seconds": 0.3
+  },
+  {
+   "name": "long.sequence",
+   "ok": true,
+   "checks": {
+    "sequence": true,
+    "cycle": true,
+    "volume": true
+   },
+   "artifacts": {
+    "kl.bcd": "89e255126ee693886cc722061572488b8a9e46cd173da59dba4e0724d651dedd"
+   },
+   "seconds": 1.7
+  }
+ ]
+}

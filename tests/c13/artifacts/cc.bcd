@@ -1,0 +1,2 @@
+(bendcad 1)
+(node 1 (patch (pt 0 0 0) (pt 4 0 0) (pt 6 0 0) (pt 10 0 0) (pt 0 2 0) (pt 4 2 0.288) (pt 6 2 0.288) (pt 10 2 0) (pt 0 3 0) (pt 4 3 0.288) (pt 6 3 0.288) (pt 10 3 0) (pt 0 5 0) (pt 4 5 0) (pt 6 5 0) (pt 10 5 0)) (intent create any any any any))

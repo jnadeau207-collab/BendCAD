@@ -1,0 +1,17 @@
+n4.c0.top plane loops=1
+n4.c0.bottom plane loops=1
+n4.c0.wall.0.0 plane loops=1
+n4.c0.wall.1.0 cylinder loops=1
+n4.c0.wall.2.0 plane loops=1
+n4.c0.wall.3.0 cylinder loops=1
+n4.c0.wall.4.0 plane loops=1
+n4.c0.wall.5.0 plane loops=1
+n4.c0.wall.6.0 plane loops=1
+n4.c0.wall.7.0 plane loops=1
+n4.c0.wall.8.0 plane loops=1
+n4.c0.wall.9.0 cylinder loops=1
+n4.c0.wall.10.0 plane loops=1
+n4.c0.wall.11.0 cylinder loops=1
+n4.c0.wall.12.0 plane loops=1
+n4.c0.wall.13.0 plane loops=1
+
