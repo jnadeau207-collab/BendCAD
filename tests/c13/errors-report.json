@@ -1,5 +1,5 @@
 {
- "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
  "passed": 14,
  "total": 14,
  "results": [
@@ -13,7 +13,7 @@
   {
    "name": "diag.fail",
    "ok": true,
-   "secs": 0.014,
+   "secs": 0.013,
    "sha256": "2d0e38b5eadb39318e16da7d1e437d264847facc197a68ed98f8ab49c80f4fd3"
   },
   {
@@ -49,22 +49,22 @@
   {
    "name": "flags",
    "ok": true,
-   "secs": 0.018
+   "secs": 0.017
   },
   {
    "name": "mcp.structured",
    "ok": true,
-   "secs": 0.083
+   "secs": 0.084
   },
   {
    "name": "mcp.cancel",
    "ok": true,
-   "secs": 0.051
+   "secs": 0.049
   },
   {
    "name": "mcp.cap",
    "ok": true,
-   "secs": 0.087
+   "secs": 0.089
   },
   {
    "name": "sweep",

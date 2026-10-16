@@ -1,28 +1,28 @@
 {
  "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
  "binary_swapped": false,
  "foreign_hashes": [
   {
    "suite": "tests/c07/solid_neg.py",
-   "binary_sha256": "dad6c0f5a8f4caf177b1778e7c78f489f4c8d9f2c50f37feb8b080335d7793c6"
+   "binary_sha256": "eb2b29ba4994a068316e0f73200ac58450abe9fc64c4261d2dd92b6f4e022dcd"
   }
  ],
  "suites_passed": 29,
  "suites_total": 29,
  "journeys_passed": 996,
  "journeys_total": 996,
- "wall_seconds": 1370.4,
+ "wall_seconds": 1383.5,
  "results": [
   {
    "suite": "tests/c06/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 13.1,
+   "seconds": 12.9,
    "passed": 62,
    "total": 62,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -33,11 +33,11 @@
    "suite": "tests/c07/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 234.7,
+   "seconds": 234.0,
    "passed": 328,
    "total": 328,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -52,7 +52,7 @@
    "passed": 34,
    "total": 34,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "solid-report.json"
@@ -63,11 +63,11 @@
    "suite": "tests/c07/solid_neg.py",
    "ok": true,
    "rc": 0,
-   "seconds": 305.5,
+   "seconds": 305.9,
    "passed": 13,
    "total": 13,
    "binary_sha256": [
-    "dad6c0f5a8f4caf177b1778e7c78f489f4c8d9f2c50f37feb8b080335d7793c6"
+    "eb2b29ba4994a068316e0f73200ac58450abe9fc64c4261d2dd92b6f4e022dcd"
    ],
    "reports": [
     "solid-neg-report.json"
@@ -82,7 +82,7 @@
    "passed": 33,
    "total": 33,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "zone-report.json"
@@ -97,7 +97,7 @@
    "passed": 108,
    "total": 108,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -108,11 +108,11 @@
    "suite": "tests/c08/neg.py",
    "ok": true,
    "rc": 0,
-   "seconds": 9.5,
+   "seconds": 9.4,
    "passed": 20,
    "total": 20,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -123,11 +123,11 @@
    "suite": "tests/c09/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 4.4,
+   "seconds": 4.3,
    "passed": 29,
    "total": 29,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -142,7 +142,7 @@
    "passed": 27,
    "total": 27,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -157,7 +157,7 @@
    "passed": 11,
    "total": 11,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -172,7 +172,7 @@
    "passed": 12,
    "total": 12,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -183,11 +183,11 @@
    "suite": "tests/c11/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 392.8,
+   "seconds": 406.3,
    "passed": 33,
    "total": 33,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -202,7 +202,7 @@
    "passed": 19,
    "total": 19,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -213,11 +213,11 @@
    "suite": "tests/c12/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 4.2,
+   "seconds": 3.5,
    "passed": 17,
    "total": 17,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -232,7 +232,7 @@
    "passed": 24,
    "total": 24,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -243,11 +243,11 @@
    "suite": "tests/c13/corpus.py",
    "ok": true,
    "rc": 0,
-   "seconds": 16.8,
+   "seconds": 17.0,
    "passed": 13,
    "total": 13,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "corpus-report.json"
@@ -258,11 +258,11 @@
    "suite": "tests/c13/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 6.6,
+   "seconds": 6.7,
    "passed": 5,
    "total": 5,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -277,7 +277,7 @@
    "passed": 14,
    "total": 14,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "errors-report.json"
@@ -292,7 +292,7 @@
    "passed": 6,
    "total": 6,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "perf-report.json"
@@ -307,7 +307,7 @@
    "passed": 16,
    "total": 16,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -318,11 +318,11 @@
    "suite": "tests/c14/neg.py",
    "ok": true,
    "rc": 0,
-   "seconds": 0.9,
+   "seconds": 1.0,
    "passed": 18,
    "total": 18,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -337,7 +337,7 @@
    "passed": 13,
    "total": 13,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -352,7 +352,7 @@
    "passed": 29,
    "total": 29,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -363,11 +363,11 @@
    "suite": "tests/c16.1/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 5.6,
+   "seconds": 5.7,
    "passed": 11,
    "total": 11,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -382,7 +382,7 @@
    "passed": 25,
    "total": 25,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -393,11 +393,11 @@
    "suite": "tests/c16.2/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 3.5,
+   "seconds": 3.6,
    "passed": 12,
    "total": 12,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -412,7 +412,7 @@
    "passed": 28,
    "total": 28,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"
@@ -423,11 +423,11 @@
    "suite": "tests/c16.3/e2e.py",
    "ok": true,
    "rc": 0,
-   "seconds": 134.6,
+   "seconds": 134.9,
    "passed": 11,
    "total": 11,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "e2e-report.json"
@@ -442,7 +442,7 @@
    "passed": 25,
    "total": 25,
    "binary_sha256": [
-    "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9"
+    "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33"
    ],
    "reports": [
     "neg-report.json"

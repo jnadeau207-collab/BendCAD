@@ -61,7 +61,7 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 |---|---|---|
 | G1 | Parameterized mounting bracket with curved edges and holes | ✅ passed |
 | G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | next |
-| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | built; mesh clearance not yet certified |
+| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed (owner review; kernel mesh clearance still estimated) |
 | G4 | Centrifugal blower with modal analysis and machining checks | planned |
 | G5 | A ~100 N micro turbojet, with drawings a shop can build from | planned |
 | G6 | A bespoke jet engine from a performance brief | the summit |

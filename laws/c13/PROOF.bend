@@ -21,8 +21,13 @@ def exact_go(ids: List<&2, U64>) -> {R.over_ids(ids, Laws.count_ids(ids)) == Fal
 def Laws.exact_budget_ok(ids):
   exact_go(ids)
 
-def Laws.zero_budget_refuses(h, t):
-  {==}
+def over_go(ids: List<&2, U64>, x: U64) -> {R.over_ids(x <> ids, Laws.count_ids(ids)) == True{} : Bool}:
+  match ids:
+    case []: {==}
+    case h <> t: over_go(t, h)
+
+def Laws.one_over_refuses(x, ids):
+  over_go(ids, x)
 
 def Laws.cancel_wins(over):
   {==}

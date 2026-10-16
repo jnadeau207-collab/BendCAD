@@ -1002,7 +1002,7 @@
  },
  {
   "pkt": "c13",
-  "law": "zero budget refuses",
+  "law": "one over budget is admitted",
   "file": "src/c13/req.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"

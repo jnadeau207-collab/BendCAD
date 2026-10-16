@@ -1,7 +1,7 @@
 {
  "baseline_version": 1,
  "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
  "passed": 5,
  "total": 5,
  "baseline": {
@@ -24,7 +24,7 @@
     "g3/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f",
     "g3/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7"
    },
-   "seconds": 4.9
+   "seconds": 5.0
   },
   {
    "name": "sheet.bracket",

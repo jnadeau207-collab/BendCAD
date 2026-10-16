@@ -1,7 +1,7 @@
 {
  "corpus_version": 1,
  "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "6b0bd9d55f7d3a7b1bb1306bda221c318d7ca4b77eb26ff90ce1af9feadbf9a9",
+ "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
  "passed": 13,
  "total": 13,
  "results": [
@@ -11,8 +11,8 @@
    "checks": {
     "solve_line": "asm solved ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14",
     "seconds": [
-     4.9,
-     4.9
+     5.0,
+     5.0
     ],
     "exit0": true,
     "stages": true,
@@ -29,7 +29,7 @@
     "g3b/gearbox.bcd": "b3fb0f1fe6b7e52ea1f0f70198f4744fdb60cea657c0dc2153cb535695f89699",
     "g3b/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f"
    },
-   "seconds": 9.9
+   "seconds": 10.0
   },
   {
    "name": "sheet.bracket",
@@ -57,7 +57,7 @@
     "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
     "cb.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21"
    },
-   "seconds": 1.9
+   "seconds": 2.0
   },
   {
    "name": "sheet.edits",
@@ -237,7 +237,7 @@
     "kr.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21",
     "kr2.bcd": "6bb3a6abb67cfa9d20db1002f25962552dfb4822a5f3da73e228d0ce1c4176a5"
    },
-   "seconds": 0.3
+   "seconds": 0.2
   },
   {
    "name": "long.sequence",

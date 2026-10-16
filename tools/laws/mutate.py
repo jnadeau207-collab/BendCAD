@@ -414,7 +414,7 @@ MUTANTS = [
     ('c13', 'exact budget evaluates', 'src/c13/req.bend',
      '    case []: False{}',
      '    case []: True{}'),
-    ('c13', 'zero budget refuses', 'src/c13/req.bend',
+    ('c13', 'one over budget is admitted', 'src/c13/req.bend',
      '        case 0n: True{}',
      '        case 0n: False{}'),
     ('c13', 'cancel wins over budget', 'src/c13/req.bend',
@@ -429,14 +429,30 @@ def check(pkt):
     return out[0] if out else ''
 
 
+def fresh():
+    shutil.rmtree(WORK, ignore_errors=True)
+    shutil.copytree(ROOT, WORK, ignore=shutil.ignore_patterns('.git', '__pycache__', 'e2e-meshes'))
+
+
+def bases(only):
+    pkts = [p for p in dict.fromkeys(m[0] for m in MUTANTS) if not only or p in only]
+    fresh()
+    for pkt in pkts:
+        v = check(pkt)
+        if v != 'ALL PROOFS CHECK':
+            print('BASE FAIL', pkt, '->', v, '; a mutant kill against a failing base proves nothing', flush=True)
+            sys.exit(2)
+        print('BASE', pkt, '->', v, flush=True)
+
+
 def main():
     only = sys.argv[1:]
+    bases(only)
     rows = []
     for pkt, name, path, old, new in MUTANTS:
         if only and pkt not in only:
             continue
-        shutil.rmtree(WORK, ignore_errors=True)
-        shutil.copytree(ROOT, WORK, ignore=shutil.ignore_patterns('.git', '__pycache__', 'e2e-meshes'))
+        fresh()
         f = os.path.join(WORK, path)
         s = open(f, encoding='utf-8').read()
         if s.count(old) != 1:

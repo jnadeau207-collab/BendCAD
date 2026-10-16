@@ -16,10 +16,10 @@ law exact_budget_ok:
   for ids: List<&2, U64>
   {R.over_ids(ids, count_ids(ids)) == False{} : Bool}
 
-law zero_budget_refuses:
-  for h: U64
-  for t: List<&2, U64>
-  {R.over_ids(h <> t, 0n) == True{} : Bool}
+law one_over_refuses:
+  for x: U64
+  for ids: List<&2, U64>
+  {R.over_ids(x <> ids, count_ids(ids)) == True{} : Bool}
 
 law cancel_wins:
   for over: Bool
