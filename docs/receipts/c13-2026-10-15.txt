@@ -6,10 +6,10 @@ structured errors and resource/cancellation gates, a documented
 SDK/native boundary, reproducible builds, diagnostics, compatibility
 tests, a versioned 13-member corpus, and regression gates that future
 capabilities qualify by re-running — plus the planted-mutant cover for
-c05 (33 rows over all law families), the one packet that had none.
+c05 (34 rows, one per law), the one packet that had none.
 
 Verdict: CLOSED. 4 new laws (575/575 tree-wide both modes), 4 new C13
-mutant families plus 33 new c05 families (144/144 killed tree-wide), 33
+mutant families plus 34 new c05 families (145/145 killed tree-wide), 33
 new pins (2569/2569 tree-wide over 23 files), 38 new journeys (996/996
 over 29 suites), every earlier gate re-proven, and the G3 parts gate
 green (4 stages committed, dof 0).
@@ -58,13 +58,12 @@ ladder pass), G2/G4/G5/G6 pending — no row depends on a pending rung.
 | Compatibility tests | oracle re-reads in-suite; STEP round-trips | OCCT/FreeCAD/PlaneGCS as test-only comparators; exports reimport | G3 v3 OCCT re-read (119/119 valid), `step.slanted` regression, archive reopens in corpus | corrupt STEP/archive/entity refused by name, nothing written (`corrupt.inputs`) | read / write / refuse paths journeyed separately | oracles are never the runtime (§10 boundary) | PASS |
 | Versioned corpus | tests/c13/corpus.py + docs/c13-corpus.md (version 1, 13 members) | double-build byte-equality + oracle checks on the recorded binary | 13/13 incl G3 gearbox, sheet/surf/blade, scales, mixed, ring, corrupt, crash, 40-edit sequence | corrupt + crash members are the neg half (refuse-by-name, byte-identical recovery) | per-member checks + artifact hashes in corpus-report.json | OCCT STEP reads, trimesh/build123d checks | PASS |
 | Perf regressions block | tests/c13/perf.py + perf-budget.json; docs/c13-regress.md | 6 ops vs committed budgets (8x observed, 30s floor) | 6/6 (box eval, bracket commit/tess/step, slab archive, G3 stage) | any budget trip fails the gate (no trip observed) | micro-ops best-of-3, G3 stage single-run | budgets committed, `--bless` is a review event | PASS |
-| Earlier gates still pass | every prior receipt | all laws, mutants, pins, suites green on the final tree | §3–§5: 575/575 laws, 144/144 mutants, 2569/2569 pins, 996/996 journeys | every `neg.py` + c07 neg suites inside the 996 | per-packet rows in each report | independent binaries (solid-neg) + oracles | PASS |
+| Earlier gates still pass | every prior receipt | all laws, mutants, pins, suites green on the final tree | §3–§5: 575/575 laws, 145/145 mutants, 2569/2569 pins, 996/996 journeys | every `neg.py` + c07 neg suites inside the 996 | per-packet rows in each report | independent binaries (solid-neg) + oracles | PASS |
 | G3 gearbox still builds and assembles | docs/g3-gearbox-design.md; docs/receipts/g3/v3/receipt.md | 4 stages committed, `asm solved ninst 119 nmates 122 dof 0` | corpus `g3.gearbox` + e2e `g3.gearbox`, residual 8.526512829121202e-14 | n/a (reference design, not a ladder pass) | stages committed independently, then solved | report/bcd/assembly hashes recorded twice | PASS |
 
 Matrix closure: all 4 C13 laws appear above by family, all 33 C13 pins,
-all 38 new journeys (13 corpus + 5 e2e + 14 errors + 6 perf); 33 of 34
-c05 laws carry their own killed mutant, and law 33 rides law 30's
-family (§4.1).
+all 38 new journeys (13 corpus + 5 e2e + 14 errors + 6 perf); all 34
+c05 laws carry their own killed mutant (§4.1).
 
 ## 3. Combined law proof
 
@@ -83,50 +82,50 @@ no ground `{==}` law.
 
 ## 4. Mutation
 
-`BEND=~/bin/bendcap python3 tools/laws/mutate.py`: 144/144 mutants
+`BEND=~/bin/bendcap python3 tools/laws/mutate.py`: 145/145 mutants
 killed, every verdict `SOME PROOFS FAIL`. The S5 chain2 run killed
 111/111 including all 4 C13 families (log
 `/tmp/bendcad-s5-mutate.log`, report sha256 `b896f02d…`); this session
-added 33 c05 rows covering every c05 law family (§4.1) and merged them
-into `tools/laws/mutate-report.json` (report sha256 a6bed5c3aa6744d4da3fb748ac4bd037d1a0fde801f131110650af6d06501f76)
-without touching any other entry — no other packet's sources changed,
-so the S5 rows stand as measured.
+added one row per c05 law (34/34, §4.1) and merged them into
+`tools/laws/mutate-report.json` (report sha256 b5ed294c618df5291b56b4e3637bc0267097a69ae26056368b3f03416bb89187) without
+touching any other entry — no other packet's sources changed, so the
+S5 rows stand as measured.
 
-### 4.1 c05: 34 laws, 33 rows, every family covered
+### 4.1 c05: 34 laws, 34 rows
 
-c05 never had a planted mutant. It has 33 rows now: sign/sgn algebra
-flips in `src/base/par.bend` (2) and `src/base/ex.bend` (5:
-negation, uncertain-dominance, add/mul taint), arrange gate flips in
+c05 never had a planted mutant. It has 34 rows now, one per law:
+sign/sgn algebra flips in `src/base/par.bend` (2) and `src/base/ex.bend`
+(5: negation, uncertain-dominance, add/mul taint), arrange gate flips in
 `src/c05/arrange.bend` (3), and solver flips in `src/c05/solve.bend`
-(21: run/lm gates, conflict/classify branches, show strings, gather
-length, coincidence/pair/line/par/perp/horiz/dist validity, solved
-and radii positivity). Two laws are inductions over the compiler
-prelude with no implementation to break (`nat_eq_refl` over
+(22: run/lm gates, conflict/classify branches, show strings, gather
+length, coincidence/pair/line/par/perp/horiz/dist validity, solved,
+geometry veto, radii positivity). Two laws are inductions over the
+compiler prelude with no implementation to break (`nat_eq_refl` over
 `Nat.is_eq`, `or_true_r` over `Bool.or`); their mutants falsify the
 stated property (`is_eq(x,1n+x)`, `or(x,False)`) and the proofs fail,
 which shows the proofs establish the claim rather than elaborate
 vacuously. Both are labeled `is not vacuous` in the report.
 
-The 34th law, `geometry_veto`, carries no row, by measurement rather
-than by omission. Its proof is a one-step corollary application of
-law 30 (`ok_iff_solved`), so every genuine falsifier must break
-`classify_go`'s False arm — and every such falsifier sends the
-checker into failure-driven unfolding search through the F64
-stationarity term instead of a verdict. Measured three ways, all on
-the pinned toolchain under `bendcap`: an `ok_of` False arm (13+ min,
-51 CPU-min, ~10 GB, killed without output), a concrete `Sv_ok` False
-arm (11 min, 34 CPU-min, ~10 GB, killed without output), and a
-falsified statement (`== True{}`, 30:00 timeout, 8666 CPU-s, 9.99 GB
-max RSS, zero output; `/tmp/bendcad-mut-probe.log`). The passing
-check is 143 s and every other c05 kill lands in seconds to ~5 min.
-The family is covered — laws 29/30/31/32 kill fast — and the law
-itself is proven in §3; what it cannot carry is a practical kill,
-and the report does not pretend otherwise.
+`geometry_veto` needs a two-armed falsifier. Its proof is a one-step
+corollary application of law 30 (`ok_iff_solved`), so a single-arm bug
+in `classify_go`'s False arm sends the checker into failure-driven
+unfolding search through the F64 stationarity term instead of a
+verdict — measured three ways, all on the pinned toolchain under
+`bendcap`: an `ok_of` False arm (13+ min, 51 CPU-min, ~10 GB, killed
+without output), a concrete `Sv_ok` False arm (11 min, 34 CPU-min,
+~10 GB, killed without output), and a falsified statement (`== True{}`,
+30:00 timeout, 8666 CPU-s, 9.99 GB max RSS, zero output;
+`/tmp/bendcad-mut-probe.log`). The planted row breaks both arms at
+once: the False arm returns `Sv_ok`, genuinely falsifying the veto
+for every input, while the True arm returns `Sv_err`, which trips
+law 30's rigid `{==}` first — `SOME PROOFS FAIL` in 0.40 s at 139 MB
+(`/tmp/bendcad-mut-duo.log`), before the checker ever reaches the
+search paths.
 
 ## 5. Observed results (final binary 6b0bd9d5 unless noted)
 
 - Laws: §3, 575/575 both modes, exit 0.
-- Mutation: §4, 144/144 killed, report sha256 a6bed5c3aa6744d4da3fb748ac4bd037d1a0fde801f131110650af6d06501f76.
+- Mutation: §4, 145/145 killed, report sha256 b5ed294c618df5291b56b4e3637bc0267097a69ae26056368b3f03416bb89187.
 - Pins: 2569/2569 over all 23 `tests/*/pins*.bend` files, PINS-EXIT=0,
   0 build fails, 0 pin fails — including c13 33/33 (log
   `/tmp/bendcad-s5-pins.log`).
@@ -191,7 +190,7 @@ D-blade-*, OM-rtfloor, D-buildmem):
 - `tools/mcp/bendcad-mcp.mjs` + `tools/mcp/language.md`: `diagnostics`
   arrays, `BENDCAD_TIMEOUT_MS` timeout-as-cancelled,
   `BENDCAD_MAX_NODES`, `diagnose` tool; Errors reference section.
-- `tools/laws/mutate.py`: 4 c13 families + 33 c05 rows (144 total).
+- `tools/laws/mutate.py`: 4 c13 families + 34 c05 rows (145 total).
 - Laws/proofs (4/4), pins (33), journeys (13 corpus + 5 e2e + 14
   errors + 6 perf), oracles, contract/intent docs (`docs/c13-corpus.md`,
   `docs/c13-errors.md`, `docs/c13-limits.md`, `docs/c13-matrix.md`,
@@ -220,8 +219,8 @@ D-blade-*, OM-rtfloor, D-buildmem):
 
 - Binary: `~/bin/bendbuild` (no args) on the commit below.
 - Laws: `bash tools/laws/check.sh <logdir>` → 20/20 both modes.
-- Mutants: `BEND=~/bin/bendcap python3 tools/laws/mutate.py` → 144/144
-  killed (or `… c05` for the 33 new rows merged over S5's 111).
+- Mutants: `BEND=~/bin/bendcap python3 tools/laws/mutate.py` → 145/145
+  killed (or `… c05` for the 34 new rows merged over S5's 111).
 - Pins: `bash tools/pins/run.sh tests/*/pins*.bend` → 2569/2569 over
   23 files.
 - Journeys: `BENDCAD_BIN=~/bc/bendcad python3 tests/c13/gate.py` →
@@ -233,6 +232,6 @@ D-blade-*, OM-rtfloor, D-buildmem):
   solved assembly (`docs/receipts/g3/v3/receipt.md`).
 
 C13 verdict on the final binary: 4 new laws inside 575/575, 4/4 new
-C13 mutant families plus 33 new c05 rows killed inside 144/144,
+C13 mutant families plus 34 new c05 rows killed inside 145/145,
 33 new pins inside 2569/2569 over 23 files, 38 new journeys inside
 996/996 over 29 suites, G3 green, limits recorded with owners — CLOSED.

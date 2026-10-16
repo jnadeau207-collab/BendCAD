@@ -316,6 +316,13 @@
  },
  {
   "pkt": "c05",
+  "law": "geometry veto",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
   "law": "steps keep radii positive",
   "file": "src/c05/solve.bend",
   "ok": true,

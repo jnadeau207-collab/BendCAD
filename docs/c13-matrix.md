@@ -63,7 +63,7 @@ needing the fix.
 
 ## 4. Measured counts (final binary 6b0bd9d5)
 
-Laws 575/575 both modes (20/20 packets). Mutants 144/144 killed.
+Laws 575/575 both modes (20/20 packets). Mutants 145/145 killed.
 Pins 2569/2569 over 23 files. Journeys 996/996 over 29 suites
 (958 pre-C13 re-proven + 38 new: corpus 13/13, e2e 5/5, errors 14/14,
 perf 6/6). G3 v3 `parts`: 4 stages committed,
