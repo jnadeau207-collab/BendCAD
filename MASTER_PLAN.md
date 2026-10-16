@@ -244,6 +244,32 @@ Deliver a stable CLI and documented SDK/native integration boundary, reproducibl
 
 Qualify a broad, versioned corpus of mechanical parts and pathological geometry; include varied scales, repeated feature edits, mixed analytic/NURBS solids, corrupted input, crash recovery, and long operation sequences. Material performance regressions block release. The professional-grade claim belongs to this evidence, not to a successful compiler run.
 
+### Gate-driven kernel packets (K-series)
+
+The proof gates G2–G6 decide what the kernel must become (`docs/gates/README.md`). When a gate brief needs a capability BendCAD lacks, the capability becomes a K packet that closes before the gate runs. Each K packet names the gate briefs that need it and, as its corpus, the C13 limit IDs it closes (`docs/c13-limits.md`). It closes the way C packets close: laws, mutants, pins, E2E and neg journeys, a receipt, and every earlier gate still green.
+
+### K1 — Crossing booleans and features anywhere (for G2, then G4–G6)
+
+C08 closed without face splitting: operands whose boundaries cross are refused (`boundaries-cross-or-overlap`), features refuse on boolean results (`feature-on-boolean-result`), and features act only along a body's z axis from top or bottom cell faces. No real part survives those rules. A side port meeting a gear chamber, a cross-drilled passage, a counterbored socket-head screw over its shank, and an O-ring groove around a cavity all need them. K1 implements:
+
+- Regularized union, difference and intersection of operands whose boundaries cross. Intersect faces pairwise using C07 surface/surface intersection over every admitted analytic pair (plane, cylinder, cone, sphere, torus). Split edges and faces along the intersection curves. Classify the fragments, assemble and orient the shells, then validate and publish. Intersection edges that are not lines, circles or conics (cylinder/cylinder at general radii, for example) are certified curves with explicit bounds, not samples. Coplanar, coaxial and tangent contact is handled; it is not refused. Lineage records split faces one-to-many, and durable selectors resolve split faces uniquely or report ambiguity.
+- Placements by any rotation with a certified bound, so ports and bores can sit at any angle.
+- Features on any planar face of any closed solid, boolean results included. A pad, pocket or hole on a face acts along that face's normal. Footprints may enclose or cross earlier features where the result is a valid solid. This closes the side-blind cell obstacles, the pocket-over-shank refusal and the ring-pocket-around-a-hole refusal (C13 limits G3-L1, G3-L3, G3-L4, G3-L7c).
+- Chamfers and fillets on the edges of holes and pockets (spot faces, lead-ins, edge breaks), closing G3-L7b for those edges.
+- The STEP writer emits CONICAL_SURFACE (G3-L5), and every new face kind round-trips.
+
+Exit: the C08 neg journeys that assert `boundaries-cross-or-overlap` and `feature-on-boolean-result` flip to certified results. A corpus of crossing cases — perpendicular bores of equal and unequal radius, a port into a figure-eight chamber, an off-axis drilled passage, a counterbored screw, an O-ring groove around a pocketed cavity — passes independent volume identities (|A∪B| + |A∩B| = |A| + |B| to certified bounds), the B-rep checker, STEP round trip and serialization replay. Every earlier gate stays green, including the G3 reference gearbox.
+
+### K2 — Materials, threads, press fits and certified mesh clearance (for G2, then G4–G6)
+
+- Materials: `(material NODE NAME DENSITY CTE ...)` binds a named grade to a design node. `mass` reports certified mass properties at that density, per part and per assembly. STEP AP242 carries the material.
+- Thermal states per material: a C15 operating state at temperature T grows each part by its own CTE (aluminium and steel differ). Stacks and fits are evaluated per state.
+- Threads as semantic features: tapped holes and external threads carry designation, class, length and handedness. Hole geometry is at tap-drill or minor diameter, with the major diameter carried in the feature. The thread feature exports as AP242 semantic PMI, and thread engagement length is queryable.
+- Fits: declared press fits are certified positive interference over the envelope, and interference queries report them as declared, not as defects. Clearance fits are certified positive. ISO 286 hole and shaft classes are accepted by name.
+- Certified clearance between meshing involute gears and between a gear tip and a bore (closes G3-L8), so gear-pump tip clearance and gearbox backlash are certificates, not estimates.
+
+Exit: a corpus of bolted, doweled and press-fitted joints, plus a gear pair and a gear in a bore, certifies mass, fits, thread engagement and mesh clearance, exported and read back.
+
 ## 11. Proof strategy and the trusted boundary
 
 Maintain four separate categories: formally proven properties, certified numerical bounds, experimentally tested behavior, and trusted assumptions. None is silently relabeled as another.
@@ -603,7 +629,7 @@ repeatably across seeds and briefs.
 | G5 | Micro turbojet, KJ-66 class (~100 N), drawings a shop can build from; clearances certified in cold and running states | C16 blades, state-dependent geometry |
 | G6 | Bespoke jet engine from a performance brief | everything |
 
-Gates G2–G6 follow `docs/gates/README.md`: each gate's result decides what BendCAD must become, and a missing capability is built into the kernel rather than designed around. G6 is the HUMPHREY-1 pressure-gain turbojet (`docs/gates/g6-humphrey-1.md`). Order: C16, C13, then G2, G4, G5, G6.
+Gates G2–G6 follow `docs/gates/README.md`: each gate's result decides what BendCAD must become, and a missing capability is built into the kernel rather than designed around. G6 is the HUMPHREY-1 pressure-gain turbojet (`docs/gates/g6-humphrey-1.md`). Order: C16, C13, then K1 and K2 (the kernel G2 needs), G2, then the K packets each later gate's brief demands, G4, G5, G6.
 
 G1 passed on 2026-10-05. Fresh agents ran brief A three times over two
 transports (CLI, then MCP) and brief B twice, the last run on the final
