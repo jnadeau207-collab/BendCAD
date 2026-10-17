@@ -442,7 +442,7 @@ def bp_ps_of(fs: List<&2, Ty.Face>) -> List<&2, V.Point>:
   match fs:
     case []: []
     case f <> t:
-      Ty.Fa{g, +s, ls, +same} = f
+      Ty.Fa{g, +s, ls, +same, slv, sla} = f
       List.append(&2, V.Point, face_bp_go(bp_solo(ls), s), bp_ps_of(t))
 
 def tp_ids(xs: List<&2, TP>) -> List<&2, Nat>:
@@ -596,11 +596,11 @@ def face_go(+k: U64, +rs: List<&2, List<&2, TP>>, +c: V.Point) -> List<&2, Tri>:
     case _: planar_tris(rs)
 
 def face_bp_used(f: Ty.Face) -> Nat:
-  Ty.Fa{g, +s, ls, +same} = f
+  Ty.Fa{g, +s, ls, +same, slv, sla} = f
   Bool.pick(Nat, Bool.and(Bool.and(U64.is_eq(surf_k(s), 2u64), bp_solo(ls)), bp_curved(s)), bp_used(), 0n)
 
 def face_tris(f: Ty.Face, +x: Ctx, +ps: B.Tb<&2, V.Point>, +base: Nat) -> List<&2, Tri>:
-  Ty.Fa{g, +s, +ls, +same} = f
+  Ty.Fa{g, +s, +ls, +same, slv, sla} = f
   +rs = rings(ls, x)
   +c = cyl_c(s)
   +k = surf_k(s)
@@ -625,7 +625,7 @@ def rings_h(rs: List<&2, List<&2, TP>>) -> Nat:
     case r <> t: Nat.add(1n, rings_h(t))
 
 def est_face(f: Ty.Face, +x: Ctx) -> Nat:
-  Ty.Fa{g, +s, ls, +same} = f
+  Ty.Fa{g, +s, ls, +same, slv, sla} = f
   +rs = rings(ls, x)
   +n = rings_n(rs)
   +h = rings_h(rs)

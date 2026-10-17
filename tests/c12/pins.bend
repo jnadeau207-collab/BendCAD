@@ -48,7 +48,7 @@ def ar_mk_text__got() -> String:
   pinarc()
 
 def ar_mk_text__want() -> String:
-  "BCAD1|mm|pin|B1|1,0,0,0,0,0,0|1.5,0,0|||||||0;0"
+  "BCAD2|mm|pin|B1|1,0,0,0,0,0,0|1.5,0,0|||||||0;0"
 
 def ar_mk_ok__got() -> Bool:
   BL.es_ok_of(BL.ar_mk("mm", "pin", pinbrep()))
@@ -93,7 +93,7 @@ def ar_badver__want() -> String:
   "archive-bad-version"
 
 def ar_badunits__got() -> String:
-  BL.apr_why(BL.ar_parse("BCAD1|inch|pin|" ++ pin_drop(13n, pinarc())))
+  BL.apr_why(BL.ar_parse("BCAD2|inch|pin|" ++ pin_drop(13n, pinarc())))
 
 def ar_badunits__want() -> String:
   "archive-units-not-supported"

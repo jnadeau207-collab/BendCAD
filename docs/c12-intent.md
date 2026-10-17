@@ -47,7 +47,7 @@ text.
 ## 3. Architecture
 
 ```
-src/c12/blob.bend    B1 rows + canonical gate + BCAD1 envelope + measures
+src/c12/blob.bend    B1 rows + canonical gate + BCAD2 envelope + measures
 src/c12/stepw.bend   STEP writer: stages, units block, header/footer
 src/c12/stepr.bend   STEP reader: scan, tables, recovery, staged gates
 src/c12/mesh.bend    OBJ parse, STL text, 3MF XML, CRC32, zip bytes

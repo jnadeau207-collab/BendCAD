@@ -1149,19 +1149,19 @@ def admit_fas_empty__want() -> U64:
   0u64
 
 def admit_fas_plane__got() -> U64:
-  B8.admit_fas([Ty.Fa{0u64, G.GV_pl{G.Pl{pt0(), dx(), dy()}}, [], True{}}], 0n)
+  B8.admit_fas([Ty.Fa{0u64, G.GV_pl{G.Pl{pt0(), dx(), dy()}}, [], True{}, 0.0f64, 0.0f64}], 0n)
 
 def admit_fas_plane__want() -> U64:
   0u64
 
 def admit_fas_nurbs__got() -> U64:
-  B8.admit_fas([Ty.Fa{0u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}}], 0n)
+  B8.admit_fas([Ty.Fa{0u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}, 0.0f64, 0.0f64}], 0n)
 
 def admit_fas_nurbs__want() -> U64:
   2u64
 
 def admit_fas_at_second__got() -> Nat:
-  B8.admit_fas_at([Ty.Fa{0u64, G.GV_pl{G.Pl{pt0(), dx(), dy()}}, [], True{}}, Ty.Fa{0u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}}], 0n)
+  B8.admit_fas_at([Ty.Fa{0u64, G.GV_pl{G.Pl{pt0(), dx(), dy()}}, [], True{}, 0.0f64, 0.0f64}, Ty.Fa{0u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}, 0.0f64, 0.0f64}], 0n)
 
 def admit_fas_at_second__want() -> Nat:
   1n
@@ -1869,16 +1869,16 @@ def cav_flip_fas_empty__want() -> List<&2, Ty.Face>:
   []
 
 def cav_flip_fas_tool_flips__got() -> List<&2, Ty.Face>:
-  B8.cav_flip_fas([Ty.Fa{0u64, G.GV_f{0.0f64}, [], True{}}], 0n, 0n)
+  B8.cav_flip_fas([Ty.Fa{0u64, G.GV_f{0.0f64}, [], True{}, 0.0f64, 0.0f64}], 0n, 0n)
 
 def cav_flip_fas_tool_flips__want() -> List<&2, Ty.Face>:
-  [Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}}]
+  [Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}, 0.0f64, 0.0f64}]
 
 def cav_flip_fas_minuend_keeps__got() -> List<&2, Ty.Face>:
-  B8.cav_flip_fas([Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}}], 1n, 0n)
+  B8.cav_flip_fas([Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}, 0.0f64, 0.0f64}], 1n, 0n)
 
 def cav_flip_fas_minuend_keeps__want() -> List<&2, Ty.Face>:
-  [Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}}]
+  [Ty.Fa{0u64, G.GV_f{0.0f64}, [], False{}, 0.0f64, 0.0f64}]
 
 def cav_flip_ces_empty__got() -> List<&2, Ty.Coedge>:
   B8.cav_flip_ces([], [], 0n)
@@ -1923,13 +1923,13 @@ def cav_floops_empty__want() -> List<&2, Nat>:
   []
 
 def cav_floops_collects_tool__got() -> List<&2, Nat>:
-  B8.cav_floops([Ty.Fa{0u64, G.GV_f{0.0f64}, [Ty.HL{2n, 0u64}], True{}}], 0n, 0n)
+  B8.cav_floops([Ty.Fa{0u64, G.GV_f{0.0f64}, [Ty.HL{2n, 0u64}], True{}, 0.0f64, 0.0f64}], 0n, 0n)
 
 def cav_floops_collects_tool__want() -> List<&2, Nat>:
   [2n]
 
 def cav_floops_skips_minuend__got() -> List<&2, Nat>:
-  B8.cav_floops([Ty.Fa{0u64, G.GV_f{0.0f64}, [Ty.HL{2n, 0u64}], True{}}], 1n, 0n)
+  B8.cav_floops([Ty.Fa{0u64, G.GV_f{0.0f64}, [Ty.HL{2n, 0u64}], True{}, 0.0f64, 0.0f64}], 1n, 0n)
 
 def cav_floops_skips_minuend__want() -> List<&2, Nat>:
   []

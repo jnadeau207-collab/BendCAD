@@ -683,7 +683,7 @@ def afaces_go(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pre: String) -> Stri
       match fas:
         case []: ""
         case a <> u:
-          Ty.Fa{g, s, ls, same} = a
+          Ty.Fa{g, s, ls, same, slv, sla} = a
           afn_s(f, pre) ++ " " ++ asurf_s(s) ++ " loops=" ++
             Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ afaces_go(t, u, pre)
 

@@ -911,7 +911,7 @@ def asurf_vals__want() -> String:
   "plane,cylinder,planar-patch,sphere,cone,torus,other"
 
 def afaces_vals__got() -> String:
-  AS.afaces_go([], [], "a.") ++ ";" ++ AS.afaces_go([BD.Fn{3u64, 1n, 0u64, 0n, 0n}], [Ty.Fa{0u64, plsurf(), [], True{}}], "a.")
+  AS.afaces_go([], [], "a.") ++ ";" ++ AS.afaces_go([BD.Fn{3u64, 1n, 0u64, 0n, 0n}], [Ty.Fa{0u64, plsurf(), [], True{}, 0.0f64, 0.0f64}], "a.")
 
 def afaces_vals__want() -> String:
   ";a.n3.c1.top plane loops=0\n"

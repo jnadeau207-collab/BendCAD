@@ -107,7 +107,7 @@ def lp_dflt() -> Ty.Loop:
   Ty.Lp{0u64, [], Ty.LK_outer{}}
 
 def fa_dflt() -> Ty.Face:
-  Ty.Fa{0u64, Ty.surf_zero(), [], True{}}
+  Ty.Fa{0u64, Ty.surf_zero(), [], True{}, 0.0f64, 0.0f64}
 
 def wx_vs(+x: Wx) -> B.Tb<&2, Ty.Vertex>:
   Wx{vs, es, ces, lps, fas, fbx, bb, nf} = x

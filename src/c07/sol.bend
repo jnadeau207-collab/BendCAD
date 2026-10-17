@@ -106,7 +106,7 @@ def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: N
       Fd{Mm.Fc{im, same, es}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh, fi}
 
 def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
-  Ty.Fa{g, +s, ls, same} = f
+  Ty.Fa{g, +s, ls, same, slv, sla} = f
   fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi)
 
 def fhs_go(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +sh: Nat) -> List<&2, Fd>:

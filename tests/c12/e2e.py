@@ -157,7 +157,7 @@ def arc_roundtrip():
             and 'units mm' in r and 'lineage shoebox demo' in r)
     rv, _ = geom('reopen', f'{WORK}/box.bca', '-v')
     faces = rv.count(' plane loops=') if same else 0
-    record('arc.box', ok and head == 'BCAD1|mm|shoebox demo|B1' and same and faces == 6,
+    record('arc.box', ok and head == 'BCAD2|mm|shoebox demo|B1' and same and faces == 6,
            head=head, vol=vol_of(r), faces=faces)
     fresh('as.bcd', f'(node 1 (sphere 10) {IC})')
     m, _ = cli('as.bcd', 'measure', '1')

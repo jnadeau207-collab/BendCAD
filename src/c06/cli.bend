@@ -219,7 +219,7 @@ def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>) -> String:
       match fas:
         case []: ""
         case a <> u:
-          Ty.Fa{g, s, ls, same} = a
+          Ty.Fa{g, s, ls, same, slv, sla} = a
           fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ faces_s(t, u)
 
 def delv_s(d: BO.Del) -> String:
@@ -546,7 +546,7 @@ def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(Unit):
     case True{}:
       do IO<Unit>:
         u : Unit <- write_file(out, BL.es_s(e))
-        IO.print("wrote " ++ out ++ " archive BCAD1")
+        IO.print("wrote " ++ out ++ " archive " ++ BL.ar_ver())
     case False{}: IO.print("refused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic curves and plane/sphere/cylinder/torus/bezier-patch faces")
 
 def arc_out_open(+open: Bool, +b: M.Body, +out: String, +lin: String) -> IO(Unit):
@@ -676,7 +676,7 @@ def imp_step(+data: String) -> M.NR:
 
 def imp_apr_nr(+w: Bool, +e: BL.ES, +tol: Bool) -> M.NR:
   match w:
-    case False{}: M.bad("import", "archive data", BL.es_why(e), "use a BendCAD BCAD1 archive")
+    case False{}: M.bad("import", "archive data", BL.es_why(e), "use a BendCAD BCAD2 archive")
     case True{}:
       match tol:
         case True{}: op_blob_tol(BL.es_s(e), 0u64)
@@ -684,7 +684,7 @@ def imp_apr_nr(+w: Bool, +e: BL.ES, +tol: Bool) -> M.NR:
 
 def imp_apr(+w: Bool, +a: BL.APR) -> M.NR:
   match w:
-    case False{}: M.bad("import", "archive data", BL.apr_why(a), "use a BendCAD BCAD1 archive")
+    case False{}: M.bad("import", "archive data", BL.apr_why(a), "use a BendCAD BCAD2 archive")
     case True{}:
       +e = BL.brep_s(BL.apr_b(a))
       imp_apr_nr(BL.es_ok_of(e), e, SR.sr_has_tol(BL.apr_lineage(a)))
@@ -702,7 +702,7 @@ def imp_save_go(+w: Bool, +e: BL.ES, +out: String, +rep: String) -> IO(Unit):
     case True{}:
       do IO<Unit>:
         u : Unit <- write_file(out, BL.es_s(e))
-        IO.print(rep ++ "\nwrote " ++ out ++ " archive BCAD1")
+        IO.print(rep ++ "\nwrote " ++ out ++ " archive " ++ BL.ar_ver())
 
 def imp_save(+save: Bool, +out: String, r: M.NR, +lin: String, +rep: String) -> IO(Unit):
   match save:
@@ -731,7 +731,7 @@ def geo_reopen_v(+v: Bool, r: M.NR) -> String:
 def geo_reopen_go(+w: Bool, +a: BL.APR, +file: String, +verb: String) -> IO(Unit):
   match w:
     case False{}: IO.print("error invalid-input | reopen " ++ file ++ " | why: " ++ BL.apr_why(a) ++
-      " | fix: reopen a BendCAD BCAD1 archive")
+      " | fix: reopen a BendCAD BCAD2 archive")
     case True{}:
       +r = imp_apr(True{}, a)
       IO.print("reopened " ++ file ++ " units " ++ BL.apr_units(a) ++ " lineage " ++
@@ -749,7 +749,7 @@ def geo_reopen(+file: String, +verb: String) -> IO(Unit):
 def geo_step_of_go(+w: Bool, +a: BL.APR, +out: String) -> IO(Unit):
   match w:
     case False{}: IO.print("error invalid-input | step_of | why: " ++ BL.apr_why(a) ++
-      " | fix: export from a BendCAD BCAD1 archive")
+      " | fix: export from a BendCAD BCAD2 archive")
     case True{}:
       +s = SW.sw_pr(BL.pr_ok(BL.apr_b(a)), M.pl_id())
       step_write_go(SW.ws_ok(s), s, out)

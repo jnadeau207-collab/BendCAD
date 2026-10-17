@@ -648,7 +648,7 @@ def fas_rs(vs: List<&2, Ty.Face>, +acc: List<&2, ES>) -> List<&2, ES>:
       +ls = hls_s(Ty.fa_loops(e), [])
       fas_rs(t, es_app(sf_s(Ty.fa_surf(e)),
         es_ok(bit_s(Ty.fa_same(e)) ++ "," ++ Nat.show(List.length(&2, Ty.HLoop, Ty.fa_loops(e))) ++
-          jn_tail(ls, ",")), ",") <> acc)
+          jn_tail(ls, ",") ++ "," ++ N.f_show(Ty.fa_slv(e)) ++ "," ++ N.f_show(Ty.fa_sla(e))), ",") <> acc)
 
 def sk_n(k: Ty.ShellKind) -> Nat:
   match k:
@@ -824,26 +824,32 @@ def hls_of(n: Nat, +fs: List<&2, String>, +i: Nat, +acc: List<&2, Ty.HLoop>) -> 
       +x = fnat_d(fs, i, 0n)
       hls_of(m, fs, Nat.add(i, 1n), Ty.HL{x, gn(x)} <> acc)
 
+def fslv(+fs: List<&2, String>, +nidx: Nat, +lstart: Nat) -> F64:
+  fnum_f(fs, Nat.add(lstart, fnat_d(fs, nidx, 0n)))
+
+def fsla(+fs: List<&2, String>, +nidx: Nat, +lstart: Nat) -> F64:
+  fnum_f(fs, Nat.add(Nat.add(lstart, 1n), fnat_d(fs, nidx, 0n)))
+
 def fa_t(+k: U64, +fs: List<&2, String>, +i: Nat) -> Ty.Face:
   match k:
     case 10u64:
       Ty.Fa{gn(i), G.GV_pl{G.Pl{pt_of(fs, 1n), dr_of(fs, 4n), dr_of(fs, 7n)}}, hls_of(fnat_d(fs, 11n, 0n), fs, 12n, []),
-        fbit(fs, 10n)}
+        fbit(fs, 10n), fslv(fs, 11n, 12n), fsla(fs, 11n, 12n)}
     case 11u64:
       Ty.Fa{gn(i), G.GV_sp{G.Sp{pt_of(fs, 1n), fnum_f(fs, 4n)}}, hls_of(fnat_d(fs, 6n, 0n), fs, 7n, []),
-        fbit(fs, 5n)}
+        fbit(fs, 5n), fslv(fs, 6n, 7n), fsla(fs, 6n, 7n)}
     case 12u64:
       Ty.Fa{gn(i), G.GV_cy{G.Cy{pt_of(fs, 1n), dr_of(fs, 4n), fnum_f(fs, 7n)}},
-        hls_of(fnat_d(fs, 9n, 0n), fs, 10n, []), fbit(fs, 8n)}
+        hls_of(fnat_d(fs, 9n, 0n), fs, 10n, []), fbit(fs, 8n), fslv(fs, 9n, 10n), fsla(fs, 9n, 10n)}
     case 13u64:
       Ty.Fa{gn(i), G.GV_to{G.To{pt_of(fs, 1n), dr_of(fs, 4n), fnum_f(fs, 7n), fnum_f(fs, 8n)}},
-        hls_of(fnat_d(fs, 10n, 0n), fs, 11n, []), fbit(fs, 9n)}
+        hls_of(fnat_d(fs, 10n, 0n), fs, 11n, []), fbit(fs, 9n), fslv(fs, 10n, 11n), fsla(fs, 10n, 11n)}
     case 14u64:
       Ty.Fa{gn(i), G.GV_bp{G.Bp{pt_of(fs, 1n), pt_of(fs, 4n), pt_of(fs, 7n), pt_of(fs, 10n), pt_of(fs, 13n),
         pt_of(fs, 16n), pt_of(fs, 19n), pt_of(fs, 22n), pt_of(fs, 25n), pt_of(fs, 28n), pt_of(fs, 31n),
         pt_of(fs, 34n), pt_of(fs, 37n), pt_of(fs, 40n), pt_of(fs, 43n), pt_of(fs, 46n)}},
-        hls_of(fnat_d(fs, 50n, 0n), fs, 51n, []), fbit(fs, 49n)}
-    case _: Ty.Fa{gn(i), Ty.surf_zero(), [], False{}}
+        hls_of(fnat_d(fs, 50n, 0n), fs, 51n, []), fbit(fs, 49n), fslv(fs, 50n, 51n), fsla(fs, 50n, 51n)}
+    case _: Ty.Fa{gn(i), Ty.surf_zero(), [], False{}, 0.0f64, 0.0f64}
 
 def fa_of(+fs: List<&2, String>, +i: Nat) -> Ty.Face:
   fa_t(U64.from_nat(fnat_d(fs, 0n, 99n)), fs, i)
@@ -1555,7 +1561,7 @@ def apr_fail(+why: String) -> APR:
   APR{False{}, Ty.brep_empty(), "", "", why}
 
 def ar_ver() -> String:
-  "BCAD1"
+  "BCAD2"
 
 def ar_units_ok(+u: String) -> Bool:
   String.eq(u, "mm")
@@ -1571,7 +1577,7 @@ def ar_bar(+s: String) -> Bool:
 def ar_mk_t(+w: Bool, +u: String, +l: String, +b: Ty.Brep) -> ES:
   match w:
     case False{}: es_fail("archive-bad-envelope")
-    case True{}: es_app(es_ok("BCAD1|" ++ u ++ "|" ++ l ++ "|"), brep_s(b), "")
+    case True{}: es_app(es_ok(ar_ver() ++ "|" ++ u ++ "|" ++ l ++ "|"), brep_s(b), "")
 
 def ar_mk(+u: String, +l: String, +b: Ty.Brep) -> ES:
   ar_mk_t(Bool.and(ar_units_ok(u), Bool.not(Bool.or(ar_bar(u), ar_bar(l)))), u, l, b)

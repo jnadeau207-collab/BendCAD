@@ -370,7 +370,7 @@ def Laws.l1_seam_use(f):
     case True{}: {==}
     case False{}: {==}
 
-def Laws.l1_outer_rule(g, su, ls, sa, x):
+def Laws.l1_outer_rule(g, su, ls, sa, slv, sla, x):
   {==}
 
 def Laws.l1_ov_start(a, b, f):

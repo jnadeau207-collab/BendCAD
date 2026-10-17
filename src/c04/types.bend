@@ -55,7 +55,7 @@ type Loop is Data:
   Lp{ gen: U64, ces: List<&2, HCoedge>, kind: LoopKind }
 
 type Face is Data:
-  Fa{ gen: U64, surf: G.GVal, loops: List<&2, HLoop>, same: Bool }
+  Fa{ gen: U64, surf: G.GVal, loops: List<&2, HLoop>, same: Bool, slv: F64, sla: F64 }
 
 type Shell is Data:
   Sh{ gen: U64, faces: List<&2, HFace>, kind: ShellKind }
@@ -290,8 +290,8 @@ def tres_fa(r: TRes) -> Face:
     case Tok{v}:
       match v:
         case T_fa{w}: w
-        case _: Fa{0u64, surf_zero(), Nil{}, True{}}
-    case Terr{kind}: Fa{0u64, surf_zero(), Nil{}, True{}}
+        case _: Fa{0u64, surf_zero(), Nil{}, True{}, 0.0f64, 0.0f64}
+    case Terr{kind}: Fa{0u64, surf_zero(), Nil{}, True{}, 0.0f64, 0.0f64}
 
 def tres_sh(r: TRes) -> Shell:
   match r:
@@ -505,20 +505,28 @@ def lp_kind(l: Loop) -> LoopKind:
   kind
 
 def fa_gen(f: Face) -> U64:
-  Fa{gen, surf, loops, same} = f
+  Fa{gen, surf, loops, same, slv, sla} = f
   gen
 
 def fa_surf(f: Face) -> G.GVal:
-  Fa{gen, surf, loops, same} = f
+  Fa{gen, surf, loops, same, slv, sla} = f
   surf
 
 def fa_loops(f: Face) -> List<&2, HLoop>:
-  Fa{gen, surf, loops, same} = f
+  Fa{gen, surf, loops, same, slv, sla} = f
   loops
 
 def fa_same(f: Face) -> Bool:
-  Fa{gen, surf, loops, same} = f
+  Fa{gen, surf, loops, same, slv, sla} = f
   same
+
+def fa_slv(f: Face) -> F64:
+  Fa{gen, surf, loops, same, slv, sla} = f
+  slv
+
+def fa_sla(f: Face) -> F64:
+  Fa{gen, surf, loops, same, slv, sla} = f
+  sla
 
 def sh_gen(s: Shell) -> U64:
   Sh{gen, faces, kind} = s
@@ -723,8 +731,10 @@ def lp_valid(l: Loop) -> Bool:
   hce_nonempty(ces)
 
 def fa_valid(f: Face) -> Bool:
-  Fa{gen, surf, loops, same} = f
-  Bool.and(gval_is_surf(surf), hlp_nonempty(loops))
+  Fa{gen, surf, loops, same, +slv, +sla} = f
+  Bool.and(gval_is_surf(surf), Bool.and(hlp_nonempty(loops),
+    Bool.and(T.is_finite(slv), Bool.and(T.is_finite(sla),
+      Bool.and(F64.is_le(0.0f64, slv), F64.is_le(0.0f64, sla))))))
 
 def sh_valid(s: Shell) -> Bool:
   Sh{gen, faces, kind} = s
@@ -820,7 +830,7 @@ def mk_loop(+ces: List<&2, HCoedge>, kind: LoopKind) -> TRes:
 def mk_face_go(surf: G.GVal, loops: List<&2, HLoop>, same: Bool,
     ok: Bool) -> TRes:
   match ok:
-    case True{}: tok_fa(Fa{0u64, surf, loops, same})
+    case True{}: tok_fa(Fa{0u64, surf, loops, same, 0.0f64, 0.0f64})
     case False{}: terr(T.F_invalid{})
 
 def mk_face(+surf: G.GVal, +loops: List<&2, HLoop>,
@@ -1604,8 +1614,8 @@ def fa_resolve_go(r: TRes, gen: U64) -> TRes:
     case Tok{v}:
       match v:
         case T_fa{w}:
-          Fa{+g, surf, loops, same} = w
-          fa_resolve_pick(Fa{g, surf, loops, same},
+          Fa{+g, surf, loops, same, +slv, +sla} = w
+          fa_resolve_pick(Fa{g, surf, loops, same, slv, sla},
             U64.is_eq(g, gen))
         case _: terr(T.F_invalid{})
     case Terr{kind}: Terr{kind}
@@ -1655,7 +1665,7 @@ def fa_push_pick(vs: List<&2, Vertex>, es: List<&2, Edge>,
     case False{}: terr(T.F_invalid{})
     case True{}:
       tok_brep(Br{vs, es, ces, lps,
-        fa_snoc(fas, Fa{g, surf, loops, same}), shs, sos,
+        fa_snoc(fas, Fa{g, surf, loops, same, 0.0f64, 0.0f64}), shs, sos,
         top, g})
 
 def fa_push_go(b: Brep, surf: G.GVal,
@@ -1667,7 +1677,7 @@ def fa_push_go(b: Brep, surf: G.GVal,
 def fa_push(b: Brep, +surf: G.GVal, +loops: List<&2, HLoop>,
     +same: Bool) -> TRes:
   fa_push_go(b, surf, loops, same,
-    fa_valid(Fa{0u64, surf, loops, same}))
+    fa_valid(Fa{0u64, surf, loops, same, 0.0f64, 0.0f64}))
 
 def sh_snoc(xs: List<&2, Shell>, v: Shell) -> List<&2, Shell>:
   match xs:
@@ -1892,7 +1902,7 @@ def lp_dflt() -> Loop:
   Lp{0u64, Nil{}, LK_outer{}}
 
 def fa_dflt() -> Face:
-  Fa{0u64, surf_zero(), Nil{}, True{}}
+  Fa{0u64, surf_zero(), Nil{}, True{}, 0.0f64, 0.0f64}
 
 def sh_dflt() -> Shell:
   Sh{0u64, Nil{}, SK_open{}}

@@ -67,8 +67,8 @@ def fs_sh(xs: List<&2, Ty.Face>, +o: Nat, +fl: Bool) -> List<&2, Ty.Face>:
   match xs:
     case []: []
     case x <> t:
-      Ty.Fa{g, s, ls, +same} = x
-      Ty.Fa{g, s, hls(ls, o), Bool.pick(Bool, fl, Bool.not(same), same)} <> fs_sh(t, o, fl)
+      Ty.Fa{g, s, ls, +same, slv, sla} = x
+      Ty.Fa{g, s, hls(ls, o), Bool.pick(Bool, fl, Bool.not(same), same), slv, sla} <> fs_sh(t, o, fl)
 
 def hfs(xs: List<&2, Ty.HFace>, +o: Nat) -> List<&2, Ty.HFace>:
   match xs:

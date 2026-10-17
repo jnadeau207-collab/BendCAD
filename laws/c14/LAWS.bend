@@ -778,9 +778,11 @@ law afaces_cons:
   for s: G.GVal
   for ls: List<&2, Ty.HLoop>
   for same: Bool
+  for slv: F64
+  for sla: F64
   for u: List<&2, Ty.Face>
   for pre: String
-  {AS.afaces_go(f <> t, Ty.Fa{g, s, ls, same} <> u, pre) == AS.afn_s(f, pre) ++ " " ++ AS.asurf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ AS.afaces_go(t, u, pre) : String}
+  {AS.afaces_go(f <> t, Ty.Fa{g, s, ls, same, slv, sla} <> u, pre) == AS.afn_s(f, pre) ++ " " ++ AS.asurf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ AS.afaces_go(t, u, pre) : String}
 
 law faces_has_unknown:
   for a: AS.Asm

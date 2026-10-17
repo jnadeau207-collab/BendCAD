@@ -1,7 +1,7 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
- "passed": 108,
- "total": 108,
+ "binary_sha256": "431ad76508ad40e5facb35a660397fde2bc3d20c9d0fd92811929e0f9221a5d2",
+ "passed": 103,
+ "total": 112,
  "results": [
   {
    "name": "disjoint.union",
@@ -17,7 +17,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.04792380332946777
+   "seconds": 0.04538846015930176
   },
   {
    "name": "disjoint.diff",
@@ -150,7 +150,7 @@
     7935.9999999925685,
     7936.0000000074315
    ],
-   "seconds": 0.19295287132263184
+   "seconds": 0.19706964492797852
   },
   {
    "name": "containment.inter",
@@ -244,7 +244,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.14505577087402344
+   "seconds": 0.14538073539733887
   },
   {
    "name": "mirror.diff",
@@ -307,7 +307,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.11024928092956543
+   "seconds": 0.11140108108520508
   },
   {
    "name": "kiss.inter",
@@ -355,7 +355,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 5.368758678436279
+   "seconds": 5.4571003913879395
   },
   {
    "name": "contact.edge",
@@ -454,7 +454,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.03111100196838379
+   "seconds": 0.03252458572387695
   },
   {
    "name": "identical.diff",
@@ -523,7 +523,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.03500699996948242
+   "seconds": 0.0354924201965332
   },
   {
    "name": "empty.diff_empty_left",
@@ -595,8 +595,16 @@
   {
    "name": "empty.feature_on_carry_ok",
    "ok": true,
-   "why": [
-    "face-not-found "
+   "fx": [
+    "add",
+    "2",
+    "1",
+    "1",
+    "0"
+   ],
+   "volume": [
+    1062.831853070867,
+    1062.8318530727247
    ]
   },
   {
@@ -612,11 +620,18 @@
    ]
   },
   {
-   "name": "boolean.feature_refused",
+   "name": "boolean.feature_on_compound_refused",
    "ok": true,
    "why": [
-    "feature-on-boolean-result "
+    "feature-on-compound "
    ]
+  },
+  {
+   "name": "boolean.feature_on_boolean_ok",
+   "ok": false,
+   "fx": null,
+   "volume": null,
+   "seconds": 1.1324965953826904
   },
   {
    "name": "slanted.union",
@@ -632,7 +647,7 @@
     999.9999999990735,
     1000.0000000009265
    ],
-   "seconds": 20.11919331550598
+   "seconds": 20.686291933059692
   },
   {
    "name": "slanted.bicubic_wall_present",
@@ -655,26 +670,63 @@
    "sha256": "2aff758ce1c681652154af6111c5df1d95e18294b4db834a65a7b027eedeb10e"
   },
   {
-   "name": "crossing.union_refused",
-   "ok": true,
-   "seconds": 1.8423566818237305
+   "name": "crossing.union",
+   "ok": false,
+   "fx": null,
+   "volume": null,
+   "seconds": 3.3271889686584473
   },
   {
-   "name": "crossing.diff_refused",
-   "ok": true
+   "name": "crossing.diff",
+   "ok": false,
+   "fx": null,
+   "volume": null
   },
   {
-   "name": "crossing.inter_refused",
-   "ok": true
+   "name": "crossing.inter",
+   "ok": false,
+   "fx": null,
+   "volume": null
   },
   {
-   "name": "crossing.failed_nodes_absent",
-   "ok": true,
+   "name": "crossing.volume_identity",
+   "ok": false,
+   "union": null,
+   "inter": null,
+   "a": [
+    999.9999999990786,
+    1000.0000000009214
+   ],
+   "b": [
+    999.9999999990786,
+    1000.0000000009214
+   ]
+  },
+  {
+   "name": "crossing.nodes_present",
+   "ok": false,
    "faces": "node failed"
   },
   {
-   "name": "crossing.straddle_refused",
-   "ok": true
+   "name": "crossing.check",
+   "ok": false,
+   "out": "error: node failed; nothing checked"
+  },
+  {
+   "name": "crossing.straddle",
+   "ok": true,
+   "fx": [
+    "remove",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    7967.999999992034,
+    7968.000000007972
+   ],
+   "seconds": 0.08177495002746582
   },
   {
    "name": "intent.mismatch",
@@ -692,7 +744,7 @@
    "name": "sens.union",
    "ok": true,
    "d_volume": 100.0,
-   "seconds": 0.03179025650024414
+   "seconds": 0.031577110290527344
   },
   {
    "name": "rotated.union",
@@ -708,7 +760,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.0533297061920166
+   "seconds": 0.05637669563293457
   },
   {
    "name": "rotated.quarter_turn",
@@ -749,7 +801,7 @@
     63.999999999941046,
     64.00000000005902
    ],
-   "seconds": 0.30817341804504395
+   "seconds": 0.2913668155670166
   },
   {
    "name": "moved.diff_cavity",
@@ -802,21 +854,66 @@
    ]
   },
   {
-   "name": "pierce.union_refused",
+   "name": "pierce.union",
    "ok": true,
-   "seconds": 0.1499333381652832
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    1039.999999998959,
+    1040.000000001041
+   ],
+   "seconds": 0.318190336227417
   },
   {
-   "name": "pierce.diff_refused",
-   "ok": true
+   "name": "pierce.diff",
+   "ok": true,
+   "fx": [
+    "remove",
+    "0",
+    "0",
+    "1",
+    "1"
+   ],
+   "volume": [
+    959.9999999990392,
+    960.0000000009612
+   ]
   },
   {
-   "name": "pierce.inter_refused",
-   "ok": true
+   "name": "pierce.inter",
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    39.999999999958995,
+    40.00000000004099
+   ]
+  },
+  {
+   "name": "pierce.volume_identity",
+   "ok": true,
+   "union": [
+    1039.999999998959,
+    1040.000000001041
+   ],
+   "inter": [
+    39.999999999958995,
+    40.00000000004099
+   ]
   },
   {
    "name": "pierce.sphere_cross_refused",
-   "ok": true
+   "ok": false
   },
   {
    "name": "curved.disjoint",
@@ -832,7 +929,7 @@
     238.7610416726404,
     238.76104167300815
    ],
-   "seconds": 0.11585569381713867
+   "seconds": 0.11580801010131836
   },
   {
    "name": "curved.cavity",
@@ -910,7 +1007,7 @@
     1523.598775596539,
     1523.5987756000584
    ],
-   "seconds": 0.21941685676574707
+   "seconds": 0.20850849151611328
   },
   {
    "name": "tangent.inter_empty",
@@ -968,7 +1065,7 @@
     804.2477193189775,
     804.2477193189968
    ],
-   "seconds": 5.147884845733643
+   "seconds": 6.266884088516235
   },
   {
    "name": "tangent_cyl.inter_empty",
@@ -1028,7 +1125,7 @@
     1935.9999999980976,
     1936.0000000019022
    ],
-   "seconds": 0.15489649772644043
+   "seconds": 0.1571509838104248
   },
   {
    "name": "chained.check",
@@ -1052,14 +1149,14 @@
   },
   {
    "name": "chained.mixed_refused",
-   "ok": true,
-   "why": "mixed-solid-relations: one operand has solids both inside and outside the other"
+   "ok": false,
+   "why": "validation-rejected: c04-ownership"
   },
   {
    "name": "sens.step",
    "ok": true,
    "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
-   "seconds": 0.0299990177154541
+   "seconds": 0.029802322387695312
   },
   {
    "name": "replay.lineage",
@@ -1074,7 +1171,7 @@
    "name": "sens.flip_refused",
    "ok": true,
    "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
-   "seconds": 0.03132152557373047
+   "seconds": 0.02906322479248047
   },
   {
    "name": "sens.flip_cache",

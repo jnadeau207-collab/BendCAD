@@ -15,6 +15,9 @@ import ../c07/emb.bend as EM
 import ../c07/xs.bend as S
 import ../c07/im.bend as MM
 import ../c07/rb.bend as R
+import ../k1/surg.bend as K1
+import ../k1/gb.bend as GB
+import ../k1/vi.bend as VI
 
 def tag_union() -> U64:
   14u64
@@ -400,7 +403,7 @@ def nth_lp(xs: List<&2, Ty.Loop>, +i: Nat) -> Ty.Loop:
 
 def nth_fa(xs: List<&2, Ty.Face>, +i: Nat) -> Ty.Face:
   match xs:
-    case []: Ty.Fa{0u64, G.GV_f{0.0f64}, [], True{}}
+    case []: Ty.Fa{0u64, G.GV_f{0.0f64}, [], True{}, 0.0f64, 0.0f64}
     case x <> t:
       match i:
         case 0n: x
@@ -568,8 +571,8 @@ def xf_es(+m: V.Mat3, +tx: F64, +ty: F64, +tz: F64, xs: List<&2, Ty.Edge>) -> Li
 def xf_fas(+m: V.Mat3, +tx: F64, +ty: F64, +tz: F64, xs: List<&2, Ty.Face>) -> List<&2, Ty.Face>:
   match xs:
     case []: []
-    case Ty.Fa{g, s, ls, same} <> t:
-      Ty.Fa{g, xf_gval(m, tx, ty, tz, s), ls, same} <> xf_fas(m, tx, ty, tz, t)
+    case Ty.Fa{g, s, ls, same, slv, sla} <> t:
+      Ty.Fa{g, xf_gval(m, tx, ty, tz, s), ls, same, slv, sla} <> xf_fas(m, tx, ty, tz, t)
 
 def xf_brep(+m: V.Mat3, +tx: F64, +ty: F64, +tz: F64, +b: Ty.Brep) -> Ty.Brep:
   Ty.Br{xf_vs(m, tx, ty, tz, Ty.brep_vs(b)), xf_es(m, tx, ty, tz, Ty.brep_es(b)), Ty.brep_ces(b),
@@ -650,8 +653,8 @@ def sh_lps(+s: Nat, xs: List<&2, Ty.Loop>) -> List<&2, Ty.Loop>:
 def sh_fas(+s: Nat, xs: List<&2, Ty.Face>) -> List<&2, Ty.Face>:
   match xs:
     case []: []
-    case Ty.Fa{g, su, ls, same} <> t:
-      Ty.Fa{g, su, sh_hls(s, ls), same} <> sh_fas(s, t)
+    case Ty.Fa{g, su, ls, same, slv, sla} <> t:
+      Ty.Fa{g, su, sh_hls(s, ls), same, slv, sla} <> sh_fas(s, t)
 
 def sh_shs(+s: Nat, xs: List<&2, Ty.Shell>) -> List<&2, Ty.Shell>:
   match xs:
@@ -748,8 +751,8 @@ def rs_lps(xs: List<&2, Ty.Loop>, +i: Nat) -> List<&2, Ty.Loop>:
 def rs_fas(xs: List<&2, Ty.Face>, +i: Nat) -> List<&2, Ty.Face>:
   match xs:
     case []: []
-    case Ty.Fa{g, su, ls, same} <> t:
-      Ty.Fa{gen_at(i), su, rs_hls(ls), same} <> rs_fas(t, Nat.add(i, 1n))
+    case Ty.Fa{g, su, ls, same, slv, sla} <> t:
+      Ty.Fa{gen_at(i), su, rs_hls(ls), same, slv, sla} <> rs_fas(t, Nat.add(i, 1n))
 
 def rs_shs(xs: List<&2, Ty.Shell>, +i: Nat) -> List<&2, Ty.Shell>:
   match xs:
@@ -899,14 +902,14 @@ def surf_why(+c: U64) -> String:
 def admit_fas(fs: List<&2, Ty.Face>, +at: Nat) -> U64:
   match fs:
     case []: 0u64
-    case Ty.Fa{g, s, ls, same} <> t:
+    case Ty.Fa{g, s, ls, same, slv, sla} <> t:
       +c = surf_admit(s)
       Bool.pick(U64, U64.is_eq(c, 0u64), admit_fas(t, Nat.add(at, 1n)), c)
 
 def admit_fas_at(fs: List<&2, Ty.Face>, +at: Nat) -> Nat:
   match fs:
     case []: 0n
-    case Ty.Fa{g, s, ls, same} <> t:
+    case Ty.Fa{g, s, ls, same, slv, sla} <> t:
       Bool.pick(Nat, U64.is_eq(surf_admit(s), 0u64), admit_fas_at(t, Nat.add(at, 1n)), at)
 
 def edge_code(+k: Ty.EdgeKind) -> U64:
@@ -1248,8 +1251,8 @@ def ow_cav(+t: Ty.Brep, +j: Nat, cs: List<&2, Ty.HShell>, +ti: Nat) -> OW:
 def cav_flip_fas(xs: List<&2, Ty.Face>, +nf: Nat, +at: Nat) -> List<&2, Ty.Face>:
   match xs:
     case []: []
-    case Ty.Fa{g, su, ls, +same} <> t:
-      Ty.Fa{g, su, ls, Bool.pick(Bool, Nat.is_lt(at, nf), same, Bool.not(same))} <>
+    case Ty.Fa{g, su, ls, +same, slv, sla} <> t:
+      Ty.Fa{g, su, ls, Bool.pick(Bool, Nat.is_lt(at, nf), same, Bool.not(same)), slv, sla} <>
         cav_flip_fas(t, nf, Nat.add(at, 1n))
 
 def hl_ids_go(hs: List<&2, Ty.HLoop>, +acc: List<&2, Nat>) -> List<&2, Nat>:
@@ -1260,7 +1263,7 @@ def hl_ids_go(hs: List<&2, Ty.HLoop>, +acc: List<&2, Nat>) -> List<&2, Nat>:
 def cav_floops(fs: List<&2, Ty.Face>, +nf: Nat, +at: Nat) -> List<&2, Nat>:
   match fs:
     case []: []
-    case Ty.Fa{g, su, ls, same} <> t:
+    case Ty.Fa{g, su, ls, same, slv, sla} <> t:
       List.append(&2, Nat, Bool.pick(List<&2, Nat>, Nat.is_lt(at, nf), [], hl_ids_go(ls, [])),
         cav_floops(t, nf, Nat.add(at, 1n)))
 
@@ -1850,6 +1853,100 @@ def vcode(v: VR) -> String:
   Bool.pick(String, Bool.not(U64.is_eq(stage, 0u64)), "c04-" ++ stage_why(stage),
     code ++ " " ++ Nat.show(a) ++ " " ++ Nat.show(b))
 
+def k1vol(+op: U64, +va: I.I, +vb: I.I) -> I.I:
+  +la = I.i_lo(va)
+  +lb = I.i_lo(vb)
+  +ha = I.i_hi(va)
+  +hb = I.i_hi(vb)
+  +lo = F64.max(la, lb)
+  +hi = F64.add(ha, hb)
+  Bool.pick(I.I, U64.is_eq(op, tag_union()), I.I{lo, hi},
+    Bool.pick(I.I, U64.is_eq(op, tag_diff()), I.I{0.0f64, ha},
+      I.I{0.0f64, F64.min(ha, hb)}))
+
+def k1area(+aa: I.I, +ab: I.I) -> I.I:
+  +ha = I.i_hi(aa)
+  +hb = I.i_hi(ab)
+  +s = F64.add(ha, hb)
+  I.I{0.0f64, s}
+
+def k1outc(+op: U64) -> U64:
+  Bool.pick(U64, U64.is_eq(op, tag_union()), 2u64,
+    Bool.pick(U64, U64.is_eq(op, tag_diff()), 4u64, 0u64))
+
+def k1proof(+r: K1.KR) -> String:
+  "k1-crossing-certified V" ++ Nat.show(K1.kr_nv(r)) ++ " E" ++ Nat.show(K1.kr_ne(r))
+    ++ " F" ++ Nat.show(K1.kr_nf(r)) ++ " S" ++ Nat.show(K1.kr_nc(r))
+
+def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
+    +proof: String) -> Out:
+  In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
+  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
+  +fn = List.append(&2, BD.Fn, fns, fns2)
+  +bbx = world_box(bc, F64.max(lin, lin2))
+  +tm = VI.brep_vol(bc)
+  +tok = VI.vr_ok(tm)
+  +tvol = Bool.pick(I.I, tok, VI.vr_vol(tm), k1vol(op, vol, vol2))
+  +tar = Bool.pick(I.I, tok, VI.vr_ar(tm), k1area(area, area2))
+  Out{True{}, 0u64, "", "", "", "", 0u64, bc,
+    List.append(&2, BD.Cl, cells, cells_shift(cells2, List.length(&2, BD.Cl, cells))), fn,
+    [], 0n, tvol, tar, bbx,
+    bake_lin(lin, lin2, bbx), True{}, bool_mat(op, k1outc(op), vol, vol2, 1u64),
+    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, []}
+
+def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+  +wa = world_box(ba, in_lin(a))
+  +wb = world_box(bb, in_lin(b))
+  +bc = restamp(K1.kr_brep(kr))
+  +v = vcore(bc)
+  Bool.pick(Out, VR_ok(v),
+    k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr)),
+    out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
+      "validation-rejected: " ++ vcode(v), "report these operands"))
+
+def k1_curved(+kr: K1.KR) -> Bool:
+  U64.is_eq(K1.kr_why(kr), 2u64)
+
+def k1_curved_out(+nd: U64, +stage: String) -> Out:
+  out_fail(fk_unsupported(), stage, "node " ++ U64.show(nd),
+    "curved-surface-operand: sphere/cone/torus operands are not admitted",
+    "use plane/cylinder operands; K1 curved sheets are deferred")
+
+def run_k1v(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
+    +bn: U64, +v: VR) -> Out:
+  +kr = GB.gbrun(op, ba, bb)
+  Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
+    Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "intersect"),
+      intersect_fail(nd, an, bn, v)))
+
+def run_k1r_fb(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64,
+    +bn: U64) -> Out:
+  match has3:
+    case True{}:
+      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
+        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
+        "move the operands apart or nest one inside the other; general intersecting booleans need face splitting")
+    case False{}:
+      out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
+        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
+        "separate the operands or nest one strictly inside the other")
+
+def run_k1r(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64,
+    +bn: U64, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep) -> Out:
+  +kr = GB.gbrun(op, ba, bb)
+  Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
+    Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "classify"),
+      run_k1r_fb(has3, ra, rb, nd, an, bn)))
+
+def run_k1m(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
+    +bn: U64) -> Out:
+  +kr = GB.gbrun(op, ba, bb)
+  Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
+    Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "classify"),
+      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
+        "mixed-solid-relations: one operand has solids both inside and outside the other",
+        "boolean operands with mixed containment need per-solid measures (a C11 item)")))
+
 def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
     +proof: String) -> Out:
   In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, lin, bo, pxa} = a
@@ -1947,31 +2044,20 @@ def run_outcome(+op: U64, a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep
   run_outcome_go(U64.is_eq(outc, 5u64), op, a, b, ba, bb, bc, outc, nd, an, bn, nc)
 
 def run_rels_has(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64,
-    +bn: U64) -> Out:
-  match has3:
-    case True{}:
-      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
-        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
-        "move the operands apart or nest one inside the other; general intersecting booleans need face splitting")
-    case False{}:
-      out_fail(fk_uncertain(), "classify", "node " ++ U64.show(nd),
-        rel_why(ra, rb) ++ " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
-        "separate the operands or nest one strictly inside the other")
+    +bn: U64, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep) -> Out:
+  run_k1r(has3, ra, rb, nd, an, bn, op, a, b, ba, bb)
 
 def run_rels_mix(+mix: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
     +nd: U64, +an: U64, +bn: U64, +nc: Nat, +ca: U64, +cb: U64) -> Out:
   match mix:
-    case True{}:
-      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
-        "mixed-solid-relations: one operand has solids both inside and outside the other",
-        "boolean operands with mixed containment need per-solid measures (a C11 item)")
+    case True{}: run_k1m(op, a, b, ba, bb, nd, an, bn)
     case False{}: run_outcome(op, a, b, ba, bb, bc, ca, cb, nd, an, bn, nc)
 
 def run_rels_bad(+bad6: Bool, +has3: Bool, +mix5: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
     +bb: Ty.Brep, +bc: Ty.Brep, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64, +bn: U64,
     +nc: Nat, +ca: U64, +cb: U64) -> Out:
   match bad6:
-    case True{}: run_rels_has(has3, ra, rb, nd, an, bn)
+    case True{}: run_rels_has(has3, ra, rb, nd, an, bn, op, a, b, ba, bb)
     case False{}: run_rels_mix(mix5, op, a, b, ba, bb, bc, nd, an, bn, nc, ca, cb)
 
 def run_rels(+op: U64, +a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep, +ra: List<&2, U64>,
@@ -2006,7 +2092,7 @@ def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.
     +nd: U64, +an: U64, +bn: U64, +v: VR) -> Out:
   match ok:
     case True{}: run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v))
-    case False{}: intersect_fail(nd, an, bn, v)
+    case False{}: run_k1v(op, a, b, ba, bb, nd, an, bn, v)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64) -> Out:

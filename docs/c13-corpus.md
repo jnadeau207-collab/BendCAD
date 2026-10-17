@@ -23,7 +23,7 @@ in the report.
 
 Every member builds each design twice from scratch and compares the
 canonical kernel outputs byte-exactly (eval, flat, surf, blade, show/apply
-replay), and records sha256 of every exported artifact (STEP, OBJ, BCAD1
+replay), and records sha256 of every exported artifact (STEP, OBJ, BCAD2
 archive, design file). A member holds only if both builds agree and every
 oracle check holds on the recorded binary. The report carries
 `corpus_version`, `binary_sha256`, per-member checks and artifact hashes.

@@ -406,8 +406,10 @@ law l1_outer_rule:
   for su: G.GVal
   for ls: List<&2, Ty.HLoop>
   for sa: Bool
+  for slv: F64
+  for sla: F64
   for x: Ty.Ix
-  {Op.fas_kind_ok(Ty.Fa{g, su, ls, sa} <> Nil{}, x)
+  {Op.fas_kind_ok(Ty.Fa{g, su, ls, sa, slv, sla} <> Nil{}, x)
     == Bool.and(Nat.is_eq(Op.hls_outer(ls, x), 1n), True{}) : Bool}
 
 law l1_ov_start:

@@ -21,7 +21,7 @@ type Eg is Data:
   Eg{ g: List<&2, G.GVal>, d: G.Dom, a: Nat, b: Nat, pa: List<&2, I.I>, pb: List<&2, I.I>, c: R.Cv, bx: List<&2, I.I>, u: U64, so: Nat }
 
 type Fg is Data:
-  Fg{ fd: SO.Fd, es: List<&2, Nat>, vs: List<&2, Nat>, so: Nat }
+  Fg{ fd: SO.Fd, es: List<&2, Nat>, vs: List<&2, Nat>, so: Nat, dv: F64 }
 
 type It is Data:
   It{ k: U64, i: Nat, bx: List<&2, I.I> }
@@ -85,9 +85,9 @@ def eg_bx(e: Eg) -> List<&2, I.I>:
 
 def ce_ev(ce: Ty.Coedge, +x: Ty.Ix, +acc: Fg) -> Fg:
   Ty.Ce{g, +eh, fwd, tr} = ce
-  Fg{fd, es, vs, so} = acc
+  Fg{fd, es, vs, so, dv} = acc
   +e = Ty.tres_ed(Ty.ix_ed(x, eh))
-  Fg{fd, he_i(eh) <> es, hv_i(Ty.ed_v0(e)) <> hv_i(Ty.ed_v1(e)) <> vs, so}
+  Fg{fd, he_i(eh) <> es, hv_i(Ty.ed_v0(e)) <> hv_i(Ty.ed_v1(e)) <> vs, so, dv}
 
 def ces_ev(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +acc: Fg) -> Fg:
   match hs:
@@ -104,8 +104,8 @@ def lps_ev(hs: List<&2, Ty.HLoop>, +x: Ty.Ix, +acc: Fg) -> Fg:
     case h <> t: lps_ev(t, x, lp_ev(Ty.tres_lp(Ty.ix_lp(x, h)), x, acc))
 
 def fg_of(f: Ty.Face, +x: Ty.Ix, +fd: SO.Fd, +so: Nat) -> Fg:
-  Ty.Fa{g, s, ls, same} = f
-  lps_ev(ls, x, Fg{fd, [], [], so})
+  Ty.Fa{g, s, ls, same, slv, sla} = f
+  lps_ev(ls, x, Fg{fd, [], [], so, slv})
 
 def fhs_fg(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +fds: List<&2, SO.Fd>, +so: Nat) -> List<&2, Fg>:
   match hs:
@@ -140,15 +140,15 @@ def shs_fg(ss: List<&2, Ty.Shell>, +x: Ty.Ix, +fds: List<&2, SO.Fd>, +mp: List<&
         shs_fg(t, x, drop_fd(List.length(&2, Ty.HFace, hs), fds), mp, Nat.add(at, 1n)))
 
 def fg_fd(f: Fg) -> SO.Fd:
-  Fg{fd, es, vs, so} = f
+  Fg{fd, es, vs, so, dv} = f
   fd
 
 def fg_es(f: Fg) -> List<&2, Nat>:
-  Fg{fd, es, vs, so} = f
+  Fg{fd, es, vs, so, dv} = f
   es
 
 def fg_vs(f: Fg) -> List<&2, Nat>:
-  Fg{fd, es, vs, so} = f
+  Fg{fd, es, vs, so, dv} = f
   vs
 
 def eg_so(e: Eg) -> Nat:
@@ -156,8 +156,12 @@ def eg_so(e: Eg) -> Nat:
   so
 
 def fg_so(f: Fg) -> Nat:
-  Fg{fd, es, vs, so} = f
+  Fg{fd, es, vs, so, dv} = f
   so
+
+def fg_dv(f: Fg) -> F64:
+  Fg{fd, es, vs, so, dv} = f
+  dv
 
 def it_lo(x: It) -> F64:
   It{k, i, bx} = x
@@ -596,6 +600,23 @@ def ef_m1(+cross: Bool, +mode: U64, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, 
         case 1u64: ef_m1_in(ofds, bb, pa0, pa1, p, tol, a, b)
         case _: fi1(ef_tan_code(ef_tan(ofds, bb, c, s, lo, hi)), a, b)
 
+def ef_thin_end(+s: I.I, +lo: F64, +hi: F64) -> Bool:
+  Bool.and(F64.is_eq(I.i_lo(s), I.i_hi(s)),
+    Bool.or(F64.is_eq(I.i_lo(s), lo), F64.is_eq(I.i_lo(s), hi)))
+
+def ef_far_go(es: List<&2, Mm.Er>, +p: List<&2, I.I>) -> Bool:
+  match es:
+    case []: True{}
+    case e <> t:
+      Bool.and(X.vdisj(R.cv_box(Mm.er_c(e), I.I{0.0f64, 1.0f64}), p), ef_far_go(t, p))
+
+def ef_far(+fd: SO.Fd, +p: List<&2, I.I>) -> Bool:
+  ef_far_go(Mm.fc_es(SO.fd_fc(fd)), p)
+
+def ef_un2(+endhit: Bool, +far: Bool, +cross: Bool, +mode: U64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
+  Bool.pick(List<&2, SO.Fi>, Bool.and(endhit, far), [],
+    fi1(Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b))
+
 def ef_pt_x(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +ofds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +c: R.Cv,
     +s: I.I, +lo: F64, +hi: F64, +cross: Bool, +mode: U64, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>,
     +tol: F64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
@@ -606,7 +627,7 @@ def ef_pt_x(near: Bool, +fd: SO.Fd, +p: List<&2, I.I>, +ofds: List<&2, SO.Fd>, +
       Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [],
         Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 1u64), ef_m1(cross, mode, ofds, bb, c, s, lo, hi, pa0, pa1, p,
           tol, a, b),
-          fi1(Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)))
+          ef_un2(ef_thin_end(s, lo, hi), ef_far(fd, p), cross, mode, a, b)))
 
 def ef_hit(h: S.Hit, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, List<&2, I.I>>, +tol: F64, +a: Nat, +b: Nat, +cross: Bool, +mode: U64, +ofds: List<&2, SO.Fd>,
     +bb: List<&2, I.I>, +pa0: List<&2, I.I>, +pa1: List<&2, I.I>) -> List<&2, SO.Fi>:
@@ -1007,7 +1028,7 @@ def ff_or_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: 
       +csb = all_cvs(fg_es(y), te)
       +exa = fg_es(x)
       +exb = fg_es(y)
-      ss_fi(r, fa, fb, csa, csb, tol, ia, ib, es_share(exa, exb), sh_cvs(exa, exb, te))
+      ss_fi(r, fa, fb, csa, csb, F64.max(tol, F64.add(fg_dv(x), fg_dv(y))), ia, ib, es_share(exa, exb), sh_cvs(exa, exb, te))
 
 def frame(+n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +m = SO.snap(n)
@@ -1161,7 +1182,7 @@ def fd_dflt() -> SO.Fd:
   SO.fd_dflt()
 
 def fg_dflt(+ns: Nat) -> Fg:
-  Fg{fd_dflt(), [], [], ns}
+  Fg{fd_dflt(), [], [], ns, 0.0f64}
 
 def es_ef(es: List<&2, Nat>, +f: Nat, +acc: List<&2, Ef>) -> List<&2, Ef>:
   match es:

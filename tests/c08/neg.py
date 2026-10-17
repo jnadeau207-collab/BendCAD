@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 import subprocess
@@ -37,6 +38,16 @@ def node_err(out, n):
     return (m.group(1), m.group(3).strip()) if m else (None, None)
 
 
+def node_vol(out, n):
+    m = re.search(rf'node {n}: ok .*?volume=\[([^,]+), ([^\]]+)\]', out)
+    return (float(m.group(1)), float(m.group(2))) if m else None
+
+
+def vol_ok(out, n, x):
+    v = node_vol(out, n)
+    return v is not None and v[0] <= x <= v[1]
+
+
 CASES = []
 
 
@@ -54,8 +65,8 @@ def c_cross():
                    f'(node 2 {BOX10} {ICR})',
                    f'(node 3 (move 2 5 0 0 0) {I11})',
                    '(node 4 (union 1 3) (intent add 0 0 1 0))')
-    k, w = node_err(out, 4)
-    return (k == 'unsupported-op' and w.startswith('boundaries-cross-or-overlap'), w)
+    return ('committed' in out and vol_ok(out, 4, 1500.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
 @case('cross.straddle')
@@ -65,8 +76,8 @@ def c_straddle():
                    '(node 2 (box 4 4 4) (intent create 6 0 1 0))',
                    '(node 3 (move 2 18 8 8 0) (intent same 0 0 1 0))',
                    '(node 4 (difference 1 3) (intent remove 0 0 1 0))')
-    k, w = node_err(out, 4)
-    return (k == 'unsupported-op' and w.startswith('boundaries-cross-or-overlap'), w)
+    return ('committed' in out and vol_ok(out, 4, 7968.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
 @case('cross.pierce_rod')
@@ -76,8 +87,8 @@ def c_pierce():
                    '(node 2 (box 2 2 20) (intent create 6 0 1 0))',
                    '(node 3 (move 2 4 4 -5 0) (intent same 0 0 1 0))',
                    '(node 4 (union 1 3) (intent add 0 0 1 0))')
-    k, w = node_err(out, 4)
-    return (k == 'unsupported-op' and w.startswith('boundaries-cross-or-overlap'), w)
+    return ('committed' in out and vol_ok(out, 4, 1040.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
 @case('cross.sphere')
@@ -87,7 +98,7 @@ def c_sphere():
                    '(node 2 (sphere 6) (intent create 2 0 1 0))',
                    '(node 3 (union 1 2) (intent add 0 0 1 0))')
     k, w = node_err(out, 3)
-    return (k == 'unsupported-op' and w.startswith('boundaries-cross-or-overlap'), w)
+    return (k == 'unsupported-op' and 'curved-surface-operand' in w, (k, w))
 
 
 @case('mixed.regions')
@@ -128,13 +139,25 @@ def c_rot45d():
 
 @case('feature.on_boolean')
 def c_featb():
+    out, _ = fresh('n.bcd',
+                   f'(node 1 {BOX10} {ICR})',
+                   f'(node 2 {BOX10} {ICR})',
+                   f'(node 3 (move 2 5 0 0 0) {I11})',
+                   '(node 4 (union 1 3) (intent add 0 0 1 0))',
+                   '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 3 1 0))')
+    return ('committed' in out and vol_ok(out, 5, 1500.0 + 3.0 * math.pi)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 5))
+
+
+@case('feature.on_compound')
+def c_featc():
     fresh('n.bcd',
           f'(node 1 {BOX10} {ICR})',
           f'(node 2 {BOX10} {ICR})',
           '(node 3 (move 2 20 0 0 0) (intent same 0 0 1 0))',
           '(node 4 (union 1 3) (intent add 0 0 2 0))')
     o, _ = cli('n.bcd', 'apply', '(node 5 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 2 0))')
-    return ('feature-on-boolean-result' in o, o.strip()[:100])
+    return ('feature-on-compound' in o, o.strip()[:160])
 
 
 @case('feature.on_empty')
@@ -181,14 +204,14 @@ def c_pinch():
     return (k == 'numerical-uncertainty' and w.startswith('validation-rejected'), (k, w))
 
 
-@case('contact.not_certified')
-def c_contactnc():
+@case('ok.ident_union')
+def c_ident():
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
                    f'(node 2 {BOX10} {ICR})',
                    '(node 3 (union 1 2) (intent add 0 0 1 0))')
-    k, w = node_err(out, 3)
-    return (k == 'numerical-uncertainty' and w.startswith('contact-not-certified'), (k, w))
+    return ('committed' in out and vol_ok(out, 3, 1000.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 3))
 
 
 @case('diff.no_container')
@@ -205,11 +228,10 @@ def c_nocont():
 def c_chain():
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
-                   f'(node 2 {BOX10} {ICR})',
-                   '(node 3 (move 2 5 0 0 0) (intent same 0 0 1 0))',
-                   '(node 4 (union 1 3) (intent add 0 0 1 0))',
-                   '(node 5 (union 4 1) (intent add 0 0 1 0))')
-    k, w = node_err(out, 5)
+                   '(node 2 (sphere 6) (intent create 2 0 1 0))',
+                   '(node 3 (union 1 2) (intent add 0 0 1 0))',
+                   '(node 4 (union 3 1) (intent add 0 0 1 0))')
+    k, w = node_err(out, 4)
     return (k is not None and 'committed' not in out, (k, w))
 
 

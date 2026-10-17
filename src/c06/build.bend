@@ -671,7 +671,7 @@ def fs_emit(fs: List<&2, FS>, +st: St, +fi: Nat) -> St:
       FS{sol, surf, same, +lps, nm} = f
       +l0 = st_nlp(st)
       +st2 = lps_emit(lps, st, True{})
-      fs_emit(t, st_add_fa(st2, Ty.Fa{U64.from_nat(Nat.add(fi, 1n)), surf, hls_n(List.length(&2, List<&2, Use>, lps), l0), same}),
+      fs_emit(t, st_add_fa(st2, Ty.Fa{U64.from_nat(Nat.add(fi, 1n)), surf, hls_n(List.length(&2, List<&2, Use>, lps), l0), same, 0.0f64, 0.0f64}),
         Nat.add(fi, 1n))
 
 def hf_rev(xs: List<&2, Ty.HFace>) -> List<&2, Ty.HFace>:

@@ -315,9 +315,9 @@ def empty_algebra():
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
     record('empty.feature_on_empty', 'feature-on-empty-compound' in o, why=re.findall(r'why: ([^|]+)', o))
     o, _ = cli('empty.bcd', 'apply', '(node 10 (pad 5 (face 5 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 1 0))')
-    record('empty.feature_on_carry_ok', 'face-not-found' in o and 'committed' not in o
-           and 'feature-on-empty-compound' not in o and 'feature-on-boolean-result' not in o,
-           why=re.findall(r'why: ([^|]+)', o))
+    record('empty.feature_on_carry_ok', 'committed' in o and fx(o, 10) == ('add', '2', '1', '1', '0')
+           and contains(vol(o, 10), 1000.0 + 20 * PI),
+           fx=fx(o, 10), volume=vol(o, 10))
     ok20, info20 = l20_ok(out, 5, 9, 4, 1, 1000.0)
     record('empty.volume_identity', ok20, **info20)
 
@@ -329,7 +329,16 @@ def feature_on_boolean():
                    '(node 3 (move 2 20 0 0 0) (intent same 0 0 1 0))',
                    '(node 4 (union 1 3) (intent add 0 0 2 0))')
     o, _ = cli('feat.bcd', 'apply', '(node 5 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 2 0))')
-    record('boolean.feature_refused', 'feature-on-boolean-result' in o, why=re.findall(r'why: ([^|]+)', o))
+    record('boolean.feature_on_compound_refused', 'feature-on-compound' in o, why=re.findall(r'why: ([^|]+)', o))
+    out, dt = fresh('feat1.bcd',
+                    '(node 1 (box 10 10 10) (intent create 6 0 1 0))',
+                    '(node 2 (box 10 10 10) (intent create 6 0 1 0))',
+                    '(node 3 (move 2 5 0 0 0) (intent same 0 0 1 0))',
+                    '(node 4 (union 1 3) (intent add 0 0 1 0))',
+                    '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 3 1 0))')
+    record('boolean.feature_on_boolean_ok', 'committed' in out and fx(out, 5) == ('add', '3', '3', '1', '0')
+           and contains(vol(out, 5), 1500.0 + 3 * PI) and 'proof: k1-crossing-certified' in out,
+           fx=fx(out, 5), volume=vol(out, 5), seconds=dt)
 
 
 def slanted():
@@ -357,21 +366,29 @@ def crossing():
                     '(node 3 (move 2 5 0 0 0) (intent same 0 0 1 0))',
                     '(node 4 (union 1 3) (intent add 0 0 1 0))',
                     '(node 5 (difference 1 3) (intent remove 0 0 1 0))',
-                    '(node 6 (intersection 1 3) (intent remove 0 0 1 0))')
-    hits = {n: re.search(rf'node {n}: error (unsupported-op) .*?why: boundaries-cross-or-overlap', out)
-            for n in (4, 5, 6)}
-    record('crossing.union_refused', hits[4] is not None, seconds=dt)
-    record('crossing.diff_refused', hits[5] is not None)
-    record('crossing.inter_refused', hits[6] is not None)
+                    '(node 6 (intersection 1 3) (intent same 0 0 1 0))')
+    record('crossing.union', 'committed' in out and fx(out, 4) == ('add', '0', '0', '1', '0')
+           and contains(vol(out, 4), 1500.0) and 'proof: k1-crossing-certified' in out,
+           fx=fx(out, 4), volume=vol(out, 4), seconds=dt)
+    record('crossing.diff', fx(out, 5) == ('remove', '0', '0', '1', '0') and contains(vol(out, 5), 500.0),
+           fx=fx(out, 5), volume=vol(out, 5))
+    record('crossing.inter', fx(out, 6) == ('same', '0', '0', '1', '0') and contains(vol(out, 6), 500.0),
+           fx=fx(out, 6), volume=vol(out, 6))
+    ok20, info20 = l20_ok(out, 4, 6, 1, 3, 2000.0)
+    record('crossing.volume_identity', ok20, **info20)
     f4, _ = cli('cross.bcd', 'faces', '4')
-    record('crossing.failed_nodes_absent', '(union 1 3)' not in read('cross.bcd')
-           and 'node failed' in f4, faces=f4.strip()[:40])
-    o2, _ = fresh('straddle.bcd',
-                  '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
-                  '(node 2 (box 4 4 4) (intent create 6 0 1 0))',
-                  '(node 3 (move 2 18 8 8 0) (intent same 0 0 1 0))',
-                  '(node 4 (difference 1 3) (intent remove 0 0 1 0))')
-    record('crossing.straddle_refused', 'boundaries-cross-or-overlap' in o2)
+    record('crossing.nodes_present', '(union 1 3)' in read('cross.bcd') and 'node failed' not in f4,
+           faces=f4.strip()[:40])
+    c4, _ = cli('cross.bcd', 'check', '4')
+    record('crossing.check', c4.startswith('ok:'), out=c4.strip())
+    o2, dt2 = fresh('straddle.bcd',
+                    '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
+                    '(node 2 (box 4 4 4) (intent create 6 0 1 0))',
+                    '(node 3 (move 2 18 8 8 0) (intent same 0 0 1 0))',
+                    '(node 4 (difference 1 3) (intent remove 0 0 1 0))')
+    record('crossing.straddle', 'committed' in o2 and fx(o2, 4) == ('remove', '0', '0', '1', '0')
+           and contains(vol(o2, 4), 7968.0) and 'proof: k1-crossing-certified' in o2,
+           fx=fx(o2, 4), volume=vol(o2, 4), seconds=dt2)
 
 
 def intent_gate():
@@ -463,18 +480,22 @@ def pierce():
                     '(node 2 (box 2 2 20) (intent create 6 0 1 0))',
                     '(node 3 (move 2 4 4 -5 0) (intent same 0 0 1 0))',
                     '(node 4 (union 1 3) (intent add 0 0 1 0))',
-                    '(node 5 (difference 1 3) (intent remove 0 0 1 0))',
-                    '(node 6 (intersection 1 3) (intent remove 0 0 1 0))')
-    hits = {n: re.search(rf'node {n}: error (unsupported-op) .*?why: boundaries-cross-or-overlap', out)
-            for n in (4, 5, 6)}
-    record('pierce.union_refused', hits[4] is not None, seconds=dt)
-    record('pierce.diff_refused', hits[5] is not None)
-    record('pierce.inter_refused', hits[6] is not None)
+                    '(node 5 (difference 1 3) (intent remove 0 0 1 1))',
+                    '(node 6 (intersection 1 3) (intent same 0 0 1 0))')
+    record('pierce.union', 'committed' in out and fx(out, 4) == ('add', '0', '0', '1', '0')
+           and contains(vol(out, 4), 1040.0) and 'proof: k1-crossing-certified' in out,
+           fx=fx(out, 4), volume=vol(out, 4), seconds=dt)
+    record('pierce.diff', fx(out, 5) == ('remove', '0', '0', '1', '1') and contains(vol(out, 5), 960.0),
+           fx=fx(out, 5), volume=vol(out, 5))
+    record('pierce.inter', fx(out, 6) == ('same', '0', '0', '1', '0') and contains(vol(out, 6), 40.0),
+           fx=fx(out, 6), volume=vol(out, 6))
+    ok20, info20 = l20_ok(out, 4, 6, 1, 3, 1080.0)
+    record('pierce.volume_identity', ok20, **info20)
     out2, _ = fresh('pierce2.bcd',
                     '(node 1 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 2 (sphere 6) (intent create 2 0 1 0))',
                     '(node 3 (union 1 2) (intent add 0 0 1 0))')
-    record('pierce.sphere_cross_refused', 'boundaries-cross-or-overlap' in out2)
+    record('pierce.sphere_cross_refused', 'curved-surface-operand' in out2)
 
 
 def curved():

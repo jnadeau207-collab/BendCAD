@@ -570,11 +570,11 @@ def lps_bad() -> List<&2, Ty.Loop>:
   Ty.Lp{31u64, hce0(), Ty.LK_outer{}} <> Nil{}
 
 def fa_a() -> Ty.Face:
-  Ty.Fa{41u64, sf_pl(), hlp_a() <> Nil{}, True{}}
+  Ty.Fa{41u64, sf_pl(), hlp_a() <> Nil{}, True{}, 0.0f64, 0.0f64}
 
 def fa_b() -> Ty.Face:
   Ty.Fa{42u64, sf_cy(), Ty.mk_hlp(1n, 32u64) <> Nil{},
-    False{}}
+    False{}, 0.0f64, 0.0f64}
 
 def fas0() -> List<&2, Ty.Face>:
   Nil{}
@@ -586,10 +586,10 @@ def fas2() -> List<&2, Ty.Face>:
   fa_a() <> fa_b() <> Nil{}
 
 def fas_badarm() -> List<&2, Ty.Face>:
-  Ty.Fa{41u64, cv_ln(), hlp1(), True{}} <> Nil{}
+  Ty.Fa{41u64, cv_ln(), hlp1(), True{}, 0.0f64, 0.0f64} <> Nil{}
 
 def fas_badloops() -> List<&2, Ty.Face>:
-  Ty.Fa{41u64, sf_pl(), hlp0(), True{}} <> Nil{}
+  Ty.Fa{41u64, sf_pl(), hlp0(), True{}, 0.0f64, 0.0f64} <> Nil{}
 
 def sh_a() -> Ty.Shell:
   Ty.Sh{51u64, hfa_a() <> Nil{}, Ty.SK_outer{}}
@@ -680,7 +680,7 @@ def lp_r() -> Ty.Loop:
   Ty.Lp{39u64, hc2(), Ty.LK_inner{}}
 
 def fa_r() -> Ty.Face:
-  Ty.Fa{49u64, sf_cy(), hlp1(), False{}}
+  Ty.Fa{49u64, sf_cy(), hlp1(), False{}, 0.0f64, 0.0f64}
 
 def sh_r() -> Ty.Shell:
   Ty.Sh{59u64, hfa1(), Ty.SK_inner{}}
@@ -2039,8 +2039,8 @@ def l1_lps_pair() -> List<&2, Ty.Loop>:
     Ty.Lp{9u64, l1_hc1() <> Nil{}, Ty.LK_outer{}} <> Nil{}
 
 def l1_fas_pair() -> List<&2, Ty.Face>:
-  Ty.Fa{10u64, l1_pl(), l1_hl0() <> Nil{}, True{}} <>
-    Ty.Fa{11u64, l1_pl(), l1_hl1() <> Nil{}, True{}} <> Nil{}
+  Ty.Fa{10u64, l1_pl(), l1_hl0() <> Nil{}, True{}, 0.0f64, 0.0f64} <>
+    Ty.Fa{11u64, l1_pl(), l1_hl1() <> Nil{}, True{}, 0.0f64, 0.0f64} <> Nil{}
 
 def l1_b_share() -> Ty.Brep:
   Ty.Br{Nil{}, l1_es_line(), l1_ces_seam(True{}),
@@ -2799,19 +2799,19 @@ def lp_valid_no__want() -> Bool:
   False{}
 
 def fa_valid_yes__got() -> Bool:
-  Ty.fa_valid(Ty.Fa{0u64, sf_pl(), hlp1(), True{}})
+  Ty.fa_valid(Ty.Fa{0u64, sf_pl(), hlp1(), True{}, 0.0f64, 0.0f64})
 
 def fa_valid_yes__want() -> Bool:
   True{}
 
 def fa_valid_arm__got() -> Bool:
-  Ty.fa_valid(Ty.Fa{0u64, cv_ln(), hlp1(), True{}})
+  Ty.fa_valid(Ty.Fa{0u64, cv_ln(), hlp1(), True{}, 0.0f64, 0.0f64})
 
 def fa_valid_arm__want() -> Bool:
   False{}
 
 def fa_valid_loops__got() -> Bool:
-  Ty.fa_valid(Ty.Fa{0u64, sf_pl(), hlp0(), True{}})
+  Ty.fa_valid(Ty.Fa{0u64, sf_pl(), hlp0(), True{}, 0.0f64, 0.0f64})
 
 def fa_valid_loops__want() -> Bool:
   False{}

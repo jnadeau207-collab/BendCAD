@@ -388,7 +388,7 @@ def Laws.asurf_other(v):
 def Laws.afaces_nil(fas, pre):
   {==}
 
-def Laws.afaces_cons(f, t, g, s, ls, same, u, pre):
+def Laws.afaces_cons(f, t, g, s, ls, same, slv, sla, u, pre):
   {==}
 
 def Laws.faces_has_unknown(a, xs, cs, nm):

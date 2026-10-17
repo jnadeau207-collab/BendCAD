@@ -28,7 +28,7 @@ model XML, CRC32 and zip layout.
 
 | File | Role |
 |---|---|
-| `src/c12/blob.bend` | B1 payload sections, canonical re-encode gate, `BCAD1` archive envelope (`ar_mk`/`ar_parse`), import measures |
+| `src/c12/blob.bend` | B1 payload sections, canonical re-encode gate, `BCAD2` archive envelope (`ar_mk`/`ar_parse`), import measures |
 | `src/c12/stepw.bend` | STEP writer: staged entities, mm SI units block, header/footer, multi-solid staging |
 | `src/c12/stepr.bend` | STEP reader: tokenizer, entity parser, tables, recovery walks, staged refusals, `sr_file` entry |
 | `src/c12/mesh.bend` | OBJ parse, ASCII STL, 3MF model XML, CRC32, store-mode OPC zip |
@@ -37,10 +37,13 @@ model XML, CRC32 and zip layout.
 
 ## 2. Archive format (normative)
 
-`BCAD1|mm|<lineage>|<B1 payload>`, 13 `|`-separated fields: version
+`BCAD2|mm|<lineage>|<B1 payload>`, 13 `|`-separated fields: version
 tag, units, lineage, then the ten B1 sections
-(`B1|counts|V|E|C|L|F|S|O|top`). `BCAD1` is semantic version 1 of the
-archive; any other tag refuses with `archive-bad-version`. Units are
+(`B1|counts|V|E|C|L|F|S|O|top`). `BCAD2` is semantic version 2 of the
+archive; any other tag refuses with `archive-bad-version`. Version 2
+appends each face record with its certified volume sliver `slv` and area
+sliver `sla` after the loop ranks (K1 ring holes; zero for faces without
+sampled boundaries). Units are
 exactly `mm`, the kernel unit; anything else refuses with
 `archive-units-not-supported`. Lineage is free text without `|` (empty
 allowed). The B1 half must re-encode canonically: `pay_build` parses the

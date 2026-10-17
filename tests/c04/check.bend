@@ -464,11 +464,11 @@ def lps_bad() -> List<&2, Ty.Loop>:
 
 def fa_a() -> Ty.Face:
   Ty.Fa{41u64, sf_pl(), Ty.mk_hlp(0n, 31u64) <> Nil{},
-    True{}}
+    True{}, 0.0f64, 0.0f64}
 
 def fa_b() -> Ty.Face:
   Ty.Fa{42u64, sf_cy(), Ty.mk_hlp(1n, 32u64) <> Nil{},
-    False{}}
+    False{}, 0.0f64, 0.0f64}
 
 def fas0() -> List<&2, Ty.Face>:
   Nil{}
@@ -480,10 +480,10 @@ def fas2() -> List<&2, Ty.Face>:
   fa_a() <> fa_b() <> Nil{}
 
 def fas_badarm() -> List<&2, Ty.Face>:
-  Ty.Fa{41u64, cv_ln(), hlp1(), True{}} <> Nil{}
+  Ty.Fa{41u64, cv_ln(), hlp1(), True{}, 0.0f64, 0.0f64} <> Nil{}
 
 def fas_badloops() -> List<&2, Ty.Face>:
-  Ty.Fa{41u64, sf_pl(), hlp0(), True{}} <> Nil{}
+  Ty.Fa{41u64, sf_pl(), hlp0(), True{}, 0.0f64, 0.0f64} <> Nil{}
 
 def sh_a() -> Ty.Shell:
   Ty.Sh{51u64, Ty.mk_hfa(0n, 41u64) <> Nil{},

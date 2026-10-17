@@ -74,14 +74,14 @@ def base_multi() -> String:
   "(node 1 (box 40 40 40) (intent create 6 0 1 0)) (node 2 (move 1 0 0 -20 0) (intent same 0 0 1 0)) (node 3 (prism 0 10 (region (path 1 1 (line 5 1) (line 5 5) (line 1 5))) (region (path 100 100 (line 105 100) (line 105 105) (line 100 105)))) (intent create 12 0 2 0))"
 
 def nb_brep() -> Ty.Brep:
-  Ty.Br{[], [], [], [], [Ty.Fa{1u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}}],
+  Ty.Br{[], [], [], [], [Ty.Fa{1u64, G.GV_nb{G.Nb{[], [], []}}, [], True{}, 0.0f64, 0.0f64}],
     [Ty.Sh{1u64, [], Ty.SK_outer{}}], [Ty.So{1u64, Ty.HS{0n, 1u64}, []}], Ty.Cp{[Ty.HSo{0n, 1u64}], []}, 0u64}
 
 def nb_body() -> M.Body:
   M.Bd{[], nb_brep(), [], M.pl_id(), [], M.xb_id()}
 
 def open_brep() -> Ty.Brep:
-  Ty.Br{[], [], [], [], [Ty.Fa{1u64, G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}, [], True{}}],
+  Ty.Br{[], [], [], [], [Ty.Fa{1u64, G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}, [], True{}, 0.0f64, 0.0f64}],
     [Ty.Sh{1u64, [], Ty.SK_open{}}], [Ty.So{1u64, Ty.HS{0n, 1u64}, []}], Ty.Cp{[Ty.HSo{0n, 1u64}], []}, 0u64}
 
 def open_body() -> M.Body:
@@ -89,6 +89,12 @@ def open_body() -> M.Body:
 
 def base_pierce() -> String:
   "(node 1 (box 10 10 10) (intent create 6 0 1 0)) (node 2 (box 2 2 20) (intent create 6 0 1 0)) (node 3 (move 2 4 4 -5 0) (intent same 0 0 1 0))"
+
+def base_cross() -> String:
+  "(node 1 (box 10 10 10) (intent create 6 0 1 0)) (node 2 (box 10 10 10) (intent create 6 0 1 0)) (node 3 (move 2 5 0 0 0) (intent same 0 0 1 0))"
+
+def base_straddle() -> String:
+  "(node 1 (box 20 20 20) (intent create 6 0 1 0)) (node 2 (box 4 4 4) (intent create 6 0 1 0)) (node 3 (move 2 18 8 8 0) (intent same 0 0 1 0))"
 
 def base_tangent() -> String:
   "(node 1 (box 10 10 10) (intent create 6 0 1 0)) (node 2 (sphere 5) (intent create 2 0 1 0)) (node 3 (move 2 5 5 15 0) (intent same 0 0 1 0))"
@@ -171,10 +177,22 @@ def ev_feature_on_empty__got() -> Bool:
 def ev_feature_on_empty__want() -> Bool:
   True{}
 
-def ev_feature_on_boolean__got() -> Bool:
-  String.eq(last_s(base2() ++ " (node 4 (union 1 3) (intent add 0 0 2 0)) (node 5 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 2 0))"), "err invalid-input feature-on-boolean-result")
+def ev_feature_on_compound__got() -> Bool:
+  String.eq(last_s(base2() ++ " (node 4 (union 1 3) (intent add 0 0 2 0)) (node 5 (pad 4 (face 4 0 top) 5 (region (circle 5 5 2))) (intent add 2 1 2 0))"), "err invalid-input feature-on-compound")
 
-def ev_feature_on_boolean__want() -> Bool:
+def ev_feature_on_compound__want() -> Bool:
+  True{}
+
+def ev_feature_pad_ok__got() -> Bool:
+  String.eq(last_s(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 0 1 0))"), "ok material=add faces_created=3 faces_modified=0 solids=1 through_holes=0")
+
+def ev_feature_pad_ok__want() -> Bool:
+  True{}
+
+def ev_vol_feature_pad__got() -> Bool:
+  vol_has(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 0 1 0))", 1509.4247779607695f64)
+
+def ev_vol_feature_pad__want() -> Bool:
   True{}
 
 def ev_intent_mismatch__got() -> Bool:
@@ -261,16 +279,88 @@ def ev_move_plain_stays_plain__got() -> Bool:
 def ev_move_plain_stays_plain__want() -> Bool:
   False{}
 
-def ev_pierce_rod_refused__got() -> Bool:
-  String.eq(last_s(base_pierce() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))"), "err unsupported-op boundaries-cross-or-overlap: edge-face-penetration 20 0 between nodes 1 and 3")
+def ev_pierce_rod__got() -> Bool:
+  String.eq(last_s(base_pierce() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))"), "ok material=add faces_created=0 faces_modified=0 solids=1 through_holes=0")
 
-def ev_pierce_rod_refused__want() -> Bool:
+def ev_pierce_rod__want() -> Bool:
   True{}
 
-def ev_pierce_rod_diff_refused__got() -> Bool:
-  String.eq(last_s(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))"), "err unsupported-op boundaries-cross-or-overlap: edge-face-penetration 20 0 between nodes 1 and 3")
+def ev_vol_pierce_rod__got() -> Bool:
+  vol_has(base_pierce() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))", 1040.0f64)
 
-def ev_pierce_rod_diff_refused__want() -> Bool:
+def ev_vol_pierce_rod__want() -> Bool:
+  True{}
+
+def ev_pierce_rod_diff__got() -> Bool:
+  String.eq(last_s(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))"), "ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_pierce_rod_diff__want() -> Bool:
+  True{}
+
+def ev_vol_pierce_rod_diff__got() -> Bool:
+  vol_has(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))", 960.0f64)
+
+def ev_vol_pierce_rod_diff__want() -> Bool:
+  True{}
+
+def ev_pierce_rod_inter__got() -> Bool:
+  String.eq(last_s(base_pierce() ++ " (node 4 (intersection 1 3) (intent same 0 0 1 0))"), "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_pierce_rod_inter__want() -> Bool:
+  True{}
+
+def ev_vol_pierce_rod_inter__got() -> Bool:
+  vol_has(base_pierce() ++ " (node 4 (intersection 1 3) (intent same 0 0 1 0))", 40.0f64)
+
+def ev_vol_pierce_rod_inter__want() -> Bool:
+  True{}
+
+def ev_cross_union__got() -> Bool:
+  String.eq(last_s(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))"), "ok material=add faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_cross_union__want() -> Bool:
+  True{}
+
+def ev_vol_cross_union__got() -> Bool:
+  vol_has(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))", 1500.0f64)
+
+def ev_vol_cross_union__want() -> Bool:
+  True{}
+
+def ev_cross_diff__got() -> Bool:
+  String.eq(last_s(base_cross() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))"), "ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_cross_diff__want() -> Bool:
+  True{}
+
+def ev_vol_cross_diff__got() -> Bool:
+  vol_has(base_cross() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))", 500.0f64)
+
+def ev_vol_cross_diff__want() -> Bool:
+  True{}
+
+def ev_cross_inter__got() -> Bool:
+  String.eq(last_s(base_cross() ++ " (node 4 (intersection 1 3) (intent same 0 0 1 0))"), "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_cross_inter__want() -> Bool:
+  True{}
+
+def ev_vol_cross_inter__got() -> Bool:
+  vol_has(base_cross() ++ " (node 4 (intersection 1 3) (intent same 0 0 1 0))", 500.0f64)
+
+def ev_vol_cross_inter__want() -> Bool:
+  True{}
+
+def ev_straddle__got() -> Bool:
+  String.eq(last_s(base_straddle() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))"), "ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=0")
+
+def ev_straddle__want() -> Bool:
+  True{}
+
+def ev_vol_straddle__got() -> Bool:
+  vol_has(base_straddle() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))", 7968.0f64)
+
+def ev_vol_straddle__want() -> Bool:
   True{}
 
 def ev_tangent_sphere_plane__got() -> Bool:
