@@ -195,12 +195,18 @@ def str_cat(xs: List<&2, String>) -> String:
     case []: ""
     case x <> t: x ++ " " ++ str_cat(t)
 
-def fn_s(f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +role, +i, +j} = f
+def fn_s_b(f: BD.Fn) -> String:
+  BD.Fn{+nd, +k, +rl, +i, +j} = f
+  +role = U64.mod(rl, 8u64)
   Bool.pick(String, U64.is_eq(role, 4u64),
     "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
     "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
       Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
+
+def fn_s(+f: BD.Fn) -> String:
+  BD.Fn{+nd, +k, +rl, +i, +j} = f
+  +p = U64.div(rl, 8u64)
+  fn_s_b(f) ++ Bool.pick(String, U64.is_eq(p, 0u64), "", ".p" ++ U64.show(U64.sub(p, 1u64)))
 
 def surf_s(s: G.GVal) -> String:
   match s:

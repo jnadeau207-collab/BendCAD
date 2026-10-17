@@ -14,6 +14,7 @@ import ../c07/ivx.bend as X
 import ../c07/emb.bend as EM
 import ../c07/xs.bend as S
 import ../c07/im.bend as MM
+import ../c07/mem.bend as Mm
 import ../c07/rb.bend as R
 import ../k1/surg.bend as K1
 import ../k1/gb.bend as GB
@@ -1888,15 +1889,99 @@ def k1proof(+r: K1.KR) -> String:
   "k1-crossing-certified V" ++ Nat.show(K1.kr_nv(r)) ++ " E" ++ Nat.show(K1.kr_ne(r))
     ++ " F" ++ Nat.show(K1.kr_nf(r)) ++ " S" ++ Nat.show(K1.kr_nc(r))
 
+type LK is Data:
+  LK{ sd: U64, j: Nat, f: BD.Fn }
+
+def lk_sd(+x: LK) -> U64:
+  LK{sd, j, f} = x
+  sd
+
+def lk_j(+x: LK) -> Nat:
+  LK{sd, j, f} = x
+  j
+
+def lk_f(+x: LK) -> BD.Fn:
+  LK{sd, j, f} = x
+  f
+
+def fd_at(fs: List<&2, SO.Fd>, +i: Nat) -> SO.Fd:
+  match fs:
+    case []: SO.fd_dflt()
+    case +f <> +t: Bool.pick(SO.Fd, Nat.is_eq(SO.fd_fi(f), i), f, fd_at(t, i))
+
+def fn_at(fs: List<&2, BD.Fn>, +i: Nat) -> BD.Fn:
+  match fs:
+    case []: BD.Fn{0u64, 0n, role_created(), 0n, 0n}
+    case +f <> +t:
+      match i:
+        case 0n: f
+        case 1n+k: fn_at(t, k)
+
+def src_hit(+q: List<&2, I.I>, +g: G.GVal, +f: SO.Fd) -> Bool:
+  Bool.and(S.coincide(SO.fd_g(f), g), U64.is_eq(Mm.member(SO.fd_fc(f), q, SO.fd_im(f)), 1u64))
+
+def src_found(+q: List<&2, I.I>, +fns: List<&2, BD.Fn>, +sd: U64, +i: Nat) -> LK:
+  LK{sd, Nat.sub(i, 1n), fn_at(fns, Nat.sub(i, 1n))}
+
+def src_go(+n: Nat, +hit: Bool, +q: List<&2, I.I>, +g: G.GVal, +fds: List<&2, SO.Fd>, +fns: List<&2, BD.Fn>, +sd: U64,
+    +i: Nat, +dflt: LK) -> LK:
+  match n:
+    case 0n: Bool.pick(LK, hit, src_found(q, fns, sd, i), dflt)
+    case 1n+m:
+      match hit:
+        case True{}: src_found(q, fns, sd, i)
+        case False{}: src_go(m, src_hit(q, g, fd_at(fds, i)), q, g, fds, fns, sd, Nat.add(i, 1n), dflt)
+
+def src_of(m: Maybe<&2, List<&2, I.I>>, +g: G.GVal, +fa: List<&2, SO.Fd>, +na: List<&2, BD.Fn>, +ka: Nat,
+    +fb: List<&2, SO.Fd>, +nb: List<&2, BD.Fn>, +kb: Nat, +nd: U64, +fi: Nat) -> LK:
+  match m:
+    case None{}: LK{2u64, fi, BD.Fn{nd, 0n, role_created(), fi, 0n}}
+    case Some{+q}:
+      src_go(ka, False{}, q, g, fa, na, 0u64, 0n, src_go(kb, False{}, q, g, fb, nb, 1u64, 0n, LK{2u64, fi, BD.Fn{nd, 0n, role_created(), fi, 0n}}))
+
+def lks_go(+n: Nat, +i: Nat, +fr: List<&2, SO.Fd>, +bc: Ty.Brep, +fa: List<&2, SO.Fd>, +na: List<&2, BD.Fn>,
+    +ka: Nat, +fb: List<&2, SO.Fd>, +nb: List<&2, BD.Fn>, +kb: Nat, +nd: U64) -> List<&2, LK>:
+  match n:
+    case 0n: []
+    case 1n+m:
+      +f = fd_at(fr, i)
+      src_of(SO.interior(f), SO.fd_g(f), fa, na, ka, fb, nb, kb, nd, i) <>
+        lks_go(m, Nat.add(i, 1n), fr, bc, fa, na, ka, fb, nb, kb, nd)
+
+def lk_same(+a: LK, +b: LK) -> Bool:
+  Bool.and(U64.is_eq(lk_sd(a), lk_sd(b)), Nat.is_eq(lk_j(a), lk_j(b)))
+
+def lk_count(xs: List<&2, LK>, +x: LK, +n: Nat) -> Nat:
+  match xs:
+    case []: n
+    case +h <> +t: lk_count(t, x, Bool.pick(Nat, lk_same(h, x), Nat.add(n, 1n), n))
+
+def fn_piece(+f: BD.Fn, +p: Nat) -> BD.Fn:
+  BD.Fn{+nd, +k, +role, +i, +j} = f
+  BD.Fn{nd, k, U64.add(role, U64.mul(8u64, U64.from_nat(Nat.add(p, 1n)))), i, j}
+
+def lk_fns(xs: List<&2, LK>, +all: List<&2, LK>, +seen: List<&2, LK>) -> List<&2, BD.Fn>:
+  match xs:
+    case []: []
+    case +h <> +t:
+      +tot = lk_count(all, h, 0n)
+      +p = lk_count(seen, h, 0n)
+      Bool.pick(BD.Fn, Nat.is_lt(1n, tot), fn_piece(lk_f(h), p), lk_f(h)) <> lk_fns(t, all, h <> seen)
+
+def k1_fns(+bc: Ty.Brep, +ba: Ty.Brep, +na: List<&2, BD.Fn>, +bb: Ty.Brep, +nb: List<&2, BD.Fn>, +nd: U64) -> List<&2, BD.Fn>:
+  +ls = lks_go(List.length(&2, Ty.Face, Ty.brep_fas(bc)), 0n, SO.fds_of(bc), bc, SO.fds_of(ba), na,
+    List.length(&2, Ty.Face, Ty.brep_fas(ba)), SO.fds_of(bb), nb, List.length(&2, Ty.Face, Ty.brep_fas(bb)), nd)
+  lk_fns(ls, ls, [])
+
 def k1_box(+op: U64, +wa: BX, +wb: BX) -> BX:
   Bool.pick(BX, U64.is_eq(op, tag_union()), bx_hull(wa, wb),
     Bool.pick(BX, U64.is_eq(op, tag_inter()), bx_meet(wa, wb), wa))
 
 def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
-    +proof: String) -> Out:
-  In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
-  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
-  +fn = List.append(&2, BD.Fn, fns, fns2)
+    +proof: String, +ba: Ty.Brep, +bbr: Ty.Brep) -> Out:
+  In{brep, +cells, +fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
+  In{brep2, cells2, +fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
+  +fn = k1_fns(bc, ba, fns, bbr, fns2, nd)
   +bbx = bx_meet(world_box(bc, F64.max(lin, lin2)), k1_box(op, wa, wb))
   +tm = VI.brep_vol(bc)
   +tok = VI.vr_ok(tm)
@@ -1914,7 +1999,7 @@ def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd
   +bc = restamp(K1.kr_brep(kr))
   +v = vcore(bc)
   Bool.pick(Out, VR_ok(v),
-    k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr)),
+    k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb),
     Bool.pick(Out, String.eq(vcode(v), "c04-vertex-link"),
       out_fail(fk_unsupported(), "validate", "node " ++ U64.show(nd),
         "non-manifold-result: the regularized result meets itself at isolated points",

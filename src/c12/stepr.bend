@@ -7,6 +7,7 @@ import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 import ../c04/ops.bend as B4
 import ./blob.bend as BL
+import ../k1/sf.bend as KS
 
 type SA is Data:
   SA_num{ s: String }
@@ -2852,12 +2853,86 @@ def sr_to_of(+st: ST, +e: SE) -> SR_S:
   +r = sr_p0(ps)
   sr_to_x(sr_px_ok(r), sr_px_xs(r), st)
 
+def sr_co_pos(+w: Bool, +rv: F64, +o: V.Point, +ww: V.Dir, +rv2: F64) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +k = F64.div(KS.fsin(rv2), KS.fcos(rv2))
+      +ap = KS.padd(o, F64.neg(F64.div(rv, k)), ww)
+      SR_S{True{}, G.GV_co{G.Co{ap, ww, k}}}
+
+def sr_co_rr(+w: Bool, +rv: F64, +o: V.Point, +ww: V.Dir, +rv2: F64) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}: sr_co_pos(Bool.and(F64.is_le(0.0f64, rv), Bool.and(F64.is_lt(0.0f64, rv2), F64.is_lt(rv2, 1.5707963267948966f64))), rv, o, ww,
+      rv2)
+
+def sr_co_n2(+w: Bool, +a: SA, +o: V.Point, +ww: V.Dir, +rv: F64) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_num_of(a)
+      sr_co_rr(sr_n_ok(r), rv, o, ww, sr_n_v(r))
+
+def sr_co_n3(+w: Bool, +rv: F64, +xs: List<&2, SA>, +o: V.Point, +ww: V.Dir) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_nth(xs, 3n)
+      sr_co_n2(sr_a_ok(r), sr_a_v(r), o, ww, rv)
+
+def sr_co_n(+w: Bool, +a: SA, +xs: List<&2, SA>, +o: V.Point, +ww: V.Dir) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_num_of(a)
+      sr_co_n3(sr_n_ok(r), sr_n_v(r), xs, o, ww)
+
+def sr_co_w(+w: Bool, +ax: SR_AX, +xs: List<&2, SA>, +ww: V.Dir) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_nth(xs, 2n)
+      sr_co_n(sr_a_ok(r), sr_a_v(r), xs, sr_ax_o(ax), ww)
+
+def sr_co_ax(+w: Bool, +ax: SR_AX, +xs: List<&2, SA>) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_norm(sr_ax_w(ax))
+      sr_co_w(sr_d_ok(r), ax, xs, sr_d_v(r))
+
+def sr_co_a2(+a: SA, +st: ST, +xs: List<&2, SA>) -> SR_S:
+  match a:
+    case SA_ref{+id}:
+      +r = sr_ax_ent(st, id)
+      sr_co_ax(sr_ax_ok(r), r, xs)
+    case _: sr_s_fail()
+
+def sr_co_a(+w: Bool, +a: SA, +st: ST, +xs: List<&2, SA>) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}: sr_co_a2(a, st, xs)
+
+def sr_co_x(+w: Bool, +xs: List<&2, SA>, +st: ST) -> SR_S:
+  match w:
+    case False{}: sr_s_fail()
+    case True{}:
+      +r = sr_nth(xs, 1n)
+      sr_co_a(sr_a_ok(r), sr_a_v(r), st, xs)
+
+def sr_co_of(+st: ST, +e: SE) -> SR_S:
+  SE{+id, +ps} = e
+  +r = sr_p0(ps)
+  sr_co_x(sr_px_ok(r), sr_px_xs(r), st)
+
 def sr_surf_kd(+kind: U64, +st: ST, +e: SE) -> SR_S:
   match kind:
     case 10u64: sr_pl_of(st, e)
     case 11u64: sr_sp_of(st, e)
     case 12u64: sr_cy_of(st, e)
     case 13u64: sr_to_of(st, e)
+    case 27u64: sr_co_of(st, e)
     case _: sr_s_fail()
 
 def sr_surf_f(+w: Bool, +st: ST, +pos: Nat) -> SR_S:
@@ -4590,7 +4665,7 @@ def sr_fail_curve(+kind: U64, +cid: U64) -> BL.PR:
 def sr_fail_surf(+kind: U64, +sid: U64) -> BL.PR:
   match kind:
     case 14u64: BL.pr_fail("step-bpatch-face-not-in-profile")
-    case 27u64: BL.pr_fail("step-conical-surface-not-in-profile")
+    case 27u64: BL.pr_fail("step-cone-recovery-failed #" ++ U64.show(sid))
     case 10u64: BL.pr_fail("step-plane-recovery-failed #" ++ U64.show(sid))
     case 11u64: BL.pr_fail("step-sphere-recovery-failed #" ++ U64.show(sid))
     case 12u64: BL.pr_fail("step-cylinder-recovery-failed #" ++ U64.show(sid))

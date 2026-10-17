@@ -627,6 +627,9 @@ def sf_s(+g: G.GVal) -> ES:
     case G.GV_to{w}:
       G.To{+o, +a, +R, +r} = w
       es_ok("13," ++ pt_s(o) ++ "," ++ dr_s(a) ++ "," ++ N.f_show(R) ++ "," ++ N.f_show(r))
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
+      es_ok("15," ++ pt_s(o) ++ "," ++ dr_s(a) ++ "," ++ N.f_show(k))
     case G.GV_bp{w}:
       G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32,
         +p33} = w
@@ -844,6 +847,9 @@ def fa_t(+k: U64, +fs: List<&2, String>, +i: Nat) -> Ty.Face:
     case 13u64:
       Ty.Fa{gn(i), G.GV_to{G.To{pt_of(fs, 1n), dr_of(fs, 4n), fnum_f(fs, 7n), fnum_f(fs, 8n)}},
         hls_of(fnat_d(fs, 10n, 0n), fs, 11n, []), fbit(fs, 9n), fslv(fs, 10n, 11n), fsla(fs, 10n, 11n)}
+    case 15u64:
+      Ty.Fa{gn(i), G.GV_co{G.Co{pt_of(fs, 1n), dr_of(fs, 4n), fnum_f(fs, 7n)}},
+        hls_of(fnat_d(fs, 9n, 0n), fs, 10n, []), fbit(fs, 8n), fslv(fs, 9n, 10n), fsla(fs, 9n, 10n)}
     case 14u64:
       Ty.Fa{gn(i), G.GV_bp{G.Bp{pt_of(fs, 1n), pt_of(fs, 4n), pt_of(fs, 7n), pt_of(fs, 10n), pt_of(fs, 13n),
         pt_of(fs, 16n), pt_of(fs, 19n), pt_of(fs, 22n), pt_of(fs, 25n), pt_of(fs, 28n), pt_of(fs, 31n),
@@ -1209,6 +1215,9 @@ def fa_box(g: G.GVal, +loops: LB, +t0: F64, +t1: F64) -> EB:
     case G.GV_to{w}:
       G.To{+oo, +aa, +R, +r} = w
       eb_ok(to_box(oo, aa, R, r))
+    case G.GV_co{w}:
+      G.Co{+oo, +aa, +k} = w
+      eb_ok(lb_hull(loops, lb_seg(oo, oo)))
     case G.GV_bp{w}: eb_ok(bp_box(w))
     case _: eb_fail()
 
@@ -1216,6 +1225,11 @@ def fa_tr(g: G.GVal, +loops: LB) -> LI:
   match g:
     case G.GV_cy{w}:
       G.Cy{+o, +a, +r} = w
+      +u = ax_unit(a)
+      +t = corp_t(o, u, lb_x0(loops), lb_y0(loops), lb_z0(loops))
+      box_tr_go(o, u, loops, 8n, t, t)
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
       +u = ax_unit(a)
       +t = corp_t(o, u, lb_x0(loops), lb_y0(loops), lb_z0(loops))
       box_tr_go(o, u, loops, 8n, t, t)
@@ -1262,6 +1276,10 @@ def fa_area_hi(g: G.GVal, +b: LB, +t0: F64, +t1: F64) -> F64:
     case G.GV_to{w}:
       G.To{+o, +a, +R, +r} = w
       widen(F64.mul(F64.mul(F64.mul(4.0f64, pi_u()), pi_u()), F64.mul(F64.abs(R), F64.abs(r))))
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
+      +tm = F64.max(F64.abs(t0), F64.abs(t1))
+      widen(F64.mul(F64.mul(pi_u(), F64.mul(F64.abs(k), F64.sqrt(F64.add(1.0f64, F64.mul(k, k))))), F64.mul(tm, tm)))
     case G.GV_bp{+w}: widen(F64.mul(F64.mul(9.0f64, bp_du(w)), bp_dv(w)))
     case _: 0.0f64
 

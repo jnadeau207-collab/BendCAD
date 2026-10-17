@@ -122,12 +122,17 @@ def uval_m(m: Maybe<&2, U64>) -> U64:
     case Some{v}: v
 def uval(+x: S.Sx) -> U64:
   uval_m(U64.read(S.sx_s(x)))
-def pfn_s(+f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +role, +i, +j} = f
+def pfn_s_b(+f: BD.Fn) -> String:
+  BD.Fn{+nd, +k, +rl, +i, +j} = f
+  +role = U64.mod(rl, 8u64)
   Bool.pick(String, U64.is_eq(role, 4u64),
     "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
     "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
       Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
+def pfn_s(+f: BD.Fn) -> String:
+  BD.Fn{+nd, +k, +rl, +i, +j} = f
+  +p = U64.div(rl, 8u64)
+  pfn_s_b(f) ++ Bool.pick(String, U64.is_eq(p, 0u64), "", ".p" ++ U64.show(U64.sub(p, 1u64)))
 def psurf(s: G.GVal) -> U64:
   match s:
     case G.GV_pl{w}: 0u64
@@ -511,6 +516,18 @@ def drf_head(ds: List<&2, String>) -> String:
   match ds:
     case []: ""
     case h <> t: h
+def pfn_role(+f: BD.Fn) -> U64:
+  BD.Fn{nd, k, role, i, j} = f
+  role
+def sel_pieces(fs: List<&2, BD.Fn>, +s: String, +n: Nat) -> Nat:
+  match fs:
+    case []: n
+    case +f <> t: sel_pieces(t, s, Bool.pick(Nat, Bool.and(String.eq(pfn_s_b(f), s), U64.is_lt(7u64, pfn_role(f))), Nat.add(n, 1n), n))
+def sel_why(+bt: BT, +s: String) -> String:
+  BT{+fns, +fas, +vs, +es, +ces, +lps} = bt
+  +n = sel_pieces(fns, s, 0n)
+  Bool.pick(String, Nat.is_eq(n, 0n), "unknown-selector " ++ s,
+    "ambiguous-selector " ++ s ++ ": the face was split into " ++ Nat.show(n) ++ " pieces " ++ s ++ ".p0 to " ++ s ++ ".p" ++ Nat.show(Nat.sub(n, 1n)))
 def sel_mem_of(+bt: BT, +s: String) -> Bool:
   BT{+fns, +fas, +vs, +es, +ces, +lps} = bt
   sel_mem(fns, s)
@@ -533,7 +550,7 @@ def tol_datum_sel(+ok: Bool, +u: Tol, +bt: BT, +pl: M.Pl, +d: Datum) -> RV:
   match ok:
     case False{}:
       Datum{+name, +sel} = d
-      RV_bad{"unknown-selector " ++ sel, "select a face from the faces verb"}
+      RV_bad{sel_why(bt, sel), "select a face from the faces verb"}
     case True{}: tol_orient(u, bt, pl, d)
 def tol_datum(+m: Maybe<&2, Datum>, +u: Tol, +bt: BT, +pl: M.Pl, +dnm: String) -> RV:
   match m:
@@ -566,7 +583,7 @@ def tol_sel(+ok: Bool, +u: Tol, +dts: List<&2, Datum>, +bt: BT, +pl: M.Pl) -> RV
   match ok:
     case False{}:
       Tol{+name, +kind, +t, +sel, +drf} = u
-      RV_bad{"unknown-selector " ++ sel, "select a face from the faces verb"}
+      RV_bad{sel_why(bt, sel), "select a face from the faces verb"}
     case True{}: tol_drf(u, dts, bt, pl)
 def tol_res(+u: Tol, +dts: List<&2, Datum>, +bt: BT, +pl: M.Pl) -> RV:
   Tol{+name, +kind, +t, +sel, +drf} = u
@@ -592,7 +609,7 @@ def res_dt(+ok: Bool, +d: Datum, +bt: BT) -> RV:
   match ok:
     case False{}:
       Datum{+name, +sel} = d
-      RV_bad{"unknown-selector " ++ sel, "select a face from the faces verb"}
+      RV_bad{sel_why(bt, sel), "select a face from the faces verb"}
     case True{}:
       Datum{+name, +sel} = d
       RV_ok{"datum " ++ name ++ " ok " ++ sel ++ " " ++ psurf_s(sel_kind(bt, sel)) ++ "\n"}
