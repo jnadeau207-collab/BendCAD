@@ -1,0 +1,162 @@
+[
+ {
+  "name": "bore.eq",
+  "ok": false,
+  "checks": {
+   "seconds": 0.008884668350219727,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": false,
+   "reopen": true,
+   "hunion": true,
+   "hinter": true,
+   "ident": true,
+   "ident2": false,
+   "cross": false,
+   "nfaces": 7,
+   "stp_volume": 874.3362938564081,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "be.bcd": "72e7504abb961755deeda8ca3f8f6e8d67e0e28914dad365fb131c6797788c61",
+   "be.stp": "efed31f080bbf3cc92255ea880e29268dc5a9eaf7581287651976e1a96130f23",
+   "be.bin": "ab4a4151ef491a130a62dfec4d50fe38acc25e073fdba7d39cf391ea7a8c6cf7"
+  }
+ },
+ {
+  "name": "bore.uneq",
+  "ok": false,
+  "checks": {
+   "seconds": 0.008424520492553711,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": false,
+   "reopen": true,
+   "hunion": true,
+   "hinter": true,
+   "ident": true,
+   "ident2": false,
+   "cross": false,
+   "nfaces": 7,
+   "stp_volume": 929.3141652942295,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "bu.bcd": "a74bd8bc47f292a72ae68c23ec9a2c79ee17c825b5bbe1d1808f74125978478e",
+   "bu.stp": "e122adade3ef0fb75ee2e40339526329c042b2ca72ee6e6b6dd73a78034595cc",
+   "bu.bin": "5eb888bf680e6af93ca7501039f328277ece614f7075c154c75d5c070bd800fa"
+  }
+ },
+ {
+  "name": "offaxis",
+  "ok": true,
+  "checks": {
+   "seconds": 0.008500337600708008,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "hunion": true,
+   "hinter": true,
+   "ident": true,
+   "nfaces": 7,
+   "stp_volume": 968.5840734641017,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "oa.bcd": "75c20815ecaa0fc585fa1f3c26314d97beb2294fb5543f2a7b71338503434a96",
+   "oa.stp": "2f45bae7945c304682a4de2e5c9eefd9f26672ea3c4856b9c20da394cae64ea3",
+   "oa.bin": "5ee2054df0daa4252a9053f667e6a75451fde6d509295baa83847318206bfcc2"
+  }
+ },
+ {
+  "name": "fig8port",
+  "ok": false,
+  "checks": {
+   "seconds": 36.071537256240845,
+   "chamber_vol": null,
+   "union_vol": null,
+   "committed": false,
+   "proof": false,
+   "hand": false,
+   "check": false,
+   "genus": false,
+   "step": false,
+   "replay": false,
+   "reopen": false,
+   "chamber": false,
+   "ident": false,
+   "union_ok": false,
+   "nfaces": 0,
+   "stp_volume": null,
+   "check_verdict": "BAD"
+  },
+  "artifacts": {
+   "fp.bcd": "b44b0f7cb26288fb319c5f514a1834351deb315013a7ea630762f1fec640623f"
+  }
+ },
+ {
+  "name": "cbore",
+  "ok": true,
+  "checks": {
+   "seconds": 1.383514404296875,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "shank": true,
+   "inter1": true,
+   "inter2": true,
+   "ident1": true,
+   "ident2": true,
+   "nfaces": 9,
+   "stp_volume": 930.8849616210246,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "cb.bcd": "6ad68af4fa04c2802f73d5828f104125df7adeac4776a82d593e01a4ac31b8aa",
+   "cb.stp": "cb7e867ec2c26d96b4d367f5c9758be9bb7f04ee79773140dcb75ae5d866f4c6",
+   "cb.bin": "429b7a9f60e6494062d01a0ac83be5db850c34ca67ab98766a7e1768a143415d"
+  }
+ },
+ {
+  "name": "oring",
+  "ok": true,
+  "checks": {
+   "seconds": 0.021837711334228516,
+   "nfaces": 12,
+   "stp_volume": 868.0531085492286,
+   "check_verdict": "ok",
+   "committed": true,
+   "groove": true,
+   "island": true,
+   "cavity": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true
+  },
+  "artifacts": {
+   "or.bcd": "3c3f8e5ec9b1b73a9071560e735c9fed9de793b6cfeb23c470322eb9fb0b5504",
+   "or.stp": "8ef049d0ebd3b737a7ae5255aebf1e36a63eacc397b1cf123dccdd9b0e1d7adb",
+   "or.bin": "060b26a464e8a0b6ea86f3783414bb3bc13664ea06e837d504a0d516eceaaf45"
+  }
+ }
+]
