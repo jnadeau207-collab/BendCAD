@@ -101,7 +101,7 @@ def c_sphere():
     return (k == 'unsupported-op' and 'curved-surface-operand' in w, (k, w))
 
 
-@case('mixed.regions')
+@case('ok.mixed_cavity')
 def c_mixed():
     tri = '(prism 0 10 (region (path 1 1 (line 5 1) (line 5 5) (line 1 5))) (region (path 100 100 (line 105 100) (line 105 105) (line 100 105))))'
     out, _ = fresh('n.bcd',
@@ -109,8 +109,8 @@ def c_mixed():
                    '(node 2 (move 1 0 0 -20 0) (intent same 0 0 1 0))',
                    f'(node 3 {tri} (intent create 12 0 2 0))',
                    '(node 4 (difference 2 3) (intent remove 0 0 1 0))')
-    k, w = node_err(out, 4)
-    return (k == 'unsupported-op' and w.startswith('mixed-solid-relations'), w)
+    return ('committed' in out and vol_ok(out, 4, 63840.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
 @case('place.rot45_union')

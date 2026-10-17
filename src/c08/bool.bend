@@ -185,6 +185,12 @@ def bx_hull(a: BX, b: BX) -> BX:
   BX{F64.min(ax0, bx0), F64.max(ax1, bx1), F64.min(ay0, by0), F64.max(ay1, by1), F64.min(az0, bz0),
     F64.max(az1, bz1)}
 
+def bx_meet(a: BX, b: BX) -> BX:
+  BX{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  BX{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  BX{F64.max(ax0, bx0), F64.min(ax1, bx1), F64.max(ay0, by0), F64.min(ay1, by1), F64.max(az0, bz0),
+    F64.min(az1, bz1)}
+
 def bx_zero() -> BX:
   BX{0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64}
 
@@ -1693,6 +1699,10 @@ def in_lin(x: In) -> F64:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
   lin
 
+def in_bb(x: In) -> BX:
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  bb
+
 def in_px(x: In) -> Bool:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
   px
@@ -1878,12 +1888,16 @@ def k1proof(+r: K1.KR) -> String:
   "k1-crossing-certified V" ++ Nat.show(K1.kr_nv(r)) ++ " E" ++ Nat.show(K1.kr_ne(r))
     ++ " F" ++ Nat.show(K1.kr_nf(r)) ++ " S" ++ Nat.show(K1.kr_nc(r))
 
+def k1_box(+op: U64, +wa: BX, +wb: BX) -> BX:
+  Bool.pick(BX, U64.is_eq(op, tag_union()), bx_hull(wa, wb),
+    Bool.pick(BX, U64.is_eq(op, tag_inter()), bx_meet(wa, wb), wa))
+
 def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
     +proof: String) -> Out:
   In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
   In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
   +fn = List.append(&2, BD.Fn, fns, fns2)
-  +bbx = world_box(bc, F64.max(lin, lin2))
+  +bbx = bx_meet(world_box(bc, F64.max(lin, lin2)), k1_box(op, wa, wb))
   +tm = VI.brep_vol(bc)
   +tok = VI.vr_ok(tm)
   +tvol = Bool.pick(I.I, tok, VI.vr_vol(tm), k1vol(op, vol, vol2))
@@ -1895,8 +1909,8 @@ def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX,
     fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, []}
 
 def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
-  +wa = world_box(ba, in_lin(a))
-  +wb = world_box(bb, in_lin(b))
+  +wa = bx_meet(world_box(ba, in_lin(a)), in_bb(a))
+  +wb = bx_meet(world_box(bb, in_lin(b)), in_bb(b))
   +bc = restamp(K1.kr_brep(kr))
   +v = vcore(bc)
   Bool.pick(Out, VR_ok(v),

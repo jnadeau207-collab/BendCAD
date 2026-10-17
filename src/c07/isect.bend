@@ -251,6 +251,70 @@ def bi_go(+q: Q.Bq, m: Maybe<&2, M.Im>) -> SS.Ss:
     case None{}: empty_ss()
     case Some{s}: SS.trace(mk_bi(q, s), 64n, [ud(1.0f64), ud(2.0f64)])
 
+def iv_unit(+v: List<&2, I.I>) -> List<&2, I.I>:
+  M.vscale(I.idiv(I.ipt(1.0f64), I.isqrt(X.vdot(v, v))), v)
+
+def ref_of(+u: List<&2, I.I>) -> List<&2, I.I>:
+  Bool.pick(List<&2, I.I>, F64.is_lt(F64.abs(I.imid(X.vn(u, 0n))), 0.9f64), [I.ipt(1.0f64), I.ipt(0.0f64), I.ipt(0.0f64)],
+    [I.ipt(0.0f64), I.ipt(1.0f64), I.ipt(0.0f64)])
+
+def ell_pt(+j: Nat, +n: Nat, +o: List<&2, I.I>, +u: List<&2, I.I>, +e1: List<&2, I.I>, +e2: List<&2, I.I>, +r: I.I,
+    +c: List<&2, I.I>, +nv: List<&2, I.I>) -> List<&2, I.I>:
+  +sc = I.sin_cos_deg(F64.div(F64.mul(360.0f64, U64.to_f64(U64.from_nat(j))), U64.to_f64(U64.from_nat(n))))
+  +base = X.vadd(o, X.vadd(M.vscale(I.imul(r, X.vn(sc, 0n)), e1), M.vscale(I.imul(r, X.vn(sc, 1n)), e2)))
+  +h = I.idiv(X.vdot(nv, X.vsub(c, base)), X.vdot(nv, u))
+  X.vadd(base, M.vscale(h, u))
+
+def ell_go(+k: Nat, +n: Nat, +o: List<&2, I.I>, +u: List<&2, I.I>, +e1: List<&2, I.I>, +e2: List<&2, I.I>, +r: I.I,
+    +c: List<&2, I.I>, +nv: List<&2, I.I>, +acc: List<&2, List<&2, I.I>>) -> List<&2, List<&2, I.I>>:
+  match k:
+    case 0n: acc
+    case 1n+m: ell_go(m, n, o, u, e1, e2, r, c, nv, ell_pt(m, n, o, u, e1, e2, r, c, nv) <> acc)
+
+def ell_br(+o: List<&2, I.I>, +u: List<&2, I.I>, +r: I.I, +c: List<&2, I.I>, +nv: List<&2, I.I>) -> SS.Br:
+  +e1 = iv_unit(M.cross(u, ref_of(u)))
+  +e2 = M.cross(u, e1)
+  SS.Br{True{}, ell_go(256n, 256n, o, u, e1, e2, r, c, nv, []), []}
+
+def stein_br(+o1: List<&2, I.I>, +a1: List<&2, I.I>, +r1: I.I, +o2: List<&2, I.I>, +a2: List<&2, I.I>) -> SS.Ss:
+  +n = M.cross(a1, a2)
+  +s = I.idiv(X.vdot(M.cross(X.vsub(o2, o1), a2), n), X.vdot(n, n))
+  +c = X.vadd(o1, M.vscale(s, a1))
+  +u1 = iv_unit(a1)
+  +u2 = iv_unit(a2)
+  SS.Ss{True{}, [ell_br(o1, u1, r1, c, X.vsub(u1, u2)), ell_br(o1, u1, r1, c, X.vadd(u1, u2))], []}
+
+def stein_b(+o1: List<&2, I.I>, +a1: List<&2, I.I>, +r1: I.I, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m2:
+    case Some{b}:
+      match b:
+        case M.M_cy{+o2, +a2, r2}: stein_br(o1, a1, r1, o2, a2)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def stein_ss(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m1:
+    case Some{a}:
+      match a:
+        case M.M_cy{+o1, +a1, +r1}: stein_b(o1, a1, r1, m2)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def stein_cyb(+o1: V.Point, +a1: V.Dir, +r1: F64, g2: G.GVal) -> Bool:
+  match g2:
+    case G.GV_cy{w2}:
+      G.Cy{+o2, +a2, +r2} = w2
+      +n = S.ecr(S.edir(a1), S.edir(a2))
+      Bool.and(F64.is_eq(r1, r2), Bool.and(S.ez(S.edot(n, S.esub3(o2, o1))), Bool.not(S.par_dirs(a1, a2))))
+    case _: False{}
+
+def stein_ok(g1: G.GVal, +g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_cy{w1}:
+      G.Cy{+o1, +a1, +r1} = w1
+      stein_cyb(o1, a1, r1, g2)
+    case _: False{}
+
 def ii_go(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>, +bx: List<&2, I.I>) -> SS.Ss:
   match m1:
     case None{}: empty_ss()
@@ -259,12 +323,17 @@ def ii_go(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>, +bx: List<&2, I.I>) -> SS.Ss
         case None{}: empty_ss()
         case Some{b}: SS.trace(S.mk_ii(a, b), 64n, bx)
 
+def ii_sel(+st: Bool, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
+  match st:
+    case True{}: stein_ss(S.gv_im(g1), S.gv_im(g2))
+    case False{}: ii_go(S.gv_im(g1), S.gv_im(g2), bx)
+
 def ss_route(k: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
   match k:
     case 1u64: bi_go(bq_of_g(g1), S.gv_im(g2))
     case 2u64: bi_go(bq_of_g(g2), S.gv_im(g1))
     case 3u64: SS.trace(mk_bb(bq_of_g(g1), bq_of_g(g2)), 64n, [ud(1.0f64), ud(2.0f64), ud(3.0f64), ud(4.0f64)])
-    case _: ii_go(S.gv_im(g1), S.gv_im(g2), bx)
+    case _: ii_sel(stein_ok(g1, g2), g1, g2, bx)
 
 def ss_kind(+g1: G.GVal, +g2: G.GVal) -> U64:
   Bool.pick(U64, is_bp(g1), Bool.pick(U64, is_bp(g2), 3u64, 1u64), Bool.pick(U64, is_bp(g2), 2u64, 0u64))

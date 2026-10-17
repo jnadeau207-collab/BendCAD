@@ -468,7 +468,7 @@ def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep) -> K1.KR:
 def finish(+m: EM, +ba: Ty.Brep) -> K1.KR:
   finish_go(em_ok(m), m, ba)
 
-def gbrun(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+def gbrun_go(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   +va = PX.add_vs(Ty.brep_vs(ba), PX.GV{[], 0n}, [])
   +vb = PX.add_vs(Ty.brep_vs(bb), PX.vm_g(va), [])
   +hs = PX.all_hits(ba, bb, PX.vm_g(vb))
@@ -482,3 +482,16 @@ def gbrun(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), PX.cr_why(cr), 97u64), PX.hs_why(hs))
   +m = run_emit(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs2, PX.cr_chs(cr), PX.cr_g(cr), cps)
   finish(Bool.pick(EM, ok, m, EM{em_st(m), False{}, why}), ba)
+
+def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
+  match fs:
+    case []: ok
+    case +h <> +t: fas_sup(t, Bool.and(ok, S.sf_ok(S.sf_of(Ty.fa_surf(h)))))
+
+def gbrun_s(+sup: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+  match sup:
+    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
+    case True{}: gbrun_go(op, ba, bb)
+
+def gbrun(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+  gbrun_s(Bool.and(fas_sup(Ty.brep_fas(ba), True{}), fas_sup(Ty.brep_fas(bb), True{})), op, ba, bb)

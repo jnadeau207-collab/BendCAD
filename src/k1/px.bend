@@ -482,15 +482,6 @@ def do_circ(+c: SS.IC, +hs: List<&2, HX>, +g1: G.GVal, +g2: G.GVal, +ba: Ty.Brep
   +bs = dedup_bp(bp_sort(bps_circ(hs, cc1(ccl))))
   do_circ_go(Nat.is_eq(List.length(&2, BP, bs), 0n), ccl, [g1, g2], bs, ba, fa, bb, fb, r)
 
-def near_seg(ps: List<&2, V.Point>, +p: V.Point, +prev: V.Point, +i: Nat, +best: Nat, +bd: F64) -> Nat:
-  match ps:
-    case []: best
-    case +h <> +t:
-      +d = F64.add(S.dist(prev, p), S.dist(p, h))
-      +sl = S.dist(prev, h)
-      +ex = F64.sub(d, sl)
-      near_seg(t, p, h, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(ex, bd), i, best), F64.min(ex, bd))
-
 def pp_p(+q: PP) -> V.Point:
   PP{p, v, brk} = q
   p
@@ -521,13 +512,6 @@ def L_tail(xs: List<&2, V.Point>) -> List<&2, V.Point>:
     case []: []
     case +h <> +t: t
 
-def near_ex(ps: List<&2, V.Point>, +p: V.Point, +prev: V.Point, +bd: F64) -> F64:
-  match ps:
-    case []: bd
-    case +h <> +t:
-      +ex = F64.sub(F64.add(S.dist(prev, p), S.dist(p, h)), S.dist(prev, h))
-      near_ex(t, p, h, F64.min(ex, bd))
-
 def near_pt(ps: List<&2, PP>, +p: V.Point, +i: Nat, +best: Nat, +bd: F64) -> NB2:
   match ps:
     case []: NB2{best, bd}
@@ -551,16 +535,30 @@ def set_at(xs: List<&2, PP>, +i: Nat, +x: PP) -> List<&2, PP>:
         case 0n: x <> t
         case 1n+j: h <> set_at(t, j, x)
 
+def seg_d(+a: V.Point, +b: V.Point, +p: V.Point) -> F64:
+  +ab = S.psub(b, a)
+  +l2 = S.dot(ab, ab)
+  +t = F64.max(0.0f64, F64.min(1.0f64, F64.div(S.dot(S.psub(p, a), ab), F64.max(l2, 1.0e-300f64))))
+  S.dist(p, S.padd(a, t, ab))
+
+def near_sd(ps: List<&2, V.Point>, +p: V.Point, +prev: V.Point, +i: Nat, +best: Nat, +bd: F64) -> NB2:
+  match ps:
+    case []: NB2{best, bd}
+    case +h <> +t:
+      +d = seg_d(prev, h, p)
+      near_sd(t, p, h, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(d, bd), i, best), F64.min(d, bd))
+
 def ins_brk(hs: List<&2, HX>, +xs: List<&2, PP>) -> List<&2, PP>:
   match hs:
     case []: xs
     case +h <> +t:
       +ps = pps_pts(xs)
       +cl = List.append(&2, V.Point, L_tail(ps), [L.nth_p(ps, 0n)])
-      +i = near_seg(cl, hx_p(h), L.nth_p(ps, 0n), 0n, 0n, F64.div(1.0f64, 0.0f64))
-      +ex = near_ex(cl, hx_p(h), L.nth_p(ps, 0n), F64.div(1.0f64, 0.0f64))
+      +sd = near_sd(cl, hx_p(h), L.nth_p(ps, 0n), 0n, 0n, F64.div(1.0f64, 0.0f64))
+      +i = nb2_i(sd)
+      +sl = S.dist(L.nth_p(ps, i), L.nth_p(cl, i))
       +np = near_pt(xs, hx_p(h), 0n, 0n, F64.div(1.0f64, 0.0f64))
-      +on = F64.is_lt(ex, 1.0e-6f64)
+      +on = F64.is_le(nb2_d(sd), F64.add(F64.mul(0.25f64, sl), 1.0e-9f64))
       +same = F64.is_lt(nb2_d(np), 1.0e-9f64)
       +bp = {PP{hx_p(h), hx_v(h), True{}} : PP}
       ins_brk(t, Bool.pick(List<&2, PP>, same, set_at(xs, nb2_i(np), bp),

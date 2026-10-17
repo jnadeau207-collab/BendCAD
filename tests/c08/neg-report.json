@@ -1,19 +1,19 @@
 {
- "binary_sha256": "431ad76508ad40e5facb35a660397fde2bc3d20c9d0fd92811929e0f9221a5d2",
- "passed": 17,
+ "binary_sha256": "d39b74a0715d947e29fb2a573fd63aa6cddd254802b49d9d7fae4a31739e9d9d",
+ "passed": 21,
  "total": 21,
  "results": [
   {
    "name": "cross.boxes",
-   "ok": false,
-   "info": "None",
-   "seconds": 1.11
+   "ok": true,
+   "info": "(1499.999999998499, 1500.000000001501)",
+   "seconds": 0.79
   },
   {
    "name": "cross.straddle",
    "ok": true,
    "info": "(7967.999999992034, 7968.000000007972)",
-   "seconds": 0.08
+   "seconds": 0.09
   },
   {
    "name": "cross.pierce_rod",
@@ -23,15 +23,15 @@
   },
   {
    "name": "cross.sphere",
-   "ok": false,
-   "info": "('unsupported-op', 'boundaries-cross-or-overlap: edge-face-penetration 3 6 between nodes 1 and 2')",
-   "seconds": 0.52
+   "ok": true,
+   "info": "('unsupported-op', 'curved-surface-operand: sphere/cone/torus operands are not admitted')",
+   "seconds": 0.29
   },
   {
-   "name": "mixed.regions",
-   "ok": false,
-   "info": "validation-rejected: c04-ownership",
-   "seconds": 0.11
+   "name": "ok.mixed_cavity",
+   "ok": true,
+   "info": "(63839.99999993617, 63840.00000006385)",
+   "seconds": 0.13
   },
   {
    "name": "place.rot45_union",
@@ -47,63 +47,63 @@
   },
   {
    "name": "feature.on_boolean",
-   "ok": false,
-   "info": "None",
-   "seconds": 1.12
+   "ok": true,
+   "info": "(1509.424777959259, 1509.42477796228)",
+   "seconds": 1.14
   },
   {
    "name": "feature.on_compound",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.35
+   "seconds": 0.44
   },
   {
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.02
+   "seconds": 0.03
   },
   {
    "name": "intent.mismatch",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.03
+   "seconds": 0.04
   },
   {
    "name": "zone.boolean",
    "ok": true,
    "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: union, difference and intersection refuse before any zone split; narrowing zones or separ",
-   "seconds": 0.03
+   "seconds": 0.04
   },
   {
    "name": "diff.pinched",
    "ok": true,
    "info": "('numerical-uncertainty', 'validation-rejected: edge-face-overlap 15 5')",
-   "seconds": 0.1
+   "seconds": 0.11
   },
   {
    "name": "ok.ident_union",
    "ok": true,
    "info": "(999.9999999989992, 1000.0000000010012)",
-   "seconds": 2.92
+   "seconds": 4.21
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 2.22
+   "seconds": 2.84
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.52
+   "seconds": 0.28
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 1.82
+   "seconds": 2.05
   },
   {
    "name": "ok.identical",

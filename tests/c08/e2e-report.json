@@ -1,7 +1,7 @@
 {
- "binary_sha256": "431ad76508ad40e5facb35a660397fde2bc3d20c9d0fd92811929e0f9221a5d2",
- "passed": 103,
- "total": 112,
+ "binary_sha256": "d39b74a0715d947e29fb2a573fd63aa6cddd254802b49d9d7fae4a31739e9d9d",
+ "passed": 113,
+ "total": 113,
  "results": [
   {
    "name": "disjoint.union",
@@ -17,7 +17,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.04538846015930176
+   "seconds": 0.04514360427856445
   },
   {
    "name": "disjoint.diff",
@@ -150,7 +150,7 @@
     7935.9999999925685,
     7936.0000000074315
    ],
-   "seconds": 0.19706964492797852
+   "seconds": 0.2050647735595703
   },
   {
    "name": "containment.inter",
@@ -244,7 +244,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.14538073539733887
+   "seconds": 0.14937567710876465
   },
   {
    "name": "mirror.diff",
@@ -307,7 +307,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.11140108108520508
+   "seconds": 0.1138007640838623
   },
   {
    "name": "kiss.inter",
@@ -355,7 +355,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 5.4571003913879395
+   "seconds": 5.5801050662994385
   },
   {
    "name": "contact.edge",
@@ -454,7 +454,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.03252458572387695
+   "seconds": 0.02967524528503418
   },
   {
    "name": "identical.diff",
@@ -523,7 +523,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.0354924201965332
+   "seconds": 0.03330564498901367
   },
   {
    "name": "empty.diff_empty_left",
@@ -628,10 +628,19 @@
   },
   {
    "name": "boolean.feature_on_boolean_ok",
-   "ok": false,
-   "fx": null,
-   "volume": null,
-   "seconds": 1.1324965953826904
+   "ok": true,
+   "fx": [
+    "add",
+    "3",
+    "3",
+    "1",
+    "0"
+   ],
+   "volume": [
+    1509.424777959259,
+    1509.42477796228
+   ],
+   "seconds": 1.0031514167785645
   },
   {
    "name": "slanted.union",
@@ -647,7 +656,7 @@
     999.9999999990735,
     1000.0000000009265
    ],
-   "seconds": 20.686291933059692
+   "seconds": 20.03920578956604
   },
   {
    "name": "slanted.bicubic_wall_present",
@@ -671,46 +680,71 @@
   },
   {
    "name": "crossing.union",
-   "ok": false,
-   "fx": null,
-   "volume": null,
-   "seconds": 3.3271889686584473
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    1499.999999998499,
+    1500.000000001501
+   ],
+   "seconds": 2.3521687984466553
   },
   {
    "name": "crossing.diff",
-   "ok": false,
-   "fx": null,
-   "volume": null
+   "ok": true,
+   "fx": [
+    "remove",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    499.9999999994991,
+    500.00000000050113
+   ]
   },
   {
    "name": "crossing.inter",
-   "ok": false,
-   "fx": null,
-   "volume": null
+   "ok": true,
+   "fx": [
+    "same",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    499.9999999994991,
+    500.00000000050113
+   ]
   },
   {
    "name": "crossing.volume_identity",
-   "ok": false,
-   "union": null,
-   "inter": null,
-   "a": [
-    999.9999999990786,
-    1000.0000000009214
+   "ok": true,
+   "union": [
+    1499.999999998499,
+    1500.000000001501
    ],
-   "b": [
-    999.9999999990786,
-    1000.0000000009214
+   "inter": [
+    499.9999999994991,
+    500.00000000050113
    ]
   },
   {
    "name": "crossing.nodes_present",
-   "ok": false,
-   "faces": "node failed"
+   "ok": true,
+   "faces": "n1.c0.top plane loops=1\nn1.c0.bottom pla"
   },
   {
    "name": "crossing.check",
-   "ok": false,
-   "out": "error: node failed; nothing checked"
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
   },
   {
    "name": "crossing.straddle",
@@ -726,7 +760,7 @@
     7967.999999992034,
     7968.000000007972
    ],
-   "seconds": 0.08177495002746582
+   "seconds": 0.08680319786071777
   },
   {
    "name": "intent.mismatch",
@@ -744,7 +778,7 @@
    "name": "sens.union",
    "ok": true,
    "d_volume": 100.0,
-   "seconds": 0.031577110290527344
+   "seconds": 0.0310976505279541
   },
   {
    "name": "rotated.union",
@@ -760,7 +794,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.05637669563293457
+   "seconds": 0.05556654930114746
   },
   {
    "name": "rotated.quarter_turn",
@@ -801,7 +835,7 @@
     63.999999999941046,
     64.00000000005902
    ],
-   "seconds": 0.2913668155670166
+   "seconds": 0.3059847354888916
   },
   {
    "name": "moved.diff_cavity",
@@ -867,7 +901,7 @@
     1039.999999998959,
     1040.000000001041
    ],
-   "seconds": 0.318190336227417
+   "seconds": 0.3418607711791992
   },
   {
    "name": "pierce.diff",
@@ -913,7 +947,7 @@
   },
   {
    "name": "pierce.sphere_cross_refused",
-   "ok": false
+   "ok": true
   },
   {
    "name": "curved.disjoint",
@@ -929,7 +963,7 @@
     238.7610416726404,
     238.76104167300815
    ],
-   "seconds": 0.11580801010131836
+   "seconds": 0.11289572715759277
   },
   {
    "name": "curved.cavity",
@@ -1007,7 +1041,7 @@
     1523.598775596539,
     1523.5987756000584
    ],
-   "seconds": 0.20850849151611328
+   "seconds": 0.22433948516845703
   },
   {
    "name": "tangent.inter_empty",
@@ -1065,7 +1099,7 @@
     804.2477193189775,
     804.2477193189968
    ],
-   "seconds": 6.266884088516235
+   "seconds": 5.071627378463745
   },
   {
    "name": "tangent_cyl.inter_empty",
@@ -1125,7 +1159,7 @@
     1935.9999999980976,
     1936.0000000019022
    ],
-   "seconds": 0.1571509838104248
+   "seconds": 0.16067719459533691
   },
   {
    "name": "chained.check",
@@ -1148,15 +1182,23 @@
    ]
   },
   {
-   "name": "chained.mixed_refused",
-   "ok": false,
-   "why": "validation-rejected: c04-ownership"
+   "name": "chained.mixed_cavity",
+   "ok": true,
+   "volume": [
+    63839.99999993617,
+    63840.00000006385
+   ]
+  },
+  {
+   "name": "chained.mixed_cavity_check",
+   "ok": true,
+   "out": "ok: embedded, shells outward, cavities nested"
   },
   {
    "name": "sens.step",
    "ok": true,
    "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
-   "seconds": 0.029802322387695312
+   "seconds": 0.030341386795043945
   },
   {
    "name": "replay.lineage",
@@ -1171,7 +1213,7 @@
    "name": "sens.flip_refused",
    "ok": true,
    "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
-   "seconds": 0.02906322479248047
+   "seconds": 0.030367374420166016
   },
   {
    "name": "sens.flip_cache",

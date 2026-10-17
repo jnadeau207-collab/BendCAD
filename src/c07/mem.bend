@@ -7,12 +7,20 @@ import ./ivx.bend as X
 import ./rb.bend as R
 import ./im.bend as M
 import ./eng.bend as N
+import ../k1/sf.bend as KS
 
 type Er is Data:
   Er{ c: R.Cv, fwd: Bool }
 
+type Sg is Data:
+  Sg{ t0: F64, h0: F64, t1: F64, h1: F64 }
+
+type Uv is Data:
+  Uv_no{}
+  Uv_cy{ sf: KS.SF, r: F64, segs: List<&2, Sg>, tol: F64 }
+
 type Fc is Data:
-  Fc{ s: M.Im, same: Bool, es: List<&2, Er> }
+  Fc{ s: M.Im, same: Bool, es: List<&2, Er>, uv: Uv }
 
 type Ax is Data:
   Ax{ o: List<&2, I.I>, a: List<&2, I.I> }
@@ -309,7 +317,7 @@ def try_go(ok: Bool, +lp: Lp, +es: List<&2, Er>, +i: Nat, +tau: F64, +nrm: List<
     case True{}: finish(total(lp_ls(lp), es, i, tau, Cn{0n, False{}}), arrive(lp_d(lp), nrm, tl))
 
 def try_r(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +i: Nat, +tau: F64, +rev: Bool) -> U64:
-  Fc{s, +same, +es} = f
+  Fc{s, +same, +es, uv} = f
   +e = er_at(es, i)
   +c = er_c(e)
   +rp = R.cv_box(c, I.ipt(tau))
@@ -331,16 +339,152 @@ def mem_go(n: Nat, +st: U64, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +j: Nat) -> U
         case _: st
 
 def fc_es(f: Fc) -> List<&2, Er>:
-  Fc{s, same, es} = f
+  Fc{s, same, es, uv} = f
   es
 
 def fc_same(f: Fc) -> Bool:
-  Fc{s, same, es} = f
+  Fc{s, same, es, uv} = f
   same
 
 def fc_s(f: Fc) -> M.Im:
-  Fc{s, same, es} = f
+  Fc{s, same, es, uv} = f
   s
 
+def fc_uv(f: Fc) -> Uv:
+  Fc{s, same, es, uv} = f
+  uv
+
+def uv_has(u: Uv) -> Bool:
+  match u:
+    case Uv_no{}: False{}
+    case Uv_cy{sf, r, segs, tol}: True{}
+
+def two_pi() -> F64:
+  6.283185307179586f64
+
+def sg_h(+g: Sg, +t: F64) -> F64:
+  Sg{+t0, +h0, +t1, +h1} = g
+  F64.add(h0, F64.mul(F64.div(F64.sub(t, t0), F64.sub(t1, t0)), F64.sub(h1, h0)))
+
+def sg_spans(+g: Sg, +t: F64) -> Bool:
+  Sg{+t0, h0, +t1, h1} = g
+  Bool.or(Bool.and(F64.is_le(t0, t), F64.is_lt(t, t1)), Bool.and(F64.is_le(t1, t), F64.is_lt(t, t0)))
+
+def sg_cross1(+g: Sg, +t: F64, +h: F64) -> Nat:
+  Bool.pick(Nat, Bool.and(sg_spans(g, t), F64.is_lt(h, sg_h(g, t))), 1n, 0n)
+
+def sg_cross(+g: Sg, +t: F64, +h: F64) -> Nat:
+  Nat.add(sg_cross1(g, F64.sub(t, two_pi()), h), Nat.add(sg_cross1(g, t, h), sg_cross1(g, F64.add(t, two_pi()), h)))
+
+def sg_dist1(+g: Sg, +r: F64, +t: F64, +h: F64) -> F64:
+  Sg{+t0, +h0, +t1, +h1} = g
+  +ax = F64.mul(r, t0)
+  +bx = F64.mul(r, t1)
+  +px = F64.mul(r, t)
+  +dx = F64.sub(bx, ax)
+  +dy = F64.sub(h1, h0)
+  +l2 = F64.add(F64.mul(dx, dx), F64.mul(dy, dy))
+  +s = F64.max(0.0f64, F64.min(1.0f64, F64.div(F64.add(F64.mul(F64.sub(px, ax), dx), F64.mul(F64.sub(h, h0), dy)), F64.max(l2, 1.0e-300f64))))
+  +ex = F64.sub(px, F64.add(ax, F64.mul(s, dx)))
+  +ey = F64.sub(h, F64.add(h0, F64.mul(s, dy)))
+  F64.sqrt(F64.add(F64.mul(ex, ex), F64.mul(ey, ey)))
+
+def sg_dist(+g: Sg, +r: F64, +t: F64, +h: F64) -> F64:
+  F64.min(sg_dist1(g, r, F64.sub(t, two_pi()), h), F64.min(sg_dist1(g, r, t, h), sg_dist1(g, r, F64.add(t, two_pi()), h)))
+
+def uv_scan(gs: List<&2, Sg>, +t: F64, +h: F64, +n: Nat) -> Nat:
+  match gs:
+    case []: n
+    case +g <> +rest: uv_scan(rest, t, h, Nat.add(n, sg_cross(g, t, h)))
+
+def uv_fin(+n: Nat, +d: F64, +tol: F64) -> U64:
+  Bool.pick(U64, F64.is_lt(d, tol), 2u64, Bool.pick(U64, Nat.is_eq(Nat.mod(n, 2n), 1n), 1u64, 0u64))
+
+def uv_scan_d(gs: List<&2, Sg>, +r: F64, +t: F64, +h: F64, +d: F64) -> F64:
+  match gs:
+    case []: d
+    case +g <> +rest: uv_scan_d(rest, r, t, h, F64.min(d, sg_dist(g, r, t, h)))
+
+def q_mid(+q: List<&2, I.I>) -> V.Point:
+  V.Pt{I.imid(X.vn(q, 0n)), I.imid(X.vn(q, 1n)), I.imid(X.vn(q, 2n))}
+
+def uv_mem_w(+w: V.Vec2, +r: F64, +segs: List<&2, Sg>, +tol: F64) -> U64:
+  +t = V.v2_x(w)
+  +h = V.v2_y(w)
+  uv_fin(uv_scan(segs, t, h, 0n), uv_scan_d(segs, r, t, h, F64.div(1.0f64, 0.0f64)), tol)
+
+def uv_member(u: Uv, +q: List<&2, I.I>) -> U64:
+  match u:
+    case Uv_no{}: 2u64
+    case Uv_cy{+sf, +r, +segs, +tol}: uv_mem_w(KS.sf_uv(sf, q_mid(q)), r, segs, tol)
+
+def member_k(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
+  match k:
+    case True{}: uv_member(fc_uv(f), q)
+    case False{}: mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n)
+
 def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n)
+  member_k(uv_has(fc_uv(f)), f, q, nf)
+
+def er_uv(+e: Er, +sf: KS.SF, +t: F64) -> V.Vec2:
+  KS.sf_uv(sf, q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t))))))
+
+def rb_line(r: R.Rb) -> Bool:
+  R.Rb{x, y, z, w} = r
+  Nat.is_le(List.length(&2, I.I, x), 2n)
+
+def er_line(+e: Er) -> Bool:
+  rb_line(R.cv_rb(er_c(e)))
+
+def sg_mk(+a: V.Vec2, +b: V.Vec2) -> Sg:
+  +t0 = V.v2_x(a)
+  Sg{t0, V.v2_y(a), F64.add(t0, KS.ang_diff(t0, V.v2_x(b))), V.v2_y(b)}
+
+def sg_dev(+g: Sg, +m: V.Vec2, +r: F64) -> F64:
+  Sg{+t0, +h0, +t1, +h1} = g
+  +tm = F64.add(t0, KS.ang_diff(t0, V.v2_x(m)))
+  +dt = F64.mul(r, F64.sub(tm, F64.mul(0.5f64, F64.add(t0, t1))))
+  +dh = F64.sub(V.v2_y(m), F64.mul(0.5f64, F64.add(h0, h1)))
+  F64.sqrt(F64.add(F64.mul(dt, dt), F64.mul(dh, dh)))
+
+type Sa is Data:
+  Sa{ gs: List<&2, Sg>, dev: F64 }
+
+def sa_gs(+x: Sa) -> List<&2, Sg>:
+  Sa{gs, dev} = x
+  gs
+
+def sa_dev(+x: Sa) -> F64:
+  Sa{gs, dev} = x
+  dev
+
+def er_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +r: F64, +prev: V.Vec2, +acc: Sa) -> Sa:
+  match n:
+    case 0n: acc
+    case 1n+m:
+      +nf = U64.to_f64(U64.from_nat(Nat.add(k, Nat.add(m, 1n))))
+      +t = F64.div(U64.to_f64(U64.from_nat(Nat.add(k, 1n))), nf)
+      +tm = F64.div(F64.add(U64.to_f64(U64.from_nat(k)), 0.5f64), nf)
+      +cur = er_uv(e, sf, t)
+      +g = sg_mk(prev, cur)
+      +dv = sg_dev(g, er_uv(e, sf, tm), r)
+      er_samp(m, Nat.add(k, 1n), e, sf, r, cur, Sa{g <> sa_gs(acc), F64.max(dv, sa_dev(acc))})
+
+def ers_uv(es: List<&2, Er>, +sf: KS.SF, +r: F64, +acc: Sa) -> Sa:
+  match es:
+    case []: acc
+    case +e <> +t:
+      +n = Bool.pick(Nat, er_line(e), 1n, 32n)
+      ers_uv(t, sf, r, er_samp(n, 0n, e, sf, r, er_uv(e, sf, 0.0f64), acc))
+
+def uv_mk(+k: Bool, +sf: KS.SF, +es: List<&2, Er>, +slv: F64) -> Uv:
+  match k:
+    case False{}: Uv_no{}
+    case True{}:
+      +r = KS.sf_r(sf)
+      +sa = ers_uv(es, sf, r, Sa{[], 0.0f64})
+      Uv_cy{sf, r, sa_gs(sa), F64.add(F64.mul(4.0f64, F64.add(slv, sa_dev(sa))), F64.mul(1.0e-12f64, F64.add(r, 1.0f64)))}
+
+def uv_of(+tolerant: Bool, +g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
+  +sf = KS.sf_of(g)
+  uv_mk(Bool.and(tolerant, U64.is_eq(KS.sf_kind(sf), KS.k_cyl())), sf, es, slv)

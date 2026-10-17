@@ -601,9 +601,10 @@ def chained():
                     '(node 2 (move 1 0 0 -20 0) (intent same 0 0 1 0))',
                     '(node 3 (prism 0 10 (region (path 1 1 (line 5 1) (line 5 5) (line 1 5))) (region (path 100 100 (line 105 100) (line 105 105) (line 100 105)))) (intent create 12 0 2 0))',
                     '(node 4 (difference 2 3) (intent remove 0 0 1 0))')
-    m = re.search(r'node 4: error (\S+) .*?why: ([^|]+)', out3)
-    record('chained.mixed_refused', m is not None and m.group(1) == 'unsupported-op'
-           and 'mixed-solid-relations' in m.group(2), why=m and m.group(2).strip())
+    record('chained.mixed_cavity', 'committed' in out3 and contains(vol(out3, 4), 63840.0),
+           volume=vol(out3, 4))
+    c4, _ = cli('mixed.bcd', 'check', '4')
+    record('chained.mixed_cavity_check', c4.startswith('ok:'), out=c4.strip())
 
 
 def sens():

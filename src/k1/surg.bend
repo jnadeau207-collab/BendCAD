@@ -4323,15 +4323,19 @@ def cav_find(+gs: List<&2, GRP>, +pt: V.Point, +fds: List<&2, SO.Fd>, +own: Nat,
     +nf: Nat) -> Nat:
   cav_find_go(gs, pt, fds, own, 0n, nf, nf)
 
-def shells_go(gs: List<&2, GRP>, +acc: List<&2, Ty.Shell>, +gi: Nat) -> List<&2, Ty.Shell>:
+def sk_of(+o: Bool) -> Ty.ShellKind:
+  Bool.pick(Ty.ShellKind, o, Ty.SK_outer{}, Ty.SK_inner{})
+
+def shells_go(gs: List<&2, GRP>, +conts: List<&2, Nat>, +nf: Nat, +acc: List<&2, Ty.Shell>, +gi: Nat) -> List<&2, Ty.Shell>:
   match gs:
     case []: List.reverse(&2, Ty.Shell, acc)
     case +h <> +t:
       +fh = hfas_of(grp_fs(h), [])
-      shells_go(t, Ty.Sh{gen1(gi), fh, Ty.SK_outer{}} <> acc, Nat.add(gi, 1n))
+      +sk = sk_of(Nat.is_eq(nat_nth(conts, gi), nf))
+      shells_go(t, conts, nf, Ty.Sh{gen1(gi), fh, sk} <> acc, Nat.add(gi, 1n))
 
 def shells_of(gs: List<&2, GRP>) -> List<&2, Ty.Shell>:
-  shells_go(gs, [], 0n)
+  shells_go(gs, [], 0n, [], 0n)
 
 def cont_ok_go(cs: List<&2, Nat>, +full: List<&2, Nat>, +nf: Nat, +ok: Bool) -> Bool:
   match cs:
@@ -4407,7 +4411,8 @@ def k1asm_fin(+cok: Bool, +cntok: Bool, +conts: List<&2, Nat>, +gs: List<&2, GRP
         case True{}:
           +sos = solids_go(gs, conts, 0n, as_nf(st), [], 0n)
           +no = List.length(&2, Ty.Solid, sos)
-          k1asm_sos(Nat.is_eq(no, 0n), sos, vs, es, ces, lps, fas, shs, ns, no)
+          +shk = shells_go(gs, conts, as_nf(st), [], 0n)
+          k1asm_sos(Nat.is_eq(no, 0n), sos, vs, es, ces, lps, fas, shk, ns, no)
 
 def k1asm_nf(+empty: Bool, +st: AS) -> KAB:
   match empty:

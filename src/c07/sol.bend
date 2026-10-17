@@ -98,16 +98,16 @@ def surf_box(s: M.Im, +bx: List<&2, I.I>) -> List<&2, I.I>:
       axial_box(o, a, bx, rho, h)
     case M.M_to{o, a, bigr, r}: ball(o, I.iadd(bigr, r))
 
-def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat) -> Fd:
+def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat, +slv: F64) -> Fd:
   match m:
-    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea)}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
+    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea), Mm.Uv_no{}}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
     case Some{+im}:
       +es = ea_es(ea)
-      Fd{Mm.Fc{im, same, es}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh, fi}
+      Fd{Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh, fi}
 
 def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
-  Ty.Fa{g, +s, ls, same, slv, sla} = f
-  fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi)
+  Ty.Fa{g, +s, ls, same, +slv, sla} = f
+  fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi, slv)
 
 def fhs_go(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +sh: Nat) -> List<&2, Fd>:
   match hs:
@@ -534,4 +534,4 @@ def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
   List.append(&2, Fi, sos_or(ss, fs), sos_nest(ss, fs))
 
 def fd_dflt() -> Fd:
-  Fd{Mm.Fc{M.M_pl{[], []}, True{}, []}, [], [], False{}, 0n, 0n}
+  Fd{Mm.Fc{M.M_pl{[], []}, True{}, [], Mm.Uv_no{}}, [], [], False{}, 0n, 0n}
