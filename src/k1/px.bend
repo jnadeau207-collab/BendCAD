@@ -600,12 +600,23 @@ def tan_at(+s1: S.SF, +s2: S.SF, +p: V.Point, +ch: V.Dir) -> V.Dir:
   +t2 = Bool.pick(V.Dir, F64.is_lt(S.dot(t, ch), 0.0f64), S.dscale(F64.neg(1.0f64), t), t)
   Bool.pick(V.Dir, ok, t2, S.dunit(ch))
 
+def herm_alpha(+s1: S.SF, +s2: S.SF, +a: V.Point, +b: V.Point, +ta: V.Dir, +tb: V.Dir, +l: F64) -> F64:
+  +mid = S.padd(a, 0.5f64, S.psub(b, a))
+  +m = S.newton2(8n, s1, s2, mid, S.dunit(S.psub(b, a)), mid)
+  +dt = S.dadd(ta, F64.neg(1.0f64), tb)
+  +q = S.dot(dt, dt)
+  +al = F64.div(F64.mul(8.0f64, S.dot(S.psub(m, mid), dt)), F64.mul(3.0f64, q))
+  +ok = Bool.and(F64.is_lt(F64.mul(1.0e-12f64, F64.mul(l, l)), F64.mul(q, F64.mul(l, l))),
+    Bool.and(F64.is_lt(F64.mul(0.2f64, l), al), F64.is_lt(al, F64.mul(0.6f64, l))))
+  Bool.pick(F64, ok, al, F64.div(l, 3.0f64))
+
 def herm_kind(+s1: S.SF, +s2: S.SF, +a: V.Point, +b: V.Point) -> Ty.EdgeKind:
   +ch = S.psub(b, a)
   +l = S.dlen(ch)
   +ta = tan_at(s1, s2, a, ch)
   +tb = tan_at(s1, s2, b, ch)
-  Ty.EK_curve{G.GV_bz{G.Bz{a, S.padd(a, F64.div(l, 3.0f64), ta), S.padd(b, F64.neg(F64.div(l, 3.0f64)), tb), b}},
+  +al = herm_alpha(s1, s2, a, b, ta, tb, l)
+  Ty.EK_curve{G.GV_bz{G.Bz{a, S.padd(a, al, ta), S.padd(b, F64.neg(al), tb), b}},
     G.Dom{0.0f64, 1.0f64}}
 
 def segs_of(xs: List<&2, PP>, +s1: S.SF, +s2: S.SF) -> List<&2, SEG>:
@@ -615,7 +626,7 @@ def segs_of(xs: List<&2, PP>, +s1: S.SF, +s2: S.SF) -> List<&2, SEG>:
       +h2 = L_pp0(t)
       +rest = segs_of(t, s1, s2)
       Bool.pick(List<&2, SEG>, Nat.is_eq(List.length(&2, PP, t), 0n), [],
-        SEG{pp_v(h), pp_v(h2), bz_kind(pp_p(h), pp_p(h2))} <> rest)
+        SEG{pp_v(h), pp_v(h2), herm_kind(s1, s2, pp_p(h), pp_p(h2))} <> rest)
 
 def mid_pp(+xs: List<&2, PP>) -> V.Point:
   +ps = pps_pts(xs)

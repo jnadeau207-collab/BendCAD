@@ -273,6 +273,20 @@ def oring():
            seconds=dt, nfaces=nfaces, stp_volume=vv, check_verdict=ch, **checks)
 
 
+def csink():
+    tool = '(node 2 (revolve (region (path 0 5 (line 1 5) (line 4 11) (line 0 11)))) (intent create any any any any))'
+    t = triple('cs.bcd', [BOX], [tool, '(node 3 (move 2 5 5 0 0) (intent same 0 0 1 0))'], 1, 3,
+               1044.2440965380563, 87.70279491271505, 912.297205087285)
+    cx, _ = cli('cs.bcd', 'apply', PRISM(7, -5, 15, 5, 5, 1.5), f'(node 8 (difference {t["d"]} 7) {ID})')
+    ev2, _ = cli('cs.bcd', 'eval')
+    r2 = dict(out=t['out'] + cx, ev=ev2)
+    checks, info = finish('cs', 'cs.bcd', r2, 8, 874.8598926320066, 8, 1)
+    checks.update(hunion=contains(t['vu'], 1044.2440965380563), hinter=contains(t['vi'], 87.70279491271505),
+                  hdiff=contains(t['vd'], 912.297205087285), ident=t['ident'], bore='committed' in cx)
+    record('csink', all(checks.values()), artifacts=('cs.bcd', 'cs.stp', 'cs.bin'), seconds=t['seconds'],
+           **checks, **info)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -281,6 +295,7 @@ def main():
     fig8port()
     cbore()
     oring()
+    csink()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

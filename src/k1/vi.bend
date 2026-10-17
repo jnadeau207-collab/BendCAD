@@ -215,6 +215,69 @@ def pl_bz(+s: S.SF, +g: G.GVal, +fw: Bool) -> VA:
   +si = Bool.pick(F64, fw, i, F64.neg(i))
   VA{si, si, 0.0f64, 0.0f64, True{}}
 
+type GQ is Data:
+  GQ{ x: F64, w: F64 }
+
+def gl4() -> List<&2, GQ>:
+  [GQ{F64.neg(0.8611363115940526f64), 0.3478548451374538f64}, GQ{F64.neg(0.3399810435848563f64), 0.6521451548625461f64},
+    GQ{0.3399810435848563f64, 0.6521451548625461f64}, GQ{0.8611363115940526f64, 0.3478548451374538f64}]
+
+def gl8() -> List<&2, GQ>:
+  [GQ{F64.neg(0.9602898564975363f64), 0.1012285362903763f64}, GQ{F64.neg(0.7966664774136267f64), 0.2223810344533745f64},
+    GQ{F64.neg(0.5255324099163290f64), 0.3137066458778873f64}, GQ{F64.neg(0.1834346424956498f64), 0.3626837833783620f64},
+    GQ{0.1834346424956498f64, 0.3626837833783620f64}, GQ{0.5255324099163290f64, 0.3137066458778873f64},
+    GQ{0.7966664774136267f64, 0.2223810344533745f64}, GQ{0.9602898564975363f64, 0.1012285362903763f64}]
+
+def bz_der(+g: G.GVal, +t: F64) -> V.Dir:
+  +bz = bz_of(g)
+  +p0 = G.bz_p0(bz)
+  +p1 = G.bz_p1(bz)
+  +p2 = G.bz_p2(bz)
+  +p3 = G.bz_p3(bz)
+  S.dr(bern_d(S.px(p0), S.px(p1), S.px(p2), S.px(p3), t), bern_d(S.py(p0), S.py(p1), S.py(p2), S.py(p3), t),
+    bern_d(S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), t))
+
+def cyl_node(+s: S.SF, +c1: F64, +c2: F64, +g: G.GVal, +t: F64) -> VA:
+  +r = S.sf_r(s)
+  +d = S.psub(EF.ev(g, t), S.sf_o(s))
+  +dd = bz_der(g, t)
+  +x = S.dot(d, S.sf_e1(s))
+  +y = S.dot(d, S.sf_e2(s))
+  +h = S.dot(d, S.sf_a(s))
+  +xp = S.dot(dd, S.sf_e1(s))
+  +yp = S.dot(dd, S.sf_e2(s))
+  +hp = S.dot(dd, S.sf_a(s))
+  +rho2 = F64.add(F64.mul(x, x), F64.mul(y, y))
+  +rho = F64.sqrt(rho2)
+  +thp = F64.div(F64.sub(F64.mul(x, yp), F64.mul(y, xp)), rho2)
+  +pa = F64.mul(F64.neg(h), thp)
+  +f2 = F64.mul(F64.sub(F64.mul(c1, F64.div(y, rho)), F64.mul(c2, F64.div(x, rho))), hp)
+  VA{F64.add(F64.mul(F64.div(F64.mul(r, r), 3.0f64), pa), F64.mul(F64.div(r, 3.0f64), f2)), F64.mul(r, pa), 0.0f64, 0.0f64, True{}}
+
+def cyl_q(qs: List<&2, GQ>, +s: S.SF, +c1: F64, +c2: F64, +g: G.GVal, +m: F64, +hw: F64, +acc: VA) -> VA:
+  match qs:
+    case []: acc
+    case +q <> +t:
+      GQ{+x, +w} = q
+      +v = cyl_node(s, c1, c2, g, F64.add(m, F64.mul(hw, x)))
+      +k = F64.mul(w, hw)
+      cyl_q(t, s, c1, c2, g, m, hw, va_add(acc, VA{F64.mul(k, va_vol(v)), F64.mul(k, va_ar(v)), 0.0f64, 0.0f64, True{}}))
+
+def cyl_bz(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> VA:
+  +d = S.psub(S.sf_o(s), c)
+  +c1 = S.dot(d, S.sf_e1(s))
+  +c2 = S.dot(d, S.sf_e2(s))
+  +g = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +m = F64.mul(0.5f64, F64.add(lo, hi))
+  +hw = F64.mul(0.5f64, F64.sub(hi, lo))
+  +a8 = cyl_q(gl8(), s, c1, c2, g, m, hw, va0())
+  +a4 = cyl_q(gl4(), s, c1, c2, g, m, hw, va0())
+  +sg = Bool.pick(F64, fw, 1.0f64, F64.neg(1.0f64))
+  VA{F64.mul(sg, va_vol(a8)), F64.mul(sg, va_ar(a8)), F64.abs(F64.sub(va_vol(a8), va_vol(a4))),
+    F64.abs(F64.sub(va_ar(a8), va_ar(a4))), True{}}
+
 def coedge_disp(+code: U64, +s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool, +pa: V.Point,
     +pb: V.Point) -> VA:
   match code:
@@ -222,6 +285,7 @@ def coedge_disp(+code: U64, +s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool, +
     case 1u64: pl_line(s, pa, pb)
     case 2u64: pl_curve(s, k, fw, pa, pb)
     case 4u64: pl_bz(s, EF.ek_curve(k), fw)
+    case 5u64: cyl_bz(s, c, k, fw)
     case _: cyl_curve(s, c, k, fw)
 
 def coedge_va(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool, +pa: V.Point, +pb: V.Point) -> VA:
@@ -229,16 +293,9 @@ def coedge_va(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool, +pa: V.Point, +
   +isp = U64.is_eq(S.sf_kind(s), S.k_plane())
   +ok = Bool.and(Bool.not(U64.is_eq(tag, 0u64)), Bool.not(U64.is_eq(tag, 9u64)))
   coedge_disp(Bool.pick(U64, Bool.not(ok), 0u64,
-    Bool.pick(U64, isp, Bool.pick(U64, U64.is_eq(tag, 1u64), 1u64, Bool.pick(U64, U64.is_eq(tag, 4u64), 4u64, 2u64)), 3u64)),
+    Bool.pick(U64, isp, Bool.pick(U64, U64.is_eq(tag, 1u64), 1u64, Bool.pick(U64, U64.is_eq(tag, 4u64), 4u64, 2u64)),
+      Bool.pick(U64, U64.is_eq(tag, 4u64), 5u64, 3u64))),
     s, c, k, fw, pa, pb)
-
-def param_dev(+s: S.SF, +s1: S.SF, +s2: S.SF, +a: V.Point, +b: V.Point) -> F64:
-  +ua = FB.uv_raw(s, a)
-  +ub = FB.unwrap(s, ua, FB.uv_raw(s, b))
-  +m = S.sf_at(s, F64.mul(0.5f64, F64.add(V.v2_x(ua), V.v2_x(ub))), F64.mul(0.5f64, F64.add(V.v2_y(ua), V.v2_y(ub))))
-  +t = S.dunit(S.psub(b, a))
-  +q = S.newton2(8n, s1, s2, m, t, m)
-  S.dist(m, q)
 
 def curve_dev(+s1: S.SF, +s2: S.SF, +g: G.GVal) -> F64:
   +a = EF.ev(g, 0.0f64)
@@ -250,12 +307,33 @@ def curve_dev(+s1: S.SF, +s2: S.SF, +g: G.GVal) -> F64:
   F64.max(S.dist(m1, S.newton2(8n, s1, s2, m1, t, m1)),
     F64.max(S.dist(m2, S.newton2(8n, s1, s2, m2, t, m2)), S.dist(m3, S.newton2(8n, s1, s2, m3, t, m3))))
 
+def samp_dev_go(n: Nat, +s: S.SF, +g: G.GVal, +lo: F64, +dt: F64, +k: F64, +best: F64) -> F64:
+  match n:
+    case 0n: best
+    case 1n+m:
+      +t0 = F64.add(lo, F64.mul(k, dt))
+      +ua = FB.uv_raw(s, EF.ev(g, t0))
+      +ub = FB.unwrap(s, ua, FB.uv_raw(s, EF.ev(g, F64.add(t0, dt))))
+      +um = FB.unwrap(s, ua, FB.uv_raw(s, EF.ev(g, F64.add(t0, F64.mul(0.5f64, dt)))))
+      +sc = S.sf_rad(s, V.v2_y(um))
+      +du = F64.mul(sc, F64.sub(V.v2_x(um), F64.mul(0.5f64, F64.add(V.v2_x(ua), V.v2_x(ub)))))
+      +dv = F64.sub(V.v2_y(um), F64.mul(0.5f64, F64.add(V.v2_y(ua), V.v2_y(ub))))
+      samp_dev_go(m, s, g, lo, dt, F64.add(k, 1.0f64), F64.max(best, F64.sqrt(F64.add(F64.mul(du, du), F64.mul(dv, dv)))))
+
+def samp_dev(+s: S.SF, +k: Ty.EdgeKind) -> F64:
+  +lo = EF.ek_lo(k)
+  +n = FB.nseg(k)
+  +dt = F64.div(F64.sub(EF.ek_hi(k), lo), L.f64_of(n))
+  Bool.pick(F64, Bool.or(U64.is_eq(S.sf_kind(s), S.k_plane()), U64.is_eq(S.sf_kind(s), S.k_cyl())), 0.0f64,
+    F64.mul(2.0f64, samp_dev_go(n, s, EF.ek_curve(k), lo, dt, 0.0f64, 0.0f64)))
+
 def chord_sl(+b: Ty.Brep, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
   +fs = FB.edge_faces(b, e)
   +s1 = S.sf_of(FB.face_surf(b, L.nth_n(fs, 0n)))
   +s2 = S.sf_of(FB.face_surf(b, L.nth_n(fs, 1n)))
-  +g = EF.ek_curve(Ty.ed_kind(FB.edge_at(b, e)))
-  +d = F64.add(F64.mul(2.0f64, F64.max(curve_dev(s1, s2, g), param_dev(s, s1, s2, pa, pb))), 1.0e-12f64)
+  +k = Ty.ed_kind(FB.edge_at(b, e))
+  +g = EF.ek_curve(k)
+  +d = F64.add(F64.add(F64.mul(2.0f64, curve_dev(s1, s2, g)), samp_dev(s, k)), 1.0e-12f64)
   +l = F64.mul(1.1f64, S.dist(pa, pb))
   +rm = F64.add(F64.max(S.dist(pa, c), S.dist(pb, c)), d)
   VA{0.0f64, 0.0f64, F64.div(F64.mul(F64.mul(d, l), rm), 3.0f64), F64.mul(d, l), True{}}

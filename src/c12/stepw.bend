@@ -8,6 +8,7 @@ import ../c04/types.bend as Ty
 import ../c06/model.bend as M
 import ../c06/tess.bend as TS
 import ./blob.bend as BL
+import ../k1/sf.bend as KS
 
 type WS is Data:
   WS{ ok: Bool, s: String, why: String, nent: Nat, nprod: Nat }
@@ -456,6 +457,23 @@ def sw_surf_cy(+w: G.Cyl, +pl: M.Pl, +ctr: Nat) -> ER2:
   +f = sw_f(r)
   sw_surf_cy_t(Bool.and(BL.es_ok_of(e), BL.ns_ok(f)), e, f, ctr)
 
+def sw_surf_co_t(+w: Bool, +e: BL.ES, +f: BL.NS, +g: BL.NS, +ctr: Nat) -> ER2:
+  match w:
+    case False{}: er2_fail(sw_why_pick3(BL.es_ok_of(e), BL.ns_ok(f), sw_ns(e), f, g),
+      Nat.add(ctr, 5n))
+    case True{}:
+      er2_ok(BL.es_s(e) ++ sw_ent(Nat.add(ctr, 4n), "CONICAL_SURFACE(''," ++ sw_ref(Nat.add(ctr,
+        3n)) ++ "," ++ BL.ns_s(f) ++ "," ++ BL.ns_s(g) ++ ")"),
+        Nat.add(ctr, 5n), [Nat.add(ctr, 4n)])
+
+def sw_surf_co(+w: G.Cone, +pl: M.Pl, +ctr: Nat) -> ER2:
+  G.Co{+o, +a, +k} = w
+  +ma = sw_norm(sw_dmap(a, pl))
+  +e = sw_axis2(TS.pl_pt(o, pl), ma, BL.perp_of(V.dr_x(ma), V.dr_y(ma), V.dr_z(ma)), ctr)
+  +f = sw_f(0.0f64)
+  +g = sw_f(KS.fatan2(k, 1.0f64))
+  sw_surf_co_t(Bool.and(BL.es_ok_of(e), Bool.and(BL.ns_ok(f), BL.ns_ok(g))), e, f, g, ctr)
+
 def sw_surf_to_t(+w: Bool, +e: BL.ES, +f: BL.NS, +g: BL.NS, +ctr: Nat) -> ER2:
   match w:
     case False{}: er2_fail(sw_why_pick3(BL.es_ok_of(e), BL.ns_ok(f), sw_ns(e), f, g),
@@ -575,6 +593,7 @@ def sw_surf_kind(+g: G.GVal, +pl: M.Pl, +ctr: Nat) -> ER2:
     case G.GV_sp{w}: sw_surf_sp(w, pl, ctr)
     case G.GV_cy{w}: sw_surf_cy(w, pl, ctr)
     case G.GV_to{w}: sw_surf_to(w, pl, ctr)
+    case G.GV_co{w}: sw_surf_co(w, pl, ctr)
     case G.GV_bp{w}: sw_bp_pts(w, pl, ctr)
     case _: er2_fail("step-surface-not-in-profile " ++ BL.gv_nm(g), ctr)
 

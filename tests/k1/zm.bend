@@ -13,6 +13,10 @@ import ../../src/c07/rb.bend as R
 import ../../src/c07/im.bend as MI
 import ../../src/c07/ivx.bend as XV
 import ./probe.bend as P
+import ../../src/k1/ls.bend as L
+import ../../src/c07/xs.bend as XS
+import ../../src/c03/types.bend as G3
+import ../../src/k1/vi.bend as VI
 import ../../src/c07/isect.bend as Y
 import ../../src/c07/ss.bend as SS
 import ../../src/c07/emb.bend as EM
@@ -123,25 +127,95 @@ def nthf(fs: List<&2, SO.Fd>, +i: Nat) -> SO.Fd:
         case 0n: f
         case 1n+j: nthf(t, j)
 
+def vshow2(+r: K1.KR) -> String:
+  +b = K1.kr_brep(r)
+  +vc = B8.vcore(b)
+  +v = VI.brep_vol(b)
+  Bool.pick(String, K1.kr_ok(r), "ok", "FAIL" ++ U64.show(K1.kr_why(r))) ++ " " ++ Bool.pick(String, B8.VR_ok(vc), "valid", B8.vcode(vc)) ++ " vol=[" ++ F64.show(I.i_lo(VI.vr_vol(v))) ++ "," ++ F64.show(I.i_hi(VI.vr_vol(v))) ++ "]"
+
+def ipshow(m: Maybe<&2, SO.Ip>) -> String:
+  match m:
+    case None{}: "ip=None"
+    case Some{ip}:
+      SO.Ip{+fi, +q, nv} = ip
+      "ip face#" ++ Nat.show(fi) ++ " q=" ++ ivs(q)
+
+def dshow(ds: List<&2, V.Dir>, +fs: List<&2, SO.Fd>, +bb: List<&2, I.I>, +m: Maybe<&2, SO.Ip>) -> String:
+  match ds:
+    case []: ""
+    case +g <> +t:
+      match m:
+        case None{}: ""
+        case Some{ip}:
+          SO.Ip{+fi, +q, +nv} = ip
+          +d = SO.dr_of(SO.off_dir(nv, g))
+          +r = SO.shoot(fs, bb, SO.pt_of(q), d, fi, 9.313225746154785e-10f64)
+          " [st" ++ U64.show(SO.rc_st(r)) ++ " n" ++ Nat.show(SO.rc_n(r)) ++ "]" ++ dshow(t, fs, bb, Some{SO.Ip{fi, q, nv}})
+
+def ordbg(+b: Ty.Brep) -> String:
+  +fs = SO.fds_of(b)
+  +bb = SO.bbox(fs, [])
+  +m = SO.ip_find(fs, None{}, 0n, 0n)
+  ipshow(m) ++ dshow(SO.dirs(), fs, bb, SO.ip_find(fs, None{}, 0n, 0n))
+
+def fdoks(fs: List<&2, SO.Fd>, +i: Nat) -> String:
+  match fs:
+    case []: ""
+    case +f <> +t: " " ++ Nat.show(i) ++ ":f" ++ Nat.show(SO.fd_fi(f)) ++ Bool.pick(String, SO.fd_ok(f), "ok", "BAD") ++ "uv" ++ Bool.pick(String, Mm.uv_has(Mm.fc_uv(SO.fd_fc(f))), "Y", "N") ++ fdoks(t, Nat.add(i, 1n))
+
+def hsh(hs: List<&2, XS.Hit>, +fd: SO.Fd) -> String:
+  match hs:
+    case []: ""
+    case +h <> +t:
+      match h:
+        case XS.H_pt{sp, tt, +p, c}: " pt(s=" ++ F64.show(I.i_lo(sp)) ++ ")m" ++ U64.show(Mm.member(SO.fd_fc(fd), p, SO.fd_im(fd))) ++ hsh(t, fd)
+        case XS.H_un{sp, tt, +p}: " un(s=" ++ F64.show(I.i_lo(sp)) ++ ")m" ++ U64.show(Mm.member(SO.fd_fc(fd), p, SO.fd_im(fd))) ++ hsh(t, fd)
+        case XS.H_ov{sp, tt}: " ov" ++ hsh(t, fd)
+        case XS.H_no{w}: " no:" ++ w ++ hsh(t, fd)
+
+def rayf(fs: List<&2, SO.Fd>, +p: V.Point, +d: V.Dir, +i: Nat) -> String:
+  match fs:
+    case []: ""
+    case +f <> +t: "
+  F" ++ Nat.show(i) ++ ":" ++ hsh(XS.inter_cs(G3.GV_ln{G3.Ln{p, d}}, G3.Dom{0.0f64, 40.0f64}, SO.fd_g(f), 40n), f) ++ rayf(t, p, d, Nat.add(i, 1n))
+
+def raydbg_m(m: Maybe<&2, SO.Ip>, +fs: List<&2, SO.Fd>) -> String:
+  match m:
+    case None{}: "none"
+    case Some{ip}:
+      SO.Ip{+fi, +q, +nv} = ip
+      rayf(fs, SO.pt_of(q), SO.dr_of(SO.off_dir(nv, V.Dr{0.5773502691896258f64, 0.6123724356957945f64, 0.5400617248673217f64})), 0n)
+
+def raydbg(+b: Ty.Brep) -> String:
+  +fs = SO.fds_of(b)
+  raydbg_m(SO.ip_find(fs, None{}, 0n, 0n), fs)
+
+def slvf(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point) -> String:
+  match fs:
+    case []: ""
+    case +h <> +t:
+      +v = VI.face_va(b, h, c)
+      " f" ++ Nat.show(h) ++ "k" ++ U64.show(KU.surfkind(Ty.fa_surf(L.nth_f(Ty.brep_fas(b), h)))) ++ "=" ++ F64.show(VI.va_slv(v)) ++ slvf(t, b, c)
+
+def slvb(+r: K1.KR) -> String:
+  +b = K1.kr_brep(r)
+  slvf(L.nat_range(List.length(&2, Ty.Face, Ty.brep_fas(b))), b, VI.center_of(b))
+
 def main() -> String:
   +e = X.env_mk([])
   +b1 = B8.bake_of(M.bool_in(P.box10(e, 1u64)))
-  +b3 = B8.bake_of(M.bool_in(P.moved(P.zcyl(1.5f64, F64.neg(5.0f64), 15.0f64, e, 2u64), 5.0f64, 5.0f64, 0.0f64, e, 2u64)))
-  +a3 = K1.kr_brep(GB.gbrun(B8.tag_diff(), b1, b3))
-  +r = K1.kr_brep(GB.gbrun(B8.tag_diff(), a3, port(1.0f64, 0.0f64, 0.0f64, 10.0f64, e)))
-  +ri = K1.kr_brep(GB.gbrun(B8.tag_inter(), a3, port(1.0f64, 0.0f64, 0.0f64, 10.0f64, e)))
   +b4 = B8.bake_of(M.bool_in(P.moved(P.zcyl(2.0f64, F64.neg(5.0f64), 15.0f64, e, 2u64), 5.0f64, 5.0f64, 0.0f64, e, 2u64)))
   +a4 = K1.kr_brep(GB.gbrun(B8.tag_diff(), b1, b4))
-  +rq = K1.kr_brep(GB.gbrun(B8.tag_diff(), a4, port(2.0f64, 0.0f64, 0.0f64, 10.0f64, e)))
-  +fds = SO.fds_of(r)
-  "q=(2,5,4)" ++ fdump(fds, MI.p3(V.Pt{2.0f64, 5.0f64, 4.0f64}), 0n) ++
-  "
-cls diff (exp 0 0 0 0 1 1):" ++ cls(fds, 1.0f64, 5.0f64, 5.0f64) ++ cls(fds, 2.0f64, 5.0f64, 5.0f64) ++ cls(fds, 8.0f64, 5.0f64, 5.0f64) ++ cls(fds, 5.0f64, 5.0f64, 8.0f64) ++ cls(fds, 1.0f64, 3.0f64, 3.0f64) ++ cls(fds, 0.5f64, 5.0f64, 6.2f64) ++
-  "
-valid diff: " ++ vshow(r) ++ "
-valid inter: " ++ vshow(ri) ++ "
-valid boreq: " ++ vshow(rq) ++ "
-slv:" ++ slvs(Ty.brep_fas(rq), 0n) ++ "
-ord:" ++ fdord(SO.fds_of(rq), 0n) ++ facecy(Ty.brep_fas(rq), 0n) ++ "
-ssi: " ++ ssdump(Y.inter_ss(SO.fd_g(nthf(SO.fds_of(rq), 0n)), SO.fd_g(nthf(SO.fds_of(rq), 2n)), EM.pad(XV.vmeet(SO.fd_bx(nthf(SO.fds_of(rq), 0n)), SO.fd_bx(nthf(SO.fds_of(rq), 2n)))))) ++ "
+  +c1 = B8.bake_of(M.bool_in(P.zcyl(3.0f64, 0.0f64, 10.0f64, e, 11u64)))
+  +c2 = B8.bake_of(M.bool_in(P.moved(P.zcyl(3.0f64, 0.0f64, 10.0f64, e, 12u64), 4.0f64, 0.0f64, 0.0f64, e, 13u64)))
+  +f8 = K1.kr_brep(GB.gbrun(B8.tag_union(), c1, c2))
+  +cz = P.zcyl(2.0f64, F64.neg(5.0f64), 15.0f64, e, 2u64)
+  +cx = P.unnr(M.op_rot(cz, 1u64, M.xk(90.0f64), e, 2u64))
+  +pt = B8.bake_of(M.bool_in(P.moved(cx, 0.0f64, 4.0f64, 5.0f64, e, 3u64)))
+  +rq = GB.gbrun(B8.tag_diff(), a4, port(2.0f64, 0.0f64, 0.0f64, 10.0f64, e))
+  +ru = GB.gbrun(B8.tag_union(), f8, pt)
+  "boreq " ++ vshow2(rq) ++ "
+" ++ slvb(rq) ++ "
+fp union " ++ vshow2(ru) ++ "
+" ++ slvb(ru) ++ "
 "

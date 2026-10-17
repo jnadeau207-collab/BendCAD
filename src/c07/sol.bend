@@ -429,8 +429,16 @@ def orient_of(m: Maybe<&2, Ip>, +fs: List<&2, Fd>, +bb: List<&2, I.I>) -> U64:
     case None{}: 2u64
     case Some{ip}: or_go(dirs(), 2u64, 0n, fs, bb, ip)
 
+def or_try(cs: List<&2, Fd>, +st: U64, +fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat, +i: Nat) -> U64:
+  match cs:
+    case []: st
+    case +f <> t:
+      match st:
+        case 2u64: or_try(t, orient_of(ip_sel(Nat.is_eq(fd_sh(f), s), f, i), fs, bb), fs, bb, s, Nat.add(i, 1n))
+        case _: st
+
 def orient(+fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat) -> U64:
-  orient_of(ip_find(fs, None{}, s, 0n), fs, bb)
+  or_try(fs, 2u64, fs, bb, s, 0n)
 
 def or_one(+fs: List<&2, Fd>, +bb: List<&2, I.I>, +s: Nat) -> List<&2, Fi>:
   +r = orient(fs, bb, s)

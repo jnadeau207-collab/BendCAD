@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": false,
   "checks": {
-   "seconds": 0.008884668350219727,
+   "seconds": 0.009415626525878906,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -29,28 +29,28 @@
  },
  {
   "name": "bore.uneq",
-  "ok": false,
+  "ok": true,
   "checks": {
-   "seconds": 0.008424520492553711,
+   "seconds": 0.007722139358520508,
    "committed": true,
    "proof": true,
    "hand": true,
    "check": true,
    "genus": true,
    "step": true,
-   "replay": false,
+   "replay": true,
    "reopen": true,
    "hunion": true,
    "hinter": true,
    "ident": true,
-   "ident2": false,
-   "cross": false,
+   "ident2": true,
+   "cross": true,
    "nfaces": 7,
    "stp_volume": 929.3141652942295,
    "check_verdict": "ok"
   },
   "artifacts": {
-   "bu.bcd": "a74bd8bc47f292a72ae68c23ec9a2c79ee17c825b5bbe1d1808f74125978478e",
+   "bu.bcd": "93e6e1e9b3101cd175c5ebc0f000b56c95c29aeac484109901dc1a4b3b3ddfde",
    "bu.stp": "e122adade3ef0fb75ee2e40339526329c042b2ca72ee6e6b6dd73a78034595cc",
    "bu.bin": "5eb888bf680e6af93ca7501039f328277ece614f7075c154c75d5c070bd800fa"
   }
@@ -59,7 +59,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.008500337600708008,
+   "seconds": 0.007588624954223633,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -85,33 +85,41 @@
   "name": "fig8port",
   "ok": false,
   "checks": {
-   "seconds": 36.071537256240845,
-   "chamber_vol": null,
-   "union_vol": null,
-   "committed": false,
-   "proof": false,
-   "hand": false,
-   "check": false,
-   "genus": false,
-   "step": false,
-   "replay": false,
-   "reopen": false,
+   "seconds": 1.0176723003387451,
+   "chamber_vol": [
+    503.53703604342235,
+    503.53703604443143
+   ],
+   "union_vol": [
+    740.8996472093114,
+    741.4670977769341
+   ],
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
    "chamber": false,
-   "ident": false,
-   "union_ok": false,
-   "nfaces": 0,
-   "stp_volume": null,
-   "check_verdict": "BAD"
+   "ident": true,
+   "union_ok": true,
+   "nfaces": 11,
+   "stp_volume": 741.1827044906514,
+   "check_verdict": "ok"
   },
   "artifacts": {
-   "fp.bcd": "b44b0f7cb26288fb319c5f514a1834351deb315013a7ea630762f1fec640623f"
+   "fp.bcd": "b36f718d1e6efdda98d0981e9f4baed281ac374731718800d27d496120706a64",
+   "fp.stp": "5f64d21fd577e8deecd8f9a1ea8dffaaddb2381c220d09ea6d2a1164fe9060fd",
+   "fp.bin": "1c7b86802f511152642ec0820fb00137b1a6662d548e6008abc9998682883fec"
   }
  },
  {
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 1.383514404296875,
+   "seconds": 1.5061500072479248,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -139,7 +147,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.021837711334228516,
+   "seconds": 0.024295330047607422,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
