@@ -222,3 +222,102 @@ def lps_dist(ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +p: V.Point, +best: F64) -
 
 def bnd_near(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
   F64.is_lt(lps_dist(face_ce(b, fi), b, p, F64.div(1.0f64, 0.0f64)), 1.0e-7f64)
+
+type BB is Data:
+  BB{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
+
+def bb_pt(+p: V.Point) -> BB:
+  BB{V.pt_x(p), V.pt_x(p), V.pt_y(p), V.pt_y(p), V.pt_z(p), V.pt_z(p)}
+
+def bb_join(+a: BB, +b: BB) -> BB:
+  BB{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  BB{F64.min(ax0, bx0), F64.max(ax1, bx1), F64.min(ay0, by0), F64.max(ay1, by1), F64.min(az0, bz0), F64.max(az1, bz1)}
+
+def bb_pad(+a: BB, +e: F64) -> BB:
+  BB{+x0, +x1, +y0, +y1, +z0, +z1} = a
+  BB{F64.sub(x0, e), F64.add(x1, e), F64.sub(y0, e), F64.add(y1, e), F64.sub(z0, e), F64.add(z1, e)}
+
+def bb_span(+a: BB) -> F64:
+  BB{+x0, +x1, +y0, +y1, +z0, +z1} = a
+  F64.max(F64.sub(x1, x0), F64.max(F64.sub(y1, y0), F64.sub(z1, z0)))
+
+def bb_dis(+a: BB, +b: BB) -> Bool:
+  BB{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  Bool.or(F64.is_lt(ax1, bx0), Bool.or(F64.is_lt(bx1, ax0), Bool.or(F64.is_lt(ay1, by0),
+    Bool.or(F64.is_lt(by1, ay0), Bool.or(F64.is_lt(az1, bz0), F64.is_lt(bz1, az0))))))
+
+def bb_empty() -> BB:
+  BB{1.0e300f64, F64.neg(1.0e300f64), 1.0e300f64, F64.neg(1.0e300f64), 1.0e300f64, F64.neg(1.0e300f64)}
+
+def bb_huge() -> BB:
+  BB{F64.neg(1.0e300f64), 1.0e300f64, F64.neg(1.0e300f64), 1.0e300f64, F64.neg(1.0e300f64), 1.0e300f64}
+
+def half_of(+u: F64, +v: F64, +r: F64) -> F64:
+  F64.mul(r, F64.sqrt(F64.add(F64.mul(u, u), F64.mul(v, v))))
+
+def cc_bb(+c: G.Circle3) -> BB:
+  G.Cc{+o, +e1, +e2, +r} = c
+  +hx = half_of(V.dr_x(e1), V.dr_x(e2), r)
+  +hy = half_of(V.dr_y(e1), V.dr_y(e2), r)
+  +hz = half_of(V.dr_z(e1), V.dr_z(e2), r)
+  BB{F64.sub(V.pt_x(o), hx), F64.add(V.pt_x(o), hx), F64.sub(V.pt_y(o), hy), F64.add(V.pt_y(o), hy),
+    F64.sub(V.pt_z(o), hz), F64.add(V.pt_z(o), hz)}
+
+def curve_bb(+g: G.GVal, +lo: F64, +hi: F64) -> BB:
+  match g:
+    case G.GV_ln{w}: bb_join(bb_pt(EF.ev(g, lo)), bb_pt(EF.ev(g, hi)))
+    case G.GV_cc{w}: cc_bb(w)
+    case G.GV_rq{w}:
+      G.Rq{+p0, +p1, +p2, w0, w1, w2} = w
+      bb_join(bb_pt(p0), bb_join(bb_pt(p1), bb_pt(p2)))
+    case G.GV_bz{w}:
+      G.Bz{+p0, +p1, +p2, +p3} = w
+      bb_join(bb_join(bb_pt(p0), bb_pt(p1)), bb_join(bb_pt(p2), bb_pt(p3)))
+    case _: bb_huge()
+
+def ek_bb(+k: Ty.EdgeKind) -> BB:
+  match k:
+    case Ty.EK_curve{+c, +d}: curve_bb(c, EF.ek_lo(k), EF.ek_hi(k))
+    case Ty.EK_degenerate{}: bb_huge()
+
+def ces_bb(cs: List<&2, CE>, +b: Ty.Brep, +acc: BB) -> BB:
+  match cs:
+    case []: acc
+    case +h <> +t: ces_bb(t, b, bb_join(acc, ek_bb(Ty.ed_kind(edge_at(b, ce_e(h))))))
+
+def lps_bb(ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +acc: BB) -> BB:
+  match ls:
+    case []: acc
+    case +h <> +t: lps_bb(t, b, ces_bb(h, b, acc))
+
+def ce_turn(+s: S.SF, +b: Ty.Brep, +h: CE) -> F64:
+  +k = Ty.ed_kind(edge_at(b, ce_e(h)))
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +a = Bool.pick(F64, ce_fw(h), lo, hi)
+  +z = Bool.pick(F64, ce_fw(h), hi, lo)
+  +ps = poly_of(s, k, a, z, uv_raw(s, EF.ev(EF.ek_curve(k), a)))
+  F64.sub(V.v2_x(L.nth_v2(ps, Nat.sub(List.length(&2, V.Vec2, ps), 1n))), V.v2_x(L.nth_v2(ps, 0n)))
+
+def lp_turn(cs: List<&2, CE>, +s: S.SF, +b: Ty.Brep, +acc: F64) -> F64:
+  match cs:
+    case []: acc
+    case +h <> +t: lp_turn(t, s, b, F64.add(acc, ce_turn(s, b, h)))
+
+def wraps_go(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep, +n: Nat) -> Nat:
+  match ls:
+    case []: n
+    case +h <> +t:
+      +w = F64.is_lt(3.0f64, F64.abs(lp_turn(h, s, b, 0.0f64)))
+      wraps_go(t, s, b, Bool.pick(Nat, w, Nat.add(n, 1n), n))
+
+def face_bb(+b: Ty.Brep, +fi: Nat) -> BB:
+  +s = S.sf_of(face_surf(b, fi))
+  +ls = face_ce(b, fi)
+  +e0 = lps_bb(ls, b, bb_empty())
+  +tip = Bool.and(U64.is_eq(S.sf_kind(s), S.k_cone()), Nat.is_eq(Nat.mod(wraps_go(ls, s, b, 0n), 2n), 1n))
+  +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), e0)
+  bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(L.nth_f(Ty.brep_fas(b), fi))), 1.0e-9f64))
+

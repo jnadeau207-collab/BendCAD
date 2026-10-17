@@ -740,18 +740,31 @@ def pair_go(+hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +
   +r2 = ics_go(SS.ics_ics(x), hxg_hs(bk), g1, g2, ba, fa, bb, fb, CR{cr_chs(r), hxg_g(bk), cr_ok(r), cr_why(r)})
   Bool.pick(CR, U64.is_eq(SS.ics_why(x), 0u64), r2, cr_fail(r2, SS.ics_why(x)))
 
-def pairs_b(fbs: List<&2, Nat>, +hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +r: CR) -> CR:
+def pair_if(+skip: Bool, +hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
+  match skip:
+    case True{}: r
+    case False{}: pair_go(hs, ba, fa, bb, fb, r)
+
+def pairs_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +bxa: FB.BB, +hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +r: CR) -> CR:
   match fbs:
     case []: r
-    case +h <> +t: pairs_b(t, hs, ba, fa, bb, pair_go(hs, ba, fa, bb, h, r))
+    case +h <> +t:
+      match bxs:
+        case []: r
+        case +x <> +xt: pairs_b(t, xt, bxa, hs, ba, fa, bb, pair_if(FB.bb_dis(bxa, x), hs, ba, fa, bb, h, r))
 
-def pairs_a(fas: List<&2, Nat>, +hs: List<&2, HX>, +ba: Ty.Brep, +bb: Ty.Brep, +r: CR) -> CR:
+def faces_bb(fs: List<&2, Nat>, +b: Ty.Brep) -> List<&2, FB.BB>:
+  match fs:
+    case []: []
+    case +h <> +t: FB.face_bb(b, h) <> faces_bb(t, b)
+
+def pairs_a(fas: List<&2, Nat>, +bxs: List<&2, FB.BB>, +hs: List<&2, HX>, +ba: Ty.Brep, +bb: Ty.Brep, +r: CR) -> CR:
   match fas:
     case []: r
-    case +h <> +t: pairs_a(t, hs, ba, bb, pairs_b(L.nat_range(FB.nfaces(bb)), hs, ba, h, bb, r))
+    case +h <> +t: pairs_a(t, bxs, hs, ba, bb, pairs_b(L.nat_range(FB.nfaces(bb)), bxs, FB.face_bb(ba, h), hs, ba, h, bb, r))
 
 def all_chains(+hs: List<&2, HX>, +ba: Ty.Brep, +bb: Ty.Brep, +g: GV) -> CR:
-  pairs_a(L.nat_range(FB.nfaces(ba)), hs, ba, bb, CR{[], g, True{}, 0u64})
+  pairs_a(L.nat_range(FB.nfaces(ba)), faces_bb(L.nat_range(FB.nfaces(bb)), bb), hs, ba, bb, CR{[], g, True{}, 0u64})
 
 def L_pp0_p(xs: List<&2, V.Point>) -> V.Point:
   match xs:

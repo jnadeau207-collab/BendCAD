@@ -634,8 +634,10 @@ def ef_hit(h: S.Hit, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, Lis
   match h:
     case S.H_pt{s, t, +p, k}: ef_pt_x(near_any(sv, p, tol), fd, p, ofds, bb, c, s, lo, hi, cross, mode, pa0, pa1,
       tol, a, b)
-    case S.H_un{s, t, +p}: ef_pt(near_any(sv, p, tol), fd, p, "edge-face-uncertain",
-      Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)
+    case S.H_un{s, t, +p}:
+      +q = Bool.pick(List<&2, I.I>, X.vfin(p), p, R.cv_hbox(c))
+      ef_pt(near_any(sv, q, tol), fd, q, "edge-face-uncertain",
+        Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)
     case S.H_ov{+s, t}: ef_ov(Mm.member(SO.fd_fc(fd), ov_pt(c, s, lo, hi), SO.fd_im(fd)),
       ef_bad(cross, mode, "edge-face-overlap"), "edge-face-overlap", cross, a, b)
     case S.H_no{w}: fi1("edge-face-unsupported", a, b)

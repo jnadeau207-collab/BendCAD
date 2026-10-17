@@ -423,8 +423,13 @@ def member_k(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
     case True{}: uv_member(fc_uv(f), q)
     case False{}: mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n)
 
+def nappe_neg(s: M.Im, +q: List<&2, I.I>) -> Bool:
+  match s:
+    case M.M_co{+o, +a, k}: X.ineg_c(X.vdot(a, X.vsub(q, o)))
+    case _: False{}
+
 def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  member_k(uv_has(fc_uv(f)), f, q, nf)
+  Bool.pick(U64, nappe_neg(fc_s(f), q), 0u64, member_k(uv_has(fc_uv(f)), f, q, nf))
 
 def er_uv(+e: Er, +sf: KS.SF, +t: F64) -> V.Vec2:
   KS.sf_uv(sf, q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t))))))

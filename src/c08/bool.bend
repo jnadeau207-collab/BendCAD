@@ -1915,8 +1915,12 @@ def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd
   +v = vcore(bc)
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr)),
-    out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
-      "validation-rejected: " ++ vcode(v), "report these operands"))
+    Bool.pick(Out, String.eq(vcode(v), "c04-vertex-link"),
+      out_fail(fk_unsupported(), "validate", "node " ++ U64.show(nd),
+        "non-manifold-result: the regularized result meets itself at isolated points",
+        "BendCAD solids are manifold; change a radius or offset an operand so the contact is not tangent"),
+      out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
+        "validation-rejected: " ++ vcode(v), "report these operands")))
 
 def k1_curved(+kr: K1.KR) -> Bool:
   U64.is_eq(K1.kr_why(kr), 2u64)

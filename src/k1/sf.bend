@@ -207,6 +207,9 @@ def k_plane() -> U64:
 def k_cyl() -> U64:
   2u64
 
+def k_cone() -> U64:
+  3u64
+
 def sf_none() -> SF:
   SF_none{}
 
@@ -233,6 +236,10 @@ def sf_of(+g: G.GVal) -> SF:
       G.Cy{+o, +a, +r} = w
       +e1 = perp_of(a)
       SF{k_cyl(), o, e1, cross(a, e1), a, r, SF_none{}}
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
+      +e1 = perp_of(a)
+      SF{k_cone(), o, e1, cross(a, e1), a, k, SF_none{}}
     case _: sf_none()
 
 def sf_ok(+s: SF) -> Bool:
@@ -243,39 +250,48 @@ def sf_uv(+s: SF, +p: V.Point) -> V.Vec2:
   Bool.pick(V.Vec2, U64.is_eq(sf_kind(s), k_plane()), V.V2{dot(d, sf_e1(s)), dot(d, sf_e2(s))},
     V.V2{fatan2(dot(d, sf_e2(s)), dot(d, sf_e1(s))), dot(d, sf_a(s))})
 
+def sf_rad(+s: SF, +v: F64) -> F64:
+  Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), v), sf_r(s))
+
 def sf_at(+s: SF, +u: F64, +v: F64) -> V.Point:
   +o = sf_o(s)
+  +rr = sf_rad(s, v)
   Bool.pick(V.Point, U64.is_eq(sf_kind(s), k_plane()), padd(padd(o, u, sf_e1(s)), v, sf_e2(s)),
-    padd(padd(padd(o, v, sf_a(s)), F64.mul(sf_r(s), fcos(u)), sf_e1(s)),
-      F64.mul(sf_r(s), fsin(u)), sf_e2(s)))
+    padd(padd(padd(o, v, sf_a(s)), F64.mul(rr, fcos(u)), sf_e1(s)), F64.mul(rr, fsin(u)), sf_e2(s)))
+
+def sf_grad(+s: SF, +p: V.Point) -> V.Dir:
+  +d = psub(p, sf_o(s))
+  +h = dot(d, sf_a(s))
+  +rad = dadd(d, F64.neg(h), sf_a(s))
+  +k = sf_r(s)
+  Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_a(s),
+    Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_cone()), dscale(2.0f64, dadd(rad, F64.neg(F64.mul(F64.mul(k, k), h)), sf_a(s))),
+      dscale(2.0f64, rad)))
 
 def sf_normal(+s: SF, +p: V.Point) -> V.Dir:
-  +d = psub(p, sf_o(s))
-  +rad = dadd(d, F64.neg(dot(d, sf_a(s))), sf_a(s))
-  Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_a(s), dunit(rad))
+  dunit(sf_grad(s, p))
 
 def sf_f(+s: SF, +p: V.Point) -> F64:
   +d = psub(p, sf_o(s))
   +h = dot(d, sf_a(s))
   +rad = dadd(d, F64.neg(h), sf_a(s))
+  +rr = Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), h), sf_r(s))
   Bool.pick(F64, U64.is_eq(sf_kind(s), k_plane()), h,
-    F64.mul(F64.add(dlen(rad), sf_r(s)), F64.sub(dlen(rad), sf_r(s))))
+    F64.mul(F64.add(dlen(rad), rr), F64.sub(dlen(rad), rr)))
 
-def sf_grad(+s: SF, +p: V.Point) -> V.Dir:
-  +d = psub(p, sf_o(s))
-  +h = dot(d, sf_a(s))
-  Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_a(s),
-    dscale(2.0f64, dadd(d, F64.neg(h), sf_a(s))))
-
-def sf_tan_u(+s: SF, +u: F64) -> V.Dir:
+def sf_tan_u(+s: SF, +u: F64, +v: F64) -> V.Dir:
+  +rr = sf_rad(s, v)
   Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_e1(s),
-    dadd(dscale(F64.neg(F64.mul(sf_r(s), fsin(u))), sf_e1(s)), F64.mul(sf_r(s), fcos(u)), sf_e2(s)))
+    dadd(dscale(F64.neg(F64.mul(rr, fsin(u))), sf_e1(s)), F64.mul(rr, fcos(u)), sf_e2(s)))
 
 def sf_tan_v(+s: SF, +u: F64) -> V.Dir:
-  Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_e2(s), sf_a(s))
+  +k = sf_r(s)
+  Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_e2(s),
+    Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_cone()),
+      dadd(dadd(sf_a(s), F64.mul(k, fcos(u)), sf_e1(s)), F64.mul(k, fsin(u)), sf_e2(s)), sf_a(s)))
 
 def sf_periodic(+s: SF) -> Bool:
-  U64.is_eq(sf_kind(s), k_cyl())
+  Bool.or(U64.is_eq(sf_kind(s), k_cyl()), U64.is_eq(sf_kind(s), k_cone()))
 
 def det3(+a: V.Dir, +b: V.Dir, +c: V.Dir) -> F64:
   dot(a, cross(b, c))

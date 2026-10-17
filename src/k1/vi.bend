@@ -284,7 +284,7 @@ def lps_va(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +a
     case []: acc
     case +h <> +t: lps_va(t, b, s, c, ces_va(h, b, s, c, acc))
 
-def face_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def face_va_go(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
   +g = FB.face_surf(b, fi)
   +s = S.sf_of(g)
   +raw = lps_va(FB.face_ce(b, fi), b, s, c, va0())
@@ -292,6 +292,126 @@ def face_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
   +d = S.dot(S.psub(S.sf_o(s), c), S.sf_a(s))
   +vol = Bool.pick(F64, isp, F64.mul(F64.div(d, 3.0f64), va_vol(raw)), va_vol(raw))
   VA{vol, F64.abs(va_ar(raw)), va_slv(raw), va_sla(raw), Bool.and(va_ok(raw), S.sf_ok(s))}
+
+def pv(+p: V.Point) -> V.Dir:
+  S.psub(p, S.pt(0.0f64, 0.0f64, 0.0f64))
+
+def ang_at(+c: V.Point, +u: V.Dir, +w: V.Dir, +p: V.Point) -> F64:
+  +d = S.psub(p, c)
+  S.fatan2(S.dot(d, w), S.dot(d, u))
+
+def arc_j(+c: V.Point, +a: V.Point, +m: V.Point, +b: V.Point, +q3: V.Point, +q4: V.Point, +full: Bool) -> V.Dir:
+  +u = S.dunit(S.psub(a, c))
+  +nm = S.dunit(S.cross(S.psub(a, c), S.psub(Bool.pick(V.Point, full, q3, m), c)))
+  +w = S.cross(nm, u)
+  +fm = ang_at(c, u, w, m)
+  +f3 = ang_at(c, u, w, q3)
+  +f4 = ang_at(c, u, w, q4)
+  +fb = ang_at(c, u, w, b)
+  +dphi = Bool.pick(F64, full,
+    F64.add(F64.add(S.ang_diff(0.0f64, f3), S.ang_diff(f3, fm)), F64.add(S.ang_diff(fm, f4), S.ang_diff(f4, fb))),
+    F64.add(S.ang_diff(0.0f64, fm), S.ang_diff(fm, fb)))
+  +rr = S.dist(a, c)
+  S.dadd(S.cross(pv(c), S.psub(b, a)), F64.mul(F64.mul(rr, rr), dphi), nm)
+
+def bz_j(+g: G.GVal) -> V.Dir:
+  +bz = bz_of(g)
+  +p0 = G.bz_p0(bz)
+  +p1 = G.bz_p1(bz)
+  +p2 = G.bz_p2(bz)
+  +p3 = G.bz_p3(bz)
+  +x = F64.sub(gl3(S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)),
+    gl3(S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)))
+  +y = F64.sub(gl3(S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)),
+    gl3(S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)))
+  +z = F64.sub(gl3(S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)),
+    gl3(S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)))
+  S.dr(x, y, z)
+
+def edge_j(+k: Ty.EdgeKind) -> V.Dir:
+  +tag = ek_tag(k)
+  +g = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +q0 = EF.ev(g, lo)
+  +q1 = EF.ev(g, hi)
+  +m = EF.ev(g, F64.mul(0.5f64, F64.add(lo, hi)))
+  +q3 = EF.ev(g, F64.add(lo, F64.mul(0.25f64, F64.sub(hi, lo))))
+  +q4 = EF.ev(g, F64.add(lo, F64.mul(0.75f64, F64.sub(hi, lo))))
+  +ctr = Bool.pick(V.Point, U64.is_eq(tag, 2u64), G.cc_c(cc_of(g)),
+    arc_center(G.rq_p0(rq_of(g)), G.rq_p1(rq_of(g)), G.rq_p2(rq_of(g)), G.rq_w1(rq_of(g))))
+  +full = Bool.and(U64.is_eq(tag, 2u64), F64.is_eq(F64.sub(hi, lo), 2.0f64))
+  Bool.pick(V.Dir, U64.is_eq(tag, 1u64), S.cross(pv(q0), pv(q1)),
+    Bool.pick(V.Dir, U64.is_eq(tag, 4u64), bz_j(g), arc_j(ctr, q0, m, q1, q3, q4, full)))
+
+def ces_j(cs: List<&2, FB.CE>, +b: Ty.Brep, +acc: V.Dir) -> V.Dir:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +j = edge_j(Ty.ed_kind(FB.edge_at(b, FB.ce_e(h))))
+      ces_j(t, b, S.dadd(acc, Bool.pick(F64, FB.ce_fw(h), 1.0f64, F64.neg(1.0f64)), j))
+
+def lps_j(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +acc: V.Dir) -> V.Dir:
+  match ls:
+    case []: acc
+    case +h <> +t: lps_j(t, b, ces_j(h, b, acc))
+
+def cone_seg(+kq: F64, +ta: V.Vec2, +tb: V.Vec2) -> F64:
+  +h0 = V.v2_y(ta)
+  +h1 = V.v2_y(tb)
+  +dt = F64.sub(V.v2_x(tb), V.v2_x(ta))
+  F64.mul(kq, F64.neg(F64.div(F64.mul(dt, F64.add(F64.add(F64.mul(h0, h0), F64.mul(h0, h1)), F64.mul(h1, h1))), 6.0f64)))
+
+def cone_pg(ps: List<&2, V.Vec2>, +kq: F64, +prev: V.Vec2, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +h <> +t: cone_pg(t, kq, h, F64.add(acc, cone_seg(kq, prev, h)))
+
+def cone_poly(+ps: List<&2, V.Vec2>, +kq: F64) -> F64:
+  match ps:
+    case []: 0.0f64
+    case +h <> +t: cone_pg(t, kq, h, 0.0f64)
+
+def cone_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +ed = FB.edge_at(b, FB.ce_e(h))
+      +fw = FB.ce_fw(h)
+      +k = Ty.ed_kind(ed)
+      +p0 = FB.vpt(b, Ty.ed_v0(ed))
+      +p1 = FB.vpt(b, Ty.ed_v1(ed))
+      +pa = Bool.pick(V.Point, fw, p0, p1)
+      +pb = Bool.pick(V.Point, fw, p1, p0)
+      +lo = EF.ek_lo(k)
+      +hi = EF.ek_hi(k)
+      +a0 = Bool.pick(F64, fw, lo, hi)
+      +b0 = Bool.pick(F64, fw, hi, lo)
+      +ar = cone_poly(FB.poly_of(s, k, a0, b0, FB.uv_raw(s, EF.ev(EF.ek_curve(k), a0))), kq)
+      +sl = chord_maybe(U64.is_eq(ek_tag(k), 4u64), b, FB.ce_e(h), s, c, pa, pb)
+      cone_ces(t, b, s, c, kq, va_add(acc, va_add(VA{0.0f64, ar, 0.0f64, 0.0f64, True{}}, sl)))
+
+def cone_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
+  match ls:
+    case []: acc
+    case +h <> +t: cone_lps(t, b, s, c, kq, cone_ces(h, b, s, c, kq, acc))
+
+def cone_va(+b: Ty.Brep, +fi: Nat, +s: S.SF, +c: V.Point) -> VA:
+  +k = S.sf_r(s)
+  +kq = F64.mul(k, F64.sqrt(F64.add(1.0f64, F64.mul(k, k))))
+  +ls = FB.face_ce(b, fi)
+  +j = lps_j(ls, b, S.dr(0.0f64, 0.0f64, 0.0f64))
+  +raw = cone_lps(ls, b, s, c, kq, va0())
+  +vol = F64.div(S.dot(S.psub(S.sf_o(s), c), j), 6.0f64)
+  VA{vol, F64.abs(va_ar(raw)), va_slv(raw), va_sla(raw), va_ok(raw)}
+
+def face_kv(+cone: Bool, +b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+  match cone:
+    case True{}: cone_va(b, fi, S.sf_of(FB.face_surf(b, fi)), c)
+    case False{}: face_va_go(b, fi, c)
+
+def face_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+  face_kv(U64.is_eq(S.sf_kind(S.sf_of(FB.face_surf(b, fi))), S.k_cone()), b, fi, c)
 
 def faces_va(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: VA) -> VA:
   match fs:

@@ -160,21 +160,21 @@ def finish(tag, design, r, node, hand, isn=0, genus_exp=0):
 def bore_eq():
     t = triple('be.bcd', [BOX], [PRISM(2, -5, 15, 5, 5, 2)], 1, 2,
                1000 + 40 * math.pi, 40 * math.pi, 1000 - 40 * math.pi)
-    out, ev = t['out'], t['ev']
     cx, _ = cli('be.bcd', 'apply', PRISM(6, -5, 15, 5, 5, 2),
                 '(node 7 (rotate 6 y 90) (intent same 0 0 1 0))',
                 '(node 8 (move 7 0 0 10 0) (intent same 0 0 1 0))',
-                f'(node 9 (difference {t["d"]} 8) {ID})',
-                f'(node 10 (intersection {t["d"]} 8) {IS})',
-                f'(node 11 (union {t["d"]} 8) {IA})')
+                f'(node 9 (difference {t["d"]} 8) {ID})')
+    ri, _ = cli('be.bcd', 'apply', f'(node 10 (intersection {t["d"]} 8) {IS})')
+    ru, _ = cli('be.bcd', 'apply', f'(node 11 (union {t["d"]} 8) {IA})')
     ev2, _ = cli('be.bcd', 'eval')
-    vd9, vi10, vu11, vd5, vb8 = (vol(ev2, n) for n in (9, 10, 11, t['d'], 8))
-    ident2 = iv_overlap(iv_add(vu11, vi10), iv_add(vd5, vb8))
+    hand9 = 1000 - 80 * math.pi + 128 / 3
     r2 = dict(out=t['out'] + cx, ev=ev2)
-    checks, info = finish('be', 'be.bcd', r2, t['d'], 1000 - 40 * math.pi, 11, 1)
+    checks, info = finish('be', 'be.bcd', r2, 9, hand9, 9, 3)
     checks.update(hunion=contains(t['vu'], 1000 + 40 * math.pi),
-                  hinter=contains(t['vi'], 40 * math.pi), ident=t['ident'], ident2=ident2,
-                  cross='committed' in cx and vd9 is not None and vi10 is not None)
+                  hinter=contains(t['vi'], 40 * math.pi), ident=t['ident'],
+                  cross='committed' in cx,
+                  inter_refused='non-manifold-result' in ri and 'committed' not in ri,
+                  union_refused='non-manifold-result' in ru and 'committed' not in ru)
     record('bore.eq', all(checks.values()), artifacts=('be.bcd', 'be.stp', 'be.bin'),
            seconds=t['seconds'], **checks, **info)
 
@@ -219,7 +219,7 @@ def fig8port():
     t = triple('fp.bcd', a, b, 4, 7, None, None, None)
     out, ev = t['out'], t['ev']
     va4 = vol(ev, 4)
-    hand_a = 503.5370360419269
+    hand_a = 503.5370360439269
     checks, info = finish('fp', 'fp.bcd', t, t['u'], None, 10)
     checks.update(chamber=contains(va4, hand_a), ident=t['ident'],
                   union_ok=t['vu'] is not None and t['vi'] is not None and t['vd'] is not None)

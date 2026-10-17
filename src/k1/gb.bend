@@ -12,6 +12,7 @@ import ./gw.bend as W
 import ./ls.bend as L
 import ./co.bend as CO
 import ./surg.bend as K1
+import ./vi.bend as VI
 
 type BK is Data:
   BK{ t: F64, v: Nat }
@@ -98,7 +99,7 @@ def sub_kind_x(+k: Ty.EdgeKind, +a: F64, +b: F64, +pa: V.Point, +pb: V.Point) ->
   +c = EF.ek_curve(k)
   +exact = Bool.and(PX.peq(EF.ev(c, a), pa), PX.peq(EF.ev(c, b), pb))
   +rb = rebuild_go(c, pa, pb, EF.ev(c, F64.mul(0.5f64, F64.add(a, b))))
-  Bool.pick(Ty.EdgeKind, exact, sub_kind(k, a, b), k1l(rb))
+  Bool.pick(Ty.EdgeKind, VI.bz_straight(c), PX.ln_kind(pa, pb), Bool.pick(Ty.EdgeKind, exact, sub_kind(k, a, b), k1l(rb)))
 
 def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +k: Ty.EdgeKind, +sd: U64, +e: Nat, +j: Nat,
     +fw: Bool, +gv: PX.GV) -> List<&2, W.PC>:
