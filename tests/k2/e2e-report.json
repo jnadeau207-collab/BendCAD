@@ -1,0 +1,91 @@
+[
+ {
+  "name": "material.mass",
+  "ok": true,
+  "mass": [
+   0.016199999999984924,
+   0.016200000000015077
+  ],
+  "out": "38214] [-1110133.8724633513, 1145127.3765418855] [-222567.3995913277, 495344.442540003] [-333851.0993869944, 743016.663810007] [-667702.1987740211, 1486033.3276200793] status=certified\nmaterial 6082-T6 density=2700 cte=0.0000234 mass=[0.016199999999984924, 0.016200000000015077] kg status=certified\n\n"
+ },
+ {
+  "name": "material.step",
+  "ok": true,
+  "has": true
+ },
+ {
+  "name": "material.rebind",
+  "ok": true,
+  "mass": [
+   0.04709999999995618,
+   0.047100000000043836
+  ]
+ },
+ {
+  "name": "material.persists",
+  "ok": true,
+  "show": "(bendcad 1)\n(node 1 (box 10 20 30) (intent create any any any any))\n(material 1 S355 7850 0.000012)\n\n"
+ },
+ {
+  "name": "asm.mass",
+  "ok": true,
+  "out": "assembly mass\nA 6082-T6 mass=[0.0026999999999975112, 0.0027000000000024886] kg\nB 16MnCr5 mass=[0.006165375582669894, 0.006165375582670046] kg\nC 16MnCr5 mass=[0.006165375582669894, 0.006165375582670046] kg\ntotal=[0.015030751165337296, 0.015030751165342584] kg status=certified\n",
+  "want": 0.015030751165339936
+ },
+ {
+  "name": "asm.mass_unbound_refused",
+  "ok": true,
+  "out": "A 6082-T6 mass=[0.0026999999999975112, 0.0027000000000024886] kg\nerror invalid-input | asm mass | why: material-not-bound B | fix: bind (material NODE GRADE DENSITY CTE) to node 2\nerror invalid-input | asm mass | why: material-not-bound C | fix: bind (material NODE GRADE DENSITY CTE) to node 2\n\n"
+ },
+ {
+  "name": "thread.semantic",
+  "ok": false,
+  "out": "-input | thread | why: thread-minor-diameter-mismatch: tap6 | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n",
+  "threads": "threads node 3\n\n"
+ },
+ {
+  "name": "thread.minor_mismatch",
+  "ok": true,
+  "out": "vertices=12 edges=16 faces=10 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nerror invalid-input | thread | why: thread-minor-diameter-mismatch: bad | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.step",
+  "ok": false,
+  "size": 8904
+ },
+ {
+  "name": "thread.engagement",
+  "ok": true,
+  "out": "engage S.ext P.tap8 engagement=[11.999999999971, 12.000000000029] ratio=1.5 d=8 status=certified\n"
+ },
+ {
+  "name": "fit.iso286",
+  "ok": false,
+  "out": "fits 2\nfit run hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 clearance=[0.006999999999994343, 0.041000000000011035]\n  temp hot T=80 clearance=[0.02128482999998482, 0.05532328400001774]\n  verdict=clearance-certified status=certified\nerror invalid-input | pmi fits | why: face-not-found for fit press | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+ },
+ {
+  "name": "fit.declared_kind_refused",
+  "ok": true,
+  "out": "ll.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 interference=[-0.041000000000011035, -0.006999999999994343]\nerror invalid-input | pmi fits | why: fit-not-press: bad | fix: choose classes whose envelope gives the declared kind at every state\n\n"
+ },
+ {
+  "name": "fit.unknown_class",
+  "ok": true,
+  "out": "fits 1\nerror invalid-input | pmi fits | why: unknown-fit-class Q9/z1 | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+ },
+ {
+  "name": "mesh.tip_to_bore",
+  "ok": false,
+  "out": "gap G B gap=[0.03999999903167915, inf] traces=1/5 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "mesh.gear_to_gear",
+  "ok": false,
+  "out": "gap G H gap=[0.04999999887158472, inf] traces=1/1 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "mesh.rotating",
+  "ok": true,
+  "out": "mesh G H gap=[0.04999999887158472, inf] over=pitch ratio=1 lipschitz=0 verdict=clearance status=certified\n"
+ }
+]

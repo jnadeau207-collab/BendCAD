@@ -1,0 +1,82 @@
+[
+ {
+  "name": "material.bad_density",
+  "ok": true,
+  "info": "r invalid-input | material | why: bad-material: X needs a finite density > 0 kg/m3 and a finite expansion >= 0 1/K | fix: write (material NODE GRADE DENSITY CTE)\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "material.bad_cte",
+  "ok": true,
+  "info": "r invalid-input | material | why: bad-material: X needs a finite density > 0 kg/m3 and a finite expansion >= 0 1/K | fix: write (material NODE GRADE DENSITY CTE)\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "material.unknown_node",
+  "ok": true,
+  "info": "6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-15\nerror invalid-input | material | why: unknown-node 9 | fix: bind materials to evaluated design nodes\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.unknown_designation",
+  "ok": true,
+  "info": "4\nerror invalid-input | thread | why: unknown-thread M7x0.3 | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.unknown_class",
+  "ok": true,
+  "info": "error invalid-input | thread | why: unknown-thread-class 9Z | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.face_missing",
+  "ok": true,
+  "info": "nvalid-input | thread | why: face-not-found: n9.c0.wall.0.0 | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.face_not_cylindrical",
+  "ok": true,
+  "info": "nput | thread | why: thread-face-not-cylindrical: n1.c0.top | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.span_outside_face",
+  "ok": true,
+  "info": "r invalid-input | thread | why: thread-span-outside-face: t | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "thread.external_major_mismatch",
+  "ok": true,
+  "info": "lid-input | thread | why: thread-major-diameter-mismatch: t | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "engage.designation_mismatch",
+  "ok": true,
+  "info": "error invalid-input | asm engage | why: thread-designation-mismatch: M8x1.25 in M6x1 | fix: mate threads of one designation\n"
+ },
+ {
+  "name": "engage.not_coaxial",
+  "ok": true,
+  "info": "error invalid-input | asm engage | why: threads-not-coaxial: S.ext P.tap8 | fix: place the parts on one axis\n"
+ },
+ {
+  "name": "fit.size_outside_table",
+  "ok": true,
+  "info": " why: fit-size-outside-table for fit big | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+ },
+ {
+  "name": "fit.nominal_mismatch",
+  "ok": true,
+  "info": " | why: fit-nominal-mismatch for fit off | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+ },
+ {
+  "name": "fit.face_not_cylindrical",
+  "ok": true,
+  "info": "y: fit-face-not-cylindrical for fit flat | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+ },
+ {
+  "name": "gap.axes_not_parallel",
+  "ok": false,
+  "info": "gap A B gap=[19.999999999671985, inf] traces=1/1 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "gap.interference",
+  "ok": false,
+  "info": "gap A B gap=[0, inf] traces=1/1 verdict=contact status=uncertain\n"
+ }
+]

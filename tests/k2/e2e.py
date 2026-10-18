@@ -94,7 +94,7 @@ def asm_mass():
 def plate_holes():
     return [f'(node 1 (box 40 30 20) {IC})',
             f'(node 2 (pocket 1 (face 1 0 top) 16 (region (circle 10 15 3.4))) {ID})',
-            f'(node 3 (pocket 2 (face 1 0 top) 16 (region (circle 30 15 3.0))) {ID})']
+            f'(node 3 (pocket 2 (face 1 0 top) 16 (region (circle 30 15 2.5))) {ID})']
 
 
 def threads():
@@ -137,8 +137,10 @@ def fits():
     hole = next((ln.split()[0] for ln in fs2.splitlines() if ' cylinder' in ln), None)
     fs3, _ = cli('f.bcd', 'faces', '3')
     shaft = next((ln.split()[0] for ln in fs3.splitlines() if ' cylinder' in ln), None)
+    fs4, _ = cli('f.bcd', 'faces', '4')
+    shaft4 = next((ln.split()[0] for ln in fs4.splitlines() if ' cylinder' in ln), None)
     p = (f'(pmi (node 2) (temp cold 20) (temp hot 80) (fit run 2 {hole} 3 {shaft} H7/g6 clearance) '
-         f'(fit press 2 {hole} 4 {shaft} H7/p6 press))')
+         f'(fit press 2 {hole} 4 {shaft4} H7/p6 press))')
     o, _ = cli('f.bcd', 'pmi', 'fits', p)
     run20 = re.search(r'fit run .*?temp cold .*?clearance=\[([^,]+), ([^\]]+)\]', o, re.S)
     hot = re.search(r'fit run .*?temp hot .*?clearance=\[([^,]+), ([^\]]+)\]', o, re.S)

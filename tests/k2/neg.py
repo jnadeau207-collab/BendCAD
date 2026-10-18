@@ -141,7 +141,7 @@ def c14():
 @case('gap.axes_not_parallel')
 def c15():
     E.fresh('n.bcd', f'(node 1 (cylinder 5 10) {E.IC})', f'(node 2 (cylinder 5 10) {E.IC})')
-    f = '(assembly (inst A 1 0 0 0 0) (inst B 2 30 0 0 1) (fix 1 A) (fix 2 B))'
+    f = '(assembly (inst A 1 0 0 0 0) (inst B 2 30 0 0 4) (fix 1 A) (fix 2 B))'
     out, _ = E.cli('n.bcd', 'asm', 'gap', 'A', 'B', f)
     return 'gap-axes-not-parallel' in out, out[-200:]
 

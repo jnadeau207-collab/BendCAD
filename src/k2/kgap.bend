@@ -419,6 +419,11 @@ def pl_trace(+x: BX, +fi: Nat, +o: V.Point, +n: V.Dir) -> TF:
       F64.add(F64.mul(c, nx), F64.mul(V.v2_y(sv), hx)), F64.add(F64.mul(c, ny), F64.mul(V.v2_y(sv), hy)), 0.0f64, 0.0f64, 0.0f64,
       V.v2_x(z), V.v2_y(z), Bool.not(fp_cv(f))}}))
 
+def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: Ty.Brep) -> Bool:
+  match ls:
+    case []: False{}
+    case +h <> +t: Bool.or(F64.is_lt(KS.pi(), F64.abs(FB.lp_turn(h, sf, b, 0.0f64))), any_wrap(t, sf, b))
+
 def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
   +aw = bx_dr(x, a)
   +vert = F64.is_le(F64.add(F64.abs(V.dr_x(aw)), F64.abs(V.dr_y(aw))), F64.mul(1.0e-12f64, F64.abs(V.dr_z(aw))))
@@ -428,7 +433,7 @@ def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
   +ls = FB.face_ce(bx_b(x), fi)
   +f = fp_ls(ls, x, FP{[], False{}, 0n})
   +ps = fp_ps(f)
-  +wraps = F64.is_lt(KS.pi(), F64.abs(FB.lps_turn(ls, FB.face_sf(bx_b(x), fi), bx_b(x), 0.0f64)))
+  +wraps = any_wrap(ls, FB.face_sf(bx_b(x), fi), bx_b(x))
   +ref = KS.fatan2(F64.sub(V.pt_y(L_p0(ps)), cy), F64.sub(V.pt_x(L_p0(ps)), cx))
   +ar = ang_rng(ps, cx, cy, ref, big())
   +full = Bool.or(Bool.or(wraps, in_xy(ps, cx, cy)), F64.is_le(KS.pi(), F64.sub(V.v2_y(ar), V.v2_x(ar))))
