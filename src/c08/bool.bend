@@ -2207,9 +2207,21 @@ def k1_or_go(+ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb:
 def k1_or(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +o: Out) -> Out:
   k1_or_go(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd, o)
 
+def merge_pick(+better: Bool, +k: Out, +o: Out) -> Out:
+  match better:
+    case True{}: k
+    case False{}: o
+
+def merge_try(+try: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+  match try:
+    case False{}: o
+    case True{}:
+      +k = k1_or(GB.gbrun(op, ba, bb), op, a, b, ba, bb, nd, o)
+      merge_pick(Bool.and(Out_ok(k), Nat.is_lt(Out_sh(k), Out_sh(o))), k, o)
+
 def cls_or_k1(+ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
   match ok:
-    case True{}: o
+    case True{}: merge_try(Bool.and(U64.is_eq(op, tag_union()), Nat.is_lt(1n, Out_sh(o))), o, op, a, b, ba, bb, nd)
     case False{}: k1_or(GB.gbrun(op, ba, bb), op, a, b, ba, bb, nd, o)
 
 def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,

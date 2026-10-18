@@ -239,7 +239,7 @@ def contact():
                     '(node 9 (move 8 10 10 10 0) (intent same 0 0 1 0))',
                     '(node 10 (union 1 9) (intent add 0 0 2 0))',
                     '(node 11 (intersection 1 3) (intent same 0 0 0 0))')
-    record('contact.face', 'committed' in out and fx(out, 4) == ('add', '0', '0', '2', '0') and contains(vol(out, 4), 2000.0),
+    record('contact.face', 'committed' in out and fx(out, 4) == ('add', '0', '0', '1', '0') and contains(vol(out, 4), 2000.0),
            fx=fx(out, 4), volume=vol(out, 4), seconds=dt)
     record('contact.edge', fx(out, 7) == ('add', '0', '0', '2', '0') and contains(vol(out, 7), 2000.0),
            fx=fx(out, 7), volume=vol(out, 7))
