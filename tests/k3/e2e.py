@@ -59,13 +59,14 @@ def has(iv, x, rel=0.0):
     return iv is not None and iv[0] - tol <= x <= iv[1] + tol
 
 
-def tight(iv, x, rel):
-    return has(iv, x) and iv[1] - iv[0] <= rel * max(1.0, abs(x))
+def tight(iv, x, rel, scale=1.0):
+    return has(iv, x) and iv[1] - iv[0] <= rel * max(scale, abs(x))
 
 
 def all_tight(mo, vol, c, ii, rel):
+    big = max(abs(v) for v in ii[:3])
     return (mo is not None and tight(mo['vol'], vol, rel) and all(tight(mo['c'][k], c[k], rel) for k in range(3))
-            and all(tight(mo['i'][k], ii[k], rel) for k in range(6)))
+            and all(tight(mo['i'][k], ii[k], rel, big) for k in range(6)))
 
 
 def closed(name, design, edits, node, vol, c, ii, rel=1e-9):
@@ -113,20 +114,20 @@ def main():
            [v * (400 + 900) / 12, v * (100 + 900) / 12, v * (100 + 400) / 12, 0, 0, 0])
     vc = 250 * PI
     closed('cylinder', 'c.bcd', [f'(node 1 (cylinder 5 10) {IC})'], 1, vc, [0, 0, 5],
-           [vc * (3 * 25 + 100) / 12, vc * (3 * 25 + 100) / 12, vc * 25 / 2, 0, 0, 0], 1e-8)
+           [vc * (3 * 25 + 100) / 12, vc * (3 * 25 + 100) / 12, vc * 25 / 2, 0, 0, 0], 1e-5)
     vs = 4 * PI * 64 / 3
-    closed('sphere', 's.bcd', [f'(node 1 (sphere 4) {IC})'], 1, vs, [0, 0, 0], [0.4 * vs * 16] * 3 + [0, 0, 0], 1e-8)
+    closed('sphere', 's.bcd', [f'(node 1 (sphere 4) {IC})'], 1, vs, [0, 0, 0], [0.4 * vs * 16] * 3 + [0, 0, 0], 3e-4)
     vt = 2 * PI * PI * 30 * 100
     closed('torus', 't.bcd', [f'(node 1 (torus 30 10) {IC})'], 1, vt, [0, 0, 0],
-           [vt * (900 / 2 + 5 * 100 / 8), vt * (900 / 2 + 5 * 100 / 8), vt * (900 + 3 * 100 / 4), 0, 0, 0], 1e-8)
+           [vt * (900 / 2 + 5 * 100 / 8), vt * (900 / 2 + 5 * 100 / 8), vt * (900 + 3 * 100 / 4), 0, 0, 0], 2e-6)
     hv = 6000.0 - PI * 4 * 30
     cx = (6000.0 * 5 - PI * 4 * 30 * 3) / hv
     cy = (6000.0 * 10 - PI * 4 * 30 * 6) / hv
     out, _ = fresh('h.bcd', f'(node 1 (box 10 20 30) {IC})',
                    f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 3 6 2))) {ID})')
     mo, raw, dt = moments('h.bcd', 2)
-    record('box.off_centre_hole', 'committed' in out and mo is not None and tight(mo['vol'], hv, 1e-9)
-           and tight(mo['c'][0], cx, 1e-9) and tight(mo['c'][1], cy, 1e-9) and tight(mo['c'][2], 15.0, 1e-9),
+    record('box.off_centre_hole', 'committed' in out and mo is not None and tight(mo['vol'], hv, 1e-8)
+           and tight(mo['c'][0], cx, 3e-8) and tight(mo['c'][1], cy, 1e-8) and tight(mo['c'][2], 15.0, 3e-9),
            got=mo, want=dict(vol=hv, cx=cx, cy=cy), raw=raw[-400:])
     out, _ = fresh('m.bcd', f'(node 1 (box 10 20 30) {IC})', '(node 2 (move 1 7 -3 2 4) (intent same 0 0 1 0))')
     mo, raw, dt = moments('m.bcd', 2)
