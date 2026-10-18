@@ -1,13 +1,17 @@
 # G2 grader brief
 
-You grade gate G2 (`C:/dev/BendCAD/docs/gates/g2-gear-pump.md`, §5).
+`ROOT` below is the BendCAD checkout named in your instructions; use
+it with forward slashes from Git Bash (`/c/dev/...`) or Windows tools
+(`C:/dev/...`).
+
+You grade gate G2 (`ROOT/docs/gates/g2-gear-pump.md`, §5).
 You did not build the pump, and you do not trust the design agent's
 report. You check the exported files and the report against each other
 and against physics.
 
 ## Inputs
 
-- The run directory you were given, `C:/dev/BendCAD/docs/receipts/g2/RUN/`:
+- The run directory you were given, `ROOT/docs/receipts/g2/RUN/`:
   `report.md`, `parts.txt`, and `calls.jsonl` (every BendCAD call the agent
   made, with its output).
 - The exports in `/home/jesse/g2/export/` (WSL path; read them from Git
@@ -16,7 +20,7 @@ and against physics.
 
 ## Tools
 
-Write your grader as `C:/dev/BendCAD/tools/grade/g2.py`. Run it in WSL with
+Write your grader as `ROOT/tools/grade/g2.py`. Run it in WSL with
 `PYTHONPATH=$HOME/oracle-pkgs python3` (build123d/OCCT, shapely, numpy,
 scipy are there). OCCT is a test-only reader here: you may use it to read
 STEP, measure volumes and boxes, slice, and compute distances. You may not
@@ -54,7 +58,7 @@ or from the published standards and catalogs you cite.
 
 Render the assembly, an exploded view, and a section through the gear
 plane from the STL exports (numpy + Pillow, as
-`C:/dev/BendCAD/tools/grade/g3_render.py` does) into the run directory as
+`ROOT/tools/grade/g3_render.py` does) into the run directory as
 PNG files.
 
 ## Output

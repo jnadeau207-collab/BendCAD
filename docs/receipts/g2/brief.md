@@ -1,8 +1,12 @@
 # G2 brief: external gear pump
 
+`ROOT` below is the BendCAD checkout named in your instructions; use
+it with forward slashes from Git Bash (`/c/dev/...`) or Windows tools
+(`C:/dev/...`).
+
 You are the design agent for gate G2. The gate itself is
-`C:/dev/BendCAD/docs/gates/g2-gear-pump.md`; its doctrine is
-`C:/dev/BendCAD/docs/gates/README.md`. Read both in full before anything
+`ROOT/docs/gates/g2-gear-pump.md`; its doctrine is
+`ROOT/docs/gates/README.md`. Read both in full before anything
 else. They define the pump, the fits, the sizing work, the build
 requirements and what a pass is. This file only says how to work.
 
@@ -11,11 +15,11 @@ requirements and what a pass is. This file only says how to work.
 BendCAD is reachable only through its MCP tools. Call them from Bash with
 
     BENDCAD_BIN=/home/jesse/bc/bendcad-g2 BENDCAD_TIMEOUT_MS=3600000 \
-      BENDCAD_LOG='C:/dev/BendCAD/docs/receipts/g2/RUN/calls.jsonl' \
-      node /c/dev/BendCAD/tools/mcp/mcpc.mjs TOOL 'JSON-ARGUMENTS'
+      BENDCAD_LOG='ROOT/docs/receipts/g2/RUN/calls.jsonl' \
+      node ROOT/tools/mcp/mcpc.mjs TOOL 'JSON-ARGUMENTS'
 
 where `RUN` is the run directory you were given. `node
-/c/dev/BendCAD/tools/mcp/mcpc.mjs --list` lists the tools. Call the
+ROOT/tools/mcp/mcpc.mjs --list` lists the tools. Call the
 `reference` tool first and read it in full, including the sections on
 booleans, assemblies, semantic PMI, and materials, threads and fits.
 
@@ -28,7 +32,7 @@ gear profile in its own `apply` call. Some queries take minutes; let them
 finish.
 
 You may use Python only to compute numbers. All geometry is built by
-BendCAD. `python C:/dev/BendCAD/docs/receipts/g2/gear.py Z MODULE [SHIFT_X]
+BendCAD. `python ROOT/docs/receipts/g2/gear.py Z MODULE [SHIFT_X]
 [PHASE_RAD] [BACKLASH_MM] [ADDENDUM_COEFF] [FLANK_POINTS]` prints the
 involute profile of a Z-tooth spur gear (20 degree pressure angle) as a
 BendCAD `(path ...)` centred at the origin, with one tooth centred at angle
@@ -47,7 +51,7 @@ compliant design avoids the need. Then continue with every part of the
 pump that does not depend on it. A blocker is a valid finding; a design
 quietly bent to fit the kernel is a failed run.
 
-## Deliverables in `C:/dev/BendCAD/docs/receipts/g2/RUN/`
+## Deliverables in `ROOT/docs/receipts/g2/RUN/`
 
 - `report.md`: the design document the gate asks for, every number
   labelled MEASURED (with citation), COMPUTED (assumptions stated) or

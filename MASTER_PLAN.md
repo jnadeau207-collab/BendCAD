@@ -270,6 +270,19 @@ Exit: the C08 neg journeys that assert `boundaries-cross-or-overlap` and `featur
 
 Exit: a corpus of bolted, doweled and press-fitted joints, plus a gear pair and a gear in a bore, certifies mass, fits, thread engagement and mesh clearance, exported and read back.
 
+### K3 — Rotor analysis, balance, blends and machinability (for G4, then G5–G6)
+
+The G4 brief (`docs/gates/g4-centrifugal-blower.md`) needs results the kernel cannot produce: natural frequencies, balance at certified precision, growth at speed, blade-root blends and tool reachability. K3 implements:
+
+- Exact mass moments. First and second moments of volume by the divergence theorem per face (plane, cylinder, cone, sphere, torus, flat patch, tolerant Hermite edges with their bounds), so centroid and inertia tensor are certified to the width of the volume interval, not the octree's. ISO 21940-11 residual unbalance from the certified centroid offset and products of inertia about a named axis.
+- Volume meshing. Quadratic tetrahedra (T10) conforming to the B-rep: boundary nodes on the exact surfaces, element quality bounds, refinement by size field. Every mesh records its geometric deviation from the B-rep.
+- Linear elasticity on that mesh: static solve under body forces (centrifugal load at a stated speed) and boundary supports, and the generalized eigenproblem K x = λ M x for the lowest modes by shift-invert Lanczos on the sparse system, parallel per §15. Each result carries a convergence bound from two refinement levels (Richardson extrapolation of every reported frequency and displacement), and stress stiffening at speed for the Campbell diagram.
+- Rotor critical speeds by a Timoshenko beam model of a shaft with rigid discs taken from certified mass properties, bearing stiffness as input.
+- Constant-radius blends between a plane and an extruded-profile wall (cylinder pieces along arcs give torus patches, lines give cylinder patches) and rolling-ball blends between any two supported faces as certified Hermite or NURBS surfaces with a measured deviation bound; blends end on the faces that close the edge.
+- Machinability: concave-edge radii against a named tool, and reachability of sampled face points by a tool assembly (cutter, flute length, holder) along candidate 3- and 5-axis directions, collision-checked against the part with certified distances.
+
+Exit: a corpus of a rotating disc (closed-form plane-stress growth and Love-plate frequencies), a cantilever and a free-free beam (Euler–Bernoulli and Timoshenko frequencies), a filleted backward-curved impeller and a scroll casing passes: frequencies and growth within the stated bounds of the closed forms, centroid and inertia certified against exact integrals, every blade-root blend validated and exported, and reachability verdicts that a hand-built counterexample (a slot narrower than the tool) refuses.
+
 ## 11. Proof strategy and the trusted boundary
 
 Maintain four separate categories: formally proven properties, certified numerical bounds, experimentally tested behavior, and trusted assumptions. None is silently relabeled as another.
