@@ -1466,12 +1466,29 @@ def feat_k1(+kind: U64, +b: Body, +rs: List<&2, F.Region>, +lo: F64, +hi: F64,
   +tag = Bool.pick(U64, U64.is_eq(kind, 0u64), B8.tag_union(), B8.tag_diff())
   feat_k1_nr(op_prism(rs, xk(t0), xk(t1), e, nd), tag, b, nd, kind)
 
+def feat_or(+k: NR, +orig: NR) -> NR:
+  match k:
+    case NR_ok{+b, fx}: NR_ok{b, fx}
+    case NR_err{kk, d}: orig
+
+def feat_fb(r: NR, +kind: U64, +b: Body, +rs: List<&2, F.Region>, +lo: F64, +hi: F64, +iv: List<&2, F64>,
+    +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_ok{+bb, fx}: NR_ok{bb, fx}
+    case NR_err{k, d}:
+      +a0 = f_nth(iv, 0n)
+      +a1 = f_nth(iv, 1n)
+      +top = Bool.not(F64.is_eq(a1, hi))
+      feat_or(feat_k1(kind, b, rs, Bool.pick(F64, top, F64.min(a1, hi), F64.min(a0, lo)),
+        Bool.pick(F64, top, F64.max(a1, hi), F64.max(a0, lo)), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd), NR_err{k, d})
+
 def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>, +e: X.Env, +nd: U64,
     +iv: List<&2, F64>, +pl: Pl, +kind: U64, +b: Body) -> NR:
   match code:
     case 0u64:
-      feat_ev(F.loops_ev(F.rg_loops(rs), e, 0n), o, cs, rs, nd, f_nth(iv, 0n), f_nth(iv, 1n),
+      +r = feat_ev(F.loops_ev(F.rg_loops(rs), e, 0n), o, cs, rs, nd, f_nth(iv, 0n), f_nth(iv, 1n),
         F64.is_eq(f_nth(iv, 2n), 1.0f64), pl, kind_what(kind))
+      feat_fb(r, kind, b, rs, BD.cl_lo(o), BD.cl_hi(o), iv, e, nd)
     case 1u64: bad(kind_what(kind), "node " ++ U64.show(nd), "face-not-found", "select a face by its creating node, cell and side")
     case 5u64: nr_err(T.F_unsupported{}, kind_what(kind), "node " ++ U64.show(nd), "features-need-an-extruded-body",
       "features act on prism, box and cylinder bodies along z; other placements need booleans (C08)")

@@ -730,6 +730,47 @@ def fas_surf_ok(fs: List<&2, Ty.Face>) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(surf_fin_ok(Ty.fa_surf(h)), fas_surf_ok(t))
 
+def ax1(+x: F64, +y: F64, +z: F64) -> Bool:
+  +nz = U64.add(Bool.pick(U64, F64.is_eq(x, 0.0f64), 0u64, 1u64),
+    U64.add(Bool.pick(U64, F64.is_eq(y, 0.0f64), 0u64, 1u64), Bool.pick(U64, F64.is_eq(z, 0.0f64), 0u64, 1u64)))
+  U64.is_eq(nz, 1u64)
+
+def surf_obl(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_pl{w}:
+      G.Pl{o, +u, +v} = w
+      Bool.not(ax1(F64.sub(F64.mul(V.dr_y(u), V.dr_z(v)), F64.mul(V.dr_z(u), V.dr_y(v))),
+        F64.sub(F64.mul(V.dr_z(u), V.dr_x(v)), F64.mul(V.dr_x(u), V.dr_z(v))),
+        F64.sub(F64.mul(V.dr_x(u), V.dr_y(v)), F64.mul(V.dr_y(u), V.dr_x(v)))))
+    case G.GV_bp{w}: True{}
+    case _: False{}
+
+def f_near(+a: F64, +b: F64, +sc: F64) -> Bool:
+  F64.is_le(F64.abs(F64.sub(a, b)), F64.add(F64.mul(8.881784197001252e-16f64, sc), 1.0e-300f64))
+
+def p_scale(+p: V.Point) -> F64:
+  F64.max(F64.abs(V.pt_x(p)), F64.max(F64.abs(V.pt_y(p)), F64.abs(V.pt_z(p))))
+
+def p_near(+a: V.Point, +b: V.Point) -> Bool:
+  +sc = F64.max(p_scale(a), p_scale(b))
+  Bool.and(f_near(V.pt_x(a), V.pt_x(b), sc), Bool.and(f_near(V.pt_y(a), V.pt_y(b), sc), f_near(V.pt_z(a), V.pt_z(b), sc)))
+
+def g_of(ss: List<&2, G.GVal>) -> G.GVal:
+  match ss:
+    case []: Ty.surf_zero()
+    case h <> t: h
+
+def coinc_on(+ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
+  Bool.and(surf_obl(g_of(ss)), Bool.and(GO.q_on_r(g_of(ss), ps), GO.q_on_r(g_of(ss), pe)))
+
+def coinc_go(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
+  +rs = surf_at(g_of(ss), V.v2_x(ts), V.v2_y(ts))
+  +re = surf_at(g_of(ss), V.v2_x(te), V.v2_y(te))
+  +ok = Bool.and(G.gres_ok(rs), G.gres_ok(re))
+  +exact = Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))
+  +near = Bool.and(p_near(G.gres_p(rs), ps), p_near(G.gres_p(re), pe))
+  Bool.and(ok, Bool.or(exact, Bool.and(near, coinc_on(ss, ps, pe))))
+
 def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
   +fwd = Ty.ce_fwd(ce)
   +trim = Ty.ce_trim(ce)
@@ -737,10 +778,7 @@ def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
   +te = trim_o_end(trim, fwd)
   +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_start(ed, fwd))))
   +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_end(ed, fwd))))
-  +rs = surf_at(surf, V.v2_x(ts), V.v2_y(ts))
-  +re = surf_at(surf, V.v2_x(te), V.v2_y(te))
-  Bool.and(G.gres_ok(rs), Bool.and(G.gres_ok(re), Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))))
-
+  coinc_go([surf], ts, te, ps, pe)
 def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
   GO.q_on_r(surf, p)
 

@@ -1,6 +1,6 @@
 {
- "binary_sha256": "a21f88b5814da70ba73c725c9b9e681580c9da17eb6b26d4669fdf7ed3ba5ff6",
- "passed": 20,
+ "binary_sha256": "ea4c12344da88431c60ae05d18a80403e4c51a63e080004a68f2f225fa287fb3",
+ "passed": 21,
  "total": 21,
  "results": [
   {
@@ -19,13 +19,13 @@
    "name": "cross.pierce_rod",
    "ok": true,
    "info": "(1039.999999998959, 1040.000000001041)",
-   "seconds": 0.22
+   "seconds": 0.23
   },
   {
    "name": "cross.sphere",
    "ok": true,
    "info": "('unsupported-op', 'curved-surface-operand: sphere/cone/torus operands are not admitted')",
-   "seconds": 0.36
+   "seconds": 0.35
   },
   {
    "name": "ok.mixed_cavity",
@@ -49,7 +49,7 @@
    "name": "feature.on_boolean",
    "ok": true,
    "info": "(1509.424777959259, 1509.42477796228)",
-   "seconds": 1.83
+   "seconds": 1.87
   },
   {
    "name": "feature.on_compound",
@@ -61,7 +61,7 @@
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.03
+   "seconds": 0.02
   },
   {
    "name": "intent.mismatch",
@@ -85,25 +85,25 @@
    "name": "ok.ident_union",
    "ok": true,
    "info": "(999.9999999989992, 1000.0000000010012)",
-   "seconds": 3.06
+   "seconds": 2.79
   },
   {
    "name": "ok.half_removed",
    "ok": true,
    "info": "(3999.999999996, 4000.000000004002)",
-   "seconds": 2.35
+   "seconds": 2.33
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.37
+   "seconds": 0.36
   },
   {
    "name": "ok.touch_face",
-   "ok": false,
+   "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 2.01
+   "seconds": 1.97
   },
   {
    "name": "ok.identical",

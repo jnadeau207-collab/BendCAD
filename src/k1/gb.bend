@@ -337,8 +337,7 @@ def trim_of(+g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> G.GVal:
     G.GV_ts{G.Ts{FB.uv_raw(s, pa), FB.uv_raw(s, pb)}})
 
 def trim_ok(+g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> Bool:
-  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_plane())),
-    Bool.and(EF.uv_ok(EF.pl_uv(g, pa)), EF.uv_ok(EF.pl_uv(g, pb))))
+  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_plane())), Bool.and(EF.on_g(g, pa), EF.on_g(g, pb)))
 
 def mk_ed(+va: Nat, +vb: Nat, +e: W.ER) -> Ty.Edge:
   Ty.Ed{0u64, K1.hv(va), K1.hv(vb), W.er_k(e)}

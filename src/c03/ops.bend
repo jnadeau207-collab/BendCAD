@@ -1558,12 +1558,38 @@ def tor_ex(+s: G.Torus, +q: V.Point) -> E.Ex:
     E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)),
       F64.mul(4.0f64, F64.mul(R, R))))
 
+def ex_cr(+ax: E.Ex, +ay: E.Ex, +az: E.Ex, +bx: E.Ex, +by: E.Ex, +bz: E.Ex) -> E3:
+  E3{E.ex_sub(E.ex_mul(ay, bz), E.ex_mul(az, by)), E.ex_sub(E.ex_mul(az, bx), E.ex_mul(ax, bz)),
+    E.ex_sub(E.ex_mul(ax, by), E.ex_mul(ay, bx))}
+
+def e3_dot3(+m: E3, +n: E3) -> E.Ex:
+  E3{+mx, +my, +mz} = m
+  E3{+nx, +ny, +nz} = n
+  E.ex_add(E.ex_add(E.ex_mul(mx, nx), E.ex_mul(my, ny)), E.ex_mul(mz, nz))
+
+def pl_ex(+w: G.Plane3, +q: V.Point) -> E.Ex:
+  G.Pl{+o, +u, +v} = w
+  V.Dr{+ux, +uy, +uz} = u
+  V.Dr{+vx, +vy, +vz} = v
+  e3_dot3(e3_sub(q, o), ex_cr(E.ex_of(ux), E.ex_of(uy), E.ex_of(uz), E.ex_of(vx), E.ex_of(vy), E.ex_of(vz)))
+
+def e3_cross(+a: E3, +b: E3) -> E3:
+  E3{+ax, +ay, +az} = a
+  E3{+bx, +by, +bz} = b
+  ex_cr(ax, ay, az, bx, by, bz)
+
+def bp_ex(+w: G.BezP, +q: V.Point) -> E.Ex:
+  G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
+  e3_dot3(e3_sub(q, p00), e3_cross(e3_sub(p03, p00), e3_sub(p30, p00)))
+
 def q_ex(s: G.GVal, +q: V.Point) -> E.Ex:
   match s:
     case G.GV_sp{w}: sph_ex(w, q)
     case G.GV_cy{w}: cyl_ex(w, q)
     case G.GV_co{w}: cone_ex(w, q)
     case G.GV_to{w}: tor_ex(w, q)
+    case G.GV_pl{w}: pl_ex(w, q)
+    case G.GV_bp{w}: bp_ex(w, q)
     case _: E.Ex{False{}, []}
 
 def q_valid(s: G.GVal) -> Bool:
@@ -1578,6 +1604,8 @@ def q_valid(s: G.GVal) -> Bool:
     case G.GV_to{w}:
       G.To{+o, +a, +R, +r} = w
       Bool.and(G.to_valid(G.To{o, a, R, r}), ax_unit_ok(a))
+    case G.GV_pl{w}: True{}
+    case G.GV_bp{w}: G.bp_fin(w)
     case _: False{}
 
 def nbs_go(z: Bool, +x: F64) -> List<&2, F64>:

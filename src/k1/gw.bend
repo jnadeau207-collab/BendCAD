@@ -552,12 +552,45 @@ def sp_ok(+r: SP) -> Bool:
 def eps_list() -> List<&2, F64>:
   [0.5f64, 0.25f64, 0.1f64, 0.03f64, 0.01f64, 0.001f64, 0.0001f64]
 
+def seg2d(+a: V.Vec2, +b: V.Vec2, +q: V.Vec2) -> F64:
+  +dx = F64.sub(V.v2_x(b), V.v2_x(a))
+  +dy = F64.sub(V.v2_y(b), V.v2_y(a))
+  +l2 = F64.add(F64.mul(dx, dx), F64.mul(dy, dy))
+  +qx = F64.sub(V.v2_x(q), V.v2_x(a))
+  +qy = F64.sub(V.v2_y(q), V.v2_y(a))
+  +t = F64.max(0.0f64, F64.min(1.0f64, F64.div(F64.add(F64.mul(qx, dx), F64.mul(qy, dy)), F64.max(l2, 1.0e-300f64))))
+  +ex = F64.sub(qx, F64.mul(t, dx))
+  +ey = F64.sub(qy, F64.mul(t, dy))
+  F64.sqrt(F64.add(F64.mul(ex, ex), F64.mul(ey, ey)))
+
+def poly_d(ps: List<&2, V.Vec2>, +prev: V.Vec2, +q: V.Vec2, +best: F64) -> F64:
+  match ps:
+    case []: best
+    case +h <> +t: poly_d(t, h, q, F64.min(best, seg2d(prev, h, q)))
+
+def poly_dq(+ps: List<&2, V.Vec2>, +q: V.Vec2) -> F64:
+  poly_d(ps, L.nth_v2(ps, 0n), q, F64.div(1.0f64, 0.0f64))
+
+def cys_d(cs: List<&2, CY>, +s: S.SF, +q: V.Vec2, +best: F64) -> F64:
+  match cs:
+    case []: best
+    case +h <> +t:
+      +p = cy_poly(h)
+      +d0 = poly_dq(p, q)
+      +sh = Bool.pick(F64, S.sf_periodic(s), S.two_pi(), 0.0f64)
+      +d1 = poly_dq(p, V.V2{F64.add(V.v2_x(q), sh), V.v2_y(q)})
+      +d2 = poly_dq(p, V.V2{F64.sub(V.v2_x(q), sh), V.v2_y(q)})
+      cys_d(t, s, q, F64.min(best, F64.min(d0, F64.min(d1, d2))))
+
 def try_eps(es: List<&2, F64>, +s: S.SF, +r: RG, +a: V.Vec2, +b: V.Vec2) -> SP:
   match es:
     case []: SP{a, False{}}
     case +h <> +t:
       +q = cand(a, b, h)
-      Bool.pick(SP, rg_inside(s, r, q), SP{q, True{}}, try_eps(t, s, r, a, b))
+      +off = F64.mul(h, F64.sqrt(F64.add(F64.mul(F64.sub(V.v2_x(b), V.v2_x(a)), F64.sub(V.v2_x(b), V.v2_x(a))),
+        F64.mul(F64.sub(V.v2_y(b), V.v2_y(a)), F64.sub(V.v2_y(b), V.v2_y(a))))))
+      +clear = F64.is_lt(F64.mul(0.25f64, off), cys_d(rg_cys(r), s, q, F64.div(1.0f64, 0.0f64)))
+      Bool.pick(SP, Bool.and(clear, rg_inside(s, r, q)), SP{q, True{}}, try_eps(t, s, r, a, b))
 
 def try_segs(ps: List<&2, V.Vec2>, +s: S.SF, +r: RG, +prev: V.Vec2) -> SP:
   match ps:

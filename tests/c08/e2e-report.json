@@ -1,6 +1,6 @@
 {
- "binary_sha256": "a21f88b5814da70ba73c725c9b9e681580c9da17eb6b26d4669fdf7ed3ba5ff6",
- "passed": 109,
+ "binary_sha256": "ea4c12344da88431c60ae05d18a80403e4c51a63e080004a68f2f225fa287fb3",
+ "passed": 113,
  "total": 114,
  "results": [
   {
@@ -17,7 +17,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.0450894832611084
+   "seconds": 0.045828819274902344
   },
   {
    "name": "disjoint.diff",
@@ -150,7 +150,7 @@
     7935.9999999925685,
     7936.0000000074315
    ],
-   "seconds": 0.19208550453186035
+   "seconds": 0.19451022148132324
   },
   {
    "name": "containment.inter",
@@ -244,7 +244,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.1414496898651123
+   "seconds": 0.1435389518737793
   },
   {
    "name": "mirror.diff",
@@ -307,7 +307,7 @@
     7999.999999992629,
     8000.000000007371
    ],
-   "seconds": 0.11046433448791504
+   "seconds": 0.10891413688659668
   },
   {
    "name": "kiss.inter",
@@ -351,10 +351,19 @@
   },
   {
    "name": "contact.face",
-   "ok": false,
-   "fx": null,
-   "volume": null,
-   "seconds": 5.839784383773804
+   "ok": true,
+   "fx": [
+    "add",
+    "0",
+    "0",
+    "1",
+    "0"
+   ],
+   "volume": [
+    1999.9999999979993,
+    2000.0000000020011
+   ],
+   "seconds": 5.866291761398315
   },
   {
    "name": "contact.edge",
@@ -388,29 +397,29 @@
   },
   {
    "name": "contact.check",
-   "ok": false,
-   "face": "error: node failed; nothing checked",
-   "edge": "error: node failed; nothing checked",
-   "vertex": "error: node failed; nothing checked"
+   "ok": true,
+   "face": "ok: embedded, shells outward, cavities nested",
+   "edge": "ok: embedded, shells outward, cavities nested",
+   "vertex": "ok: embedded, shells outward, cavities nested"
   },
   {
    "name": "contact.classify",
-   "ok": false,
+   "ok": true,
    "got": {
-    "5 5 5": "error: node failed; nothing classified",
-    "15 5 5": "error: node failed; nothing classified",
-    "10 5 15": "error: node failed; nothing classified"
+    "5 5 5": "inside",
+    "15 5 5": "inside",
+    "10 5 15": "outside"
    }
   },
   {
    "name": "contact.mesh",
    "ok": false,
-   "triangles": 0,
+   "triangles": 20,
    "watertight": true,
-   "euler": 0,
-   "mesh_volume": 0.0,
-   "rel_err": 1.0,
-   "sha256": "e316d42109c2769880fd7ce3103dbac2a21c56acf5909ad765314360507703c7"
+   "euler": 2,
+   "mesh_volume": 2000.0,
+   "rel_err": 0.0,
+   "sha256": "f0d0871e328ca1aae0dbaae6650c4f14510b15040e636309c939d9b993fcc6f1"
   },
   {
    "name": "contact.inter_empty",
@@ -429,19 +438,14 @@
   },
   {
    "name": "contact.volume_identity",
-   "ok": false,
-   "union": null,
+   "ok": true,
+   "union": [
+    1999.9999999979993,
+    2000.0000000020011
+   ],
    "inter": [
     0.0,
     0.0
-   ],
-   "a": [
-    999.9999999990786,
-    1000.0000000009214
-   ],
-   "b": [
-    999.9999999990786,
-    1000.0000000009214
    ]
   },
   {
@@ -458,7 +462,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.03087782859802246
+   "seconds": 0.031165361404418945
   },
   {
    "name": "identical.diff",
@@ -527,7 +531,7 @@
     999.9999999990786,
     1000.0000000009214
    ],
-   "seconds": 0.035384416580200195
+   "seconds": 0.03495311737060547
   },
   {
    "name": "empty.diff_empty_left",
@@ -644,7 +648,7 @@
     1509.424777959259,
     1509.42477796228
    ],
-   "seconds": 1.8612055778503418
+   "seconds": 1.8951258659362793
   },
   {
    "name": "slanted.union",
@@ -660,7 +664,7 @@
     999.9999999990735,
     1000.0000000009265
    ],
-   "seconds": 20.24496817588806
+   "seconds": 0.2974390983581543
   },
   {
    "name": "slanted.bicubic_wall_present",
@@ -696,7 +700,7 @@
     1499.999999998499,
     1500.000000001501
    ],
-   "seconds": 2.373140573501587
+   "seconds": 2.346554756164551
   },
   {
    "name": "crossing.diff",
@@ -764,7 +768,7 @@
     7967.999999992034,
     7968.000000007972
    ],
-   "seconds": 0.15044927597045898
+   "seconds": 0.1479649543762207
   },
   {
    "name": "intent.mismatch",
@@ -782,7 +786,7 @@
    "name": "sens.union",
    "ok": true,
    "d_volume": 100.0,
-   "seconds": 0.03112959861755371
+   "seconds": 0.030405759811401367
   },
   {
    "name": "rotated.union",
@@ -798,7 +802,7 @@
     1999.999999998157,
     2000.000000001843
    ],
-   "seconds": 0.05125689506530762
+   "seconds": 0.04960155487060547
   },
   {
    "name": "rotated.quarter_turn",
@@ -839,7 +843,7 @@
     63.999999999941046,
     64.00000000005902
    ],
-   "seconds": 0.4993577003479004
+   "seconds": 0.4955871105194092
   },
   {
    "name": "moved.diff_cavity",
@@ -905,7 +909,7 @@
     1039.999999998959,
     1040.000000001041
    ],
-   "seconds": 0.5264761447906494
+   "seconds": 0.5225937366485596
   },
   {
    "name": "pierce.diff",
@@ -967,7 +971,7 @@
     238.7610416726404,
     238.76104167300815
    ],
-   "seconds": 0.07603907585144043
+   "seconds": 0.11523771286010742
   },
   {
    "name": "curved.cavity",
@@ -1045,7 +1049,7 @@
     1523.598775596539,
     1523.5987756000584
    ],
-   "seconds": 0.18470072746276855
+   "seconds": 0.21715950965881348
   },
   {
    "name": "tangent.inter_empty",
@@ -1103,7 +1107,7 @@
     804.2477193189775,
     804.2477193189968
    ],
-   "seconds": 4.103527545928955
+   "seconds": 5.0943169593811035
   },
   {
    "name": "tangent_cyl.inter_empty",
@@ -1163,7 +1167,7 @@
     1935.9999999980976,
     1936.0000000019022
    ],
-   "seconds": 0.14845800399780273
+   "seconds": 0.15580153465270996
   },
   {
    "name": "chained.check",
@@ -1202,7 +1206,7 @@
    "name": "sens.step",
    "ok": true,
    "out": "estimated central difference h=0.0000286102294921875 d_volume=0 d_area=0 d_xmin=0 d_xmax=1 d_ymin=-8.881784197001252e-16",
-   "seconds": 0.032190799713134766
+   "seconds": 0.028993606567382812
   },
   {
    "name": "replay.lineage",
@@ -1217,7 +1221,7 @@
    "name": "sens.flip_refused",
    "ok": true,
    "out": "no derivative: the design fails within the step (h=0.000009536747932434082)| reused 2 of 4 nodes per step",
-   "seconds": 0.030869007110595703
+   "seconds": 0.03193402290344238
   },
   {
    "name": "sens.flip_cache",

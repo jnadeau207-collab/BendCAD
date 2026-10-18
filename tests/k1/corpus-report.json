@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": true,
   "checks": {
-   "seconds": 0.008689641952514648,
+   "seconds": 0.010008573532104492,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -32,7 +32,7 @@
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.008812427520751953,
+   "seconds": 0.008159875869750977,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -60,7 +60,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.008074522018432617,
+   "seconds": 0.008142471313476562,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -86,7 +86,7 @@
   "name": "fig8port",
   "ok": true,
   "checks": {
-   "seconds": 1.6227712631225586,
+   "seconds": 1.6031737327575684,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
@@ -120,7 +120,7 @@
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 2.5614304542541504,
+   "seconds": 2.60187029838562,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -148,7 +148,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.021343469619750977,
+   "seconds": 0.02082514762878418,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -172,7 +172,7 @@
   "name": "csink",
   "ok": true,
   "checks": {
-   "seconds": 0.013738155364990234,
+   "seconds": 0.013178586959838867,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -200,7 +200,7 @@
   "name": "sidefeat",
   "ok": true,
   "checks": {
-   "seconds": 0.006915569305419922,
+   "seconds": 0.0073702335357666016,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -228,7 +228,7 @@
   "name": "chamfer",
   "ok": false,
   "checks": {
-   "seconds": 0.012371301651000977,
+   "seconds": 0.011833429336547852,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -255,7 +255,7 @@
   "name": "edgechamfer",
   "ok": false,
   "checks": {
-   "seconds": 0.0075626373291015625,
+   "seconds": 0.0074236392974853516,
    "committed": true,
    "proof": false,
    "hand": false,
@@ -279,7 +279,7 @@
   "ok": false,
   "checks": {
    "l1": false,
-   "l3": false,
+   "l3": true,
    "l4": false
   },
   "artifacts": {}

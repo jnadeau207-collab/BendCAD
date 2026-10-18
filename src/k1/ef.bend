@@ -193,6 +193,35 @@ def bp_scan_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +u0: F64, +du: F64, +v
 def snap01(+x: F64) -> F64:
   Bool.pick(F64, F64.is_lt(F64.abs(x), 1.0e-12f64), 0.0f64, Bool.pick(F64, F64.is_lt(F64.abs(F64.sub(x, 1.0f64)), 1.0e-12f64), 1.0f64, x))
 
+def bp_pt(+w: G.BezP, +u: F64, +v: F64) -> V.Point:
+  G.gres_p(GO.bezp_eval(w, F64.max(0.0f64, F64.min(1.0f64, u)), F64.max(0.0f64, F64.min(1.0f64, v))))
+
+def bp_step(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
+  +u = V.v2_x(q)
+  +v = V.v2_y(q)
+  +h = {1.0e-6f64 : F64}
+  +uh = Bool.pick(F64, F64.is_lt(u, 0.5f64), F64.add(u, h), F64.sub(u, h))
+  +vh = Bool.pick(F64, F64.is_lt(v, 0.5f64), F64.add(v, h), F64.sub(v, h))
+  +p0 = bp_pt(w, u, v)
+  +ju = S.dscale(F64.div(1.0f64, F64.sub(uh, u)), S.psub(bp_pt(w, uh, v), p0))
+  +jv = S.dscale(F64.div(1.0f64, F64.sub(vh, v)), S.psub(bp_pt(w, u, vh), p0))
+  +r = S.psub(p, p0)
+  +a11 = S.dot(ju, ju)
+  +a12 = S.dot(ju, jv)
+  +a22 = S.dot(jv, jv)
+  +b1 = S.dot(ju, r)
+  +b2 = S.dot(jv, r)
+  +det = F64.sub(F64.mul(a11, a22), F64.mul(a12, a12))
+  +du = F64.div(F64.sub(F64.mul(b1, a22), F64.mul(b2, a12)), det)
+  +dv = F64.div(F64.sub(F64.mul(b2, a11), F64.mul(b1, a12)), det)
+  +ok = F64.is_lt(1.0e-300f64, F64.abs(det))
+  Bool.pick(V.Vec2, ok, V.V2{F64.add(u, du), F64.add(v, dv)}, q)
+
+def bp_newton(n: Nat, +w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
+  match n:
+    case 0n: q
+    case 1n+m: bp_newton(m, w, p, bp_step(w, p, q))
+
 def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
   G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
   +a = S.psub(p03, p00)
@@ -204,8 +233,11 @@ def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
   +da = S.dot(d, a)
   +db = S.dot(d, b)
   +det = F64.sub(F64.mul(aa, bb), F64.mul(ab, ab))
-  +u0 = snap01(F64.div(F64.sub(F64.mul(da, bb), F64.mul(db, ab)), det))
-  +v0 = snap01(F64.div(F64.sub(F64.mul(db, aa), F64.mul(da, ab)), det))
+  +u1 = F64.div(F64.sub(F64.mul(da, bb), F64.mul(db, ab)), det)
+  +v1 = F64.div(F64.sub(F64.mul(db, aa), F64.mul(da, ab)), det)
+  +uv = bp_newton(12n, w, p, V.V2{u1, v1})
+  +u0 = snap01(V.v2_x(uv))
+  +v0 = snap01(V.v2_y(uv))
   bp_scan_u(offs(), w, p, u0, ulp_of(F64.max(u0, 0.5f64)), v0, ulp_of(F64.max(v0, 0.5f64)))
 
 def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
@@ -221,8 +253,8 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
 
 def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
-    case G.GV_pl{w}: uv_ok(pl_uv(G.GV_pl{w}, p))
-    case G.GV_bp{w}: uv_ok(bp_uv_of(w, p))
+    case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.and(B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p)))
+    case G.GV_bp{w}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
     case _: GO.q_on_r(g, p)
 
 def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:

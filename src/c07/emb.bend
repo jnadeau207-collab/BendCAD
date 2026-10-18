@@ -1121,7 +1121,7 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
       ff_or_tr(ff_sph(cross, fa, fb, ia, ib), fa, fb, x, y, te, tol, ia, ib)
 
 def ff(+x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
-  ff_go(ff_code(SO.fd_g(fg_fd(x)), SO.fd_g(fg_fd(y))), x, y, te, ia, ib, tol, cross)
+  ff_go(ff_code(Y.flat_pl(SO.fd_g(fg_fd(x))), Y.flat_pl(SO.fd_g(fg_fd(y)))), x, y, te, ia, ib, tol, cross)
 
 def chk_ee(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tol: F64, +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
   +x = B.tb_get(Eg, te, U32.from_nat(a))

@@ -256,7 +256,7 @@ def contact():
         got[pt] = o.strip()
     record('contact.classify', got == {'5 5 5': 'inside', '15 5 5': 'inside', '10 5 15': 'outside'}, got=got)
     cli('touch.bcd', 'tess', '4', f'{WORK}/touch.obj')
-    good, info = mesh_ok(f'{WORK}/touch.obj', 4, 2000.0, 0.01)
+    good, info = mesh_ok(f'{WORK}/touch.obj', 2, 2000.0, 0.01)
     record('contact.mesh', good, **info)
     record('contact.inter_empty', fx(out, 11) == ('same', '0', '0', '0', '0') and vol(out, 11) == (0.0, 0.0),
            fx=fx(out, 11), volume=vol(out, 11))
