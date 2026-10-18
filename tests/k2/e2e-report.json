@@ -39,9 +39,9 @@
  },
  {
   "name": "thread.semantic",
-  "ok": false,
-  "out": "-input | thread | why: thread-minor-diameter-mismatch: tap6 | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n",
-  "threads": "threads node 3\n\n"
+  "ok": true,
+  "out": "000000085]x[-7.105427357601004e-14, 30.000000000000078]x[-7.105427357601004e-14, 20.000000000000078] vertices=12 edges=16 faces=10 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\n\ncommitted\n",
+  "threads": "threads node 3\nthread tap8 M8x1.25 6H z=[8, 20] length=12 internal minor=[6.647, 6.912] model=6.8 face=n2.c0.wall.0.0 status=certified\nthread tap6 M6x1 6H z=[10, 20] length=10 internal minor=[4.917, 5.153] model=5 face=n3.c0.wall.0.0 status=certified\n\n"
  },
  {
   "name": "thread.minor_mismatch",
@@ -50,8 +50,8 @@
  },
  {
   "name": "thread.step",
-  "ok": false,
-  "size": 8904
+  "ok": true,
+  "size": 9584
  },
  {
   "name": "thread.engagement",
@@ -60,8 +60,8 @@
  },
  {
   "name": "fit.iso286",
-  "ok": false,
-  "out": "fits 2\nfit run hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 clearance=[0.006999999999994343, 0.041000000000011035]\n  temp hot T=80 clearance=[0.02128482999998482, 0.05532328400001774]\n  verdict=clearance-certified status=certified\nerror invalid-input | pmi fits | why: face-not-found for fit press | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
+  "ok": true,
+  "out": "fits 2\nfit run hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 clearance=[0.006999999999994343, 0.041000000000011035]\n  temp hot T=80 clearance=[0.02128482999998482, 0.05532328400001774]\n  verdict=clearance-certified status=certified\nfit press hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 4.n4.c0.wall.0.0 p6=[20.022, 20.035] nominal=20\n  temp cold T=20 interference=[0.0009999999999905638, 0.035000000000007254]\n  temp hot T=80 interference=[0.0010014039999788336, 0.03504914000001592]\n  verdict=press-certified status=certified\n\n"
  },
  {
   "name": "fit.declared_kind_refused",
@@ -75,17 +75,17 @@
  },
  {
   "name": "mesh.tip_to_bore",
-  "ok": false,
-  "out": "gap G B gap=[0.03999999903167915, inf] traces=1/5 verdict=clearance status=certified\n"
+  "ok": true,
+  "out": "gap G B gap=[0.03999999903167915, 0.04000000024399916] traces=1/5 verdict=clearance status=certified\n"
  },
  {
   "name": "mesh.gear_to_gear",
-  "ok": false,
-  "out": "gap G H gap=[0.04999999887158472, inf] traces=1/1 verdict=clearance status=certified\n"
+  "ok": true,
+  "out": "gap G H gap=[0.04999999887158472, 0.05000000032420072] traces=1/1 verdict=clearance status=certified\n"
  },
  {
   "name": "mesh.rotating",
   "ok": true,
-  "out": "mesh G H gap=[0.04999999887158472, inf] over=pitch ratio=1 lipschitz=0 verdict=clearance status=certified\n"
+  "out": "mesh G H gap=[0.04999999887158472, 0.05000000032420072] over=pitch ratio=1 lipschitz=0 verdict=clearance status=certified\n"
  }
 ]

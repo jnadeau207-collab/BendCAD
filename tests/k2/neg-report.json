@@ -71,12 +71,12 @@
  },
  {
   "name": "gap.axes_not_parallel",
-  "ok": false,
-  "info": "gap A B gap=[19.999999999671985, inf] traces=1/1 verdict=clearance status=certified\n"
+  "ok": true,
+  "info": "error invalid-input | asm gap | why: gap-axes-not-parallel: face n2.c0.wall.0.0 is not parallel to z on B | fix: gap measures parts extruded along z; name the faces to measure against\n"
  },
  {
   "name": "gap.interference",
-  "ok": false,
-  "info": "gap A B gap=[0, inf] traces=1/1 verdict=contact status=uncertain\n"
+  "ok": true,
+  "info": "gap A B gap=[0, 0] traces=1/1 verdict=interference status=certified\n"
  }
 ]

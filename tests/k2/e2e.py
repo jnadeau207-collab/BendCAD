@@ -132,7 +132,7 @@ def fits():
                    f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 20 20 10))) {ID})',
                    f'(node 3 (cylinder 10 30) {IC})', f'(node 4 (cylinder 10 30) {IC})',
                    '(material 2 6082-T6 2700 23.4e-6)', '(material 3 16MnCr5 7850 11.5e-6)',
-                   '(material 4 16MnCr5 7850 11.5e-6)')
+                   '(material 4 6082-T6 2700 23.4e-6)')
     fs2, _ = cli('f.bcd', 'faces', '2')
     hole = next((ln.split()[0] for ln in fs2.splitlines() if ' cylinder' in ln), None)
     fs3, _ = cli('f.bcd', 'faces', '3')
