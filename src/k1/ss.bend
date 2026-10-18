@@ -656,6 +656,19 @@ def tp_axial(+sp: S.SF, +st: S.SF) -> ICS:
   +r = S.sf_r2(st)
   ics_of([sp_circ(S.padd(o, bigr, w), n, r), sp_circ(S.padd(o, F64.neg(bigr), w), n, r)])
 
+def sep_tol(+x: F64) -> F64:
+  F64.mul(1.0e-9f64, F64.add(1.0f64, F64.abs(x)))
+
+def ax_dist(+p: V.Point, +o: V.Point, +a: V.Dir) -> F64:
+  +v = S.psub(p, o)
+  F64.div(S.dlen(S.cross(v, a)), S.dlen(a))
+
+def tp_sep(+n: V.Dir, +a: V.Dir, +dl: F64, +st: S.SF) -> ICS:
+  +c = F64.div(S.dot(a, n), F64.mul(S.dlen(a), S.dlen(n)))
+  +ext = F64.add(F64.mul(S.sf_r(st), F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(c, c))))), S.sf_r2(st))
+  +d = F64.div(F64.abs(dl), S.dlen(n))
+  Bool.pick(ICS, F64.is_lt(F64.add(ext, sep_tol(ext)), d), ICS{[], 0u64}, ICS{[], why_kind()})
+
 def tp_go(+sp: S.SF, +st: S.SF) -> ICS:
   +n = S.sf_a(sp)
   +a = S.sf_a(st)
@@ -663,7 +676,19 @@ def tp_go(+sp: S.SF, +st: S.SF) -> ICS:
   +perp = is_zero_d(S.cross(a, n))
   +axial = Bool.and(F64.is_eq(S.dot(a, n), 0.0f64), F64.is_eq(dl, 0.0f64))
   Bool.pick(ICS, perp, tp_perp(st, F64.mul(dl, S.dot(a, n))),
-    Bool.pick(ICS, axial, tp_axial(sp, st), ICS{[], why_kind()}))
+    Bool.pick(ICS, axial, tp_axial(sp, st), tp_sep(n, a, dl, st)))
+
+def tcy_sep(+sc: S.SF, +st: S.SF) -> ICS:
+  +ac = S.sf_a(sc)
+  +at = S.sf_a(st)
+  +bigr = S.sf_r(st)
+  +r = S.sf_r2(st)
+  +rc = S.sf_r(sc)
+  +d = ax_dist(S.sf_o(st), S.sf_o(sc), ac)
+  +par = F64.is_le(S.dlen(S.cross(ac, at)), F64.mul(1.0e-12f64, F64.mul(S.dlen(ac), S.dlen(at))))
+  +out = F64.is_lt(F64.add(F64.add(F64.add(bigr, r), rc), sep_tol(d)), d)
+  +hole = Bool.and(par, F64.is_lt(F64.add(F64.add(F64.add(d, r), rc), sep_tol(bigr)), bigr))
+  Bool.pick(ICS, Bool.or(out, hole), ICS{[], 0u64}, ICS{[], why_kind()})
 
 def tcy_go(+sc: S.SF, +st: S.SF) -> ICS:
   +ok = coax(S.sf_o(sc), S.sf_a(sc), S.sf_o(st), S.sf_a(st))
@@ -674,7 +699,7 @@ def tcy_go(+sc: S.SF, +st: S.SF) -> ICS:
   +q = F64.mul(F64.add(r, dr), F64.sub(r, dr))
   +w = F64.sqrt(F64.max(0.0f64, q))
   +rc = S.sf_r(sc)
-  Bool.pick(ICS, Bool.not(ok), ICS{[], why_kind()},
+  Bool.pick(ICS, Bool.not(ok), tcy_sep(sc, st),
     Bool.pick(ICS, F64.is_lt(q, 0.0f64), ICS{[], 0u64},
       Bool.pick(ICS, F64.is_eq(q, 0.0f64), ics_of([tc(o, a, 0.0f64, rc)]),
         ics_of([tc(o, a, w, rc), tc(o, a, F64.neg(w), rc)]))))

@@ -1,9 +1,9 @@
 {
- "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
+ "binary_sha256": "951e0c03f4203e45794fdfd21e92f1a79c0343243858ce413619eb8c925d41d2",
  "passed": 328,
  "total": 328,
- "mean_query_s": 0.013165259506644272,
- "max_query_s": 0.24263739585876465,
+ "mean_query_s": 0.013342220608781024,
+ "max_query_s": 0.2454817295074463,
  "results": [
   {
    "name": "cs.0.line-plane",
@@ -869,7 +869,7 @@
    "name": "near.circle-sphere",
    "ok": true,
    "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "secs": 0.00299072265625,
+   "secs": 0.002791881561279297,
    "roots": 0
   },
   {
@@ -1876,7 +1876,7 @@
    "name": "ss.tangent.sphere-plane",
    "ok": true,
    "curves": 0,
-   "unresolved": 4
+   "unresolved": 1
   },
   {
    "name": "ss.tangent.spheres",

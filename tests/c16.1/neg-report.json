@@ -1,5 +1,5 @@
 {
- "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
+ "binary_sha256": "2cbfaaa17f8ca9ab4f415a31ce1a1c97f9541c4ce8998b6387e14ece9f37d09e",
  "passed": 25,
  "total": 25,
  "results": [
@@ -86,7 +86,7 @@
   {
    "name": "bend.third",
    "ok": true,
-   "seconds": 0.05,
+   "seconds": 0.04,
    "detail": [
     "unsupported-op",
     "bend-edge-not-admitted",

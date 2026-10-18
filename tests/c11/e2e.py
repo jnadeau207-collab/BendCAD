@@ -273,7 +273,7 @@ def sect_sphere():
         xm, ym = (xi[0] + xi[1]) / 2, (yi[0] + yi[1]) / 2
         if contains(zi, 0.0) and abs(xm * xm + ym * ym - 100.0) < 2.0:
             good += 1
-    ok = (s is not None and s['curves'] == 8 and s['unres'] == 8 and s['st'] == 'estimated'
+    ok = (s is not None and s['curves'] >= 1 and s['unres'] == 0 and s['st'] == 'certified'
           and len(pts) > 0 and good == len(pts) and dt < 60)
     record('section.sphere_circle', ok, summary=s, samples=len(pts), on_circle=good,
            seconds=round(dt, 1))

@@ -1,5 +1,5 @@
 {
- "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
+ "binary_sha256": "cc717fde915b89bf80ae88fb6b898a0bc08f2b681597852d434574bcbbbc09e7",
  "passed": 33,
  "total": 33,
  "results": [
@@ -98,7 +98,7 @@
      41278.703545005876
     ]
    ],
-   "seconds": 0.57
+   "seconds": 0.59
   },
   {
    "name": "mass.depths",
@@ -110,8 +110,8 @@
    },
    "seconds": {
     "2": 0.02,
-    "3": 0.09,
-    "4": 0.59
+    "3": 0.08,
+    "4": 0.72
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 36.0
+   "seconds": 37.3
   },
   {
    "name": "mass.moved_invariance",
@@ -234,7 +234,7 @@
      132.75000000019205
     ]
    ],
-   "seconds": 2.2
+   "seconds": 2.3
   },
   {
    "name": "mass.sphere",
@@ -257,7 +257,7 @@
      6.397058823529622
     ]
    ],
-   "seconds": 0.8
+   "seconds": 0.7
   },
   {
    "name": "section.cyl_circle",
@@ -279,15 +279,15 @@
    "ok": true,
    "summary": {
     "faces": 2,
-    "curves": 8,
-    "unres": 8,
+    "curves": 2,
+    "unres": 0,
     "coin": 0,
-    "st": "estimated",
+    "st": "certified",
     "mapped": false
    },
-   "samples": 74,
-   "on_circle": 74,
-   "seconds": 0.1
+   "samples": 512,
+   "on_circle": 512,
+   "seconds": 0.0
   },
   {
    "name": "section.box_estimated",
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 170.4
+   "seconds": 160.9
   },
   {
    "name": "section.mapped",
@@ -313,7 +313,7 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 179.2
+   "seconds": 185.8
   },
   {
    "name": "section.coin",
@@ -350,7 +350,7 @@
    "name": "interf.aabb_trap",
    "ok": true,
    "line": "relation disjoint status=certified",
-   "seconds": 14.9
+   "seconds": 15.1
   },
   {
    "name": "interf.cavity",
@@ -359,7 +359,7 @@
    "cavities": [
     "cavity 1 inside 0 status=certified"
    ],
-   "seconds": 2.4
+   "seconds": 2.3
   },
   {
    "name": "clearance.disjoint",

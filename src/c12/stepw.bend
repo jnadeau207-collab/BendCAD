@@ -328,9 +328,77 @@ def sw_rq_go(+w: Bool, +a: BL.ES, +b: BL.ES, +c: BL.ES, +d: BL.NS, +e: BL.NS, +f
           BL.ns_s(e) ++ "," ++ BL.ns_s(f) ++ "))REPRESENTATION_ITEM(''))"),
         Nat.add(ctr, 4n), [Nat.add(ctr, 3n)])
 
+def sw_lp(+p: V.Point, +q: V.Point, +t: F64) -> V.Point:
+  +x = F64.add(V.pt_x(p), F64.mul(t, F64.sub(V.pt_x(q), V.pt_x(p))))
+  +y = F64.add(V.pt_y(p), F64.mul(t, F64.sub(V.pt_y(q), V.pt_y(p))))
+  +z = F64.add(V.pt_z(p), F64.mul(t, F64.sub(V.pt_z(q), V.pt_z(p))))
+  V.Pt{x, y, z}
+
+def sw_sc(+p: V.Point, +s: F64) -> V.Point:
+  +x = F64.mul(V.pt_x(p), s)
+  +y = F64.mul(V.pt_y(p), s)
+  +z = F64.mul(V.pt_z(p), s)
+  V.Pt{x, y, z}
+
+def sw_fl(+a: F64, +b: F64, +t: F64) -> F64:
+  F64.add(a, F64.mul(t, F64.sub(b, a)))
+
+def sw_bl2(+a: V.Point, +b: V.Point, +c: V.Point, +t1: F64, +t2: F64) -> V.Point:
+  sw_lp(sw_lp(a, b, t1), sw_lp(b, c, t1), t2)
+
+def sw_wl2(+a: F64, +b: F64, +c: F64, +t1: F64, +t2: F64) -> F64:
+  sw_fl(sw_fl(a, b, t1), sw_fl(b, c, t1), t2)
+
+def sw_rq_pt(+h0: V.Point, +h1: V.Point, +h2: V.Point, +w: F64, +t1: F64, +t2: F64) -> V.Point:
+  sw_sc(sw_bl2(h0, h1, h2, t1, t2), F64.div(1.0f64, w))
+
+def sw_rq_sub(+rq: G.RQBez, +lo: F64, +hi: F64) -> G.RQBez:
+  G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = rq
+  +h0 = sw_sc(p0, w0)
+  +h1 = sw_sc(p1, w1)
+  +h2 = sw_sc(p2, w2)
+  +a = sw_wl2(w0, w1, w2, lo, lo)
+  +b = sw_wl2(w0, w1, w2, lo, hi)
+  +c = sw_wl2(w0, w1, w2, hi, hi)
+  +q0 = sw_rq_pt(h0, h1, h2, a, lo, lo)
+  +q1 = sw_rq_pt(h0, h1, h2, b, lo, hi)
+  +q2 = sw_rq_pt(h0, h1, h2, c, hi, hi)
+  G.Rq{q0, q1, q2, a, b, c}
+
+def sw_rq_d(+unit: Bool, +rq: G.RQBez, +lo: F64, +hi: F64) -> G.RQBez:
+  match unit:
+    case True{}: rq
+    case False{}: sw_rq_sub(rq, lo, hi)
+
+def sw_bl3(+bz: G.Bez3, +t1: F64, +t2: F64, +t3: F64) -> V.Point:
+  G.Bz{+p0, +p1, +p2, +p3} = bz
+  +a = sw_lp(p0, p1, t1)
+  +b = sw_lp(p1, p2, t1)
+  +c = sw_lp(p2, p3, t1)
+  sw_lp(sw_lp(a, b, t2), sw_lp(b, c, t2), t3)
+
+def sw_bz_sub(+bz: G.Bez3, +lo: F64, +hi: F64) -> G.Bez3:
+  +q0 = sw_bl3(bz, lo, lo, lo)
+  +q1 = sw_bl3(bz, lo, lo, hi)
+  +q2 = sw_bl3(bz, lo, hi, hi)
+  +q3 = sw_bl3(bz, hi, hi, hi)
+  G.Bz{q0, q1, q2, q3}
+
+def sw_bz_d(+unit: Bool, +bz: G.Bez3, +lo: F64, +hi: F64) -> G.Bez3:
+  match unit:
+    case True{}: bz
+    case False{}: sw_bz_sub(bz, lo, hi)
+
+def sw_unit(+lo: F64, +hi: F64) -> Bool:
+  Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64))
+
+def sw_rq_pos(+rq: G.RQBez) -> Bool:
+  Bool.and(F64.is_lt(0.0f64, G.rq_w0(rq)), Bool.and(F64.is_lt(0.0f64, G.rq_w1(rq)),
+    F64.is_lt(0.0f64, G.rq_w2(rq))))
+
 def sw_rq_t(+w: Bool, +rq: G.RQBez, +pl: M.Pl, +ctr: Nat) -> ER2:
   match w:
-    case False{}: er2_fail("step-bspline-dom-not-unit", Nat.add(ctr, 4n))
+    case False{}: er2_fail("step-bspline-dom-invalid", Nat.add(ctr, 4n))
     case True{}:
       G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = rq
       +a = sw_pt(TS.pl_pt(p0, pl))
@@ -342,8 +410,11 @@ def sw_rq_t(+w: Bool, +rq: G.RQBez, +pl: M.Pl, +ctr: Nat) -> ER2:
       sw_rq_go(Bool.and(BL.es_ok_of(a), Bool.and(BL.es_ok_of(b), Bool.and(BL.es_ok_of(c),
         Bool.and(BL.ns_ok(d), Bool.and(BL.ns_ok(e), BL.ns_ok(f)))))), a, b, c, d, e, f, ctr)
 
+def sw_rq_w(+q: G.RQBez, +lo: F64, +hi: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
+  sw_rq_t(Bool.and(F64.is_lt(lo, hi), sw_rq_pos(q)), q, pl, ctr)
+
 def sw_rq(+w: G.RQBez, +lo: F64, +hi: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
-  sw_rq_t(Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64)), w, pl, ctr)
+  sw_rq_w(sw_rq_d(sw_unit(lo, hi), w, lo, hi), lo, hi, pl, ctr)
 
 def sw_why_bz(+a: BL.ES, +b: BL.ES, +c: BL.ES, +d: BL.ES) -> String:
   sw_why_pick3(BL.es_ok_of(a), Bool.and(BL.es_ok_of(b), BL.es_ok_of(c)), sw_ns(a), sw_ns_bc(b, c),
@@ -364,7 +435,7 @@ def sw_bz_go(+w: Bool, +a: BL.ES, +b: BL.ES, +c: BL.ES, +d: BL.ES, +ctr: Nat) ->
 
 def sw_bz_t(+w: Bool, +bz: G.Bez3, +pl: M.Pl, +ctr: Nat) -> ER2:
   match w:
-    case False{}: er2_fail("step-bspline-dom-not-unit", Nat.add(ctr, 5n))
+    case False{}: er2_fail("step-bspline-dom-invalid", Nat.add(ctr, 5n))
     case True{}:
       G.Bz{+p0, +p1, +p2, +p3} = bz
       +a = sw_pt(TS.pl_pt(p0, pl))
@@ -375,7 +446,7 @@ def sw_bz_t(+w: Bool, +bz: G.Bez3, +pl: M.Pl, +ctr: Nat) -> ER2:
         BL.es_ok_of(d)))), a, b, c, d, ctr)
 
 def sw_bz(+w: G.Bez3, +lo: F64, +hi: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
-  sw_bz_t(Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64)), w, pl, ctr)
+  sw_bz_t(F64.is_lt(lo, hi), sw_bz_d(sw_unit(lo, hi), w, lo, hi), pl, ctr)
 
 def sw_curve_cv(+curve: G.GVal, +lo: F64, +hi: F64, +i0: Nat, +i1: Nat, +pl: M.Pl, +vbase: Nat,
     +ctr: Nat) -> ER2:

@@ -369,13 +369,20 @@ def pair_hits(hs: List<&2, HX>, +esa: List<&2, Nat>, +fa: Nat, +esb: List<&2, Na
 def no_face() -> Nat:
   4294967295n
 
+def cop_bnd(+n: Bool, +b: Ty.Brep, +g: G.GVal, +p: V.Point) -> Bool:
+  match n:
+    case False{}: False{}
+    case True{}: any_coplanar(L.nat_range(FB.nfaces(b)), b, g, p)
+
 def run_side(+ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +p: V.Point) -> U64:
   +na = FB.bnd_near(ba, fa, p)
   +nb = FB.bnd_near(bb, fb, p)
-  +ia = Bool.or(FB.pt_in_face(ba, fa, p), na)
-  +ib = Bool.or(FB.pt_in_face(bb, fb, p), nb)
+  +ca = cop_bnd(na, ba, FB.face_surf(bb, fb), p)
+  +cb = cop_bnd(nb, bb, FB.face_surf(ba, fa), p)
+  +ia = Bool.or(FB.pt_in_face(ba, fa, p), Bool.and(na, Bool.not(ca)))
+  +ib = Bool.or(FB.pt_in_face(bb, fb, p), Bool.and(nb, Bool.not(cb)))
   Bool.pick(U64, Bool.not(Bool.and(ia, ib)), 0u64,
-    Bool.pick(U64, Bool.and(na, nb), 0u64, Bool.pick(U64, na, 2u64, Bool.pick(U64, nb, 3u64, 1u64))))
+    Bool.pick(U64, Bool.and(na, nb), 0u64, Bool.pick(U64, na, Bool.pick(U64, ca, 0u64, 2u64), Bool.pick(U64, nb, Bool.pick(U64, cb, 0u64, 3u64), 1u64))))
 
 def ch_mask(+c: CH, +sd: U64) -> CH:
   CH{+fa, +fb, +ss, +ps, +cl, +dv} = c
