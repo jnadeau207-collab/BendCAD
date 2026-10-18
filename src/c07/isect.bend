@@ -348,10 +348,35 @@ def ss_sel(co: Bool, +k: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> S
     case True{}: empty_ss()
     case False{}: ss_route(k, g1, g2, bx)
 
+def pd(+a: V.Point, +b: V.Point) -> V.Dir:
+  V.Dr{F64.sub(V.pt_x(b), V.pt_x(a)), F64.sub(V.pt_y(b), V.pt_y(a)), F64.sub(V.pt_z(b), V.pt_z(a))}
+
+def ddot(+a: V.Dir, +b: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(V.dr_x(a), V.dr_x(b)), F64.mul(V.dr_y(a), V.dr_y(b))), F64.mul(V.dr_z(a), V.dr_z(b)))
+
+def dcr(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.sub(F64.mul(V.dr_y(a), V.dr_z(b)), F64.mul(V.dr_z(a), V.dr_y(b))),
+    F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
+    F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
+
+def flat_pl(g: G.GVal) -> G.GVal:
+  match g:
+    case G.GV_bp{w}:
+      G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, +p33} = w
+      +u = pd(p00, p03)
+      +v = pd(p00, p30)
+      +n = dcr(u, v)
+      +off = F64.abs(ddot(pd(p00, p33), n))
+      +scale = F64.add(1.0f64, ddot(n, n))
+      Bool.pick(G.GVal, F64.is_lt(off, F64.mul(1.0e-12f64, scale)), G.GV_pl{G.Pl{p00, u, v}}, G.GV_bp{w})
+    case _: g
+
 def inter_ss(+g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> Sr:
-  +k = ss_kind(g1, g2)
-  +co = coin_of(k, g1, g2)
-  Sr{ss_sel(co, k, g1, g2, bx), k, co}
+  +h1 = flat_pl(g1)
+  +h2 = flat_pl(g2)
+  +k = ss_kind(h1, h2)
+  +co = coin_of(k, h1, h2)
+  Sr{ss_sel(co, k, h1, h2, bx), k, co}
 
 def sample3(+k: U64, +g1: G.GVal, +g2: G.GVal, +x: List<&2, I.I>) -> List<&2, I.I>:
   Bool.pick(List<&2, I.I>, U64.is_eq(k, 0u64), x,

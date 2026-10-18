@@ -151,9 +151,14 @@ def pp_line(+s1: S.SF, +s2: S.SF) -> IC:
     Bool.pick(F64, F64.is_eq(S.dy(d), 0.0f64), F64.add(F64.mul(S.dy(n1), c1), F64.mul(S.dy(n2), c2)), 0.0f64),
     Bool.pick(F64, F64.is_eq(S.dz(d), 0.0f64), F64.add(F64.mul(S.dz(n1), c1), F64.mul(S.dz(n2), c2)), 0.0f64))
   +ok = Bool.and(axis_aligned(n1), axis_aligned(n2))
-  Bool.pick(IC, Bool.not(ok), refuse_ic(why_nonaxis()),
-    Bool.pick(IC, is_zero_d(d), Bool.pick(IC, same, IC{ic_coinc(), gnone(), False{}, [], 0u64}, none_ic()),
-      IC{ic_line(), G.GV_ln{G.Ln{p0, d}}, False{}, [], 0u64}))
+  +n12 = S.dot(n1, n2)
+  +n11 = S.dot(n1, n1)
+  +n22 = S.dot(n2, n2)
+  +dd = S.dot(d, d)
+  +g = S.padd(S.padd(S.pt(0.0f64, 0.0f64, 0.0f64), F64.div(F64.sub(F64.mul(c1, n22), F64.mul(c2, n12)), dd), n1),
+    F64.div(F64.sub(F64.mul(c2, n11), F64.mul(c1, n12)), dd), n2)
+  Bool.pick(IC, is_zero_d(d), Bool.pick(IC, same, IC{ic_coinc(), gnone(), False{}, [], 0u64}, none_ic()),
+    IC{ic_line(), G.GV_ln{G.Ln{Bool.pick(V.Point, ok, p0, g), d}}, False{}, [], 0u64})
 
 def ell_pt(+sp: S.SF, +sc: S.SF, +th: F64) -> V.Point:
   +n = S.sf_a(sp)
@@ -189,11 +194,10 @@ def pc_code(+sp: S.SF, +sc: S.SF) -> U64:
   +n = S.sf_a(sp)
   +a = S.sf_a(sc)
   +q = pc_q(sp, sc)
-  Bool.pick(U64, Bool.not(axis_aligned(n)), 0u64,
-    Bool.pick(U64, is_zero_d(S.cross(a, n)), 1u64,
+  Bool.pick(U64, is_zero_d(S.cross(a, n)), 1u64,
       Bool.pick(U64, F64.is_eq(S.dot(a, n), 0.0f64),
         Bool.pick(U64, F64.is_lt(0.0f64, q), 2u64, Bool.pick(U64, F64.is_eq(q, 0.0f64), 3u64, 4u64)),
-        5u64)))
+        5u64))
 
 def pc_circle(+sp: S.SF, +sc: S.SF) -> IC:
   +o = S.sf_o(sc)
@@ -256,11 +260,10 @@ def pk_code(+sp: S.SF, +sk: S.SF) -> U64:
   +ne2 = S.dot(n, S.sf_e2(sk))
   +sw = F64.mul(S.sf_r(sk), F64.sqrt(F64.add(F64.mul(ne1, ne1), F64.mul(ne2, ne2))))
   +side = F64.mul(num, c)
-  Bool.pick(U64, Bool.not(axis_aligned(n)), 0u64,
-    Bool.pick(U64, F64.is_eq(num, 0.0f64), 3u64,
+  Bool.pick(U64, F64.is_eq(num, 0.0f64), 3u64,
       Bool.pick(U64, F64.is_le(F64.abs(c), sw), 5u64,
         Bool.pick(U64, F64.is_lt(side, 0.0f64), 4u64,
-          Bool.pick(U64, is_zero_d(S.cross(n, S.sf_a(sk))), 1u64, 2u64)))))
+          Bool.pick(U64, is_zero_d(S.cross(n, S.sf_a(sk))), 1u64, 2u64))))
 
 def pk_disp(+code: U64, +sp: S.SF, +sk: S.SF, +gp: G.GVal, +gk: G.GVal) -> IC:
   match code:

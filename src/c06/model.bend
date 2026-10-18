@@ -1617,6 +1617,23 @@ def op_feat_nm(+kind: U64, +b: Body, +nm: String, +rs: List<&2, F.Region>, +amt:
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
   feat_nm_go(code, kind, b, nm, fr, rs, lo, hi, e, nd, np)
 
+type FI is Data:
+  FI{ planar: Bool, fr: FR }
+
+def fi_planar(+x: FI) -> Bool:
+  FI{planar, fr} = x
+  planar
+
+def fi_fr(+x: FI) -> FR:
+  FI{planar, fr} = x
+  fr
+
+def face_fi(+f: Ty.Face) -> FI:
+  FI{fa_planar(f), frame_of(f)}
+
+def fi_at(+br: Ty.Brep, +i: Nat) -> FI:
+  face_fi(fa_nth(Ty.brep_fas(br), i))
+
 def tri_rg(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64, +cy: F64) -> F.Region:
   path_rg(xk(ax), xk(ay), [F.S_line{xk(bx), xk(by)}, F.S_line{xk(cx), xk(cy)}])
 
@@ -1679,20 +1696,19 @@ def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +e:
   +fi = name_idx(fns, nm, 0n)
   +nf = List.length(&2, BD.Fn, fns)
   +np = name_pieces(fns, nm, 0n)
-  +fa = fa_nth(Ty.brep_fas(bd_brep(b)), fi)
+  +inf = fi_at(bd_brep(b), fi)
   +x = X.xp_ev(xx, e)
   +y = X.xp_ev(yy, e)
   +r = X.xp_ev(rr, e)
   +c = X.xp_ev(cc, e)
-  +fr = fr_at(frame_of(fa), x, y)
-  +probe = fr_pt(fr_at(frame_of(fa), F64.add(x, F64.add(r, F64.mul(0.5f64, c))), y))
+  +fr = fr_at(fi_fr(inf), x, y)
+  +probe = fr_pt(fr_at(fi_fr(inf), F64.add(x, F64.add(r, F64.mul(0.5f64, c))), y))
   +hole = on_face(bd_brep(b), fi, probe)
   +cok = Bool.and(Bool.and(T.is_finite(c), F64.is_lt(0.0f64, c)), Bool.and(T.is_finite(r), F64.is_lt(c, r)))
   +code = Bool.pick(U64, Nat.is_lt(fi, nf),
-    Bool.pick(U64, fa_planar(fa), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
+    Bool.pick(U64, fi_planar(inf), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
   ech_go(code, b, nm, fr, hole, r, c, e, nd, np)
-
 def nat_has(xs: List<&2, Nat>, +x: Nat) -> Bool:
   match xs:
     case []: False{}
@@ -1742,16 +1758,15 @@ def op_lchamf(+b: Body, +n1: String, +n2: String, +cc: X.Xp, +e: X.Env, +nd: U64
   +nf = List.length(&2, BD.Fn, fns)
   +f1 = name_idx(fns, n1, 0n)
   +f2 = name_idx(fns, n2, 0n)
-  +fa1 = fa_nth(Ty.brep_fas(br), f1)
-  +fa2 = fa_nth(Ty.brep_fas(br), f2)
-  +a = fr_n(frame_of(fa1))
-  +bn = fr_n(frame_of(fa2))
+  +i1 = fi_at(br, f1)
+  +i2 = fi_at(br, f2)
+  +a = fr_n(fi_fr(i1))
+  +bn = fr_n(fi_fr(i2))
   +d = dcross(a, bn)
   +ne = FB.nedges(br)
   +ei = shared_go(ne, 0n, br, f1, f2)
-  +ed = FB.edge_at(br, ei)
-  +p0 = FB.vpt(br, Ty.ed_v0(ed))
-  +p1 = FB.vpt(br, Ty.ed_v1(ed))
+  +p0 = FB.vpt(br, Ty.ed_v0(FB.edge_at(br, ei)))
+  +p1 = FB.vpt(br, Ty.ed_v1(FB.edge_at(br, ei)))
   +t = pdot(p0, p1, d)
   +o = Bool.pick(V.Point, F64.is_lt(0.0f64, t), p0, p1)
   +len = F64.abs(t)
@@ -1759,14 +1774,13 @@ def op_lchamf(+b: Body, +n1: String, +n2: String, +cc: X.Xp, +e: X.Env, +nd: U64
   +fr = {FR{True{}, o, dneg(a), dneg(bn), d} : FR}
   +probe = pmove(pmove(pmove(o, F64.mul(0.5f64, len), d), F64.neg(F64.mul(0.25f64, c)), a), F64.neg(F64.mul(0.25f64, c)), bn)
   +convex = U64.is_eq(SO.classify(SO.fds_of(br), probe), 1u64)
-  +axok = Bool.and(fr_ok(frame_of(fa1)), Bool.and(fr_ok(frame_of(fa2)), dir_ax(d)))
+  +axok = Bool.and(fr_ok(fi_fr(i1)), Bool.and(fr_ok(fi_fr(i2)), dir_ax(d)))
   +cok = Bool.and(T.is_finite(c), F64.is_lt(0.0f64, c))
   +code = Bool.pick(U64, Bool.and(Nat.is_lt(f1, nf), Nat.is_lt(f2, nf)),
-    Bool.pick(U64, Bool.and(fa_planar(fa1), fa_planar(fa2)),
+    Bool.pick(U64, Bool.and(fi_planar(i1), fi_planar(i2)),
       Bool.pick(U64, Nat.is_lt(ei, ne), Bool.pick(U64, axok, Bool.pick(U64, convex, Bool.pick(U64, cok, 0u64, 5u64), 3u64), 4u64), 2u64), 2u64),
     1u64)
   lch_go(code, b, n1, n2, fr, c, len, e, nd)
-
 def op_feat_cell(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
   Sel{+snd, +sk, +side, nm} = s
   +cs = bd_cells(b)

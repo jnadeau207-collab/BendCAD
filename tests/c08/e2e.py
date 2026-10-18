@@ -231,7 +231,7 @@ def contact():
                     '(node 1 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 2 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 3 (move 2 10 0 0 0) (intent same 0 0 1 0))',
-                    '(node 4 (union 1 3) (intent add 0 0 2 0))',
+                    '(node 4 (union 1 3) (intent add 0 0 1 0))',
                     '(node 5 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 6 (move 5 10 10 0 0) (intent same 0 0 1 0))',
                     '(node 7 (union 1 6) (intent add 0 0 2 0))',

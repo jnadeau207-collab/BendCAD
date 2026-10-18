@@ -170,6 +170,44 @@ def pl_scan_u(us: List<&2, F64>, +o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Poin
       +r = pl_scan_v(offs(), o, e1, e2, p, F64.add(u0, F64.mul(h, du)), v0, dv)
       Bool.pick(UV, uv_ok(r), r, pl_scan_u(t, o, e1, e2, p, u0, du, v0, dv))
 
+def bp_hit(+w: G.BezP, +p: V.Point, +u: F64, +v: F64) -> Bool:
+  +r = GO.bezp_eval(w, u, v)
+  +q = G.gres_p(r)
+  Bool.and(G.gres_ok(r), Bool.and(F64.is_eq(V.pt_x(q), V.pt_x(p)),
+    Bool.and(F64.is_eq(V.pt_y(q), V.pt_y(p)), F64.is_eq(V.pt_z(q), V.pt_z(p)))))
+
+def bp_scan_v(vs: List<&2, F64>, +w: G.BezP, +p: V.Point, +u: F64, +v0: F64, +dv: F64) -> UV:
+  match vs:
+    case []: UV{False{}, u, v0}
+    case +h <> +t:
+      +v = F64.max(0.0f64, F64.min(1.0f64, F64.add(v0, F64.mul(h, dv))))
+      Bool.pick(UV, bp_hit(w, p, u, v), UV{True{}, u, v}, bp_scan_v(t, w, p, u, v0, dv))
+
+def bp_scan_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +u0: F64, +du: F64, +v0: F64, +dv: F64) -> UV:
+  match us:
+    case []: UV{False{}, u0, v0}
+    case +h <> +t:
+      +r = bp_scan_v(offs(), w, p, F64.max(0.0f64, F64.min(1.0f64, F64.add(u0, F64.mul(h, du)))), v0, dv)
+      Bool.pick(UV, uv_ok(r), r, bp_scan_u(t, w, p, u0, du, v0, dv))
+
+def snap01(+x: F64) -> F64:
+  Bool.pick(F64, F64.is_lt(F64.abs(x), 1.0e-12f64), 0.0f64, Bool.pick(F64, F64.is_lt(F64.abs(F64.sub(x, 1.0f64)), 1.0e-12f64), 1.0f64, x))
+
+def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
+  G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
+  +a = S.psub(p03, p00)
+  +b = S.psub(p30, p00)
+  +d = S.psub(p, p00)
+  +aa = S.dot(a, a)
+  +ab = S.dot(a, b)
+  +bb = S.dot(b, b)
+  +da = S.dot(d, a)
+  +db = S.dot(d, b)
+  +det = F64.sub(F64.mul(aa, bb), F64.mul(ab, ab))
+  +u0 = snap01(F64.div(F64.sub(F64.mul(da, bb), F64.mul(db, ab)), det))
+  +v0 = snap01(F64.div(F64.sub(F64.mul(db, aa), F64.mul(da, ab)), det))
+  bp_scan_u(offs(), w, p, u0, ulp_of(F64.max(u0, 0.5f64)), v0, ulp_of(F64.max(v0, 0.5f64)))
+
 def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
   match g:
     case G.GV_pl{w}:
@@ -178,11 +216,13 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
       +u0 = S.dot(d, e1)
       +v0 = S.dot(d, e2)
       pl_scan_u(offs(), o, e1, e2, p, u0, ulp_of(u0), v0, ulp_of(v0))
+    case G.GV_bp{w}: bp_uv_of(w, p)
     case _: UV{False{}, 0.0f64, 0.0f64}
 
 def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
     case G.GV_pl{w}: uv_ok(pl_uv(G.GV_pl{w}, p))
+    case G.GV_bp{w}: uv_ok(bp_uv_of(w, p))
     case _: GO.q_on_r(g, p)
 
 def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:

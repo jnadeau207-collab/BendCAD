@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": true,
   "checks": {
-   "seconds": 0.008742570877075195,
+   "seconds": 0.008689641952514648,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -24,15 +24,15 @@
   },
   "artifacts": {
    "be.bcd": "02207c72eb81e61419bb91b33503cf60193f007a0cfe8370ccf008adc4a37473",
-   "be.stp": "4eb9de22ad555ee3c80cf20ef6e3a4423a0a4e085f9a56e1e2a40450ad44fcce",
-   "be.bin": "d3b86566c1d56bb9b900852ef8c00e7a19b6a9acae1bbd2066188814c8b5788e"
+   "be.stp": "1c88385cf59c75267879cea61572abb89b3c6f037ec41c2b20bf786f5bba3a73",
+   "be.bin": "47710c57af40bcb9e9cfaeca4a0c963722f053a0b1329e41aca378e0b9db54b8"
   }
  },
  {
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.008011579513549805,
+   "seconds": 0.008812427520751953,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -52,15 +52,15 @@
   },
   "artifacts": {
    "bu.bcd": "93e6e1e9b3101cd175c5ebc0f000b56c95c29aeac484109901dc1a4b3b3ddfde",
-   "bu.stp": "e122adade3ef0fb75ee2e40339526329c042b2ca72ee6e6b6dd73a78034595cc",
-   "bu.bin": "5eb888bf680e6af93ca7501039f328277ece614f7075c154c75d5c070bd800fa"
+   "bu.stp": "a1c5922873a9b11fe385398d637d39c11fa54afc81640b5bd4f80c82214dfdaa",
+   "bu.bin": "4a4cbc3f017365f0d61e2ef1c2cc1c1fdcb2373326577ff0fdc1123f846ead8a"
   }
  },
  {
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.008355379104614258,
+   "seconds": 0.008074522018432617,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -78,15 +78,15 @@
   },
   "artifacts": {
    "oa.bcd": "75c20815ecaa0fc585fa1f3c26314d97beb2294fb5543f2a7b71338503434a96",
-   "oa.stp": "2f45bae7945c304682a4de2e5c9eefd9f26672ea3c4856b9c20da394cae64ea3",
-   "oa.bin": "5ee2054df0daa4252a9053f667e6a75451fde6d509295baa83847318206bfcc2"
+   "oa.stp": "5e17a1edeba62e36b137e562187cb33be51a4b6747dd6eab9dfedbd25d752faa",
+   "oa.bin": "18903f34beb61a790b3d5a8a0fdb5b1e15419ff3171dbc53be11c598880ccd8a"
   }
  },
  {
   "name": "fig8port",
   "ok": true,
   "checks": {
-   "seconds": 1.61362886428833,
+   "seconds": 1.6227712631225586,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
@@ -112,15 +112,15 @@
   },
   "artifacts": {
    "fp.bcd": "b36f718d1e6efdda98d0981e9f4baed281ac374731718800d27d496120706a64",
-   "fp.stp": "1d0ea64153934af50950ee940cd3becd2070704ad037a637dfcda7c10c4093cc",
-   "fp.bin": "75582f603decc8fb074a3df260a5eb56603b69592ce5f52bac272a6508d2ec0e"
+   "fp.stp": "f22cc51166e144e70934fa4a1b1db76dbe9496ef83fa1e61af059269e2104884",
+   "fp.bin": "6fb329260435034fe36e600a764fa38214481f754a292a17b4a27aaac874cc32"
   }
  },
  {
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 2.5909323692321777,
+   "seconds": 2.5614304542541504,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -140,15 +140,15 @@
   },
   "artifacts": {
    "cb.bcd": "6ad68af4fa04c2802f73d5828f104125df7adeac4776a82d593e01a4ac31b8aa",
-   "cb.stp": "cb7e867ec2c26d96b4d367f5c9758be9bb7f04ee79773140dcb75ae5d866f4c6",
-   "cb.bin": "429b7a9f60e6494062d01a0ac83be5db850c34ca67ab98766a7e1768a143415d"
+   "cb.stp": "334e25b363ec66e14ec942def4278c872b724dfa2586b28bb1e00b32a4df97e5",
+   "cb.bin": "9f3daa49e83f11fda30fb824be3cd9b5af3c5db08fe50acf802c9f2b7ec06a6e"
   }
  },
  {
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.021474361419677734,
+   "seconds": 0.021343469619750977,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -172,7 +172,7 @@
   "name": "csink",
   "ok": true,
   "checks": {
-   "seconds": 0.0133056640625,
+   "seconds": 0.013738155364990234,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -192,15 +192,15 @@
   },
   "artifacts": {
    "cs.bcd": "ab2e503119daf5dde79e149924851385a102beec29c2abaa7d916cd2b7b60458",
-   "cs.stp": "58c50018855777b0d4fe85eca876c4e2528244e6cd12c631ad8ade93871db53e",
-   "cs.bin": "c29fa2a585ee13312463f58f4fd6a64f15525744fddbf94fc5e499eec139bb6c"
+   "cs.stp": "3b7b39dc21f254b81de09fec3417c17440ad45cec6033aafa74b012d51661bd6",
+   "cs.bin": "aeab29bd4b1b80c03d426c0b98044c917ba9bdf890b8679bec94254063126e05"
   }
  },
  {
   "name": "sidefeat",
   "ok": true,
   "checks": {
-   "seconds": 0.0076100826263427734,
+   "seconds": 0.006915569305419922,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -220,15 +220,42 @@
   },
   "artifacts": {
    "sf.bcd": "bd06655bcca009976503620a9ff3d0ba8485d414d6d842de8a01f4e4be699d57",
-   "sf.stp": "4e4138851cff443f528d00a5870b4c3245c902afb8eb3d425e62b97ad1f22fe3",
-   "sf.bin": "b170d4eef72f98dee57f637dffd4f0d70c8b62d327751e70b39f6eef79413606"
+   "sf.stp": "2fdeadccfd51dd291e70a4bcac21a5b3c6ad62e2c1d8b138933004513a0efc19",
+   "sf.bin": "e255c81b480c031076658eee0286cc6cb4e9b32b1e9b66e5f52f2414a01361ae"
   }
  },
  {
   "name": "chamfer",
   "ok": false,
   "checks": {
-   "seconds": 0.012463092803955078,
+   "seconds": 0.012371301651000977,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": false,
+   "replay": true,
+   "reopen": true,
+   "hole": true,
+   "pad": true,
+   "boss": true,
+   "named": true,
+   "nfaces": 14,
+   "stp_volume": null,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "ch.bcd": "413546b8c3bc914184a6269d6bbac4107c829c4f03bd06c180bfdf8bc5bd4bc1",
+   "ch.stp": "23ac14bfc21f0e5efed1a64c7bef9cbeff2998c9bafc312c2e6d1b39c63365d8",
+   "ch.bin": "3bad5931f1c3edca8c06adca509afaa622349df6c124d5fc04da922e9457716c"
+  }
+ },
+ {
+  "name": "edgechamfer",
+  "ok": false,
+  "checks": {
+   "seconds": 0.0075626373291015625,
    "committed": true,
    "proof": false,
    "hand": false,
@@ -237,16 +264,14 @@
    "step": false,
    "replay": false,
    "reopen": false,
-   "hole": false,
-   "pad": false,
-   "boss": false,
-   "named": false,
+   "first": false,
+   "second": false,
    "nfaces": 0,
    "stp_volume": null,
    "check_verdict": "BAD"
   },
   "artifacts": {
-   "ch.bcd": "6369b0f2affb10bfc0f1db820e41f2c5fd3816edd6034f3ffc5742abcc6f0762"
+   "ec.bcd": "0510f66459ba2c2676e34923803b4c551da79b75d5628f4b70bbf4bd3874a088"
   }
  },
  {

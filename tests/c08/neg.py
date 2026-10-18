@@ -241,8 +241,8 @@ def c_oktouch():
                    f'(node 1 {BOX10} {ICR})',
                    f'(node 2 {BOX10} {ICR})',
                    '(node 3 (move 2 10 0 0 0) (intent same 0 0 1 0))',
-                   '(node 4 (union 1 3) (intent add 0 0 2 0))')
-    m = re.search(r'node 4: ok material=add faces_created=0 faces_modified=0 solids=2 through_holes=0', out)
+                   '(node 4 (union 1 3) (intent add 0 0 1 0))')
+    m = re.search(r'node 4: ok material=add faces_created=0 faces_modified=0 solids=1 through_holes=0', out)
     return ('committed' in out and m is not None, out.strip()[:120])
 
 
