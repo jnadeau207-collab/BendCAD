@@ -27,6 +27,7 @@ import ../c12/mesh.bend as MO
 import ../c14/asm.bend as AS
 import ../c15/pmi.bend as PM
 import ../k2/mat.bend as KM
+import ../k3/mom.bend as K3M
 import ../k2/thr.bend as KT
 import ../k2/kasm.bend as KA
 import ../k2/fit.bend as KF
@@ -282,10 +283,15 @@ def node_faces(r: M.NR) -> String:
 def node_res(cs: List<&2, M.CE>, +id: U64) -> M.NR:
   M.ce_r(M.ce_find(cs, id))
 
+def mom_or(+op: Bool, +b: M.Body) -> String:
+  match op:
+    case True{}: ""
+    case False{}: K3M.mom_s(b)
+
 def mass_tail(r: M.NR, +m: Maybe<&2, M.Grade>) -> String:
   match r:
     case M.NR_err{k, dg}: ""
-    case M.NR_ok{+b, fx}: KM.mass_line(m, M.ms_vol(M.body_ms(b)))
+    case M.NR_ok{+b, fx}: mom_or(M.bd_open(b), b) ++ KM.mass_line(m, M.ms_vol(M.body_ms(b)))
 
 def threads_out(+p: M.Part, +n: U64) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
