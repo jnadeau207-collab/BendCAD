@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 16,
  "total": 16,
  "results": [
@@ -111,7 +111,7 @@
   {
    "name": "interf.touch",
    "ok": true,
-   "seconds": 6.62,
+   "seconds": 6.87,
    "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
   },
   {
@@ -126,7 +126,7 @@
   {
    "name": "clear.interference",
    "ok": true,
-   "seconds": 0.26,
+   "seconds": 0.27,
    "detail": "assembly pairs ninst 2\npair a b\nclearance 0 status=certified state=interference\n\n"
   },
   {

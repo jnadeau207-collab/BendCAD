@@ -143,10 +143,10 @@ def ev_foot_outside__got() -> Bool:
 def ev_foot_outside__want() -> Bool:
   True{}
 
-def ev_foot_on_feature__got() -> Bool:
-  String.eq(last_s(holes2() ++ " (node 3 (pad 2 (face 1 0 top) 5 (region (circle 10 10 6))) (intent add any any 1 any))"), "err invalid-input footprint-contains-or-meets-existing-feature")
+def ev_pad_caps_hole__got() -> Bool:
+  vol_has(holes2() ++ " (node 3 (pad 2 (face 1 0 top) 5 (region (circle 10 10 6))) (intent add any any 1 any))", 48113.09733552923f64)
 
-def ev_foot_on_feature__want() -> Bool:
+def ev_pad_caps_hole__want() -> Bool:
   True{}
 
 def ev_face_missing__got() -> Bool:

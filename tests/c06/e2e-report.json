@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 62,
  "total": 62,
  "results": [
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.0328068733215332
+   "seconds": 0.039443016052246094
   },
   {
    "name": "bracket.reopen",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.006676912307739258
+   "seconds": 0.007439851760864258
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.0034859180450439453
+   "seconds": 0.0038537979125976562
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.004919290542602539
+   "seconds": 0.007740020751953125
   },
   {
    "name": "primitive.cone.mesh",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.004070758819580078
+   "seconds": 0.004437685012817383
   },
   {
    "name": "primitive.sphere.mesh",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.007801055908203125
+   "seconds": 0.009230852127075195
   },
   {
    "name": "primitive.torus.mesh",
@@ -347,10 +347,11 @@
    ]
   },
   {
-   "name": "reject.8",
+   "name": "feature.pad_caps_hole",
    "ok": true,
-   "why": [
-    "footprint-contains-or-meets-existing-feature "
+   "volume": [
+    5764.380550975,
+    5764.380550986531
    ]
   },
   {
@@ -600,8 +601,8 @@
   {
    "name": "perf.holes100",
    "ok": true,
-   "build_s": 0.044,
-   "tess_s": 1.445,
+   "build_s": 0.046,
+   "tess_s": 1.533,
    "budget": [
     1.0,
     5.0
@@ -619,8 +620,8 @@
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.159,
-   "tess_s": 8.012,
+   "build_s": 0.168,
+   "tess_s": 8.622,
    "budget": [
     2.0,
     20.0

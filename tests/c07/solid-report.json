@@ -1,12 +1,12 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 34,
  "results": [
   {
    "name": "solid.box.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.016
+   "secs": 0.018
   },
   {
    "detail": [
@@ -382,7 +382,7 @@
    "name": "solid.cylinder.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.068
+   "secs": 0.069
   },
   {
    "detail": [
@@ -747,7 +747,7 @@
      "want": "inside"
     }
    ],
-   "median_s": 0.028,
+   "median_s": 0.029,
    "name": "solid.cylinder.classify",
    "ok": true,
    "points": 40,
@@ -758,7 +758,7 @@
    "name": "solid.cone.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.065
+   "secs": 0.084
   },
   {
    "detail": [
@@ -1123,7 +1123,7 @@
      "want": "outside"
     }
    ],
-   "median_s": 0.005,
+   "median_s": 0.006,
    "name": "solid.cone.classify",
    "ok": true,
    "points": 40,
@@ -1134,7 +1134,7 @@
    "name": "solid.sphere.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.019
+   "secs": 0.021
   },
   {
    "detail": [
@@ -1510,7 +1510,7 @@
    "name": "solid.torus.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.274
+   "secs": 0.308
   },
   {
    "detail": [
@@ -1886,7 +1886,7 @@
    "name": "solid.cavity.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.509
+   "secs": 0.494
   },
   {
    "detail": [
@@ -2251,7 +2251,7 @@
      "want": "outside"
     }
    ],
-   "median_s": 0.027,
+   "median_s": 0.035,
    "name": "solid.cavity.classify",
    "ok": true,
    "points": 40,
@@ -2262,7 +2262,7 @@
    "name": "solid.bracket.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.109
+   "secs": 0.113
   },
   {
    "detail": [
@@ -2627,7 +2627,7 @@
      "want": "outside"
     }
    ],
-   "median_s": 0.024,
+   "median_s": 0.025,
    "name": "solid.bracket.classify",
    "ok": true,
    "points": 40,
@@ -2638,7 +2638,7 @@
    "name": "solid.pocket.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.096
+   "secs": 0.098
   },
   {
    "detail": [
@@ -3014,7 +3014,7 @@
    "name": "solid.moved-sphere.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.028
+   "secs": 0.026
   },
   {
    "detail": [
@@ -3390,7 +3390,7 @@
    "name": "solid.rotated-torus.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.348
+   "secs": 0.356
   },
   {
    "detail": [
@@ -3866,24 +3866,24 @@
    "name": "solid.scale.25-holes.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 0.403
+   "secs": 0.415
   },
   {
    "name": "solid.scale.100-holes.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 1.143
+   "secs": 1.163
   },
   {
    "name": "solid.scale.400-holes.check",
    "ok": true,
    "out": "ok: embedded, shells outward, cavities nested",
-   "secs": 4.19
+   "secs": 4.974
   },
   {
    "name": "solid.scale.near-linear",
    "ok": true,
-   "ratio_400_100": 3.67
+   "ratio_400_100": 4.28
   }
  ],
  "total": 34

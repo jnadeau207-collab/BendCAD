@@ -359,14 +359,19 @@ def dcr(+a: V.Dir, +b: V.Dir) -> V.Dir:
     F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
     F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
 
+def off_max(ps: List<&2, V.Point>, +o: V.Point, +n: V.Dir, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +h <> +t: off_max(t, o, n, F64.max(acc, F64.abs(ddot(pd(o, h), n))))
+
 def flat_pl(g: G.GVal) -> G.GVal:
   match g:
     case G.GV_bp{w}:
-      G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, +p33} = w
+      G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
       +u = pd(p00, p03)
       +v = pd(p00, p30)
       +n = dcr(u, v)
-      +off = F64.abs(ddot(pd(p00, p33), n))
+      +off = off_max([p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], p00, n, 0.0f64)
       +scale = F64.add(1.0f64, ddot(n, n))
       Bool.pick(G.GVal, F64.is_lt(off, F64.mul(1.0e-12f64, scale)), G.GV_pl{G.Pl{p00, u, v}}, G.GV_bp{w})
     case _: g

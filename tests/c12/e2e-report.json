@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 17,
  "total": 17,
  "results": [
@@ -103,7 +103,7 @@
     "valid": true
    },
    "expect": 4188.790204786391,
-   "seconds": 0.0
+   "seconds": 0.01
   },
   {
    "name": "step.torus",
@@ -133,7 +133,7 @@
   {
    "name": "arc.box",
    "ok": true,
-   "head": "BCAD1|mm|shoebox demo|B1",
+   "head": "BCAD2|mm|shoebox demo|B1",
    "vol": [
     0.0,
     1000.0000000000018

@@ -227,6 +227,11 @@ def perp_of(+a: V.Dir) -> V.Dir:
       dr(0.0f64, 0.0f64, 1.0f64)))
   Bool.pick(V.Dir, exact, ex, dunit(cross(a, t)))
 
+def off_max(ps: List<&2, V.Point>, +o: V.Point, +n: V.Dir, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +h <> +t: off_max(t, o, n, F64.max(acc, F64.abs(dot(psub(h, o), n))))
+
 def sf_of(+g: G.GVal) -> SF:
   match g:
     case G.GV_pl{w}:
@@ -241,10 +246,11 @@ def sf_of(+g: G.GVal) -> SF:
       +e1 = perp_of(a)
       SF{k_cone(), o, e1, cross(a, e1), a, k, SF_none{}}
     case G.GV_bp{w}:
-      G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
+      G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
       +e1 = dunit(psub(p03, p00))
       +a = dunit(cross(e1, psub(p30, p00)))
-      +flat = F64.is_lt(F64.abs(dot(psub(p33, p00), a)), F64.mul(1.0e-12f64, F64.add(1.0f64, dlen(psub(p33, p00)))))
+      +flat = F64.is_lt(off_max([p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], p00, a, 0.0f64),
+        F64.mul(1.0e-12f64, F64.add(1.0f64, dlen(psub(p33, p00)))))
       Bool.pick(SF, flat, SF{k_plane(), p00, e1, cross(a, e1), a, 0.0f64, SF_none{}}, sf_none())
     case _: sf_none()
 

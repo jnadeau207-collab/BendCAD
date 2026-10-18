@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 25,
  "total": 25,
  "results": [
@@ -191,12 +191,11 @@
    ]
   },
   {
-   "name": "ring.inherit",
+   "name": "ring.caps_hole",
    "ok": true,
    "info": [
-    "invalid-input",
-    "footprint-contains-or-meets-existing-feature",
-    true
+    105874.33629375053,
+    105874.33629396229
    ]
   },
   {

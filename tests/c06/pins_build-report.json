@@ -36,10 +36,6 @@
   "ok": true
  },
  {
-  "name": "ev_foot_on_feature",
-  "ok": true
- },
- {
   "name": "ev_foot_outside",
   "ok": true
  },
@@ -57,6 +53,10 @@
  },
  {
   "name": "ev_pad",
+  "ok": true
+ },
+ {
+  "name": "ev_pad_caps_hole",
   "ok": true
  },
  {

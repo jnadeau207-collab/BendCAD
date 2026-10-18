@@ -1633,7 +1633,7 @@ def ar_secs_v(+w: Bool, +secs: List<&2, String>) -> APR:
     case True{}: ar_secs_u(ar_units_ok(fld(secs, 1n)), secs)
 
 def ar_secs(+secs: List<&2, String>) -> APR:
-  ar_secs_v(String.eq(fld(secs, 0n), ar_ver()), secs)
+  ar_secs_v(Bool.or(String.eq(fld(secs, 0n), ar_ver()), String.eq(fld(secs, 0n), "BCAD1")), secs)
 
 def ar_parse_t2(+w: Bool, +sp: SP) -> APR:
   match w:

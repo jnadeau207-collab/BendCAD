@@ -199,14 +199,15 @@ def atomic_rejections():
            '(node 2 (revolve (region (path -1 0 (line 5 0) (line 5 5) (line -1 5)))) (intent create any 0 1 0))',
            '(node 2 (holes 7 (face 7 0 top) through (hole 5 10 1)) (intent remove any any 1 any))',
            '(node 2 (sphere 10) (intent create any any 1 any)) (node 3 (holes 2 (face 2 0 top) through (hole 0 0 1)) (intent remove any any 1 any))',
-           '(node 2 (holes 1 (face 9 0 top) through (hole 5 10 1)) (intent remove any any 1 any))',
-           '(node 2 (holes 1 (face 1 0 top) through (hole 5 10 2)) (intent remove 1 2 1 1)) (node 3 (pad 2 (face 1 0 top) 5 (region (circle 5 10 3))) (intent add any any 1 any))']
+           '(node 2 (holes 1 (face 9 0 top) through (hole 5 10 1)) (intent remove any any 1 any))']
     whys = ['curves-cross-or-touch', 'declared material=add', 'depth-reaches-opposite-face', 'curves-cross-or-touch',
-            'profile-crosses-revolve-axis', 'input-node-missing-or-failed', 'features-need-an-extruded-body', 'face-not-found',
-            'footprint-contains-or-meets-existing-feature']
+            'profile-crosses-revolve-axis', 'input-node-missing-or-failed', 'features-need-an-extruded-body', 'face-not-found']
     for i, e in enumerate(bad):
         out, _ = cli('rej.bcd', 'apply', e)
         record(f'reject.{i}', 'rejected' in out and whys[i] in out and read('rej.bcd') == before, why=re.findall(r'why: ([^|]+)', out)[-1:])
+    out, _ = cli('rej.bcd', 'apply', '(node 2 (holes 1 (face 1 0 top) through (hole 5 10 2)) (intent remove 1 2 1 1))',
+                 '(node 3 (pad 2 (face 1 0 top) 5 (region (circle 5 10 3))) (intent add any any 1 any))')
+    record('feature.pad_caps_hole', 'committed' in out and contains(vol(out, 3), 6000 - 75 * math.pi), volume=vol(out, 3))
 
 
 def rotation():

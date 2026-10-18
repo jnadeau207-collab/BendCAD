@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 import subprocess
@@ -214,13 +215,17 @@ def c_fb():
                   'unsupported-op', 'features-need-an-extruded-body')
 
 
-@case('ring.inherit')
+@case('ring.caps_hole')
 def c_ri():
     hole = '(node 2 (holes 1 (face 1 0 top) through (hole 35 50 2)) (intent remove any any any any))'
     ring = ('(node 3 (pad 2 (face 1 0 top) 5 (region (path 30 30 (line 70 30) (line 70 70) (line 30 70)) '
             '(path 40 40 (line 60 40) (line 60 60) (line 40 60)))) (intent add any any any any))')
-    return reject([BOX, hole], ring, 3,
-                  'invalid-input', 'footprint-contains-or-meets-existing-feature')
+    fresh('n.bcd', BOX, hole)
+    out, _ = cli('n.bcd', 'apply', ring)
+    m = re.search(r'node 3: ok .*?volume=\[([^,]+), ([^\]]+)\]', out)
+    want = 106000 - 40 * math.pi
+    v = (float(m.group(1)), float(m.group(2))) if m else None
+    return ('committed' in out and v is not None and v[0] <= want <= v[1], v)
 
 
 @case('obstacle.inherit')

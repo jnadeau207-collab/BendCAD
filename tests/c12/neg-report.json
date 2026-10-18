@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 24,
  "total": 24,
  "results": [
@@ -46,7 +46,7 @@
   {
    "name": "import.cone",
    "ok": true,
-   "detail": "imported /tmp/bc-neg-c12/cone.step | error invalid-input | import @ step data | why: step-conical-surface-not-in-profile | fix: re-import the STEP file"
+   "detail": "imported /tmp/bc-neg-c12/cone.step | error invalid-input | import @ step data | why: step-cone-recovery-failed #49 | fix: re-import the STEP file"
   },
   {
    "name": "import.open",
@@ -96,22 +96,22 @@
   {
    "name": "reopen.garbage",
    "ok": true,
-   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rg.bca | why: archive-sections-count | fix: reopen a BendCAD BCAD1 archive"
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rg.bca | why: archive-sections-count | fix: reopen a BendCAD BCAD2 archive"
   },
   {
    "name": "reopen.badver",
    "ok": true,
-   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rv.bca | why: archive-bad-version | fix: reopen a BendCAD BCAD1 archive"
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/rv.bca | why: archive-bad-version | fix: reopen a BendCAD BCAD2 archive"
   },
   {
    "name": "reopen.badunits",
    "ok": true,
-   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/ru.bca | why: archive-units-not-supported | fix: reopen a BendCAD BCAD1 archive"
+   "detail": "error invalid-input | reopen /tmp/bc-neg-c12/ru.bca | why: archive-units-not-supported | fix: reopen a BendCAD BCAD2 archive"
   },
   {
    "name": "step_of.garbage",
    "ok": true,
-   "detail": "error invalid-input | step_of | why: archive-sections-count | fix: export from a BendCAD BCAD1 archive"
+   "detail": "error invalid-input | step_of | why: archive-sections-count | fix: export from a BendCAD BCAD2 archive"
   },
   {
    "name": "stl_of.garbage",
