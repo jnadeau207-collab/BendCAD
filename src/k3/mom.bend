@@ -1,5 +1,6 @@
 import Base
 import ../c01/types.bend as V
+import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 import ../c06/iv.bend as I
 import ../k1/sf.bend as S
@@ -63,6 +64,11 @@ def mp_scale(+sg: F64, +a: MP) -> MP:
   MP{+m, +e} = a
   MP{mv_axpy(sg, m, mv0()), e}
 
+def sf1(ss: List<&2, S.SF>) -> S.SF:
+  match ss:
+    case []: S.sf_of(G.GV_f{0.0f64})
+    case +h <> +t: h
+
 def rho_hat(+s: S.SF, +u: F64) -> V.Dir:
   S.dadd(S.dscale(S.fcos(u), S.sf_e1(s)), S.fsin(u), S.sf_e2(s))
 
@@ -96,25 +102,25 @@ def inner_v(+sph: Bool, +r: F64, +f: F64) -> F64:
 def inner_j(+sph: Bool, +r: F64, +f: F64) -> F64:
   Bool.pick(F64, sph, F64.mul(r, S.fcos(f)), 1.0f64)
 
-def inner_q(qs: List<&2, VI.GQ>, +s: S.SF, +c: V.Point, +u: F64, +sph: Bool, +m: F64, +hw: F64, +acc: MV) -> MV:
+def inner_q(qs: List<&2, VI.GQ>, +ss: List<&2, S.SF>, +c: V.Point, +u: F64, +sph: Bool, +m: F64, +hw: F64, +acc: MV) -> MV:
   match qs:
     case []: acc
     case +q <> +t:
       VI.GQ{+x, +w} = q
       +f = F64.add(m, F64.mul(hw, x))
-      +r = S.sf_r(s)
-      inner_q(t, s, c, u, sph, m, hw, mv_axpy(F64.mul(F64.mul(w, hw), inner_j(sph, r, f)), mv_at(s, c, u, inner_v(sph, r, f)), acc))
+      +r = S.sf_r(sf1(ss))
+      inner_q(t, ss, c, u, sph, m, hw, mv_axpy(F64.mul(F64.mul(w, hw), inner_j(sph, r, f)), mv_at(sf1(ss), c, u, inner_v(sph, r, f)), acc))
 
 def asin_r(+r: F64, +v: F64) -> F64:
   +q = F64.max(F64.neg(1.0f64), F64.min(1.0f64, F64.div(v, r)))
   S.fatan2(q, F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(q, q)))))
 
-def inner_k(+s: S.SF, +c: V.Point, +u: F64, +v: F64) -> MP:
-  +sph = S.is_sph(s)
-  +top = Bool.pick(F64, sph, asin_r(S.sf_r(s), v), v)
+def inner_k(+ss: List<&2, S.SF>, +c: V.Point, +u: F64, +v: F64) -> MP:
+  +sph = S.is_sph(sf1(ss))
+  +top = Bool.pick(F64, sph, asin_r(S.sf_r(sf1(ss)), v), v)
   +m = F64.mul(0.5f64, top)
-  +a8 = inner_q(VI.gl8(), s, c, u, sph, m, m, mv0())
-  +a4 = inner_q(VI.gl4(), s, c, u, sph, m, m, mv0())
+  +a8 = inner_q(VI.gl8(), ss, c, u, sph, m, m, mv0())
+  +a4 = inner_q(VI.gl4(), ss, c, u, sph, m, m, mv0())
   MP{a8, mv_dev(a8, a4)}
 
 def d_u(+s: S.SF, +x: V.Point, +d: V.Dir) -> F64:
@@ -126,70 +132,79 @@ def d_u(+s: S.SF, +x: V.Point, +d: V.Dir) -> F64:
   Bool.pick(F64, U64.is_eq(S.sf_kind(s), S.k_plane()), S.dot(d, e1),
     F64.div(F64.sub(F64.mul(px, S.dot(d, e2)), F64.mul(py, S.dot(d, e1))), F64.add(F64.mul(px, px), F64.mul(py, py))))
 
-def edge_q(qs: List<&2, VI.GQ>, +s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +m: F64, +hw: F64, +acc: MP) -> MP:
+def edge_pt(+ss: List<&2, S.SF>, +ks: List<&2, Ty.EdgeKind>, +tt: F64) -> List<&2, F64>:
+  +g = EF.ek_curve(VI.ek1(ks))
+  +p = EF.ev(g, tt)
+  +uv = FB.uv_raw(sf1(ss), p)
+  [V.v2_x(uv), V.v2_y(uv), d_u(sf1(ss), p, VI.cv_der(g, tt))]
+
+def edge_q(qs: List<&2, VI.GQ>, +ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +m: F64, +hw: F64, +acc: MP) -> MP:
   match qs:
     case []: acc
     case +q <> +t:
       VI.GQ{+x, +w} = q
-      +tt = F64.add(m, F64.mul(hw, x))
-      +g = EF.ek_curve(k)
-      +p = EF.ev(g, tt)
-      +uv = FB.uv_raw(s, p)
-      +du = d_u(s, p, VI.cv_der(g, tt))
-      +f = F64.neg(F64.mul(F64.mul(w, hw), du))
-      edge_q(t, s, c, k, m, hw, mp_fma(acc, f, inner_k(s, c, V.v2_x(uv), V.v2_y(uv))))
+      +e = edge_pt(ss, ks, F64.add(m, F64.mul(hw, x)))
+      +f = F64.neg(F64.mul(F64.mul(w, hw), L.nth_f64(e, 2n)))
+      edge_q(t, ss, c, ks, m, hw, mp_fma(acc, f, inner_k(ss, c, L.nth_f64(e, 0n), L.nth_f64(e, 1n))))
 
-def edge_sub(n: Nat, +s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +lo: F64, +dt: F64, +j: F64, +acc: MP) -> MP:
+def edge_one(+ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +m: F64, +hw: F64) -> MP:
+  mp_gl(edge_q(VI.gl8(), ss, c, ks, m, hw, mp0()), edge_q(VI.gl4(), ss, c, ks, m, hw, mp0()))
+
+def edge_sub(n: Nat, +ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +lo: F64, +dt: F64, +j: F64, +acc: MP) -> MP:
   match n:
     case 0n: acc
     case 1n+r:
       +m = F64.add(lo, F64.mul(F64.add(j, 0.5f64), dt))
-      +hw = F64.mul(0.5f64, dt)
-      edge_sub(r, s, c, k, lo, dt, F64.add(j, 1.0f64), mp_add(acc, mp_gl(edge_q(VI.gl8(), s, c, k, m, hw, mp0()), edge_q(VI.gl4(), s, c, k, m, hw, mp0()))))
+      edge_sub(r, ss, c, ks, lo, dt, F64.add(j, 1.0f64), mp_add(acc, edge_one(ss, c, ks, m, F64.mul(0.5f64, dt))))
 
 
-def edge_mp(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> MP:
-  +lo = EF.ek_lo(k)
-  +n = Bool.pick(Nat, FB.is_line(k), 1n, 8n)
-  +dt = F64.div(F64.sub(EF.ek_hi(k), lo), L.f64_of(n))
-  mp_scale(Bool.pick(F64, fw, 1.0f64, F64.neg(1.0f64)), edge_sub(n, s, c, k, lo, dt, 0.0f64, mp0()))
+def edge_mp(+ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +fw: Bool) -> MP:
+  +lo = EF.ek_lo(VI.ek1(ks))
+  +n = Bool.pick(Nat, FB.is_line(VI.ek1(ks)), 1n, 8n)
+  +dt = F64.div(F64.sub(EF.ek_hi(VI.ek1(ks)), lo), L.f64_of(n))
+  mp_scale(Bool.pick(F64, fw, 1.0f64, F64.neg(1.0f64)), edge_sub(n, ss, c, ks, lo, dt, 0.0f64, mp0()))
 
-def edge_or(+deg: Bool, +s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> MP:
+def edge_or(+deg: Bool, +ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +fw: Bool) -> MP:
   match deg:
     case True{}: mp0()
-    case False{}: edge_mp(s, c, k, fw)
+    case False{}: edge_mp(ss, c, ks, fw)
 
-def ces_mp(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: MP) -> MP:
+def ce_kind(+b: Ty.Brep, +h: FB.CE) -> List<&2, Ty.EdgeKind>:
+  [Ty.ed_kind(FB.edge_at(b, FB.ce_e(h)))]
+
+def ces_mp(cs: List<&2, FB.CE>, +b: Ty.Brep, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
   match cs:
     case []: acc
     case +h <> +t:
-      +k = Ty.ed_kind(FB.edge_at(b, FB.ce_e(h)))
-      ces_mp(t, b, s, c, mp_add(acc, edge_or(U64.is_eq(VI.ek_tag(k), 0u64), s, c, k, FB.ce_fw(h))))
+      +ks = ce_kind(b, h)
+      ces_mp(t, b, ss, c, mp_add(acc, edge_or(U64.is_eq(VI.ks_tag(ks), 0u64), ss, c, ks, FB.ce_fw(h))))
 
-def lps_mp(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: MP) -> MP:
+def lps_mp(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
   match ls:
     case []: acc
-    case +h <> +t: lps_mp(t, b, s, c, ces_mp(h, b, s, c, acc))
+    case +h <> +t: lps_mp(t, b, ss, c, ces_mp(h, b, ss, c, acc))
 
-def pole_q(qs: List<&2, VI.GQ>, +s: S.SF, +c: V.Point, +v: F64, +m: F64, +hw: F64, +acc: MP) -> MP:
+def pole_q(qs: List<&2, VI.GQ>, +ss: List<&2, S.SF>, +c: V.Point, +v: F64, +m: F64, +hw: F64, +acc: MP) -> MP:
   match qs:
     case []: acc
     case +q <> +t:
       VI.GQ{+x, +w} = q
-      pole_q(t, s, c, v, m, hw, mp_fma(acc, F64.mul(w, hw), inner_k(s, c, F64.add(m, F64.mul(hw, x)), v)))
+      pole_q(t, ss, c, v, m, hw, mp_fma(acc, F64.mul(w, hw), inner_k(ss, c, F64.add(m, F64.mul(hw, x)), v)))
 
-def pole_sub(n: Nat, +s: S.SF, +c: V.Point, +v: F64, +dt: F64, +j: F64, +acc: MP) -> MP:
+def pole_one(+ss: List<&2, S.SF>, +c: V.Point, +v: F64, +m: F64, +hw: F64) -> MP:
+  mp_gl(pole_q(VI.gl8(), ss, c, v, m, hw, mp0()), pole_q(VI.gl4(), ss, c, v, m, hw, mp0()))
+
+def pole_sub(n: Nat, +ss: List<&2, S.SF>, +c: V.Point, +v: F64, +dt: F64, +j: F64, +acc: MP) -> MP:
   match n:
     case 0n: acc
     case 1n+r:
       +m = F64.mul(F64.add(j, 0.5f64), dt)
-      +hw = F64.mul(0.5f64, dt)
-      pole_sub(r, s, c, v, dt, F64.add(j, 1.0f64), mp_add(acc, mp_gl(pole_q(VI.gl8(), s, c, v, m, hw, mp0()), pole_q(VI.gl4(), s, c, v, m, hw, mp0()))))
+      pole_sub(r, ss, c, v, dt, F64.add(j, 1.0f64), mp_add(acc, pole_one(ss, c, v, m, F64.mul(0.5f64, dt))))
 
-def pole_mp(+on: Bool, +sg: F64, +s: S.SF, +c: V.Point, +v: F64) -> MP:
+def pole_mp(+on: Bool, +sg: F64, +ss: List<&2, S.SF>, +c: V.Point, +v: F64) -> MP:
   match on:
     case False{}: mp0()
-    case True{}: mp_scale(sg, pole_sub(8n, s, c, v, F64.div(S.two_pi(), 8.0f64), 0.0f64, mp0()))
+    case True{}: mp_scale(sg, pole_sub(8n, ss, c, v, F64.div(S.two_pi(), 8.0f64), 0.0f64, mp0()))
 
 def face_mp(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> MP:
   +s = FB.face_sf(b, fi)
@@ -198,8 +213,8 @@ def face_mp(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> MP:
   +sph = S.is_sph(s)
   +np = Bool.and(sph, FB.pt_in_face(b, fi, S.padd(S.sf_o(s), r, S.sf_a(s))))
   +sp = Bool.and(sph, FB.pt_in_face(b, fi, S.padd(S.sf_o(s), F64.neg(r), S.sf_a(s))))
-  +lp = lps_mp(FB.face_ce(b, fi), b, s, c, mp0())
-  mp_add(mp_add(lp, pole_mp(np, sg, s, c, r)), pole_mp(sp, F64.neg(sg), s, c, F64.neg(r)))
+  +lp = lps_mp(FB.face_ce(b, fi), b, [s], c, mp0())
+  mp_add(mp_add(lp, pole_mp(np, sg, [s], c, r)), pole_mp(sp, F64.neg(sg), [s], c, F64.neg(r)))
 
 def faces_mp(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: MP) -> MP:
   match fs:
