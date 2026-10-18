@@ -515,6 +515,13 @@ Assembly verbs on the same `(assembly ...)` text:
   meshing gears over one full pitch: A turns about its placed origin, B
   turns the other way at ZA/ZB. Model each gear centred on its node
   origin with the tooth phase it has at assembly.
+- `(press NAME A AFACE B BFACE)` inside the assembly form declares a press
+  fit between the hole face of one instance and the shaft face of the
+  other (face names as `faces` prints them). `asm interf` certifies the
+  interference with a witness point inside both parts, prints the radial
+  interference and `declared press-fit NAME status=declared` instead of a
+  defect, and refuses a declaration that does not interfere. Certify the
+  fit classes and temperatures with `pmi fits` (KIND `press`).
 - `asm step FILE (assembly ...)` — STEP AP242 of the solved assembly: every
   placed instance is its own solid, in instance order (printed after the
   write).

@@ -283,6 +283,33 @@ def asm_step():
     record('asm.step_refused', 'refused' in o2 and 'wrote' not in o2, out=o2[-300:])
 
 
+def press_declared():
+    fresh('pr.bcd', f'(node 1 (box 40 40 20) {IC})',
+          f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 20 20 10))) {ID})',
+          f'(node 3 (cylinder 10.02 20) {IC})', f'(node 4 (cylinder 5 10) {IC})')
+    base = ('(inst H 2 0 0 0 0) (inst B 3 20 20 0 0) (inst P 4 80 0 0 0) '
+            '(fix 1 H) (fix 2 B) (fix 3 P)')
+    fh, _ = cli('pr.bcd', 'faces', '2')
+    fb, _ = cli('pr.bcd', 'faces', '3')
+    hf = next((ln.split()[0] for ln in fh.splitlines() if ' cylinder' in ln), None)
+    sf = next((ln.split()[0] for ln in fb.splitlines() if ' cylinder' in ln), None)
+    out, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press bush H {hf} B {sf}))')
+    blocks = out.split('pair ')
+    hb = next((b for b in blocks if b.startswith('H B')), '')
+    hp = next((b for b in blocks if b.startswith('H P')), '')
+    rad = re.search(r'witness=press radial=([0-9.e-]+)', hb)
+    record('press.declared', 'relation interference status=certified' in hb and 'declared press-fit bush status=declared' in hb
+           and rad is not None and abs(float(rad.group(1)) - 0.02) < 1e-9
+           and 'relation disjoint' in hp and 'declared' not in hp, out=out[-600:])
+    o1, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press bare H B))')
+    record('press.needs_faces_when_uncertain', 'declared-press-not-interfering bare' in o1 and 'declared press-fit' not in o1,
+           out=o1[-400:])
+    o2, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press wrong H {hf} P n4.c0.wall.0.0))')
+    record('press.declared_not_interfering', 'declared-press-not-interfering wrong' in o2, out=o2[-400:])
+    o3, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press ghost H {hf} Q {sf}))')
+    record('press.unknown_instance', 'press-names-unknown-instance ghost' in o3, out=o3[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -295,6 +322,7 @@ def main():
     mesh_involute()
     thin_tori()
     asm_step()
+    press_declared()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

@@ -4,6 +4,8 @@ import ../c06/iv.bend as I
 import ../c06/model.bend as M
 import ../c06/sx.bend as S
 import ../c14/asm.bend as A4
+import ../c11/qinterf.bend as QI
+import ../c07/sol.bend as SO
 import ../c12/stepw.bend as SW
 import ../k1/sf.bend as KS
 import ./mat.bend as KM
@@ -216,16 +218,219 @@ def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>) -> String:
 
 def k2_code(+v: String) -> U64:
   Bool.pick(U64, String.eq(v, "mass"), 1u64, Bool.pick(U64, String.eq(v, "engage"), 2u64,
-    Bool.pick(U64, String.eq(v, "gap"), 3u64, Bool.pick(U64, String.eq(v, "mesh"), 4u64, 0u64))))
+    Bool.pick(U64, String.eq(v, "gap"), 3u64, Bool.pick(U64, String.eq(v, "mesh"), 4u64,
+      Bool.pick(U64, String.eq(v, "interf"), 6u64, 0u64)))))
 
 def k2_skip(xs: List<&2, String>, +i: Nat) -> Nat:
   match xs:
     case []: i
     case +h <> +t: Bool.pick(Nat, U32.is_eq(KT.s_head(h), 40), i, k2_skip(t, Nat.add(i, 1n)))
 
+type PD is Data:
+  PD{ name: String, a: String, fa: String, b: String, fb: String }
+
+def pd_name(+d: PD) -> String:
+  PD{+n, +a, +fa, +b, +fb} = d
+  n
+
+def pd_hit(+d: PD, +x: String, +y: String) -> Bool:
+  PD{+n, +a, +fa, +b, +fb} = d
+  Bool.or(Bool.and(String.eq(a, x), String.eq(b, y)), Bool.and(String.eq(a, y), String.eq(b, x)))
+
+def pd_none() -> PD:
+  PD{"", "", "", "", ""}
+
+def pd_find(ds: List<&2, PD>, +x: String, +y: String) -> PD:
+  match ds:
+    case []: pd_none()
+    case +h <> +t: Bool.pick(PD, pd_hit(h, x, y), h, pd_find(t, x, y))
+
+def fwa(+b: M.Body, +t: KT.TG) -> WA:
+  +sp = KT.tg_span(t)
+  +d = place_dr(b, KT.tg_ax(t))
+  +p0 = place_pt(b, axial_pt(t, V.v2_x(sp)))
+  +p1 = place_pt(b, axial_pt(t, V.v2_y(sp)))
+  WA{p0, d, KS.dot(KS.psub(p0, KS.pt(0.0f64, 0.0f64, 0.0f64)), d), KS.dot(KS.psub(p1, KS.pt(0.0f64, 0.0f64, 0.0f64)), d)}
+
+def tg_at(+b: M.Body, +f: String) -> KT.TG:
+  KT.tg_of(b, M.name_idx(M.bd_fns(b), f, 0n))
+
+def inside(+b: M.Body, +p: V.Point) -> Bool:
+  U64.is_eq(SO.classify(SO.fds_of(M.bd_brep(b)), QI.loc_pt(M.bd_pl(b), V.pt_x(p), V.pt_y(p), V.pt_z(p))), 1u64)
+
+def perp_of(+d: V.Dir) -> V.Dir:
+  +x = KS.dr(1.0f64, 0.0f64, 0.0f64)
+  +y = KS.dr(0.0f64, 1.0f64, 0.0f64)
+  KS.dunit(KS.cross(d, Bool.pick(V.Dir, F64.is_lt(F64.abs(KS.dot(d, x)), 0.9f64), x, y)))
+
+def wit_go(n: Nat, +ba: M.Body, +bb: M.Body, +c: V.Point, +d: V.Dir, +e: V.Dir, +r: F64, +k: F64) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+m:
+      +th = F64.mul(k, F64.div(KS.two_pi(), 8.0f64))
+      +dir = KS.dadd(KS.dscale(KS.fcos(th), e), KS.fsin(th), KS.cross(d, e))
+      +p = KS.padd(c, r, dir)
+      Bool.or(Bool.and(inside(ba, p), inside(bb, p)), wit_go(m, ba, bb, c, d, e, r, F64.add(k, 1.0f64)))
+
+def press_wit(+ba: M.Body, +ta: KT.TG, +bb: M.Body, +tb: KT.TG) -> F64:
+  +wa = fwa(ba, ta)
+  +wb = fwa(bb, tb)
+  +d = wa_d(wb)
+  +ra = wa_rng(wa, d)
+  +rb = wa_rng(wb, d)
+  +zlo = F64.max(V.v2_x(ra), V.v2_x(rb))
+  +zhi = F64.min(V.v2_y(ra), V.v2_y(rb))
+  +rh = Bool.pick(F64, KT.tg_inner(ta), KT.tg_r(ta), KT.tg_r(tb))
+  +rs = Bool.pick(F64, KT.tg_inner(ta), KT.tg_r(tb), KT.tg_r(ta))
+  +o = wa_p(wb)
+  +c = KS.padd(o, F64.sub(F64.mul(0.5f64, F64.add(zlo, zhi)), KS.dot(KS.psub(o, KS.pt(0.0f64, 0.0f64, 0.0f64)), d)), d)
+  +ok = Bool.and(Bool.and(coaxial(wa, wb), Bool.xor(KT.tg_inner(ta), KT.tg_inner(tb))),
+    Bool.and(F64.is_lt(zlo, zhi), F64.is_lt(rh, rs)))
+  Bool.pick(F64, Bool.and(ok, wit_go(8n, ba, bb, c, d, perp_of(d), F64.mul(0.5f64, F64.add(rh, rs)), 0.0f64)), F64.sub(rs, rh), F64.neg(1.0f64))
+
+def is_press(+x: S.Sx) -> Bool:
+  String.eq(S.sx_s(S.sx_nth(S.sx_xs(x), 0n)), "press")
+
+def pd_of(+x: S.Sx) -> PD:
+  +xs = S.sx_xs(x)
+  +six = Nat.is_eq(List.length(&2, S.Sx, xs), 6n)
+  PD{S.sx_s(S.sx_nth(xs, 1n)), S.sx_s(S.sx_nth(xs, 2n)), Bool.pick(String, six, S.sx_s(S.sx_nth(xs, 3n)), ""),
+    S.sx_s(S.sx_nth(xs, Bool.pick(Nat, six, 4n, 3n))), Bool.pick(String, six, S.sx_s(S.sx_nth(xs, 5n)), "")}
+
+def presses(xs: List<&2, S.Sx>) -> List<&2, PD>:
+  match xs:
+    case []: []
+    case +h <> +t: Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> presses(t), presses(t))
+
+def unpressed(xs: List<&2, S.Sx>) -> List<&2, S.Sx>:
+  match xs:
+    case []: []
+    case +h <> +t: Bool.pick(List<&2, S.Sx>, is_press(h), unpressed(t), h <> unpressed(t))
+
+def s_pre(a: String, b: String) -> Bool:
+  match a b:
+    case SNil{} SNil{}: True{}
+    case SNil{} SCon{bh, bt}: False{}
+    case SCon{ah, at} SNil{}: True{}
+    case SCon{ah, at} SCon{bh, bt}: Bool.and(U32.is_eq(S.chr_code(ah), S.chr_code(bh)), s_pre(at, bt))
+
+def s_has(a: String, +b: String) -> Bool:
+  match a:
+    case SNil{}: False{}
+    case SCon{+h, +t}: Bool.or(s_pre(SCon{h, t}, b), s_has(t, b))
+
+def press_bad(+nm: String, +x: String, +y: String) -> String:
+  "error invalid-input | asm interf | why: declared-press-not-interfering " ++ nm ++ " between " ++ x ++ " and " ++ y ++
+    " | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements
+"
+
+def wit_s(+w: F64, +nm: String, +x: String, +y: String) -> String:
+  Bool.pick(String, F64.is_lt(0.0f64, w), "relation interference status=certified witness=press radial=" ++ S.f_show(w) ++
+    "
+declared press-fit " ++ nm ++ " status=declared
+", press_bad(nm, x, y))
+
+def press_wit_of(+d: PD, +x: A4.IN, +y: A4.IN) -> F64:
+  PD{+n, +a, +fa, +b, +fb} = d
+  +xa = String.eq(a, A4.in_name(x))
+  +bx = M.nr_body(A4.in_nr(x))
+  +by = M.nr_body(A4.in_nr(y))
+  +fx = Bool.pick(String, xa, fa, fb)
+  +fy = Bool.pick(String, xa, fb, fa)
+  press_wit(bx, tg_at(bx, fx), by, tg_at(by, fy))
+
+def press_unc(+faces: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
+  match faces:
+    case False{}: press_bad(pd_name(d), A4.in_name(x), A4.in_name(y))
+    case True{}: wit_s(press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
+
+def pd_faces(+d: PD) -> Bool:
+  PD{+n, +a, +fa, +b, +fb} = d
+  Bool.and(Bool.not(String.eq(fa, "")), Bool.not(String.eq(fb, "")))
+
+def press_go(+code: U64, +d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
+  match code:
+    case 0u64: rel ++ "
+"
+    case 1u64: rel ++ "
+declared press-fit " ++ pd_name(d) ++ " status=declared
+"
+    case 2u64: rel ++ "
+" ++ press_bad(pd_name(d), A4.in_name(x), A4.in_name(y))
+    case _: press_unc(pd_faces(d), d, x, y)
+
+def pair_s(+d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
+  +code = Bool.pick(U64, String.eq(pd_name(d), ""), 0u64, Bool.pick(U64, s_has(rel, "relation interference"), 1u64,
+    Bool.pick(U64, s_has(rel, "relation uncertain"), 3u64, 2u64)))
+  press_go(code, d, rel, x, y)
+
+def ip_inner(+x: A4.IN, ys: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+  match ys:
+    case []: ""
+    case +y <> +t:
+      "pair " ++ A4.in_name(x) ++ " " ++ A4.in_name(y) ++ "
+" ++
+        pair_s(pd_find(ds, A4.in_name(x), A4.in_name(y)), QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y) ++ ip_inner(x, t, ds)
+
+def ip_go(xs: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+  match xs:
+    case []: ""
+    case +x <> +t: ip_inner(x, t, ds) ++ ip_go(t, ds)
+
+def is_some_in(m: Maybe<&2, A4.IN>) -> Bool:
+  match m:
+    case None{}: False{}
+    case Some{x}: True{}
+
+def pd_known(ds: List<&2, PD>, +ins: List<&2, A4.IN>) -> String:
+  match ds:
+    case []: ""
+    case +h <> +t:
+      PD{+n, +a, +fa, +b, +fb} = h
+      +ok = Bool.and(is_some_in(in_find(ins, a)), is_some_in(in_find(ins, b)))
+      Bool.pick(String, ok, pd_known(t, ins), "error invalid-input | asm interf | why: press-names-unknown-instance " ++ n ++
+        " | fix: write (press NAME A AFACE B BFACE) with two instance names
+")
+
+def ip_rep(+ins: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+  +e = pd_known(ds, ins)
+  Bool.pick(String, String.eq(e, ""), "assembly pairs ninst " ++ Nat.show(List.length(&2, A4.IN, ins)) ++ "
+" ++ ip_go(ins, ds), e)
+
+def ip_sol(+s: A4.AS, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
+  match s:
+    case A4.AS_conf{+ids, +res}: A4.conf_rep(a, ids, res)
+    case A4.AS_ok{+sx, +dof, +red, +res}: ip_rep(A4.place_all(A4.asm_insts(a), sx, cs, 0n), ds)
+
+def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
+  match ok:
+    case False{}: e
+    case True{}: ip_sol(A4.asm_solve(a, cs), a, cs, ds)
+
+def ip_ar(+p: M.Part, +ar: A4.AR, +ds: List<&2, PD>) -> String:
+  match ar:
+    case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
+    case A4.AR_ok{+a}:
+      +cs = M.ev_part(p, [])
+      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
+      ip_ok(String.eq(e, ""), e, a, cs, ds)
+
+def top_items(+r: S.PS) -> List<&2, S.Sx>:
+  S.PS{+ok, +xs} = r
+  S.sx_xs(S.sx_nth(xs, 0n))
+
+def k2_interf(+p: M.Part, +xs: List<&2, String>) -> String:
+  +its = top_items(S.parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))))
+  ip_ar(p, A4.asm_parse(S.sx_show(S.Sx_l{unpressed(its)})), presses(its))
+
+def k2_pick(+i: Bool, +code: U64, +p: M.Part, +xs: List<&2, String>) -> String:
+  match i:
+    case True{}: k2_interf(p, xs)
+    case False{}: k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs)
+
 def k2_asm(+p: M.Part, +xs: List<&2, String>) -> String:
   +code = k2_code(S.arg_at(xs, 0n))
-  k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs)
+  k2_pick(U64.is_eq(code, 6u64), code, p, xs)
 
 type AW is Data:
   AW{ ws: SW.WS, names: String }

@@ -85,6 +85,16 @@ major diameter, as drawings and AP242 do; no helix is modelled.
   other than 20 °C need both materials (`material-not-bound`).
 - `step N FILE` writes the material and every thread of node N's part
   into the AP242 file beside the geometry.
+- `(press NAME A AFACE B BFACE)` in an assembly form declares a press fit
+  between a hole face and a shaft face. `asm interf` reports that pair as
+  `declared press-fit NAME status=declared`, not as a defect. A thin
+  interference band defeats C11's sampling, so the pair is certified by a
+  witness: the two cylinders must be coaxial (1e-9), one a hole and one a
+  shaft, with overlapping axial spans and the shaft larger; a point at the
+  mean radius inside both spans must classify inside both solids
+  (certified ray casting, eight angles tried). The radial interference is
+  printed. Anything else refuses with `declared-press-not-interfering`;
+  `pmi fits` certifies the classes over temperature.
 - `asm step FILE (assembly ...)` writes the solved assembly as one AP242
   file: every placed instance is its own solid (no boolean between
   them, so press fits stay two parts), in instance order, which the CLI
