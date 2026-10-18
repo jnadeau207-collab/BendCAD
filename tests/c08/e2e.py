@@ -493,8 +493,9 @@ def pierce():
     out2, _ = fresh('pierce2.bcd',
                     '(node 1 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 2 (sphere 6) (intent create 2 0 1 0))',
-                    '(node 3 (union 1 2) (intent add 0 0 1 0))')
-    record('pierce.sphere_cross_refused', 'curved-surface-operand' in out2)
+                    '(node 3 (union 1 2) (intent add any any 1 any))')
+    record('pierce.sphere_corner', 'committed' in out2 and contains(vol(out2, 3), 1000 + 252 * math.pi),
+           volume=vol(out2, 3))
 
 
 def curved():

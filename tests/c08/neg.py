@@ -91,14 +91,14 @@ def c_pierce():
             and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
-@case('cross.sphere')
+@case('ok.sphere_corner')
 def c_sphere():
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
                    '(node 2 (sphere 6) (intent create 2 0 1 0))',
-                   '(node 3 (union 1 2) (intent add 0 0 1 0))')
-    k, w = node_err(out, 3)
-    return (k == 'unsupported-op' and 'curved-surface-operand' in w, (k, w))
+                   '(node 3 (union 1 2) (intent add any any 1 any))')
+    return ('committed' in out and vol_ok(out, 3, 1000 + 252 * math.pi)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 3))
 
 
 @case('ok.mixed_cavity')

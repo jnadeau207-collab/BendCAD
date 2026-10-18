@@ -145,8 +145,8 @@ Refusals, with the `why:` text verbatim:
 
 ## Booleans
 
-Operands must be closed solids with plane, cylinder, cone or exactly-flat
-patch faces, line, cubic, circle or rational-quadratic edges, and
+Operands must be closed solids with plane, cylinder, cone, sphere, torus or
+exactly-flat patch faces, line, cubic, circle or rational-quadratic edges, and
 certified-exact placements (`move` and quarter turns). Disjoint, contained,
 contact-only and identical operands evaluate on the fast paths; operands
 whose boundaries cross, touch or coincide go through K1 face splitting and
@@ -162,8 +162,8 @@ Refusals, with the `why:` text the kernel returns verbatim. When K1 could
 not certify a case the text ends with `[k1 reason N]` (see
 `docs/k1-contract.md` for the codes):
 
-- `curved-surface-operand` (unsupported-op): an operand has a sphere,
-  torus or freeform face.
+- `curved-surface-operand` (unsupported-op): an operand has a curved Bezier
+  or NURBS face.
 - `non-manifold-result` (unsupported-op): the regularized result would meet
   itself at isolated points (for example the union of equal-radius cross
   bores); change a radius or offset an operand.
@@ -197,8 +197,12 @@ frame printed by `faces NODE -f` (origin `o`, x, y = n x x, outward normal
 cross earlier features. A hole must lie inside its face
 (`curves-cross-or-touch` otherwise). `(chamfer BASE (face N NAME) (circle X
 Y R) C)` chamfers the circular hole or boss edge of radius R in that face at
-45 degrees by C; `(chamfer BASE (edge N NAME1 NAME2) C)` chamfers the convex
-straight edge between two named planar faces.
+45 degrees by C; `(fillet BASE (face N NAME) (circle X Y R) RHO)` rounds
+the same edge with radius RHO (0 < RHO < R); `(chamfer BASE (edge N NAME1
+NAME2) C)` chamfers the convex straight edge between two named planar faces.
+Tangent contact along a curve (a ball on a shaft of the same radius, a
+fillet meeting its face) certifies; contact at isolated points refuses as
+`non-manifold-result`.
 
 ## Intent
 

@@ -2020,8 +2020,8 @@ def k1_curved(+kr: K1.KR) -> Bool:
 
 def k1_curved_out(+nd: U64, +stage: String) -> Out:
   out_fail(fk_unsupported(), stage, "node " ++ U64.show(nd),
-    "curved-surface-operand: sphere/cone/torus operands are not admitted",
-    "use plane/cylinder operands; K1 curved sheets are deferred")
+    "curved-surface-operand: freeform (curved Bezier or NURBS) faces are not admitted",
+    "use plane, cylinder, cone, sphere, torus or flat-patch operands")
 
 def out_why_add(o: Out, +x: String) -> Out:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,

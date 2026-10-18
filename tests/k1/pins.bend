@@ -106,11 +106,82 @@ def tolerant_cylinder_param_membership__got() -> Bool:
 def tolerant_cylinder_param_membership__want() -> Bool:
   True{}
 
-def sphere_operand_refused__got() -> Bool:
+def sphere_operand_admitted__got() -> Bool:
   GB.fas_sup([Ty.Fa{0u64, G.GV_sp{G.Sp{V.Pt{0.0f64, 0.0f64, 0.0f64}, 1.0f64}}, [], True{}, 0.0f64, 0.0f64}], True{})
 
-def sphere_operand_refused__want() -> Bool:
+def sphere_operand_admitted__want() -> Bool:
+  True{}
+
+def pt3(+x: F64, +y: F64, +z: F64) -> V.Point:
+  V.Pt{x, y, z}
+
+def curved_patch_refused__got() -> Bool:
+  GB.fas_sup([Ty.Fa{0u64, G.GV_bp{G.Bp{pt3(0.0f64, 0.0f64, 0.0f64), pt3(0.0f64, 1.0f64, 0.0f64), pt3(0.0f64, 2.0f64, 0.0f64), pt3(0.0f64, 3.0f64, 0.0f64),
+    pt3(1.0f64, 0.0f64, 0.0f64), pt3(1.0f64, 1.0f64, 1.0f64), pt3(1.0f64, 2.0f64, 1.0f64), pt3(1.0f64, 3.0f64, 0.0f64),
+    pt3(2.0f64, 0.0f64, 0.0f64), pt3(2.0f64, 1.0f64, 1.0f64), pt3(2.0f64, 2.0f64, 1.0f64), pt3(2.0f64, 3.0f64, 0.0f64),
+    pt3(3.0f64, 0.0f64, 0.0f64), pt3(3.0f64, 1.0f64, 0.0f64), pt3(3.0f64, 2.0f64, 0.0f64), pt3(3.0f64, 3.0f64, 0.0f64)}}, [], True{}, 0.0f64, 0.0f64}], True{})
+
+def curved_patch_refused__want() -> Bool:
   False{}
+
+def sph(+z: F64, +r: F64) -> S.SF:
+  S.sf_of(G.GV_sp{G.Sp{V.Pt{0.0f64, 0.0f64, z}, r}})
+
+def zcyl(+r: F64) -> S.SF:
+  S.sf_of(G.GV_cy{G.Cy{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, r}})
+
+def tor(+bigr: F64, +r: F64) -> S.SF:
+  S.sf_of(G.GV_to{G.To{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, bigr, r}})
+
+def ics_n(+c: SS.ICS) -> Nat:
+  List.length(&2, SS.IC, SS.ics_ics(c))
+
+def ics_r(+c: SS.ICS, +i: Nat) -> F64:
+  circ_r(L_ic(SS.ics_ics(c), i))
+
+def L_ic(xs: List<&2, SS.IC>, +i: Nat) -> SS.IC:
+  match xs:
+    case []: SS.none_ic()
+    case +h <> +t:
+      match i:
+        case 0n: h
+        case 1n+j: L_ic(t, j)
+
+def plane_sphere_circle_radius__got() -> F64:
+  circ_r(SS.ps_go(zplane(3.0f64), sph(0.0f64, 5.0f64)))
+
+def plane_sphere_circle_radius__want() -> F64:
+  4.0f64
+
+def ball_on_shaft_one_tangent_circle__got() -> Nat:
+  ics_n(SS.cs_go(zcyl(3.0f64), sph(10.0f64, 3.0f64), []))
+
+def ball_on_shaft_one_tangent_circle__want() -> Nat:
+  1n
+
+def torus_plane_two_circles__got() -> Nat:
+  ics_n(SS.tp_go(zplane(0.6f64), tor(5.0f64, 1.0f64)))
+
+def torus_plane_two_circles__want() -> Nat:
+  2n
+
+def torus_plane_outer_radius__got() -> F64:
+  ics_r(SS.tp_go(zplane(0.0f64), tor(5.0f64, 1.0f64)), 0n)
+
+def torus_plane_outer_radius__want() -> F64:
+  6.0f64
+
+def torus_tangent_plane_circle__got() -> F64:
+  ics_r(SS.tp_go(zplane(1.0f64), tor(5.0f64, 1.0f64)), 0n)
+
+def torus_tangent_plane_circle__want() -> F64:
+  5.0f64
+
+def torus_tangent_cylinder_circle__got() -> Nat:
+  ics_n(SS.tcy_go(zcyl(4.0f64), tor(5.0f64, 1.0f64)))
+
+def torus_tangent_cylinder_circle__want() -> Nat:
+  1n
 
 def reversed_face_frame_y__got() -> F64:
   V.dr_y(M.fr_w(M.frame_of(Ty.Fa{0u64, G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}, [], False{}, 0.0f64, 0.0f64})))
