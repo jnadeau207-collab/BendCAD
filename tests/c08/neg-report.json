@@ -1,5 +1,5 @@
 {
- "binary_sha256": "ea4c12344da88431c60ae05d18a80403e4c51a63e080004a68f2f225fa287fb3",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 21,
  "total": 21,
  "results": [
@@ -7,13 +7,13 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "(1499.999999998499, 1500.000000001501)",
-   "seconds": 0.8
+   "seconds": 0.9
   },
   {
    "name": "cross.straddle",
    "ok": true,
    "info": "(7967.999999992034, 7968.000000007972)",
-   "seconds": 0.15
+   "seconds": 0.18
   },
   {
    "name": "cross.pierce_rod",
@@ -25,43 +25,43 @@
    "name": "cross.sphere",
    "ok": true,
    "info": "('unsupported-op', 'curved-surface-operand: sphere/cone/torus operands are not admitted')",
-   "seconds": 0.35
+   "seconds": 0.42
   },
   {
    "name": "ok.mixed_cavity",
    "ok": true,
    "info": "(63839.99999993617, 63840.00000006385)",
-   "seconds": 0.21
+   "seconds": 0.22
   },
   {
    "name": "place.rot45_union",
    "ok": true,
    "info": "interval-placement: operand placement is not certified exact",
-   "seconds": 0.01
+   "seconds": 0.02
   },
   {
    "name": "place.rot45_diff",
    "ok": true,
    "info": "interval-placement: operand placement is not certified exact",
-   "seconds": 0.01
+   "seconds": 0.02
   },
   {
    "name": "feature.on_boolean",
    "ok": true,
    "info": "(1509.424777959259, 1509.42477796228)",
-   "seconds": 1.87
+   "seconds": 2.01
   },
   {
    "name": "feature.on_compound",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 1.12
+   "seconds": 1.07
   },
   {
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.02
+   "seconds": 0.03
   },
   {
    "name": "intent.mismatch",
@@ -73,13 +73,13 @@
    "name": "zone.boolean",
    "ok": true,
    "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: union, difference and intersection refuse before any zone split; narrowing zones or separ",
-   "seconds": 0.03
+   "seconds": 0.04
   },
   {
    "name": "ok.flush_pocket",
    "ok": true,
    "info": "(7935.999999992063, 7936.000000007937)",
-   "seconds": 0.21
+   "seconds": 0.23
   },
   {
    "name": "ok.ident_union",
@@ -91,19 +91,19 @@
    "name": "ok.half_removed",
    "ok": true,
    "info": "(3999.999999996, 4000.000000004002)",
-   "seconds": 2.33
+   "seconds": 2.51
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.36
+   "seconds": 0.37
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 1.97
+   "seconds": 2.12
   },
   {
    "name": "ok.identical",

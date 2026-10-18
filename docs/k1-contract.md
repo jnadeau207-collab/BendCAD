@@ -3,7 +3,7 @@
 Scope (MASTER_PLAN §10 K1): regularized union, difference and intersection
 of solids whose boundaries cross, touch or coincide; features on any
 planar face, boolean results included; edge chamfers on circular hole and
-boss edges; cones through booleans, STEP and the archive. G2 is the first
+boss edges and on straight edges; cones through booleans, STEP and the archive. G2 is the first
 gate that depends on it. No external kernel runs at any point; oracles are
 closed-form volumes computed in the suites, the C04/C07 validators, and
 OCCT reading the STEP export inside the test harness only.
@@ -14,7 +14,7 @@ OCCT reading the STEP export inside the test harness only.
 |---|---|
 | `src/k1/sf.bend` | Surface frames: plane, cylinder, cone (apex, axis, slope). Parameter maps, implicit forms, gradients, Newton projection |
 | `src/k1/ef.bend` | Edge–face hits with exact certification on planes and the one-ulp-box rule on quadrics |
-| `src/k1/ss.bend` | Closed-form surface–surface intersection: plane/plane, plane/cylinder, cylinder/cylinder (parallel, skew by discriminant scan, equal-radius intersecting axes as two planar ellipses), plane/cone, cylinder/cone and cone/cone when coaxial |
+| `src/k1/ss.bend` | Surface–surface intersection: closed forms for plane/plane, plane/cylinder (tangent lines included), parallel cylinders, equal-radius cylinders with intersecting axes (two planar ellipses), plane/cone, and coaxial cylinder/cone and cone/cone; every other cylinder or cone pair by a discriminant scan over the rulings of one surface against the exact quadratic of the other |
 | `src/k1/fb.bend` | Face boundaries in parameter space, point-in-face, face bounding boxes (cone tips included), coplanarity |
 | `src/k1/px.bend` | Chains between break points, cubic Hermite intersection edges with midpoint-matched tangents and a measured deviation bound |
 | `src/k1/gw.bend` | Per-face piece graph, cycle walk, regions, bands and holes, sample points |
@@ -26,6 +26,7 @@ OCCT reading the STEP export inside the test harness only.
 | `src/c06/model.bend`, `sx.bend`, `cli.bend` | `(face NODE NAME)` selectors, features on named planar faces, `(chamfer BASE (face N NAME) (circle X Y R) C)`, `faces N -f` frames |
 | `src/c07/mem.bend`, `sol.bend`, `isect.bend`, `emb.bend` | Parameter-space membership for tolerant faces, nappe-aware cones, exact equal-radius cylinder intersection, NaN-safe unresolved hits, orientation over every face |
 | `src/c12/stepw.bend`, `stepr.bend`, `blob.bend` | `CONICAL_SURFACE` write and read; cones in the archive |
+| `src/c03/ops.bend`, `src/c04/ops.bend` | Exact implicit forms for planes and flat patches; the one-ulp-box vertex rule extended to oblique planes and flat patches (axis-aligned planes keep the exact parametric rule) |
 
 ## 2. What a boolean certifies
 
@@ -69,6 +70,10 @@ above its face; `through` spans the whole body. The tool is placed
 exactly when x, y and n are axis directions and the boolean runs
 through K1.
 
+`(chamfer BASE (edge N NAME1 NAME2) C)` chamfers the convex straight
+edge where two named planar faces meet, at 45° by C, removing a
+triangular prism along the edge that extends into the air at both ends.
+
 `(chamfer BASE (face N NAME) (circle X Y R) C)` chamfers the circular
 edge of radius R in that face at 45° by C. The kernel decides hole or
 boss from the face's own material just outside the circle and removes a
@@ -88,10 +93,9 @@ message ends with `[k1 reason N]`:
 | 40 | The result is empty after classification |
 | 41, 42, 43 | Index, edge-use or tolerance certification of the assembled result failed |
 | 44 | Assembly counts disagree with emission |
-| 71 | Tangent plane/cylinder contact (fillets need it; see §7) |
+| 71 | Tangent plane/cylinder contact (fillets need it; see §8) |
 | 72 | An intersection point could not be certified on both surfaces |
-| 73 | Surface pair outside §1 (non-coaxial cone pairs, open plane/cone conics) |
-| 74 | A plane meeting a curved surface is not axis-aligned |
+| 73 | Surface pair outside §1 (a plane meeting a cone in an open conic) |
 | 81 | An edge passes too close to a face to separate crossing from touching |
 | 82 | An edge–face hit could not be certified |
 | 83 | An edge ends inside a face that no coplanar face of its own solid covers |
@@ -106,13 +110,24 @@ equal-radius cross bores, which touch themselves at two tangent points,
 are refused as `non-manifold-result`. The difference of the same
 operands is certified.
 
-## 6. Evidence
+## 6. Oblique planes
 
-- `tests/k1/corpus.py` (10 members): perpendicular bores of equal and
+A vertex on an axis-aligned plane must be hit exactly by the plane's own
+evaluation, as before. A vertex on an oblique plane or a flat Bézier
+patch (slanted prism walls, hex sockets, chamfer faces) is certified
+the way quadric vertices are: the exact implicit function changes sign
+inside the vertex's one-ulp box, and every trim evaluates to within four
+ulps of the point's magnitude. Patch parameters come from Newton
+iterations on the patch's own evaluation followed by an ulp scan.
+
+## 7. Evidence
+
+- `tests/k1/corpus.py` (12 members): perpendicular bores of equal and
   unequal radius, an off-axis passage, a port into a figure-eight
   chamber, a counterbore, an O-ring groove, a countersink with a
   through bore (cones), features on side faces of plain and boolean
-  bodies, hole and boss chamfers, and the G3 limits L1, L3 and L4. Each
+  bodies, hole and boss chamfers, straight-edge chamfers, and the G3
+  limits L1, L3 (socket-head screw with hex socket) and L4. Each
   checks closed-form volumes, |A∪B| + |A∩B| = |A| + |B|, the B-rep
   checker, genus, STEP volume read back by OCCT to 1e-6, replay, and
   archive reopen.
@@ -127,13 +142,14 @@ operands is certified.
   dispatch codes, box disjointness, the cone area term, split-piece
   names, membership choice, sphere refusal, outward-frame handedness.
 
-## 7. Not yet delivered
+## 8. Not yet delivered
 
 - Sphere and torus faces in booleans (reason 2), and fillets, which need
   tangent plane/cylinder contact (reason 71) and torus tools.
 - Placements by a general rotation (`interval-placement`), and features
   on faces whose frame is not axis-aligned (`feature-face-oblique`).
-- Open conics on cones and non-coaxial cone pairs (reason 73).
-- Chamfers on straight edges (G3-L7b for pad edges).
+  Oblique faces made by prisms and booleans are supported; rotating an
+  operand by a general angle is not.
+- Open conics where a plane meets a cone at or beyond its slope (reason 73).
 - Coplanar faces of one surface that end up adjacent are not merged
   into one face; the result is valid but carries extra faces.

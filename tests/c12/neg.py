@@ -130,7 +130,7 @@ def c_imp_e():
 @case('import.cone')
 def c_imp_c():
     txt = setup_box_step().replace('PLANE(', 'CONICAL_SURFACE(', 1)
-    return imp_refused('cone', txt, 'step-conical-surface-not-in-profile')
+    return imp_refused('cone', txt, 'step-cone-recovery-failed')
 
 
 @case('import.open')

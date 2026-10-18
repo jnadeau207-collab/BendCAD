@@ -2772,4 +2772,10 @@ def qon_r_plane__got() -> Bool:
   O.q_on_r(G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}, V.Pt{1.0f64, 1.0f64, 0.0f64})
 
 def qon_r_plane__want() -> Bool:
+  True{}
+
+def qon_r_plane_off__got() -> Bool:
+  O.q_on_r(G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}, V.Pt{1.0f64, 1.0f64, 1.0e-12f64})
+
+def qon_r_plane_off__want() -> Bool:
   False{}

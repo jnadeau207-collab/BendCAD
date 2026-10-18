@@ -45,7 +45,7 @@ law ar_mk_ok_shape:
   for u: String
   for l: String
   for b: Ty.Brep
-  {BL.ar_mk_t(True{}, u, l, b) == BL.es_app(BL.es_ok("BCAD1|" ++ u ++ "|" ++ l ++ "|"), BL.brep_s(b), "") : BL.ES}
+  {BL.ar_mk_t(True{}, u, l, b) == BL.es_app(BL.es_ok("BCAD2|" ++ u ++ "|" ++ l ++ "|"), BL.brep_s(b), "") : BL.ES}
 
 law kind_cartesian_point:
   for id: U64
@@ -240,7 +240,7 @@ law fail_curve_spline:
 
 law fail_surf_cone:
   for sid: U64
-  {SR.sr_fail_surf(27u64, sid) == BL.pr_fail("step-conical-surface-not-in-profile") : BL.PR}
+  {SR.sr_fail_surf(27u64, sid) == BL.pr_fail("step-cone-recovery-failed #" ++ U64.show(sid)) : BL.PR}
 
 law sec_go_nil:
   for ind: Bool

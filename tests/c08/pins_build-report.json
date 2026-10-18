@@ -1,14 +1,210 @@
 [
  {
-  "name": "ev_feature_on_boolean",
-  "ok": false,
-  "detail": {
-   "got": "false",
-   "want": "true"
-  }
+  "name": "ev_cross_diff",
+  "ok": true
+ },
+ {
+  "name": "ev_cross_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_cross_union",
+  "ok": true
+ },
+ {
+  "name": "ev_diff_ainb_empty",
+  "ok": true
+ },
+ {
+  "name": "ev_diff_contained",
+  "ok": true
+ },
+ {
+  "name": "ev_diff_disjoint",
+  "ok": true
+ },
+ {
+  "name": "ev_diff_empty_left",
+  "ok": true
+ },
+ {
+  "name": "ev_diff_identical",
+  "ok": true
+ },
+ {
+  "name": "ev_disjoint_cyl_sphere",
+  "ok": true
+ },
+ {
+  "name": "ev_feature_on_compound",
+  "ok": true
  },
  {
   "name": "ev_feature_on_empty",
+  "ok": true
+ },
+ {
+  "name": "ev_feature_pad_ok",
+  "ok": true
+ },
+ {
+  "name": "ev_intent_mismatch",
+  "ok": true
+ },
+ {
+  "name": "ev_inter_contained",
+  "ok": true
+ },
+ {
+  "name": "ev_inter_disjoint",
+  "ok": true
+ },
+ {
+  "name": "ev_inter_identical",
+  "ok": true
+ },
+ {
+  "name": "ev_kissing_spheres",
+  "ok": true
+ },
+ {
+  "name": "ev_mixed_solids_cut",
+  "ok": true
+ },
+ {
+  "name": "ev_move_plain_stays_plain",
+  "ok": true
+ },
+ {
+  "name": "ev_move_preserves_origin",
+  "ok": true
+ },
+ {
+  "name": "ev_nurbs_refused",
+  "ok": true
+ },
+ {
+  "name": "ev_open_shell_refused",
+  "ok": true
+ },
+ {
+  "name": "ev_pierce_rod",
+  "ok": true
+ },
+ {
+  "name": "ev_pierce_rod_diff",
+  "ok": true
+ },
+ {
+  "name": "ev_pierce_rod_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_rot45_refused",
+  "ok": true
+ },
+ {
+  "name": "ev_sphere_cavity",
+  "ok": true
+ },
+ {
+  "name": "ev_sphere_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_straddle",
+  "ok": true
+ },
+ {
+  "name": "ev_tangent_inter_empty",
+  "ok": true
+ },
+ {
+  "name": "ev_tangent_sphere_plane",
+  "ok": true
+ },
+ {
+  "name": "ev_union_contact_face",
+  "ok": true
+ },
+ {
+  "name": "ev_union_contained",
+  "ok": true
+ },
+ {
+  "name": "ev_union_disjoint",
+  "ok": true
+ },
+ {
+  "name": "ev_union_empty_left",
+  "ok": true
+ },
+ {
+  "name": "ev_union_identical",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_cavity",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_contact",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_cross_diff",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_cross_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_cross_union",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_cyl_sphere",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_feature_pad",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_inter_empty",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_kissing",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_pierce_rod",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_pierce_rod_diff",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_pierce_rod_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_sphere_cavity",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_sphere_inter",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_straddle",
+  "ok": true
+ },
+ {
+  "name": "ev_vol_tangent",
   "ok": true
  },
  {

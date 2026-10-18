@@ -410,6 +410,60 @@ def g3limits():
     record('g3limits', all(checks.values()), **checks)
 
 
+def fig8(r):
+    h = math.sqrt(r * r - 49)
+    return (f'(path 29 {20 + h!r} (arc 22 20 {r!r} 29 {20 - h!r} ccw) '
+            f'(arc 36 20 {r!r} 29 {20 + h!r} ccw))')
+
+
+def fig8_area(r):
+    return 2 * math.pi * r * r - (2 * r * r * math.acos(7 / r) - 7 * math.sqrt(4 * r * r - 196))
+
+
+def port_vol():
+    xs, ws = gauss_legendre(64)
+    return sum(w * 18 * math.cos(t) ** 2 * (20 - math.sqrt(64 - 9 * math.sin(t) ** 2)) * math.pi / 2
+               for t, w in ((x * math.pi / 2, w) for x, w in zip(xs, ws)))
+
+
+def gauss_legendre(n):
+    xs, ws = [], []
+    for i in range(1, n + 1):
+        x = math.cos(math.pi * (i - 0.25) / (n + 0.5))
+        for _ in range(100):
+            p0, p1 = 1.0, x
+            for k in range(2, n + 1):
+                p0, p1 = p1, ((2 * k - 1) * x * p1 - (k - 1) * p0) / k
+            dp = n * (x * p1 - p0) / (x * x - 1)
+            dx = p1 / dp
+            x -= dx
+            if abs(dx) < 1e-16:
+                break
+        xs.append(x)
+        ws.append(2 / ((1 - x * x) * dp * dp))
+    return xs, ws
+
+
+def g2pump():
+    out, dt = fresh('gp.bcd', '(node 1 (box 60 40 20) (intent create any any any any))',
+                    f'(node 2 (pocket 1 (face 1 0 top) 10 (region {fig8(8)})) {ID})',
+                    f'(node 3 (pocket 2 (face 1 0 top) 1.5 (region {fig8(11)} {fig8(9.5)})) {ID})')
+    fr = frames('gp.bcd', 3)
+    nm, f = wall_with(fr, (0.0, -1.0, 0.0))
+    u, v = local(f, (22.0, 0.0, 15.0)) if f else (0.0, 0.0)
+    o4, _ = cli('gp.bcd', 'apply',
+                f'(node 4 (pocket 3 (face 3 {nm}) 20 (region (circle {u!r} {v!r} 3))) {ID})')
+    ev, _ = cli('gp.bcd', 'eval')
+    h2 = 48000 - 10 * fig8_area(8)
+    h3 = h2 - 1.5 * (fig8_area(11) - fig8_area(9.5))
+    h4 = h3 - port_vol()
+    r = dict(out=out + o4, ev=ev)
+    checks, info = finish('gp', 'gp.bcd', r, 4, h4, 4, 1)
+    checks.update(chamber=contains(vol(ev, 2), h2), groove=contains(vol(ev, 3), h3), wall=nm is not None)
+    record('g2pump', all(checks.values()), artifacts=('gp.bcd', 'gp.stp', 'gp.bin'), seconds=dt,
+           **checks, **info)
+
+
 def lens(r1, r2, d):
     return math.pi * (r1 + r2 - d) ** 2 * (d * d + 2 * d * (r1 + r2) - 3 * (r1 - r2) ** 2) / (12 * d)
 
@@ -479,6 +533,7 @@ def main():
     chamfer_edges()
     edgechamfer()
     g3limits()
+    g2pump()
     spheres()
     fillets()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)

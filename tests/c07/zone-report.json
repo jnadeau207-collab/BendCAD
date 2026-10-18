@@ -1,5 +1,5 @@
 {
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 33,
  "results": [
   {
@@ -45,7 +45,7 @@
    "name": "zone.bracket.n1.certified",
    "ok": true,
    "out": "zone node 1: certified over the tolerance envelope | volume=[23167.290999992274, 24177.313589212026] area=[9302.627565044619, 9432.989042727135]",
-   "secs": 0.076
+   "secs": 0.077
   },
   {
    "name": "zone.bracket.n2.certified",
@@ -57,7 +57,7 @@
    "name": "zone.bracket.n3.certified",
    "ok": true,
    "out": "zone node 3: certified over the tolerance envelope | volume=[22395.21829453411, 23465.56496048993] area=[9506.218476960505, 9656.780395405603]",
-   "secs": 0.094
+   "secs": 0.091
   },
   {
    "name": "zone.bracket.n1.encloses",
@@ -189,7 +189,7 @@
    "name": "zone.revolve-cavity.n1.certified",
    "ok": true,
    "out": "zone node 1: certified over the tolerance envelope | volume=[136781.76171401056, 145111.15243471385] area=[21117.79938976174, 21966.863443969018]",
-   "secs": 0.05
+   "secs": 0.049
   },
   {
    "name": "zone.revolve-cavity.n1.encloses",
@@ -228,7 +228,7 @@
    "name": "zone.revolve-slant.n1.certified",
    "ok": true,
    "out": "zone node 1: certified over the tolerance envelope | volume=[1846.9904921327902, 2078.2410329684412] area=[917.3179574218844, 992.436061175011]",
-   "secs": 0.126
+   "secs": 0.129
   },
   {
    "name": "zone.revolve-slant.n1.encloses",
@@ -306,25 +306,25 @@
    "name": "zone.neg.hole-crosses-edge",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.016
+   "secs": 0.018
   },
   {
    "name": "zone.neg.holes-collide",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.017
+   "secs": 0.018
   },
   {
    "name": "zone.neg.arc-not-identical",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 1 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.042
+   "secs": 0.043
   },
   {
    "name": "zone.neg.depth-reaches-floor",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.015
+   "secs": 0.016
   }
  ],
  "total": 33

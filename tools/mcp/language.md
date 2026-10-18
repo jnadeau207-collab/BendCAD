@@ -64,7 +64,7 @@ parameter names (`W`), and `(+ a b)`, `(- a b)`, `(- a)`, `(* a b)`, `(/ a b)`.
 - `(union A B)`, `(difference A B)`, `(intersection A B)` — regularized
   booleans over closed solids whose boundaries do not cross (see Booleans).
 - `(import 1 PAYLOAD)` — adopt an encoded format-1 B-rep body (the B1
-  section of a BCAD1 archive). The body is fully validated by the B-rep
+  section of a BCAD2 archive). The body is fully validated by the B-rep
   checker; anything else is refused loudly and nothing is published.
 
 An unknown operation name is rejected as `unknown-op`.
@@ -145,21 +145,28 @@ Refusals, with the `why:` text verbatim:
 
 ## Booleans
 
-Operands must be closed solids with plane, cylinder, cone, sphere, torus or
-exactly-flat-patch faces, line, cubic, circle or rational-quadratic edges,
-and certified-exact placements (`move` and quarter turns). Disjoint,
-contained, contact-only and identical operands evaluate; anything else is
-refused loudly and nothing is published. Contact never fuses: solids meeting
-in a point, a curve or a zero-volume patch keep one solid per
-volume-connected component. Cavity faces are named `nN.cav.K.I.J`.
+Operands must be closed solids with plane, cylinder, cone or exactly-flat
+patch faces, line, cubic, circle or rational-quadratic edges, and
+certified-exact placements (`move` and quarter turns). Disjoint, contained,
+contact-only and identical operands evaluate on the fast paths; operands
+whose boundaries cross, touch or coincide go through K1 face splitting and
+publish with `proof: k1-crossing-certified`. A union of solids that touch
+across a face fuses into one solid. Intersection curves that are lines,
+circles or planar conics are exact edges; other curves are cubic edges with
+a measured deviation bound carried in the volume and area intervals.
+Cavity faces are named `nN.cav.K.I.J`. A face that survives as several
+pieces is named `NAME.p0`, `NAME.p1`, ...; selecting the unsplit name
+refuses with `ambiguous-selector` and lists the pieces.
 
-Refusals, with the `why:` text the kernel returns verbatim:
+Refusals, with the `why:` text the kernel returns verbatim. When K1 could
+not certify a case the text ends with `[k1 reason N]` (see
+`docs/k1-contract.md` for the codes):
 
-- `boundaries-cross-or-overlap` (unsupported-op): boundaries genuinely cross
-  (face splitting is not implemented); move the operands apart or nest one
-  inside the other.
-- `mixed-solid-relations` (unsupported-op): one operand has solids both
-  inside and outside the other.
+- `curved-surface-operand` (unsupported-op): an operand has a sphere,
+  torus or freeform face.
+- `non-manifold-result` (unsupported-op): the regularized result would meet
+  itself at isolated points (for example the union of equal-radius cross
+  bores); change a radius or offset an operand.
 - `interval-placement` (unsupported-op): a general-angle rotation baked at an
   uncertified midpoint; use `move` or quarter turns.
 - `open-shell-operand`, `nurbs-operand`, `bezier-patch-operand`,
@@ -172,26 +179,26 @@ Refusals, with the `why:` text the kernel returns verbatim:
   `intersect-rejected`, `operand-failed-check` (numerical-uncertainty):
   classification or validation could not certify; an unrecognized future
   finding code reports as `unknown-finding: <code>` (numerical-uncertainty).
-- `feature-on-boolean-result` (invalid-input): pads, pockets and holes apply
-  to extruded bodies, not to boolean results; carried faces stay addressable
-  through their original selectors.
 - `zone` on a boolean node answers `topology-not-certified-over-zone`.
-  Union, difference and intersection refuse before any zone split;
-  narrowing zones or separating profile features does not certify them.
 
 Disjoint unions carry their proof: `proof: disjoint-boxes A[...] B[...]` with
 both operand world boxes. Deleted lineage (`faces N -v`) lists consumed
-input faces with reasons (`classified-away`, ...); most non-crossing cases
-have empty deleted lists.
+input faces with reasons (`classified-away`, ...).
 
-`FACE` is `(face NODE CELL top)` or `(face NODE CELL bottom)`: the top or
-bottom face of a cell. A node's cells are numbered from 0 in the order its
-loops appear (each region's outer loop, then its holes; for pads, pockets and
-holes, the footprint loops in order). `box` and `cylinder` make cell 0. A
-feature footprint must lie strictly inside the selected face and clear of every
-feature already on it. Features act along the body's z axis. Pads, pockets
-and holes apply to extruded bodies (box, cylinder, prism and their features,
-moved or not); on a revolved body they are rejected as `unsupported-op`.
+`FACE` is `(face NODE CELL top)` or `(face NODE CELL bottom)` for the top or
+bottom face of a cell of an extruded body, or `(face NODE NAME)` for any
+planar face by its name in `faces NODE`. A node's cells are numbered from 0
+in the order its loops appear (each region's outer loop, then its holes; for
+pads, pockets and holes, the footprint loops in order). `box` and `cylinder`
+make cell 0. On a cell face, features act along the body's z axis; on a named
+face they act along that face's outward normal, with the region given in the
+frame printed by `faces NODE -f` (origin `o`, x, y = n x x, outward normal
+`n`). Features apply to boolean results and to footprints that enclose or
+cross earlier features. A hole must lie inside its face
+(`curves-cross-or-touch` otherwise). `(chamfer BASE (face N NAME) (circle X
+Y R) C)` chamfers the circular hole or boss edge of radius R in that face at
+45 degrees by C; `(chamfer BASE (edge N NAME1 NAME2) C)` chamfers the convex
+straight edge between two named planar faces.
 
 ## Intent
 

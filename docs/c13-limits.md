@@ -21,6 +21,18 @@ file adds the gate each one blocks and the limits the corpus build found.
 | G3-L7c | No side holes | G4: blower casing mountings; G5: engine mountings and instrumentation |
 | G3-L8 | Meshing-gear disjointness and clearance estimated, not certified (C11) | G5: cold-and-running clearances must be certified, not estimated |
 
+### Closed by K1
+
+| ID | Evidence |
+|---|---|
+| G3-L1 | Cell features whose obstacles block them fall back to K1; `tests/k1/corpus.py` `g3limits.l1` pockets one bore chain from the top and the bottom face of one cell |
+| G3-L2 | Face-touching solids union into one solid through K1 (`tests/c08/neg.py` `ok.touch_face`, `tests/c08/e2e.py` `contact.face`); a tool flush with a face is certified (`ok.flush_pocket`) |
+| G3-L3 | Hex socket pocketed into a head over a shank grown beneath it; `g3limits.l3` |
+| G3-L4 | Ring pocket around a face hole; `g3limits.l4` and corpus member `oring` |
+| G3-L5 | `CONICAL_SURFACE` written and read back; corpus member `csink` checks the STEP volume through OCCT |
+| G3-L7b | `(chamfer BASE (edge N A B) C)` on convex straight edges; corpus member `edgechamfer` |
+| G3-L7c | Features on any named planar face, side faces included; corpus member `sidefeat` |
+
 ## From the C16 receipts (deferral IDs unchanged)
 
 | ID | Limit | First gate needing the fix |

@@ -184,13 +184,13 @@ def ev_feature_on_compound__want() -> Bool:
   True{}
 
 def ev_feature_pad_ok__got() -> Bool:
-  String.eq(last_s(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 0 1 0))"), "ok material=add faces_created=3 faces_modified=0 solids=1 through_holes=0")
+  String.eq(last_s(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 2 1 1 0))"), "ok material=add faces_created=2 faces_modified=1 solids=1 through_holes=0")
 
 def ev_feature_pad_ok__want() -> Bool:
   True{}
 
 def ev_vol_feature_pad__got() -> Bool:
-  vol_has(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 0 1 0))", 1509.4247779607695f64)
+  vol_has(base_cross() ++ " (node 4 (union 1 3) (intent add 0 0 1 0)) (node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 2 1 1 0))", 1509.4247779607695f64)
 
 def ev_vol_feature_pad__want() -> Bool:
   True{}
@@ -232,13 +232,13 @@ def ev_vol_cavity__want() -> Bool:
   True{}
 
 def ev_union_contact_face__got() -> Bool:
-  String.eq(last_s(base_touch() ++ " (node 4 (union 1 3) (intent add 0 0 2 0))"), "ok material=add faces_created=0 faces_modified=0 solids=2 through_holes=0")
+  String.eq(last_s(base_touch() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))"), "ok material=add faces_created=0 faces_modified=0 solids=1 through_holes=0")
 
 def ev_union_contact_face__want() -> Bool:
   True{}
 
 def ev_vol_contact__got() -> Bool:
-  vol_has(base_touch() ++ " (node 4 (union 1 3) (intent add 0 0 2 0))", 2000.0f64)
+  vol_has(base_touch() ++ " (node 4 (union 1 3) (intent add 0 0 1 0))", 2000.0f64)
 
 def ev_vol_contact__want() -> Bool:
   True{}
@@ -249,10 +249,10 @@ def ev_diff_ainb_empty__got() -> Bool:
 def ev_diff_ainb_empty__want() -> Bool:
   True{}
 
-def ev_mixed_solids_refused__got() -> Bool:
-  String.eq(last_s(base_multi() ++ " (node 4 (difference 2 3) (intent remove 0 0 1 0))"), "err unsupported-op mixed-solid-relations: one operand has solids both inside and outside the other")
+def ev_mixed_solids_cut__got() -> Bool:
+  vol_has(base_multi() ++ " (node 4 (difference 2 3) (intent remove 0 0 1 0))", 63840.0f64)
 
-def ev_mixed_solids_refused__want() -> Bool:
+def ev_mixed_solids_cut__want() -> Bool:
   True{}
 
 def ev_nurbs_refused__got() -> String:
@@ -292,13 +292,13 @@ def ev_vol_pierce_rod__want() -> Bool:
   True{}
 
 def ev_pierce_rod_diff__got() -> Bool:
-  String.eq(last_s(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))"), "ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=0")
+  String.eq(last_s(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 1))"), "ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1")
 
 def ev_pierce_rod_diff__want() -> Bool:
   True{}
 
 def ev_vol_pierce_rod_diff__got() -> Bool:
-  vol_has(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 0))", 960.0f64)
+  vol_has(base_pierce() ++ " (node 4 (difference 1 3) (intent remove 0 0 1 1))", 960.0f64)
 
 def ev_vol_pierce_rod_diff__want() -> Bool:
   True{}

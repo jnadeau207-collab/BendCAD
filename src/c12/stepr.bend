@@ -3788,7 +3788,8 @@ def sr_face_bp(+xs: List<&2, SA>, +st: ST, +fa: Nat, +ranks: List<&2, Nat>) -> S
 def sr_face_done(+bp: SR_BP, +sf: BL.ES, +same: Bool, +ranks: List<&2, Nat>, +g: G.GVal) ->
     SR_FC:
   SR_FC{sr_bp_ok(bp), BL.es_s(sf) ++ "," ++ BL.bit_s(same) ++ "," ++
-    Nat.show(List.length(&2, Nat, ranks)) ++ BL.jn_tail(sr_nstrs(ranks), ","), g, sr_bp_ces(bp),
+    Nat.show(List.length(&2, Nat, ranks)) ++ BL.jn_tail(sr_nstrs(ranks), ",") ++ "," ++ N.f_show(0.0f64) ++ "," ++
+    N.f_show(0.0f64), g, sr_bp_ces(bp),
     sr_bp_bds(bp), sr_bp_why(bp)}
 
 def sr_face_bp6(+w: Bool, +bp: SR_BP, +sf: BL.ES, +same: Bool, +ranks: List<&2, Nat>,

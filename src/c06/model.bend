@@ -1471,16 +1471,24 @@ def feat_or(+k: NR, +orig: NR) -> NR:
     case NR_ok{+b, fx}: NR_ok{b, fx}
     case NR_err{kk, d}: orig
 
+def feat_brk(+brk: Bool, +kind: U64, +b: Body, +rs: List<&2, F.Region>, +lo: F64, +hi: F64, +thru: Bool,
+    +e: X.Env, +nd: U64, +err: NR) -> NR:
+  match brk:
+    case True{}: err
+    case False{}: feat_or(feat_k1(kind, b, rs, lo, hi, thru, e, nd), err)
+
 def feat_fb(r: NR, +kind: U64, +b: Body, +rs: List<&2, F.Region>, +lo: F64, +hi: F64, +iv: List<&2, F64>,
     +e: X.Env, +nd: U64) -> NR:
   match r:
     case NR_ok{+bb, fx}: NR_ok{bb, fx}
     case NR_err{k, d}:
+      Dg{+w, +l, +y, +f} = d
       +a0 = f_nth(iv, 0n)
       +a1 = f_nth(iv, 1n)
       +top = Bool.not(F64.is_eq(a1, hi))
-      feat_or(feat_k1(kind, b, rs, Bool.pick(F64, top, F64.min(a1, hi), F64.min(a0, lo)),
-        Bool.pick(F64, top, F64.max(a1, hi), F64.max(a0, lo)), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd), NR_err{k, d})
+      +brk = Bool.and(U64.is_eq(kind, 2u64), String.eq(y, "curves-cross-or-touch"))
+      feat_brk(brk, kind, b, rs, Bool.pick(F64, top, F64.min(a1, hi), F64.min(a0, lo)),
+        Bool.pick(F64, top, F64.max(a1, hi), F64.max(a0, lo)), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd, NR_err{k, Dg{w, l, y, f}})
 
 def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>, +e: X.Env, +nd: U64,
     +iv: List<&2, F64>, +pl: Pl, +kind: U64, +b: Body) -> NR:

@@ -40,10 +40,11 @@ model XML, CRC32 and zip layout.
 `BCAD2|mm|<lineage>|<B1 payload>`, 13 `|`-separated fields: version
 tag, units, lineage, then the ten B1 sections
 (`B1|counts|V|E|C|L|F|S|O|top`). `BCAD2` is semantic version 2 of the
-archive; any other tag refuses with `archive-bad-version`. Version 2
-appends each face record with its certified volume sliver `slv` and area
-sliver `sla` after the loop ranks (K1 ring holes; zero for faces without
-sampled boundaries). Units are
+archive. Version 2 appends each face record with its certified volume
+sliver `slv` and area sliver `sla` after the loop ranks (zero for faces
+without tolerant edges) and adds cone faces (code 15). `BCAD1` archives
+still open, with both slivers read as zero; any other tag refuses with
+`archive-bad-version`. Units are
 exactly `mm`, the kernel unit; anything else refuses with
 `archive-units-not-supported`. Lineage is free text without `|` (empty
 allowed). The B1 half must re-encode canonically: `pay_build` parses the
@@ -64,9 +65,11 @@ Curves: `LINE`, `CIRCLE`, `TRIMMED_CURVE` over either, complex
 `RATIONAL_B_SPLINE_CURVE` and `B_SPLINE_CURVE_WITH_KNOTS` instances only
 when they are in rational-quadratic or cubic-bezier form (anything else
 refuses with `step-spline-not-bezier-form`). Surfaces: `PLANE`,
-`SPHERICAL_SURFACE`, `CYLINDRICAL_SURFACE`, `TOROIDAL_SURFACE`
-(`CONICAL_SURFACE` refuses with `step-conical-surface-not-in-profile`;
-Bezier-patch faces refuse with `step-bpatch-face-not-in-profile`).
+`SPHERICAL_SURFACE`, `CYLINDRICAL_SURFACE`, `TOROIDAL_SURFACE`,
+`CONICAL_SURFACE` (apex recovered from the placement, radius and
+semi-angle; a cone that does not reproduce refuses with
+`step-cone-recovery-failed #N`). Bezier-patch faces refuse with
+`step-bpatch-face-not-in-profile`.
 Topology: `VERTEX_POINT`, `EDGE_CURVE`, `ORIENTED_EDGE`, `EDGE_LOOP`,
 `FACE_BOUND`, `FACE_OUTER_BOUND`, `ADVANCED_FACE`, `CLOSED_SHELL`,
 `MANIFOLD_SOLID_BREP`. `OPEN_SHELL` refuses with
@@ -126,9 +129,9 @@ plus the `payload-*` family from the B1 gate. Reader: `step-too-many-entities`,
 `step-face-bad-loop #N`, `step-vertex-loop-not-in-profile face #N`,
 `step-face-failed #N`, `step-plane-recovery-failed #N`,
 `step-sphere-recovery-failed #N`, `step-cylinder-recovery-failed #N`,
-`step-torus-recovery-failed #N`, `step-surface-not-in-profile #N`,
-`step-bpatch-face-not-in-profile`,
-`step-conical-surface-not-in-profile`, `step-bound-bad-loop #N`,
+`step-torus-recovery-failed #N`, `step-cone-recovery-failed #N`,
+`step-surface-not-in-profile #N`, `step-bpatch-face-not-in-profile`,
+`step-bound-bad-loop #N`,
 `step-bound-in-two-faces #N`, `step-bound-without-face #N`,
 `step-loop-failed #N`, `step-coedge-in-two-loops #N`,
 `step-coedge-without-loop #N`, `step-coedge-trim-failed #N`,
@@ -152,8 +155,8 @@ receipt; a regression past budget blocks the packet.
 ## 8. Deferrals
 
 Non-mm unit conversion (refused, not converted); STEP cavities (writer
-refuses; STEP expresses no multi-shell solid); cone, Bezier-curve, and
-general NURBS geometry (refused by name); deflate compression for 3MF
+refuses; STEP expresses no multi-shell solid); Bezier-curve and general
+NURBS geometry (refused by name); deflate compression for 3MF
 (store mode only); 3MF/STL import (exports only); binary STL (ASCII
 only); assembly/product-structure round-trip beyond one product per
 solid (C14 owns assemblies).

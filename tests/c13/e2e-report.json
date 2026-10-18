@@ -1,7 +1,7 @@
 {
  "baseline_version": 1,
  "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
  "passed": 5,
  "total": 5,
  "baseline": {
@@ -24,7 +24,7 @@
     "g3/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f",
     "g3/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7"
    },
-   "seconds": 5.0
+   "seconds": 5.3
   },
   {
    "name": "sheet.bracket",
@@ -46,7 +46,7 @@
     "cb.show.txt": "d2448bba03e77404b9cc9a03ff9926c3a7a14bc525c047f8a96cd7ee5fecc188",
     "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
     "cb.obj": "f002ff5fb211c24b647512be541e2fa6859ba026fd6f64435439f56471150c19",
-    "cb.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21"
+    "cb.bin": "cb680b69b9b067703886798cb30a023470fe3c01576e0e8ca5d1e5ead561d3fb"
    },
    "seconds": 0.2
   },
@@ -69,7 +69,7 @@
     "cs.faces.txt": "a87fa3a5b479e823028974669994a8c430af27cbd003270ee9accca9284a0599",
     "cs.show.txt": "755b891fd8a7a6f11e965b17be04a90745187848ae74a36014b19c495ae9b0e6",
     "cs.stp": "bab6316aa3d5815df4d62d79379a0f880cf848829e6a83513677c25a10c8d3a1",
-    "cs.bin": "1e2a7feb00c76f28ae87f95b556dde2aaf9e9b940cc15c0fcdc63f3a4676733e"
+    "cs.bin": "37bdd1c1052659f423d7370f8325fc40b01e35a3274c9bea146b250ef57a70a7"
    },
    "seconds": 0.0
   },
@@ -87,12 +87,12 @@
    "artifacts": {
     "cd.bcd": "88380363638ed51615af31b688b4e418706d8b63fd548b115cc6949cff2f4687",
     "cd.eval.txt": "fce83619d93543d12d9f3339788db86d1c8972d577a82f72e5106aaadfeb3c61",
-    "cd.check.txt": "d0f7115dca7b186cd761725567a9bc1233c70f82c57a7d0f1123421c306202df",
+    "cd.check.txt": "ff00234977104db451acff16311e6dced6705d2a5b65786c7fe56d3ba4b1eaed",
     "cd.faces.txt": "05b7ab83716bbe9e0f95acebd9caba45fecd78b5d0a90ff553da9c455a00497d",
     "cd.show.txt": "3b1fef6ba1aed2c0ea53734596425080c9ea60824901efeef1a694025adcb480",
-    "cd.bin": "ed17c2df6d205d9fec4db4997fc5ac54f42432620e6ad9b59356d2a8dd36da2a"
+    "cd.bin": "01b8cab0032419536598dce6c49d21e5d81a9356ccf03ba27c436c31ceba0947"
    },
-   "seconds": 0.2
+   "seconds": 0.1
   },
   {
    "name": "blade.stack",
@@ -113,9 +113,9 @@
     "cp.eval.txt": "43bdf19250a82da29202835d38bb782731348d194ad25fabb2249786e2fbd0e3",
     "cp.show.txt": "75dba4560a4e33af539679bad66bb35d9d74d82308580ff210f3241f97ca480e",
     "cp.stp": "67e1e4267ac13eb8a643c5dc57277ad0c85bae41cc0a2ff3ab52d9c16eb7b227",
-    "cp.bin": "05f10357381f3da1f3a61d92af5727a6647807cdd903cf8d43930f7c885d5aa6"
+    "cp.bin": "402d290181d8fa352db5ee9dddb19005eaf120a73482487f98d83e4380a78dbf"
    },
-   "seconds": 0.6
+   "seconds": 0.7
   }
  ]
 }

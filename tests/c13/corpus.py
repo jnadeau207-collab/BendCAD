@@ -489,7 +489,7 @@ def corrupt_inputs():
     imps = [('garbage', 'not a step file\n', 'step-no-solid'),
             ('badent', 'ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\n#1 = \nENDSEC;\nEND-ISO-10303-21;\n',
              'step-entity-parse-failed'),
-            ('cone', box_step.replace('PLANE(', 'CONICAL_SURFACE(', 1), 'step-conical-surface-not-in-profile')]
+            ('cone', box_step.replace('PLANE(', 'CONICAL_SURFACE(', 1), 'step-cone-recovery-failed')]
     for name, text, why in imps:
         open(f'{WORK}/k{name}.step', 'w').write(text)
         out, _ = geom('step_import', f'{WORK}/k{name}.step', f'{WORK}/k{name}.bca')
