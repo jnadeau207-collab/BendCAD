@@ -366,6 +366,22 @@ def chamfer_edges():
     record('chamfer', all(checks.values()), artifacts=('ch.bcd', 'ch.stp', 'ch.bin'), seconds=dt, **checks, **info)
 
 
+def edgechamfer():
+    out, dt = fresh('ec.bcd', BOX)
+    fr = frames('ec.bcd', 1)
+    top, _ = wall_with(fr, (0.0, 0.0, 1.0))
+    px, _ = wall_with(fr, (1.0, 0.0, 0.0))
+    bot, _ = wall_with(fr, (0.0, 0.0, -1.0))
+    my, _ = wall_with(fr, (0.0, -1.0, 0.0))
+    o2, _ = cli('ec.bcd', 'apply', f'(node 2 (chamfer 1 (edge 1 {top} {px}) 1) {ID})')
+    o3, _ = cli('ec.bcd', 'apply', f'(node 3 (chamfer 2 (edge 2 {bot} {my}) 2) {ID})')
+    ev, _ = cli('ec.bcd', 'eval')
+    r = dict(out=out + o2 + o3, ev=ev)
+    checks, info = finish('ec', 'ec.bcd', r, 3, 975.0, 3, 0)
+    checks.update(first=contains(vol(ev, 2), 995.0), second=contains(vol(ev, 3), 975.0))
+    record('edgechamfer', all(checks.values()), artifacts=('ec.bcd', 'ec.stp', 'ec.bin'), seconds=dt, **checks, **info)
+
+
 def g3limits():
     l1, _ = fresh('l1.bcd', '(node 1 (box 20 20 10) (intent create any any any any))',
                   f'(node 2 (pocket 1 (face 1 0 top) 3 (region (circle 10 10 2))) {ID})',
@@ -405,6 +421,7 @@ def main():
     csink()
     sidefeat()
     chamfer_edges()
+    edgechamfer()
     g3limits()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])

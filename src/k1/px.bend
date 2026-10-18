@@ -143,12 +143,6 @@ def why_hcert() -> U64:
 def why_vtouch() -> U64:
   83u64
 
-def why_seam() -> U64:
-  84u64
-
-def why_lexact() -> U64:
-  85u64
-
 def surfs_of(fs: List<&2, Nat>, +b: Ty.Brep) -> List<&2, G.GVal>:
   match fs:
     case []: []
