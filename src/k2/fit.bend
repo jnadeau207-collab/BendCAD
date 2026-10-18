@@ -205,10 +205,15 @@ def all_neg(cs: List<&2, I.I>) -> Bool:
     case []: True{}
     case +h <> +t: Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), all_neg(t))
 
+def all_mixed(cs: List<&2, I.I>) -> Bool:
+  match cs:
+    case []: True{}
+    case +h <> +t: Bool.and(Bool.and(F64.is_lt(I.i_lo(h), 0.0f64), F64.is_lt(0.0f64, I.i_hi(h))), all_mixed(t))
+
 def verdict_of(+kind: String, +cs: List<&2, I.I>) -> String:
   Bool.pick(String, String.eq(kind, "press"), Bool.pick(String, all_neg(cs), "verdict=press-certified", "fit-not-press"),
     Bool.pick(String, String.eq(kind, "clearance"), Bool.pick(String, all_pos(cs), "verdict=clearance-certified", "fit-not-clearance"),
-      Bool.pick(String, String.eq(kind, "transition"), "verdict=transition-certified", "unknown-fit-kind")))
+      Bool.pick(String, String.eq(kind, "transition"), Bool.pick(String, all_mixed(cs), "verdict=transition-certified", "fit-not-transition"), "unknown-fit-kind")))
 
 def fe_name(+f: FE) -> String:
   FE{+nm, +a, +hs, +b, +ss, +c, +k} = f
@@ -241,7 +246,7 @@ def fit_ok(+f: FE, +fc: FC, +ms: List<&2, M.Grade>, +tes: List<&2, TE>, +d: F64)
   +head = "fit " ++ nm ++ " hole " ++ U64.show(a) ++ "." ++ hs ++ " " ++ hl ++ Nat.show(hg) ++ "=" ++ iv_s(V.v2_x(h), V.v2_y(h)) ++
     " shaft " ++ U64.show(b) ++ "." ++ ss ++ " " ++ sl ++ Nat.show(sg) ++ "=" ++ iv_s(V.v2_x(s), V.v2_y(s)) ++ " nominal=" ++ S.f_show(d) ++ "\n"
   Bool.pick(String, Bool.and(T.is_finite(ah), T.is_finite(as)),
-    Bool.pick(String, Bool.or(String.eq(v, "fit-not-press"), Bool.or(String.eq(v, "fit-not-clearance"), String.eq(v, "unknown-fit-kind"))),
+    Bool.pick(String, Bool.or(Bool.or(String.eq(v, "fit-not-press"), String.eq(v, "fit-not-transition")), Bool.or(String.eq(v, "fit-not-clearance"), String.eq(v, "unknown-fit-kind"))),
       head ++ lines_go(tes, cl, k) ++ "error invalid-input | pmi fits | why: " ++ v ++ ": " ++ nm ++ " | fix: choose classes whose envelope gives the declared kind at every state\n",
       head ++ lines_go(tes, cl, k) ++ "  " ++ v ++ " status=certified\n"),
     "error invalid-input | pmi fits | why: material-not-bound for fit " ++ nm ++ " | fix: bind materials to nodes " ++ U64.show(a) ++ " and " ++ U64.show(b) ++ " to evaluate states other than 20 C\n")

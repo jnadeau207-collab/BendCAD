@@ -126,7 +126,7 @@ def win(+k: U64, +d: DS, +pr: PR) -> V.Vec2:
   +e = es_mag(k, PR{pp, td1, td, es})
   +tde = f_at(td, Bool.pick(Nat, U64.is_eq(k, 20u64), 0n, 1n))
   Bool.pick(V.Vec2, cls_inner(k), V.V2{F64.add(d1, e), F64.add(F64.add(d1, e), f_at(td1, g))},
-    V.V2{F64.sub(F64.sub(dd, e), tde), dd})
+    V.V2{F64.sub(F64.sub(dd, e), tde), F64.sub(dd, e)})
 
 def r3(+x: F64) -> F64:
   F64.div(KS.f_round(F64.mul(x, 1000.0f64)), 1000.0f64)
@@ -240,7 +240,8 @@ def th_code(+th: M.Thr, +b: M.Body) -> U64:
   +inside = Bool.and(F64.is_lt(V.v2_x(z), V.v2_y(z)), Bool.and(F64.is_le(F64.sub(V.v2_x(sp), eps), V.v2_x(z)), F64.is_le(V.v2_y(z), F64.add(V.v2_y(sp), eps))))
   +w = win(k, ds, pr_or(pr_find(pitches(), ds_p(ds))))
   +dm = F64.mul(2.0f64, tg_r(tg))
-  +fits = Bool.and(F64.is_le(F64.sub(V.v2_x(w), eps), dm), F64.is_le(dm, F64.add(V.v2_y(w), eps)))
+  +inw = Bool.and(F64.is_le(F64.sub(V.v2_x(w), eps), dm), F64.is_le(dm, F64.add(V.v2_y(w), eps)))
+  +fits = Bool.or(inw, Bool.and(Bool.not(cls_inner(k)), F64.is_le(F64.abs(F64.sub(dm, ds_d(ds))), eps)))
   Bool.pick(U64, Bool.not(ds_ok(ds)), 1u64, Bool.pick(U64, U64.is_eq(k, 0u64), 2u64,
     Bool.pick(U64, Nat.is_le(nf, fi), 3u64, Bool.pick(U64, Bool.not(tg_ok(tg)), 4u64,
       Bool.pick(U64, Bool.not(Bool.xor(tg_inner(tg), cls_inner(k))), Bool.pick(U64, inside, Bool.pick(U64, fits, 0u64, 7u64), 6u64), 5u64)))))
@@ -280,6 +281,7 @@ def th_line(+th: M.Thr, +b: M.Body) -> String:
   "thread " ++ th_name(th) ++ " " ++ ds_name(ds) ++ " " ++ th_c(th) ++ " z=[" ++ S.f_show(V.v2_x(z)) ++ ", " ++ S.f_show(V.v2_y(z)) ++
     "] length=" ++ S.f_show(F64.sub(V.v2_y(z), V.v2_x(z))) ++ Bool.pick(String, tg_inner(tg), " internal minor=[", " external major=[") ++
     S.f_show(r3(V.v2_x(w))) ++ ", " ++ S.f_show(r3(V.v2_y(w))) ++ "] model=" ++ S.f_show(F64.mul(2.0f64, tg_r(tg))) ++
+    Bool.pick(String, F64.is_lt(F64.add(V.v2_y(w), 1.0e-9f64), F64.mul(2.0f64, tg_r(tg))), " basic", "") ++
     " face=" ++ th_face(th) ++ " status=certified
 "
 

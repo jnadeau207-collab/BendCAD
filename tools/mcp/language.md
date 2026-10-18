@@ -486,6 +486,53 @@ evaluated fresh on every call, so design edits propagate through it.
   (stack s1 dW))
 ```
 
+## Materials, threads and fits (K2)
+
+Two more edits go through `apply` with the nodes and persist in `show`:
+
+- `(material NODE GRADE RHO CTE)` — named grade (`6082-T6`, `16MnCr5`,
+  `NBR70`), density in kg/m3 and linear expansion in 1/K. `mass N` then
+  prints the mass interval in kg; rebinding replaces the grade.
+- `(thread NODE NAME FACE DESIG CLASS Z0 Z1)` — ISO metric thread on the
+  cylinder `FACE` (as printed by `faces`), designation `M8` (coarse pitch)
+  or `M8x1.25`, class `5H 6H 7H 6G` on holes or `4h 6h 6g 6f 6e` on
+  shafts, axial span `Z0..Z1` along the face axis. Model a tapped hole at
+  its tap-drill diameter (inside the ISO 965-1 minor window; M8 6H takes
+  6.647–6.912, so 6.8) and a screw at its major diameter; the kernel
+  refuses a bore outside the window. `threads N` lists them; `step`
+  exports material and threads as AP242 data.
+
+Assembly verbs on the same `(assembly ...)` text:
+
+- `asm mass (assembly ...)` — per-instance and total mass; every instance
+  needs a material.
+- `asm engage IA THREAD IB THREAD (assembly ...)` — certified axial
+  engagement of two coaxial threads of one designation, with the ratio to
+  the diameter (aim for 1.5 d or more in aluminium).
+- `asm gap IA IB [FACE ...] (assembly ...)` — certified minimum gap
+  between two placed z-extruded parts (gear tip to bore, gear to gear).
+- `asm mesh IA ZA IB ZB (assembly ...)` — certified minimum gap of two
+  meshing gears over one full pitch: A turns about its placed origin, B
+  turns the other way at ZA/ZB. Model each gear centred on its node
+  origin with the tooth phase it has at assembly.
+
+Fits are PMI: `pmi fits (pmi (node N) (temp NAME T)... (fit NAME HN HFACE SN SFACE CLASS KIND)...)`
+evaluates ISO 286 classes (`H7/g6`, `H7/p6`, `H7/k6`; holes D E F G H JS,
+shafts d e f g h js k m n p r s, grades 5–11, up to 500 mm) on two
+cylinders of one nominal size, at every temperature, growing each part
+with its own material. `KIND` is `clearance`, `press` or `transition` and
+must hold at every temperature; otherwise the fit is refused with the
+per-state intervals printed.
+
+```
+(material 1 6082-T6 2700 23.4e-6)
+(thread 3 tap8 n2.c0.wall.0.0 M8x1.25 6H 8 20)
+pmi fits (pmi (node 2) (temp cold 20) (temp hot 80)
+  (fit run 2 n2.c0.wall.0.0 3 n3.c0.wall.0.0 H7/g6 clearance))
+asm mesh drive 12 idler 12 (assembly (inst body 4 0 0 0 0) (inst drive 1 30 30 0 0)
+  (inst idler 2 66 30 0 0) (fix 1 body) (fix 2 drive) (fix 3 idler))
+```
+
 ## Errors and resources
 
 Every kernel failure is `error KIND | what @ where | why: ... | fix: ...`

@@ -7,6 +7,8 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, os.path.join(ROOT, 'docs', 'receipts', 'g3'))
 OUT = os.path.join(HERE, 'e2e-report.json')
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
 WORK = '/tmp/bc-e2e-k2'
@@ -156,6 +158,14 @@ def fits():
     p2 = f'(pmi (node 2) (temp cold 20) (fit bad 2 {hole} 3 {shaft} H7/g6 press))'
     o2, _ = cli('f.bcd', 'pmi', 'fits', p2)
     record('fit.declared_kind_refused', 'fit-not-press' in o2, out=o2[-300:])
+    p4 = f'(pmi (node 2) (temp cold 20) (temp hot 80) (fit dowel 2 {hole} 3 {shaft} H7/k6 transition))'
+    o4, _ = cli('f.bcd', 'pmi', 'fits', p4)
+    tr = re.search(r'temp cold .*?clearance=\[([^,]+), ([^\]]+)\]', o4)
+    record('fit.transition', tr is not None and abs(float(tr.group(1)) + 0.015) < 1e-9 and abs(float(tr.group(2)) - 0.019) < 1e-9
+           and 'verdict=transition-certified' in o4, out=o4[-400:])
+    p5 = f'(pmi (node 2) (fit loose 2 {hole} 3 {shaft} H7/g6 transition))'
+    o5, _ = cli('f.bcd', 'pmi', 'fits', p5)
+    record('fit.transition_refused', 'fit-not-transition' in o5 and 'transition-certified' not in o5, out=o5[-300:])
     p3 = f'(pmi (node 2) (fit odd 2 {hole} 3 {shaft} Q9/z1 clearance))'
     o3, _ = cli('f.bcd', 'pmi', 'fits', p3)
     record('fit.unknown_class', 'unknown-fit-class' in o3, out=o3[-300:])
@@ -177,6 +187,63 @@ def mesh():
            out=o3[-300:])
 
 
+def poly_of(path):
+    nums = [float(v) for v in re.findall(r'-?[0-9.]+', path)]
+    return list(zip(nums[0::2], nums[1::2]))
+
+
+def oracle_mesh(pa, pb, ca, cb, za, zb, n=4000):
+    from shapely.geometry import Polygon
+    from shapely import affinity
+    a0, b0 = Polygon(pa), Polygon(pb)
+    k = za / zb
+
+    def d(th):
+        a = affinity.rotate(a0, th, origin=ca, use_radians=True)
+        b = affinity.rotate(b0, -k * th, origin=cb, use_radians=True)
+        return a.distance(b)
+    step = 2 * math.pi / za / n
+    ds = [(d(i * step), i * step) for i in range(n + 1)]
+    best, t = min(ds)
+    lo, hi = t - step, t + step
+    for _ in range(80):
+        m1, m2 = lo + (hi - lo) / 3, hi - (hi - lo) / 3
+        if d(m1) < d(m2):
+            hi = m2
+        else:
+            lo = m1
+    return min(best, d((lo + hi) / 2)), d(0.0)
+
+
+def mesh_involute():
+    from gear import gear_path
+    z, m = 12, 3.0
+    ga = gear_path(z, m=m)
+    gb = gear_path(z, m=m, phase=math.pi / z)
+    ra = m * z / 2 + m
+    put('ga.txt', ga)
+    out, dt = fresh('inv.bcd', f'(node 1 (prism 0 20 (region {ga})) {IC})', f'(node 2 (prism 0 20 (region {gb})) {IC})',
+                    f'(node 3 (box 120 60 20) {IC})',
+                    f'(node 4 (pocket 3 (face 3 0 top) through (region (circle 30 30 {ra + 0.04!r}))) {ID})')
+    cd = m * z
+    f = (f'(assembly (inst A 1 30 30 0 0) (inst B 2 {30 + cd!r} 30 0 0) (inst H 4 0 0 0 0) '
+         '(fix 1 A) (fix 2 B) (fix 3 H))')
+    t0 = time.time()
+    o1, _ = cli('inv.bcd', 'asm', 'mesh', 'A', str(z), 'B', str(z), f)
+    tm = time.time() - t0
+    o2, _ = cli('inv.bcd', 'asm', 'gap', 'A', 'B', f)
+    o3, _ = cli('inv.bcd', 'asm', 'gap', 'A', 'H', f)
+    omin, o0 = oracle_mesh(poly_of(ga), [(x + cd, y) for x, y in poly_of(gb)], (0.0, 0.0), (cd, 0.0), z, z)
+    g1, g2, g3 = iv(o1, 'gap'), iv(o2, 'gap'), iv(o3, 'gap')
+    record('mesh.involute_rotating', 'committed' in out and g1 is not None and g1[0] <= omin + 1e-9 and g1[1] <= omin + 1e-6
+           and width(g1) < 1e-3 and 'verdict=clearance status=certified' in o1,
+           gap=g1, oracle=omin, seconds=tm, out=o1[-300:])
+    record('mesh.involute_static', contains(g2, o0, 1e-9) and width(g2) < 1e-6, gap=g2, oracle=o0, out=o2[-300:])
+    tip = ra + 0.04 - max(math.hypot(x, y) for x, y in poly_of(ga))
+    record('mesh.involute_tip_to_bore', contains(g3, tip, 1e-9) and width(g3) < 1e-6 and 'status=certified' in o3,
+           gap=g3, oracle=tip, out=o3[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -186,6 +253,7 @@ def main():
     screw_and_engage(h8)
     fits()
     mesh()
+    mesh_involute()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

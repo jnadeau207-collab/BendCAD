@@ -30,6 +30,48 @@ type FP is Data:
 type MG is Data:
   MG{ a: List<&2, TR>, b: List<&2, TR>, ax: F64, ay: F64, bx: F64, by: F64, k: F64, l: F64 }
 
+type RT is Data:
+  RT{ ca: F64, sa: F64, ta: F64, cb: F64, sb: F64, tb: F64 }
+
+type AP is Data:
+  AP{ a: TR, b: TR, l: F64, d0: F64, d1: F64 }
+
+type AM is Data:
+  AM{ p: AP, m: DI }
+
+type EV is Data:
+  EV{ ms: List<&2, AM>, hi: F64 }
+
+type KD is Data:
+  KD{ l: List<&2, AP>, r: List<&2, AP> }
+
+type RB is Data:
+  RB{ ps: List<&2, AP>, hi: F64 }
+
+def ev_ms(+e: EV) -> List<&2, AM>:
+  EV{+ms, +hi} = e
+  ms
+
+def ev_hi(+e: EV) -> F64:
+  EV{+ms, +hi} = e
+  hi
+
+def kd_l(+k: KD) -> List<&2, AP>:
+  KD{+l, +r} = k
+  l
+
+def kd_r(+k: KD) -> List<&2, AP>:
+  KD{+l, +r} = k
+  r
+
+def rb_ps(+x: RB) -> List<&2, AP>:
+  RB{+ps, +hi} = x
+  ps
+
+def rb_hi(+x: RB) -> F64:
+  RB{+ps, +hi} = x
+  hi
+
 def inf() -> F64:
   F64.div(1.0f64, 0.0f64)
 
@@ -340,6 +382,23 @@ def bb_pts(+bb: FB.BB, +x: BX, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   bx_pt(x, V.Pt{x0, y0, z0}) <> bx_pt(x, V.Pt{x1, y0, z0}) <> bx_pt(x, V.Pt{x0, y1, z0}) <> bx_pt(x, V.Pt{x1, y1, z0}) <>
     bx_pt(x, V.Pt{x0, y0, z1}) <> bx_pt(x, V.Pt{x1, y0, z1}) <> bx_pt(x, V.Pt{x0, y1, z1}) <> bx_pt(x, V.Pt{x1, y1, z1}) <> acc
 
+def bz_line(g: G.GVal) -> Bool:
+  match g:
+    case G.GV_bz{w}:
+      G.Bz{+p0, +p1, +p2, +p3} = w
+      +d = KS.psub(p3, p0)
+      +l2 = KS.dot(d, d)
+      +t = F64.mul(1.0e-14f64, l2)
+      +c1 = KS.dlen(KS.cross(KS.psub(p1, p0), d))
+      +c2 = KS.dlen(KS.cross(KS.psub(p2, p0), d))
+      Bool.and(F64.is_lt(0.0f64, l2), Bool.and(F64.is_le(c1, t), F64.is_le(c2, t)))
+    case _: False{}
+
+def ek_bzl(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_degenerate{}: False{}
+    case Ty.EK_curve{+curve, +dom}: bz_line(curve)
+
 def fp_ce(cs: List<&2, FB.CE>, +x: BX, +acc: FP) -> FP:
   match cs:
     case []: acc
@@ -347,7 +406,7 @@ def fp_ce(cs: List<&2, FB.CE>, +x: BX, +acc: FP) -> FP:
       FP{+ps, +cv, +n} = acc
       +b = bx_b(x)
       +k = Ty.ed_kind(FB.edge_at(b, FB.ce_e(h)))
-      +ln = FB.is_line(k)
+      +ln = Bool.or(FB.is_line(k), ek_bzl(k))
       +ed = FB.edge_at(b, FB.ce_e(h))
       +nps = Bool.pick(List<&2, V.Point>, ln, bx_pt(x, FB.vpt(b, Ty.ed_v0(ed))) <> bx_pt(x, FB.vpt(b, Ty.ed_v1(ed))) <> ps, bb_pts(FB.ek_bb(k), x, ps))
       fp_ce(t, x, FP{nps, Bool.or(cv, Bool.not(ln)), Nat.add(n, 1n)})
@@ -444,6 +503,14 @@ def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
     TF{1u64, TR{2u64, cx, cy, 0.0f64, 0.0f64, r, Bool.pick(F64, full, 0.0f64, V.v2_x(ar)),
       Bool.pick(F64, full, KS.two_pi(), V.v2_y(ar)), V.v2_x(z), V.v2_y(z), ex}})
 
+def sf_trace(+flat: Bool, +s: KS.SF, +x: BX, +fi: Nat) -> TF:
+  match flat:
+    case True{}: pl_trace(x, fi, KS.sf_o(s), KS.sf_a(s))
+    case False{}: TF{3u64, tr0()}
+
+def bp_trace(+s: KS.SF, +x: BX, +fi: Nat) -> TF:
+  sf_trace(U64.is_eq(KS.sf_kind(s), KS.k_plane()), s, x, fi)
+
 def face_trace(g: G.GVal, +x: BX, +fi: Nat) -> TF:
   match g:
     case G.GV_pl{w}:
@@ -452,6 +519,7 @@ def face_trace(g: G.GVal, +x: BX, +fi: Nat) -> TF:
     case G.GV_cy{w}:
       G.Cy{+o, +a, +r} = w
       cy_trace(x, fi, o, a, r)
+    case G.GV_bp{w}: bp_trace(KS.sf_of(G.GV_bp{w}), x, fi)
     case _: TF{3u64, tr0()}
 
 def s_mem(xs: List<&2, String>, +s: String) -> Bool:
@@ -514,11 +582,6 @@ def rot_tr(+t: TR, +cx: F64, +cy: F64, +c: F64, +s: F64, +th: F64) -> TR:
     F64.add(cx, F64.sub(F64.mul(c, vx), F64.mul(s, vy))), F64.add(cy, F64.add(F64.mul(s, vx), F64.mul(c, vy))), r,
     Bool.pick(F64, full, t0, F64.add(t0, th)), Bool.pick(F64, full, t1, F64.add(t1, th)), z0, z1, xe}
 
-def rot_all(ts: List<&2, TR>, +cx: F64, +cy: F64, +th: F64) -> List<&2, TR>:
-  match ts:
-    case []: []
-    case +h <> +t: rot_tr(h, cx, cy, KS.fcos(th), KS.fsin(th), th) <> rot_all(t, cx, cy, th)
-
 def tr_reach(+t: TR, +cx: F64, +cy: F64) -> F64:
   TR{+k, +ax, +ay, +bx, +by, +r, +t0, +t1, +z0, +z1, +xe} = t
   +da = F64.sqrt(F64.add(F64.mul(F64.sub(ax, cx), F64.sub(ax, cx)), F64.mul(F64.sub(ay, cy), F64.sub(ay, cy))))
@@ -532,51 +595,146 @@ def reach(ts: List<&2, TR>, +cx: F64, +cy: F64, +acc: F64) -> F64:
     case []: acc
     case +h <> +t: reach(t, cx, cy, F64.max(acc, tr_reach(h, cx, cy)))
 
-def mg_at(+g: MG, +th: F64) -> DI:
+def mg_ax(+g: MG) -> F64:
   MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
-  d_all(rot_all(a, ax, ay, th), rot_all(b, bx, by, F64.neg(F64.mul(k, th))), DI{inf(), inf()})
+  ax
+
+def mg_ay(+g: MG) -> F64:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  ay
+
+def mg_bx(+g: MG) -> F64:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  bx
+
+def mg_by(+g: MG) -> F64:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  by
 
 def mg_l(+g: MG) -> F64:
   MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
   l
 
-def lb_of(+l: F64, +t0: F64, +t1: F64, +d0: DI, +d1: DI) -> F64:
-  F64.sub(F64.min(di_lo(d0), di_lo(d1)), F64.mul(0.5f64, F64.mul(l, F64.sub(t1, t0))))
+def mg_k(+g: MG) -> F64:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  k
 
-def lo_with(+best: DI, +lb: F64) -> DI:
-  DI{F64.min(di_lo(best), lb), di_hi(best)}
+def mg_a(+g: MG) -> List<&2, TR>:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  a
 
-def hi_with(+best: DI, +dm: DI) -> DI:
-  DI{di_lo(best), F64.min(di_hi(best), di_hi(dm))}
+def mg_b(+g: MG) -> List<&2, TR>:
+  MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g
+  b
 
-def close_enough(+best: DI, +lb: F64) -> Bool:
-  F64.is_le(F64.sub(di_hi(best), lb), F64.mul(1.0e-6f64, F64.add(1.0f64, F64.abs(di_hi(best)))))
+def ap_a(+p: AP) -> TR:
+  AP{+a, +b, +l, +d0, +d1} = p
+  a
 
-def bb_go(n: Nat, done: Bool, +g: MG, +t0: F64, +t1: F64, +d0: DI, +d1: DI, +best: DI) -> DI:
+def ap_b(+p: AP) -> TR:
+  AP{+a, +b, +l, +d0, +d1} = p
+  b
+
+def ap_new(+a: TR, +b: TR, +l: F64, +d0: F64, +d1: F64) -> AP:
+  AP{a, b, l, d0, d1}
+
+def rt_of(+g: MG, +th: F64) -> RT:
+  +tb = F64.neg(F64.mul(mg_k(g), th))
+  RT{KS.fcos(th), KS.fsin(th), th, KS.fcos(tb), KS.fsin(tb), tb}
+
+def pair_d(+far: Bool, +gap: F64, +ra: TR, +rb: TR) -> DI:
+  match far:
+    case True{}: DI{gap, inf()}
+    case False{}: tr_d(ra, rb)
+
+def pair_at(+g: MG, +r: RT, +a: TR, +b: TR, +hi: F64) -> DI:
+  RT{+ca, +sa, +ta, +cb, +sb, +tb} = r
+  +ra = rot_tr(a, mg_ax(g), mg_ay(g), ca, sa, ta)
+  +rb = rot_tr(b, mg_bx(g), mg_by(g), cb, sb, tb)
+  +gap = box_gap(tr_box(ra), tr_box(rb))
+  pair_d(F64.is_lt(hi, gap), gap, ra, rb)
+
+def rb_add(+p: AP, +hi: F64, +acc: RB) -> RB:
+  RB{+ps, +h} = acc
+  RB{p <> ps, hi}
+
+def root_one(+a: TR, +b: TR, +la: F64, +g: MG, +r0: RT, +r1: RT, +acc: RB) -> RB:
+  +hi = rb_hi(acc)
+  +e0 = pair_at(g, r0, a, b, hi)
+  +h0 = F64.min(hi, di_hi(e0))
+  +e1 = pair_at(g, r1, a, b, h0)
+  +lp = F64.add(la, F64.mul(mg_k(g), tr_reach(b, mg_bx(g), mg_by(g))))
+  rb_add(ap_new(a, b, lp, di_lo(e0), di_lo(e1)), F64.min(h0, di_hi(e1)), acc)
+
+def root_b(bs: List<&2, TR>, +a: TR, +la: F64, +g: MG, +r0: RT, +r1: RT, +acc: RB) -> RB:
+  match bs:
+    case []: acc
+    case +h <> +t: root_b(t, a, la, g, r0, r1, root_one(a, h, la, g, r0, r1, acc))
+
+def root_a(as: List<&2, TR>, +bs: List<&2, TR>, +g: MG, +r0: RT, +r1: RT, +acc: RB) -> RB:
+  match as:
+    case []: acc
+    case +h <> +t: root_a(t, bs, g, r0, r1, root_b(bs, h, tr_reach(h, mg_ax(g), mg_ay(g)), g, r0, r1, acc))
+
+def ap_lb(+p: AP, +w: F64) -> F64:
+  AP{+a, +b, +l, +d0, +d1} = p
+  F64.sub(F64.min(d0, d1), F64.mul(0.5f64, F64.mul(l, w)))
+
+def node_lb(aps: List<&2, AP>, +w: F64, +acc: F64) -> F64:
+  match aps:
+    case []: acc
+    case +h <> +t: node_lb(t, w, F64.min(acc, ap_lb(h, w)))
+
+def mesh_tol() -> F64:
+  1.0e-4f64
+
+def close_of(+l: F64, +aps: List<&2, AP>, +w: F64, +hi: F64) -> Bool:
+  +flat = F64.is_le(F64.mul(0.5f64, F64.mul(l, w)), mesh_tol())
+  Bool.or(Bool.or(F64.is_eq(hi, inf()), flat), F64.is_le(F64.sub(hi, node_lb(aps, w, inf())), mesh_tol()))
+
+def eval_go(aps: List<&2, AP>, +g: MG, +r: RT, +acc: EV) -> EV:
+  match aps:
+    case []: acc
+    case +h <> +t:
+      EV{+ms, +hi} = acc
+      +m = pair_at(g, r, ap_a(h), ap_b(h), hi)
+      eval_go(t, g, r, EV{AM{h, m} <> ms, F64.min(hi, di_hi(m))})
+
+def kid1(+p: AP, +dm: F64, +hi: F64, +wl: F64, +wr: F64, +acc: KD) -> KD:
+  AP{+a, +b, +l, +d0, +d1} = p
+  KD{+ls, +rs} = acc
+  +pl = ap_new(a, b, l, d0, dm)
+  +pr = ap_new(a, b, l, dm, d1)
+  +kl = F64.is_le(ap_lb(pl, wl), hi)
+  +kr = F64.is_le(ap_lb(pr, wr), hi)
+  KD{Bool.pick(List<&2, AP>, kl, pl <> ls, ls), Bool.pick(List<&2, AP>, kr, pr <> rs, rs)}
+
+def am_p(+x: AM) -> AP:
+  AM{+p, +m} = x
+  p
+
+def am_m(+x: AM) -> DI:
+  AM{+p, +m} = x
+  m
+
+def kids(ms: List<&2, AM>, +hi: F64, +wl: F64, +wr: F64, +acc: KD) -> KD:
+  match ms:
+    case []: acc
+    case +h <> +t: kids(t, hi, wl, wr, kid1(am_p(h), di_lo(am_m(h)), hi, wl, wr, acc))
+
+def bb(n: Nat, done: Bool, +g: MG, +t0: F64, +t1: F64, +aps: List<&2, AP>, +best: DI) -> DI:
   match n:
-    case 0n: lo_with(best, lb_of(mg_l(g), t0, t1, d0, d1))
+    case 0n: DI{F64.min(di_lo(best), node_lb(aps, F64.sub(t1, t0), inf())), di_hi(best)}
     case 1n+(+m):
       match done:
-        case True{}: lo_with(best, lb_of(mg_l(g), t0, t1, d0, d1))
+        case True{}: DI{F64.min(di_lo(best), node_lb(aps, F64.sub(t1, t0), inf())), di_hi(best)}
         case False{}:
           +tm = F64.mul(0.5f64, F64.add(t0, t1))
-          +dm = mg_at(g, tm)
-          +b2 = hi_with(best, dm)
-          +bl = bb_go(m, close_enough(b2, lb_of(mg_l(g), t0, tm, d0, dm)), g, t0, tm, d0, dm, b2)
-          bb_go(m, close_enough(bl, lb_of(mg_l(g), tm, t1, dm, d1)), g, tm, t1, dm, d1, bl)
-
-def seed_one(+depth: Nat, +g: MG, +t0: F64, +t1: F64, +prev: DI, +d1: DI, +best: DI) -> DI:
-  +b2 = hi_with(hi_with(best, prev), d1)
-  bb_go(depth, close_enough(b2, lb_of(mg_l(g), t0, t1, prev, d1)), g, t0, t1, prev, d1, b2)
-
-def bb_seed(n: Nat, +g: MG, +k: F64, +step: F64, +prev: DI, +depth: Nat, +best: DI) -> DI:
-  match n:
-    case 0n: best
-    case 1n+m:
-      +t0 = F64.mul(k, step)
-      +t1 = F64.add(t0, step)
-      +d1 = mg_at(g, t1)
-      bb_seed(m, g, F64.add(k, 1.0f64), step, d1, depth, seed_one(depth, g, t0, t1, prev, d1, best))
+          +ev = eval_go(aps, g, rt_of(g, tm), EV{[], di_hi(best)})
+          +hi = ev_hi(ev)
+          +kd = kids(ev_ms(ev), hi, F64.sub(tm, t0), F64.sub(t1, tm), KD{[], []})
+          +bl = bb(m, close_of(mg_l(g), kd_l(kd), F64.sub(tm, t0), hi), g, t0, tm, kd_l(kd), DI{di_lo(best), hi})
+          bb(m, close_of(mg_l(g), kd_r(kd), F64.sub(t1, tm), di_hi(bl)), g, tm, t1, kd_r(kd), bl)
 
 def mg_of(+ta: List<&2, TR>, +tb: List<&2, TR>, +k: F64, +pa: V.Point, +pb: V.Point) -> MG:
   +ax = V.pt_x(pa)
@@ -586,8 +744,9 @@ def mg_of(+ta: List<&2, TR>, +tb: List<&2, TR>, +k: F64, +pa: V.Point, +pb: V.Po
   MG{ta, tb, ax, ay, bx, by, k, F64.add(reach(ta, ax, ay, 0.0f64), F64.mul(k, reach(tb, bx, by, 0.0f64)))}
 
 def mesh_d(+g: MG, +za: F64) -> DI:
-  +step = F64.div(F64.div(KS.two_pi(), za), 32.0f64)
-  bb_seed(32n, g, 0.0f64, step, mg_at(g, 0.0f64), 12n, DI{inf(), inf()})
+  +pitch = F64.div(KS.two_pi(), za)
+  +r = root_a(mg_a(g), mg_b(g), g, rt_of(g, 0.0f64), rt_of(g, pitch), RB{[], inf()})
+  bb(24n, close_of(mg_l(g), rb_ps(r), pitch, rb_hi(r)), g, 0.0f64, pitch, rb_ps(r), DI{inf(), rb_hi(r)})
 
 def mesh_line(+na: String, +nb: String, +d: DI, +g: MG) -> String:
   MG{+a, +b, +ax, +ay, +bx, +by, +k, +l} = g

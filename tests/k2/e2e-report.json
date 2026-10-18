@@ -69,6 +69,16 @@
   "out": "ll.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 interference=[-0.041000000000011035, -0.006999999999994343]\nerror invalid-input | pmi fits | why: fit-not-press: bad | fix: choose classes whose envelope gives the declared kind at every state\n\n"
  },
  {
+  "name": "fit.transition",
+  "ok": true,
+  "out": "fits 1\nfit dowel hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 k6=[20.002, 20.015] nominal=20\n  temp cold T=20 clearance=[-0.015000000000007676, 0.019000000000009013]\n  temp hot T=80 clearance=[-0.0007303500000190867, 0.03330810400001739]\n  verdict=transition-certified status=certified\n\n"
+ },
+ {
+  "name": "fit.transition_refused",
+  "ok": true,
+  "out": "0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp nominal T=20 clearance=[0.006999999999994343, 0.041000000000011035]\nerror invalid-input | pmi fits | why: fit-not-transition: loose | fix: choose classes whose envelope gives the declared kind at every state\n\n"
+ },
+ {
   "name": "fit.unknown_class",
   "ok": true,
   "out": "fits 1\nerror invalid-input | pmi fits | why: unknown-fit-class Q9/z1 | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n\n"
@@ -87,5 +97,36 @@
   "name": "mesh.rotating",
   "ok": true,
   "out": "mesh G H gap=[0.04999999887158472, 0.05000000032420072] over=pitch ratio=1 lipschitz=0 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "mesh.involute_rotating",
+  "ok": true,
+  "gap": [
+   0.09349622487848899,
+   0.09359613204786021
+  ],
+  "oracle": 0.09359613199288969,
+  "seconds": 0.4055953025817871,
+  "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "mesh.involute_static",
+  "ok": true,
+  "gap": [
+   0.13075176992062604,
+   0.1307517700210358
+  ],
+  "oracle": 0.13075176997082869,
+  "out": "gap A B gap=[0.13075176992062604, 0.1307517700210358] traces=144/144 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "mesh.involute_tip_to_bore",
+  "ok": true,
+  "gap": [
+   0.03999988960302108,
+   0.03999989025935175
+  ],
+  "oracle": 0.039999889931191746,
+  "out": "gap A H gap=[0.03999988960302108, 0.03999989025935175] traces=144/5 verdict=clearance status=certified\n"
  }
 ]

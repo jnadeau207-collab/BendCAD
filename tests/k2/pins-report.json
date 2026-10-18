@@ -1,0 +1,98 @@
+[
+ {
+  "name": "bowed_bezier_is_curved",
+  "ok": true
+ },
+ {
+  "name": "concentric_circles_gap",
+  "ok": true
+ },
+ {
+  "name": "crossing_segments_touch",
+  "ok": true
+ },
+ {
+  "name": "d9_at_50",
+  "ok": true
+ },
+ {
+  "name": "elevated_line_is_straight",
+  "ok": true
+ },
+ {
+  "name": "f8_hole_at_20",
+  "ok": true
+ },
+ {
+  "name": "g6_at_20",
+  "ok": true
+ },
+ {
+  "name": "h7_at_20",
+  "ok": true
+ },
+ {
+  "name": "h7_range_top_is_inclusive",
+  "ok": true
+ },
+ {
+  "name": "js6_at_20",
+  "ok": true
+ },
+ {
+  "name": "k6_at_20",
+  "ok": true
+ },
+ {
+  "name": "k8_at_20_has_zero_deviation",
+  "ok": true
+ },
+ {
+  "name": "m10_7h_minor_window",
+  "ok": true
+ },
+ {
+  "name": "m20x1_5_6e_major_window",
+  "ok": true
+ },
+ {
+  "name": "m6_6h_minor_window",
+  "ok": true
+ },
+ {
+  "name": "m8_6g_major_window",
+  "ok": true
+ },
+ {
+  "name": "m8_6h_minor_window",
+  "ok": true
+ },
+ {
+  "name": "m8_coarse_pitch",
+  "ok": true
+ },
+ {
+  "name": "p6_at_20",
+  "ok": true
+ },
+ {
+  "name": "point_to_segment",
+  "ok": true
+ },
+ {
+  "name": "prefilter_keeps_nearest",
+  "ok": true
+ },
+ {
+  "name": "r6_at_65_uses_subrange",
+  "ok": true
+ },
+ {
+  "name": "rotating_circles_mesh",
+  "ok": true
+ },
+ {
+  "name": "s7_at_100",
+  "ok": true
+ }
+]

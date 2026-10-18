@@ -33,6 +33,13 @@ file adds the gate each one blocks and the limits the corpus build found.
 | G3-L7b | `(chamfer BASE (edge N A B) C)` on convex straight edges; corpus member `edgechamfer` |
 | G3-L7c | Features on any named planar face, side faces included; corpus member `sidefeat` |
 
+### Closed by K2
+
+| ID | Evidence |
+|---|---|
+| G3-L7a | ISO metric thread features with class windows checked against the modelled bore or shank, engagement certified through the assembly, AP242 export; `tests/k2/e2e.py` `thread.semantic`, `thread.engagement`, `thread.step` |
+| G3-L8 | Gear-to-gear minimum gap certified over a full pitch by Lipschitz branch-and-bound, and gear tip to bore certified; `mesh.involute_rotating` encloses the shapely oracle on 12/12 involute gears, `mesh.involute_tip_to_bore` |
+
 ## From the C16 receipts (deferral IDs unchanged)
 
 | ID | Limit | First gate needing the fix |

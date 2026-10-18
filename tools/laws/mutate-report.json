@@ -1034,5 +1034,47 @@
   "file": "src/c08/bool.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "press verdict is interference at every state",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "clearance verdict is clearance at every state",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "transition verdict is both at every state",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "interference states compose",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "clearance states compose",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k2",
+  "law": "transition states compose",
+  "file": "src/k2/fit.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]
