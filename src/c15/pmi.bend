@@ -1004,6 +1004,12 @@ def entry_of(+x: S.Sx, +p: M.Part) -> ER:
   match x:
     case S.Sx_a{s}: ER_err{"unknown-pmi-entry", "entries are (node N), (nodes A B), (datum ...), (dim ...), (tol ...), (state ...) or (stack ...)"}
     case S.Sx_l{xs}: entry_list(x, p)
+def k2_drop(es: List<&2, S.Sx>) -> List<&2, S.Sx>:
+  match es:
+    case []: []
+    case +h <> +t:
+      +rest = k2_drop(t)
+      Bool.pick(List<&2, S.Sx>, Bool.or(S.head_is(h, "fit"), S.head_is(h, "temp")), rest, h <> rest)
 def scan_go(es: List<&2, S.Sx>, +p: M.Part, +nd: Nodes, +ers: List<&2, ER>) -> PR:
   match es:
     case []: scan_fin(pt_rev(part_go(List.reverse(&2, ER, ers), PT{[], [], [], [], []})),
@@ -1015,7 +1021,7 @@ def scan_go(es: List<&2, S.Sx>, +p: M.Part, +nd: Nodes, +ers: List<&2, ER>) -> P
 def pmi_head_go(+ispmi: Bool, +x: S.Sx, +p: M.Part) -> PR:
   match ispmi:
     case False{}: PR_err{"pmi-parse-failed", "write one (pmi ...) form"}
-    case True{}: scan_go(S.sx_drop(S.sx_xs(x), 1n), p, Nodes{0u64, 0u64, False{}, False{}}, [])
+    case True{}: scan_go(k2_drop(S.sx_drop(S.sx_xs(x), 1n)), p, Nodes{0u64, 0u64, False{}, False{}}, [])
 def pmi_one_go(+ok: Bool, +x: S.Sx, +p: M.Part) -> PR:
   match ok:
     case False{}: PR_err{"pmi-parse-failed", "write one (pmi ...) form"}

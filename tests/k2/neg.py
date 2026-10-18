@@ -115,8 +115,8 @@ def c12():
     E.fresh('n.bcd', f'(node 1 (box 2000 2000 20) {E.IC})',
             f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 1000 1000 600))) {E.ID})',
             f'(node 3 (cylinder 600 30) {E.IC})')
-    f = E.put('n.pmi', f'(pmi (node 2) (fit big 2 {cyl_face("n.bcd", 2)} 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))')
-    out, _ = E.cli('n.bcd', 'pmi', f, 'fits')
+    f = f'(pmi (node 2) (fit big 2 {cyl_face("n.bcd", 2)} 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))'
+    out, _ = E.cli('n.bcd', 'pmi', 'fits', f)
     return 'fit-size-outside-table' in out, out[-200:]
 
 
@@ -125,16 +125,16 @@ def c13():
     E.fresh('n.bcd', f'(node 1 (box 40 40 20) {E.IC})',
             f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 20 20 10))) {E.ID})',
             f'(node 3 (cylinder 8 30) {E.IC})')
-    f = E.put('n.pmi', f'(pmi (node 2) (fit off 2 {cyl_face("n.bcd", 2)} 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))')
-    out, _ = E.cli('n.bcd', 'pmi', f, 'fits')
+    f = f'(pmi (node 2) (fit off 2 {cyl_face("n.bcd", 2)} 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))'
+    out, _ = E.cli('n.bcd', 'pmi', 'fits', f)
     return 'fit-nominal-mismatch' in out, out[-200:]
 
 
 @case('fit.face_not_cylindrical')
 def c14():
     E.fresh('n.bcd', f'(node 1 (box 40 40 20) {E.IC})', f'(node 3 (cylinder 8 30) {E.IC})')
-    f = E.put('n.pmi', f'(pmi (node 1) (fit flat 1 n1.c0.top 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))')
-    out, _ = E.cli('n.bcd', 'pmi', f, 'fits')
+    f = f'(pmi (node 1) (fit flat 1 n1.c0.top 3 {cyl_face("n.bcd", 3)} H7/g6 clearance))'
+    out, _ = E.cli('n.bcd', 'pmi', 'fits', f)
     return 'fit-face-not-cylindrical' in out, out[-200:]
 
 

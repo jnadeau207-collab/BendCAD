@@ -293,3 +293,8 @@ def th_set(ts: List<&2, M.Thr>, +x: M.Thr) -> List<&2, M.Thr>:
     case []: [x]
     case +h <> +t:
       Bool.pick(List<&2, M.Thr>, Bool.and(U64.is_eq(th_node(h), th_node(x)), String.eq(th_name(h), th_name(x))), x <> t, h <> th_set(t, x))
+
+def th_any(ts: List<&2, M.Thr>, +n: U64) -> Bool:
+  match ts:
+    case []: False{}
+    case +h <> +t: Bool.or(U64.is_eq(th_node(h), n), th_any(t, n))

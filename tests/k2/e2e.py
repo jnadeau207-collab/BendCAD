@@ -137,9 +137,9 @@ def fits():
     hole = next((ln.split()[0] for ln in fs2.splitlines() if ' cylinder' in ln), None)
     fs3, _ = cli('f.bcd', 'faces', '3')
     shaft = next((ln.split()[0] for ln in fs3.splitlines() if ' cylinder' in ln), None)
-    p = put('f.pmi', f'(pmi (node 2) (temp cold 20) (temp hot 80) (fit run 2 {hole} 3 {shaft} H7/g6 clearance) '
-                     f'(fit press 2 {hole} 4 {shaft} H7/p6 press))')
-    o, _ = cli('f.bcd', 'pmi', p, 'fits')
+    p = (f'(pmi (node 2) (temp cold 20) (temp hot 80) (fit run 2 {hole} 3 {shaft} H7/g6 clearance) '
+         f'(fit press 2 {hole} 4 {shaft} H7/p6 press))')
+    o, _ = cli('f.bcd', 'pmi', 'fits', p)
     run20 = re.search(r'fit run .*?temp cold .*?clearance=\[([^,]+), ([^\]]+)\]', o, re.S)
     hot = re.search(r'fit run .*?temp hot .*?clearance=\[([^,]+), ([^\]]+)\]', o, re.S)
     pr = re.search(r'fit press .*?temp cold .*?interference=\[([^,]+), ([^\]]+)\]', o, re.S)
@@ -151,11 +151,11 @@ def fits():
     ok_pr = pr and abs(float(pr.group(1)) - 0.001) < 1e-9 and abs(float(pr.group(2)) - 0.035) < 1e-9
     record('fit.iso286', bool(ok_run) and bool(ok_hot) and bool(ok_pr) and 'status=certified' in o
            and 'verdict=press-certified' in o and 'verdict=clearance-certified' in o, out=o[-900:])
-    p2 = put('f2.pmi', f'(pmi (node 2) (temp cold 20) (fit bad 2 {hole} 3 {shaft} H7/g6 press))')
-    o2, _ = cli('f.bcd', 'pmi', p2, 'fits')
+    p2 = f'(pmi (node 2) (temp cold 20) (fit bad 2 {hole} 3 {shaft} H7/g6 press))'
+    o2, _ = cli('f.bcd', 'pmi', 'fits', p2)
     record('fit.declared_kind_refused', 'fit-not-press' in o2, out=o2[-300:])
-    p3 = put('f3.pmi', f'(pmi (node 2) (fit odd 2 {hole} 3 {shaft} Q9/z1 clearance))')
-    o3, _ = cli('f.bcd', 'pmi', p3, 'fits')
+    p3 = f'(pmi (node 2) (fit odd 2 {hole} 3 {shaft} Q9/z1 clearance))'
+    o3, _ = cli('f.bcd', 'pmi', 'fits', p3)
     record('fit.unknown_class', 'unknown-fit-class' in o3, out=o3[-300:])
 
 

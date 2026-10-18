@@ -28,6 +28,9 @@ import ../c14/asm.bend as AS
 import ../c15/pmi.bend as PM
 import ../k2/mat.bend as KM
 import ../k2/thr.bend as KT
+import ../k2/kasm.bend as KA
+import ../k2/fit.bend as KF
+import ../k2/kstep.bend as KX
 import ../c13/err.bend as E
 import ../c13/req.bend as R
 
@@ -602,6 +605,30 @@ def step_out(r: M.NR, +out: String) -> IO(Unit):
       +w = SW.sw_ms(b)
       step_write_go(SW.ws_ok(w), w, out)
 
+def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(Unit):
+  match r:
+    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_ok{+b, fx}:
+      +st = SW.sw_stage(M.bd_brep(b), M.bd_pl(b), 1n)
+      +kb = KX.k2_block(KM.mat_find(KA.part_ms(p), n), KA.part_ts(p), n, SW.er2_n(st))
+      +w = SW.sw_wrap42(st, 1n, KX.kb_s(kb), KX.kb_n(kb))
+      step_write_go(SW.ws_ok(w), w, out)
+
+def is_some_g(m: Maybe<&2, M.Grade>) -> Bool:
+  match m:
+    case None{}: False{}
+    case Some{x}: True{}
+
+
+def has_k2(+p: M.Part, +n: U64) -> Bool:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  Bool.or(is_some_g(KM.mat_find(ms, n)), KT.th_any(ts, n))
+
+
+def step_pick(+p: M.Part, +n: U64, +out: String) -> IO(Unit):
+  +r = node_res(M.ev_part(p, []), n)
+  Bool.pick(IO(Unit), has_k2(p, n), step_k2(r, p, n, out), step_out(r, out))
+
 def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(Unit):
   match w:
     case True{}:
@@ -868,7 +895,9 @@ def pmi_vc_go(+code: U64, +p: M.Part, +rest: List<&2, String>) -> IO(Unit):
     case _: IO.print(PM.pmi_go(p, rest))
 
 def pmi_run(+p: M.Part, +rest: List<&2, String>) -> IO(Unit):
-  pmi_vc_go(PM.verb_code(S.arg_at(rest, 0n)), p, rest)
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  Bool.pick(IO(Unit), String.eq(S.arg_at(rest, 0n), "fits"), IO.print(KF.fits_s(p, ms, AS.cat(AS.sdrop(rest, 1n)))),
+    pmi_vc_go(PM.verb_code(S.arg_at(rest, 0n)), p, rest))
 
 def flat_k(+g: SH.GR, +id: U64, +sc: SH.SC, +e: X.Env, +klo: F64, +khi: F64) -> String:
   match g:
@@ -951,14 +980,14 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 15u64: IO.print(QI.rel_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
     case 16u64: IO.print(QD.clear_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
     case 17u64: IO.print(QD.wall_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 18u64: step_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n))
+    case 18u64: step_pick(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 1n))
     case 19u64: arc_out(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.arg_at(rest, 2n))
     case 20u64: stl_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 21u64: mf3_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
-    case 22u64: IO.print(AS.asm_go(p, rest))
+    case 22u64: IO.print(Bool.pick(String, U64.is_eq(KA.k2_code(S.arg_at(rest, 0n)), 0u64), AS.asm_go(p, rest), KA.k2_asm(p, rest)))
     case 23u64: pmi_run(p, rest)
     case 24u64: IO.print(flat_go(p, rest))
     case 25u64: IO.print(surf_go(p, rest))
