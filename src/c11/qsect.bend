@@ -313,13 +313,21 @@ def sect_at(m: Maybe<&2, SO.Fd>, +pl: G.GVal, +f: Ty.Face, +at: Nat) -> Sg:
     case None{}: sect_miss(at)
     case Some{+fd}: sect_one(pl, f, fd, at)
 
-def sect_zip(fs: List<&2, Ty.Face>, +fds: List<&2, SO.Fd>, +pl: G.GVal, +at: Nat, +acc: Sg) -> Sg:
+def pl1(pls: List<&2, G.GVal>) -> G.GVal:
+  match pls:
+    case []: G.GV_f{0.0f64}
+    case +h <> +t: h
+
+def sect_fz(+fds: List<&2, SO.Fd>, +pls: List<&2, G.GVal>, f: Ty.Face, +at: Nat) -> Sg:
+  sect_at(sect_find(fds, at), pl1(pls), f, at)
+
+def sect_zip(fs: List<&2, Ty.Face>, +fds: List<&2, SO.Fd>, +pls: List<&2, G.GVal>, +at: Nat, +acc: Sg) -> Sg:
   match fs:
     case []: acc
-    case f <> t: sect_zip(t, fds, pl, Nat.add(at, 1n), sg_cat(acc, sect_at(sect_find(fds, at), pl, f, at)))
+    case f <> t: sect_zip(t, fds, pls, Nat.add(at, 1n), sg_cat(acc, sect_fz(fds, pls, f, at)))
 
 def sect_go(+pl: G.GVal, +b: M.Body, mapped: Bool) -> String:
-  sect_rep(sect_zip(Ty.brep_fas(M.bd_brep(b)), SO.fds_of(M.bd_brep(b)), pl, 0n, sg_empty()),
+  sect_rep(sect_zip(Ty.brep_fas(M.bd_brep(b)), SO.fds_of(M.bd_brep(b)), [pl], 0n, sg_empty()),
     List.length(&2, Ty.Face, Ty.brep_fas(M.bd_brep(b))), mapped)
 
 def sect_with(m: Maybe<&2, G.GVal>, +b: M.Body, mapped: Bool) -> String:
