@@ -1046,9 +1046,28 @@ def part_lines(xs: List<&2, Sx>) -> String:
     case []: ""
     case +x <> t: sx_show(x) ++ "\n" ++ part_lines(t)
 
+def mt_sx(m: M.Grade) -> Sx:
+  M.Gr{n, g, rho, cte} = m
+  ls([at("material"), at(U64.show(n)), at(g), at(f_show(rho)), at(f_show(cte))])
+
+def mts_sx(xs: List<&2, M.Grade>) -> List<&2, Sx>:
+  match xs:
+    case []: []
+    case m <> t: mt_sx(m) <> mts_sx(t)
+
+def th_sx(t: M.Thr) -> Sx:
+  M.Th{n, nm, f, d, c, z0, z1} = t
+  ls([at("thread"), at(U64.show(n)), at(nm), at(f), at(d), at(c), at(f_show(z0)), at(f_show(z1))])
+
+def ths_sx(xs: List<&2, M.Thr>) -> List<&2, Sx>:
+  match xs:
+    case []: []
+    case h <> t: th_sx(h) <> ths_sx(t)
+
 def part_show(+p: M.Part) -> String:
-  M.Pt{+ps, ns} = p
-  "(bendcad 1)\n" ++ part_lines(List.append(&2, Sx, pms_sx(ps), nds_sx(ns, nis_of(ps))))
+  M.Pt{+ps, ns, +ms, +ts} = p
+  "(bendcad 1)\n" ++ part_lines(List.append(&2, Sx, pms_sx(ps), List.append(&2, Sx, nds_sx(ns, nis_of(ps)),
+    List.append(&2, Sx, mts_sx(ms), ths_sx(ts)))))
 
 def pm_of(+x: Sx) -> M.Param:
   +xs = sx_xs(x)
@@ -1077,9 +1096,36 @@ def nds_of(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.Node>:
     case []: []
     case +x <> t: List.append(&2, M.Node, nd_one(head_is(x, "node"), x, ns), nds_of(t, ns))
 
+def fnum_or(+x: Sx) -> F64:
+  +n = num(sx_s(x))
+  Bool.pick(F64, is_some(n), some_v(n), F64.nan())
+
+def mt_of(+x: Sx) -> M.Grade:
+  +xs = sx_xs(x)
+  M.Gr{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)), fnum_or(sx_nth(xs, 3n)), fnum_or(sx_nth(xs, 4n))}
+
+def mts_of(xs: List<&2, Sx>) -> List<&2, M.Grade>:
+  match xs:
+    case []: []
+    case +x <> t:
+      +r = mts_of(t)
+      Bool.pick(List<&2, M.Grade>, head_is(x, "material"), mt_of(x) <> r, r)
+
+def th_of(+x: Sx) -> M.Thr:
+  +xs = sx_xs(x)
+  M.Th{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)), sx_s(sx_nth(xs, 3n)), sx_s(sx_nth(xs, 4n)), sx_s(sx_nth(xs, 5n)),
+    fnum_or(sx_nth(xs, 6n)), fnum_or(sx_nth(xs, 7n))}
+
+def ths_of(xs: List<&2, Sx>) -> List<&2, M.Thr>:
+  match xs:
+    case []: []
+    case +x <> t:
+      +r = ths_of(t)
+      Bool.pick(List<&2, M.Thr>, head_is(x, "thread"), th_of(x) <> r, r)
+
 def part_of(+xs: List<&2, Sx>) -> M.Part:
   +ps = pms_of(xs)
-  M.Pt{ps, nds_of(xs, nis_of(ps))}
+  M.Pt{ps, nds_of(xs, nis_of(ps)), mts_of(xs), ths_of(xs)}
 
 def arg_at(xs: List<&2, String>, +i: Nat) -> String:
   match xs:

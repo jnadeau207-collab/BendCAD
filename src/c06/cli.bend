@@ -26,6 +26,8 @@ import ../c12/stepr.bend as SR
 import ../c12/mesh.bend as MO
 import ../c14/asm.bend as AS
 import ../c15/pmi.bend as PM
+import ../k2/mat.bend as KM
+import ../k2/thr.bend as KT
 import ../c13/err.bend as E
 import ../c13/req.bend as R
 
@@ -145,26 +147,35 @@ def dim_of(+xs: List<&2, S.Sx>) -> M.Dim:
   M.Dm{nom, Bool.pick(F64, S.is_some(lo), S.some_v(lo), nom), Bool.pick(F64, S.is_some(hi), S.some_v(hi), nom)}
 
 def edit_param(+p: M.Part, +xs: List<&2, S.Sx>) -> M.Part:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   +name = S.sx_s(S.sx_nth(xs, 1n))
   +d = dim_of(xs)
-  Bool.pick(M.Part, pm_has(ps, name), M.Pt{pm_set(ps, name, d), ns},
-    M.Pt{List.append(&2, M.Param, ps, [M.Pm{(max_id(ps, 0u64) + 1u64 : U64), name, d}]), ns})
+  Bool.pick(M.Part, pm_has(ps, name), M.Pt{pm_set(ps, name, d), ns, ms, ts},
+    M.Pt{List.append(&2, M.Param, ps, [M.Pm{(max_id(ps, 0u64) + 1u64 : U64), name, d}]), ns, ms, ts})
 
 def edit_node(+p: M.Part, +x: S.Sx) -> M.Part:
-  M.Pt{+ps, ns} = p
+  M.Pt{+ps, ns, +ms, +ts} = p
   +xs = S.sx_xs(x)
   +ni = S.nis_of(ps)
-  M.Pt{ps, nd_set(ns, M.Nd{S.u64_of(S.sx_nth(xs, 1n)), S.op_of(S.sx_nth(xs, 2n), ni), S.it_of(S.sx_nth(xs, 3n))})}
+  M.Pt{ps, nd_set(ns, M.Nd{S.u64_of(S.sx_nth(xs, 1n)), S.op_of(S.sx_nth(xs, 2n), ni), S.it_of(S.sx_nth(xs, 3n))}), ms, ts}
 
 def edit_del(+p: M.Part, +xs: List<&2, S.Sx>) -> M.Part:
-  M.Pt{ps, ns} = p
-  M.Pt{ps, nd_del(ns, S.u64_of(S.sx_nth(xs, 1n)))}
+  M.Pt{ps, ns, +ms, +ts} = p
+  M.Pt{ps, nd_del(ns, S.u64_of(S.sx_nth(xs, 1n))), ms, ts}
+
+def edit_mat(+p: M.Part, +x: S.Sx) -> M.Part:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  M.Pt{ps, ns, KM.mat_set(ms, S.mt_of(x)), ts}
+
+def edit_thr(+p: M.Part, +x: S.Sx) -> M.Part:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  M.Pt{ps, ns, ms, KT.th_set(ts, S.th_of(x))}
 
 def edit_one(+p: M.Part, +x: S.Sx) -> M.Part:
   +xs = S.sx_xs(x)
   Bool.pick(M.Part, S.head_is(x, "param"), edit_param(p, xs),
-    Bool.pick(M.Part, S.head_is(x, "node"), edit_node(p, x), Bool.pick(M.Part, S.head_is(x, "delete"), edit_del(p, xs), p)))
+    Bool.pick(M.Part, S.head_is(x, "node"), edit_node(p, x), Bool.pick(M.Part, S.head_is(x, "delete"), edit_del(p, xs),
+      Bool.pick(M.Part, S.head_is(x, "material"), edit_mat(p, x), Bool.pick(M.Part, S.head_is(x, "thread"), edit_thr(p, x), p)))))
 
 def fin_of(m: Maybe<&2, F64>) -> F64:
   match m:
@@ -178,8 +189,15 @@ def pm_ok(+xs: List<&2, S.Sx>) -> Bool:
   +hi = Bool.pick(F64, Nat.is_eq(n, 3n), nom, fin_of(S.num(S.sx_s(S.sx_nth(xs, 4n)))))
   Bool.and(Bool.or(Nat.is_eq(n, 3n), Nat.is_eq(n, 5n)), Bool.and(F64.is_le(lo, nom), F64.is_le(nom, hi)))
 
+def thr_ok(+xs: List<&2, S.Sx>) -> Bool:
+  Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 8n), S.nat_ok(S.sx_nth(xs, 1n)))
+
+def mat_ok(+xs: List<&2, S.Sx>) -> Bool:
+  Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 5n), S.nat_ok(S.sx_nth(xs, 1n)))
+
 def edit_ok(+x: S.Sx) -> Bool:
-  Bool.or(Bool.and(S.head_is(x, "param"), pm_ok(S.sx_xs(x))), Bool.or(S.head_is(x, "node"), S.head_is(x, "delete")))
+  Bool.or(Bool.and(S.head_is(x, "param"), pm_ok(S.sx_xs(x))), Bool.or(S.head_is(x, "node"), Bool.or(S.head_is(x, "delete"),
+    Bool.or(Bool.and(S.head_is(x, "material"), mat_ok(S.sx_xs(x))), Bool.and(S.head_is(x, "thread"), thr_ok(S.sx_xs(x)))))))
 
 def edits_ok(xs: List<&2, S.Sx>) -> Bool:
   match xs:
@@ -261,6 +279,23 @@ def node_faces(r: M.NR) -> String:
 def node_res(cs: List<&2, M.CE>, +id: U64) -> M.NR:
   M.ce_r(M.ce_find(cs, id))
 
+def mass_tail(r: M.NR, +m: Maybe<&2, M.Grade>) -> String:
+  match r:
+    case M.NR_err{k, dg}: ""
+    case M.NR_ok{+b, fx}: KM.mass_line(m, M.ms_vol(M.body_ms(b)))
+
+def threads_out(+p: M.Part, +n: U64) -> String:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  +r = node_res(M.ev_part(p, []), n)
+  Bool.pick(String, M.nr_ok(r), "threads node " ++ U64.show(n) ++ "
+" ++ KT.ths_of_node(ts, n, M.nr_body(r)), "error: node failed; nothing listed")
+
+def mass_out(+p: M.Part, +n: U64, +d: Nat) -> String:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  +cs = M.ev_part(p, [])
+  QM.mass_s(node_res(cs, n), d) ++ "
+" ++ mass_tail(node_res(cs, n), KM.mat_find(ms, n))
+
 def pm_nom(ps: List<&2, M.Param>, +name: String) -> F64:
   match ps:
     case []: F64.nan()
@@ -333,12 +368,12 @@ def sens_rep(+s: String, +c0: List<&2, M.CE>, +cp: List<&2, M.CE>) -> String:
   s ++ "| reused " ++ Nat.show(reuse_n(cp, c0)) ++ " of " ++ Nat.show(List.length(&2, M.CE, cp)) ++ " nodes per step"
 
 def sens(+p: M.Part, +name: String, +id: U64) -> String:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   +nom = pm_nom(ps, name)
   +h = F64.mul(F64.max(F64.abs(nom), 1.0f64), 9.5367431640625e-07f64)
   +c0 = M.ev_part(p, [])
-  +cp = M.ev_part(M.Pt{pm_bump(ps, name, h), ns}, c0)
-  +cm = M.ev_part(M.Pt{pm_bump(ps, name, F64.neg(h)), ns}, c0)
+  +cp = M.ev_part(M.Pt{pm_bump(ps, name, h), ns, ms, ts}, c0)
+  +cm = M.ev_part(M.Pt{pm_bump(ps, name, F64.neg(h)), ns, ms, ts}, c0)
   Bool.pick(String, T.is_finite(nom), sens_rep(sens_go(node_res(c0, id), node_res(cp, id), node_res(cm, id), h), c0, cp), "error: unknown parameter " ++ name)
 
 def arg_drop(xs: List<&2, String>, +i: Nat) -> List<&2, String>:
@@ -427,10 +462,17 @@ def commit_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
         IO.print("committed")
     case False{}: IO.print("rejected: the design was not changed")
 
-def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(Unit):
+def part_errs(+p: M.Part, +cs: List<&2, M.CE>) -> String:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  KM.mats_err(ms, cs) ++ KT.ths_err(ts, cs)
+
+def commit_e(+path: String, +p: M.Part, +cs: List<&2, M.CE>, +errs: String) -> IO(Unit):
   do IO<Unit>:
-    a : Unit <- IO.print(ces_s(cs))
-    commit_go(ces_ok(cs), path, p)
+    a : Unit <- IO.print(ces_s(cs) ++ errs)
+    commit_go(Bool.and(ces_ok(cs), String.eq(errs, "")), path, p)
+
+def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(Unit):
+  commit_e(path, p, cs, part_errs(p, cs))
 
 def apply_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
   match ok:
@@ -451,7 +493,8 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "pmi"), 23u64,
   Bool.pick(U64, String.eq(c, "flat"), 24u64,
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
-  Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64, 0u64)))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
+  Bool.pick(U64, String.eq(c, "threads"), 28u64, 0u64))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -849,7 +892,7 @@ def flat_has(+has: Bool, +cs: List<&2, M.CE>, +ns: List<&2, M.Node>, +e: X.Env, 
     case True{}: flat_nr(M.nr_ok(node_res(cs, id)), M.sh_chain(ns, id), e, id, klo, khi)
 
 def flat_go(+p: M.Part, +xs: List<&2, String>) -> String:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
   +klo = f_or_nan(S.dec(S.arg_at(xs, 1n)))
   +khi = f_or_nan(S.dec(S.arg_at(xs, 2n)))
@@ -877,13 +920,13 @@ def blade_has(+has: Bool, +cs: List<&2, M.CE>, +ns: List<&2, M.Node>, +e: X.Env,
     case True{}: blade_nr(M.nr_ok(node_res(cs, id)), M.bl_chain(ns, id), e, id)
 
 def blade_go(+p: M.Part, +xs: List<&2, String>) -> String:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   +cs = M.ev_part(p, [])
   +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
   blade_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id)
 
 def surf_go(+p: M.Part, +xs: List<&2, String>) -> String:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   +id = S.u64_of(S.Sx_a{S.arg_at(xs, 0n)})
   +cs = M.ev_part(p, [])
   surf_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id)
@@ -903,7 +946,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 10u64: IO.print(QI.check_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 11u64: IO.print(QD.dist_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
     case 12u64: IO.print(QD.extrema_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 13u64: IO.print(QM.mass_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), QM.mass_depth(S.arg_at(rest, 1n))))
+    case 13u64: IO.print(mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n))))
     case 14u64: IO.print(QN.sect_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
     case 15u64: IO.print(QI.rel_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
     case 16u64: IO.print(QD.clear_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}))))
@@ -921,7 +964,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 25u64: IO.print(surf_go(p, rest))
     case 26u64: IO.print(blade_go(p, rest))
     case 27u64: IO.print(diag_s(M.ev_part(p, [])))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag")
+    case 28u64: IO.print(threads_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
   match is_diag:
@@ -940,7 +984,7 @@ def run_dec(d: R.Dec, +code: U64, +cmd: String, +path: String, +rest: List<&2, S
     case R.D_over{}: run_over_go(String.eq(cmd, "diag"), cmd, path)
 
 def run_part(+cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +cap: U64, +cancel: Bool) -> IO(Unit):
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   run_dec(R.dec_of(cancel, R.over_ids(M.nd_ids(ns), U64.to_nat(cap))), cmd_code(cmd), cmd, path, rest, p)
 
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String, +cap: U64, +cancel: Bool) -> IO(Unit):

@@ -194,7 +194,7 @@ def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
             case _: False{}
 
 def z_bool(+p: M.Part, +id: U64) -> Bool:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   z_bool_go(Nat.add(1n, List.length(&2, M.Node, ns)), nd_find(ns, id), ns)
 
 def zones_ok(ps: List<&2, M.Param>) -> Bool:
@@ -718,8 +718,8 @@ def prof_zone(mb: Maybe<&2, M.Body>, +ps: List<&2, M.Param>, +ns: List<&2, M.Nod
       zm_res(zsplit(3n, zm_ok(m0), m0, ps, ns, b, id))
 
 def zone_prof(+p: M.Part, +id: U64) -> ZR:
-  M.Pt{+ps, +ns} = p
-  prof_zone(body_of(M.ce_r(M.ce_find(M.ev_part(M.Pt{ps, ns}, []), id))), ps, ns, id)
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  prof_zone(body_of(M.ce_r(M.ce_find(M.ev_part(M.Pt{ps, ns, ms, ts}, []), id))), ps, ns, id)
 
 def zone_pick(prof: Bool, +w: String, +p: M.Part, +id: U64) -> ZR:
   match prof:
@@ -732,5 +732,5 @@ def zone_k(r: ZR, +p: M.Part, +id: U64) -> ZR:
     case Z_ok{v, a}: Z_ok{v, a}
 
 def zone(+p: M.Part, +id: U64) -> ZR:
-  M.Pt{+ps, +ns} = p
-  zone_k(Bool.pick(ZR, zones_ok(ps), z_go(Nat.add(1n, List.length(&2, M.Node, ns)), nd_find(ns, id), ns, ze_of(ps)), Z_err{"zone-not-ordered"}), M.Pt{ps, ns}, id)
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  zone_k(Bool.pick(ZR, zones_ok(ps), z_go(Nat.add(1n, List.length(&2, M.Node, ns)), nd_find(ns, id), ns, ze_of(ps)), Z_err{"zone-not-ordered"}), M.Pt{ps, ns, ms, ts}, id)

@@ -199,7 +199,7 @@ def dim_exp(+ok: Bool, +nm: String, +nom: F64, +lo: F64, +hi: F64) -> ER:
       "write (dim NAME PARAM) or (dim NAME NOM LO HI) with finite numbers LO <= NOM <= HI"}
     case True{}: ER_dm{Dim{nm, nom, lo, hi}}
 def pm_dim_of(+p: M.Part, +nm: String) -> Maybe<&2, M.Dim>:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   pm_dim(ps, nm)
 def kind_of(+k: String) -> U64:
   Bool.pick(U64, String.eq(k, "flatness"), 1u64,
@@ -733,7 +733,7 @@ def pwidth(+ps: List<&2, M.Param>, +acc: F64) -> F64:
       M.Dm{+nom, +lo, +hi} = d
       pwidth(t, F64.add(acc, F64.sub(hi, lo)))
 def pmi_w(+p: M.Part) -> F64:
-  M.Pt{+ps, +ns} = p
+  M.Pt{+ps, +ns, +ms, +ts} = p
   pwidth(ps, 0.0f64)
 def env_rep_s(+a: String, +b: String, +c: String) -> String:
   "envelope clearance [" ++ a ++ ", " ++ b ++ "] estimated widen=" ++ c ++ "\n"

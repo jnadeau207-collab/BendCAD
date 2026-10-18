@@ -99,8 +99,14 @@ type Param is Data:
 type Node is Data:
   Nd{ id: U64, op: Op, it: It }
 
+type Grade is Data:
+  Gr{ node: U64, grade: String, rho: F64, cte: F64 }
+
+type Thr is Data:
+  Th{ node: U64, name: String, face: String, desig: String, cls: String, z0: F64, z1: F64 }
+
 type Part is Data:
-  Pt{ ps: List<&2, Param>, ns: List<&2, Node> }
+  Pt{ ps: List<&2, Param>, ns: List<&2, Node>, ms: List<&2, Grade>, ts: List<&2, Thr> }
 
 type Pl is Data:
   Pl{ m: V.Mat3, tx: F64, ty: F64, tz: F64, mi: List<&2, I.I>, ti: List<&2, I.I> }
@@ -3401,10 +3407,10 @@ def ev_go(ok: Bool, +p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   match ok:
     case False{}: [CE{0u64, [], bad("part", "-", "duplicate-node-or-parameter-id", "give every node and parameter a distinct id")}]
     case True{}:
-      Pt{ps, +ns} = p
+      Pt{ps, +ns, +ms, +ts} = p
       ev_nodes(ns, X.env_of(pvs_of(ps)), old, [], ns)
 
 def ev_part(+p: Part, +old: List<&2, CE>) -> List<&2, CE>:
-  Pt{+ps, +ns} = p
+  Pt{+ps, +ns, +ms, +ts} = p
   ev_go(Bool.not(Bool.or(ids_dup(nd_ids(ns)), ids_dup(pm_ids(ps)))), p, old)
 
