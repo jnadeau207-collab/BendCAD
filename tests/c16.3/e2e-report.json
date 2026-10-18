@@ -1,5 +1,5 @@
 {
- "binary_sha256": "2cbfaaa17f8ca9ab4f415a31ce1a1c97f9541c4ce8998b6387e14ece9f37d09e",
+ "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
  "passed": 11,
  "total": 11,
  "results": [
@@ -62,7 +62,7 @@
     "verdict": "ruled",
     "check_n": 897,
     "committed": true,
-    "build_s": 0.83,
+    "build_s": 0.87,
     "budget": true,
     "faces": true,
     "rows": true,
@@ -158,7 +158,7 @@
    "checks": {
     "committed": true,
     "all19": true,
-    "sweep_s": 0.3,
+    "sweep_s": 0.31,
     "thin": true
    }
   },

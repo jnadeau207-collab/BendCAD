@@ -92,7 +92,7 @@ def it_any() -> M.It:
   M.It{M.M_create{}, M.C_any{}, M.C_any{}, M.C_any{}, M.C_any{}}
 
 def zpart(+lo: F64, +hi: F64, o: M.Op) -> M.Part:
-  M.Pt{[M.Pm{1u64, "X", M.Dm{10.0f64, lo, hi}}, M.Pm{2u64, "Y", M.Dm{4.0f64, 4.0f64, 4.0f64}}], [M.Nd{1u64, o, it_any()}, M.Nd{2u64, M.O_move{1u64, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, 4u64}, it_any()}]}
+  M.Pt{[M.Pm{1u64, "X", M.Dm{10.0f64, lo, hi}}, M.Pm{2u64, "Y", M.Dm{4.0f64, 4.0f64, 4.0f64}}], [M.Nd{1u64, o, it_any()}, M.Nd{2u64, M.O_move{1u64, X.X_k{1.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}, 4u64}, it_any()}], [], []}
 
 def z_has(r: Z.ZR, +a: F64, +b: F64) -> Bool:
   match r:

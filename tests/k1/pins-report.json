@@ -1,5 +1,9 @@
 [
  {
+  "name": "ball_on_shaft_one_tangent_circle",
+  "ok": true
+ },
+ {
   "name": "boxes_apart",
   "ok": true
  },
@@ -17,6 +21,10 @@
  },
  {
   "name": "cone_circle_radius",
+  "ok": true
+ },
+ {
+  "name": "curved_patch_refused",
   "ok": true
  },
  {
@@ -40,11 +48,15 @@
   "ok": true
  },
  {
+  "name": "plane_sphere_circle_radius",
+  "ok": true
+ },
+ {
   "name": "reversed_face_frame_y",
   "ok": true
  },
  {
-  "name": "sphere_operand_refused",
+  "name": "sphere_operand_admitted",
   "ok": true
  },
  {
@@ -57,6 +69,22 @@
  },
  {
   "name": "tolerant_cylinder_param_membership",
+  "ok": true
+ },
+ {
+  "name": "torus_plane_outer_radius",
+  "ok": true
+ },
+ {
+  "name": "torus_plane_two_circles",
+  "ok": true
+ },
+ {
+  "name": "torus_tangent_cylinder_circle",
+  "ok": true
+ },
+ {
+  "name": "torus_tangent_plane_circle",
   "ok": true
  }
 ]

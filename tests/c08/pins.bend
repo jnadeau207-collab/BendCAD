@@ -87,7 +87,7 @@ def only_op(ns: List<&2, M.Node>) -> M.Op:
       op
 
 def src_op_go(p: M.Part) -> M.Op:
-  M.Pt{ps, ns} = p
+  M.Pt{ps, ns, ms, ts} = p
   only_op(ns)
 
 def src_op(+src: String) -> M.Op:

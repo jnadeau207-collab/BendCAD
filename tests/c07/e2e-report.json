@@ -1,9 +1,9 @@
 {
- "binary_sha256": "951e0c03f4203e45794fdfd21e92f1a79c0343243858ce413619eb8c925d41d2",
+ "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
  "passed": 328,
  "total": 328,
- "mean_query_s": 0.013342220608781024,
- "max_query_s": 0.2454817295074463,
+ "mean_query_s": 0.01407912882362924,
+ "max_query_s": 0.2596752643585205,
  "results": [
   {
    "name": "cs.0.line-plane",
@@ -869,7 +869,7 @@
    "name": "near.circle-sphere",
    "ok": true,
    "out": "summary points=0 overlaps=0 unresolved=0\n",
-   "secs": 0.002791881561279297,
+   "secs": 0.0027070045471191406,
    "roots": 0
   },
   {

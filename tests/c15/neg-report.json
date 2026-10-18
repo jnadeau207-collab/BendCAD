@@ -1,24 +1,24 @@
 {
- "binary_sha256": "2cbfaaa17f8ca9ab4f415a31ce1a1c97f9541c4ce8998b6387e14ece9f37d09e",
+ "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
  "passed": 29,
  "total": 29,
  "results": [
   {
    "name": "verb.unknown",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi | why: unknown verb | fix: pmi check|stack|toler|step42 ..."
   },
   {
    "name": "parse.failed",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: pmi-parse-failed | fix: write one (pmi ...) form"
   },
   {
    "name": "parse.entry",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: unknown-pmi-entry | fix: entries are (node N), (nodes A B), (datum ...), (dim ...), (tol ...), (state ...) or (stack ...)"
   },
   {
@@ -42,13 +42,13 @@
   {
    "name": "parse.duplicate",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: duplicate-datum | fix: datum names are distinct"
   },
   {
    "name": "datum.malformed",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: bad-datum | fix: write (datum NAME SEL) with a face selector from the faces verb"
   },
   {
@@ -60,7 +60,7 @@
   {
    "name": "node.failed",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error: node 2; nothing evaluated"
   },
   {
@@ -72,7 +72,7 @@
   {
    "name": "node.failed_toler",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error: node 2; nothing compared"
   },
   {
@@ -84,19 +84,19 @@
   {
    "name": "dim.unknown_param",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: unknown-param Q | fix: name a parameter from the design (show)"
   },
   {
    "name": "dim.bad",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: bad-dim | fix: write (dim NAME PARAM) or (dim NAME NOM LO HI) with finite numbers LO <= NOM <= HI"
   },
   {
    "name": "dim.quoted_name",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: bad-dim | fix: write (dim NAME PARAM) or (dim NAME NOM LO HI) with finite numbers LO <= NOM <= HI"
   },
   {
@@ -108,25 +108,25 @@
   {
    "name": "dim.stack_empty",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi stack | why: stack-needs-dim | fix: write (stack NAME DIM...) with a name and one or more dim names"
   },
   {
    "name": "tol.kind",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: unsupported-tol-kind position | fix: toleranced kinds are flatness, perpendicularity and parallelism"
   },
   {
    "name": "tol.modifier",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: unsupported-modifier mmc | fix: the only modifier is rfs"
   },
   {
    "name": "tol.bad",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi check | why: bad-tol | fix: write (tol NAME KIND T SEL rfs DATUM...) with flatness, perpendicularity or parallelism, finite T >= 0 and rfs"
   },
   {
@@ -162,7 +162,7 @@
   {
    "name": "state.bad",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi stack | why: bad-state | fix: write (state NAME GROW) with finite GROW > 0"
   },
   {
@@ -174,7 +174,7 @@
   {
    "name": "step42.needs_output",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi step42 | why: step42-needs-output | fix: pmi step42 OUT (pmi ...)"
   }
  ]

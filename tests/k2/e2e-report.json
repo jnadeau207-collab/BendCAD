@@ -106,7 +106,7 @@
    0.09359613204786021
   ],
   "oracle": 0.09359613199288969,
-  "seconds": 0.40784764289855957,
+  "seconds": 0.38384509086608887,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {
@@ -179,5 +179,25 @@
   "name": "asm.step_refused",
   "ok": true,
   "out": "refused error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval) | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces\ninstances \n"
+ },
+ {
+  "name": "press.declared",
+  "ok": true,
+  "out": "assembly pairs ninst 3\npair H B\nrelation interference status=certified witness=press radial=0.019999999999999574\ndeclared press-fit bush status=declared\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
+ },
+ {
+  "name": "press.needs_faces_when_uncertain",
+  "ok": true,
+  "out": "assembly pairs ninst 3\npair H B\nerror invalid-input | asm interf | why: declared-press-not-interfering bare between H and B | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
+ },
+ {
+  "name": "press.declared_not_interfering",
+  "ok": true,
+  "out": "H B\nrelation uncertain status=estimated a:in=0 out=30 uncertain=5 b:in=0 out=0 uncertain=7 boxes-overlap=1\npair H P\nrelation disjoint status=certified\nerror invalid-input | asm interf | why: declared-press-not-interfering wrong between H and P | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements\npair B P\nrelation disjoint status=certified\n\n"
+ },
+ {
+  "name": "press.unknown_instance",
+  "ok": true,
+  "out": "error invalid-input | asm interf | why: press-names-unknown-instance ghost | fix: write (press NAME A AFACE B BFACE) with two instance names\n\n"
  }
 ]

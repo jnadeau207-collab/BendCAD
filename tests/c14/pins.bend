@@ -104,7 +104,7 @@ def empty_nr() -> M.NR:
   M.NR_ok{M.Bd{[], Ty.brep_empty(), [], M.pl_id(), [], M.xb_id()}, M.Fx{M.M_create{}, 0n, 0n, 0n, 0n}}
 
 def empty_part() -> M.Part:
-  M.Pt{[], []}
+  M.Pt{[], [], [], []}
 
 def rq1() -> AS.RQ:
   AS.RQ{1u64, "", []}
