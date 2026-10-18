@@ -38,6 +38,7 @@ file adds the gate each one blocks and the limits the corpus build found.
 | ID | Evidence |
 |---|---|
 | G3-L7a | ISO metric thread features with class windows checked against the modelled bore or shank, engagement certified through the assembly, AP242 export; `tests/k2/e2e.py` `thread.semantic`, `thread.engagement`, `thread.step` |
+| G3-L6 | Thin tori validate, measure and export: `tests/k2/e2e.py` `torus.oring` (R/r = 20) and `torus.garter` (R/r = 40), each checked `ok:` with STEP volume 2π²Rr² to 1e-6 |
 | G3-L8 | Gear-to-gear minimum gap certified over a full pitch by Lipschitz branch-and-bound, and gear tip to bore certified; `mesh.involute_rotating` encloses the shapely oracle on 12/12 involute gears, `mesh.involute_tip_to_bore` |
 
 ## From the C16 receipts (deferral IDs unchanged)

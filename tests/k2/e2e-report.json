@@ -106,7 +106,7 @@
    0.09359613204786021
   ],
   "oracle": 0.09359613199288969,
-  "seconds": 0.4055953025817871,
+  "seconds": 0.40784764289855957,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {
@@ -128,5 +128,56 @@
   ],
   "oracle": 0.039999889931191746,
   "out": "gap A H gap=[0.03999988960302108, 0.03999989025935175] traces=144/5 verdict=clearance status=certified\n"
+ },
+ {
+  "name": "torus.oring",
+  "ok": true,
+  "ratio": 20.0,
+  "volume": [
+   1332.3965941453544,
+   1332.3965941487727
+  ],
+  "exact": 1332.3965941470633,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 1332.396640541588"
+ },
+ {
+  "name": "torus.garter",
+  "ok": true,
+  "ratio": 40.0,
+  "volume": [
+   98.69604401075985,
+   98.69604401102735
+  ],
+  "exact": 98.69604401089359,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 98.69604744752468"
+ },
+ {
+  "name": "asm.step",
+  "ok": true,
+  "out": "wrote /tmp/bc-e2e-k2/as.stp entities 206 products 2\ninstances base,pin\n",
+  "solids": [
+   [
+    785.398163397,
+    -0.0,
+    5.0,
+    30.0,
+    40.0
+   ],
+   [
+    6000.0,
+    0.0,
+    0.0,
+    0.0,
+    30.0
+   ]
+  ],
+  "raw": "6000.000000000 0.000000 0.000000 0.000000 30.000000;785.398163397 -0.000000 5.000000 30.000000 40.000000\n"
+ },
+ {
+  "name": "asm.step_refused",
+  "ok": true,
+  "out": "refused error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval) | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces\ninstances \n"
  }
 ]

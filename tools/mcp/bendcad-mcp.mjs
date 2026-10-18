@@ -178,8 +178,9 @@ const tools = [
         profile: { type: 'string' } }, required: ['file', 'out'] },
     run: a => cli(['geom', '3mf_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
-  { name: 'assembly', description: 'Solve an assembly of design-node instances with mates (see reference: Assemblies; Materials, threads and fits). Actions: solve (placements, dof, redundant mates, lineage), interf/clear (pairwise certified interference/clearance over solved placements), explode (exploded placements along dx,dy,dz with gap), faces (assembly-qualified face names of one instance), mass (per-instance and total certified mass from bound materials), engage (certified engagement of thread a.thread on inst with thread b.thread on inst2), gap (certified minimum gap between z-extruded inst and inst2, optionally against named faces of inst2), mesh (certified minimum gap of gears inst and inst2 over one pitch, teeth and teeth2).',
-    inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'solve, interf, clear, explode, faces, mass, engage, gap or mesh' },
+  { name: 'assembly', description: 'Solve an assembly of design-node instances with mates (see reference: Assemblies; Materials, threads and fits). Actions: solve (placements, dof, redundant mates, lineage), interf/clear (pairwise certified interference/clearance over solved placements), explode (exploded placements along dx,dy,dz with gap), faces (assembly-qualified face names of one instance), mass (per-instance and total certified mass from bound materials), engage (certified engagement of thread a.thread on inst with thread b.thread on inst2), gap (certified minimum gap between z-extruded inst and inst2, optionally against named faces of inst2), mesh (certified minimum gap of gears inst and inst2 over one pitch, teeth and teeth2), step (STEP AP242 of every placed instance as its own solid, in instance order, to out).',
+    inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'solve, interf, clear, explode, faces, mass, engage, gap, mesh or step' },
+        out: { type: 'string', description: 'Output STEP path inside WSL (step)' },
         assembly: { type: 'string', description: 'One (assembly ...) form' }, inst: { type: 'string', description: 'Instance name (faces, engage, gap, mesh)' },
         inst2: { type: 'string', description: 'Second instance (engage, gap, mesh)' },
         thread: { type: 'string', description: 'Thread name on inst (engage)' }, thread2: { type: 'string', description: 'Thread name on inst2 (engage)' },
@@ -192,6 +193,7 @@ const tools = [
       : a.action === 'faces' ? cli([a.design, 'asm', 'faces', a.inst ?? '', a.assembly])
       : a.action === 'engage' ? cli([a.design, 'asm', 'engage', a.inst ?? '', a.thread ?? '', a.inst2 ?? '', a.thread2 ?? '', a.assembly].map(String))
       : a.action === 'gap' ? cli([a.design, 'asm', 'gap', a.inst ?? '', a.inst2 ?? '', ...(a.faces ?? []), a.assembly].map(String))
+      : a.action === 'step' ? cli([a.design, 'asm', 'step', a.out ?? '', a.assembly].map(String))
       : a.action === 'mesh' ? cli([a.design, 'asm', 'mesh', a.inst ?? '', a.teeth ?? '', a.inst2 ?? '', a.teeth2 ?? '', a.assembly].map(String))
       : cli([a.design, 'asm', String(a.action), a.assembly]) },
   { name: 'pmi', description: 'Semantic PMI and GD&T (see reference: Semantic PMI; Materials, threads and fits). Actions: check (validate and evaluate), stack (worst-case stack-ups over envelope and states), toler (per-state interference/clearance plus envelope), fits (ISO 286 fits per material at every (temp NAME T)), step42 (STEP AP242 export with PMI).',

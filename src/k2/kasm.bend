@@ -4,6 +4,7 @@ import ../c06/iv.bend as I
 import ../c06/model.bend as M
 import ../c06/sx.bend as S
 import ../c14/asm.bend as A4
+import ../c12/stepw.bend as SW
 import ../k1/sf.bend as KS
 import ./mat.bend as KM
 import ./thr.bend as KT
@@ -225,3 +226,58 @@ def k2_skip(xs: List<&2, String>, +i: Nat) -> Nat:
 def k2_asm(+p: M.Part, +xs: List<&2, String>) -> String:
   +code = k2_code(S.arg_at(xs, 0n))
   k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs)
+
+type AW is Data:
+  AW{ ws: SW.WS, names: String }
+
+def aw_err(+why: String) -> AW:
+  AW{SW.WS{False{}, "", why, 0n, 0n}, ""}
+
+def snap9(+x: F64) -> F64:
+  F64.div(KS.f_round(F64.mul(x, 1.0e9f64)), 1.0e9f64)
+
+def snap_pl(+p: M.Pl) -> M.Pl:
+  M.Pl{+m, +tx, +ty, +tz, +mi, +ti} = p
+  +x = snap9(tx)
+  +y = snap9(ty)
+  +z = snap9(tz)
+  M.Pl{m, x, y, z, mi, ti}
+
+def step_ins(ins: List<&2, A4.IN>, +acc: SW.ER2) -> SW.ER2:
+  match ins:
+    case []: acc
+    case +h <> +t:
+      +b = M.nr_body(A4.in_nr(h))
+      +st = SW.sw_stage(M.bd_brep(b), snap_pl(M.bd_pl(b)), SW.er2_n(acc))
+      +r = SW.er2_cat_s(acc, st)
+      step_ins(t, SW.sw_sid_cat(SW.er2_ok_of(r), r, acc, st))
+
+def in_names(ins: List<&2, A4.IN>, +acc: String) -> String:
+  match ins:
+    case []: acc
+    case +h <> +t: in_names(t, Bool.pick(String, String.eq(acc, ""), A4.in_name(h), acc ++ "," ++ A4.in_name(h)))
+
+def step_placed(+ins: List<&2, A4.IN>) -> AW:
+  +r = step_ins(ins, SW.ER2{True{}, "", "", 1n, []})
+  AW{SW.sw_wrap42(r, List.length(&2, A4.IN, ins), "", 0n), in_names(ins, "")}
+
+def step_sol(+s: A4.AS, +a: A4.Asm, +cs: List<&2, M.CE>) -> AW:
+  match s:
+    case A4.AS_conf{+ids, +res}: aw_err("assembly-conflict: mates cannot all hold")
+    case A4.AS_ok{+sx, +dof, +red, +res}: step_placed(A4.place_all(A4.asm_insts(a), sx, cs, 0n))
+
+def step_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>) -> AW:
+  match ok:
+    case False{}: aw_err(e)
+    case True{}: step_sol(A4.asm_solve(a, cs), a, cs)
+
+def step_ar(+p: M.Part, +ar: A4.AR) -> AW:
+  match ar:
+    case A4.AR_err{+why, +fix}: aw_err(why)
+    case A4.AR_ok{+a}:
+      +cs = M.ev_part(p, [])
+      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
+      step_ok(String.eq(e, ""), e, a, cs)
+
+def k2_step(+p: M.Part, +xs: List<&2, String>) -> AW:
+  step_ar(p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))))

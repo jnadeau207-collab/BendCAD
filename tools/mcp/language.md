@@ -515,6 +515,9 @@ Assembly verbs on the same `(assembly ...)` text:
   meshing gears over one full pitch: A turns about its placed origin, B
   turns the other way at ZA/ZB. Model each gear centred on its node
   origin with the tooth phase it has at assembly.
+- `asm step FILE (assembly ...)` — STEP AP242 of the solved assembly: every
+  placed instance is its own solid, in instance order (printed after the
+  write).
 
 Fits are PMI: `pmi fits (pmi (node N) (temp NAME T)... (fit NAME HN HFACE SN SFACE CLASS KIND)...)`
 evaluates ISO 286 classes (`H7/g6`, `H7/p6`, `H7/k6`; holes D E F G H JS,

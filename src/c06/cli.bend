@@ -625,6 +625,17 @@ def has_k2(+p: M.Part, +n: U64) -> Bool:
   Bool.or(is_some_g(KM.mat_find(ms, n)), KT.th_any(ts, n))
 
 
+def asm_step_io(+w: KA.AW, +out: String) -> IO(Unit):
+  KA.AW{+ws, +names} = w
+  do IO<Unit>:
+    u : Unit <- step_write_go(SW.ws_ok(ws), ws, out)
+    IO.print("instances " ++ names)
+
+def asm_io(+st: Bool, +p: M.Part, +rest: List<&2, String>) -> IO(Unit):
+  match st:
+    case True{}: asm_step_io(KA.k2_step(p, rest), S.arg_at(rest, 1n))
+    case False{}: IO.print(Bool.pick(String, U64.is_eq(KA.k2_code(S.arg_at(rest, 0n)), 0u64), AS.asm_go(p, rest), KA.k2_asm(p, rest)))
+
 def step_pick(+p: M.Part, +n: U64, +out: String) -> IO(Unit):
   +r = node_res(M.ev_part(p, []), n)
   Bool.pick(IO(Unit), has_k2(p, n), step_k2(r, p, n, out), step_out(r, out))
@@ -987,7 +998,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 21u64: mf3_args(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
-    case 22u64: IO.print(Bool.pick(String, U64.is_eq(KA.k2_code(S.arg_at(rest, 0n)), 0u64), AS.asm_go(p, rest), KA.k2_asm(p, rest)))
+    case 22u64: asm_io(String.eq(S.arg_at(rest, 0n), "step"), p, rest)
     case 23u64: pmi_run(p, rest)
     case 24u64: IO.print(flat_go(p, rest))
     case 25u64: IO.print(surf_go(p, rest))

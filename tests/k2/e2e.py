@@ -244,6 +244,45 @@ def mesh_involute():
            gap=g3, oracle=tip, out=o3[-300:])
 
 
+def thin_tori():
+    out, _ = fresh('or.bcd', f'(node 1 (torus 30 1.5) {IC})', f'(node 2 (torus 20 0.5) {IC})',
+                   '(material 1 NBR70 1250 2.3e-4)', '(material 2 1.4310 7900 1.6e-5)')
+    ev, _ = cli('or.bcd', 'eval')
+    for node, big, r, rho, tag in ((1, 30.0, 1.5, 1250, 'oring'), (2, 20.0, 0.5, 7900, 'garter')):
+        v = 2 * math.pi ** 2 * big * r * r
+        line = next((ln for ln in ev.splitlines() if ln.startswith(f'node {node}:')), '')
+        ck, _ = cli('or.bcd', 'check', str(node))
+        ms, _ = cli('or.bcd', 'mass', str(node))
+        cli('or.bcd', 'step', str(node), f'{WORK}/{tag}.stp')
+        sv, _ = wsl('python3', '-c', 'from build123d import import_step;'
+                    f's=import_step("{WORK}/{tag}.stp");print(len(s.solids()), s.solids()[0].volume)')
+        parts = sv.split()
+        stp_ok = len(parts) >= 2 and parts[-2] == '1' and abs(float(parts[-1]) - v) / v < 1e-6
+        record(f'torus.{tag}', 'committed' in out and contains(iv(line, 'volume'), v) and ck.startswith('ok:')
+               and contains(iv(ms, 'mass'), v * 1e-9 * rho, 1e-15) and stp_ok,
+               ratio=big / r, volume=iv(line, 'volume'), exact=v, check=ck.strip()[:80], step=sv.strip()[-80:])
+
+
+def asm_step():
+    fresh('as.bcd', f'(node 1 (box 10 20 30) {IC})', f'(node 2 (cylinder 5 10) {IC})')
+    f = ('(assembly (inst base 1 0 0 0 0) (inst pin 2 0 0 0 0) (fix 1 base) '
+         '(coinc 2 base 5 10 30 pin 0 0 0))')
+    out, _ = cli('as.bcd', 'asm', 'step', f'{WORK}/as.stp', f)
+    sv, _ = wsl('python3', '-c', 'from build123d import import_step;'
+                f's=import_step("{WORK}/as.stp");'
+                'print(";".join("%.9f %.6f %.6f %.6f %.6f" % (x.volume, x.bounding_box().min.X, x.bounding_box().min.Y, '
+                'x.bounding_box().min.Z, x.bounding_box().max.Z) for x in s.solids()))')
+    rows = sorted(tuple(float(v) for v in r.split()) for r in sv.strip().splitlines()[-1].split(';')) if ';' in sv else []
+    pin = rows[0] if len(rows) == 2 else None
+    base = rows[1] if len(rows) == 2 else None
+    record('asm.step', 'instances base,pin' in out and len(rows) == 2
+           and abs(pin[0] - 250 * math.pi) < 1e-6 and abs(base[0] - 6000) < 1e-6
+           and abs(pin[1] - 0.0) < 1e-6 and abs(pin[2] - 5.0) < 1e-6 and abs(pin[3] - 30.0) < 1e-6 and abs(pin[4] - 40.0) < 1e-6,
+           out=out[-300:], solids=rows, raw=sv[-300:])
+    o2, _ = cli('as.bcd', 'asm', 'step', f'{WORK}/bad.stp', '(assembly (inst a 9 0 0 0 0) (fix 1 a))')
+    record('asm.step_refused', 'refused' in o2 and 'wrote' not in o2, out=o2[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -254,6 +293,8 @@ def main():
     fits()
     mesh()
     mesh_involute()
+    thin_tori()
+    asm_step()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

@@ -22,7 +22,7 @@ forms and shapely polygon distances computed inside the suites.
 | `src/k2/thr.bend` | ISO 261 coarse pitches M3–M36, ISO 965-1 tolerance tables for pitches 0.5–3.5, classes 5H 6H 7H 6G (internal) and 4h 6h 6g 6f 6e (external), the minor/major diameter windows, thread face geometry (cylinder axis, radius, side, axial span) and every refusal |
 | `src/k2/fit.bend` | ISO 286-2 IT5–IT11 for nominal sizes to 500 mm, shaft deviations d e f g h js k m n p r s, hole deviations D E F G H JS, temperatures, clearance or interference intervals per state, verdicts |
 | `src/k2/kgap.bend` | Planar 2-D traces of z-extruded faces (lines from planes and flat patches, arcs from cylinders, each flagged exact or not), segment/arc distance kernels, box prefilter, certified static gap and branch-and-bound mesh gap over one pitch |
-| `src/k2/kasm.bend` | Assembly verbs over the C14 solver: placements feed traces and thread axes |
+| `src/k2/kasm.bend` | Assembly verbs over the C14 solver: placements feed traces and thread axes; the placed-instance STEP export |
 | `src/k2/kstep.bend` | AP242 `MATERIAL_DESIGNATION`, density and CTE `DESCRIPTIVE_REPRESENTATION_ITEM`s, thread `SHAPE_ASPECT`s with designation and length |
 
 ## 2. Forms
@@ -85,10 +85,17 @@ major diameter, as drawings and AP242 do; no helix is modelled.
   other than 20 °C need both materials (`material-not-bound`).
 - `step N FILE` writes the material and every thread of node N's part
   into the AP242 file beside the geometry.
+- `asm step FILE (assembly ...)` writes the solved assembly as one AP242
+  file: every placed instance is its own solid (no boolean between
+  them, so press fits stay two parts), in instance order, which the CLI
+  prints after the write. Solved translations are written snapped to a
+  1e-9 mm grid: solver noise near 1e-14 otherwise leaves pole vertices a
+  unit in the last place off their spheres, which OCCT reads as empty
+  solids (G3 v3 receipt §2).
 
 ## 4. Measured on the suites
 
-`tests/k2/e2e.py` (21 journeys), `tests/k2/neg.py` (16 refusals),
+`tests/k2/e2e.py` (25 journeys), `tests/k2/neg.py` (16 refusals),
 `tests/k2/pins.bend` (24 pins against ISO 286-2 and ISO 965-2 table values
 and closed-form distances) and `laws/k2` (6 quantified laws, each killed by
 its mutant in `tools/laws/mutate.py`):
@@ -110,6 +117,12 @@ its mutant in `tools/laws/mutate.py`):
   [0.0399998896, 0.0399998903] enclose the oracle values.
 - Gear tip to bore 0.04 and gear to gear 0.05 on cylinders: widths below
   1.3e-9.
+- Thin tori: an NBR70 O-ring R/r = 20 and a stainless garter spring
+  R/r = 40 evaluate, check `ok:`, carry certified masses and read back
+  from STEP through OCCT as one solid with the exact volume 2π²Rr² to
+  1e-6.
+- `asm step`: a block and a pin mated on its top face read back as two
+  solids with exact volumes at the solved placement.
 
 ## 5. Limits
 
