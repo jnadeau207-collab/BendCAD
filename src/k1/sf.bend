@@ -4,7 +4,7 @@ import ../c01/types.bend as V
 import ../c03/types.bend as G
 
 type SF is Data:
-  SF{ kind: U64, o: V.Point, e1: V.Dir, e2: V.Dir, a: V.Dir, r: F64, nx: SF }
+  SF{ kind: U64, o: V.Point, e1: V.Dir, a: V.Dir, r: F64, r2: F64, t0: F64 }
   SF_none{}
 
 def pt(+x: F64, +y: F64, +z: F64) -> V.Point:
@@ -170,32 +170,42 @@ def ang_diff(+a: F64, +b: F64) -> F64:
 
 def sf_kind(+s: SF) -> U64:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: kind
+    case SF{kind, o, e1, a, r, r2, t0}: kind
     case SF_none{}: 0u64
 
 def sf_o(+s: SF) -> V.Point:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: o
+    case SF{kind, o, e1, a, r, r2, t0}: o
     case SF_none{}: pt(0.0f64, 0.0f64, 0.0f64)
 
 def sf_e1(+s: SF) -> V.Dir:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: e1
+    case SF{kind, o, e1, a, r, r2, t0}: e1
     case SF_none{}: dr(1.0f64, 0.0f64, 0.0f64)
 
 def sf_e2(+s: SF) -> V.Dir:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: e2
+    case SF{kind, o, e1, a, r, r2, t0}: cross(a, e1)
     case SF_none{}: dr(0.0f64, 1.0f64, 0.0f64)
 
 def sf_a(+s: SF) -> V.Dir:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: a
+    case SF{kind, o, e1, a, r, r2, t0}: a
     case SF_none{}: dr(0.0f64, 0.0f64, 1.0f64)
 
 def sf_r(+s: SF) -> F64:
   match s:
-    case SF{kind, o, e1, e2, a, r, nx}: r
+    case SF{kind, o, e1, a, r, r2, t0}: r
+    case SF_none{}: 0.0f64
+
+def sf_r2(+s: SF) -> F64:
+  match s:
+    case SF{kind, o, e1, a, r, r2, t0}: r2
+    case SF_none{}: 0.0f64
+
+def sf_t0(+s: SF) -> F64:
+  match s:
+    case SF{kind, o, e1, a, r, r2, t0}: t0
     case SF_none{}: 0.0f64
 
 def k_none() -> U64:
@@ -215,6 +225,12 @@ def k_sph() -> U64:
 
 def is_sph(+s: SF) -> Bool:
   U64.is_eq(sf_kind(s), k_sph())
+
+def k_tor() -> U64:
+  5u64
+
+def is_tor(+s: SF) -> Bool:
+  U64.is_eq(sf_kind(s), k_tor())
 
 def sf_none() -> SF:
   SF_none{}
@@ -242,56 +258,71 @@ def sf_of(+g: G.GVal) -> SF:
   match g:
     case G.GV_pl{w}:
       G.Pl{+o, +u, +v} = w
-      SF{k_plane(), o, u, v, cross(u, v), 0.0f64, SF_none{}}
+      SF{k_plane(), o, u, cross(u, v), 0.0f64, 0.0f64, 0.0f64}
     case G.GV_cy{w}:
       G.Cy{+o, +a, +r} = w
       +e1 = perp_of(a)
-      SF{k_cyl(), o, e1, cross(a, e1), a, r, SF_none{}}
+      SF{k_cyl(), o, e1, a, r, 0.0f64, 0.0f64}
     case G.GV_co{w}:
       G.Co{+o, +a, +k} = w
       +e1 = perp_of(a)
-      SF{k_cone(), o, e1, cross(a, e1), a, k, SF_none{}}
+      SF{k_cone(), o, e1, a, k, 0.0f64, 0.0f64}
+    case G.GV_to{w}:
+      G.To{+o, +a, +bigr, +r} = w
+      +e1 = perp_of(a)
+      SF{k_tor(), o, e1, a, bigr, r, 0.0f64}
     case G.GV_sp{w}:
       G.Sp{+c, +r} = w
-      SF{k_sph(), c, dr(1.0f64, 0.0f64, 0.0f64), dr(0.0f64, 1.0f64, 0.0f64), dr(0.0f64, 0.0f64, 1.0f64), r, SF_none{}}
+      SF{k_sph(), c, dr(1.0f64, 0.0f64, 0.0f64), dr(0.0f64, 0.0f64, 1.0f64), r, 0.0f64, 0.0f64}
     case G.GV_bp{w}:
       G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
       +e1 = dunit(psub(p03, p00))
       +a = dunit(cross(e1, psub(p30, p00)))
       +flat = F64.is_lt(off_max([p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], p00, a, 0.0f64),
         F64.mul(1.0e-12f64, F64.add(1.0f64, dlen(psub(p33, p00)))))
-      Bool.pick(SF, flat, SF{k_plane(), p00, e1, cross(a, e1), a, 0.0f64, SF_none{}}, sf_none())
+      Bool.pick(SF, flat, SF{k_plane(), p00, e1, a, 0.0f64, 0.0f64, 0.0f64}, sf_none())
     case _: sf_none()
 
 def sf_ok(+s: SF) -> Bool:
   Bool.not(U64.is_eq(sf_kind(s), k_none()))
 
+def tor_v(+s: SF, +d: V.Dir) -> F64:
+  +h = dot(d, sf_a(s))
+  +rho = dlen(dadd(d, F64.neg(h), sf_a(s)))
+  wrap_to(F64.sub(fatan2(h, F64.sub(rho, sf_r(s))), sf_t0(s)), F64.neg(pi()))
+
 def sf_uv(+s: SF, +p: V.Point) -> V.Vec2:
   +d = psub(p, sf_o(s))
   Bool.pick(V.Vec2, U64.is_eq(sf_kind(s), k_plane()), V.V2{dot(d, sf_e1(s)), dot(d, sf_e2(s))},
-    V.V2{fatan2(dot(d, sf_e2(s)), dot(d, sf_e1(s))), dot(d, sf_a(s))})
+    V.V2{fatan2(dot(d, sf_e2(s)), dot(d, sf_e1(s))), Bool.pick(F64, is_tor(s), tor_v(s, d), dot(d, sf_a(s)))})
 
 def sph_rad(+r: F64, +v: F64) -> F64:
   F64.sqrt(F64.max(0.0f64, F64.mul(F64.add(r, v), F64.sub(r, v))))
 
 def sf_rad(+s: SF, +v: F64) -> F64:
   Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), v),
-    Bool.pick(F64, is_sph(s), sph_rad(sf_r(s), v), sf_r(s)))
+    Bool.pick(F64, is_sph(s), sph_rad(sf_r(s), v),
+      Bool.pick(F64, is_tor(s), F64.add(sf_r(s), F64.mul(sf_r2(s), fcos(F64.add(v, sf_t0(s))))), sf_r(s))))
+
+def sf_h(+s: SF, +v: F64) -> F64:
+  Bool.pick(F64, is_tor(s), F64.mul(sf_r2(s), fsin(F64.add(v, sf_t0(s)))), v)
 
 def sf_at(+s: SF, +u: F64, +v: F64) -> V.Point:
   +o = sf_o(s)
   +rr = sf_rad(s, v)
   Bool.pick(V.Point, U64.is_eq(sf_kind(s), k_plane()), padd(padd(o, u, sf_e1(s)), v, sf_e2(s)),
-    padd(padd(padd(o, v, sf_a(s)), F64.mul(rr, fcos(u)), sf_e1(s)), F64.mul(rr, fsin(u)), sf_e2(s)))
+    padd(padd(padd(o, sf_h(s, v), sf_a(s)), F64.mul(rr, fcos(u)), sf_e1(s)), F64.mul(rr, fsin(u)), sf_e2(s)))
 
 def sf_grad(+s: SF, +p: V.Point) -> V.Dir:
   +d = psub(p, sf_o(s))
   +h = dot(d, sf_a(s))
   +rad = dadd(d, F64.neg(h), sf_a(s))
   +k = sf_r(s)
+  +q = F64.sub(F64.add(dot(d, d), F64.mul(k, k)), F64.mul(sf_r2(s), sf_r2(s)))
+  +tg = dadd(dscale(F64.mul(4.0f64, q), d), F64.neg(F64.mul(8.0f64, F64.mul(k, k))), rad)
   Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_a(s),
     Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_cone()), dscale(2.0f64, dadd(rad, F64.neg(F64.mul(F64.mul(k, k), h)), sf_a(s))),
-      dscale(2.0f64, Bool.pick(V.Dir, is_sph(s), d, rad))))
+      Bool.pick(V.Dir, is_tor(s), tg, dscale(2.0f64, Bool.pick(V.Dir, is_sph(s), d, rad)))))
 
 def sf_normal(+s: SF, +p: V.Point) -> V.Dir:
   dunit(sf_grad(s, p))
@@ -302,8 +333,11 @@ def sf_f(+s: SF, +p: V.Point) -> F64:
   +rad = dadd(d, F64.neg(h), sf_a(s))
   +rr = Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), h), sf_r(s))
   +m = Bool.pick(F64, is_sph(s), dlen(d), dlen(rad))
+  +bigr = sf_r(s)
+  +q = F64.sub(F64.add(dot(d, d), F64.mul(bigr, bigr)), F64.mul(sf_r2(s), sf_r2(s)))
+  +ft = F64.sub(F64.mul(q, q), F64.mul(F64.mul(4.0f64, F64.mul(bigr, bigr)), dot(rad, rad)))
   Bool.pick(F64, U64.is_eq(sf_kind(s), k_plane()), h,
-    F64.mul(F64.add(m, rr), F64.sub(m, rr)))
+    Bool.pick(F64, is_tor(s), ft, F64.mul(F64.add(m, rr), F64.sub(m, rr))))
 
 def sf_tan_u(+s: SF, +u: F64, +v: F64) -> V.Dir:
   +rr = sf_rad(s, v)
@@ -317,7 +351,7 @@ def sf_tan_v(+s: SF, +u: F64) -> V.Dir:
       dadd(dadd(sf_a(s), F64.mul(k, fcos(u)), sf_e1(s)), F64.mul(k, fsin(u)), sf_e2(s)), sf_a(s)))
 
 def sf_periodic(+s: SF) -> Bool:
-  Bool.or(Bool.or(U64.is_eq(sf_kind(s), k_cyl()), U64.is_eq(sf_kind(s), k_cone())), is_sph(s))
+  Bool.or(Bool.or(U64.is_eq(sf_kind(s), k_cyl()), U64.is_eq(sf_kind(s), k_cone())), Bool.or(is_sph(s), is_tor(s)))
 
 def det3(+a: V.Dir, +b: V.Dir, +c: V.Dir) -> F64:
   dot(a, cross(b, c))

@@ -51,7 +51,7 @@ type Op is Data:
   O_sw_arc{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
   O_loft{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
   O_chamfer{ base: U64, d: X.Xp }
-  O_echamf{ base: U64, f: Sel, cx: X.Xp, cy: X.Xp, r: X.Xp, c: X.Xp }
+  O_echamf{ base: U64, f: Sel, cx: X.Xp, cy: X.Xp, r: X.Xp, c: X.Xp, fl: Bool }
   O_lchamf{ base: U64, nd: U64, n1: String, n2: String, c: X.Xp }
   O_fillet{ base: U64, r: X.Xp }
   O_fillet_e{ base: U64, n: U64, r0: X.Xp, r1: X.Xp }
@@ -1217,7 +1217,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_sw_arc{deg, rs, g, gd, tw}: 18u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
     case O_loft{z, bot, top, twist, cont}: 19u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
     case O_chamfer{base, d}: 20u64 <> base <> X.xp_w(d, e, [])
-    case O_echamf{base, f, cx, cy, r, c}: 41u64 <> base <> sel_w(f, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(c, e, [])))))
+    case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(U64, fl, 43u64, 41u64) <> base <> sel_w(f, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(c, e, [])))))
     case O_lchamf{base, nd, +n1, +n2, c}: 42u64 <> base <> nd <> U64.from_nat(String.length(n1)) <> chars_w(String.to_list(n1), U64.from_nat(String.length(n2)) <> chars_w(String.to_list(n2), X.xp_w(c, e, [])))
     case O_fillet{base, r}: 21u64 <> base <> X.xp_w(r, e, [])
     case O_fillet_e{base, n, r0, r1}: 22u64 <> base <> n <> X.xp_w(r0, e, X.xp_w(r1, e, []))
@@ -1253,7 +1253,7 @@ def op_base(o: Op) -> U64:
     case O_difference{a, b}: a
     case O_intersection{a, b}: a
     case O_chamfer{base, d}: base
-    case O_echamf{base, f, cx, cy, r, c}: base
+    case O_echamf{base, f, cx, cy, r, c, fl}: base
     case O_lchamf{base, nd, n1, n2, c}: base
     case O_fillet{base, r}: base
     case O_fillet_e{base, n, r0, r1}: base
@@ -1281,7 +1281,7 @@ def op_has_base(o: Op) -> Bool:
     case O_difference{a, b}: True{}
     case O_intersection{a, b}: True{}
     case O_chamfer{base, d}: True{}
-    case O_echamf{base, f, cx, cy, r, c}: True{}
+    case O_echamf{base, f, cx, cy, r, c, fl}: True{}
     case O_lchamf{base, nd, n1, n2, c}: True{}
     case O_fillet{base, r}: True{}
     case O_fillet_e{base, n, r0, r1}: True{}
@@ -1338,7 +1338,7 @@ def op_name(o: Op) -> String:
     case O_sw_arc{deg, rs, g, gd, tw}: "sweep"
     case O_loft{z, bot, top, twist, cont}: "loft"
     case O_chamfer{base, d}: "chamfer"
-    case O_echamf{base, f, cx, cy, r, c}: "chamfer"
+    case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(String, fl, "fillet", "chamfer")
     case O_lchamf{base, nd, n1, n2, c}: "chamfer"
     case O_fillet{base, r}: "fillet"
     case O_fillet_e{base, n, r0, r1}: "fillet"
@@ -1663,6 +1663,16 @@ def ech_rg(+hole: Bool, +r: F64, +c: F64) -> F.Region:
   +bout = F64.add(r, e)
   Bool.pick(F.Region, hole, tri_rg(rin, lo, rout, e, rin, e), tri_rg(bin, e, bout, lo, bout, e))
 
+def efil_rg(+hole: Bool, +r: F64, +c: F64) -> F.Region:
+  +e = F64.mul(0.25f64, c)
+  +lo = F64.neg(c)
+  Bool.pick(F.Region, hole,
+    path_rg(xk(F64.sub(r, e)), xk(e), [F.S_line{xk(F64.sub(r, e)), xk(lo)}, F.S_line{xk(r), xk(lo)},
+      F.S_arc{xk(F64.add(r, c)), xk(lo), xk(c), xk(F64.add(r, c)), xk(0.0f64), False{}}, F.S_line{xk(F64.add(r, c)), xk(e)}]),
+    path_rg(xk(F64.sub(r, c)), xk(e), [F.S_line{xk(F64.sub(r, c)), xk(0.0f64)},
+      F.S_arc{xk(F64.sub(r, c)), xk(lo), xk(c), xk(r), xk(lo), False{}}, F.S_line{xk(F64.add(r, e)), xk(lo)},
+      F.S_line{xk(F64.add(r, e)), xk(e)}]))
+
 def fd_by(fs: List<&2, SO.Fd>, +fi: Nat) -> SO.Fd:
   match fs:
     case []: SO.fd_dflt()
@@ -1696,18 +1706,22 @@ def ech_nr(+t: NR, +b: Body, +fr: FR, +nd: U64) -> NR:
       +tool = {Bd{bd_cells(tb), bd_brep(tb), bd_fns(tb), pl_frame(bd_pl(b), fr), bd_rv(tb), bd_xb(tb)} : Body}
       bool_nr(B8.run(B8.tag_diff(), bool_in(b), bool_in(tool), nd, 0u64, 0u64, False{}), b, tool)
 
-def ech_go(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +e: X.Env, +nd: U64, +np: Nat) -> NR:
+def ech_go2(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +fl: Bool, +e: X.Env, +nd: U64, +np: Nat,
+    +wh: String) -> NR:
   match code:
-    case 0u64: ech_nr(op_rev([ech_rg(hole, r, c)], e, nd), b, fr, nd)
-    case 1u64: bad("chamfer", "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
-    case 2u64: bad("chamfer", "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
+    case 0u64: ech_nr(op_rev([Bool.pick(F.Region, fl, efil_rg(hole, r, c), ech_rg(hole, r, c))], e, nd), b, fr, nd)
+    case 1u64: bad(wh, "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
+    case 2u64: bad(wh, "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
       "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
-    case 3u64: bad("chamfer", "node " ++ U64.show(nd), "feature-face-not-planar: " ++ nm, "edge chamfers act on circles in planar faces")
-    case 4u64: nr_err(T.F_unsupported{}, "chamfer", "node " ++ U64.show(nd), "feature-face-oblique: " ++ nm,
-      "edge chamfers on faces whose frame is not axis-aligned need general placements")
-    case _: bad("chamfer", "node " ++ U64.show(nd), "bad-chamfer", "use a positive chamfer smaller than the circle radius")
+    case 3u64: bad(wh, "node " ++ U64.show(nd), "feature-face-not-planar: " ++ nm, "circular edge features act on circles in planar faces")
+    case 4u64: nr_err(T.F_unsupported{}, wh, "node " ++ U64.show(nd), "feature-face-oblique: " ++ nm,
+      "circular edge features on faces whose frame is not axis-aligned need general placements")
+    case _: bad(wh, "node " ++ U64.show(nd), "bad-" ++ wh, "use a positive " ++ wh ++ " smaller than the circle radius")
 
-def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +e: X.Env, +nd: U64) -> NR:
+def ech_go(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +fl: Bool, +e: X.Env, +nd: U64, +np: Nat) -> NR:
+  ech_go2(code, b, nm, fr, hole, r, c, fl, e, nd, np, Bool.pick(String, fl, "fillet", "chamfer"))
+
+def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +fl: Bool, +e: X.Env, +nd: U64) -> NR:
   +nm = sel_nm(s)
   +fns = bd_fns(b)
   +fi = name_idx(fns, nm, 0n)
@@ -1725,7 +1739,7 @@ def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +e:
   +code = Bool.pick(U64, Nat.is_lt(fi, nf),
     Bool.pick(U64, fi_planar(inf), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
-  ech_go(code, b, nm, fr, hole, r, c, e, nd, np)
+  ech_go(code, b, nm, fr, hole, r, c, fl, e, nd, np)
 def nat_has(xs: List<&2, Nat>, +x: Nat) -> Bool:
   match xs:
     case []: False{}
@@ -3322,7 +3336,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_sw_arc{deg, rs, g, gd, tw}: op_sw_arc(deg, rs, g, gd, tw, e, nd)
     case O_loft{z, bot, top, twist, cont}: op_loft(z, bot, top, twist, cont, e, nd)
     case O_chamfer{base, d}: op_chamfer(base, d, b, e, nd, ns)
-    case O_echamf{base, f, cx, cy, r, c}: op_echamf(b, f, cx, cy, r, c, e, nd)
+    case O_echamf{base, f, cx, cy, r, c, fl}: op_echamf(b, f, cx, cy, r, c, fl, e, nd)
     case O_lchamf{base, sn, n1, n2, c}: op_lchamf(b, n1, n2, c, e, nd)
     case O_fillet{base, r}: op_fillet(base, r, b, e, nd, ns)
     case O_fillet_e{base, n, r0, r1}: op_fillet_e(base, n, r0, r1, b, e, nd, ns)

@@ -101,19 +101,30 @@ def sub_kind_x(+k: Ty.EdgeKind, +a: F64, +b: F64, +pa: V.Point, +pb: V.Point) ->
   +rb = rebuild_go(c, pa, pb, EF.ev(c, F64.mul(0.5f64, F64.add(a, b))))
   Bool.pick(Ty.EdgeKind, VI.bz_straight(c), PX.ln_kind(pa, pb), Bool.pick(Ty.EdgeKind, exact, sub_kind(k, a, b), k1l(rb)))
 
-def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +k: Ty.EdgeKind, +sd: U64, +e: Nat, +j: Nat,
+def ek1(ks: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:
+  match ks:
+    case []: Ty.EK_degenerate{}
+    case +h <> +t: h
+
+def sub_pc(+s: S.SF, +ks: List<&2, Ty.EdgeKind>, +er: W.ER, +fw: Bool, +h: PX.BP, +h2: PX.BP) -> W.PC:
+  +ta = Bool.pick(F64, fw, PX.bp_s(h), PX.bp_s(h2))
+  +tb = Bool.pick(F64, fw, PX.bp_s(h2), PX.bp_s(h))
+  +poly = FB.poly_of(s, ek1(ks), ta, tb, FB.uv_raw(s, EF.ev(EF.ek_curve(ek1(ks)), ta)))
+  mk_pc(Bool.pick(Nat, fw, PX.bp_v(h), PX.bp_v(h2)), Bool.pick(Nat, fw, PX.bp_v(h2), PX.bp_v(h)), poly, True{}, [er], 0.0f64)
+
+def sub_er(+ks: List<&2, Ty.EdgeKind>, +sd: U64, +e: Nat, +j: Nat, +fw: Bool, +gv: PX.GV, +h: PX.BP, +h2: PX.BP) -> W.ER:
+  mk_er(key_sub(sd, e, j), PX.bp_v(h), PX.bp_v(h2),
+    sub_kind_x(ek1(ks), PX.bp_s(h), PX.bp_s(h2), PX.gv_pt(gv, PX.bp_v(h)), PX.gv_pt(gv, PX.bp_v(h2))), fw)
+
+def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +ks: List<&2, Ty.EdgeKind>, +sd: U64, +e: Nat, +j: Nat,
     +fw: Bool, +gv: PX.GV) -> List<&2, W.PC>:
   match bs:
     case []: []
     case +h <> +t:
       +h2 = PX.L_bp0(t, h)
-      +rest = sub_pcs(t, s, k, sd, e, Nat.add(j, 1n), fw, gv)
-      +sk = sub_kind_x(k, PX.bp_s(h), PX.bp_s(h2), PX.gv_pt(gv, PX.bp_v(h)), PX.gv_pt(gv, PX.bp_v(h2)))
-      +er = mk_er(key_sub(sd, e, j), PX.bp_v(h), PX.bp_v(h2), sk, fw)
-      +p0 = FB.uv_raw(s, EF.ev(EF.ek_curve(k), Bool.pick(F64, fw, PX.bp_s(h), PX.bp_s(h2))))
-      +poly = FB.poly_of(s, k, Bool.pick(F64, fw, PX.bp_s(h), PX.bp_s(h2)), Bool.pick(F64, fw, PX.bp_s(h2), PX.bp_s(h)), p0)
-      +pc = mk_pc(Bool.pick(Nat, fw, PX.bp_v(h), PX.bp_v(h2)), Bool.pick(Nat, fw, PX.bp_v(h2), PX.bp_v(h)), poly, True{}, [er], 0.0f64)
-      Bool.pick(List<&2, W.PC>, Nat.is_eq(List.length(&2, PX.BP, t), 0n), [], pc <> rest)
+      +last = Nat.is_eq(List.length(&2, PX.BP, t), 0n)
+      +rest = sub_pcs(t, s, ks, sd, e, Nat.add(j, 1n), fw, gv)
+      Bool.pick(List<&2, W.PC>, last, [], sub_pc(s, ks, sub_er(ks, sd, e, j, fw, gv, h, h2), fw, h, h2) <> rest)
 
 def not_ends(xs: List<&2, PX.BP>, +v0: Nat, +lo: F64, +v1: Nat, +hi: F64) -> List<&2, PX.BP>:
   match xs:
@@ -133,7 +144,7 @@ def ce_pcs(+c: FB.CE, +b: Ty.Brep, +s: S.SF, +sd: U64, +vmap: List<&2, Nat>, +hs
   +v1 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v1(ed)))
   +mid = not_ends(PX.dedup_bp(PX.bp_sort(edge_bks(hs, sd, e))), v0, EF.ek_lo(k), v1, EF.ek_hi(k))
   +bs = List.append(&2, PX.BP, mk_bp(EF.ek_lo(k), v0) <> mid, [mk_bp(EF.ek_hi(k), v1)])
-  +ps = sub_pcs(bs, s, k, sd, e, 0n, FB.ce_fw(c), gv)
+  +ps = sub_pcs(bs, s, [k], sd, e, 0n, FB.ce_fw(c), gv)
   Bool.pick(List<&2, W.PC>, FB.ce_fw(c), ps, List.reverse(&2, W.PC, ps))
 
 def loop_pcs(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +sd: U64, +vmap: List<&2, Nat>,

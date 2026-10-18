@@ -426,14 +426,14 @@ def ch_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
     case True{}: M.O_chamfer{u64_of(sx_nth(xs, 1n)), to_xp(sx_nth(xs, 2n), ns)}
     case False{}: M.O_unk{"chamfer"}
 
-def ech_of(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+def ech_of(+xs: List<&2, Sx>, +ns: List<&2, NI>, +fl: Bool) -> M.Op:
   +cs = sx_xs(sx_nth(xs, 3n))
   M.O_echamf{u64_of(sx_nth(xs, 1n)), sel_of(sx_nth(xs, 2n)), to_xp(sx_nth(cs, 1n), ns), to_xp(sx_nth(cs, 2n), ns),
-    to_xp(sx_nth(cs, 3n), ns), to_xp(sx_nth(xs, 4n), ns)}
+    to_xp(sx_nth(cs, 3n), ns), to_xp(sx_nth(xs, 4n), ns), fl}
 
 def ech_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   match ok:
-    case True{}: ech_of(xs, ns)
+    case True{}: ech_of(xs, ns, False{})
     case False{}: ch_go(len3(xs), xs, ns)
 
 def lch_of(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
@@ -514,10 +514,15 @@ def fil5b(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
     case False{}: M.O_unk{"fillet"}
     case True{}: fil5c(nat_ok(sx_nth(xs, 1n)), xs, ns)
 
+def fil5f(fc: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match fc:
+    case True{}: ech_of(xs, ns, True{})
+    case False{}: fil5b(fil_edge_ok(sx_nth(xs, 2n)), xs, ns)
+
 def fil5(a5: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   match a5:
     case False{}: M.O_unk{"fillet"}
-    case True{}: fil5b(fil_edge_ok(sx_nth(xs, 2n)), xs, ns)
+    case True{}: fil5f(Bool.and(head_is(sx_nth(xs, 2n), "face"), head_is(sx_nth(xs, 3n), "circle")), xs, ns)
 
 def fil_len(a3: Bool, +a5: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   match a3:
@@ -967,7 +972,7 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
     case M.O_loft{z, bot, top, twist, cont}:
       ls(at("loft") <> xp_sx(z, ns) <> sx_cat(rgs_sx([bot], ns), sx_cat(rgs_sx([top], ns), sx_cat(tw_xs(twist), cont_xs(cont)))))
     case M.O_chamfer{base, d}: ls([at("chamfer"), at(U64.show(base)), xp_sx(d, ns)])
-    case M.O_echamf{base, f, cx, cy, r, c}: ls([at("chamfer"), at(U64.show(base)), sel_sx(f), ls([at("circle"), xp_sx(cx, ns), xp_sx(cy, ns), xp_sx(r, ns)]), xp_sx(c, ns)])
+    case M.O_echamf{base, f, cx, cy, r, c, fl}: ls([at(Bool.pick(String, fl, "fillet", "chamfer")), at(U64.show(base)), sel_sx(f), ls([at("circle"), xp_sx(cx, ns), xp_sx(cy, ns), xp_sx(r, ns)]), xp_sx(c, ns)])
     case M.O_lchamf{base, nd, n1, n2, c}: ls([at("chamfer"), at(U64.show(base)), ls([at("edge"), at(U64.show(nd)), at(n1), at(n2)]), xp_sx(c, ns)])
     case M.O_fillet{base, r}: ls([at("fillet"), at(U64.show(base)), xp_sx(r, ns)])
     case M.O_fillet_e{base, n, r0, r1}:

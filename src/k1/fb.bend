@@ -250,16 +250,33 @@ def best_ax(xs: List<&2, V.Dir>, +ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +o: V
 def sph_frame(+s: S.SF, +ls: List<&2, List<&2, CE>>, +b: Ty.Brep) -> S.SF:
   +a = best_ax(sph_axes(), ls, b, S.sf_o(s), S.sf_r(s), S.sf_a(s), F64.neg(1.0f64))
   +e1 = S.perp_of(a)
-  S.SF{S.k_sph(), S.sf_o(s), e1, S.cross(a, e1), a, S.sf_r(s), S.SF_none{}}
+  S.SF{S.k_sph(), S.sf_o(s), e1, a, S.sf_r(s), 0.0f64, 0.0f64}
 
-def sf_pick(+sph: Bool, +s: S.SF, +b: Ty.Brep, +fi: Nat) -> S.SF:
-  match sph:
-    case True{}: sph_frame(s, face_ce(b, fi), b)
-    case False{}: s
+def tor_acc(cs: List<&2, CE>, +s: S.SF, +b: Ty.Brep, +acc: V.Vec2) -> V.Vec2:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +v = S.tor_v(s, S.psub(ce_start3(b, h), S.sf_o(s)))
+      tor_acc(t, s, b, V.V2{F64.add(V.v2_x(acc), S.fcos(v)), F64.add(V.v2_y(acc), S.fsin(v))})
+
+def tor_accs(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep, +acc: V.Vec2) -> V.Vec2:
+  match ls:
+    case []: acc
+    case +h <> +t: tor_accs(t, s, b, tor_acc(h, s, b, acc))
+
+def tor_frame(+s: S.SF, +ls: List<&2, List<&2, CE>>, +b: Ty.Brep) -> S.SF:
+  +m = tor_accs(ls, s, b, V.V2{0.0f64, 0.0f64})
+  S.SF{S.k_tor(), S.sf_o(s), S.sf_e1(s), S.sf_a(s), S.sf_r(s), S.sf_r2(s), S.fatan2(V.v2_y(m), V.v2_x(m))}
+
+def sf_pick(+k: U64, +s: S.SF, +b: Ty.Brep, +fi: Nat) -> S.SF:
+  match k:
+    case 4u64: sph_frame(s, face_ce(b, fi), b)
+    case 5u64: tor_frame(s, face_ce(b, fi), b)
+    case _: s
 
 def face_sf(+b: Ty.Brep, +fi: Nat) -> S.SF:
   +s = S.sf_of(face_surf(b, fi))
-  sf_pick(S.is_sph(s), s, b, fi)
+  sf_pick(S.sf_kind(s), s, b, fi)
 
 def face_polys(+b: Ty.Brep, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
   face_polys_go(face_ce(b, fi), face_sf(b, fi), b)
@@ -374,6 +391,17 @@ def pt_in_face(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
   +s = face_sf(b, fi)
   pip_face(b, fi, s, uv_raw(s, p))
 
+def tor_bb(+s: S.SF) -> BB:
+  +o = S.sf_o(s)
+  +a = S.sf_a(s)
+  +w = F64.add(S.sf_r(s), S.sf_r2(s))
+  +r2 = S.sf_r2(s)
+  +hx = F64.add(F64.mul(w, F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(S.dx(a), S.dx(a)))))), F64.mul(r2, F64.abs(S.dx(a))))
+  +hy = F64.add(F64.mul(w, F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(S.dy(a), S.dy(a)))))), F64.mul(r2, F64.abs(S.dy(a))))
+  +hz = F64.add(F64.mul(w, F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(S.dz(a), S.dz(a)))))), F64.mul(r2, F64.abs(S.dz(a))))
+  BB{F64.sub(V.pt_x(o), hx), F64.add(V.pt_x(o), hx), F64.sub(V.pt_y(o), hy), F64.add(V.pt_y(o), hy),
+    F64.sub(V.pt_z(o), hz), F64.add(V.pt_z(o), hz)}
+
 def sph_bb(+s: S.SF) -> BB:
   +r = S.sf_r(s)
   +o = S.sf_o(s)
@@ -385,7 +413,8 @@ def face_bb(+b: Ty.Brep, +fi: Nat) -> BB:
   +ls = face_ce(b, fi)
   +e0 = lps_bb(ls, b, bb_empty())
   +tip = Bool.and(U64.is_eq(S.sf_kind(s), S.k_cone()), Nat.is_eq(Nat.mod(wraps_go(ls, s, b, 0n), 2n), 1n))
-  +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), Bool.pick(BB, S.is_sph(s), bb_join(e0, sph_bb(s)), e0))
+  +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), Bool.pick(BB, S.is_sph(s), bb_join(e0, sph_bb(s)),
+    Bool.pick(BB, S.is_tor(s), bb_join(e0, tor_bb(s)), e0)))
   bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(L.nth_f(Ty.brep_fas(b), fi))), 1.0e-9f64))
 
 def plane_n(+g: G.GVal) -> V.Dir:

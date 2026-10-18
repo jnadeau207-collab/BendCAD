@@ -433,6 +433,39 @@ def spheres():
            ball_vol=vol(ev, 13), lens_vol=vol(ev, 23), **checks, **info)
 
 
+def fil_hole(r, p):
+    return 2 * math.pi * (p * p * (r + p / 2) - math.pi * p * p * (r + p) / 4 + p ** 3 / 3)
+
+
+def fil_boss(r, p):
+    return 2 * math.pi * (p * p * (r - p / 2) - math.pi * p * p * (r - p) / 4 - p ** 3 / 3)
+
+
+def fillets():
+    out, dt = fresh('fl.bcd', '(node 1 (box 20 20 10) (intent create any any any any))',
+                    f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 10 10 3))) {ID})')
+    fr = frames('fl.bcd', 2)
+    nm, f = wall_with(fr, (0.0, 0.0, 1.0))
+    u, v = local(f, (10.0, 10.0, 10.0)) if f else (0.0, 0.0)
+    o3, _ = cli('fl.bcd', 'apply', f'(node 3 (fillet 2 (face 2 {nm}) (circle {u!r} {v!r} 3) 1) {ID})')
+    o4, _ = cli('fl.bcd', 'apply', '(node 4 (cylinder 2 6) (intent create any any any any))',
+                '(node 5 (move 4 4 4 10 0) (intent same 0 0 1 0))', f'(node 6 (union 3 5) {IA})')
+    fr6 = frames('fl.bcd', 6)
+    tops = [(k, f6) for k, f6 in fr6.items() if abs(f6[3][2] - 1) < 1e-12 and abs(f6[0][2] - 16) < 1e-9]
+    nm6, f6 = tops[0] if tops else (None, None)
+    u6, v6 = local(f6, (4.0, 4.0, 16.0)) if f6 else (0.0, 0.0)
+    o7, _ = cli('fl.bcd', 'apply', f'(node 7 (fillet 6 (face 6 {nm6}) (circle {u6!r} {v6!r} 2) 0.5) {ID})')
+    ev, _ = cli('fl.bcd', 'eval')
+    h3 = 4000 - 90 * math.pi - fil_hole(3, 1)
+    h6 = h3 + 24 * math.pi
+    h7 = h6 - fil_boss(2, 0.5)
+    r = dict(out=out + o3 + o4 + o7, ev=ev)
+    checks, info = finish('fl', 'fl.bcd', r, 7, h7, 7, 1)
+    checks.update(hole=contains(vol(ev, 3), h3), pad=contains(vol(ev, 6), h6), boss=contains(vol(ev, 7), h7),
+                  named=nm is not None and nm6 is not None)
+    record('fillets', all(checks.values()), artifacts=('fl.bcd', 'fl.stp', 'fl.bin'), seconds=dt, **checks, **info)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -447,6 +480,7 @@ def main():
     edgechamfer()
     g3limits()
     spheres()
+    fillets()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

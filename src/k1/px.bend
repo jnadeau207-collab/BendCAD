@@ -140,9 +140,6 @@ def why_near() -> U64:
 def why_hcert() -> U64:
   82u64
 
-def why_vtouch() -> U64:
-  83u64
-
 def surfs_of(fs: List<&2, Nat>, +b: Ty.Brep) -> List<&2, G.GVal>:
   match fs:
     case []: []
@@ -168,11 +165,9 @@ def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +b
       +flush = Bool.and(atend, any_coplanar(L.nat_range(FB.nfaces(b)), b, FB.face_surf(ob, fo), p))
       +bn = FB.bnd_near(ob, fo, p)
       +inside = Bool.and(Bool.not(flush), Bool.or(FB.pt_in_face(ob, fo, p), bn))
-      +vt = Bool.and(atend, Bool.not(bn))
       +r = gv_add(hs_g(st), p)
-      +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.and(EF.eh_ok(h), Bool.not(vt))))
-      +why = Bool.pick(U64, hs_ok(st), Bool.pick(U64, Bool.not(inside), 0u64,
-        Bool.pick(U64, vt, why_vtouch(), Bool.pick(U64, EF.eh_ok(h), 0u64, why_hcert()))), hs_why(st))
+      +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.or(atend, EF.eh_ok(h))))
+      +why = Bool.pick(U64, hs_ok(st), Bool.pick(U64, Bool.or(Bool.not(inside), Bool.or(atend, EF.eh_ok(h))), 0u64, why_hcert()), hs_why(st))
       +nst = Bool.pick(HS, inside,
         HS{HX{side, e, tt, p, vi_i(r), fo} <> hs_hs(st), vi_g(r), ok, why},
         HS{hs_hs(st), hs_g(st), ok, why})
@@ -511,7 +506,7 @@ def arc_go(n: Nat, +ccl: List<&2, G.Circle3>, +gs: List<&2, G.GVal>, +pa: V.Poin
     case 1n+(+m):
       +phi = F64.add(phia, F64.mul(k, step))
       +last = Nat.is_eq(m, 0n)
-      +ct = SS.cert_pt(nth_g(gs, 0n), nth_g(gs, 1n), circ_at(cc1(ccl), phi))
+      +ct = EF.cert_gs(gs, circ_at(cc1(ccl), phi))
       +q = Bool.pick(V.Point, last, pb, EF.ct_p(ct))
       +r = gv_add(g, q)
       +vq = Bool.pick(Nat, last, vb, vi_i(r))

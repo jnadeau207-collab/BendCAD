@@ -398,9 +398,49 @@ def is_plsp(g1: G.GVal, g2: G.GVal) -> Bool:
         case _: False{}
     case _: False{}
 
+def tc_br(+o: List<&2, I.I>, +a: List<&2, I.I>, +bigr: I.I, +r: I.I, +rc: I.I) -> SS.Ss:
+  +u = iv_unit(a)
+  +dr = I.isub(rc, bigr)
+  +q = I.isub(I.isq(r), I.isq(dr))
+  +t = I.isqrt(I.I{F64.max(0.0f64, I.i_lo(q)), F64.max(0.0f64, I.i_hi(q))})
+  Bool.pick(SS.Ss, F64.is_lt(I.i_hi(q), 0.0f64), empty_ss(),
+    Bool.pick(SS.Ss, F64.is_le(I.i_lo(q), 0.0f64), SS.Ss{True{}, [sc_circ(o, u, rc, I.ipt(0.0f64))], []},
+      SS.Ss{True{}, [sc_circ(o, u, rc, t), sc_circ(o, u, rc, I.ineg(t))], []}))
+
+def tc_b(+o: List<&2, I.I>, +a: List<&2, I.I>, +bigr: I.I, +r: I.I, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m2:
+    case Some{b}:
+      match b:
+        case M.M_cy{o2, a2, +rc}: tc_br(o, a, bigr, r, rc)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def tc_ss(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m1:
+    case Some{x}:
+      match x:
+        case M.M_to{+o, +a, +bigr, +r}: tc_b(o, a, bigr, r, m2)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def tc_cyb(+o: V.Point, +a: V.Dir, g2: G.GVal) -> Bool:
+  match g2:
+    case G.GV_cy{w2}:
+      G.Cy{+o2, +a2, +r2} = w2
+      Bool.and(S.par_dirs(a, a2), S.on_axis(o2, a2, o))
+    case _: False{}
+
+def tc_ok(g1: G.GVal, +g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_to{w1}:
+      G.To{+o, +a, +bigr, +r} = w1
+      tc_cyb(o, a, g2)
+    case _: False{}
+
 def ii_kind(+g1: G.GVal, +g2: G.GVal) -> U64:
   Bool.pick(U64, stein_ok(g1, g2), 1u64, Bool.pick(U64, sc_ok(g1, g2), 2u64, Bool.pick(U64, sc_ok(g2, g1), 3u64,
-    Bool.pick(U64, is_plsp(g1, g2), 4u64, Bool.pick(U64, is_plsp(g2, g1), 5u64, 0u64)))))
+    Bool.pick(U64, is_plsp(g1, g2), 4u64, Bool.pick(U64, is_plsp(g2, g1), 5u64,
+      Bool.pick(U64, tc_ok(g1, g2), 6u64, Bool.pick(U64, tc_ok(g2, g1), 7u64, 0u64)))))))
 
 def ii_sel(+st: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
   match st:
@@ -409,6 +449,8 @@ def ii_sel(+st: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
     case 3u64: sc_ss(S.gv_im(g2), S.gv_im(g1))
     case 4u64: ps_ss(S.gv_im(g1), S.gv_im(g2))
     case 5u64: ps_ss(S.gv_im(g2), S.gv_im(g1))
+    case 6u64: tc_ss(S.gv_im(g1), S.gv_im(g2))
+    case 7u64: tc_ss(S.gv_im(g2), S.gv_im(g1))
     case _: ii_go(S.gv_im(g1), S.gv_im(g2), bx)
 
 def ss_route(k: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:

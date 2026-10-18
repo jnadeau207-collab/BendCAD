@@ -130,7 +130,7 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_sw_arc{deg, rs, g, gd, tw}: Z_err{"topology-not-certified-over-zone"}
             case M.O_loft{z, bot, top, twist, cont}: Z_err{"topology-not-certified-over-zone"}
             case M.O_chamfer{base, d}: Z_err{"topology-not-certified-over-zone"}
-            case M.O_echamf{base, f, cx, cy, r, c}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: Z_err{"topology-not-certified-over-zone"}
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: Z_err{"topology-not-certified-over-zone"}
             case M.O_fillet{base, r}: Z_err{"topology-not-certified-over-zone"}
             case M.O_fillet_e{base, n, r0, r1}: Z_err{"topology-not-certified-over-zone"}
@@ -170,7 +170,7 @@ def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
             case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
             case M.O_loft{z, bot, top, twist, cont}: False{}
             case M.O_chamfer{base, d}: False{}
-            case M.O_echamf{base, f, cx, cy, r, c}: False{}
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: False{}
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: False{}
             case M.O_fillet{base, r}: False{}
             case M.O_fillet_e{base, n, r0, r1}: False{}
@@ -353,7 +353,7 @@ def sc_op(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +k: Nat) -> Sc:
             case M.O_sw_arc{deg, rs, g, gd, tw}: sc_none()
             case M.O_loft{z, bot, top, twist, cont}: sc_none()
             case M.O_chamfer{base, d}: sc_none()
-            case M.O_echamf{base, f, cx, cy, r, c}: sc_none()
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: sc_none()
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: sc_none()
             case M.O_fillet{base, r}: sc_none()
             case M.O_fillet_e{base, n, r0, r1}: sc_none()
@@ -428,7 +428,7 @@ def node_ok(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +cs: List<&2, BD
             case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
             case M.O_loft{z, bot, top, twist, cont}: False{}
             case M.O_chamfer{base, d}: False{}
-            case M.O_echamf{base, f, cx, cy, r, c}: False{}
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: False{}
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: False{}
             case M.O_fillet{base, r}: False{}
             case M.O_fillet_e{base, n, r0, r1}: False{}
@@ -576,7 +576,7 @@ def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id
             case M.O_sw_arc{deg, rs, g, gd, tw}: False{}
             case M.O_loft{z, bot, top, twist, cont}: False{}
             case M.O_chamfer{base, d}: False{}
-            case M.O_echamf{base, f, cx, cy, r, c}: False{}
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: False{}
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: False{}
             case M.O_fillet{base, r}: False{}
             case M.O_fillet_e{base, n, r0, r1}: False{}
@@ -620,7 +620,7 @@ def prof_dz(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +z:
             case M.O_sw_arc{deg, rs, g, gd, tw}: dz_zero(ZT.zd_n(z))
             case M.O_loft{zh, bot, top, twist, cont}: dz_zero(ZT.zd_n(z))
             case M.O_chamfer{base, d}: dz_zero(ZT.zd_n(z))
-            case M.O_echamf{base, f, cx, cy, r, c}: dz_zero(ZT.zd_n(z))
+            case M.O_echamf{base, f, cx, cy, r, c, fl}: dz_zero(ZT.zd_n(z))
             case M.O_lchamf{lb, lnd, ln1, ln2, lc}: dz_zero(ZT.zd_n(z))
             case M.O_fillet{base, r}: dz_zero(ZT.zd_n(z))
             case M.O_fillet_e{base, n, r0, r1}: dz_zero(ZT.zd_n(z))
