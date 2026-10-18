@@ -1,6 +1,7 @@
 import Base
 import ../c00/types.bend as T
 import ../c03/types.bend as G
+import ../c01/types.bend as V
 import ../c04/types.bend as Ty
 import ./iv.bend as I
 import ./xp.bend as X
@@ -195,18 +196,11 @@ def str_cat(xs: List<&2, String>) -> String:
     case []: ""
     case x <> t: x ++ " " ++ str_cat(t)
 
-def fn_s_b(f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +rl, +i, +j} = f
-  +role = U64.mod(rl, 8u64)
-  Bool.pick(String, U64.is_eq(role, 4u64),
-    "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
-    "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
-      Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
+def fn_s_b(+f: BD.Fn) -> String:
+  BD.fn_base(f)
 
 def fn_s(+f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +rl, +i, +j} = f
-  +p = U64.div(rl, 8u64)
-  fn_s_b(f) ++ Bool.pick(String, U64.is_eq(p, 0u64), "", ".p" ++ U64.show(U64.sub(p, 1u64)))
+  BD.fn_name(f)
 
 def surf_s(s: G.GVal) -> String:
   match s:
@@ -218,15 +212,30 @@ def surf_s(s: G.GVal) -> String:
     case G.GV_to{w}: "torus"
     case _: "other"
 
-def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>) -> String:
+def v3_s(+x: F64, +y: F64, +z: F64) -> String:
+  "(" ++ F64.show(F64.add(x, 0.0f64)) ++ "," ++ F64.show(F64.add(y, 0.0f64)) ++ "," ++ F64.show(F64.add(z, 0.0f64)) ++ ")"
+
+def wdir_s(+d: V.Dir, +pl: M.Pl) -> String:
+  M.Pl{+m, tx, ty, tz, mi, ti} = pl
+  +v = M.m3_ap(m, V.dr_x(d), V.dr_y(d), V.dr_z(d))
+  v3_s(M.f_nth(v, 0n), M.f_nth(v, 1n), M.f_nth(v, 2n))
+
+def frame_s(+a: Ty.Face, +pl: M.Pl) -> String:
+  +fr = M.frame_of(a)
+  +o = TS.pl_pt(M.fr_o(fr), pl)
+  Bool.pick(String, M.fa_planar(a),
+    " frame o=" ++ v3_s(V.pt_x(o), V.pt_y(o), V.pt_z(o)) ++ " x=" ++ wdir_s(M.fr_u(fr), pl) ++ " y=" ++
+      wdir_s(M.fr_w(fr), pl) ++ " n=" ++ wdir_s(M.fr_n(fr), pl), "")
+
+def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pl: M.Pl) -> String:
   match fs:
     case []: ""
     case f <> t:
       match fas:
         case []: ""
-        case a <> u:
+        case +a <> u:
           Ty.Fa{g, s, ls, same, slv, sla} = a
-          fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ "\n" ++ faces_s(t, u)
+          fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ frame_s(a, pl) ++ "\n" ++ faces_s(t, u, pl)
 
 def delv_s(d: BO.Del) -> String:
   "deleted " ++ BO.del_show(d) ++ "\n"
@@ -240,7 +249,7 @@ def node_faces_v(r: M.NR, +verbose: Bool) -> String:
   match r:
     case M.NR_err{k, d}: "node failed\n"
     case M.NR_ok{+b, fx}:
-      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)))
+      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b))
       Bool.pick(String, verbose, s ++ dels_v(M.xb_dl(M.bd_xb(b))), s)
 
 def node_faces(r: M.NR) -> String:

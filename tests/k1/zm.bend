@@ -13,6 +13,7 @@ import ../../src/c07/rb.bend as R
 import ../../src/c07/im.bend as MI
 import ../../src/c07/ivx.bend as XV
 import ./probe.bend as P
+import ../../src/c06/prof.bend as F
 import ../../src/k1/ls.bend as L
 import ../../src/c07/xs.bend as XS
 import ../../src/c03/types.bend as G3
@@ -201,21 +202,16 @@ def slvb(+r: K1.KR) -> String:
   +b = K1.kr_brep(r)
   slvf(L.nat_range(List.length(&2, Ty.Face, Ty.brep_fas(b))), b, VI.center_of(b))
 
+def circ_rg() -> F.Region:
+  F.Rg{F.L_circ{M.xk(5.0f64), M.xk(5.0f64), M.xk(2.0f64)}, []}
+
 def main() -> String:
   +e = X.env_mk([])
-  +b1 = B8.bake_of(M.bool_in(P.box10(e, 1u64)))
-  +b4 = B8.bake_of(M.bool_in(P.moved(P.zcyl(2.0f64, F64.neg(5.0f64), 15.0f64, e, 2u64), 5.0f64, 5.0f64, 0.0f64, e, 2u64)))
-  +a4 = K1.kr_brep(GB.gbrun(B8.tag_diff(), b1, b4))
-  +c1 = B8.bake_of(M.bool_in(P.zcyl(3.0f64, 0.0f64, 10.0f64, e, 11u64)))
-  +c2 = B8.bake_of(M.bool_in(P.moved(P.zcyl(3.0f64, 0.0f64, 10.0f64, e, 12u64), 4.0f64, 0.0f64, 0.0f64, e, 13u64)))
-  +f8 = K1.kr_brep(GB.gbrun(B8.tag_union(), c1, c2))
-  +cz = P.zcyl(2.0f64, F64.neg(5.0f64), 15.0f64, e, 2u64)
-  +cx = P.unnr(M.op_rot(cz, 1u64, M.xk(90.0f64), e, 2u64))
-  +pt = B8.bake_of(M.bool_in(P.moved(cx, 0.0f64, 4.0f64, 5.0f64, e, 3u64)))
-  +rq = GB.gbrun(B8.tag_diff(), a4, port(2.0f64, 0.0f64, 0.0f64, 10.0f64, e))
-  +ru = GB.gbrun(B8.tag_union(), f8, pt)
-  "boreq " ++ vshow2(rq) ++ "
-" ++ slvb(rq) ++ "
-fp union " ++ vshow2(ru) ++ "
-" ++ slvb(ru) ++ "
+  +bx = P.box10(e, 1u64)
+  +fr = M.frame_of(M.fa_nth(Ty.brep_fas(M.bd_brep(bx)), 3n))
+  +t0 = P.unnr(M.op_prism([circ_rg()], M.xk(F64.neg(3.0f64)), M.xk(0.0f64), e, 2u64))
+  +tool = {M.Bd{M.bd_cells(t0), M.bd_brep(t0), M.bd_fns(t0), M.pl_frame(M.bd_pl(bx), fr), M.bd_rv(t0), M.bd_xb(t0)} : M.Body}
+  +r = GB.gbrun(B8.tag_diff(), B8.bake_of(M.bool_in(bx)), B8.bake_of(M.bool_in(tool)))
+  "side pocket " ++ vshow2(r) ++ " shells=" ++ Nat.show(List.length(&2, Ty.Shell, Ty.brep_shs(K1.kr_brep(r)))) ++ "
+" ++ P.facedump_go(Ty.brep_fas(K1.kr_brep(r)), K1.kr_brep(r), 0n, "") ++ "
 "

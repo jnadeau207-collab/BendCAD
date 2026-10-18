@@ -287,6 +287,59 @@ def csink():
            **checks, **info)
 
 
+def frames(design, node):
+    out, _ = cli(design, 'faces', str(node))
+    fr = {}
+    for ln in out.splitlines():
+        m = re.match(r'(\S+) plane .*frame o=\(([^)]*)\) x=\(([^)]*)\) y=\(([^)]*)\) n=\(([^)]*)\)', ln)
+        if m:
+            fr[m.group(1)] = [tuple(float(v) for v in m.group(k).split(',')) for k in (2, 3, 4, 5)]
+    return fr
+
+
+def local(fr, p):
+    o, x, y, n = fr
+    d = tuple(p[i] - o[i] for i in range(3))
+    return sum(d[i] * x[i] for i in range(3)), sum(d[i] * y[i] for i in range(3))
+
+
+def wall_with(fr, normal):
+    for nm, f in fr.items():
+        if all(abs(f[3][i] - normal[i]) < 1e-12 for i in range(3)):
+            return nm, f
+    return None, None
+
+
+def sidefeat():
+    out, dt = fresh('sf.bcd', BOX)
+    fr = frames('sf.bcd', 1)
+    nm, f = wall_with(fr, (1.0, 0.0, 0.0))
+    u, v = local(f, (10.0, 5.0, 5.0)) if f else (0.0, 0.0)
+    o2, _ = cli('sf.bcd', 'apply',
+                f'(node 2 (pocket 1 (face 1 {nm}) 3 (region (circle {u!r} {v!r} 2))) {ID})')
+    fr2 = frames('sf.bcd', 2)
+    nm2, f2 = wall_with(fr2, (0.0, -1.0, 0.0))
+    u2, v2 = local(f2, (5.0, 0.0, 5.0)) if f2 else (0.0, 0.0)
+    o3, _ = cli('sf.bcd', 'apply',
+                f'(node 3 (pad 2 (face 2 {nm2}) 4 (region (circle {u2!r} {v2!r} 1.5))) {IA})')
+    nm3, f3 = wall_with(fr2, (0.0, 0.0, 1.0))
+    u3, v3 = local(f3, (2.0, 8.0, 10.0)) if f3 else (0.0, 0.0)
+    o4, _ = cli('sf.bcd', 'apply',
+                f'(node 4 (pocket 3 (face 3 {nm3}) through (region (circle {u3!r} {v3!r} 1))) {ID})')
+    ev, _ = cli('sf.bcd', 'eval')
+    h2 = 1000 - 12 * math.pi
+    h3 = h2 + 9 * math.pi
+    h4 = h3 - 10 * math.pi
+    r = dict(out=out + o2 + o3 + o4, ev=ev)
+    checks, info = finish('sf', 'sf.bcd', r, 4, h4, 4, 1)
+    checks.update(frame=nm is not None and nm2 is not None and nm3 is not None,
+                  side_pocket=contains(vol(ev, 2), h2), side_pad=contains(vol(ev, 3), h3),
+                  thru=contains(vol(ev, 4), h4),
+                  missing='face-not-found' in cli('sf.bcd', 'apply', f'(node 5 (pad 4 (face 4 n9.c0.top) 1 (region (circle 1 1 0.5))) {IA})')[0])
+    record('sidefeat', all(checks.values()), artifacts=('sf.bcd', 'sf.stp', 'sf.bin'), seconds=dt,
+           **checks, **info)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -296,6 +349,7 @@ def main():
     cbore()
     oring()
     csink()
+    sidefeat()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

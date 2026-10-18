@@ -266,15 +266,15 @@ def ipos(+x: X.Xp, +z: ZT.Zb) -> Bool:
   ZT.pos(ZT.xi(x, z))
 
 def sel_nd(s: M.Sel) -> U64:
-  M.Sel{nd, k, side} = s
+  M.Sel{nd, k, side, nm} = s
   nd
 
 def sel_k(s: M.Sel) -> Nat:
-  M.Sel{nd, k, side} = s
+  M.Sel{nd, k, side, nm} = s
   k
 
 def sel_side(s: M.Sel) -> U64:
-  M.Sel{nd, k, side} = s
+  M.Sel{nd, k, side, nm} = s
   side
 
 def xz() -> X.Xp:

@@ -38,6 +38,22 @@ type OD is Data:
 type Bt is Data:
   Bt{ brep: Ty.Brep, fns: List<&2, Fn> }
 
+def fn_base(+f: Fn) -> String:
+  Fn{+nd, +k, +rl, +i, +j} = f
+  +role = U64.mod(rl, 8u64)
+  Bool.pick(String, U64.is_eq(role, 4u64),
+    "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
+    "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
+      Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
+
+def fn_piece_of(+f: Fn) -> U64:
+  Fn{nd, k, rl, i, j} = f
+  U64.div(rl, 8u64)
+
+def fn_name(+f: Fn) -> String:
+  +p = fn_piece_of(f)
+  fn_base(f) ++ Bool.pick(String, U64.is_eq(p, 0u64), "", ".p" ++ U64.show(U64.sub(p, 1u64)))
+
 def cl_id(c: Cl) -> Nat:
   Cl{id, par, nd, k, lp, mat, lo, hi} = c
   id

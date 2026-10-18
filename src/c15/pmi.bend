@@ -123,16 +123,9 @@ def uval_m(m: Maybe<&2, U64>) -> U64:
 def uval(+x: S.Sx) -> U64:
   uval_m(U64.read(S.sx_s(x)))
 def pfn_s_b(+f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +rl, +i, +j} = f
-  +role = U64.mod(rl, 8u64)
-  Bool.pick(String, U64.is_eq(role, 4u64),
-    "n" ++ U64.show(nd) ++ ".cav." ++ Nat.show(k) ++ "." ++ Nat.show(i) ++ "." ++ Nat.show(j),
-    "n" ++ U64.show(nd) ++ ".c" ++ Nat.show(k) ++ Bool.pick(String, U64.is_eq(role, 0u64), ".top",
-      Bool.pick(String, U64.is_eq(role, 1u64), ".bottom", ".wall." ++ Nat.show(i) ++ "." ++ Nat.show(j))))
+  BD.fn_base(f)
 def pfn_s(+f: BD.Fn) -> String:
-  BD.Fn{+nd, +k, +rl, +i, +j} = f
-  +p = U64.div(rl, 8u64)
-  pfn_s_b(f) ++ Bool.pick(String, U64.is_eq(p, 0u64), "", ".p" ++ U64.show(U64.sub(p, 1u64)))
+  BD.fn_name(f)
 def psurf(s: G.GVal) -> U64:
   match s:
     case G.GV_pl{w}: 0u64

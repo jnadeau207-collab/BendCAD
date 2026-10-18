@@ -1,37 +1,38 @@
 [
  {
   "name": "bore.eq",
-  "ok": false,
+  "ok": true,
   "checks": {
-   "seconds": 0.009415626525878906,
+   "seconds": 0.00977182388305664,
    "committed": true,
    "proof": true,
    "hand": true,
    "check": true,
    "genus": true,
    "step": true,
-   "replay": false,
+   "replay": true,
    "reopen": true,
    "hunion": true,
    "hinter": true,
    "ident": true,
-   "ident2": false,
-   "cross": false,
-   "nfaces": 7,
-   "stp_volume": 874.3362938564081,
+   "cross": true,
+   "inter_refused": true,
+   "union_refused": true,
+   "nfaces": 10,
+   "stp_volume": 791.3392502528031,
    "check_verdict": "ok"
   },
   "artifacts": {
-   "be.bcd": "72e7504abb961755deeda8ca3f8f6e8d67e0e28914dad365fb131c6797788c61",
-   "be.stp": "efed31f080bbf3cc92255ea880e29268dc5a9eaf7581287651976e1a96130f23",
-   "be.bin": "ab4a4151ef491a130a62dfec4d50fe38acc25e073fdba7d39cf391ea7a8c6cf7"
+   "be.bcd": "02207c72eb81e61419bb91b33503cf60193f007a0cfe8370ccf008adc4a37473",
+   "be.stp": "4eb9de22ad555ee3c80cf20ef6e3a4423a0a4e085f9a56e1e2a40450ad44fcce",
+   "be.bin": "d3b86566c1d56bb9b900852ef8c00e7a19b6a9acae1bbd2066188814c8b5788e"
   }
  },
  {
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.007722139358520508,
+   "seconds": 0.008908987045288086,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -59,7 +60,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.007588624954223633,
+   "seconds": 0.007790327072143555,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -83,16 +84,16 @@
  },
  {
   "name": "fig8port",
-  "ok": false,
+  "ok": true,
   "checks": {
-   "seconds": 1.0176723003387451,
+   "seconds": 1.9277715682983398,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
    ],
    "union_vol": [
-    740.8996472093114,
-    741.4670977769341
+    741.164018607406,
+    741.1641917697455
    ],
    "committed": true,
    "proof": true,
@@ -102,24 +103,24 @@
    "step": true,
    "replay": true,
    "reopen": true,
-   "chamber": false,
+   "chamber": true,
    "ident": true,
    "union_ok": true,
    "nfaces": 11,
-   "stp_volume": 741.1827044906514,
+   "stp_volume": 741.1641608512713,
    "check_verdict": "ok"
   },
   "artifacts": {
    "fp.bcd": "b36f718d1e6efdda98d0981e9f4baed281ac374731718800d27d496120706a64",
-   "fp.stp": "5f64d21fd577e8deecd8f9a1ea8dffaaddb2381c220d09ea6d2a1164fe9060fd",
-   "fp.bin": "1c7b86802f511152642ec0820fb00137b1a6662d548e6008abc9998682883fec"
+   "fp.stp": "1d0ea64153934af50950ee940cd3becd2070704ad037a637dfcda7c10c4093cc",
+   "fp.bin": "75582f603decc8fb074a3df260a5eb56603b69592ce5f52bac272a6508d2ec0e"
   }
  },
  {
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 1.5061500072479248,
+   "seconds": 2.565356731414795,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -147,7 +148,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.024295330047607422,
+   "seconds": 0.022205591201782227,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -165,6 +166,60 @@
    "or.bcd": "3c3f8e5ec9b1b73a9071560e735c9fed9de793b6cfeb23c470322eb9fb0b5504",
    "or.stp": "8ef049d0ebd3b737a7ae5255aebf1e36a63eacc397b1cf123dccdd9b0e1d7adb",
    "or.bin": "060b26a464e8a0b6ea86f3783414bb3bc13664ea06e837d504a0d516eceaaf45"
+  }
+ },
+ {
+  "name": "csink",
+  "ok": true,
+  "checks": {
+   "seconds": 0.014016151428222656,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "hunion": true,
+   "hinter": true,
+   "hdiff": true,
+   "ident": true,
+   "bore": true,
+   "nfaces": 9,
+   "stp_volume": 874.8598926324887,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "cs.bcd": "ab2e503119daf5dde79e149924851385a102beec29c2abaa7d916cd2b7b60458",
+   "cs.stp": "58c50018855777b0d4fe85eca876c4e2528244e6cd12c631ad8ade93871db53e",
+   "cs.bin": "c29fa2a585ee13312463f58f4fd6a64f15525744fddbf94fc5e499eec139bb6c"
+  }
+ },
+ {
+  "name": "sidefeat",
+  "ok": false,
+  "checks": {
+   "seconds": 0.006909370422363281,
+   "committed": true,
+   "proof": false,
+   "hand": false,
+   "check": false,
+   "genus": false,
+   "step": false,
+   "replay": false,
+   "reopen": false,
+   "frame": false,
+   "side_pocket": false,
+   "side_pad": false,
+   "thru": false,
+   "missing": false,
+   "nfaces": 0,
+   "stp_volume": null,
+   "check_verdict": "BAD"
+  },
+  "artifacts": {
+   "sf.bcd": "0510f66459ba2c2676e34923803b4c551da79b75d5628f4b70bbf4bd3874a088"
   }
  }
 ]

@@ -2,6 +2,7 @@ import Base
 import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c04/types.bend as Ty
+import ../c03/types.bend as G
 import ../c04/ops.bend as B4
 import ../base/par.bend as B
 import ../base/ex.bend as E
@@ -19,7 +20,7 @@ import ../c16/surf.bend as SU
 import ../c16/blade.bend as BA
 
 type Sel is Data:
-  Sel{ nd: U64, k: Nat, side: U64 }
+  Sel{ nd: U64, k: Nat, side: U64, nm: String }
 
 type Hl is Data:
   Hl{ x: X.Xp, y: X.Xp, r: X.Xp }
@@ -1163,9 +1164,14 @@ def hls_w(hs: List<&2, Hl>, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
       Hl{x, y, r} = h
       51u64 <> X.xp_w(x, e, X.xp_w(y, e, X.xp_w(r, e, hls_w(t, e, acc))))
 
+def chars_w(cs: List<&2, Char>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match cs:
+    case []: acc
+    case c <> t: U32.to_u64(Char.to_u32(c)) <> chars_w(t, acc)
+
 def sel_w(s: Sel, +acc: List<&2, U64>) -> List<&2, U64>:
-  Sel{nd, k, side} = s
-  nd <> U64.from_nat(k) <> side <> acc
+  Sel{nd, k, side, +nm} = s
+  nd <> U64.from_nat(k) <> side <> U64.from_nat(String.length(nm)) <> chars_w(String.to_list(nm), acc)
 
 def xps_w(xs: List<&2, X.Xp>, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
   match xs:
@@ -1463,8 +1469,136 @@ def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>,
     case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
     case _: bad(kind_what(kind), "node " ++ U64.show(nd), "depth-reaches-opposite-face", "use a smaller depth or a through cut")
 
-def op_feat(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
-  Sel{+snd, +sk, +side} = s
+def sel_nm(s: Sel) -> String:
+  Sel{nd, k, side, nm} = s
+  nm
+
+def name_idx(fs: List<&2, BD.Fn>, +nm: String, +i: Nat) -> Nat:
+  match fs:
+    case []: i
+    case +f <> t: Bool.pick(Nat, String.eq(BD.fn_name(f), nm), i, name_idx(t, nm, Nat.add(i, 1n)))
+
+def name_pieces(fs: List<&2, BD.Fn>, +nm: String, +n: Nat) -> Nat:
+  match fs:
+    case []: n
+    case +f <> t: name_pieces(t, nm, Bool.pick(Nat, Bool.and(String.eq(BD.fn_base(f), nm), U64.is_lt(0u64, BD.fn_piece_of(f))), Nat.add(n, 1n), n))
+
+def fa_nth(fs: List<&2, Ty.Face>, +i: Nat) -> Ty.Face:
+  match fs:
+    case []: Ty.Fa{0u64, Ty.surf_zero(), [], True{}, 0.0f64, 0.0f64}
+    case f <> t:
+      match i:
+        case 0n: f
+        case 1n+j: fa_nth(t, j)
+
+type FR is Data:
+  FR{ ok: Bool, o: V.Point, u: V.Dir, w: V.Dir, n: V.Dir }
+
+def fr_ok(+f: FR) -> Bool:
+  FR{ok, o, u, w, n} = f
+  ok
+
+def fr_o(+f: FR) -> V.Point:
+  FR{ok, o, u, w, n} = f
+  o
+
+def fr_u(+f: FR) -> V.Dir:
+  FR{ok, o, u, w, n} = f
+  u
+
+def fr_w(+f: FR) -> V.Dir:
+  FR{ok, o, u, w, n} = f
+  w
+
+def fr_n(+f: FR) -> V.Dir:
+  FR{ok, o, u, w, n} = f
+  n
+
+def unit_ax(+x: F64) -> Bool:
+  Bool.or(F64.is_eq(x, 0.0f64), F64.is_eq(F64.abs(x), 1.0f64))
+
+def dir_ax(+d: V.Dir) -> Bool:
+  Bool.and(unit_ax(V.dr_x(d)), Bool.and(unit_ax(V.dr_y(d)), unit_ax(V.dr_z(d))))
+
+def dcross(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.sub(F64.mul(V.dr_y(a), V.dr_z(b)), F64.mul(V.dr_z(a), V.dr_y(b))),
+    F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
+    F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
+
+def dneg(+a: V.Dir) -> V.Dir:
+  V.Dr{F64.neg(V.dr_x(a)), F64.neg(V.dr_y(a)), F64.neg(V.dr_z(a))}
+
+def frame_of(f: Ty.Face) -> FR:
+  Ty.Fa{g, +sf, ls, +same, slv, sla} = f
+  match sf:
+    case G.GV_pl{w}:
+      G.Pl{+o, +u, +v} = w
+      +n0 = dcross(u, v)
+      +n = Bool.pick(V.Dir, same, n0, dneg(n0))
+      +y = dcross(n, u)
+      FR{Bool.and(dir_ax(u), Bool.and(dir_ax(y), dir_ax(n))), o, u, y, n}
+    case _: FR{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}}
+
+def fa_planar(f: Ty.Face) -> Bool:
+  Ty.Fa{g, sf, ls, same, slv, sla} = f
+  match sf:
+    case G.GV_pl{w}: True{}
+    case _: False{}
+
+def pl_frame(p: Pl, +fr: FR) -> Pl:
+  Pl{+m, +tx, +ty, +tz, +mi, +ti} = p
+  FR{ok, +o, +u, +y, +n} = fr
+  +fm = {V.M3{V.dr_x(u), V.dr_x(y), V.dr_x(n), V.dr_y(u), V.dr_y(y), V.dr_y(n), V.dr_z(u), V.dr_z(y), V.dr_z(n)} : V.Mat3}
+  +fi = ipts(m3_l(fm))
+  +t = m3_ap(m, V.pt_x(o), V.pt_y(o), V.pt_z(o))
+  +tr = im_ap(mi, ipts([V.pt_x(o), V.pt_y(o), V.pt_z(o)]))
+  Pl{m3_mul(m, fm), F64.add(f_nth(t, 0n), tx), F64.add(f_nth(t, 1n), ty), F64.add(f_nth(t, 2n), tz), im_mul(mi, fi),
+    [padd(i_nth(tr, 0n), i_nth(ti, 0n)), padd(i_nth(tr, 1n), i_nth(ti, 1n)), padd(i_nth(tr, 2n), i_nth(ti, 2n))]}
+
+def feat_nm_nr(+t: NR, +tag: U64, +b: Body, +fr: FR, +nd: U64, +kind: U64) -> NR:
+  match t:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+tb, fx}:
+      +tool = {Bd{bd_cells(tb), bd_brep(tb), bd_fns(tb), pl_frame(bd_pl(b), fr), bd_rv(tb), bd_xb(tb)} : Body}
+      Bool.pick(NR, Nat.is_eq(B8.nsolids(bd_brep(b)), 1n),
+        bool_nr(B8.run(tag, bool_in(b), bool_in(tool), nd, 0u64, 0u64, False{}), b, tool),
+        bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-compound",
+          "features on multi-solid bodies need per-solid application"))
+
+def feat_nm_go(+code: U64, +kind: U64, +b: Body, +nm: String, +fr: FR, +rs: List<&2, F.Region>, +lo: F64, +hi: F64,
+    +e: X.Env, +nd: U64, +np: Nat) -> NR:
+  match code:
+    case 0u64:
+      +tag = Bool.pick(U64, U64.is_eq(kind, 0u64), B8.tag_union(), B8.tag_diff())
+      feat_nm_nr(op_prism(rs, xk(lo), xk(hi), e, nd), tag, b, fr, nd, kind)
+    case 1u64: bad(kind_what(kind), "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
+    case 2u64: bad(kind_what(kind), "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
+      "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
+    case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-face-not-planar: " ++ nm, "features act on planar faces")
+    case 4u64: nr_err(T.F_unsupported{}, kind_what(kind), "node " ++ U64.show(nd), "feature-face-oblique: " ++ nm,
+      "features on faces whose frame is not axis-aligned need general placements")
+    case _: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
+
+def op_feat_nm(+kind: U64, +b: Body, +nm: String, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64) -> NR:
+  +fns = bd_fns(b)
+  +fi = name_idx(fns, nm, 0n)
+  +nf = List.length(&2, BD.Fn, fns)
+  +np = name_pieces(fns, nm, 0n)
+  +fa = fa_nth(Ty.brep_fas(bd_brep(b)), fi)
+  +fr = frame_of(fa)
+  +a = X.xp_ev(amt, e)
+  +ms = body_ms(b)
+  +big = F64.add(F64.add(F64.add(F64.sub(ms_x1(ms), ms_x0(ms)), F64.sub(ms_y1(ms), ms_y0(ms))), F64.sub(ms_z1(ms), ms_z0(ms))), 1.0f64)
+  +aok = Bool.or(Bool.and(thru, Bool.not(U64.is_eq(kind, 0u64))), Bool.and(T.is_finite(a), F64.is_lt(0.0f64, a)))
+  +lo = Bool.pick(F64, U64.is_eq(kind, 0u64), 0.0f64, Bool.pick(F64, thru, F64.neg(big), F64.neg(a)))
+  +hi = Bool.pick(F64, U64.is_eq(kind, 0u64), a, 0.0f64)
+  +code = Bool.pick(U64, Nat.is_lt(fi, nf),
+    Bool.pick(U64, fa_planar(fa), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, aok, 0u64, 5u64), 4u64), 3u64),
+    Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
+  feat_nm_go(code, kind, b, nm, fr, rs, lo, hi, e, nd, np)
+
+def op_feat_cell(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  Sel{+snd, +sk, +side, nm} = s
   +cs = bd_cells(b)
   +ds = BD.cds_of(cs)
   +ix = find_cell(ds, snd, sk, base)
@@ -1484,6 +1618,16 @@ def op_feat(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, 
         Bool.pick(U64, Bool.not(aok), 3u64, Bool.pick(U64, Bool.not(nonempty), 4u64,
           Bool.pick(U64, isBool, 7u64, 0u64)))))))
   feat_go(code, o, cs, rs, e, nd, iv, bd_pl(b), kind, b)
+
+def op_feat_sel(+named: Bool, +kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  match named:
+    case True{}:
+      Sel{snd, sk, side, +nm} = s
+      op_feat_nm(kind, b, nm, rs, amt, thru, e, nd)
+    case False{}: op_feat_cell(kind, b, s, rs, amt, thru, e, nd, base)
+
+def op_feat(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  op_feat_sel(Bool.not(String.is_empty(sel_nm(s))), kind, b, s, rs, amt, thru, e, nd, base)
 
 def fn_w(f: BD.Fn) -> List<&2, U64>:
   BD.Fn{nd, k, role, i, j} = f
@@ -2243,7 +2387,7 @@ def sh_diff(inner: NR, +outer: Body, +vol: F64, +nd: U64) -> NR:
 
 def sh_box_go(open: Bool, +x: F64, +y: F64, +z: F64, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:
   match open:
-    case True{}: nr_take(op_feat(1u64, b, Sel{base, 0n, 0u64}, [F9.rg(t, t, [F9.ln(F64.sub(x, t), t), F9.ln(F64.sub(x, t), F64.sub(y, t)), F9.ln(t, F64.sub(y, t))])], xk(F64.sub(z, t)), False{}, e, nd, base), F9.vol_shell_open(x, y, z, t), "", dels_why(bd_fns(b), 7u64), False{}, True{})
+    case True{}: nr_take(op_feat(1u64, b, Sel{base, 0n, 0u64, ""}, [F9.rg(t, t, [F9.ln(F64.sub(x, t), t), F9.ln(F64.sub(x, t), F64.sub(y, t)), F9.ln(t, F64.sub(y, t))])], xk(F64.sub(z, t)), False{}, e, nd, base), F9.vol_shell_open(x, y, z, t), "", dels_why(bd_fns(b), 7u64), False{}, True{})
     case False{}: sh_diff(op_prism([F9.rg(t, t, [F9.ln(F64.sub(x, t), t), F9.ln(F64.sub(x, t), F64.sub(y, t)), F9.ln(t, F64.sub(y, t))])], xk(t), xk(F64.sub(z, t)), e, nd), b, F9.vol_shell_box(x, y, z, t), nd)
 
 def sh_box_c(bad: Bool, +open: Bool, +x: F64, +y: F64, +z: F64, +t: F64, +b: Body, +base: U64, +e: X.Env, +nd: U64) -> NR:

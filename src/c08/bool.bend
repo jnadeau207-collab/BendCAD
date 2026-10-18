@@ -1904,26 +1904,34 @@ def lk_f(+x: LK) -> BD.Fn:
   LK{sd, j, f} = x
   f
 
-def fd_at(fs: List<&2, SO.Fd>, +i: Nat) -> SO.Fd:
-  match fs:
-    case []: SO.fd_dflt()
-    case +f <> +t: Bool.pick(SO.Fd, Nat.is_eq(SO.fd_fi(f), i), f, fd_at(t, i))
+def fd_cmp(a: SO.Fd, b: SO.Fd) -> B.Sgn:
+  +ia = SO.fd_fi(a)
+  +ib = SO.fd_fi(b)
+  B.sgn_pick(Nat.is_lt(ia, ib), Nat.is_lt(ib, ia))
 
-def fn_at(fs: List<&2, BD.Fn>, +i: Nat) -> BD.Fn:
-  match fs:
-    case []: BD.Fn{0u64, 0n, role_created(), 0n, 0n}
-    case +f <> +t:
-      match i:
-        case 0n: f
-        case 1n+k: fn_at(t, k)
+def fd_so(s: B.So<&2, SO.Fd>) -> List<&2, SO.Fd>:
+  B.So{ok, xs} = s
+  xs
+
+def fd_tb(+fs: List<&2, SO.Fd>) -> B.Tb<&2, SO.Fd>:
+  B.tb_of(SO.Fd, fd_so(B.msort(~SO.Fd, ~fd_cmp, fs)), SO.fd_dflt())
+
+def fd_at(+t: B.Tb<&2, SO.Fd>, +i: Nat) -> SO.Fd:
+  B.tb_get(SO.Fd, t, U32.from_nat(i))
+
+def fn_tb(+fs: List<&2, BD.Fn>) -> B.Tb<&2, BD.Fn>:
+  B.tb_of(BD.Fn, fs, BD.Fn{0u64, 0n, role_created(), 0n, 0n})
+
+def fn_at(+t: B.Tb<&2, BD.Fn>, +i: Nat) -> BD.Fn:
+  B.tb_get(BD.Fn, t, U32.from_nat(i))
 
 def src_hit(+q: List<&2, I.I>, +g: G.GVal, +f: SO.Fd) -> Bool:
   Bool.and(S.coincide(SO.fd_g(f), g), U64.is_eq(Mm.member(SO.fd_fc(f), q, SO.fd_im(f)), 1u64))
 
-def src_found(+q: List<&2, I.I>, +fns: List<&2, BD.Fn>, +sd: U64, +i: Nat) -> LK:
+def src_found(+q: List<&2, I.I>, +fns: B.Tb<&2, BD.Fn>, +sd: U64, +i: Nat) -> LK:
   LK{sd, Nat.sub(i, 1n), fn_at(fns, Nat.sub(i, 1n))}
 
-def src_go(+n: Nat, +hit: Bool, +q: List<&2, I.I>, +g: G.GVal, +fds: List<&2, SO.Fd>, +fns: List<&2, BD.Fn>, +sd: U64,
+def src_go(+n: Nat, +hit: Bool, +q: List<&2, I.I>, +g: G.GVal, +fds: B.Tb<&2, SO.Fd>, +fns: B.Tb<&2, BD.Fn>, +sd: U64,
     +i: Nat, +dflt: LK) -> LK:
   match n:
     case 0n: Bool.pick(LK, hit, src_found(q, fns, sd, i), dflt)
@@ -1932,15 +1940,15 @@ def src_go(+n: Nat, +hit: Bool, +q: List<&2, I.I>, +g: G.GVal, +fds: List<&2, SO
         case True{}: src_found(q, fns, sd, i)
         case False{}: src_go(m, src_hit(q, g, fd_at(fds, i)), q, g, fds, fns, sd, Nat.add(i, 1n), dflt)
 
-def src_of(m: Maybe<&2, List<&2, I.I>>, +g: G.GVal, +fa: List<&2, SO.Fd>, +na: List<&2, BD.Fn>, +ka: Nat,
-    +fb: List<&2, SO.Fd>, +nb: List<&2, BD.Fn>, +kb: Nat, +nd: U64, +fi: Nat) -> LK:
+def src_of(m: Maybe<&2, List<&2, I.I>>, +g: G.GVal, +fa: B.Tb<&2, SO.Fd>, +na: B.Tb<&2, BD.Fn>, +ka: Nat,
+    +fb: B.Tb<&2, SO.Fd>, +nb: B.Tb<&2, BD.Fn>, +kb: Nat, +nd: U64, +fi: Nat) -> LK:
   match m:
     case None{}: LK{2u64, fi, BD.Fn{nd, 0n, role_created(), fi, 0n}}
     case Some{+q}:
       src_go(ka, False{}, q, g, fa, na, 0u64, 0n, src_go(kb, False{}, q, g, fb, nb, 1u64, 0n, LK{2u64, fi, BD.Fn{nd, 0n, role_created(), fi, 0n}}))
 
-def lks_go(+n: Nat, +i: Nat, +fr: List<&2, SO.Fd>, +bc: Ty.Brep, +fa: List<&2, SO.Fd>, +na: List<&2, BD.Fn>,
-    +ka: Nat, +fb: List<&2, SO.Fd>, +nb: List<&2, BD.Fn>, +kb: Nat, +nd: U64) -> List<&2, LK>:
+def lks_go(+n: Nat, +i: Nat, +fr: B.Tb<&2, SO.Fd>, +bc: Ty.Brep, +fa: B.Tb<&2, SO.Fd>, +na: B.Tb<&2, BD.Fn>,
+    +ka: Nat, +fb: B.Tb<&2, SO.Fd>, +nb: B.Tb<&2, BD.Fn>, +kb: Nat, +nd: U64) -> List<&2, LK>:
   match n:
     case 0n: []
     case 1n+m:
@@ -1969,8 +1977,8 @@ def lk_fns(xs: List<&2, LK>, +all: List<&2, LK>, +seen: List<&2, LK>) -> List<&2
       Bool.pick(BD.Fn, Nat.is_lt(1n, tot), fn_piece(lk_f(h), p), lk_f(h)) <> lk_fns(t, all, h <> seen)
 
 def k1_fns(+bc: Ty.Brep, +ba: Ty.Brep, +na: List<&2, BD.Fn>, +bb: Ty.Brep, +nb: List<&2, BD.Fn>, +nd: U64) -> List<&2, BD.Fn>:
-  +ls = lks_go(List.length(&2, Ty.Face, Ty.brep_fas(bc)), 0n, SO.fds_of(bc), bc, SO.fds_of(ba), na,
-    List.length(&2, Ty.Face, Ty.brep_fas(ba)), SO.fds_of(bb), nb, List.length(&2, Ty.Face, Ty.brep_fas(bb)), nd)
+  +ls = lks_go(List.length(&2, Ty.Face, Ty.brep_fas(bc)), 0n, fd_tb(SO.fds_of(bc)), bc, fd_tb(SO.fds_of(ba)), fn_tb(na),
+    List.length(&2, Ty.Face, Ty.brep_fas(ba)), fd_tb(SO.fds_of(bb)), fn_tb(nb), List.length(&2, Ty.Face, Ty.brep_fas(bb)), nd)
   lk_fns(ls, ls, [])
 
 def k1_box(+op: U64, +wa: BX, +wb: BX) -> BX:
@@ -2191,10 +2199,25 @@ def run_classify(+op: U64, +a: In, b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Br
   +uncb = AG_unc(agb)
   run_classify_go(Bool.or(unca, uncb), op, a, b, ba, bb, bc, nd, an, bn, unca, aga, agb, nc)
 
+def k1_or_go(+ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +o: Out) -> Out:
+  match ok:
+    case True{}: k1_out(kr, op, a, b, ba, bb, nd)
+    case False{}: o
+
+def k1_or(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +o: Out) -> Out:
+  k1_or_go(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd, o)
+
+def cls_or_k1(+ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+  match ok:
+    case True{}: o
+    case False{}: k1_or(GB.gbrun(op, ba, bb), op, a, b, ba, bb, nd, o)
+
 def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
     +nd: U64, +an: U64, +bn: U64, +v: VR) -> Out:
   match ok:
-    case True{}: run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v))
+    case True{}:
+      +o = run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v))
+      cls_or_k1(Out_ok(o), o, op, a, b, ba, bb, nd)
     case False{}: run_k1v(op, a, b, ba, bb, nd, an, bn, v)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,

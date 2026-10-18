@@ -1,5 +1,5 @@
 {
- "binary_sha256": "d39b74a0715d947e29fb2a573fd63aa6cddd254802b49d9d7fae4a31739e9d9d",
+ "binary_sha256": "80e7e86a0fe849bde8d09c2fdb10fad08b1b97ad5d4ee84ae4fb9ca4032044fb",
  "passed": 21,
  "total": 21,
  "results": [
@@ -7,7 +7,7 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "(1499.999999998499, 1500.000000001501)",
-   "seconds": 0.79
+   "seconds": 0.68
   },
   {
    "name": "cross.straddle",
@@ -25,7 +25,7 @@
    "name": "cross.sphere",
    "ok": true,
    "info": "('unsupported-op', 'curved-surface-operand: sphere/cone/torus operands are not admitted')",
-   "seconds": 0.29
+   "seconds": 0.27
   },
   {
    "name": "ok.mixed_cavity",
@@ -49,7 +49,7 @@
    "name": "feature.on_boolean",
    "ok": true,
    "info": "(1509.424777959259, 1509.42477796228)",
-   "seconds": 1.14
+   "seconds": 1.11
   },
   {
    "name": "feature.on_compound",
@@ -61,49 +61,49 @@
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.03
+   "seconds": 0.02
   },
   {
    "name": "intent.mismatch",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.04
+   "seconds": 0.03
   },
   {
    "name": "zone.boolean",
    "ok": true,
    "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: union, difference and intersection refuse before any zone split; narrowing zones or separ",
-   "seconds": 0.04
+   "seconds": 0.03
   },
   {
    "name": "diff.pinched",
    "ok": true,
    "info": "('numerical-uncertainty', 'validation-rejected: edge-face-overlap 15 5')",
-   "seconds": 0.11
+   "seconds": 0.09
   },
   {
    "name": "ok.ident_union",
    "ok": true,
    "info": "(999.9999999989992, 1000.0000000010012)",
-   "seconds": 4.21
+   "seconds": 2.99
   },
   {
    "name": "diff.no_container",
    "ok": true,
    "info": "('numerical-uncertainty', 'no-container-sample: a tool solid has no strictly-inside sample')",
-   "seconds": 2.84
+   "seconds": 2.07
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.28
+   "seconds": 0.25
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 2.05
+   "seconds": 1.86
   },
   {
    "name": "ok.identical",

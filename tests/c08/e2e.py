@@ -221,10 +221,9 @@ def kiss_inside():
     ok20, info20 = l20_ok(out, 4, 5, 1, 3, 8064.0)
     record('kiss.volume_identity', ok20, **info20)
     out6, _ = cli('kiss.bcd', 'apply', '(node 6 (difference 1 3) (intent remove 0 0 1 0))')
-    m6 = re.search(r'node 6: error (\S+) .*?why: ([^|]+)', out6)
-    record('kiss.diff_pinched', m6 is not None and 'validation-rejected' in m6.group(2)
-           and '(difference 1 3)' not in read('kiss.bcd'),
-           why=m6 and m6.group(2).strip())
+    record('kiss.diff_flush_pocket', 'committed' in out6 and contains(vol(out6, 6), 7936.0), volume=vol(out6, 6))
+    c6, _ = cli('kiss.bcd', 'check', '6')
+    record('kiss.diff_check', c6.startswith('ok:'), out=c6.strip())
 
 
 def contact():

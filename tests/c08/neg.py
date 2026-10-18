@@ -193,15 +193,15 @@ def c_zone():
             and 'keep profile segments' not in o, o.strip()[:180])
 
 
-@case('diff.pinched')
+@case('ok.flush_pocket')
 def c_pinch():
     out, _ = fresh('n.bcd',
                    '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
                    '(node 2 (box 4 4 4) (intent create 6 0 1 0))',
                    '(node 3 (move 2 0 8 8 0) (intent same 0 0 1 0))',
                    '(node 6 (difference 1 3) (intent remove 0 0 1 0))')
-    k, w = node_err(out, 6)
-    return (k == 'numerical-uncertainty' and w.startswith('validation-rejected'), (k, w))
+    return ('committed' in out and vol_ok(out, 6, 7936.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 6))
 
 
 @case('ok.ident_union')

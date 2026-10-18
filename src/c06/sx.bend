@@ -241,8 +241,10 @@ def u64_of(+x: Sx) -> U64:
 
 def sel_of(+x: Sx) -> M.Sel:
   +xs = sx_xs(x)
-  M.Sel{u64_of(sx_nth(xs, 1n)), U64.to_nat(u64_of(sx_nth(xs, 2n))),
-    Bool.pick(U64, String.eq(sx_s(sx_nth(xs, 3n)), "bottom"), 1u64, 0u64)}
+  +named = Nat.is_eq(List.length(&2, Sx, xs), 3n)
+  M.Sel{u64_of(sx_nth(xs, 1n)), Bool.pick(Nat, named, 0n, U64.to_nat(u64_of(sx_nth(xs, 2n)))),
+    Bool.pick(U64, String.eq(sx_s(sx_nth(xs, 3n)), "bottom"), 1u64, 0u64),
+    Bool.pick(String, named, sx_s(sx_nth(xs, 2n)), "")}
 
 def is_thru(+x: Sx) -> Bool:
   String.eq(sx_s(x), "through")
@@ -884,8 +886,10 @@ def hls_sx(hs: List<&2, M.Hl>, +ns: List<&2, NI>) -> List<&2, Sx>:
       ls([at("hole"), xp_sx(x, ns), xp_sx(y, ns), xp_sx(r, ns)]) <> hls_sx(t, ns)
 
 def sel_sx(s: M.Sel) -> Sx:
-  M.Sel{nd, k, side} = s
-  ls([at("face"), at(U64.show(nd)), at(Nat.show(k)), at(Bool.pick(String, U64.is_eq(side, 1u64), "bottom", "top"))])
+  M.Sel{+nd, +k, +side, +nm} = s
+  Bool.pick(Sx, String.is_empty(nm),
+    ls([at("face"), at(U64.show(nd)), at(Nat.show(k)), at(Bool.pick(String, U64.is_eq(side, 1u64), "bottom", "top"))]),
+    ls([at("face"), at(U64.show(nd)), at(nm)]))
 
 def amt_sx(+thru: Bool, x: X.Xp, +ns: List<&2, NI>) -> Sx:
   Bool.pick(Sx, thru, at("through"), xp_sx(x, ns))
