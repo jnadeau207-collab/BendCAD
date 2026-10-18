@@ -1016,120 +1016,22 @@
  },
  {
   "pkt": "k1",
-  "law": "pp_table",
-  "file": "src/k1/core.bend",
+  "law": "box disjoint symmetric",
+  "file": "src/k1/fb.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
  },
  {
   "pkt": "k1",
-  "law": "pc_table",
-  "file": "src/k1/core.bend",
+  "law": "exact faces keep path membership",
+  "file": "src/c07/mem.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
  },
  {
   "pkt": "k1",
-  "law": "pq_table",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "cc_table",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "gen_table",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "keep_matches_c08",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "frag_strict",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "frag_coin_pm",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "frag_coin_mp",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "frag_uncertain",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "frag_graze",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "flip_diff_tool",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "band_fw_lo",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "band_fw_hi",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "dec_curve_roundtrip",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "dec_splitA_roundtrip",
-  "file": "src/k1/core.bend",
-  "ok": true,
-  "verdict": "SOME PROOFS FAIL"
- },
- {
-  "pkt": "k1",
-  "law": "dec_splitB_roundtrip",
-  "file": "src/k1/core.bend",
+  "law": "lineage one name per face",
+  "file": "src/c08/bool.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
  }

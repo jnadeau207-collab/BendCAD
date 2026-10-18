@@ -1,531 +1,156 @@
 import Base
-import ../../src/k1/core.bend as K
-import ../../src/c08/bool.bend as B
+import ../../src/c03/types.bend as G
+import ../../src/c06/build.bend as BD
+import ../../src/c07/mem.bend as Mm
+import ../../src/c08/bool.bend as B8
+import ../../src/k1/fb.bend as FB
 import ./LAWS.bend as Laws
 
-def Laws.pp_table(r):
-  match r:
-    case Laws.R_dis{}:
+def or6(p1: Bool, p2: Bool, p3: Bool, p4: Bool, p5: Bool, p6: Bool) -> {Bool.or(p1, Bool.or(p2, Bool.or(p3, Bool.or(p4, Bool.or(p5, p6))))) == Bool.or(p2, Bool.or(p1, Bool.or(p4, Bool.or(p3, Bool.or(p6, p5))))) : Bool}:
+  match p1 p2 p3 p4 p5 p6:
+    case False{} False{} False{} False{} False{} False{}:
       {==}
-    case Laws.R_tra{}:
+    case False{} False{} False{} False{} False{} True{}:
       {==}
-    case Laws.R_par{}:
+    case False{} False{} False{} False{} True{} False{}:
       {==}
-    case Laws.R_cop{}:
+    case False{} False{} False{} False{} True{} True{}:
       {==}
-    case Laws.R_coa{}:
+    case False{} False{} False{} True{} False{} False{}:
       {==}
-    case Laws.R_tan{}:
+    case False{} False{} False{} True{} False{} True{}:
       {==}
-    case Laws.R_cyl{}:
+    case False{} False{} False{} True{} True{} False{}:
       {==}
-    case Laws.R_cpar{}:
+    case False{} False{} False{} True{} True{} True{}:
+      {==}
+    case False{} False{} True{} False{} False{} False{}:
+      {==}
+    case False{} False{} True{} False{} False{} True{}:
+      {==}
+    case False{} False{} True{} False{} True{} False{}:
+      {==}
+    case False{} False{} True{} False{} True{} True{}:
+      {==}
+    case False{} False{} True{} True{} False{} False{}:
+      {==}
+    case False{} False{} True{} True{} False{} True{}:
+      {==}
+    case False{} False{} True{} True{} True{} False{}:
+      {==}
+    case False{} False{} True{} True{} True{} True{}:
+      {==}
+    case False{} True{} False{} False{} False{} False{}:
+      {==}
+    case False{} True{} False{} False{} False{} True{}:
+      {==}
+    case False{} True{} False{} False{} True{} False{}:
+      {==}
+    case False{} True{} False{} False{} True{} True{}:
+      {==}
+    case False{} True{} False{} True{} False{} False{}:
+      {==}
+    case False{} True{} False{} True{} False{} True{}:
+      {==}
+    case False{} True{} False{} True{} True{} False{}:
+      {==}
+    case False{} True{} False{} True{} True{} True{}:
+      {==}
+    case False{} True{} True{} False{} False{} False{}:
+      {==}
+    case False{} True{} True{} False{} False{} True{}:
+      {==}
+    case False{} True{} True{} False{} True{} False{}:
+      {==}
+    case False{} True{} True{} False{} True{} True{}:
+      {==}
+    case False{} True{} True{} True{} False{} False{}:
+      {==}
+    case False{} True{} True{} True{} False{} True{}:
+      {==}
+    case False{} True{} True{} True{} True{} False{}:
+      {==}
+    case False{} True{} True{} True{} True{} True{}:
+      {==}
+    case True{} False{} False{} False{} False{} False{}:
+      {==}
+    case True{} False{} False{} False{} False{} True{}:
+      {==}
+    case True{} False{} False{} False{} True{} False{}:
+      {==}
+    case True{} False{} False{} False{} True{} True{}:
+      {==}
+    case True{} False{} False{} True{} False{} False{}:
+      {==}
+    case True{} False{} False{} True{} False{} True{}:
+      {==}
+    case True{} False{} False{} True{} True{} False{}:
+      {==}
+    case True{} False{} False{} True{} True{} True{}:
+      {==}
+    case True{} False{} True{} False{} False{} False{}:
+      {==}
+    case True{} False{} True{} False{} False{} True{}:
+      {==}
+    case True{} False{} True{} False{} True{} False{}:
+      {==}
+    case True{} False{} True{} False{} True{} True{}:
+      {==}
+    case True{} False{} True{} True{} False{} False{}:
+      {==}
+    case True{} False{} True{} True{} False{} True{}:
+      {==}
+    case True{} False{} True{} True{} True{} False{}:
+      {==}
+    case True{} False{} True{} True{} True{} True{}:
+      {==}
+    case True{} True{} False{} False{} False{} False{}:
+      {==}
+    case True{} True{} False{} False{} False{} True{}:
+      {==}
+    case True{} True{} False{} False{} True{} False{}:
+      {==}
+    case True{} True{} False{} False{} True{} True{}:
+      {==}
+    case True{} True{} False{} True{} False{} False{}:
+      {==}
+    case True{} True{} False{} True{} False{} True{}:
+      {==}
+    case True{} True{} False{} True{} True{} False{}:
+      {==}
+    case True{} True{} False{} True{} True{} True{}:
+      {==}
+    case True{} True{} True{} False{} False{} False{}:
+      {==}
+    case True{} True{} True{} False{} False{} True{}:
+      {==}
+    case True{} True{} True{} False{} True{} False{}:
+      {==}
+    case True{} True{} True{} False{} True{} True{}:
+      {==}
+    case True{} True{} True{} True{} False{} False{}:
+      {==}
+    case True{} True{} True{} True{} False{} True{}:
+      {==}
+    case True{} True{} True{} True{} True{} False{}:
+      {==}
+    case True{} True{} True{} True{} True{} True{}:
       {==}
 
-def Laws.pc_table(r, p):
-  match r p:
-    case Laws.R_dis{} Laws.P_par{}:
-      {==}
-    case Laws.R_dis{} Laws.P_perp{}:
-      {==}
-    case Laws.R_dis{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tra{} Laws.P_par{}:
-      {==}
-    case Laws.R_tra{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tra{} Laws.P_ang{}:
-      {==}
-    case Laws.R_par{} Laws.P_par{}:
-      {==}
-    case Laws.R_par{} Laws.P_perp{}:
-      {==}
-    case Laws.R_par{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cop{} Laws.P_par{}:
-      {==}
-    case Laws.R_cop{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cop{} Laws.P_ang{}:
-      {==}
-    case Laws.R_coa{} Laws.P_par{}:
-      {==}
-    case Laws.R_coa{} Laws.P_perp{}:
-      {==}
-    case Laws.R_coa{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tan{} Laws.P_par{}:
-      {==}
-    case Laws.R_tan{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tan{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cyl{} Laws.P_par{}:
-      {==}
-    case Laws.R_cyl{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cyl{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cpar{} Laws.P_par{}:
-      {==}
-    case Laws.R_cpar{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cpar{} Laws.P_ang{}:
+def Laws.box_disjoint_symmetric(a, b):
+  match a b:
+    case FB.BB{ax0, ax1, ay0, ay1, az0, az1} FB.BB{bx0, bx1, by0, by1, bz0, bz1}:
+      or6(F64.is_lt(ax1, bx0), F64.is_lt(bx1, ax0), F64.is_lt(ay1, by0), F64.is_lt(by1, ay0), F64.is_lt(az1, bz0), F64.is_lt(bz1, az0))
+
+def Laws.exact_faces_keep_path_membership(g, es, slv):
+  {==}
+
+def lin_go(xs: List<&2, B8.LK>, all: List<&2, B8.LK>, seen: List<&2, B8.LK>) -> {List.length(&2, BD.Fn, B8.lk_fns(xs, all, seen)) == List.length(&2, B8.LK, xs) : Nat}:
+  match xs:
+    case []: {==}
+    case h <> t:
+      %lin_go(t, all, h <> seen) : {1n+List.length(&2, BD.Fn, B8.lk_fns(t, all, h <> seen)) == 1n+_ : Nat}
       {==}
 
-def Laws.pq_table(r, c, p):
-  match r c p:
-    case Laws.R_dis{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_dis{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_dis{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_dis{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_dis{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_dis{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tra{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_tra{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tra{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tra{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_tra{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tra{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_par{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_par{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_par{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_par{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_par{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_par{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cop{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_cop{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cop{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cop{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_cop{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cop{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_coa{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_coa{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_coa{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_coa{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_coa{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_coa{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tan{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_tan{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tan{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_tan{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_tan{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_tan{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cyl{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_cyl{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cyl{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cyl{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_cyl{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cyl{} False{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cpar{} True{} Laws.P_par{}:
-      {==}
-    case Laws.R_cpar{} True{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cpar{} True{} Laws.P_ang{}:
-      {==}
-    case Laws.R_cpar{} False{} Laws.P_par{}:
-      {==}
-    case Laws.R_cpar{} False{} Laws.P_perp{}:
-      {==}
-    case Laws.R_cpar{} False{} Laws.P_ang{}:
-      {==}
-
-def Laws.cc_table(r):
-  match r:
-    case Laws.R_dis{}:
-      {==}
-    case Laws.R_tra{}:
-      {==}
-    case Laws.R_par{}:
-      {==}
-    case Laws.R_cop{}:
-      {==}
-    case Laws.R_coa{}:
-      {==}
-    case Laws.R_tan{}:
-      {==}
-    case Laws.R_cyl{}:
-      {==}
-    case Laws.R_cpar{}:
-      {==}
-
-def Laws.gen_table(r):
-  match r:
-    case Laws.R_dis{}:
-      {==}
-    case Laws.R_tra{}:
-      {==}
-    case Laws.R_par{}:
-      {==}
-    case Laws.R_cop{}:
-      {==}
-    case Laws.R_coa{}:
-      {==}
-    case Laws.R_tan{}:
-      {==}
-    case Laws.R_cyl{}:
-      {==}
-    case Laws.R_cpar{}:
-      {==}
-
-def Laws.keep_matches_c08(o, c):
-  match o c:
-    case Laws.O_union{} Laws.F_out{}:
-      {==}
-    case Laws.O_union{} Laws.F_in{}:
-      {==}
-    case Laws.O_union{} Laws.F_same{}:
-      {==}
-    case Laws.O_union{} Laws.F_opp{}:
-      {==}
-    case Laws.O_union{} Laws.F_unc{}:
-      {==}
-    case Laws.O_union{} Laws.F_coin{}:
-      {==}
-    case Laws.O_diff{} Laws.F_out{}:
-      {==}
-    case Laws.O_diff{} Laws.F_in{}:
-      {==}
-    case Laws.O_diff{} Laws.F_same{}:
-      {==}
-    case Laws.O_diff{} Laws.F_opp{}:
-      {==}
-    case Laws.O_diff{} Laws.F_unc{}:
-      {==}
-    case Laws.O_diff{} Laws.F_coin{}:
-      {==}
-    case Laws.O_inter{} Laws.F_out{}:
-      {==}
-    case Laws.O_inter{} Laws.F_in{}:
-      {==}
-    case Laws.O_inter{} Laws.F_same{}:
-      {==}
-    case Laws.O_inter{} Laws.F_opp{}:
-      {==}
-    case Laws.O_inter{} Laws.F_unc{}:
-      {==}
-    case Laws.O_inter{} Laws.F_coin{}:
-      {==}
-
-def Laws.frag_strict(o, s, c):
-  match o s c:
-    case Laws.O_union{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_union{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{} Laws.St_out{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{} Laws.St_out{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{} Laws.St_out{}:
-      {==}
-
-def Laws.frag_coin_pm(o, s):
-  match o s:
-    case Laws.O_union{} Laws.S_a{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{}:
-      {==}
-
-def Laws.frag_coin_mp(o, s):
-  match o s:
-    case Laws.O_union{} Laws.S_a{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{}:
-      {==}
-
-def Laws.frag_uncertain(o, s):
-  match o s:
-    case Laws.O_union{} Laws.S_a{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{}:
-      {==}
-
-def Laws.frag_graze(o, s, c):
-  match o s c:
-    case Laws.O_union{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_union{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{} Laws.St_out{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{} Laws.St_out{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{} Laws.St_in{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{} Laws.St_out{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{} Laws.St_in{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{} Laws.St_out{}:
-      {==}
-
-def Laws.flip_diff_tool(o, s):
-  match o s:
-    case Laws.O_union{} Laws.S_a{}:
-      {==}
-    case Laws.O_union{} Laws.S_b{}:
-      {==}
-    case Laws.O_diff{} Laws.S_a{}:
-      {==}
-    case Laws.O_diff{} Laws.S_b{}:
-      {==}
-    case Laws.O_inter{} Laws.S_a{}:
-      {==}
-    case Laws.O_inter{} Laws.S_b{}:
-      {==}
-
-def Laws.band_fw_lo(flip, same, pos):
-  match flip same pos:
-    case False{} False{} False{}:
-      {==}
-    case False{} False{} True{}:
-      {==}
-    case False{} True{} False{}:
-      {==}
-    case False{} True{} True{}:
-      {==}
-    case True{} False{} False{}:
-      {==}
-    case True{} False{} True{}:
-      {==}
-    case True{} True{} False{}:
-      {==}
-    case True{} True{} True{}:
-      {==}
-
-def Laws.band_fw_hi(flip, same, pos):
-  match flip same pos:
-    case False{} False{} False{}:
-      {==}
-    case False{} False{} True{}:
-      {==}
-    case False{} True{} False{}:
-      {==}
-    case False{} True{} True{}:
-      {==}
-    case True{} False{} False{}:
-      {==}
-    case True{} False{} True{}:
-      {==}
-    case True{} True{} False{}:
-      {==}
-    case True{} True{} True{}:
-      {==}
-
-def Laws.dec_curve_roundtrip(a, b, c):
-  match a b c:
-    case False{} False{} Laws.C_none{}:
-      {==}
-    case False{} False{} Laws.C_line{}:
-      {==}
-    case False{} False{} Laws.C_circle{}:
-      {==}
-    case False{} False{} Laws.C_segs{}:
-      {==}
-    case False{} False{} Laws.C_ring{}:
-      {==}
-    case False{} True{} Laws.C_none{}:
-      {==}
-    case False{} True{} Laws.C_line{}:
-      {==}
-    case False{} True{} Laws.C_circle{}:
-      {==}
-    case False{} True{} Laws.C_segs{}:
-      {==}
-    case False{} True{} Laws.C_ring{}:
-      {==}
-    case True{} False{} Laws.C_none{}:
-      {==}
-    case True{} False{} Laws.C_line{}:
-      {==}
-    case True{} False{} Laws.C_circle{}:
-      {==}
-    case True{} False{} Laws.C_segs{}:
-      {==}
-    case True{} False{} Laws.C_ring{}:
-      {==}
-    case True{} True{} Laws.C_none{}:
-      {==}
-    case True{} True{} Laws.C_line{}:
-      {==}
-    case True{} True{} Laws.C_circle{}:
-      {==}
-    case True{} True{} Laws.C_segs{}:
-      {==}
-    case True{} True{} Laws.C_ring{}:
-      {==}
-
-def Laws.dec_splitA_roundtrip(a, b, c):
-  match a b c:
-    case False{} False{} Laws.C_none{}:
-      {==}
-    case False{} False{} Laws.C_line{}:
-      {==}
-    case False{} False{} Laws.C_circle{}:
-      {==}
-    case False{} False{} Laws.C_segs{}:
-      {==}
-    case False{} False{} Laws.C_ring{}:
-      {==}
-    case False{} True{} Laws.C_none{}:
-      {==}
-    case False{} True{} Laws.C_line{}:
-      {==}
-    case False{} True{} Laws.C_circle{}:
-      {==}
-    case False{} True{} Laws.C_segs{}:
-      {==}
-    case False{} True{} Laws.C_ring{}:
-      {==}
-    case True{} False{} Laws.C_none{}:
-      {==}
-    case True{} False{} Laws.C_line{}:
-      {==}
-    case True{} False{} Laws.C_circle{}:
-      {==}
-    case True{} False{} Laws.C_segs{}:
-      {==}
-    case True{} False{} Laws.C_ring{}:
-      {==}
-    case True{} True{} Laws.C_none{}:
-      {==}
-    case True{} True{} Laws.C_line{}:
-      {==}
-    case True{} True{} Laws.C_circle{}:
-      {==}
-    case True{} True{} Laws.C_segs{}:
-      {==}
-    case True{} True{} Laws.C_ring{}:
-      {==}
-
-def Laws.dec_splitB_roundtrip(a, b, c):
-  match a b c:
-    case False{} False{} Laws.C_none{}:
-      {==}
-    case False{} False{} Laws.C_line{}:
-      {==}
-    case False{} False{} Laws.C_circle{}:
-      {==}
-    case False{} False{} Laws.C_segs{}:
-      {==}
-    case False{} False{} Laws.C_ring{}:
-      {==}
-    case False{} True{} Laws.C_none{}:
-      {==}
-    case False{} True{} Laws.C_line{}:
-      {==}
-    case False{} True{} Laws.C_circle{}:
-      {==}
-    case False{} True{} Laws.C_segs{}:
-      {==}
-    case False{} True{} Laws.C_ring{}:
-      {==}
-    case True{} False{} Laws.C_none{}:
-      {==}
-    case True{} False{} Laws.C_line{}:
-      {==}
-    case True{} False{} Laws.C_circle{}:
-      {==}
-    case True{} False{} Laws.C_segs{}:
-      {==}
-    case True{} False{} Laws.C_ring{}:
-      {==}
-    case True{} True{} Laws.C_none{}:
-      {==}
-    case True{} True{} Laws.C_line{}:
-      {==}
-    case True{} True{} Laws.C_circle{}:
-      {==}
-    case True{} True{} Laws.C_segs{}:
-      {==}
-    case True{} True{} Laws.C_ring{}:
-      {==}
+def Laws.lineage_one_name_per_face(xs, all, seen):
+  lin_go(xs, all, seen)

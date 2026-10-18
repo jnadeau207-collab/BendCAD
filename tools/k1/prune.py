@@ -39,7 +39,7 @@ def external_uses(mod_path, files):
 
 if __name__ == '__main__':
     mod = sys.argv[1]
-    users = sys.argv[2:]
+    users = [a for a in sys.argv[2:] if not a.startswith('--')]
     text = open(ROOT + mod, encoding='utf-8').read()
     head, bl = blocks(text)
     names = {n for _, n, _ in bl}

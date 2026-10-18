@@ -1,146 +1,62 @@
 [
  {
-  "name": "i_bore",
+  "name": "boxes_apart",
   "ok": true
  },
  {
-  "name": "i_fig8",
+  "name": "boxes_touch",
   "ok": true
  },
  {
-  "name": "i_overlap",
+  "name": "coaxial_cyl_cone_radius",
   "ok": true
  },
  {
-  "name": "i_port",
+  "name": "cone_band_area_term",
   "ok": true
  },
  {
-  "name": "k_bore",
+  "name": "cone_circle_radius",
   "ok": true
  },
  {
-  "name": "k_cbore",
+  "name": "exact_face_path_membership",
   "ok": true
  },
  {
-  "name": "k_cbu",
+  "name": "opposed_cones_meet_mid",
   "ok": true
  },
  {
-  "name": "k_coin",
+  "name": "plane_behind_apex",
   "ok": true
  },
  {
-  "name": "k_fig8",
+  "name": "plane_cone_open_refused",
   "ok": true
  },
  {
-  "name": "k_ident",
+  "name": "plane_cone_perpendicular",
   "ok": true
  },
  {
-  "name": "k_mixreg",
+  "name": "reversed_face_frame_y",
   "ok": true
  },
  {
-  "name": "k_overlap",
+  "name": "sphere_operand_refused",
   "ok": true
  },
  {
-  "name": "k_padcirc",
+  "name": "split_piece_base",
   "ok": true
  },
  {
-  "name": "k_padcirc_fresh",
+  "name": "split_piece_name",
   "ok": true
  },
  {
-  "name": "k_pierce",
-  "ok": true
- },
- {
-  "name": "k_port",
-  "ok": true
- },
- {
-  "name": "k_sph",
-  "ok": true
- },
- {
-  "name": "k_straddle",
-  "ok": true
- },
- {
-  "name": "kfrag_mp",
-  "ok": true
- },
- {
-  "name": "kfrag_pm",
-  "ok": true
- },
- {
-  "name": "kfrag_unc",
-  "ok": true
- },
- {
-  "name": "pk_cc_cylcoin",
-  "ok": true
- },
- {
-  "name": "pk_cc_cylpar",
-  "ok": true
- },
- {
-  "name": "pk_pc_perp",
-  "ok": true
- },
- {
-  "name": "pk_pp_coplanar",
-  "ok": true
- },
- {
-  "name": "t_bore",
-  "ok": true
- },
- {
-  "name": "t_cbore",
-  "ok": true
- },
- {
-  "name": "t_cbu",
-  "ok": true
- },
- {
-  "name": "t_colpad",
-  "ok": true
- },
- {
-  "name": "t_fig8",
-  "ok": true
- },
- {
-  "name": "t_port",
-  "ok": true
- },
- {
-  "name": "tcut_count",
-  "ok": true
- },
- {
-  "name": "tcut_sumay",
-  "ok": true
- },
- {
-  "name": "tcut_sumx",
-  "ok": true
- },
- {
-  "name": "venn_dia_pieces",
-  "ok": true
- },
- {
-  "name": "venn_dia_pt",
+  "name": "tolerant_cylinder_param_membership",
   "ok": true
  }
 ]

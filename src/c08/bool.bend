@@ -16,7 +16,7 @@ import ../c07/xs.bend as S
 import ../c07/im.bend as MM
 import ../c07/mem.bend as Mm
 import ../c07/rb.bend as R
-import ../k1/surg.bend as K1
+import ../k1/asm.bend as K1
 import ../k1/gb.bend as GB
 import ../k1/vi.bend as VI
 
