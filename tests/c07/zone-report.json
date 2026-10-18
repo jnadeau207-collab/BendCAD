@@ -1,5 +1,5 @@
 {
- "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
+ "binary_sha256": "2cbfaaa17f8ca9ab4f415a31ce1a1c97f9541c4ce8998b6387e14ece9f37d09e",
  "passed": 33,
  "results": [
   {
@@ -45,13 +45,13 @@
    "name": "zone.bracket.n1.certified",
    "ok": true,
    "out": "zone node 1: certified over the tolerance envelope | volume=[23167.290999992274, 24177.313589212026] area=[9302.627565044619, 9432.989042727135]",
-   "secs": 0.077
+   "secs": 0.078
   },
   {
    "name": "zone.bracket.n2.certified",
    "ok": true,
    "out": "zone node 2: certified over the tolerance envelope | volume=[22828.070071938364, 23838.091875759954] area=[9411.90786549974, 9549.903413330478]",
-   "secs": 0.085
+   "secs": 0.084
   },
   {
    "name": "zone.bracket.n3.certified",
@@ -150,7 +150,7 @@
    "name": "zone.pad.n2.certified",
    "ok": true,
    "out": "zone node 2: certified over the tolerance envelope | volume=[3942.1699347705144, 4201.587861306425] area=[2436.6723739082045, 2500.438744522571]",
-   "secs": 0.012
+   "secs": 0.013
   },
   {
    "name": "zone.pad.n2.encloses",
@@ -228,7 +228,7 @@
    "name": "zone.revolve-slant.n1.certified",
    "ok": true,
    "out": "zone node 1: certified over the tolerance envelope | volume=[1846.9904921327902, 2078.2410329684412] area=[917.3179574218844, 992.436061175011]",
-   "secs": 0.129
+   "secs": 0.126
   },
   {
    "name": "zone.revolve-slant.n1.encloses",
@@ -306,7 +306,7 @@
    "name": "zone.neg.hole-crosses-edge",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.018
+   "secs": 0.017
   },
   {
    "name": "zone.neg.holes-collide",
@@ -324,7 +324,7 @@
    "name": "zone.neg.depth-reaches-floor",
    "ok": true,
    "out": "error numerical-uncertainty | zone @ node 2 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs m",
-   "secs": 0.016
+   "secs": 0.018
   }
  ],
  "total": 33

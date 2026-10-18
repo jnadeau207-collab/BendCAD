@@ -57,7 +57,11 @@
  },
  {
   "name": "ev_pad_caps_hole",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_pocket_blind",

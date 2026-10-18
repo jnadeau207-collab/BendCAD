@@ -372,7 +372,8 @@ def ps_br(+o: List<&2, I.I>, +nn: List<&2, I.I>, +c: List<&2, I.I>, +bigr: I.I) 
   +q = I.isub(I.isq(bigr), I.isq(dl))
   +rho = I.isqrt(I.I{F64.max(0.0f64, I.i_lo(q)), F64.max(0.0f64, I.i_hi(q))})
   +cen = X.vsub(c, M.vscale(dl, n))
-  Bool.pick(SS.Ss, F64.is_le(I.i_lo(q), 0.0f64), empty_ss(), SS.Ss{True{}, [ell_br(cen, n, rho, cen, n)], []})
+  Bool.pick(SS.Ss, F64.is_lt(I.i_hi(q), 0.0f64), empty_ss(),
+    Bool.pick(SS.Ss, F64.is_le(I.i_lo(q), 0.0f64), SS.Ss{True{}, [], [cen]}, SS.Ss{True{}, [ell_br(cen, n, rho, cen, n)], []}))
 
 def ps_b(+o: List<&2, I.I>, +n: List<&2, I.I>, m2: Maybe<&2, M.Im>) -> SS.Ss:
   match m2:

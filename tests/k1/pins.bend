@@ -136,9 +136,6 @@ def tor(+bigr: F64, +r: F64) -> S.SF:
 def ics_n(+c: SS.ICS) -> Nat:
   List.length(&2, SS.IC, SS.ics_ics(c))
 
-def ics_r(+c: SS.ICS, +i: Nat) -> F64:
-  circ_r(L_ic(SS.ics_ics(c), i))
-
 def L_ic(xs: List<&2, SS.IC>, +i: Nat) -> SS.IC:
   match xs:
     case []: SS.none_ic()
@@ -146,6 +143,10 @@ def L_ic(xs: List<&2, SS.IC>, +i: Nat) -> SS.IC:
       match i:
         case 0n: h
         case 1n+j: L_ic(t, j)
+
+
+def ics_r(+c: SS.ICS, +i: Nat) -> F64:
+  circ_r(L_ic(SS.ics_ics(c), i))
 
 def plane_sphere_circle_radius__got() -> F64:
   circ_r(SS.ps_go(zplane(3.0f64), sph(0.0f64, 5.0f64)))

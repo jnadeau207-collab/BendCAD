@@ -1,15 +1,27 @@
 [
  {
   "name": "ev_cross_diff",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_cross_inter",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_cross_union",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_diff_ainb_empty",
@@ -45,7 +57,11 @@
  },
  {
   "name": "ev_feature_pad_ok",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_intent_mismatch",
@@ -153,15 +169,27 @@
  },
  {
   "name": "ev_vol_cross_diff",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_vol_cross_inter",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_vol_cross_union",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_vol_cyl_sphere",
@@ -169,7 +197,11 @@
  },
  {
   "name": "ev_vol_feature_pad",
-  "ok": true
+  "ok": false,
+  "detail": {
+   "got": "false",
+   "want": "true"
+  }
  },
  {
   "name": "ev_vol_inter_empty",

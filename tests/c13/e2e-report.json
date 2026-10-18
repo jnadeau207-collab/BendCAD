@@ -1,7 +1,7 @@
 {
  "baseline_version": 1,
  "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "057019112dd20e219404bec9143b776069495267fcc5d0ff5b274036d75b7049",
+ "binary_sha256": "2cbfaaa17f8ca9ab4f415a31ce1a1c97f9541c4ce8998b6387e14ece9f37d09e",
  "passed": 5,
  "total": 5,
  "baseline": {
@@ -24,7 +24,7 @@
     "g3/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f",
     "g3/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7"
    },
-   "seconds": 5.3
+   "seconds": 5.2
   },
   {
    "name": "sheet.bracket",
@@ -71,7 +71,7 @@
     "cs.stp": "bab6316aa3d5815df4d62d79379a0f880cf848829e6a83513677c25a10c8d3a1",
     "cs.bin": "37bdd1c1052659f423d7370f8325fc40b01e35a3274c9bea146b250ef57a70a7"
    },
-   "seconds": 0.0
+   "seconds": 0.1
   },
   {
    "name": "surf.duct",
