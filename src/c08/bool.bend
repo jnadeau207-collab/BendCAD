@@ -2023,12 +2023,21 @@ def k1_curved_out(+nd: U64, +stage: String) -> Out:
     "curved-surface-operand: sphere/cone/torus operands are not admitted",
     "use plane/cylinder operands; K1 curved sheets are deferred")
 
+def out_why_add(o: Out, +x: String) -> Out:
+  Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
+    fc, fm, sh, ho, nct, proof, del} = o
+  Out{ok, kind, what, loc, why ++ x, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
+    fc, fm, sh, ho, nct, proof, del}
+
+def k1_note(+kr: K1.KR) -> String:
+  " [k1 reason " ++ U64.show(K1.kr_why(kr)) ++ "]"
+
 def run_k1v(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64, +v: VR) -> Out:
   +kr = GB.gbrun(op, ba, bb)
   Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
     Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "intersect"),
-      intersect_fail(nd, an, bn, v)))
+      out_why_add(intersect_fail(nd, an, bn, v), k1_note(kr))))
 
 def run_k1r_fb(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: U64,
     +bn: U64) -> Out:

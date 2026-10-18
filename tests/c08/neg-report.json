@@ -1,43 +1,43 @@
 {
- "binary_sha256": "b2bdd15a53acfa9469022c578597f31478a2d76fa91b0b002959be77f574912f",
- "passed": 18,
+ "binary_sha256": "668f009fae03402e6c356a911267dc2488084e6caf41de08bdb6a3794c3b643f",
+ "passed": 19,
  "total": 21,
  "results": [
   {
    "name": "cross.boxes",
    "ok": true,
    "info": "(1499.999999998499, 1500.000000001501)",
-   "seconds": 0.98
+   "seconds": 0.83
   },
   {
    "name": "cross.straddle",
    "ok": true,
    "info": "(7967.999999992034, 7968.000000007972)",
-   "seconds": 0.18
+   "seconds": 0.15
   },
   {
    "name": "cross.pierce_rod",
    "ok": true,
    "info": "(1039.999999998959, 1040.000000001041)",
-   "seconds": 0.24
+   "seconds": 0.22
   },
   {
    "name": "cross.sphere",
    "ok": true,
    "info": "('unsupported-op', 'curved-surface-operand: sphere/cone/torus operands are not admitted')",
-   "seconds": 0.42
+   "seconds": 0.31
   },
   {
    "name": "ok.mixed_cavity",
    "ok": true,
    "info": "(63839.99999993617, 63840.00000006385)",
-   "seconds": 0.21
+   "seconds": 0.2
   },
   {
    "name": "place.rot45_union",
    "ok": true,
    "info": "interval-placement: operand placement is not certified exact",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "place.rot45_diff",
@@ -49,61 +49,61 @@
    "name": "feature.on_boolean",
    "ok": false,
    "info": "None",
-   "seconds": 2.19
+   "seconds": 1.86
   },
   {
    "name": "feature.on_compound",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 1.21
+   "seconds": 1.07
   },
   {
    "name": "feature.on_empty",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9",
-   "seconds": 0.03
+   "seconds": 0.02
   },
   {
    "name": "intent.mismatch",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.04
+   "seconds": 0.03
   },
   {
    "name": "zone.boolean",
    "ok": true,
    "info": "error numerical-uncertainty | zone @ node 4 | why: topology-not-certified-over-zone | fix: union, difference and intersection refuse before any zone split; narrowing zones or separ",
-   "seconds": 0.05
+   "seconds": 0.04
   },
   {
    "name": "ok.flush_pocket",
    "ok": false,
    "info": "None",
-   "seconds": 0.17
+   "seconds": 0.14
   },
   {
    "name": "ok.ident_union",
    "ok": true,
    "info": "(999.9999999989992, 1000.0000000010012)",
-   "seconds": 3.73
+   "seconds": 3.18
   },
   {
-   "name": "diff.no_container",
-   "ok": false,
-   "info": "(None, None)",
-   "seconds": 3.15
+   "name": "ok.half_removed",
+   "ok": true,
+   "info": "(3999.999999996, 4000.000000004002)",
+   "seconds": 2.36
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('invalid-input', 'input-node-missing-or-failed')",
-   "seconds": 0.44
+   "seconds": 0.39
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 2.23
+   "seconds": 1.92
   },
   {
    "name": "ok.identical",
@@ -121,13 +121,13 @@
    "name": "ok.disjoint_proof",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.7763568394002",
-   "seconds": 0.05
+   "seconds": 0.03
   },
   {
    "name": "ok.quarter_turn",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.04
+   "seconds": 0.03
   }
  ]
 }

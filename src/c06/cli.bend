@@ -245,12 +245,15 @@ def dels_v(ds: List<&2, BO.Del>) -> String:
     case []: ""
     case d <> t: delv_s(d) ++ dels_v(t)
 
-def node_faces_v(r: M.NR, +verbose: Bool) -> String:
+def node_faces_vf(r: M.NR, +verbose: Bool, +frames: Bool) -> String:
   match r:
     case M.NR_err{k, d}: "node failed\n"
     case M.NR_ok{+b, fx}:
-      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), verbose)
+      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), frames)
       Bool.pick(String, verbose, s ++ dels_v(M.xb_dl(M.bd_xb(b))), s)
+
+def node_faces_v(r: M.NR, +verbose: Bool) -> String:
+  node_faces_vf(r, verbose, False{})
 
 def node_faces(r: M.NR) -> String:
   node_faces_v(r, False{})
@@ -889,7 +892,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
   match code:
     case 1u64: IO.print(S.part_show(p))
     case 2u64: IO.print(ces_s(M.ev_part(p, [])))
-    case 3u64: IO.print(node_faces_v(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v")))
+    case 3u64: IO.print(node_faces_vf(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), String.eq(S.arg_at(rest, 1n), "-f")))
     case 4u64: IO.print(nr_s(node_res(M.ev_part(p, []), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 5u64: IO.print(sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)

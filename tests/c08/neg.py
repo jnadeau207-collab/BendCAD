@@ -144,7 +144,7 @@ def c_featb():
                    f'(node 2 {BOX10} {ICR})',
                    f'(node 3 (move 2 5 0 0 0) {I11})',
                    '(node 4 (union 1 3) (intent add 0 0 1 0))',
-                   '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 3 1 0))')
+                   '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 2 1 1 0))')
     return ('committed' in out and vol_ok(out, 5, 1500.0 + 3.0 * math.pi)
             and 'proof: k1-crossing-certified' in out, node_vol(out, 5))
 

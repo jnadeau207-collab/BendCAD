@@ -321,3 +321,17 @@ def face_bb(+b: Ty.Brep, +fi: Nat) -> BB:
   +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), e0)
   bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(L.nth_f(Ty.brep_fas(b), fi))), 1.0e-9f64))
 
+def plane_n(+g: G.GVal) -> V.Dir:
+  S.sf_a(S.sf_of(g))
+
+def is_plane(+g: G.GVal) -> Bool:
+  U64.is_eq(S.sf_kind(S.sf_of(g)), S.k_plane())
+
+def coplanar(+ga: G.GVal, +gb: G.GVal) -> Bool:
+  +sa = S.sf_of(ga)
+  +sb = S.sf_of(gb)
+  +na = S.sf_a(sa)
+  +nb = S.sf_a(sb)
+  +par = F64.is_eq(S.dlen(S.cross(na, nb)), 0.0f64)
+  +on = F64.is_eq(S.dot(S.psub(S.sf_o(sb), S.sf_o(sa)), na), 0.0f64)
+  Bool.and(Bool.and(is_plane(ga), is_plane(gb)), Bool.and(par, on))

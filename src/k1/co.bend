@@ -29,24 +29,9 @@ def cp_so(+c: CP) -> Bool:
   CP{fa, fb, so} = c
   so
 
-def plane_n(+g: G.GVal) -> V.Dir:
-  S.sf_a(S.sf_of(g))
-
-def is_plane(+g: G.GVal) -> Bool:
-  U64.is_eq(S.sf_kind(S.sf_of(g)), S.k_plane())
-
-def coplanar(+ga: G.GVal, +gb: G.GVal) -> Bool:
-  +sa = S.sf_of(ga)
-  +sb = S.sf_of(gb)
-  +na = S.sf_a(sa)
-  +nb = S.sf_a(sb)
-  +par = F64.is_eq(S.dlen(S.cross(na, nb)), 0.0f64)
-  +on = F64.is_eq(S.dot(S.psub(S.sf_o(sb), S.sf_o(sa)), na), 0.0f64)
-  Bool.and(Bool.and(is_plane(ga), is_plane(gb)), Bool.and(par, on))
-
 def same_orient(+ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat) -> Bool:
-  +na = plane_n(FB.face_surf(ba, fa))
-  +nb = plane_n(FB.face_surf(bb, fb))
+  +na = FB.plane_n(FB.face_surf(ba, fa))
+  +nb = FB.plane_n(FB.face_surf(bb, fb))
   +d = F64.is_lt(0.0f64, S.dot(na, nb))
   Bool.xor(d, Bool.xor(FB.face_same(ba, fa), FB.face_same(bb, fb)))
 
@@ -55,7 +40,7 @@ def cps_b(fbs: List<&2, Nat>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep) -> List<&2, 
     case []: []
     case +h <> +t:
       +rest = cps_b(t, ba, fa, bb)
-      Bool.pick(List<&2, CP>, coplanar(FB.face_surf(ba, fa), FB.face_surf(bb, h)),
+      Bool.pick(List<&2, CP>, FB.coplanar(FB.face_surf(ba, fa), FB.face_surf(bb, h)),
         CP{fa, h, same_orient(ba, fa, bb, h)} <> rest, rest)
 
 def cps_a(fas: List<&2, Nat>, +ba: Ty.Brep, +bb: Ty.Brep) -> List<&2, CP>:
@@ -97,7 +82,7 @@ def edge_pairs(cs: List<&2, CP>, +ba: Ty.Brep, +bb: Ty.Brep, +acc: List<&2, EP>)
   match cs:
     case []: acc
     case +h <> +t:
-      +n = plane_n(FB.face_surf(ba, cp_fa(h)))
+      +n = FB.plane_n(FB.face_surf(ba, cp_fa(h)))
       edge_pairs(t, ba, bb, eps_ea(PX.face_es(ba, cp_fa(h)), PX.face_es(bb, cp_fb(h)), n, acc))
 
 def ek1(xs: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:

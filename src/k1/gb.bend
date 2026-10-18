@@ -165,18 +165,44 @@ def seg_ers(ss: List<&2, PX.SEG>, +ci: Nat, +j: Nat) -> List<&2, W.ER>:
     case []: []
     case +h <> +t: mk_er(key_ch(ci, j), PX.seg_va(h), PX.seg_vb(h), PX.seg_k(h), True{}) <> seg_ers(t, ci, Nat.add(j, 1n))
 
-def circ_poly(+c: PX.CH, +s: S.SF) -> List<&2, V.Vec2>:
-  +k = PX.seg_k(PX.L_last_seg(PX.ch_segs(c)))
-  FB.poly_of(s, k, EF.ek_lo(k), EF.ek_hi(k), FB.uv_raw(s, EF.ev(EF.ek_curve(k), EF.ek_lo(k))))
+def arc_k(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{+c, +d}:
+      match c:
+        case G.GV_rq{w}: True{}
+        case G.GV_cc{w}: True{}
+        case _: False{}
+    case Ty.EK_degenerate{}: False{}
+
+def L_v2tail(xs: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
+  match xs:
+    case []: []
+    case +h <> +t: t
+
+def L_v2last(xs: List<&2, V.Vec2>, +d: V.Vec2) -> V.Vec2:
+  match xs:
+    case []: d
+    case +h <> +t: L_v2last(t, h)
+
+def seg_poly(+k: Ty.EdgeKind, +s: S.SF, +prev: V.Vec2) -> List<&2, V.Vec2>:
+  +pts = Bool.pick(List<&2, V.Vec2>, arc_k(k), FB.poly_of(s, k, EF.ek_lo(k), EF.ek_hi(k), prev),
+    [prev, FB.unwrap(s, prev, FB.uv_raw(s, EF.ev(EF.ek_curve(k), EF.ek_hi(k))))])
+  L_v2tail(pts)
+
+def segs_poly(ss: List<&2, PX.SEG>, +s: S.SF, +prev: V.Vec2, +acc: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
+  match ss:
+    case []: List.reverse(&2, V.Vec2, acc)
+    case +h <> +t:
+      +ps = seg_poly(PX.seg_k(h), s, prev)
+      segs_poly(t, s, L_v2last(ps, prev), List.append(&2, V.Vec2, List.reverse(&2, V.Vec2, ps), acc))
 
 def ch_pc(+c: PX.CH, +ci: Nat, +s: S.SF) -> W.PC:
   +ss = PX.ch_segs(c)
   +va = PX.seg_va(PX.L_last_seg(ss))
   +vb = PX.seg_vb(PX.L_last_seg(List.reverse(&2, PX.SEG, ss)))
-  +poly = pts_uv(PX.ch_pts(c), s, V.V2{0.0f64, 0.0f64}, True{})
-  +poly2 = Bool.pick(List<&2, V.Vec2>, Bool.and(PX.ch_closed(c), Nat.is_le(List.length(&2, V.Vec2, poly), 2n)),
-    circ_poly(c, s), poly)
-  mk_pc(va, vb, poly2, False{}, seg_ers(ss, ci, 0n), PX.ch_dv(c))
+  +p0 = FB.uv_raw(s, EF.ev(EF.ek_curve(PX.seg_k(PX.L_last_seg(ss))), EF.ek_lo(PX.seg_k(PX.L_last_seg(ss)))))
+  +poly = segs_poly(ss, s, p0, [p0])
+  mk_pc(va, vb, poly, False{}, seg_ers(ss, ci, 0n), PX.ch_dv(c))
 
 def chain_pcs(cs: List<&2, PX.CH>, +sd: U64, +fi: Nat, +s: S.SF, +ci: Nat) -> List<&2, W.PC>:
   match cs:
@@ -320,14 +346,30 @@ def mk_ed(+va: Nat, +vb: Nat, +e: W.ER) -> Ty.Edge:
 def mk_ce(+ei: Nat, +fw: Bool, +gl: List<&2, G.GVal>, +s: S.SF, +pa: V.Point, +pb: V.Point) -> Ty.Coedge:
   Ty.Ce{0u64, K1.he(ei), fw, trim_of(PX.nth_g(gl, 0n), s, pa, pb)}
 
+def line_k(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{+c, +d}:
+      match c:
+        case G.GV_ln{w}: True{}
+        case _: VI.bz_straight(c)
+    case Ty.EK_degenerate{}: False{}
+
+def canon_id(+a: Nat, +b: Nat) -> Nat:
+  Nat.add(Nat.mul(a, 1000000000n), b)
+
 def emit_er(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV) -> EM:
-  +va = W.er_va(e)
-  +vb = W.er_vb(e)
-  +fw = W.er_fwd(e)
-  +key = W.er_key(e)
-  +r = K1.eemit(em_st(m), va, vb, 0u64, 0u64, key, mk_ed(va, vb, e))
+  +v0 = W.er_va(e)
+  +v1 = W.er_vb(e)
+  +straight = line_k(W.er_k(e))
+  +sw = Bool.and(straight, Nat.is_lt(v1, v0))
+  +va = Bool.pick(Nat, sw, v1, v0)
+  +vb = Bool.pick(Nat, sw, v0, v1)
+  +fw = Bool.xor(W.er_fwd(e), sw)
   +pa = PX.gv_pt(gv, va)
   +pb = PX.gv_pt(gv, vb)
+  +ln = {Ty.Ed{0u64, K1.hv(va), K1.hv(vb), PX.ln_kind(pa, pb)} : Ty.Edge}
+  +r = K1.eemit(em_st(m), va, vb, Bool.pick(U64, straight, 1u64, 0u64), 0u64,
+    Bool.pick(Nat, straight, canon_id(va, vb), W.er_key(e)), Bool.pick(Ty.Edge, straight, ln, mk_ed(v0, v1, e)))
   +tok = trim_ok(PX.nth_g(gl, 0n), s, pa, pb)
   +st2 = K1.as_add_ce(K1.er_st(r), mk_ce(K1.er_idx(r), fw, gl, s, pa, pb))
   EM{st2, Bool.and(em_ok(m), tok), Bool.pick(U64, Bool.and(em_ok(m), Bool.not(tok)), 95u64, em_why(m))}

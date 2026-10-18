@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": true,
   "checks": {
-   "seconds": 0.008430004119873047,
+   "seconds": 0.008742570877075195,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -32,7 +32,7 @@
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.009117364883422852,
+   "seconds": 0.008011579513549805,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -60,7 +60,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.009769916534423828,
+   "seconds": 0.008355379104614258,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -86,7 +86,7 @@
   "name": "fig8port",
   "ok": true,
   "checks": {
-   "seconds": 1.653407096862793,
+   "seconds": 1.61362886428833,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
@@ -120,7 +120,7 @@
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 3.0274665355682373,
+   "seconds": 2.5909323692321777,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -148,7 +148,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.026459932327270508,
+   "seconds": 0.021474361419677734,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -172,7 +172,7 @@
   "name": "csink",
   "ok": true,
   "checks": {
-   "seconds": 0.013776063919067383,
+   "seconds": 0.0133056640625,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -198,35 +198,37 @@
  },
  {
   "name": "sidefeat",
-  "ok": false,
+  "ok": true,
   "checks": {
-   "seconds": 0.009076118469238281,
+   "seconds": 0.0076100826263427734,
    "committed": true,
    "proof": true,
-   "hand": false,
-   "check": false,
-   "genus": false,
-   "step": false,
-   "replay": false,
-   "reopen": false,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
    "frame": true,
    "side_pocket": true,
    "side_pad": true,
-   "thru": false,
-   "missing": false,
-   "nfaces": 0,
-   "stp_volume": null,
-   "check_verdict": "BAD"
+   "thru": true,
+   "missing": true,
+   "nfaces": 11,
+   "stp_volume": 959.1592955033325,
+   "check_verdict": "ok"
   },
   "artifacts": {
-   "sf.bcd": "12fb46113612ecb284ce35be13c22b3c50c7d21a4c0245396201ded46c65a0ec"
+   "sf.bcd": "bd06655bcca009976503620a9ff3d0ba8485d414d6d842de8a01f4e4be699d57",
+   "sf.stp": "4e4138851cff443f528d00a5870b4c3245c902afb8eb3d425e62b97ad1f22fe3",
+   "sf.bin": "b170d4eef72f98dee57f637dffd4f0d70c8b62d327751e70b39f6eef79413606"
   }
  },
  {
   "name": "chamfer",
   "ok": false,
   "checks": {
-   "seconds": 0.01331186294555664,
+   "seconds": 0.012463092803955078,
    "committed": true,
    "proof": false,
    "hand": false,

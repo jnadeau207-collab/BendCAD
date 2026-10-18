@@ -288,7 +288,7 @@ def csink():
 
 
 def frames(design, node):
-    out, _ = cli(design, 'faces', str(node), '-v')
+    out, _ = cli(design, 'faces', str(node), '-f')
     fr = {}
     for ln in out.splitlines():
         m = re.match(r'(\S+) plane .*frame o=\(([^)]*)\) x=\(([^)]*)\) y=\(([^)]*)\) n=\(([^)]*)\)', ln)

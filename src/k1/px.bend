@@ -154,15 +154,24 @@ def surfs_of(fs: List<&2, Nat>, +b: Ty.Brep) -> List<&2, G.GVal>:
     case []: []
     case +h <> +t: FB.face_surf(b, h) <> surfs_of(t, b)
 
-def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +lo: F64, +hi: F64,
+def on_cop(+h: Nat, +b: Ty.Brep, +g: G.GVal, +p: V.Point) -> Bool:
+  Bool.and(FB.coplanar(FB.face_surf(b, h), g), Bool.or(FB.pt_in_face(b, h, p), FB.bnd_near(b, h, p)))
+
+def any_coplanar(fs: List<&2, Nat>, +b: Ty.Brep, +g: G.GVal, +p: V.Point) -> Bool:
+  match fs:
+    case []: False{}
+    case +h <> +t: Bool.or(on_cop(h, b, g, p), any_coplanar(t, b, g, p))
+
+def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +b: Ty.Brep, +lo: F64, +hi: F64,
     +st: HS) -> HS:
   match hs:
     case []: st
     case +h <> +t:
       +p = EF.eh_p(h)
       +tt = EF.eh_t(h)
-      +inside = Bool.and(FB.pt_in_face(ob, fo, p), Bool.not(FB.bnd_near(ob, fo, p)))
       +atend = Bool.or(F64.is_eq(tt, lo), F64.is_eq(tt, hi))
+      +flush = Bool.and(atend, any_coplanar(L.nat_range(FB.nfaces(b)), b, FB.face_surf(ob, fo), p))
+      +inside = Bool.and(Bool.not(flush), Bool.and(FB.pt_in_face(ob, fo, p), Bool.not(FB.bnd_near(ob, fo, p))))
       +r = gv_add(hs_g(st), p)
       +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.and(EF.eh_ok(h), Bool.not(atend))))
       +why = Bool.pick(U64, hs_ok(st), Bool.pick(U64, Bool.not(inside), 0u64,
@@ -170,13 +179,13 @@ def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +l
       +nst = Bool.pick(HS, inside,
         HS{HX{side, e, tt, p, vi_i(r), fo} <> hs_hs(st), vi_g(r), ok, why},
         HS{hs_hs(st), hs_g(st), ok, why})
-      eh_keep(t, side, e, fo, ob, lo, hi, nst)
+      eh_keep(t, side, e, fo, ob, b, lo, hi, nst)
 
 def ef_one(+side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +st: HS) -> HS:
   +k = Ty.ed_kind(FB.edge_at(b, e))
   +g = FB.face_surf(ob, fo)
   +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
-  +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, EF.ek_lo(k), EF.ek_hi(k), st)
+  +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
   Bool.pick(HS, EF.ehs_near(r), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
 
 def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:

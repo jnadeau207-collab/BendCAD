@@ -334,8 +334,8 @@ def feature_on_boolean():
                     '(node 2 (box 10 10 10) (intent create 6 0 1 0))',
                     '(node 3 (move 2 5 0 0 0) (intent same 0 0 1 0))',
                     '(node 4 (union 1 3) (intent add 0 0 1 0))',
-                    '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 3 3 1 0))')
-    record('boolean.feature_on_boolean_ok', 'committed' in out and fx(out, 5) == ('add', '3', '3', '1', '0')
+                    '(node 5 (pad 4 (face 4 0 top) 3 (region (circle 2 5 1))) (intent add 2 1 1 0))')
+    record('boolean.feature_on_boolean_ok', 'committed' in out and fx(out, 5) == ('add', '2', '1', '1', '0')
            and contains(vol(out, 5), 1500.0 + 3 * PI) and 'proof: k1-crossing-certified' in out,
            fx=fx(out, 5), volume=vol(out, 5), seconds=dt)
 
