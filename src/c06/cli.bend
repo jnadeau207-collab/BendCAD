@@ -227,7 +227,7 @@ def frame_s(+a: Ty.Face, +pl: M.Pl) -> String:
     " frame o=" ++ v3_s(V.pt_x(o), V.pt_y(o), V.pt_z(o)) ++ " x=" ++ wdir_s(M.fr_u(fr), pl) ++ " y=" ++
       wdir_s(M.fr_w(fr), pl) ++ " n=" ++ wdir_s(M.fr_n(fr), pl), "")
 
-def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pl: M.Pl) -> String:
+def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pl: M.Pl, +v: Bool) -> String:
   match fs:
     case []: ""
     case f <> t:
@@ -235,7 +235,7 @@ def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pl: M.Pl) -> String:
         case []: ""
         case +a <> u:
           Ty.Fa{g, s, ls, same, slv, sla} = a
-          fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ frame_s(a, pl) ++ "\n" ++ faces_s(t, u, pl)
+          fn_s(f) ++ " " ++ surf_s(s) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, ls)) ++ Bool.pick(String, v, frame_s(a, pl), "") ++ "\n" ++ faces_s(t, u, pl, v)
 
 def delv_s(d: BO.Del) -> String:
   "deleted " ++ BO.del_show(d) ++ "\n"
@@ -249,7 +249,7 @@ def node_faces_v(r: M.NR, +verbose: Bool) -> String:
   match r:
     case M.NR_err{k, d}: "node failed\n"
     case M.NR_ok{+b, fx}:
-      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b))
+      +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), verbose)
       Bool.pick(String, verbose, s ++ dels_v(M.xb_dl(M.bd_xb(b))), s)
 
 def node_faces(r: M.NR) -> String:

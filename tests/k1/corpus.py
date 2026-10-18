@@ -288,7 +288,7 @@ def csink():
 
 
 def frames(design, node):
-    out, _ = cli(design, 'faces', str(node))
+    out, _ = cli(design, 'faces', str(node), '-v')
     fr = {}
     for ln in out.splitlines():
         m = re.match(r'(\S+) plane .*frame o=\(([^)]*)\) x=\(([^)]*)\) y=\(([^)]*)\) n=\(([^)]*)\)', ln)
@@ -340,6 +340,60 @@ def sidefeat():
            **checks, **info)
 
 
+def chamfer_edges():
+    out, dt = fresh('ch.bcd', '(node 1 (box 20 20 10) (intent create any any any any))',
+                    f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 10 10 3))) {ID})')
+    fr = frames('ch.bcd', 2)
+    nm, f = wall_with(fr, (0.0, 0.0, 1.0))
+    u, v = local(f, (10.0, 10.0, 10.0)) if f else (0.0, 0.0)
+    o3, _ = cli('ch.bcd', 'apply', f'(node 3 (chamfer 2 (face 2 {nm}) (circle {u!r} {v!r} 3) 1) {ID})')
+    o4, _ = cli('ch.bcd', 'apply', '(node 4 (cylinder 2 6) (intent create any any any any))',
+                '(node 5 (move 4 4 4 10 0) (intent same 0 0 1 0))', f'(node 6 (union 3 5) {IA})')
+    fr6 = frames('ch.bcd', 6)
+    tops = [(k, f6) for k, f6 in fr6.items() if abs(f6[3][2] - 1) < 1e-12 and abs(f6[0][2] - 16) < 1e-9]
+    nm6, f6 = tops[0] if tops else (None, None)
+    u6, v6 = local(f6, (4.0, 4.0, 16.0)) if f6 else (0.0, 0.0)
+    o7, _ = cli('ch.bcd', 'apply', f'(node 7 (chamfer 6 (face 6 {nm6}) (circle {u6!r} {v6!r} 2) 0.5) {ID})')
+    ev, _ = cli('ch.bcd', 'eval')
+    h2 = 4000 - 90 * math.pi
+    h3 = h2 - math.pi * (1 * (3 * 3 + 3 * 4 + 4 * 4) / 3 - 9)
+    h6 = h3 + 24 * math.pi
+    h7 = h6 - math.pi * (0.5 * 4 - 0.5 * (4 + 2 * 1.5 + 1.5 * 1.5) / 3)
+    r = dict(out=out + o3 + o4 + o7, ev=ev)
+    checks, info = finish('ch', 'ch.bcd', r, 7, h7, 7, 1)
+    checks.update(hole=contains(vol(ev, 3), h3), pad=contains(vol(ev, 6), h6), boss=contains(vol(ev, 7), h7),
+                  named=nm is not None and nm6 is not None)
+    record('chamfer', all(checks.values()), artifacts=('ch.bcd', 'ch.stp', 'ch.bin'), seconds=dt, **checks, **info)
+
+
+def g3limits():
+    l1, _ = fresh('l1.bcd', '(node 1 (box 20 20 10) (intent create any any any any))',
+                  f'(node 2 (pocket 1 (face 1 0 top) 3 (region (circle 10 10 2))) {ID})',
+                  f'(node 3 (pocket 2 (face 1 0 bottom) 3 (region (circle 10 10 3))) {ID})')
+    e1, _ = cli('l1.bcd', 'eval')
+    l3, _ = fresh('l3.bcd', '(node 1 (prism 0 20 (region (circle 0 0 2.5))) (intent create any any any any))',
+                  '(node 2 (prism 20 25 (region (circle 0 0 4.25))) (intent create any any any any))',
+                  f'(node 3 (union 1 2) {IA})')
+    fr3 = frames('l3.bcd', 3)
+    tops = [(k, f3) for k, f3 in fr3.items() if abs(f3[3][2] - 1) < 1e-12 and abs(f3[0][2] - 25) < 1e-9]
+    nm3, f3 = tops[0] if tops else (None, None)
+    s = 4 / math.sqrt(3)
+    hexpts = [(s * math.cos(k * math.pi / 3), s * math.sin(k * math.pi / 3)) for k in range(6)]
+    loc = [local(f3, (x, y, 25.0)) for x, y in hexpts] if f3 else [(0, 0)] * 6
+    path = f'(path {loc[0][0]!r} {loc[0][1]!r} ' + ' '.join(f'(line {a!r} {b!r})' for a, b in loc[1:]) + ')'
+    o4, _ = cli('l3.bcd', 'apply', f'(node 4 (pocket 3 (face 3 {nm3}) 3 (region {path})) {ID})')
+    e3, _ = cli('l3.bcd', 'eval')
+    l4, _ = fresh('l4.bcd', '(node 1 (box 20 20 10) (intent create any any any any))',
+                  f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 10 10 2))) {ID})',
+                  f'(node 3 (pocket 2 (face 1 0 top) 1 (region (circle 10 10 5) (circle 10 10 4))) {ID})')
+    e4, _ = cli('l4.bcd', 'eval')
+    hexa = 1.5 * math.sqrt(3) * s * s
+    checks = dict(l1=contains(vol(e1, 3), 4000 - 39 * math.pi),
+                  l3=contains(vol(e3, 4), 125 * math.pi + 90.3125 * math.pi - 3 * hexa),
+                  l4=contains(vol(e4, 3), 4000 - 40 * math.pi - 9 * math.pi))
+    record('g3limits', all(checks.values()), **checks)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -350,6 +404,8 @@ def main():
     oring()
     csink()
     sidefeat()
+    chamfer_edges()
+    g3limits()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

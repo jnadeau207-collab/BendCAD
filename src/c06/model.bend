@@ -13,6 +13,9 @@ import ./build.bend as BD
 import ./revolve.bend as RV
 import ./iv.bend as I
 import ../c08/bool.bend as B8
+import ../c07/sol.bend as SO
+import ../c07/mem.bend as Mm
+import ../c07/im.bend as MM
 import ../c09/feat.bend as F9
 import ../c12/blob.bend as BL
 import ../c16/sheet.bend as SH
@@ -47,6 +50,7 @@ type Op is Data:
   O_sw_arc{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
   O_loft{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
   O_chamfer{ base: U64, d: X.Xp }
+  O_echamf{ base: U64, f: Sel, cx: X.Xp, cy: X.Xp, r: X.Xp, c: X.Xp }
   O_fillet{ base: U64, r: X.Xp }
   O_fillet_e{ base: U64, n: U64, r0: X.Xp, r1: X.Xp }
   O_draft{ base: U64, inset: X.Xp }
@@ -1211,6 +1215,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_sw_arc{deg, rs, g, gd, tw}: 18u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
     case O_loft{z, bot, top, twist, cont}: 19u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
     case O_chamfer{base, d}: 20u64 <> base <> X.xp_w(d, e, [])
+    case O_echamf{base, f, cx, cy, r, c}: 41u64 <> base <> sel_w(f, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(c, e, [])))))
     case O_fillet{base, r}: 21u64 <> base <> X.xp_w(r, e, [])
     case O_fillet_e{base, n, r0, r1}: 22u64 <> base <> n <> X.xp_w(r0, e, X.xp_w(r1, e, []))
     case O_draft{base, inset}: 23u64 <> base <> X.xp_w(inset, e, [])
@@ -1245,6 +1250,7 @@ def op_base(o: Op) -> U64:
     case O_difference{a, b}: a
     case O_intersection{a, b}: a
     case O_chamfer{base, d}: base
+    case O_echamf{base, f, cx, cy, r, c}: base
     case O_fillet{base, r}: base
     case O_fillet_e{base, n, r0, r1}: base
     case O_draft{base, inset}: base
@@ -1271,6 +1277,7 @@ def op_has_base(o: Op) -> Bool:
     case O_difference{a, b}: True{}
     case O_intersection{a, b}: True{}
     case O_chamfer{base, d}: True{}
+    case O_echamf{base, f, cx, cy, r, c}: True{}
     case O_fillet{base, r}: True{}
     case O_fillet_e{base, n, r0, r1}: True{}
     case O_draft{base, inset}: True{}
@@ -1326,6 +1333,7 @@ def op_name(o: Op) -> String:
     case O_sw_arc{deg, rs, g, gd, tw}: "sweep"
     case O_loft{z, bot, top, twist, cont}: "loft"
     case O_chamfer{base, d}: "chamfer"
+    case O_echamf{base, f, cx, cy, r, c}: "chamfer"
     case O_fillet{base, r}: "fillet"
     case O_fillet_e{base, n, r0, r1}: "fillet"
     case O_draft{base, inset}: "draft"
@@ -1464,7 +1472,13 @@ def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>,
     case 6u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-empty-compound",
       "features need material to act on; pick a non-empty base node")
     case 7u64:
-      feat_k1(kind, b, rs, f_nth(iv, 0n), f_nth(iv, 1n), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd)
+      +lo = BD.cl_lo(o)
+      +hi = BD.cl_hi(o)
+      +a0 = f_nth(iv, 0n)
+      +a1 = f_nth(iv, 1n)
+      +top = Bool.not(F64.is_eq(a1, hi))
+      feat_k1(kind, b, rs, Bool.pick(F64, top, F64.min(a1, hi), F64.min(a0, lo)),
+        Bool.pick(F64, top, F64.max(a1, hi), F64.max(a0, lo)), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd)
     case 2u64: bad(kind_what(kind), "node " ++ U64.show(nd), "no-such-face", "that cell's top or bottom is part of another face; select the owning cell")
     case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
     case _: bad(kind_what(kind), "node " ++ U64.show(nd), "depth-reaches-opposite-face", "use a smaller depth or a through cut")
@@ -1596,6 +1610,82 @@ def op_feat_nm(+kind: U64, +b: Body, +nm: String, +rs: List<&2, F.Region>, +amt:
     Bool.pick(U64, fa_planar(fa), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, aok, 0u64, 5u64), 4u64), 3u64),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
   feat_nm_go(code, kind, b, nm, fr, rs, lo, hi, e, nd, np)
+
+def tri_rg(+ax: F64, +ay: F64, +bx: F64, +by: F64, +cx: F64, +cy: F64) -> F.Region:
+  path_rg(xk(ax), xk(ay), [F.S_line{xk(bx), xk(by)}, F.S_line{xk(cx), xk(cy)}])
+
+def ech_rg(+hole: Bool, +r: F64, +c: F64) -> F.Region:
+  +e = F64.mul(0.25f64, c)
+  +lo = F64.neg(F64.add(c, e))
+  +rin = F64.sub(r, e)
+  +rout = F64.add(F64.add(r, c), e)
+  +bin = F64.sub(F64.sub(r, c), e)
+  +bout = F64.add(r, e)
+  Bool.pick(F.Region, hole, tri_rg(rin, lo, rout, e, rin, e), tri_rg(bin, e, bout, lo, bout, e))
+
+def fd_by(fs: List<&2, SO.Fd>, +fi: Nat) -> SO.Fd:
+  match fs:
+    case []: SO.fd_dflt()
+    case +f <> t: Bool.pick(SO.Fd, Nat.is_eq(SO.fd_fi(f), fi), f, fd_by(t, fi))
+
+def on_face(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
+  +fd = fd_by(SO.fds_of(b), fi)
+  U64.is_eq(Mm.member(SO.fd_fc(fd), MM.p3(p), SO.fd_im(fd)), 1u64)
+
+def lin3(+a: F64, +x: F64, +u: F64, +y: F64, +w: F64) -> F64:
+  F64.add(F64.add(a, F64.mul(x, u)), F64.mul(y, w))
+
+def pt3(+x: F64, +y: F64, +z: F64) -> V.Point:
+  V.Pt{x, y, z}
+
+def fr_at(+fr: FR, +x: F64, +y: F64) -> FR:
+  FR{ok, +o, +u, +w, +n} = fr
+  +px = lin3(V.pt_x(o), x, V.dr_x(u), y, V.dr_x(w))
+  +py = lin3(V.pt_y(o), x, V.dr_y(u), y, V.dr_y(w))
+  +pz = lin3(V.pt_z(o), x, V.dr_z(u), y, V.dr_z(w))
+  FR{ok, pt3(px, py, pz), u, w, n}
+
+def fr_pt(+fr: FR) -> V.Point:
+  FR{ok, o, u, w, n} = fr
+  o
+
+def ech_nr(+t: NR, +b: Body, +fr: FR, +nd: U64) -> NR:
+  match t:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+tb, fx}:
+      +tool = {Bd{bd_cells(tb), bd_brep(tb), bd_fns(tb), pl_frame(bd_pl(b), fr), bd_rv(tb), bd_xb(tb)} : Body}
+      bool_nr(B8.run(B8.tag_diff(), bool_in(b), bool_in(tool), nd, 0u64, 0u64, False{}), b, tool)
+
+def ech_go(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +e: X.Env, +nd: U64, +np: Nat) -> NR:
+  match code:
+    case 0u64: ech_nr(op_rev([ech_rg(hole, r, c)], e, nd), b, fr, nd)
+    case 1u64: bad("chamfer", "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
+    case 2u64: bad("chamfer", "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
+      "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
+    case 3u64: bad("chamfer", "node " ++ U64.show(nd), "feature-face-not-planar: " ++ nm, "edge chamfers act on circles in planar faces")
+    case 4u64: nr_err(T.F_unsupported{}, "chamfer", "node " ++ U64.show(nd), "feature-face-oblique: " ++ nm,
+      "edge chamfers on faces whose frame is not axis-aligned need general placements")
+    case _: bad("chamfer", "node " ++ U64.show(nd), "bad-chamfer", "use a positive chamfer smaller than the circle radius")
+
+def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  +nm = sel_nm(s)
+  +fns = bd_fns(b)
+  +fi = name_idx(fns, nm, 0n)
+  +nf = List.length(&2, BD.Fn, fns)
+  +np = name_pieces(fns, nm, 0n)
+  +fa = fa_nth(Ty.brep_fas(bd_brep(b)), fi)
+  +x = X.xp_ev(xx, e)
+  +y = X.xp_ev(yy, e)
+  +r = X.xp_ev(rr, e)
+  +c = X.xp_ev(cc, e)
+  +fr = fr_at(frame_of(fa), x, y)
+  +probe = fr_pt(fr_at(frame_of(fa), F64.add(x, F64.add(r, F64.mul(0.5f64, c))), y))
+  +hole = on_face(bd_brep(b), fi, probe)
+  +cok = Bool.and(Bool.and(T.is_finite(c), F64.is_lt(0.0f64, c)), Bool.and(T.is_finite(r), F64.is_lt(c, r)))
+  +code = Bool.pick(U64, Nat.is_lt(fi, nf),
+    Bool.pick(U64, fa_planar(fa), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
+    Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
+  ech_go(code, b, nm, fr, hole, r, c, e, nd, np)
 
 def op_feat_cell(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
   Sel{+snd, +sk, +side, nm} = s
@@ -3121,6 +3211,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_sw_arc{deg, rs, g, gd, tw}: op_sw_arc(deg, rs, g, gd, tw, e, nd)
     case O_loft{z, bot, top, twist, cont}: op_loft(z, bot, top, twist, cont, e, nd)
     case O_chamfer{base, d}: op_chamfer(base, d, b, e, nd, ns)
+    case O_echamf{base, f, cx, cy, r, c}: op_echamf(b, f, cx, cy, r, c, e, nd)
     case O_fillet{base, r}: op_fillet(base, r, b, e, nd, ns)
     case O_fillet_e{base, n, r0, r1}: op_fillet_e(base, n, r0, r1, b, e, nd, ns)
     case O_draft{base, inset}: op_draft(base, inset, b, e, nd, ns)

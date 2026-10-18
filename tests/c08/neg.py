@@ -214,14 +214,14 @@ def c_ident():
             and 'proof: k1-crossing-certified' in out, node_vol(out, 3))
 
 
-@case('diff.no_container')
+@case('ok.half_removed')
 def c_nocont():
     out, _ = fresh('n.bcd',
                    '(node 1 (box 20 20 20) (intent create 6 0 1 0))',
                    '(node 2 (box 20 20 10) (intent create 6 0 1 0))',
-                   '(node 3 (difference 1 2) (intent remove 0 0 1 0))')
-    k, w = node_err(out, 3)
-    return (k == 'numerical-uncertainty' and w.startswith('no-container-sample'), (k, w))
+                   '(node 3 (difference 1 2) (intent remove any any any any))')
+    return ('committed' in out and vol_ok(out, 3, 4000.0)
+            and 'proof: k1-crossing-certified' in out, node_vol(out, 3))
 
 
 @case('chain.failed_operand')

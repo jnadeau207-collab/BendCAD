@@ -426,8 +426,18 @@ def ch_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
     case True{}: M.O_chamfer{u64_of(sx_nth(xs, 1n)), to_xp(sx_nth(xs, 2n), ns)}
     case False{}: M.O_unk{"chamfer"}
 
+def ech_of(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  +cs = sx_xs(sx_nth(xs, 3n))
+  M.O_echamf{u64_of(sx_nth(xs, 1n)), sel_of(sx_nth(xs, 2n)), to_xp(sx_nth(cs, 1n), ns), to_xp(sx_nth(cs, 2n), ns),
+    to_xp(sx_nth(cs, 3n), ns), to_xp(sx_nth(xs, 4n), ns)}
+
+def ech_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  match ok:
+    case True{}: ech_of(xs, ns)
+    case False{}: ch_go(len3(xs), xs, ns)
+
 def ch_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
-  ch_go(len3(xs), xs, ns)
+  ech_go(Bool.and(Nat.is_eq(List.length(&2, Sx, xs), 5n), Bool.and(head_is(sx_nth(xs, 2n), "face"), head_is(sx_nth(xs, 3n), "circle"))), xs, ns)
 
 def dr_go(ok: Bool, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   match ok:
@@ -948,6 +958,7 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
     case M.O_loft{z, bot, top, twist, cont}:
       ls(at("loft") <> xp_sx(z, ns) <> sx_cat(rgs_sx([bot], ns), sx_cat(rgs_sx([top], ns), sx_cat(tw_xs(twist), cont_xs(cont)))))
     case M.O_chamfer{base, d}: ls([at("chamfer"), at(U64.show(base)), xp_sx(d, ns)])
+    case M.O_echamf{base, f, cx, cy, r, c}: ls([at("chamfer"), at(U64.show(base)), sel_sx(f), ls([at("circle"), xp_sx(cx, ns), xp_sx(cy, ns), xp_sx(r, ns)]), xp_sx(c, ns)])
     case M.O_fillet{base, r}: ls([at("fillet"), at(U64.show(base)), xp_sx(r, ns)])
     case M.O_fillet_e{base, n, r0, r1}:
       ls([at("fillet"), at(U64.show(base)), ls([at("edge"), at(U64.show(n))]), xp_sx(r0, ns), xp_sx(r1, ns)])
