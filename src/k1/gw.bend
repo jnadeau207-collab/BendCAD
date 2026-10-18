@@ -445,7 +445,7 @@ def L_cy0(xs: List<&2, CY>) -> CY:
 def rg_holds(+s: S.SF, +r: RG, +q: V.Vec2, +wr: List<&2, CY>) -> Bool:
   +c0 = L_cy0(rg_cys(r))
   Bool.pick(Bool, rg_band(r),
-    cy_same(nb_c(nearest(wr, s, q, False{}, NB{cy0(), 0.0f64, False{}})), c0),
+    cy_same(nb_c(nearest(wr, s, q, is_dn(c0), NB{cy0(), 0.0f64, False{}})), c0),
     cy_contains(s, c0, q))
 
 def rg_size(+r: RG) -> F64:
@@ -496,10 +496,34 @@ def holes_go(hs: List<&2, CY>, +s: S.SF, +wr: List<&2, CY>, +r: RS) -> RS:
       holes_go(t, s, wr, Bool.pick(RS, bi_found(b), RS{add_hole(rs_rgs(r), bi_i(b), h), rs_ok(r)},
         RS{rs_rgs(r), False{}}))
 
-def bands_ok(rs: List<&2, RG>) -> Bool:
+def pole_ok(+s: S.SF, +c: CY) -> Bool:
+  Bool.or(S.is_sph(s), Bool.and(is_dn(c), U64.is_eq(S.sf_kind(s), S.k_cone())))
+
+def band_ok(+s: S.SF, +r: RG) -> Bool:
+  +n = Nat.add(List.length(&2, CY, filt(rg_cys(r), 2u64)), List.length(&2, CY, filt(rg_cys(r), 3u64)))
+  Bool.or(Nat.is_eq(n, 2n), Bool.and(Nat.is_eq(n, 1n), pole_ok(s, L_cy0(rg_cys(r)))))
+
+def bands_ok(rs: List<&2, RG>, +s: S.SF) -> Bool:
   match rs:
     case []: True{}
-    case +h <> +t: Bool.and(Nat.is_eq(List.length(&2, CY, rg_cys(h)), 2n), bands_ok(t))
+    case +h <> +t: Bool.and(band_ok(s, h), bands_ok(t, s))
+
+def any_same(cs: List<&2, CY>, +c: CY) -> Bool:
+  match cs:
+    case []: False{}
+    case +h <> +t: Bool.or(cy_same(h, c), any_same(t, c))
+
+def in_bands(rs: List<&2, RG>, +c: CY) -> Bool:
+  match rs:
+    case []: False{}
+    case +h <> +t: Bool.or(any_same(rg_cys(h), c), in_bands(t, c))
+
+def south(ds: List<&2, CY>, +bs: List<&2, RG>) -> List<&2, RG>:
+  match ds:
+    case []: []
+    case +h <> +t:
+      +rest = south(t, bs)
+      Bool.pick(List<&2, RG>, in_bands(bs, h), rest, RG{[h], True{}} <> rest)
 
 def odd_wind(cs: List<&2, CY>) -> Bool:
   match cs:
@@ -508,10 +532,11 @@ def odd_wind(cs: List<&2, CY>) -> Bool:
 
 def regions(+s: S.SF, +cs: List<&2, CY>) -> RS:
   +wr = wraps(cs)
-  +bs = bands(filt(cs, 2u64), s, wr)
+  +bn = bands(filt(cs, 2u64), s, wr)
+  +bs = List.append(&2, RG, bn, south(filt(cs, 3u64), bn))
   +base = List.append(&2, RG, outer_rgs(filt(cs, 0u64)), bs)
   +r = holes_go(filt(cs, 1u64), s, wr, RS{base, True{}})
-  RS{rs_rgs(r), Bool.and(Bool.and(rs_ok(r), bands_ok(bs)), Bool.not(odd_wind(cs)))}
+  RS{rs_rgs(r), Bool.and(Bool.and(rs_ok(r), bands_ok(bs, s)), Bool.not(odd_wind(cs)))}
 
 def L_tail_cy(xs: List<&2, CY>) -> List<&2, CY>:
   xs
@@ -521,11 +546,8 @@ def drop1c(xs: List<&2, CY>) -> List<&2, CY>:
     case []: []
     case +h <> +t: t
 
-def drop2(xs: List<&2, CY>) -> List<&2, CY>:
-  drop1c(drop1c(xs))
-
 def hole_part(+r: RG) -> List<&2, CY>:
-  Bool.pick(List<&2, CY>, rg_band(r), drop2(rg_cys(r)), drop1c(rg_cys(r)))
+  Bool.pick(List<&2, CY>, rg_band(r), filt(rg_cys(r), 1u64), drop1c(rg_cys(r)))
 
 def any_contains(cs: List<&2, CY>, +s: S.SF, +q: V.Vec2) -> Bool:
   match cs:
@@ -536,8 +558,8 @@ def rg_inside(+s: S.SF, +r: RG, +q: V.Vec2) -> Bool:
   +cs = rg_cys(r)
   +c0 = L_cy0(cs)
   +inb = Bool.pick(Bool, rg_band(r),
-    Bool.and(cy_same(nb_c(nearest(L_tail_cy(cs), s, q, False{}, NB{cy0(), 0.0f64, False{}})), c0),
-      F64.is_lt(cy_dist(s, c0, q, False{}), F64.div(1.0f64, 0.0f64))),
+    Bool.and(cy_same(nb_c(nearest(L_tail_cy(cs), s, q, is_dn(c0), NB{cy0(), 0.0f64, False{}})), c0),
+      F64.is_lt(cy_dist(s, c0, q, is_dn(c0)), F64.div(1.0f64, 0.0f64))),
     cy_contains(s, c0, q))
   Bool.and(inb, Bool.not(any_contains(hole_part(r), s, q)))
 

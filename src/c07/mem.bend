@@ -256,6 +256,14 @@ def sph_axis(+q: List<&2, I.I>, +c: List<&2, I.I>) -> List<&2, I.I>:
   Bool.pick(List<&2, I.I>, Bool.and(F64.is_le(z, x), F64.is_le(z, y)), [I.ipt(0.0f64), I.ipt(0.0f64), I.ipt(1.0f64)],
     Bool.pick(List<&2, I.I>, F64.is_le(y, x), [I.ipt(0.0f64), I.ipt(1.0f64), I.ipt(0.0f64)], [I.ipt(1.0f64), I.ipt(0.0f64), I.ipt(0.0f64)]))
 
+def sph_ax_k(+q: List<&2, I.I>, +c: List<&2, I.I>, +k: Nat) -> List<&2, I.I>:
+  match k:
+    case 0n: sph_axis(q, c)
+    case 1n: [I.ipt(1.0f64), I.ipt(0.0f64), I.ipt(0.0f64)]
+    case 2n: [I.ipt(0.0f64), I.ipt(1.0f64), I.ipt(0.0f64)]
+    case 3n: [I.ipt(0.0f64), I.ipt(0.0f64), I.ipt(1.0f64)]
+    case _: [I.ipt(1.0f64), I.ipt(1.0f64), I.ipt(1.0f64)]
+
 def mer_dir(tor: Bool, +nr: List<&2, I.I>, +b: List<&2, I.I>, +wr: List<&2, I.I>, +a: List<&2, I.I>, +dh: I.I) -> List<&2, I.I>:
   match tor:
     case True{}: M.cross(b, wr)
@@ -289,14 +297,14 @@ def ax_legs(+x: Ax, +q: List<&2, I.I>, +rp: List<&2, I.I>, +tor: Bool, +bigr: I.
     case False{}: ax_fwd(x, q, rp, tor, bigr)
     case True{}: ax_rev(x, q, rp, tor, bigr, nf)
 
-def legs_of(s: M.Im, +q: List<&2, I.I>, +rp: List<&2, I.I>, +rev: Bool, +nf: M.Im) -> Lp:
+def legs_of(s: M.Im, +q: List<&2, I.I>, +rp: List<&2, I.I>, +rev: Bool, +nf: M.Im, +k: Nat) -> Lp:
   match s:
     case M.M_pl{o, +n}:
       +d = X.vsub(rp, q)
       Lp{[L_seg{M.M_pl{q, M.cross(d, n)}, q, rp}], d, Bool.and(Bool.not(rev), nz(d))}
     case M.M_cy{o, a, r}: ax_legs(Ax{o, a}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
     case M.M_co{o, a, k}: ax_legs(Ax{o, a}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
-    case M.M_sp{+c, r}: ax_legs(Ax{c, sph_axis(q, c)}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
+    case M.M_sp{+c, r}: ax_legs(Ax{c, sph_ax_k(q, c, k)}, q, rp, False{}, I.ipt(0.0f64), rev, nf)
     case M.M_to{o, a, bigr, r}: ax_legs(Ax{o, a}, q, rp, True{}, bigr, rev, nf)
 
 def lp_ls(l: Lp) -> List<&2, Lg>:
@@ -316,12 +324,12 @@ def try_go(ok: Bool, +lp: Lp, +es: List<&2, Er>, +i: Nat, +tau: F64, +nrm: List<
     case False{}: 2u64
     case True{}: finish(total(lp_ls(lp), es, i, tau, Cn{0n, False{}}), arrive(lp_d(lp), nrm, tl))
 
-def try_r(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +i: Nat, +tau: F64, +rev: Bool) -> U64:
+def try_r(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +i: Nat, +tau: F64, +rev: Bool, +k: Nat) -> U64:
   Fc{s, +same, +es, uv} = f
   +e = er_at(es, i)
   +c = er_c(e)
   +rp = R.cv_box(c, I.ipt(tau))
-  +lp = legs_of(s, q, rp, rev, nf)
+  +lp = legs_of(s, q, rp, rev, nf, k)
   +nrm = neg_if(same, M.im_grad(nf, rp))
   +tl = neg_if(er_fwd(e), R.cv_der(c, I.ipt(tau)))
   try_go(lp_ok(lp), lp, es, i, tau, nrm, tl)
@@ -330,12 +338,12 @@ def tau_of(+j: Nat) -> F64:
   +k = Nat.mod(j, 3n)
   Bool.pick(F64, Nat.is_eq(k, 0n), 0.5f64, Bool.pick(F64, Nat.is_eq(k, 1n), 0.3125f64, 0.6875f64))
 
-def mem_go(n: Nat, +st: U64, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +j: Nat) -> U64:
+def mem_go(n: Nat, +st: U64, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +j: Nat, +k: Nat) -> U64:
   match n:
     case 0n: st
     case 1n+m:
       match st:
-        case 2u64: mem_go(m, try_r(f, q, nf, Nat.div(j, 6n), tau_of(Nat.div(j, 2n)), Nat.is_eq(Nat.mod(j, 2n), 1n)), f, q, nf, Nat.add(j, 1n))
+        case 2u64: mem_go(m, try_r(f, q, nf, Nat.div(j, 6n), tau_of(Nat.div(j, 2n)), Nat.is_eq(Nat.mod(j, 2n), 1n), k), f, q, nf, Nat.add(j, 1n), k)
         case _: st
 
 def fc_es(f: Fc) -> List<&2, Er>:
@@ -418,10 +426,23 @@ def uv_member(u: Uv, +q: List<&2, I.I>) -> U64:
     case Uv_no{}: 2u64
     case Uv_cy{+sf, +r, +segs, +tol}: uv_mem_w(KS.sf_uv(sf, q_mid(q)), r, segs, tol)
 
+def is_sph_im(s: M.Im) -> Bool:
+  match s:
+    case M.M_sp{c, r}: True{}
+    case _: False{}
+
+def mem_ax(n: Nat, +st: U64, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +k: Nat) -> U64:
+  match n:
+    case 0n: st
+    case 1n+m:
+      match st:
+        case 2u64: mem_ax(m, mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n, k), f, q, nf, Nat.add(k, 1n))
+        case _: st
+
 def member_k(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
   match k:
     case True{}: uv_member(fc_uv(f), q)
-    case False{}: mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n)
+    case False{}: mem_ax(Bool.pick(Nat, is_sph_im(fc_s(f)), 5n, 1n), 2u64, f, q, nf, 0n)
 
 def nappe_neg(s: M.Im, +q: List<&2, I.I>) -> Bool:
   match s:

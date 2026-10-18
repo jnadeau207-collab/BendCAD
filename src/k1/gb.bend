@@ -115,6 +115,15 @@ def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +k: Ty.EdgeKind, +sd: U64, +e: Nat, +
       +pc = mk_pc(Bool.pick(Nat, fw, PX.bp_v(h), PX.bp_v(h2)), Bool.pick(Nat, fw, PX.bp_v(h2), PX.bp_v(h)), poly, True{}, [er], 0.0f64)
       Bool.pick(List<&2, W.PC>, Nat.is_eq(List.length(&2, PX.BP, t), 0n), [], pc <> rest)
 
+def not_ends(xs: List<&2, PX.BP>, +v0: Nat, +lo: F64, +v1: Nat, +hi: F64) -> List<&2, PX.BP>:
+  match xs:
+    case []: []
+    case +h <> +t:
+      +e0 = Bool.and(Nat.is_eq(PX.bp_v(h), v0), F64.is_eq(PX.bp_s(h), lo))
+      +e1 = Bool.and(Nat.is_eq(PX.bp_v(h), v1), F64.is_eq(PX.bp_s(h), hi))
+      +rest = not_ends(t, v0, lo, v1, hi)
+      Bool.pick(List<&2, PX.BP>, Bool.or(e0, e1), rest, h <> rest)
+
 def ce_pcs(+c: FB.CE, +b: Ty.Brep, +s: S.SF, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
     +gv: PX.GV) -> List<&2, W.PC>:
   +e = FB.ce_e(c)
@@ -122,7 +131,7 @@ def ce_pcs(+c: FB.CE, +b: Ty.Brep, +s: S.SF, +sd: U64, +vmap: List<&2, Nat>, +hs
   +k = Ty.ed_kind(ed)
   +v0 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v0(ed)))
   +v1 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v1(ed)))
-  +mid = PX.dedup_bp(PX.bp_sort(edge_bks(hs, sd, e)))
+  +mid = not_ends(PX.dedup_bp(PX.bp_sort(edge_bks(hs, sd, e))), v0, EF.ek_lo(k), v1, EF.ek_hi(k))
   +bs = List.append(&2, PX.BP, mk_bp(EF.ek_lo(k), v0) <> mid, [mk_bp(EF.ek_hi(k), v1)])
   +ps = sub_pcs(bs, s, k, sd, e, 0n, FB.ce_fw(c), gv)
   Bool.pick(List<&2, W.PC>, FB.ce_fw(c), ps, List.reverse(&2, W.PC, ps))
@@ -229,7 +238,7 @@ def inside_pcs(ps: List<&2, W.PC>, +s: S.SF, +b: Ty.Brep, +fi: Nat) -> List<&2, 
     case +h <> +t:
       +q = poly_mid(W.pc_poly(h))
       +p3 = S.sf_at(s, V.v2_x(q), V.v2_y(q))
-      +ins = Bool.and(FB.pip(s, FB.face_polys(b, fi), q), Bool.not(FB.bnd_near(b, fi, p3)))
+      +ins = Bool.and(FB.pip_face(b, fi, s, q), Bool.not(FB.bnd_near(b, fi, p3)))
       +rest = inside_pcs(t, s, b, fi)
       Bool.pick(List<&2, W.PC>, ins, cut_of(h) <> rest, rest)
 
@@ -245,7 +254,7 @@ def partner_pcs(cs: List<&2, CO.CP>, +sd: U64, +s: S.SF, +b: Ty.Brep, +fi: Nat, 
 
 def face_pcs(+b: Ty.Brep, +fi: Nat, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
     +chs: List<&2, PX.CH>, +cps: List<&2, CO.CP>, +ob: Ty.Brep, +vmo: List<&2, Nat>, +gv: PX.GV) -> List<&2, W.PC>:
-  +s = S.sf_of(FB.face_surf(b, fi))
+  +s = FB.face_sf(b, fi)
   +bp = loops_pcs(FB.face_ce(b, fi), b, s, sd, vmap, hs, gv)
   +bp2 = Bool.pick(List<&2, W.PC>, FB.face_same(b, fi), bp, rev_all(bp))
   +pp = partner_pcs(CO.partner_of(cps, sd, fi), sd, s, b, fi, ob, vmo, hs, gv)
@@ -308,7 +317,7 @@ def classify_rgs(rs: List<&2, W.RG>, +s: S.SF, +fdo: List<&2, SO.Fd>, +bbo: List
 def face_run(+b: Ty.Brep, +fi: Nat, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
     +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64,
     +cps: List<&2, CO.CP>, +ob: Ty.Brep, +vmo: List<&2, Nat>, +gv: PX.GV) -> FR:
-  +s = S.sf_of(FB.face_surf(b, fi))
+  +s = FB.face_sf(b, fi)
   +pcs = face_pcs(b, fi, sd, vmap, hs, chs, cps, ob, vmo, gv)
   +cs = W.face_cycles(s, pcs)
   +rs = W.regions(s, W.cs_cys(cs))
@@ -356,7 +365,62 @@ def line_k(+k: Ty.EdgeKind) -> Bool:
 def canon_id(+a: Nat, +b: Nat) -> Nat:
   Nat.add(Nat.mul(a, 1000000000n), b)
 
-def emit_er(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV) -> EM:
+def qn(+x: F64) -> Nat:
+  U64.to_nat(F64.to_u64(F64.add(F64.mul(x, 1048576.0f64), 1000000000000.5f64)))
+
+def bis_g(+c: G.GVal, +pa: V.Point, +pb: V.Point, +t: F64) -> F64:
+  +p = EF.ev(c, t)
+  F64.sub(S.dot(S.psub(p, pa), S.psub(p, pa)), S.dot(S.psub(p, pb), S.psub(p, pb)))
+
+def bis_t(n: Nat, +c: G.GVal, +pa: V.Point, +pb: V.Point, +lo: F64, +hi: F64) -> F64:
+  match n:
+    case 0n: F64.mul(0.5f64, F64.add(lo, hi))
+    case 1n+m:
+      +mid = F64.mul(0.5f64, F64.add(lo, hi))
+      +neg = F64.is_lt(bis_g(c, pa, pb, mid), 0.0f64)
+      bis_t(m, c, pa, pb, Bool.pick(F64, neg, mid, lo), Bool.pick(F64, neg, hi, mid))
+
+def ring_pt(+c: G.GVal, +d: V.Point) -> V.Point:
+  match c:
+    case G.GV_cc{w}:
+      G.Cc{+o, +u, +v, +r} = w
+      +n = S.dunit(S.cross(u, v))
+      +x = Bool.pick(V.Dir, F64.is_lt(F64.abs(S.dx(n)), 0.9f64), S.dr(1.0f64, 0.0f64, 0.0f64), S.dr(0.0f64, 1.0f64, 0.0f64))
+      S.padd(o, r, S.dunit(S.dadd(x, F64.neg(S.dot(x, n)), n)))
+    case _: d
+
+def arc_mid(+k: Ty.EdgeKind, +closed: Bool) -> V.Point:
+  +c = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +d = EF.ev(c, F64.mul(0.5f64, F64.add(lo, hi)))
+  Bool.pick(V.Point, closed, ring_pt(c, d), EF.ev(c, bis_t(60n, c, EF.ev(c, lo), EF.ev(c, hi), lo, hi)))
+
+def mixq(+h: Nat, +q: Nat) -> Nat:
+  +m = {2147483647n : Nat}
+  Nat.mod(Nat.add(Nat.mul(h, 31337n), Nat.mod(q, m)), m)
+
+def arc_id(+m: V.Point) -> Nat:
+  mixq(mixq(mixq(7n, qn(S.px(m))), qn(S.py(m))), qn(S.pz(m)))
+
+def e_v0(eks: List<&2, K1.EK>, +i: Nat, +d: Nat) -> Nat:
+  match eks:
+    case []: d
+    case +h <> +t:
+      K1.EK{+a, +b, +k, +sd, +id, +x} = h
+      Bool.pick(Nat, Nat.is_eq(x, i), a, e_v0(t, i, d))
+
+def er_cid(+e: W.ER) -> Nat:
+  arc_id(arc_mid(W.er_k(e), Nat.is_eq(W.er_va(e), W.er_vb(e))))
+
+def ce_add(+r: K1.ER, +fw: Bool, +straight: Bool, +v0: Nat, +gl: List<&2, G.GVal>, +s: S.SF, +pa: V.Point,
+    +pb: V.Point) -> K1.AS:
+  +st = K1.er_st(r)
+  +i = K1.er_idx(r)
+  +rv = Bool.and(Bool.not(straight), Bool.not(Nat.is_eq(e_v0(K1.as_eks(st), i, v0), v0)))
+  K1.as_add_ce(st, mk_ce(i, Bool.xor(fw, rv), gl, s, pa, pb))
+
+def emit_er2(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +cid: Nat) -> EM:
   +v0 = W.er_va(e)
   +v1 = W.er_vb(e)
   +straight = line_k(W.er_k(e))
@@ -367,11 +431,14 @@ def emit_er(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV) -> EM
   +pa = PX.gv_pt(gv, va)
   +pb = PX.gv_pt(gv, vb)
   +ln = {Ty.Ed{0u64, K1.hv(va), K1.hv(vb), PX.ln_kind(pa, pb)} : Ty.Edge}
-  +r = K1.eemit(em_st(m), va, vb, Bool.pick(U64, straight, 1u64, 0u64), 0u64,
-    Bool.pick(Nat, straight, canon_id(va, vb), W.er_key(e)), Bool.pick(Ty.Edge, straight, ln, mk_ed(v0, v1, e)))
+  +r = K1.eemit(em_st(m), va, vb, Bool.pick(U64, straight, 1u64, 2u64), 0u64,
+    Bool.pick(Nat, straight, canon_id(va, vb), cid), Bool.pick(Ty.Edge, straight, ln, mk_ed(v0, v1, e)))
   +tok = trim_ok(PX.nth_g(gl, 0n), s, pa, pb)
-  +st2 = K1.as_add_ce(K1.er_st(r), mk_ce(K1.er_idx(r), fw, gl, s, pa, pb))
+  +st2 = ce_add(r, fw, straight, v0, gl, s, pa, pb)
   EM{st2, Bool.and(em_ok(m), tok), Bool.pick(U64, Bool.and(em_ok(m), Bool.not(tok)), 95u64, em_why(m))}
+
+def emit_er(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV) -> EM:
+  emit_er2(m, e, gl, s, gv, er_cid(e))
 
 def emit_ers(xs: List<&2, W.ER>, +m: EM, +g: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +acc: List<&2, Nat>) -> EM2:
   match xs:
@@ -522,7 +589,8 @@ def gbrun_go(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   +cr = PX.all_chains(hs2, ba, bb, CO.cx_g(cx))
   +ok = Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr))
   +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), PX.cr_why(cr), 97u64), PX.hs_why(hs))
-  +m = run_emit(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs2, PX.cr_chs(cr), PX.cr_g(cr), cps)
+  +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
+  +m = run_emit(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps)
   finish(Bool.pick(EM, ok, m, EM{em_st(m), False{}, why}), ba)
 
 def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:

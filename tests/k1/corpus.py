@@ -410,6 +410,29 @@ def g3limits():
     record('g3limits', all(checks.values()), **checks)
 
 
+def lens(r1, r2, d):
+    return math.pi * (r1 + r2 - d) ** 2 * (d * d + 2 * d * (r1 + r2) - 3 * (r1 - r2) ** 2) / (12 * d)
+
+
+def spheres():
+    hu, hi, hd = 1000 + 27 * math.pi, 175 * math.pi / 3, 1000 - 175 * math.pi / 3
+    t = triple('sp.bcd', [BOX], [f'(node 2 (sphere 4) {IC})', '(node 3 (move 2 5 5 9 0) (intent same 0 0 1 0))'],
+               1, 3, hu, hi, hd)
+    checks, info = finish('sp', 'sp.bcd', t, t['d'], hd, t['d'])
+    checks.update(hunion=contains(t['vu'], hu), hinter=contains(t['vi'], hi), ident=t['ident'])
+    ball, _ = cli('sp.bcd', 'apply', PRISM(10, 0, 10, 20, 20, 3), f'(node 11 (sphere 3) {IC})',
+                  '(node 12 (move 11 20 20 10 0) (intent same 0 0 1 0))', f'(node 13 (union 10 12) {IA})')
+    ss, _ = cli('sp.bcd', 'apply', f'(node 20 (sphere 5) {IC})', f'(node 21 (sphere 3) {IC})',
+                '(node 22 (move 21 0 0.3 4.5 0) (intent same 0 0 1 0))', f'(node 23 (intersection 20 22) {IS})',
+                f'(node 24 (union 20 22) {IA})')
+    ev, _ = cli('sp.bcd', 'eval')
+    lz = lens(5, 3, math.sqrt(0.09 + 20.25))
+    checks.update(ball=contains(vol(ev, 13), 108 * math.pi), lens=contains(vol(ev, 23), lz),
+                  lens_union=contains(vol(ev, 24), 500 * math.pi / 3 + 36 * math.pi - lz))
+    record('spheres', all(checks.values()), artifacts=('sp.bcd', 'sp.stp', 'sp.bin'), seconds=t['seconds'],
+           ball_vol=vol(ev, 13), lens_vol=vol(ev, 23), **checks, **info)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -423,6 +446,7 @@ def main():
     chamfer_edges()
     edgechamfer()
     g3limits()
+    spheres()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

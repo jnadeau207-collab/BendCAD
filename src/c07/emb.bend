@@ -1097,10 +1097,20 @@ def pl_nv(s: M.Im) -> List<&2, I.I>:
     case M.M_pl{o, n}: n
     case _: []
 
-def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def cp_go(ps: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64,
+    +shc: List<&2, R.Cv>, +st: U64) -> U64:
+  match ps:
+    case []: st
+    case +p <> t:
+      +r = smp_go([p], False{}, 0u64, fa, fb, csa, csb, tol)
+      +ok = Bool.or(U64.is_eq(r, 0u64), Bool.and(U64.is_eq(r, 2u64), un_near(p, shc, tol)))
+      cp_go(t, fa, fb, csa, csb, tol, shc, Bool.pick(U64, Bool.or(U64.is_eq(r, 1u64), U64.is_eq(st, 1u64)), 1u64, Bool.pick(U64, ok, st, 2u64)))
+
+def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
+    +shc: List<&2, R.Cv>) -> List<&2, SO.Fi>:
   +pi = SO.fd_im(pl)
   +ps = circs(pl_on(pi), pl_nv(pi), SO.fd_im(ot))
-  +r = smp_go(ps, False{}, 0u64, fa, fb, csa, csb, tol)
+  +r = cp_go(ps, fa, fb, csa, csb, tol, shc, 0u64)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
 def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
@@ -1110,11 +1120,11 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
     case 3u64:
       +fa = fg_fd(x)
       +fb = fg_fd(y)
-      circ_fi(fa, fb, fa, fb, all_cvs(fg_es(x), te), all_cvs(fg_es(y), te), tol, ia, ib)
+      circ_fi(fa, fb, fa, fb, all_cvs(fg_es(x), te), all_cvs(fg_es(y), te), tol, ia, ib, sh_cvs(fg_es(x), fg_es(y), te))
     case 4u64:
       +fa = fg_fd(x)
       +fb = fg_fd(y)
-      circ_fi(fb, fa, fb, fa, all_cvs(fg_es(y), te), all_cvs(fg_es(x), te), tol, ia, ib)
+      circ_fi(fb, fa, fb, fa, all_cvs(fg_es(y), te), all_cvs(fg_es(x), te), tol, ia, ib, sh_cvs(fg_es(x), fg_es(y), te))
     case _:
       +fa = fg_fd(x)
       +fb = fg_fd(y)

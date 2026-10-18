@@ -161,15 +161,18 @@ def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +b
   match hs:
     case []: st
     case +h <> +t:
-      +p = EF.eh_p(h)
       +tt = EF.eh_t(h)
       +atend = Bool.or(F64.is_eq(tt, lo), F64.is_eq(tt, hi))
+      +ed = FB.edge_at(b, e)
+      +p = Bool.pick(V.Point, atend, FB.vpt(b, Bool.pick(Ty.HVertex, F64.is_eq(tt, lo), Ty.ed_v0(ed), Ty.ed_v1(ed))), EF.eh_p(h))
       +flush = Bool.and(atend, any_coplanar(L.nat_range(FB.nfaces(b)), b, FB.face_surf(ob, fo), p))
-      +inside = Bool.and(Bool.not(flush), Bool.and(FB.pt_in_face(ob, fo, p), Bool.not(FB.bnd_near(ob, fo, p))))
+      +bn = FB.bnd_near(ob, fo, p)
+      +inside = Bool.and(Bool.not(flush), Bool.or(FB.pt_in_face(ob, fo, p), bn))
+      +vt = Bool.and(atend, Bool.not(bn))
       +r = gv_add(hs_g(st), p)
-      +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.and(EF.eh_ok(h), Bool.not(atend))))
+      +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.and(EF.eh_ok(h), Bool.not(vt))))
       +why = Bool.pick(U64, hs_ok(st), Bool.pick(U64, Bool.not(inside), 0u64,
-        Bool.pick(U64, atend, why_vtouch(), Bool.pick(U64, EF.eh_ok(h), 0u64, why_hcert()))), hs_why(st))
+        Bool.pick(U64, vt, why_vtouch(), Bool.pick(U64, EF.eh_ok(h), 0u64, why_hcert()))), hs_why(st))
       +nst = Bool.pick(HS, inside,
         HS{HX{side, e, tt, p, vi_i(r), fo} <> hs_hs(st), vi_g(r), ok, why},
         HS{hs_hs(st), hs_g(st), ok, why})
@@ -193,9 +196,86 @@ def ef_edges(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) 
     case +h <> +t:
       ef_edges(t, side, b, ob, ef_faces(L.nat_range(FB.nfaces(ob)), side, h, b, ob, st))
 
+def ve_t(n: Nat, +c: G.GVal, +p: V.Point, +lo: F64, +hi: F64) -> F64:
+  match n:
+    case 0n: F64.mul(0.5f64, F64.add(lo, hi))
+    case 1n+m:
+      +a = F64.add(lo, F64.div(F64.sub(hi, lo), 3.0f64))
+      +b = F64.sub(hi, F64.div(F64.sub(hi, lo), 3.0f64))
+      +near = F64.is_lt(S.dist(EF.ev(c, a), p), S.dist(EF.ev(c, b), p))
+      ve_t(m, c, p, Bool.pick(F64, near, lo, a), Bool.pick(F64, near, b, hi))
+
+def ve_seed(n: Nat, +c: G.GVal, +p: V.Point, +lo: F64, +dt: F64, +k: F64, +best: F64, +bd: F64) -> F64:
+  match n:
+    case 0n: best
+    case 1n+m:
+      +t = F64.add(lo, F64.mul(k, dt))
+      +d = S.dist(EF.ev(c, t), p)
+      +b = F64.is_lt(d, bd)
+      ve_seed(m, c, p, lo, dt, F64.add(k, 1.0f64), Bool.pick(F64, b, t, best), Bool.pick(F64, b, d, bd))
+
+def ve_param(+k: Ty.EdgeKind, +p: V.Point) -> F64:
+  +c = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +dt = F64.div(F64.sub(hi, lo), 64.0f64)
+  +t0 = ve_seed(65n, c, p, lo, dt, 0.0f64, lo, F64.div(1.0f64, 0.0f64))
+  ve_t(80n, c, p, F64.max(lo, F64.sub(t0, dt)), F64.min(hi, F64.add(t0, dt)))
+
+def ve_tol(+p: V.Point) -> F64:
+  F64.mul(1.0e-9f64, F64.add(1.0f64, S.dlen(S.psub(p, S.pt(0.0f64, 0.0f64, 0.0f64)))))
+
+def ve_fos(fs: List<&2, Nat>, +side: U64, +e: Nat, +t: F64, +p: V.Point, +v: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  match fs:
+    case []: acc
+    case +h <> +t2: ve_fos(t2, side, e, t, p, v, HX{side, e, t, p, v, h} <> acc)
+
+def vx_faces(es: List<&2, Nat>, +ob: Ty.Brep, +vi: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match es:
+    case []: acc
+    case +h <> +t:
+      +ed = FB.edge_at(ob, h)
+      +inc = Bool.or(Nat.is_eq(Ty.hv_idx(Ty.ed_v0(ed)), vi), Nat.is_eq(Ty.hv_idx(Ty.ed_v1(ed)), vi))
+      vx_faces(t, ob, vi, Bool.pick(List<&2, Nat>, inc, List.append(&2, Nat, FB.edge_faces(ob, h), acc), acc))
+
+def ve_two(+go: Bool, +side: U64, +e: Nat, +k: Ty.EdgeKind, +b: Ty.Brep, +ob: Ty.Brep, +vi: Nat, +p: V.Point, +st: HS) -> HS:
+  match go:
+    case False{}: st
+    case True{}:
+      +t = ve_param(k, p)
+      +on = F64.is_lt(S.dist(EF.ev(EF.ek_curve(k), t), p), ve_tol(p))
+      +r = gv_add(hs_g(st), p)
+      +fs = vx_faces(L.nat_range(FB.nedges(ob)), ob, vi, [])
+      Bool.pick(HS, on, HS{ve_fos(fs, side, e, t, p, vi_i(r), hs_hs(st)), vi_g(r), hs_ok(st), hs_why(st)}, st)
+
+def ve_one(+side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +vi: Nat, +p: V.Point, +st: HS) -> HS:
+  +k = Ty.ed_kind(FB.edge_at(b, e))
+  +ed = FB.edge_at(b, e)
+  +q0 = FB.vpt(b, Ty.ed_v0(ed))
+  +q1 = FB.vpt(b, Ty.ed_v1(ed))
+  +tol = ve_tol(p)
+  +bx = FB.bb_pad(FB.ek_bb(k), tol)
+  +inb = Bool.not(FB.bb_dis(bx, FB.bb_pt(p)))
+  +far = Bool.and(F64.is_lt(tol, S.dist(p, q0)), F64.is_lt(tol, S.dist(p, q1)))
+  ve_two(Bool.and(inb, far), side, e, k, b, ob, vi, p, st)
+
+def ve_edges(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep, +vi: Nat, +p: V.Point, +st: HS) -> HS:
+  match es:
+    case []: st
+    case +h <> +t: ve_edges(t, side, b, ob, vi, p, ve_one(side, h, b, ob, vi, p, st))
+
+def ve_verts(vs: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
+  match vs:
+    case []: st
+    case +h <> +t:
+      +p = Ty.vx_p(L.nth_v(Ty.brep_vs(ob), h))
+      ve_verts(t, side, b, ob, ve_edges(L.nat_range(FB.nedges(b)), side, b, ob, h, p, st))
+
 def all_hits(+ba: Ty.Brep, +bb: Ty.Brep, +g: GV) -> HS:
   +s0 = ef_edges(L.nat_range(FB.nedges(ba)), 0u64, ba, bb, HS{[], g, True{}, 0u64})
-  ef_edges(L.nat_range(FB.nedges(bb)), 1u64, bb, ba, s0)
+  +s1 = ef_edges(L.nat_range(FB.nedges(bb)), 1u64, bb, ba, s0)
+  +s2 = ve_verts(L.nat_range(List.length(&2, Ty.Vertex, Ty.brep_vs(bb))), 0u64, ba, bb, s1)
+  ve_verts(L.nat_range(List.length(&2, Ty.Vertex, Ty.brep_vs(ba))), 1u64, bb, ba, s2)
 
 def seg_va(+s: SEG) -> Nat:
   SEG{va, vb, k} = s
@@ -291,9 +371,25 @@ def pair_hits(hs: List<&2, HX>, +esa: List<&2, Nat>, +fa: Nat, +esb: List<&2, Na
       +rest = pair_hits(t, esa, fa, esb, fb)
       Bool.pick(List<&2, HX>, Bool.or(is_hit_of(h, 0u64, esa, fb), is_hit_of(h, 1u64, esb, fa)), h <> rest, rest)
 
-def in_both(+ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +p: V.Point) -> Bool:
-  Bool.and(Bool.and(FB.pt_in_face(ba, fa, p), FB.pt_in_face(bb, fb, p)),
-    Bool.not(Bool.or(FB.bnd_near(ba, fa, p), FB.bnd_near(bb, fb, p))))
+def no_face() -> Nat:
+  4294967295n
+
+def run_side(+ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +p: V.Point) -> U64:
+  +na = FB.bnd_near(ba, fa, p)
+  +nb = FB.bnd_near(bb, fb, p)
+  +ia = Bool.or(FB.pt_in_face(ba, fa, p), na)
+  +ib = Bool.or(FB.pt_in_face(bb, fb, p), nb)
+  Bool.pick(U64, Bool.not(Bool.and(ia, ib)), 0u64,
+    Bool.pick(U64, Bool.and(na, nb), 0u64, Bool.pick(U64, na, 2u64, Bool.pick(U64, nb, 3u64, 1u64))))
+
+def ch_mask(+c: CH, +sd: U64) -> CH:
+  CH{+fa, +fb, +ss, +ps, +cl, +dv} = c
+  CH{Bool.pick(Nat, U64.is_eq(sd, 2u64), no_face(), fa), Bool.pick(Nat, U64.is_eq(sd, 3u64), no_face(), fb), ss, ps, cl, dv}
+
+def chs_mask(cs: List<&2, CH>, +sd: U64) -> List<&2, CH>:
+  match cs:
+    case []: []
+    case +h <> +t: ch_mask(h, sd) <> chs_mask(t, sd)
 
 def line_s(+p0: V.Point, +d: V.Dir, +p: V.Point) -> F64:
   F64.div(S.dot(S.psub(p, p0), d), S.dot(d, d))
@@ -353,9 +449,10 @@ def line_spans(bs: List<&2, BP>, +p0: V.Point, +d: V.Dir, +ba: Ty.Brep, +fa: Nat
       +h2 = L_bp0(t, h)
       +more = Bool.not(Nat.is_eq(List.length(&2, BP, t), 0n))
       +mid = S.padd(p0, F64.mul(0.5f64, F64.add(bp_s(h), bp_s(h2))), d)
-      +keep = Bool.and(more, in_both(ba, fa, bb, fb, mid))
+      +sd = run_side(ba, fa, bb, fb, mid)
+      +keep = Bool.and(more, Bool.not(U64.is_eq(sd, 0u64)))
       line_spans(t, p0, d, ba, fa, bb, fb,
-        Bool.pick(CR, keep, CR{mk_lnch(fa, fb, h, h2) <> cr_chs(r), cr_g(r), cr_ok(r), cr_why(r)}, r))
+        Bool.pick(CR, keep, CR{ch_mask(mk_lnch(fa, fb, h, h2), sd) <> cr_chs(r), cr_g(r), cr_ok(r), cr_why(r)}, r))
 
 def do_line(+c: SS.IC, +hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
   +ln = SS.ln_of(SS.ic_curve(c))
@@ -452,10 +549,11 @@ def circ_spans(bs: List<&2, BP>, +first: BP, +ccl: List<&2, G.Circle3>, +gs: Lis
       +nx = L_bp0(t, first)
       +phib = Bool.pick(F64, Nat.is_eq(List.length(&2, BP, t), 0n), F64.add(bp_s(first), S.two_pi()), bp_s(nx))
       +mid = circ_at(cc1(ccl), F64.mul(0.5f64, F64.add(bp_s(h), phib)))
-      +keep = in_both(ba, fa, bb, fb, mid)
+      +sd = run_side(ba, fa, bb, fb, mid)
+      +keep = Bool.not(U64.is_eq(sd, 0u64))
       +ar = arc_chain(ccl, gs, h, phib, nx, cr_g(r), fa, fb)
       +r2 = Bool.pick(CR, keep,
-        CR{List.append(&2, CH, cr_chs(ar), cr_chs(r)), cr_g(ar), Bool.and(cr_ok(r), cr_ok(ar)),
+        CR{List.append(&2, CH, chs_mask(cr_chs(ar), sd), cr_chs(r)), cr_g(ar), Bool.and(cr_ok(r), cr_ok(ar)),
           Bool.pick(U64, cr_ok(r), cr_why(ar), cr_why(r))}, r)
       circ_spans(t, first, ccl, gs, ba, fa, bb, fb, r2)
 
@@ -465,8 +563,8 @@ def mk_fullch(+fa: Nat, +fb: Nat, +v: Nat, +c: G.GVal, +p: V.Point) -> CH:
 def do_circ_full(+cc: G.Circle3, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
   +p = EF.ev(G.GV_cc{cc}, F64.neg(1.0f64))
   +vr = gv_add(cr_g(r), p)
-  +keep = in_both(ba, fa, bb, fb, EF.ev(G.GV_cc{cc}, 0.0f64))
-  Bool.pick(CR, keep, CR{mk_fullch(fa, fb, vi_i(vr), G.GV_cc{cc}, p) <> cr_chs(r), vi_g(vr), cr_ok(r), cr_why(r)}, r)
+  +sd = run_side(ba, fa, bb, fb, EF.ev(G.GV_cc{cc}, 0.0f64))
+  Bool.pick(CR, Bool.not(U64.is_eq(sd, 0u64)), CR{ch_mask(mk_fullch(fa, fb, vi_i(vr), G.GV_cc{cc}, p), sd) <> cr_chs(r), vi_g(vr), cr_ok(r), cr_why(r)}, r)
 
 def do_circ_go(+full: Bool, +ccl: List<&2, G.Circle3>, +gs: List<&2, G.GVal>, +bs: List<&2, BP>,
     +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
@@ -680,8 +778,8 @@ def keep_runs(rs: List<&2, List<&2, PP>>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, 
   match rs:
     case []: acc
     case +h <> +t:
-      +keep = in_both(ba, fa, bb, fb, mid_pp(h))
-      keep_runs(t, ba, fa, bb, fb, Bool.pick(List<&2, CH>, keep, mk_pch(fa, fb, h, False{}, ba, bb) <> acc, acc))
+      +sd = run_side(ba, fa, bb, fb, mid_pp(h))
+      keep_runs(t, ba, fa, bb, fb, Bool.pick(List<&2, CH>, U64.is_eq(sd, 0u64), acc, ch_mask(mk_pch(fa, fb, h, False{}, ba, bb), sd) <> acc))
 
 def has_brk(xs: List<&2, PP>) -> Bool:
   match xs:
@@ -698,8 +796,8 @@ def do_poly_go(+brk: Bool, +xs: List<&2, PP>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Br
         cr_ok(r), cr_why(r)}
     case False{}:
       +cyc = List.append(&2, PP, xs, [L_pp0(xs)])
-      +keep = in_both(ba, fa, bb, fb, mid_pp(xs))
-      Bool.pick(CR, keep, CR{mk_pch(fa, fb, cyc, True{}, ba, bb) <> cr_chs(r), g, cr_ok(r), cr_why(r)},
+      +sd = run_side(ba, fa, bb, fb, mid_pp(xs))
+      Bool.pick(CR, Bool.not(U64.is_eq(sd, 0u64)), CR{ch_mask(mk_pch(fa, fb, cyc, True{}, ba, bb), sd) <> cr_chs(r), g, cr_ok(r), cr_why(r)},
         CR{cr_chs(r), g, cr_ok(r), cr_why(r)})
 
 def do_poly(+c: SS.IC, +hs: List<&2, HX>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
@@ -777,8 +875,33 @@ def pairs_a(fas: List<&2, Nat>, +bxs: List<&2, FB.BB>, +hs: List<&2, HX>, +ba: T
     case []: r
     case +h <> +t: pairs_a(t, bxs, hs, ba, bb, pairs_b(L.nat_range(FB.nfaces(bb)), bxs, FB.face_bb(ba, h), hs, ba, h, bb, r))
 
+def segs_same(xs: List<&2, SEG>, ys: List<&2, SEG>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case +h <> +t: False{}
+    case +x <> +xt:
+      match ys:
+        case []: False{}
+        case +y <> +yt: Bool.and(Bool.and(Nat.is_eq(seg_va(x), seg_va(y)), Nat.is_eq(seg_vb(x), seg_vb(y))), segs_same(xt, yt))
+
+def ch_same(+a: CH, +b: CH) -> Bool:
+  Bool.and(Bool.and(Nat.is_eq(ch_fa(a), ch_fa(b)), Nat.is_eq(ch_fb(a), ch_fb(b))), segs_same(ch_segs(a), ch_segs(b)))
+
+def ch_in(cs: List<&2, CH>, +c: CH) -> Bool:
+  match cs:
+    case []: False{}
+    case +h <> +t: Bool.or(ch_same(h, c), ch_in(t, c))
+
+def chs_uniq(cs: List<&2, CH>, +acc: List<&2, CH>) -> List<&2, CH>:
+  match cs:
+    case []: List.reverse(&2, CH, acc)
+    case +h <> +t: chs_uniq(t, Bool.pick(List<&2, CH>, ch_in(acc, h), acc, h <> acc))
+
 def all_chains(+hs: List<&2, HX>, +ba: Ty.Brep, +bb: Ty.Brep, +g: GV) -> CR:
-  pairs_a(L.nat_range(FB.nfaces(ba)), faces_bb(L.nat_range(FB.nfaces(bb)), bb), hs, ba, bb, CR{[], g, True{}, 0u64})
+  +r = pairs_a(L.nat_range(FB.nfaces(ba)), faces_bb(L.nat_range(FB.nfaces(bb)), bb), hs, ba, bb, CR{[], g, True{}, 0u64})
+  CR{chs_uniq(cr_chs(r), []), cr_g(r), cr_ok(r), cr_why(r)}
 
 def L_pp0_p(xs: List<&2, V.Point>) -> V.Point:
   match xs:
@@ -788,3 +911,45 @@ def L_pp0_p(xs: List<&2, V.Point>) -> V.Point:
 def ch_dv(+c: CH) -> F64:
   CH{fa, fb, segs, pts, closed, dv} = c
   dv
+
+def pe_two(+go: Bool, +side: U64, +e: Nat, +k: Ty.EdgeKind, +v: Nat, +p: V.Point, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  match go:
+    case False{}: acc
+    case True{}:
+      +t = ve_param(k, p)
+      Bool.pick(List<&2, HX>, F64.is_lt(S.dist(EF.ev(EF.ek_curve(k), t), p), ve_tol(p)), HX{side, e, t, p, v, fo} <> acc, acc)
+
+def pe_one(+side: U64, +e: Nat, +b: Ty.Brep, +v: Nat, +p: V.Point, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  +ed = FB.edge_at(b, e)
+  +k = Ty.ed_kind(ed)
+  +tol = ve_tol(p)
+  +far = Bool.and(F64.is_lt(tol, S.dist(p, FB.vpt(b, Ty.ed_v0(ed)))), F64.is_lt(tol, S.dist(p, FB.vpt(b, Ty.ed_v1(ed)))))
+  +inb = Bool.not(FB.bb_dis(FB.bb_pad(FB.ek_bb(k), tol), FB.bb_pt(p)))
+  pe_two(Bool.and(far, inb), side, e, k, v, p, fo, acc)
+
+def pe_edges(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +v: Nat, +p: V.Point, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  match es:
+    case []: acc
+    case +h <> +t: pe_edges(t, side, b, v, p, fo, pe_one(side, h, b, v, p, fo, acc))
+
+def inner_vs(ss: List<&2, SEG>) -> List<&2, Nat>:
+  match ss:
+    case []: []
+    case +h <> +t:
+      match t:
+        case []: []
+        case +h2 <> +t2: seg_vb(h) <> inner_vs(h2 <> t2)
+
+def pv_hits(vs: List<&2, Nat>, +side: U64, +b: Ty.Brep, +g: GV, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  match vs:
+    case []: acc
+    case +h <> +t: pv_hits(t, side, b, g, fo, pe_edges(L.nat_range(FB.nedges(b)), side, b, h, gv_pt(g, h), fo, acc))
+
+def chain_hits(cs: List<&2, CH>, +ba: Ty.Brep, +bb: Ty.Brep, +g: GV, +acc: List<&2, HX>) -> List<&2, HX>:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +vs = inner_vs(ch_segs(h))
+      +a1 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fa(h), no_face()), pv_hits(vs, 0u64, ba, g, ch_fb(h), acc), acc)
+      +a2 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fb(h), no_face()), pv_hits(vs, 1u64, bb, g, ch_fa(h), a1), a1)
+      chain_hits(t, ba, bb, g, a2)

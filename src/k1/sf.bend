@@ -210,6 +210,12 @@ def k_cyl() -> U64:
 def k_cone() -> U64:
   3u64
 
+def k_sph() -> U64:
+  4u64
+
+def is_sph(+s: SF) -> Bool:
+  U64.is_eq(sf_kind(s), k_sph())
+
 def sf_none() -> SF:
   SF_none{}
 
@@ -227,6 +233,11 @@ def perp_of(+a: V.Dir) -> V.Dir:
       dr(0.0f64, 0.0f64, 1.0f64)))
   Bool.pick(V.Dir, exact, ex, dunit(cross(a, t)))
 
+def off_max(ps: List<&2, V.Point>, +o: V.Point, +n: V.Dir, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +h <> +t: off_max(t, o, n, F64.max(acc, F64.abs(dot(psub(h, o), n))))
+
 def sf_of(+g: G.GVal) -> SF:
   match g:
     case G.GV_pl{w}:
@@ -240,11 +251,15 @@ def sf_of(+g: G.GVal) -> SF:
       G.Co{+o, +a, +k} = w
       +e1 = perp_of(a)
       SF{k_cone(), o, e1, cross(a, e1), a, k, SF_none{}}
+    case G.GV_sp{w}:
+      G.Sp{+c, +r} = w
+      SF{k_sph(), c, dr(1.0f64, 0.0f64, 0.0f64), dr(0.0f64, 1.0f64, 0.0f64), dr(0.0f64, 0.0f64, 1.0f64), r, SF_none{}}
     case G.GV_bp{w}:
-      G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
+      G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
       +e1 = dunit(psub(p03, p00))
       +a = dunit(cross(e1, psub(p30, p00)))
-      +flat = F64.is_lt(F64.abs(dot(psub(p33, p00), a)), F64.mul(1.0e-12f64, F64.add(1.0f64, dlen(psub(p33, p00)))))
+      +flat = F64.is_lt(off_max([p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], p00, a, 0.0f64),
+        F64.mul(1.0e-12f64, F64.add(1.0f64, dlen(psub(p33, p00)))))
       Bool.pick(SF, flat, SF{k_plane(), p00, e1, cross(a, e1), a, 0.0f64, SF_none{}}, sf_none())
     case _: sf_none()
 
@@ -256,8 +271,12 @@ def sf_uv(+s: SF, +p: V.Point) -> V.Vec2:
   Bool.pick(V.Vec2, U64.is_eq(sf_kind(s), k_plane()), V.V2{dot(d, sf_e1(s)), dot(d, sf_e2(s))},
     V.V2{fatan2(dot(d, sf_e2(s)), dot(d, sf_e1(s))), dot(d, sf_a(s))})
 
+def sph_rad(+r: F64, +v: F64) -> F64:
+  F64.sqrt(F64.max(0.0f64, F64.mul(F64.add(r, v), F64.sub(r, v))))
+
 def sf_rad(+s: SF, +v: F64) -> F64:
-  Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), v), sf_r(s))
+  Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), v),
+    Bool.pick(F64, is_sph(s), sph_rad(sf_r(s), v), sf_r(s)))
 
 def sf_at(+s: SF, +u: F64, +v: F64) -> V.Point:
   +o = sf_o(s)
@@ -272,7 +291,7 @@ def sf_grad(+s: SF, +p: V.Point) -> V.Dir:
   +k = sf_r(s)
   Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_a(s),
     Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_cone()), dscale(2.0f64, dadd(rad, F64.neg(F64.mul(F64.mul(k, k), h)), sf_a(s))),
-      dscale(2.0f64, rad)))
+      dscale(2.0f64, Bool.pick(V.Dir, is_sph(s), d, rad))))
 
 def sf_normal(+s: SF, +p: V.Point) -> V.Dir:
   dunit(sf_grad(s, p))
@@ -282,8 +301,9 @@ def sf_f(+s: SF, +p: V.Point) -> F64:
   +h = dot(d, sf_a(s))
   +rad = dadd(d, F64.neg(h), sf_a(s))
   +rr = Bool.pick(F64, U64.is_eq(sf_kind(s), k_cone()), F64.mul(sf_r(s), h), sf_r(s))
+  +m = Bool.pick(F64, is_sph(s), dlen(d), dlen(rad))
   Bool.pick(F64, U64.is_eq(sf_kind(s), k_plane()), h,
-    F64.mul(F64.add(dlen(rad), rr), F64.sub(dlen(rad), rr)))
+    F64.mul(F64.add(m, rr), F64.sub(m, rr)))
 
 def sf_tan_u(+s: SF, +u: F64, +v: F64) -> V.Dir:
   +rr = sf_rad(s, v)
@@ -297,7 +317,7 @@ def sf_tan_v(+s: SF, +u: F64) -> V.Dir:
       dadd(dadd(sf_a(s), F64.mul(k, fcos(u)), sf_e1(s)), F64.mul(k, fsin(u)), sf_e2(s)), sf_a(s)))
 
 def sf_periodic(+s: SF) -> Bool:
-  Bool.or(U64.is_eq(sf_kind(s), k_cyl()), U64.is_eq(sf_kind(s), k_cone()))
+  Bool.or(Bool.or(U64.is_eq(sf_kind(s), k_cyl()), U64.is_eq(sf_kind(s), k_cone())), is_sph(s))
 
 def det3(+a: V.Dir, +b: V.Dir, +c: V.Dir) -> F64:
   dot(a, cross(b, c))

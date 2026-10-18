@@ -89,9 +89,13 @@ def nseg(+k: Ty.EdgeKind) -> Nat:
 def uv_raw(+s: S.SF, +p: V.Point) -> V.Vec2:
   S.sf_uv(s, p)
 
+def at_pole(+s: S.SF, +q: V.Vec2) -> Bool:
+  Bool.and(S.is_sph(s), F64.is_le(F64.sub(S.sf_r(s), F64.abs(V.v2_y(q))), F64.mul(1.0e-12f64, S.sf_r(s))))
+
 def unwrap(+s: S.SF, +prev: V.Vec2, +q: V.Vec2) -> V.Vec2:
-  Bool.pick(V.Vec2, S.sf_periodic(s),
-    V.V2{F64.add(V.v2_x(prev), S.ang_diff(V.v2_x(prev), V.v2_x(q))), V.v2_y(q)}, q)
+  Bool.pick(V.Vec2, at_pole(s, q), V.V2{V.v2_x(prev), V.v2_y(q)},
+    Bool.pick(V.Vec2, S.sf_periodic(s),
+      V.V2{F64.add(V.v2_x(prev), S.ang_diff(V.v2_x(prev), V.v2_x(q))), V.v2_y(q)}, q))
 
 def samp_go(n: Nat, +s: S.SF, +c: G.GVal, +t0: F64, +dt: F64, +k: F64, +prev: V.Vec2,
     +acc: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
@@ -101,11 +105,20 @@ def samp_go(n: Nat, +s: S.SF, +c: G.GVal, +t0: F64, +dt: F64, +k: F64, +prev: V.
       +q = unwrap(s, prev, uv_raw(s, EF.ev(c, F64.add(t0, F64.mul(k, dt)))))
       samp_go(m, s, c, t0, dt, F64.add(k, 1.0f64), q, q <> acc)
 
+def pole_head(+s: S.SF, xs: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
+  match xs:
+    case []: []
+    case +h <> +t:
+      match t:
+        case []: [h]
+        case +h2 <> +t2:
+          Bool.pick(List<&2, V.Vec2>, at_pole(s, h), V.V2{V.v2_x(h2), V.v2_y(h)} <> h2 <> t2, h <> h2 <> t2)
+
 def poly_of(+s: S.SF, +k: Ty.EdgeKind, +t0: F64, +t1: F64, +start: V.Vec2) -> List<&2, V.Vec2>:
   +n = nseg(k)
   +c = EF.ek_curve(k)
   +dt = F64.div(F64.sub(t1, t0), L.f64_of(n))
-  List.reverse(&2, V.Vec2, samp_go(n, s, c, t0, dt, 1.0f64, start, [start]))
+  pole_head(s, List.reverse(&2, V.Vec2, samp_go(n, s, c, t0, dt, 1.0f64, start, [start])))
 
 def ce_poly(+s: S.SF, +b: Ty.Brep, +c: CE, +start: V.Vec2) -> List<&2, V.Vec2>:
   +ed = edge_at(b, ce_e(c))
@@ -142,8 +155,6 @@ def face_polys_go(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep) -> List<&2,
     case []: []
     case +h <> +t: loop_poly(s, b, h) <> face_polys_go(t, s, b)
 
-def face_polys(+b: Ty.Brep, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
-  face_polys_go(face_ce(b, fi), S.sf_of(face_surf(b, fi)), b)
 
 def seg_cross(+s: S.SF, +a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
   +ax = V.v2_x(a)
@@ -171,9 +182,6 @@ def polys_cross(ls: List<&2, List<&2, V.Vec2>>, +s: S.SF, +q: V.Vec2) -> Nat:
 def pip(+s: S.SF, +ls: List<&2, List<&2, V.Vec2>>, +q: V.Vec2) -> Bool:
   Nat.is_eq(Nat.mod(polys_cross(ls, s, q), 2n), 1n)
 
-def pt_in_face(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
-  +s = S.sf_of(face_surf(b, fi))
-  pip(s, face_polys(b, fi), uv_raw(s, p))
 
 def circ_dist(+c0: V.Point, +n: V.Dir, +r: F64, +p: V.Point) -> F64:
   +q = S.psub(p, c0)
@@ -219,6 +227,42 @@ def lps_dist(ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +p: V.Point, +best: F64) -
   match ls:
     case []: best
     case +h <> +t: lps_dist(t, b, p, ces_dist(h, b, p, best))
+
+
+def sph_axes() -> List<&2, V.Dir>:
+  +k = {0.5773502691896258f64 : F64}
+  [S.dr(0.0f64, 0.0f64, 1.0f64), S.dr(1.0f64, 0.0f64, 0.0f64), S.dr(0.0f64, 1.0f64, 0.0f64), S.dr(k, k, k),
+    S.dr(k, F64.neg(k), k), S.dr(F64.neg(k), k, k), S.dr(k, k, F64.neg(k))]
+
+def pole_clear(+ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +o: V.Point, +r: F64, +a: V.Dir) -> F64:
+  F64.min(lps_dist(ls, b, S.padd(o, r, a), F64.div(1.0f64, 0.0f64)),
+    lps_dist(ls, b, S.padd(o, F64.neg(r), a), F64.div(1.0f64, 0.0f64)))
+
+def best_ax(xs: List<&2, V.Dir>, +ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +o: V.Point, +r: F64,
+    +best: V.Dir, +bd: F64) -> V.Dir:
+  match xs:
+    case []: best
+    case +h <> +t:
+      +d = pole_clear(ls, b, o, r, h)
+      +better = F64.is_lt(bd, d)
+      best_ax(t, ls, b, o, r, Bool.pick(V.Dir, better, h, best), Bool.pick(F64, better, d, bd))
+
+def sph_frame(+s: S.SF, +ls: List<&2, List<&2, CE>>, +b: Ty.Brep) -> S.SF:
+  +a = best_ax(sph_axes(), ls, b, S.sf_o(s), S.sf_r(s), S.sf_a(s), F64.neg(1.0f64))
+  +e1 = S.perp_of(a)
+  S.SF{S.k_sph(), S.sf_o(s), e1, S.cross(a, e1), a, S.sf_r(s), S.SF_none{}}
+
+def sf_pick(+sph: Bool, +s: S.SF, +b: Ty.Brep, +fi: Nat) -> S.SF:
+  match sph:
+    case True{}: sph_frame(s, face_ce(b, fi), b)
+    case False{}: s
+
+def face_sf(+b: Ty.Brep, +fi: Nat) -> S.SF:
+  +s = S.sf_of(face_surf(b, fi))
+  sf_pick(S.is_sph(s), s, b, fi)
+
+def face_polys(+b: Ty.Brep, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
+  face_polys_go(face_ce(b, fi), face_sf(b, fi), b)
 
 def bnd_near(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
   F64.is_lt(lps_dist(face_ce(b, fi), b, p, F64.div(1.0f64, 0.0f64)), 1.0e-7f64)
@@ -313,12 +357,35 @@ def wraps_go(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep, +n: Nat) -> Nat:
       +w = F64.is_lt(3.0f64, F64.abs(lp_turn(h, s, b, 0.0f64)))
       wraps_go(t, s, b, Bool.pick(Nat, w, Nat.add(n, 1n), n))
 
+def lps_turn(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep, +acc: F64) -> F64:
+  match ls:
+    case []: acc
+    case +h <> +t: lps_turn(t, s, b, F64.add(acc, lp_turn(h, s, b, 0.0f64)))
+
+def north(+b: Ty.Brep, +fi: Nat, +s: S.SF) -> Bool:
+  +w = S.f_round(F64.div(lps_turn(face_ce(b, fi), s, b, 0.0f64), S.two_pi()))
+  +sg = Bool.pick(F64, face_same(b, fi), w, F64.neg(w))
+  Bool.and(S.is_sph(s), F64.is_lt(0.0f64, sg))
+
+def pip_face(+b: Ty.Brep, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
+  Bool.xor(pip(s, face_polys(b, fi), q), north(b, fi, s))
+
+def pt_in_face(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> Bool:
+  +s = face_sf(b, fi)
+  pip_face(b, fi, s, uv_raw(s, p))
+
+def sph_bb(+s: S.SF) -> BB:
+  +r = S.sf_r(s)
+  +o = S.sf_o(s)
+  BB{F64.sub(V.pt_x(o), r), F64.add(V.pt_x(o), r), F64.sub(V.pt_y(o), r), F64.add(V.pt_y(o), r),
+    F64.sub(V.pt_z(o), r), F64.add(V.pt_z(o), r)}
+
 def face_bb(+b: Ty.Brep, +fi: Nat) -> BB:
   +s = S.sf_of(face_surf(b, fi))
   +ls = face_ce(b, fi)
   +e0 = lps_bb(ls, b, bb_empty())
   +tip = Bool.and(U64.is_eq(S.sf_kind(s), S.k_cone()), Nat.is_eq(Nat.mod(wraps_go(ls, s, b, 0n), 2n), 1n))
-  +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), e0)
+  +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), Bool.pick(BB, S.is_sph(s), bb_join(e0, sph_bb(s)), e0))
   bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(L.nth_f(Ty.brep_fas(b), fi))), 1.0e-9f64))
 
 def plane_n(+g: G.GVal) -> V.Dir:

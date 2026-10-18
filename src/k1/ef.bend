@@ -293,10 +293,64 @@ def cert_go(n: Nat, +mode: U64, +c: G.GVal, +gs: List<&2, G.GVal>, +t0: F64, +u:
         case 2u64: CT{True{}, F64.sub(t0, F64.mul(k, u)), ev(c, F64.sub(t0, F64.mul(k, u)))}
         case _: cert_go(m, 0u64, c, gs, t0, u, F64.add(k, 1.0f64), lo, hi)
 
+def nudges() -> List<&2, F64>:
+  [0.0f64, 1.0f64, F64.neg(1.0f64), 2.0f64, F64.neg(2.0f64)]
+
+def nz_go(zs: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uz: F64) -> CT:
+  match zs:
+    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
+    case +h <> +t:
+      +q = S.pt(x, y, F64.add(z, F64.mul(h, uz)))
+      Bool.pick(CT, on_all(gs, q), CT{True{}, 0.0f64, q}, nz_go(t, gs, x, y, z, uz))
+
+def ny_go(ys: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uy: F64, +uz: F64) -> CT:
+  match ys:
+    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
+    case +h <> +t:
+      +r = nz_go(nudges(), gs, x, F64.add(y, F64.mul(h, uy)), z, uz)
+      Bool.pick(CT, ct_ok(r), r, ny_go(t, gs, x, y, z, uy, uz))
+
+def nx_go(xs: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +ux: F64, +uy: F64,
+    +uz: F64) -> CT:
+  match xs:
+    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
+    case +h <> +t:
+      +r = ny_go(nudges(), gs, F64.add(x, F64.mul(h, ux)), y, z, uy, uz)
+      Bool.pick(CT, ct_ok(r), r, nx_go(t, gs, x, y, z, ux, uy, uz))
+
+def cert_gs(+gs: List<&2, G.GVal>, +p: V.Point) -> CT:
+  +x = S.px(p)
+  +y = S.py(p)
+  +z = S.pz(p)
+  nx_go(nudges(), gs, x, y, z, ulp_of(x), ulp_of(y), ulp_of(z))
+
+def g_at(gs: List<&2, G.GVal>, +i: Nat) -> G.GVal:
+  match gs:
+    case []: G.GV_f{0.0f64}
+    case +h <> +t:
+      match i:
+        case 0n: h
+        case 1n+j: g_at(t, j)
+
+def cert_snap(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
+  +s1 = S.sf_of(g_at(gs, 0n))
+  +s2 = S.sf_of(g_at(gs, 1n))
+  +p0 = ev(c, t)
+  +tn = S.dunit(S.cross(S.sf_grad(s1, p0), S.sf_grad(s2, p0)))
+  +r = cert_gs(gs, S.newton2(6n, s1, s2, p0, tn, p0))
+  CT{ct_ok(r), t, ct_p(r)}
+
+def cert_fb(+r: CT, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
+  match r:
+    case CT{ok, tt, p}:
+      match ok:
+        case True{}: CT{True{}, tt, p}
+        case False{}: cert_snap(c, gs, t)
+
 def cert_t0(+ok: Bool, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
   match ok:
     case True{}: CT{True{}, t, ev(c, t)}
-    case False{}: cert_go(128n, 0u64, c, gs, t, ulp_of(t), 1.0f64, lo, hi)
+    case False{}: cert_fb(cert_go(128n, 0u64, c, gs, t, ulp_of(t), 1.0f64, lo, hi), c, gs, t)
 
 def cert_t(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
   cert_t0(on_all(gs, ev(c, t)), c, gs, t, lo, hi)

@@ -323,17 +323,100 @@ def ii_go(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>, +bx: List<&2, I.I>) -> SS.Ss
         case None{}: empty_ss()
         case Some{b}: SS.trace(S.mk_ii(a, b), 64n, bx)
 
-def ii_sel(+st: Bool, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
+def sc_circ(+o: List<&2, I.I>, +u: List<&2, I.I>, +r: I.I, +h: I.I) -> SS.Br:
+  +cen = X.vadd(o, M.vscale(h, u))
+  ell_br(o, u, r, cen, u)
+
+def sc_br(+c: List<&2, I.I>, +bigr: I.I, +o: List<&2, I.I>, +a: List<&2, I.I>, +r: I.I) -> SS.Ss:
+  +u = iv_unit(a)
+  +hc = X.vdot(X.vsub(c, o), u)
+  +t2 = I.isub(I.isq(bigr), I.isq(r))
+  +t = I.isqrt(I.I{F64.max(0.0f64, I.i_lo(t2)), F64.max(0.0f64, I.i_hi(t2))})
+  Bool.pick(SS.Ss, F64.is_lt(I.i_hi(t2), 0.0f64), empty_ss(),
+    Bool.pick(SS.Ss, F64.is_le(I.i_lo(t2), 0.0f64), SS.Ss{True{}, [sc_circ(o, u, r, hc)], []},
+      SS.Ss{True{}, [sc_circ(o, u, r, I.iadd(hc, t)), sc_circ(o, u, r, I.isub(hc, t))], []}))
+
+def sc_b(+c: List<&2, I.I>, +bigr: I.I, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m2:
+    case Some{b}:
+      match b:
+        case M.M_cy{+o, +a, +r}: sc_br(c, bigr, o, a, r)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def sc_ss(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m1:
+    case Some{a}:
+      match a:
+        case M.M_sp{+c, +bigr}: sc_b(c, bigr, m2)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def sc_cyb(+c: V.Point, g2: G.GVal) -> Bool:
+  match g2:
+    case G.GV_cy{w2}:
+      G.Cy{+o, +a, +r} = w2
+      S.on_axis(o, a, c)
+    case _: False{}
+
+def sc_ok(g1: G.GVal, +g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_sp{w1}:
+      G.Sp{+c, +r} = w1
+      sc_cyb(c, g2)
+    case _: False{}
+
+def ps_br(+o: List<&2, I.I>, +nn: List<&2, I.I>, +c: List<&2, I.I>, +bigr: I.I) -> SS.Ss:
+  +n = iv_unit(nn)
+  +dl = X.vdot(X.vsub(c, o), n)
+  +q = I.isub(I.isq(bigr), I.isq(dl))
+  +rho = I.isqrt(I.I{F64.max(0.0f64, I.i_lo(q)), F64.max(0.0f64, I.i_hi(q))})
+  +cen = X.vsub(c, M.vscale(dl, n))
+  Bool.pick(SS.Ss, F64.is_le(I.i_lo(q), 0.0f64), empty_ss(), SS.Ss{True{}, [ell_br(cen, n, rho, cen, n)], []})
+
+def ps_b(+o: List<&2, I.I>, +n: List<&2, I.I>, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m2:
+    case Some{b}:
+      match b:
+        case M.M_sp{+c, +bigr}: ps_br(o, n, c, bigr)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def ps_ss(m1: Maybe<&2, M.Im>, m2: Maybe<&2, M.Im>) -> SS.Ss:
+  match m1:
+    case Some{a}:
+      match a:
+        case M.M_pl{+o, +n}: ps_b(o, n, m2)
+        case _: empty_ss()
+    case None{}: empty_ss()
+
+def is_plsp(g1: G.GVal, g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_pl{w1}:
+      match g2:
+        case G.GV_sp{w2}: True{}
+        case _: False{}
+    case _: False{}
+
+def ii_kind(+g1: G.GVal, +g2: G.GVal) -> U64:
+  Bool.pick(U64, stein_ok(g1, g2), 1u64, Bool.pick(U64, sc_ok(g1, g2), 2u64, Bool.pick(U64, sc_ok(g2, g1), 3u64,
+    Bool.pick(U64, is_plsp(g1, g2), 4u64, Bool.pick(U64, is_plsp(g2, g1), 5u64, 0u64)))))
+
+def ii_sel(+st: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
   match st:
-    case True{}: stein_ss(S.gv_im(g1), S.gv_im(g2))
-    case False{}: ii_go(S.gv_im(g1), S.gv_im(g2), bx)
+    case 1u64: stein_ss(S.gv_im(g1), S.gv_im(g2))
+    case 2u64: sc_ss(S.gv_im(g1), S.gv_im(g2))
+    case 3u64: sc_ss(S.gv_im(g2), S.gv_im(g1))
+    case 4u64: ps_ss(S.gv_im(g1), S.gv_im(g2))
+    case 5u64: ps_ss(S.gv_im(g2), S.gv_im(g1))
+    case _: ii_go(S.gv_im(g1), S.gv_im(g2), bx)
 
 def ss_route(k: U64, +g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> SS.Ss:
   match k:
     case 1u64: bi_go(bq_of_g(g1), S.gv_im(g2))
     case 2u64: bi_go(bq_of_g(g2), S.gv_im(g1))
     case 3u64: SS.trace(mk_bb(bq_of_g(g1), bq_of_g(g2)), 64n, [ud(1.0f64), ud(2.0f64), ud(3.0f64), ud(4.0f64)])
-    case _: ii_sel(stein_ok(g1, g2), g1, g2, bx)
+    case _: ii_sel(ii_kind(g1, g2), g1, g2, bx)
 
 def ss_kind(+g1: G.GVal, +g2: G.GVal) -> U64:
   Bool.pick(U64, is_bp(g1), Bool.pick(U64, is_bp(g2), 3u64, 1u64), Bool.pick(U64, is_bp(g2), 2u64, 0u64))

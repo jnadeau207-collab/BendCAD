@@ -1,6 +1,7 @@
 import Base
 import ../c01/types.bend as V
 import ../c03/types.bend as G
+import ../c03/ops.bend as GO
 import ../c04/types.bend as Ty
 import ../c06/iv.bend as I
 import ./sf.bend as S
@@ -483,13 +484,85 @@ def cone_va(+b: Ty.Brep, +fi: Nat, +s: S.SF, +c: V.Point) -> VA:
   +vol = F64.div(S.dot(S.psub(S.sf_o(s), c), j), 6.0f64)
   VA{vol, F64.abs(va_ar(raw)), va_slv(raw), va_sla(raw), va_ok(raw)}
 
-def face_kv(+cone: Bool, +b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
-  match cone:
-    case True{}: cone_va(b, fi, S.sf_of(FB.face_surf(b, fi)), c)
-    case False{}: face_va_go(b, fi, c)
+def cv_der(+g: G.GVal, +t: F64) -> V.Dir:
+  match g:
+    case G.GV_ln{w}: G.gres_d(GO.line_der(w))
+    case G.GV_cc{w}: G.gres_d(GO.circ_der(w, t))
+    case G.GV_rq{w}: G.gres_d(GO.rqb_der(w, t))
+    case G.GV_bz{w}: bz_der(G.GV_bz{w}, t)
+    case _: S.dr(0.0f64, 0.0f64, 0.0f64)
+
+def sph_node(+s: S.SF, +g: G.GVal, +t: F64) -> F64:
+  +d = S.psub(EF.ev(g, t), S.sf_o(s))
+  +dd = cv_der(g, t)
+  +x = S.dot(d, S.sf_e1(s))
+  +y = S.dot(d, S.sf_e2(s))
+  +rho2 = F64.add(F64.mul(x, x), F64.mul(y, y))
+  +thp = F64.div(F64.sub(F64.mul(x, S.dot(dd, S.sf_e2(s))), F64.mul(y, S.dot(dd, S.sf_e1(s)))), rho2)
+  Bool.pick(F64, F64.is_lt(0.0f64, rho2), F64.mul(F64.neg(S.dot(d, S.sf_a(s))), thp), 0.0f64)
+
+def sph_q(qs: List<&2, GQ>, +s: S.SF, +g: G.GVal, +m: F64, +hw: F64, +acc: F64) -> F64:
+  match qs:
+    case []: acc
+    case +q <> +t:
+      GQ{+x, +w} = q
+      sph_q(t, s, g, m, hw, F64.add(acc, F64.mul(F64.mul(w, hw), sph_node(s, g, F64.add(m, F64.mul(hw, x))))))
+
+def sph_sub(n: Nat, +s: S.SF, +g: G.GVal, +lo: F64, +dt: F64, +k: F64, +a8: F64, +a4: F64) -> V.Vec2:
+  match n:
+    case 0n: V.V2{a8, F64.abs(F64.sub(a8, a4))}
+    case 1n+m:
+      +c = F64.add(lo, F64.mul(F64.add(k, 0.5f64), dt))
+      +hw = F64.mul(0.5f64, dt)
+      sph_sub(m, s, g, lo, dt, F64.add(k, 1.0f64), F64.add(a8, sph_q(gl8(), s, g, c, hw, 0.0f64)),
+        F64.add(a4, sph_q(gl4(), s, g, c, hw, 0.0f64)))
+
+def sph_edge(+s: S.SF, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2:
+  +lo = EF.ek_lo(k)
+  +dt = F64.div(F64.sub(EF.ek_hi(k), lo), 8.0f64)
+  +r = sph_sub(8n, s, EF.ek_curve(k), lo, dt, 0.0f64, 0.0f64, 0.0f64)
+  V.V2{Bool.pick(F64, fw, V.v2_x(r), F64.neg(V.v2_x(r))), V.v2_y(r)}
+
+def sph_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +ed = FB.edge_at(b, FB.ce_e(h))
+      +fw = FB.ce_fw(h)
+      +k = Ty.ed_kind(ed)
+      +p0 = FB.vpt(b, Ty.ed_v0(ed))
+      +p1 = FB.vpt(b, Ty.ed_v1(ed))
+      +x = sph_edge(s, k, fw)
+      +sl = chord_maybe(U64.is_eq(ek_tag(k), 4u64), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
+      sph_ces(t, b, s, c, va_add(acc, va_add(VA{V.v2_y(x), V.v2_x(x), 0.0f64, 0.0f64, True{}}, sl)))
+
+def sph_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+  match ls:
+    case []: acc
+    case +h <> +t: sph_lps(t, b, s, c, sph_ces(h, b, s, c, acc))
+
+def sph_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+  +s = FB.face_sf(b, fi)
+  +r = S.sf_r(s)
+  +ls = FB.face_ce(b, fi)
+  +j = lps_j(ls, b, S.dr(0.0f64, 0.0f64, 0.0f64))
+  +raw = sph_lps(ls, b, s, c, va0())
+  +w = F64.abs(S.f_round(F64.div(FB.lps_turn(ls, s, b, 0.0f64), S.two_pi())))
+  +sg = Bool.pick(F64, FB.face_same(b, fi), 1.0f64, F64.neg(1.0f64))
+  +auv = F64.add(va_ar(raw), F64.mul(F64.mul(sg, w), F64.mul(S.two_pi(), r)))
+  +ar = F64.mul(r, auv)
+  +eu = F64.mul(r, va_vol(raw))
+  +vol = F64.add(F64.div(S.dot(S.psub(S.sf_o(s), c), j), 6.0f64), F64.div(F64.mul(r, ar), 3.0f64))
+  VA{vol, F64.abs(ar), F64.add(va_slv(raw), F64.div(F64.mul(r, eu), 3.0f64)), F64.add(eu, va_sla(raw)), va_ok(raw)}
+
+def face_kv(+kd: U64, +b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+  match kd:
+    case 3u64: cone_va(b, fi, S.sf_of(FB.face_surf(b, fi)), c)
+    case 4u64: sph_va(b, fi, c)
+    case _: face_va_go(b, fi, c)
 
 def face_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
-  face_kv(U64.is_eq(S.sf_kind(S.sf_of(FB.face_surf(b, fi))), S.k_cone()), b, fi, c)
+  face_kv(S.sf_kind(S.sf_of(FB.face_surf(b, fi))), b, fi, c)
 
 def faces_va(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: VA) -> VA:
   match fs:

@@ -75,9 +75,6 @@ def why_cert() -> U64:
 def why_kind() -> U64:
   73u64
 
-def why_nonaxis() -> U64:
-  74u64
-
 def is_zero_d(+d: V.Dir) -> Bool:
   Bool.and(F64.is_eq(S.dx(d), 0.0f64), Bool.and(F64.is_eq(S.dy(d), 0.0f64), F64.is_eq(S.dz(d), 0.0f64)))
 
@@ -90,38 +87,8 @@ def axis_aligned(+d: V.Dir) -> Bool:
 def cert_on2(+g1: G.GVal, +g2: G.GVal, +p: V.Point) -> Bool:
   Bool.and(EF.on_g(g1, p), EF.on_g(g2, p))
 
-def nudges() -> List<&2, F64>:
-  [0.0f64, 1.0f64, F64.neg(1.0f64), 2.0f64, F64.neg(2.0f64)]
-
-def nz_go(zs: List<&2, F64>, +g1: G.GVal, +g2: G.GVal, +x: F64, +y: F64, +z: F64, +uz: F64)
-    -> EF.CT:
-  match zs:
-    case []: EF.CT{False{}, 0.0f64, S.pt(x, y, z)}
-    case +h <> +t:
-      +q = S.pt(x, y, F64.add(z, F64.mul(h, uz)))
-      Bool.pick(EF.CT, cert_on2(g1, g2, q), EF.CT{True{}, 0.0f64, q}, nz_go(t, g1, g2, x, y, z, uz))
-
-def ny_go(ys: List<&2, F64>, +g1: G.GVal, +g2: G.GVal, +x: F64, +y: F64, +z: F64, +uy: F64,
-    +uz: F64) -> EF.CT:
-  match ys:
-    case []: EF.CT{False{}, 0.0f64, S.pt(x, y, z)}
-    case +h <> +t:
-      +r = nz_go(nudges(), g1, g2, x, F64.add(y, F64.mul(h, uy)), z, uz)
-      Bool.pick(EF.CT, EF.ct_ok(r), r, ny_go(t, g1, g2, x, y, z, uy, uz))
-
-def nx_go(xs: List<&2, F64>, +g1: G.GVal, +g2: G.GVal, +x: F64, +y: F64, +z: F64, +ux: F64,
-    +uy: F64, +uz: F64) -> EF.CT:
-  match xs:
-    case []: EF.CT{False{}, 0.0f64, S.pt(x, y, z)}
-    case +h <> +t:
-      +r = ny_go(nudges(), g1, g2, F64.add(x, F64.mul(h, ux)), y, z, uy, uz)
-      Bool.pick(EF.CT, EF.ct_ok(r), r, nx_go(t, g1, g2, x, y, z, ux, uy, uz))
-
 def cert_pt(+g1: G.GVal, +g2: G.GVal, +p: V.Point) -> EF.CT:
-  +x = S.px(p)
-  +y = S.py(p)
-  +z = S.pz(p)
-  nx_go(nudges(), g1, g2, x, y, z, EF.ulp_of(x), EF.ulp_of(y), EF.ulp_of(z))
+  EF.cert_gs([g1, g2], p)
 
 def snap_plane(+s: S.SF, +p: V.Point) -> V.Point:
   +n = S.sf_a(s)
@@ -216,12 +183,16 @@ def pc_two(+sp: S.SF, +sc: S.SF) -> IC:
   +l2 = S.padd(S.padd(o, F64.neg(s), w), F64.neg(delta), n)
   IC{ic_line(), G.GV_ln{G.Ln{l1, a}}, False{}, [l1, l2], 0u64}
 
+def pc_tan(+sp: S.SF, +sc: S.SF) -> IC:
+  +n = S.sf_a(sp)
+  +a = S.sf_a(sc)
+  IC{ic_line(), G.GV_ln{G.Ln{S.padd(S.sf_o(sc), F64.neg(pc_delta(sp, sc)), n), a}}, False{}, [], 0u64}
+
 def pc_disp(+code: U64, +sp: S.SF, +sc: S.SF, +gp: G.GVal, +gc: G.GVal) -> IC:
   match code:
-    case 0u64: refuse_ic(why_nonaxis())
     case 1u64: pc_circle(sp, sc)
     case 2u64: pc_two(sp, sc)
-    case 3u64: refuse_ic(why_tangent())
+    case 3u64: pc_tan(sp, sc)
     case 4u64: none_ic()
     case _: ell_go(nloop(), sp, sc, gp, gc, 0.0f64, F64.div(S.two_pi(), L.f64_of(nloop())), [], True{})
 
@@ -267,7 +238,6 @@ def pk_code(+sp: S.SF, +sk: S.SF) -> U64:
 
 def pk_disp(+code: U64, +sp: S.SF, +sk: S.SF, +gp: G.GVal, +gk: G.GVal) -> IC:
   match code:
-    case 0u64: refuse_ic(why_nonaxis())
     case 1u64: k_circ(sk, F64.div(S.dot(S.psub(S.sf_o(sp), S.sf_o(sk)), S.sf_a(sp)), S.dot(S.sf_a(sp), S.sf_a(sk))))
     case 2u64: pk_ell(nloop(), sp, sk, gp, gk, 0.0f64, F64.div(S.two_pi(), L.f64_of(nloop())), [], True{})
     case 3u64: refuse_ic(why_tangent())
@@ -303,29 +273,32 @@ def kk_go(+s1: S.SF, +s2: S.SF) -> IC:
     Bool.pick(IC, F64.is_eq(den, 0.0f64), Bool.pick(IC, F64.is_eq(x2, 0.0f64), IC{ic_coinc(), gnone(), False{}, [], 0u64}, none_ic()),
       Bool.pick(IC, hit, k_circ(s1, x), none_ic())))
 
-def disc(+s1: S.SF, +s2: S.SF, +th: F64) -> F64:
+def quad_of(+s1: S.SF, +s2: S.SF, +th: F64) -> V.Dir:
   +p0 = S.sf_at(s1, th, 0.0f64)
-  +a1 = S.sf_a(s1)
+  +w = S.sf_tan_v(s1, th)
   +a2 = S.sf_a(s2)
   +d = S.psub(p0, S.sf_o(s2))
-  +ca = S.dot(a1, a2)
-  +qa = F64.sub(1.0f64, F64.mul(ca, ca))
+  +kn = U64.is_eq(S.sf_kind(s2), S.k_cone())
+  +k = S.sf_r(s2)
+  +c = Bool.pick(F64, kn, F64.add(1.0f64, F64.mul(k, k)), Bool.pick(F64, S.is_sph(s2), 0.0f64, 1.0f64))
+  +e = Bool.pick(F64, kn, 0.0f64, F64.mul(k, k))
+  +ca = S.dot(w, a2)
+  +ww = Bool.pick(F64, U64.is_eq(S.sf_kind(s1), S.k_cone()), S.dot(w, w), 1.0f64)
+  +qa = F64.sub(ww, F64.mul(c, F64.mul(ca, ca)))
   +dh = S.dot(d, a2)
-  +qb = F64.mul(2.0f64, F64.sub(S.dot(d, a1), F64.mul(dh, ca)))
-  +qc = F64.sub(F64.sub(S.dot(d, d), F64.mul(dh, dh)), F64.mul(S.sf_r(s2), S.sf_r(s2)))
-  F64.sub(F64.mul(qb, qb), F64.mul(4.0f64, F64.mul(qa, qc)))
+  +qb = F64.mul(2.0f64, F64.sub(S.dot(d, w), F64.mul(c, F64.mul(dh, ca))))
+  +qc = F64.sub(F64.sub(S.dot(d, d), F64.mul(c, F64.mul(dh, dh))), e)
+  S.dr(qa, qb, qc)
+
+def disc(+s1: S.SF, +s2: S.SF, +th: F64) -> F64:
+  +q = quad_of(s1, s2, th)
+  F64.sub(F64.mul(S.dy(q), S.dy(q)), F64.mul(4.0f64, F64.mul(S.dx(q), S.dz(q))))
 
 def hroot(+s1: S.SF, +s2: S.SF, +th: F64, +plus: Bool) -> F64:
-  +p0 = S.sf_at(s1, th, 0.0f64)
-  +a1 = S.sf_a(s1)
-  +a2 = S.sf_a(s2)
-  +d = S.psub(p0, S.sf_o(s2))
-  +ca = S.dot(a1, a2)
-  +qa = F64.sub(1.0f64, F64.mul(ca, ca))
-  +dh = S.dot(d, a2)
-  +qb = F64.mul(2.0f64, F64.sub(S.dot(d, a1), F64.mul(dh, ca)))
-  +qc = F64.sub(F64.sub(S.dot(d, d), F64.mul(dh, dh)), F64.mul(S.sf_r(s2), S.sf_r(s2)))
-  +dd = F64.sqrt(F64.max(0.0f64, F64.sub(F64.mul(qb, qb), F64.mul(4.0f64, F64.mul(qa, qc)))))
+  +q = quad_of(s1, s2, th)
+  +qa = S.dx(q)
+  +qb = S.dy(q)
+  +dd = F64.sqrt(F64.max(0.0f64, F64.sub(F64.mul(qb, qb), F64.mul(4.0f64, F64.mul(qa, S.dz(q))))))
   F64.div(F64.add(F64.neg(qb), Bool.pick(F64, plus, dd, F64.neg(dd))), F64.mul(2.0f64, qa))
 
 def ccpt(+s1: S.SF, +s2: S.SF, +g1: G.GVal, +g2: G.GVal, +th: F64, +plus: Bool) -> EF.CT:
@@ -563,11 +536,89 @@ def cc_par(+s1: S.SF, +s2: S.SF) -> ICS:
     Bool.pick(ICS, F64.is_eq(r1, r2), ICS{[IC{ic_coinc(), gnone(), False{}, [], 0u64}], 0u64}, ICS{[], 0u64}),
     Bool.pick(ICS, F64.is_lt(0.0f64, y2),
       ICS{[IC{ic_line(), G.GV_ln{G.Ln{l1, a}}, False{}, [], 0u64}, IC{ic_line(), G.GV_ln{G.Ln{l2, a}}, False{}, [], 0u64}], 0u64},
-      Bool.pick(ICS, F64.is_eq(y2, 0.0f64), ICS{[], why_tangent()}, ICS{[], 0u64})))
+      Bool.pick(ICS, F64.is_eq(y2, 0.0f64), ICS{[IC{ic_line(), G.GV_ln{G.Ln{l1, a}}, False{}, [], 0u64}], 0u64}, ICS{[], 0u64})))
+
+def sp_circ(+c: V.Point, +n: V.Dir, +rho: F64) -> IC:
+  +e1 = S.perp_of(n)
+  IC{ic_circle(), G.GV_cc{G.Cc{c, e1, S.cross(n, e1), rho}}, True{}, [], 0u64}
+
+def q_ic(+q: F64, +ic: IC) -> IC:
+  Bool.pick(IC, F64.is_lt(0.0f64, q), ic, Bool.pick(IC, F64.is_eq(q, 0.0f64), refuse_ic(why_tangent()), none_ic()))
+
+def ps_go(+sp: S.SF, +ss: S.SF) -> IC:
+  +n = S.sf_a(sp)
+  +dl = S.dot(S.psub(S.sf_o(ss), S.sf_o(sp)), n)
+  +r = S.sf_r(ss)
+  +q = F64.mul(F64.add(r, dl), F64.sub(r, dl))
+  +e1 = S.sf_e1(sp)
+  q_ic(q, IC{ic_circle(), G.GV_cc{G.Cc{S.padd(S.sf_o(ss), F64.neg(dl), n), e1, S.cross(n, e1), F64.sqrt(F64.max(0.0f64, q))}}, True{}, [], 0u64})
+
+def sss_go(+s1: S.SF, +s2: S.SF) -> IC:
+  +v = S.psub(S.sf_o(s2), S.sf_o(s1))
+  +d = S.dlen(v)
+  +r1 = S.sf_r(s1)
+  +r2 = S.sf_r(s2)
+  +x = F64.div(F64.add(F64.mul(d, d), F64.mul(F64.add(r1, r2), F64.sub(r1, r2))), F64.mul(2.0f64, d))
+  +q = F64.mul(F64.add(r1, x), F64.sub(r1, x))
+  +u = S.dscale(F64.div(1.0f64, d), v)
+  Bool.pick(IC, F64.is_eq(d, 0.0f64),
+    Bool.pick(IC, F64.is_eq(r1, r2), IC{ic_coinc(), gnone(), False{}, [], 0u64}, none_ic()),
+    q_ic(q, sp_circ(S.padd(S.sf_o(s1), x, u), u, F64.sqrt(F64.max(0.0f64, q)))))
+
+def two_ics(+a: IC, +b: IC) -> ICS:
+  Bool.pick(ICS, U64.is_eq(ic_kind(a), ic_refuse()), ICS{[], ic_why(a)},
+    Bool.pick(ICS, U64.is_eq(ic_kind(a), ic_none()), ICS{[], 0u64}, ICS{[a, b], 0u64}))
+
+def cs_coax(+sc: S.SF, +ss: S.SF) -> ICS:
+  +a = S.sf_a(sc)
+  +hc = S.dot(S.psub(S.sf_o(ss), S.sf_o(sc)), a)
+  +rs = S.sf_r(ss)
+  +rc = S.sf_r(sc)
+  +q = F64.mul(F64.add(rs, rc), F64.sub(rs, rc))
+  +t = F64.sqrt(F64.max(0.0f64, q))
+  +o = S.sf_o(sc)
+  Bool.pick(ICS, F64.is_eq(q, 0.0f64), ICS{[sp_circ(S.padd(o, hc, a), a, rc)], 0u64},
+    two_ics(q_ic(q, sp_circ(S.padd(o, F64.add(hc, t), a), a, rc)), sp_circ(S.padd(o, F64.sub(hc, t), a), a, rc)))
+
+def cs_go(+sc: S.SF, +ss: S.SF, +gc: G.GVal, +gs: G.GVal) -> ICS:
+  Bool.pick(ICS, is_zero_d(S.cross(S.psub(S.sf_o(ss), S.sf_o(sc)), S.sf_a(sc))), cs_coax(sc, ss),
+    cc_skew_go(False{}, sc, ss, gc, gs))
+
+def ks_root(+k: F64, +hc: F64, +rs: F64, +plus: Bool) -> F64:
+  +qa = F64.add(1.0f64, F64.mul(k, k))
+  +qq = F64.sub(F64.mul(hc, hc), F64.mul(qa, F64.sub(F64.mul(hc, hc), F64.mul(rs, rs))))
+  +sq = F64.sqrt(F64.max(0.0f64, qq))
+  F64.div(F64.add(hc, Bool.pick(F64, plus, sq, F64.neg(sq))), qa)
+
+def ks_one(+sk: S.SF, +h: F64) -> IC:
+  Bool.pick(IC, F64.is_lt(0.0f64, F64.mul(S.sf_r(sk), h)), k_circ(sk, h), none_ic())
+
+def ks_list(+a: IC, +b: IC) -> ICS:
+  +la = Bool.pick(List<&2, IC>, U64.is_eq(ic_kind(a), ic_circle()), [a], [])
+  +lb = Bool.pick(List<&2, IC>, U64.is_eq(ic_kind(b), ic_circle()), [b], [])
+  ICS{List.append(&2, IC, la, lb), 0u64}
+
+def ks_go(+sk: S.SF, +ss: S.SF) -> ICS:
+  +a = S.sf_a(sk)
+  +ok = is_zero_d(S.cross(S.psub(S.sf_o(ss), S.sf_o(sk)), a))
+  +k = S.sf_r(sk)
+  +hc = S.dot(S.psub(S.sf_o(ss), S.sf_o(sk)), a)
+  +rs = S.sf_r(ss)
+  +qa = F64.add(1.0f64, F64.mul(k, k))
+  +qq = F64.sub(F64.mul(hc, hc), F64.mul(qa, F64.sub(F64.mul(hc, hc), F64.mul(rs, rs))))
+  Bool.pick(ICS, Bool.not(ok), ICS{[], why_kind()},
+    Bool.pick(ICS, F64.is_eq(qq, 0.0f64), ks_list(ks_one(sk, F64.div(hc, qa)), none_ic()),
+      Bool.pick(ICS, F64.is_lt(qq, 0.0f64), ICS{[], 0u64},
+        ks_list(ks_one(sk, ks_root(k, hc, rs, True{})), ks_one(sk, ks_root(k, hc, rs, False{}))))))
 
 def one(+c: IC) -> ICS:
   Bool.pick(ICS, U64.is_eq(ic_kind(c), ic_refuse()), ICS{[], ic_why(c)},
     Bool.pick(ICS, U64.is_eq(ic_kind(c), ic_none()), ICS{[], 0u64}, ICS{[c], 0u64}))
+
+def ck_ics(+co: Bool, +sc: S.SF, +sk: S.SF, +gc: G.GVal, +gk: G.GVal) -> ICS:
+  match co:
+    case True{}: one(Bool.pick(IC, U64.is_eq(S.sf_kind(sc), S.k_cone()), kk_go(sc, sk), ck_go(sc, sk)))
+    case False{}: cc_skew_go(False{}, sc, sk, gc, gk)
 
 def ln_of(+g: G.GVal) -> G.Line3:
   match g:
@@ -586,6 +637,9 @@ def pc_lines_d(+code: U64, +c: IC) -> ICS:
 def pc_lines(+c: IC) -> ICS:
   pc_lines_d(Bool.pick(U64, Bool.and(U64.is_eq(ic_kind(c), ic_line()), Nat.is_eq(List.length(&2, V.Point, ic_pts(c)), 2n)), 1u64, 0u64), c)
 
+def ks_sel(+sk: S.SF, +ss: S.SF, +gk: G.GVal, +gs: G.GVal) -> ICS:
+  Bool.pick(ICS, is_zero_d(S.cross(S.psub(S.sf_o(ss), S.sf_o(sk)), S.sf_a(sk))), ks_go(sk, ss), cc_skew_go(False{}, sk, ss, gk, gs))
+
 def ssi_disp(+code: U64, +s1: S.SF, +s2: S.SF, +g1: G.GVal, +g2: G.GVal) -> ICS:
   match code:
     case 0u64: one(pp_line(s1, s2))
@@ -595,10 +649,30 @@ def ssi_disp(+code: U64, +s1: S.SF, +s2: S.SF, +g1: G.GVal, +g2: G.GVal) -> ICS:
     case 4u64: cc_skew(s1, s2, g1, g2)
     case 5u64: one(pk_go(s1, s2, g1, g2))
     case 6u64: one(pk_go(s2, s1, g2, g1))
-    case 7u64: one(ck_go(s1, s2))
-    case 8u64: one(ck_go(s2, s1))
-    case 9u64: one(kk_go(s1, s2))
+    case 7u64: ck_ics(coax(S.sf_o(s1), S.sf_a(s1), S.sf_o(s2), S.sf_a(s2)), s1, s2, g1, g2)
+    case 8u64: ck_ics(coax(S.sf_o(s1), S.sf_a(s1), S.sf_o(s2), S.sf_a(s2)), s2, s1, g2, g1)
+    case 9u64: ck_ics(coax(S.sf_o(s1), S.sf_a(s1), S.sf_o(s2), S.sf_a(s2)), s1, s2, g1, g2)
+    case 11u64: one(ps_go(s1, s2))
+    case 12u64: one(ps_go(s2, s1))
+    case 13u64: one(sss_go(s1, s2))
+    case 14u64: cs_go(s1, s2, g1, g2)
+    case 15u64: cs_go(s2, s1, g2, g1)
+    case 16u64: ks_sel(s1, s2, g1, g2)
+    case 17u64: ks_sel(s2, s1, g2, g1)
     case _: ICS{[], why_kind()}
+
+def sp_code(+k1: U64, +k2: U64) -> U64:
+  +sp = S.k_sph()
+  +pl = S.k_plane()
+  +cy = S.k_cyl()
+  +co = S.k_cone()
+  Bool.pick(U64, Bool.and(U64.is_eq(k1, pl), U64.is_eq(k2, sp)), 11u64,
+    Bool.pick(U64, Bool.and(U64.is_eq(k1, sp), U64.is_eq(k2, pl)), 12u64,
+      Bool.pick(U64, Bool.and(U64.is_eq(k1, sp), U64.is_eq(k2, sp)), 13u64,
+        Bool.pick(U64, Bool.and(U64.is_eq(k1, cy), U64.is_eq(k2, sp)), 14u64,
+          Bool.pick(U64, Bool.and(U64.is_eq(k1, sp), U64.is_eq(k2, cy)), 15u64,
+            Bool.pick(U64, Bool.and(U64.is_eq(k1, co), U64.is_eq(k2, sp)), 16u64,
+              Bool.pick(U64, Bool.and(U64.is_eq(k1, sp), U64.is_eq(k2, co)), 17u64, 10u64)))))))
 
 def ssi_code(+s1: S.SF, +s2: S.SF) -> U64:
   +k1 = S.sf_kind(s1)
@@ -615,7 +689,7 @@ def ssi_code(+s1: S.SF, +s2: S.SF) -> U64:
             Bool.pick(U64, Bool.and(U64.is_eq(k1, co), U64.is_eq(k2, pl)), 6u64,
               Bool.pick(U64, Bool.and(U64.is_eq(k1, cy), U64.is_eq(k2, co)), 7u64,
                 Bool.pick(U64, Bool.and(U64.is_eq(k1, co), U64.is_eq(k2, cy)), 8u64,
-                  Bool.pick(U64, Bool.and(U64.is_eq(k1, co), U64.is_eq(k2, co)), 9u64, 10u64)))))))))
+                  Bool.pick(U64, Bool.and(U64.is_eq(k1, co), U64.is_eq(k2, co)), 9u64, sp_code(k1, k2))))))))))
 
 def ssi(+g1: G.GVal, +g2: G.GVal) -> ICS:
   +s1 = S.sf_of(g1)
