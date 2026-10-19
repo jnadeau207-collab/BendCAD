@@ -106,7 +106,7 @@
    0.09359613204786021
   ],
   "oracle": 0.09359613199288969,
-  "seconds": 0.38384509086608887,
+  "seconds": 0.4086487293243408,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {
@@ -152,6 +152,18 @@
   "exact": 98.69604401089359,
   "check": "ok: embedded, shells outward, cavities nested",
   "step": "1 98.69604744752468"
+ },
+ {
+  "name": "torus.oring_inexact",
+  "ok": true,
+  "ratio": 18.438931297709924,
+  "volume": [
+   818.2374901239446,
+   818.2374901260417
+  ],
+  "exact": 818.2374901249935,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 818.2375186163156"
  },
  {
   "name": "asm.step",

@@ -300,12 +300,16 @@ def pd_of(+x: S.Sx) -> PD:
 def presses(xs: List<&2, S.Sx>) -> List<&2, PD>:
   match xs:
     case []: []
-    case +h <> +t: Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> presses(t), presses(t))
+    case +h <> +t:
+      +r = presses(t)
+      Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> r, r)
 
 def unpressed(xs: List<&2, S.Sx>) -> List<&2, S.Sx>:
   match xs:
     case []: []
-    case +h <> +t: Bool.pick(List<&2, S.Sx>, is_press(h), unpressed(t), h <> unpressed(t))
+    case +h <> +t:
+      +r = unpressed(t)
+      Bool.pick(List<&2, S.Sx>, is_press(h), r, h <> r)
 
 def s_pre(a: String, b: String) -> Bool:
   match a b:

@@ -8,6 +8,7 @@ import ./ef.bend as EF
 import ./ss.bend as SS
 import ./fb.bend as FB
 import ./ls.bend as L
+import ../c03/ops.bend as GO
 
 type GV is Data:
   GV{ ps: List<&2, V.Point>, n: Nat }
@@ -153,14 +154,22 @@ def any_coplanar(fs: List<&2, Nat>, +b: Ty.Brep, +g: G.GVal, +p: V.Point) -> Boo
     case []: False{}
     case +h <> +t: Bool.or(on_cop(h, b, g, p), any_coplanar(t, b, g, p))
 
+def snap_t(+t0: F64, +lo: F64, +hi: F64, +ob: Ty.Brep, +fo: Nat, +b: Ty.Brep, +e: Nat) -> F64:
+  +ed = FB.edge_at(b, e)
+  +gs = FB.face_surf(ob, fo)
+  +eps = F64.mul(1.0e-9f64, F64.sub(hi, lo))
+  +nlo = Bool.and(F64.is_le(F64.abs(F64.sub(t0, lo)), eps), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v0(ed))))
+  +nhi = Bool.and(F64.is_le(F64.abs(F64.sub(t0, hi)), eps), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v1(ed))))
+  Bool.pick(F64, nlo, lo, Bool.pick(F64, nhi, hi, t0))
+
 def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +b: Ty.Brep, +lo: F64, +hi: F64,
     +st: HS) -> HS:
   match hs:
     case []: st
     case +h <> +t:
-      +tt = EF.eh_t(h)
-      +atend = Bool.or(F64.is_eq(tt, lo), F64.is_eq(tt, hi))
       +ed = FB.edge_at(b, e)
+      +tt = snap_t(EF.eh_t(h), lo, hi, ob, fo, b, e)
+      +atend = Bool.or(F64.is_eq(tt, lo), F64.is_eq(tt, hi))
       +p = Bool.pick(V.Point, atend, FB.vpt(b, Bool.pick(Ty.HVertex, F64.is_eq(tt, lo), Ty.ed_v0(ed), Ty.ed_v1(ed))), EF.eh_p(h))
       +flush = Bool.and(atend, any_coplanar(L.nat_range(FB.nfaces(b)), b, FB.face_surf(ob, fo), p))
       +bn = FB.bnd_near(ob, fo, p)
@@ -173,12 +182,32 @@ def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: Ty.Brep, +b
         HS{hs_hs(st), hs_g(st), ok, why})
       eh_keep(t, side, e, fo, ob, b, lo, hi, nst)
 
+def pl_off(+s: S.SF, +p: V.Point) -> F64:
+  F64.abs(S.dot(S.psub(p, S.sf_o(s)), S.sf_a(s)))
+
+def in_plane(+k: Ty.EdgeKind, +s: S.SF) -> Bool:
+  +c = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +d = F64.sub(hi, lo)
+  +p0 = EF.ev(c, lo)
+  +tol = F64.mul(1.0e-12f64, F64.add(1.0f64, S.dlen(S.psub(p0, S.sf_o(s)))))
+  +m = F64.max(F64.max(pl_off(s, p0), pl_off(s, EF.ev(c, hi))), F64.max(pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.5f64, d)))),
+    F64.max(pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.25f64, d)))), pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.75f64, d)))))))
+  Bool.and(U64.is_eq(S.sf_kind(s), S.k_plane()), F64.is_le(m, tol))
+
+def ef_hits(+inp: Bool, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +k: Ty.EdgeKind, +g: G.GVal, +st: HS) -> HS:
+  match inp:
+    case True{}: st
+    case False{}:
+      +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
+      +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
+      Bool.pick(HS, EF.ehs_near(r), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
+
 def ef_one(+side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +st: HS) -> HS:
   +k = Ty.ed_kind(FB.edge_at(b, e))
   +g = FB.face_surf(ob, fo)
-  +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
-  +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
-  Bool.pick(HS, EF.ehs_near(r), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
+  ef_hits(in_plane(k, S.sf_of(g)), side, e, b, ob, fo, k, g, st)
 
 def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
   match fs:

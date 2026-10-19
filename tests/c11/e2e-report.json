@@ -1,5 +1,5 @@
 {
- "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
+ "binary_sha256": "61031a378d605ee625830db3ed8dbe62f443b1ef6783d555870bf2ad14ee2e70",
  "passed": 33,
  "total": 33,
  "results": [
@@ -98,7 +98,7 @@
      41278.703545005876
     ]
    ],
-   "seconds": 0.72
+   "seconds": 0.71
   },
   {
    "name": "mass.depths",
@@ -110,8 +110,8 @@
    },
    "seconds": {
     "2": 0.02,
-    "3": 0.11,
-    "4": 0.75
+    "3": 0.12,
+    "4": 0.82
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 42.2
+   "seconds": 43.2
   },
   {
    "name": "mass.moved_invariance",
@@ -234,7 +234,7 @@
      132.75000000019205
     ]
    ],
-   "seconds": 2.7
+   "seconds": 2.4
   },
   {
    "name": "mass.sphere",
@@ -287,7 +287,7 @@
    },
    "samples": 512,
    "on_circle": 512,
-   "seconds": 0.1
+   "seconds": 0.0
   },
   {
    "name": "section.box_estimated",
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 190.2
+   "seconds": 173.5
   },
   {
    "name": "section.mapped",
@@ -313,7 +313,7 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 221.7
+   "seconds": 199.0
   },
   {
    "name": "section.coin",
@@ -350,7 +350,7 @@
    "name": "interf.aabb_trap",
    "ok": true,
    "line": "relation disjoint status=certified",
-   "seconds": 16.5
+   "seconds": 15.4
   },
   {
    "name": "interf.cavity",

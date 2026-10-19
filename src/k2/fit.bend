@@ -81,7 +81,10 @@ def nat_of(+s: String) -> Nat:
 def split_slash(s: String, +acc: String) -> List<&2, String>:
   match s:
     case SNil{}: [acc]
-    case SCon{+h, +t}: Bool.pick(List<&2, String>, U32.is_eq(S.chr_code(h), 47), acc <> split_slash(t, ""), split_slash(t, acc ++ SCon{h, ""}))
+    case SCon{+h, +t}:
+      +sep = U32.is_eq(S.chr_code(h), 47)
+      +r = split_slash(t, Bool.pick(String, sep, "", acc ++ SCon{h, ""}))
+      Bool.pick(List<&2, String>, sep, acc <> r, r)
 
 def hole_ok(+l: String) -> Bool:
   Bool.or(Bool.or(Bool.or(String.eq(l, "D"), String.eq(l, "E")), Bool.or(String.eq(l, "F"), String.eq(l, "G"))), Bool.or(String.eq(l, "H"), String.eq(l, "JS")))

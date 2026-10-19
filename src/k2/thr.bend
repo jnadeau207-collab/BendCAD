@@ -63,7 +63,10 @@ def f_at(xs: List<&2, F64>, +i: Nat) -> F64:
 def split_x(s: String, +acc: String) -> List<&2, String>:
   match s:
     case SNil{}: [acc]
-    case SCon{+h, +t}: Bool.pick(List<&2, String>, U32.is_eq(S.chr_code(h), 120), acc <> split_x(t, ""), split_x(t, acc ++ SCon{h, ""}))
+    case SCon{+h, +t}:
+      +sep = U32.is_eq(S.chr_code(h), 120)
+      +r = split_x(t, Bool.pick(String, sep, "", acc ++ SCon{h, ""}))
+      Bool.pick(List<&2, String>, sep, acc <> r, r)
 
 def s_tail(s: String) -> String:
   match s:
