@@ -325,11 +325,16 @@ def pcg(n: Nat, done: Bool, +fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +
         +rz2 = dot_l(r2, z2, 0.0f64)
         pcg(m, F64.is_lt(F64.sqrt(dot_l(r2, r2, 0.0f64)), tol), fm, mask, pc, x2, r2, axpy(F64.div(rz2, rz), p, z2), rz2, tol)
 
-def solve(+fm: FM, +mask: List<&2, F64>, +b: List<&2, F64>, +iters: Nat, +tol: F64) -> List<&2, F64>:
-  +pc = hadam(mask, inv_d(mask, k_diag(fm)))
-  +r = hadam(mask, b)
+def solve_from(+fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +b: List<&2, F64>, +x0: List<&2, F64>, +iters: Nat, +tol: F64) -> List<&2, F64>:
+  +r = axpy(F64.neg(1.0f64), k_m(fm, mask, x0), hadam(mask, b))
   +z = hadam(pc, r)
-  pcg(iters, False{}, fm, mask, pc, scale(0.0f64, r), r, z, dot_l(r, z, 0.0f64), tol)
+  pcg(iters, False{}, fm, mask, pc, x0, r, z, dot_l(r, z, 0.0f64), tol)
+
+def precond(+fm: FM, +mask: List<&2, F64>) -> List<&2, F64>:
+  hadam(mask, inv_d(mask, k_diag(fm)))
+
+def solve(+fm: FM, +mask: List<&2, F64>, +b: List<&2, F64>, +iters: Nat, +tol: F64) -> List<&2, F64>:
+  solve_from(fm, mask, precond(fm, mask), b, scale(0.0f64, b), iters, tol)
 
 def ncmp2(+a: Nat, +b: Nat) -> B.Sgn:
   B.sgn_pick(Nat.is_lt(a, b), Nat.is_lt(b, a))
@@ -586,10 +591,23 @@ def morth(ys: List<&2, List<&2, F64>>, +fm: FM, +mask: List<&2, F64>, +acc: QS) 
       +k = F64.div(1.0f64, F64.sqrt(dot_l(z, mz, 0.0f64)))
       morth(t, fm, mask, QS{List.append(&2, List<&2, F64>, qs, [scale(k, z)]), List.append(&2, List<&2, F64>, mqs, [scale(k, mz)])})
 
-def solves(xs: List<&2, List<&2, F64>>, +fm: FM, +mask: List<&2, F64>, +tol: F64) -> List<&2, List<&2, F64>>:
+def hd_f(xs: List<&2, F64>) -> F64:
+  match xs:
+    case []: 0.0f64
+    case +h <> +t: h
+
+def tl_f(xs: List<&2, F64>) -> List<&2, F64>:
   match xs:
     case []: []
-    case +x <> +t: solve(fm, mask, m_m(fm, mask, x), 3000n, F64.mul(tol, F64.sqrt(dot_l(x, x, 0.0f64)))) <> solves(t, fm, mask, tol)
+    case +h <> +t: t
+
+def solves(xs: List<&2, List<&2, F64>>, +lam: List<&2, F64>, +fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +tol: F64) -> List<&2, List<&2, F64>>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      +l = hd_f(lam)
+      +x0 = scale(Bool.pick(F64, F64.is_lt(0.0f64, l), F64.div(1.0f64, l), 0.0f64), x)
+      solve_from(fm, mask, pc, m_m(fm, mask, x), x0, 3000n, F64.mul(tol, F64.sqrt(dot_l(x, x, 0.0f64)))) <> solves(t, tl_f(lam), fm, mask, pc, tol)
 
 def k_all(qs: List<&2, List<&2, F64>>, +fm: FM, +mask: List<&2, F64>) -> List<&2, List<&2, F64>>:
   match qs:
@@ -650,4 +668,4 @@ def sub_it(n: Nat, +fm: FM, +mask: List<&2, F64>, +k: Nat, +s: SI) -> SI:
     case 0n: s
     case 1n+m:
       SI{+xs, +lam} = s
-      sub_it(m, fm, mask, k, si_qs(morth(solves(xs, fm, mask, 1.0e-9f64), fm, mask, QS{[], []}), fm, mask, k))
+      sub_it(m, fm, mask, k, si_qs(morth(solves(xs, lam, fm, mask, precond(fm, mask), 1.0e-9f64), fm, mask, QS{[], []}), fm, mask, k))
