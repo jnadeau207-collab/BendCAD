@@ -1555,8 +1555,7 @@ def tor_ex(+s: G.Torus, +q: V.Point) -> E.Ex:
   +d2 = e3_sq(m)
   +w = E.ex_sub(E.ex_add(d2, f_sq(R)), f_sq(r))
   E.ex_sub(E.ex_mul(aa, E.ex_mul(w, w)),
-    E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)),
-      F64.mul(4.0f64, F64.mul(R, R))))
+    E.ex_scale(E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)), R), F64.mul(4.0f64, R)))
 
 def ex_cr(+ax: E.Ex, +ay: E.Ex, +az: E.Ex, +bx: E.Ex, +by: E.Ex, +bz: E.Ex) -> E3:
   E3{E.ex_sub(E.ex_mul(ay, bz), E.ex_mul(az, by)), E.ex_sub(E.ex_mul(az, bx), E.ex_mul(ax, bz)),

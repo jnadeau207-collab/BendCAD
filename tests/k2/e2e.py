@@ -245,10 +245,10 @@ def mesh_involute():
 
 
 def thin_tori():
-    out, _ = fresh('or.bcd', f'(node 1 (torus 30 1.5) {IC})', f'(node 2 (torus 20 0.5) {IC})',
-                   '(material 1 NBR70 1250 2.3e-4)', '(material 2 1.4310 7900 1.6e-5)')
+    out, _ = fresh('or.bcd', f'(node 1 (torus 30 1.5) {IC})', f'(node 2 (torus 20 0.5) {IC})', f'(node 3 (torus 24.155 1.31) {IC})',
+                   '(material 1 NBR70 1250 2.3e-4)', '(material 2 1.4310 7900 1.6e-5)', '(material 3 NBR70 1250 2.3e-4)')
     ev, _ = cli('or.bcd', 'eval')
-    for node, big, r, rho, tag in ((1, 30.0, 1.5, 1250, 'oring'), (2, 20.0, 0.5, 7900, 'garter')):
+    for node, big, r, rho, tag in ((1, 30.0, 1.5, 1250, 'oring'), (2, 20.0, 0.5, 7900, 'garter'), (3, 24.155, 1.31, 1250, 'oring_inexact')):
         v = 2 * math.pi ** 2 * big * r * r
         line = next((ln for ln in ev.splitlines() if ln.startswith(f'node {node}:')), '')
         ck, _ = cli('or.bcd', 'check', str(node))

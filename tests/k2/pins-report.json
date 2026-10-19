@@ -94,5 +94,9 @@
  {
   "name": "s7_at_100",
   "ok": true
+ },
+ {
+  "name": "torus_inexact_radius_vertex_on",
+  "ok": true
  }
 ]
