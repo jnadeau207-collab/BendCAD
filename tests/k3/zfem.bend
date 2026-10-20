@@ -50,12 +50,14 @@ def fin(+s: F.SI) -> String:
   F.SI{+x, +lam} = s
   hz(lam)
 
-def run(+mh: F.MH) -> String:
+def run(+mh: F.MH, +it: Nat) -> String:
   F.MH{+nn, +es, +xs} = mh
   +fm = F.fm_of(nn, es, 200000.0f64, 0.3f64, 7.85e-9f64)
   +mask = mask_of(xs)
   +n = Nat.mul(U32.to_nat(nn), 3n)
-  "nodes " ++ U32.show(nn) ++ " hz " ++ fin(F.sub_it(12n, fm, mask, 6n, F.SI{starts(6n, n, 1.0f64), []}))
+  "nodes " ++ U32.show(nn) ++ " hz " ++ fin(F.lobpcg(it, fm, mask, 6n, starts(6n, n, 1.0f64)))
 
-def main() -> String:
-  run(F.box_mesh(100.0f64, 10.0f64, 10.0f64, 20n, 2n, 2n))
+def main() -> IO(Unit):
+  do IO<Unit>:
+    args : List<String> <- IO.args()
+    IO.print(run(F.box_mesh(100.0f64, 10.0f64, 10.0f64, 20n, 2n, 2n), U64.to_nat(U64.from_nat(List.length(&1, String, args)))))
