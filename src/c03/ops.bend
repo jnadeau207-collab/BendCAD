@@ -1555,8 +1555,7 @@ def tor_ex(+s: G.Torus, +q: V.Point) -> E.Ex:
   +d2 = e3_sq(m)
   +w = E.ex_sub(E.ex_add(d2, f_sq(R)), f_sq(r))
   E.ex_sub(E.ex_mul(aa, E.ex_mul(w, w)),
-    E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)),
-      F64.mul(4.0f64, F64.mul(R, R))))
+    E.ex_scale(E.ex_scale(E.ex_sub(E.ex_mul(aa, d2), E.ex_mul(am, am)), R), F64.mul(4.0f64, R)))
 
 def ex_cr(+ax: E.Ex, +ay: E.Ex, +az: E.Ex, +bx: E.Ex, +by: E.Ex, +bz: E.Ex) -> E3:
   E3{E.ex_sub(E.ex_mul(ay, bz), E.ex_mul(az, by)), E.ex_sub(E.ex_mul(az, bx), E.ex_mul(ax, bz)),
@@ -1661,6 +1660,32 @@ def q_on_r_go(ok: Bool, +s: G.GVal, +q: V.Point) -> Bool:
 
 def q_on_r(+s: G.GVal, +q: V.Point) -> Bool:
   q_on_r_go(Bool.and(q_valid(s), V.pt_fin(q)), s, q)
+
+def nbs_h(+x: F64, +h: F64) -> List<&2, F64>:
+  [F64.sub(x, h), F64.add(x, h)]
+
+def h_of(+q: V.Point) -> F64:
+  V.Pt{+x, +y, +z} = q
+  +m = F64.max(F64.abs(x), F64.max(F64.abs(y), F64.abs(z)))
+  F64.sub(E.f64_next_up(m), m)
+
+def corners_h(+q: V.Point, +h: F64) -> List<&2, V.Point>:
+  V.Pt{+x, +y, +z} = q
+  cx_go(nbs_h(x, h), nbs_h(y, h), nbs_h(z, h), [])
+
+def rep_h(s0: P.Sgn, +s: G.GVal, +q: V.Point) -> Bool:
+  match s0:
+    case P.Sz{}: True{}
+    case P.Su{}: False{}
+    case _: opp_go(corners_h(q, h_of(q)), s, s0, False{})
+
+def q_on_s_go(ok: Bool, +s: G.GVal, +q: V.Point) -> Bool:
+  match ok:
+    case True{}: rep_h(E.ex_sign(q_ex(s, q)), s, q)
+    case False{}: False{}
+
+def q_on_s(+s: G.GVal, +q: V.Point) -> Bool:
+  Bool.or(q_on_r(s, q), q_on_s_go(Bool.and(q_valid(s), V.pt_fin(q)), s, q))
 
 def tseg_eval_go(+a: V.Vec2, +b: V.Vec2, +t: F64, fin: Bool,
     dom: Bool) -> G.GRes:

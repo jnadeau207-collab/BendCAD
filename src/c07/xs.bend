@@ -693,7 +693,8 @@ def drop_in(hs: List<&2, Hit>, +all: List<&2, Hit>) -> List<&2, Hit>:
     case h <> +t:
       match h:
         case H_pt{+s, +tt, +p, +c}:
-          Bool.pick(List<&2, Hit>, pt_in(s, all), drop_in(t, all), H_pt{s, tt, p, c} <> drop_in(t, all))
+          +r = drop_in(t, all)
+          Bool.pick(List<&2, Hit>, pt_in(s, all), r, H_pt{s, tt, p, c} <> r)
         case H_ov{+s, +tt}: H_ov{s, tt} <> drop_in(t, all)
         case H_un{+s, +tt, +p}: H_un{s, tt, p} <> drop_in(t, all)
         case H_no{+w}: H_no{w} <> drop_in(t, all)

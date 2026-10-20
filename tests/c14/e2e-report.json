@@ -1,5 +1,5 @@
 {
- "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
+ "binary_sha256": "26d2c36723656aa7aa0cdb4fc0e8dd1cc1c9cb2286c9425f1a886f50f9ccca00",
  "passed": 16,
  "total": 16,
  "results": [
@@ -105,14 +105,14 @@
   {
    "name": "interf.overlap",
    "ok": true,
-   "seconds": 0.29,
+   "seconds": 0.65,
    "detail": "assembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
   },
   {
    "name": "interf.touch",
    "ok": true,
-   "seconds": 7.17,
-   "detail": "assembly pairs ninst 2\npair a b\nrelation uncertain status=estimated a:in=0 out=29 uncertain=1 b:in=0 out=17 uncertain=13 boxes-overlap=1\n\n"
+   "seconds": 4.0,
+   "detail": "assembly pairs ninst 2\npair a b\nrelation disjoint status=certified method=exact-intersection\n\n"
   },
   {
    "name": "clear.certified",
@@ -126,7 +126,7 @@
   {
    "name": "clear.interference",
    "ok": true,
-   "seconds": 0.28,
+   "seconds": 0.44,
    "detail": "assembly pairs ninst 2\npair a b\nclearance 0 status=certified state=interference\n\n"
   },
   {
@@ -181,7 +181,7 @@
     "plane",
     "plane"
    ],
-   "seconds": 0.02,
+   "seconds": 0.03,
    "detail": "c.n2.c0.top plane loops=2\nc.n2.c0.bottom plane loops=2\nc.n2.c0.wall.0.0 plane loops=1\nc.n2.c0.wall.1.0 plane loops=1\nc.n2.c0.wall.2.0 plane loops=1\nc.n2.c0.wall.3.0 plane loops=1\nc.n3.c0.wall.0.0 cylinder loops=2\n\n"
   },
   {
@@ -197,7 +197,7 @@
     3.0,
     3.0
    ],
-   "seconds": 0.17,
+   "seconds": 0.46,
    "detail": "BEFORE:\nassembly pairs ninst 2\npair a b\nrelation disjoint status=certified\n\n\nAFTER:\nassembly pairs ninst 2\npair a b\nrelation interference status=certified witness=subdiv\n\n"
   },
   {

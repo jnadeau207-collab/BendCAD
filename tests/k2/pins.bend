@@ -1,6 +1,7 @@
 import Base
 import ../../src/c01/types.bend as V
 import ../../src/c03/types.bend as G
+import ../../src/c03/ops.bend as GO
 import ../../src/k1/sf.bend as KS
 import ../../src/k2/fit.bend as F
 import ../../src/k2/thr.bend as KT
@@ -175,3 +176,9 @@ def bowed_bezier_is_curved__got() -> Bool:
 
 def bowed_bezier_is_curved__want() -> Bool:
   False{}
+
+def torus_inexact_radius_vertex_on__got() -> Bool:
+  GO.q_on_r(G.GV_to{G.To{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 4.1f64, 1.0f64}}, V.Pt{4.1f64, 0.0f64, 1.0f64})
+
+def torus_inexact_radius_vertex_on__want() -> Bool:
+  True{}

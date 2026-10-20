@@ -4,6 +4,7 @@ import ../c01/types.bend as V
 import ../c04/types.bend as Ty
 import ../c06/iv.bend as I
 import ../c06/model.bend as M
+import ../c06/sx.bend as SX
 import ../c07/sol.bend as SO
 import ../c07/emb.bend as EM
 import ../c07/ivx.bend as X
@@ -288,12 +289,43 @@ def rel_verdict(+box_dis: Bool, +ov: Bool, +ainb: Bool, +bina: Bool, +aa: Ag, +b
   Ag{+ai, +ao, +au} = aa
   rel_vb(box_dis, ov, ainb, bina, ai, ao, au, bb)
 
+def rel_sample(+a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  wit_line(wit_go(True{}, a, b, wa, wb),
+    rel_verdict(False{}, shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), ag_of(b, sms_of(a)), ag_of(a, sms_of(b))))
+
+def s_pre(a: String, b: String) -> Bool:
+  match a b:
+    case SNil{} SNil{}: True{}
+    case SNil{} SCon{bh, bt}: False{}
+    case SCon{ah, at} SNil{}: True{}
+    case SCon{ah, at} SCon{bh, bt}: Bool.and(U32.is_eq(SX.chr_code(ah), SX.chr_code(bh)), s_pre(at, bt))
+
+def iv_txt(+v: I.I) -> String:
+  "[" ++ F64.show(I.i_lo(v)) ++ ", " ++ F64.show(I.i_hi(v)) ++ "]"
+
+def ex_hit(+smp: String, +vol: I.I, +proof: String) -> String:
+  Bool.pick(String, s_pre(smp, "relation uncertain"),
+    "relation interference status=certified method=exact-intersection volume=" ++ iv_txt(vol) ++ " " ++ proof,
+    smp)
+
+def ex_some(empty: Bool, +vol: I.I, +proof: String, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  match empty:
+    case True{}: "relation disjoint status=certified method=exact-intersection"
+    case False{}: ex_hit(rel_sample(a, b, wa, wb), vol, proof)
+
+def ex_sel(ok: Bool, +vol: I.I, +proof: String, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  match ok:
+    case False{}: rel_sample(a, b, wa, wb)
+    case True{}: ex_some(F64.is_le(I.i_hi(vol), 0.0f64), vol, proof, a, b, wa, wb)
+
+def ex_go(r: BO.Out, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, +proof, del} = r
+  ex_sel(ok, vol, proof, a, b, wa, wb)
+
 def rel_pair_go(dis: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
   match dis:
     case True{}: "relation disjoint status=certified"
-    case False{}:
-      wit_line(wit_go(True{}, a, b, wa, wb),
-        rel_verdict(False{}, shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), ag_of(b, sms_of(a)), ag_of(a, sms_of(b))))
+    case False{}: ex_go(BO.run(BO.tag_inter(), M.bool_in(a), M.bool_in(b), 0u64, 0u64, 0u64, False{}), a, b, wa, wb)
 
 def cav_boxes(+fs: List<&2, SO.Fd>, +s: Nat, +p: M.Pl, +wb: QA.Ab) -> List<&2, QA.Ab>:
   cav_boxes_go(SO.of_sh(fs, s), p, wb)

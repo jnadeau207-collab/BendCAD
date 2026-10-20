@@ -98,12 +98,79 @@ def surf_box(s: M.Im, +bx: List<&2, I.I>) -> List<&2, I.I>:
       axial_box(o, a, bx, rho, h)
     case M.M_to{o, a, bigr, r}: ball(o, I.iadd(bigr, r))
 
+def iz(+x: I.I) -> Bool:
+  Bool.and(F64.is_eq(I.i_lo(x), 0.0f64), F64.is_eq(I.i_hi(x), 0.0f64))
+
+def axis_k(+a: List<&2, I.I>) -> Nat:
+  +z0 = iz(X.vn(a, 0n))
+  +z1 = iz(X.vn(a, 1n))
+  +z2 = iz(X.vn(a, 2n))
+  Bool.pick(Nat, Bool.and(z1, z2), 0n, Bool.pick(Nat, Bool.and(z0, z2), 1n, Bool.pick(Nat, Bool.and(z0, z1), 2n, 3n)))
+
+def ek(+k: Nat, +v: I.I) -> List<&2, I.I>:
+  [Bool.pick(I.I, Nat.is_eq(k, 0n), v, I.ipt(0.0f64)), Bool.pick(I.I, Nat.is_eq(k, 1n), v, I.ipt(0.0f64)),
+    Bool.pick(I.I, Nat.is_eq(k, 2n), v, I.ipt(0.0f64))]
+
+def crit_k(+o: List<&2, I.I>, +i: Nat, +p: I.I, +q: I.I) -> List<&2, List<&2, I.I>>:
+  [X.vadd(o, ek(i, p)), X.vsub(o, ek(i, p)), X.vadd(o, ek(i, q)), X.vsub(o, ek(i, q))]
+
+def crit(+o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I) -> List<&2, List<&2, I.I>>:
+  +p = I.iadd(bigr, r)
+  +q = I.isub(bigr, r)
+  List.append(&2, List<&2, I.I>, crit_k(o, Nat.mod(Nat.add(k, 1n), 3n), p, q), crit_k(o, Nat.mod(Nat.add(k, 2n), 3n), p, q))
+
+def cr_box(ps: List<&2, List<&2, I.I>>, +fc: Mm.Fc, +nf: M.Im, +acc: List<&2, I.I>) -> List<&2, I.I>:
+  match ps:
+    case []: acc
+    case +p <> t: cr_box(t, fc, nf, Bool.pick(List<&2, I.I>, U64.is_eq(Mm.member(fc, p, nf), 0u64), acc, X.vhull(acc, p)))
+
+def ax_slab(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
+  +w = I.ihull(I.isub(X.vn(o, k), r), I.iadd(X.vn(o, k), r))
+  [Bool.pick(I.I, Nat.is_eq(k, 0n), I.ihull(X.vn(b, 0n), w), X.vn(b, 0n)), Bool.pick(I.I, Nat.is_eq(k, 1n), I.ihull(X.vn(b, 1n), w), X.vn(b, 1n)),
+    Bool.pick(I.I, Nat.is_eq(k, 2n), I.ihull(X.vn(b, 2n), w), X.vn(b, 2n))]
+
+def rad_k(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +i: Nat, +r: I.I) -> I.I:
+  Bool.pick(I.I, Nat.is_eq(i, k), X.vn(b, i), I.ihull(X.vn(b, i), I.ihull(I.isub(X.vn(o, i), r), I.iadd(X.vn(o, i), r))))
+
+def bx_m(xs: List<&2, I.I>, +m: F64) -> F64:
+  match xs:
+    case []: m
+    case +x <> t: bx_m(t, F64.max(m, F64.max(F64.abs(I.i_lo(x)), F64.abs(I.i_hi(x)))))
+
+def bx_pad_go(xs: List<&2, I.I>, +w: F64) -> List<&2, I.I>:
+  match xs:
+    case []: []
+    case +x <> t: I.iwiden(x, w) <> bx_pad_go(t, w)
+
+def bx_pad(+b: List<&2, I.I>) -> List<&2, I.I>:
+  bx_pad_go(b, F64.mul(F64.add(1.0f64, bx_m(b, 0.0f64)), 9.094947017729282e-13f64))
+
+def cy_box(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
+  bx_pad([rad_k(b, o, k, 0n, r), rad_k(b, o, k, 1n, r), rad_k(b, o, k, 2n, r)])
+
+def to_box_go(ax: Bool, +o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im) -> List<&2, I.I>:
+  match ax:
+    case False{}: ball(o, I.iadd(bigr, r))
+    case True{}: bx_pad(cr_box(crit(o, k, bigr, r), fc, nf, ax_slab(eb, o, k, r)))
+
+def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc) -> List<&2, I.I>:
+  match s:
+    case M.M_to{+o, +a, +bigr, +r}:
+      +k = axis_k(a)
+      to_box_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), o, k, bigr, r, bx, fc, M.M_to{o, a, bigr, r})
+    case M.M_cy{+o, +a, +r}:
+      +k = axis_k(a)
+      Bool.pick(List<&2, I.I>, Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), cy_box(bx, o, k, r),
+        surf_box(M.M_cy{o, a, r}, bx))
+    case _: surf_box(s, bx)
+
 def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat, +slv: F64) -> Fd:
   match m:
     case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea), Mm.Uv_no{}}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
     case Some{+im}:
       +es = ea_es(ea)
-      Fd{Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)}, [s], surf_box(im, eb_go(es, [])), ea_ok(ea), sh, fi}
+      +fc = {Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)} : Mm.Fc}
+      Fd{fc, [s], fbox(im, eb_go(es, []), fc), ea_ok(ea), sh, fi}
 
 def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
   Ty.Fa{g, +s, ls, same, +slv, sla} = f

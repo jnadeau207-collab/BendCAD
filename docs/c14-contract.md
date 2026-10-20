@@ -91,7 +91,14 @@ refusal on the solve path refuses the query the same way.
   rendered `pair <a> <b>` plus `relation disjoint|interference status=
   certified ...` or the honest `relation uncertain status=estimated
   ...`. Touching boxes report what C11 reports; claiming no interference
-  the kernel cannot certify is forbidden.
+  the kernel cannot certify is forbidden. Since K2, C11 decides
+  overlapping boxes with the exact boolean intersection of the placed
+  solids first: `relation disjoint status=certified
+  method=exact-intersection` when it is empty (disjoint interiors: seated
+  seals, faces in contact); otherwise the sampled verdict stands, and an
+  uncertain one becomes certified interference with the volume interval.
+  A declared press with named faces reports `witness=press radial=` on
+  certified interference too.
 - `clear`: every pair through C11 `QD.clear_s`, rendered `clearance
   [<lo>, <hi>] estimated lo=certified ...` or `clearance 0 status=
   certified state=interference`.

@@ -169,9 +169,15 @@ def cn_n(c: Cn) -> Nat:
   Cn{n, u} = c
   n
 
+def opp_side(l: Lg, +c: R.Cv) -> Bool:
+  match l:
+    case L_mer{k, +x, +mq, h1, h2}: U64.is_eq(sgn(X.vdot(radial(x, R.cv_box(c, I.I{0.0f64, 1.0f64})), mq)), 2u64)
+    case L_tube{k, +x, +mq, cq, wq, wr, b}: U64.is_eq(sgn(X.vdot(radial(x, R.cv_box(c, I.I{0.0f64, 1.0f64})), mq)), 2u64)
+    case _: False{}
+
 def edge_cn(fl: Bool, +c: R.Cv, +l: Lg, +self: Bool, +tau: F64, +acc: Cn) -> Cn:
   match fl:
-    case True{}: Cn{cn_n(acc), True{}}
+    case True{}: Bool.pick(Cn, opp_side(l, c), acc, Cn{cn_n(acc), True{}})
     case False{}: roots_go(N.solve_ew(40n, 4096u64, mk_ci(c, lg_cut(l)), [I.I{0.0f64, 1.0f64}]), c, l, self, tau, acc)
 
 def count_go(es: List<&2, Er>, +l: Lg, +ri: Nat, +tau: F64, +i: Nat, +acc: Cn) -> Cn:

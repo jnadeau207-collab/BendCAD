@@ -300,12 +300,16 @@ def pd_of(+x: S.Sx) -> PD:
 def presses(xs: List<&2, S.Sx>) -> List<&2, PD>:
   match xs:
     case []: []
-    case +h <> +t: Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> presses(t), presses(t))
+    case +h <> +t:
+      +r = presses(t)
+      Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> r, r)
 
 def unpressed(xs: List<&2, S.Sx>) -> List<&2, S.Sx>:
   match xs:
     case []: []
-    case +h <> +t: Bool.pick(List<&2, S.Sx>, is_press(h), unpressed(t), h <> unpressed(t))
+    case +h <> +t:
+      +r = unpressed(t)
+      Bool.pick(List<&2, S.Sx>, is_press(h), r, h <> r)
 
 def s_pre(a: String, b: String) -> Bool:
   match a b:
@@ -348,16 +352,43 @@ def pd_faces(+d: PD) -> Bool:
   PD{+n, +a, +fa, +b, +fb} = d
   Bool.and(Bool.not(String.eq(fa, "")), Bool.not(String.eq(fb, "")))
 
+def press_cert(+faces: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
+  Bool.pick(String, faces, "witness=press radial=" ++ S.f_show(press_wit_of(d, x, y)) ++ "
+", "") ++
+    "declared press-fit " ++ pd_name(d) ++ " status=declared
+"
+
 def press_go(+code: U64, +d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
   match code:
     case 0u64: rel ++ "
 "
     case 1u64: rel ++ "
-declared press-fit " ++ pd_name(d) ++ " status=declared
-"
+" ++ press_cert(pd_faces(d), d, x, y)
     case 2u64: rel ++ "
 " ++ press_bad(pd_name(d), A4.in_name(x), A4.in_name(y))
     case _: press_unc(pd_faces(d), d, x, y)
+
+def snap9(+x: F64) -> F64:
+  F64.div(KS.f_round(F64.mul(x, 1.0e9f64)), 1.0e9f64)
+
+def snap_pl(+p: M.Pl) -> M.Pl:
+  M.Pl{+m, +tx, +ty, +tz, +mi, ti} = p
+  +x = snap9(tx)
+  +y = snap9(ty)
+  +z = snap9(tz)
+  M.Pl{m, x, y, z, mi, [I.ipt(x), I.ipt(y), I.ipt(z)]}
+
+def snap_nr(r: M.NR) -> M.NR:
+  match r:
+    case M.NR_err{+k, +d}: M.NR_err{k, d}
+    case M.NR_ok{+b, +fx}: M.NR_ok{M.Bd{M.bd_cells(b), M.bd_brep(b), M.bd_fns(b), snap_pl(M.bd_pl(b)), M.bd_rv(b), M.bd_xb(b)}, fx}
+
+def snap_ins(ins: List<&2, A4.IN>) -> List<&2, A4.IN>:
+  match ins:
+    case []: []
+    case h <> t:
+      A4.IN{+i, r} = h
+      A4.IN{i, snap_nr(r)} <> snap_ins(t)
 
 def pair_s(+d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
   +code = Bool.pick(U64, String.eq(pd_name(d), ""), 0u64, Bool.pick(U64, s_has(rel, "relation interference"), 1u64,
@@ -400,7 +431,7 @@ def ip_rep(+ins: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
 def ip_sol(+s: A4.AS, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
   match s:
     case A4.AS_conf{+ids, +res}: A4.conf_rep(a, ids, res)
-    case A4.AS_ok{+sx, +dof, +red, +res}: ip_rep(A4.place_all(A4.asm_insts(a), sx, cs, 0n), ds)
+    case A4.AS_ok{+sx, +dof, +red, +res}: ip_rep(snap_ins(A4.place_all(A4.asm_insts(a), sx, cs, 0n)), ds)
 
 def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
   match ok:
@@ -437,16 +468,6 @@ type AW is Data:
 
 def aw_err(+why: String) -> AW:
   AW{SW.WS{False{}, "", why, 0n, 0n}, ""}
-
-def snap9(+x: F64) -> F64:
-  F64.div(KS.f_round(F64.mul(x, 1.0e9f64)), 1.0e9f64)
-
-def snap_pl(+p: M.Pl) -> M.Pl:
-  M.Pl{+m, +tx, +ty, +tz, +mi, +ti} = p
-  +x = snap9(tx)
-  +y = snap9(ty)
-  +z = snap9(tz)
-  M.Pl{m, x, y, z, mi, ti}
 
 def step_ins(ins: List<&2, A4.IN>, +acc: SW.ER2) -> SW.ER2:
   match ins:

@@ -980,3 +980,55 @@ with radius `3.2` about `y = 10`; it is `ok` here and
 show the same point accepted by `q_on_r` and rejected by the
 exact `*_on`. `ck_offquad` and the four `qmem_*` laws keep their
 verdicts. Laws: C03 +12, C04 +1.
+
+## 18. Amendment A5 — certified near-evaluation for circles and axis planes (2026-10-19)
+
+Stage G compared the F64 evaluation of a circle at its domain
+ends, and of a plane at a coedge's trim ends, with the vertex
+for exact equality. The C03 rational full-turn circle map is
+exact only at `θ = 0` and `θ = π`, so a circle cut by any plane
+through its centre at another angle has no F64 parameter whose
+evaluation is the vertex. A plane `o + u·e1 + v·e2` with `o` far
+from the vertex reaches only the F64 grid of `|u|`, which is
+coarser than the vertex's own grid. Cutting a revolved O-ring in
+half (`intersection` of a torus-sided revolve with a box face on
+`x = 0`) produced eight such circle edges and two such plane
+faces; the solid was correct and stage G rejected it.
+
+Each rule keeps the exact branch and gains one certified branch:
+
+- vertex-on-curve (`ends_ok`): the evaluations are within four
+  ulps of the vertices (`p_near`), and each vertex is certified on
+  the exact circle (`cv_on`) — on the sphere of radius `r` about
+  the centre by `GO.q_on_r`, and on the circle's plane (below).
+- trim coincidence (`coinc_go` via `s_on`): the trim evaluations
+  are within four ulps of the vertices, and each vertex is on the
+  surface: an oblique plane or bezp by `GO.q_on_r`; an
+  axis-aligned plane by exact equality of the normal coordinate
+  with the origin's (`ax_on`), which is the plane's implicit
+  equation evaluated without rounding.
+
+Acceptance is still a proof: every accepted vertex is within one
+ulp per coordinate of an exact point of the curve or surface,
+the A4 bound. Lines stay exact.
+
+Discrimination: the K2 journey `torus.oring_half` builds the cut
+and is `ok` here with half the revolve's certified volume; the
+predecessor (`b87c860`) fails it with `validation-rejected:
+c04-embedding`. K1's hit certification (`EF.on_g`) uses the same
+`ax_on` for axis-aligned planes.
+
+Vertex membership on quadrics (stage G, `pt_on`) also accepts
+`GO.q_on_s`: when the one-ulp-per-coordinate box of A4 shows no sign
+change, the same exact-sign test runs on the box of half-width
+`ulp(max|p|)` in every coordinate, zero coordinates included. A vertex
+on a line where a plane is tangent to a torus (the top of an O-ring
+tube, `z = 0`) puts the torus implicit at a double root along the free
+coordinate; with the zero coordinate held exact no corner changes sign
+although the vertex is within half an ulp of the exact surface point.
+The scale box crosses the tangent plane and certifies it. Acceptance
+is still a proof that the box holds an exact surface point; the bound
+is `ulp(max|p|)` per coordinate, the scale of the reported
+`linear_uncertainty`. Discrimination: K2 journey `torus.oring_racetrack`
+(a path sweep whose second turn is centred at `x = 22.05`) fails stage
+G with `q_on_r` alone and passes with `q_on_s`.

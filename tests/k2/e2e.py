@@ -245,10 +245,10 @@ def mesh_involute():
 
 
 def thin_tori():
-    out, _ = fresh('or.bcd', f'(node 1 (torus 30 1.5) {IC})', f'(node 2 (torus 20 0.5) {IC})',
-                   '(material 1 NBR70 1250 2.3e-4)', '(material 2 1.4310 7900 1.6e-5)')
+    out, _ = fresh('or.bcd', f'(node 1 (torus 30 1.5) {IC})', f'(node 2 (torus 20 0.5) {IC})', f'(node 3 (torus 24.155 1.31) {IC})',
+                   '(material 1 NBR70 1250 2.3e-4)', '(material 2 1.4310 7900 1.6e-5)', '(material 3 NBR70 1250 2.3e-4)')
     ev, _ = cli('or.bcd', 'eval')
-    for node, big, r, rho, tag in ((1, 30.0, 1.5, 1250, 'oring'), (2, 20.0, 0.5, 7900, 'garter')):
+    for node, big, r, rho, tag in ((1, 30.0, 1.5, 1250, 'oring'), (2, 20.0, 0.5, 7900, 'garter'), (3, 24.155, 1.31, 1250, 'oring_inexact')):
         v = 2 * math.pi ** 2 * big * r * r
         line = next((ln for ln in ev.splitlines() if ln.startswith(f'node {node}:')), '')
         ck, _ = cli('or.bcd', 'check', str(node))
@@ -261,6 +261,41 @@ def thin_tori():
         record(f'torus.{tag}', 'committed' in out and contains(iv(line, 'volume'), v) and ck.startswith('ok:')
                and contains(iv(ms, 'mass'), v * 1e-9 * rho, 1e-15) and stp_ok,
                ratio=big / r, volume=iv(line, 'volume'), exact=v, check=ck.strip()[:80], step=sv.strip()[-80:])
+
+
+ORING_HALF = [
+    '(node 1 (revolve (region (path 16.075 -1.95 (line 17.305 -1.95) (arc 17.305 -0.975 0.975 17.305 0 ccw) '
+    '(line 16.075 0) (arc 16.075 -0.975 0.975 16.075 -1.95 ccw)))) (intent create any any any any))',
+    f'(node 2 (box 40 80 4) {IC})',
+    '(node 3 (move 2 -40 -40 -3 0) (intent same 0 0 1 0))',
+    '(node 4 (intersection 1 3) (intent same any any 1 0))',
+]
+STADIUM = ('(region (path -0.615 -1.95 (line 0.615 -1.95) (arc 0.615 -0.975 0.975 0.615 0 ccw) '
+           '(line -0.615 0) (arc -0.615 -0.975 0.975 -0.615 -1.95 ccw)))')
+TRACK = ('(along (path 0 -16.69 (line 22.05 -16.69) (arc 22.05 0 16.69 22.05 16.69 ccw) '
+         '(line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw)))')
+
+
+def solid_journey(tag, design, node, v, out, ev):
+    line = next((ln for ln in ev.splitlines() if ln.startswith(f'node {node}:')), '')
+    ck, _ = cli(design, 'check', str(node))
+    cli(design, 'step', str(node), f'{WORK}/{tag}.stp')
+    sv, _ = wsl('python3', '-c', 'from build123d import import_step;'
+                f's=import_step("{WORK}/{tag}.stp");print(len(s.solids()), s.solids()[0].volume)')
+    parts = sv.split()
+    stp_ok = len(parts) >= 2 and parts[-2] == '1' and abs(float(parts[-1]) - v) / v < 1e-6
+    record(f'torus.{tag}', 'committed' in out and contains(iv(line, 'volume'), v) and ck.startswith('ok:') and stp_ok,
+           volume=iv(line, 'volume'), exact=v, check=ck.strip()[:80], step=sv.strip()[-80:], line=line[:200])
+
+
+def oring_racetrack():
+    area = 1.23 * 1.95 + math.pi * 0.975 ** 2
+    out, _ = fresh('oh.bcd', *ORING_HALF)
+    ev, _ = cli('oh.bcd', 'eval')
+    solid_journey('oring_half', 'oh.bcd', 4, math.pi * 16.69 * area, out, ev)
+    out, _ = fresh('rt.bcd', f'(node 1 (sweep {TRACK} {STADIUM}) (intent create any any 1 1))')
+    ev, _ = cli('rt.bcd', 'eval')
+    solid_journey('oring_racetrack', 'rt.bcd', 1, area * (2 * math.pi * 16.69 + 2 * 22.05), out, ev)
 
 
 def asm_step():
@@ -302,12 +337,23 @@ def press_declared():
            and rad is not None and abs(float(rad.group(1)) - 0.02) < 1e-9
            and 'relation disjoint' in hp and 'declared' not in hp, out=out[-600:])
     o1, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press bare H B))')
-    record('press.needs_faces_when_uncertain', 'declared-press-not-interfering bare' in o1 and 'declared press-fit' not in o1,
-           out=o1[-400:])
+    record('press.bare_on_certified_interference', 'relation interference status=certified method=exact-intersection' in o1
+           and 'declared press-fit bare status=declared' in o1 and 'witness=press' not in o1, out=o1[-400:])
     o2, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press wrong H {hf} P n4.c0.wall.0.0))')
     record('press.declared_not_interfering', 'declared-press-not-interfering wrong' in o2, out=o2[-400:])
     o3, _ = cli('pr.bcd', 'asm', 'interf', f'(assembly {base} (press ghost H {hf} Q {sf}))')
     record('press.unknown_instance', 'press-names-unknown-instance ghost' in o3, out=o3[-300:])
+
+
+def interf_exact():
+    fresh('ix.bcd', f'(node 1 (box 10 10 10) {IC})')
+    out, _ = cli('ix.bcd', 'asm', 'interf', '(assembly (inst a 1 0 0 0 0) (inst b 1 10 0 0 0) (inst c 1 5 0 0 0) '
+                 '(fix 1 a) (fix 2 b) (fix 3 c))')
+    blocks = out.split('pair ')
+    ab = next((b for b in blocks if b.startswith('a b')), '')
+    ac = next((b for b in blocks if b.startswith('a c')), '')
+    record('interf.exact_contact', 'relation disjoint status=certified method=exact-intersection' in ab
+           and 'relation interference status=certified' in ac, out=out[-700:])
 
 
 def main():
@@ -321,8 +367,10 @@ def main():
     mesh()
     mesh_involute()
     thin_tori()
+    oring_racetrack()
     asm_step()
     press_declared()
+    interf_exact()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

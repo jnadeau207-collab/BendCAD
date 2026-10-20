@@ -11,6 +11,7 @@ import ./xp.bend as X
 import ./prof.bend as F
 import ./build.bend as BD
 import ./revolve.bend as RV
+import ./psw.bend as PW
 import ./iv.bend as I
 import ../c08/bool.bend as B8
 import ../c07/sol.bend as SO
@@ -49,6 +50,7 @@ type Op is Data:
   O_intersection{ a: U64, b: U64 }
   O_sw_line{ z: X.Xp, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
   O_sw_arc{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
+  O_sw_path{ rs: List<&2, F.Region> }
   O_loft{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
   O_chamfer{ base: U64, d: X.Xp }
   O_echamf{ base: U64, f: Sel, cx: X.Xp, cy: X.Xp, r: X.Xp, c: X.Xp, fl: Bool }
@@ -183,6 +185,11 @@ def pe_why(+c: U64) -> String:
     case 22u64: "axis-pinch"
     case 23u64: "consecutive-axis-segments"
     case 24u64: "surface-not-representable"
+    case 25u64: "profile-reaches-path-turn-axis"
+    case 26u64: "path-piece-not-axis-aligned"
+    case 27u64: "path-not-tangent-continuous"
+    case 28u64: "path-not-one-turn"
+    case 29u64: "sweep-needs-one-loop"
     case _: "profile-error"
 
 def pe_fix(+c: U64) -> String:
@@ -211,6 +218,11 @@ def pe_fix(+c: U64) -> String:
     case 22u64: "touch the axis only along an axis segment, not at a lone vertex"
     case 23u64: "merge consecutive segments that lie on the axis"
     case 24u64: "adjust the slanted line or arc (cone apex not certifiable, or arc centre at x < 0)"
+    case 25u64: "keep every path arc radius larger than the profile's inward reach (radius + u > 0)"
+    case 26u64: "use path lines along x or y and counter-clockwise quarter arcs that start and end on axis points"
+    case 27u64: "join consecutive path lines and arcs tangentially"
+    case 28u64: "use one closed counter-clockwise path with four quarter turns"
+    case 29u64: "give the path and the profile one loop each, without holes"
     case _: "report this"
 
 def pe_nr(e: F.Er, +what: String) -> NR:
@@ -1221,6 +1233,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_intersection{a, b}: B8.tag_inter() <> a <> b <> []
     case O_sw_line{z, rs, g, gd, tw}: 17u64 <> g <> gd <> tw <> X.xp_w(z, e, rgs_w(rs, e, []))
     case O_sw_arc{deg, rs, g, gd, tw}: 18u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
+    case O_sw_path{rs}: 44u64 <> rgs_w(rs, e, [])
     case O_loft{z, bot, top, twist, cont}: 19u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
     case O_chamfer{base, d}: 20u64 <> base <> X.xp_w(d, e, [])
     case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(U64, fl, 43u64, 41u64) <> base <> sel_w(f, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(c, e, [])))))
@@ -1342,6 +1355,7 @@ def op_name(o: Op) -> String:
     case O_intersection{a, b}: "intersection"
     case O_sw_line{z, rs, g, gd, tw}: "sweep"
     case O_sw_arc{deg, rs, g, gd, tw}: "sweep"
+    case O_sw_path{rs}: "sweep"
     case O_loft{z, bot, top, twist, cont}: "loft"
     case O_chamfer{base, d}: "chamfer"
     case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(String, fl, "fillet", "chamfer")
@@ -2323,6 +2337,63 @@ def sw_aa(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: 
   match ok:
     case False{}: why_nr("sweep", nd, "sweep-angle-not-certified")
     case True{}: sw_ag(String.eq(F9.why_guide(1u64, g, gd, deg), ""), deg, rs, g, tw, e, nd)
+
+def psw_ms(+pr: PW.PR, +l: F.Lp, +br: Ty.Brep) -> Ms:
+  +a = lp_area(l)
+  +m1 = rlps([l], False{})
+  +pq = I.iscale(I.pi_i(), 0.5f64)
+  +tp = I.iscale(I.pi_i(), 2.0f64)
+  +run = I.iwiden(I.ipt(PW.pr_run(pr)), F64.mul(PW.pr_run(pr), 8.881784197001252e-16f64))
+  +rho = I.iwiden(I.ipt(PW.pr_rho(pr)), F64.mul(PW.pr_rho(pr), 8.881784197001252e-16f64))
+  +vol = I.iadd(I.imul(a, I.iadd(run, I.imul(pq, rho))), I.imul(tp, m1))
+  +p = lp_len(l)
+  +area = I.iadd(I.imul(p, I.iadd(run, I.imul(pq, rho))), I.imul(tp, rlps([l], True{})))
+  +bb0 = bb_vs(Ty.brep_vs(br), bb_empty())
+  +lin = F64.mul(bb_m(bb0), 1.7763568394002505e-15f64)
+  ms_mk(Acc{vol, area, I.ipt(F64.mul(4.0f64, F64.mul(bb_m(bb0), 100.0f64)))}, bb_wid(bb0, lin), lin, br)
+
+def psw_pub(r: NR, +pr: PW.PR, +l: F.Lp) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[psw_ms(pr, l, bd_brep(b))], 0n, False{}, "path-sweep", []}}, fx}
+
+def psw_rr(r: RV.RR, +pr: PW.PR, +l: F.Lp) -> NR:
+  RV.RR{+code, lp, b} = r
+  match code:
+    case 0u64: psw_pub(bt_check(b, [], pl_id(), "sweep", []), pr, l)
+    case _: pe_nr(F.Er{code, 0n, 0n}, "sweep path")
+
+def lp_one(ls: List<&2, F.Lp>) -> Maybe<&2, F.Lp>:
+  match ls:
+    case []: None{}
+    case +l <> t:
+      match t:
+        case []: Some{l}
+        case _: None{}
+
+def psw_two(a: Maybe<&2, F.Lp>, b: Maybe<&2, F.Lp>, +nd: U64) -> NR:
+  match a:
+    case None{}: pe_nr(F.Er{29u64, 0n, 0n}, "sweep path")
+    case Some{+p}:
+      match b:
+        case None{}: pe_nr(F.Er{29u64, 0n, 0n}, "sweep profile")
+        case Some{+q}:
+          +pr = PW.path_of(p)
+          +l = RV.as_path(q)
+          psw_rr(PW.sweep(pr, l, nd), pr, l)
+
+def psw_ck(cp: F.CK, cq: F.CK, +nd: U64) -> NR:
+  match cp:
+    case F.CK_err{e}: pe_nr(e, "sweep path")
+    case F.CK_ok{lp, pp}:
+      match cq:
+        case F.CK_err{e}: sw_pe(e, nd)
+        case F.CK_ok{lq, pq}: psw_two(lp_one(lp), lp_one(lq), nd)
+
+def op_sw_path(+rs: List<&2, F.Region>, +e: X.Env, +nd: U64) -> NR:
+  match rs:
+    case []: why_nr("sweep", nd, "degenerate-feature")
+    case +p <> +t: psw_ck(F.prof_check([p], e), F.prof_check(t, e), nd)
 
 def op_sw_arc(+deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
   sw_aa(String.eq(F9.why_sw_ang(deg), ""), deg, rs, g, gd, tw, e, nd)
@@ -3348,6 +3419,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_intersection{an, bn}: bool_run(o, b, b2, nd)
     case O_sw_line{z, rs, g, gd, tw}: op_sw_line(z, rs, g, gd, tw, e, nd)
     case O_sw_arc{deg, rs, g, gd, tw}: op_sw_arc(deg, rs, g, gd, tw, e, nd)
+    case O_sw_path{rs}: op_sw_path(rs, e, nd)
     case O_loft{z, bot, top, twist, cont}: op_loft(z, bot, top, twist, cont, e, nd)
     case O_chamfer{base, d}: op_chamfer(base, d, b, e, nd, ns)
     case O_echamf{base, f, cx, cy, r, c, fl}: op_echamf(b, f, cx, cy, r, c, fl, e, nd)

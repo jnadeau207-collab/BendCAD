@@ -147,17 +147,82 @@ def curve_at(c: G.GVal, t: F64, fuel: Nat) -> G.GRes:
     case G.GV_nb{w}: GO.nurbs_eval(w, t, fuel)
     case _: G.gerr(T.F_invalid{})
 
-def edge_ends_on_curve(kind: Ty.EdgeKind, p0: V.Point, p1: V.Point,
+def ax1(+x: F64, +y: F64, +z: F64) -> Bool:
+  +nz = U64.add(Bool.pick(U64, F64.is_eq(x, 0.0f64), 0u64, 1u64),
+    U64.add(Bool.pick(U64, F64.is_eq(y, 0.0f64), 0u64, 1u64), Bool.pick(U64, F64.is_eq(z, 0.0f64), 0u64, 1u64)))
+  U64.is_eq(nz, 1u64)
+
+def surf_obl(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_pl{w}:
+      G.Pl{o, +u, +v} = w
+      Bool.not(ax1(F64.sub(F64.mul(V.dr_y(u), V.dr_z(v)), F64.mul(V.dr_z(u), V.dr_y(v))),
+        F64.sub(F64.mul(V.dr_z(u), V.dr_x(v)), F64.mul(V.dr_x(u), V.dr_z(v))),
+        F64.sub(F64.mul(V.dr_x(u), V.dr_y(v)), F64.mul(V.dr_y(u), V.dr_x(v)))))
+    case G.GV_bp{w}: True{}
+    case _: False{}
+
+def f_near(+a: F64, +b: F64, +sc: F64) -> Bool:
+  F64.is_le(F64.abs(F64.sub(a, b)), F64.add(F64.mul(8.881784197001252e-16f64, sc), 1.0e-300f64))
+
+def p_scale(+p: V.Point) -> F64:
+  F64.max(F64.abs(V.pt_x(p)), F64.max(F64.abs(V.pt_y(p)), F64.abs(V.pt_z(p))))
+
+def p_near(+a: V.Point, +b: V.Point) -> Bool:
+  +sc = F64.max(p_scale(a), p_scale(b))
+  Bool.and(f_near(V.pt_x(a), V.pt_x(b), sc), Bool.and(f_near(V.pt_y(a), V.pt_y(b), sc), f_near(V.pt_z(a), V.pt_z(b), sc)))
+
+def g_of(ss: List<&2, G.GVal>) -> G.GVal:
+  match ss:
+    case []: Ty.surf_zero()
+    case h <> t: h
+
+def ax_k(+n: F64, +a: F64, +b: F64) -> Bool:
+  Bool.or(F64.is_eq(n, 0.0f64), F64.is_eq(a, b))
+
+def ax_on(+w: G.Plane3, +p: V.Point) -> Bool:
+  G.Pl{+o, +u, +v} = w
+  +nx = F64.sub(F64.mul(V.dr_y(u), V.dr_z(v)), F64.mul(V.dr_z(u), V.dr_y(v)))
+  +ny = F64.sub(F64.mul(V.dr_z(u), V.dr_x(v)), F64.mul(V.dr_x(u), V.dr_z(v)))
+  +nz = F64.sub(F64.mul(V.dr_x(u), V.dr_y(v)), F64.mul(V.dr_y(u), V.dr_x(v)))
+  Bool.and(ax1(nx, ny, nz), Bool.and(ax_k(nx, V.pt_x(p), V.pt_x(o)), Bool.and(ax_k(ny, V.pt_y(p), V.pt_y(o)), ax_k(nz, V.pt_z(p), V.pt_z(o)))))
+
+def pl_on(+w: G.Plane3, +p: V.Point) -> Bool:
+  Bool.pick(Bool, surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p), ax_on(w, p))
+
+def cv_on(c: G.GVal, +p: V.Point) -> Bool:
+  match c:
+    case G.GV_cc{w}:
+      G.Cc{+o, +u, +v, +r} = w
+      Bool.and(GO.q_on_r(G.GV_sp{G.Sp{o, r}}, p), pl_on(G.Pl{o, u, v}, p))
+    case _: False{}
+
+def ends_near(+curve: G.GVal, +q0: V.Point, +q1: V.Point, +p0: V.Point, +p1: V.Point) -> Bool:
+  Bool.and(Bool.and(p_near(q0, p0), p_near(q1, p1)), Bool.and(cv_on(curve, p0), cv_on(curve, p1)))
+
+def ends_x(ex: Bool, +cs: List<&2, G.GVal>, +q0: V.Point, +q1: V.Point, +p0: V.Point, +p1: V.Point) -> Bool:
+  match ex:
+    case True{}: True{}
+    case False{}: ends_near(g_of(cs), q0, q1, p0, p1)
+
+def ends_m(ok: Bool, +cs: List<&2, G.GVal>, +q0: V.Point, +q1: V.Point, +p0: V.Point, +p1: V.Point) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ends_x(Bool.and(pt_eq(q0, p0), pt_eq(q1, p1)), cs, q0, q1, p0, p1)
+
+def ends_go(+cs: List<&2, G.GVal>, +r0: G.GRes, +r1: G.GRes, +p0: V.Point, +p1: V.Point) -> Bool:
+  ends_m(Bool.and(G.gres_ok(r0), G.gres_ok(r1)), cs, G.gres_p(r0), G.gres_p(r1), p0, p1)
+
+def ends_at(+cs: List<&2, G.GVal>, +lo: F64, +hi: F64, +p0: V.Point, +p1: V.Point, +fuel: Nat) -> Bool:
+  ends_go(cs, curve_at(g_of(cs), lo, fuel), curve_at(g_of(cs), hi, fuel), p0, p1)
+
+def edge_ends_on_curve(kind: Ty.EdgeKind, +p0: V.Point, +p1: V.Point,
     +fuel: Nat) -> Bool:
   match kind:
     case Ty.EK_curve{+curve, +dom}:
       +lo = G.dom_lo(dom)
       +hi = G.dom_hi(dom)
-      +r0 = curve_at(curve, lo, fuel)
-      +r1 = curve_at(curve, hi, fuel)
-      Bool.and(G.gres_ok(r0),
-        Bool.and(G.gres_ok(r1),
-          Bool.and(pt_eq(G.gres_p(r0), p0), pt_eq(G.gres_p(r1), p1))))
+      ends_at([curve], lo, hi, p0, p1, fuel)
     case Ty.EK_degenerate{}: True{}
 
 def surf_at(s: G.GVal, u: F64, v: F64) -> G.GRes:
@@ -730,38 +795,13 @@ def fas_surf_ok(fs: List<&2, Ty.Face>) -> Bool:
     case Nil{}: True{}
     case h <> t: Bool.and(surf_fin_ok(Ty.fa_surf(h)), fas_surf_ok(t))
 
-def ax1(+x: F64, +y: F64, +z: F64) -> Bool:
-  +nz = U64.add(Bool.pick(U64, F64.is_eq(x, 0.0f64), 0u64, 1u64),
-    U64.add(Bool.pick(U64, F64.is_eq(y, 0.0f64), 0u64, 1u64), Bool.pick(U64, F64.is_eq(z, 0.0f64), 0u64, 1u64)))
-  U64.is_eq(nz, 1u64)
-
-def surf_obl(s: G.GVal) -> Bool:
+def s_on(+s: G.GVal, +p: V.Point) -> Bool:
   match s:
-    case G.GV_pl{w}:
-      G.Pl{o, +u, +v} = w
-      Bool.not(ax1(F64.sub(F64.mul(V.dr_y(u), V.dr_z(v)), F64.mul(V.dr_z(u), V.dr_y(v))),
-        F64.sub(F64.mul(V.dr_z(u), V.dr_x(v)), F64.mul(V.dr_x(u), V.dr_z(v))),
-        F64.sub(F64.mul(V.dr_x(u), V.dr_y(v)), F64.mul(V.dr_y(u), V.dr_x(v)))))
-    case G.GV_bp{w}: True{}
-    case _: False{}
-
-def f_near(+a: F64, +b: F64, +sc: F64) -> Bool:
-  F64.is_le(F64.abs(F64.sub(a, b)), F64.add(F64.mul(8.881784197001252e-16f64, sc), 1.0e-300f64))
-
-def p_scale(+p: V.Point) -> F64:
-  F64.max(F64.abs(V.pt_x(p)), F64.max(F64.abs(V.pt_y(p)), F64.abs(V.pt_z(p))))
-
-def p_near(+a: V.Point, +b: V.Point) -> Bool:
-  +sc = F64.max(p_scale(a), p_scale(b))
-  Bool.and(f_near(V.pt_x(a), V.pt_x(b), sc), Bool.and(f_near(V.pt_y(a), V.pt_y(b), sc), f_near(V.pt_z(a), V.pt_z(b), sc)))
-
-def g_of(ss: List<&2, G.GVal>) -> G.GVal:
-  match ss:
-    case []: Ty.surf_zero()
-    case h <> t: h
+    case G.GV_pl{w}: pl_on(w, p)
+    case _: Bool.and(surf_obl(s), GO.q_on_r(s, p))
 
 def coinc_on(+ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
-  Bool.and(surf_obl(g_of(ss)), Bool.and(GO.q_on_r(g_of(ss), ps), GO.q_on_r(g_of(ss), pe)))
+  Bool.and(s_on(g_of(ss), ps), s_on(g_of(ss), pe))
 
 def coinc_go(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
   +rs = surf_at(g_of(ss), V.v2_x(ts), V.v2_y(ts))
@@ -780,7 +820,7 @@ def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
   +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_end(ed, fwd))))
   coinc_go([surf], ts, te, ps, pe)
 def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
-  GO.q_on_r(surf, p)
+  GO.q_on_s(surf, p)
 
 def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
   pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))

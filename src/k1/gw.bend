@@ -604,27 +604,34 @@ def cys_d(cs: List<&2, CY>, +s: S.SF, +q: V.Vec2, +best: F64) -> F64:
       +d2 = poly_dq(p, V.V2{F64.sub(V.v2_x(q), sh), V.v2_y(q)})
       cys_d(t, s, q, F64.min(best, F64.min(d0, F64.min(d1, d2))))
 
-def try_eps(es: List<&2, F64>, +s: S.SF, +r: RG, +a: V.Vec2, +b: V.Vec2) -> SP:
+def try_eps(es: List<&2, F64>, done: Bool, +s: S.SF, +r: RG, +a: V.Vec2, +b: V.Vec2, +acc: SP) -> SP:
   match es:
-    case []: SP{a, False{}}
+    case []: acc
     case +h <> +t:
-      +q = cand(a, b, h)
-      +off = F64.mul(h, F64.sqrt(F64.add(F64.mul(F64.sub(V.v2_x(b), V.v2_x(a)), F64.sub(V.v2_x(b), V.v2_x(a))),
-        F64.mul(F64.sub(V.v2_y(b), V.v2_y(a)), F64.sub(V.v2_y(b), V.v2_y(a))))))
-      +clear = F64.is_lt(F64.mul(0.25f64, off), cys_d(rg_cys(r), s, q, F64.div(1.0f64, 0.0f64)))
-      Bool.pick(SP, Bool.and(clear, rg_inside(s, r, q)), SP{q, True{}}, try_eps(t, s, r, a, b))
+      match done:
+        case True{}: acc
+        case False{}:
+          +q = cand(a, b, h)
+          +off = F64.mul(h, F64.sqrt(F64.add(F64.mul(F64.sub(V.v2_x(b), V.v2_x(a)), F64.sub(V.v2_x(b), V.v2_x(a))),
+            F64.mul(F64.sub(V.v2_y(b), V.v2_y(a)), F64.sub(V.v2_y(b), V.v2_y(a))))))
+          +clear = F64.is_lt(F64.mul(0.25f64, off), cys_d(rg_cys(r), s, q, F64.div(1.0f64, 0.0f64)))
+          +ok = Bool.and(clear, rg_inside(s, r, q))
+          try_eps(t, ok, s, r, a, b, Bool.pick(SP, ok, SP{q, True{}}, acc))
 
-def try_segs(ps: List<&2, V.Vec2>, +s: S.SF, +r: RG, +prev: V.Vec2) -> SP:
+def try_segs(ps: List<&2, V.Vec2>, done: Bool, +s: S.SF, +r: RG, +prev: V.Vec2, +acc: SP) -> SP:
   match ps:
-    case []: SP{prev, False{}}
+    case []: acc
     case +h <> +t:
-      +x = try_eps(eps_list(), s, r, prev, h)
-      Bool.pick(SP, sp_ok(x), x, try_segs(t, s, r, h))
+      match done:
+        case True{}: acc
+        case False{}:
+          +x = try_eps(eps_list(), False{}, s, r, prev, h, SP{prev, False{}})
+          try_segs(t, sp_ok(x), s, r, h, x)
 
 def sample_go(+p: List<&2, V.Vec2>, +s: S.SF, +r: RG) -> SP:
   match p:
     case []: SP{V.V2{0.0f64, 0.0f64}, False{}}
-    case +h <> +t: try_segs(t, s, r, h)
+    case +h <> +t: try_segs(t, False{}, s, r, h, SP{h, False{}})
 
 def sample_pt(+s: S.SF, +r: RG) -> SP:
   sample_go(cy_poly(L_cy0(rg_cys(r))), s, r)

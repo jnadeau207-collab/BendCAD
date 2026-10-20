@@ -84,6 +84,21 @@ expressions. A combination that is not in this list is `unknown-op` or
   and 270 are constructed sectors; 360 is the full revolve. A matching
   `(guide (arc DEG))` records `guide: path`. Partial sweeps are not a
   boolean cut.
+- `(sweep (along PATH) REGION)` — one profile loop swept along one closed
+  path in the xy plane: O-rings, gaskets, cords. PATH is a counter-
+  clockwise `(path ...)` of lines along x or y and counter-clockwise arcs
+  that start and end on quarter points of their circle, joined
+  tangentially (four quarter turns in all: racetracks, rounded
+  rectangles). Profile x is the offset outward from the path, profile y
+  is z. Exact stations, no surface intersection; volume and area are
+  certified Pappus sums. A racetrack O-ring of section 3.18 x 1.95:
+  `(sweep (along (path 0 -16.69 (line 22.05 -16.69) (arc 22.05 0 16.69
+  22.05 16.69 ccw) (line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw))) (region
+  (path -0.615 -1.95 (line 0.615 -1.95) (arc 0.615 -0.975 0.975 0.615 0
+  ccw) (line -0.615 0) (arc -0.615 -0.975 0.975 -0.615 -1.95 ccw))))`.
+  Refusals: `path-piece-not-axis-aligned`, `path-not-tangent-continuous`,
+  `path-not-one-turn`, `profile-reaches-path-turn-axis`,
+  `sweep-needs-one-loop`.
 - `(loft Z REGION_BOT REGION_TOP)` — bottom at z = 0, top at z = Z.
   Optional `(twist K)` rotates the top loop by K segments. Optional
   `(continuity g0)` or `(continuity g1)`.
@@ -290,7 +305,15 @@ Any count may be `any`. The kernel measures every field from the result
 - `interf A B`: the exact relation between the solids of two nodes:
   `disjoint`, `inside a-in-b`, `inside b-in-a` or `interference`, each
   with `status=certified`, else `uncertain` with per-side
-  in/out/uncertain sample counts. Disjointness and containment are
+  in/out/uncertain sample counts. When the boxes overlap, the exact
+  boolean intersection of the two placed solids is tried first: an empty
+  result is `relation disjoint status=certified method=exact-intersection`
+  (disjoint interiors: solids that touch along faces, edges or tangent
+  curves, such as an O-ring seated in its gland, share no volume). A
+  non-empty result keeps the sampled verdict (containment, certified
+  interference); when sampling is uncertain it becomes `relation
+  interference status=certified method=exact-intersection volume=[lo, hi]`.
+  If the boolean refuses, sampling alone decides. Disjointness and containment are
   certified by strict samples plus disjoint face boxes; interference is
   certified by a strictly inside sample. AABB overlap alone is never
   reported as interference. The reply starts with the exact per-solid

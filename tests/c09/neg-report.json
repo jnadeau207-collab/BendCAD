@@ -1,5 +1,5 @@
 {
- "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
+ "binary_sha256": "687d692948c52fa01ec410ae1bf26824f4123fb4e0974fa4e3a21d2b9bac0b70",
  "passed": 27,
  "total": 27,
  "results": [
@@ -97,7 +97,7 @@
    "name": "draft.consumes",
    "ok": true,
    "info": "('invalid-input', 'draft-consumes-face', True)",
-   "seconds": 0.03
+   "seconds": 0.02
   },
   {
    "name": "draft.base",
@@ -115,7 +115,7 @@
    "name": "offset.base",
    "ok": true,
    "info": "('unsupported-op', 'offset-base-not-admitted', True)",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "shell.consumes",

@@ -5,6 +5,7 @@ import ../c04/types.bend as Ty
 import ./sf.bend as S
 import ./ef.bend as EF
 import ./ls.bend as L
+import ../base/par.bend as B
 
 type CE is Data:
   CE{ e: Nat, fwd: Bool }
@@ -47,15 +48,35 @@ def lps_has(ls: List<&2, List<&2, CE>>, +e: Nat) -> Bool:
     case []: False{}
     case +h <> +t: Bool.or(ces_has(h, e), lps_has(t, e))
 
-def efaces_go(fs: List<&2, Ty.Face>, +b: Ty.Brep, +e: Nat, +i: Nat) -> List<&2, Nat>:
+def ce_edges(cs: List<&2, Ty.Coedge>) -> List<&2, Nat>:
+  match cs:
+    case []: []
+    case +c <> +t: Ty.he_idx(Ty.ce_edge(c)) <> ce_edges(t)
+
+def lp_hcs(ls: List<&2, Ty.Loop>) -> List<&2, List<&2, Ty.HCoedge>>:
+  match ls:
+    case []: []
+    case +l <> +t: Ty.lp_ces(l) <> lp_hcs(t)
+
+def hcs_has(hs: List<&2, Ty.HCoedge>, +ce: B.Tb<&2, Nat>, +e: Nat) -> Bool:
+  match hs:
+    case []: False{}
+    case +h <> +t: Bool.or(Nat.is_eq(B.tb_get(Nat, ce, U32.from_nat(Ty.hc_idx(h))), e), hcs_has(t, ce, e))
+
+def hls_has(hs: List<&2, Ty.HLoop>, +lp: B.Tb<&2, List<&2, Ty.HCoedge>>, +ce: B.Tb<&2, Nat>, +e: Nat) -> Bool:
+  match hs:
+    case []: False{}
+    case +h <> +t: Bool.or(hcs_has(B.tb_get(List<&2, Ty.HCoedge>, lp, U32.from_nat(hl_i(h))), ce, e), hls_has(t, lp, ce, e))
+
+def efaces_go(fs: List<&2, Ty.Face>, +lp: B.Tb<&2, List<&2, Ty.HCoedge>>, +ce: B.Tb<&2, Nat>, +e: Nat, +i: Nat) -> List<&2, Nat>:
   match fs:
     case []: []
     case +h <> +t:
-      +rest = efaces_go(t, b, e, Nat.add(i, 1n))
-      Bool.pick(List<&2, Nat>, lps_has(hls_ce(Ty.fa_loops(h), b), e), i <> rest, rest)
+      +rest = efaces_go(t, lp, ce, e, Nat.add(i, 1n))
+      Bool.pick(List<&2, Nat>, hls_has(Ty.fa_loops(h), lp, ce, e), i <> rest, rest)
 
 def edge_faces(+b: Ty.Brep, +e: Nat) -> List<&2, Nat>:
-  efaces_go(Ty.brep_fas(b), b, e, 0n)
+  efaces_go(Ty.brep_fas(b), B.tb_of(List<&2, Ty.HCoedge>, lp_hcs(Ty.brep_lps(b)), []), B.tb_of(Nat, ce_edges(Ty.brep_ces(b)), 0n), e, 0n)
 
 def face_surf(+b: Ty.Brep, +fi: Nat) -> G.GVal:
   Ty.fa_surf(L.nth_f(Ty.brep_fas(b), fi))

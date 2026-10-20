@@ -100,7 +100,12 @@ transverse when `R` sits on a parallel edge). The parity, combined with
 the arrival side at `R` (sign of `d · (N × T)`), gives the answer. Edges
 whose control net lies in a cut plane, tangencies and unresolved roots
 make that attempt uncertain; each edge is tried at three points and in
-both orders before answering 2.
+both orders before answering 2. A meridian cut plane contains the whole
+axis, but the meridian leg stays in `q`'s half-plane: an edge lying in
+the cut plane whose enclosure is strictly in the opposite half-plane
+(radial component against `q`'s, `opp_side`) cannot meet the leg and
+adds no crossing. Cutting a revolved O-ring in half on `x = 0` puts the
+boundary meridian at 270° in the meridian plane of every point at 90°.
 
 ## 4. Point classification, orientation, cavities
 
@@ -156,6 +161,24 @@ pairs, checked in parallel):
   hull keeps the membership answer. Each unresolved trace box is
   reported as `face-face-uncertain`. Open components end on face
   boundaries and are covered by the edge/face checks.
+
+- **Transversal separation.** Torus faces with a coordinate axis are
+  boxed by their edges, the tube's axial extent and those of the eight
+  critical points of the in-plane coordinates (`θ ∈ {0, π/2, π, 3π/2}`,
+  `φ ∈ {0, π}`) that membership does not prove outside; cylinder faces
+  with a coordinate axis take their axial extent from their edges
+  (rulings are linear). When two faces' boxes meet only in a slab of
+  width at most `2·tol` about a coordinate plane `P`, each reaching
+  across to its own side, and both surfaces cross `P` transversally (a
+  plane not parallel to `P`; a cylinder whose axis is normal to `P` or
+  lies in it; a torus with `R > r` or a sphere whose axis or centre lies
+  in it), every common point is within the slab of edges lying in `P`,
+  which the edge checks decide; the pair is not traced. The same holds
+  for an edge against a face when the edge's exact control points are
+  monotone across `P`, or the edge lies in the slab and the face reaches
+  it from one side. This is what certifies a path sweep's G1 joints
+  (`sweep (along ...)`): a turn's torus and the next run's cylinder are
+  tangent along the station circle, where tracing cannot resolve them.
 
 - **Contact between solids (C08, L9).** Solids that meet without sharing
   volume are not a failure: an edge/edge hit at an edge end of either

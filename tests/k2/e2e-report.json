@@ -106,7 +106,7 @@
    0.09359613204786021
   ],
   "oracle": 0.09359613199288969,
-  "seconds": 0.38384509086608887,
+  "seconds": 0.4240405559539795,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {
@@ -154,6 +154,42 @@
   "step": "1 98.69604744752468"
  },
  {
+  "name": "torus.oring_inexact",
+  "ok": true,
+  "ratio": 18.438931297709924,
+  "volume": [
+   818.2374901239446,
+   818.2374901260417
+  ],
+  "exact": 818.2374901249935,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 818.2375186163156"
+ },
+ {
+  "name": "torus.oring_half",
+  "ok": true,
+  "volume": [
+   282.3514504514967,
+   282.3514504534861
+  ],
+  "exact": 282.3514504524913,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 282.3514582519903",
+  "line": "node 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[282.3514504514967, 282.3514504534861] area=[460.96678928324724, 460.9667892843309] bbox=[-18.28000000000004"
+ },
+ {
+  "name": "torus.oring_racetrack",
+  "ok": true,
+  "volume": [
+   802.1803652734235,
+   802.1803652758596
+  ],
+  "exact": 802.1803652746415,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 802.1803854065913",
+  "line": "node 1: ok material=create faces_created=36 faces_modified=0 solids=1 through_holes=1 | volume=[802.1803652734235, 802.1803652758596] area=[1279.0409327464306, 1279.0409327490831] bbox=[-18.2800000000"
+ },
+ {
   "name": "asm.step",
   "ok": true,
   "out": "wrote /tmp/bc-e2e-k2/as.stp entities 206 products 2\ninstances base,pin\n",
@@ -183,21 +219,26 @@
  {
   "name": "press.declared",
   "ok": true,
-  "out": "assembly pairs ninst 3\npair H B\nrelation interference status=certified witness=press radial=0.019999999999999574\ndeclared press-fit bush status=declared\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
+  "out": "assembly pairs ninst 3\npair H B\nrelation interference status=certified method=exact-intersection volume=[25.157873969919127, 25.157873969971444] k1-crossing-certified V4 E4 F4 S1\nwitness=press radial=0.019999999999999574\ndeclared press-fit bush status=declared\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
  },
  {
-  "name": "press.needs_faces_when_uncertain",
+  "name": "press.bare_on_certified_interference",
   "ok": true,
-  "out": "assembly pairs ninst 3\npair H B\nerror invalid-input | asm interf | why: declared-press-not-interfering bare between H and B | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
+  "out": "assembly pairs ninst 3\npair H B\nrelation interference status=certified method=exact-intersection volume=[25.157873969919127, 25.157873969971444] k1-crossing-certified V4 E4 F4 S1\ndeclared press-fit bare status=declared\npair H P\nrelation disjoint status=certified\npair B P\nrelation disjoint status=certified\n\n"
  },
  {
   "name": "press.declared_not_interfering",
   "ok": true,
-  "out": "H B\nrelation uncertain status=estimated a:in=0 out=30 uncertain=5 b:in=0 out=0 uncertain=7 boxes-overlap=1\npair H P\nrelation disjoint status=certified\nerror invalid-input | asm interf | why: declared-press-not-interfering wrong between H and P | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements\npair B P\nrelation disjoint status=certified\n\n"
+  "out": "ethod=exact-intersection volume=[25.157873969919127, 25.157873969971444] k1-crossing-certified V4 E4 F4 S1\npair H P\nrelation disjoint status=certified\nerror invalid-input | asm interf | why: declared-press-not-interfering wrong between H and P | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements\npair B P\nrelation disjoint status=certified\n\n"
  },
  {
   "name": "press.unknown_instance",
   "ok": true,
   "out": "error invalid-input | asm interf | why: press-names-unknown-instance ghost | fix: write (press NAME A AFACE B BFACE) with two instance names\n\n"
+ },
+ {
+  "name": "interf.exact_contact",
+  "ok": true,
+  "out": "assembly pairs ninst 3\npair a b\nrelation disjoint status=certified method=exact-intersection\npair a c\nrelation interference status=certified witness=subdiv\npair b c\nrelation interference status=certified witness=subdiv\n\n"
  }
 ]
