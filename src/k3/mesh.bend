@@ -8,6 +8,7 @@ import ../c07/mem.bend as Mm
 import ../c07/im.bend as MI
 import ../c07/sol.bend as SO
 import ../base/par.bend as B
+import fem.bend as F
 
 type LX is Data:
   LX{ ok: Bool, ts: List<&2, F64> }
@@ -1180,3 +1181,42 @@ def t10_vols(ts: List<&2, T10>, +pt: B.Tb<&2, V.Point>, +acc: JV) -> JV:
   match ts:
     case []: acc
     case +t <> r: t10_vols(r, pt, jv_join(acc, t10_jv(pt, t)))
+
+def t10_ns(+t: T10) -> List<&2, U32>:
+  T10{+a, +b, +c, +d, +e0, +e1, +e2, +e3, +e4, +e5} = t
+  [U32.from_nat(a), U32.from_nat(b), U32.from_nat(c), U32.from_nat(d), U32.from_nat(e0), U32.from_nat(e1), U32.from_nat(e2), U32.from_nat(e3),
+    U32.from_nat(e4), U32.from_nat(e5)]
+
+def mdev(+p: V.Point, +q: V.Point, +m: V.Point) -> F64:
+  dlen(psub(m, padd(p, dsc(0.5f64, psub(q, p)))))
+
+def p10_l(+p: P10) -> List<&2, V.Point>:
+  P10{+a, +b, +c, +d, +e0, +e1, +e2, +e3, +e4, +e5} = p
+  [a, b, c, d, e0, e1, e2, e3, e4, e5]
+
+def p10_c(+p: P10) -> List<&2, V.Point>:
+  P10{+a, +b, +c, +d, e0, e1, e2, e3, e4, e5} = p
+  [a, b, c, d]
+
+def p10_dev(+p: P10) -> F64:
+  P10{+a, +b, +c, +d, +e0, +e1, +e2, +e3, +e4, +e5} = p
+  F64.max(F64.max(F64.max(mdev(a, b, e0), mdev(b, c, e1)), F64.max(mdev(a, c, e2), mdev(a, d, e3))), F64.max(mdev(b, d, e4), mdev(c, d, e5)))
+
+def fe_el(+pt: B.Tb<&2, V.Point>, +tol: F64, +t: T10) -> F.EL:
+  +p = p10(pt, t)
+  Bool.pick(F.EL, F64.is_lt(tol, p10_dev(p)), F.EC{t10_ns(t), p10_l(p)}, F.el_of(t10_ns(t), p10_c(p)))
+
+def fe_els(ts: List<&2, T10>, +pt: B.Tb<&2, V.Point>, +tol: F64) -> List<&2, F.EL>:
+  match ts:
+    case []: []
+    case +t <> r: fe_el(pt, tol, t) <> fe_els(r, pt, tol)
+
+def ec_one(e: F.EL) -> Nat:
+  match e:
+    case F.EL{ns, g, v}: 0n
+    case F.EC{ns, ps}: 1n
+
+def n_ec(es: List<&2, F.EL>, +n: Nat) -> Nat:
+  match es:
+    case []: n
+    case +e <> t: n_ec(t, Nat.add(n, ec_one(e)))
