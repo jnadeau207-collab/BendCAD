@@ -255,7 +255,7 @@ def sect_circle():
         xm, ym = (xi[0] + xi[1]) / 2, (yi[0] + yi[1]) / 2
         if contains(zi, 5.0) and abs(xm * xm + ym * ym - 25.0) < 0.5:
             good += 1
-    ok = (s is not None and s['faces'] == 3 and s['curves'] == 4 and s['unres'] == 4
+    ok = (s is not None and s['faces'] == 3 and s['curves'] == 2 and s['unres'] == 2
           and s['coin'] == 0 and s['st'] == 'estimated' and not s['mapped']
           and len(pts) > 0 and good == len(pts) and dt < 60)
     record('section.cyl_circle', ok, summary=s, samples=len(pts), on_circle=good, seconds=round(dt, 1))
@@ -330,8 +330,7 @@ def interf_cases():
     record('interf.inside_b', r == 'relation inside b-in-a status=certified', line=r)
     o, _ = cli('ri.bcd', 'interf', '1', '9')
     r = rel_line(o)
-    record('interf.contact', r is not None and r.startswith('relation uncertain status=estimated')
-           and 'boxes-overlap=1' in r, line=r)
+    record('interf.contact', r == 'relation disjoint status=certified method=exact-intersection', line=r)
 
 
 def interf_aabb_trap():
@@ -346,7 +345,7 @@ def interf_aabb_trap():
         return
     o, dt = cli('rt.bcd', 'interf', '4', '6')
     r = rel_line(o)
-    record('interf.aabb_trap', r == 'relation disjoint status=certified', line=r,
+    record('interf.aabb_trap', r == 'relation disjoint status=certified method=exact-intersection', line=r,
            seconds=round(dt, 1))
 
 
@@ -436,7 +435,7 @@ def mcp_queries():
         distance='distance [4.999999999999987' in body(3) and 'lo=certified' in body(3),
         extrema='status=certified' in body(4),
         mass='cells=8/0/56' in body(5),
-        section='curves=4' in body(6) and 'unresolved=4' in body(6),
+        section='curves=2' in body(6) and 'unresolved=2' in body(6),
         interference=body(7).strip() == 'relation disjoint status=certified',
         clearance='lo=certified' in body(8),
         min_wall='lo=certified' in body(9) and 'faces=6' in body(9))

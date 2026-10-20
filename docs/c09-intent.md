@@ -65,6 +65,7 @@ Same design file as C06–C08. New ops, cache tags in parentheses:
 (sweep (line Z) REGION ...)                         (17)
 (sweep (arc DEG) REGION ...)                        (18)
 (sweep (arc DEG) REGION (guide PATH) (twist T))
+(sweep (along PATH) REGION)                         (44)
 (loft Z REGION_BOT REGION_TOP)                      (19)
 (loft Z REGION_BOT REGION_TOP (twist K))
 (loft Z REGION_BOT REGION_TOP (continuity g0|g1))
@@ -98,6 +99,22 @@ Profile convention for `(arc DEG)` is the C06 revolve convention:
 profile x is the radius, profile y is the height. `(line Z)` uses the
 C06 prism convention (region in the local xy plane, extruded from 0
 to Z).
+
+`(along PATH)` sweeps one profile loop along one closed path in the xy
+plane (`src/c06/psw.bend`). The path is counter-clockwise, made of
+lines along x or y and counter-clockwise arcs whose ends are quarter
+points of their circle, joined tangentially, with four quarter turns
+in all: racetracks, rounded rectangles, O-ring and gasket centrelines.
+Profile x is the offset `u` along the path's outward normal, profile y
+is `z`. Every station frame is axis-aligned, so stations are exact and
+both neighbouring segments share them; turns are revolve surfaces about
+the arc's centre (plane, cylinder, cone, sphere or torus), runs are
+planes and cylinders along the run. No surface intersection is
+computed. Volume and area are Pappus sums over runs and quarter turns
+(`psw_ms`): `A·(L + π/2·Σρ) + 2π·∫u dA`. Refusals:
+`path-piece-not-axis-aligned` (26), `path-not-tangent-continuous` (27),
+`path-not-one-turn` (28), `profile-reaches-path-turn-axis` (25),
+`sweep-needs-one-loop` (29). Guides and twists are refused.
 
 - `(line Z)` with Z > 0 delegates to the prism builder. Volume, face
   count, and `check` match the same region as a prism. This is the

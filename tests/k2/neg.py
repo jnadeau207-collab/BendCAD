@@ -154,6 +154,36 @@ def c16():
     return 'verdict=interference' in out and 'status=certified' in out, out[-200:]
 
 
+def sweep_out(path, prof=None):
+    out, _ = E.fresh('sw.bcd', f'(node 1 (sweep (along {path}) {prof or E.STADIUM}) (intent create any any 1 1))')
+    return out
+
+
+@case('sweep.path_oblique_line')
+def s1():
+    out = sweep_out('(path 0 -16.69 (line 22.05 -16) (arc 22.05 0 16 22.05 16 ccw) (line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw))')
+    return refused(out, 'path-piece-not-axis-aligned'), out[-200:]
+
+
+@case('sweep.path_partial_turn')
+def s2():
+    out = sweep_out('(path 0 0 (line 20 0) (arc 20 10 10 30 10 ccw) (line 30 20) (line 0 20))')
+    return refused(out, 'path-'), out[-200:]
+
+
+@case('sweep.path_kinked')
+def s3():
+    out = sweep_out('(path 0 -16.69 (line 22.05 -16.69) (line 22.05 16.69) (line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw))')
+    return refused(out, 'path-not-tangent-continuous'), out[-200:]
+
+
+@case('sweep.profile_reaches_turn_axis')
+def s4():
+    out = sweep_out('(path 0 -2 (line 10 -2) (arc 10 0 2 10 2 ccw) (line 0 2) (arc 0 0 2 0 -2 ccw))',
+                    '(region (path -3 0 (line 1 0) (line 1 1) (line -3 1)))')
+    return refused(out, 'profile-reaches-path-turn-axis'), out[-200:]
+
+
 def main():
     E.wsl('rm', '-rf', E.WORK)
     E.wsl('mkdir', '-p', E.WORK)

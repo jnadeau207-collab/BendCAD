@@ -1,5 +1,5 @@
 {
- "binary_sha256": "977e1cdf003617885c82b70320f45038b0d6653e4261c6e067f747a6603f6726",
+ "binary_sha256": "687d692948c52fa01ec410ae1bf26824f4123fb4e0974fa4e3a21d2b9bac0b70",
  "passed": 24,
  "total": 24,
  "results": [
@@ -89,9 +89,9 @@
    "detail": "imported /tmp/oracle_sphere.step | error invalid-input | import @ step data | why: step-vertex-loop-not-in-profile face #17 | fix: re-import the STEP file"
   },
   {
-   "name": "import.torus_dust",
+   "name": "import.torus_dust_certified",
    "ok": true,
-   "detail": "imported /tmp/oracle_torus.step | error invalid-input | import @ node 0 | why: import-validation-failed at brep stage embedding | fix: re-import the STEP file"
+   "detail": "imported /tmp/oracle_torus.step | ok material=same faces_created=0 faces_modified=0 solids=0 through_holes=0 | volume=[0, 128000.00000000023] area=[0, 11843.52528130728] bbox=[-40.00000000000001, 40.0"
   },
   {
    "name": "reopen.garbage",

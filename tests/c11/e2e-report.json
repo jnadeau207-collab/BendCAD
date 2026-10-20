@@ -1,5 +1,5 @@
 {
- "binary_sha256": "61031a378d605ee625830db3ed8dbe62f443b1ef6783d555870bf2ad14ee2e70",
+ "binary_sha256": "26d2c36723656aa7aa0cdb4fc0e8dd1cc1c9cb2286c9425f1a886f50f9ccca00",
  "passed": 33,
  "total": 33,
  "results": [
@@ -30,7 +30,7 @@
   {
    "name": "dist.cyl_radial",
    "ok": true,
-   "lo": 6.9999999999999964,
+   "lo": 6.999999999982973,
    "hi": 8.09344835345199,
    "st": "estimated",
    "locert": "certified",
@@ -98,7 +98,7 @@
      41278.703545005876
     ]
    ],
-   "seconds": 0.71
+   "seconds": 0.7
   },
   {
    "name": "mass.depths",
@@ -110,8 +110,8 @@
    },
    "seconds": {
     "2": 0.02,
-    "3": 0.12,
-    "4": 0.82
+    "3": 0.1,
+    "4": 0.72
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 43.2
+   "seconds": 42.7
   },
   {
    "name": "mass.moved_invariance",
@@ -222,19 +222,19 @@
    ],
    "cen": [
     [
-     -31.375000000066333,
-     31.375000000039837
+     -13.750000000057266,
+     13.750000000044349
     ],
     [
-     -40.687499999979764,
-     40.687500000092996
+     -20.156250000016904,
+     20.156250000070923
     ],
     [
-     -17.24999999998849,
-     132.75000000019205
+     0.37715517241275154,
+     54.89583333344031
     ]
    ],
-   "seconds": 2.4
+   "seconds": 2.8
   },
   {
    "name": "mass.sphere",
@@ -257,21 +257,21 @@
      6.397058823529622
     ]
    ],
-   "seconds": 0.7
+   "seconds": 0.9
   },
   {
    "name": "section.cyl_circle",
    "ok": true,
    "summary": {
     "faces": 3,
-    "curves": 4,
-    "unres": 4,
+    "curves": 2,
+    "unres": 2,
     "coin": 0,
     "st": "estimated",
     "mapped": false
    },
-   "samples": 36,
-   "on_circle": 36,
+   "samples": 24,
+   "on_circle": 24,
    "seconds": 0.1
   },
   {
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 173.5
+   "seconds": 187.3
   },
   {
    "name": "section.mapped",
@@ -313,7 +313,7 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 199.0
+   "seconds": 200.0
   },
   {
    "name": "section.coin",
@@ -344,13 +344,13 @@
   {
    "name": "interf.contact",
    "ok": true,
-   "line": "relation uncertain status=estimated a:in=0 out=21 uncertain=9 b:in=0 out=17 uncertain=13 boxes-overlap=1"
+   "line": "relation disjoint status=certified method=exact-intersection"
   },
   {
    "name": "interf.aabb_trap",
    "ok": true,
-   "line": "relation disjoint status=certified",
-   "seconds": 15.4
+   "line": "relation disjoint status=certified method=exact-intersection",
+   "seconds": 0.3
   },
   {
    "name": "interf.cavity",
@@ -359,7 +359,7 @@
    "cavities": [
     "cavity 1 inside 0 status=certified"
    ],
-   "seconds": 2.4
+   "seconds": 3.2
   },
   {
    "name": "clearance.disjoint",

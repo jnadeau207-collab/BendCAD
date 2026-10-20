@@ -253,7 +253,7 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
 
 def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
-    case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.and(B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p)))
+    case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.pick(Bool, B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p), B4.ax_on(w, p)))
     case G.GV_bp{w}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
     case _: GO.q_on_r(g, p)
 
@@ -332,13 +332,33 @@ def g_at(gs: List<&2, G.GVal>, +i: Nat) -> G.GVal:
         case 0n: h
         case 1n+j: g_at(t, j)
 
-def cert_snap(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
+def qnear(+q: V.Point, +p: V.Point, +tol: F64, +best: V.Point) -> V.Point:
+  Bool.pick(V.Point, F64.is_le(S.dist(q, p), tol), q, best)
+
+def quarter(c: G.GVal, +p: V.Point) -> V.Point:
+  match c:
+    case G.GV_cc{w}:
+      G.Cc{+o, +u, +v, +r} = w
+      +tol = F64.mul(1.0e-12f64, F64.add(1.0f64, r))
+      qnear(S.padd(o, r, u), p, tol, qnear(S.padd(o, F64.neg(r), u), p, tol, qnear(S.padd(o, r, v), p, tol, qnear(S.padd(o, F64.neg(r), v), p, tol, p))))
+    case _: p
+
+def cert_newton(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +p0: V.Point) -> CT:
   +s1 = S.sf_of(g_at(gs, 0n))
   +s2 = S.sf_of(g_at(gs, 1n))
-  +p0 = ev(c, t)
   +tn = S.dunit(S.cross(S.sf_grad(s1, p0), S.sf_grad(s2, p0)))
   +r = cert_gs(gs, S.newton2(6n, s1, s2, p0, tn, p0))
   CT{ct_ok(r), t, ct_p(r)}
+
+def cert_q(+ok: Bool, +q: V.Point, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +p0: V.Point) -> CT:
+  match ok:
+    case True{}: CT{True{}, t, q}
+    case False{}: cert_newton(c, gs, t, p0)
+
+def cert_snap(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
+  +p0 = ev(c, t)
+  +q = quarter(c, p0)
+  cert_q(on_all(gs, q), q, c, gs, t, p0)
 
 def cert_fb(+r: CT, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
   match r:

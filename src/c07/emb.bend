@@ -677,13 +677,88 @@ def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, 
       ef_hits_go(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf,
         cross, ofds, pa0, pa1)
 
+def side_k(+a: List<&2, I.I>, +b: List<&2, I.I>, +m: List<&2, I.I>, +k: Nat, +tol: F64) -> Bool:
+  +w = X.vn(m, k)
+  +thin = F64.is_le(F64.sub(I.i_hi(w), I.i_lo(w)), F64.mul(2.0f64, tol))
+  +ab = Bool.and(F64.is_lt(I.i_lo(X.vn(a, k)), I.i_lo(w)), F64.is_lt(I.i_hi(w), I.i_hi(X.vn(b, k))))
+  +ba = Bool.and(F64.is_lt(I.i_lo(X.vn(b, k)), I.i_lo(w)), F64.is_lt(I.i_hi(w), I.i_hi(X.vn(a, k))))
+  Bool.and(thin, Bool.or(ab, ba))
+
+def near_c(+x: I.I, +c: F64, +tol: F64) -> Bool:
+  Bool.and(F64.is_le(F64.sub(c, tol), I.i_lo(x)), F64.is_le(I.i_hi(x), F64.add(c, tol)))
+
+def trans(s: M.Im, +k: Nat, +c: F64, +tol: F64) -> Bool:
+  match s:
+    case M.M_pl{o, +n}: Bool.not(Nat.is_eq(SO.axis_k(n), k))
+    case M.M_cy{+o, +a, r}:
+      +ak = SO.axis_k(a)
+      Bool.and(Nat.is_lt(ak, 3n), Bool.or(Nat.is_eq(ak, k), near_c(X.vn(o, k), c, tol)))
+    case M.M_to{+o, +a, +bigr, +r}:
+      +ak = SO.axis_k(a)
+      Bool.and(Bool.and(Nat.is_lt(ak, 3n), Bool.not(Nat.is_eq(ak, k))), Bool.and(near_c(X.vn(o, k), c, tol), F64.is_lt(I.i_hi(r), I.i_lo(bigr))))
+    case M.M_sp{+o, r}: near_c(X.vn(o, k), c, tol)
+    case _: False{}
+
+def pk(+p: V.Point, +k: Nat) -> F64:
+  Bool.pick(F64, Nat.is_eq(k, 0n), V.pt_x(p), Bool.pick(F64, Nat.is_eq(k, 1n), V.pt_y(p), V.pt_z(p)))
+
+def up_go(xs: List<&2, F64>, +p: F64, +up: Bool) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: Bool.and(Bool.pick(Bool, up, F64.is_le(p, x), F64.is_le(x, p)), up_go(t, x, up))
+
+def mono(xs: List<&2, F64>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> +t: Bool.or(up_go(t, x, True{}), up_go(t, x, False{}))
+
+def mono_g(g: G.GVal, +k: Nat) -> Bool:
+  match g:
+    case G.GV_ln{w}: True{}
+    case G.GV_bz{w}:
+      G.Bz{+a, +b, +c, +d} = w
+      mono([pk(a, k), pk(b, k), pk(c, k), pk(d, k)])
+    case G.GV_rq{w}:
+      G.Rq{+a, +b, +c, w0, w1, w2} = w
+      mono([pk(a, k), pk(b, k), pk(c, k)])
+    case _: False{}
+
+def one_side(+f: List<&2, I.I>, +m: List<&2, I.I>, +k: Nat, +tol: F64) -> Bool:
+  +w = X.vn(m, k)
+  +x = X.vn(f, k)
+  +thin = F64.is_le(F64.sub(I.i_hi(w), I.i_lo(w)), F64.mul(2.0f64, tol))
+  +t2 = F64.mul(2.0f64, tol)
+  Bool.and(thin, Bool.or(Bool.and(F64.is_lt(I.i_lo(x), I.i_lo(w)), F64.is_le(I.i_hi(x), F64.add(I.i_hi(w), t2))),
+    Bool.and(F64.is_lt(I.i_hi(w), I.i_hi(x)), F64.is_le(F64.sub(I.i_lo(w), t2), I.i_lo(x)))))
+
+def in_slab(+e: List<&2, I.I>, +m: List<&2, I.I>, +k: Nat) -> Bool:
+  +x = X.vn(e, k)
+  +w = X.vn(m, k)
+  Bool.and(F64.is_eq(I.i_lo(x), I.i_lo(w)), F64.is_eq(I.i_hi(x), I.i_hi(w)))
+
+def sep_ek(+e: Eg, +fd: SO.Fd, +m: List<&2, I.I>, +k: Nat, +tol: F64) -> Bool:
+  +c = F64.mul(0.5f64, F64.add(I.i_lo(X.vn(m, k)), I.i_hi(X.vn(m, k))))
+  +cross = Bool.and(side_k(eg_bx(e), SO.fd_bx(fd), m, k, tol), mono_g(eg_g(e), k))
+  +flat = Bool.and(in_slab(eg_bx(e), m, k), one_side(SO.fd_bx(fd), m, k, tol))
+  Bool.and(Bool.or(cross, flat), trans(SO.fd_im(fd), k, c, tol))
+
+def sep_e(+e: Eg, +fd: SO.Fd, +tol: F64) -> Bool:
+  +m = X.vmeet(eg_bx(e), SO.fd_bx(fd))
+  Bool.and(Nat.is_eq(List.length(&2, I.I, m), 3n), Bool.or(sep_ek(e, fd, m, 0n, tol), Bool.or(sep_ek(e, fd, m, 1n, tol), sep_ek(e, fd, m, 2n, tol))))
+
+def ef_sp(t: Bool, +x: Eg, +fd: SO.Fd, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64,
+    +cross: Bool, +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
+  match t:
+    case True{}: []
+    case False{}: ef_cs(any_co(fe, tf, SO.fd_g(fd)), x, fd, fg_vs(f), ie, jf, tol, cross, ofds)
+
 def ef_go(own: Bool, +x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64,
     +cross: Bool, +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   match own:
     case True{}: []
     case False{}:
       +fd = fg_fd(f)
-      ef_cs(any_co(fe, tf, SO.fd_g(fd)), x, fd, fg_vs(f), ie, jf, tol, cross, ofds)
+      ef_sp(sep_e(x, fd, tol), x, fd, f, fe, tf, ie, jf, tol, cross, ofds)
 
 def ef(+x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64, +cross: Bool,
     +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
@@ -1020,7 +1095,19 @@ def ff_sph(+cross: Bool, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> Maybe<&2
 def pad(+b: List<&2, I.I>) -> List<&2, I.I>:
   wid(b, F64.mul(F64.add(X.vwid(b), 1.0f64), 0.0009765625f64))
 
-def ff_or_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
+def sep_k(+fa: SO.Fd, +fb: SO.Fd, +m: List<&2, I.I>, +k: Nat, +tol: F64) -> Bool:
+  +c = F64.mul(0.5f64, F64.add(I.i_lo(X.vn(m, k)), I.i_hi(X.vn(m, k))))
+  Bool.and(side_k(SO.fd_bx(fa), SO.fd_bx(fb), m, k, tol), Bool.and(trans(SO.fd_im(fa), k, c, tol), trans(SO.fd_im(fb), k, c, tol)))
+
+def sep(+fa: SO.Fd, +fb: SO.Fd, +m: List<&2, I.I>, +tol: F64) -> Bool:
+  Bool.or(sep_k(fa, fb, m, 0n, tol), Bool.or(sep_k(fa, fb, m, 1n, tol), sep_k(fa, fb, m, 2n, tol)))
+
+def is_none(m: Maybe<&2, List<&2, SO.Fi>>) -> Bool:
+  match m:
+    case None{}: True{}
+    case Some{v}: False{}
+
+def ff_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
     +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   match m:
     case Some{+v}: v
@@ -1031,6 +1118,16 @@ def ff_or_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: 
       +exa = fg_es(x)
       +exb = fg_es(y)
       ss_fi(r, fa, fb, csa, csb, F64.max(tol, F64.add(fg_dv(x), fg_dv(y))), ia, ib, es_share(exa, exb), sh_cvs(exa, exb, te))
+
+def ff_go_sep(t: Bool, m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
+    +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+  match t:
+    case True{}: []
+    case False{}: ff_tr(m, fa, fb, x, y, te, tol, ia, ib)
+
+def ff_or_tr(+m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
+    +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+  ff_go_sep(Bool.and(is_none(m), sep(fa, fb, X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)), tol)), m, fa, fb, x, y, te, tol, ia, ib)
 
 def frame(+n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +m = SO.snap(n)

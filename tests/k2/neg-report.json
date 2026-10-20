@@ -78,5 +78,25 @@
   "name": "gap.interference",
   "ok": true,
   "info": "gap A B gap=[0, 0] traces=1/1 verdict=interference status=certified\n"
+ },
+ {
+  "name": "sweep.path_oblique_line",
+  "ok": true,
+  "info": "ath @ loop 0 segment 0 | why: path-piece-not-axis-aligned | fix: use path lines along x or y and counter-clockwise quarter arcs that start and end on axis points\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "sweep.path_partial_turn",
+  "ok": true,
+  "info": "node 1: error invalid-input | sweep path @ loop 0 segment 0 | why: path-not-tangent-continuous | fix: join consecutive path lines and arcs tangentially\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "sweep.path_kinked",
+  "ok": true,
+  "info": "node 1: error invalid-input | sweep path @ loop 0 segment 0 | why: path-not-tangent-continuous | fix: join consecutive path lines and arcs tangentially\n\nrejected: the design was not changed\n"
+ },
+ {
+  "name": "sweep.profile_reaches_turn_axis",
+  "ok": true,
+  "info": "t | sweep path @ loop 0 segment 0 | why: profile-reaches-path-turn-axis | fix: keep every path arc radius larger than the profile's inward reach (radius + u > 0)\n\nrejected: the design was not changed\n"
  }
 ]

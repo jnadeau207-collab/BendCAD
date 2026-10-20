@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 import subprocess
@@ -185,11 +186,13 @@ def c_imp_sv():
     return ok, out.strip()[:200]
 
 
-@case('import.torus_dust')
+@case('import.torus_dust_certified')
 def c_imp_td():
     out, _ = geom('step_import', ORACLE_TORUS, f'{WORK}/tdust.bca')
-    ok = ('import-validation-failed at brep stage embedding' in out
-          and not os.path.exists(f'{WORK}/tdust.bca'))
+    m = re.search(r'volume=\[([0-9.e+-]+), ([0-9.e+-]+)\]', out)
+    v = 2 * math.pi ** 2 * 30.0 * 10.0 ** 2
+    ok = ('imported' in out and 'error' not in out and os.path.exists(f'{WORK}/tdust.bca')
+          and m is not None and float(m.group(1)) <= v <= float(m.group(2)))
     return ok, out.strip()[:200]
 
 
