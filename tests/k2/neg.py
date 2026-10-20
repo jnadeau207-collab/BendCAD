@@ -159,10 +159,10 @@ def sweep_out(path, prof=None):
     return out
 
 
-@case('sweep.path_oblique_line')
+@case('sweep.path_oblique_kink')
 def s1():
     out = sweep_out('(path 0 -16.69 (line 22.05 -16) (arc 22.05 0 16 22.05 16 ccw) (line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw))')
-    return refused(out, 'path-piece-not-axis-aligned'), out[-200:]
+    return refused(out, 'path-not-tangent-continuous'), out[-200:]
 
 
 @case('sweep.path_partial_turn')

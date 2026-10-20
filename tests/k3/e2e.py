@@ -193,6 +193,43 @@ def rotor():
     record('rotor.refusal_off_node', 'error invalid-input | rotor' in o, raw=o[-300:])
 
 
+def fem_lines(out, key):
+    return [(float(m.group(1)), float(m.group(2)), float(m.group(3)), float(m.group(4)), float(m.group(5)), m.group(6))
+            for m in re.finditer(key + r' ?\[' + NUM + ', ' + NUM + ', ' + NUM + r'\] est=' + NUM + ' bound=' + NUM + r' status=(\S+)', out)]
+
+
+def lamb(E, nu, rho, a, x):
+    cs = math.sqrt(E / (2 * (1 + nu)) / (rho * 1e-12))
+    return x * cs / (2 * PI * a)
+
+
+def fem():
+    E, nu, rho = 200000.0, 0.3, 7850.0
+    out, _ = fresh('fs.bcd', f'(node 1 (sphere 10) {IC})', f'(material 1 steel {rho} 0.000012 {E} {nu})')
+    o, dt = wsl(BIN, f'{WORK}/fs.bcd', 'modes', '1', '10', '4', timeout=7200)
+    ms = fem_lines(o, r'mode \d+ hz=')
+    want = [lamb(E, nu, rho, 10.0, 2.501133)] * 5 + [lamb(E, nu, rho, 10.0, 2.646217)] * 5
+    record('modes.free_sphere_lamb', 'committed' in out and len(ms) == 10 and 'rigid=6' in o
+           and all(abs(m[3] - w) <= m[4] and m[4] <= 2e-3 * w for m, w in zip(ms, want)),
+           got=[(m[2], m[3], m[4]) for m in ms], want=want, seconds=dt, raw=o[-900:])
+    o, dt = wsl(BIN, f'{WORK}/fs.bcd', 'spin', '1', '60000', '4', '0', '0', '0', '0', '0', '1', '0', timeout=7200)
+    wk = fem_lines(o, 'work_nmm')
+    exact = 1.4629528959588416
+    record('spin.free_sphere_chree', len(wk) == 1 and abs(wk[0][3] - exact) <= wk[0][4] and wk[0][4] <= 1e-3 * exact
+           and all(x <= exact * (1 + 1e-9) for x in wk[0][:3]), got=wk, want=exact, seconds=dt, raw=o[-900:])
+    out, _ = fresh('fn.bcd', f'(node 1 (sphere 10) {IC})', f'(material 1 steel {rho} 0.000012)')
+    o1, _ = cli('fn.bcd', 'modes', '1', '5', '3')
+    o2, _ = cli('fs.bcd', 'modes', '1', '0', '3')
+    o3, _ = cli('fs.bcd', 'spin', '1', '60000', '3', '0', '0', '0', '0', '0', '0', '1')
+    out4, _ = fresh('fo.bcd', f'(node 1 (box 10 10 10) {IC})', '(node 2 (move 1 20 0 0 0) (intent same 0 0 1 0))',
+                    f'(material 2 steel {rho} 0.000012 {E} {nu})')
+    o4, _ = wsl(BIN, f'{WORK}/fo.bcd', 'spin', '2', '60000', '4', '0', '0', '0', '0', '0', '1', '0', timeout=3600)
+    o5, _ = cli('fs.bcd', 'apply', f'(material 1 steel {rho} 0.000012 {E} 0.6)')
+    record('fem.refusals', 'material-lacks-elastic-constants' in o1 and 'needs NODE K H' in o2 and 'needs NODE RPM H' in o3
+           and 'refused spin-unsupported' in o4 and 'bad-material' in o5,
+           noel=o1[-200:], k0=o2[-200:], axis0=o3[-200:], offaxis=o4[-300:], nu=o5[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -233,6 +270,7 @@ def main():
                  '(node 2 (move 1 3 2 1 0) (intent same 0 0 1 0))'], 2, 1e-8)
     balance()
     rotor()
+    fem()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

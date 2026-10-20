@@ -8,11 +8,11 @@ def mat_find(ms: List<&2, M.Grade>, +n: U64) -> Maybe<&2, M.Grade>:
   match ms:
     case []: None{}
     case +h <> +t:
-      M.Gr{+nd, +g, +rho, +cte} = h
-      Bool.pick(Maybe<&2, M.Grade>, U64.is_eq(nd, n), Some{M.Gr{nd, g, rho, cte}}, mat_find(t, n))
+      M.Gr{+nd, +g, +rho, +cte, +e, +nu} = h
+      Bool.pick(Maybe<&2, M.Grade>, U64.is_eq(nd, n), Some{M.Gr{nd, g, rho, cte, e, nu}}, mat_find(t, n))
 
 def mt_node(+m: M.Grade) -> U64:
-  M.Gr{+n, +g, +rho, +cte} = m
+  M.Gr{+n, g, rho, cte, e, nu} = m
   n
 
 def mat_set(ms: List<&2, M.Grade>, +m: M.Grade) -> List<&2, M.Grade>:
@@ -31,13 +31,15 @@ def err_line(+what: String, +why: String, +fix: String) -> String:
   "error invalid-input | " ++ what ++ " | why: " ++ why ++ " | fix: " ++ fix ++ "\n"
 
 def mat_err1(+m: M.Grade, +cs: List<&2, M.CE>) -> String:
-  M.Gr{+n, +g, +rho, +cte} = m
-  +num = Bool.and(Bool.and(T.is_finite(rho), F64.is_lt(0.0f64, rho)), Bool.and(T.is_finite(cte), F64.is_le(0.0f64, cte)))
+  M.Gr{+n, +g, +rho, +cte, +e, +nu} = m
+  +el = Bool.or(Bool.and(Bool.not(F64.is_eq(e, e)), Bool.not(F64.is_eq(nu, nu))),
+    Bool.and(Bool.and(T.is_finite(e), F64.is_lt(0.0f64, e)), Bool.and(F64.is_le(0.0f64, nu), F64.is_lt(nu, 0.5f64))))
+  +num = Bool.and(el, Bool.and(Bool.and(T.is_finite(rho), F64.is_lt(0.0f64, rho)), Bool.and(T.is_finite(cte), F64.is_le(0.0f64, cte))))
   Bool.pick(String, Bool.not(nd_known(cs, n)),
     err_line("material", "unknown-node " ++ U64.show(n), "bind materials to evaluated design nodes"),
     Bool.pick(String, num, "",
-      err_line("material", "bad-material: " ++ g ++ " needs a finite density > 0 kg/m3 and a finite expansion >= 0 1/K",
-        "write (material NODE GRADE DENSITY CTE)")))
+      err_line("material", "bad-material: " ++ g ++ " needs a finite density > 0 kg/m3, a finite expansion >= 0 1/K and, if given, a modulus E > 0 MPa with 0 <= nu < 0.5",
+        "write (material NODE GRADE DENSITY CTE [E NU])")))
 
 def mats_err(ms: List<&2, M.Grade>, +cs: List<&2, M.CE>) -> String:
   match ms:
@@ -51,7 +53,7 @@ def mass_line(m: Maybe<&2, M.Grade>, +v: I.I) -> String:
   match m:
     case None{}: ""
     case Some{+x}:
-      M.Gr{+n, +g, +rho, +cte} = x
+      M.Gr{+n, +g, +rho, +cte, e, nu} = x
       +k = mass_iv(v, rho)
       "material " ++ g ++ " density=" ++ S.f_show(rho) ++ " cte=" ++ S.f_show(cte) ++ " mass=[" ++ S.f_show(I.i_lo(k)) ++
         ", " ++ S.f_show(I.i_hi(k)) ++ "] kg status=certified\n"

@@ -1060,9 +1060,12 @@ def part_lines(xs: List<&2, Sx>) -> String:
     case []: ""
     case +x <> t: sx_show(x) ++ "\n" ++ part_lines(t)
 
+def mt_el(+e: F64, +nu: F64) -> List<&2, Sx>:
+  Bool.pick(List<&2, Sx>, F64.is_eq(e, e), [at(f_show(e)), at(f_show(nu))], [])
+
 def mt_sx(m: M.Grade) -> Sx:
-  M.Gr{n, g, rho, cte} = m
-  ls([at("material"), at(U64.show(n)), at(g), at(f_show(rho)), at(f_show(cte))])
+  M.Gr{n, g, rho, cte, +e, +nu} = m
+  ls(List.append(&2, Sx, [at("material"), at(U64.show(n)), at(g), at(f_show(rho)), at(f_show(cte))], mt_el(e, nu)))
 
 def mts_sx(xs: List<&2, M.Grade>) -> List<&2, Sx>:
   match xs:
@@ -1116,7 +1119,7 @@ def fnum_or(+x: Sx) -> F64:
 
 def mt_of(+x: Sx) -> M.Grade:
   +xs = sx_xs(x)
-  M.Gr{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)), fnum_or(sx_nth(xs, 3n)), fnum_or(sx_nth(xs, 4n))}
+  M.Gr{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)), fnum_or(sx_nth(xs, 3n)), fnum_or(sx_nth(xs, 4n)), fnum_or(sx_nth(xs, 5n)), fnum_or(sx_nth(xs, 6n))}
 
 def mts_of(xs: List<&2, Sx>) -> List<&2, M.Grade>:
   match xs:

@@ -298,6 +298,16 @@ def oring_racetrack():
     solid_journey('oring_racetrack', 'rt.bcd', 1, area * (2 * math.pi * 16.69 + 2 * 22.05), out, ev)
 
 
+def bean_sweep():
+    c, sn = math.cos(math.pi / 6), math.sin(math.pi / 6)
+    f = lambda r, sg: f'{r * c!r} {sg * r * sn!r}'
+    path = (f'(path {f(50, -1)} (arc 0 0 50 {f(50, 1)} ccw) (arc {f(45, 1)} 5 {f(40, 1)} ccw) '
+            f'(arc 0 0 40 {f(40, -1)} cw) (arc {f(45, -1)} 5 {f(50, -1)} ccw))')
+    out, _ = fresh('bn.bcd', f'(node 1 (sweep (along {path}) (region (path 1 0 (line 3 0) (line 3 2) (line 1 2) (line 1 0)))) (intent create any any 1 1))')
+    ev, _ = cli('bn.bcd', 'eval')
+    solid_journey('bean_concave_turn', 'bn.bcd', 1, 176 * math.pi, out, ev)
+
+
 def asm_step():
     fresh('as.bcd', f'(node 1 (box 10 20 30) {IC})', f'(node 2 (cylinder 5 10) {IC})')
     f = ('(assembly (inst base 1 0 0 0 0) (inst pin 2 0 0 0 0) (fix 1 base) '
@@ -368,6 +378,7 @@ def main():
     mesh_involute()
     thin_tori()
     oring_racetrack()
+    bean_sweep()
     asm_step()
     press_declared()
     interf_exact()

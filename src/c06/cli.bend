@@ -29,6 +29,8 @@ import ../c15/pmi.bend as PM
 import ../k2/mat.bend as KM
 import ../k3/mom.bend as K3M
 import ../k3/beam.bend as K3B
+import ../k3/solve.bend as K3S
+import ../c07/sol.bend as SOL
 import ../k2/thr.bend as KT
 import ../k2/kasm.bend as KA
 import ../k2/fit.bend as KF
@@ -198,7 +200,7 @@ def thr_ok(+xs: List<&2, S.Sx>) -> Bool:
   Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 8n), S.nat_ok(S.sx_nth(xs, 1n)))
 
 def mat_ok(+xs: List<&2, S.Sx>) -> Bool:
-  Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 5n), S.nat_ok(S.sx_nth(xs, 1n)))
+  Bool.and(Bool.or(Nat.is_eq(List.length(&2, S.Sx, xs), 5n), Nat.is_eq(List.length(&2, S.Sx, xs), 7n)), S.nat_ok(S.sx_nth(xs, 1n)))
 
 def edit_ok(+x: S.Sx) -> Bool:
   Bool.or(Bool.and(S.head_is(x, "param"), pm_ok(S.sx_xs(x))), Bool.or(S.head_is(x, "node"), Bool.or(S.head_is(x, "delete"),
@@ -504,7 +506,8 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "flat"), 24u64,
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
-  Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64, 0u64))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, 0u64))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -600,7 +603,7 @@ def bal_grade(m: Maybe<&2, M.Grade>, +b: M.Body, +p: List<&2, I.I>, +d: List<&2,
   match m:
     case None{}: "error invalid-input | balance | why: node-has-no-material | fix: declare (material NODE GRADE DENSITY CTE)"
     case Some{+x}:
-      M.Gr{+n, +gr, +rho, +cte} = x
+      M.Gr{+n, +gr, +rho, +cte, e, nu} = x
       K3M.bal_s(b, rho, p, d, rpm, g)
 
 def bal_node(r: M.NR, +m: Maybe<&2, M.Grade>, +p: List<&2, I.I>, +d: List<&2, I.I>, +rpm: F64, +g: F64) -> String:
@@ -627,6 +630,75 @@ def bal_out(+p: M.Part, +xs: List<&2, String>) -> String:
   +fin = fin_all([f_arg(xs, 1n), f_arg(xs, 2n), f_arg(xs, 3n), f_arg(xs, 4n), f_arg(xs, 5n), f_arg(xs, 6n)])
   bal_args(Bool.and(fin, Bool.and(F64.is_lt(0.0f64, rpm), F64.is_lt(0.0f64, g))), p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}),
     [I.ipt(f_arg(xs, 1n)), I.ipt(f_arg(xs, 2n)), I.ipt(f_arg(xs, 3n))], f_arg(xs, 4n), f_arg(xs, 5n), f_arg(xs, 6n), rpm, g)
+
+def fe_run(kind: Bool, +fs: List<&2, SOL.Fd>, +h: F64, +e: F64, +nu: F64, +rt: F64, +c: K3S.CL, +k: Nat, +w: F64) -> String:
+  match kind:
+    case True{}: K3S.modes_s(fs, h, e, nu, rt, c, k, w)
+    case False{}: K3S.spin_s(fs, h, e, nu, rt, c, w)
+
+def fe_el(ok: Bool, +kind: Bool, +b: M.Body, +h: F64, +e: F64, +nu: F64, +rt: F64, +c: K3S.CL, +k: Nat, +w: F64, +verb: String) -> String:
+  match ok:
+    case True{}: fe_run(kind, SOL.fds_of(M.bd_brep(b)), h, e, nu, rt, c, k, w)
+    case False{}: "error invalid-input | " ++ verb ++ " | why: material-lacks-elastic-constants | fix: declare (material NODE GRADE DENSITY CTE E NU) with E in MPa"
+
+def fe_grade(m: Maybe<&2, M.Grade>, +b: M.Body, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String) -> String:
+  match m:
+    case None{}: "error invalid-input | " ++ verb ++ " | why: node-has-no-material | fix: declare (material NODE GRADE DENSITY CTE E NU)"
+    case Some{+x}:
+      M.Gr{n, gr, +rho, cte, +e, +nu} = x
+      fe_el(F64.is_eq(e, e), kind, b, h, e, nu, F64.mul(rho, 1.0e-12f64), c, k, w, verb)
+
+def fe_open(op: Bool, +m: Maybe<&2, M.Grade>, +b: M.Body, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String) -> String:
+  match op:
+    case True{}: "refused " ++ verb ++ "-needs-solid | " ++ verb ++ " | fix: thicken-open the shell to a solid first"
+    case False{}: fe_grade(m, b, kind, c, k, h, w, verb)
+
+def fe_node(r: M.NR, +m: Maybe<&2, M.Grade>, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String) -> String:
+  match r:
+    case M.NR_err{kd, dg}: "error: node failed; nothing analysed"
+    case M.NR_ok{+b, fx}: fe_open(M.bd_open(b), m, b, kind, c, k, h, w, verb)
+
+def fe_args(ok: Bool, +p: M.Part, +n: U64, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String, +use: String) -> String:
+  match ok:
+    case True{}:
+      M.Pt{ps, ns, +ms, ts} = p
+      fe_node(node_res(M.ev_part(p, []), n), KM.mat_find(ms, n), kind, c, k, h, w, verb)
+    case False{}: "error invalid-input | " ++ verb ++ " | why: needs " ++ use ++ " | fix: correct the arguments"
+
+def cl_of(+on: Bool, +xs: List<&2, String>, +i: Nat) -> K3S.CL:
+  +dx = f_arg(xs, Nat.add(i, 3n))
+  +dy = f_arg(xs, Nat.add(i, 4n))
+  +dz = f_arg(xs, Nat.add(i, 5n))
+  +l = F64.sqrt(F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz)))
+  K3S.CL{on, V.Pt{f_arg(xs, i), f_arg(xs, Nat.add(i, 1n)), f_arg(xs, Nat.add(i, 2n))}, V.Dr{F64.div(dx, l), F64.div(dy, l), F64.div(dz, l)},
+    f_arg(xs, Nat.add(i, 6n))}
+
+def cl_valid(+xs: List<&2, String>, +i: Nat, +r0: Bool) -> Bool:
+  +dx = f_arg(xs, Nat.add(i, 3n))
+  +dy = f_arg(xs, Nat.add(i, 4n))
+  +dz = f_arg(xs, Nat.add(i, 5n))
+  Bool.and(fin_all([f_arg(xs, i), f_arg(xs, Nat.add(i, 1n)), f_arg(xs, Nat.add(i, 2n)), dx, dy, dz, f_arg(xs, Nat.add(i, 6n))]),
+    Bool.and(F64.is_lt(0.0f64, F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz))),
+      Bool.or(F64.is_lt(0.0f64, f_arg(xs, Nat.add(i, 6n))), Bool.and(r0, F64.is_eq(f_arg(xs, Nat.add(i, 6n)), 0.0f64)))))
+
+def modes_out(+p: M.Part, +xs: List<&2, String>) -> String:
+  +na = List.length(&2, String, xs)
+  +on = Nat.is_le(10n, na)
+  +k = U64.to_nat(S.u64_of(S.Sx_a{S.arg_at(xs, 1n)}))
+  +h = f_arg(xs, 2n)
+  +rpm = Bool.pick(F64, Nat.is_eq(na, 11n), f_arg(xs, 10n), 0.0f64)
+  +ok = Bool.and(Bool.and(Bool.and(Nat.is_lt(0n, k), Nat.is_le(k, 40n)), Bool.and(F64.is_lt(0.0f64, h), Bool.or(Bool.not(on), cl_valid(xs, 3n, False{})))),
+    Bool.or(Nat.is_lt(na, 11n), F64.is_lt(0.0f64, rpm)))
+  fe_args(Bool.and(ok, Bool.or(Nat.is_eq(na, 3n), Bool.or(Nat.is_eq(na, 10n), Nat.is_eq(na, 11n)))), p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}), True{},
+    cl_of(on, xs, 3n), k, h, F64.div(F64.mul(rpm, 6.283185307179586f64), 60.0f64),
+    "modes", "NODE K H [PX PY PZ DX DY DZ R [RPM]] with 1 <= K <= 40, H > 0, a non-zero axis, R > 0 and RPM > 0")
+
+def spin_out(+p: M.Part, +xs: List<&2, String>) -> String:
+  +rpm = f_arg(xs, 1n)
+  +h = f_arg(xs, 2n)
+  +ok = Bool.and(Nat.is_eq(List.length(&2, String, xs), 10n), Bool.and(Bool.and(F64.is_lt(0.0f64, rpm), F64.is_lt(0.0f64, h)), cl_valid(xs, 3n, True{})))
+  fe_args(ok, p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}), False{}, cl_of(F64.is_lt(0.0f64, f_arg(xs, 9n)), xs, 3n), 0n, h, F64.div(F64.mul(rpm, 6.283185307179586f64), 60.0f64),
+    "spin", "NODE RPM H PX PY PZ DX DY DZ R with RPM > 0, H > 0, a non-zero axis and a clamp radius R > 0 about it (R = 0 spins a free, balanced part)")
 
 def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(Unit):
   match w:
@@ -1046,7 +1118,9 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 28u64: IO.print(threads_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
     case 29u64: IO.print(bal_out(p, rest))
     case 30u64: IO.print(K3B.rotor_s(S.arg_at(rest, 0n)))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor")
+    case 31u64: IO.print(modes_out(p, rest))
+    case 32u64: IO.print(spin_out(p, rest))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
   match is_diag:

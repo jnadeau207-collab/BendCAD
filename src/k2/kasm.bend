@@ -47,7 +47,7 @@ def mass_one(g: Maybe<&2, M.Grade>, +h: A4.IN, +ok: Bool, +txt: String, +tot: I.
       " | fix: bind (material NODE GRADE DENSITY CTE) to node " ++ U64.show(in_node(h)) ++ "
 ", tot}
     case Some{+x}:
-      M.Gr{+n, +gr, +rho, +cte} = x
+      M.Gr{+n, +gr, +rho, +cte, e, nu} = x
       +k = KM.mass_iv(M.ms_vol(M.body_ms(M.nr_body(A4.in_nr(h)))), rho)
       MS{ok, txt ++ A4.in_name(h) ++ " " ++ gr ++ " mass=[" ++ S.f_show(I.i_lo(k)) ++ ", " ++ S.f_show(I.i_hi(k)) ++ "] kg
 ",

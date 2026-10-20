@@ -158,7 +158,7 @@ def cte_of(m: Maybe<&2, M.Grade>) -> F64:
   match m:
     case None{}: F64.nan()
     case Some{+g}:
-      M.Gr{+n, +gr, +rho, +cte} = g
+      M.Gr{+n, +gr, +rho, +cte, e, nu} = g
       cte
 
 def gf(+cte: F64, +t: F64) -> I.I:

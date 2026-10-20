@@ -65,15 +65,15 @@ def hz(xs: List<&2, F64>, +sg: F64) -> String:
     case +h <> t: F64.show(F64.div(F64.sqrt(F64.max(0.0f64, F64.sub(h, sg))), S.two_pi())) ++ " " ++ hz(t, sg)
 
 def fin(+s: F.SI, +sg: F64) -> String:
-  F.SI{+x, +lam} = s
-  hz(lam, sg)
+  F.SI{+x, +lam, +it} = s
+  "iters " ++ Nat.show(it) ++ " " ++ hz(lam, sg)
 
 def modal(+es: List<&2, F.EL>, +nn: Nat, +it: Nat) -> String:
   +sg = {1.0e11f64 : F64}
   +fm = F.fm_sig(F.fm_of(U32.from_nat(nn), es, 200000.0f64, 0.3f64, 7.85e-9f64), sg)
   +n = Nat.mul(nn, 3n)
   " curved=" ++ Nat.show(K.n_ec(es, 0n)) ++ "
-hz " ++ fin(F.lobpcg(it, fm, ones(n), 16n, starts(16n, n, 1.0f64)), sg)
+hz " ++ fin(F.lobpcg(it, fm, ones(n), 16n, 16n, 1.0e-11f64, starts(16n, n, 1.0f64)), sg)
 
 def tm_go(+t: K.TM, +it: Nat) -> String:
   K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = t
@@ -98,4 +98,4 @@ def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
     src : String <- read_file("/tmp/zm.bcd")
-    IO.print(run(src, F64.div(4.0f64, K.nat_f(List.length(&1, String, args))), 30n))
+    IO.print(run(src, F64.div(4.0f64, K.nat_f(List.length(&1, String, args))), 60n))

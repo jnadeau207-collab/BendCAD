@@ -19,7 +19,7 @@ def mat_blk(m: Maybe<&2, M.Grade>, +b: Nat, +pd: Nat, +ctx: Nat) -> KB:
   match m:
     case None{}: KB{"", 0n}
     case Some{+g}:
-      M.Gr{+n, +gr, +rho, +cte} = g
+      M.Gr{+n, +gr, +rho, +cte, e, nu} = g
       KB{SW.sw_ent(b, "MATERIAL_DESIGNATION(" ++ q(gr) ++ ",(" ++ SW.sw_ref(pd) ++ "))") ++
         SW.sw_ent(Nat.add(b, 1n), "PROPERTY_DEFINITION('material property','density'," ++ SW.sw_ref(pd) ++ ")") ++
         SW.sw_ent(Nat.add(b, 2n), "DESCRIPTIVE_REPRESENTATION_ITEM('density'," ++ q(num(rho) ++ " kg/m3") ++ ")") ++

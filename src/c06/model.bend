@@ -102,7 +102,7 @@ type Node is Data:
   Nd{ id: U64, op: Op, it: It }
 
 type Grade is Data:
-  Gr{ node: U64, grade: String, rho: F64, cte: F64 }
+  Gr{ node: U64, grade: String, rho: F64, cte: F64, e: F64, nu: F64 }
 
 type Thr is Data:
   Th{ node: U64, name: String, face: String, desig: String, cls: String, z0: F64, z1: F64 }
@@ -186,7 +186,7 @@ def pe_why(+c: U64) -> String:
     case 23u64: "consecutive-axis-segments"
     case 24u64: "surface-not-representable"
     case 25u64: "profile-reaches-path-turn-axis"
-    case 26u64: "path-piece-not-axis-aligned"
+    case 26u64: "path-piece-degenerate"
     case 27u64: "path-not-tangent-continuous"
     case 28u64: "path-not-one-turn"
     case 29u64: "sweep-needs-one-loop"
@@ -218,10 +218,10 @@ def pe_fix(+c: U64) -> String:
     case 22u64: "touch the axis only along an axis segment, not at a lone vertex"
     case 23u64: "merge consecutive segments that lie on the axis"
     case 24u64: "adjust the slanted line or arc (cone apex not certifiable, or arc centre at x < 0)"
-    case 25u64: "keep every path arc radius larger than the profile's inward reach (radius + u > 0)"
-    case 26u64: "use path lines along x or y and counter-clockwise quarter arcs that start and end on axis points"
+    case 25u64: "keep every path arc radius larger than the profile's reach toward its centre (radius + u > 0 on counter-clockwise arcs, radius - u > 0 on clockwise arcs)"
+    case 26u64: "give every path line a non-zero length and every path arc a positive radius"
     case 27u64: "join consecutive path lines and arcs tangentially"
-    case 28u64: "use one closed counter-clockwise path with four quarter turns"
+    case 28u64: "use one closed counter-clockwise path whose turns add up to one full turn"
     case 29u64: "give the path and the profile one loop each, without holes"
     case _: "report this"
 
@@ -2341,13 +2341,12 @@ def sw_aa(ok: Bool, +deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: 
 def psw_ms(+pr: PW.PR, +l: F.Lp, +br: Ty.Brep) -> Ms:
   +a = lp_area(l)
   +m1 = rlps([l], False{})
-  +pq = I.iscale(I.pi_i(), 0.5f64)
   +tp = I.iscale(I.pi_i(), 2.0f64)
   +run = I.iwiden(I.ipt(PW.pr_run(pr)), F64.mul(PW.pr_run(pr), 8.881784197001252e-16f64))
-  +rho = I.iwiden(I.ipt(PW.pr_rho(pr)), F64.mul(PW.pr_rho(pr), 8.881784197001252e-16f64))
-  +vol = I.iadd(I.imul(a, I.iadd(run, I.imul(pq, rho))), I.imul(tp, m1))
+  +tl = PW.pr_tl(pr)
+  +vol = I.iadd(I.imul(a, I.iadd(run, tl)), I.imul(tp, m1))
   +p = lp_len(l)
-  +area = I.iadd(I.imul(p, I.iadd(run, I.imul(pq, rho))), I.imul(tp, rlps([l], True{})))
+  +area = I.iadd(I.imul(p, I.iadd(run, tl)), I.imul(tp, rlps([l], True{})))
   +bb0 = bb_vs(Ty.brep_vs(br), bb_empty())
   +lin = F64.mul(bb_m(bb0), 1.7763568394002505e-15f64)
   ms_mk(Acc{vol, area, I.ipt(F64.mul(4.0f64, F64.mul(bb_m(bb0), 100.0f64)))}, bb_wid(bb0, lin), lin, br)

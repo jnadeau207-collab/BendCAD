@@ -490,8 +490,11 @@ def pr_b(+a: Nat, +b: Nat, +c: Nat, +d: Nat, +e: Nat, +f: Nat, +acc: List<&2, T4
 def pr_a(+a: Nat, +b: Nat, +c: Nat, +d: Nat, +e: Nat, +f: Nat, +acc: List<&2, T4>) -> List<&2, T4>:
   Bool.pick(List<&2, T4>, Nat.is_lt(d, a), pr_b(d, e, f, a, b, c, acc), pr_b(a, b, c, d, e, f, acc))
 
+def mn6n(+a: Nat, +b: Nat, +c: Nat, +d: Nat, +e: Nat, +f: Nat) -> Nat:
+  Nat.min(Nat.min(Nat.min(a, b), Nat.min(c, d)), Nat.min(e, f))
+
 def prism(+a: Nat, +b: Nat, +c: Nat, +d: Nat, +e: Nat, +f: Nat, +acc: List<&2, T4>) -> List<&2, T4>:
-  +mn = Nat.min(Nat.min(Nat.min(a, b), Nat.min(c, d)), Nat.min(e, f))
+  +mn = mn6n(a, b, c, d, e, f)
   Bool.pick(List<&2, T4>, Bool.or(Nat.is_eq(mn, a), Nat.is_eq(mn, d)), pr_a(a, b, c, d, e, f, acc),
     Bool.pick(List<&2, T4>, Bool.or(Nat.is_eq(mn, b), Nat.is_eq(mn, e)), pr_a(b, c, a, e, f, d, acc), pr_a(c, a, b, f, d, e, acc)))
 
@@ -1220,3 +1223,26 @@ def n_ec(es: List<&2, F.EL>, +n: Nat) -> Nat:
   match es:
     case []: n
     case +e <> t: n_ec(t, Nat.add(n, ec_one(e)))
+
+type TR is Data:
+  TR{ ok: Bool, tm: TM }
+
+def tm_mr(+r: MR, +ok: Bool, +fs: List<&2, SO.Fd>) -> TR:
+  MR{+ok2, +nv, +nc, +ns, +ts, +pt} = r
+  TR{Bool.and(ok, ok2), t10_of(ts, pt, Nat.add(nv, nc), fs)}
+
+def tm_gr(+fs: List<&2, SO.Fd>, +gr: GR, +ga: GS, +gb: GS, +span: F64) -> TR:
+  GS{+oa, +sa} = ga
+  GS{+ob, +sb} = gb
+  tm_mr(mesh_gd(gd_of(gr, sa, sb), sa, sb, fs, span), Bool.and(oa, ob), fs)
+
+def iw(+i: I.I) -> F64:
+  F64.sub(I.i_hi(i), I.i_lo(i))
+
+def span_of(+bb: List<&2, I.I>) -> F64:
+  F64.mul(4.0f64, F64.add(F64.add(iw(X.vn(bb, 0n)), iw(X.vn(bb, 1n))), iw(X.vn(bb, 2n))))
+
+def tm_of(+fs: List<&2, SO.Fd>, +h: F64) -> TR:
+  +bb = SO.bbox(fs, [])
+  +gr = grid_of(bb, h)
+  tm_gr(fs, gr, signs_a(fs, gr), signs_b(fs, gr), span_of(bb))

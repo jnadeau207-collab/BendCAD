@@ -419,6 +419,126 @@ def brow_f(s: BV, row: List<&2, BE>) -> List<&2, V.Dir>:
 def bspmv(+rows: List<&2, List<&2, BE>>, +ks: F64, +ms: F64, +xs: List<&2, List<&2, V.Dir>>) -> List<&2, List<&2, V.Dir>>:
   B.pmap_g(~List<&2, BE>, ~BV, ~List<&2, V.Dir>, ~brow_f, 64, BV{B.tb_of(List<&2, V.Dir>, xs, []), ks, ms}, rows)
 
+def gu9(gs: List<&2, V.Dir>, us: List<&2, V.Dir>, +h: M9) -> M9:
+  match gs:
+    case []: h
+    case +g <> +gt:
+      match us:
+        case []: h
+        case +u <> +ut:
+          gu9(gt, ut, m9_add(h, M9{F64.mul(S.dx(g), S.dx(u)), F64.mul(S.dx(g), S.dy(u)), F64.mul(S.dx(g), S.dz(u)), F64.mul(S.dy(g), S.dx(u)),
+            F64.mul(S.dy(g), S.dy(u)), F64.mul(S.dy(g), S.dz(u)), F64.mul(S.dz(g), S.dx(u)), F64.mul(S.dz(g), S.dy(u)), F64.mul(S.dz(g), S.dz(u))}))
+
+def sig9(+h: M9, +lam: F64, +mu: F64) -> M9:
+  M9{+a, +b, +c, +d, +e, +f, +g, +hh, +i} = h
+  +tr = F64.mul(lam, F64.add(F64.add(a, e), i))
+  +sxy = F64.mul(mu, F64.add(b, d))
+  +sxz = F64.mul(mu, F64.add(c, g))
+  +syz = F64.mul(mu, F64.add(f, hh))
+  M9{F64.add(tr, F64.mul(F64.mul(2.0f64, mu), a)), sxy, sxz, sxy, F64.add(tr, F64.mul(F64.mul(2.0f64, mu), e)), syz, sxz, syz,
+    F64.add(tr, F64.mul(F64.mul(2.0f64, mu), i))}
+
+def gsg(+ga: V.Dir, +s: M9, +gb: V.Dir) -> F64:
+  S.dot(ga, m9_mv(s, gb))
+
+def kg_row(+ga: V.Dir, gs: List<&2, V.Dir>, +s: M9, +w: F64, acc: List<&2, F64>) -> List<&2, F64>:
+  match gs:
+    case []: []
+    case +g <> +gt:
+      match acc:
+        case []: []
+        case +x <> +at: F64.add(x, F64.mul(w, gsg(ga, s, g))) <> kg_row(ga, gt, s, w, at)
+
+def kg_rows(ga: List<&2, V.Dir>, +gs: List<&2, V.Dir>, +s: M9, +w: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match ga:
+    case []: []
+    case +g <> +gt: List.append(&2, F64, kg_row(g, gs, s, w, B.take_u(F64, acc, 10, False{})), kg_rows(gt, gs, s, w, B.drop_u(F64, acc, 10, False{})))
+
+type PS is Data:
+  PS{ u: B.Tb<&2, F64>, lam: F64, mu: F64, w2: F64, d: V.Dir }
+
+def nodal(+u: B.Tb<&2, F64>, ns: List<&2, U32>) -> List<&2, V.Dir>:
+  match ns:
+    case []: []
+    case +n <> +t:
+      +k = U32.mul(n, 3)
+      S.dr(B.tb_get(F64, u, k), B.tb_get(F64, u, U32.add(k, 1)), B.tb_get(F64, u, U32.add(k, 2))) <> nodal(u, t)
+
+def kg_aff(qs: List<&2, List<&2, F64>>, +gl: List<&2, V.Dir>, +v: F64, +us: List<&2, V.Dir>, +lam: F64, +mu: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match qs:
+    case []: acc
+    case +q <> +t:
+      +gs = grads(q, gl)
+      kg_aff(t, gl, v, us, lam, mu, kg_rows(gs, gs, sig9(gu9(gs, us, m9z()), lam, mu), F64.mul(v, L.nth_f64(q, 4n)), acc))
+
+def kg_cq(+g: QG, +us: List<&2, V.Dir>, +lam: F64, +mu: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  QG{+gs, +w} = g
+  kg_rows(gs, gs, sig9(gu9(gs, us, m9z()), lam, mu), w, acc)
+
+def kg_cur(qs: List<&2, List<&2, F64>>, +ps: List<&2, V.Point>, +us: List<&2, V.Dir>, +lam: F64, +mu: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match qs:
+    case []: acc
+    case +q <> +t: kg_cur(t, ps, us, lam, mu, kg_cq(qg_of(ps, q), us, lam, mu, acc))
+
+def ms_cq(+g: QG, +nv: List<&2, F64>, +acc: List<&2, F64>) -> List<&2, F64>:
+  QG{gs, +w} = g
+  m_rows2(nv, nv, w, acc)
+
+def ms_cur(qs: List<&2, List<&2, F64>>, +ps: List<&2, V.Point>, +acc: List<&2, F64>) -> List<&2, F64>:
+  match qs:
+    case []: acc
+    case +q <> +t: ms_cur(t, ps, ms_cq(qg_of(ps, q), nvals(q), acc))
+
+def perp9(+d: V.Dir) -> M9:
+  +x = S.dx(d)
+  +y = S.dy(d)
+  +z = S.dz(d)
+  M9{F64.sub(1.0f64, F64.mul(x, x)), F64.neg(F64.mul(x, y)), F64.neg(F64.mul(x, z)), F64.neg(F64.mul(y, x)), F64.sub(1.0f64, F64.mul(y, y)),
+    F64.neg(F64.mul(y, z)), F64.neg(F64.mul(z, x)), F64.neg(F64.mul(z, y)), F64.sub(1.0f64, F64.mul(z, z))}
+
+def eye9(+s: F64) -> M9:
+  M9{s, 0.0f64, 0.0f64, 0.0f64, s, 0.0f64, 0.0f64, 0.0f64, s}
+
+def pre9(ss: List<&2, F64>, ms: List<&2, F64>, +p: M9, +w2: F64) -> List<&2, M9>:
+  match ss:
+    case []: []
+    case +s <> +st:
+      match ms:
+        case []: []
+        case +m <> +mt: m9_add(eye9(s), m9_sc(F64.neg(F64.mul(w2, m)), p)) <> pre9(st, mt, p, w2)
+
+def pre_eb(e: EL, +u: B.Tb<&2, F64>, +lam: F64, +mu: F64, +rho: F64) -> EB:
+  match e:
+    case EL{+ns, +gl, +v}: EB{m9s(0n), List.append(&2, F64, kg_aff(wq(), gl, v, nodal(u, ns), lam, mu, f0s(100n)), scale(rho, flat_rows(mref(), F64.div(v, 420.0f64))))}
+    case EC{+ns, +ps}: EB{m9s(0n), List.append(&2, F64, kg_cur(wq(), ps, nodal(u, ns), lam, mu, f0s(100n)), scale(rho, ms_cur(wq(), ps, f0s(100n))))}
+
+type PR is Data:
+  PR{ u: B.Tb<&2, F64>, lam: F64, mu: F64, rho: F64, w2: F64, d: V.Dir }
+
+def pre_bes(+b: EB, +ns: List<&2, U32>, +d: V.Dir, +w2: F64) -> List<&2, BE>:
+  EB{k0, +sm} = b
+  be_rows(ns, ns, pre9(B.take_u(F64, sm, 100, False{}), B.drop_u(F64, sm, 100, False{}), perp9(d), w2), f0s(100n), [])
+
+def pre_go(+c: PR, +e: EL) -> List<&2, BE>:
+  PR{+u, +lam, +mu, +rho, +w2, +d} = c
+  pre_bes(pre_eb(e, u, lam, mu, rho), el_ns(e), d, w2)
+
+def pre_f(c: PR, e: EL) -> List<&2, BE>:
+  pre_go(c, e)
+
+def rows_be(rs: List<&2, List<&2, BE>>) -> List<&2, BE>:
+  match rs:
+    case []: []
+    case +r <> +t: List.append(&2, BE, r, rows_be(t))
+
+def prestress(+fm: FM, +es: List<&2, EL>, +u: List<&2, F64>, +e: F64, +nu: F64, +w: F64, +d: V.Dir) -> FM:
+  FM{+nn, +rows, +rho, +sg} = fm
+  +lam = F64.div(F64.mul(e, nu), F64.mul(F64.add(1.0f64, nu), F64.sub(1.0f64, F64.mul(2.0f64, nu))))
+  +mu = F64.div(e, F64.mul(2.0f64, F64.add(1.0f64, nu)))
+  +extra = cat_be(B.pmap_g(~EL, ~PR, ~List<&2, BE>, ~pre_f, 16, PR{B.tb_of(F64, u, 0.0f64), lam, mu, rho, F64.mul(w, w), d}, es))
+  +all = so_be(B.msort(~BE, ~be_cmp, List.append(&2, BE, rows_be(rows), extra)))
+  FM{nn, merge_be(tl_be(all), MG{hd_be(all), [], []}), rho, sg}
+
 def apply_op(+fm: FM, +mass: Bool, +xs: List<&2, F64>) -> List<&2, F64>:
   FM{+nn, +rows, +rho, +sg} = fm
   Bool.pick(List<&2, F64>, mass, spmv(rows, 0.0f64, rho, xs), spmv(rows, 1.0f64, F64.mul(sg, rho), xs))
@@ -692,10 +812,29 @@ def jsweep(ps: List<&2, List<&2, Nat>>, +j: JA) -> JA:
     case []: j
     case +pq <> +t: jsweep(t, jrot(j, L.nth_n(pq, 0n), L.nth_n(pq, 1n)))
 
-def jsweeps(n: Nat, +ps: List<&2, List<&2, Nat>>, +j: JA) -> JA:
+def off2(rs: List<&2, List<&2, F64>>, +i: Nat, +acc: F64) -> F64:
+  match rs:
+    case []: acc
+    case +r <> +t: off2(t, Nat.add(i, 1n), F64.add(acc, F64.sub(dot_l(r, r, 0.0f64), F64.mul(L.nth_f64(r, i), L.nth_f64(r, i)))))
+
+def all2(rs: List<&2, List<&2, F64>>, +acc: F64) -> F64:
+  match rs:
+    case []: acc
+    case +r <> +t: all2(t, F64.add(acc, dot_l(r, r, 0.0f64)))
+
+def ja_done(+j: JA) -> Bool:
+  JA{+a, v} = j
+  F64.is_le(off2(a, 0n, 0.0f64), F64.mul(1.0e-30f64, all2(a, 0.0f64)))
+
+def jsweeps(n: Nat, done: Bool, +ps: List<&2, List<&2, Nat>>, +j: JA) -> JA:
   match n:
     case 0n: j
-    case 1n+m: jsweeps(m, ps, jsweep(ps, j))
+    case 1n+m:
+      match done:
+        case True{}: j
+        case False{}:
+          +j2 = jsweep(ps, j)
+          jsweeps(m, ja_done(j2), ps, j2)
 
 def ident_row(+n: Nat, +i: Nat, ks: List<&2, Nat>) -> List<&2, F64>:
   match ks:
@@ -709,18 +848,10 @@ def ident(+n: Nat, ix: List<&2, Nat>) -> List<&2, List<&2, F64>>:
 
 def jacobi(+a: List<&2, List<&2, F64>>, +n: Nat) -> JA:
   +ps = jpairs(n, L.nat_range(n))
-  jsweeps(12n, ps, JA{a, ident(n, L.nat_range(n))})
+  jsweeps(30n, False{}, ps, JA{a, ident(n, L.nat_range(n))})
 
 type QS is Data:
   QS{ q: List<&2, List<&2, F64>>, mq: List<&2, List<&2, F64>> }
-
-def comb_go(qs: List<&2, List<&2, F64>>, +col: List<&2, F64>, +acc: List<&2, F64>) -> List<&2, F64>:
-  match qs:
-    case []: acc
-    case +q <> +t:
-      match col:
-        case []: acc
-        case +c <> +ct: comb_go(t, ct, axpy(c, q, acc))
 
 def colj(rs: List<&2, List<&2, F64>>, +j: Nat) -> List<&2, F64>:
   match rs:
@@ -738,7 +869,7 @@ def diag_of(+a: List<&2, List<&2, F64>>, js: List<&2, Nat>) -> List<&2, F64>:
     case +j <> +t: mget(a, j, j) <> diag_of(a, t)
 
 type SI is Data:
-  SI{ x: List<&2, List<&2, F64>>, lam: List<&2, F64> }
+  SI{ x: List<&2, List<&2, F64>>, lam: List<&2, F64>, it: Nat }
 
 def gram_row(+x: List<&2, F64>, ys: List<&2, List<&2, F64>>) -> List<&2, F64>:
   match ys:
@@ -919,28 +1050,44 @@ def gram_f(ys: List<&2, List<&2, F64>>, x: List<&2, F64>) -> List<&2, F64>:
 def pgram(+xs: List<&2, List<&2, F64>>, +ys: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
   B.pmap_g(~List<&2, F64>, ~List<&2, List<&2, F64>>, ~List<&2, F64>, ~gram_f, 1, ys, xs)
 
-type CB is Data:
-  CB{ qs: List<&2, List<&2, F64>>, z: List<&2, F64> }
+def hdf(cs: List<&2, List<&2, F64>>) -> List<&2, F64>:
+  match cs:
+    case []: []
+    case +c <> +t:
+      match c:
+        case []: hdf(t)
+        case +h <> +r: h <> hdf(t)
 
-type CJ is Data:
-  CJ{ col: List<&2, F64>, s: F64 }
+def tlf(cs: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
+  match cs:
+    case []: []
+    case +c <> +t:
+      match c:
+        case []: [] <> tlf(t)
+        case +h <> +r: r <> tlf(t)
 
-def comb_f(c: CB, j: CJ) -> List<&2, F64>:
-  CB{+qs, +z} = c
-  CJ{+col, +s} = j
-  scale(s, comb_go(qs, col, z))
+def tcolf(n: Nat, +cs: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
+  match n:
+    case 0n: []
+    case 1n+(+m): hdf(cs) <> tcolf(m, tlf(cs))
 
-def cjs(+v: List<&2, List<&2, F64>>, js: List<&2, Nat>, ss: List<&2, F64>) -> List<&2, CJ>:
+def rdot_f(cs: List<&2, List<&2, F64>>, row: List<&2, F64>) -> List<&2, F64>:
+  gram_row(row, cs)
+
+def rcomb(+qs: List<&2, List<&2, F64>>, +cs: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
+  +n = List.length(&2, F64, hd_l(qs))
+  tcolf(List.length(&2, List<&2, F64>, cs), B.pmap_g(~List<&2, F64>, ~List<&2, List<&2, F64>>, ~List<&2, F64>, ~rdot_f, 256, cs, tcolf(n, qs)))
+
+def ccols(+v: List<&2, List<&2, F64>>, js: List<&2, Nat>, ss: List<&2, F64>) -> List<&2, List<&2, F64>>:
   match js:
     case []: []
     case +j <> +t:
       match ss:
         case []: []
-        case +s <> +st: CJ{colj(v, j), s} <> cjs(v, t, st)
+        case +s <> +st: scale(s, colj(v, j)) <> ccols(v, t, st)
 
 def pcombs(+qs: List<&2, List<&2, F64>>, +v: List<&2, List<&2, F64>>, +js: List<&2, Nat>, +ss: List<&2, F64>) -> List<&2, List<&2, F64>>:
-  B.pmap_g(~CJ, ~CB, ~List<&2, F64>, ~comb_f, 1, CB{qs, scale(0.0f64, hd_l(qs))}, cjs(v, js, ss))
-
+  rcomb(qs, ccols(v, js, ss))
 def ones_l(n: Nat) -> List<&2, F64>:
   match n:
     case 0n: []
@@ -954,7 +1101,6 @@ def fmax(xs: List<&2, F64>, +acc: F64) -> F64:
 def pc_rz(+s: PC) -> List<&2, F64>:
   PC{x, r, p, +rz} = s
   rz
-
 
 def bpcg_tol(n: Nat, done: Bool, +fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +tol: F64, +s: PC) -> PC:
   match n:
@@ -1011,25 +1157,19 @@ def qs_q(+q: QS) -> List<&2, List<&2, F64>>:
 def mon2(+fm: FM, +mask: List<&2, F64>, +qs: List<&2, List<&2, F64>>) -> QS:
   mon(fm, mask, qs_q(mon(fm, mask, qs)))
 
-type PX is Data:
-  PX{ xs: List<&2, List<&2, F64>>, c: List<&2, List<&2, F64>> }
-
-type YJ is Data:
-  YJ{ y: List<&2, F64>, j: Nat }
-
-def yjs(ys: List<&2, List<&2, F64>>, +j: Nat) -> List<&2, YJ>:
-  match ys:
+def cols_of(+c: List<&2, List<&2, F64>>, js: List<&2, Nat>) -> List<&2, List<&2, F64>>:
+  match js:
     case []: []
-    case +y <> +t: YJ{y, j} <> yjs(t, Nat.add(j, 1n))
+    case +j <> +t: colj(c, j) <> cols_of(c, t)
 
-def orth_f(c: PX, yj: YJ) -> List<&2, F64>:
-  PX{+xs, +cm} = c
-  YJ{+y, +j} = yj
-  comb_go(xs, negs(colj(cm, j)), y)
+def mones(n: Nat) -> List<&2, F64>:
+  match n:
+    case 0n: []
+    case 1n+(+m): F64.neg(1.0f64) <> mones(m)
 
 def proj_x(+xs: List<&2, List<&2, F64>>, +mxs: List<&2, List<&2, F64>>, +ys: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
-  B.pmap_g(~YJ, ~PX, ~List<&2, F64>, ~orth_f, 1, PX{xs, pgram(mxs, ys)}, yjs(ys, 0n))
-
+  +m = List.length(&2, List<&2, F64>, ys)
+  caxpy(mones(m), rcomb(xs, cols_of(pgram(mxs, ys), L.nat_range(m))), ys)
 def ext(+fm: FM, +mask: List<&2, F64>, +xs: List<&2, List<&2, F64>>, +ys: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
   +mxs = blk_op(fm, mask, True{}, xs)
   List.append(&2, List<&2, F64>, xs, qs_q(mon2(fm, mask, proj_x(xs, mxs, proj_x(xs, mxs, ys)))))
@@ -1045,9 +1185,9 @@ def lb_np(+s: LB) -> LB:
   LB{+xs, +kxs, +lam, ps} = s
   LB{xs, kxs, lam, []}
 
-def lb_si(+s: LB) -> SI:
+def lb_si(+s: LB, +it: Nat) -> SI:
   LB{+xs, kxs, +lam, ps} = s
-  SI{xs, lam}
+  SI{xs, lam, it}
 
 def lob_ja(j: JA, +qs: List<&2, List<&2, F64>>, +kq: List<&2, List<&2, F64>>, +m: Nat, +k: Nat, +nx: Nat) -> LB:
   JA{+a, +v} = j
@@ -1061,15 +1201,46 @@ def lob_rr(+qs: List<&2, List<&2, F64>>, +fm: FM, +mask: List<&2, F64>, +k: Nat,
   +m = List.length(&2, List<&2, F64>, qs)
   lob_ja(jacobi(pgram(qs, kq), m), qs, kq, m, k, nx)
 
-def lob_it(n: Nat, +fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +k: Nat, +s: LB) -> LB:
-  match n:
-    case 0n: s
-    case 1n+j:
-      LB{+xs, +kxs, +lam, +ps} = s
-      +ws = bresid(xs, kxs, lam, fm, mask, pc)
-      lob_it(j, fm, mask, pc, k, lob_rr(ext(fm, mask, xs, List.append(&2, List<&2, F64>, ws, ps)), fm, mask, k, k))
+def lb_lam(+s: LB) -> List<&2, F64>:
+  LB{xs, kxs, +lam, ps} = s
+  lam
 
-def lobpcg(n: Nat, +fm: FM, +mask: List<&2, F64>, +k: Nat, +x0: List<&2, List<&2, F64>>) -> SI:
+def rel_ch(as: List<&2, F64>, bs: List<&2, F64>, +acc: F64) -> F64:
+  match as:
+    case []: acc
+    case +a <> +at:
+      match bs:
+        case []: acc
+        case +b <> +bt: rel_ch(at, bt, F64.max(acc, F64.div(F64.abs(F64.sub(a, b)), F64.max(F64.abs(a), 1.0e-300f64))))
+
+type LQ is Data:
+  LQ{ s: LB, it: Nat }
+
+def take_l(n: Nat, xs: List<&2, F64>) -> List<&2, F64>:
+  match n:
+    case 0n: []
+    case 1n+(+m):
+      match xs:
+        case []: []
+        case +x <> +t: x <> take_l(m, t)
+
+def lob_it(n: Nat, done: Bool, +fm: FM, +mask: List<&2, F64>, +pc: List<&2, F64>, +k: Nat, +kw: Nat, +tol: F64, +it: Nat, +s: LB) -> LQ:
+  match n:
+    case 0n: LQ{s, it}
+    case 1n+j:
+      match done:
+        case True{}: LQ{s, it}
+        case False{}:
+          LB{+xs, +kxs, +lam, +ps} = s
+          +ws = bresid(xs, kxs, lam, fm, mask, pc)
+          +s2 = lob_rr(ext(fm, mask, xs, List.append(&2, List<&2, F64>, ws, ps)), fm, mask, k, k)
+          lob_it(j, F64.is_lt(rel_ch(take_l(kw, lb_lam(s2)), take_l(kw, lam), 0.0f64), tol), fm, mask, pc, k, kw, tol, Nat.add(it, 1n), s2)
+
+def lt_si(+t: LQ) -> SI:
+  LQ{+s, +it} = t
+  lb_si(s, it)
+
+def lobpcg(n: Nat, +fm: FM, +mask: List<&2, F64>, +k: Nat, +kw: Nat, +tol: F64, +x0: List<&2, List<&2, F64>>) -> SI:
   +pc = precond(fm, mask)
   +s0 = lob_rr(qs_q(mon2(fm, mask, x0)), fm, mask, k, k)
-  lb_si(lob_it(n, fm, mask, pc, k, lb_np(s0)))
+  lt_si(lob_it(n, False{}, fm, mask, pc, k, kw, tol, 0n, lb_np(s0)))

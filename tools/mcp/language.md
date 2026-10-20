@@ -85,18 +85,21 @@ expressions. A combination that is not in this list is `unknown-op` or
   `(guide (arc DEG))` records `guide: path`. Partial sweeps are not a
   boolean cut.
 - `(sweep (along PATH) REGION)` — one profile loop swept along one closed
-  path in the xy plane: O-rings, gaskets, cords. PATH is a counter-
-  clockwise `(path ...)` of lines along x or y and counter-clockwise arcs
-  that start and end on quarter points of their circle, joined
-  tangentially (four quarter turns in all: racetracks, rounded
-  rectangles). Profile x is the offset outward from the path, profile y
-  is z. Exact stations, no surface intersection; volume and area are
-  certified Pappus sums. A racetrack O-ring of section 3.18 x 1.95:
+  path in the xy plane: O-rings, gaskets, cords, blade-root blends. PATH
+  is a counter-clockwise `(path ...)` of lines in any direction and arcs
+  of any angle, counter-clockwise (convex) or clockwise (concave), joined
+  tangentially, whose signed turns add up to one full turn: racetracks,
+  rounded rectangles, crescents and blade footprints. Profile x is the
+  offset outward from the path, profile y is z. Turns are revolve
+  surfaces about each arc's centre (radius + u on counter-clockwise
+  arcs, radius − u on clockwise ones), runs are planes and cylinders.
+  Exact stations, no surface intersection; volume and area are certified
+  Pappus sums with each turn's angle as a certified interval. A racetrack O-ring of section 3.18 x 1.95:
   `(sweep (along (path 0 -16.69 (line 22.05 -16.69) (arc 22.05 0 16.69
   22.05 16.69 ccw) (line 0 16.69) (arc 0 0 16.69 0 -16.69 ccw))) (region
   (path -0.615 -1.95 (line 0.615 -1.95) (arc 0.615 -0.975 0.975 0.615 0
   ccw) (line -0.615 0) (arc -0.615 -0.975 0.975 -0.615 -1.95 ccw))))`.
-  Refusals: `path-piece-not-axis-aligned`, `path-not-tangent-continuous`,
+  Refusals: `path-piece-degenerate`, `path-not-tangent-continuous`,
   `path-not-one-turn`, `profile-reaches-path-turn-axis`,
   `sweep-needs-one-loop`.
 - `(loft Z REGION_BOT REGION_TOP)` — bottom at z = 0, top at z = Z.
@@ -513,7 +516,7 @@ evaluated fresh on every call, so design edits propagate through it.
 
 Two more edits go through `apply` with the nodes and persist in `show`:
 
-- `(material NODE GRADE RHO CTE)` — named grade (`6082-T6`, `16MnCr5`,
+- `(material NODE GRADE RHO CTE [E NU])` — named grade (`6082-T6`, `16MnCr5`,
   `NBR70`), density in kg/m3 and linear expansion in 1/K. `mass N` then
   prints the mass interval in kg; rebinding replaces the grade.
 - `(thread NODE NAME FACE DESIG CLASS Z0 Z1)` — ISO metric thread on the
@@ -622,3 +625,38 @@ reached its verdict (crash or unreadable file).
   gives the extrapolated speed and the interval is ± the last change
   (`status=estimated bound=refinement`). Gyroscopic stiffening is not
   modelled (conservative for forward whirl of overhung discs).
+
+## Finite elements (K3)
+
+`(material NODE GRADE RHO CTE E NU)` adds Young's modulus E in MPa and
+Poisson's ratio NU (0 <= NU < 0.5) to a grade; `modes` and `spin` need
+them.
+
+- `modes N K H [PX PY PZ DX DY DZ R]`: the first K elastic natural
+  frequencies (Hz) of node N's solid. The solid is meshed by isosurface
+  stuffing on a body-centred cubic lattice of spacing H (inside/outside
+  by certified ray crossings, cut points on the faces, warped vertices,
+  dihedral angles bounded away from 0 and 180 degrees) into quadratic
+  tetrahedra whose boundary midside nodes are projected onto the faces
+  (curved, isoparametric). The spectrum is solved by block LOBPCG with a
+  lockstep PCG preconditioner. Without the clamp the part is free and the
+  six rigid modes are skipped; with it every mesh node within R of the
+  axis through (PX, PY, PZ) along (DX, DY, DZ) is fixed (a bore keyed to
+  a shaft). Each mode is solved at H, H/2^(1/3) and H/2^(2/3); the line
+  `mode I hz=[A, B, C] est=E bound=D status=estimated` gives the three
+  values, the extrapolation from the observed convergence ratio and a
+  bound (the larger of the last change and the extrapolation step;
+  `estimated-nonmonotone` doubles the larger change when the levels do
+  not converge monotonically). Sharp edges are rounded at the scale of the
+  lattice, so the bound includes that geometric error. Size H to the
+  thinnest wall: the finest level has about four times the nodes of the
+  first.
+- `spin N RPM H PX PY PZ DX DY DZ R`: linear centrifugal response at RPM
+  about the axis, with nodes within R of it clamped, or a free part when
+  R = 0 (refused unless the centrifugal load is self-equilibrated about
+  the axis). Prints, at the three levels with extrapolation and bound,
+  `tip_growth_mm` (radial displacement of the outermost node),
+  `max_growth_mm`, `max_von_mises_mpa` (at element quadrature points;
+  re-entrant corners do not converge and show as non-monotone) and
+  `work_nmm` (external work of the centrifugal load, twice the strain
+  energy, converging from below). Spin softening is not modelled.

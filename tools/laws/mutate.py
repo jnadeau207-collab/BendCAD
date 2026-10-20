@@ -447,6 +447,18 @@ MUTANTS = [
     ('k2', 'transition states compose', 'src/k2/fit.bend',
      'F64.is_lt(0.0f64, I.i_hi(h))), all_mixed(t))',
      'F64.is_lt(0.0f64, I.i_hi(h))), all_pos(t))'),
+    ('k3', 'transpose keeps rows', 'src/k3/fem.bend',
+     '    case 1n+(+m): hds(cs) <> tcol(m, tls(cs))',
+     '    case 1n+(+m): tcol(m, tls(cs))'),
+    ('k3', 'transpose keeps rows f64', 'src/k3/fem.bend',
+     '    case 1n+(+m): hdf(cs) <> tcolf(m, tlf(cs))',
+     '    case 1n+(+m): hdf(cs) <> hdf(cs) <> tcolf(m, tlf(cs))'),
+    ('k3', 'pyramid splits into two', 'src/k3/mesh.bend',
+     '    T4{q1, q2, q3, p} <> T4{q1, q3, q0, p} <> acc)',
+     '    T4{q1, q2, q3, p} <> acc)'),
+    ('k3', 'prism splits into three', 'src/k3/mesh.bend',
+     '    T4{a, b, c, e} <> T4{a, e, c, f} <> T4{a, e, f, d} <> acc)',
+     '    T4{a, b, c, e} <> T4{a, e, f, d} <> acc)'),
 ]
 
 

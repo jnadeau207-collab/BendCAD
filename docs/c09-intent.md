@@ -102,17 +102,21 @@ to Z).
 
 `(along PATH)` sweeps one profile loop along one closed path in the xy
 plane (`src/c06/psw.bend`). The path is counter-clockwise, made of
-lines along x or y and counter-clockwise arcs whose ends are quarter
-points of their circle, joined tangentially, with four quarter turns
-in all: racetracks, rounded rectangles, O-ring and gasket centrelines.
+lines in any direction and arcs of any angle, counter-clockwise
+(convex) or clockwise (concave), joined tangentially, whose signed turns
+add up to one counter-clockwise turn (K3): racetracks, rounded
+rectangles, crescents, O-ring and gasket centrelines, blade footprints.
 Profile x is the offset `u` along the path's outward normal, profile y
-is `z`. Every station frame is axis-aligned, so stations are exact and
-both neighbouring segments share them; turns are revolve surfaces about
-the arc's centre (plane, cylinder, cone, sphere or torus), runs are
+is `z`. Each station is computed once and shared by both neighbouring
+segments; a turn is the revolve surface about its arc's centre at radius
+`ρ + u` (counter-clockwise) or `ρ − u` (clockwise, the profile mirrored
+and the line faces' orientation flipped), with edges the arc piece's
+control point scaled radially at the piece's own weight; runs are
 planes and cylinders along the run. No surface intersection is
-computed. Volume and area are Pappus sums over runs and quarter turns
-(`psw_ms`): `A·(L + π/2·Σρ) + 2π·∫u dA`. Refusals:
-`path-piece-not-axis-aligned` (26), `path-not-tangent-continuous` (27),
+computed. Volume and area are Pappus sums (`psw_ms`):
+`A·(L + Σφρ) + 2π·∫u dA`, each turn angle φ a certified interval
+(the signed turns sum to 2π). Refusals: `path-piece-degenerate` (26),
+`path-not-tangent-continuous` (27),
 `path-not-one-turn` (28), `profile-reaches-path-turn-axis` (25),
 `sweep-needs-one-loop` (29). Guides and twists are refused.
 

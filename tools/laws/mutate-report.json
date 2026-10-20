@@ -1076,5 +1076,33 @@
   "file": "src/k2/fit.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "transpose keeps rows",
+  "file": "src/k3/fem.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "transpose keeps rows f64",
+  "file": "src/k3/fem.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "pyramid splits into two",
+  "file": "src/k3/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "prism splits into three",
+  "file": "src/k3/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]
