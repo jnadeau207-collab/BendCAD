@@ -599,3 +599,26 @@ reached its verdict (crash or unreadable file).
 (node 2 (holes 1 (face 1 0 top) through (hole 10 10 3) (hole (- W 10) 10 3))
    (intent remove 2 2 1 2))
 ```
+
+## Rotor analysis (K3)
+
+- `mass N` also prints `moments volume=… centroid … inertia-centroid …
+  status=certified method=divergence`: exact first and second moments of
+  volume by the divergence theorem per face, certified intervals.
+- `balance N PX PY PZ DX DY DZ RPM G`: ISO 21940-11 residual unbalance of
+  node N about the axis through (PX, PY, PZ) along (DX, DY, DZ), at RPM, for
+  balance grade G (mm/s, e.g. 2.5). Needs a material on N. Prints the
+  certified mass, centroid offset from the axis, residual U = m·e (g·mm),
+  permissible U_per = m·G/ω (g·mm), the products of inertia relative to the
+  axis (kg·mm², zero when the axis is principal) and `within`, `exceeds`
+  (both certified) or `undecided` when the intervals overlap.
+- `rotor SPEC`: lateral critical speeds of a shaft by Timoshenko beam
+  elements (shear deformation and rotary inertia) and Sturm-sequence
+  bisection. SPEC is `(rotor (seg L OD ID E NU RHO) … (disc X M JD)
+  (brg X KW KT) (n N) (modes K))`: segments in order along the axis (mm,
+  E in MPa, RHO in kg/m³), rigid discs (kg, diametral inertia kg·mm²) and
+  bearing springs (N/mm, N·mm/rad) at segment ends. Each speed is solved
+  at N, 2N and 4N elements per segment; the observed convergence ratio
+  gives the extrapolated speed and the interval is ± the last change
+  (`status=estimated bound=refinement`). Gyroscopic stiffening is not
+  modelled (conservative for forward whirl of overhung discs).

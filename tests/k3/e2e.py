@@ -106,6 +106,93 @@ def against_occt(name, design, edits, node, rel):
     record(name, 'committed' in out and ok, got=mo, occt=o, seconds=dt, raw=raw[-400:])
 
 
+def bal(design, node, axis, rpm, g):
+    out, dt = cli(design, 'balance', str(node), *[repr(float(x)) for x in axis], repr(float(rpm)), repr(float(g)))
+    m = re.search(r'balance mass=' + IVR + r' kg offset=' + IVR + r' mm residual=' + IVR + r' g\.mm permissible=' + IVR +
+                  r' g\.mm .*?products=' + IVR + r' kg\.mm2 (within|exceeds|undecided) status=(\w+)', out)
+    if not m:
+        return None, out
+    g_ = m.groups()
+    iv = lambda k: (float(g_[2 * k]), float(g_[2 * k + 1]))
+    return dict(m=iv(0), e=iv(1), u=iv(2), up=iv(3), pr=iv(4), verdict=g_[10], status=g_[11]), out
+
+
+def balance():
+    rho, rpm, g = 2700.0, 2900.0, 2.5
+    w = rpm * 2 * PI / 60
+    ad = PI * 50 * 50
+    out, _ = fresh('bd.bcd', f'(node 1 (cylinder 50 10) {IC})', '(node 2 (move 1 0.005 0 0 0) (intent same 0 0 1 0))',
+                   f'(material 2 6082-T6 {rho} 0.0000234)')
+    b, raw = bal('bd.bcd', 2, [0, 0, 0, 0, 0, 1], rpm, g)
+    mk = ad * 10 * rho * 1e-9
+    record('balance.offset_disc', 'committed' in out and b is not None and has(b['e'], 0.005, 1e-9) and has(b['m'], mk, 1e-9)
+           and has(b['u'], mk * 1000 * 0.005, 1e-9) and has(b['up'], mk * 1000 * g / w, 1e-9) and b['verdict'] == 'within'
+           and b['status'] == 'certified' and b['pr'][1] <= 1e-4 * mk * 2500, got=b, raw=raw[-400:])
+    ah = PI * 5 * 5
+    e = ah * 20 / (ad - ah)
+    out, _ = fresh('bh.bcd', f'(node 1 (cylinder 50 10) {IC})',
+                   f'(node 2 (pocket 1 (face 1 0 top) through (region (circle 20 0 5))) {ID})', f'(material 2 6082-T6 {rho} 0.0000234)')
+    b, raw = bal('bh.bcd', 2, [0, 0, 0, 0, 0, 1], rpm, g)
+    mk = (ad - ah) * 10 * rho * 1e-9
+    record('balance.drilled_disc', 'committed' in out and b is not None and has(b['e'], e, 1e-7) and has(b['u'], mk * 1000 * e, 1e-7)
+           and b['verdict'] == 'exceeds' and b['status'] == 'certified' and b['pr'][0] <= 1e-9 * mk * 2500, got=b, want_e=e, raw=raw[-400:])
+    o, _ = cli('bh.bcd', 'balance', '2', '0', '0', '0', '0', '0', '0', '2900', '2.5')
+    o2, _ = cli('bd.bcd', 'balance', '1', '0', '0', '0', '0', '0', '1', '2900', '2.5')
+    record('balance.refusals', 'non-zero axis' in o and 'node-has-no-material' in o2, axis=o[-200:], nomat=o2[-200:])
+
+
+def rotor_run(spec):
+    out, _ = cli('b.bcd', 'rotor', spec)
+    rs = [(float(m.group(1)), float(m.group(2)), float(m.group(3)))
+          for m in re.finditer(r'rpm=' + IVR + r' extrapolated=' + NUM, out)]
+    return rs, out
+
+
+def kap(nu):
+    return 6 * (1 + nu) / (7 + 6 * nu)
+
+
+def ss_timo(L, D, E, nu, rho, n):
+    A, I, G = PI * D * D / 4, PI * D ** 4 / 64, E / (2 * (1 + nu))
+    k = n * PI / L
+    rt = rho * 1e-12
+    a = rt * rt * I / (kap(nu) * G)
+    b = -(rt * A + rt * I * k * k * (1 + E / (kap(nu) * G)))
+    c = E * I * k ** 4
+    w2 = (-b - math.sqrt(b * b - 4 * a * c)) / (2 * a)
+    return math.sqrt(w2) * 60 / (2 * PI)
+
+
+def within(r, x):
+    return r is not None and r[0] - 1e-6 * abs(x) <= x <= r[1] + 1e-6 * abs(x) and abs(r[2] - x) <= 1e-4 * abs(x)
+
+
+def rotor():
+    E, nu, rho, K = 210000.0, 0.3, 7850.0, 1e13
+    for name, L, D in (('rotor.pinned_slender', 1000.0, 20.0), ('rotor.pinned_thick', 200.0, 50.0)):
+        rs, out = rotor_run(f'(rotor (seg {L} {D} 0 {E} {nu} {rho}) (brg 0 {K} 0) (brg {L} {K} 0) (n 8) (modes 2))')
+        want = [ss_timo(L, D, E, nu, rho, 1), ss_timo(L, D, E, nu, rho, 2)]
+        record(name, len(rs) == 2 and all(within(r, w) for r, w in zip(rs, want)), got=rs, want=want, raw=out[-500:])
+    L, D, m = 500.0, 20.0, 10.0
+    A, I, G = PI * D * D / 4, PI * D ** 4 / 64, E / (2 * (1 + nu))
+    delta = L ** 3 / (48 * E * I) + L / (4 * kap(nu) * G * A)
+    wj = math.sqrt(1 / (m * 1e-3 * delta)) * 60 / (2 * PI)
+    rs, out = rotor_run(f'(rotor (seg {L/2} {D} 0 {E} {nu} 1e-6) (seg {L/2} {D} 0 {E} {nu} 1e-6) (brg 0 {K} 0) (brg {L} {K} 0) (disc {L/2} {m} 0) (n 4) (modes 1))')
+    record('rotor.jeffcott', len(rs) == 1 and within(rs[0], wj), got=rs, want=wj, raw=out[-400:])
+    L, D, m, jd = 150.0, 30.0, 5.0, 1e4
+    A, I = PI * D * D / 4, PI * D ** 4 / 64
+    ph = 12 * E * I / (kap(nu) * G * A * L * L)
+    f = E * I / ((1 + ph) * L ** 3)
+    k11, k12, k22 = 12 * f, -6 * L * f, (4 + ph) * L * L * f
+    mm, jj = m * 1e-3, jd * 1e-3
+    a, b, c = mm * jj, -(k11 * jj + k22 * mm), k11 * k22 - k12 * k12
+    w1 = math.sqrt((-b - math.sqrt(b * b - 4 * a * c)) / (2 * a)) * 60 / (2 * PI)
+    rs, out = rotor_run(f'(rotor (seg {L} {D} 0 {E} {nu} 1e-6) (brg 0 {K} {K * 1e4}) (disc {L} {m} {jd}) (n 4) (modes 1))')
+    record('rotor.overhung_disc', len(rs) == 1 and within(rs[0], w1), got=rs, want=w1, raw=out[-400:])
+    o, _ = cli('b.bcd', 'rotor', '(rotor (seg 100 20 0 210000 0.3 7850) (disc 50 1 0) (brg 0 1e9 0))')
+    record('rotor.refusal_off_node', 'error invalid-input | rotor' in o, raw=o[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -144,6 +231,8 @@ def main():
                  '(node 3 (move 2 5 5 9 0) (intent same 0 0 1 0))', f'(node 4 (difference 1 3) {ID})'], 4, 1e-7)
     against_occt('cone.revolve', 'cn.bcd', [f'(node 1 (revolve (region (path 0 0 (line 4 0) (line 1 6) (line 0 6)))) {IC})',
                  '(node 2 (move 1 3 2 1 0) (intent same 0 0 1 0))'], 2, 1e-8)
+    balance()
+    rotor()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

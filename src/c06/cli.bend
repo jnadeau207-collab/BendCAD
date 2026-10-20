@@ -28,6 +28,7 @@ import ../c14/asm.bend as AS
 import ../c15/pmi.bend as PM
 import ../k2/mat.bend as KM
 import ../k3/mom.bend as K3M
+import ../k3/beam.bend as K3B
 import ../k2/thr.bend as KT
 import ../k2/kasm.bend as KA
 import ../k2/fit.bend as KF
@@ -503,7 +504,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "flat"), 24u64,
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
-  Bool.pick(U64, String.eq(c, "threads"), 28u64, 0u64))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64, 0u64))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
   S.PS{+ok, +xs} = r
@@ -594,6 +595,38 @@ def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: St
 
 def f_arg(+xs: List<&2, String>, +i: Nat) -> F64:
   f_or_nan(S.dec(S.arg_at(xs, i)))
+
+def bal_grade(m: Maybe<&2, M.Grade>, +b: M.Body, +p: List<&2, I.I>, +d: List<&2, I.I>, +rpm: F64, +g: F64) -> String:
+  match m:
+    case None{}: "error invalid-input | balance | why: node-has-no-material | fix: declare (material NODE GRADE DENSITY CTE)"
+    case Some{+x}:
+      M.Gr{+n, +gr, +rho, +cte} = x
+      K3M.bal_s(b, rho, p, d, rpm, g)
+
+def bal_node(r: M.NR, +m: Maybe<&2, M.Grade>, +p: List<&2, I.I>, +d: List<&2, I.I>, +rpm: F64, +g: F64) -> String:
+  match r:
+    case M.NR_err{k, dg}: "error: node failed; nothing balanced"
+    case M.NR_ok{+b, fx}: Bool.pick(String, M.bd_open(b), "refused balance-needs-solid | balance | fix: thicken-open the shell to a solid first",
+      bal_grade(m, b, p, d, rpm, g))
+
+def bal_args(+ok: Bool, +p: M.Part, +n: U64, +pt: List<&2, I.I>, +dx: F64, +dy: F64, +dz: F64, +rpm: F64, +g: F64) -> String:
+  M.Pt{+ps, +ns, +ms, +ts} = p
+  +l = F64.sqrt(F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz)))
+  Bool.pick(String, Bool.and(ok, F64.is_lt(0.0f64, l)),
+    bal_node(node_res(M.ev_part(p, []), n), KM.mat_find(ms, n), pt, [I.ipt(F64.div(dx, l)), I.ipt(F64.div(dy, l)), I.ipt(F64.div(dz, l))], rpm, g),
+    "error invalid-input | balance | why: needs NODE PX PY PZ DX DY DZ RPM G with a non-zero axis, RPM > 0 and G > 0 | fix: correct the arguments")
+
+def fin_all(xs: List<&2, F64>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: Bool.and(F64.is_eq(x, x), fin_all(t))
+
+def bal_out(+p: M.Part, +xs: List<&2, String>) -> String:
+  +rpm = f_arg(xs, 7n)
+  +g = f_arg(xs, 8n)
+  +fin = fin_all([f_arg(xs, 1n), f_arg(xs, 2n), f_arg(xs, 3n), f_arg(xs, 4n), f_arg(xs, 5n), f_arg(xs, 6n)])
+  bal_args(Bool.and(fin, Bool.and(F64.is_lt(0.0f64, rpm), F64.is_lt(0.0f64, g))), p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}),
+    [I.ipt(f_arg(xs, 1n)), I.ipt(f_arg(xs, 2n)), I.ipt(f_arg(xs, 3n))], f_arg(xs, 4n), f_arg(xs, 5n), f_arg(xs, 6n), rpm, g)
 
 def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(Unit):
   match w:
@@ -1011,7 +1044,9 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 26u64: IO.print(blade_go(p, rest))
     case 27u64: IO.print(diag_s(M.ev_part(p, [])))
     case 28u64: IO.print(threads_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads")
+    case 29u64: IO.print(bal_out(p, rest))
+    case 30u64: IO.print(K3B.rotor_s(S.arg_at(rest, 0n)))
+    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
   match is_diag:

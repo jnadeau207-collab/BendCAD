@@ -291,3 +291,53 @@ def mom_of(+r: MR, +pl: M.Pl) -> String:
 
 def mom_s(+b: M.Body) -> String:
   mom_of(brep_mom(M.bd_brep(b)), M.bd_pl(b))
+
+def i3(+xs: List<&2, I.I>, +i: Nat) -> I.I:
+  M.i_nth(xs, i)
+
+def dot3(+a: List<&2, I.I>, +b: List<&2, I.I>) -> I.I:
+  I.iadd(I.iadd(I.imul(i3(a, 0n), i3(b, 0n)), I.imul(i3(a, 1n), i3(b, 1n))), I.imul(i3(a, 2n), i3(b, 2n)))
+
+def sc3(+k: I.I, +a: List<&2, I.I>) -> List<&2, I.I>:
+  [I.imul(k, i3(a, 0n)), I.imul(k, i3(a, 1n)), I.imul(k, i3(a, 2n))]
+
+def sub3(+a: List<&2, I.I>, +b: List<&2, I.I>) -> List<&2, I.I>:
+  [I.isub(i3(a, 0n), i3(b, 0n)), I.isub(i3(a, 1n), i3(b, 1n)), I.isub(i3(a, 2n), i3(b, 2n))]
+
+def mat3(+m: List<&2, I.I>, +v: List<&2, I.I>) -> List<&2, I.I>:
+  [dot3([i3(m, 0n), i3(m, 1n), i3(m, 2n)], v), dot3([i3(m, 3n), i3(m, 4n), i3(m, 5n)], v), dot3([i3(m, 6n), i3(m, 7n), i3(m, 8n)], v)]
+
+def root_nn(+x: I.I) -> I.I:
+  I.isqrt(I.I{F64.max(0.0f64, I.i_lo(x)), F64.max(0.0f64, I.i_hi(x))})
+
+def bal_verdict(+u: I.I, +up: I.I) -> String:
+  Bool.pick(String, F64.is_lt(I.i_hi(u), I.i_lo(up)), "within status=certified",
+    Bool.pick(String, F64.is_lt(I.i_hi(up), I.i_lo(u)), "exceeds status=certified", "undecided status=estimated"))
+
+def bal_go(+ivs: List<&2, I.I>, +c: V.Point, +pl: M.Pl, +rho: F64, +p: List<&2, I.I>, +d: List<&2, I.I>, +w: F64, +g: F64) -> String:
+  +cr = cr_of(ivs)
+  +mi = M.pl_mi(pl)
+  +v = i3(ivs, 0n)
+  +cw = QM.cw_of(mi, M.pl_ti(pl), cl_of(cr, c))
+  +iw = QM.rot_i(mi, QM.sh9(il_of(ivs), v, cr))
+  +kg = I.iscale(v, F64.mul(rho, 1.0e-9f64))
+  +r = sub3(cw, p)
+  +perp = sub3(r, sc3(dot3(r, d), d))
+  +e = root_nn(dot3(perp, perp))
+  +u = I.iscale(I.imul(kg, e), 1000.0f64)
+  +up = I.iscale(kg, F64.div(F64.mul(1000.0f64, g), w))
+  +id = mat3(iw, d)
+  +ddi = dot3(d, id)
+  +pv = sub3(id, sc3(ddi, d))
+  +pr = I.iscale(root_nn(dot3(pv, pv)), F64.mul(rho, 1.0e-9f64))
+  "balance mass=" ++ QM.iv_s(kg) ++ " kg offset=" ++ QM.iv_s(e) ++ " mm residual=" ++ QM.iv_s(u) ++ " g.mm permissible=" ++
+    QM.iv_s(up) ++ " g.mm grade=G" ++ F64.show(g) ++ " omega=" ++ F64.show(w) ++ " rad/s products=" ++ QM.iv_s(pr) ++
+    " kg.mm2 " ++ bal_verdict(u, up) ++ " method=divergence
+"
+
+def bal_r(r: MR, +pl: M.Pl, +rho: F64, +p: List<&2, I.I>, +d: List<&2, I.I>, +w: F64, +g: F64) -> String:
+  MR{+c, +m, +e, +slv, +rad} = r
+  bal_go(mv_iv(m, e, slv, rad), c, pl, rho, p, d, w, g)
+
+def bal_s(+b: M.Body, +rho: F64, +p: List<&2, I.I>, +d: List<&2, I.I>, +rpm: F64, +g: F64) -> String:
+  bal_r(brep_mom(M.bd_brep(b)), M.bd_pl(b), rho, p, d, F64.div(F64.mul(rpm, 6.283185307179586f64), 60.0f64), g)
