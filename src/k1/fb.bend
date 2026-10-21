@@ -38,16 +38,6 @@ def hls_ce(hs: List<&2, Ty.HLoop>, +b: Ty.Brep) -> List<&2, List<&2, CE>>:
 def face_ce(+b: Ty.Brep, +fi: Nat) -> List<&2, List<&2, CE>>:
   hls_ce(Ty.fa_loops(L.nth_f(Ty.brep_fas(b), fi)), b)
 
-def ces_has(cs: List<&2, CE>, +e: Nat) -> Bool:
-  match cs:
-    case []: False{}
-    case +h <> +t: Bool.or(Nat.is_eq(ce_e(h), e), ces_has(t, e))
-
-def lps_has(ls: List<&2, List<&2, CE>>, +e: Nat) -> Bool:
-  match ls:
-    case []: False{}
-    case +h <> +t: Bool.or(ces_has(h, e), lps_has(t, e))
-
 def ce_edges(cs: List<&2, Ty.Coedge>) -> List<&2, Nat>:
   match cs:
     case []: []
@@ -176,7 +166,6 @@ def face_polys_go(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: Ty.Brep) -> List<&2,
     case []: []
     case +h <> +t: loop_poly(s, b, h) <> face_polys_go(t, s, b)
 
-
 def seg_cross(+s: S.SF, +a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
   +ax = V.v2_x(a)
   +bx = V.v2_x(bb)
@@ -203,7 +192,6 @@ def polys_cross(ls: List<&2, List<&2, V.Vec2>>, +s: S.SF, +q: V.Vec2) -> Nat:
 def pip(+s: S.SF, +ls: List<&2, List<&2, V.Vec2>>, +q: V.Vec2) -> Bool:
   Nat.is_eq(Nat.mod(polys_cross(ls, s, q), 2n), 1n)
 
-
 def circ_dist(+c0: V.Point, +n: V.Dir, +r: F64, +p: V.Point) -> F64:
   +q = S.psub(p, c0)
   +oop = S.dot(q, n)
@@ -218,6 +206,19 @@ def seg3_dist(+a: V.Point, +b: V.Point, +p: V.Point) -> F64:
   +t = F64.min(1.0f64, F64.max(0.0f64, t0))
   S.dist(p, S.padd(a, t, d))
 
+def wedge(+a: V.Dir, +b: V.Dir, +d: V.Dir, +n: V.Dir) -> Bool:
+  +ad = F64.is_le(0.0f64, S.dot(S.cross(a, d), n))
+  +db = F64.is_le(0.0f64, S.dot(S.cross(d, b), n))
+  Bool.pick(Bool, F64.is_le(0.0f64, S.dot(S.cross(a, b), n)), Bool.and(ad, db), Bool.or(ad, db))
+
+def arc_dist(+c0: V.Point, +n: V.Dir, +r: F64, +pa: V.Point, +pb: V.Point, +pm: V.Point, +p: V.Point) -> F64:
+  +a = S.psub(pa, c0)
+  +b = S.psub(pb, c0)
+  +q = S.psub(p, c0)
+  +d = S.dadd(q, F64.neg(S.dot(q, n)), n)
+  +inside = Bool.pick(Bool, wedge(a, b, S.psub(pm, c0), n), wedge(a, b, d, n), wedge(b, a, d, n))
+  Bool.pick(F64, inside, circ_dist(c0, n, r, p), F64.min(S.dist(p, pa), S.dist(p, pb)))
+
 def curve_dist(+c: G.GVal, +lo: F64, +hi: F64, +p: V.Point) -> F64:
   match c:
     case G.GV_ln{w}:
@@ -225,13 +226,17 @@ def curve_dist(+c: G.GVal, +lo: F64, +hi: F64, +p: V.Point) -> F64:
       seg3_dist(S.padd(p0, lo, d), S.padd(p0, hi, d), p)
     case G.GV_cc{w}:
       G.Cc{+c0, +u, +v, +r} = w
-      circ_dist(c0, S.dunit(S.cross(u, v)), r, p)
+      +full = F64.is_le(6.283185307179586f64, F64.sub(hi, lo))
+      Bool.pick(F64, full, circ_dist(c0, S.dunit(S.cross(u, v)), r, p),
+        arc_dist(c0, S.dunit(S.cross(u, v)), r, EF.ev(G.GV_cc{G.Cc{c0, u, v, r}}, lo), EF.ev(G.GV_cc{G.Cc{c0, u, v, r}}, hi),
+          EF.ev(G.GV_cc{G.Cc{c0, u, v, r}}, F64.mul(0.5f64, F64.add(lo, hi))), p))
     case G.GV_rq{w}:
       G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = w
       +m = S.padd(p0, 0.5f64, S.psub(p2, p0))
       +kk = F64.div(F64.mul(w1, w1), F64.sub(1.0f64, F64.mul(w1, w1)))
       +c0 = S.padd(m, kk, S.psub(m, p1))
-      circ_dist(c0, S.dunit(S.cross(S.psub(p0, c0), S.psub(p1, c0))), S.dist(p0, c0), p)
+      +n = S.dunit(S.cross(S.psub(p0, c0), S.psub(p1, c0)))
+      arc_dist(c0, n, S.dist(p0, c0), p0, p2, S.padd(c0, S.dist(p0, c0), S.dunit(S.psub(p1, c0))), p)
     case G.GV_bz{w}:
       G.Bz{+p0, +p1, +p2, +p3} = w
       seg3_dist(p0, p3, p)
@@ -248,7 +253,6 @@ def lps_dist(ls: List<&2, List<&2, CE>>, +b: Ty.Brep, +p: V.Point, +best: F64) -
   match ls:
     case []: best
     case +h <> +t: lps_dist(t, b, p, ces_dist(h, b, p, best))
-
 
 def sph_axes() -> List<&2, V.Dir>:
   +k = {0.5773502691896258f64 : F64}
@@ -429,13 +433,18 @@ def sph_bb(+s: S.SF) -> BB:
   BB{F64.sub(V.pt_x(o), r), F64.add(V.pt_x(o), r), F64.sub(V.pt_y(o), r), F64.add(V.pt_y(o), r),
     F64.sub(V.pt_z(o), r), F64.add(V.pt_z(o), r)}
 
+def bb_meet(+a: BB, +b: BB) -> BB:
+  BB{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  BB{F64.max(ax0, bx0), F64.min(ax1, bx1), F64.max(ay0, by0), F64.min(ay1, by1), F64.max(az0, bz0), F64.min(az1, bz1)}
+
 def face_bb(+b: Ty.Brep, +fi: Nat) -> BB:
   +s = S.sf_of(face_surf(b, fi))
   +ls = face_ce(b, fi)
   +e0 = lps_bb(ls, b, bb_empty())
   +tip = Bool.and(U64.is_eq(S.sf_kind(s), S.k_cone()), Nat.is_eq(Nat.mod(wraps_go(ls, s, b, 0n), 2n), 1n))
   +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), Bool.pick(BB, S.is_sph(s), bb_join(e0, sph_bb(s)),
-    Bool.pick(BB, S.is_tor(s), bb_join(e0, tor_bb(s)), e0)))
+    Bool.pick(BB, S.is_tor(s), bb_meet(bb_pad(e0, F64.mul(2.0f64, S.sf_r2(s))), bb_join(e0, tor_bb(s))), e0)))
   bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(L.nth_f(Ty.brep_fas(b), fi))), 1.0e-9f64))
 
 def plane_n(+g: G.GVal) -> V.Dir:

@@ -124,6 +124,16 @@ solid's edge or ending on it becomes a shared vertex, a vertex lying on the
 other solid's edge splits that edge, and an intersection running along an
 existing edge reuses it.
 
+An edge that passes near a face only at one of the other solid's
+vertices lying on the edge (a blade's fillet seam ending where a fillet
+torus touches the base plane) is not refused as reason 81. Every vertex
+of either solid lying on an intersection circle breaks that circle, so
+the two faces that share it split it at the same points. A torus face is
+boxed by the meet of its edges' box widened by twice the tube radius and
+the torus box; edge distances to circular trims are measured to the
+trimmed arc, not the full circle. A coedge reversed against its curve
+keeps its trim points in loop order.
+
 ## 6. Oblique planes
 
 A vertex on an axis-aligned plane must be hit exactly by the plane's own

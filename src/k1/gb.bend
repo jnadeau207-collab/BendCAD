@@ -429,7 +429,7 @@ def ce_add(+r: K1.ER, +fw: Bool, +straight: Bool, +v0: Nat, +gl: List<&2, G.GVal
   +st = K1.er_st(r)
   +i = K1.er_idx(r)
   +rv = Bool.and(Bool.not(straight), Bool.not(Nat.is_eq(e_v0(K1.as_eks(st), i, v0), v0)))
-  K1.as_add_ce(st, mk_ce(i, Bool.xor(fw, rv), gl, s, pa, pb))
+  K1.as_add_ce(st, mk_ce(i, Bool.xor(fw, rv), gl, s, Bool.pick(V.Point, rv, pb, pa), Bool.pick(V.Point, rv, pa, pb)))
 
 def emit_er2(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +cid: Nat) -> EM:
   +v0 = W.er_va(e)

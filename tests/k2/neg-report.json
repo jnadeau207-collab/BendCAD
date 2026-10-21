@@ -2,12 +2,12 @@
  {
   "name": "material.bad_density",
   "ok": true,
-  "info": "r invalid-input | material | why: bad-material: X needs a finite density > 0 kg/m3 and a finite expansion >= 0 1/K | fix: write (material NODE GRADE DENSITY CTE)\n\nrejected: the design was not changed\n"
+  "info": "finite density > 0 kg/m3, a finite expansion >= 0 1/K and, if given, a modulus E > 0 MPa with 0 <= nu < 0.5 | fix: write (material NODE GRADE DENSITY CTE [E NU])\n\nrejected: the design was not changed\n"
  },
  {
   "name": "material.bad_cte",
   "ok": true,
-  "info": "r invalid-input | material | why: bad-material: X needs a finite density > 0 kg/m3 and a finite expansion >= 0 1/K | fix: write (material NODE GRADE DENSITY CTE)\n\nrejected: the design was not changed\n"
+  "info": "finite density > 0 kg/m3, a finite expansion >= 0 1/K and, if given, a modulus E > 0 MPa with 0 <= nu < 0.5 | fix: write (material NODE GRADE DENSITY CTE [E NU])\n\nrejected: the design was not changed\n"
  },
  {
   "name": "material.unknown_node",
@@ -80,9 +80,9 @@
   "info": "gap A B gap=[0, 0] traces=1/1 verdict=interference status=certified\n"
  },
  {
-  "name": "sweep.path_oblique_line",
+  "name": "sweep.path_oblique_kink",
   "ok": true,
-  "info": "ath @ loop 0 segment 0 | why: path-piece-not-axis-aligned | fix: use path lines along x or y and counter-clockwise quarter arcs that start and end on axis points\n\nrejected: the design was not changed\n"
+  "info": "node 1: error invalid-input | sweep path @ loop 0 segment 0 | why: path-not-tangent-continuous | fix: join consecutive path lines and arcs tangentially\n\nrejected: the design was not changed\n"
  },
  {
   "name": "sweep.path_partial_turn",

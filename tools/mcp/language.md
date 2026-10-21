@@ -102,6 +102,17 @@ expressions. A combination that is not in this list is `unknown-op` or
   Refusals: `path-piece-degenerate`, `path-not-tangent-continuous`,
   `path-not-one-turn`, `profile-reaches-path-turn-axis`,
   `sweep-needs-one-loop`.
+- `(sweep (wall PATH) REGION)` — a solid wall or blade whose footprint is
+  the inside of PATH: the profile's last segment must be a line (the
+  wall's inner side, dropped) and the rest of the profile is swept along
+  PATH as above, closed by flat caps at the profile's lowest and highest
+  z. A root fillet with a ledge, unioned with the part it stands on:
+  `(sweep (wall PATH) (region (path -2 -0.5 (line 2 -0.5) (line 2 0)
+  (arc 2 2 2 0 2 cw) (line 0 20) (line -2 20) (line -2 -0.5))))` stands a
+  20 high blade with a radius-2 root fillet on a plate whose top is z = 0;
+  `(union PLATE WALL)` certifies. Volume and area come from the
+  divergence theorem over the exact faces. Refusal:
+  `wall-profile-not-closed-by-line`, plus those of `along`.
 - `(loft Z REGION_BOT REGION_TOP)` — bottom at z = 0, top at z = Z.
   Optional `(twist K)` rotates the top loop by K segments. Optional
   `(continuity g0)` or `(continuity g1)`.

@@ -12,7 +12,7 @@ type BR is Data:
   BR{ a: F64, b: F64 }
 
 type SM is Data:
-  SM{ brs: List<&2, BR>, near: Bool, zeros: Nat }
+  SM{ brs: List<&2, BR>, near: Bool, zeros: Nat, nt: F64 }
 
 type UV is Data:
   UV{ ok: Bool, u: F64, v: F64 }
@@ -24,7 +24,7 @@ type EH is Data:
   EH{ t: F64, p: V.Point, ok: Bool }
 
 type EHS is Data:
-  EHS{ hs: List<&2, EH>, near: Bool }
+  EHS{ hs: List<&2, EH>, near: Bool, nt: F64 }
 
 def ek_curve(+k: Ty.EdgeKind) -> G.GVal:
   match k:
@@ -64,16 +64,20 @@ def br_b(+r: BR) -> F64:
   b
 
 def sm_brs(+m: SM) -> List<&2, BR>:
-  SM{brs, near, zeros} = m
+  SM{brs, near, zeros, nt} = m
   brs
 
 def sm_zeros(+m: SM) -> Nat:
-  SM{brs, near, zeros} = m
+  SM{brs, near, zeros, nt} = m
   zeros
 
 def sm_near(+m: SM) -> Bool:
-  SM{brs, near, zeros} = m
+  SM{brs, near, zeros, nt} = m
   near
+
+def sm_nt(+m: SM) -> F64:
+  SM{brs, near, zeros, nt} = m
+  nt
 
 def nsamp() -> Nat:
   96n
@@ -82,9 +86,9 @@ def near_tol(+s: S.SF) -> F64:
   F64.mul(1.0e-9f64, F64.add(1.0f64, F64.mul(S.sf_r(s), S.sf_r(s))))
 
 def samp_go(n: Nat, +s: S.SF, +c: G.GVal, +lo: F64, +step: F64, +k: F64, +pt: F64, +pf: F64,
-    +ppf: F64, +tol: F64, +acc: List<&2, BR>, +near: Bool, +zs: Nat) -> SM:
+    +ppf: F64, +tol: F64, +acc: List<&2, BR>, +near: Bool, +zs: Nat, +nt: F64) -> SM:
   match n:
-    case 0n: SM{acc, near, zs}
+    case 0n: SM{acc, near, zs, nt}
     case 1n+m:
       +t = F64.add(lo, F64.mul(k, step))
       +f = fval(s, c, t)
@@ -96,14 +100,15 @@ def samp_go(n: Nat, +s: S.SF, +c: G.GVal, +lo: F64, +step: F64, +k: F64, +pt: F6
       +mn = Bool.and(F64.is_le(F64.abs(pf), F64.abs(ppf)), F64.is_le(F64.abs(pf), F64.abs(f)))
       +nr = Bool.and(mn, Bool.and(F64.is_lt(F64.abs(pf), tol), Bool.not(pzero)))
       +samesg = Bool.and(U64.is_eq(sgn(ppf), sgn(pf)), U64.is_eq(sgn(pf), sgn(f)))
+      +hit = Bool.and(nr, samesg)
       samp_go(m, s, c, lo, step, F64.add(k, 1.0f64), t, f, pf, tol, nb,
-        Bool.or(near, Bool.and(nr, samesg)), Bool.pick(Nat, zero, Nat.add(zs, 1n), zs))
+        Bool.or(near, hit), Bool.pick(Nat, zero, Nat.add(zs, 1n), zs), Bool.pick(F64, Bool.and(hit, Bool.not(near)), pt, nt))
 
 def sample(+s: S.SF, +c: G.GVal, +lo: F64, +hi: F64) -> SM:
   +step = F64.div(F64.sub(hi, lo), L.f64_of(nsamp()))
   +f0 = fval(s, c, lo)
   +b0 = Bool.pick(List<&2, BR>, F64.is_eq(f0, 0.0f64), [BR{lo, lo}], [])
-  samp_go(nsamp(), s, c, lo, step, 1.0f64, lo, f0, f0, near_tol(s), b0, False{}, 0n)
+  samp_go(nsamp(), s, c, lo, step, 1.0f64, lo, f0, f0, near_tol(s), b0, False{}, 0n, lo)
 
 def bis_code(+s: S.SF, +c: G.GVal, +a: F64, +sa: U64, +b: F64) -> U64:
   +mid = F64.mul(0.5f64, F64.add(a, b))
@@ -255,7 +260,7 @@ def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
     case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.pick(Bool, B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p), B4.ax_on(w, p)))
     case G.GV_bp{w}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
-    case _: GO.q_on_r(g, p)
+    case _: Bool.or(GO.q_on_r(g, p), GO.q_on_s(g, p))
 
 def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
   match gs:
@@ -397,12 +402,16 @@ def hits_go(brs: List<&2, BR>, +s: S.SF, +c: G.GVal, +gs: List<&2, G.GVal>, +lo:
       EH{ct_t(ct), ct_p(ct), ct_ok(ct)} <> hits_go(t, s, c, gs, lo, hi)
 
 def ehs_hs(+e: EHS) -> List<&2, EH>:
-  EHS{hs, near} = e
+  EHS{hs, near, nt} = e
   hs
 
 def ehs_near(+e: EHS) -> Bool:
-  EHS{hs, near} = e
+  EHS{hs, near, nt} = e
   near
+
+def ehs_nt(+e: EHS) -> F64:
+  EHS{hs, near, nt} = e
+  nt
 
 def edge_hits_go(+isc: Bool, +s: S.SF, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64)
     -> EHS:
@@ -410,8 +419,8 @@ def edge_hits_go(+isc: Bool, +s: S.SF, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F
     case True{}:
       +sm = sample(s, c, lo, hi)
       +emb = Nat.is_le(3n, sm_zeros(sm))
-      Bool.pick(EHS, emb, EHS{[], False{}}, EHS{List.reverse(&2, EH, hits_go(sm_brs(sm), s, c, gs, lo, hi)), sm_near(sm)})
-    case False{}: EHS{[], False{}}
+      Bool.pick(EHS, emb, EHS{[], False{}, lo}, EHS{List.reverse(&2, EH, hits_go(sm_brs(sm), s, c, gs, lo, hi)), sm_near(sm), sm_nt(sm)})
+    case False{}: EHS{[], False{}, lo}
 
 def edge_hits(+k: Ty.EdgeKind, +s: S.SF, +gs: List<&2, G.GVal>) -> EHS:
   edge_hits_go(ek_is_curve(k), s, ek_curve(k), gs, ek_lo(k), ek_hi(k))

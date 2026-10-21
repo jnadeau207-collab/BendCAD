@@ -746,6 +746,184 @@ def sep_e(+e: Eg, +fd: SO.Fd, +tol: F64) -> Bool:
   +m = X.vmeet(eg_bx(e), SO.fd_bx(fd))
   Bool.and(Nat.is_eq(List.length(&2, I.I, m), 3n), Bool.or(sep_ek(e, fd, m, 0n, tol), Bool.or(sep_ek(e, fd, m, 1n, tol), sep_ek(e, fd, m, 2n, tol))))
 
+def vsub3(+a: V.Point, +b: V.Point) -> V.Dir:
+  V.Dr{F64.sub(V.pt_x(a), V.pt_x(b)), F64.sub(V.pt_y(a), V.pt_y(b)), F64.sub(V.pt_z(a), V.pt_z(b))}
+
+def vdot3(+a: V.Dir, +b: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(V.dr_x(a), V.dr_x(b)), F64.mul(V.dr_y(a), V.dr_y(b))), F64.mul(V.dr_z(a), V.dr_z(b)))
+
+def vcross3(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.sub(F64.mul(V.dr_y(a), V.dr_z(b)), F64.mul(V.dr_z(a), V.dr_y(b))), F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
+    F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
+
+def vunit3(+a: V.Dir) -> V.Dir:
+  +l = F64.sqrt(vdot3(a, a))
+  V.Dr{F64.div(V.dr_x(a), l), F64.div(V.dr_y(a), l), F64.div(V.dr_z(a), l)}
+
+def lnpt(+p: V.Point, +d: V.Dir, +t: F64) -> V.Point:
+  V.Pt{F64.add(V.pt_x(p), F64.mul(t, V.dr_x(d))), F64.add(V.pt_y(p), F64.mul(t, V.dr_y(d))), F64.add(V.pt_z(p), F64.mul(t, V.dr_z(d)))}
+
+def ax_par(+a: List<&2, I.I>, +n: V.Dir) -> Bool:
+  +aa = SO.dr_of(a)
+  F64.is_le(F64.sub(1.0f64, F64.div(F64.abs(vdot3(aa, n)), F64.sqrt(vdot3(aa, aa)))), 1.0e-12f64)
+
+def vadd3(+a: V.Point, +d: V.Dir, +t: F64) -> V.Point:
+  lnpt(a, d, t)
+
+def vlen3(+a: V.Dir) -> F64:
+  F64.sqrt(vdot3(a, a))
+
+def vsc3(+a: V.Dir, +t: F64) -> V.Dir:
+  V.Dr{F64.mul(t, V.dr_x(a)), F64.mul(t, V.dr_y(a)), F64.mul(t, V.dr_z(a))}
+
+def vsum3(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.add(V.dr_x(a), V.dr_x(b)), F64.add(V.dr_y(a), V.dr_y(b)), F64.add(V.dr_z(a), V.dr_z(b))}
+
+def rq_at(+a: V.Point, +b: V.Point, +c: V.Point, +w0: F64, +w1: F64, +w2: F64, +t: F64) -> V.Point:
+  +s = F64.sub(1.0f64, t)
+  +k0 = F64.mul(w0, F64.mul(s, s))
+  +k1 = F64.mul(2.0f64, F64.mul(w1, F64.mul(s, t)))
+  +k2 = F64.mul(w2, F64.mul(t, t))
+  +den = F64.add(F64.add(k0, k1), k2)
+  V.Pt{F64.div(F64.add(F64.add(F64.mul(k0, V.pt_x(a)), F64.mul(k1, V.pt_x(b))), F64.mul(k2, V.pt_x(c))), den),
+    F64.div(F64.add(F64.add(F64.mul(k0, V.pt_y(a)), F64.mul(k1, V.pt_y(b))), F64.mul(k2, V.pt_y(c))), den),
+    F64.div(F64.add(F64.add(F64.mul(k0, V.pt_z(a)), F64.mul(k1, V.pt_z(b))), F64.mul(k2, V.pt_z(c))), den)}
+
+type CC is Data:
+  CC{ ok: Bool, o: V.Point, n: V.Dir, r: F64 }
+
+def cc_none() -> CC:
+  CC{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 0.0f64}
+
+def circ3(+p: V.Point, +q: V.Point, +r: V.Point, +x: V.Point, +tol: F64) -> CC:
+  +u = vsub3(q, p)
+  +v = vsub3(r, p)
+  +w = vcross3(u, v)
+  +ww = vdot3(w, w)
+  +k = vsum3(vsc3(vcross3(v, w), vdot3(u, u)), vsc3(vcross3(w, u), vdot3(v, v)))
+  +o = vadd3(p, k, F64.div(1.0f64, F64.mul(2.0f64, ww)))
+  +rad = vlen3(vsub3(p, o))
+  +ok = Bool.and(F64.is_lt(0.0f64, ww), F64.is_le(F64.abs(F64.sub(vlen3(vsub3(x, o)), rad)), tol))
+  CC{ok, o, vunit3(w), rad}
+
+def eg_circ(g: G.GVal, +tol: F64) -> CC:
+  match g:
+    case G.GV_rq{w}:
+      G.Rq{+a, +b, +c, +w0, +w1, +w2} = w
+      circ3(a, rq_at(a, b, c, w0, w1, w2, 0.5f64), c, rq_at(a, b, c, w0, w1, w2, 0.25f64), tol)
+    case _: cc_none()
+
+def near_pt(vs: List<&2, List<&2, I.I>>, +p: V.Point, +r: F64) -> Bool:
+  match vs:
+    case []: False{}
+    case +v <> t: Bool.or(F64.is_le(vlen3(vsub3(p, bx_pt(v))), r), near_pt(t, p, r))
+
+def tan_at(+o: V.Point, +u: V.Dir, +r1: F64, +sg: F64, +reach: F64, +sv: List<&2, List<&2, I.I>>) -> Bool:
+  near_pt(sv, vadd3(o, u, F64.mul(sg, r1)), reach)
+
+def in_bx(+b: List<&2, I.I>, +p: V.Point, +tol: F64) -> Bool:
+  +x = X.vn(b, 0n)
+  +y = X.vn(b, 1n)
+  +z = X.vn(b, 2n)
+  Bool.and(Bool.and(Bool.and(F64.is_le(F64.sub(I.i_lo(x), tol), V.pt_x(p)), F64.is_le(V.pt_x(p), F64.add(I.i_hi(x), tol))),
+    Bool.and(F64.is_le(F64.sub(I.i_lo(y), tol), V.pt_y(p)), F64.is_le(V.pt_y(p), F64.add(I.i_hi(y), tol)))),
+    Bool.and(F64.is_le(F64.sub(I.i_lo(z), tol), V.pt_z(p)), F64.is_le(V.pt_z(p), F64.add(I.i_hi(z), tol))))
+
+def out_pt(+bf: List<&2, I.I>, +be: List<&2, I.I>, +p: V.Point, +tol: F64) -> Bool:
+  Bool.not(Bool.and(in_bx(bf, p, tol), in_bx(be, p, tol)))
+
+def cross_out(+o: V.Point, +n: V.Dir, +u: V.Dir, +dd: F64, +r1: F64, +rad: F64, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  +a = F64.div(F64.add(F64.mul(dd, dd), F64.sub(F64.mul(r1, r1), F64.mul(rad, rad))), F64.mul(2.0f64, dd))
+  +hg = F64.sqrt(F64.sub(F64.mul(r1, r1), F64.mul(a, a)))
+  +m = vadd3(o, u, a)
+  +v = vcross3(n, u)
+  +big = F64.add(tol, F64.mul(4.0f64, F64.sqrt(F64.mul(tol, F64.add(r1, rad)))))
+  Bool.and(out_pt(bf, be, vadd3(m, v, hg), big), out_pt(bf, be, vadd3(m, v, F64.neg(hg)), big))
+
+def cc_pair(+o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point, +rad: F64, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  +dv = vsub3(q, o)
+  +dd = vlen3(dv)
+  +sum = F64.add(r1, rad)
+  +dif = F64.abs(F64.sub(r1, rad))
+  +reach = F64.add(tol, F64.mul(2.0f64, F64.sqrt(F64.mul(tol, sum))))
+  +conc = F64.is_le(dd, tol)
+  +apart = Bool.or(F64.is_lt(F64.add(sum, tol), dd), F64.is_lt(dd, F64.sub(dif, tol)))
+  +u = vsc3(dv, F64.div(1.0f64, Bool.pick(F64, conc, 1.0f64, dd)))
+  +ext = Bool.and(F64.is_le(F64.abs(F64.sub(dd, sum)), tol), tan_at(o, u, r1, 1.0f64, reach, sv))
+  +inn = Bool.and(F64.is_le(F64.abs(F64.sub(dd, dif)), tol),
+    tan_at(o, u, r1, Bool.pick(F64, F64.is_lt(rad, r1), 1.0f64, F64.neg(1.0f64)), reach, sv))
+  +mid = Bool.and(Bool.and(F64.is_lt(F64.add(dif, tol), dd), F64.is_lt(dd, F64.sub(sum, tol))), cross_out(o, n, u, dd, r1, rad, bf, be, tol))
+  Bool.pick(Bool, conc, F64.is_lt(tol, dif), Bool.or(Bool.or(apart, mid), Bool.or(ext, inn)))
+
+def to_rads(+h: F64, +bigr: F64, +r: F64, +tol: F64) -> List<&2, F64>:
+  +ah = F64.abs(h)
+  +s = F64.sqrt(F64.sub(F64.mul(r, r), F64.mul(h, h)))
+  Bool.pick(List<&2, F64>, F64.is_le(F64.abs(F64.sub(ah, r)), tol), [bigr],
+    Bool.pick(List<&2, F64>, F64.is_lt(ah, F64.sub(r, tol)), [F64.sub(bigr, s), F64.add(bigr, s)], [F64.neg(1.0f64)]))
+
+def all_pairs(rs: List<&2, F64>, +o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  match rs:
+    case []: True{}
+    case +x <> t: Bool.and(Bool.and(F64.is_le(0.0f64, x), cc_pair(o, n, r1, q, x, sv, bf, be, tol)), all_pairs(t, o, n, r1, q, sv, bf, be, tol))
+
+def iw(+x: I.I) -> F64:
+  F64.sub(I.i_hi(x), I.i_lo(x))
+
+def sec_ok(s: M.Im, +o: V.Point, +n: V.Dir, +r1: F64, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  match s:
+    case M.M_to{+c, +a, +bigr, +r}:
+      +cp = SO.pt_of(c)
+      +h = vdot3(n, vsub3(cp, o))
+      +q = vadd3(cp, n, F64.neg(h))
+      +t2 = F64.add(tol, F64.add(iw(bigr), iw(r)))
+      +rr = I.imid(r)
+      Bool.and(ax_par(a, n), Bool.or(F64.is_lt(F64.add(rr, t2), F64.abs(h)),
+        all_pairs(to_rads(h, I.imid(bigr), rr, t2), o, n, r1, q, sv, bf, be, t2)))
+    case M.M_cy{+c, +a, +r}:
+      +cp = SO.pt_of(c)
+      +q = vadd3(cp, n, F64.neg(vdot3(n, vsub3(cp, o))))
+      +t2 = F64.add(tol, iw(r))
+      Bool.and(ax_par(a, n), cc_pair(o, n, r1, q, I.imid(r), sv, bf, be, t2))
+    case _: False{}
+
+def circ_tan_go(+cc: CC, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  CC{+ok, +o, +n, +r} = cc
+  Bool.and(ok, sec_ok(SO.fd_im(fd), o, n, r, sv, SO.fd_bx(fd), be, tol))
+
+def ln_sec(s: M.Im, +p: V.Point, +v: V.Dir, +sv: List<&2, List<&2, I.I>>, +tol: F64) -> Bool:
+  match s:
+    case M.M_to{+c, +a, +bigr, +r}:
+      +cp = SO.pt_of(c)
+      +au = vunit3(SO.dr_of(a))
+      +w = vsub3(p, cp)
+      +dd = vlen3(vsum3(w, vsc3(au, F64.neg(vdot3(w, au)))))
+      +t2 = F64.add(tol, F64.add(iw(bigr), iw(r)))
+      +rr = I.imid(r)
+      +br = I.imid(bigr)
+      +reach = F64.add(t2, F64.mul(2.0f64, F64.sqrt(F64.mul(t2, rr))))
+      +q = vadd3(p, au, F64.neg(vdot3(w, au)))
+      +apart = Bool.or(F64.is_lt(F64.add(F64.add(br, rr), t2), dd), F64.is_lt(dd, F64.sub(F64.sub(br, rr), t2)))
+      +touch = Bool.or(F64.is_le(F64.abs(F64.sub(dd, F64.add(br, rr))), t2), F64.is_le(F64.abs(F64.sub(dd, F64.sub(br, rr))), t2))
+      Bool.and(ax_par(a, vunit3(v)), Bool.or(apart, Bool.and(touch, near_pt(sv, q, reach))))
+    case M.M_cy{+c, +a, +r}:
+      +w = vsub3(p, SO.pt_of(c))
+      +au = vunit3(SO.dr_of(a))
+      +dd = vlen3(vsum3(w, vsc3(au, F64.neg(vdot3(w, au)))))
+      +t2 = F64.add(tol, iw(r))
+      Bool.and(ax_par(a, vunit3(v)), Bool.or(F64.is_lt(F64.add(I.imid(r), t2), dd), F64.is_lt(dd, F64.sub(I.imid(r), t2))))
+    case _: False{}
+
+def edge_tan_go(g: G.GVal, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  match g:
+    case G.GV_ln{w}:
+      G.Ln{+p, +v} = w
+      ln_sec(SO.fd_im(fd), p, v, sv, tol)
+    case _: circ_tan_go(eg_circ(g, tol), fd, sv, be, tol)
+
+def circ_tan(+x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +tol: F64) -> Bool:
+  +sv = sh_pt(has(vs, eg_a(x)), eg_pa(x), sh_pt(has(vs, eg_b(x)), eg_pb(x), []))
+  edge_tan_go(eg_g(x), fd, sv, eg_bx(x), tol)
+
 def ef_sp(t: Bool, +x: Eg, +fd: SO.Fd, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64,
     +cross: Bool, +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   match t:
@@ -758,7 +936,7 @@ def ef_go(own: Bool, +x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie:
     case True{}: []
     case False{}:
       +fd = fg_fd(f)
-      ef_sp(sep_e(x, fd, tol), x, fd, f, fe, tf, ie, jf, tol, cross, ofds)
+      ef_sp(Bool.or(sep_e(x, fd, tol), circ_tan(x, fd, fg_vs(f), tol)), x, fd, f, fe, tf, ie, jf, tol, cross, ofds)
 
 def ef(+x: Eg, +f: Fg, +fe: List<&2, Nat>, +tf: B.Tb<&2, Fg>, +ie: Nat, +jf: Nat, +tol: F64, +cross: Bool,
     +ofds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
@@ -996,14 +1174,6 @@ def brs_fi(bs: List<&2, SS.Br>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb
     case b <> t: List.append(&2, SO.Fi, br_fi(b, fa, fb, csa, csb, tol, ia, ib, adj),
       brs_fi(t, fa, fb, csa, csb, tol, ia, ib, adj))
 
-def un_one(b: List<&2, I.I>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
-  Bool.pick(List<&2, SO.Fi>, X.vfin(b), fi1("face-face-uncertain", ia, ib), fi1("face-face-uncertain", ia, ib))
-
-def un_fi(us: List<&2, List<&2, I.I>>, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
-  match us:
-    case []: []
-    case u <> t: List.append(&2, SO.Fi, un_one(u, ia, ib), un_fi(t, ia, ib))
-
 def un_widen(+u: List<&2, I.I>, +tol: F64) -> List<&2, I.I>:
   match u:
     case []: []
@@ -1125,9 +1295,88 @@ def ff_go_sep(t: Bool, m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x
     case True{}: []
     case False{}: ff_tr(m, fa, fb, x, y, te, tol, ia, ib)
 
+def ctrl_pts(g: G.GVal, +d: G.Dom) -> List<&2, V.Point>:
+  match g:
+    case G.GV_ln{w}:
+      G.Ln{+p, +v} = w
+      [lnpt(p, v, S.dlo(d)), lnpt(p, v, S.dhi(d))]
+    case G.GV_bz{w}:
+      G.Bz{+a, +b, +c, +e} = w
+      [a, b, c, e]
+    case G.GV_rq{w}:
+      G.Rq{+a, +b, +c, w0, w1, w2} = w
+      [a, b, c]
+    case _: []
+
+def eg_ctrl(+e: Eg) -> List<&2, V.Point>:
+  ctrl_pts(eg_g(e), eg_d(e))
+
+type SP is Data:
+  SP{ ok: Bool, o: V.Point, n: V.Dir }
+
+def sp_of(g: G.GVal) -> SP:
+  match g:
+    case G.GV_rq{w}:
+      G.Rq{+a, +b, +c, w0, w1, w2} = w
+      SP{True{}, a, vunit3(vcross3(vsub3(b, a), vsub3(c, a)))}
+    case _: SP{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}}
+
+type SD is Data:
+  SD{ neg: Bool, pos: Bool }
+
+def pts_side(ps: List<&2, V.Point>, +o: V.Point, +n: V.Dir, +tol: F64, +acc: SD) -> SD:
+  match ps:
+    case []: acc
+    case +p <> +t:
+      SD{+ng, +ps2} = acc
+      +sd = vdot3(n, vsub3(p, o))
+      pts_side(t, o, n, tol, SD{Bool.or(ng, F64.is_lt(sd, F64.neg(tol))), Bool.or(ps2, F64.is_lt(tol, sd))})
+
+def es_side(es: List<&2, Nat>, +te: B.Tb<&2, Eg>, +o: V.Point, +n: V.Dir, +tol: F64, +acc: SD) -> SD:
+  match es:
+    case []: acc
+    case +h <> +t: es_side(t, te, o, n, tol, pts_side(eg_ctrl(B.tb_get(Eg, te, U32.from_nat(h))), o, n, tol, acc))
+
+def ax_in(+c: List<&2, I.I>, +a: List<&2, I.I>, +o: V.Point, +n: V.Dir, +tol: F64) -> Bool:
+  +ad = vdot3(SO.dr_of(a), n)
+  Bool.and(F64.is_le(F64.abs(ad), 1.0e-12f64), F64.is_le(F64.abs(vdot3(n, vsub3(SO.pt_of(c), o))), tol))
+
+def surf_sep(s: M.Im, +o: V.Point, +n: V.Dir, +tol: F64) -> Bool:
+  match s:
+    case M.M_pl{p, q}: True{}
+    case M.M_cy{+c, +a, r}: Bool.or(ax_par(a, n), ax_in(c, a, o, n, tol))
+    case M.M_to{+c, +a, +bigr, +r}: Bool.and(ax_in(c, a, o, n, tol), F64.is_lt(I.i_hi(r), I.i_lo(bigr)))
+    case M.M_co{+c, +a, k}: ax_in(c, a, o, n, tol)
+    case _: False{}
+
+def opp(+a: SD, +b: SD) -> Bool:
+  SD{+an, +ap} = a
+  SD{+bn, +bp} = b
+  Bool.or(Bool.and(Bool.and(ap, Bool.not(an)), Bool.and(bn, Bool.not(bp))), Bool.and(Bool.and(an, Bool.not(ap)), Bool.and(bp, Bool.not(bn))))
+
+def sd0() -> SD:
+  SD{False{}, False{}}
+
+def sep_pl_go(+sp: SP, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  SP{+ok, +o, +n} = sp
+  +z = sd0()
+  Bool.and(ok, Bool.and(Bool.and(surf_sep(SO.fd_im(fa), o, n, tol), surf_sep(SO.fd_im(fb), o, n, tol)),
+    opp(es_side(fg_es(x), te, o, n, tol, z), es_side(fg_es(y), te, o, n, tol, z))))
+
+def sep_pl_any(es: List<&2, Nat>, done: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  match es:
+    case []: done
+    case +h <> +t:
+      match done:
+        case True{}: True{}
+        case False{}: sep_pl_any(t, sep_pl_go(sp_of(eg_g(B.tb_get(Eg, te, U32.from_nat(h)))), fa, fb, x, y, te, tol), fa, fb, x, y, te, tol)
+
+def sep_plane(+fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  sep_pl_any(List.append(&2, Nat, fg_es(x), fg_es(y)), False{}, fa, fb, x, y, te, tol)
+
 def ff_or_tr(+m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
     +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
-  ff_go_sep(Bool.and(is_none(m), sep(fa, fb, X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)), tol)), m, fa, fb, x, y, te, tol, ia, ib)
+  ff_go_sep(Bool.and(is_none(m), Bool.or(sep(fa, fb, X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)), tol), sep_plane(fa, fb, x, y, te, tol))), m, fa, fb, x, y, te, tol, ia, ib)
 
 def frame(+n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +m = SO.snap(n)

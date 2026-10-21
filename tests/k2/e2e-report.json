@@ -6,7 +6,7 @@
    0.016199999999984924,
    0.016200000000015077
   ],
-  "out": "38214] [-1110133.8724633513, 1145127.3765418855] [-222567.3995913277, 495344.442540003] [-333851.0993869944, 743016.663810007] [-667702.1987740211, 1486033.3276200793] status=certified\nmaterial 6082-T6 density=2700 cte=0.0000234 mass=[0.016199999999984924, 0.016200000000015077] kg status=certified\n\n"
+  "out": "47] [-2.454578169360848e-11, 2.425413166133583e-11] [-2.68093859993517e-11, 2.7172364664708572e-11] [-1.2453854482713139e-11, 1.2334660269829777e-11] status=certified method=divergence\nmaterial 6082-T6 density=2700 cte=0.0000234 mass=[0.016199999999984924, 0.016200000000015077] kg status=certified\n\n"
  },
  {
   "name": "material.step",
@@ -105,8 +105,8 @@
    0.09349622487848899,
    0.09359613204786021
   ],
-  "oracle": 0.09359613199288969,
-  "seconds": 0.4240405559539795,
+  "oracle": 0.09359613199289163,
+  "seconds": 0.571739673614502,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {
@@ -181,13 +181,25 @@
   "name": "torus.oring_racetrack",
   "ok": true,
   "volume": [
-   802.1803652734235,
-   802.1803652758596
+   802.1803652734238,
+   802.1803652758592
   ],
   "exact": 802.1803652746415,
   "check": "ok: embedded, shells outward, cavities nested",
   "step": "1 802.1803854065913",
-  "line": "node 1: ok material=create faces_created=36 faces_modified=0 solids=1 through_holes=1 | volume=[802.1803652734235, 802.1803652758596] area=[1279.0409327464306, 1279.0409327490831] bbox=[-18.2800000000"
+  "line": "node 1: ok material=create faces_created=36 faces_modified=0 solids=1 through_holes=1 | volume=[802.1803652734238, 802.1803652758592] area=[1279.040932746431, 1279.0409327490827] bbox=[-18.28000000000"
+ },
+ {
+  "name": "torus.bean_concave_turn",
+  "ok": true,
+  "volume": [
+   552.9203070310094,
+   552.9203070325977
+  ],
+  "exact": 552.9203070318035,
+  "check": "ok: embedded, shells outward, cavities nested",
+  "step": "1 552.9203070350227",
+  "line": "node 1: ok material=create faces_created=40 faces_modified=0 solids=1 through_holes=1 | volume=[552.9203070310094, 552.9203070325977] area=[1105.8406140611003, 1105.8406140661143] bbox=[30.97114317029"
  },
  {
   "name": "asm.step",

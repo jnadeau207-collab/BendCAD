@@ -230,6 +230,33 @@ def fem():
            noel=o1[-200:], k0=o2[-200:], axis0=o3[-200:], offaxis=o4[-300:], nu=o5[-300:])
 
 
+def blade_root():
+    c, sn = math.cos(PI / 6), math.sin(PI / 6)
+    f = lambda r, sg: f'{r * c!r} {sg * r * sn!r}'
+    path = (f'(path {f(50, -1)} (arc 0 0 50 {f(50, 1)} ccw) (arc {f(45, 1)} 5 {f(40, 1)} ccw) '
+            f'(arc 0 0 40 {f(40, -1)} cw) (arc {f(45, -1)} 5 {f(50, -1)} ccw))')
+    prof = '(region (path -2 -0.5 (line 2 -0.5) (line 2 0) (arc 2 2 2 0 2 cw) (line 0 20) (line -2 20) (line -2 -0.5)))'
+    a0, ln = 175 * PI, 40 * PI
+    area = lambda t: a0 + ln * t + PI * t * t
+    fil = 2 * a0 + ln * (4 - PI) + PI * (16 - 4 * PI - 8 / 3)
+    v3 = 0.5 * area(2) + 18 * a0 + fil
+    v1 = 20000 + v3 - 0.5 * area(2)
+    out, _ = fresh('br.bcd', f'(node 2 (prism -5 0 (region (path 20 -40 (line 70 -40) (line 70 40) (line 20 40) (line 20 -40)))) {IC})',
+                   f'(node 3 (sweep (wall {path}) {prof}) {IC})', f'(node 1 (union 2 3) {IA})')
+    ev, _ = cli('br.bcd', 'eval')
+    got = {n: re.search(rf'node {n}:.*?volume=' + IVR, ev) for n in (1, 3)}
+    vol = {n: (float(m.group(1)), float(m.group(2))) if m else None for n, m in got.items()}
+    ck, _ = cli('br.bcd', 'check', '1')
+    record('blend.blade_root_union', 'committed' in out and tight(vol[3], v3, 1e-9) and tight(vol[1], v1, 1e-11)
+           and ck.startswith('ok:'), volume=vol, exact=dict(wall=v3, union=v1), check=ck.strip()[:120], eval=ev[-600:])
+    mo, raw, dt = moments('br.bcd', 3)
+    record('blend.wall_moments', mo is not None and tight(mo['vol'], v3, 1e-9) and has(mo['c'][1], 0.0, 1e-12),
+           got=mo, want=v3, seconds=dt, raw=raw[-400:])
+    cli('br.bcd', 'step', '1', f'{WORK}/br.stp')
+    o = occt(f'{WORK}/br.stp')
+    record('blend.blade_root_step', o is not None and abs(o[0] - v1) / v1 < 1e-7, occt=o, exact=v1)
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -271,6 +298,7 @@ def main():
     balance()
     rotor()
     fem()
+    blade_root()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

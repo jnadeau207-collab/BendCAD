@@ -180,6 +180,27 @@ pairs, checked in parallel):
   (`sweep (along ...)`): a turn's torus and the next run's cylinder are
   tangent along the station circle, where tracing cannot resolve them.
 
+- **Station-plane separation.** Two faces are separated by the plane of
+  a circular edge of either face when both surfaces are symmetric about
+  or normal to it (a plane; a cylinder whose axis is normal to it or lies
+  in it; a cone, or a torus with `R > r`, whose axis lies in it) and the
+  exact control points of each face's edges lie on opposite closed sides
+  of it, one strictly. Faces of a swept wall that meet only at a vertex,
+  across a station, are certified this way.
+
+- **Tangent at a shared vertex.** An edge whose curve is a circle lying
+  in a plane normal to the axis of a torus or cylinder face meets that
+  surface only in the plane's section circles (one or two for a torus,
+  one for a cylinder). For each section circle the two circles are either
+  apart, tangent at a point within `tol + 2·sqrt(tol·(r1 + r2))` of a
+  vertex the edge shares with the face, or crossing at two points that
+  both lie outside the face's box or the edge's box (widened by
+  `tol + 4·sqrt(tol·(r1 + r2))`). A line parallel to such an axis is
+  apart from the surface or tangent to a torus at the tube centre's
+  height next to a shared vertex. Such a pair is not traced: this is the
+  contact of a blade's root-fillet tangency arc with the end-cap fillet
+  at their common vertex.
+
 - **Contact between solids (C08, L9).** Solids that meet without sharing
   volume are not a failure: an edge/edge hit at an edge end of either
   solid, an edge touching a face at its end, and a coplanar face overlap
@@ -192,6 +213,11 @@ pairs, checked in parallel):
 Tolerances: shared-vertex corners `2^-30` of the part size; boundary
 proximity `2^-20` of the part size. Findings name the entities; anything
 not certified is reported as `...-uncertain`.
+
+Point classification retries the next ray direction when a ray is
+ambiguous (grazes an edge or a tangent face) instead of reporting
+uncertainty after the first one. A cylinder face is boxed by its edges'
+box, not by its full circle.
 
 ## 6. Topology constant over a parameter box (A5)
 

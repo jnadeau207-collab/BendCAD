@@ -150,12 +150,6 @@ def cyl_curve(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> VA:
   +p0 = FB.uv_raw(s, EF.ev(EF.ek_curve(k), a))
   cyl_poly(FB.poly_of(s, k, a, b, p0), s, c)
 
-def chord_dev(+s1: S.SF, +s2: S.SF, +a: V.Point, +b: V.Point) -> F64:
-  +m = S.padd(a, 0.5f64, S.psub(b, a))
-  +t = S.dunit(S.psub(b, a))
-  +q = S.newton2(8n, s1, s2, m, t, m)
-  S.dist(m, q)
-
 def cc_of(+g: G.GVal) -> G.Circle3:
   match g:
     case G.GV_cc{w}: w
@@ -295,7 +289,6 @@ def ek1(ks: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:
     case []: Ty.EK_degenerate{}
     case +h <> +t: h
 
-
 def ks_tag(+ks: List<&2, Ty.EdgeKind>) -> U64:
   ek_tag(ek1(ks))
 
@@ -349,6 +342,9 @@ def samp_dev(+s: S.SF, +k: Ty.EdgeKind) -> F64:
   Bool.pick(F64, Bool.or(U64.is_eq(S.sf_kind(s), S.k_plane()), U64.is_eq(S.sf_kind(s), S.k_cyl())), 0.0f64,
     F64.mul(2.0f64, samp_dev_go(n, s, EF.ek_curve(k), lo, dt, 0.0f64, 0.0f64)))
 
+def is_chord(+k: Ty.EdgeKind) -> Bool:
+  Bool.and(U64.is_eq(ek_tag(k), 4u64), Bool.not(bz_straight(EF.ek_curve(k))))
+
 def chord_sl(+b: Ty.Brep, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
   +fs = FB.edge_faces(b, e)
   +s1 = S.sf_of(FB.face_surf(b, L.nth_n(fs, 0n)))
@@ -376,7 +372,7 @@ def ces_va(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) ->
       +pa = Bool.pick(V.Point, fw, p0, p1)
       +pb = Bool.pick(V.Point, fw, p1, p0)
       +x = coedge_va(s, c, [Ty.ed_kind(ed)], fw, [pa, pb])
-      +sl = chord_maybe(U64.is_eq(ek_tag(Ty.ed_kind(ed)), 4u64), b, FB.ce_e(h), s, c, pa, pb)
+      +sl = chord_maybe(is_chord(Ty.ed_kind(ed)), b, FB.ce_e(h), s, c, pa, pb)
       ces_va(t, b, s, c, va_add(va_add(acc, x), sl))
 
 def lps_va(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
@@ -488,7 +484,7 @@ def cone_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, 
       +a0 = Bool.pick(F64, fw, lo, hi)
       +b0 = Bool.pick(F64, fw, hi, lo)
       +ar = cone_poly(FB.poly_of(s, k, a0, b0, FB.uv_raw(s, EF.ev(EF.ek_curve(k), a0))), kq)
-      +sl = chord_maybe(U64.is_eq(ek_tag(k), 4u64), b, FB.ce_e(h), s, c, pa, pb)
+      +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, pa, pb)
       cone_ces(t, b, s, c, kq, va_add(acc, va_add(VA{0.0f64, ar, 0.0f64, 0.0f64, True{}}, sl)))
 
 def cone_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
@@ -554,7 +550,7 @@ def sph_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -
       +p0 = FB.vpt(b, Ty.ed_v0(ed))
       +p1 = FB.vpt(b, Ty.ed_v1(ed))
       +x = sph_edge(s, k, fw)
-      +sl = chord_maybe(U64.is_eq(ek_tag(k), 4u64), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
+      +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
       sph_ces(t, b, s, c, va_add(acc, va_add(VA{V.v2_y(x), V.v2_x(x), 0.0f64, 0.0f64, True{}}, sl)))
 
 def sph_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
@@ -637,7 +633,7 @@ def tor_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -
       +k = Ty.ed_kind(ed)
       +p0 = FB.vpt(b, Ty.ed_v0(ed))
       +p1 = FB.vpt(b, Ty.ed_v1(ed))
-      +sl = chord_maybe(U64.is_eq(ek_tag(k), 4u64), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
+      +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
       tor_ces(t, b, s, c, va_add(acc, va_add(tor_edge(s, c, k, fw), sl)))
 
 def tor_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:

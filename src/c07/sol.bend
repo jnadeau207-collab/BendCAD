@@ -129,9 +129,6 @@ def ax_slab(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, 
   [Bool.pick(I.I, Nat.is_eq(k, 0n), I.ihull(X.vn(b, 0n), w), X.vn(b, 0n)), Bool.pick(I.I, Nat.is_eq(k, 1n), I.ihull(X.vn(b, 1n), w), X.vn(b, 1n)),
     Bool.pick(I.I, Nat.is_eq(k, 2n), I.ihull(X.vn(b, 2n), w), X.vn(b, 2n))]
 
-def rad_k(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +i: Nat, +r: I.I) -> I.I:
-  Bool.pick(I.I, Nat.is_eq(i, k), X.vn(b, i), I.ihull(X.vn(b, i), I.ihull(I.isub(X.vn(o, i), r), I.iadd(X.vn(o, i), r))))
-
 def bx_m(xs: List<&2, I.I>, +m: F64) -> F64:
   match xs:
     case []: m
@@ -146,7 +143,7 @@ def bx_pad(+b: List<&2, I.I>) -> List<&2, I.I>:
   bx_pad_go(b, F64.mul(F64.add(1.0f64, bx_m(b, 0.0f64)), 9.094947017729282e-13f64))
 
 def cy_box(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
-  bx_pad([rad_k(b, o, k, 0n, r), rad_k(b, o, k, 1n, r), rad_k(b, o, k, 2n, r)])
+  bx_pad(b)
 
 def to_box_go(ax: Bool, +o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im) -> List<&2, I.I>:
   match ax:
@@ -338,7 +335,6 @@ def cl_go(ds: List<&2, V.Dir>, +st: U64, +n: Nat, +fs: List<&2, Fd>, +bb: List<&
     case d <> t:
       match st:
         case 0u64: cl_fin(st, n)
-        case 1u64: cl_fin(st, n)
         case _:
           +r = shoot(fs, bb, p, d, none_skip(), 9.094947017729282e-13f64)
           cl_go(t, rc_st(r), rc_n(r), fs, bb, p)

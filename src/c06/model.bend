@@ -23,6 +23,7 @@ import ../c12/blob.bend as BL
 import ../c16/sheet.bend as SH
 import ../c16/surf.bend as SU
 import ../c16/blade.bend as BA
+import ../k3/div.bend as KD
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64, nm: String }
@@ -50,7 +51,7 @@ type Op is Data:
   O_intersection{ a: U64, b: U64 }
   O_sw_line{ z: X.Xp, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
   O_sw_arc{ deg: U64, rs: List<&2, F.Region>, g: U64, gd: U64, tw: U64 }
-  O_sw_path{ rs: List<&2, F.Region> }
+  O_sw_path{ rs: List<&2, F.Region>, wall: Bool }
   O_loft{ z: X.Xp, bot: F.Region, top: F.Region, twist: U64, cont: U64 }
   O_chamfer{ base: U64, d: X.Xp }
   O_echamf{ base: U64, f: Sel, cx: X.Xp, cy: X.Xp, r: X.Xp, c: X.Xp, fl: Bool }
@@ -190,6 +191,7 @@ def pe_why(+c: U64) -> String:
     case 27u64: "path-not-tangent-continuous"
     case 28u64: "path-not-one-turn"
     case 29u64: "sweep-needs-one-loop"
+    case 30u64: "wall-profile-not-closed-by-line"
     case _: "profile-error"
 
 def pe_fix(+c: U64) -> String:
@@ -223,6 +225,7 @@ def pe_fix(+c: U64) -> String:
     case 27u64: "join consecutive path lines and arcs tangentially"
     case 28u64: "use one closed counter-clockwise path whose turns add up to one full turn"
     case 29u64: "give the path and the profile one loop each, without holes"
+    case 30u64: "close a wall profile with one straight segment back to its start; that segment becomes the caps"
     case _: "report this"
 
 def pe_nr(e: F.Er, +what: String) -> NR:
@@ -1233,7 +1236,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_intersection{a, b}: B8.tag_inter() <> a <> b <> []
     case O_sw_line{z, rs, g, gd, tw}: 17u64 <> g <> gd <> tw <> X.xp_w(z, e, rgs_w(rs, e, []))
     case O_sw_arc{deg, rs, g, gd, tw}: 18u64 <> deg <> g <> gd <> tw <> rgs_w(rs, e, [])
-    case O_sw_path{rs}: 44u64 <> rgs_w(rs, e, [])
+    case O_sw_path{rs, +wall}: Bool.pick(U64, wall, 45u64, 44u64) <> rgs_w(rs, e, [])
     case O_loft{z, bot, top, twist, cont}: 19u64 <> twist <> cont <> X.xp_w(z, e, rgs_w([bot, top], e, []))
     case O_chamfer{base, d}: 20u64 <> base <> X.xp_w(d, e, [])
     case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(U64, fl, 43u64, 41u64) <> base <> sel_w(f, X.xp_w(cx, e, X.xp_w(cy, e, X.xp_w(r, e, X.xp_w(c, e, [])))))
@@ -1355,7 +1358,7 @@ def op_name(o: Op) -> String:
     case O_intersection{a, b}: "intersection"
     case O_sw_line{z, rs, g, gd, tw}: "sweep"
     case O_sw_arc{deg, rs, g, gd, tw}: "sweep"
-    case O_sw_path{rs}: "sweep"
+    case O_sw_path{rs, wall}: "sweep"
     case O_loft{z, bot, top, twist, cont}: "loft"
     case O_chamfer{base, d}: "chamfer"
     case O_echamf{base, f, cx, cy, r, c, fl}: Bool.pick(String, fl, "fillet", "chamfer")
@@ -2356,10 +2359,29 @@ def psw_pub(r: NR, +pr: PW.PR, +l: F.Lp) -> NR:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[psw_ms(pr, l, bd_brep(b))], 0n, False{}, "path-sweep", []}}, fx}
 
-def psw_rr(r: RV.RR, +pr: PW.PR, +l: F.Lp) -> NR:
+def ms_div_go(+r: KD.MR, +br: Ty.Brep) -> Ms:
+  KD.MR{c, +m, +e, +slv, +rad, +ar, +sla} = r
+  +bb0 = bb_vs(Ty.brep_vs(br), bb_empty())
+  +lin = F64.mul(bb_m(bb0), 1.7763568394002505e-15f64)
+  ms_mk(Acc{i_nth(KD.mv_iv(m, e, slv, rad), 0n), I.iwiden(I.ipt(ar), F64.add(sla, F64.mul(ar, 1.0e-12f64))), I.ipt(F64.mul(8.0f64, bb_m(bb0)))}, bb_wid(bb0, lin), lin, br)
+
+def ms_div(+br: Ty.Brep) -> Ms:
+  ms_div_go(KD.brep_mom(br), br)
+
+def psw_wpub(r: NR) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_div(bd_brep(b))], 0n, False{}, "wall-sweep", []}}, fx}
+
+def psw_out(wall: Bool, +r: NR, +pr: PW.PR, +l: F.Lp) -> NR:
+  match wall:
+    case True{}: psw_wpub(r)
+    case False{}: psw_pub(r, pr, l)
+
+def psw_rr(r: RV.RR, +pr: PW.PR, +l: F.Lp, +wall: Bool) -> NR:
   RV.RR{+code, lp, b} = r
   match code:
-    case 0u64: psw_pub(bt_check(b, [], pl_id(), "sweep", []), pr, l)
+    case 0u64: psw_out(wall, bt_check(b, [], pl_id(), "sweep", []), pr, l)
     case _: pe_nr(F.Er{code, 0n, 0n}, "sweep path")
 
 def lp_one(ls: List<&2, F.Lp>) -> Maybe<&2, F.Lp>:
@@ -2370,7 +2392,7 @@ def lp_one(ls: List<&2, F.Lp>) -> Maybe<&2, F.Lp>:
         case []: Some{l}
         case _: None{}
 
-def psw_two(a: Maybe<&2, F.Lp>, b: Maybe<&2, F.Lp>, +nd: U64) -> NR:
+def psw_two(a: Maybe<&2, F.Lp>, b: Maybe<&2, F.Lp>, +wall: Bool, +nd: U64) -> NR:
   match a:
     case None{}: pe_nr(F.Er{29u64, 0n, 0n}, "sweep path")
     case Some{+p}:
@@ -2379,20 +2401,20 @@ def psw_two(a: Maybe<&2, F.Lp>, b: Maybe<&2, F.Lp>, +nd: U64) -> NR:
         case Some{+q}:
           +pr = PW.path_of(p)
           +l = RV.as_path(q)
-          psw_rr(PW.sweep(pr, l, nd), pr, l)
+          psw_rr(PW.sweep(pr, l, wall, nd), pr, l, wall)
 
-def psw_ck(cp: F.CK, cq: F.CK, +nd: U64) -> NR:
+def psw_ck(cp: F.CK, cq: F.CK, +wall: Bool, +nd: U64) -> NR:
   match cp:
     case F.CK_err{e}: pe_nr(e, "sweep path")
     case F.CK_ok{lp, pp}:
       match cq:
         case F.CK_err{e}: sw_pe(e, nd)
-        case F.CK_ok{lq, pq}: psw_two(lp_one(lp), lp_one(lq), nd)
+        case F.CK_ok{lq, pq}: psw_two(lp_one(lp), lp_one(lq), wall, nd)
 
-def op_sw_path(+rs: List<&2, F.Region>, +e: X.Env, +nd: U64) -> NR:
+def op_sw_path(+rs: List<&2, F.Region>, +wall: Bool, +e: X.Env, +nd: U64) -> NR:
   match rs:
     case []: why_nr("sweep", nd, "degenerate-feature")
-    case +p <> +t: psw_ck(F.prof_check([p], e), F.prof_check(t, e), nd)
+    case +p <> +t: psw_ck(F.prof_check([p], e), F.prof_check(t, e), wall, nd)
 
 def op_sw_arc(+deg: U64, +rs: List<&2, F.Region>, +g: U64, +gd: U64, +tw: U64, +e: X.Env, +nd: U64) -> NR:
   sw_aa(String.eq(F9.why_sw_ang(deg), ""), deg, rs, g, gd, tw, e, nd)
@@ -3418,7 +3440,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_intersection{an, bn}: bool_run(o, b, b2, nd)
     case O_sw_line{z, rs, g, gd, tw}: op_sw_line(z, rs, g, gd, tw, e, nd)
     case O_sw_arc{deg, rs, g, gd, tw}: op_sw_arc(deg, rs, g, gd, tw, e, nd)
-    case O_sw_path{rs}: op_sw_path(rs, e, nd)
+    case O_sw_path{rs, wall}: op_sw_path(rs, wall, e, nd)
     case O_loft{z, bot, top, twist, cont}: op_loft(z, bot, top, twist, cont, e, nd)
     case O_chamfer{base, d}: op_chamfer(base, d, b, e, nd, ns)
     case O_echamf{base, f, cx, cy, r, c, fl}: op_echamf(b, f, cx, cy, r, c, fl, e, nd)

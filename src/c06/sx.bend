@@ -272,14 +272,15 @@ def nat_ok(x: Sx) -> Bool:
     case Sx_l{xs}: False{}
 
 def sw_kind_s(+s: String) -> U64:
-  Bool.pick(U64, String.eq(s, "line"), 1u64, Bool.pick(U64, String.eq(s, "arc"), 2u64, Bool.pick(U64, String.eq(s, "along"), 3u64, 0u64)))
+  Bool.pick(U64, String.eq(s, "line"), 1u64, Bool.pick(U64, String.eq(s, "arc"), 2u64, Bool.pick(U64, String.eq(s, "along"), 3u64,
+    Bool.pick(U64, String.eq(s, "wall"), 4u64, 0u64))))
 
 def sw_path(x: Sx, +ns: List<&2, NI>) -> SW:
   +ys = sx_xs(x)
   +k = sw_kind_s(sx_s(sx_nth(ys, 0n)))
   +a = sx_nth(ys, 1n)
   +two = Nat.is_eq(List.length(&2, Sx, ys), 2n)
-  +along = Bool.and(U64.is_eq(k, 3u64), Bool.and(two, head_is(a, "path")))
+  +along = Bool.and(Bool.or(U64.is_eq(k, 3u64), U64.is_eq(k, 4u64)), Bool.and(two, head_is(a, "path")))
   +ok = Bool.or(along, Bool.or(Bool.and(U64.is_eq(k, 1u64), two), Bool.and(Bool.and(U64.is_eq(k, 2u64), two), nat_ok(a))))
   SW{ok, k, to_xp(a, ns), u64_of(a), Bool.pick(List<&2, F.Region>, along, [F.Rg{loop_of(a, ns), []}], []), 0u64, 0u64, 0u64, False{}, False{}}
 
@@ -345,15 +346,16 @@ def sw_arc(st: SW) -> M.Op:
   SW{ok, k, z, deg, rs, g, gd, tw, gg, tt} = st
   M.O_sw_arc{deg, rs, g, gd, tw}
 
-def sw_along(st: SW) -> M.Op:
+def sw_along(st: SW, +wall: Bool) -> M.Op:
   SW{ok, k, z, deg, rs, g, gd, tw, +gg, +tt} = st
-  Bool.pick(M.Op, Bool.or(gg, tt), M.O_unk{"sweep"}, M.O_sw_path{rs})
+  Bool.pick(M.Op, Bool.or(gg, tt), M.O_unk{"sweep"}, M.O_sw_path{rs, wall})
 
 def sw_kind(kind: U64, +st: SW) -> M.Op:
   match kind:
     case 1u64: sw_line(st)
     case 2u64: sw_arc(st)
-    case 3u64: sw_along(st)
+    case 3u64: sw_along(st, False{})
+    case 4u64: sw_along(st, True{})
     case _: M.O_unk{"sweep"}
 
 def sw_knd(st: SW) -> U64:
@@ -908,12 +910,12 @@ def rgs_sx(rs: List<&2, F.Region>, +ns: List<&2, NI>) -> List<&2, Sx>:
       F.Rg{o, hs} = r
       ls(at("region") <> loop_sx(o, ns) <> loops_sx(hs, ns)) <> rgs_sx(t, ns)
 
-def along_sx(rs: List<&2, F.Region>, +ns: List<&2, NI>) -> List<&2, Sx>:
+def along_sx(rs: List<&2, F.Region>, +wall: Bool, +ns: List<&2, NI>) -> List<&2, Sx>:
   match rs:
     case []: []
     case r <> t:
       F.Rg{o, hs} = r
-      ls([at("along"), loop_sx(o, ns)]) <> rgs_sx(t, ns)
+      ls([at(Bool.pick(String, wall, "wall", "along")), loop_sx(o, ns)]) <> rgs_sx(t, ns)
 
 def hls_sx(hs: List<&2, M.Hl>, +ns: List<&2, NI>) -> List<&2, Sx>:
   match hs:
@@ -982,7 +984,7 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
       ls(at("sweep") <> ls([at("line"), xp_sx(z, ns)]) <> sx_cat(rgs_sx(rs, ns), sx_cat(guide_xs(g, gd), tw_xs(tw))))
     case M.O_sw_arc{deg, rs, g, gd, tw}:
       ls(at("sweep") <> ls([at("arc"), at(U64.show(deg))]) <> sx_cat(rgs_sx(rs, ns), sx_cat(guide_xs(g, gd), tw_xs(tw))))
-    case M.O_sw_path{rs}: ls(at("sweep") <> along_sx(rs, ns))
+    case M.O_sw_path{rs, +wall}: ls(at("sweep") <> along_sx(rs, wall, ns))
     case M.O_loft{z, bot, top, twist, cont}:
       ls(at("loft") <> xp_sx(z, ns) <> sx_cat(rgs_sx([bot], ns), sx_cat(rgs_sx([top], ns), sx_cat(tw_xs(twist), cont_xs(cont)))))
     case M.O_chamfer{base, d}: ls([at("chamfer"), at(U64.show(base)), xp_sx(d, ns)])

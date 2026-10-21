@@ -196,30 +196,6 @@ def in_plane(+k: Ty.EdgeKind, +s: S.SF) -> Bool:
     F64.max(pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.25f64, d)))), pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.75f64, d)))))))
   Bool.and(U64.is_eq(S.sf_kind(s), S.k_plane()), F64.is_le(m, tol))
 
-def ef_hits(+inp: Bool, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +k: Ty.EdgeKind, +g: G.GVal, +st: HS) -> HS:
-  match inp:
-    case True{}: st
-    case False{}:
-      +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
-      +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
-      Bool.pick(HS, EF.ehs_near(r), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
-
-def ef_one(+side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +st: HS) -> HS:
-  +k = Ty.ed_kind(FB.edge_at(b, e))
-  +g = FB.face_surf(ob, fo)
-  ef_hits(in_plane(k, S.sf_of(g)), side, e, b, ob, fo, k, g, st)
-
-def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
-  match fs:
-    case []: st
-    case +h <> +t: ef_faces(t, side, e, b, ob, ef_one(side, e, b, ob, h, st))
-
-def ef_edges(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
-  match es:
-    case []: st
-    case +h <> +t:
-      ef_edges(t, side, b, ob, ef_faces(L.nat_range(FB.nfaces(ob)), side, h, b, ob, st))
-
 def ve_t(n: Nat, +c: G.GVal, +p: V.Point, +lo: F64, +hi: F64) -> F64:
   match n:
     case 0n: F64.mul(0.5f64, F64.add(lo, hi))
@@ -248,6 +224,58 @@ def ve_param(+k: Ty.EdgeKind, +p: V.Point) -> F64:
 
 def ve_tol(+p: V.Point) -> F64:
   F64.mul(1.0e-9f64, F64.add(1.0f64, S.dlen(S.psub(p, S.pt(0.0f64, 0.0f64, 0.0f64)))))
+
+def v_on_k(+k: Ty.EdgeKind, +p: V.Point) -> Bool:
+  F64.is_lt(S.dist(EF.ev(EF.ek_curve(k), ve_param(k, p)), p), ve_tol(p))
+
+def v_near(vs: List<&2, Ty.Vertex>, +k: Ty.EdgeKind, +q: V.Point, +r: F64) -> Bool:
+  match vs:
+    case []: False{}
+    case +v <> +t:
+      +p = Ty.vx_p(v)
+      Bool.or(Bool.and(F64.is_le(S.dist(p, q), r), v_on_k(k, p)), v_near(t, k, q, r))
+
+def on_edges(es: List<&2, Nat>, +ob: Ty.Brep, +p: V.Point) -> Bool:
+  match es:
+    case []: False{}
+    case +e <> +t:
+      +k = Ty.ed_kind(FB.edge_at(ob, e))
+      +inb = Bool.not(FB.bb_dis(FB.bb_pad(FB.ek_bb(k), ve_tol(p)), FB.bb_pt(p)))
+      Bool.or(Bool.and(inb, v_on_k(k, p)), on_edges(t, ob, p))
+
+def end_on(+q: V.Point, +p: V.Point, +r: F64, +ob: Ty.Brep) -> Bool:
+  Bool.and(F64.is_le(S.dist(p, q), r), on_edges(L.nat_range(FB.nedges(ob)), ob, p))
+
+def near_at_vertex(+k: Ty.EdgeKind, +nt: F64, +ob: Ty.Brep) -> Bool:
+  +c = EF.ek_curve(k)
+  +q = EF.ev(c, nt)
+  +step = F64.div(F64.sub(EF.ek_hi(k), EF.ek_lo(k)), 96.0f64)
+  +r = F64.add(F64.mul(2.0f64, S.dist(q, EF.ev(c, F64.add(nt, step)))), ve_tol(q))
+  Bool.or(v_near(Ty.brep_vs(ob), k, q, r), Bool.or(end_on(q, EF.ev(c, EF.ek_lo(k)), r, ob), end_on(q, EF.ev(c, EF.ek_hi(k)), r, ob)))
+
+def ef_hits(+inp: Bool, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +k: Ty.EdgeKind, +g: G.GVal, +st: HS) -> HS:
+  match inp:
+    case True{}: st
+    case False{}:
+      +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
+      +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
+      Bool.pick(HS, Bool.and(EF.ehs_near(r), Bool.not(near_at_vertex(k, EF.ehs_nt(r), ob))), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
+
+def ef_one(+side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +fo: Nat, +st: HS) -> HS:
+  +k = Ty.ed_kind(FB.edge_at(b, e))
+  +g = FB.face_surf(ob, fo)
+  ef_hits(in_plane(k, S.sf_of(g)), side, e, b, ob, fo, k, g, st)
+
+def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
+  match fs:
+    case []: st
+    case +h <> +t: ef_faces(t, side, e, b, ob, ef_one(side, e, b, ob, h, st))
+
+def ef_edges(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep, +st: HS) -> HS:
+  match es:
+    case []: st
+    case +h <> +t:
+      ef_edges(t, side, b, ob, ef_faces(L.nat_range(FB.nfaces(ob)), side, h, b, ob, st))
 
 def ve_fos(fs: List<&2, Nat>, +side: U64, +e: Nat, +t: F64, +p: V.Point, +v: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
   match fs:
@@ -329,10 +357,6 @@ def ch_pts(+c: CH) -> List<&2, V.Point>:
   CH{fa, fb, segs, pts, closed, dv} = c
   pts
 
-def ch_closed(+c: CH) -> Bool:
-  CH{fa, fb, segs, pts, closed, dv} = c
-  closed
-
 def bp_s(+b: BP) -> F64:
   BP{s, v, p} = b
   s
@@ -365,11 +389,6 @@ def ln_kind(+a: V.Point, +b: V.Point) -> Ty.EdgeKind:
     Ty.EK_curve{G.GV_ln{G.Ln{a, d}}, G.Dom{0.0f64, 1.0f64}},
     Ty.EK_curve{G.GV_bz{G.Bz{a, S.padd(a, F64.div(1.0f64, 3.0f64), d), S.padd(a, F64.div(2.0f64, 3.0f64), d), b}},
       G.Dom{0.0f64, 1.0f64}})
-
-def bz_kind(+a: V.Point, +b: V.Point) -> Ty.EdgeKind:
-  +d = S.psub(b, a)
-  Ty.EK_curve{G.GV_bz{G.Bz{a, S.padd(a, F64.div(1.0f64, 3.0f64), d), S.padd(a, F64.div(2.0f64, 3.0f64), d), b}},
-    G.Dom{0.0f64, 1.0f64}}
 
 def is_hit_of(+h: HX, +side: U64, +es: List<&2, Nat>, +fo: Nat) -> Bool:
   Bool.and(U64.is_eq(hx_side(h), side), Bool.and(L.mem_n(es, hx_e(h)), Nat.is_eq(hx_fo(h), fo)))
@@ -608,11 +627,44 @@ def cc_of(+g: G.GVal) -> G.Circle3:
     case G.GV_cc{w}: w
     case _: G.Cc{S.pt(0.0f64, 0.0f64, 0.0f64), S.dr(1.0f64, 0.0f64, 0.0f64), S.dr(0.0f64, 1.0f64, 0.0f64), 1.0f64}
 
+type VB is Data:
+  VB{ bs: List<&2, BP>, g: GV }
+
+def vb_add(+r: VI, +p: V.Point, +cc: G.Circle3, +bs: List<&2, BP>) -> VB:
+  VB{BP{circ_phi(cc, p), vi_i(r), p} <> bs, vi_g(r)}
+
+def vb_on(on: Bool, +p: V.Point, +cc: G.Circle3, +acc: VB) -> VB:
+  match on:
+    case True{}:
+      VB{+bs, +g} = acc
+      vb_add(gv_add(g, p), p, cc, bs)
+    case False{}: acc
+
+def vs_bps(vs: List<&2, Ty.Vertex>, +cc: G.Circle3, +acc: VB) -> VB:
+  match vs:
+    case []: acc
+    case +v <> +t:
+      +p = Ty.vx_p(v)
+      vs_bps(t, cc, vb_on(on_circ(cc, p), p, cc, acc))
+
+def vb_bs(+x: VB) -> List<&2, BP>:
+  VB{bs, g} = x
+  bs
+
+def vb_g(+x: VB) -> GV:
+  VB{bs, g} = x
+  g
+
+def cr_set_g(+r: CR, +g: GV) -> CR:
+  CR{+chs, g0, +ok, +why} = r
+  CR{chs, g, ok, why}
+
 def do_circ(+c: SS.IC, +hs: List<&2, HX>, +g1: G.GVal, +g2: G.GVal, +ba: Ty.Brep, +fa: Nat,
     +bb: Ty.Brep, +fb: Nat, +r: CR) -> CR:
   +ccl = {[cc_of(SS.ic_curve(c))] : List<&2, G.Circle3>}
-  +bs = dedup_bp(bp_sort(bps_circ(hs, cc1(ccl))))
-  do_circ_go(Nat.is_eq(List.length(&2, BP, bs), 0n), ccl, [g1, g2], bs, ba, fa, bb, fb, r)
+  +vb = vs_bps(List.append(&2, Ty.Vertex, Ty.brep_vs(ba), Ty.brep_vs(bb)), cc1(ccl), VB{bps_circ(hs, cc1(ccl)), cr_g(r)})
+  +bs = dedup_bp(bp_sort(vb_bs(vb)))
+  do_circ_go(Nat.is_eq(List.length(&2, BP, bs), 0n), ccl, [g1, g2], bs, ba, fa, bb, fb, cr_set_g(r, vb_g(vb)))
 
 def pp_p(+q: PP) -> V.Point:
   PP{p, v, brk} = q

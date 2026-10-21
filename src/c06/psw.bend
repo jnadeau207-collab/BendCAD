@@ -174,10 +174,6 @@ def pps_of(ss: List<&2, F.Sg>) -> List<&2, PP>:
         case F.G_ln{+p}: List.append(&2, PP, pps_pcs([p], 0.0f64, 0.0f64, 0.0f64, True{}), pps_of(t))
         case F.G_ar{+cx, +cy, +r, +ccw, ps}: List.append(&2, PP, pps_pcs(ps, cx, cy, r, ccw), pps_of(t))
 
-def pp_ax(+p: PP) -> F64:
-  PP{line, ax, ay, px, py, w, bx, by, cx, cy, r, ccw} = p
-  ax
-
 def pp_ay(+p: PP) -> F64:
   PP{line, ax, ay, px, py, w, bx, by, cx, cy, r, ccw} = p
   ay
@@ -234,25 +230,30 @@ def clear_ok(ss: List<&2, SN>, +lo: F64, +hi: F64) -> Bool:
 def vmap(+s: SN, +u: F64, +v: F64) -> V.Point:
   GO.pd_add_raw(V.Pt{sn_cx(s), sn_cy(s), v}, F64.add(sn_rho(s), F64.mul(sn_sg(s), u)), V.Dr{sn_nx(s), sn_ny(s), 0.0f64})
 
-def row(ps: List<&2, PP>, +s: SN) -> List<&2, V.Point>:
-  match ps:
+def row(vs: List<&2, V.Vec2>, +s: SN) -> List<&2, V.Point>:
+  match vs:
     case []: []
-    case +p <> t: vmap(s, pp_ax(p), pp_ay(p)) <> row(t, s)
+    case +p <> t: vmap(s, V.v2_x(p), V.v2_y(p)) <> row(t, s)
 
-def rows(ss: List<&2, SN>, +ps: List<&2, PP>) -> List<&2, List<&2, V.Point>>:
+def rows(ss: List<&2, SN>, +vs: List<&2, V.Vec2>) -> List<&2, List<&2, V.Point>>:
   match ss:
     case []: []
-    case +s <> t: row(ps, s) <> rows(t, ps)
-
-def rot_sn(xs: List<&2, SN>) -> List<&2, SN>:
-  match xs:
-    case []: []
-    case +h <> +t: List.append(&2, SN, t, [h])
+    case +s <> t: row(vs, s) <> rows(t, vs)
 
 def rot_pt(xs: List<&2, V.Point>) -> List<&2, V.Point>:
   match xs:
     case []: []
     case +h <> +t: List.append(&2, V.Point, t, [h])
+
+def tl_pt(xs: List<&2, V.Point>) -> List<&2, V.Point>:
+  match xs:
+    case []: []
+    case +h <> +t: t
+
+def nx_pt(wrap: Bool, +xs: List<&2, V.Point>) -> List<&2, V.Point>:
+  match wrap:
+    case True{}: rot_pt(xs)
+    case False{}: tl_pt(xs)
 
 def rot_rw(xs: List<&2, List<&2, V.Point>>) -> List<&2, List<&2, V.Point>>:
   match xs:
@@ -287,48 +288,47 @@ def sn_w(+s: SN) -> F64:
 def a_g(+s0: SN, +a: V.Point, +b: V.Point, +u: F64, +v: F64) -> G.GVal:
   Bool.pick(G.GVal, sn_turn(s0), rq(a, ctl(s0, u, v), b, sn_w(s0)), bz(a, b))
 
-def a_es(ps: List<&2, PP>, p0s: List<&2, V.Point>, p1s: List<&2, V.Point>, +s0: SN, +s1: SN, +v0: Nat, +n: Nat, +nv: Nat) -> List<&2, Ty.Edge>:
-  match ps:
+def a_es(vs: List<&2, V.Vec2>, p0s: List<&2, V.Point>, p1s: List<&2, V.Point>, +s0: SN, +v0: Nat, +n: Nat, +nv: Nat) -> List<&2, Ty.Edge>:
+  match vs:
     case []: []
-    case +p <> pt:
+    case +q <> qt:
       match p0s:
         case []: []
         case +a <> at:
           match p1s:
             case []: []
             case +b <> bt:
-              RV.sec_ed(v0, Nat.mod(Nat.add(v0, n), nv), a_g(s0, a, b, pp_ax(p), pp_ay(p))) <>
-                a_es(pt, at, bt, s0, s1, Nat.add(v0, 1n), n, nv)
+              RV.sec_ed(v0, Nat.mod(Nat.add(v0, n), nv), a_g(s0, a, b, V.v2_x(q), V.v2_y(q))) <> a_es(qt, at, bt, s0, Nat.add(v0, 1n), n, nv)
 
-def a_all(ss: List<&2, SN>, s1s: List<&2, SN>, rs0: List<&2, List<&2, V.Point>>, rs1: List<&2, List<&2, V.Point>>, +ps: List<&2, PP>,
+def a_all(ss: List<&2, SN>, rs0: List<&2, List<&2, V.Point>>, rs1: List<&2, List<&2, V.Point>>, +vs: List<&2, V.Vec2>,
     +v0: Nat, +n: Nat, +nv: Nat) -> List<&2, Ty.Edge>:
   match ss:
     case []: []
     case +s <> st:
-      match s1s:
+      match rs0:
         case []: []
-        case +s1 <> s1t:
-          match rs0:
+        case +r0 <> r0t:
+          match rs1:
             case []: []
-            case +r0 <> r0t:
-              match rs1:
-                case []: []
-                case +r1 <> r1t:
-                  List.append(&2, Ty.Edge, a_es(ps, r0, r1, s, s1, v0, n, nv), a_all(st, s1t, r0t, r1t, ps, Nat.add(v0, n), n, nv))
+            case +r1 <> r1t:
+              List.append(&2, Ty.Edge, a_es(vs, r0, r1, s, v0, n, nv), a_all(st, r0t, r1t, vs, Nat.add(v0, n), n, nv))
 
 def p_g(+p: PP, +s: SN) -> G.GVal:
   PP{+line, +ax, +ay, +px, +py, +w, +bx, +by, cx, cy, r, ccw} = p
   Bool.pick(G.GVal, line, bz(vmap(s, ax, ay), vmap(s, bx, by)), rq(vmap(s, ax, ay), vmap(s, px, py), vmap(s, bx, by), w))
 
-def p_es(ps: List<&2, PP>, +s: SN, +v0: Nat, +i: Nat, +n: Nat) -> List<&2, Ty.Edge>:
+def nxt(+wrap: Bool, +i: Nat, +n: Nat) -> Nat:
+  Bool.pick(Nat, wrap, Nat.mod(Nat.add(i, 1n), n), Nat.add(i, 1n))
+
+def p_es(ps: List<&2, PP>, +s: SN, +v0: Nat, +i: Nat, +n: Nat, +wrap: Bool) -> List<&2, Ty.Edge>:
   match ps:
     case []: []
-    case +p <> t: RV.sec_ed(Nat.add(v0, i), Nat.add(v0, Nat.mod(Nat.add(i, 1n), n)), p_g(p, s)) <> p_es(t, s, v0, Nat.add(i, 1n), n)
+    case +p <> t: RV.sec_ed(Nat.add(v0, i), Nat.add(v0, nxt(wrap, i, n)), p_g(p, s)) <> p_es(t, s, v0, Nat.add(i, 1n), n, wrap)
 
-def p_all(ss: List<&2, SN>, +ps: List<&2, PP>, +v0: Nat, +n: Nat) -> List<&2, Ty.Edge>:
+def p_all(ss: List<&2, SN>, +ps: List<&2, PP>, +v0: Nat, +n: Nat, +wrap: Bool) -> List<&2, Ty.Edge>:
   match ss:
     case []: []
-    case +s <> t: List.append(&2, Ty.Edge, p_es(ps, s, v0, 0n, n), p_all(t, ps, Nat.add(v0, n), n))
+    case +s <> t: List.append(&2, Ty.Edge, p_es(ps, s, v0, 0n, n, wrap), p_all(t, ps, Nat.add(v0, n), n, wrap))
 
 def mv(+o: V.Point, +dx: F64, +dy: F64) -> V.Point:
   V.Pt{F64.add(V.pt_x(o), dx), F64.add(V.pt_y(o), dy), V.pt_z(o)}
@@ -387,7 +387,7 @@ def fs_one(+x: RV.SS, +a0: V.Point, +b0: V.Point, +a1: V.Point, +b1: V.Point, +e
     us(pa, False{}, pl, g, a0, b0)]], BD.Fn{nd, 0n, 2u64, ea, 0n}}
 
 def f_es(ps: List<&2, PP>, p0s: List<&2, V.Point>, q0s: List<&2, V.Point>, p1s: List<&2, V.Point>, q1s: List<&2, V.Point>,
-    +s: SN, +si: Nat, +i: Nat, +n: Nat, +nst: Nat, +nd: U64) -> List<&2, BD.FS>:
+    +s: SN, +si: Nat, +i: Nat, +n: Nat, +np: Nat, +wrap: Bool, +nst: Nat, +nd: U64) -> List<&2, BD.FS>:
   match ps:
     case []: []
     case +p <> pt:
@@ -404,13 +404,13 @@ def f_es(ps: List<&2, PP>, p0s: List<&2, V.Point>, q0s: List<&2, V.Point>, p1s: 
                     case []: []
                     case +b1 <> dt:
                       +ea = Nat.add(Nat.mul(si, n), i)
-                      +np = Nat.mul(nst, n)
-                      fs_one(side_ss(p, s, a0), a0, b0, a1, b1, ea, Nat.add(Nat.mul(si, n), Nat.mod(Nat.add(i, 1n), n)),
-                        Nat.add(np, ea), Nat.add(np, Nat.add(Nat.mul(Nat.mod(Nat.add(si, 1n), nst), n), i)), nd) <>
-                        f_es(pt, at, bt, ct, dt, s, si, Nat.add(i, 1n), n, nst, nd)
+                      +nal = Nat.mul(nst, n)
+                      fs_one(side_ss(p, s, a0), a0, b0, a1, b1, ea, Nat.add(Nat.mul(si, n), nxt(wrap, i, n)),
+                        Nat.add(nal, Nat.add(Nat.mul(si, np), i)), Nat.add(nal, Nat.add(Nat.mul(Nat.mod(Nat.add(si, 1n), nst), np), i)), nd) <>
+                        f_es(pt, at, bt, ct, dt, s, si, Nat.add(i, 1n), n, np, wrap, nst, nd)
 
 def f_all(ss: List<&2, SN>, rs0: List<&2, List<&2, V.Point>>, rs1: List<&2, List<&2, V.Point>>, +ps: List<&2, PP>,
-    +si: Nat, +n: Nat, +nst: Nat, +nd: U64) -> List<&2, BD.FS>:
+    +si: Nat, +n: Nat, +np: Nat, +wrap: Bool, +nst: Nat, +nd: U64) -> List<&2, BD.FS>:
   match ss:
     case []: []
     case +s <> st:
@@ -420,8 +420,8 @@ def f_all(ss: List<&2, SN>, rs0: List<&2, List<&2, V.Point>>, rs1: List<&2, List
           match rs1:
             case []: []
             case +r1 <> r1t:
-              List.append(&2, BD.FS, f_es(ps, r0, rot_pt(r0), r1, rot_pt(r1), s, si, 0n, n, nst, nd),
-                f_all(st, r0t, r1t, ps, Nat.add(si, 1n), n, nst, nd))
+              List.append(&2, BD.FS, f_es(ps, r0, nx_pt(wrap, r0), r1, nx_pt(wrap, r1), s, si, 0n, n, np, wrap, nst, nd),
+                f_all(st, r0t, r1t, ps, Nat.add(si, 1n), n, np, wrap, nst, nd))
 
 def g_real(g: G.GVal) -> Bool:
   match g:
@@ -435,17 +435,99 @@ def fs_ok(fs: List<&2, BD.FS>) -> Bool:
       BD.FS{sh, g, same, lps, fn} = f
       Bool.and(g_real(g), fs_ok(t))
 
-def build(+pr: PR, +prof: F.Lp, +nd: U64) -> RV.RR:
-  +sns = pr_sns(pr)
-  +ps = pps_of(RV.lp_sgs(RV.as_path(prof)))
-  +n = List.length(&2, PP, ps)
+def starts(ps: List<&2, PP>) -> List<&2, V.Vec2>:
+  match ps:
+    case []: []
+    case +p <> t:
+      PP{line, +ax, +ay, px, py, w, bx, by, cx, cy, r, ccw} = p
+      V.V2{ax, ay} <> starts(t)
+
+def pp_end(ps: List<&2, PP>, +d: V.Vec2) -> V.Vec2:
+  match ps:
+    case []: d
+    case +p <> t:
+      PP{line, ax, ay, px, py, w, +bx, +by, cx, cy, r, ccw} = p
+      pp_end(t, V.V2{bx, by})
+
+def drop_last(ps: List<&2, PP>) -> List<&2, PP>:
+  match ps:
+    case []: []
+    case +p <> +t:
+      match t:
+        case []: []
+        case +q <> +u: p <> drop_last(t)
+
+def pp_line(+p: PP) -> Bool:
+  PP{+line, ax, ay, px, py, w, bx, by, cx, cy, r, ccw} = p
+  line
+
+def last_line(ps: List<&2, PP>) -> Bool:
+  match ps:
+    case []: False{}
+    case +p <> +t:
+      match t:
+        case []: pp_line(p)
+        case +q <> +u: last_line(t)
+
+def first_y(ps: List<&2, PP>) -> F64:
+  match ps:
+    case []: 0.0f64
+    case +p <> t: pp_ay(p)
+
+def nth_pt(xs: List<&2, V.Point>, +i: Nat) -> V.Point:
+  match xs:
+    case []: V.Pt{0.0f64, 0.0f64, 0.0f64}
+    case +h <> +t:
+      match i:
+        case 0n: h
+        case 1n+(+j): nth_pt(t, j)
+
+def cap_uses(rs0: List<&2, List<&2, V.Point>>, rs1: List<&2, List<&2, V.Point>>, +k: Nat, +si: Nat, +n: Nat, +fwd: Bool, +g: G.GVal) -> List<&2, BD.Use>:
+  match rs0:
+    case []: []
+    case +r0 <> t0:
+      match rs1:
+        case []: []
+        case +r1 <> t1: us(Nat.add(Nat.mul(si, n), k), fwd, True{}, g, nth_pt(r0, k), nth_pt(r1, k)) <> cap_uses(t0, t1, k, Nat.add(si, 1n), n, fwd, g)
+
+def cap_pl(+z: F64) -> G.GVal:
+  G.GV_pl{G.Pl{V.Pt{0.0f64, 0.0f64, z}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}}}
+
+def caps(+rs: List<&2, List<&2, V.Point>>, +rs1: List<&2, List<&2, V.Point>>, +n: Nat, +z0: F64, +z1: F64, +nd: U64) -> List<&2, BD.FS>:
+  +k1 = Nat.sub(n, 1n)
+  [BD.FS{0n, cap_pl(z0), False{}, [List.reverse(&2, BD.Use, cap_uses(rs, rs1, 0n, 0n, n, False{}, cap_pl(z0)))], BD.Fn{nd, 0n, 0u64, 0n, 0n}},
+   BD.FS{0n, cap_pl(z1), True{}, [cap_uses(rs, rs1, k1, 0n, n, True{}, cap_pl(z1))], BD.Fn{nd, 0n, 1u64, 0n, 0n}}]
+
+def wall_caps(wall: Bool, +rs: List<&2, List<&2, V.Point>>, +rs1: List<&2, List<&2, V.Point>>, +n: Nat, +z0: F64, +z1: F64, +nd: U64) -> List<&2, BD.FS>:
+  match wall:
+    case True{}: caps(rs, rs1, n, z0, z1, nd)
+    case False{}: []
+
+def build_go(+sns: List<&2, SN>, +ps: List<&2, PP>, +vs: List<&2, V.Vec2>, +wall: Bool, +nd: U64) -> RV.RR:
+  +n = List.length(&2, V.Vec2, vs)
+  +np = List.length(&2, PP, ps)
+  +wrap = Bool.not(wall)
   +nst = List.length(&2, SN, sns)
-  +rs = rows(sns, ps)
+  +rs = rows(sns, vs)
   +rs1 = rot_rw(rs)
-  +es = List.append(&2, Ty.Edge, a_all(sns, rot_sn(sns), rs, rs1, ps, 0n, n, Nat.mul(nst, n)), p_all(sns, ps, 0n, n))
-  +fs = f_all(sns, rs, rs1, ps, 0n, n, nst, nd)
+  +es = List.append(&2, Ty.Edge, a_all(sns, rs, rs1, vs, 0n, n, Nat.mul(nst, n)), p_all(sns, ps, 0n, n, wrap))
+  +fs = List.append(&2, BD.FS, f_all(sns, rs, rs1, ps, 0n, n, np, wrap, nst, nd),
+    wall_caps(wall, rs, rs1, n, first_y(ps), V.v2_y(pp_end(ps, V.V2{0.0f64, 0.0f64})), nd))
   +ok = Bool.and(clear_ok(sns, umin(ps, 1.0e300f64), umax(ps, F64.neg(1.0e300f64))), fs_ok(fs))
   Bool.pick(RV.RR, ok, RV.RR{0u64, 0n, RV.sec_bt(vxs(rs), es, fs)}, RV.sec_bad(25u64))
 
-def sweep(+pr: PR, +prof: F.Lp, +nd: U64) -> RV.RR:
-  Bool.pick(RV.RR, U64.is_eq(pr_code(pr), 0u64), build(pr, prof, nd), RV.sec_bad(pr_code(pr)))
+def wall_vs(+ps: List<&2, PP>) -> List<&2, V.Vec2>:
+  List.append(&2, V.Vec2, starts(ps), [pp_end(ps, V.V2{0.0f64, 0.0f64})])
+
+def build_w(wall: Bool, +sns: List<&2, SN>, +all: List<&2, PP>, +nd: U64) -> RV.RR:
+  match wall:
+    case True{}:
+      +ps = drop_last(all)
+      Bool.pick(RV.RR, last_line(all), build_go(sns, ps, wall_vs(ps), True{}, nd), RV.sec_bad(30u64))
+    case False{}: build_go(sns, all, starts(all), False{}, nd)
+
+def build(+pr: PR, +prof: F.Lp, +wall: Bool, +nd: U64) -> RV.RR:
+  build_w(wall, pr_sns(pr), pps_of(RV.lp_sgs(RV.as_path(prof))), nd)
+
+def sweep(+pr: PR, +prof: F.Lp, +wall: Bool, +nd: U64) -> RV.RR:
+  Bool.pick(RV.RR, U64.is_eq(pr_code(pr), 0u64), build(pr, prof, wall, nd), RV.sec_bad(pr_code(pr)))
