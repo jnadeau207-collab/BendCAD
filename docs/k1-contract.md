@@ -114,6 +114,20 @@ equal-radius cross bores, which touch themselves at two tangent points,
 are refused as `non-manifold-result`. The difference of the same
 operands is certified.
 
+Face pairs whose surfaces K1 cannot intersect (a torus against a
+non-coaxial cylinder or torus) are first tested for separation, and a
+separated pair is not intersected: their boxes are disjoint; one face's
+box, or the vertices of its sector polygons, lies strictly inside a
+cylinder or sphere carrying the other face, or strictly outside it; one
+face's box lies outside the wedge (the two half-planes through the axis
+at the face's end angles, span below 180 degrees) of a cylinder or torus
+face; or, for two faces with parallel axes, every piece of one face's
+annular sector cover (eight convex polygons: radial sides, inner chord,
+two tangent lines to the outer arc, all widened by 1e-9) is separated
+from every piece of the other's by a separating axis. This is what lets
+the blades of an impeller, curved walls 60 degrees apart, be unioned one
+after another onto the hub.
+
 Tangent contact along a curve is not refused: a plane tangent to a
 cylinder along a line, a sphere or cone tangent to a coaxial cylinder,
 and a torus tangent to a plane or cylinder along a circle all give exact
@@ -126,9 +140,7 @@ existing edge reuses it.
 
 An edge that passes near a face only at one of the other solid's
 vertices lying on the edge (a blade's fillet seam ending where a fillet
-torus touches the base plane) is not refused as reason 81. Every vertex
-of either solid lying on an intersection circle breaks that circle, so
-the two faces that share it split it at the same points. A torus face is
+torus touches the base plane) is not refused as reason 81. A torus face is
 boxed by the meet of its edges' box widened by twice the tube radius and
 the torus box; edge distances to circular trims are measured to the
 trimmed arc, not the full circle. A coedge reversed against its curve

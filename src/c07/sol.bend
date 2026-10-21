@@ -335,6 +335,7 @@ def cl_go(ds: List<&2, V.Dir>, +st: U64, +n: Nat, +fs: List<&2, Fd>, +bb: List<&
     case d <> t:
       match st:
         case 0u64: cl_fin(st, n)
+        case 1u64: cl_fin(st, n)
         case _:
           +r = shoot(fs, bb, p, d, none_skip(), 9.094947017729282e-13f64)
           cl_go(t, rc_st(r), rc_n(r), fs, bb, p)

@@ -887,20 +887,6 @@ def dup_er(+ps: List<&2, Pc>, +li: Nat) -> Er:
 def cr_ex(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> E.Ex:
   E.ex_sub(E.ex_scale(E.ex_of(ax), by), E.ex_scale(E.ex_of(ay), bx))
 
-def area_go(ps: List<&2, Pc>, +lo: E.Ex, +hi: E.Ex) -> List<&2, E.Ex>:
-  match ps:
-    case []: [lo, hi]
-    case p <> +t:
-      match p:
-        case P_ln{+ax, +ay, +bx, +by}:
-          area_go(t, E.ex_add(lo, cr_ex(ax, ay, bx, by)), E.ex_add(hi, cr_ex(ax, ay, bx, by)))
-        case P_ar{+ax, +ay, +px, +py, w, +bx, +by}:
-          +c = cr_ex(ax, ay, bx, by)
-          +tr = XE.orient2(ax, ay, px, py, bx, by)
-          +neg = sgn_neg(E.ex_sign(tr))
-          area_go(t, E.ex_add(E.ex_add(lo, c), Bool.pick(E.Ex, neg, tr, E.ex_zero())),
-            E.ex_add(E.ex_add(hi, c), Bool.pick(E.Ex, neg, E.ex_zero(), tr)))
-
 def ex_hd(xs: List<&2, E.Ex>) -> E.Ex:
   match xs:
     case []: E.ex_zero()
@@ -911,14 +897,94 @@ def ex_tl(xs: List<&2, E.Ex>) -> List<&2, E.Ex>:
     case []: []
     case h <> t: t
 
+type RQ is Data:
+  RQ{ ax: F64, ay: F64, px: F64, py: F64, w: F64, bx: F64, by: F64 }
+
+def rq_pt(+q: RQ, +t: F64) -> V.Vec2:
+  RQ{+ax, +ay, +px, +py, +w, +bx, +by} = q
+  +s = F64.sub(1.0f64, t)
+  +k0 = F64.mul(s, s)
+  +k1 = F64.mul(2.0f64, F64.mul(w, F64.mul(s, t)))
+  +k2 = F64.mul(t, t)
+  +d = F64.add(F64.add(k0, k1), k2)
+  V.V2{F64.div(F64.add(F64.add(F64.mul(k0, ax), F64.mul(k1, px)), F64.mul(k2, bx)), d),
+    F64.div(F64.add(F64.add(F64.mul(k0, ay), F64.mul(k1, py)), F64.mul(k2, by)), d)}
+
+def rq_ctl(+q: RQ, +t0: F64, +t1: F64) -> V.Vec2:
+  RQ{+ax, +ay, +px, +py, +w, +bx, +by} = q
+  +k0 = F64.mul(F64.sub(1.0f64, t0), F64.sub(1.0f64, t1))
+  +k1 = F64.mul(w, F64.add(F64.mul(F64.sub(1.0f64, t0), t1), F64.mul(t0, F64.sub(1.0f64, t1))))
+  +k2 = F64.mul(t0, t1)
+  +d = F64.add(F64.add(k0, k1), k2)
+  V.V2{F64.div(F64.add(F64.add(F64.mul(k0, ax), F64.mul(k1, px)), F64.mul(k2, bx)), d),
+    F64.div(F64.add(F64.add(F64.mul(k0, ay), F64.mul(k1, py)), F64.mul(k2, by)), d)}
+
+def nf(n: Nat) -> F64:
+  match n:
+    case 0n: 0.0f64
+    case 1n+m: F64.add(1.0f64, nf(m))
+
+def nudge(+p: V.Vec2, +mx: F64, +my: F64, +e: F64) -> V.Vec2:
+  V.V2{F64.add(V.v2_x(p), F64.mul(e, F64.sub(mx, V.v2_x(p)))), F64.add(V.v2_y(p), F64.mul(e, F64.sub(my, V.v2_y(p))))}
+
+def poly_in(n: Nat, +q: RQ, +i: F64, +k: F64, +x: F64, +y: F64, +mx: F64, +my: F64, +acc: E.Ex) -> E.Ex:
+  match n:
+    case 0n: acc
+    case 1n+(+m):
+      +v = nudge(rq_pt(q, F64.div(i, k)), mx, my, 1.0e-9f64)
+      poly_in(m, q, F64.add(i, 1.0f64), k, V.v2_x(v), V.v2_y(v), mx, my, E.ex_add(acc, cr_ex(x, y, V.v2_x(v), V.v2_y(v))))
+
+def poly_out(n: Nat, +q: RQ, +i: F64, +k: F64, +x: F64, +y: F64, +mx: F64, +my: F64, +acc: E.Ex) -> E.Ex:
+  match n:
+    case 0n: acc
+    case 1n+(+m):
+      +v = nudge(rq_ctl(q, F64.div(i, k), F64.div(F64.add(i, 1.0f64), k)), mx, my, F64.neg(1.0e-9f64))
+      poly_out(m, q, F64.add(i, 1.0f64), k, V.v2_x(v), V.v2_y(v), mx, my, E.ex_add(acc, cr_ex(x, y, V.v2_x(v), V.v2_y(v))))
+
+def bulge_lohi(+q: RQ, +n: Nat, +neg: Bool, +c: E.Ex) -> List<&2, E.Ex>:
+  RQ{+ax, +ay, px, py, w, +bx, +by} = q
+  +mx = F64.mul(0.5f64, F64.add(ax, bx))
+  +my = F64.mul(0.5f64, F64.add(ay, by))
+  +k = nf(n)
+  +last_in = nudge(rq_pt(q, F64.div(F64.sub(k, 1.0f64), k)), mx, my, 1.0e-9f64)
+  +inn = E.ex_sub(E.ex_add(poly_in(Nat.sub(n, 1n), q, 1.0f64, k, ax, ay, mx, my, E.ex_zero()),
+    cr_ex(Bool.pick(F64, Nat.is_eq(n, 1n), ax, V.v2_x(last_in)), Bool.pick(F64, Nat.is_eq(n, 1n), ay, V.v2_y(last_in)), bx, by)), c)
+  +last_out = nudge(rq_ctl(q, F64.div(F64.sub(k, 1.0f64), k), 1.0f64), mx, my, F64.neg(1.0e-9f64))
+  +out = E.ex_sub(E.ex_add(poly_out(n, q, 0.0f64, k, ax, ay, mx, my, E.ex_zero()), cr_ex(V.v2_x(last_out), V.v2_y(last_out), bx, by)), c)
+  Bool.pick(List<&2, E.Ex>, neg, [out, inn], [inn, out])
+
+def area_go(ps: List<&2, Pc>, +n: Nat, +lo: E.Ex, +hi: E.Ex) -> List<&2, E.Ex>:
+  match ps:
+    case []: [lo, hi]
+    case p <> +t:
+      match p:
+        case P_ln{+ax, +ay, +bx, +by}:
+          area_go(t, n, E.ex_add(lo, cr_ex(ax, ay, bx, by)), E.ex_add(hi, cr_ex(ax, ay, bx, by)))
+        case P_ar{+ax, +ay, +px, +py, +w, +bx, +by}:
+          +c = cr_ex(ax, ay, bx, by)
+          +neg = sgn_neg(E.ex_sign(XE.orient2(ax, ay, px, py, bx, by)))
+          +lh = bulge_lohi(RQ{ax, ay, px, py, w, bx, by}, n, neg, c)
+          area_go(t, n, E.ex_add(E.ex_add(lo, c), ex_hd(lh)), E.ex_add(E.ex_add(hi, c), ex_hd(ex_tl(lh))))
+
+def ori_lh(+lh: List<&2, E.Ex>) -> U64:
+  +lo = E.ex_sign(ex_hd(lh))
+  +hi = E.ex_sign(ex_hd(ex_tl(lh)))
+  Bool.pick(U64, sgn_pos(lo), 1u64, Bool.pick(U64, sgn_neg(hi), 2u64, 0u64))
+
+def ori_go(ks: List<&2, Nat>, done: Bool, +ps: List<&2, Pc>, +c: U64) -> U64:
+  match ks:
+    case []: c
+    case +k <> +t:
+      match done:
+        case True{}: c
+        case False{}:
+          +c2 = ori_lh(area_go(ps, k, E.ex_zero(), E.ex_zero()))
+          ori_go(t, Bool.not(U64.is_eq(c2, 0u64)), ps, c2)
+
 def orient_code(l: Lp) -> U64:
   match l:
     case K_circ{cx, cy, r}: 1u64
-    case K_path{sgs}:
-      +lh = area_go(sgs_pcs(sgs), E.ex_zero(), E.ex_zero())
-      +lo = E.ex_sign(ex_hd(lh))
-      +hi = E.ex_sign(ex_hd(ex_tl(lh)))
-      Bool.pick(U64, sgn_pos(lo), 1u64, Bool.pick(U64, sgn_neg(hi), 2u64, 0u64))
+    case K_path{sgs}: ori_go([1n, 2n, 4n, 8n, 16n, 32n, 64n], False{}, sgs_pcs(sgs), 0u64)
 
 def lp_ccw(+l: Lp, +c: U64) -> Lp:
   Bool.pick(Lp, U64.is_eq(c, 2u64), lp_rev(l), l)

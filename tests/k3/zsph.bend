@@ -65,7 +65,7 @@ def hz(xs: List<&2, F64>, +sg: F64) -> String:
     case +h <> t: F64.show(F64.div(F64.sqrt(F64.max(0.0f64, F64.sub(h, sg))), S.two_pi())) ++ " " ++ hz(t, sg)
 
 def fin(+s: F.SI, +sg: F64) -> String:
-  F.SI{+x, +lam, +it} = s
+  F.SI{+x, +lam, +it, res} = s
   "iters " ++ Nat.show(it) ++ " " ++ hz(lam, sg)
 
 def modal(+es: List<&2, F.EL>, +nn: Nat, +it: Nat) -> String:

@@ -1,7 +1,7 @@
 {
  "corpus_version": 1,
- "binary": "/home/jesse/bc/bendcad",
- "binary_sha256": "cc5ee86b8d23bc637949decd1a3e8f0e23eb337ed740daae754a86f707ea6c33",
+ "binary": "/home/jesse/bc/bendcad-k3i",
+ "binary_sha256": "fd2d34773f10e02cad2ad38a8c7e246bfb449905a6af6c8627d4049b068368c7",
  "passed": 13,
  "total": 13,
  "results": [
@@ -11,8 +11,8 @@
    "checks": {
     "solve_line": "asm solved ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14",
     "seconds": [
-     5.0,
-     5.0
+     7.5,
+     7.4
     ],
     "exit0": true,
     "stages": true,
@@ -29,7 +29,7 @@
     "g3b/gearbox.bcd": "b3fb0f1fe6b7e52ea1f0f70198f4744fdb60cea657c0dc2153cb535695f89699",
     "g3b/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f"
    },
-   "seconds": 10.0
+   "seconds": 14.9
   },
   {
    "name": "sheet.bracket",
@@ -55,9 +55,9 @@
     "cb.bcd": "6bb3a6abb67cfa9d20db1002f25962552dfb4822a5f3da73e228d0ce1c4176a5",
     "cb.obj": "f002ff5fb211c24b647512be541e2fa6859ba026fd6f64435439f56471150c19",
     "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
-    "cb.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21"
+    "cb.bin": "cb680b69b9b067703886798cb30a023470fe3c01576e0e8ca5d1e5ead561d3fb"
    },
-   "seconds": 2.0
+   "seconds": 2.2
   },
   {
    "name": "sheet.edits",
@@ -72,7 +72,7 @@
    "artifacts": {
     "ce.bcd": "c90b1dc5cf8d7b8d4f93070b1a340fdcd6cc8a02376300ba94c36e48ed122c05"
    },
-   "seconds": 0.1
+   "seconds": 0.2
   },
   {
    "name": "sheet.fold180",
@@ -108,7 +108,7 @@
     "cc.bcd": "b405c2b88f5a45697d2c05448ce3195d27fc96867d20d116b84f6e69071c25d7",
     "cs.bcd": "ee877e019ec860b3a92fd1c085f127a6816e21b8be2d2ad7926f0f686e24c7ad",
     "cs.stp": "bab6316aa3d5815df4d62d79379a0f880cf848829e6a83513677c25a10c8d3a1",
-    "cs.bin": "1e2a7feb00c76f28ae87f95b556dde2aaf9e9b940cc15c0fcdc63f3a4676733e"
+    "cs.bin": "37bdd1c1052659f423d7370f8325fc40b01e35a3274c9bea146b250ef57a70a7"
    },
    "seconds": 0.3
   },
@@ -126,9 +126,9 @@
    },
    "artifacts": {
     "cd.bcd": "88380363638ed51615af31b688b4e418706d8b63fd548b115cc6949cff2f4687",
-    "cd.bin": "ed17c2df6d205d9fec4db4997fc5ac54f42432620e6ad9b59356d2a8dd36da2a"
+    "cd.bin": "01b8cab0032419536598dce6c49d21e5d81a9356ccf03ba27c436c31ceba0947"
    },
-   "seconds": 0.2
+   "seconds": 0.1
   },
   {
    "name": "blade.stack",
@@ -149,9 +149,9 @@
     "cb3.bcd": "37c4c73ed59e4a40131e752d185f115be8e9d2287608f01d5d9bddaae83fb32f",
     "cp.bcd": "9a6caac473080551f2d400d59766cfda1b04222a6f527b41190c50c763a9fcba",
     "cp.stp": "67e1e4267ac13eb8a643c5dc57277ad0c85bae41cc0a2ff3ab52d9c16eb7b227",
-    "cp.bin": "05f10357381f3da1f3a61d92af5727a6647807cdd903cf8d43930f7c885d5aa6"
+    "cp.bin": "402d290181d8fa352db5ee9dddb19005eaf120a73482487f98d83e4380a78dbf"
    },
-   "seconds": 1.2
+   "seconds": 1.5
   },
   {
    "name": "scale.sweep",
@@ -219,7 +219,7 @@
    },
    "artifacts": {
     "kbox.step": "8bde318e8eec5af56ae83204bad55c7d930a387e1760564a2c7412fd4ff75eb6",
-    "kbox.bca": "38dadd2cc5f4ce3dffd4f827e257085020a5c6c0ee4069ffa7eee227e6913a04"
+    "kbox.bca": "7ec782b6572a8e5d6381f3375ebf60f7f67d362e039301ed2006cb79f9c5337d"
    },
    "seconds": 0.1
   },
@@ -234,10 +234,10 @@
     "truncated_no_commit": true
    },
    "artifacts": {
-    "kr.bin": "7b666ec6089c34d2c835b2a9ec26ff2bd3ed2143c42464834cf2d95d4ac1ca21",
+    "kr.bin": "cb680b69b9b067703886798cb30a023470fe3c01576e0e8ca5d1e5ead561d3fb",
     "kr2.bcd": "6bb3a6abb67cfa9d20db1002f25962552dfb4822a5f3da73e228d0ce1c4176a5"
    },
-   "seconds": 0.2
+   "seconds": 0.3
   },
   {
    "name": "long.sequence",
@@ -250,7 +250,7 @@
    "artifacts": {
     "kl.bcd": "89e255126ee693886cc722061572488b8a9e46cd173da59dba4e0724d651dedd"
    },
-   "seconds": 1.7
+   "seconds": 1.9
   }
  ]
 }

@@ -138,6 +138,15 @@ meet only there: any further common point is a fold-back spike (code
 Clearances (codes 9, 13, 14, 15, 18, 19) are decided by exact expansion
 arithmetic on coordinate differences, never by rounded differences; a
 pair that exact arithmetic cannot separate is code 15, never a pass.
+
+A loop's orientation (code 11 when undecided) is the sign of an exact
+interval enclosure of its signed area: chord terms exactly, each arc's
+bulge between an inscribed polygon (points on the arc moved 1e-9 of the
+way toward the chord midpoint, so inside the segment) and a circumscribed
+one (sub-arc control points moved 1e-9 outward). Arcs are split into 1,
+2, 4, ... 64 pieces until the sign is decided, so a thin curved loop (a
+2 mm blade on 50 mm arcs) is oriented exactly where the single control
+triangle would leave it undecided.
 Simplicity and loop-pair tests run on sweep candidate pairs (sorted
 bounding boxes), not all pairs. Orientation comes from exact area
 bounds; clockwise input is normalized, never rejected. Regions may be

@@ -44,7 +44,7 @@ def nr_s(r: M.NR) -> String:
       "error " ++ w ++ " @ " ++ l ++ " why: " ++ y
     case M.NR_ok{+b, fx}:
       +v = M.ms_vol(M.body_ms(b))
-      "ok volume=[" ++ F64.show(I.i_lo(v)) ++ ", " ++ F64.show(I.i_hi(v)) ++ "]"
+      "ok volume=[" ++ F64.show(I.i_lo(v)) ++ ", " ++ F64.show(I.i_hi(v)) ++ "] solids=" ++ Nat.show(M.ms_ns(M.body_ms(b)))
 
 def ces_s(cs: List<&2, M.CE>) -> String:
   match cs:

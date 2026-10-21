@@ -650,7 +650,9 @@ them.
   dihedral angles bounded away from 0 and 180 degrees) into quadratic
   tetrahedra whose boundary midside nodes are projected onto the faces
   (curved, isoparametric). The spectrum is solved by block LOBPCG with a
-  lockstep PCG preconditioner. Without the clamp the part is free and the
+  lockstep PCG preconditioner until every wanted residual |Kx - lMx| is
+  below 1e-6 of lmax|Mx| (printed as `residual=` on each `level` line);
+  each finer level starts from the previous level's modes. Without the clamp the part is free and the
   six rigid modes are skipped; with it every mesh node within R of the
   axis through (PX, PY, PZ) along (DX, DY, DZ) is fixed (a bore keyed to
   a shaft). Each mode is solved at H, H/2^(1/3) and H/2^(2/3); the line
@@ -671,3 +673,26 @@ them.
   re-entrant corners do not converge and show as non-monotone) and
   `work_nmm` (external work of the centrifugal load, twice the strain
   energy, converging from below). Spin softening is not modelled.
+
+## Machinability (K3)
+
+- `machine N D FL HD HL AXES NS`: can a ball-end mill of diameter D,
+  flute length FL, on a holder of diameter HD and length HL, cut node N's
+  solid on a 3-axis (AXES 3, tool along +z) or 5-axis (AXES 5) machine?
+  Each face is sampled on an NS x NS grid of its parameter box (points
+  inside the face only). A sample is reachable when, for some candidate
+  direction (3-axis: +z; 5-axis: the outward normal, the normal tilted
+  half-way to +z, and +z; never a direction pointing into the face), the
+  ball centred D/2 plus a gap of D/200 off the surface, the flute
+  cylinder and the holder cylinder are each certified apart from the
+  part: the C07 embedding check of part plus tool reports no crossing or
+  contact, and a point of each lies strictly outside the other. Faces
+  whose concave radius (cylinder, sphere or torus tube curving toward the
+  material) is below D/2 are `concave-radius=R below-tool-radius`; edges
+  where two faces meet at a sharp concave angle are `sharp-concave
+  radius=0`. Prints one line per face, `face F reach=K/N` with a blocked
+  sample, then `verdict machinable|not-machinable|uncertain` with the
+  counts; `status=certified` when every check certified, else
+  `status=estimated`. A slot narrower than the ball is blocked at its
+  floor and walls; points nearer a sharp concave corner than D/2 are
+  blocked too, which is the corner the tool leaves.

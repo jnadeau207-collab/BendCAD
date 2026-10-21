@@ -1,5 +1,5 @@
 {
- "binary_sha256": "14463a5bebf2b68643ae477e158edaa55804012230c7a8502a073fc74724914f",
+ "binary_sha256": "fd2d34773f10e02cad2ad38a8c7e246bfb449905a6af6c8627d4049b068368c7",
  "passed": 33,
  "total": 33,
  "results": [
@@ -98,7 +98,7 @@
      41278.703545005876
     ]
    ],
-   "seconds": 0.77
+   "seconds": 0.71
   },
   {
    "name": "mass.depths",
@@ -109,9 +109,9 @@
     "4": 4.26791977952295
    },
    "seconds": {
-    "2": 0.11,
-    "3": 0.18,
-    "4": 0.84
+    "2": 0.03,
+    "3": 0.11,
+    "4": 0.68
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 42.5
+   "seconds": 40.9
   },
   {
    "name": "mass.moved_invariance",
@@ -234,7 +234,7 @@
      54.89583333344031
     ]
    ],
-   "seconds": 2.8
+   "seconds": 2.6
   },
   {
    "name": "mass.sphere",
@@ -257,7 +257,7 @@
      6.397058823529622
     ]
    ],
-   "seconds": 0.9
+   "seconds": 0.8
   },
   {
    "name": "section.cyl_circle",
@@ -287,7 +287,7 @@
    },
    "samples": 512,
    "on_circle": 512,
-   "seconds": 0.1
+   "seconds": 0.0
   },
   {
    "name": "section.box_estimated",
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 185.1
+   "seconds": 183.2
   },
   {
    "name": "section.mapped",
@@ -313,13 +313,13 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 220.1
+   "seconds": 213.7
   },
   {
    "name": "section.coin",
    "ok": true,
    "line": "overlap surfaces coincide\nsummary curves=0 unresolved=0 coincident=1",
-   "seconds": 0.1
+   "seconds": 0.0
   },
   {
    "name": "interf.disjoint",
@@ -350,7 +350,7 @@
    "name": "interf.aabb_trap",
    "ok": true,
    "line": "relation disjoint status=certified method=exact-intersection",
-   "seconds": 0.4
+   "seconds": 0.3
   },
   {
    "name": "interf.cavity",
@@ -359,7 +359,7 @@
    "cavities": [
     "cavity 1 inside 0 status=certified"
    ],
-   "seconds": 3.5
+   "seconds": 3.0
   },
   {
    "name": "clearance.disjoint",

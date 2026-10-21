@@ -48,7 +48,7 @@ def hz(xs: List<&2, F64>) -> String:
     case +h <> +t: F64.show(F64.div(F64.sqrt(h), S.two_pi())) ++ " " ++ hz(t)
 
 def fin(+s: F.SI) -> String:
-  F.SI{+x, +lam, it} = s
+  F.SI{+x, +lam, it, res} = s
   hz(lam)
 
 def ns_ps(ns: List<&2, U32>, +pt: B.Tb<&2, V.Point>) -> List<&2, V.Point>:

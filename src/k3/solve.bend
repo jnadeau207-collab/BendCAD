@@ -6,22 +6,23 @@ import ../k1/sf.bend as S
 import ../k1/ls.bend as L
 import mesh.bend as K
 import fem.bend as F
+import warm.bend as W
 
 type CL is Data:
-  CL{ on: Bool, p: V.Point, d: V.Dir, r: F64 }
+  CL{ on: Bool, p: V.Point, d: V.Dir, r: F64, pl: Bool }
 
 def org() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
 
 def perp(+c: CL, +x: V.Point) -> V.Dir:
-  CL{on, +p, +d, r} = c
+  CL{on, +p, +d, r, pl} = c
   +v = S.psub(x, p)
   S.dadd(v, F64.neg(S.dot(v, d)), d)
 
 def held(+c: CL, +x: V.Point) -> Bool:
-  CL{+on, p, d, +r} = c
+  CL{+on, +p, +d, +r, +pl} = c
   +w = perp(c, x)
-  Bool.and(on, F64.is_le(F64.sqrt(S.dot(w, w)), r))
+  Bool.and(on, Bool.pick(Bool, pl, F64.is_le(F64.abs(S.dot(S.psub(x, p), d)), r), F64.is_le(F64.sqrt(S.dot(w, w)), r)))
 
 def cl_mask(ps: List<&2, V.Point>, +c: CL) -> List<&2, F64>:
   match ps:
@@ -36,7 +37,7 @@ def n_held(ps: List<&2, V.Point>, +c: CL, +n: Nat) -> Nat:
     case +x <> +t: n_held(t, c, Bool.pick(Nat, held(c, x), Nat.add(n, 1n), n))
 
 def cl_on(+c: CL) -> Bool:
-  CL{+on, p, d, r} = c
+  CL{+on, p, d, r, pl} = c
   on
 
 def xperp(ps: List<&2, V.Point>, +c: CL) -> List<&2, F64>:
@@ -99,20 +100,41 @@ def take_f(n: Nat, xs: List<&2, F64>) -> List<&2, F64>:
         case []: []
         case +x <> +t: x <> take_f(m, t)
 
-type LV is Data:
-  LV{ ok: Bool, nn: Nat, ne: Nat, nc: Nat, held: Nat, rig: Nat, it: Nat, hz: List<&2, F64> }
+type WS is Data:
+  WS{ on: Bool, ps: List<&2, V.Point>, x: List<&2, List<&2, F64>>, h: F64 }
 
-def lv_si(+si: F.SI, +sg: F64, +k: Nat, +free: Bool, +ok: Bool, +nn: Nat, +ne: Nat, +nc: Nat, +nh: Nat) -> LV:
-  F.SI{x, +lam, +it} = si
+type LV is Data:
+  LV{ ok: Bool, nn: Nat, ne: Nat, nc: Nat, held: Nat, rig: Nat, it: Nat, hz: List<&2, F64>, w: WS, res: F64 }
+
+def ws_none() -> WS:
+  WS{False{}, [], [], 1.0f64}
+
+def lv_w(+l: LV) -> WS:
+  LV{ok, nn, ne, nc, nh, rig, it, hz, +w, res} = l
+  w
+
+def x0_of(on: Bool, +ws: WS, +ps: List<&2, V.Point>, +kk: Nat, +n3: Nat, +mask: List<&2, F64>) -> List<&2, List<&2, F64>>:
+  match on:
+    case True{}:
+      WS{o, +pc, +xc, +hc} = ws
+      F.cmask(mask, W.prolong(pc, xc, ps, hc))
+    case False{}: starts(kk, n3, 1.0f64, mask)
+
+def ws_on(+ws: WS) -> Bool:
+  WS{+on, ps, x, h} = ws
+  on
+
+def lv_si(+si: F.SI, +sg: F64, +k: Nat, +free: Bool, +ok: Bool, +nn: Nat, +ne: Nat, +nc: Nat, +nh: Nat, +ps: List<&2, V.Point>, +hl: F64) -> LV:
+  F.SI{+x, +lam, +it, +res} = si
   +h = hzs(lam, sg)
   +rig = Bool.pick(Nat, free, n_below(h, F64.mul(1.0e-4f64, last_f(h, 0.0f64)), 0n), 0n)
-  LV{ok, nn, ne, nc, nh, rig, it, take_f(k, drop_f(rig, h))}
+  LV{ok, nn, ne, nc, nh, rig, it, take_f(k, drop_f(rig, h)), WS{True{}, ps, x, hl}, res}
 
 def guard(+k: Nat) -> Nat:
   Nat.add(k, Nat.max(3n, Nat.div(k, 4n)))
 
 def cl_d(+c: CL) -> V.Dir:
-  CL{on, p, +d, r} = c
+  CL{on, p, +d, r, pl} = c
   d
 
 def sv_u(+sv: F.SV) -> List<&2, F64>:
@@ -126,7 +148,7 @@ def pre_if(on: Bool, +fm: F.FM, +es: List<&2, F.EL>, +ps: List<&2, V.Point>, +ma
       F.prestress(fm, es, sv_u(F.bsolve_tol(fm, mask, [f], 40000n, 1.0e-10f64)), e, nu, w, cl_d(c))
     case False{}: fm
 
-def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> LV:
+def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
   K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = tm
   +es = K.fe_els(ts, B.tb_of(V.Point, ps, org()), 1.0e-12f64)
   +free = Bool.not(cl_on(c))
@@ -136,15 +158,15 @@ def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +
   +mask = cl_mask(ps, c)
   +n3 = Nat.mul(nn, 3n)
   +fm = F.fm_sig(pre_if(F64.is_lt(0.0f64, w), F.fm_of(U32.from_nat(nn), es, e, nu, rho), es, ps, mask, e, nu, c, w), sg)
-  lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-11f64, starts(kk, n3, 1.0f64, mask)), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
-    n_held(ps, c, 0n))
+  lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-6f64, x0_of(ws_on(ws), ws, ps, kk, n3, mask)), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
+    n_held(ps, c, 0n), ps, hl)
 
-def lv_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> LV:
+def lv_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
   K.TR{+ok, +tm} = t
-  lv_go(tm, ok, e, nu, rho, c, k, w)
+  lv_go(tm, ok, e, nu, rho, c, k, w, ws, hl)
 
-def lv_modes(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> LV:
-  lv_tr(K.tm_of(fs, h), e, nu, rho, c, k, w)
+def lv_modes(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS) -> LV:
+  lv_tr(K.tm_of(fs, h), e, nu, rho, c, k, w, ws, h)
 
 type EB is Data:
   EB{ v: F64, est: F64, bd: F64, mono: Bool }
@@ -175,17 +197,17 @@ def mode_lines(as: List<&2, F64>, bs: List<&2, F64>, cs: List<&2, F64>, +i: Nat)
                 mode_lines(at, bt, ct, Nat.add(i, 1n))
 
 def lv_hz(+l: LV) -> List<&2, F64>:
-  LV{ok, nn, ne, nc, nh, rig, it, +hz} = l
+  LV{ok, nn, ne, nc, nh, rig, it, +hz, w, res} = l
   hz
 
 def lv_ok(+l: LV) -> Bool:
-  LV{+ok, nn, ne, nc, nh, rig, it, hz} = l
+  LV{+ok, nn, ne, nc, nh, rig, it, hz, w, res} = l
   ok
 
 def lv_s(+l: LV, +h: F64) -> String:
-  LV{ok, +nn, +ne, +nc, +nh, +rig, +it, hz} = l
+  LV{ok, +nn, +ne, +nc, +nh, +rig, +it, hz, w, +res} = l
   "level h=" ++ F64.show(h) ++ " nodes=" ++ Nat.show(nn) ++ " tets=" ++ Nat.show(ne) ++ " curved=" ++ Nat.show(nc) ++ " held=" ++ Nat.show(nh) ++
-    " rigid=" ++ Nat.show(rig) ++ " iters=" ++ Nat.show(it) ++ "\n"
+    " rigid=" ++ Nat.show(rig) ++ " iters=" ++ Nat.show(it) ++ " residual=" ++ F64.show(res) ++ "\n"
 
 def cbrt2() -> F64:
   1.2599210498948732f64
@@ -203,7 +225,9 @@ def modes3(+a: LV, +b: LV, +c: LV, +h: F64, +w: F64) -> String:
 def modes_s(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> String:
   +h1 = F64.div(h, cbrt2())
   +h2 = F64.div(h1, cbrt2())
-  modes3(lv_modes(fs, h, e, nu, rho, c, k, w), lv_modes(fs, h1, e, nu, rho, c, k, w), lv_modes(fs, h2, e, nu, rho, c, k, w), h, w)
+  +a = lv_modes(fs, h, e, nu, rho, c, k, w, ws_none())
+  +b = lv_modes(fs, h1, e, nu, rho, c, k, w, lv_w(a))
+  modes3(a, b, lv_modes(fs, h2, e, nu, rho, c, k, w, lv_w(b)), h, w)
 
 type VC is Data:
   VC{ u: B.Tb<&2, F64>, lam: F64, mu: F64 }
@@ -346,7 +370,7 @@ def relieved(+fm: F.FM, +ps: List<&2, V.Point>, +f: List<&2, F64>, +p0: V.Point)
   F.axpy(F64.neg(1.0f64), F.hd_l(F.rcomb(mr, [acc_ja(F.jacobi(F.pgram(r, mr), 6n), F.gram_row(f, r))])), f)
 
 def cl_p(+c: CL) -> V.Point:
-  CL{on, +p, d, r} = c
+  CL{on, +p, d, r, pl} = c
   p
 
 def nrm(+xs: List<&2, F64>) -> F64:

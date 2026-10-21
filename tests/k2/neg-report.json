@@ -97,6 +97,6 @@
  {
   "name": "sweep.profile_reaches_turn_axis",
   "ok": true,
-  "info": "t | sweep path @ loop 0 segment 0 | why: profile-reaches-path-turn-axis | fix: keep every path arc radius larger than the profile's inward reach (radius + u > 0)\n\nrejected: the design was not changed\n"
+  "info": " | fix: keep every path arc radius larger than the profile's reach toward its centre (radius + u > 0 on counter-clockwise arcs, radius - u > 0 on clockwise arcs)\n\nrejected: the design was not changed\n"
  }
 ]

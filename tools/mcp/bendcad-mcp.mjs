@@ -239,6 +239,12 @@ const tools = [
         point: { type: 'array', items: { type: 'number' } }, axis: { type: 'array', items: { type: 'number' } }, r: { type: 'number', description: 'Clamp radius (mm), 0 for a free balanced part' } },
       required: ['design', 'node', 'rpm', 'h', 'point', 'axis', 'r'] },
     run: a => cli([a.design, 'spin', String(a.node), String(a.rpm), String(a.h), ...a.point.map(String), ...a.axis.map(String), String(a.r)]) },
+  { name: 'machine', description: 'Machinability of the solid of a node with a ball-end mill (see reference: Machinability): concave face radii below the ball radius, sharp concave edges, and reachability of NS x NS sampled points per face along 3-axis (+z) or 5-axis (normal, normal tilted toward +z, +z) tool directions, each tool position (ball, flute, holder) certified collision-free against the part by the embedding check. Verdict machinable, not-machinable or uncertain.',
+    inputSchema: { type: 'object', properties: { design, node: { type: 'number' }, d: { type: 'number', description: 'Ball diameter (mm)' }, flute: { type: 'number', description: 'Flute length (mm)' },
+        holder_d: { type: 'number', description: 'Holder diameter (mm)' }, holder_l: { type: 'number', description: 'Holder length (mm)' }, axes: { type: 'number', description: '3 or 5' },
+        samples: { type: 'number', description: 'Samples per face side, 1 to 8' } },
+      required: ['design', 'node', 'd', 'flute', 'holder_d', 'holder_l', 'axes', 'samples'] },
+    run: a => cli([a.design, 'machine', String(a.node), String(a.d), String(a.flute), String(a.holder_d), String(a.holder_l), String(a.axes), String(a.samples)]) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }

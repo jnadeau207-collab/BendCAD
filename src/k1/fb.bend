@@ -206,17 +206,18 @@ def seg3_dist(+a: V.Point, +b: V.Point, +p: V.Point) -> F64:
   +t = F64.min(1.0f64, F64.max(0.0f64, t0))
   S.dist(p, S.padd(a, t, d))
 
-def wedge(+a: V.Dir, +b: V.Dir, +d: V.Dir, +n: V.Dir) -> Bool:
-  +ad = F64.is_le(0.0f64, S.dot(S.cross(a, d), n))
-  +db = F64.is_le(0.0f64, S.dot(S.cross(d, b), n))
-  Bool.pick(Bool, F64.is_le(0.0f64, S.dot(S.cross(a, b), n)), Bool.and(ad, db), Bool.or(ad, db))
+def ang(+a: V.Dir, +d: V.Dir, +n: V.Dir) -> F64:
+  +t = S.fatan2(S.dot(S.cross(a, d), n), S.dot(a, d))
+  Bool.pick(F64, F64.is_lt(t, 0.0f64), F64.add(t, 6.283185307179586f64), t)
 
 def arc_dist(+c0: V.Point, +n: V.Dir, +r: F64, +pa: V.Point, +pb: V.Point, +pm: V.Point, +p: V.Point) -> F64:
   +a = S.psub(pa, c0)
-  +b = S.psub(pb, c0)
   +q = S.psub(p, c0)
   +d = S.dadd(q, F64.neg(S.dot(q, n)), n)
-  +inside = Bool.pick(Bool, wedge(a, b, S.psub(pm, c0), n), wedge(a, b, d, n), wedge(b, a, d, n))
+  +tb = ang(a, S.psub(pb, c0), n)
+  +tm = ang(a, S.psub(pm, c0), n)
+  +td = ang(a, d, n)
+  +inside = Bool.pick(Bool, F64.is_le(tm, tb), F64.is_le(td, tb), F64.is_le(tb, td))
   Bool.pick(F64, inside, circ_dist(c0, n, r, p), F64.min(S.dist(p, pa), S.dist(p, pb)))
 
 def curve_dist(+c: G.GVal, +lo: F64, +hi: F64, +p: V.Point) -> F64:

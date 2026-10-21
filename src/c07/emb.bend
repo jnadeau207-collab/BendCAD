@@ -1609,6 +1609,30 @@ def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat) -> List
   List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)),
     run_prs(mk_cx(egs, fgs, tol, nso), sweep(its_of(egs, fgs))))
 
+def pr_so(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> Bool:
+  match k:
+    case 0u64: Bool.not(Nat.is_eq(eg_so(B.tb_get(Eg, te, U32.from_nat(a))), eg_so(B.tb_get(Eg, te, U32.from_nat(b)))))
+    case 1u64: Bool.not(Nat.is_eq(eg_so(B.tb_get(Eg, te, U32.from_nat(a))), fg_so(B.tb_get(Fg, tf, U32.from_nat(b)))))
+    case _: Bool.not(Nat.is_eq(fg_so(B.tb_get(Fg, tf, U32.from_nat(a))), fg_so(B.tb_get(Fg, tf, U32.from_nat(b)))))
+
+def keep_cross(ps: List<&2, Pr>, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> List<&2, Pr>:
+  match ps:
+    case []: []
+    case +p <> +t:
+      Pr{+k, +a, +b} = p
+      +rest = keep_cross(t, te, tf)
+      Bool.pick(List<&2, Pr>, pr_so(k, a, b, te, tf), p <> rest, rest)
+
+def cross_go(+cx: Cx, +its: List<&2, It>) -> List<&2, SO.Fi>:
+  Cx{+te, +tf, tef, tol, ns, sfs} = cx
+  run_prs(cx, keep_cross(sweep(its), te, tf))
+
+def emb_cross(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
+  +x = Ty.ix_of(b)
+  +egs = egs_go(Ty.brep_es(b), Ty.ix_tv(x))
+  +fgs = shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n)
+  cross_go(mk_cx(egs, fgs, tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b))), its_of(egs, fgs))
+
 def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   +x = Ty.ix_of(b)
   emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n),

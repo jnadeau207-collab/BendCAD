@@ -257,6 +257,38 @@ def blade_root():
     record('blend.blade_root_step', o is not None and abs(o[0] - v1) / v1 < 1e-7, occt=o, exact=v1)
 
 
+def mach_faces(out):
+    return {int(m.group(1)): (int(m.group(2)), int(m.group(3)), m.group(4) or '') for m in
+            re.finditer(r'face (\d+) reach=(\d+)/(\d+)([^\n]*)', out)}
+
+
+def machinability():
+    slot = (f'(node 2 (box 30 20 10) {IC})', '(node 1 (pocket 2 (face 2 0 top) 5 (region (path 13.5 -1 (line 16.5 -1) '
+            f'(line 16.5 21) (line 13.5 21) (line 13.5 -1)))) {ID})')
+    out, _ = fresh('ms.bcd', *slot)
+    o3, dt3 = cli('ms.bcd', 'machine', '1', '4', '12', '12', '30', '3', '3')
+    f3 = mach_faces(o3)
+    floor3 = [k for k, v in f3.items() if 'blocked=' in v[2] and ',5)' in v[2]]
+    record('machine.narrow_slot_3axis', 'committed' in out and 'verdict not-machinable' in o3 and 'status=certified' in o3
+           and len(floor3) == 1 and f3[floor3[0]][0] == 0 and 'sharp-concave-edges=2' in o3, seconds=dt3, out=o3[-900:])
+    o5, dt5 = cli('ms.bcd', 'machine', '1', '4', '12', '12', '30', '5', '3')
+    f5 = mach_faces(o5)
+    under = [k for k, v in f3.items() if ',0)' in v[2]]
+    record('machine.narrow_slot_5axis', 'verdict not-machinable' in o5 and len(under) == 1 and f5[under[0]][0] == f5[under[0]][1]
+           and floor3 and f5[floor3[0]][0] == 0, seconds=dt5, out=o5[-900:])
+    out, _ = fresh('mb.bcd', f'(node 1 (box 30 20 10) {IC})')
+    ob, dtb = cli('mb.bcd', 'machine', '1', '4', '12', '12', '30', '5', '3')
+    o3b, _ = cli('mb.bcd', 'machine', '1', '4', '12', '12', '30', '3', '3')
+    record('machine.box', 'verdict machinable samples=54 reachable=54 blocked=0 uncertain=0 tight-faces=0 sharp-concave-edges=0 status=certified' in ob
+           and 'verdict not-machinable samples=54 reachable=45 blocked=9' in o3b, seconds=dtb, out=ob[-500:], out3=o3b[-300:])
+    out, _ = fresh('mh.bcd', f'(node 2 (box 30 20 10) {IC})', f'(node 1 (pocket 2 (face 2 0 top) 4 (region (circle 15 10 1.5))) {ID})')
+    oh, dth = cli('mh.bcd', 'machine', '1', '4', '12', '12', '30', '5', '2')
+    record('machine.hole_below_ball_radius', 'concave-radius=1.5 below-tool-radius' in oh and 'tight-faces=1' in oh
+           and 'verdict not-machinable' in oh, seconds=dth, out=oh[-700:])
+    bad, _ = cli('mb.bcd', 'machine', '1', '4', '12', '12', '30', '4', '3')
+    record('machine.refusals', 'needs NODE D FL HD HL AXES NS' in bad, out=bad[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -299,6 +331,7 @@ def main():
     rotor()
     fem()
     blade_root()
+    machinability()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')

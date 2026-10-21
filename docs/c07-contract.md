@@ -214,10 +214,9 @@ Tolerances: shared-vertex corners `2^-30` of the part size; boundary
 proximity `2^-20` of the part size. Findings name the entities; anything
 not certified is reported as `...-uncertain`.
 
-Point classification retries the next ray direction when a ray is
-ambiguous (grazes an edge or a tangent face) instead of reporting
-uncertainty after the first one. A cylinder face is boxed by its edges'
-box, not by its full circle.
+A cylinder face is boxed by its edges' box, not by its full circle:
+every point of the face lies on a ruling between two of its boundary
+points.
 
 ## 6. Topology constant over a parameter box (A5)
 
