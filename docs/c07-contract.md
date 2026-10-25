@@ -109,6 +109,11 @@ boundary meridian at 270° in the meridian plane of every point at 90°.
 
 ## 4. Point classification, orientation, cavities
 
+Face membership counts the crossings of a leg from the point to a
+boundary point. A crossing found at an edge endpoint is uncertain, never
+counted: a leg through a vertex would otherwise count it once per edge,
+and the next leg is tried instead.
+
 `classify NODE X Y Z` first checks the point against every face it is
 within `2^-40` of the part size of (distance to the surface plus
 membership) and answers `boundary`. Otherwise it casts rays in up to
@@ -141,6 +146,12 @@ pairs, checked in parallel):
   points equal to the endpoint in the input data are skipped exactly, so
   degenerate parametrizations (doubled control points) do not defeat the
   test.
+  Endpoints of edges from different solids that coincide exactly in
+  coordinates are treated as shared vertices. Two edges whose rational
+  quadratic arcs are identical (same control points and weights, either
+  direction) overlap along their whole length and are reported as an
+  overlap (a contact between solids) without subdivision; prisms that
+  share an outline meet this way along every arc.
 - **Edge/face.** For edges not bounding the face: points inside the face
   (membership 1) are penetrations; overlaps are decided by the
   membership of a point of the overlap. An edge lying on another face of

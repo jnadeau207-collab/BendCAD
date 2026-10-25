@@ -128,6 +128,13 @@ def k_end1(+k: List<&2, I.I>) -> Bool:
   +t = X.vn(k, 0n)
   Bool.and(F64.is_le(I.i_lo(t), 1.0f64), F64.is_le(1.0f64, I.i_hi(t)))
 
+def k_end(+k: List<&2, I.I>) -> Bool:
+  +t = X.vn(k, 0n)
+  Bool.or(F64.is_le(I.i_lo(t), 0.0f64), F64.is_le(1.0f64, I.i_hi(t)))
+
+def end_code(+e: Bool, +m: U64) -> U64:
+  Bool.pick(U64, Bool.and(e, U64.is_eq(m, 1u64)), 2u64, m)
+
 def skip_seam(+c: R.Cv, +k: List<&2, I.I>) -> Bool:
   Bool.and(cv_closed(c), k_end1(k))
 
@@ -136,7 +143,7 @@ def roots_go(rs: List<&2, N.Res>, +c: R.Cv, +l: Lg, +self: Bool, +tau: F64, +acc
     case []: acc
     case r <> +t:
       match r:
-        case N.R_pt{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, Bool.pick(Cn, skip_seam(c, k), acc, cn_add(acc, pred(l, R.cv_box(c, X.vn(k, 0n)))))))
+        case N.R_pt{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, Bool.pick(Cn, skip_seam(c, k), acc, cn_add(acc, end_code(k_end(k), pred(l, R.cv_box(c, X.vn(k, 0n))))))))
         case N.R_un{+k}: roots_go(t, c, l, self, tau, Bool.pick(Cn, is_r(self, tau, k), acc, Bool.pick(Cn, skip_seam(c, k), acc, cn_add(acc, Bool.pick(U64, U64.is_eq(pred(l, R.cv_box(c, X.vn(k, 0n))), 0u64), 0u64, 2u64)))))
         case _: roots_go(t, c, l, self, tau, acc)
 

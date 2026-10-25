@@ -1,7 +1,7 @@
 {
  "baseline_version": 1,
- "binary": "/home/jesse/bc/bendcad-k3i",
- "binary_sha256": "fd2d34773f10e02cad2ad38a8c7e246bfb449905a6af6c8627d4049b068368c7",
+ "binary": "/home/jesse/bc/bendcad-k3m",
+ "binary_sha256": "2b5f29acdecf3cc53b84bf22276b40bedc303ffe74e93b9aca0788f8f1224ae9",
  "passed": 5,
  "total": 5,
  "baseline": {
@@ -24,7 +24,7 @@
     "g3/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f",
     "g3/report.json": "4a1004b204184ab9c85c3234e22ec38aa6ec2c7437f7107ed857777a06d7dce7"
    },
-   "seconds": 7.5
+   "seconds": 7.2
   },
   {
    "name": "sheet.bracket",
@@ -115,7 +115,7 @@
     "cp.stp": "67e1e4267ac13eb8a643c5dc57277ad0c85bae41cc0a2ff3ab52d9c16eb7b227",
     "cp.bin": "402d290181d8fa352db5ee9dddb19005eaf120a73482487f98d83e4380a78dbf"
    },
-   "seconds": 0.8
+   "seconds": 0.7
   }
  ]
 }

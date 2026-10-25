@@ -432,7 +432,8 @@ def mcp_queries():
     rs = {x['id']: x for x in map(json.loads, r.stdout.strip().splitlines())}
     body = lambda i: rs[i]['result']['content'][0]['text']
     checks = dict(
-        distance='distance [4.999999999999987' in body(3) and 'lo=certified' in body(3),
+        distance=bool(re.search(r'distance \[([0-9.]+),', body(3))) and 5.0 - 1e-12 <= float(re.search(r'distance \[([0-9.]+),', body(3)).group(1)) <= 5.0
+        and 'lo=certified' in body(3),
         extrema='status=certified' in body(4),
         mass='cells=8/0/56' in body(5),
         section='curves=2' in body(6) and 'unresolved=2' in body(6),

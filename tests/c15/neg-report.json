@@ -1,5 +1,5 @@
 {
- "binary_sha256": "fd2d34773f10e02cad2ad38a8c7e246bfb449905a6af6c8627d4049b068368c7",
+ "binary_sha256": "2b5f29acdecf3cc53b84bf22276b40bedc303ffe74e93b9aca0788f8f1224ae9",
  "passed": 29,
  "total": 29,
  "results": [
@@ -36,7 +36,7 @@
   {
    "name": "parse.pair",
    "ok": true,
-   "seconds": 0.03,
+   "seconds": 0.02,
    "detail": "error invalid-input | pmi toler | why: pmi-needs-node | fix: give one (nodes A B) entry"
   },
   {

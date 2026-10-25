@@ -10,7 +10,6 @@ sys.path.insert(0, HERE)
 import e2e
 
 OUT = os.path.join(HERE, 'corpus-report.json')
-e2e.WORK = '/tmp/bc-corpus-k3'
 IC = e2e.IC
 STEEL = '(material 1 steel 7850 0.000012 200000 0.3)'
 RESULTS = []
@@ -81,6 +80,42 @@ def disc_spin(h):
            tip=dict(band=DISC_GROW, got=tip), seconds=dt, raw=o[-1200:])
 
 
+DISC_3D = {(2, 0): 9954.5388, (0, 1): 16568.5839, (3, 0): 22048.9423}
+
+
+def love(n, s, b=25.0, t=5.0, E=200000.0, nu=0.3, rho=7.85e-9):
+    from mpmath import mp, besselj, besseli, diff, findroot, sqrt, pi
+    mp.dps = 30
+    J = lambda x: besselj(n, x)
+    I = lambda x: besseli(n, x)
+    dJ = lambda x: diff(J, x)
+    dI = lambda x: diff(I, x)
+    f = lambda x: ((x ** 2 * J(x) + (1 - nu) * (x * dJ(x) - n * n * J(x))) * (x ** 3 * dI(x) - (1 - nu) * n * n * (x * dI(x) - I(x)))
+                   - (x ** 2 * I(x) - (1 - nu) * (x * dI(x) - n * n * I(x))) * (x ** 3 * dJ(x) + (1 - nu) * n * n * (x * dJ(x) - J(x))))
+    roots, x, prev = [], 0.5, f(0.5)
+    while len(roots) <= s:
+        x2 = x + 0.05
+        cur = f(x2)
+        if prev * cur < 0:
+            roots.append(findroot(f, (x, x2), solver='anderson'))
+        x, prev = x2, cur
+    lam = roots[s]
+    d = E * t ** 3 / (12 * (1 - nu * nu))
+    return float(lam ** 2 / (2 * pi * b * b) * sqrt(d / (rho * t)))
+
+
+def disc_modes(h):
+    out, _ = e2e.fresh('dm.bcd', f'(node 1 (cylinder 25 5) {IC})', STEEL)
+    ms, raw, dt = modes('dm.bcd', '1', '5', h)
+    rows = []
+    for key, ref in DISC_3D.items():
+        cnt = 2 if key[0] > 0 else 1
+        got = sorted(ms, key=lambda m: abs(m[3] - ref))[:cnt]
+        rows.append(dict(mode=key, ref3d=ref, love=love(key[0], 0), est=[m[3] for m in got], bound=[m[4] for m in got],
+                         ok=len(got) == cnt and all(abs(m[3] - ref) <= m[4] for m in got)))
+    record('corpus.disc_modes', 'committed' in out and len(ms) == 5 and all(r['ok'] for r in rows), modes=rows, seconds=dt, raw=raw[-1500:])
+
+
 def blade_path(k, n, r1=25.0, rc=50.0, sweep=90.0, thick=2.0):
     from mpmath import mp, mpf, cos, sin, pi
     mp.dps = 50
@@ -138,6 +173,19 @@ SCROLL_IN = [('a', (0, 0), 66, (66, 0), (0, 66), 1), ('a', (0, -8), 74, (0, 66),
 SCROLL_OUT = [('a', (0, 0), 69, (69, 0), (0, 69), 1), ('a', (0, -8), 77, (0, 69), (-77, -8), 1), ('a', (8, -8), 85, (-77, -8), (8, -93), 1),
               ('a', (8, 0), 93, (8, -93), (101, 0), 1), ('l', (101, 0), (101, 70)), ('l', (101, 70), (73, 70)), ('l', (73, 70), (73, 0)),
               ('a', (71, 0), 2, (73, 0), (69, 0), -1)]
+
+
+def rev_seg(seg):
+    if seg[0] == 'l':
+        return ('l', seg[2], seg[1])
+    _, c, r, a, b, sg = seg
+    return ('a', c, r, b, a, -sg)
+
+
+def band_loop():
+    outer = [('l', (101, 70), (101, 0))] + [rev_seg(x) for x in reversed(SCROLL_OUT[:4])] + [rev_seg(SCROLL_OUT[7]), ('l', (73, 0), (73, 70)),
+             ('l', (73, 70), (76, 70)), ('l', (76, 70), (76, 0)), SCROLL_IN[7]] + SCROLL_IN[:4] + [('l', (98, 0), (98, 70)), ('l', (98, 70), (101, 70))]
+    return outer
 
 
 def region_sx(loop):
@@ -205,8 +253,9 @@ def scroll_exact():
 
 
 def scroll():
-    edits = [f'(node 2 (prism -3 63 {region_sx(SCROLL_OUT)}) {IC})', f'(node 3 (prism 0 60 {region_sx(SCROLL_IN)}) {IC})',
-             f'(node 4 (difference 2 3) {e2e.ID})', f'(node 5 (prism 59 64 (region (circle 0 0 45))) {IC})', f'(node 1 (difference 4 5) {e2e.ID})']
+    front = region_sx(SCROLL_OUT)[:-1] + ' (path 45 0 (arc 0 0 45 -45 0 ccw) (arc 0 0 45 45 0 ccw)))'
+    edits = [f'(node 20 (prism 0 60 {region_sx(band_loop())}) {IC})', f'(node 21 (prism -3 0 {region_sx(SCROLL_OUT)}) {IC})',
+             f'(node 22 (prism 60 63 {front}) {IC})', f'(node 23 (union 20 21) {e2e.IA})', f'(node 1 (union 23 22) {e2e.IA})']
     e2e.cli('sc.bcd', 'new')
     t = time.time()
     out, _ = e2e.wsl(e2e.BIN, f'{e2e.WORK}/sc.bcd', 'apply', *edits, timeout=14400)
@@ -228,9 +277,10 @@ def scroll():
 
 
 def main():
+    e2e.WORK = '/tmp/bc-corpus-k3'
     e2e.wsl('mkdir', '-p', e2e.WORK)
     h = os.environ.get('CORPUS_H', '4')
-    which = sys.argv[1:] or ['rod_free', 'cantilever', 'disc_spin', 'impeller', 'scroll']
+    which = sys.argv[1:] or ['rod_free', 'cantilever', 'disc_spin', 'disc_modes', 'impeller', 'scroll']
     for w in which:
         globals()[w]() if w in ('impeller', 'scroll') else globals()[w](h)
     json.dump(RESULTS, open(OUT, 'w'), indent=1)

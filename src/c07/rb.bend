@@ -82,8 +82,15 @@ def allone(ws: List<&2, I.I>) -> Bool:
     case []: True{}
     case +w <> t: Bool.and(Bool.and(F64.is_eq(I.i_lo(w), 1.0f64), F64.is_eq(I.i_hi(w), 1.0f64)), allone(t))
 
+def rs_k(full: Bool, +cs: List<&2, I.I>, +lo: F64, +hi: F64) -> List<&2, I.I>:
+  match full:
+    case True{}: cs
+    case False{}: restr(cs, I.ipt(lo), I.ipt(hi))
+
 def rs(+cs: List<&2, I.I>, +t: I.I) -> List<&2, I.I>:
-  restr(cs, I.ipt(I.i_lo(t)), I.ipt(I.i_hi(t)))
+  +lo = I.i_lo(t)
+  +hi = I.i_hi(t)
+  rs_k(Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64)), cs, lo, hi)
 
 def coord_box(+xs: List<&2, I.I>, +ws: List<&2, I.I>) -> I.I:
   Bool.pick(I.I, allpos(ws), hull(qdiv(xs, ws)), I.idiv(hull(xs), hull(ws)))

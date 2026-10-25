@@ -356,11 +356,11 @@ def eg_pb(e: Eg) -> List<&2, I.I>:
   Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   pb
 
-def crs(+a0: Nat, +a1: Nat, +b0: Nat, +b1: Nat) -> List<&2, Cr>:
-  +c00 = Bool.pick(List<&2, Cr>, Nat.is_eq(a0, b0), [Cr{False{}, False{}}], [])
-  +c01 = Bool.pick(List<&2, Cr>, Nat.is_eq(a0, b1), [Cr{False{}, True{}}], [])
-  +c10 = Bool.pick(List<&2, Cr>, Nat.is_eq(a1, b0), [Cr{True{}, False{}}], [])
-  +c11 = Bool.pick(List<&2, Cr>, Nat.is_eq(a1, b1), [Cr{True{}, True{}}], [])
+def crs(+e00: Bool, +e01: Bool, +e10: Bool, +e11: Bool) -> List<&2, Cr>:
+  +c00 = Bool.pick(List<&2, Cr>, e00, [Cr{False{}, False{}}], [])
+  +c01 = Bool.pick(List<&2, Cr>, e01, [Cr{False{}, True{}}], [])
+  +c10 = Bool.pick(List<&2, Cr>, e10, [Cr{True{}, False{}}], [])
+  +c11 = Bool.pick(List<&2, Cr>, e11, [Cr{True{}, True{}}], [])
   List.append(&2, Cr, List.append(&2, Cr, c00, c01), List.append(&2, Cr, c10, c11))
 
 def hp_go(xs: List<&2, I.I>, ys: List<&2, I.I>, zs: List<&2, I.I>, ws: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
@@ -505,6 +505,38 @@ def eg_c_of(e: Eg) -> R.Cv:
   Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
   c
 
+def iv_eq(xs: List<&2, I.I>, ys: List<&2, I.I>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case _: False{}
+    case +x <> +xt:
+      match ys:
+        case []: False{}
+        case +y <> +yt: Bool.and(Bool.and(F64.is_eq(I.i_lo(x), I.i_lo(y)), F64.is_eq(I.i_hi(x), I.i_hi(y))), iv_eq(xt, yt))
+
+def vq(+i: Nat, +j: Nat, +p: List<&2, I.I>, +q: List<&2, I.I>) -> Bool:
+  Bool.or(Nat.is_eq(i, j), iv_eq(p, q))
+
+def pt_eq(+a: V.Point, +b: V.Point) -> Bool:
+  Bool.and(F64.is_eq(V.pt_x(a), V.pt_x(b)), Bool.and(F64.is_eq(V.pt_y(a), V.pt_y(b)), F64.is_eq(V.pt_z(a), V.pt_z(b))))
+
+def rq_eq(+p: G.RQBez, +q: G.RQBez) -> Bool:
+  G.Rq{+a, +c, +b, +w0, +w1, +w2} = p
+  G.Rq{+a2, +c2, +b2, +v0, +v1, +v2} = q
+  +fw = Bool.and(Bool.and(pt_eq(a, a2), pt_eq(b, b2)), Bool.and(F64.is_eq(w0, v0), F64.is_eq(w2, v2)))
+  +bw = Bool.and(Bool.and(pt_eq(a, b2), pt_eq(b, a2)), Bool.and(F64.is_eq(w0, v2), F64.is_eq(w2, v0)))
+  Bool.and(Bool.and(pt_eq(c, c2), F64.is_eq(w1, v1)), Bool.or(fw, bw))
+
+def g_same(g: G.GVal, h: G.GVal) -> Bool:
+  match g:
+    case G.GV_rq{p}:
+      match h:
+        case G.GV_rq{q}: rq_eq(p, q)
+        case _: False{}
+    case _: False{}
+
 def ee_sel(ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) -> List<&2, S.Hit>:
   match ex:
     case True{}: S.inter_cc(eg_g(x), eg_d(x), eg_g(y), eg_d(y), 40n)
@@ -513,21 +545,26 @@ def ee_sel(ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) -> List<&2, S
       +cb = eg_c_of(y)
       bb_cells(cells_of(cs, ca, cb, tol), eg_g(x), eg_g(y), ca, cb)
 
+def ee_same(same: Bool, ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) -> List<&2, S.Hit>:
+  match same:
+    case True{}: [S.H_ov{I.I{0.0f64, 1.0f64}, X.iz()}]
+    case False{}: ee_sel(ex, x, y, cs, tol)
+
 def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
     +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> List<&2, SO.Fi>:
-  +a0 = eg_a(x)
-  +a1 = eg_b(x)
-  +b0 = eg_a(y)
-  +b1 = eg_b(y)
-  +s0 = Bool.or(Nat.is_eq(a0, b0), Nat.is_eq(a0, b1))
-  +s1 = Bool.or(Nat.is_eq(a1, b0), Nat.is_eq(a1, b1))
+  +e00 = vq(eg_a(x), eg_a(y), eg_pa(x), eg_pa(y))
+  +e01 = vq(eg_a(x), eg_b(y), eg_pa(x), eg_pb(y))
+  +e10 = vq(eg_b(x), eg_a(y), eg_pb(x), eg_pa(y))
+  +e11 = vq(eg_b(x), eg_b(y), eg_pb(x), eg_pb(y))
+  +s0 = Bool.or(e00, e01)
+  +s1 = Bool.or(e10, e11)
   +sv = sh_pt(s0, eg_pa(x), sh_pt(s1, eg_pb(x), []))
   +sx = Bool.pick(List<&2, List<&2, I.I>>, cross, [eg_pa(x), eg_pb(x), eg_pa(y), eg_pb(y)], [])
   +fda = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(x)))
   +fdb = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(y)))
   +bbA = SO.bbox(fda, [])
   +bbB = SO.bbox(fdb, [])
-  first(ee_hits(ee_sel(S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(a0, a1, b0, b1), tol), sv, sx, tol, ia, ib,
+  first(ee_hits(ee_same(g_same(eg_g(x), eg_g(y)), S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(e00, e01, e10, e11), tol), sv, sx, tol, ia, ib,
     cross, x, y, fda, bbA, fdb, bbB))
 
 def m_code(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:

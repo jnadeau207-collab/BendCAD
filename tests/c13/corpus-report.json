@@ -1,7 +1,7 @@
 {
  "corpus_version": 1,
- "binary": "/home/jesse/bc/bendcad-k3i",
- "binary_sha256": "fd2d34773f10e02cad2ad38a8c7e246bfb449905a6af6c8627d4049b068368c7",
+ "binary": "/home/jesse/bc/bendcad-k3m",
+ "binary_sha256": "2b5f29acdecf3cc53b84bf22276b40bedc303ffe74e93b9aca0788f8f1224ae9",
  "passed": 13,
  "total": 13,
  "results": [
@@ -11,8 +11,8 @@
    "checks": {
     "solve_line": "asm solved ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14",
     "seconds": [
-     7.5,
-     7.4
+     7.2,
+     7.2
     ],
     "exit0": true,
     "stages": true,
@@ -29,7 +29,7 @@
     "g3b/gearbox.bcd": "b3fb0f1fe6b7e52ea1f0f70198f4744fdb60cea657c0dc2153cb535695f89699",
     "g3b/assembly.txt": "b297cceeb77d7835d6a808f6c0801f7f092e729d5a6f40c17a877b7b00e8d09f"
    },
-   "seconds": 14.9
+   "seconds": 14.4
   },
   {
    "name": "sheet.bracket",
@@ -57,7 +57,7 @@
     "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
     "cb.bin": "cb680b69b9b067703886798cb30a023470fe3c01576e0e8ca5d1e5ead561d3fb"
    },
-   "seconds": 2.2
+   "seconds": 2.1
   },
   {
    "name": "sheet.edits",
@@ -72,7 +72,7 @@
    "artifacts": {
     "ce.bcd": "c90b1dc5cf8d7b8d4f93070b1a340fdcd6cc8a02376300ba94c36e48ed122c05"
    },
-   "seconds": 0.2
+   "seconds": 0.1
   },
   {
    "name": "sheet.fold180",

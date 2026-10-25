@@ -289,6 +289,26 @@ def machinability():
     record('machine.refusals', 'needs NODE D FL HD HL AXES NS' in bad, out=bad[-300:])
 
 
+def scroll_booleans():
+    import corpus as cp
+    v = cp.scroll_exact()[0]
+    out, _ = fresh('sd.bcd', f'(node 20 (prism -3 63 {cp.region_sx(cp.SCROLL_OUT)}) {IC})', f'(node 21 (prism 0 60 {cp.region_sx(cp.SCROLL_IN)}) {IC})',
+                   f'(node 2 (difference 20 21) {ID})', f'(node 3 (prism 59 64 (region (circle 0 0 45))) {IC})', f'(node 1 (difference 2 3) {ID})')
+    ev, _ = cli('sd.bcd', 'eval')
+    m = re.search(r'node 1:.*?volume=' + IVR, ev)
+    vol = (float(m.group(1)), float(m.group(2))) if m else None
+    record('boolean.ray_through_vertices', 'committed' in out and tight(vol, v, 1e-11), volume=vol, exact=v, eval=ev[-400:])
+    front = cp.region_sx(cp.SCROLL_OUT)[:-1] + ' (path 45 0 (arc 0 0 45 -45 0 ccw) (arc 0 0 45 45 0 ccw)))'
+    t = time.time()
+    out, _ = fresh('su.bcd', f'(node 20 (prism 0 60 {cp.region_sx(cp.band_loop())}) {IC})', f'(node 21 (prism -3 0 {cp.region_sx(cp.SCROLL_OUT)}) {IC})',
+                   f'(node 22 (prism 60 63 {front}) {IC})', f'(node 23 (union 20 21) {IA})', f'(node 1 (union 23 22) {IA})')
+    dt = time.time() - t
+    ev, _ = cli('su.bcd', 'eval')
+    m = re.search(r'node 1:.*?volume=' + IVR, ev)
+    vol = (float(m.group(1)), float(m.group(2))) if m else None
+    record('boolean.coincident_arcs', 'committed' in out and tight(vol, v, 1e-11) and dt < 300, volume=vol, exact=v, seconds=dt, eval=ev[-400:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
@@ -332,6 +352,7 @@ def main():
     fem()
     blade_root()
     machinability()
+    scroll_booleans()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} passed')
