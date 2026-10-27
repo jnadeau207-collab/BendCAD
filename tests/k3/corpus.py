@@ -80,7 +80,7 @@ def disc_spin(h):
            tip=dict(band=DISC_GROW, got=tip), seconds=dt, raw=o[-1200:])
 
 
-DISC_3D = {(2, 0): 9954.5388, (0, 1): 16568.5839, (3, 0): 22048.9423}
+DISC_3D = e2e.DISC_3D
 
 
 def love(n, s, b=25.0, t=5.0, E=200000.0, nu=0.3, rho=7.85e-9):
@@ -283,7 +283,9 @@ def main():
     which = sys.argv[1:] or ['rod_free', 'cantilever', 'disc_spin', 'disc_modes', 'impeller', 'scroll']
     for w in which:
         globals()[w]() if w in ('impeller', 'scroll') else globals()[w](h)
-    json.dump(RESULTS, open(OUT, 'w'), indent=1)
+    old = json.load(open(OUT)) if os.path.exists(OUT) else []
+    names = {r['name'] for r in RESULTS}
+    json.dump([r for r in old if r['name'] not in names] + RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')
     sys.exit(0 if n == len(RESULTS) else 1)

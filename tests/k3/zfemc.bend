@@ -67,7 +67,7 @@ def run(+mh: F.MH, +it: Nat) -> String:
   +fm = F.fm_of(nn, es, 200000.0f64, 0.3f64, 7.85e-9f64)
   +mask = mask_of(xs)
   +n = Nat.mul(U32.to_nat(nn), 3n)
-  "nodes " ++ U32.show(nn) ++ " hz " ++ fin(F.lobpcg(it, fm, mask, 6n, 6n, 0.0f64, starts(6n, n, 1.0f64)))
+  "nodes " ++ U32.show(nn) ++ " hz " ++ fin(F.lobpcg(it, fm, mask, 6n, 6n, 0.0f64, starts(6n, n, 1.0f64), []))
 
 def main() -> IO(Unit):
   do IO<Unit>:

@@ -14,9 +14,10 @@ inside the suites; no external solver runs.
 |---|---|
 | `src/k3/mom.bend` | Exact first and second moments of volume by the divergence theorem per face (certified intervals); ISO 21940-11 residual and permissible unbalance; products of inertia relative to an axis |
 | `src/k3/beam.bend` | Timoshenko beam elements (Friedman–Kosmatka, Cowper shear coefficient), banded LDLᵀ Sturm counts of K − λM, bisection, three-level refinement (N, 2N, 4N) with an observed-ratio extrapolation; the `(rotor ...)` spec parser |
-| `src/k3/mesh.bend` | Isosurface stuffing on a body-centred cubic lattice: inside/outside per lattice line by certified ray crossings (C07 face intersection), cut points on crossing edges, vertex warping (α = 0.24999 black edges, 0.41189 red), stencils with minimum-index pyramid and prism splits, conformity and dihedral checks, compaction, T10 elements with boundary midside nodes projected onto the faces along the face normal |
-| `src/k3/fem.bend` | Affine and isoparametric (curved) T10 elements (4-point and 14-point degree-5 rules), one-time assembly into 3×3 node-block rows with scalar mass blocks, block SpMV (mass-only path when the stiffness factor is zero), block LOBPCG (lockstep PCG preconditioner, M-orthonormalisation of [W P] against X, guard vectors, a stop when every wanted residual |Kx − λMx| is below 1e-6 of λmax|Mx|, each finer level started from the previous level's Ritz vectors carried to its nodes by nearest coarse node, symmetric Gram matrices computed by their upper triangle), round-robin parallel Jacobi for the dense eigenproblems, tolerance PCG for static solves |
-| `src/k3/solve.bend` | The `modes` and `spin` verbs: clamps, shifts, rigid-mode detection, inertia relief for free spins, growth and von Mises recovery, three-level bounds |
+| `src/k3/mesh.bend` | Isosurface stuffing on a body-centred cubic lattice: inside/outside per lattice line by certified ray crossings (C07 face intersection), cut points on crossing edges, vertex warping (α = 0.24999 black edges, 0.41189 red), stencils with minimum-index pyramid and prism splits, conformity and dihedral checks, compaction, sharp-edge recovery (a boundary edge whose ends lie on two faces meeting at a sharp angle snaps its nearer end onto their intersection by two-surface Newton, refused where a tet would invert), T10 elements whose boundary midside nodes lie on the B-rep (on the intersection curve of two common faces, at the closest point of one common analytic face, else by a certified ray along the facet normal; by the certified ray for an edge whose ends lie on different faces, which keeps the geometric error monotone in h); a midside node whose element would invert (a non-positive Jacobian ratio) reverts to the chord midpoint |
+| `src/k3/refine.bend` | Graded refinement toward thin walls: each boundary face's wall thickness by a certified ray along its inward normal; tets whose longest edge exceeds k·thickness are marked; the longest-edge closure (every tet touching a marked edge has its longest edge marked) makes the bisection conforming; each tet is bisected recursively by its longest marked edge (global order by length, then key, so shared faces split alike); new boundary midpoints are projected onto the faces, and a midpoint whose child would invert reverts to the chord midpoint; up to six rounds |
+| `src/k3/fem.bend` | Affine and isoparametric (curved) T10 elements (4-point and 14-point degree-5 rules), one-time assembly into 3×3 node-block rows with scalar mass blocks, block SpMV (mass-only path when the stiffness factor is zero), block LOBPCG on node-major block vectors cut into 32 chunks (lockstep PCG preconditioner, M-orthonormalisation of [W P] against X, guard vectors, a stop when every wanted residual |Kx − λMx| is below 1e-6 of λmax|Mx|, each finer level started from the previous level's Ritz vectors carried to its nodes by nearest coarse node, symmetric Gram matrices computed by their upper triangle), round-robin parallel Jacobi for the dense eigenproblems, tolerance PCG for static solves |
+| `src/k3/solve.bend` | The `modes` and `spin` verbs: clamps, shifts, exact rigid-mode deflation for free parts, inertia relief for free spins, growth and von Mises recovery, three-level bounds |
 | `src/k3/div.bend` | Divergence-theorem volume moments of any B-rep from its exact faces, used by mass properties of swept walls |
 | `src/k3/mach.bend` | The `machine` verb: ball, flute and holder solids placed along candidate directions, each certified apart from the part by the C07 embedding check; concave radii and sharp concave edges |
 | `src/c06/psw.bend` | Path sweeps `(sweep (along PATH) REGION)` and walls `(sweep (wall PATH) REGION)`: profile swept along a closed tangent-continuous path of lines and arcs, a wall closed by flat caps |
@@ -42,7 +43,14 @@ certified (C07 tangency at shared vertices and station planes, K1 near
 contacts at vertices) and its volume is exact.
 
 `modes` and `spin` solve at element sizes H, H/2^(1/3) and H/2^(2/3)
-(about 1×, 2× and 4× the nodes). For a sequence a, b, c the observed ratio
+(about 1×, 2× and 4× the nodes). Each level is graded toward thin walls
+by `refine.bend` with k = h/H: at the first level an edge on a wall is at
+most the wall's thickness, one quadratic element across it, and every finer level keeps the
+same ratio to its lattice, so the three levels refine one family of
+meshes. The `level` line reports `graded=R/A`: R rounds and A added
+nodes (`/stopN` when a round was refused because N midpoints still
+inverted a child, `/unmet` when the six rounds ran out before every wall
+met the size field). For a sequence a, b, c the observed ratio
 q = (a − b)/(b − c) gives, when q > 1.05, the extrapolation
 c + (c − b)/(q − 1) and the bound max(|c − b|, |est − c|)
 (`status=estimated`); otherwise the bound is twice the larger change

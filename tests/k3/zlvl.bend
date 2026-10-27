@@ -52,7 +52,8 @@ def h_of(n: Nat) -> F64:
     case 1n: 8.0f64
     case 2n: 6.349604207872798f64
     case 3n: 5.039684199579493f64
-    case _: 4.0f64
+    case 4n: 4.0f64
+    case _: 3.0f64
 
 def lvl(+fs: List<&2, SO.Fd>, +h: F64) -> String:
   Q.modes_s(fs, h, 200000.0f64, 0.3f64, 7.85e-9f64, cfree(), 10n, 0.0f64)

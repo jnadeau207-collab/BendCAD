@@ -114,7 +114,7 @@ def cent(+es: List<&2, F.EL>, +nn: Nat, +ps: List<&2, V.Point>) -> String:
   " curved=" ++ Nat.show(K.n_ec(es, 0n)) ++ sv_s(F.bsolve_tol(fm, ones(Nat.mul(nn, 3n)), [f], 5000n, 1.0e-10f64), ps)
 
 def tm_go(+t: K.TM) -> String:
-  K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = t
+  K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = t
   "t10 nodes=" ++ Nat.show(nn) ++ " elems=" ++ Nat.show(List.length(&2, K.T10, ts)) ++ cent(K.fe_els(ts, B.tb_of(V.Point, ps, V.Pt{0.0f64, 0.0f64, 0.0f64}), 1.0e-12f64), nn, ps)
 
 def mr_go(+r: K.MR, +fs: List<&2, SO.Fd>) -> String:

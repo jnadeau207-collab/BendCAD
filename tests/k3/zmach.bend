@@ -43,7 +43,7 @@ def placed(+b: M.Body) -> Ty.Brep:
 
 def run(+src: String, +na: Nat) -> String:
   +cs = M.ev_part(S.part_of(S.ps_xs(S.parse(src))), [])
-  K.machine(placed(M.nr_body(M.ce_r(M.ce_find(cs, 1u64)))), K.TL{1.0f64, 20.0f64, 5.0f64, 40.0f64}, Nat.is_lt(1n, na), 3n)
+  K.machine(placed(M.nr_body(M.ce_r(M.ce_find(cs, 1u64)))), K.TL{0.8f64, 20.0f64, 5.0f64, 40.0f64}, True{}, 2n)
 
 def main() -> IO(Unit):
   do IO<Unit>:

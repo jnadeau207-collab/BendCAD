@@ -18,6 +18,7 @@ IS = '(intent same any any any any)'
 IA = '(intent add any any any any)'
 ID = '(intent remove any any any any)'
 NUM = r'(-?[0-9.]+(?:e-?[0-9]+)?)'
+DISC_3D = {(2, 0): 9954.5388, (0, 1): 16568.5839, (3, 0): 22048.9423}
 IVR = r'\[' + NUM + r', ' + NUM + r'\]'
 
 
@@ -209,7 +210,7 @@ def fem():
     o, dt = wsl(BIN, f'{WORK}/fs.bcd', 'modes', '1', '10', '4', timeout=7200)
     ms = fem_lines(o, r'mode \d+ hz=')
     want = [lamb(E, nu, rho, 10.0, 2.501133)] * 5 + [lamb(E, nu, rho, 10.0, 2.646217)] * 5
-    record('modes.free_sphere_lamb', 'committed' in out and len(ms) == 10 and 'rigid=6' in o
+    record('modes.free_sphere_lamb', 'committed' in out and len(ms) == 10 and 'rigid=6' in o and o.count('graded=0/0\n') == 3
            and all(abs(m[3] - w) <= m[4] and m[4] <= 2e-3 * w for m, w in zip(ms, want)),
            got=[(m[2], m[3], m[4]) for m in ms], want=want, seconds=dt, raw=o[-900:])
     o, dt = wsl(BIN, f'{WORK}/fs.bcd', 'spin', '1', '60000', '4', '0', '0', '0', '0', '0', '1', '0', timeout=7200)
@@ -228,6 +229,21 @@ def fem():
     record('fem.refusals', 'material-lacks-elastic-constants' in o1 and 'needs NODE K H' in o2 and 'needs NODE RPM H' in o3
            and 'refused spin-unsupported' in o4 and 'bad-material' in o5,
            noel=o1[-200:], k0=o2[-200:], axis0=o3[-200:], offaxis=o4[-300:], nu=o5[-300:])
+
+
+def graded():
+    E, nu, rho = 200000.0, 0.3, 7850.0
+    out, _ = fresh('gd.bcd', f'(node 1 (cylinder 25 5) {IC})', f'(material 1 steel {rho} 0.000012 {E} {nu})')
+    o, dt = wsl(BIN, f'{WORK}/gd.bcd', 'modes', '1', '5', '4', timeout=14400)
+    ms = fem_lines(o, r'mode \d+ hz=')
+    gr = [(int(a), int(b)) for a, b in re.findall(r'graded=(\d+)/(\d+)\n', o)]
+    rows = []
+    for key, ref in DISC_3D.items():
+        got = sorted(ms, key=lambda m: abs(m[3] - ref))[:2 if key[0] else 1]
+        rows.append(dict(mode=key, ref=ref, est=[m[3] for m in got], bound=[m[4] for m in got],
+                         ok=all(abs(m[3] - ref) <= m[4] and m[4] <= GRADED_BOUND * ref for m in got)))
+    record('modes.graded_thin_disc', 'committed' in out and len(ms) == 5 and len(gr) == 3 and all(r > 0 and a > 0 for r, a in gr)
+           and all(r['ok'] for r in rows), graded=gr, modes=rows, seconds=dt, raw=o[-1500:])
 
 
 def blade_root():
@@ -350,6 +366,7 @@ def main():
     balance()
     rotor()
     fem()
+    graded()
     blade_root()
     machinability()
     scroll_booleans()

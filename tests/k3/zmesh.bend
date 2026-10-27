@@ -79,7 +79,7 @@ def jv_s(+j: K.JV) -> String:
   " vol10=" ++ F64.show(v) ++ " jratio=[" ++ F64.show(lo) ++ "," ++ F64.show(hi) ++ "]"
 
 def tm_s(+t: K.TM) -> String:
-  K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = t
+  K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = t
   "t10 nodes=" ++ Nat.show(nn) ++ " elems=" ++ Nat.show(List.length(&2, K.T10, ts)) ++ " bedges=" ++ Nat.show(nb) ++ " projfail=" ++ Nat.show(nf) ++ " maxmove=" ++ F64.show(dv) ++ jv_s(K.t10_vols(ts, B.tb_of(V.Point, ps, V.Pt{0.0f64, 0.0f64, 0.0f64}), K.JV{0.0f64, 1.0e30f64, F64.neg(1.0e30f64)}))
 
 def mr_s(+r: K.MR, +fs: List<&2, SO.Fd>) -> String:

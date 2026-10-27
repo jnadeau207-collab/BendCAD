@@ -2,6 +2,7 @@ import Base
 import ../../src/c01/types.bend as V
 import ../../src/k3/fem.bend as F
 import ../../src/k3/mesh.bend as K
+import ../../src/k3/refine.bend as R
 import ./LAWS.bend as Laws
 
 def prb_go(t: Bool, +a: Nat, +b: Nat, +c: Nat, +d: Nat, +e: Nat, +f: Nat, +acc: List<&2, K.T4>) -> {List.length(&2, K.T4, Bool.pick(List<&2, K.T4>, t, K.T4{a, b, c, f} <> K.T4{a, b, f, e} <> K.T4{a, e, f, d} <> acc, K.T4{a, b, c, e} <> K.T4{a, e, c, f} <> K.T4{a, e, f, d} <> acc)) == 1n+(1n+(1n+List.length(&2, K.T4, acc))) : Nat}:
@@ -33,6 +34,23 @@ def pyr_go(t: Bool, +q0: Nat, +q1: Nat, +q2: Nat, +q3: Nat, +p: Nat, +acc: List<
     case True{}: {==}
     case False{}: {==}
 
+def kid_go(t0: Bool, t1: Bool, t2: Bool, t3: Bool, t4: Bool, +a: Nat, +b: Nat, +c: Nat, +d: Nat, +m: Nat) -> {List.length(&2, K.T4, Bool.pick(List<&2, K.T4>, t0, [K.T4{a, m, c, d}, K.T4{m, b, c, d}], Bool.pick(List<&2, K.T4>, t1, [K.T4{a, b, m, d}, K.T4{m, b, c, d}], Bool.pick(List<&2, K.T4>, t2, [K.T4{a, b, c, m}, K.T4{m, b, c, d}], Bool.pick(List<&2, K.T4>, t3, [K.T4{a, b, m, d}, K.T4{a, m, c, d}], Bool.pick(List<&2, K.T4>, t4, [K.T4{a, b, c, m}, K.T4{a, m, c, d}], [K.T4{a, b, c, m}, K.T4{a, b, m, d}])))))) == 2n : Nat}:
+  match t0:
+    case True{}: {==}
+    case False{}:
+      match t1:
+        case True{}: {==}
+        case False{}:
+          match t2:
+            case True{}: {==}
+            case False{}:
+              match t3:
+                case True{}: {==}
+                case False{}:
+                  match t4:
+                    case True{}: {==}
+                    case False{}: {==}
+
 def Laws.transpose_keeps_rows(n, cs):
   match n:
     case 0n: {==}
@@ -53,3 +71,28 @@ def Laws.pyramid_splits_into_two(q0, q1, q2, q3, p, acc):
 def Laws.prism_splits_into_three(a, b, c, d, e, f, acc):
   prism_go(Bool.or(Nat.is_eq(K.mn6n(a, b, c, d, e, f), a), Nat.is_eq(K.mn6n(a, b, c, d, e, f), d)),
     Bool.or(Nat.is_eq(K.mn6n(a, b, c, d, e, f), b), Nat.is_eq(K.mn6n(a, b, c, d, e, f), e)), a, b, c, d, e, f, acc)
+
+def Laws.revert_keeps_unflagged(ms, ls, i):
+  match ms:
+    case []: {==}
+    case m <> r:
+      %Laws.revert_keeps_unflagged(r, K.p_tl(ls), Nat.add(i, 1n)) : {m <> K.revert(r, K.p_tl(ls), [], Nat.add(i, 1n)) == m <> _ : List<&2, V.Point>}
+      {==}
+
+def Laws.revert_keeps_length(ms, ls, bad, i):
+  match ms:
+    case []: {==}
+    case m <> r:
+      %Laws.revert_keeps_length(r, K.p_tl(ls), Bool.pick(List<&2, Nat>, Bool.and(Bool.not(K.n_nil(bad)), Nat.is_eq(K.n_hd(bad), i)), K.n_tl(bad), bad), Nat.add(i, 1n)) : {1n+List.length(&2, V.Point, K.revert(r, K.p_tl(ls), Bool.pick(List<&2, Nat>, Bool.and(Bool.not(K.n_nil(bad)), Nat.is_eq(K.n_hd(bad), i)), K.n_tl(bad), bad), Nat.add(i, 1n))) == 1n+_ : Nat}
+      {==}
+
+def Laws.bisection_makes_two(s, t, m):
+  match t:
+    case K.T4{a, b, c, d}: kid_go(Nat.is_eq(s, 0n), Nat.is_eq(s, 1n), Nat.is_eq(s, 2n), Nat.is_eq(s, 3n), Nat.is_eq(s, 4n), a, b, c, d, m)
+
+def Laws.snap_keeps_length(ps, vs, i):
+  match ps:
+    case []: {==}
+    case p <> r:
+      %Laws.snap_keeps_length(r, Bool.pick(List<&2, K.VT>, Bool.and(Bool.not(K.vt_nil(vs)), Nat.is_eq(K.vt_v(K.vt_hd(vs)), i)), K.vt_tl(vs), vs), Nat.add(i, 1n)) : {1n+List.length(&2, V.Point, K.place(r, Bool.pick(List<&2, K.VT>, Bool.and(Bool.not(K.vt_nil(vs)), Nat.is_eq(K.vt_v(K.vt_hd(vs)), i)), K.vt_tl(vs), vs), Nat.add(i, 1n))) == 1n+_ : Nat}
+      {==}

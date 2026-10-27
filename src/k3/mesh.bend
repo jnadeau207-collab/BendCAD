@@ -9,6 +9,7 @@ import ../c07/im.bend as MI
 import ../c07/sol.bend as SO
 import ../base/par.bend as B
 import fem.bend as F
+import ../k1/sf.bend as S
 
 type LX is Data:
   LX{ ok: Bool, ts: List<&2, F64> }
@@ -741,6 +742,10 @@ def runs(xs: List<&2, FK>, +k: FK, +c: Nat, +f: FC) -> FC:
 def faces(+ts: List<&2, T4>) -> FC:
   runs(so_fk(B.msort(~FK, ~fk_cmp, fkeys(ts, []))), FK{0n, 0n, 0n}, 0n, FC{0n, 0n, 0n, []})
 
+def fc_bk(+f: FC) -> List<&2, FK>:
+  FC{n1, n2, bad, bk} = f
+  bk
+
 def cross(+u: V.Dir, +v: V.Dir) -> V.Dir:
   V.Dr{F64.sub(F64.mul(V.dr_y(u), V.dr_z(v)), F64.mul(V.dr_z(u), V.dr_y(v))), F64.sub(F64.mul(V.dr_z(u), V.dr_x(v)), F64.mul(V.dr_x(u), V.dr_z(v))),
     F64.sub(F64.mul(V.dr_x(u), V.dr_y(v)), F64.mul(V.dr_y(u), V.dr_x(v)))}
@@ -837,6 +842,41 @@ def upts(us: List<&2, Nat>, +pt: B.Tb<&2, V.Point>) -> List<&2, V.Point>:
   match us:
     case []: []
     case +u <> t: B.tb_get(V.Point, pt, U32.from_nat(u)) <> upts(t, pt)
+
+def n_nil(xs: List<&2, Nat>) -> Bool:
+  match xs:
+    case []: True{}
+    case x <> t: False{}
+
+def n_hd(xs: List<&2, Nat>) -> Nat:
+  match xs:
+    case []: 0n
+    case +x <> t: x
+
+def n_tl(xs: List<&2, Nat>) -> List<&2, Nat>:
+  match xs:
+    case []: []
+    case x <> +t: t
+
+def p_hd(xs: List<&2, V.Point>) -> V.Point:
+  match xs:
+    case []: V.Pt{0.0f64, 0.0f64, 0.0f64}
+    case +x <> t: x
+
+def p_tl(xs: List<&2, V.Point>) -> List<&2, V.Point>:
+  match xs:
+    case []: []
+    case x <> +t: t
+
+def revert(ms: List<&2, V.Point>, +ls: List<&2, V.Point>, +bad: List<&2, Nat>, +i: Nat) -> List<&2, V.Point>:
+  match ms:
+    case []: []
+    case +m <> +r:
+      +hit = Bool.and(Bool.not(n_nil(bad)), Nat.is_eq(n_hd(bad), i))
+      Bool.pick(V.Point, hit, p_hd(ls), m) <> revert(r, p_tl(ls), Bool.pick(List<&2, Nat>, hit, n_tl(bad), bad), Nat.add(i, 1n))
+
+def sort_u(+xs: List<&2, Nat>) -> List<&2, Nat>:
+  uniq(so_nat(B.msort(~Nat, ~ncmp, xs)), 0n, True{})
 
 type CM is Data:
   CM{ ts: List<&2, T4>, ps: List<&2, V.Point>, n: Nat }
@@ -1018,9 +1058,6 @@ def jr_go(xs: List<&2, JR>, +p: MJ, +has: Bool) -> List<&2, MJ>:
 def mjoin(+es: List<&2, EK>, +bs: List<&2, EK>) -> List<&2, MJ>:
   jr_go(so_jr(B.msort(~JR, ~jr_cmp, jr_e(es, jr_b(bs, [])))), MJ{0n, 0n, 0n, False{}}, False{})
 
-type PX is Data:
-  PX{ fs: List<&2, SO.Fd>, pt: B.Tb<&2, V.Point> }
-
 type MP is Data:
   MP{ p: V.Point, dev: F64, ok: Bool }
 
@@ -1043,17 +1080,305 @@ def mid_bd(c: Bool, +fs: List<&2, SO.Fd>, +m: V.Point, +n: V.Dir, +len: F64) -> 
     case True{}: mid_go(fs, m, n, len)
     case False{}: MP{m, 0.0f64, True{}}
 
-def mid_f(c: PX, j: MJ) -> MP:
-  PX{+fs, +pt} = c
+type FS is Data:
+  FS{ s: S.SF, bx: List<&2, I.I> }
+
+def fs_of(fs: List<&2, SO.Fd>) -> List<&2, FS>:
+  match fs:
+    case []: []
+    case +f <> +t: FS{S.sf_of(SO.fd_g(f)), SO.fd_bx(f)} <> fs_of(t)
+
+def in_iv(+i: I.I, +x: F64, +tol: F64) -> Bool:
+  Bool.and(F64.is_le(F64.sub(I.i_lo(i), tol), x), F64.is_le(x, F64.add(I.i_hi(i), tol)))
+
+def on_fs(+x: FS, +p: V.Point, +tol: F64) -> Bool:
+  FS{+s, +bx} = x
+  +inb = Bool.and(in_iv(X.vn(bx, 0n), V.pt_x(p), tol), Bool.and(in_iv(X.vn(bx, 1n), V.pt_y(p), tol), in_iv(X.vn(bx, 2n), V.pt_z(p), tol)))
+  Bool.and(S.sf_ok(s), Bool.and(inb, F64.is_le(F64.abs(S.sf_f(s, p)), F64.mul(tol, S.dlen(S.sf_grad(s, p))))))
+
+def hits(xs: List<&2, FS>, +p: V.Point, +tol: F64, +i: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match xs:
+    case []: acc
+    case +x <> +t: hits(t, p, tol, Nat.add(i, 1n), Bool.pick(List<&2, Nat>, on_fs(x, p, tol), i <> acc, acc))
+
+def has_n(xs: List<&2, Nat>, +i: Nat) -> Bool:
+  match xs:
+    case []: False{}
+    case +x <> +t: Bool.or(Nat.is_eq(x, i), has_n(t, i))
+
+def meets(xs: List<&2, Nat>, +ys: List<&2, Nat>) -> Bool:
+  match xs:
+    case []: False{}
+    case +x <> +t: Bool.or(has_n(ys, x), meets(t, ys))
+
+def nw(f: Nat, +sa: S.SF, +sb: S.SF, +x: V.Point) -> V.Point:
+  match f:
+    case 0n: x
+    case 1n+g:
+      +fa = S.sf_f(sa, x)
+      +fb = S.sf_f(sb, x)
+      +ga = S.sf_grad(sa, x)
+      +gb = S.sf_grad(sb, x)
+      +a11 = S.dot(ga, ga)
+      +a12 = S.dot(ga, gb)
+      +a22 = S.dot(gb, gb)
+      +det = F64.sub(F64.mul(a11, a22), F64.mul(a12, a12))
+      +y1 = F64.div(F64.sub(F64.mul(a22, fa), F64.mul(a12, fb)), det)
+      +y2 = F64.div(F64.sub(F64.mul(a11, fb), F64.mul(a12, fa)), det)
+      nw(g, sa, sb, S.padd(S.padd(x, F64.neg(y1), ga), F64.neg(y2), gb))
+
+def on_s(+s: S.SF, +q: V.Point, +tol: F64) -> Bool:
+  F64.is_le(F64.abs(S.sf_f(s, q)), F64.mul(tol, S.dlen(S.sf_grad(s, q))))
+
+def fs_s(+x: FS) -> S.SF:
+  FS{+s, bx} = x
+  s
+
+def sharp(+sa: S.SF, +sb: S.SF, +m: V.Point, +len: F64) -> MP:
+  +q = nw(12n, sa, sb, m)
+  +ga = S.sf_grad(sa, q)
+  +gb = S.sf_grad(sb, q)
+  +tol = F64.mul(1.0e-10f64, len)
+  +sn = F64.is_le(F64.mul(0.17f64, F64.mul(S.dlen(ga), S.dlen(gb))), S.dlen(S.cross(ga, gb)))
+  +d = dlen(psub(q, m))
+  MP{q, d, Bool.and(Bool.and(on_s(sa, q, tol), on_s(sb, q, tol)), Bool.and(sn, F64.is_le(d, F64.mul(0.5f64, len))))}
+
+def mp_ok(+x: MP) -> Bool:
+  MP{p, d, +ok} = x
+  ok
+
+def n_hd0(xs: List<&2, Nat>) -> Nat:
+  match xs:
+    case []: 0n
+    case +x <> t: x
+
+def n_nil0(xs: List<&2, Nat>) -> Bool:
+  match xs:
+    case []: True{}
+    case x <> t: False{}
+
+type PX is Data:
+  PX{ fs: List<&2, SO.Fd>, pt: B.Tb<&2, V.Point>, xs: List<&2, FS>, st: B.Tb<&2, FS> }
+
+def fs_dflt() -> FS:
+  FS{S.sf_none(), []}
+
+def px_of(+fs: List<&2, SO.Fd>, +pt: B.Tb<&2, V.Point>) -> PX:
+  +xs = fs_of(fs)
+  PX{fs, pt, xs, B.tb_of(FS, xs, fs_dflt())}
+
+def n_at(xs: List<&2, Nat>, +k: Nat) -> Nat:
+  match xs:
+    case []: 0n
+    case +x <> +t: Bool.pick(Nat, Nat.is_eq(k, 0n), x, n_at(t, Nat.sub(k, 1n)))
+
+def common(xs: List<&2, Nat>, +ys: List<&2, Nat>) -> List<&2, Nat>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      +rest = common(t, ys)
+      Bool.pick(List<&2, Nat>, has_n(ys, x), x <> rest, rest)
+
+def nw1(f: Nat, +s: S.SF, +x: V.Point) -> V.Point:
+  match f:
+    case 0n: x
+    case 1n+g:
+      +gr = S.sf_grad(s, x)
+      nw1(g, s, S.padd(x, F64.neg(F64.div(S.sf_f(s, x), S.dot(gr, gr))), gr))
+
+def onto1(+s: S.SF, +m: V.Point, +len: F64) -> MP:
+  +q = nw1(8n, s, m)
+  +d = dlen(psub(q, m))
+  MP{q, d, Bool.and(Bool.and(S.sf_ok(s), on_s(s, q, F64.mul(1.0e-10f64, len))), F64.is_le(d, F64.mul(0.5f64, len)))}
+
+def fs_at(+st: B.Tb<&2, FS>, +i: Nat) -> S.SF:
+  fs_s(B.tb_get(FS, st, U32.from_nat(i)))
+
+def mid_sh(+c: PX, +pa: V.Point, +pb: V.Point, +n: V.Dir, +corner: Bool) -> MP:
+  PX{+fs, pt, +xs, +st} = c
+  +len = dlen(psub(pb, pa))
+  +m = padd(pa, dsc(0.5f64, psub(pb, pa)))
+  +tol = F64.mul(1.0e-6f64, len)
+  +ia = hits(xs, pa, tol, 0n, [])
+  +ib = hits(xs, pb, tol, 0n, [])
+  +cm = common(ia, ib)
+  +nc = List.length(&2, Nat, cm)
+  +cr = Bool.and(Bool.not(Bool.or(n_nil0(ia), n_nil0(ib))), Nat.is_eq(nc, 0n))
+  +two = Bool.or(Bool.and(corner, cr), Nat.is_lt(1n, nc))
+  +sp = sharp(fs_at(st, Bool.pick(Nat, cr, n_hd0(ia), n_at(cm, 0n))), fs_at(st, Bool.pick(Nat, cr, n_hd0(ib), n_at(cm, 1n))), m, len)
+  +s1 = onto1(fs_at(st, n_at(cm, 0n)), m, len)
+  Bool.pick(MP, Bool.and(two, mp_ok(sp)), sp, Bool.pick(MP, Bool.and(Nat.is_eq(nc, 1n), mp_ok(s1)), s1, mid_go(fs, m, n, len)))
+
+def mid_e(bd: Bool, +c: PX, +pa: V.Point, +pb: V.Point, +n: V.Dir, +corner: Bool) -> MP:
+  match bd:
+    case True{}: mid_sh(c, pa, pb, n, corner)
+    case False{}: MP{padd(pa, dsc(0.5f64, psub(pb, pa))), 0.0f64, True{}}
+
+def px_pt(+c: PX) -> B.Tb<&2, V.Point>:
+  PX{fs, +pt, xs, st} = c
+  pt
+
+def mid_j(+c: PX, +j: MJ) -> MP:
   MJ{+lo, +hi, +op, +bd} = j
+  +pt = px_pt(c)
   +pa = B.tb_get(V.Point, pt, U32.from_nat(lo))
   +pb = B.tb_get(V.Point, pt, U32.from_nat(hi))
-  +m = padd(pa, dsc(0.5f64, psub(pb, pa)))
-  +n = cross(psub(pb, pa), psub(B.tb_get(V.Point, pt, U32.from_nat(op)), pa))
-  mid_bd(bd, fs, m, n, dlen(psub(pb, pa)))
+  mid_e(bd, c, pa, pb, cross(psub(pb, pa), psub(B.tb_get(V.Point, pt, U32.from_nat(op)), pa)), False{})
+
+def mid_f(c: PX, j: MJ) -> MP:
+  mid_j(c, j)
+
+type VT is Data:
+  VT{ v: Nat, q: V.Point, d: F64 }
+
+def vt_cmp2(+x: VT, +y: VT) -> B.Sgn:
+  VT{+a, q, +da} = x
+  VT{+b, r, +db} = y
+  lex(ncmp2(a, b), fcmp2(da, db))
+
+def vt_cmp(x: VT, y: VT) -> B.Sgn:
+  vt_cmp2(x, y)
+
+def so_vt(s: B.So<&2, VT>) -> List<&2, VT>:
+  B.So{ok, xs} = s
+  xs
+
+type SN is Data:
+  SN{ xs: List<&2, FS>, st: B.Tb<&2, FS>, pt: B.Tb<&2, V.Point> }
+
+def corner_ok(+sa: S.SF, +sb: S.SF, +q: V.Point, +d: F64, +len: F64) -> Bool:
+  +ga = S.sf_grad(sa, q)
+  +gb = S.sf_grad(sb, q)
+  +tol = F64.mul(1.0e-10f64, len)
+  +sn = F64.is_le(F64.mul(0.17f64, F64.mul(S.dlen(ga), S.dlen(gb))), S.dlen(S.cross(ga, gb)))
+  Bool.and(Bool.and(on_s(sa, q, tol), on_s(sb, q, tol)), Bool.and(sn, F64.is_le(d, F64.mul(0.45f64, len))))
+
+def vote_e(+c: SN, +i: Nat, +j: Nat, +acc: List<&2, VT>) -> List<&2, VT>:
+  SN{+xs, +st, +pt} = c
+  +pa = B.tb_get(V.Point, pt, U32.from_nat(i))
+  +pb = B.tb_get(V.Point, pt, U32.from_nat(j))
+  +len = dlen(psub(pb, pa))
+  +tol = F64.mul(1.0e-6f64, len)
+  +ia = hits(xs, pa, tol, 0n, [])
+  +ib = hits(xs, pb, tol, 0n, [])
+  +cr = Bool.and(Bool.not(Bool.or(n_nil0(ia), n_nil0(ib))), Bool.not(meets(ia, ib)))
+  +sa = fs_s(B.tb_get(FS, st, U32.from_nat(n_hd0(ia))))
+  +sb = fs_s(B.tb_get(FS, st, U32.from_nat(n_hd0(ib))))
+  +qa = nw(12n, sa, sb, pa)
+  +qb = nw(12n, sa, sb, pb)
+  +da = dlen(psub(qa, pa))
+  +db = dlen(psub(qb, pb))
+  +aw = F64.is_le(da, db)
+  +v = Bool.pick(VT, aw, VT{i, qa, da}, VT{j, qb, db})
+  +ok = Bool.and(cr, Bool.pick(Bool, aw, corner_ok(sa, sb, qa, da, len), corner_ok(sa, sb, qb, db, len)))
+  Bool.pick(List<&2, VT>, ok, v <> acc, acc)
+
+def votes(ks: List<&2, FK>, +c: SN, +acc: List<&2, VT>) -> List<&2, VT>:
+  match ks:
+    case []: acc
+    case +k <> +t:
+      FK{+a, +b, +d} = k
+      votes(t, c, vote_e(c, a, b, vote_e(c, a, d, vote_e(c, b, d, acc))))
+
+def first_v(xs: List<&2, VT>, +prev: Nat, +any: Bool) -> List<&2, VT>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      VT{+v, q, d} = x
+      +rest = first_v(t, v, True{})
+      Bool.pick(List<&2, VT>, Bool.and(any, Nat.is_eq(v, prev)), rest, x <> rest)
+
+def vt_hd(xs: List<&2, VT>) -> VT:
+  match xs:
+    case []: VT{0n, origin(), 0.0f64}
+    case +x <> t: x
+
+def vt_tl(xs: List<&2, VT>) -> List<&2, VT>:
+  match xs:
+    case []: []
+    case x <> +t: t
+
+def vt_nil(xs: List<&2, VT>) -> Bool:
+  match xs:
+    case []: True{}
+    case x <> t: False{}
+
+def vt_v(+x: VT) -> Nat:
+  VT{+v, q, d} = x
+  v
+
+def vt_q(+x: VT) -> V.Point:
+  VT{v, +q, d} = x
+  q
+
+def place(ps: List<&2, V.Point>, +vs: List<&2, VT>, +i: Nat) -> List<&2, V.Point>:
+  match ps:
+    case []: []
+    case +p <> +t:
+      +hit = Bool.and(Bool.not(vt_nil(vs)), Nat.is_eq(vt_v(vt_hd(vs)), i))
+      Bool.pick(V.Point, hit, vt_q(vt_hd(vs)), p) <> place(t, Bool.pick(List<&2, VT>, hit, vt_tl(vs), vs), Nat.add(i, 1n))
+
+def sdet4(+pt: B.Tb<&2, V.Point>, +t: T4) -> F64:
+  T4{+a, +b, +c, +d} = t
+  +pa = B.tb_get(V.Point, pt, U32.from_nat(a))
+  det3(psub(B.tb_get(V.Point, pt, U32.from_nat(b)), pa), psub(B.tb_get(V.Point, pt, U32.from_nat(c)), pa), psub(B.tb_get(V.Point, pt, U32.from_nat(d)), pa))
+
+def t4_vs(+t: T4, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  T4{+a, +b, +c, +d} = t
+  a <> b <> c <> d <> acc
+
+def flipped(ts: List<&2, T4>, +p0: B.Tb<&2, V.Point>, +p1: B.Tb<&2, V.Point>, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match ts:
+    case []: acc
+    case +t <> +r:
+      +s0 = sdet4(p0, t)
+      +s1 = sdet4(p1, t)
+      +bad = Bool.not(Bool.and(F64.is_lt(0.0f64, F64.mul(s0, s1)), F64.is_lt(F64.mul(0.05f64, F64.abs(s0)), F64.abs(s1))))
+      flipped(r, p0, p1, Bool.pick(List<&2, Nat>, bad, t4_vs(t, acc), acc))
+
+def bs_lo(f: Nat, done: Bool, +t: B.Tb<&2, Nat>, +lo: Nat, +hi: Nat, +k: Nat) -> Nat:
+  match f:
+    case 0n: lo
+    case 1n+g:
+      match done:
+        case True{}: lo
+        case False{}:
+          +mid = Nat.div(Nat.add(lo, hi), 2n)
+          +less = Nat.is_lt(B.tb_get(Nat, t, U32.from_nat(mid)), k)
+          +lo2 = Bool.pick(Nat, less, Nat.add(mid, 1n), lo)
+          +hi2 = Bool.pick(Nat, less, hi, mid)
+          bs_lo(g, Bool.not(Nat.is_lt(lo2, hi2)), t, lo2, hi2, k)
+
+def mem_tb(+t: B.Tb<&2, Nat>, +n: Nat, +k: Nat) -> Bool:
+  +i = bs_lo(64n, Nat.is_eq(n, 0n), t, 0n, n, k)
+  Bool.and(Nat.is_lt(i, n), Nat.is_eq(B.tb_get(Nat, t, U32.from_nat(i)), k))
+
+def drop_vs(vs: List<&2, VT>, +t: B.Tb<&2, Nat>, +n: Nat) -> List<&2, VT>:
+  match vs:
+    case []: []
+    case +x <> +r:
+      +rest = drop_vs(r, t, n)
+      Bool.pick(List<&2, VT>, mem_tb(t, n, vt_v(x)), rest, x <> rest)
+
+def snap_go(f: Nat, done: Bool, +ts: List<&2, T4>, +ps: List<&2, V.Point>, +p0: B.Tb<&2, V.Point>, +vs: List<&2, VT>) -> List<&2, VT>:
+  match f:
+    case 0n: []
+    case 1n+g:
+      match done:
+        case True{}: vs
+        case False{}:
+          +bad = sort_u(flipped(ts, p0, B.tb_of(V.Point, place(ps, vs, 0n), origin()), []))
+          +v2 = drop_vs(vs, B.tb_of(Nat, bad, 0n), List.length(&2, Nat, bad))
+          snap_go(g, Nat.is_eq(List.length(&2, VT, v2), List.length(&2, VT, vs)), ts, ps, p0, v2)
+
+def snap_pt(+fs: List<&2, SO.Fd>, +ts: List<&2, T4>, +pt: B.Tb<&2, V.Point>, +nn: Nat) -> B.Tb<&2, V.Point>:
+  +xs = fs_of(fs)
+  +vs = first_v(so_vt(B.msort(~VT, ~vt_cmp, votes(fc_bk(faces(ts)), SN{xs, B.tb_of(FS, xs, fs_dflt()), pt}, []))), 0n, False{})
+  +ps = B.take_u(V.Point, B.tb_list(V.Point, pt), U32.from_nat(nn), Nat.is_eq(nn, 0n))
+  B.tb_of(V.Point, place(ps, snap_go(6n, False{}, ts, ps, pt, vs), 0n), origin())
 
 type TM is Data:
-  TM{ ts: List<&2, T10>, ps: List<&2, V.Point>, nn: Nat, nb: Nat, nfail: Nat, dev: F64 }
+  TM{ ts: List<&2, T10>, ps: List<&2, V.Point>, nn: Nat, nb: Nat, nfail: Nat, dev: F64, nl: Nat }
 
 def mp_p(+x: MP) -> V.Point:
   MP{p, d, ok} = x
@@ -1082,9 +1407,9 @@ def mj_bd(xs: List<&2, MJ>, +n: Nat) -> Nat:
       MJ{lo, hi, op, +bd} = x
       mj_bd(t, Bool.pick(Nat, bd, Nat.add(n, 1n), n))
 
-def mk_tm(+ts: List<&2, T10>, +ps: List<&2, V.Point>, +nn: Nat, +nb: Nat, +md: MD) -> TM:
+def mk_tm(+ts: List<&2, T10>, +ps: List<&2, V.Point>, +nn: Nat, +nb: Nat, +md: MD, +nl: Nat) -> TM:
   MD{+nf, +dv} = md
-  TM{ts, ps, nn, nb, nf, dv}
+  TM{ts, ps, nn, nb, nf, dv, nl}
 
 def ea_es(+a: EA) -> List<&2, EK>:
   EA{es, rs} = a
@@ -1093,10 +1418,6 @@ def ea_es(+a: EA) -> List<&2, EK>:
 def ea_rs(+a: EA) -> List<&2, ER>:
   EA{es, rs} = a
   rs
-
-def fc_bk(+f: FC) -> List<&2, FK>:
-  FC{n1, n2, bad, bk} = f
-  bk
 
 def cm_ts(+c: CM) -> List<&2, T4>:
   CM{ts, ps, n} = c
@@ -1109,20 +1430,6 @@ def cm_ps(+c: CM) -> List<&2, V.Point>:
 def cm_n(+c: CM) -> Nat:
   CM{ts, ps, n} = c
   n
-
-def t10_go(+ts: List<&2, T4>, +ps: List<&2, V.Point>, +n: Nat, +fs: List<&2, SO.Fd>) -> TM:
-  +pt = B.tb_of(V.Point, ps, origin())
-  +ea = assign(so_er(B.msort(~ER, ~er_cmp, t_ers(ts, 0n, []))), 0n, 0n, 0n, True{}, EA{[], []})
-  +es = List.reverse(&2, EK, ea_es(ea))
-  +rs = so_er(B.msort(~ER, ~ts_cmp, ea_rs(ea)))
-  +bs = bedges(fc_bk(faces(ts)), [])
-  +mj = mjoin(es, bs)
-  +mps = B.pmap_g(~MJ, ~PX, ~MP, ~mid_f, 8, PX{fs, pt}, mj)
-  mk_tm(build10(ts, rs, n), List.append(&2, V.Point, ps, mp_ps(mps)), Nat.add(n, List.length(&2, EK, es)), mj_bd(mj, 0n), mp_stat(mps, MD{0n, 0.0f64}))
-
-def t10_of(+ts: List<&2, T4>, +pt: B.Tb<&2, V.Point>, +nn: Nat, +fs: List<&2, SO.Fd>) -> TM:
-  +cm = compact(ts, pt, nn)
-  t10_go(cm_ts(cm), cm_ps(cm), cm_n(cm), fs)
 
 type P10 is Data:
   P10{ a: V.Point, b: V.Point, c: V.Point, d: V.Point, e0: V.Point, e1: V.Point, e2: V.Point, e3: V.Point, e4: V.Point, e5: V.Point }
@@ -1185,6 +1492,60 @@ def t10_vols(ts: List<&2, T10>, +pt: B.Tb<&2, V.Point>, +acc: JV) -> JV:
     case []: acc
     case +t <> r: t10_vols(r, pt, jv_join(acc, t10_jv(pt, t)))
 
+def lin_f(c: PX, j: MJ) -> V.Point:
+  PX{fs, +pt, xs, st} = c
+  MJ{+lo, +hi, op, bd} = j
+  +pa = B.tb_get(V.Point, pt, U32.from_nat(lo))
+  padd(pa, dsc(0.5f64, psub(B.tb_get(V.Point, pt, U32.from_nat(hi)), pa)))
+
+def jv_lo(+j: JV) -> F64:
+  JV{v, +lo, hi} = j
+  lo
+
+def e6(+t: T10, +n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  T10{a, b, c, d, +e0, +e1, +e2, +e3, +e4, +e5} = t
+  Nat.sub(e0, n) <> Nat.sub(e1, n) <> Nat.sub(e2, n) <> Nat.sub(e3, n) <> Nat.sub(e4, n) <> Nat.sub(e5, n) <> acc
+
+def bad10(ts: List<&2, T10>, +pt: B.Tb<&2, V.Point>, +n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match ts:
+    case []: acc
+    case +t <> +r: bad10(r, pt, n, Bool.pick(List<&2, Nat>, F64.is_lt(0.0f64, jv_lo(t10_jv(pt, t))), acc, e6(t, n, acc)))
+
+type MX is Data:
+  MX{ ms: List<&2, V.Point>, nl: Nat }
+
+def fix10(f: Nat, done: Bool, +ts: List<&2, T10>, +ps: List<&2, V.Point>, +ls: List<&2, V.Point>, +n: Nat, +x: MX) -> MX:
+  match f:
+    case 0n: x
+    case 1n+g:
+      match done:
+        case True{}: x
+        case False{}:
+          MX{+ms, +nl} = x
+          +bad = sort_u(bad10(ts, B.tb_of(V.Point, List.append(&2, V.Point, ps, ms), origin()), n, []))
+          fix10(g, n_nil(bad), ts, ps, ls, n, MX{revert(ms, ls, bad, 0n), Nat.add(nl, List.length(&2, Nat, bad))})
+
+def mk_fx(+ts: List<&2, T10>, +ps: List<&2, V.Point>, +nn: Nat, +nb: Nat, +md: MD, +x: MX) -> TM:
+  MX{+ms, +nl} = x
+  mk_tm(ts, List.append(&2, V.Point, ps, ms), nn, nb, md, nl)
+
+def t10_go(+ts: List<&2, T4>, +ps: List<&2, V.Point>, +n: Nat, +fs: List<&2, SO.Fd>) -> TM:
+  +pt = B.tb_of(V.Point, ps, origin())
+  +ea = assign(so_er(B.msort(~ER, ~er_cmp, t_ers(ts, 0n, []))), 0n, 0n, 0n, True{}, EA{[], []})
+  +es = List.reverse(&2, EK, ea_es(ea))
+  +rs = so_er(B.msort(~ER, ~ts_cmp, ea_rs(ea)))
+  +bs = bedges(fc_bk(faces(ts)), [])
+  +mj = mjoin(es, bs)
+  +px = px_of(fs, pt)
+  +mps = B.pmap_g(~MJ, ~PX, ~MP, ~mid_f, 8, px, mj)
+  +t10 = build10(ts, rs, n)
+  +ls = B.pmap_g(~MJ, ~PX, ~V.Point, ~lin_f, 256, px, mj)
+  mk_fx(t10, ps, Nat.add(n, List.length(&2, EK, es)), mj_bd(mj, 0n), mp_stat(mps, MD{0n, 0.0f64}), fix10(4n, False{}, t10, ps, ls, n, MX{mp_ps(mps), 0n}))
+
+def t10_of(+ts: List<&2, T4>, +pt: B.Tb<&2, V.Point>, +nn: Nat, +fs: List<&2, SO.Fd>) -> TM:
+  +cm = compact(ts, pt, nn)
+  t10_go(cm_ts(cm), cm_ps(cm), cm_n(cm), fs)
+
 def t10_ns(+t: T10) -> List<&2, U32>:
   T10{+a, +b, +c, +d, +e0, +e1, +e2, +e3, +e4, +e5} = t
   [U32.from_nat(a), U32.from_nat(b), U32.from_nat(c), U32.from_nat(d), U32.from_nat(e0), U32.from_nat(e1), U32.from_nat(e2), U32.from_nat(e3),
@@ -1231,10 +1592,17 @@ def tm_mr(+r: MR, +ok: Bool, +fs: List<&2, SO.Fd>) -> TR:
   MR{+ok2, +nv, +nc, +ns, +ts, +pt} = r
   TR{Bool.and(ok, ok2), t10_of(ts, pt, Nat.add(nv, nc), fs)}
 
-def tm_gr(+fs: List<&2, SO.Fd>, +gr: GR, +ga: GS, +gb: GS, +span: F64) -> TR:
+type MO is Data:
+  MO{ ok: Bool, mr: MR, span: F64 }
+
+def snap_mr(+r: MR, +fs: List<&2, SO.Fd>) -> MR:
+  MR{+ok, +nv, +nc, +ns, +ts, +pt} = r
+  MR{ok, nv, nc, ns, ts, snap_pt(fs, ts, pt, Nat.add(nv, nc))}
+
+def mo_gr(+fs: List<&2, SO.Fd>, +gr: GR, +ga: GS, +gb: GS, +span: F64) -> MO:
   GS{+oa, +sa} = ga
   GS{+ob, +sb} = gb
-  tm_mr(mesh_gd(gd_of(gr, sa, sb), sa, sb, fs, span), Bool.and(oa, ob), fs)
+  MO{Bool.and(oa, ob), snap_mr(mesh_gd(gd_of(gr, sa, sb), sa, sb, fs, span), fs), span}
 
 def iw(+i: I.I) -> F64:
   F64.sub(I.i_hi(i), I.i_lo(i))
@@ -1242,7 +1610,14 @@ def iw(+i: I.I) -> F64:
 def span_of(+bb: List<&2, I.I>) -> F64:
   F64.mul(4.0f64, F64.add(F64.add(iw(X.vn(bb, 0n)), iw(X.vn(bb, 1n))), iw(X.vn(bb, 2n))))
 
-def tm_of(+fs: List<&2, SO.Fd>, +h: F64) -> TR:
+def mo_of(+fs: List<&2, SO.Fd>, +h: F64) -> MO:
   +bb = SO.bbox(fs, [])
   +gr = grid_of(bb, h)
-  tm_gr(fs, gr, signs_a(fs, gr), signs_b(fs, gr), span_of(bb))
+  mo_gr(fs, gr, signs_a(fs, gr), signs_b(fs, gr), span_of(bb))
+
+def tm_mo(+m: MO, +fs: List<&2, SO.Fd>) -> TR:
+  MO{+ok, +mr, span} = m
+  tm_mr(mr, ok, fs)
+
+def tm_of(+fs: List<&2, SO.Fd>, +h: F64) -> TR:
+  tm_mo(mo_of(fs, h), fs)
