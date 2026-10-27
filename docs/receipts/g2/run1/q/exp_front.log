@@ -1,0 +1,2 @@
+front_cover wrote /home/jesse/g2/export/front_cover.stp entities 2030 products 1 | error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current 14400000) | mass volume=[252324.11899171834, 252324.118992223] certified octree=[23063.22239113725, 757034.6917308394] depth=4 cells=74/1667/2355
+centroid [-382.27842699604764, 428.2334492255324]x[-526.2452702703974, 520.6540540541325]x[-931.5810684133093, 53.33260979723192] status=certified incomplete-cells=23

@@ -1,0 +1,11 @@
+STEP
+wrote /home/jesse/g2/export/bushing_DU1615.stp entities 108 products 1
+
+STL
+wrote /home/jesse/g2/export/bushing_DU1615.stl nverts 4274 ntris 8548 (sampled, not certified)
+
+MASS
+mass volume=[801.1061266653452, 801.1061266654491] certified octree=[0, 10321.33007815939] depth=4 cells=0/1460/2636
+centroid incomplete status=incomplete incomplete-cells=2636
+material DU-PTFE/bronze/steel density=7600 cte=0.000011 mass=[0.006088406562656622, 0.006088406562657415] kg status=certified
+

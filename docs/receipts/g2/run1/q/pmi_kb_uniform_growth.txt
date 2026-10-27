@@ -1,0 +1,7 @@
+(pmi (node 11) (dim hLB 17.525 17.524 17.527) (dim hB -17.5 -17.5 -17.498) (dim flat -0.002 -0.002 0) (state cold20 1) (state hot80_al 1.001404) (state hot80_steel 1.00069) (stack side hLB hB flat))
+
+pmi node 11 stacks 1 states 3
+stack side nominal 0.022999999999998577 envelope [0.02199999999999735, 0.029000000000003474] certified
+state cold20 grow 1 [0.021999999999997348, 0.029000000000003478]
+state hot80_al grow 1.001404 [0.022030887999997344, 0.02904071600000348]
+state hot80_steel grow 1.00069 [0.022015179999997348, 0.029020010000003482]

@@ -1,0 +1,12 @@
+body               front_cover          600.0s TIMEOUT 600s
+body               rear_cover           600.0s TIMEOUT 600s
+body               dowel0               600.0s TIMEOUT 600s
+body               dowel1               600.0s TIMEOUT 600s
+body               bush_front_drive     600.0s TIMEOUT 600s
+body               bush_front_idler     600.0s TIMEOUT 600s
+body               bush_rear_drive      600.0s TIMEOUT 600s
+body               bush_rear_idler      600.0s TIMEOUT 600s
+body               drive_shaft          600.0s TIMEOUT 600s
+body               idler_shaft          600.0s TIMEOUT 600s
+body               key                  600.0s TIMEOUT 600s
+body               lip_seal             600.0s TIMEOUT 600s

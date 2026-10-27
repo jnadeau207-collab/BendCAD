@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst dowel0 23 -4.0 28.0 -7.475000000000001 0) (fix 1 body) (fix 2 dowel0))
+TIMEOUT 600s

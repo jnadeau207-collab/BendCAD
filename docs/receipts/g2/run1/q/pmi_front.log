@@ -1,0 +1,19 @@
+== front step42 
+ wrote /home/jesse/g2/export/front_cover_pmi_ap242.stp ap242 PMI 22 entities
+
+== front check 
+ pmi node 38 items 7
+datum A ok n24.c0.top plane
+datum P ok n29.c0.wall.0.0 cylinder
+dim pilot nominal 82.55 zone [82.496, 82.55]
+tol tParPilotFace parallelism conforms actual [-1.4e-322, 0.000002281078067964151] certified datum A
+tol tFlatInner flatness conforms actual 0 certified
+state cold20 grow 1
+stack pilot_dia dims 1
+pmi ok 7 items
+
+== front stack 
+ pmi node 38 stacks 1 states 1
+stack pilot_dia nominal 82.55 envelope [82.49599999999998, 82.55000000000001] certified
+state cold20 grow 1 [82.49599999999997, 82.55000000000003]
+

@@ -1,0 +1,3 @@
+(assembly (inst chamber 1 0 0 0 0) (inst drive_gear 45 0 0 0 0) (inst idler_gear 50 22.05 0 0 0) (fix 1 chamber) (coinc 2 drive_gear 0 0 0.025 chamber 0 0 0.025) (coinc 3 idler_gear 0 0 0.025 chamber 22.05 0 0.025))
+
+gap drive_gear chamber gap=[0, 8.356791728022005] traces=240/10 verdict=contact status=uncertain

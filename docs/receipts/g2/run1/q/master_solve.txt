@@ -1,0 +1,21 @@
+asm solved ninst 18 nmates 18 dof 0 max-residual 7.105427357601002e-15
+inst body node 11 t=0 0 0 q=0
+inst front_cover node 38 t=1.5888218580782547e-15 -0 -0 q=0
+inst rear_cover node 44 t=1.3427995533605042e-15 -0 -0 q=0
+inst dowel0 node 23 t=-4 28 -7.475000000000001 q=0
+inst dowel1 node 23 t=26.05 -28 -7.475000000000001 q=0
+inst bush_front_drive node 13 t=9.930136612989094e-16 -0 -15 q=0
+inst bush_front_idler node 14 t=22.050000000000004 -0 -15 q=0
+inst bush_rear_drive node 14 t=1.9186846773327266e-15 -0 35.05 q=0
+inst bush_rear_idler node 14 t=22.050000000000008 -0 35.05 q=0
+inst drive_shaft node 49 t=0 -0 -0 q=0
+inst idler_shaft node 52 t=22.05 -0 -0 q=0
+inst key node 12 t=-1.985 5.705 -63.1 q=0
+inst lip_seal node 15 t=2.4626165728540356e-15 -0 -31.05 q=0
+inst circlip node 18 t=1.6495094516262288e-15 -0 -32.25 q=0
+inst screw0 node 21 t=-13.000000000000002 23 60.05 q=0
+inst screw1 node 21 t=35.050000000000004 23 60.05 q=0
+inst screw2 node 21 t=-12.999999999999998 -23 60.05 q=0
+inst screw3 node 21 t=35.05 -23 60.05 q=0
+redundant []
+lineage asm(body=n11,front_cover=n38,rear_cover=n44,dowel0=n23,dowel1=n23,bush_front_drive=n13,bush_front_idler=n14,bush_rear_drive=n14,bush_rear_idler=n14,drive_shaft=n49,idler_shaft=n52,key=n12,lip_seal=n15,circlip=n18,screw0=n21,screw1=n21,screw2=n21,screw3=n21) mates[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]

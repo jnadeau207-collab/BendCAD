@@ -1,0 +1,13 @@
+n19.c0.top plane loops=2
+n19.c0.bottom plane loops=2
+n20.c0.bottom plane loops=1
+n19.c0.wall.0.0 cylinder loops=2
+n20.c0.wall.0.0 cylinder loops=2
+n21.c0.bottom plane loops=1
+n21.cav.0.6.0 planar-patch loops=1
+n21.cav.0.7.0 planar-patch loops=1
+n21.cav.0.8.0 planar-patch loops=1
+n21.cav.0.9.0 planar-patch loops=1
+n21.cav.0.10.0 planar-patch loops=1
+n21.cav.0.11.0 planar-patch loops=1
+

@@ -1,0 +1,2 @@
+wrote /home/jesse/g2/export/gear_pump_assembly.stp entities 29044 products 18
+instances body,front_cover,rear_cover,dowel0,dowel1,bush_front_drive,bush_front_idler,bush_rear_drive,bush_rear_idler,drive_shaft,idler_shaft,key,lip_seal,circlip,screw0,screw1,screw2,screw3

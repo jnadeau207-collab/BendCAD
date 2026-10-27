@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst bush_front_drive 13 9.930136612989094e-16 -0.0 -15.0 0) (fix 1 body) (fix 2 bush_front_drive))
+TIMEOUT 600s

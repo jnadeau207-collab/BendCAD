@@ -1,0 +1,43 @@
+(pmi (node 38) (temp cold 20) (temp hot 80) (fit bush_front_drive 38 n26.c0.wall.0.0 13 n13.c0.wall.0.0 JS6/r9 press) (fit bush_front_idler 38 n27.c0.wall.0.0 14 n14.c0.wall.0.0 JS6/r9 press) (fit bush_rear_drive 44 n40.c0.wall.0.0 14 n14.c0.wall.0.0 JS6/r9 press) (fit bush_rear_idler 44 n40.c1.wall.0.0 14 n14.c0.wall.0.0 JS6/r9 press) (fit dowel_body_a 11 n11.c0.wall.0.0 23 n23.c0.wall.2.0 H7/m6 transition) (fit dowel_body_b 11 n11.c1.wall.0.0 23 n23.c0.wall.2.0 H7/m6 transition) (fit dowel_front_a 38 n37.c0.wall.0.0 23 n23.c0.wall.2.0 E8/m6 clearance) (fit dowel_front_b 38 n37.c1.wall.0.0 23 n23.c0.wall.2.0 E8/m6 clearance) (fit dowel_rear_a 44 n43.c0.wall.0.0 23 n23.c0.wall.2.0 E8/m6 clearance) (fit dowel_rear_b 44 n43.c1.wall.0.0 23 n23.c0.wall.2.0 E8/m6 clearance))
+
+fits 10
+fit bush_front_drive hole 38.n26.c0.wall.0.0 JS6=[17.9945, 18.0055] shaft 13.n13.c0.wall.0.0 r9=[18.023, 18.066] nominal=18
+  temp cold T=20 interference=[0.017499999999991186, 0.07150000000000746]
+  temp hot T=80 interference=[0.004115457999983362, 0.05815928200001964]
+  verdict=press-certified status=certified
+fit bush_front_idler hole 38.n27.c0.wall.0.0 JS6=[13.9945, 14.0055] shaft 14.n14.c0.wall.0.0 r9=[14.023, 14.065999999999999] nominal=14
+  temp cold T=20 interference=[0.017499999999996515, 0.07150000000000213]
+  temp hot T=80 interference=[0.007091457999992556, 0.06113528200001107]
+  verdict=press-certified status=certified
+fit bush_rear_drive hole 44.n40.c0.wall.0.0 JS6=[13.9945, 14.0055] shaft 14.n14.c0.wall.0.0 r9=[14.023, 14.065999999999999] nominal=14
+  temp cold T=20 interference=[0.017499999999996515, 0.07150000000000213]
+  temp hot T=80 interference=[0.007091457999992556, 0.06113528200001107]
+  verdict=press-certified status=certified
+fit bush_rear_idler hole 44.n40.c1.wall.0.0 JS6=[13.9945, 14.0055] shaft 14.n14.c0.wall.0.0 r9=[14.023, 14.065999999999999] nominal=14
+  temp cold T=20 interference=[0.017499999999996515, 0.07150000000000213]
+  temp hot T=80 interference=[0.007091457999992556, 0.06113528200001107]
+  verdict=press-certified status=certified
+fit dowel_body_a hole 11.n11.c0.wall.0.0 H7=[6, 6.012] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[-0.012000000000001345, 0.008000000000001785]
+  temp hot T=80 clearance=[-0.007724280000005025, 0.012298088000004094]
+  verdict=transition-certified status=certified
+fit dowel_body_b hole 11.n11.c1.wall.0.0 H7=[6, 6.012] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[-0.012000000000001345, 0.008000000000001785]
+  temp hot T=80 clearance=[-0.007724280000005025, 0.012298088000004094]
+  verdict=transition-certified status=certified
+fit dowel_front_a hole 38.n37.c0.wall.0.0 E8=[6.02, 6.037999999999999] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[0.007999999999998229, 0.03400000000000159]
+  temp hot T=80 clearance=[0.012303799999995311, 0.03833459200000356]
+  verdict=clearance-certified status=certified
+fit dowel_front_b hole 38.n37.c1.wall.0.0 E8=[6.02, 6.037999999999999] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[0.007999999999998229, 0.03400000000000159]
+  temp hot T=80 clearance=[0.012303799999995311, 0.03833459200000356]
+  verdict=clearance-certified status=certified
+fit dowel_rear_a hole 44.n43.c0.wall.0.0 E8=[6.02, 6.037999999999999] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[0.007999999999998229, 0.03400000000000159]
+  temp hot T=80 clearance=[0.012303799999995311, 0.03833459200000356]
+  verdict=clearance-certified status=certified
+fit dowel_rear_b hole 44.n43.c1.wall.0.0 E8=[6.02, 6.037999999999999] shaft 23.n23.c0.wall.2.0 m6=[6.004, 6.012] nominal=6
+  temp cold T=20 clearance=[0.007999999999998229, 0.03400000000000159]
+  temp hot T=80 clearance=[0.012303799999995311, 0.03833459200000356]
+  verdict=clearance-certified status=certified

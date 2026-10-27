@@ -1,0 +1,2 @@
+idler_gear_shaft wrote /home/jesse/g2/export/idler_gear_shaft.stp entities 10156 products 1 | wrote /home/jesse/g2/export/idler_gear_shaft.stl nverts 3496 ntris 6988 (sampled, not certified) | mass volume=[16126.072297713872, 16126.072297746126] certified octree=[5332.571433723805, 25849.414068564423] depth=4 cells=472/1808/1816
+centroid [-11.383784990929598, 11.383784990928305]x[-11.69745989309028, 11.697459893089627]x[1.7366258741300762, 99.49788135610768] status=certified incomplete-ce

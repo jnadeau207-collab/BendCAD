@@ -1,0 +1,8 @@
+(assembly (inst body 11 0 0 0 0) (inst drive_gear 45 0 0 0 0) (inst idler_gear 50 22.05 0 0 0) (fix 1 body) (coinc 2 drive_gear 0 0 0.025 body 0 0 0.025) (coinc 3 idler_gear 0 0 0.025 body 22.05 0 0.025))
+
+asm solved ninst 3 nmates 3 dof 0 max-residual 3.552713678800501e-15
+inst body node 11 t=1.0255800994045676e-15 0 0 q=0
+inst drive_gear node 45 t=0 0 0 q=0
+inst idler_gear node 50 t=22.050000000000004 -0 -0 q=0
+redundant []
+lineage asm(body=n11,drive_gear=n45,idler_gear=n50) mates[1,2,3]

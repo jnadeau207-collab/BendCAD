@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst lip_seal 15 2.4626165728540356e-15 -0.0 -31.05 0) (fix 1 body) (fix 2 lip_seal))
+TIMEOUT 600s

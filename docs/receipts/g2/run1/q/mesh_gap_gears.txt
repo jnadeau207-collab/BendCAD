@@ -1,0 +1,3 @@
+(assembly (inst body 11 0 0 0 0) (inst drive_gear 45 0 0 0 0) (inst idler_gear 50 22.05 0 0 0) (fix 1 body) (coinc 2 drive_gear 0 0 0.025 body 0 0 0.025) (coinc 3 idler_gear 0 0 0.025 body 22.05 0 0.025))
+
+gap drive_gear idler_gear gap=[0.046842295714320616, 0.04684229574009963] traces=240/240 verdict=clearance status=certified

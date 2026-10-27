@@ -1,0 +1,11 @@
+STEP
+wrote /home/jesse/g2/export/dowel_ISO8734_6x50.stp entities 268 products 1
+
+STL
+wrote /home/jesse/g2/export/dowel_ISO8734_6x50.stl nverts 3210 ntris 6416 (sampled, not certified)
+
+MASS
+mass volume=[1407.3832433256823, 1407.3832433258578] certified octree=[0, 2334.1500001081918] depth=4 cells=0/456/3640
+centroid incomplete status=incomplete incomplete-cells=3640
+material 100Cr6 density=7810 cte=0.0000115 mass=[0.010991663130373575, 0.010991663130374954] kg status=certified
+

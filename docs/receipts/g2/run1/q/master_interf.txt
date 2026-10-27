@@ -1,0 +1,1 @@
+error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current 14400000)

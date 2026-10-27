@@ -1,0 +1,41 @@
+== engage engage screw0.ext front_cover.tap0 engagement=[19.949999999990954, 19.95000000000905] ratio=2.49375 d=8 status=certified
+
+== step wrote /home/jesse/g2/export/gear_pump_assembly.stp entities 29044 products 18
+instances body,front_cover,rear_cover,dowel0,dowel1,bush_front_drive,bush_front_idler,bush_rear_drive,bush_rear_idler,drive_shaft,idler_shaft,key,lip_seal,circlip,screw0,screw1,screw2,screw3
+
+== mass assembly mass
+body 6082-T6 mass=[0.26475020918912423, 0.2647502629119163] kg
+front_cover 6082-T6 mass=[0.6812751212776393, 0.6812751212790024] kg
+rear_cover 6082-T6 mass=[0.2675467159192851, 0.2675467159198204] kg
+dowel0 100Cr6 mass=[0.010991663130373575, 0.010991663130374954] kg
+dowel1 100Cr6 mass=[0.010991663130373575, 0.010991663130374954] kg
+bush_front_drive DU-PTFE/bronze/steel mass=[0.006088406562656622, 0.006088406562657415] kg
+bush_front_idler DU-PTFE/bronze/steel mass=[0.004655840312619777, 0.004655840312620373] kg
+bush_rear_drive DU-PTFE/bronze/steel mass=[0.004655840312619777, 0.004
+== solve asm solved ninst 18 nmates 18 dof 0 max-residual 7.105427357601002e-15
+inst body node 11 t=0 0 0 q=0
+inst front_cover node 38 t=1.5888218580782547e-15 -0 -0 q=0
+inst rear_cover node 44 t=1.3427995533605042e-15 -0 -0 q=0
+inst dowel0 node 23 t=-4 28 -7.475000000000001 q=0
+inst dowel1 node 23 t=26.05 -28 -7.475000000000001 q=0
+inst bush_front_drive node 13 t=9.930136612989094e-16 -0 -15 q=0
+inst bush_front_idler node 14 t=22.050000000000004 -0 -15 q=0
+inst bush_rear_drive node 14 t=1.9186846773327266e-15 -0 35.05 q=0
+inst bush_rear_idler node 14 t=22.050000000000008 -0 35.05 q=0
+inst drive_shaft 
+== explode asm exploded ninst 18 dir=0 0 1 gap=20
+inst body node 11 t=0 0 0 q=0
+inst front_cover node 38 t=1.5888218580782547e-15 0 20 q=0
+inst rear_cover node 44 t=1.3427995533605042e-15 0 40 q=0
+inst dowel0 node 23 t=-4 28 52.525 q=0
+inst dowel1 node 23 t=26.05 -28 72.525 q=0
+inst bush_front_drive node 13 t=9.930136612989094e-16 0 85 q=0
+inst bush_front_idler node 14 t=22.050000000000004 0 105 q=0
+inst bush_rear_drive node 14 t=1.9186846773327266e-15 0 175.05 q=0
+inst bush_rear_idler node 14 t=22.050000000000008 0 195.05 q=0
+inst drive_shaft node 49 t=0 0 180 q=0
+inst idler_shaft node 52 t=22.05 0 200 
+== interf error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current 14400000)
+
+== interf_press error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current 14400000)
+

@@ -1,0 +1,9 @@
+n16.c0.top plane loops=3
+n16.c0.bottom plane loops=3
+n16.c0.wall.0.0 cylinder loops=1
+n16.c1.wall.0.0 cylinder loops=1
+n17.c0.wall.1.0 plane loops=1
+n17.c0.wall.3.0 plane loops=1
+n18.c0.wall.0.0 cylinder loops=2
+n18.c1.wall.0.0 cylinder loops=2
+

@@ -1,0 +1,4 @@
+threads node 11
+thread suction M22x1.5 6H z=[19, 32.1] length=13.100000000000001 internal minor=[20.376, 20.676] model=20.5 face=n4.c0.wall.0.0 status=certified
+thread pressure M18x1.5 6H z=[-32.1, -20] length=12.100000000000001 internal minor=[16.376, 16.676] model=16.5 face=n8.c0.wall.0.0 status=certified
+

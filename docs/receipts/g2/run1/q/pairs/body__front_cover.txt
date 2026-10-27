@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst front_cover 38 1.5888218580782547e-15 -0.0 -0.0 0) (fix 1 body) (fix 2 front_cover))
+TIMEOUT 600s

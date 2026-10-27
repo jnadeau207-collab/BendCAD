@@ -1,0 +1,3 @@
+(pmi (node 11) (datum A n1.c0.bottom) (datum B n1.c1.wall.0.0) (dim hLB 17.525 17.524 17.527) (dim hB -17.5 -17.5 -17.498) (dim flat -0.002 -0.002 0) (dim dTside 0.0125 0.0125 0.0125) (dim Rc 12.6825 12.6825 12.6865) (dim ra -12.6525 -12.6525 -12.6485) (dim ecc -0.005 -0.005 0) (dim dTtip 0.00905 0.00905 0.00905) (tol tFlatTop flatness 0.002 n1.c0.top rfs) (tol tFlatBot flatness 0.002 n1.c0.bottom rfs) (tol tPar parallelism 0.004 n1.c0.top rfs A) (state cold20 1) (stack side_20C hLB hB flat) (stack side_80C hLB hB flat dTside) (stack tip_20C Rc ra ecc) (stack tip_80C Rc ra ecc dTtip))
+
+wrote /home/jesse/g2/export/body_pmi_ap242.stp ap242 PMI 88 entities

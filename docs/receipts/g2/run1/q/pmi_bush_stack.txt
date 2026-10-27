@@ -1,0 +1,7 @@
+(pmi (node 13) (datum A n13.c0.wall.0.0) (dim hous16 18 17.9945 18.0055) (dim wall16 -2 -2 -1.96) (dim jour16 -15.968 -15.968 -15.95) (dim hous12 14 13.9945 14.0055) (dim wall12 -2 -2 -1.96) (dim jour12 -11.968 -11.968 -11.95) (state cold20 1) (stack run_DU1615 hous16 wall16 jour16) (stack run_DU1215 hous12 wall12 jour12))
+
+pmi node 13 stacks 2 states 1
+stack run_DU1615 nominal 0.03200000000000003 envelope [0.026499999999993303, 0.09550000000000837] certified
+state cold20 grow 1 [0.0264999999999933, 0.09550000000000838]
+stack run_DU1215 nominal 0.03200000000000003 envelope [0.026499999999996856, 0.09550000000000304] certified
+state cold20 grow 1 [0.026499999999996852, 0.09550000000000305]

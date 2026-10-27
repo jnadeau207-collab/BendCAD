@@ -1,0 +1,11 @@
+STEP
+wrote /home/jesse/g2/export/circlip_DIN472_28.stp entities 280 products 1
+
+STL
+wrote /home/jesse/g2/export/circlip_DIN472_28.stl nverts 9714 ntris 19432 (sampled, not certified)
+
+MASS
+mass volume=[316.44495975269916, 316.4449597533341] certified octree=[0, 25870.882168925233] depth=4 cells=0/2512/1584
+centroid incomplete status=incomplete incomplete-cells=1584
+material C75S density=7850 cte=0.0000115 mass=[0.002484092934058688, 0.002484092934063674] kg status=certified
+

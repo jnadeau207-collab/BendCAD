@@ -1,0 +1,11 @@
+STEP
+wrote /home/jesse/g2/export/screw_ISO4762_M8x80.stp entities 394 products 1
+
+STL
+wrote /home/jesse/g2/export/screw_ISO4762_M8x80.stl nverts 3318 ntris 6632 (sampled, not certified)
+
+MASS
+mass volume=[4958.389255357723, 4958.389255368928] certified octree=[0, 11436.34057621779] depth=4 cells=0/2220/1876
+centroid incomplete status=incomplete incomplete-cells=1876
+material ISO898-1-12.9 density=7850 cte=0.0000115 mass=[0.038923355654558116, 0.03892335565464611] kg status=certified
+

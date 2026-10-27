@@ -1,0 +1,5 @@
+n14.c0.top plane loops=2
+n14.c0.bottom plane loops=2
+n14.c0.wall.0.0 cylinder loops=2
+n14.c1.wall.0.0 cylinder loops=2
+

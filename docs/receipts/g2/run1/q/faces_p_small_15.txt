@@ -1,0 +1,23 @@
+n15.c0.wall.0.0 plane loops=1
+n15.c0.wall.0.1 plane loops=1
+n15.c0.wall.1.0 cylinder loops=1
+n15.c0.wall.1.1 cylinder loops=1
+n15.c0.wall.2.0 plane loops=1
+n15.c0.wall.2.1 plane loops=1
+n15.c0.wall.3.0 cylinder loops=1
+n15.c0.wall.3.1 cylinder loops=1
+n15.c0.wall.4.0 plane loops=1
+n15.c0.wall.4.1 plane loops=1
+n15.c0.wall.5.0 cone loops=1
+n15.c0.wall.5.1 cone loops=1
+n15.c0.wall.6.0 plane loops=1
+n15.c0.wall.6.1 plane loops=1
+n15.c0.wall.7.0 cylinder loops=1
+n15.c0.wall.7.1 cylinder loops=1
+n15.c0.wall.8.0 cone loops=1
+n15.c0.wall.8.1 cone loops=1
+n15.c0.wall.9.0 plane loops=1
+n15.c0.wall.9.1 plane loops=1
+n15.c0.wall.10.0 cylinder loops=1
+n15.c0.wall.10.1 cylinder loops=1
+

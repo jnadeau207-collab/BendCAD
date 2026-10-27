@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst drive_shaft 49 0.0 -0.0 -0.0 0) (fix 1 body) (fix 2 drive_shaft))
+TIMEOUT 600s

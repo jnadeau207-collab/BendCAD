@@ -1,0 +1,2 @@
+(assembly (inst body 11 0.0 0.0 0.0 0) (inst bush_rear_idler 14 22.050000000000008 -0.0 35.05 0) (fix 1 body) (fix 2 bush_rear_idler))
+TIMEOUT 600s

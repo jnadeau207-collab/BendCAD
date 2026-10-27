@@ -1,0 +1,6 @@
+threads node 38
+thread tap0 M8x1.25 6H z=[-24, 0] length=24 internal minor=[6.647, 6.912] model=6.8 face=n36.c0.wall.0.0 status=certified
+thread tap1 M8x1.25 6H z=[-24, 0] length=24 internal minor=[6.647, 6.912] model=6.8 face=n36.c1.wall.0.0 status=certified
+thread tap2 M8x1.25 6H z=[-24, 0] length=24 internal minor=[6.647, 6.912] model=6.8 face=n36.c2.wall.0.0 status=certified
+thread tap3 M8x1.25 6H z=[-24, 0] length=24 internal minor=[6.647, 6.912] model=6.8 face=n36.c3.wall.0.0 status=certified
+

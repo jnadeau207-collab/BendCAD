@@ -1,0 +1,471 @@
+[
+ {
+  "a": "body",
+  "b": "front_cover",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "rear_cover",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "dowel0",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "dowel1",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "bush_front_drive",
+  "common_mm3": 0.0,
+  "distance_mm": 3.6824999999999983,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "bush_front_idler",
+  "common_mm3": 0.0,
+  "distance_mm": 5.682499999999994,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "bush_rear_drive",
+  "common_mm3": 0.0,
+  "distance_mm": 5.682499999999997,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "bush_rear_idler",
+  "common_mm3": 0.0,
+  "distance_mm": 5.682499999999994,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "drive_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.029998238162239822,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.029995446923748805,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "body",
+  "b": "screw0",
+  "common_mm3": 0.0,
+  "distance_mm": 0.4999999999999982,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "screw1",
+  "common_mm3": 0.0,
+  "distance_mm": 0.49999999999999695,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "screw2",
+  "common_mm3": 0.0,
+  "distance_mm": 0.4999999999999982,
+  "relation": "clear"
+ },
+ {
+  "a": "body",
+  "b": "screw3",
+  "common_mm3": 0.0,
+  "distance_mm": 0.49999999999999695,
+  "relation": "clear"
+ },
+ {
+  "a": "front_cover",
+  "b": "dowel0",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "dowel1",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "bush_front_drive",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "bush_front_idler",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "drive_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.025,
+  "relation": "clear"
+ },
+ {
+  "a": "front_cover",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.025,
+  "relation": "clear"
+ },
+ {
+  "a": "front_cover",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "lip_seal",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "circlip",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "front_cover",
+  "b": "screw0",
+  "common_mm3": 278.27599306451856,
+  "distance_mm": 0.0,
+  "relation": "interference"
+ },
+ {
+  "a": "front_cover",
+  "b": "screw1",
+  "common_mm3": 278.27599306451907,
+  "distance_mm": 0.0,
+  "relation": "interference"
+ },
+ {
+  "a": "front_cover",
+  "b": "screw2",
+  "common_mm3": 278.27599306451856,
+  "distance_mm": 0.0,
+  "relation": "interference"
+ },
+ {
+  "a": "front_cover",
+  "b": "screw3",
+  "common_mm3": 278.27599306451907,
+  "distance_mm": 0.0,
+  "relation": "interference"
+ },
+ {
+  "a": "rear_cover",
+  "b": "dowel0",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "dowel1",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "bush_rear_drive",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "bush_rear_idler",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "drive_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.024999999999991473,
+  "relation": "clear"
+ },
+ {
+  "a": "rear_cover",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.02499999999999858,
+  "relation": "clear"
+ },
+ {
+  "a": "rear_cover",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "screw0",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "screw1",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "screw2",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "rear_cover",
+  "b": "screw3",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "dowel0",
+  "b": "screw0",
+  "common_mm3": 0.0,
+  "distance_mm": 3.295630140986998,
+  "relation": "clear"
+ },
+ {
+  "a": "dowel1",
+  "b": "screw3",
+  "common_mm3": 0.0,
+  "distance_mm": 3.295630140986996,
+  "relation": "clear"
+ },
+ {
+  "a": "bush_front_drive",
+  "b": "drive_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 4.898587196589413e-16,
+  "relation": "contact"
+ },
+ {
+  "a": "bush_front_drive",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 6.1,
+  "relation": "clear"
+ },
+ {
+  "a": "bush_front_idler",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "bush_front_idler",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 8.100000000000001,
+  "relation": "clear"
+ },
+ {
+  "a": "bush_rear_drive",
+  "b": "drive_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "bush_rear_drive",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 8.100000000000001,
+  "relation": "clear"
+ },
+ {
+  "a": "bush_rear_idler",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "bush_rear_idler",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 8.100000000000001,
+  "relation": "clear"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "idler_shaft",
+  "common_mm3": 0.0,
+  "distance_mm": 0.04684229572720974,
+  "relation": "clear"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "key",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 2.590600405281411,
+  "relation": "clear"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 2.5906004052814118,
+  "relation": "clear"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "lip_seal",
+  "common_mm3": 0.0,
+  "distance_mm": 4.898587196589413e-16,
+  "relation": "contact"
+ },
+ {
+  "a": "drive_shaft",
+  "b": "circlip",
+  "common_mm3": 0.0,
+  "distance_mm": 3.0999999999999974,
+  "relation": "clear"
+ },
+ {
+  "a": "idler_shaft",
+  "b": "oring_front",
+  "common_mm3": 0.0,
+  "distance_mm": 2.5906004054025598,
+  "relation": "clear"
+ },
+ {
+  "a": "idler_shaft",
+  "b": "oring_rear",
+  "common_mm3": 0.0,
+  "distance_mm": 2.5906004054025593,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_front",
+  "b": "screw0",
+  "common_mm3": 0.0,
+  "distance_mm": 4.1396896272458115,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_front",
+  "b": "screw1",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245814,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_front",
+  "b": "screw2",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245812,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_front",
+  "b": "screw3",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245813,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_rear",
+  "b": "screw0",
+  "common_mm3": 0.0,
+  "distance_mm": 4.1396896272458115,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_rear",
+  "b": "screw1",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245814,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_rear",
+  "b": "screw2",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245812,
+  "relation": "clear"
+ },
+ {
+  "a": "oring_rear",
+  "b": "screw3",
+  "common_mm3": 0.0,
+  "distance_mm": 4.139689627245813,
+  "relation": "clear"
+ },
+ {
+  "a": "lip_seal",
+  "b": "circlip",
+  "common_mm3": 0.0,
+  "distance_mm": 0.0,
+  "relation": "contact"
+ }
+]

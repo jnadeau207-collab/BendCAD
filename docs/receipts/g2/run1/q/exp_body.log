@@ -1,0 +1,2 @@
+body wrote /home/jesse/g2/export/body.stp entities 2180 products 1 | wrote /home/jesse/g2/export/body.stl nverts 36480 ntris 72596 (sampled, not certified) | mass volume=[98055.63303300901, 98055.65293033933] certified octree=[9211.03816224319, 241329.19985080822] depth=4 cells=100/1476/2520
+centroid [-78.88846875002729, 398.1928125000519]x[-290.31562500046596, 303.9300000004244]x[-1.959546875004879, 527.3535375001031] status=certified incomplete-cells=2

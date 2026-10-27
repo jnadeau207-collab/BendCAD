@@ -1,0 +1,11 @@
+(pmi (node 38) (datum A n24.c0.top) (datum P n29.c0.wall.0.0) (dim pilot 82.55 82.496 82.55) (tol tParPilotFace parallelism 0.03 n29.c0.bottom rfs A) (tol tFlatInner flatness 0.002 n24.c0.top rfs) (state cold20 1) (stack pilot_dia pilot))
+
+pmi node 38 items 7
+datum A ok n24.c0.top plane
+datum P ok n29.c0.wall.0.0 cylinder
+dim pilot nominal 82.55 zone [82.496, 82.55]
+tol tParPilotFace parallelism conforms actual [-1.4e-322, 0.000002281078067964151] certified datum A
+tol tFlatInner flatness conforms actual 0 certified
+state cold20 grow 1
+stack pilot_dia dims 1
+pmi ok 7 items

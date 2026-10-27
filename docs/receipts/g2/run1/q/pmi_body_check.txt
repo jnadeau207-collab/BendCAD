@@ -1,0 +1,22 @@
+(pmi (node 11) (datum A n1.c0.bottom) (datum B n1.c1.wall.0.0) (dim hLB 17.525 17.524 17.527) (dim hB -17.5 -17.5 -17.498) (dim flat -0.002 -0.002 0) (dim dTside 0.0125 0.0125 0.0125) (dim Rc 12.6825 12.6825 12.6865) (dim ra -12.6525 -12.6525 -12.6485) (dim ecc -0.005 -0.005 0) (dim dTtip 0.00905 0.00905 0.00905) (tol tFlatTop flatness 0.002 n1.c0.top rfs) (tol tFlatBot flatness 0.002 n1.c0.bottom rfs) (tol tPar parallelism 0.004 n1.c0.top rfs A) (state cold20 1) (stack side_20C hLB hB flat) (stack side_80C hLB hB flat dTside) (stack tip_20C Rc ra ecc) (stack tip_80C Rc ra ecc dTtip))
+
+pmi node 11 items 18
+datum A ok n1.c0.bottom plane
+datum B ok n1.c1.wall.0.0 cylinder
+dim hLB nominal 17.525 zone [17.524, 17.527]
+dim hB nominal -17.5 zone [-17.5, -17.498]
+dim flat nominal -0.002 zone [-0.002, 0]
+dim dTside nominal 0.0125 zone [0.0125, 0.0125]
+dim Rc nominal 12.6825 zone [12.6825, 12.6865]
+dim ra nominal -12.6525 zone [-12.6525, -12.6485]
+dim ecc nominal -0.005 zone [-0.005, 0]
+dim dTtip nominal 0.00905 zone [0.00905, 0.00905]
+tol tFlatTop flatness conforms actual 0 certified
+tol tFlatBot flatness conforms actual 0 certified
+tol tPar parallelism conforms actual [-4.74e-322, 0.000007935140172321561] certified datum A
+state cold20 grow 1
+stack side_20C dims 3
+stack side_80C dims 4
+stack tip_20C dims 3
+stack tip_80C dims 4
+pmi ok 18 items

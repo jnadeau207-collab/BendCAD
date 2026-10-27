@@ -1,0 +1,9 @@
+(pmi (node 44) (datum A n39.c0.bottom.p0) (tol tFlatInner flatness 0.002 n39.c0.bottom.p0 rfs) (tol tFlatIsland flatness 0.002 n39.c0.bottom.p1 rfs) (tol tParIsland parallelism 0.004 n39.c0.bottom.p1 rfs A) (state cold20 1))
+
+pmi node 44 items 5
+datum A ok n39.c0.bottom.p0 plane
+tol tFlatInner flatness conforms actual 0 certified
+tol tFlatIsland flatness conforms actual 0 certified
+tol tParIsland parallelism conforms actual [-2.96e-322, 0.00000496727596160833] certified datum A
+state cold20 grow 1
+pmi ok 5 items

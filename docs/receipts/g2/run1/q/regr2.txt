@@ -1,0 +1,15 @@
+55e689acd4439b6e36c8cc6f3a3eee5a4c11dd50b61c1e0314510a51769415d3  /home/jesse/bc/bendcad-k2b
+error unsupported-op | intersect @ node 4 | why: boundaries-cross-or-overlap: face-penetration 2 11 between nodes 1 and 3 [k1 reason 82] | fix: move the operands apart or nest one inside the other; general intersecting booleans need face splitting
+tests/c07/e2e.py: 328/328 passed; mean 0.013s max 0.234s;
+tests/c08/e2e.py: FAIL pierce.sphere_corner {'volume': None};113/114 passed;
+tests/c08/neg.py: FAIL ok.sphere_corner None;20/21 passed;
+tests/c06/e2e.py: 62/62 passed;
+tests/k2/e2e.py: 30/30 passed;
+tests/k2/neg.py: 16/16 refusals hold;
+tests/c11/e2e.py: 33/33 passed;
+tests/k1/corpus.py: FAIL fig8port {'chamber_vol': None, 'union_vol': None, 'committed': False, 'proof': False, 'hand': False, 'check': False, 'genus': False, 'step': False, 'replay;FAIL csink {'committed': False, 'hand': False, 'check': False, 'genus': False, 'replay': False, 'hunion': False, 'hinter': False, 'hdiff': False, 'ident': False;FAIL g3limits {'l3': False};FAIL g2pump {'committed': False, 'proof': False, 'hand': False, 'check': False, 'genus': False, 'replay': False, 'chamber': False, 'groove': False, 'wall': Fals;FAIL fillets {'hand': False, 'check': False, 'genus': False, 'replay': False, 'boss': False};9/14 corpus members hold;
+tests/c12/e2e.py: 17/17 passed;
+tests/c09/e2e.py: PASS rigid.pins_hold {'missing': []};29/29 passed;
+22/22 pins hold; sha256 685d24725772a5e5be1bb14b9076339a6ad55480fd4aaf9fbb0aef1cac5415fa
+14/14 pins hold; sha256 1c9db76c0393288db858e5b65840c270dac677814f648dbc084f8069d17257e7
+487/487 pins hold; sha256 21e2a62996a45c47dc1209d0fd61d3084a368ef9e6ae55575a267d92a11a3e3b

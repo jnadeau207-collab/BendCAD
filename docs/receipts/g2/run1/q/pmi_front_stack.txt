@@ -1,0 +1,5 @@
+(pmi (node 38) (datum A n24.c0.top) (datum P n29.c0.wall.0.0) (dim pilot 82.55 82.496 82.55) (tol tParPilotFace parallelism 0.03 n29.c0.bottom rfs A) (tol tFlatInner flatness 0.002 n24.c0.top rfs) (state cold20 1) (stack pilot_dia pilot))
+
+pmi node 38 stacks 1 states 1
+stack pilot_dia nominal 82.55 envelope [82.49599999999998, 82.55000000000001] certified
+state cold20 grow 1 [82.49599999999997, 82.55000000000003]

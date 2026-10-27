@@ -1,0 +1,14 @@
+(pmi (node 13) (datum A n13.c0.wall.0.0) (dim hous16 18 17.9945 18.0055) (dim wall16 -2 -2 -1.96) (dim jour16 -15.968 -15.968 -15.95) (dim hous12 14 13.9945 14.0055) (dim wall12 -2 -2 -1.96) (dim jour12 -11.968 -11.968 -11.95) (state cold20 1) (stack run_DU1615 hous16 wall16 jour16) (stack run_DU1215 hous12 wall12 jour12))
+
+pmi node 13 items 10
+datum A ok n13.c0.wall.0.0 cylinder
+dim hous16 nominal 18 zone [17.9945, 18.0055]
+dim wall16 nominal -2 zone [-2, -1.96]
+dim jour16 nominal -15.968 zone [-15.968, -15.95]
+dim hous12 nominal 14 zone [13.9945, 14.0055]
+dim wall12 nominal -2 zone [-2, -1.96]
+dim jour12 nominal -11.968 zone [-11.968, -11.95]
+state cold20 grow 1
+stack run_DU1615 dims 3
+stack run_DU1215 dims 3
+pmi ok 10 items

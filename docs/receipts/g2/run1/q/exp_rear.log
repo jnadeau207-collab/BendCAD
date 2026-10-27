@@ -1,0 +1,2 @@
+rear_cover wrote /home/jesse/g2/export/rear_cover.stp entities 1228 products 1 | wrote /home/jesse/g2/export/rear_cover.stl nverts 23881 ntris 46865 (sampled, not certified) | mass volume=[99091.37626640192, 99091.37626660011] certified octree=[16108.462412139974, 173636.6727542726] depth=4 cells=308/776/3012
+centroid [-33.30447443183573, 169.08600852275217]x[-87.15909090911984, 87.15909090910864]x[4.745301957836363, 469.5611769487093] status=certified incomplete-cells=30

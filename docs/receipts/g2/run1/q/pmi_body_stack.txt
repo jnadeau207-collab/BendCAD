@@ -1,0 +1,11 @@
+(pmi (node 11) (datum A n1.c0.bottom) (datum B n1.c1.wall.0.0) (dim hLB 17.525 17.524 17.527) (dim hB -17.5 -17.5 -17.498) (dim flat -0.002 -0.002 0) (dim dTside 0.0125 0.0125 0.0125) (dim Rc 12.6825 12.6825 12.6865) (dim ra -12.6525 -12.6525 -12.6485) (dim ecc -0.005 -0.005 0) (dim dTtip 0.00905 0.00905 0.00905) (tol tFlatTop flatness 0.002 n1.c0.top rfs) (tol tFlatBot flatness 0.002 n1.c0.bottom rfs) (tol tPar parallelism 0.004 n1.c0.top rfs A) (state cold20 1) (stack side_20C hLB hB flat) (stack side_80C hLB hB flat dTside) (stack tip_20C Rc ra ecc) (stack tip_80C Rc ra ecc dTtip))
+
+pmi node 11 stacks 4 states 1
+stack side_20C nominal 0.022999999999998577 envelope [0.02199999999999735, 0.029000000000003474] certified
+state cold20 grow 1 [0.021999999999997348, 0.029000000000003478]
+stack side_80C nominal 0.035499999999998574 envelope [0.034499999999997345, 0.041500000000003485] certified
+state cold20 grow 1 [0.03449999999999734, 0.04150000000000349]
+stack tip_20C nominal 0.02499999999999936 envelope [0.024999999999997576, 0.038000000000002046] certified
+state cold20 grow 1 [0.024999999999997573, 0.03800000000000205]
+stack tip_80C nominal 0.03404999999999936 envelope [0.03404999999999757, 0.047050000000002055] certified
+state cold20 grow 1 [0.03404999999999756, 0.04705000000000206]

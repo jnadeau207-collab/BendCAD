@@ -1,0 +1,3 @@
+(pmi (node 44) (datum A n39.c0.bottom.p0) (tol tFlatInner flatness 0.002 n39.c0.bottom.p0 rfs) (tol tFlatIsland flatness 0.002 n39.c0.bottom.p1 rfs) (tol tParIsland parallelism 0.004 n39.c0.bottom.p1 rfs A) (state cold20 1))
+
+wrote /home/jesse/g2/export/rear_cover_pmi_ap242.stp ap242 PMI 13 entities

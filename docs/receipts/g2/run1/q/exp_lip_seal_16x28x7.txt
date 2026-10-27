@@ -1,0 +1,11 @@
+STEP
+wrote /home/jesse/g2/export/lip_seal_16x28x7.stp entities 586 products 1
+
+STL
+wrote /home/jesse/g2/export/lip_seal_16x28x7.stl nverts 19360 ntris 38720 (sampled, not certified)
+
+MASS
+mass volume=[1636.4095365626001, 1636.4095365627393] certified octree=[0, 32922.328485642516] depth=4 cells=0/1452/2644
+centroid incomplete status=incomplete incomplete-cells=2644
+material NBR70+DC04-insert density=2830 cte=0.0001 mass=[0.004631038988472157, 0.0046310389884725535] kg status=certified
+

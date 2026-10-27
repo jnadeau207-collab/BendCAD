@@ -1,0 +1,2 @@
+drive_gear_shaft wrote /home/jesse/g2/export/drive_gear_shaft.stp entities 10384 products 1 | wrote /home/jesse/g2/export/drive_gear_shaft.stl nverts 6262 ntris 12520 (sampled, not certified) | mass volume=[27411.152607743923, 27411.152607798747] certified octree=[2507.93128035787, 52747.45789656938] depth=4 cells=124/1488/2484
+centroid [-59.46896148908553, 59.46896148907023]x[-61.30426591566261, 61.30426591565493]x[-432.6150579634564, 269.12624748052775] status=certified incomplete-cells=
