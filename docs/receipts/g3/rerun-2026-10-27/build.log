@@ -1,0 +1,13 @@
+housing committed 0.3s
+lid committed 0.4s
+drivetrain committed 1.5s
+purchased committed 1.6s
+asm solved ninst 119 nmates 122 dof 0 max-residual 8.526512829121202e-14 3.4s
+placed committed 1.7s
+parts exported
+placed exported
+done
+
+real	23m29.762s
+user	42m6.116s
+sys	2m29.672s
