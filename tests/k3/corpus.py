@@ -117,22 +117,6 @@ def disc_modes(h):
     record('corpus.disc_modes', 'committed' in out and len(ms) == 5 and all(r['ok'] for r in rows), modes=rows, seconds=dt, raw=raw[-1500:])
 
 
-def blade_path(k, n, r1=25.0, rc=50.0, sweep=90.0, thick=2.0):
-    from mpmath import mp, mpf, cos, sin, pi
-    mp.dps = 50
-    sn = lambda x: 0.0 if abs(float(x)) < 1e-12 else float(x)
-    f = lambda p: f'{sn(p[0])!r} {sn(p[1])!r}'
-    th = 2 * pi * k / n
-    rc, h = mpf(rc), mpf(thick) / 2
-    a0, a1 = th, th + mpf(sweep) * pi / 180
-    c = (sn((mpf(r1) - rc) * cos(th)), sn((mpf(r1) - rc) * sin(th)))
-    P = lambda r, a: (mpf(c[0]) + r * cos(a), mpf(c[1]) + r * sin(a))
-    E = lambda a: (sn(mpf(c[0]) + rc * cos(a)), sn(mpf(c[1]) + rc * sin(a)))
-    ro, ri = rc + h, rc - h
-    return (f'(path {f(P(ro, a0))} (arc {f(c)} {float(ro)!r} {f(P(ro, a1))} ccw) (arc {f(E(a1))} {float(h)!r} {f(P(ri, a1))} ccw) '
-            f'(arc {f(c)} {float(ri)!r} {f(P(ri, a0))} cw) (arc {f(E(a0))} {float(h)!r} {f(P(ro, a0))} ccw))')
-
-
 def impeller():
     n = 6
     prof = '(region (path -0.5 -0.5 (line 1 -0.5) (line 1 0) (arc 1 1 1 0 1 cw) (line 0 15) (line -0.5 15) (line -0.5 -0.5)))'
@@ -140,7 +124,7 @@ def impeller():
     prev = 2
     for k in range(n):
         nid = 100 + k if k < n - 1 else 1
-        edits += [f'(node {10 + k} (sweep (wall {blade_path(k, n)}) {prof}) {IC})', f'(node {nid} (union {prev} {10 + k}) {e2e.IA})']
+        edits += [f'(node {10 + k} (sweep (wall {e2e.blade_path(k, n)}) {prof}) {IC})', f'(node {nid} (union {prev} {10 + k}) {e2e.IA})']
         prev = nid
     t = time.time()
     e2e.cli('imp.bcd', 'new')

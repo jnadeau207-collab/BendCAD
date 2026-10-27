@@ -263,6 +263,25 @@ def mach_faces(out):
             re.finditer(r'face (\d+) reach=(\d+)/(\d+)([^\n]*)', out)}
 
 
+def blade_path(k, n, r1=25.0, rc=50.0, sweep=90.0, thick=2.0):
+    from mpmath import mp, mpf, cos, sin, pi
+    mp.dps = 50
+    sn = lambda x: 0.0 if abs(float(x)) < 1e-12 else float(x)
+    f = lambda p: f'{sn(p[0])!r} {sn(p[1])!r}'
+    th = 2 * pi * k / n
+    rc, h = mpf(rc), mpf(thick) / 2
+    a0, a1 = th, th + mpf(sweep) * pi / 180
+    c = (sn((mpf(r1) - rc) * cos(th)), sn((mpf(r1) - rc) * sin(th)))
+    P = lambda r, a: (mpf(c[0]) + r * cos(a), mpf(c[1]) + r * sin(a))
+    E = lambda a: (sn(mpf(c[0]) + rc * cos(a)), sn(mpf(c[1]) + rc * sin(a)))
+    ro, ri = rc + h, rc - h
+    return (f'(path {f(P(ro, a0))} (arc {f(c)} {float(ro)!r} {f(P(ro, a1))} ccw) (arc {f(E(a1))} {float(h)!r} {f(P(ri, a1))} ccw) '
+            f'(arc {f(c)} {float(ri)!r} {f(P(ri, a0))} cw) (arc {f(E(a0))} {float(h)!r} {f(P(ro, a0))} ccw))')
+
+
+BLADE_PROF = '(region (path -0.5 -0.5 (line 1 -0.5) (line 1 0) (arc 1 1 1 0 1 cw) (line 0 15) (line -0.5 15) (line -0.5 -0.5)))'
+
+
 def machinability():
     slot = (f'(node 2 (box 30 20 10) {IC})', '(node 1 (pocket 2 (face 2 0 top) 5 (region (path 13.5 -1 (line 16.5 -1) '
             f'(line 16.5 21) (line 13.5 21) (line 13.5 -1)))) {ID})')
@@ -286,6 +305,12 @@ def machinability():
     oh, dth = cli('mh.bcd', 'machine', '1', '4', '12', '12', '30', '5', '2')
     record('machine.hole_below_ball_radius', 'concave-radius=1.5 below-tool-radius' in oh and 'tight-faces=1' in oh
            and 'verdict not-machinable' in oh, seconds=dth, out=oh[-700:])
+    out, _ = fresh('mr.bcd', f'(node 2 (prism -6 0 (region (circle 0 0 60))) {IC})', f'(node 10 (sweep (wall {blade_path(1, 6)}) {BLADE_PROF}) {IC})',
+                   f'(node 1 (union 2 10) {IA})')
+    orb, dtr = cli('mr.bcd', 'machine', '1', '1.6', '20', '10', '40', '5', '2')
+    owide, _ = cli('mr.bcd', 'machine', '1', '2.2', '20', '10', '40', '5', '2')
+    record('machine.rotated_blade_root', 'committed' in out and 'verdict machinable' in orb and 'uncertain=0' in orb and 'status=certified' in orb
+           and 'concave-radius=1' in owide and 'below-tool-radius' in owide and 'verdict not-machinable' in owide, seconds=dtr, out=orb[-400:], wide=owide[-600:])
     bad, _ = cli('mb.bcd', 'machine', '1', '4', '12', '12', '30', '4', '3')
     record('machine.refusals', 'needs NODE D FL HD HL AXES NS' in bad, out=bad[-300:])
 

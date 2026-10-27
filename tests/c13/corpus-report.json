@@ -1,7 +1,7 @@
 {
  "corpus_version": 1,
- "binary": "/home/jesse/bc/bendcad-k3m",
- "binary_sha256": "2b5f29acdecf3cc53b84bf22276b40bedc303ffe74e93b9aca0788f8f1224ae9",
+ "binary": "/home/jesse/bc/bendcad-k3z",
+ "binary_sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
  "passed": 13,
  "total": 13,
  "results": [
@@ -57,7 +57,7 @@
     "cb.stp": "e1e855ab42ec581a70cfcdd10bf23b8d27cf3aec68555f69bc11a23f9a1623f2",
     "cb.bin": "cb680b69b9b067703886798cb30a023470fe3c01576e0e8ca5d1e5ead561d3fb"
    },
-   "seconds": 2.1
+   "seconds": 2.0
   },
   {
    "name": "sheet.edits",
@@ -250,7 +250,7 @@
    "artifacts": {
     "kl.bcd": "89e255126ee693886cc722061572488b8a9e46cd173da59dba4e0724d651dedd"
    },
-   "seconds": 1.9
+   "seconds": 1.8
   }
  ]
 }

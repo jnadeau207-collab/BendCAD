@@ -1286,6 +1286,52 @@ def ff_sph_ss(+c1: List<&2, I.I>, +r1: I.I, +c2: List<&2, I.I>, +r2: I.I, +fa: S
     Bool.pick(Maybe<&2, List<&2, SO.Fi>>, Bool.or(F64.is_lt(I.i_hi(d2), I.i_lo(rdd)),
       F64.is_lt(I.i_hi(rss), I.i_lo(d2))), Some{[]}, None{}))
 
+def h2_ax(+v: List<&2, I.I>, +a: List<&2, I.I>) -> I.I:
+  I.idiv(I.isq(X.vdot(v, a)), X.vdot(a, a))
+
+def rho_ax(+v: List<&2, I.I>, +a: List<&2, I.I>) -> I.I:
+  I.isqrt(I.isub(X.vdot(v, v), h2_ax(v, a)))
+
+def imin(+a: I.I, +b: I.I) -> I.I:
+  I.I{F64.min(I.i_lo(a), I.i_lo(b)), F64.min(I.i_hi(a), I.i_hi(b))}
+
+def sd2(b: M.Im, +c: List<&2, I.I>) -> I.I:
+  match b:
+    case M.M_pl{+o, +n}: I.idiv(I.isq(X.vdot(X.vsub(c, o), n)), X.vdot(n, n))
+    case M.M_cy{+o, +a, +r}: I.isq(I.isub(rho_ax(X.vsub(c, o), a), r))
+    case M.M_co{+o, +a, +k}:
+      +v = X.vsub(c, o)
+      +h = I.idiv(X.vdot(v, a), I.isqrt(X.vdot(a, a)))
+      +p = rho_ax(v, a)
+      I.idiv(imin(I.isq(I.isub(p, I.imul(k, h))), I.isq(I.iadd(p, I.imul(k, h)))), I.iadd(I.ipt(1.0f64), I.isq(k)))
+    case M.M_to{+o, +a, +bigr, +r}:
+      +v = X.vsub(c, o)
+      I.isq(I.isub(I.isqrt(I.iadd(I.isq(I.isub(rho_ax(v, a), bigr)), h2_ax(v, a))), r))
+    case M.M_sp{+o, +r}: I.isq(I.isub(I.isqrt(X.vdot(X.vsub(c, o), X.vsub(c, o))), r))
+
+def im_sp(a: M.Im) -> Bool:
+  match a:
+    case M.M_sp{c, r}: True{}
+    case _: False{}
+
+def sp_c(a: M.Im) -> List<&2, I.I>:
+  match a:
+    case M.M_sp{+c, r}: c
+    case _: []
+
+def sp_r(a: M.Im) -> I.I:
+  match a:
+    case M.M_sp{c, +r}: r
+    case _: I.ipt(0.0f64)
+
+def far_one(sa: Bool, +fa: SO.Fd, +fb: SO.Fd) -> Bool:
+  match sa:
+    case True{}: F64.is_lt(I.i_hi(I.isq(sp_r(SO.fd_im(fa)))), I.i_lo(sd2(SO.fd_im(fb), sp_c(SO.fd_im(fa)))))
+    case False{}: False{}
+
+def sph_far(+cross: Bool, +fa: SO.Fd, +fb: SO.Fd) -> Bool:
+  Bool.and(cross, Bool.or(far_one(im_sp(SO.fd_im(fa)), fa, fb), far_one(im_sp(SO.fd_im(fb)), fb, fa)))
+
 def ff_sph_go(a: M.Im, b: M.Im, +fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> Maybe<&2, List<&2, SO.Fi>>:
   match a:
     case M.M_sp{+c1, +r1}:
@@ -1496,7 +1542,7 @@ def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, 
   +r = cp_go(ps, fa, fb, csa, csb, tol, shc, 0u64)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
-def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
+def ff_go3(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
   match k:
     case 0u64: []
     case 1u64: ff_ov_x(fg_fd(x), fg_fd(y), ia, ib, cross)
@@ -1512,6 +1558,14 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
       +fa = fg_fd(x)
       +fb = fg_fd(y)
       ff_or_tr(ff_sph(cross, fa, fb, ia, ib), fa, fb, x, y, te, tol, ia, ib)
+
+def ff_go2(far: Bool, +k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
+  match far:
+    case True{}: []
+    case False{}: ff_go3(k, x, y, te, ia, ib, tol, cross)
+
+def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
+  ff_go2(sph_far(cross, fg_fd(x), fg_fd(y)), k, x, y, te, ia, ib, tol, cross)
 
 def ff(+x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
   ff_go(ff_code(Y.flat_pl(SO.fd_g(fg_fd(x))), Y.flat_pl(SO.fd_g(fg_fd(y)))), x, y, te, ia, ib, tol, cross)
