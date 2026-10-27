@@ -70,10 +70,15 @@ def he_iv(h: C.He) -> I.I:
 def tau(+a: F64, +b: F64, +t: I.I) -> I.I:
   I.idiv(I.isub(t, I.ipt(a)), I.isub(I.ipt(b), I.ipt(a)))
 
+def h_go(pt: Bool, h: List<&2, I.I>, e: List<&2, E.Ex>, +a: F64, +b: F64, +lo: F64, +hi: F64) -> I.I:
+  match pt:
+    case True{}: he_iv(horner(e, lo))
+    case False{}: R.hull(R.restr(h, tau(a, b, I.ipt(lo)), tau(a, b, I.ipt(hi))))
+
 def h_val(h: List<&2, I.I>, e: List<&2, E.Ex>, +a: F64, +b: F64, +t: I.I) -> I.I:
   +lo = I.i_lo(t)
   +hi = I.i_hi(t)
-  Bool.pick(I.I, F64.is_eq(lo, hi), he_iv(horner(e, lo)), R.hull(R.restr(h, tau(a, b, I.ipt(lo)), tau(a, b, I.ipt(hi)))))
+  h_go(F64.is_eq(lo, hi), h, e, a, b, lo, hi)
 
 def rows3(+a: List<&2, I.I>, +b: List<&2, I.I>, +c: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   [[X.vn(a, 0n), X.vn(b, 0n), X.vn(c, 0n)], [X.vn(a, 1n), X.vn(b, 1n), X.vn(c, 1n)], [X.vn(a, 2n), X.vn(b, 2n), X.vn(c, 2n)]]

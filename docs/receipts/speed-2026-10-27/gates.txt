@@ -1,0 +1,86 @@
+E2E regression sweep (~/regress-z.sh with BENDCAD_BIN=bendcad-s5):
+k1/corpus rc=0 1099s PASS offaxis {} fails=0
+c06/e2e rc=0 16s 62/62 passed fails=0
+c07/e2e rc=0 249s 328/328 passed; mean 0.010s max 0.162s fails=0
+c08/e2e rc=0 69s 114/114 passed fails=0
+c08/neg rc=0 10s 21/21 passed fails=0
+c09/e2e rc=0 2s 29/29 passed fails=0
+c09/neg rc=0 1s 27/27 passed fails=0
+c10/e2e rc=0 4s 11/11 passed fails=0
+c10/neg rc=0 1s 12/12 passed fails=0
+c11/e2e rc=0 396s 33/33 passed fails=0
+c11/neg rc=0 1s 19/19 passed fails=0
+c12/e2e rc=0 5s 17/17 passed fails=0
+c12/neg rc=0 1s 24/24 passed fails=0
+c13/e2e rc=0 6s  fails=0
+c13/corpus rc=0 16s  fails=0
+c14/e2e rc=0 2s 16/16 passed fails=0
+c14/neg rc=0 2s 18/18 passed fails=0
+c15/e2e rc=0 3s  fails=0
+c15/neg rc=0 1s  fails=0
+c16.1/e2e rc=0 7s  fails=0
+c16.1/neg rc=0 2s  fails=0
+c16.2/e2e rc=0 4s PASS loft.taper fails=0
+c16.2/neg rc=0 1s PASS loft.nonquad fails=0
+c16.3/e2e rc=0 79s  fails=0
+c16.3/neg rc=0 2s  fails=0
+k2/e2e rc=0 528s 34/34 passed fails=0
+k2/neg rc=0 1s PASS sweep.profile_reaches_turn_axis  fails=0
+k3/e2e rc=0 732s 31/31 passed fails=0
+ALLDONE
+
+Reference sweep on bendcad-k3z for timing:
+k1/corpus rc=0 1722s PASS offaxis {} fails=0
+c06/e2e rc=0 16s 62/62 passed fails=0
+c07/e2e rc=0 247s 328/328 passed; mean 0.013s max 0.244s fails=0
+c08/e2e rc=0 112s 114/114 passed fails=0
+c08/neg rc=0 12s 21/21 passed fails=0
+c09/e2e rc=0 5s 29/29 passed fails=0
+c09/neg rc=0 1s 27/27 passed fails=0
+c10/e2e rc=0 4s 11/11 passed fails=0
+c10/neg rc=0 2s 12/12 passed fails=0
+c11/e2e rc=0 410s 33/33 passed fails=0
+c11/neg rc=0 2s 19/19 passed fails=0
+c12/e2e rc=0 4s 17/17 passed fails=0
+c12/neg rc=0 1s 24/24 passed fails=0
+c13/e2e rc=0 10s  fails=0
+c13/corpus rc=0 22s  fails=0
+c14/e2e rc=0 7s 16/16 passed fails=0
+c14/neg rc=0 1s 18/18 passed fails=0
+c15/e2e rc=0 4s  fails=0
+c15/neg rc=0 1s  fails=0
+c16.1/e2e rc=0 6s  fails=0
+c16.1/neg rc=0 1s  fails=0
+c16.2/e2e rc=0 4s PASS loft.taper fails=0
+c16.2/neg rc=0 2s PASS loft.nonquad fails=0
+c16.3/e2e rc=0 126s  fails=0
+c16.3/neg rc=0 4s  fails=0
+k2/e2e rc=0 874s 34/34 passed fails=0
+k2/neg rc=0 1s PASS sweep.profile_reaches_turn_axis  fails=0
+k3/e2e rc=0 979s 31/31 passed fails=0
+ALLDONE
+
+Pins (tools/pins/run.sh tests/*/pins*.bend, final source):
+== tests/c00/pins.bend
+33/33 pins hold; sha256 cdba3802cd2f783f6ddb1aaf68f26311c647c210272497a97c1cc05424c5f688
+== tests/c01/pins.bend
+30/30 pins hold; sha256 0116d1126251410627af12ce0db6bf983c32897917bd7aa88afd426da2f06e67
+== tests/c02/pins.bend
+44/44 pins hold; sha256 759484153abb26838cbf0c8f2ba3e781bdffe3c259e281b94c50400df62d12d5
+== tests/c03/pins.bend
+409/409 pins hold; sha256 efc1ca69899f483b903a0e8caaabb5ce585d69970b0f6411a7a9fa671f2277e2
+== tests/c04/pins.bend
+500/500 pins hold; sha256 0b484b61969bd7bcfb865a8e25b1b5750841ac869a8168241900c96990d0be4c
+== tests/c05/pins.bend
+31/31 pins hold; sha256 e5cd9c80a537fc0a55fa65e39f17567facc4c42bf1c14c3864221688e3287eeb
+== tests/c06/pins.bend
+82/82 pins hold; sha256 1055142257c89a58e85f8e5f91631d2af684e8f9dd976473f15c6819337a68ab
+== tests/c06/pins_build.bend
+25/25 pins hold; sha256 796779a15b5132a2903155a365be0d7545d6650d281e89909d63010697c23549
+== tests/c07/pins.bend
+14/14 pins hold; sha256 1c9db76c0393288db858e5b65840c270dac677814f648dbc084f8069d17257e7
+== tests/c07/pins_build.bend
+17/17 pins hold; sha256 816dbcb3ee2c7f782dc15be53bfc98aadf8fd1f012c2399427e3144bc5bf3b16
+== tests/c08/pins.bend
+487/487 pins hold; sha256 21e2a62996a45c47dc1209d0fd61d3084a368ef9e6ae55575a267d92a11a3e3b
+== tests/c08/pins_build.bend

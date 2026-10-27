@@ -93,18 +93,22 @@ def clr(+p: Ty.Brep, +fp: List<&2, SO.Fd>, +t: Ty.Brep, +tp: V.Point, +pp: V.Poi
   clr_go(cl_fs(EM.emb_cross(bc, SO.fds_of(bc)), 0u64), fp, t, tp, pp)
 
 type PC is Data:
-  PC{ b: Ty.Brep, fs: List<&2, SO.Fd>, pp: V.Point }
+  PC{ b: Ty.Brep, k: FB.KB, fs: List<&2, SO.Fd>, pp: V.Point }
+
+def pc_k(+x: PC) -> FB.KB:
+  PC{b, +k, fs, pp} = x
+  k
 
 def pc_b(+x: PC) -> Ty.Brep:
-  PC{+b, fs, pp} = x
+  PC{+b, k, fs, pp} = x
   b
 
 def pc_fs(+x: PC) -> List<&2, SO.Fd>:
-  PC{b, +fs, pp} = x
+  PC{b, k, +fs, pp} = x
   fs
 
 def pc_pp(+x: PC) -> V.Point:
-  PC{b, fs, +pp} = x
+  PC{b, k, fs, +pp} = x
   pp
 
 def hold_go(c: U64, +pc: PC, +tb: TB, +t: TL, +d: V.Dir, +ch: V.Point) -> U64:
@@ -182,11 +186,11 @@ def bb_polys(ls: List<&2, List<&2, V.Vec2>>, +acc: UV) -> UV:
 def at(+a: F64, +b: F64, +k: Nat, +ns: F64) -> F64:
   F64.add(a, F64.mul(F64.div(F64.add(L.f64_of(k), 0.5f64), ns), F64.sub(b, a)))
 
-def out_n(+b: Ty.Brep, +fi: Nat, +s: S.SF, +p: V.Point) -> V.Dir:
+def out_n(+b: FB.KB, +fi: Nat, +s: S.SF, +p: V.Point) -> V.Dir:
   +g = S.sf_normal(s, p)
   Bool.pick(V.Dir, FB.face_same(b, fi), g, S.dscale(F64.neg(1.0f64), g))
 
-def grid_v(js: List<&2, Nat>, +u: F64, +v0: F64, +v1: F64, +ns: F64, +b: Ty.Brep, +fi: Nat, +s: S.SF) -> List<&2, SP>:
+def grid_v(js: List<&2, Nat>, +u: F64, +v0: F64, +v1: F64, +ns: F64, +b: FB.KB, +fi: Nat, +s: S.SF) -> List<&2, SP>:
   match js:
     case []: []
     case +j <> +t:
@@ -194,7 +198,7 @@ def grid_v(js: List<&2, Nat>, +u: F64, +v0: F64, +v1: F64, +ns: F64, +b: Ty.Brep
       +rest = grid_v(t, u, v0, v1, ns, b, fi, s)
       Bool.pick(List<&2, SP>, FB.pt_in_face(b, fi, p), SP{p, out_n(b, fi, s, p)} <> rest, rest)
 
-def grid_u(ix: List<&2, Nat>, +bx: UV, +n: Nat, +b: Ty.Brep, +fi: Nat, +s: S.SF) -> List<&2, SP>:
+def grid_u(ix: List<&2, Nat>, +bx: UV, +n: Nat, +b: FB.KB, +fi: Nat, +s: S.SF) -> List<&2, SP>:
   match ix:
     case []: []
     case +i <> +t:
@@ -202,7 +206,7 @@ def grid_u(ix: List<&2, Nat>, +bx: UV, +n: Nat, +b: Ty.Brep, +fi: Nat, +s: S.SF)
       +ns = L.f64_of(n)
       List.append(&2, SP, grid_v(L.nat_range(n), at(u0, u1, i, ns), v0, v1, ns, b, fi, s), grid_u(t, bx, n, b, fi, s))
 
-def samples(+b: Ty.Brep, +fi: Nat, +n: Nat) -> List<&2, SP>:
+def samples(+b: FB.KB, +fi: Nat, +n: Nat) -> List<&2, SP>:
   +big = {1.0e300f64 : F64}
   grid_u(L.nat_range(n), bb_polys(FB.face_polys(b, fi), UV{big, F64.neg(big), big, F64.neg(big)}), n, b, fi, FB.face_sf(b, fi))
 
@@ -257,7 +261,7 @@ def fo_of(+fi: Nat, +rr: F64, +tight: Bool, r: FR) -> FO:
     ok, n, unc, Bool.pick(Nat, tight, 1n, 0n)}
 
 def face_one(+pc: PC, +tb: TB, +t: TL, +five: Bool, +ns: Nat, +gap: F64, +fi: Nat) -> FO:
-  +b = pc_b(pc)
+  +b = pc_k(pc)
   +ps = samples(b, fi, ns)
   +rr = concave_r(FB.face_sf(b, fi), ps)
   fo_of(fi, rr, F64.is_lt(rr, F64.mul(tl_r(t), F64.sub(1.0f64, 1.0e-9f64))), reach_ps(ps, five, pc, tb, t, gap, FR{0n, 0n, 0n, [], []}))
@@ -272,7 +276,7 @@ def face_f(c: MC, fi: Nat) -> FO:
 type SE is Data:
   SE{ n: Nat, es: List<&2, Nat> }
 
-def sharp_go2(+b: Ty.Brep, +e: Nat, +k: Ty.EdgeKind) -> Bool:
+def sharp_go2(+b: FB.KB, +e: Nat, +k: Ty.EdgeKind) -> Bool:
   +fs = FB.edge_faces(b, e)
   +f1 = L.nth_n(fs, 0n)
   +f2 = L.nth_n(fs, 1n)
@@ -289,16 +293,16 @@ def sharp_go2(+b: Ty.Brep, +e: Nat, +k: Ty.EdgeKind) -> Bool:
   +w = Bool.pick(V.Dir, FB.pt_in_face(b, f2, S.padd(m, eps, w0)), w0, S.dscale(F64.neg(1.0f64), w0))
   Bool.and(Nat.is_lt(1n, List.length(&2, Nat, fs)), Bool.and(F64.is_lt(S.dot(n1, n2), F64.sub(1.0f64, 1.0e-6f64)), F64.is_lt(1.0e-9f64, S.dot(n1, w))))
 
-def sharp_k(deg: Bool, +b: Ty.Brep, +e: Nat, +k: Ty.EdgeKind) -> Bool:
+def sharp_k(deg: Bool, +b: FB.KB, +e: Nat, +k: Ty.EdgeKind) -> Bool:
   match deg:
     case True{}: False{}
     case False{}: sharp_go2(b, e, k)
 
-def sharp_e(+b: Ty.Brep, +e: Nat) -> Bool:
+def sharp_e(+b: FB.KB, +e: Nat) -> Bool:
   +k = Ty.ed_kind(FB.edge_at(b, e))
   sharp_k(U64.is_eq(VI.ek_tag(k), 0u64), b, e, k)
 
-def sharp_go(es: List<&2, Nat>, +b: Ty.Brep, +acc: SE) -> SE:
+def sharp_go(es: List<&2, Nat>, +b: FB.KB, +acc: SE) -> SE:
   match es:
     case []: acc
     case +e <> +t:
@@ -342,9 +346,10 @@ def mach_s(+t: TL, +five: Bool, +ns: Nat, +gap: F64, a: AG, se: SE) -> String:
     s ++ es_s(es) ++ verdict(ok, n, unc, tight, nsh)
 
 def machine(+b: Ty.Brep, +t: TL, +five: Bool, +ns: Nat) -> String:
-  +pc = {PC{b, SO.fds_of(b), first_pt(Ty.brep_vs(b))} : PC}
+  +k = FB.kb_of(b)
+  +pc = {PC{b, k, SO.fds_of(b), first_pt(Ty.brep_vs(b))} : PC}
   +gap = F64.mul(0.01f64, tl_r(t))
   +tb = tool_bs(t)
   +mc = {MC{pc, tb, t, five, ns, gap} : MC}
-  +fos = B.pmap_g(~Nat, ~MC, ~FO, ~face_f, 1, mc, L.nat_range(FB.nfaces(b)))
-  mach_s(t, five, ns, gap, ag_go(fos, AG{"", 0n, 0n, 0n, 0n}), sharp_go(L.nat_range(FB.nedges(b)), b, SE{0n, []}))
+  +fos = B.pmap_g(~Nat, ~MC, ~FO, ~face_f, 1, mc, L.nat_range(FB.nfaces(k)))
+  mach_s(t, five, ns, gap, ag_go(fos, AG{"", 0n, 0n, 0n, 0n}), sharp_go(L.nat_range(FB.nedges(k)), k, SE{0n, []}))

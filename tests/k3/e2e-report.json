@@ -64,7 +64,7 @@
     0
    ]
   },
-  "seconds": 0.5909874439239502,
+  "seconds": 0.5176823139190674,
   "raw": "]x[9.99999999999999, 10.00000000000001]x[14.999999999999991, 15.000000000000009] inertia-centroid [649999.9999993487, 650000.0000006517] [499999.9999994992, 500000.00000050105] [249999.99999974968, 250000.00000025047] [-2.454578169360848e-11, 2.425413166133583e-11] [-2.68093859993517e-11, 2.7172364664708572e-11] [-1.2453854482713139e-11, 1.2334660269829777e-11] status=certified method=divergence\n\n"
  },
  {
@@ -132,7 +132,7 @@
     0
    ]
   },
-  "seconds": 17.12527585029602,
+  "seconds": 9.482686281204224,
   "raw": "x[-0.000001239631196664595, 0.000001239631196997069]x[4.999999935867486, 5.000000064132514] inertia-centroid [11453.71274145922, 11453.733690965426] [11453.678904065937, 11453.767528353166] [9817.42268994287, 9817.53139498594] [-0.022447758604675915, 0.02244775860512463] [-0.005013768192447294, 0.005013768192309945] [-0.002488749132789573, 0.002488749132789573] status=certified method=divergence\n\n"
  },
  {
@@ -200,7 +200,7 @@
     0
    ]
   },
-  "seconds": 5.361655950546265,
+  "seconds": 3.0288591384887695,
   "raw": "011828656978915298, 0.000011828656978915298]x[-1.248626182917869e-10, 1.248626182917869e-10] inertia-centroid [1715.6007381613676, 1715.8561975614703] [1715.643337278737, 1715.813598483604] [1715.600738161368, 1715.8561975614693] [-0.05421737317415406, 0.05421737317415406] [-0.027102437149701872, 0.027102437149906507] [-0.05421737317412327, 0.05421737317412327] status=certified method=divergence\n\n"
  },
  {
@@ -268,7 +268,7 @@
     0
    ]
   },
-  "seconds": 31.694138526916504,
+  "seconds": 20.452437162399292,
   "raw": "76e-7]x[-2.706361597292474e-7, 2.706361597292474e-7]x[-4.2150196436750657e-7, 4.2150196485897896e-7] inertia-centroid [30349031.902577408, 30349035.164122146] [30349031.902566098, 30349035.16413344] [57737183.81671381, 57737187.67603169] [-0.6258701946377979, 0.6258701928029834] [-0.9805221843028821, 0.9805221843028821] [-0.9803045684381092, 0.9803045684381092] status=certified method=divergence\n\n"
  },
  {
@@ -444,7 +444,7 @@
    1.1641532182693481e-10,
    3.763125278055668e-08
   ],
-  "seconds": 38.23302483558655,
+  "seconds": 25.359737634658813,
   "raw": "23]x[9.999999978577419, 10.000000021422581]x[4.994400956053264, 4.994400964965137] inertia-centroid [163551.78671246645, 163551.78758118243] [163551.78583380088, 163551.788459848] [265348.6937107771, 265348.6969077318] [-0.0006387734026062837, 0.0006387733979230965] [-0.0005748250279997055, 0.0005748250388723163] [-0.00032145769755182065, 0.0003214576979411407] status=certified method=divergence\n\n"
  },
  {
@@ -508,7 +508,7 @@
    7.275957614183426e-12,
    7.275957614183426e-12
   ],
-  "seconds": 6.257393836975098,
+  "seconds": 4.7959489822387695,
   "raw": "01753450754]x[4.9999824629103005, 5.0000175370896995]x[4.318828345284354, 4.318869313249145] inertia-centroid [13702.192439325268, 13702.721906126846] [13702.19269605164, 13702.721649400548] [15422.773347623068, 15423.465801116057] [-0.05930792514151715, 0.05930792514144894] [-0.19753252602624694, 0.19753252456205916] [-0.19783348918124238, 0.19783348918078764] status=certified method=divergence\n\n"
  },
  {
@@ -572,7 +572,7 @@
    0.0,
    0.0
   ],
-  "seconds": 5.9418723583221436,
+  "seconds": 3.621164560317993,
   "raw": "9999971818483, 2.000000002818152]x[2.9285714272460583, 2.9285714298967984] inertia-centroid [599.685154123768, 599.6851612267128] [599.6851487342093, 599.6851666162713] [642.7698458710793, 642.7698679778645] [-0.000004486754379313687, 0.0000044867543702691] [-0.0000027502483887255474, 0.000002750248385909794] [-0.0000012810604624657862, 0.000001281060447595142] status=certified method=divergence\n\n"
  },
  {
@@ -780,7 +780,7 @@
    131837.53740906014,
    131837.53740906014
   ],
-  "seconds": 60.21008324623108,
+  "seconds": 64.75785183906555,
   "raw": "hz=[124674.5483053923, 124633.32238028449, 124619.25124415012] est=124611.9598278071 bound=14.071136134371045 status=estimated\nmode 6 hz=[131878.0683406014, 131852.4001283178, 131843.47424118908] est=131838.71555562434 bound=8.925887128716568 status=estimated\nmode 7 hz=[131879.32718880632, 131852.60236258767, 131843.51523896676] est=131838.83346052968 bound=9.087123620905913 status=estimated\nmode 8 hz=[131889.52105525965, 131856.94480574026, 131845.36564895854] est=131838.98015200187 bound=11.579156781721395 status=estimated\nmode 9 hz=[131890.21049470868, 131857.23007615117, 131845.3882581597] est=131838.75448631163 bound=11.84181799145881 status=estimated\nmode 10 hz=[131890.51397289732, 131857.58855387586, 131845.48234376722] est=131838.44267555463 bound=12.1062101086427 status=estimated\nmethod=T10 isosurface-stuffing mesh, block LOBPCG; bound from three levels h, h/2^(1/3), h/2^(2/3)\n\n"
  },
  {
@@ -797,7 +797,7 @@
    ]
   ],
   "want": 1.4629528959588416,
-  "seconds": 20.238012552261353,
+  "seconds": 19.130659103393555,
   "raw": "64823890998 tip=0.00026347448175563254 growth_max=0.00026942192865578925 vm_max=13.113273231057741 pcg_rz=3.4850171230828405e-22\ntip_growth_mm [0.000261917826100859, 0.00026114734812665347, 0.00026347448175563254] est=0.00026347448175563254 bound=0.000004654267257958155 status=estimated-nonmonotone\nmax_growth_mm [0.00027293018359485184, 0.0002725968335778033, 0.00026942192865578925] est=0.00026942192865578925 bound=0.000006349809844028104 status=estimated-nonmonotone\nmax_von_mises_mpa [13.078010627153288, 13.071622664904353, 13.113273231057741] est=13.113273231057741 bound=0.08330113230677583 status=estimated-nonmonotone\nwork_nmm [1.4615506126426434, 1.4624658848099017, 1.4627577975003696] est=1.4628944971448428 bound=0.00029191269046791035 status=estimated\nmethod=T10 isosurface-stuffing mesh, clamped nodes within R of the axis, consistent centrifugal load, PCG; bound from three levels\n\n"
  },
  {
@@ -879,7 +879,7 @@
    ]
   },
   "want": 11512.690669178452,
-  "seconds": 42.177679777145386,
+  "seconds": 7.437830448150635,
   "raw": "89]x[-3.210560420935063e-9, 3.2105597889405258e-9]x[9.546235260740527, 9.546235272714329] inertia-centroid [3165340.045883801, 3165340.0495588602] [576919.3433672867, 576919.3463754158] [2908281.403344486, 2908281.405041684] [-0.0003482757560943342, 0.00034827579608698853] [-1236.2069815126224, -1236.2059716679678] [-0.001173283866374289, 0.0011732838518497659] status=certified method=divergence\n\n"
  },
  {
@@ -902,32 +902,32 @@
  {
   "name": "machine.narrow_slot_3axis",
   "ok": true,
-  "seconds": 4.339136600494385,
+  "seconds": 3.4759387969970703,
   "out": "machine tool=ball r=2 flute=12 holder-r=6 holder-l=30 axes=3 samples-per-side=3 gap=0.02\nface 0 reach=9/9\nface 1 reach=9/9\nface 2 reach=0/9 blocked=(25,16.666666666666668,0)\nface 3 reach=7/7\nface 4 reach=9/9\nface 5 reach=7/7\nface 6 reach=9/9\nface 7 reach=0/9 blocked=(16,16.666666666666668,5)\nface 8 reach=0/9 blocked=(16.5,16.666666666666668,9.166666666666668)\nface 9 reach=0/9 blocked=(13.5,16.666666666666668,9.166666666666668)\nedge 23 sharp-concave radius=0\nedge 22 sharp-concave radius=0\nverdict not-machinable samples=86 reachable=50 blocked=36 uncertain=0 tight-faces=0 sharp-concave-edges=2 status=certified\n\n"
  },
  {
   "name": "machine.narrow_slot_5axis",
   "ok": true,
-  "seconds": 9.67605996131897,
+  "seconds": 7.657492637634277,
   "out": "machine tool=ball r=2 flute=12 holder-r=6 holder-l=30 axes=5 samples-per-side=3 gap=0.02\nface 0 reach=9/9\nface 1 reach=9/9\nface 2 reach=9/9\nface 3 reach=7/7\nface 4 reach=9/9\nface 5 reach=7/7\nface 6 reach=9/9\nface 7 reach=0/9 blocked=(16,16.666666666666668,5)\nface 8 reach=0/9 blocked=(16.5,16.666666666666668,9.166666666666668)\nface 9 reach=0/9 blocked=(13.5,16.666666666666668,9.166666666666668)\nedge 23 sharp-concave radius=0\nedge 22 sharp-concave radius=0\nverdict not-machinable samples=86 reachable=59 blocked=27 uncertain=0 tight-faces=0 sharp-concave-edges=2 status=certified\n\n"
  },
  {
   "name": "machine.box",
   "ok": true,
-  "seconds": 1.1892216205596924,
+  "seconds": 0.7350475788116455,
   "out": "machine tool=ball r=2 flute=12 holder-r=6 holder-l=30 axes=5 samples-per-side=3 gap=0.02\nface 0 reach=9/9\nface 1 reach=9/9\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nverdict machinable samples=54 reachable=54 blocked=0 uncertain=0 tight-faces=0 sharp-concave-edges=0 status=certified\n\n",
   "out3": "-l=30 axes=3 samples-per-side=3 gap=0.02\nface 0 reach=9/9\nface 1 reach=0/9 blocked=(25,16.666666666666668,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nverdict not-machinable samples=54 reachable=45 blocked=9 uncertain=0 tight-faces=0 sharp-concave-edges=0 status=certified\n\n"
  },
  {
   "name": "machine.hole_below_ball_radius",
   "ok": true,
-  "seconds": 8.544660568237305,
+  "seconds": 5.679065704345703,
   "out": "machine tool=ball r=2 flute=12 holder-r=6 holder-l=30 axes=5 samples-per-side=2 gap=0.02\nface 0 reach=4/4\nface 1 reach=4/4\nface 2 reach=0/4 blocked=(15.75,10.747669981187853,6)\nface 3 reach=4/4\nface 4 reach=4/4\nface 5 reach=4/4\nface 6 reach=4/4\nface 7 reach=0/4 concave-radius=1.5 below-tool-radius blocked=(16.5,10,9)\nedge 12 sharp-concave radius=0\nverdict not-machinable samples=32 reachable=24 blocked=8 uncertain=0 tight-faces=1 sharp-concave-edges=1 status=certified\n\n"
  },
  {
   "name": "machine.rotated_blade_root",
   "ok": true,
-  "seconds": 210.94907641410828,
+  "seconds": 164.84279131889343,
   "out": "each=4/4\nface 19 reach=4/4\nface 20 reach=0/0\nface 21 reach=4/4\nface 22 reach=4/4\nface 23 reach=0/0\nface 24 reach=4/4\nface 25 reach=4/4\nface 26 reach=3/3\nface 27 reach=4/4\nface 28 reach=4/4\nface 29 reach=2/2\nface 30 reach=4/4\nface 31 reach=4/4\nface 32 reach=2/2\nface 33 reach=0/0\nverdict machinable samples=106 reachable=106 blocked=0 uncertain=0 tight-faces=0 sharp-concave-edges=0 status=certified\n\n",
   "wide": "0/4 concave-radius=1 below-tool-radius blocked=(12.288897826812212,20.047154894414604,0.07612046748871226)\nface 25 reach=4/4\nface 26 reach=3/3\nface 27 reach=0/4 concave-radius=1 below-tool-radius blocked=(13.994205674429303,21.031714839287513,0.0761204674887126)\nface 28 reach=4/4\nface 29 reach=2/2\nface 30 reach=0/4 concave-radius=1 below-tool-radius blocked=(13.643615512299998,22.794250606910968,0.07612046748871137)\nface 31 reach=4/4\nface 32 reach=2/2\nface 33 reach=0/0\nverdict not-machinable samples=106 reachable=66 blocked=40 uncertain=0 tight-faces=10 sharp-concave-edges=0 status=certified\n\n"
  },
@@ -954,7 +954,7 @@
    235292.6115102745
   ],
   "exact": 235292.61151003928,
-  "seconds": 23.330437421798706,
+  "seconds": 19.46280336380005,
   "eval": "d=0 faces_modified=0 solids=1 through_holes=1 | volume=[235292.6115098039, 235292.6115102745] area=[158266.24535688615, 158266.2453572027] bbox=[-77.00000000000024, 101.00000000000024]x[-93.00000000000024, 70.00000000000024]x[-3.000000000000181, 63.0000000000002] vertices=62 edges=98 faces=38 solids=1 genus=1 linear_uncertainty=3.5993430458347636e-13 | proof: k1-crossing-certified V62 E98 F38 S1\n\n"
  }
 ]

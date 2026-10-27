@@ -725,7 +725,7 @@ def prof_zone(mb: Maybe<&2, M.Body>, +ps: List<&2, M.Param>, +ns: List<&2, M.Nod
 
 def zone_prof(+p: M.Part, +id: U64) -> ZR:
   M.Pt{+ps, +ns, +ms, +ts} = p
-  prof_zone(body_of(M.ce_r(M.ce_find(M.ev_part(M.Pt{ps, ns, ms, ts}, []), id))), ps, ns, id)
+  prof_zone(body_of(M.ce_r(M.ce_find(M.ev_for(M.Pt{ps, ns, ms, ts}, [id], []), id))), ps, ns, id)
 
 def zone_pick(prof: Bool, +w: String, +p: M.Part, +id: U64) -> ZR:
   match prof:

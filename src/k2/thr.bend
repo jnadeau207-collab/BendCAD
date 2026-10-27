@@ -141,7 +141,7 @@ def canon(+a: V.Dir) -> V.Dir:
   +c = Bool.pick(F64, Bool.and(F64.is_le(ay, ax), F64.is_le(az, ax)), V.dr_x(a), Bool.pick(F64, F64.is_le(az, ay), V.dr_y(a), V.dr_z(a)))
   Bool.pick(V.Dir, F64.is_lt(c, 0.0f64), KS.dscale(F64.neg(1.0f64), a), a)
 
-def t_rng(cs: List<&2, FB.CE>, +b: Ty.Brep, +a: V.Dir, +acc: V.Vec2) -> V.Vec2:
+def t_rng(cs: List<&2, FB.CE>, +b: FB.KB, +a: V.Dir, +acc: V.Vec2) -> V.Vec2:
   match cs:
     case []: acc
     case +h <> +t:
@@ -149,12 +149,12 @@ def t_rng(cs: List<&2, FB.CE>, +b: Ty.Brep, +a: V.Dir, +acc: V.Vec2) -> V.Vec2:
       +v = KS.dot(KS.psub(q, KS.pt(0.0f64, 0.0f64, 0.0f64)), a)
       t_rng(t, b, a, V.V2{F64.min(V.v2_x(acc), v), F64.max(V.v2_y(acc), v)})
 
-def ts_rng(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +a: V.Dir, +acc: V.Vec2) -> V.Vec2:
+def ts_rng(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +a: V.Dir, +acc: V.Vec2) -> V.Vec2:
   match ls:
     case []: acc
     case +h <> +t: ts_rng(t, b, a, t_rng(h, b, a, acc))
 
-def tg_cy(g: G.GVal, +b: Ty.Brep, +fi: Nat) -> TG:
+def tg_cy(g: G.GVal, +b: FB.KB, +fi: Nat) -> TG:
   match g:
     case G.GV_cy{w}:
       G.Cy{+o, +a, +r} = w
@@ -164,7 +164,8 @@ def tg_cy(g: G.GVal, +b: Ty.Brep, +fi: Nat) -> TG:
     case _: TG{False{}, V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Pt{0.0f64, 0.0f64, 0.0f64}, 0.0f64, False{}, 0.0f64, 0.0f64}
 
 def tg_of(+b: M.Body, +fi: Nat) -> TG:
-  tg_cy(FB.face_surf(M.bd_brep(b), fi), M.bd_brep(b), fi)
+  +k = FB.kb_of(M.bd_brep(b))
+  tg_cy(FB.face_surf(k, fi), k, fi)
 
 def tg_ok(+t: TG) -> Bool:
   TG{+ok, +ax, +o, +r, +inn, +t0, +t1} = t

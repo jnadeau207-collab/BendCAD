@@ -1,0 +1,16 @@
+G2 part closures, measure N, binary s1, 15 jobs in parallel
+node 49 304.58 s 69000 KB
+node 38 169.75 s 53752 KB
+node 52 85.26 s 62348 KB
+node 11 84.57 s 52016 KB
+node 44 17.63 s 34172 KB
+node 21 6.68 s 29048 KB
+node 18 5.96 s 28632 KB
+node 50 0.31 s 35096 KB
+node 53 0.18 s 18440 KB
+node 14 0.14 s 16004 KB
+node 15 0.12 s 17212 KB
+node 23 0.08 s 17392 KB
+node 22 0.07 s 15888 KB
+node 12 0.07 s 16800 KB
+node 13 0.06 s 15608 KB

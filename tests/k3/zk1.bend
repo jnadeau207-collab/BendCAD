@@ -58,7 +58,7 @@ def body_of(cs: List<&2, M.CE>, +id: U64) -> M.Body:
 def kr_s(+r: K1.KR) -> String:
   "k1 ok=" ++ Bool.pick(String, K1.kr_ok(r), "1", "0") ++ " why=" ++ U64.show(K1.kr_why(r)) ++ " nf=" ++ Nat.show(K1.kr_nf(r))
 
-def rg_dbg(rs: List<&2, W.RG>, +s: SF.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +sd: U64, +pcp: List<&2, CO.CP>, +ob: Ty.Brep) -> String:
+def rg_dbg(rs: List<&2, W.RG>, +s: SF.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +sd: U64, +pcp: List<&2, CO.CP>, +ob: FB.KB) -> String:
   match rs:
     case []: ""
     case +h <> +t:
@@ -70,8 +70,8 @@ def rg_dbg(rs: List<&2, W.RG>, +s: SF.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, 
         ") oc=" ++ U64.show(oc) ++ " c=" ++ U64.show(c) ++ "
 " ++ rg_dbg(t, s, fdo, bbo, sd, pcp, ob)
 
-def faces_dbg(fs: List<&2, Nat>, +b: Ty.Brep, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>,
-    +bbo: List<&2, I.I>, +cps: List<&2, CO.CP>, +ob: Ty.Brep, +vmo: List<&2, Nat>, +gv: PX.GV) -> String:
+def faces_dbg(fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>,
+    +bbo: List<&2, I.I>, +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>, +gv: PX.GV) -> String:
   match fs:
     case []: ""
     case +fi <> +t:
@@ -84,9 +84,9 @@ def faces_dbg(fs: List<&2, Nat>, +b: Ty.Brep, +sd: U64, +vmap: List<&2, Nat>, +h
 " ++ rg_dbg(W.rs_rgs(rs), s, fdo, bbo, sd, CO.partner_of(cps, sd, fi), ob) ++
         faces_dbg(t, b, sd, vmap, hs, chs, fdo, bbo, cps, ob, vmo, gv)
 
-def dbg(+ba: Ty.Brep, +bb: Ty.Brep) -> String:
-  +va = PX.add_vs(Ty.brep_vs(ba), PX.GV{[], 0n}, [])
-  +vb = PX.add_vs(Ty.brep_vs(bb), PX.vm_g(va), [])
+def dbg(+ba: FB.KB, +bb: FB.KB) -> String:
+  +va = PX.add_vs(Ty.brep_vs(FB.kb_br(ba)), PX.GV{[], 0n}, [])
+  +vb = PX.add_vs(Ty.brep_vs(FB.kb_br(bb)), PX.vm_g(va), [])
   +hs = PX.all_hits(ba, bb, PX.vm_g(vb))
   +cps = CO.coin_pairs(ba, bb)
   +cx0 = CO.crossings(cps, ba, bb, PX.hs_g(hs))
@@ -95,8 +95,8 @@ def dbg(+ba: Ty.Brep, +bb: Ty.Brep) -> String:
   +hs2 = List.append(&2, PX.HX, PX.hs_hs(hs), CO.cx_hs(cx))
   +cr = PX.all_chains(hs2, ba, bb, CO.cx_g(cx))
   +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
-  +fda = SO.fds_of(ba)
-  +fdb = SO.fds_of(bb)
+  +fda = SO.fds_of(FB.kb_br(ba))
+  +fdb = SO.fds_of(FB.kb_br(bb))
   +gv = PX.cr_g(cr)
   "hs_ok=" ++ Bool.pick(String, PX.hs_ok(hs), "1", "0") ++ " hs_why=" ++ U64.show(PX.hs_why(hs)) ++ " cr_why=" ++ U64.show(PX.cr_why(cr)) ++ " cx_ok=" ++ Bool.pick(String, CO.cx_ok(cx), "1", "0") ++ " cr_ok=" ++ Bool.pick(String, PX.cr_ok(cr), "1", "0") ++ "
 " ++
@@ -106,7 +106,7 @@ def dbg(+ba: Ty.Brep, +bb: Ty.Brep) -> String:
 def pt_s(+p: V.Point) -> String:
   "(" ++ F64.show(V.pt_x(p)) ++ "," ++ F64.show(V.pt_y(p)) ++ "," ++ F64.show(V.pt_z(p)) ++ ")"
 
-def near_fo(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep) -> String:
+def near_fo(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB) -> String:
   match fs:
     case []: ""
     case +fo <> +t:
@@ -121,7 +121,7 @@ def near_fo(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: Ty.Brep, +ob: Ty.Brep) -
 ", "")
       line ++ near_fo(t, side, e, b, ob)
 
-def near_es(es: List<&2, Nat>, +side: U64, +b: Ty.Brep, +ob: Ty.Brep) -> String:
+def near_es(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB) -> String:
   match es:
     case []: ""
     case +e <> +t: near_fo(L.nat_range(FB.nfaces(ob)), side, e, b, ob) ++ near_es(t, side, b, ob)
@@ -141,7 +141,7 @@ def ek_s(+k: Ty.EdgeKind) -> String:
         case _: "other"
     case Ty.EK_degenerate{}: "degenerate"
 
-def uses_bad(us: List<&2, Nat>, +i: Nat, +b: Ty.Brep) -> String:
+def uses_bad(us: List<&2, Nat>, +i: Nat, +b: FB.KB) -> String:
   match us:
     case []: ""
     case +u <> +t:
@@ -151,8 +151,8 @@ def uses_bad(us: List<&2, Nat>, +i: Nat, +b: Ty.Brep) -> String:
         uses_bad(t, Nat.add(i, 1n), b)
 
 def kr_uses(+r: K1.KR) -> String:
-  +b = K1.kr_brep(r)
-  uses_bad(K1.k1use_go(Ty.brep_ces(b), K1.zeros(List.length(&2, Ty.Edge, Ty.brep_es(b)), [])), 0n, b)
+  +b = FB.kb_of(K1.kr_brep(r))
+  uses_bad(K1.k1use_go(Ty.brep_ces(FB.kb_br(b)), K1.zeros(FB.kb_ne(b), [])), 0n, b)
 
 def v2s(+q: V.Vec2) -> String:
   "(" ++ F64.show(V.v2_x(q)) ++ "," ++ F64.show(V.v2_y(q)) ++ ")"
@@ -219,10 +219,10 @@ def fi_pos(fs: List<&2, SO.Fd>, +i: Nat) -> Nat:
         case 0n: SO.fd_fi(f)
         case 1n+(+j): fi_pos(t, j)
 
-def fa_info(+b: Ty.Brep, +fi: Nat) -> String:
-  +f = L.nth_f(Ty.brep_fas(b), fi)
-  "face " ++ Nat.show(fi) ++ " " ++ sk_s(Ty.fa_surf(f)) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, Ty.fa_loops(f))) ++ " c07(by fi)=" ++ fd_at(SO.fds_of(b), fi) ++ "
-   c07(by pos)=" ++ fd_pos(SO.fds_of(b), fi) ++ "
+def fa_info(+b: FB.KB, +fi: Nat) -> String:
+  +f = FB.kb_f(b, fi)
+  "face " ++ Nat.show(fi) ++ " " ++ sk_s(Ty.fa_surf(f)) ++ " loops=" ++ Nat.show(List.length(&2, Ty.HLoop, Ty.fa_loops(f))) ++ " c07(by fi)=" ++ fd_at(SO.fds_of(FB.kb_br(b)), fi) ++ "
+   c07(by pos)=" ++ fd_pos(SO.fds_of(FB.kb_br(b)), fi) ++ "
 "
 
 def poly_s(ps: List<&2, V.Vec2>) -> String:
@@ -236,17 +236,17 @@ def polys_s(ls: List<&2, List<&2, V.Vec2>>) -> String:
     case +h <> +t: "  poly: " ++ poly_s(h) ++ "
 " ++ polys_s(t)
 
-def find_tor(fs: List<&2, Nat>, +b: Ty.Brep) -> Nat:
+def find_tor(fs: List<&2, Nat>, +b: FB.KB) -> Nat:
   match fs:
     case []: 999n
     case +f <> +t:
-      +g = Ty.fa_surf(L.nth_f(Ty.brep_fas(b), f))
+      +g = Ty.fa_surf(FB.kb_f(b, f))
       Bool.pick(Nat, String.eq(sk_s(g), "torus o=(0,0,2) R=38 r=2"), f, find_tor(t, b))
 
 def mid_pt() -> V.Point:
   V.Pt{F64.mul(38.0f64, 0.7193398003386512f64), F64.mul(38.0f64, 0.6946583704589973f64), 0.0f64}
 
-def pif_s(+b: Ty.Brep, +fi: Nat, +p: V.Point) -> String:
+def pif_s(+b: FB.KB, +fi: Nat, +p: V.Point) -> String:
   +s = FB.face_sf(b, fi)
   "face " ++ Nat.show(fi) ++ " uv(p)=" ++ v2s(FB.uv_raw(s, p)) ++ " in=" ++ Bool.pick(String, FB.pt_in_face(b, fi, p), "1", "0") ++ " bnd=" ++
     Bool.pick(String, FB.bnd_near(b, fi, p), "1", "0") ++ " north=" ++ Bool.pick(String, FB.north(b, fi, s), "1", "0") ++ "
@@ -260,14 +260,14 @@ def fes(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> String:
       +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
       Nat.show(Ty.he_idx(Ty.ce_edge(ce))) ++ "(v" ++ Nat.show(Ty.hv_idx(Ty.ed_v0(ed))) ++ "-v" ++ Nat.show(Ty.hv_idx(Ty.ed_v1(ed))) ++ ") " ++ fes(t, x)
 
-def fls(ls: List<&2, Ty.HLoop>, +b: Ty.Brep, +x: Ty.Ix) -> String:
+def fls(ls: List<&2, Ty.HLoop>, +b: FB.KB, +x: Ty.Ix) -> String:
   match ls:
     case []: ""
     case +l <> +t: "[" ++ fes(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, l))), x) ++ "] " ++ fls(t, b, x)
 
-def face_es(+b: Ty.Brep, +fi: Nat) -> String:
-  +f = L.nth_f(Ty.brep_fas(b), fi)
-  +x = Ty.ix_of(b)
+def face_es(+b: FB.KB, +fi: Nat) -> String:
+  +f = FB.kb_f(b, fi)
+  +x = FB.kb_x(b)
   "face " ++ Nat.show(fi) ++ " edges: " ++ fls(Ty.fa_loops(f), b, x) ++ "
 "
 
@@ -278,12 +278,13 @@ def run(+src: String) -> String:
   +kr = GB.gbrun(B8.tag_union(), ba, bb)
   +bc = B8.restamp(K1.kr_brep(kr))
   +fs = SO.fds_of(bc)
-  +ed = FB.edge_at(bc, 62n)
+  +kc = FB.kb_of(bc)
+  +ed = FB.edge_at(kc, 62n)
   kr_s(kr) ++ "
-edge 62 " ++ ek_s(Ty.ed_kind(ed)) ++ " v" ++ Nat.show(Ty.hv_idx(Ty.ed_v0(ed))) ++ " " ++ pt_s(FB.vpt(bc, Ty.ed_v0(ed))) ++ " - v" ++ Nat.show(Ty.hv_idx(Ty.ed_v1(ed))) ++ " " ++ pt_s(FB.vpt(bc, Ty.ed_v1(ed))) ++ "
+edge 62 " ++ ek_s(Ty.ed_kind(ed)) ++ " v" ++ Nat.show(Ty.hv_idx(Ty.ed_v0(ed))) ++ " " ++ pt_s(FB.vpt(kc, Ty.ed_v0(ed))) ++ " - v" ++ Nat.show(Ty.hv_idx(Ty.ed_v1(ed))) ++ " " ++ pt_s(FB.vpt(kc, Ty.ed_v1(ed))) ++ "
 pos9 " ++ fd_pos(fs, 9n) ++ "
 pos11 " ++ fd_pos(fs, 11n) ++ "
-" ++ face_es(bc, fi_pos(fs, 9n)) ++ face_es(bc, fi_pos(fs, 11n)) ++ B8.vcode(B8.vcore(bc)) ++ "
+" ++ face_es(kc, fi_pos(fs, 9n)) ++ face_es(kc, fi_pos(fs, 11n)) ++ B8.vcode(B8.vcore(bc)) ++ "
 "
 
 def main() -> IO(Unit):

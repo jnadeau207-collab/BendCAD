@@ -29,13 +29,13 @@ def cp_so(+c: CP) -> Bool:
   CP{fa, fb, so} = c
   so
 
-def same_orient(+ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep, +fb: Nat) -> Bool:
+def same_orient(+ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> Bool:
   +na = FB.plane_n(FB.face_surf(ba, fa))
   +nb = FB.plane_n(FB.face_surf(bb, fb))
   +d = F64.is_lt(0.0f64, S.dot(na, nb))
   Bool.xor(d, Bool.xor(FB.face_same(ba, fa), FB.face_same(bb, fb)))
 
-def cps_b(fbs: List<&2, Nat>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep) -> List<&2, CP>:
+def cps_b(fbs: List<&2, Nat>, +ba: FB.KB, +fa: Nat, +bb: FB.KB) -> List<&2, CP>:
   match fbs:
     case []: []
     case +h <> +t:
@@ -43,12 +43,12 @@ def cps_b(fbs: List<&2, Nat>, +ba: Ty.Brep, +fa: Nat, +bb: Ty.Brep) -> List<&2, 
       Bool.pick(List<&2, CP>, FB.coplanar(FB.face_surf(ba, fa), FB.face_surf(bb, h)),
         CP{fa, h, same_orient(ba, fa, bb, h)} <> rest, rest)
 
-def cps_a(fas: List<&2, Nat>, +ba: Ty.Brep, +bb: Ty.Brep) -> List<&2, CP>:
+def cps_a(fas: List<&2, Nat>, +ba: FB.KB, +bb: FB.KB) -> List<&2, CP>:
   match fas:
     case []: []
     case +h <> +t: List.append(&2, CP, cps_b(L.nat_range(FB.nfaces(bb)), ba, h, bb), cps_a(t, ba, bb))
 
-def coin_pairs(+ba: Ty.Brep, +bb: Ty.Brep) -> List<&2, CP>:
+def coin_pairs(+ba: FB.KB, +bb: FB.KB) -> List<&2, CP>:
   cps_a(L.nat_range(FB.nfaces(ba)), ba, bb)
 
 def ep_ea(+e: EP) -> Nat:
@@ -78,7 +78,7 @@ def eps_ea(eas: List<&2, Nat>, +ebs: List<&2, Nat>, +n: V.Dir, +acc: List<&2, EP
     case []: acc
     case +h <> +t: eps_ea(t, ebs, n, eps_eb(ebs, h, n, acc))
 
-def edge_pairs(cs: List<&2, CP>, +ba: Ty.Brep, +bb: Ty.Brep, +acc: List<&2, EP>) -> List<&2, EP>:
+def edge_pairs(cs: List<&2, CP>, +ba: FB.KB, +bb: FB.KB, +acc: List<&2, EP>) -> List<&2, EP>:
   match cs:
     case []: acc
     case +h <> +t:
@@ -176,8 +176,8 @@ def hx_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +t: F64, +p: V.Point, +v: N
 def strict_in(+t: F64, +lo: F64, +hi: F64) -> Bool:
   Bool.and(F64.is_lt(lo, t), F64.is_lt(t, hi))
 
-def one_hit(hs: List<&2, EF.EH>, +ka: List<&2, Ty.EdgeKind>, +ea: Nat, +eb: Nat, +ba: Ty.Brep,
-    +bb: Ty.Brep, +lob: F64, +hib: F64, +c: CX) -> CX:
+def one_hit(hs: List<&2, EF.EH>, +ka: List<&2, Ty.EdgeKind>, +ea: Nat, +eb: Nat, +ba: FB.KB,
+    +bb: FB.KB, +lob: F64, +hib: F64, +c: CX) -> CX:
   match hs:
     case []: c
     case +h <> +t:
@@ -196,12 +196,12 @@ def one_hit(hs: List<&2, EF.EH>, +ka: List<&2, Ty.EdgeKind>, +ea: Nat, +eb: Nat,
       one_hit(t, ka, ea, eb, ba, bb, lob, hib,
         Bool.pick(CX, keep, CX{nhs, PX.vi_g(r), Bool.and(cx_ok(c), EF.eh_ok(h))}, c))
 
-def surfs(fs: List<&2, Nat>, +b: Ty.Brep) -> List<&2, G.GVal>:
+def surfs(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, G.GVal>:
   match fs:
     case []: []
     case +h <> +t: FB.face_surf(b, h) <> surfs(t, b)
 
-def pair_x(+e: EP, +ba: Ty.Brep, +bb: Ty.Brep, +c: CX) -> CX:
+def pair_x(+e: EP, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   +ea = ep_ea(e)
   +eb = ep_eb(e)
   +ka = {[Ty.ed_kind(FB.edge_at(ba, ea))] : List<&2, Ty.EdgeKind>}
@@ -213,12 +213,12 @@ def pair_x(+e: EP, +ba: Ty.Brep, +bb: Ty.Brep, +c: CX) -> CX:
   Bool.pick(CX, ok, one_hit(EF.ehs_hs(r), ka, ea, eb, ba, bb, EF.ek_lo(ek1(kb)), EF.ek_hi(ek1(kb)), c),
     CX{cx_hs(c), cx_g(c), False{}})
 
-def pairs_x(es: List<&2, EP>, +ba: Ty.Brep, +bb: Ty.Brep, +c: CX) -> CX:
+def pairs_x(es: List<&2, EP>, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   match es:
     case []: c
     case +h <> +t: pairs_x(t, ba, bb, pair_x(h, ba, bb, c))
 
-def crossings(+cps: List<&2, CP>, +ba: Ty.Brep, +bb: Ty.Brep, +g: PX.GV) -> CX:
+def crossings(+cps: List<&2, CP>, +ba: FB.KB, +bb: FB.KB, +g: PX.GV) -> CX:
   pairs_x(edge_pairs(cps, ba, bb, []), ba, bb, CX{[], g, True{}})
 
 def partner_of(cs: List<&2, CP>, +sd: U64, +fi: Nat) -> List<&2, CP>:
@@ -229,7 +229,7 @@ def partner_of(cs: List<&2, CP>, +sd: U64, +fi: Nat) -> List<&2, CP>:
       +m = Bool.pick(Bool, U64.is_eq(sd, 0u64), Nat.is_eq(cp_fa(h), fi), Nat.is_eq(cp_fb(h), fi))
       Bool.pick(List<&2, CP>, m, h <> rest, rest)
 
-def on_code(cs: List<&2, CP>, +sd: U64, +ob: Ty.Brep, +p: V.Point) -> U64:
+def on_code(cs: List<&2, CP>, +sd: U64, +ob: FB.KB, +p: V.Point) -> U64:
   match cs:
     case []: 0u64
     case +h <> +t:
@@ -242,7 +242,7 @@ def all_fo(fs: List<&2, Nat>, +side: U64, +e: Nat, +t: F64, +p: V.Point, +v: Nat
     case []: acc
     case +h <> +r: all_fo(r, side, e, t, p, v, PX.HX{side, e, t, p, v, h} <> acc)
 
-def tj_one(+side: U64, +ea: Nat, +ka: List<&2, Ty.EdgeKind>, +p: V.Point, +ob: Ty.Brep, +c: CX) -> CX:
+def tj_one(+side: U64, +ea: Nat, +ka: List<&2, Ty.EdgeKind>, +p: V.Point, +ob: FB.KB, +c: CX) -> CX:
   +kk = ek1(ka)
   +ta = ta_of(ka, p)
   +on = F64.is_lt(S.dist(EF.ev(EF.ek_curve(kk), ta), p), 1.0e-9f64)
@@ -253,19 +253,19 @@ def tj_one(+side: U64, +ea: Nat, +ka: List<&2, Ty.EdgeKind>, +p: V.Point, +ob: T
   Bool.pick(CX, Bool.and(on, Bool.and(inn, notend)),
     CX{all_fo(L.nat_range(FB.nfaces(ob)), side, ea, ta, p, PX.vi_i(r), cx_hs(c)), PX.vi_g(r), cx_ok(c)}, c)
 
-def tj_ends(+side: U64, +ea: Nat, +b: Ty.Brep, +ob: Ty.Brep, +eb: Nat, +c: CX) -> CX:
+def tj_ends(+side: U64, +ea: Nat, +b: FB.KB, +ob: FB.KB, +eb: Nat, +c: CX) -> CX:
   +ka = {[Ty.ed_kind(FB.edge_at(b, ea))] : List<&2, Ty.EdgeKind>}
   +edb = FB.edge_at(ob, eb)
   +p0 = FB.vpt(ob, Ty.ed_v0(edb))
   +p1 = FB.vpt(ob, Ty.ed_v1(edb))
   tj_one(side, ea, ka, p1, ob, tj_one(side, ea, ka, p0, ob, c))
 
-def tj_pairs(es: List<&2, EP>, +ba: Ty.Brep, +bb: Ty.Brep, +c: CX) -> CX:
+def tj_pairs(es: List<&2, EP>, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   match es:
     case []: c
     case +h <> +t:
       +c1 = tj_ends(0u64, ep_ea(h), ba, bb, ep_eb(h), c)
       tj_pairs(t, ba, bb, tj_ends(1u64, ep_eb(h), bb, ba, ep_ea(h), c1))
 
-def tjunctions(+cps: List<&2, CP>, +ba: Ty.Brep, +bb: Ty.Brep, +g: PX.GV) -> CX:
+def tjunctions(+cps: List<&2, CP>, +ba: FB.KB, +bb: FB.KB, +g: PX.GV) -> CX:
   tj_pairs(edge_pairs(cps, ba, bb, []), ba, bb, CX{[], g, True{}})

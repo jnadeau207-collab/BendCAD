@@ -922,7 +922,7 @@ law asm_q_ok:
   for il: List<&2, AS.Inst>
   for ml: List<&2, AS.Mate>
   for rq: AS.RQ
-  {AS.asm_q_go(p, AS.AR_ok{AS.Asm{il, ml}}, rq) == Bool.pick(String, String.eq(AS.nodes_err(il, ml, M.ev_part(p, [])), ""), AS.asm_out(AS.Asm{il, ml}, AS.asm_solve(AS.Asm{il, ml}, M.ev_part(p, [])), M.ev_part(p, []), rq), AS.nodes_err(il, ml, M.ev_part(p, []))) : String}
+  {AS.asm_q_go(p, AS.AR_ok{AS.Asm{il, ml}}, rq) == Bool.pick(String, String.eq(AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), [])), ""), AS.asm_out(AS.Asm{il, ml}, AS.asm_solve(AS.Asm{il, ml}, M.ev_for(p, AS.inst_ids(il), [])), M.ev_for(p, AS.inst_ids(il), []), rq), AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), []))) : String}
 
 law explode_go_no:
   for p: M.Part

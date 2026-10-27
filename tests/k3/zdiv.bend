@@ -63,7 +63,7 @@ def mv_s(+m: D.MV) -> String:
   D.MV{+v, x, y, z, xx, yy, zz, xy, yz, zx} = m
   F64.show(v)
 
-def face_s(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point) -> String:
+def face_s(fs: List<&2, Nat>, +b: FB.KB, +c: V.Point) -> String:
   match fs:
     case []: ""
     case +f <> +t:
@@ -82,7 +82,7 @@ def mr_s(+r: D.MR) -> String:
 def run(+src: String) -> String:
   +cs = M.ev_part(S.part_of(S.ps_xs(S.parse(src))), [])
   +b = M.bd_brep(body_of(cs, 3u64))
-  +c = VI.center_of(b)
+  +c = VI.center_of(FB.kb_of(b))
   +w = M.ms_vol(M.body_ms(body_of(cs, 3u64)))
   "center " ++ pt_s(c) ++ " body=[" ++ F64.show(I.i_lo(w)) ++ "," ++ F64.show(I.i_hi(w)) ++ "]
 " ++ mr_s(D.brep_mom(b))

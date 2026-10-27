@@ -91,6 +91,11 @@ def mate_p(m: Mate) -> List<&2, F64>:
   Mate{+id, +kind, +a, +b, +p} = m
   p
 
+def inst_ids(il: List<&2, Inst>) -> List<&2, U64>:
+  match il:
+    case []: []
+    case +i <> t: inst_node(i) <> inst_ids(t)
+
 def asm_insts(a: Asm) -> List<&2, Inst>:
   Asm{+insts, +mates} = a
   insts
@@ -737,7 +742,7 @@ def asm_q_go(+p: M.Part, +ar: AR, +rq: RQ) -> String:
   match ar:
     case AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case AR_ok{+a}:
-      +cs = M.ev_part(p, [])
+      +cs = M.ev_for(p, inst_ids(asm_insts(a)), [])
       +e = nodes_err(asm_insts(a), asm_mates(a), cs)
       Bool.pick(String, String.eq(e, ""), asm_out(a, asm_solve(a, cs), cs, rq), e)
 

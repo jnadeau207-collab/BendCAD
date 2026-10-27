@@ -166,17 +166,17 @@ def edge_or(+deg: Bool, +ss: List<&2, S.SF>, +c: V.Point, +ks: List<&2, Ty.EdgeK
     case True{}: mp0()
     case False{}: edge_mp(ss, c, ks, fw)
 
-def ce_kind(+b: Ty.Brep, +h: FB.CE) -> List<&2, Ty.EdgeKind>:
+def ce_kind(+b: FB.KB, +h: FB.CE) -> List<&2, Ty.EdgeKind>:
   [Ty.ed_kind(FB.edge_at(b, FB.ce_e(h)))]
 
-def ces_mp(cs: List<&2, FB.CE>, +b: Ty.Brep, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
+def ces_mp(cs: List<&2, FB.CE>, +b: FB.KB, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
   match cs:
     case []: acc
     case +h <> +t:
       +ks = ce_kind(b, h)
       ces_mp(t, b, ss, c, mp_add(acc, edge_or(U64.is_eq(VI.ks_tag(ks), 0u64), ss, c, ks, FB.ce_fw(h))))
 
-def lps_mp(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
+def lps_mp(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +ss: List<&2, S.SF>, +c: V.Point, +acc: MP) -> MP:
   match ls:
     case []: acc
     case +h <> +t: lps_mp(t, b, ss, c, ces_mp(h, b, ss, c, acc))
@@ -203,7 +203,7 @@ def pole_mp(+on: Bool, +sg: F64, +ss: List<&2, S.SF>, +c: V.Point, +v: F64) -> M
     case False{}: mp0()
     case True{}: mp_scale(sg, pole_sub(8n, ss, c, v, F64.div(S.two_pi(), 8.0f64), 0.0f64, mp0()))
 
-def face_mp(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> MP:
+def face_mp(+b: FB.KB, +fi: Nat, +c: V.Point) -> MP:
   +s = FB.face_sf(b, fi)
   +sg = Bool.pick(F64, FB.face_same(b, fi), 1.0f64, F64.neg(1.0f64))
   +r = S.sf_r(s)
@@ -213,7 +213,7 @@ def face_mp(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> MP:
   +lp = lps_mp(FB.face_ce(b, fi), b, [s], c, mp0())
   mp_add(mp_add(lp, pole_mp(np, sg, [s], c, r)), pole_mp(sp, F64.neg(sg), [s], c, F64.neg(r)))
 
-def faces_mp(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: MP) -> MP:
+def faces_mp(fs: List<&2, Nat>, +b: FB.KB, +c: V.Point, +acc: MP) -> MP:
   match fs:
     case []: acc
     case +h <> +t: faces_mp(t, b, c, mp_add(acc, face_mp(b, h, c)))
@@ -221,7 +221,7 @@ def faces_mp(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: MP) -> MP:
 type MR is Data:
   MR{ c: V.Point, m: MV, e: MV, slv: F64, rad: F64, ar: F64, sla: F64 }
 
-def bb_all(fs: List<&2, Nat>, +b: Ty.Brep, +acc: FB.BB) -> FB.BB:
+def bb_all(fs: List<&2, Nat>, +b: FB.KB, +acc: FB.BB) -> FB.BB:
   match fs:
     case []: acc
     case +h <> +t: bb_all(t, b, FB.bb_join(acc, FB.face_bb(b, h)))
@@ -233,7 +233,8 @@ def bb_far(+x: FB.BB, +c: V.Point) -> F64:
   +dz = F64.max(F64.abs(F64.sub(z0, V.pt_z(c))), F64.abs(F64.sub(z1, V.pt_z(c))))
   F64.sqrt(F64.add(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), F64.mul(dz, dz)))
 
-def brep_mom(+b: Ty.Brep) -> MR:
+def brep_mom(+r0: Ty.Brep) -> MR:
+  +b = FB.kb_of(r0)
   +c = VI.center_of(b)
   +fs = L.nat_range(FB.nfaces(b))
   +r = faces_mp(fs, b, c, mp0())

@@ -1,0 +1,6 @@
+bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8  /home/jesse/bc/bendcad-k3z
+a48a2ad2c2e1154c0e33d5c62a5dbe18418f841c8a54009ee4d11e05c38d7630  /home/jesse/bc/bendcad-s1
+658281b4aaafd612525172e04499eb5df3e11f28b038da57da41646577e7d461  /home/jesse/bc/bendcad-s2
+d0f1aa3ee2e5f131561be6031f2a057abb43b73d3a8a2fc0998336fa38c1adb4  /home/jesse/bc/bendcad-s3
+71a2263cae96c63652d12b74d1520de392288f77a35047a5f9e0cc6eddb85ce7  /home/jesse/bc/bendcad-s4
+168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5  /home/jesse/bc/bendcad-s5

@@ -19,7 +19,7 @@ type TL is Data:
   TL{ ok: Bool, why: String, ts: List<&2, TR> }
 
 type BX is Data:
-  BX{ m: V.Mat3, tx: F64, ty: F64, tz: F64, b: Ty.Brep }
+  BX{ m: V.Mat3, tx: F64, ty: F64, tz: F64, b: FB.KB }
 
 type TF is Data:
   TF{ code: U64, tr: TR }
@@ -348,7 +348,7 @@ def wdr(+m: V.Mat3, +d: V.Dir) -> V.Dir:
 
 def bx_of(+b: M.Body) -> BX:
   +pl = M.bd_pl(b)
-  BX{M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), M.bd_brep(b)}
+  BX{M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), FB.kb_of(M.bd_brep(b))}
 
 def bx_pt(+x: BX, +p: V.Point) -> V.Point:
   BX{+m, +tx, +ty, +tz, +b} = x
@@ -358,7 +358,7 @@ def bx_dr(+x: BX, +d: V.Dir) -> V.Dir:
   BX{+m, +tx, +ty, +tz, +b} = x
   wdr(m, d)
 
-def bx_b(+x: BX) -> Ty.Brep:
+def bx_b(+x: BX) -> FB.KB:
   BX{+m, +tx, +ty, +tz, +b} = x
   b
 
@@ -478,7 +478,7 @@ def pl_trace(+x: BX, +fi: Nat, +o: V.Point, +n: V.Dir) -> TF:
       F64.add(F64.mul(c, nx), F64.mul(V.v2_y(sv), hx)), F64.add(F64.mul(c, ny), F64.mul(V.v2_y(sv), hy)), 0.0f64, 0.0f64, 0.0f64,
       V.v2_x(z), V.v2_y(z), Bool.not(fp_cv(f))}}))
 
-def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: Ty.Brep) -> Bool:
+def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: FB.KB) -> Bool:
   match ls:
     case []: False{}
     case +h <> +t: Bool.or(F64.is_lt(KS.pi(), F64.abs(FB.lp_turn(h, sf, b, 0.0f64))), any_wrap(t, sf, b))

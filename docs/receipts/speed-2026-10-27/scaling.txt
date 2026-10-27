@@ -1,0 +1,19 @@
+n-gon prism (r=12) union cylinder (r=8), measure of the union node, 5 jobs in parallel
+binary s1 (main kernel, demand eval only):
+n=16 2.25 s
+n=32 4.13 s
+n=64 11.41 s
+n=128 40.44 s
+n=256 212.18 s
+binary s4:
+n=16 1.30 s
+n=32 2.37 s
+n=64 6.17 s
+n=128 16.94 s
+n=256 58.05 s
+binary s5:
+n=16 1.44 s
+n=32 2.48 s
+n=64 6.26 s
+n=128 16.68 s
+n=256 55.40 s

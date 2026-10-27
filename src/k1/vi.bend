@@ -345,7 +345,7 @@ def samp_dev(+s: S.SF, +k: Ty.EdgeKind) -> F64:
 def is_chord(+k: Ty.EdgeKind) -> Bool:
   Bool.and(U64.is_eq(ek_tag(k), 4u64), Bool.not(bz_straight(EF.ek_curve(k))))
 
-def chord_sl(+b: Ty.Brep, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
+def chord_sl(+b: FB.KB, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
   +fs = FB.edge_faces(b, e)
   +s1 = S.sf_of(FB.face_surf(b, L.nth_n(fs, 0n)))
   +s2 = S.sf_of(FB.face_surf(b, L.nth_n(fs, 1n)))
@@ -356,12 +356,12 @@ def chord_sl(+b: Ty.Brep, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.P
   +rm = F64.add(F64.max(S.dist(pa, c), S.dist(pb, c)), d)
   VA{0.0f64, 0.0f64, F64.div(F64.mul(F64.mul(d, l), rm), 3.0f64), F64.mul(d, l), True{}}
 
-def chord_maybe(+isc: Bool, +b: Ty.Brep, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
+def chord_maybe(+isc: Bool, +b: FB.KB, +e: Nat, +s: S.SF, +c: V.Point, +pa: V.Point, +pb: V.Point) -> VA:
   match isc:
     case True{}: chord_sl(b, e, s, c, pa, pb)
     case False{}: va0()
 
-def ces_va(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def ces_va(cs: List<&2, FB.CE>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match cs:
     case []: acc
     case +h <> +t:
@@ -375,12 +375,12 @@ def ces_va(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) ->
       +sl = chord_maybe(is_chord(Ty.ed_kind(ed)), b, FB.ce_e(h), s, c, pa, pb)
       ces_va(t, b, s, c, va_add(va_add(acc, x), sl))
 
-def lps_va(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def lps_va(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match ls:
     case []: acc
     case +h <> +t: lps_va(t, b, s, c, ces_va(h, b, s, c, acc))
 
-def face_va_go(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def face_va_go(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   +g = FB.face_surf(b, fi)
   +s = S.sf_of(g)
   +raw = lps_va(FB.face_ce(b, fi), b, s, c, va0())
@@ -440,14 +440,14 @@ def edge_j(+k: Ty.EdgeKind) -> V.Dir:
   Bool.pick(V.Dir, U64.is_eq(tag, 1u64), S.cross(pv(q0), pv(q1)),
     Bool.pick(V.Dir, U64.is_eq(tag, 4u64), bz_j(g), arc_j(ctr, q0, m, q1, q3, q4, full)))
 
-def ces_j(cs: List<&2, FB.CE>, +b: Ty.Brep, +acc: V.Dir) -> V.Dir:
+def ces_j(cs: List<&2, FB.CE>, +b: FB.KB, +acc: V.Dir) -> V.Dir:
   match cs:
     case []: acc
     case +h <> +t:
       +j = edge_j(Ty.ed_kind(FB.edge_at(b, FB.ce_e(h))))
       ces_j(t, b, S.dadd(acc, Bool.pick(F64, FB.ce_fw(h), 1.0f64, F64.neg(1.0f64)), j))
 
-def lps_j(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +acc: V.Dir) -> V.Dir:
+def lps_j(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +acc: V.Dir) -> V.Dir:
   match ls:
     case []: acc
     case +h <> +t: lps_j(t, b, ces_j(h, b, acc))
@@ -468,7 +468,7 @@ def cone_poly(+ps: List<&2, V.Vec2>, +kq: F64) -> F64:
     case []: 0.0f64
     case +h <> +t: cone_pg(t, kq, h, 0.0f64)
 
-def cone_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
+def cone_ces(cs: List<&2, FB.CE>, +b: FB.KB, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
   match cs:
     case []: acc
     case +h <> +t:
@@ -487,12 +487,12 @@ def cone_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, 
       +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, pa, pb)
       cone_ces(t, b, s, c, kq, va_add(acc, va_add(VA{0.0f64, ar, 0.0f64, 0.0f64, True{}}, sl)))
 
-def cone_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
+def cone_lps(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +s: S.SF, +c: V.Point, +kq: F64, +acc: VA) -> VA:
   match ls:
     case []: acc
     case +h <> +t: cone_lps(t, b, s, c, kq, cone_ces(h, b, s, c, kq, acc))
 
-def cone_va(+b: Ty.Brep, +fi: Nat, +s: S.SF, +c: V.Point) -> VA:
+def cone_va(+b: FB.KB, +fi: Nat, +s: S.SF, +c: V.Point) -> VA:
   +k = S.sf_r(s)
   +kq = F64.mul(k, F64.sqrt(F64.add(1.0f64, F64.mul(k, k))))
   +ls = FB.face_ce(b, fi)
@@ -540,7 +540,7 @@ def sph_edge(+s: S.SF, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2:
   +r = sph_sub(8n, s, EF.ek_curve(k), lo, dt, 0.0f64, 0.0f64, 0.0f64)
   V.V2{Bool.pick(F64, fw, V.v2_x(r), F64.neg(V.v2_x(r))), V.v2_y(r)}
 
-def sph_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def sph_ces(cs: List<&2, FB.CE>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match cs:
     case []: acc
     case +h <> +t:
@@ -553,12 +553,12 @@ def sph_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -
       +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
       sph_ces(t, b, s, c, va_add(acc, va_add(VA{V.v2_y(x), V.v2_x(x), 0.0f64, 0.0f64, True{}}, sl)))
 
-def sph_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def sph_lps(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match ls:
     case []: acc
     case +h <> +t: sph_lps(t, b, s, c, sph_ces(h, b, s, c, acc))
 
-def sph_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def sph_va(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   +s = FB.face_sf(b, fi)
   +r = S.sf_r(s)
   +ls = FB.face_ce(b, fi)
@@ -624,7 +624,7 @@ def tor_edge(+s: S.SF, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> VA:
   +sg = Bool.pick(F64, fw, 1.0f64, F64.neg(1.0f64))
   VA{F64.mul(sg, va_vol(r)), F64.mul(sg, va_ar(r)), va_slv(r), va_sla(r), True{}}
 
-def tor_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def tor_ces(cs: List<&2, FB.CE>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match cs:
     case []: acc
     case +h <> +t:
@@ -636,26 +636,26 @@ def tor_ces(cs: List<&2, FB.CE>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -
       +sl = chord_maybe(is_chord(k), b, FB.ce_e(h), s, c, Bool.pick(V.Point, fw, p0, p1), Bool.pick(V.Point, fw, p1, p0))
       tor_ces(t, b, s, c, va_add(acc, va_add(tor_edge(s, c, k, fw), sl)))
 
-def tor_lps(ls: List<&2, List<&2, FB.CE>>, +b: Ty.Brep, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
+def tor_lps(ls: List<&2, List<&2, FB.CE>>, +b: FB.KB, +s: S.SF, +c: V.Point, +acc: VA) -> VA:
   match ls:
     case []: acc
     case +h <> +t: tor_lps(t, b, s, c, tor_ces(h, b, s, c, acc))
 
-def tor_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def tor_va(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   +raw = tor_lps(FB.face_ce(b, fi), b, FB.face_sf(b, fi), c, va0())
   VA{va_vol(raw), F64.abs(va_ar(raw)), va_slv(raw), va_sla(raw), va_ok(raw)}
 
-def face_kv(+kd: U64, +b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def face_kv(+kd: U64, +b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   match kd:
     case 3u64: cone_va(b, fi, S.sf_of(FB.face_surf(b, fi)), c)
     case 4u64: sph_va(b, fi, c)
     case 5u64: tor_va(b, fi, c)
     case _: face_va_go(b, fi, c)
 
-def face_va(+b: Ty.Brep, +fi: Nat, +c: V.Point) -> VA:
+def face_va(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   face_kv(S.sf_kind(S.sf_of(FB.face_surf(b, fi))), b, fi, c)
 
-def faces_va(fs: List<&2, Nat>, +b: Ty.Brep, +c: V.Point, +acc: VA) -> VA:
+def faces_va(fs: List<&2, Nat>, +b: FB.KB, +c: V.Point, +acc: VA) -> VA:
   match fs:
     case []: acc
     case +h <> +t: faces_va(t, b, c, va_add(acc, face_va(b, h, c)))
@@ -668,9 +668,9 @@ def vs_box(vs: List<&2, Ty.Vertex>, +lo: V.Point, +hi: V.Point) -> List<&2, V.Po
       vs_box(t, S.pt(F64.min(S.px(lo), S.px(p)), F64.min(S.py(lo), S.py(p)), F64.min(S.pz(lo), S.pz(p))),
         S.pt(F64.max(S.px(hi), S.px(p)), F64.max(S.py(hi), S.py(p)), F64.max(S.pz(hi), S.pz(p))))
 
-def center_of(+b: Ty.Brep) -> V.Point:
-  +p0 = Ty.vx_p(L.nth_v(Ty.brep_vs(b), 0n))
-  +bx = vs_box(Ty.brep_vs(b), p0, p0)
+def center_of(+b: FB.KB) -> V.Point:
+  +p0 = Ty.vx_p(FB.kb_v(b, 0n))
+  +bx = vs_box(Ty.brep_vs(FB.kb_br(b)), p0, p0)
   +lo = L.nth_p(bx, 0n)
   +hi = L.nth_p(bx, 1n)
   S.padd(lo, 0.5f64, S.psub(hi, lo))
@@ -691,7 +691,11 @@ def widen(+x: F64, +e: F64) -> I.I:
   +m = F64.add(F64.add(e, F64.mul(F64.abs(x), 1.0e-12f64)), 1.0e-12f64)
   I.I{F64.sub(x, m), F64.add(x, m)}
 
-def brep_vol(+b: Ty.Brep) -> VR:
+def brep_vol_k(+b: FB.KB) -> VR:
   +c = center_of(b)
   +a = faces_va(L.nat_range(FB.nfaces(b)), b, c, va0())
   VR{widen(va_vol(a), va_slv(a)), widen(va_ar(a), va_sla(a)), va_ok(a)}
+
+
+def brep_vol(+b: Ty.Brep) -> VR:
+  brep_vol_k(FB.kb_of(b))

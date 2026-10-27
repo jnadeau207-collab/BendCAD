@@ -213,7 +213,7 @@ def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
-      +cs = M.ev_part(p, [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       Bool.pick(String, String.eq(e, ""), k2_sol(code, p, a, A4.asm_solve(a, cs), cs, xs), e)
 
@@ -458,7 +458,7 @@ def ip_ar(+p: M.Part, +ar: A4.AR, +ds: List<&2, PD>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
-      +cs = M.ev_part(p, [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       ip_ok(String.eq(e, ""), e, a, cs, ds)
 
@@ -517,7 +517,7 @@ def step_ar(+p: M.Part, +ar: A4.AR) -> AW:
   match ar:
     case A4.AR_err{+why, +fix}: aw_err(why)
     case A4.AR_ok{+a}:
-      +cs = M.ev_part(p, [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       step_ok(String.eq(e, ""), e, a, cs)
 

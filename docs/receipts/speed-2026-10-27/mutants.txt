@@ -1,0 +1,27 @@
+BASE c06 -> ALL PROOFS CHECK
+BASE c14 -> ALL PROOFS CHECK
+BASE k1 -> ALL PROOFS CHECK
+PASS c06 one entry per node -> SOME PROOFS FAIL
+PASS c06 intent mismatch refused -> SOME PROOFS FAIL
+PASS c14 instance accessor keeps its field -> SOME PROOFS FAIL
+PASS c14 parse failure keeps its name -> SOME PROOFS FAIL
+PASS c14 fix mates build fix rows -> SOME PROOFS FAIL
+PASS c14 axis mates build two rows -> SOME PROOFS FAIL
+PASS c14 conflicts publish no solution -> SOME PROOFS FAIL
+PASS c14 declared translations cover three axes -> SOME PROOFS FAIL
+PASS c14 column layout packs three per instance -> SOME PROOFS FAIL
+PASS c14 interference renders relations -> SOME PROOFS FAIL
+PASS c14 surface classifier names its kind -> SOME PROOFS FAIL
+PASS c14 empty scan accepts no instances -> SOME PROOFS FAIL
+PASS c14 placement keeps failure silent -> SOME PROOFS FAIL
+PASS c14 coincident mate takes six numbers -> SOME PROOFS FAIL
+PASS c14 solve verb renders the solution -> SOME PROOFS FAIL
+PASS c14 unknown node refusal keeps its name -> SOME PROOFS FAIL
+PASS c14 pair flag selects clearance -> SOME PROOFS FAIL
+PASS c14 empty assembly refused -> SOME PROOFS FAIL
+PASS c14 lineage names its nodes -> SOME PROOFS FAIL
+PASS c14 identifier list keeps its brackets -> SOME PROOFS FAIL
+PASS c14 face rows count their loops -> SOME PROOFS FAIL
+PASS k1 box disjoint symmetric -> SOME PROOFS FAIL
+PASS k1 exact faces keep path membership -> SOME PROOFS FAIL
+PASS k1 lineage one name per face -> SOME PROOFS FAIL

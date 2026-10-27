@@ -18,7 +18,7 @@ def fsum(xs: List<&2, F64>, +a: F64) -> F64:
 def summ(s: S.Sol) -> String:
   match s:
     case S.Sv_ok{{ps, dof, red}}: "ok dof=" ++ Nat.show(dof) ++ " sum=" ++ F64.show(fsum(ps, 0.0f64))
-    case S.Sv_conflict{{ids}}: "conflict"
+    case S.Sv_conflict{{ids, cert}}: "conflict"
     case S.Sv_err{{kind}}: "err " ++ T.FailKind.show(kind)
 
 def rlen(xs: List<&2, A.Region>) -> Nat:

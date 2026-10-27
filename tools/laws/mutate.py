@@ -149,7 +149,7 @@ MUTANTS = [
      '  RQ{Bool.and(rad_ok(cs, pt), rows_ok(rs)), sub_off(ho, drows(rs, ft, tl, ta))}',
      '  RQ{rows_ok(rs), sub_off(ho, drows(rs, ft, tl, ta))}'),
     ('c06', 'one entry per node', 'src/c06/model.bend',
-     '      ev_nodes(t, e, old, CE{nd, key, r} <> acc, all)', '      ev_nodes(t, e, old, CE{0u64, key, r} <> acc, all)'),
+     '      ce_at(id, ce_find(cs, id)) <> ce_ord(t, cs)', '      ce_at(0u64, ce_find(cs, id)) <> ce_ord(t, cs)'),
     ('c06', 'intent mismatch refused', 'src/c06/model.bend',
      '    case True{}: NR_ok{r, f}\n    case False{}:\n      bad("intent"',
      '    case False{}: NR_ok{r, f}\n    case True{}:\n      bad("intent"'),

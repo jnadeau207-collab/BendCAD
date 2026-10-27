@@ -1,0 +1,85 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k3z",
+ "sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
+ "jobs": 1,
+ "rows": [
+  {
+   "name": "g1-bracket-eval",
+   "seconds": 0.06,
+   "rc": 0,
+   "stdout_sha256": "0eb8142f43a2e109c3eb7a9a380c22c643e900431c74fafc5db37530c07bd164",
+   "stdout_head": "node 1: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[88913.27412278162, 88913.27412296207] area=[25610.973355268998, "
+  },
+  {
+   "name": "g1-strap-eval",
+   "seconds": 0.05,
+   "rc": 0,
+   "stdout_sha256": "798d09bdcca31dcca1807d10c11da60ab02557998523a34230284080d3036ff3",
+   "stdout_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[43068.58347052669, 43068.583470627374] area=[11956.19449018075, 1"
+  },
+  {
+   "name": "g1-bracket-mass",
+   "seconds": 34.6,
+   "rc": 0,
+   "stdout_sha256": "3546204abf228d36d7d5639c87d081e768219d24d5031eb006cc27f8e28ac4e0",
+   "stdout_head": "mass volume=[96101.23811419433, 96101.23811437626] certified octree=[44843.75000075422, 123265.62500209255] depth=4 cells=820/1842/1434\ncentroid [25.46583850931"
+  },
+  {
+   "name": "g2-eval",
+   "seconds": 805.53,
+   "rc": 0,
+   "stdout_sha256": "4662a6e7016aa59ee1855c51b31003fc1aa106b7dcdc0dad586d45964c986e57",
+   "stdout_head": "node 1: ok material=create faces_created=12 faces_modified=0 solids=1 through_holes=1 | volume=[122227.49122245786, 122227.4912228991] area=[20797.432769299045,"
+  },
+  {
+   "name": "g2-mass-38",
+   "seconds": 843.07,
+   "rc": 0,
+   "stdout_sha256": "f0a9ee12afea6dc688a6ffa2041310abf15b397ff58ec437ce3ce982e4e48bdf",
+   "stdout_head": "mass volume=[252324.11899171834, 252324.118992223] certified octree=[116665.32023508468, 342765.4467209055] depth=4 cells=1194/588/2314\ncentroid [-24.2847571189"
+  },
+  {
+   "name": "g2-interf-11-38",
+   "seconds": 1452.28,
+   "rc": 0,
+   "stdout_sha256": "7ab22f28673fbf21258ed0630b50ea45c1a85d8acffc707704640b217a5b3ad8",
+   "stdout_head": "relation disjoint status=certified method=exact-intersection\n"
+  },
+  {
+   "name": "g2-step-38",
+   "seconds": 808.29,
+   "rc": 0,
+   "stdout_sha256": "c9c6c1b2e30455df62d17cbfa5316723945aef890a94d946af26e4da31786f00",
+   "stdout_head": "wrote OUT/step38.stp entities 1917 products 1\n",
+   "file_sha256": "4f4b323f511d8259cb4817017b304147fc16404812ec62825d132c73bcd536bf"
+  },
+  {
+   "name": "g2-asm-solve",
+   "seconds": 1257.15,
+   "rc": 0,
+   "stdout_sha256": "35c814e02801e2cc99847b532aba172b575a40f4e871d19f6d8e4d051f26ed6a",
+   "stdout_head": "asm solved ninst 20 nmates 20 dof 0 max-residual 2.842170943040401e-14\ninst body node 11 t=0 0 0 q=0\ninst front_cover node 38 t=-0 0 -5.801557143511546e-15 q=0\n"
+  },
+  {
+   "name": "g2-asm-interf-pair",
+   "seconds": 1854.29,
+   "rc": 0,
+   "stdout_sha256": "46a79e93075d4b50a22b56274d37bdae5d92b367aed8554b2d80f3386db2543d",
+   "stdout_head": "assembly pairs ninst 2\npair body front_cover\nrelation disjoint status=certified method=exact-intersection\n\n"
+  },
+  {
+   "name": "g2-threads-38",
+   "seconds": 772.8,
+   "rc": 0,
+   "stdout_sha256": "ea52755c601292e72e7bfc2ee08d507d7cb676172ef72c070bbb0b8c107e3c6d",
+   "stdout_head": "threads node 38\nthread tap0 M8x1.25 6H z=[-24, 0] length=24 internal minor=[6.647, 6.912] model=6.8 face=n36.c0.wall.0.0 status=certified\nthread tap1 M8x1.25 6H"
+  },
+  {
+   "name": "g3-eval",
+   "seconds": 1.94,
+   "rc": 0,
+   "stdout_sha256": "c98c930826b32babe0772f01ad9400c1d1872f2d91b5043beba53c25b74a38f9",
+   "stdout_head": "node 1: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[1499944.1408978982, 1499944.1409007688] area=[140829.94671045605"
+  }
+ ]
+}

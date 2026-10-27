@@ -8,6 +8,7 @@ import ../../src/c04/types.bend as Ty
 import ../../src/c07/sol.bend as SO
 import ../../src/c07/emb.bend as EM
 import ../../src/c01/types.bend as V
+import ../../src/k1/fb.bend as FB
 
 law read_go:
   for m: File & Result<&1, &1, (U32 & String), String>
@@ -93,8 +94,9 @@ def run(+src: String, +na: Nat) -> String:
   +cs = M.ev_part(S.part_of(S.ps_xs(S.parse(src))), [])
   +b = placed(M.nr_body(M.ce_r(M.ce_find(cs, 1u64))))
   +t = {K.TL{0.8f64, 20.0f64, 5.0f64, 40.0f64} : K.TL}
-  +pc = {K.PC{b, SO.fds_of(b), K.first_pt(Ty.brep_vs(b))} : K.PC}
-  one_sp(K.samples(b, 9n, 2n), pc, K.tool_bs(t), t)
+  +k = FB.kb_of(b)
+  +pc = {K.PC{b, k, SO.fds_of(b), K.first_pt(Ty.brep_vs(b))} : K.PC}
+  one_sp(K.samples(k, 9n, 2n), pc, K.tool_bs(t), t)
 
 def main() -> IO(Unit):
   do IO<Unit>:

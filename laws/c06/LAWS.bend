@@ -14,11 +14,11 @@ def nr_failed(r: M.NR) -> Bool:
     case M.NR_err{kind, d}: True{}
 
 law eval_one_entry_per_node:
-  for ns: List<&2, M.Node>
+  for +ns: List<&2, M.Node>
   for +e: X.Env
   for +old: List<&2, M.CE>
   for +all: List<&2, M.Node>
-  {ce_ids(M.ev_nodes(ns, e, old, [], all)) == M.nd_ids(ns) : List<&2, U64>}
+  {ce_ids(M.ev_nodes(ns, e, old, all)) == M.nd_ids(ns) : List<&2, U64>}
 
 law duplicate_ids_evaluate_nothing:
   for p: M.Part

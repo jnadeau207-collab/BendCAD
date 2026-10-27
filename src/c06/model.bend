@@ -1776,7 +1776,7 @@ def nat_has(xs: List<&2, Nat>, +x: Nat) -> Bool:
     case []: False{}
     case +h <> t: Bool.or(Nat.is_eq(h, x), nat_has(t, x))
 
-def shared_go(+n: Nat, +e: Nat, +b: Ty.Brep, +f1: Nat, +f2: Nat) -> Nat:
+def shared_go(+n: Nat, +e: Nat, +b: FB.KB, +f1: Nat, +f2: Nat) -> Nat:
   match n:
     case 0n: e
     case 1n+m:
@@ -1825,10 +1825,11 @@ def op_lchamf(+b: Body, +n1: String, +n2: String, +cc: X.Xp, +e: X.Env, +nd: U64
   +a = fr_n(fi_fr(i1))
   +bn = fr_n(fi_fr(i2))
   +d = dcross(a, bn)
-  +ne = FB.nedges(br)
-  +ei = shared_go(ne, 0n, br, f1, f2)
-  +p0 = FB.vpt(br, Ty.ed_v0(FB.edge_at(br, ei)))
-  +p1 = FB.vpt(br, Ty.ed_v1(FB.edge_at(br, ei)))
+  +kb = FB.kb_of(br)
+  +ne = FB.nedges(kb)
+  +ei = shared_go(ne, 0n, kb, f1, f2)
+  +p0 = FB.vpt(kb, Ty.ed_v0(FB.edge_at(kb, ei)))
+  +p1 = FB.vpt(kb, Ty.ed_v1(FB.edge_at(kb, ei)))
   +t = pdot(p0, p1, d)
   +o = Bool.pick(V.Point, F64.is_lt(0.0f64, t), p0, p1)
   +len = F64.abs(t)
@@ -3479,31 +3480,139 @@ def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it:
       +oc = ce_find(old, nd)
       hit_go(Bool.and(ce_has(old, nd), keq(ce_key(oc), key)), oc, o, hasb, b, b2, e, it, nd, ns)
 
-def ev_nodes(ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, CE>, +all: List<&2, Node>) -> List<&2, CE>:
+type EW is Data:
+  EW{ n: Node, lv: Nat, fa: Bool, fb: Bool }
+
+type EC is Data:
+  EC{ e: X.Env, old: List<&2, CE>, acc: List<&2, CE>, all: List<&2, Node> }
+
+type NL is Data:
+  NL{ id: U64, lv: Nat }
+
+def ew_lv(w: EW) -> Nat:
+  EW{n, +lv, fa, fb} = w
+  lv
+
+def ev_one(c: EC, w: EW) -> CE:
+  EC{+e, +old, +acc, +all} = c
+  EW{n, lv, +fa, +fb} = w
+  Nd{+nd, +o, +it} = n
+  +hasb = op_has_base(o)
+  +hasb2 = op_has_b2(o)
+  +bc = ce_find(acc, op_base(o))
+  +bc2 = ce_find(acc, op_base2(o))
+  +okb = Bool.and(Bool.or(Bool.not(hasb), Bool.and(fa, Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc))))),
+    Bool.or(Bool.not(hasb2), Bool.and(fb, Bool.and(ce_has(acc, op_base2(o)), nr_ok(ce_r(bc2))))))
+  +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it),
+    List.append(&2, U64, Bool.pick(List<&2, U64>, hasb, ce_key(bc), []),
+      Bool.pick(List<&2, U64>, hasb2, ce_key(bc2), []))))
+  CE{nd, key, node_go(okb, o, hasb, nr_body(ce_r(bc)), nr_body(ce_r(bc2)), e, it, nd, key, old, all)}
+
+def nl_lv(xs: List<&2, NL>, +id: U64) -> Nat:
+  match xs:
+    case []: 0n
+    case +x <> t:
+      NL{+i, +l} = x
+      Bool.pick(Nat, U64.is_eq(i, id), l, nl_lv(t, id))
+
+def nl_has(xs: List<&2, NL>, +id: U64) -> Bool:
+  match xs:
+    case []: False{}
+    case +x <> t:
+      NL{+i, l} = x
+      Bool.or(U64.is_eq(i, id), nl_has(t, id))
+
+def nd_op_of(n: Node) -> Op:
+  Nd{id, op, it} = n
+  op
+
+def ews(ns: List<&2, Node>, +seen: List<&2, NL>) -> List<&2, EW>:
   match ns:
-    case []: List.reverse(&2, CE, acc)
-    case n <> t:
-      Nd{+nd, +o, +it} = n
-      +hasb = op_has_base(o)
-      +hasb2 = op_has_b2(o)
-      +bc = ce_find(acc, op_base(o))
-      +bc2 = ce_find(acc, op_base2(o))
-      +okb = Bool.and(Bool.or(Bool.not(hasb), Bool.and(ce_has(acc, op_base(o)), nr_ok(ce_r(bc)))),
-        Bool.or(Bool.not(hasb2), Bool.and(ce_has(acc, op_base2(o)), nr_ok(ce_r(bc2)))))
-      +key = List.append(&2, U64, op_w(o, e), List.append(&2, U64, it_w(it),
-        List.append(&2, U64, Bool.pick(List<&2, U64>, hasb, ce_key(bc), []),
-          Bool.pick(List<&2, U64>, hasb2, ce_key(bc2), []))))
-      +r = node_go(okb, o, hasb, nr_body(ce_r(bc)), nr_body(ce_r(bc2)), e, it, nd, key, old, all)
-      ev_nodes(t, e, old, CE{nd, key, r} <> acc, all)
+    case []: []
+    case +n <> t:
+      +o = nd_op_of(n)
+      +ia = Bool.and(op_has_base(o), nl_has(seen, op_base(o)))
+      +ib = Bool.and(op_has_b2(o), nl_has(seen, op_base2(o)))
+      +l = Nat.add(1n, Nat.max(Bool.pick(Nat, ia, nl_lv(seen, op_base(o)), 0n), Bool.pick(Nat, ib, nl_lv(seen, op_base2(o)), 0n)))
+      EW{n, l, ia, ib} <> ews(t, NL{nd_id(n), l} <> seen)
+
+def ew_at(ws: List<&2, EW>, +l: Nat) -> List<&2, EW>:
+  match ws:
+    case []: []
+    case +w <> t:
+      +r = ew_at(t, l)
+      Bool.pick(List<&2, EW>, Nat.is_eq(ew_lv(w), l), w <> r, r)
+
+def ew_max(ws: List<&2, EW>) -> Nat:
+  match ws:
+    case []: 0n
+    case +w <> t: Nat.max(ew_lv(w), ew_max(t))
+
+def ev_lvls(fuel: Nat, +l: Nat, +ws: List<&2, EW>, +e: X.Env, +old: List<&2, CE>, +acc: List<&2, CE>, +all: List<&2, Node>) -> List<&2, CE>:
+  match fuel:
+    case 0n: acc
+    case 1n+f:
+      +now = B.pmap_g(~EW, ~EC, ~CE, ~ev_one, 1, EC{e, old, acc, all}, ew_at(ws, l))
+      ev_lvls(f, Nat.add(l, 1n), ws, e, old, List.append(&2, CE, now, acc), all)
+
+def ce_at(+id: U64, +c: CE) -> CE:
+  CE{id, ce_key(c), ce_r(c)}
+
+def ce_ord(ns: List<&2, Node>, +cs: List<&2, CE>) -> List<&2, CE>:
+  match ns:
+    case []: []
+    case +n <> t:
+      +id = nd_id(n)
+      ce_at(id, ce_find(cs, id)) <> ce_ord(t, cs)
+
+def ev_nodes(+ns: List<&2, Node>, +e: X.Env, +old: List<&2, CE>, +all: List<&2, Node>) -> List<&2, CE>:
+  +ws = ews(ns, [])
+  ce_ord(ns, ev_lvls(ew_max(ws), 1n, ws, e, old, [], all))
 
 def ev_go(ok: Bool, +p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   match ok:
     case False{}: [CE{0u64, [], bad("part", "-", "duplicate-node-or-parameter-id", "give every node and parameter a distinct id")}]
     case True{}:
       Pt{ps, +ns, +ms, +ts} = p
-      ev_nodes(ns, X.env_of(pvs_of(ps)), old, [], ns)
+      ev_nodes(ns, X.env_of(pvs_of(ps)), old, ns)
 
 def ev_part(+p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   Pt{+ps, +ns, +ms, +ts} = p
   ev_go(Bool.not(Bool.or(ids_dup(nd_ids(ns)), ids_dup(pm_ids(ps)))), p, old)
+
+def u_has(xs: List<&2, U64>, +i: U64) -> Bool:
+  match xs:
+    case []: False{}
+    case h <> t: Bool.or(U64.is_eq(h, i), u_has(t, i))
+
+def need_push(+o: Op, +t: List<&2, U64>) -> List<&2, U64>:
+  +t2 = Bool.pick(List<&2, U64>, op_has_b2(o), op_base2(o) <> t, t)
+  Bool.pick(List<&2, U64>, op_has_base(o), op_base(o) <> t2, t2)
+
+def nd_need(fuel: Nat, +ns: List<&2, Node>, todo: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match fuel:
+    case 0n: acc
+    case 1n+f:
+      match todo:
+        case []: acc
+        case +h <> +t:
+          +seen = u_has(acc, h)
+          nd_need(f, ns, Bool.pick(List<&2, U64>, seen, t, need_push(nd_op(ns, h), t)), Bool.pick(List<&2, U64>, seen, acc, h <> acc))
+
+def nd_keep(ns: List<&2, Node>, +keep: List<&2, U64>) -> List<&2, Node>:
+  match ns:
+    case []: []
+    case +n <> t:
+      +r = nd_keep(t, keep)
+      Bool.pick(List<&2, Node>, u_has(keep, nd_id(n)), n <> r, r)
+
+def ev_sub(ok: Bool, +ps: List<&2, Param>, +sub: List<&2, Node>, +all: List<&2, Node>, +old: List<&2, CE>) -> List<&2, CE>:
+  match ok:
+    case False{}: [CE{0u64, [], bad("part", "-", "duplicate-node-or-parameter-id", "give every node and parameter a distinct id")}]
+    case True{}: ev_nodes(sub, X.env_of(pvs_of(ps)), old, all)
+
+def ev_for(+p: Part, +ids: List<&2, U64>, +old: List<&2, CE>) -> List<&2, CE>:
+  Pt{+ps, +ns, +ms, +ts} = p
+  +fuel = Nat.add(Nat.mul(3n, List.length(&2, Node, ns)), Nat.add(List.length(&2, U64, ids), 1n))
+  ev_sub(Bool.not(Bool.or(ids_dup(nd_ids(ns)), ids_dup(pm_ids(ps)))), ps, nd_keep(ns, nd_need(fuel, ns, ids, [])), ns, old)
 

@@ -39,14 +39,32 @@ def reps(n: Nat, +a: I.I, +rest: List<&2, I.I>) -> List<&2, I.I>:
     case 0n: rest
     case 1n+m: a <> reps(m, a, rest)
 
-def restr_go(n: Nat, +cs: List<&2, I.I>, +a: I.I, +b: I.I, +d: Nat, +i: Nat) -> List<&2, I.I>:
-  match n:
-    case 0n: []
-    case 1n+m: blossom(reps(Nat.sub(d, i), a, reps(i, b, [])), cs) <> restr_go(m, cs, a, b, d, Nat.add(i, 1n))
+def tri(k: Nat, +cs: List<&2, I.I>, +a: I.I, +acc: List<&2, List<&2, I.I>>) -> List<&2, List<&2, I.I>>:
+  match k:
+    case 0n: cs <> acc
+    case 1n+j: tri(j, lvl(cs, a), a, cs <> acc)
+
+def rlv(ls: List<&2, List<&2, I.I>>, +b: I.I, +i: Nat) -> List<&2, I.I>:
+  match ls:
+    case []: []
+    case l <> t: blossom(reps(i, b, []), l) <> rlv(t, b, Nat.add(i, 1n))
+
+def same_pt(+a: I.I, +b: I.I) -> Bool:
+  +x = I.i_lo(a)
+  +y = I.i_lo(b)
+  +u = I.i_hi(a)
+  +v = I.i_hi(b)
+  Bool.and(Bool.and(F64.is_eq(x, u), F64.is_eq(y, v)),
+    Bool.and(F64.is_eq(x, y), F64.is_eq(F64.div(1.0f64, x), F64.div(1.0f64, y))))
+
+def restr_k(pt: Bool, +cs: List<&2, I.I>, +a: I.I, +b: I.I, +n: Nat) -> List<&2, I.I>:
+  match pt:
+    case True{}: reps(n, blossom(reps(Nat.sub(n, 1n), a, []), cs), [])
+    case False{}: rlv(tri(Nat.sub(n, 1n), cs, a, []), b, 0n)
 
 def restr(+cs: List<&2, I.I>, +a: I.I, +b: I.I) -> List<&2, I.I>:
   +n = List.length(&2, I.I, cs)
-  restr_go(n, cs, a, b, Nat.sub(n, 1n), 0n)
+  Bool.pick(List<&2, I.I>, Nat.is_eq(n, 0n), [], restr_k(same_pt(a, b), cs, a, b, n))
 
 def hull(cs: List<&2, I.I>) -> I.I:
   match cs:
