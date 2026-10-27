@@ -97,7 +97,7 @@ Gates on the final source (`src_sha256.txt`):
   (`laws.txt`).
 - Mutants: C06 2/2, C14 19/19 and K1 3/3 killed (`mutants.txt`).
 - E2E regression sweep: 28/28 suites pass on s5 (`gates.txt`). The K1 corpus ran in 1099 s (1722 s on k3z), K2 E2E in 528 s (874 s) and K3 E2E in 732 s (979 s).
-- Pins: `gates.txt` (every completed pin file holds; the run continues and its final line is recorded there).
+- Pins: 25/25 files, 2,651 pins, all hold (`gates.txt`).
 
 ## What is still slow, and the next steps
 

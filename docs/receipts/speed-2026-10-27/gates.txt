@@ -84,3 +84,31 @@ Pins (tools/pins/run.sh tests/*/pins*.bend, final source):
 == tests/c08/pins.bend
 487/487 pins hold; sha256 21e2a62996a45c47dc1209d0fd61d3084a368ef9e6ae55575a267d92a11a3e3b
 == tests/c08/pins_build.bend
+54/54 pins hold; sha256 9a2a177f936bf616d56a68e0e489a553af1dab66aa3cff0db1bf5cf96b29f7ba
+== tests/c09/pins.bend
+50/50 pins hold; sha256 dd512cb108a9d6ee6279d9e5e9ad3c203fd968834fab52b160832d4f76beba67
+== tests/c09/pins_build.bend
+9/9 pins hold; sha256 34ea726941e33692d36305f9a7dfad7e801f6e52e85193872627cca5b26921b0
+== tests/c10/pins.bend
+42/42 pins hold; sha256 a3ba99f8d89a465dd21abafa4353a6a6f5c4cb28f39c28a66ae657ce03d8f49f
+== tests/c11/pins.bend
+158/158 pins hold; sha256 1d598271014e1237f3cf3ebee3747a2974c9ff016f0bec1a24984896067408d7
+== tests/c12/pins.bend
+33/33 pins hold; sha256 2be56996719d28cc43e74f47137e54b3f55adb596ca82329dc6e258869bdecb8
+== tests/c13/pins.bend
+33/33 pins hold; sha256 64f51b4e2d3f4df258f8e1175660566f9ab71d6f6c21cc69370ed807301f799b
+== tests/c14/pins.bend
+163/163 pins hold; sha256 154672031fd638b531193218918284b875206f99011a8aeaa06d4cfb15727381
+== tests/c15/pins.bend
+154/154 pins hold; sha256 34bd4ef3f636450ab5819d5758e989f2dd188a6c8d919d6084e4734d4f1b1977
+== tests/c16.1/pins.bend
+93/93 pins hold; sha256 c672fcecb6b4afee09c1a70144647bcd1e06ac3fc22fcb9f94bc7994b45a3fd7
+== tests/c16.2/pins.bend
+72/72 pins hold; sha256 0c4231d23771da9d6c1f37baef538fa7480650639210eecc5d182d8dc94c1a6b
+== tests/c16.3/pins.bend
+51/51 pins hold; sha256 b7ade95da50f77a5462546f724363c8ae2bdf6b58c21cabcedc98ca5f9e6cf4c
+== tests/k1/pins.bend
+22/22 pins hold; sha256 685d24725772a5e5be1bb14b9076339a6ad55480fd4aaf9fbb0aef1cac5415fa
+== tests/k2/pins.bend
+25/25 pins hold; sha256 47529da01cf01cae9fd384603d83c36c8dabed6fbe7846fbedcdb75a4983de31
+pins rc=0
