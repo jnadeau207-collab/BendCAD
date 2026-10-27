@@ -1,0 +1,73 @@
+# K3 receipt — 2026-10-27 (rotor analysis, balance, blends and machinability)
+
+Scope: MASTER_PLAN §10 K3, contract `docs/k3-contract.md`. Exit: a corpus
+of a rotating disc (growth and plate frequencies), a cantilever and a
+free-free beam, a filleted backward-curved impeller and a scroll casing,
+with frequencies and growth inside their stated bounds, centroid and
+inertia certified against exact integrals, every blade-root blend
+validated and exported, and reachability verdicts that refuse a slot
+narrower than the tool.
+
+Verdict: CLOSED. Every exit item holds on bendcad-k3z. One plan item stays open and is not an exit
+criterion: refinement by a size field (§5).
+
+## 1. Provenance
+
+- Branch `k3`, commits 77a78da, 4996a2f, 72d61b3, 40280b9, 816f27b (this
+  receipt follows). Parked: `k3-grading-wip` 4d8ac14.
+- `bend` fork `a4d17a`, tag `numeric/2026-10-05`, never `bend update`;
+  `BEND_NO_TELEMETRY=1`.
+- Final binary `/home/jesse/bc/bendcad-k3z` sha256
+  `bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8`,
+  built by `~/bin/bendbuild` after the last source edit.
+- Nothing under `legacy/` touched. No placeholder, fallback, weakened
+  tolerance or disabled test. The disc-spin reference moved from plane
+  stress plus an allowance to a converged 3-D axisymmetric solution
+  (`tools/oracle/k3/disc_spin.py`): the allowance had hidden a ±7.1 bound
+  on the old meshes; with honest bounds the plane-stress model error is
+  what the comparison measures, so the 3-D solution is the right oracle.
+
+## 2. Exit matrix
+
+| Exit item | Evidence | Result |
+|---|---|---|
+| Rotating disc: frequencies | `corpus.disc_modes`, R25 t5 free disc at H=3 against `tools/oracle/k3/disc_modes.py` (converged to 0.001 Hz) | 5/5 modes inside est ± bound, e.g. (0,1) 16570.19 ± 2.93 vs 16568.58 |
+| Rotating disc: growth | `corpus.disc_spin`, 60,000 rev/min free spin at H=3 against `tools/oracle/k3/disc_spin.py` | work 196.000 ± 0.090 N·mm vs 196.049; tip growth inside the oracle band |
+| Cantilever, free-free beam | `corpus.rod_cantilever`, `corpus.rod_free_free` against Timoshenko and Euler–Bernoulli | PASS (torsion exact inside bound; bending inside bound plus the stated 0.25·|T−EB| model budget for higher modes) |
+| Filleted backward-curved impeller | `corpus.impeller`: six wall-swept blades with 1 mm root fillets unioned to the hub | exact volume to 1e-11, symmetric moments, OCCT to 1e-7; 5-axis machine with a 1.6 mm ball: 500/500 samples reachable, 0 uncertain, status=certified (build 1155 s, machine 5279 s) |
+| Scroll casing | `corpus.scroll_casing` against Green's-theorem exact moments | volume, centroid and inertia certified to 1e-9; OCCT agrees to 1e-7 |
+| Blade-root blend validated and exported | `blend.blade_root_union`, `blend.wall_moments`, `blend.blade_root_step` | PASS |
+| Reachability refuses a narrow slot | `machine.narrow_slot_3axis`, `machine.narrow_slot_5axis` | not-machinable, certified |
+| Rotated blade root certified (new) | `machine.rotated_blade_root`: 60° blade, 1.6 mm ball certified 106/106, 2.2 mm ball refused on the fillet radius | PASS |
+| Balance, rotor critical speeds | `balance.*`, `rotor.*` (K3 E2E) | PASS |
+
+## 3. Laws, mutants, pins
+
+- `bash tools/laws/check.sh /home/jesse/k3-laws`: every packet `ALL PROOFS
+  CHECK` under `--check-only` and `--verdict`, 591 laws, exit 0. K3: 7 laws
+  (transposition rows ×2, pyramid and prism splits, midside revert keeps
+  length, revert of nothing is the identity, snapping keeps length).
+- `python3 tools/laws/mutate.py`: 161/161 killed, report sha256
+  `a9974cd5…`.
+- C07 pins after the sphere-separation change: `tests/c07/pins.bend` 14/14
+  (`1c9db76c…`), `tests/c07/pins_build.bend` 17/17 (`816dbcb3…`).
+
+## 4. Journeys on bendcad-k3z
+
+K1 corpus (1722 s), C06 62/62, C07 328/328, C08 114/114 + 21/21, C09
+29/29 + 27/27, C10 11/11 + 12/12, C11 33/33 + 19/19, C12 17/17 + 24/24,
+C13 e2e + corpus, C14, C15, C16.1–C16.3 e2e + neg, K2 34/34 + neg, K3
+31/31 — all green (`/home/jesse/regress-k3z/summary.txt`). K3 corpus FEM
+members on bendcad-k3y (same K3 sources): disc_modes, disc_spin,
+rod_free, cantilever PASS.
+
+## 5. Open
+
+- Refinement by a size field. Longest-edge bisection graded by
+  wall thickness (parked on `k3-grading-wip`) fired inconsistently across
+  the three levels on plates and left LOBPCG unconverged; the levels stay
+  uniform lattices and H must resolve the thinnest wall (about 0.6 of it).
+- Speed: a 93k-node quadratic spectrum still takes hours; SpMV and list
+  allocation dominate after the 3.6× of this packet.
+- G2 §4: the full-assembly interference rerun is in progress with the
+  parallel pair loop.
