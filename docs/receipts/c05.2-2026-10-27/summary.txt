@@ -1,0 +1,3 @@
+solver 1500 cases: {('conflict', 'PASS'): 205, ('conflict', 'weak'): 2, ('ok', 'PASS'): 1089, ('ok', 'UNSOLVED-honest'): 1, ('redundant', 'PASS'): 198, ('redundant', 'UNSOLVED-honest'): 5}
+solver wrong answers: 0
+arrangement 500 cases, not PASS: 0

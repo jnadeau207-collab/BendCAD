@@ -79,11 +79,21 @@ law lm_done_returns_state:
 
 law no_conflict_without_stationarity:
   for ds: List<&2, S.Dr>
-  {S.conflict_go(False{}, ds) == S.Sv_err{T.F_nonconverged{}} : S.Sol}
+  for c: Bool
+  {S.conflict_go(False{}, ds, c) == S.Sv_err{T.F_nonconverged{}} : S.Sol}
 
 law conflict_names_violations:
   for ds: List<&2, S.Dr>
-  {S.conflict_go(True{}, ds) == S.Sv_conflict{S.dedup(S.viol(ds))} : S.Sol}
+  for c: Bool
+  {S.conflict_go(True{}, ds, c) == S.Sv_conflict{S.dedup(S.viol(ds)), c} : S.Sol}
+
+law uncertified_conflict_is_estimated:
+  for ids: List<&2, U64>
+  {S.sol_show(S.Sv_conflict{ids, False{}}) == "unresolved [" ++ S.ids_show(ids) ++ "] status=estimated" : String}
+
+law certified_conflict_is_conflict:
+  for ids: List<&2, U64>
+  {S.sol_show(S.Sv_conflict{ids, True{}}) == "conflict [" ++ S.ids_show(ids) ++ "]" : String}
 
 law sol_err_show:
   for k: T.FailKind
@@ -162,7 +172,8 @@ law dist_self_invalid:
 law conflict_never_ok:
   for b: Bool
   for ds: List<&2, S.Dr>
-  {sol_ok(S.conflict_go(b, ds)) == False{} : Bool}
+  for c: Bool
+  {sol_ok(S.conflict_go(b, ds, c)) == False{} : Bool}
 
 law ok_iff_solved:
   for s: Bool
@@ -201,5 +212,6 @@ law steps_keep_radii_positive:
   for lo: F64
   for hi: F64
   for od: S.Od
+  for ho: List<&2, F64>
   for +ps: List<&2, F64>
-  {S.rq_ok(S.rows_at(S.Cx{cs, ps0, ft, np, nf, tl, ta, lo, hi, od}, ps)) == Bool.and(S.rad_ok(cs, S.ptb(ps)), S.rows_ok(S.all_rows(cs, S.ptb(ps), ps0))) : Bool}
+  {S.rq_ok(S.rows_at(S.Cx{cs, ps0, ft, np, nf, tl, ta, lo, hi, od, ho}, ps)) == Bool.and(S.rad_ok(cs, S.ptb(ps)), S.rows_ok(S.all_rows(cs, S.ptb(ps), ps0))) : Bool}

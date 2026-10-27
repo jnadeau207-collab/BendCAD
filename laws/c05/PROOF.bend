@@ -56,10 +56,16 @@ def Laws.lm_budget_returns_state(d, cx, st):
 def Laws.lm_done_returns_state(f, cx, st):
   {==}
 
-def Laws.no_conflict_without_stationarity(ds):
+def Laws.no_conflict_without_stationarity(ds, c):
   {==}
 
-def Laws.conflict_names_violations(ds):
+def Laws.conflict_names_violations(ds, c):
+  {==}
+
+def Laws.uncertified_conflict_is_estimated(ids):
+  {==}
+
+def Laws.certified_conflict_is_conflict(ids):
   {==}
 
 def Laws.sol_err_show(k):
@@ -135,7 +141,7 @@ def Laws.dist_self_invalid(id, a, d, np):
     S.pos(d)) == False{} : Bool}
   {==}
 
-def Laws.conflict_never_ok(b, ds):
+def Laws.conflict_never_ok(b, ds, c):
   match b:
     case True{}: {==}
     case False{}: {==}
@@ -145,7 +151,7 @@ def Laws.ok_iff_solved(s, cx, ps, ds):
     case True{}: {==}
     case False{}:
       Laws.conflict_never_ok(F64.is_le(S.jtr_nrm(ds),
-        ((S.p2(26n) * F64.sqrt(S.fro2(ds)) : F64) * S.nrm(S.res_of(ds)) : F64)), ds)
+        ((S.p2(26n) * F64.sqrt(S.fro2(ds)) : F64) * S.nrm(S.res_of(ds)) : F64)), ds, S.certify(cx, S.viol(ds)))
 
 def Laws.classify_is_solved_at(cx, ps):
   {==}
@@ -156,5 +162,5 @@ def Laws.solved_needs_geometry(cx, ps, ds):
 def Laws.geometry_veto(cx, ps, ds, x):
   Laws.ok_iff_solved(False{}, cx, ps, ds)
 
-def Laws.steps_keep_radii_positive(cs, ps0, ft, np, nf, tl, ta, lo, hi, od, ps):
+def Laws.steps_keep_radii_positive(cs, ps0, ft, np, nf, tl, ta, lo, hi, od, ho, ps):
   {==}

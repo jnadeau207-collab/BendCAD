@@ -295,6 +295,20 @@
  },
  {
   "pkt": "c05",
+  "law": "uncertified conflict is estimated",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
+  "law": "certified conflict is conflict",
+  "file": "src/c05/solve.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c05",
   "law": "ok iff solved",
   "file": "src/c05/solve.bend",
   "ok": true,

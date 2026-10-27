@@ -1,0 +1,10 @@
+n=10 0.01 s 4800 KB
+Counter({('rigid', 'PASS'): 1})
+n=20 0.02 s 5244 KB
+Counter({('rigid', 'PASS'): 1})
+n=50 0.04 s 5916 KB
+Counter({('rigid', 'PASS'): 1})
+n=100 0.19 s 9656 KB
+Counter({('rigid', 'PASS'): 1})
+n=200 0.68 s 13636 KB
+Counter({('rigid', 'PASS'): 1})

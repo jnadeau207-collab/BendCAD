@@ -37,7 +37,7 @@ type Dr is Data:
 
 type Sol is Data:
   Sv_ok{ ps: List<&2, F64>, dof: Nat, red: List<&2, U64> }
-  Sv_conflict{ ids: List<&2, U64> }
+  Sv_conflict{ ids: List<&2, U64>, cert: Bool }
   Sv_err{ kind: T.FailKind }
 
 def fat(xs: P.Tb<&2, F64>, i: Nat) -> F64:
@@ -539,10 +539,10 @@ type Od is Data:
 
 type Cx is Data:
   Cx{ cs: List<&2, Cn>, ps0: P.Tb<&2, F64>, ft: P.Tb<&2, Bool>, np: Nat, nf: Nat,
-    tl: F64, ta: F64, lmin: F64, lmax: F64, od: Od }
+    tl: F64, ta: F64, lmin: F64, lmax: F64, od: Od, ho: List<&2, F64> }
 
 def cx_od(c: Cx) -> Od:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   od
 
 def sv_pm(xs: List<&2, Q.Sv>, +pm: P.Tb<&2, U32>) -> List<&2, Q.Sv>:
@@ -609,11 +609,25 @@ def st_ps(s: St) -> List<&2, F64>:
   St{ps, lam, nu, cost, done, ds} = s
   ps
 
+def sub_off(ho: List<&2, F64>, ds: List<&2, Dr>) -> List<&2, Dr>:
+  match ho:
+    case Nil{}: ds
+    case o <> u:
+      match ds:
+        case Nil{}: []
+        case h <> t:
+          Dr{id, r, v} = h
+          Dr{id, (r - o : F64), v} <> sub_off(u, t)
+
+def cx_ho(c: Cx, +ho: List<&2, F64>) -> Cx:
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, h0} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho}
+
 def rows_at(cx: Cx, +ps: List<&2, F64>) -> RQ:
-  Cx{+cs, +ps0, +ft, np, nf, +tl, +ta, lmin, lmax, od} = cx
+  Cx{+cs, +ps0, +ft, np, nf, +tl, +ta, lmin, lmax, od, +ho} = cx
   +pt = ptb(ps)
   +rs = all_rows(cs, pt, ps0)
-  RQ{Bool.and(rad_ok(cs, pt), rows_ok(rs)), drows(rs, ft, tl, ta)}
+  RQ{Bool.and(rad_ok(cs, pt), rows_ok(rs)), sub_off(ho, drows(rs, ft, tl, ta))}
 
 def rq_ok(r: RQ) -> Bool:
   RQ{ok, ds} = r
@@ -624,27 +638,27 @@ def rq_ds(r: RQ) -> List<&2, Dr>:
   ds
 
 def cx_np(c: Cx) -> Nat:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   np
 
 def cx_nf(c: Cx) -> Nat:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   nf
 
 def cx_lmin(c: Cx) -> F64:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   lmin
 
 def cx_lmax(c: Cx) -> F64:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   lmax
 
 def cx_cs(c: Cx) -> List<&2, Cn>:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   cs
 
 def cx_tl(c: Cx) -> F64:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od} = c
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, ho} = c
   tl
 
 def gain(+rho: F64) -> F64:
@@ -685,17 +699,239 @@ def ok_of(+ds: List<&2, Dr>, +ps: List<&2, F64>, +k: Nat) -> Sol:
   +cq = Q.rank(m, P.tb_of(F64, dr_nrms(ds), 0.0f64), brows(so_tj(P.msort(~Tj, ~tj_cmp, tj_all(ds, 0)))))
   Sv_ok{canon(ps), Nat.sub(k, cq_kept(cq)), dedup(js_ids(cq_red(cq), P.tb_of(U64, dr_ids(ds), 0u64)))}
 
-def conflict_go(stat: Bool, +ds: List<&2, Dr>) -> Sol:
+def conflict_go(stat: Bool, +ds: List<&2, Dr>, +cert: Bool) -> Sol:
   match stat:
-    case True{}: Sv_conflict{dedup(viol(ds))}
+    case True{}: Sv_conflict{dedup(viol(ds)), cert}
     case False{}: Sv_err{T.F_nonconverged{}}
+
+def lin_cn(c: Cn) -> Bool:
+  match c:
+    case K_coinc{id, p, q}: True{}
+    case K_horiz{id, a, b}: True{}
+    case K_vert{id, a, b}: True{}
+    case K_radius{id, r, v}: True{}
+    case K_fix{id, i, v}: True{}
+    case K_midpoint{id, m, a, b}: True{}
+    case K_hdist{id, p, q, d}: True{}
+    case K_vdist{id, p, q, d}: True{}
+    case K_same{id, i, j}: True{}
+    case _: False{}
+
+def all_lin(cs: List<&2, Cn>) -> Bool:
+  match cs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(lin_cn(h), all_lin(t))
+
+def pt_refs(p: Pt, acc: List<&2, Nat>) -> List<&2, Nat>:
+  Pt{x, y} = p
+  x <> y <> acc
+
+def cn_refs(c: Cn) -> List<&2, Nat>:
+  match c:
+    case K_coinc{id, p, q}: pt_refs(p, pt_refs(q, []))
+    case K_horiz{id, a, b}: pt_refs(a, pt_refs(b, []))
+    case K_vert{id, a, b}: pt_refs(a, pt_refs(b, []))
+    case K_dist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
+    case K_radius{id, r, v}: [r]
+    case K_angle{id, a, b, c, d, cs, sn}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
+    case K_par{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
+    case K_perp{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
+    case K_tan_lc{id, a, b, o, r}: pt_refs(a, pt_refs(b, pt_refs(o, [r])))
+    case K_tan_cc{id, o1, r1, o2, r2}: pt_refs(o1, pt_refs(o2, [r1, r2]))
+    case K_on_circ{id, p, o, r}: pt_refs(p, pt_refs(o, [r]))
+    case K_fix{id, i, v}: [i]
+    case K_on_line{id, p, a, b}: pt_refs(p, pt_refs(a, pt_refs(b, [])))
+    case K_midpoint{id, m, a, b}: pt_refs(m, pt_refs(a, pt_refs(b, [])))
+    case K_equal{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
+    case K_hdist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
+    case K_vdist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
+    case K_same{id, i, j}: [i, j]
+
+def cn_id(c: Cn) -> U64:
+  match c:
+    case K_coinc{id, p, q}: id
+    case K_horiz{id, a, b}: id
+    case K_vert{id, a, b}: id
+    case K_dist{id, p, q, d}: id
+    case K_radius{id, r, v}: id
+    case K_angle{id, a, b, c, d, cs, sn}: id
+    case K_par{id, a, b, c, d}: id
+    case K_perp{id, a, b, c, d}: id
+    case K_tan_lc{id, a, b, o, r}: id
+    case K_tan_cc{id, o1, r1, o2, r2}: id
+    case K_on_circ{id, p, o, r}: id
+    case K_fix{id, i, v}: id
+    case K_on_line{id, p, a, b}: id
+    case K_midpoint{id, m, a, b}: id
+    case K_equal{id, a, b, c, d}: id
+    case K_hdist{id, p, q, d}: id
+    case K_vdist{id, p, q, d}: id
+    case K_same{id, i, j}: id
+
+type PK is Data:
+  PK{ lo: Nat, hi: Nat, k: Nat, d: F64, id: U64 }
+
+type RN is Data:
+  RN{ lo: Nat, hi: Nat, h: Bool, v: Bool, c: Bool, nd: Nat, d0: F64, dd: Bool }
+
+type DE is Data:
+  DE{ a: Nat, b: Nat, d: F64 }
+
+def pk_of(+a: Pt, +b: Pt, +k: Nat, +d: F64, +id: U64) -> PK:
+  Pt{+x, y} = a
+  Pt{+u, v} = b
+  PK{Nat.min(x, u), Nat.max(x, u), k, d, id}
+
+def pk_one(c: Cn, +acc: List<&2, PK>) -> List<&2, PK>:
+  match c:
+    case K_dist{+id, +p, +q, +d}: pk_of(p, q, 0n, d, id) <> acc
+    case K_horiz{+id, +a, +b}: pk_of(a, b, 1n, 0.0f64, id) <> acc
+    case K_vert{+id, +a, +b}: pk_of(a, b, 2n, 0.0f64, id) <> acc
+    case K_coinc{+id, +p, +q}: pk_of(p, q, 3n, 0.0f64, id) <> acc
+    case _: acc
+
+def pks(cs: List<&2, Cn>, +acc: List<&2, PK>) -> List<&2, PK>:
+  match cs:
+    case Nil{}: acc
+    case h <> t: pks(t, pk_one(h, acc))
+
+def pk_cmp2(+x: PK, +y: PK) -> P.Sgn:
+  PK{+a, +b, k, d, i} = x
+  PK{+c, +e, l, f, j} = y
+  P.sgn_pick(Bool.or(Nat.is_lt(a, c), Bool.and(Nat.is_eq(a, c), Nat.is_lt(b, e))), Bool.or(Nat.is_lt(c, a), Bool.and(Nat.is_eq(a, c), Nat.is_lt(e, b))))
+
+def pk_cmp(x: PK, y: PK) -> P.Sgn:
+  pk_cmp2(x, y)
+
+def so_pk(s: P.So<&2, PK>) -> List<&2, PK>:
+  P.So{ok, +xs} = s
+  xs
+
+def rn_add(+r: RN, +k: Nat, +d: F64) -> RN:
+  RN{+lo, +hi, +h, +v, +c, +nd, +d0, +dd} = r
+  +isd = Nat.is_eq(k, 0n)
+  +diff = Bool.and(isd, Bool.and(Nat.is_lt(0n, nd), F64.is_lt(p2(20n), F64.abs((d - d0 : F64)))))
+  RN{lo, hi, Bool.or(h, Nat.is_eq(k, 1n)), Bool.or(v, Nat.is_eq(k, 2n)), Bool.or(c, Nat.is_eq(k, 3n)),
+    Bool.pick(Nat, isd, Nat.add(nd, 1n), nd), Bool.pick(F64, Bool.and(isd, Nat.is_eq(nd, 0n)), d, d0), Bool.or(dd, diff)}
+
+def rn_new(+x: PK) -> RN:
+  PK{+lo, +hi, +k, +d, id} = x
+  rn_add(RN{lo, hi, False{}, False{}, False{}, 0n, 0.0f64, False{}}, k, d)
+
+def rn_bad(+r: RN) -> Bool:
+  RN{lo, hi, +h, +v, +c, +nd, d0, +dd} = r
+  Bool.or(dd, Bool.and(Nat.is_lt(0n, nd), Bool.or(c, Bool.and(h, v))))
+
+def rn_same(+r: RN, +x: PK) -> Bool:
+  RN{+lo, +hi, h, v, c, nd, d0, dd} = r
+  PK{+a, +b, k, d, id} = x
+  Bool.and(Nat.is_eq(lo, a), Nat.is_eq(hi, b))
+
+def rn_step(+r: RN, +x: PK) -> RN:
+  PK{lo, hi, +k, +d, id} = x
+  rn_add(r, k, d)
+
+def runs_bad(xs: List<&2, PK>, +r: RN, +acc: Bool) -> Bool:
+  match xs:
+    case Nil{}: Bool.or(acc, rn_bad(r))
+    case +x <> t:
+      +same = rn_same(r, x)
+      runs_bad(t, Bool.pick(RN, same, rn_step(r, x), rn_new(x)), Bool.pick(Bool, same, acc, Bool.or(acc, rn_bad(r))))
+
+def pair_cert(+cs: List<&2, Cn>) -> Bool:
+  runs_bad(so_pk(P.msort(~PK, ~pk_cmp, pks(cs, []))), RN{0n, 0n, False{}, False{}, False{}, 0n, 0.0f64, False{}}, False{})
+
+def refs_fixed(rs: List<&2, Nat>, +ft: P.Tb<&2, Bool>) -> Bool:
+  match rs:
+    case Nil{}: True{}
+    case h <> t: Bool.and(Bool.not(P.tb_get(Bool, ft, U32.from_nat(h))), refs_fixed(t, ft))
+
+def id_in(xs: List<&2, U64>, +i: U64) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case h <> t: Bool.or(U64.is_eq(h, i), id_in(t, i))
+
+def fixed_viol(cs: List<&2, Cn>, +vs: List<&2, U64>, +ft: P.Tb<&2, Bool>) -> Bool:
+  match cs:
+    case Nil{}: False{}
+    case +h <> t: Bool.or(Bool.and(id_in(vs, cn_id(h)), refs_fixed(cn_refs(h), ft)), fixed_viol(t, vs, ft))
+
+def de_one(c: Cn, +vs: List<&2, U64>) -> List<&2, DE>:
+  match c:
+    case K_dist{+id, +p, +q, +d}:
+      Pt{+x, y} = p
+      Pt{+u, w} = q
+      Bool.pick(List<&2, DE>, id_in(vs, id), [DE{x, u, d}], [])
+    case _: []
+
+def des(cs: List<&2, Cn>, +vs: List<&2, U64>) -> List<&2, DE>:
+  match cs:
+    case Nil{}: []
+    case +h <> t: List.append(&2, DE, de_one(h, vs), des(t, vs))
+
+def de_has(+e: DE, +i: Nat, +j: Nat) -> Bool:
+  DE{+a, +b, d} = e
+  Bool.or(Bool.and(Nat.is_eq(a, i), Nat.is_eq(b, j)), Bool.and(Nat.is_eq(a, j), Nat.is_eq(b, i)))
+
+def de_d(+e: DE) -> F64:
+  DE{a, b, +d} = e
+  d
+
+def de_ends(+e: DE) -> List<&2, Nat>:
+  DE{+a, +b, d} = e
+  [a, b]
+
+def n_at(xs: List<&2, Nat>, +i: Nat) -> Nat:
+  match xs:
+    case Nil{}: 1000000000n
+    case +h <> t: Bool.pick(Nat, Nat.is_eq(i, 0n), h, n_at(t, Nat.sub(i, 1n)))
+
+def shared(+x: List<&2, Nat>, +y: List<&2, Nat>) -> Nat:
+  +a = n_at(x, 0n)
+  +b = n_at(x, 1n)
+  Bool.pick(Nat, Bool.or(Nat.is_eq(a, n_at(y, 0n)), Nat.is_eq(a, n_at(y, 1n))), a,
+    Bool.pick(Nat, Bool.or(Nat.is_eq(b, n_at(y, 0n)), Nat.is_eq(b, n_at(y, 1n))), b, 1000000000n))
+
+def other(+x: List<&2, Nat>, +s: Nat) -> Nat:
+  Bool.pick(Nat, Nat.is_eq(n_at(x, 0n), s), n_at(x, 1n), n_at(x, 0n))
+
+def closes(+e: DE, +f: DE, +g: DE) -> Bool:
+  +ef = shared(de_ends(e), de_ends(f))
+  Bool.and(Nat.is_lt(ef, 1000000000n), Bool.and(de_has(g, other(de_ends(e), ef), other(de_ends(f), ef)), Bool.not(Nat.is_eq(other(de_ends(e), ef), other(de_ends(f), ef)))))
+
+def tri_go(xs: List<&2, DE>, +e: DE, +f: DE) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +g <> t:
+      +da = de_d(e)
+      +db = de_d(f)
+      +dc = de_d(g)
+      +m = F64.max(da, F64.max(db, dc))
+      +slack = (p2(20n) * (1.0f64 + m : F64) : F64)
+      +tri = Bool.and(closes(e, f, g), F64.is_lt((da + db + dc - m - m : F64), F64.neg(slack)))
+      Bool.or(tri, tri_go(t, e, f))
+
+def tri_f(xs: List<&2, DE>, +all: List<&2, DE>, +e: DE) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +f <> t: Bool.or(tri_go(all, e, f), tri_f(t, all, e))
+
+def tri_e(xs: List<&2, DE>, +all: List<&2, DE>) -> Bool:
+  match xs:
+    case Nil{}: False{}
+    case +e <> t: Bool.or(tri_f(all, all, e), tri_e(t, all))
+
+def certify(+cx: Cx, +vs: List<&2, U64>) -> Bool:
+  Cx{+cs, ps0, +ft, np, nf, tl, ta, lmin, lmax, od, ho} = cx
+  +es = des(cs, vs)
+  Bool.or(Bool.or(all_lin(cs), fixed_viol(cs, vs, ft)), Bool.or(pair_cert(cs), tri_e(es, es)))
 
 def classify_go(solved: Bool, +cx: Cx, +ps: List<&2, F64>, +ds: List<&2, Dr>) -> Sol:
   match solved:
     case True{}: ok_of(ds, ps, cx_nf(cx))
     case False{}:
       +rt = res_of(ds)
-      conflict_go(F64.is_le(jtr_nrm(ds), ((p2(26n) * F64.sqrt(fro2(ds)) : F64) * nrm(rt) : F64)), ds)
+      conflict_go(F64.is_le(jtr_nrm(ds), ((p2(26n) * F64.sqrt(fro2(ds)) : F64) * nrm(rt) : F64)), ds, certify(cx, viol(ds)))
 
 def seg_long(+ps: P.Tb<&2, F64>, +a: Pt, +b: Pt, +tl: F64) -> Bool:
   F64.is_lt(tl, hyp((px(ps, b) - px(ps, a) : F64), (py(ps, b) - py(ps, a) : F64)))
@@ -775,33 +1011,36 @@ def cn_ok(c: Cn, +np: Nat) -> Bool:
     case K_vdist{id, p, q, d}: Bool.and(two_ok(p, q, np), fin(d))
     case K_same{id, +i, +j}: Bool.and(Bool.not(Nat.is_eq(i, j)), Bool.and(Nat.is_lt(i, np), Nat.is_lt(j, np)))
 
-def cn_id(c: Cn) -> U64:
-  match c:
-    case K_coinc{id, p, q}: id
-    case K_horiz{id, a, b}: id
-    case K_vert{id, a, b}: id
-    case K_dist{id, p, q, d}: id
-    case K_radius{id, r, v}: id
-    case K_angle{id, a, b, c, d, cs, sn}: id
-    case K_par{id, a, b, c, d}: id
-    case K_perp{id, a, b, c, d}: id
-    case K_tan_lc{id, a, b, o, r}: id
-    case K_tan_cc{id, o1, r1, o2, r2}: id
-    case K_on_circ{id, p, o, r}: id
-    case K_fix{id, i, v}: id
-    case K_on_line{id, p, a, b}: id
-    case K_midpoint{id, m, a, b}: id
-    case K_equal{id, a, b, c, d}: id
-    case K_hdist{id, p, q, d}: id
-    case K_vdist{id, p, q, d}: id
-    case K_same{id, i, j}: id
-
 def mk_cx(cs: List<&2, Cn>, ps0: P.Tb<&2, F64>, ft: P.Tb<&2, Bool>, np: Nat, nf: Nat,
     tl: F64, ta: F64, lmin: F64, lmax: F64, od: Od) -> Cx:
-  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od}
+  Cx{cs, ps0, ft, np, nf, tl, ta, lmin, lmax, od, []}
+
+def sc_l(+k: F64, xs: List<&2, F64>) -> List<&2, F64>:
+  match xs:
+    case Nil{}: []
+    case h <> t: (k * h : F64) <> sc_l(k, t)
+
+def hom(k: Nat, +n: Nat, +cx: Cx, +r0: List<&2, F64>, +x: List<&2, F64>, +lf: F64, +fuel: Nat) -> List<&2, F64>:
+  match k:
+    case 0n: x
+    case 1n+(+j):
+      +c2 = cx_ho(cx, sc_l(F64.div(U64.to_f64(U64.from_nat(j)), U64.to_f64(U64.from_nat(n))), r0))
+      +ds = rq_ds(rows_at(c2, x))
+      +rt = res_of(ds)
+      hom(j, n, cx, r0, st_ps(lm(fuel, False{}, c2, St{x, lf, 2.0f64, dot(rt, rt), False{}, ds})), lf, fuel)
+
+def need_h(s: Sol) -> Bool:
+  match s:
+    case Sv_conflict{ids, cert}: Bool.not(cert)
+    case _: False{}
+
+def retry(h: Bool, +cx: Cx, +ps: List<&2, F64>, +x1: List<&2, F64>, +r0: List<&2, F64>, +lf: F64, fuel: Nat) -> Sol:
+  match h:
+    case False{}: classify(cx, x1)
+    case True{}: classify(cx, hom(16n, 16n, cx, r0, ps, lf, fuel))
 
 def run(ok: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +free: List<&2, Bool>, +np: Nat,
-    +tl: F64, +ta: F64, fuel: Nat) -> Sol:
+    +tl: F64, +ta: F64, +fuel: Nat) -> Sol:
   match ok:
     case False{}: Sv_err{T.F_invalid{}}
     case True{}:
@@ -812,32 +1051,8 @@ def run(ok: Bool, +cs: List<&2, Cn>, +ps: List<&2, F64>, +free: List<&2, Bool>, 
       +l0 = (p2(10n) * F64.max(col_max(ds), 1.0f64) : F64)
       +lf = (p2(30n) * l0 : F64)
       +cx = mk_cx(cs, pt, ft, np, nfree(free), tl, ta, lf, (1152921504606846976.0f64 * l0 : F64), od_of(ds, U32.from_nat(np), ft))
-      classify(cx, st_ps(lm(fuel, False{}, cx, St{ps, lf, 2.0f64, dot(rt, rt), False{}, ds})))
-
-def pt_refs(p: Pt, acc: List<&2, Nat>) -> List<&2, Nat>:
-  Pt{x, y} = p
-  x <> y <> acc
-
-def cn_refs(c: Cn) -> List<&2, Nat>:
-  match c:
-    case K_coinc{id, p, q}: pt_refs(p, pt_refs(q, []))
-    case K_horiz{id, a, b}: pt_refs(a, pt_refs(b, []))
-    case K_vert{id, a, b}: pt_refs(a, pt_refs(b, []))
-    case K_dist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
-    case K_radius{id, r, v}: [r]
-    case K_angle{id, a, b, c, d, cs, sn}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
-    case K_par{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
-    case K_perp{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
-    case K_tan_lc{id, a, b, o, r}: pt_refs(a, pt_refs(b, pt_refs(o, [r])))
-    case K_tan_cc{id, o1, r1, o2, r2}: pt_refs(o1, pt_refs(o2, [r1, r2]))
-    case K_on_circ{id, p, o, r}: pt_refs(p, pt_refs(o, [r]))
-    case K_fix{id, i, v}: [i]
-    case K_on_line{id, p, a, b}: pt_refs(p, pt_refs(a, pt_refs(b, [])))
-    case K_midpoint{id, m, a, b}: pt_refs(m, pt_refs(a, pt_refs(b, [])))
-    case K_equal{id, a, b, c, d}: pt_refs(a, pt_refs(b, pt_refs(c, pt_refs(d, []))))
-    case K_hdist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
-    case K_vdist{id, p, q, d}: pt_refs(p, pt_refs(q, []))
-    case K_same{id, i, j}: [i, j]
+      +x1 = st_ps(lm(fuel, False{}, cx, St{ps, lf, 2.0f64, dot(rt, rt), False{}, ds}))
+      retry(need_h(classify(cx, x1)), cx, ps, x1, rt, lf, fuel)
 
 def tr_min(t: P.Tr<&2, U32>) -> U32:
   match t:
@@ -1118,7 +1333,7 @@ def pv_pairs(rs: List<&2, U32>, ps: List<&2, F64>, fr: List<&2, Bool>) -> List<&
             case f <> ft: pv_if(f, r, p, pv_pairs(rt, pt, ft))
 
 type MG is Data:
-  MG{ inv: Bool, conf: Bool, nc: Bool, cix: List<&2, IX>, rix: List<&2, IX>, pvs: List<&2, PV>,
+  MG{ inv: Bool, conf: Bool, ce: Bool, nc: Bool, cix: List<&2, IX>, rix: List<&2, IX>, pvs: List<&2, PV>,
     dof: Nat, fi: Nat }
 
 def is_inv(k: T.FailKind) -> Bool:
@@ -1130,15 +1345,15 @@ def mg_sol(s: Sol, m: MG, +refs: List<&2, U32>, +cis: List<&2, U32>, +ids: List<
     +fr: List<&2, Bool>) -> MG:
   match s:
     case Sv_err{kind}:
-      MG{inv, conf, nc, cix, rix, pvs, dof, fi} = m
+      MG{inv, conf, ce, nc, cix, rix, pvs, dof, fi} = m
       +bad = is_inv(kind)
-      MG{Bool.or(inv, bad), conf, Bool.or(nc, Bool.not(bad)), cix, rix, pvs, dof, fi}
-    case Sv_conflict{cids}:
-      MG{inv, conf, nc, cix, rix, pvs, dof, fi} = m
-      MG{inv, True{}, nc, List.append(&2, IX, ix_pairs(cis, ids, cids), cix), rix, pvs, dof, fi}
+      MG{Bool.or(inv, bad), conf, ce, Bool.or(nc, Bool.not(bad)), cix, rix, pvs, dof, fi}
+    case Sv_conflict{cids, cert}:
+      MG{inv, conf, ce, nc, cix, rix, pvs, dof, fi} = m
+      MG{inv, True{}, Bool.and(ce, cert), nc, List.append(&2, IX, ix_pairs(cis, ids, cids), cix), rix, pvs, dof, fi}
     case Sv_ok{ps, d, red}:
-      MG{inv, conf, nc, cix, rix, pvs, dof, fi} = m
-      MG{inv, conf, nc, cix, List.append(&2, IX, ix_pairs(cis, ids, red), rix),
+      MG{inv, conf, ce, nc, cix, rix, pvs, dof, fi} = m
+      MG{inv, conf, ce, nc, cix, List.append(&2, IX, ix_pairs(cis, ids, red), rix),
         List.append(&2, PV, pv_pairs(refs, ps, fr), pvs), Nat.add(dof, d), Nat.add(fi, nfree(fr))}
 
 def mg_add(m: MG, x: CR) -> MG:
@@ -1191,19 +1406,19 @@ def scatter(ps: List<&2, F64>, +i: U32, +pvs: List<&2, PV>, hit: Bool) -> List<&
           +j = (i + 1 : U32)
           (p + 0.0f64 : F64) <> scatter(t, j, pvs, pv_peek(pvs, j))
 
-def mg_out(inv: Bool, conf: Bool, nc: Bool, +cix: List<&2, IX>, +rix: List<&2, IX>,
+def mg_out(inv: Bool, conf: Bool, +ce: Bool, nc: Bool, +cix: List<&2, IX>, +rix: List<&2, IX>,
     +pvs: List<&2, PV>, +dof: Nat, +ps: List<&2, F64>) -> Sol:
   match inv conf nc:
     case True{} _ _: Sv_err{T.F_invalid{}}
-    case False{} True{} _: Sv_conflict{so_ix(P.msort(~IX, ~ix_cmp, cix))}
+    case False{} True{} _: Sv_conflict{so_ix(P.msort(~IX, ~ix_cmp, cix)), ce}
     case False{} False{} True{}: Sv_err{T.F_nonconverged{}}
     case False{} False{} False{}:
       +sp = so_pv(P.msort(~PV, ~pv_cmp, pvs))
       Sv_ok{scatter(ps, 0, sp, pv_peek(sp, 0)), dof, so_ix(P.msort(~IX, ~ix_cmp, rix))}
 
 def mg_fin(m: MG, +ps: List<&2, F64>, +free: List<&2, Bool>) -> Sol:
-  MG{inv, conf, nc, cix, rix, pvs, dof, fi} = m
-  mg_out(inv, conf, nc, cix, rix, pvs, Nat.add(dof, Nat.sub(nfree(free), fi)), ps)
+  MG{inv, conf, ce, nc, cix, rix, pvs, dof, fi} = m
+  mg_out(inv, conf, ce, nc, cix, rix, pvs, Nat.add(dof, Nat.sub(nfree(free), fi)), ps)
 
 def all_cn_ok(cs: List<&2, Cn>, +np: Nat) -> Bool:
   match cs:
@@ -1249,7 +1464,7 @@ def solve_cl(ok: Bool, +cc: P.CC, +npu: U32, +ps: List<&2, F64>, +free: List<&2,
       +cls = clusters(so_ci(P.msort(~CI, ~ci_cmp, labs_ci(lt, npu, cs, 0))))
       +g = {GC{P.tb_of(F64, ps, 0.0f64), ft, tl, ta, fuel} : GC}
       +crs = P.pmap(~CL, ~GC, ~CR, ~cl_solve, g, cls)
-      mg_fin(mg_go(crs, MG{False{}, False{}, False{}, [], [], [], 0n, 0n}), ps, free)
+      mg_fin(mg_go(crs, MG{False{}, False{}, True{}, False{}, [], [], [], 0n, 0n}), ps, free)
 
 def solve_go(valid: Bool, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: List<&2, Cn>, +tl: F64,
     +ta: F64, +fuel: Nat, +np: Nat) -> Sol:
@@ -1288,7 +1503,7 @@ def sol_show(s: Sol) -> String:
   match s:
     case Sv_ok{ps, dof, red}:
       "ok dof=" ++ Nat.show(dof) ++ " red=[" ++ ids_show(red) ++ "] ps=" ++ vals_show(ps)
-    case Sv_conflict{ids}: "conflict [" ++ ids_show(ids) ++ "]"
+    case Sv_conflict{ids, +cert}: Bool.pick(String, cert, "conflict [", "unresolved [") ++ ids_show(ids) ++ Bool.pick(String, cert, "]", "] status=estimated")
     case Sv_err{kind}: "err " ++ T.FailKind.show(kind)
 
 type Rpt is Data:
@@ -1581,7 +1796,7 @@ def keep_ps(dof: Nat, +ps: List<&2, F64>) -> List<&2, F64>:
 def sol_ps(s: Sol) -> List<&2, F64>:
   match s:
     case Sv_ok{ps, dof, red}: keep_ps(dof, keep_red(red, ps))
-    case Sv_conflict{ids}: Nil{}
+    case Sv_conflict{ids, cert}: Nil{}
     case Sv_err{kind}: Nil{}
 
 def sd_ps(s: SD) -> List<&2, F64>:
@@ -1658,7 +1873,7 @@ def run_sub(ids: List<&2, U64>, +ps: List<&2, F64>, +free: List<&2, Bool>, +cs: 
 def sol_ok(s: Sol) -> Bool:
   match s:
     case Sv_ok{ps, dof, red}: True{}
-    case Sv_conflict{ids}: False{}
+    case Sv_conflict{ids, cert}: False{}
     case Sv_err{kind}: False{}
 
 def sd_ok(s: SD) -> Bool:
@@ -1668,7 +1883,7 @@ def sd_ok(s: SD) -> Bool:
 def drag_yes(+s: Sol, +old: List<&2, F64>, +refs: List<&2, U32>, +rep: RRep) -> SD:
   match s:
     case Sv_ok{ps, dof, red}: SD{Sv_ok{keep_ps(dof, keep_red(red, rebuild(flen(old), 0n, old, refs, ps))), 0n, Nil{}}, rep}
-    case Sv_conflict{ids}: SD{Sv_conflict{ids}, rep}
+    case Sv_conflict{ids, cert}: SD{Sv_conflict{ids, cert}, rep}
     case Sv_err{kind}: SD{Sv_err{kind}, rep}
 
 def drag_ok(+s: Sol, +old: List<&2, F64>, +refs: List<&2, U32>, +rep: RRep) -> SD:

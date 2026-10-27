@@ -1,0 +1,9 @@
+Counter({('rigid', 'PASS'): 477, ('perp', 'PASS'): 213, ('frame', 'PASS'): 209, ('conflict', 'PASS'): 205, ('redundant', 'PASS'): 198, ('angle', 'PASS'): 190, ('redundant', 'UNSOLVED-honest'): 5, ('conflict', 'weak'): 2, ('frame', 'UNSOLVED-honest'): 1})
+redundant-33 0.3 UNSOLVED-honest | unresolved [1,2,3,4,5,6,7,8,9,10] status=estimated
+redundant-163 0.3 UNSOLVED-honest | unresolved [1,2,3,4,5,7,8,9,10,12] status=estimated
+conflict-238 0.1 weak: conflict reported as err nonconvergence | err nonconvergence
+redundant-272 0.3 UNSOLVED-honest | unresolved [1,2,3,4,5,7,8,9,10,12] status=estimated
+redundant-450 0.3 UNSOLVED-honest | unresolved [1,2,3,4,5,7,8,9,10,12] status=estimated
+frame-925 0.3 UNSOLVED-honest | unresolved [1,2,3,4,5,6] status=estimated
+conflict-1005 0.1 weak: conflict reported as err nonconvergence | err nonconvergence
+redundant-1404 0.3 UNSOLVED-honest | unresolved [3,4,5,7,8,9,10,12] status=estimated
