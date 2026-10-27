@@ -1,5 +1,5 @@
 {
- "binary_sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
+ "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
  "passed": 28,
  "total": 28,
  "results": [
@@ -244,7 +244,7 @@
   {
    "name": "classify.open",
    "ok": true,
-   "seconds": 0.01,
+   "seconds": 0.02,
    "detail": "refused classify-needs-solid | classify | fix: thicken-open the shell to a solid first"
   }
  ]

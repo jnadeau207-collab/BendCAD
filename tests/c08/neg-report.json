@@ -1,5 +1,5 @@
 {
- "binary_sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
+ "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
  "passed": 21,
  "total": 21,
  "results": [
@@ -7,31 +7,31 @@
    "name": "cross.boxes",
    "ok": true,
    "info": "(1499.999999998499, 1500.000000001501)",
-   "seconds": 0.48
+   "seconds": 0.4
   },
   {
    "name": "cross.straddle",
    "ok": true,
    "info": "(7967.999999992034, 7968.000000007972)",
-   "seconds": 0.14
+   "seconds": 0.13
   },
   {
    "name": "cross.pierce_rod",
    "ok": true,
    "info": "(1039.999999998959, 1040.000000001041)",
-   "seconds": 0.22
+   "seconds": 0.19
   },
   {
    "name": "ok.sphere_corner",
    "ok": true,
    "info": "(1791.6813486993124, 1791.6813487099434)",
-   "seconds": 1.07
+   "seconds": 0.84
   },
   {
    "name": "ok.mixed_cavity",
    "ok": true,
    "info": "(63839.99999993617, 63840.00000006385)",
-   "seconds": 0.19
+   "seconds": 0.17
   },
   {
    "name": "place.rot45_union",
@@ -49,13 +49,13 @@
    "name": "feature.on_boolean",
    "ok": true,
    "info": "(1509.424777959259, 1509.42477796228)",
-   "seconds": 1.42
+   "seconds": 1.03
   },
   {
    "name": "feature.on_compound",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 6",
-   "seconds": 0.99
+   "seconds": 0.63
   },
   {
    "name": "feature.on_empty",
@@ -79,31 +79,31 @@
    "name": "ok.flush_pocket",
    "ok": true,
    "info": "(7935.999999992063, 7936.000000007937)",
-   "seconds": 0.19
+   "seconds": 0.17
   },
   {
    "name": "ok.ident_union",
    "ok": true,
    "info": "(999.9999999989992, 1000.0000000010012)",
-   "seconds": 0.29
+   "seconds": 0.31
   },
   {
    "name": "ok.half_removed",
    "ok": true,
    "info": "(3999.999999996, 4000.000000004002)",
-   "seconds": 0.86
+   "seconds": 0.71
   },
   {
    "name": "chain.failed_operand",
    "ok": true,
    "info": "('unsupported-op', 'boundaries-cross-or-overlap: edge-face-penetration 18 0 between nodes 3 and 1 [k1 reason 93]')",
-   "seconds": 4.54
+   "seconds": 3.52
   },
   {
    "name": "ok.touch_face",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0",
-   "seconds": 0.34
+   "seconds": 0.29
   },
   {
    "name": "ok.identical",
@@ -115,7 +115,7 @@
    "name": "ok.contained",
    "ok": true,
    "info": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7999.999999992629, 8000.0",
-   "seconds": 0.06
+   "seconds": 0.05
   },
   {
    "name": "ok.disjoint_proof",

@@ -1,5 +1,5 @@
 {
- "binary_sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
+ "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
  "passed": 27,
  "total": 27,
  "results": [
@@ -157,13 +157,13 @@
    "name": "rigid.kind",
    "ok": true,
    "info": "kind-not-decomposed",
-   "seconds": 0.01
+   "seconds": 0.0
   },
   {
    "name": "rigid.budget",
    "ok": true,
    "info": "rigid-budget",
-   "seconds": 0.01
+   "seconds": 0.0
   }
  ]
 }

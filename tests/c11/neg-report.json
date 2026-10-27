@@ -1,5 +1,5 @@
 {
- "binary_sha256": "bfa3cffe4077aeb0660252d93ee4e8436dbb03fbe1ecfb12b966a458ab17edc8",
+ "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
  "passed": 19,
  "total": 19,
  "results": [
@@ -25,19 +25,19 @@
    "name": "dist.node_failed",
    "ok": true,
    "info": "error: node failed; nothing measured",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "extrema.node_failed",
    "ok": true,
    "info": "error: node failed; nothing measured",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "mass.depth_7",
    "ok": true,
    "info": "('depth needs 0..6', 'same')",
-   "seconds": 0.02
+   "seconds": 0.03
   },
   {
    "name": "mass.depth_garbage",
@@ -49,13 +49,13 @@
    "name": "mass.depth_neg",
    "ok": true,
    "info": "('depth needs 0..6', 'same')",
-   "seconds": 0.02
+   "seconds": 0.03
   },
   {
    "name": "mass.node_failed",
    "ok": true,
    "info": "error: node failed; nothing measured",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "section.degenerate",
@@ -73,7 +73,7 @@
    "name": "section.node_failed",
    "ok": true,
    "info": "error: node failed; nothing sectioned",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "interf.node_a",
@@ -97,7 +97,7 @@
    "name": "wall.node_failed",
    "ok": true,
    "info": "error: node failed; nothing measured",
-   "seconds": 0.02
+   "seconds": 0.01
   },
   {
    "name": "classify.nan",
@@ -115,7 +115,7 @@
    "name": "check.node_failed",
    "ok": true,
    "info": "error: node failed; nothing checked",
-   "seconds": 0.02
+   "seconds": 0.01
   }
  ]
 }
