@@ -55,5 +55,5 @@ the Euler formula for arrangements).
 ## Open
 
 The sketch solver and arrangement are not reachable from the design language
-(`docs/language.md`: no design-file sketch syntax). C14 uses its own
+(`tools/mcp/language.md`, "There is no design-file syntax" under the sketch solver). C14 uses its own
 assembly solver. Agents therefore cannot yet build constraint sketches.
