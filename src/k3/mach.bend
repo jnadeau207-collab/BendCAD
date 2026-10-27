@@ -207,12 +207,12 @@ def samples(+b: Ty.Brep, +fi: Nat, +n: Nat) -> List<&2, SP>:
   grid_u(L.nat_range(n), bb_polys(FB.face_polys(b, fi), UV{big, F64.neg(big), big, F64.neg(big)}), n, b, fi, FB.face_sf(b, fi))
 
 type FR is Data:
-  FR{ n: Nat, ok: Nat, unc: Nat, bad: List<&2, V.Point> }
+  FR{ n: Nat, ok: Nat, unc: Nat, bad: List<&2, V.Point>, um: List<&2, V.Point> }
 
 def fr_add(+r: FR, +c: U64, +p: V.Point) -> FR:
-  FR{+n, +ok, +unc, +bad} = r
+  FR{+n, +ok, +unc, +bad, +um} = r
   FR{Nat.add(n, 1n), Bool.pick(Nat, U64.is_eq(c, 0u64), Nat.add(ok, 1n), ok), Bool.pick(Nat, U64.is_eq(c, 2u64), Nat.add(unc, 1n), unc),
-    Bool.pick(List<&2, V.Point>, U64.is_eq(c, 1u64), p <> bad, bad)}
+    Bool.pick(List<&2, V.Point>, U64.is_eq(c, 1u64), p <> bad, bad), Bool.pick(List<&2, V.Point>, U64.is_eq(c, 2u64), p <> um, um)}
 
 def reach_ps(ps: List<&2, SP>, +five: Bool, +pc: PC, +tb: TB, +t: TL, +gap: F64, +acc: FR) -> FR:
   match ps:
@@ -245,22 +245,22 @@ type FO is Data:
 def pt_s(+p: V.Point) -> String:
   "(" ++ F64.show(V.pt_x(p)) ++ "," ++ F64.show(V.pt_y(p)) ++ "," ++ F64.show(V.pt_z(p)) ++ ")"
 
-def bad_s(ps: List<&2, V.Point>) -> String:
+def bad_s(ps: List<&2, V.Point>, +w: String) -> String:
   match ps:
     case []: ""
-    case +p <> +t: " blocked=" ++ pt_s(p)
+    case +p <> +t: " " ++ w ++ "=" ++ pt_s(p)
 
 def fo_of(+fi: Nat, +rr: F64, +tight: Bool, r: FR) -> FO:
-  FR{+n, +ok, +unc, +bad} = r
+  FR{+n, +ok, +unc, +bad, +um} = r
   FO{"face " ++ Nat.show(fi) ++ " reach=" ++ Nat.show(ok) ++ "/" ++ Nat.show(n) ++ Bool.pick(String, Nat.is_eq(unc, 0n), "", " uncertain=" ++ Nat.show(unc)) ++
-      Bool.pick(String, tight, " concave-radius=" ++ F64.show(rr) ++ " below-tool-radius", "") ++ bad_s(bad) ++ "\n",
+      Bool.pick(String, tight, " concave-radius=" ++ F64.show(rr) ++ " below-tool-radius", "") ++ bad_s(bad, "blocked") ++ bad_s(um, "uncertain-at") ++ "\n",
     ok, n, unc, Bool.pick(Nat, tight, 1n, 0n)}
 
 def face_one(+pc: PC, +tb: TB, +t: TL, +five: Bool, +ns: Nat, +gap: F64, +fi: Nat) -> FO:
   +b = pc_b(pc)
   +ps = samples(b, fi, ns)
   +rr = concave_r(FB.face_sf(b, fi), ps)
-  fo_of(fi, rr, F64.is_lt(rr, F64.mul(tl_r(t), F64.sub(1.0f64, 1.0e-9f64))), reach_ps(ps, five, pc, tb, t, gap, FR{0n, 0n, 0n, []}))
+  fo_of(fi, rr, F64.is_lt(rr, F64.mul(tl_r(t), F64.sub(1.0f64, 1.0e-9f64))), reach_ps(ps, five, pc, tb, t, gap, FR{0n, 0n, 0n, [], []}))
 
 type MC is Data:
   MC{ pc: PC, tb: TB, t: TL, five: Bool, ns: Nat, gap: F64 }

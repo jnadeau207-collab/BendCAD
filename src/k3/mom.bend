@@ -89,6 +89,24 @@ def bal_go(+ivs: List<&2, I.I>, +c: V.Point, +pl: M.Pl, +rho: F64, +p: List<&2, 
     " kg.mm2 " ++ bal_verdict(u, up) ++ " method=divergence
 "
 
+def even_go(+ivs: List<&2, I.I>, +c: V.Point, +pl: M.Pl, +p: List<&2, I.I>, +d: List<&2, I.I>) -> Bool:
+  +cr = cr_of(ivs)
+  +mi = M.pl_mi(pl)
+  +v = i3(ivs, 0n)
+  +r = sub3(QM.cw_of(mi, M.pl_ti(pl), cl_of(cr, c)), p)
+  +perp = sub3(r, sc3(dot3(r, d), d))
+  +id = mat3(QM.rot_i(mi, QM.sh9(il_of(ivs), v, cr)), d)
+  +pv = sub3(id, sc3(dot3(d, id), d))
+  +ax = I.i_hi(dot3(d, id))
+  Bool.and(F64.is_le(I.i_lo(dot3(perp, perp)), F64.mul(1.0e-18f64, F64.div(ax, I.i_lo(v)))), F64.is_le(I.i_lo(dot3(pv, pv)), F64.mul(1.0e-18f64, F64.mul(ax, ax))))
+
+def even_r(r: D.MR, +pl: M.Pl, +p: List<&2, I.I>, +d: List<&2, I.I>) -> Bool:
+  D.MR{+c, +m, +e, +slv, +rad, ar, sla} = r
+  even_go(D.mv_iv(m, e, slv, rad), c, pl, p, d)
+
+def even(+b: M.Body, +p: List<&2, I.I>, +d: List<&2, I.I>) -> Bool:
+  even_r(D.brep_mom(M.bd_brep(b)), M.bd_pl(b), p, d)
+
 def bal_r(r: D.MR, +pl: M.Pl, +rho: F64, +p: List<&2, I.I>, +d: List<&2, I.I>, +w: F64, +g: F64) -> String:
   D.MR{+c, +m, +e, +slv, +rad, ar, sla} = r
   bal_go(D.mv_iv(m, e, slv, rad), c, pl, rho, p, d, w, g)

@@ -19,9 +19,10 @@ ROD_T = [1115.92467306268, 3039.50640708873, 5858.7656417103]
 ROD_EB = [1123.33704734549, 3096.52182745981, 6070.4208772597]
 CANT_T = [702.147250238084, 4259.44177720725]
 CANT_EB = [706.140404690695, 4425.30637737099]
-DISC_W = 196.050693585673
-DISC_GROW = (0.00420551554158856, 0.00425272771951658)
-DISC_MODEL = 0.00177843245889509
+DISC_W = 196.04908787961773
+DISC_GROW = (0.0042082599738854625, 0.004251079798450954)
+DISC_ORACLE = 1.0e-6
+DISC_H = '3'
 
 
 def record(name, ok, **info):
@@ -74,13 +75,13 @@ def disc_spin(h):
     dt = time.time() - t
     wk = e2e.fem_lines(o, 'work_nmm')
     tip = e2e.fem_lines(o, 'tip_growth_mm')
-    ok_w = len(wk) == 1 and abs(wk[0][3] - DISC_W) <= wk[0][4] + DISC_MODEL
+    ok_w = len(wk) == 1 and abs(wk[0][3] - DISC_W) <= wk[0][4] + DISC_ORACLE
     ok_t = len(tip) == 1 and DISC_GROW[0] - tip[0][4] <= tip[0][3] <= DISC_GROW[1] + tip[0][4]
-    record('corpus.disc_spin', 'committed' in out and ok_w and ok_t, work=dict(plane_stress=DISC_W, model=DISC_MODEL, got=wk),
+    record('corpus.disc_spin', 'committed' in out and ok_w and ok_t, work=dict(oracle_3d=DISC_W, got=wk),
            tip=dict(band=DISC_GROW, got=tip), seconds=dt, raw=o[-1200:])
 
 
-DISC_3D = {(2, 0): 9954.5388, (0, 1): 16568.5839, (3, 0): 22048.9423}
+DISC_3D = e2e.DISC_3D
 
 
 def love(n, s, b=25.0, t=5.0, E=200000.0, nu=0.3, rho=7.85e-9):
@@ -282,8 +283,10 @@ def main():
     h = os.environ.get('CORPUS_H', '4')
     which = sys.argv[1:] or ['rod_free', 'cantilever', 'disc_spin', 'disc_modes', 'impeller', 'scroll']
     for w in which:
-        globals()[w]() if w in ('impeller', 'scroll') else globals()[w](h)
-    json.dump(RESULTS, open(OUT, 'w'), indent=1)
+        globals()[w]() if w in ('impeller', 'scroll') else globals()[w](DISC_H if w.startswith('disc') else h)
+    old = json.load(open(OUT)) if os.path.exists(OUT) else []
+    names = {r['name'] for r in RESULTS}
+    json.dump([r for r in old if r['name'] not in names] + RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')
     sys.exit(0 if n == len(RESULTS) else 1)

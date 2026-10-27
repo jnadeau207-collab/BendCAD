@@ -127,8 +127,8 @@ def ws_on(+ws: WS) -> Bool:
 def lv_si(+si: F.SI, +sg: F64, +k: Nat, +free: Bool, +ok: Bool, +nn: Nat, +ne: Nat, +nc: Nat, +nh: Nat, +ps: List<&2, V.Point>, +hl: F64) -> LV:
   F.SI{+x, +lam, +it, +res} = si
   +h = hzs(lam, sg)
-  +rig = Bool.pick(Nat, free, n_below(h, F64.mul(1.0e-4f64, last_f(h, 0.0f64)), 0n), 0n)
-  LV{ok, nn, ne, nc, nh, rig, it, take_f(k, drop_f(rig, h)), WS{True{}, ps, x, hl}, res}
+  +nb = Bool.pick(Nat, free, n_below(h, F64.mul(1.0e-4f64, last_f(h, 0.0f64)), 0n), 0n)
+  LV{ok, nn, ne, nc, nh, Bool.pick(Nat, free, Nat.add(6n, nb), 0n), it, take_f(k, drop_f(nb, h)), WS{True{}, ps, x, hl}, res}
 
 def guard(+k: Nat) -> Nat:
   Nat.add(k, Nat.max(3n, Nat.div(k, 4n)))
@@ -148,17 +148,33 @@ def pre_if(on: Bool, +fm: F.FM, +es: List<&2, F.EL>, +ps: List<&2, V.Point>, +ma
       F.prestress(fm, es, sv_u(F.bsolve_tol(fm, mask, [f], 40000n, 1.0e-10f64)), e, nu, w, cl_d(c))
     case False{}: fm
 
+def rb_node(+j: Nat, +d: V.Dir) -> List<&2, F64>:
+  +x = S.dx(d)
+  +y = S.dy(d)
+  +z = S.dz(d)
+  Bool.pick(List<&2, F64>, Nat.is_eq(j, 0n), [1.0f64, 0.0f64, 0.0f64], Bool.pick(List<&2, F64>, Nat.is_eq(j, 1n), [0.0f64, 1.0f64, 0.0f64],
+    Bool.pick(List<&2, F64>, Nat.is_eq(j, 2n), [0.0f64, 0.0f64, 1.0f64], Bool.pick(List<&2, F64>, Nat.is_eq(j, 3n), [0.0f64, F64.neg(z), y],
+      Bool.pick(List<&2, F64>, Nat.is_eq(j, 4n), [z, 0.0f64, F64.neg(x)], [F64.neg(y), x, 0.0f64])))))
+
+def rb_col(ps: List<&2, V.Point>, +c0: V.Point, +j: Nat) -> List<&2, F64>:
+  match ps:
+    case []: []
+    case +p <> +t: List.append(&2, F64, rb_node(j, S.psub(p, c0)), rb_col(t, c0, j))
+
+def rigid(+ps: List<&2, V.Point>, +c0: V.Point) -> List<&2, List<&2, F64>>:
+  [rb_col(ps, c0, 0n), rb_col(ps, c0, 1n), rb_col(ps, c0, 2n), rb_col(ps, c0, 3n), rb_col(ps, c0, 4n), rb_col(ps, c0, 5n)]
+
 def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
-  K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = tm
+  K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = tm
   +es = K.fe_els(ts, B.tb_of(V.Point, ps, org()), 1.0e-12f64)
   +free = Bool.not(cl_on(c))
   +sg = Bool.pick(F64, free, F64.div(F64.mul(0.1f64, F64.div(e, rho)), F64.max(ext2(ps, hd_p(ps), 0.0f64), 1.0e-300f64)), 0.0f64)
-  +kw = Bool.pick(Nat, free, Nat.add(k, 6n), k)
+  +kw = k
   +kk = guard(kw)
   +mask = cl_mask(ps, c)
   +n3 = Nat.mul(nn, 3n)
   +fm = F.fm_sig(pre_if(F64.is_lt(0.0f64, w), F.fm_of(U32.from_nat(nn), es, e, nu, rho), es, ps, mask, e, nu, c, w), sg)
-  lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-6f64, x0_of(ws_on(ws), ws, ps, kk, n3, mask)), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
+  lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-6f64, x0_of(ws_on(ws), ws, ps, kk, n3, mask), Bool.pick(List<&2, List<&2, F64>>, free, rigid(ps, hd_p(ps)), [])), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
     n_held(ps, c, 0n), ps, hl)
 
 def lv_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
@@ -373,9 +389,6 @@ def cl_p(+c: CL) -> V.Point:
   CL{on, +p, d, r, pl} = c
   p
 
-def nrm(+xs: List<&2, F64>) -> F64:
-  F64.sqrt(F.dot_l(xs, xs, 0.0f64))
-
 def sp_free(on: Bool, +f: List<&2, F64>, +fm: F.FM, +ps: List<&2, V.Point>, +c: CL) -> List<&2, F64>:
   match on:
     case True{}: f
@@ -387,28 +400,28 @@ def sp_bal(ok: Bool, +f: List<&2, F64>, +fm: F.FM, +mask: List<&2, F64>, +ps: Li
     case True{}: sp_sv(F.bsolve_tol(fm, mask, [f], 40000n, 1.0e-10f64), f, ps, es, lam, mu, c, True{}, nn, ne)
     case False{}: SP{False{}, nn, ne, 0n, F64.nan(), 0.0f64, 0.0f64, 0.0f64, 0.0f64, 0.0f64}
 
-def sp_rel(+f0: List<&2, F64>, +f: List<&2, F64>, +fm: F.FM, +mask: List<&2, F64>, +ps: List<&2, V.Point>, +es: List<&2, F.EL>, +lam: F64, +mu: F64,
+def sp_rel(+bal: Bool, +f: List<&2, F64>, +fm: F.FM, +mask: List<&2, F64>, +ps: List<&2, V.Point>, +es: List<&2, F.EL>, +lam: F64, +mu: F64,
     +c: CL, +nn: Nat, +ne: Nat) -> SP:
-  sp_bal(F64.is_le(nrm(F.axpy(F64.neg(1.0f64), f, f0)), F64.mul(1.0e-3f64, nrm(f0))), f, fm, mask, ps, es, lam, mu, c, nn, ne)
+  sp_bal(Bool.or(cl_on(c), bal), f, fm, mask, ps, es, lam, mu, c, nn, ne)
 
 def sp_ok2(+ok: Bool, +s: SP) -> SP:
   SP{+o2, +nn, +ne, +nh, +rz, +rm, +tp, +gm, +vm, +wk} = s
   SP{Bool.and(ok, o2), nn, ne, nh, rz, rm, tp, gm, vm, wk}
 
-def sp_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64) -> SP:
-  K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = tm
+def sp_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> SP:
+  K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = tm
   +es = K.fe_els(ts, B.tb_of(V.Point, ps, org()), 1.0e-12f64)
   +mask = cl_mask(ps, c)
   +fm = F.fm_of(U32.from_nat(nn), es, e, nu, rho)
   +f = F.hadam(mask, F.scale(F64.mul(w, w), F.apply_op(fm, True{}, xperp(ps, c))))
-  sp_ok2(ok, sp_rel(f, sp_free(cl_on(c), f, fm, ps, c), fm, mask, ps, es, lame(e, nu), shear(e, nu), c, nn, List.length(&2, K.T10, ts)))
+  sp_ok2(ok, sp_rel(bal, sp_free(cl_on(c), f, fm, ps, c), fm, mask, ps, es, lame(e, nu), shear(e, nu), c, nn, List.length(&2, K.T10, ts)))
 
-def sp_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64) -> SP:
+def sp_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> SP:
   K.TR{+ok, +tm} = t
-  sp_go(tm, ok, e, nu, rho, c, w)
+  sp_go(tm, ok, e, nu, rho, c, w, bal)
 
-def sp_lv(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64) -> SP:
-  sp_tr(K.tm_of(fs, h), e, nu, rho, c, w)
+def sp_lv(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> SP:
+  sp_tr(K.tm_of(fs, h), e, nu, rho, c, w, bal)
 
 def sp_ok(+s: SP) -> Bool:
   SP{+ok, nn, ne, nh, rz, rm, tp, gm, vm, wk} = s
@@ -446,9 +459,9 @@ def spin3(+a: SP, +b: SP, +c: SP, +h: F64) -> String:
       q_line("max_growth_mm", sp_gm(a), sp_gm(b), sp_gm(c)) ++ q_line("max_von_mises_mpa", sp_vm(a), sp_vm(b), sp_vm(c)) ++
       q_line("work_nmm", sp_wk(a), sp_wk(b), sp_wk(c)) ++
       "method=T10 isosurface-stuffing mesh, clamped nodes within R of the axis, consistent centrifugal load, PCG; bound from three levels\n",
-    "refused spin-unsupported | spin | why: the mesh did not certify, or R = 0 on a part whose centrifugal load is not self-equilibrated about the axis | fix: give a clamp radius R > 0 about the axis, or change H slightly\n")
+    "refused spin-unsupported | spin | why: the mesh did not certify, or R = 0 on a part that is not balanced about the axis (certified centroid off it or products of inertia about it) | fix: give a clamp radius R > 0 about the axis, or change H slightly\n")
 
-def spin_s(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64) -> String:
+def spin_s(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> String:
   +h1 = F64.div(h, cbrt2())
   +h2 = F64.div(h1, cbrt2())
-  spin3(sp_lv(fs, h, e, nu, rho, c, w), sp_lv(fs, h1, e, nu, rho, c, w), sp_lv(fs, h2, e, nu, rho, c, w), h)
+  spin3(sp_lv(fs, h, e, nu, rho, c, w, bal), sp_lv(fs, h1, e, nu, rho, c, w, bal), sp_lv(fs, h2, e, nu, rho, c, w, bal), h)

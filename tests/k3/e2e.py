@@ -18,6 +18,7 @@ IS = '(intent same any any any any)'
 IA = '(intent add any any any any)'
 ID = '(intent remove any any any any)'
 NUM = r'(-?[0-9.]+(?:e-?[0-9]+)?)'
+DISC_3D = {(2, 0): 9954.5388, (0, 1): 16568.5839, (3, 0): 22048.9423}
 IVR = r'\[' + NUM + r', ' + NUM + r'\]'
 
 

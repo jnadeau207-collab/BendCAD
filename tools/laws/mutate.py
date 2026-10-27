@@ -459,6 +459,15 @@ MUTANTS = [
     ('k3', 'prism splits into three', 'src/k3/mesh.bend',
      '    T4{a, b, c, e} <> T4{a, e, c, f} <> T4{a, e, f, d} <> acc)',
      '    T4{a, b, c, e} <> T4{a, e, f, d} <> acc)'),
+    ('k3', 'revert keeps unflagged', 'src/k3/mesh.bend',
+     '      Bool.pick(V.Point, hit, p_hd(ls), m) <> revert(',
+     '      p_hd(ls) <> revert('),
+    ('k3', 'revert keeps length', 'src/k3/mesh.bend',
+     '    case []: []\n    case +m <> +r:\n      +hit',
+     '    case []: ls\n    case +m <> +r:\n      +hit'),
+    ('k3', 'snap keeps length', 'src/k3/mesh.bend',
+     '      Bool.pick(V.Point, hit, vt_q(vt_hd(vs)), p) <> place(',
+     '      place('),
 ]
 
 

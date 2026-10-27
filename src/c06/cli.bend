@@ -632,14 +632,20 @@ def bal_out(+p: M.Part, +xs: List<&2, String>) -> String:
   bal_args(Bool.and(fin, Bool.and(F64.is_lt(0.0f64, rpm), F64.is_lt(0.0f64, g))), p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}),
     [I.ipt(f_arg(xs, 1n)), I.ipt(f_arg(xs, 2n)), I.ipt(f_arg(xs, 3n))], f_arg(xs, 4n), f_arg(xs, 5n), f_arg(xs, 6n), rpm, g)
 
-def fe_run(kind: Bool, +fs: List<&2, SOL.Fd>, +h: F64, +e: F64, +nu: F64, +rt: F64, +c: K3S.CL, +k: Nat, +w: F64) -> String:
+def pt_iv(+p: V.Point) -> List<&2, I.I>:
+  [I.ipt(V.pt_x(p)), I.ipt(V.pt_y(p)), I.ipt(V.pt_z(p))]
+
+def dr_iv(+d: V.Dir) -> List<&2, I.I>:
+  [I.ipt(V.dr_x(d)), I.ipt(V.dr_y(d)), I.ipt(V.dr_z(d))]
+
+def fe_run(kind: Bool, +b: M.Body, +h: F64, +e: F64, +nu: F64, +rt: F64, +c: K3S.CL, +k: Nat, +w: F64) -> String:
   match kind:
-    case True{}: K3S.modes_s(fs, h, e, nu, rt, c, k, w)
-    case False{}: K3S.spin_s(fs, h, e, nu, rt, c, w)
+    case True{}: K3S.modes_s(SOL.fds_of(M.bd_brep(b)), h, e, nu, rt, c, k, w)
+    case False{}: K3S.spin_s(SOL.fds_of(M.bd_brep(b)), h, e, nu, rt, c, w, K3M.even(b, pt_iv(K3S.cl_p(c)), dr_iv(K3S.cl_d(c))))
 
 def fe_el(ok: Bool, +kind: Bool, +b: M.Body, +h: F64, +e: F64, +nu: F64, +rt: F64, +c: K3S.CL, +k: Nat, +w: F64, +verb: String) -> String:
   match ok:
-    case True{}: fe_run(kind, SOL.fds_of(M.bd_brep(b)), h, e, nu, rt, c, k, w)
+    case True{}: fe_run(kind, b, h, e, nu, rt, c, k, w)
     case False{}: "error invalid-input | " ++ verb ++ " | why: material-lacks-elastic-constants | fix: declare (material NODE GRADE DENSITY CTE E NU) with E in MPa"
 
 def fe_grade(m: Maybe<&2, M.Grade>, +b: M.Body, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String) -> String:

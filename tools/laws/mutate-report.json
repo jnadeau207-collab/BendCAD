@@ -1104,5 +1104,26 @@
   "file": "src/k3/mesh.bend",
   "ok": true,
   "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "revert keeps unflagged",
+  "file": "src/k3/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "revert keeps length",
+  "file": "src/k3/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "k3",
+  "law": "snap keeps length",
+  "file": "src/k3/mesh.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
  }
 ]

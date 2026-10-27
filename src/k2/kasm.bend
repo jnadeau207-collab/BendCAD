@@ -11,6 +11,7 @@ import ../k1/sf.bend as KS
 import ./mat.bend as KM
 import ./thr.bend as KT
 import ./kgap.bend as KG
+import ../base/par.bend as B
 
 type MS is Data:
   MS{ ok: Bool, txt: String, tot: I.I }
@@ -395,18 +396,33 @@ def pair_s(+d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
     Bool.pick(U64, s_has(rel, "relation uncertain"), 3u64, 2u64)))
   press_go(code, d, rel, x, y)
 
-def ip_inner(+x: A4.IN, ys: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
-  match ys:
-    case []: ""
-    case +y <> +t:
-      "pair " ++ A4.in_name(x) ++ " " ++ A4.in_name(y) ++ "
-" ++
-        pair_s(pd_find(ds, A4.in_name(x), A4.in_name(y)), QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y) ++ ip_inner(x, t, ds)
+type PP is Data:
+  PP{ x: A4.IN, y: A4.IN }
 
-def ip_go(xs: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+def pp_in(+x: A4.IN, ys: List<&2, A4.IN>, +acc: List<&2, PP>) -> List<&2, PP>:
+  match ys:
+    case []: acc
+    case +y <> +t: pp_in(x, t, PP{x, y} <> acc)
+
+def pps(xs: List<&2, A4.IN>) -> List<&2, PP>:
+  match xs:
+    case []: []
+    case +x <> +t: List.append(&2, PP, List.reverse(&2, PP, pp_in(x, t, [])), pps(t))
+
+def pp_s(+ds: List<&2, PD>, +q: PP) -> String:
+  PP{+x, +y} = q
+  "pair " ++ A4.in_name(x) ++ " " ++ A4.in_name(y) ++ "\n" ++ pair_s(pd_find(ds, A4.in_name(x), A4.in_name(y)), QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y)
+
+def pp_f(ds: List<&2, PD>, q: PP) -> String:
+  pp_s(ds, q)
+
+def cat_s(xs: List<&2, String>) -> String:
   match xs:
     case []: ""
-    case +x <> +t: ip_inner(x, t, ds) ++ ip_go(t, ds)
+    case +x <> +t: x ++ cat_s(t)
+
+def ip_go(+xs: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+  cat_s(B.pmap_g(~PP, ~List<&2, PD>, ~String, ~pp_f, 1, ds, pps(xs)))
 
 def is_some_in(m: Maybe<&2, A4.IN>) -> Bool:
   match m:

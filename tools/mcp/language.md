@@ -649,25 +649,41 @@ them.
   by certified ray crossings, cut points on the faces, warped vertices,
   dihedral angles bounded away from 0 and 180 degrees) into quadratic
   tetrahedra whose boundary midside nodes are projected onto the faces
-  (curved, isoparametric). The spectrum is solved by block LOBPCG with a
+  (curved, isoparametric; a midside node that would invert its element
+  stays on the chord). The spectrum is solved by block LOBPCG with a
   lockstep PCG preconditioner until every wanted residual |Kx - lMx| is
   below 1e-6 of lmax|Mx| (printed as `residual=` on each `level` line);
-  each finer level starts from the previous level's modes. Without the clamp the part is free and the
-  six rigid modes are skipped; with it every mesh node within R of the
+  each finer level starts from the previous level's modes. Without the clamp the part is free: the
+  six rigid modes (three translations, three rotations about the first
+  node) are deflated exactly, so every search vector stays M-orthogonal
+  to them (`rigid=6`; a seventh near-zero mode would be dropped and
+  counted); with it every mesh node within R of the
   axis through (PX, PY, PZ) along (DX, DY, DZ) is fixed (a bore keyed to
   a shaft). Each mode is solved at H, H/2^(1/3) and H/2^(2/3); the line
   `mode I hz=[A, B, C] est=E bound=D status=estimated` gives the three
   values, the extrapolation from the observed convergence ratio and a
   bound (the larger of the last change and the extrapolation step;
   `estimated-nonmonotone` doubles the larger change when the levels do
-  not converge monotonically). Sharp edges are rounded at the scale of the
-  lattice, so the bound includes that geometric error. Size H to the
-  thinnest wall: the finest level has about four times the nodes of the
+  not converge monotonically). Sharp edges are recovered: where a boundary
+  mesh edge runs from one face to another across a sharp B-rep edge, its
+  endpoint nearer that edge is snapped onto it (Newton on the two face
+  equations; refused where a tet would invert or lose 95% of its volume). Boundary
+  midside nodes follow the B-rep: on the intersection curve when both
+  ends lie on two common faces, at the closest point of the face when
+  they share one analytic face (two- and one-surface Newton), and by the
+  certified ray along the facet normal when they lie on different faces,
+  so the geometric error shrinks monotonically with h. Size H to at
+  most 0.6 of the thinnest wall (a 5 mm disc meshed at H = 4 gave two
+  finer levels that agreed by chance and a bound 40 times too tight;
+  H = 3 holds): the finest level has about four times the nodes of the
   first.
 - `spin N RPM H PX PY PZ DX DY DZ R`: linear centrifugal response at RPM
   about the axis, with nodes within R of it clamped, or a free part when
-  R = 0 (refused unless the centrifugal load is self-equilibrated about
-  the axis). Prints, at the three levels with extrapolation and bound,
+  R = 0 (refused when the exact B-rep is provably unbalanced about the
+  axis: the certified divergence-theorem moments put its centroid off the
+  axis, or give it products of inertia about it, by more than 1e-9 of
+  its size; otherwise the mesh's own small imbalance is removed by
+  inertia relief). Prints, at the three levels with extrapolation and bound,
   `tip_growth_mm` (radial displacement of the outermost node),
   `max_growth_mm`, `max_von_mises_mpa` (at element quadrature points;
   re-entrant corners do not converge and show as non-monotone) and
@@ -691,7 +707,8 @@ them.
   material) is below D/2 are `concave-radius=R below-tool-radius`; edges
   where two faces meet at a sharp concave angle are `sharp-concave
   radius=0`. Prints one line per face, `face F reach=K/N` with a blocked
-  sample, then `verdict machinable|not-machinable|uncertain` with the
+  sample (`blocked=(X,Y,Z)`) and an uncertain one (`uncertain=U
+  uncertain-at=(X,Y,Z)`), then `verdict machinable|not-machinable|uncertain` with the
   counts; `status=certified` when every check certified, else
   `status=estimated`. A slot narrower than the ball is blocked at its
   floor and walls; points nearer a sharp concave corner than D/2 are

@@ -73,10 +73,10 @@ def modal(+es: List<&2, F.EL>, +nn: Nat, +it: Nat) -> String:
   +fm = F.fm_sig(F.fm_of(U32.from_nat(nn), es, 200000.0f64, 0.3f64, 7.85e-9f64), sg)
   +n = Nat.mul(nn, 3n)
   " curved=" ++ Nat.show(K.n_ec(es, 0n)) ++ "
-hz " ++ fin(F.lobpcg(it, fm, ones(n), 16n, 16n, 1.0e-11f64, starts(16n, n, 1.0f64)), sg)
+hz " ++ fin(F.lobpcg(it, fm, ones(n), 16n, 16n, 1.0e-11f64, starts(16n, n, 1.0f64), []), sg)
 
 def tm_go(+t: K.TM, +it: Nat) -> String:
-  K.TM{+ts, +ps, +nn, +nb, +nf, +dv} = t
+  K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = t
   "t10 nodes=" ++ Nat.show(nn) ++ " elems=" ++ Nat.show(List.length(&2, K.T10, ts)) ++ " projfail=" ++ Nat.show(nf) ++ modal(K.fe_els(ts, B.tb_of(V.Point, ps, V.Pt{0.0f64, 0.0f64, 0.0f64}), 1.0e-12f64), nn, it)
 
 def mr_go(+r: K.MR, +fs: List<&2, SO.Fd>, +it: Nat) -> String:

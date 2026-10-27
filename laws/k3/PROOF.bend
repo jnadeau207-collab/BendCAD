@@ -53,3 +53,24 @@ def Laws.pyramid_splits_into_two(q0, q1, q2, q3, p, acc):
 def Laws.prism_splits_into_three(a, b, c, d, e, f, acc):
   prism_go(Bool.or(Nat.is_eq(K.mn6n(a, b, c, d, e, f), a), Nat.is_eq(K.mn6n(a, b, c, d, e, f), d)),
     Bool.or(Nat.is_eq(K.mn6n(a, b, c, d, e, f), b), Nat.is_eq(K.mn6n(a, b, c, d, e, f), e)), a, b, c, d, e, f, acc)
+
+def Laws.revert_keeps_unflagged(ms, ls, i):
+  match ms:
+    case []: {==}
+    case m <> r:
+      %Laws.revert_keeps_unflagged(r, K.p_tl(ls), Nat.add(i, 1n)) : {m <> K.revert(r, K.p_tl(ls), [], Nat.add(i, 1n)) == m <> _ : List<&2, V.Point>}
+      {==}
+
+def Laws.revert_keeps_length(ms, ls, bad, i):
+  match ms:
+    case []: {==}
+    case m <> r:
+      %Laws.revert_keeps_length(r, K.p_tl(ls), Bool.pick(List<&2, Nat>, Bool.and(Bool.not(K.n_nil(bad)), Nat.is_eq(K.n_hd(bad), i)), K.n_tl(bad), bad), Nat.add(i, 1n)) : {1n+List.length(&2, V.Point, K.revert(r, K.p_tl(ls), Bool.pick(List<&2, Nat>, Bool.and(Bool.not(K.n_nil(bad)), Nat.is_eq(K.n_hd(bad), i)), K.n_tl(bad), bad), Nat.add(i, 1n))) == 1n+_ : Nat}
+      {==}
+
+def Laws.snap_keeps_length(ps, vs, i):
+  match ps:
+    case []: {==}
+    case p <> r:
+      %Laws.snap_keeps_length(r, Bool.pick(List<&2, K.VT>, Bool.and(Bool.not(K.vt_nil(vs)), Nat.is_eq(K.vt_v(K.vt_hd(vs)), i)), K.vt_tl(vs), vs), Nat.add(i, 1n)) : {1n+List.length(&2, V.Point, K.place(r, Bool.pick(List<&2, K.VT>, Bool.and(Bool.not(K.vt_nil(vs)), Nat.is_eq(K.vt_v(K.vt_hd(vs)), i)), K.vt_tl(vs), vs), Nat.add(i, 1n))) == 1n+_ : Nat}
+      {==}
