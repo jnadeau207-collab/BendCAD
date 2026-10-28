@@ -48,8 +48,8 @@ Back comes a certified volume interval for every node, durable face names that s
 
 ## How we keep it honest
 
-- **Laws, not just tests.** 575 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
-- **Pins.** 2,569 fixed-input checks run as compiled code and are compared bit-for-bit.
+- **Laws, not just tests.** 591 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
+- **Pins.** 2,631 fixed-input checks run as compiled code and are compared bit-for-bit.
 - **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
 
@@ -60,9 +60,9 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 | | Challenge | Status |
 |---|---|---|
 | G1 | Parameterized mounting bracket with curved edges and holes | ✅ passed |
-| G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | next |
-| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed (owner review; kernel mesh clearance still estimated) |
-| G4 | Centrifugal blower with modal analysis and machining checks | planned |
+| G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | ✅ passed (run 1, SAE A gear pump, OCCT-graded 25/25, Oct 27) |
+| G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed (re-run on the K3 kernel, OCCT-graded PASS; mesh clearance 0.100 mm) |
+| G4 | Centrifugal blower with modal analysis and machining checks | in progress (K3 kernel packet closed Oct 27; gate run not yet done) |
 | G5 | A ~100 N micro turbojet, with drawings a shop can build from | planned |
 | G6 | A bespoke jet engine from a performance brief | the summit |
 
@@ -74,7 +74,8 @@ And the kernel milestones that carry it there:
 - **Shipped:** semantic PMI and GD&T: dimensions, tolerances and datum reference frames bound to durable selectors, evaluated over envelopes and operating states, exported as STEP AP242.
 - **Shipped:** specialized modeling: sheet metal with certified flat patterns, open-shell surface modeling with thickening to solids, and NACA blade sections with ruled stacking and certified section reports.
 - **Shipped:** professional release qualification: a stable CLI with structured errors and resource/cancellation gates, a documented SDK boundary, reproducible builds, diagnostics, a versioned corpus, and regression gates every future capability re-runs.
-- **Now:** the G2 proof gate: a flanged pump housing with a bolt pattern, a gasket groove, and fits certified over tolerances.
+- **Shipped:** rotor analysis (K3): certified mass moments, balance and rotor critical speeds, curved-T10 FEM modes and spin growth, blade-root blends, and machinability verdicts that refuse a slot narrower than the tool.
+- **Now:** the G4 proof gate: a centrifugal blower with modal analysis and machining checks, on the closed K3 rotor kernel.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 
