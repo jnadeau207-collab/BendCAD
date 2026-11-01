@@ -119,10 +119,30 @@ def crit(+o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I) -> List<&2, List<&2, I
   +q = I.isub(bigr, r)
   List.append(&2, List<&2, I.I>, crit_k(o, Nat.mod(Nat.add(k, 1n), 3n), p, q), crit_k(o, Nat.mod(Nat.add(k, 2n), 3n), p, q))
 
+def bx_same(xs: List<&2, I.I>, ys: List<&2, I.I>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case +y <> u: False{}
+    case +x <> t:
+      match ys:
+        case []: False{}
+        case +y <> u:
+          Bool.and(Bool.and(U64.is_eq(F64.bits(I.i_lo(x)), F64.bits(I.i_lo(y))), U64.is_eq(F64.bits(I.i_hi(x)), F64.bits(I.i_hi(y)))),
+            bx_same(t, u))
+
+def cr_add(same: Bool, +p: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im, +acc: List<&2, I.I>, +h: List<&2, I.I>) -> List<&2, I.I>:
+  match same:
+    case True{}: acc
+    case False{}: Bool.pick(List<&2, I.I>, U64.is_eq(Mm.member(fc, p, nf), 0u64), acc, h)
+
 def cr_box(ps: List<&2, List<&2, I.I>>, +fc: Mm.Fc, +nf: M.Im, +acc: List<&2, I.I>) -> List<&2, I.I>:
   match ps:
     case []: acc
-    case +p <> t: cr_box(t, fc, nf, Bool.pick(List<&2, I.I>, U64.is_eq(Mm.member(fc, p, nf), 0u64), acc, X.vhull(acc, p)))
+    case +p <> t:
+      +h = X.vhull(acc, p)
+      cr_box(t, fc, nf, cr_add(bx_same(h, acc), p, fc, nf, acc, h))
 
 def ax_slab(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
   +w = I.ihull(I.isub(X.vn(o, k), r), I.iadd(X.vn(o, k), r))

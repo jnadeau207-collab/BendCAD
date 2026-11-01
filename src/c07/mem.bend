@@ -462,8 +462,13 @@ def nappe_neg(s: M.Im, +q: List<&2, I.I>) -> Bool:
     case M.M_co{+o, +a, k}: X.ineg_c(X.vdot(a, X.vsub(q, o)))
     case _: False{}
 
+def member_n(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
+  match neg:
+    case True{}: 0u64
+    case False{}: member_k(uv_has(fc_uv(f)), f, q, nf)
+
 def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  Bool.pick(U64, nappe_neg(fc_s(f), q), 0u64, member_k(uv_has(fc_uv(f)), f, q, nf))
+  member_n(nappe_neg(fc_s(f), q), f, q, nf)
 
 def er_uv(+e: Er, +sf: KS.SF, +t: F64) -> V.Vec2:
   KS.sf_uv(sf, q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t))))))

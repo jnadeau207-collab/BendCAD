@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": true,
   "checks": {
-   "seconds": 0.010575532913208008,
+   "seconds": 0.009135723114013672,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -32,7 +32,7 @@
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.01027226448059082,
+   "seconds": 0.008464336395263672,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -60,7 +60,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.008714675903320312,
+   "seconds": 0.008370637893676758,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -86,7 +86,7 @@
   "name": "fig8port",
   "ok": true,
   "checks": {
-   "seconds": 0.2735612392425537,
+   "seconds": 0.28014492988586426,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
@@ -120,7 +120,7 @@
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 1.044905424118042,
+   "seconds": 1.045034646987915,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -148,7 +148,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.024344921112060547,
+   "seconds": 0.022632360458374023,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -172,7 +172,7 @@
   "name": "csink",
   "ok": true,
   "checks": {
-   "seconds": 0.01433873176574707,
+   "seconds": 0.013579368591308594,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -200,7 +200,7 @@
   "name": "sidefeat",
   "ok": true,
   "checks": {
-   "seconds": 0.008093118667602539,
+   "seconds": 0.007692575454711914,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -228,7 +228,7 @@
   "name": "chamfer",
   "ok": true,
   "checks": {
-   "seconds": 0.013023853302001953,
+   "seconds": 0.012532234191894531,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -255,7 +255,7 @@
   "name": "edgechamfer",
   "ok": true,
   "checks": {
-   "seconds": 0.00744318962097168,
+   "seconds": 0.007505178451538086,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -290,7 +290,7 @@
   "name": "g2pump",
   "ok": true,
   "checks": {
-   "seconds": 0.5143988132476807,
+   "seconds": 0.49135661125183105,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -316,7 +316,7 @@
   "name": "spheres",
   "ok": true,
   "checks": {
-   "seconds": 0.010197639465332031,
+   "seconds": 0.008983612060546875,
    "ball_vol": [
     339.2920065868132,
     339.2920065885822
@@ -353,7 +353,7 @@
   "name": "fillets",
   "ok": true,
   "checks": {
-   "seconds": 0.012620925903320312,
+   "seconds": 0.012859821319580078,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -380,7 +380,7 @@
   "name": "g4blade",
   "ok": true,
   "checks": {
-   "seconds": 0.48599815368652344,
+   "seconds": 0.46893954277038574,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -408,7 +408,7 @@
   "name": "g4rotor",
   "ok": true,
   "checks": {
-   "seconds": 121.51440334320068,
+   "seconds": 82.59306621551514,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -433,7 +433,7 @@
   "name": "frame_seam",
   "ok": true,
   "checks": {
-   "seconds": 0.20549392700195312,
+   "seconds": 0.20285797119140625,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -458,7 +458,7 @@
   "name": "volute_panel",
   "ok": true,
   "checks": {
-   "seconds": 6.619574069976807,
+   "seconds": 6.721637964248657,
    "committed": true,
    "proof": true,
    "hand": true,
