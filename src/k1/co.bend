@@ -35,21 +35,24 @@ def same_orient(+ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> Bool:
   +d = F64.is_lt(0.0f64, S.dot(na, nb))
   Bool.xor(d, Bool.xor(FB.face_same(ba, fa), FB.face_same(bb, fb)))
 
-def cps_b(fbs: List<&2, Nat>, +ba: FB.KB, +fa: Nat, +bb: FB.KB) -> List<&2, CP>:
+def cps_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +ba: FB.KB, +fa: Nat, +bxa: FB.BB, +bb: FB.KB) -> List<&2, CP>:
   match fbs:
     case []: []
     case +h <> +t:
-      +rest = cps_b(t, ba, fa, bb)
-      Bool.pick(List<&2, CP>, FB.coplanar(FB.face_surf(ba, fa), FB.face_surf(bb, h)),
-        CP{fa, h, same_orient(ba, fa, bb, h)} <> rest, rest)
+      match bxs:
+        case []: []
+        case +x <> +xt:
+          +rest = cps_b(t, xt, ba, fa, bxa, bb)
+          Bool.pick(List<&2, CP>, Bool.and(Bool.not(FB.bb_dis(bxa, x)), FB.coplanar(FB.face_surf(ba, fa), FB.face_surf(bb, h))),
+            CP{fa, h, same_orient(ba, fa, bb, h)} <> rest, rest)
 
-def cps_a(fas: List<&2, Nat>, +ba: FB.KB, +bb: FB.KB) -> List<&2, CP>:
+def cps_a(fas: List<&2, Nat>, +ba: FB.KB, +bb: FB.KB, +bxs: List<&2, FB.BB>) -> List<&2, CP>:
   match fas:
     case []: []
-    case +h <> +t: List.append(&2, CP, cps_b(L.nat_range(FB.nfaces(bb)), ba, h, bb), cps_a(t, ba, bb))
+    case +h <> +t: List.append(&2, CP, cps_b(L.nat_range(FB.nfaces(bb)), bxs, ba, h, FB.face_bb(ba, h), bb), cps_a(t, ba, bb, bxs))
 
 def coin_pairs(+ba: FB.KB, +bb: FB.KB) -> List<&2, CP>:
-  cps_a(L.nat_range(FB.nfaces(ba)), ba, bb)
+  cps_a(L.nat_range(FB.nfaces(ba)), ba, bb, PX.faces_bb(L.nat_range(FB.nfaces(bb)), bb))
 
 def ep_ea(+e: EP) -> Nat:
   EP{ea, eb, n} = e
@@ -90,6 +93,12 @@ def ek1(xs: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:
     case []: Ty.EK_degenerate{}
     case +h <> +t: h
 
+def bz_line(+p0: V.Point, +p1: V.Point, +p2: V.Point, +p3: V.Point) -> Bool:
+  +d = S.psub(p3, p0)
+  +e = F64.mul(1.0e-12f64, F64.add(1.0f64, F64.add(S.dlen(d), S.dist(p0, S.pt(0.0f64, 0.0f64, 0.0f64)))))
+  Bool.and(F64.is_lt(0.0f64, S.dlen(d)),
+    Bool.and(F64.is_le(S.dist(p1, S.padd(p0, F64.div(1.0f64, 3.0f64), d)), e), F64.is_le(S.dist(p2, S.padd(p0, F64.div(2.0f64, 3.0f64), d)), e)))
+
 def extr_go(+c: G.GVal, +n: V.Dir) -> List<&2, G.GVal>:
   match c:
     case G.GV_ln{w}:
@@ -104,6 +113,10 @@ def extr_go(+c: G.GVal, +n: V.Dir) -> List<&2, G.GVal>:
       +kk = F64.div(F64.mul(w1, w1), F64.sub(1.0f64, F64.mul(w1, w1)))
       +c0 = S.padd(m, kk, S.psub(m, p1))
       [G.GV_cy{G.Cy{c0, n, S.dist(p0, c0)}}]
+    case G.GV_bz{w}:
+      G.Bz{+p0, +p1, +p2, +p3} = w
+      +d = S.psub(p3, p0)
+      Bool.pick(List<&2, G.GVal>, bz_line(p0, p1, p2, p3), [G.GV_pl{G.Pl{p0, S.dunit(d), n}}], [])
     case _: []
 
 def extr_of(+k: List<&2, Ty.EdgeKind>, +n: V.Dir) -> List<&2, G.GVal>:
@@ -150,6 +163,10 @@ def ta_go(+c: G.GVal, +p: V.Point) -> F64:
     case G.GV_rq{w}:
       G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = w
       rq_t(p0, p1, p2, w1, p)
+    case G.GV_bz{w}:
+      G.Bz{+p0, +p1, +p2, +p3} = w
+      +d = S.psub(p3, p0)
+      Bool.pick(F64, bz_line(p0, p1, p2, p3), F64.div(S.dot(S.psub(p, p0), d), S.dot(d, d)), F64.neg(1.0f64))
     case _: F64.neg(1.0f64)
 
 def ta_of(+k: List<&2, Ty.EdgeKind>, +p: V.Point) -> F64:
@@ -201,6 +218,17 @@ def surfs(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, G.GVal>:
     case []: []
     case +h <> +t: FB.face_surf(b, h) <> surfs(t, b)
 
+def pair_go(ok: Bool, on: Bool, +ex: List<&2, G.GVal>, +gs: List<&2, G.GVal>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>,
+    +ea: Nat, +eb: Nat, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
+  match ok:
+    case False{}: CX{cx_hs(c), cx_g(c), False{}}
+    case True{}:
+      match on:
+        case True{}: c
+        case False{}:
+          +r = EF.edge_hits(ek1(kb), S.sf_of(g1(ex)), gs)
+          one_hit(EF.ehs_hs(r), ka, ea, eb, ba, bb, EF.ek_lo(ek1(kb)), EF.ek_hi(ek1(kb)), c)
+
 def pair_x(+e: EP, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   +ea = ep_ea(e)
   +eb = ep_eb(e)
@@ -208,10 +236,9 @@ def pair_x(+e: EP, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   +kb = {[Ty.ed_kind(FB.edge_at(bb, eb))] : List<&2, Ty.EdgeKind>}
   +ex = extr_of(ka, ep_n(e))
   +gs = List.append(&2, G.GVal, surfs(FB.edge_faces(ba, ea), ba), surfs(FB.edge_faces(bb, eb), bb))
-  +r = EF.edge_hits(ek1(kb), S.sf_of(g1(ex)), gs)
   +ok = Bool.not(Nat.is_eq(List.length(&2, G.GVal, ex), 0n))
-  Bool.pick(CX, ok, one_hit(EF.ehs_hs(r), ka, ea, eb, ba, bb, EF.ek_lo(ek1(kb)), EF.ek_hi(ek1(kb)), c),
-    CX{cx_hs(c), cx_g(c), False{}})
+  +on = Bool.and(ok, Bool.or(PX.in_plane(ek1(kb), S.sf_of(g1(ex))), PX.on_cyl(ek1(kb), S.sf_of(g1(ex)))))
+  pair_go(ok, on, ex, gs, ka, kb, ea, eb, ba, bb, c)
 
 def pairs_x(es: List<&2, EP>, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   match es:

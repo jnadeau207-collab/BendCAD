@@ -1,0 +1,2 @@
+$ step 4 /home/jesse/g4/export/pedestal.stp
+wrote /home/jesse/g4/export/pedestal.stp entities 976 products 1

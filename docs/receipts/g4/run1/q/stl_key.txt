@@ -1,0 +1,2 @@
+$ stl 6 /home/jesse/g4/export/key.stl 3
+wrote /home/jesse/g4/export/key.stl nverts 8 ntris 12 (sampled, not certified)

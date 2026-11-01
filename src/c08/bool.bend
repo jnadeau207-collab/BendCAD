@@ -2241,11 +2241,25 @@ def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.
       cls_or_k1(Out_ok(o), o, op, a, b, ba, bb, nd)
     case False{}: run_k1v(op, a, b, ba, bb, nd, an, bn, v)
 
+def k1_first(ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+  match ok:
+    case True{}: k1_out(kr, op, a, b, ba, bb, nd)
+    case False{}: out_fail(fk_unsupported(), "k1", "node " ++ U64.show(nd), "k1-refused", "")
+
+def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
+    +bn: U64) -> Out:
+  match ok:
+    case True{}: o
+    case False{}:
+      +bc = brep_append(ba, bb)
+      +v = vcore(bc)
+      run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v)
+
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64) -> Out:
-  +bc = brep_append(ba, bb)
-  +v = vcore(bc)
-  run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v)
+  +kr = GB.gbrun_k(True{}, op, ba, bb)
+  +o = k1_first(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd)
+  run_intersect_cls(Out_ok(o), o, op, a, b, ba, bb, nd, an, bn)
 
 def run_broad_go(+disj: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX,
     +wb: BX, +nd: U64, +an: U64, +bn: U64) -> Out:

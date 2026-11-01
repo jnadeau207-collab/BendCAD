@@ -1,0 +1,2 @@
+$ step 3 /home/jesse/g4/export/cone.stp
+wrote /home/jesse/g4/export/cone.stp entities 754 products 1

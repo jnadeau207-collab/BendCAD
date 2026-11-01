@@ -686,20 +686,43 @@ def try_eps(es: List<&2, F64>, done: Bool, +s: S.SF, +r: RG, +a: V.Vec2, +b: V.V
           +ok = Bool.and(clear, rg_inside(s, r, q))
           try_eps(t, ok, s, r, a, b, Bool.pick(SP, ok, SP{q, True{}}, acc))
 
-def try_segs(ps: List<&2, V.Vec2>, done: Bool, +s: S.SF, +r: RG, +prev: V.Vec2, +acc: SP) -> SP:
+def seg_len(+a: V.Vec2, +b: V.Vec2) -> F64:
+  +dx = F64.sub(V.v2_x(b), V.v2_x(a))
+  +dy = F64.sub(V.v2_y(b), V.v2_y(a))
+  F64.sqrt(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)))
+
+def seg_try(short: Bool, +s: S.SF, +r: RG, +a: V.Vec2, +b: V.Vec2) -> SP:
+  match short:
+    case True{}: SP{a, False{}}
+    case False{}: try_eps(eps_list(), False{}, s, r, a, b, SP{a, False{}})
+
+def try_segs(ps: List<&2, V.Vec2>, done: Bool, +s: S.SF, +r: RG, +prev: V.Vec2, +minl: F64, +acc: SP) -> SP:
   match ps:
     case []: acc
     case +h <> +t:
       match done:
         case True{}: acc
         case False{}:
-          +x = try_eps(eps_list(), False{}, s, r, prev, h, SP{prev, False{}})
-          try_segs(t, sp_ok(x), s, r, h, x)
+          +x = seg_try(F64.is_lt(seg_len(prev, h), minl), s, r, prev, h)
+          try_segs(t, sp_ok(x), s, r, h, minl, x)
+
+def ext_go(ps: List<&2, V.Vec2>, +x0: F64, +x1: F64, +y0: F64, +y1: F64) -> F64:
+  match ps:
+    case []: seg_len(V.V2{x0, y0}, V.V2{x1, y1})
+    case +q <> +t: ext_go(t, F64.min(x0, V.v2_x(q)), F64.max(x1, V.v2_x(q)), F64.min(y0, V.v2_y(q)), F64.max(y1, V.v2_y(q)))
+
+def sample_long(ok: Bool, +x: SP, +h: V.Vec2, +t: List<&2, V.Vec2>, +s: S.SF, +r: RG) -> SP:
+  match ok:
+    case True{}: x
+    case False{}: try_segs(t, False{}, s, r, h, 0.0f64, SP{h, False{}})
 
 def sample_go(+p: List<&2, V.Vec2>, +s: S.SF, +r: RG) -> SP:
   match p:
     case []: SP{V.V2{0.0f64, 0.0f64}, False{}}
-    case +h <> +t: try_segs(t, False{}, s, r, h, SP{h, False{}})
+    case +h <> +t:
+      +minl = F64.mul(1.0e-6f64, ext_go(t, V.v2_x(h), V.v2_x(h), V.v2_y(h), V.v2_y(h)))
+      +x = try_segs(t, False{}, s, r, h, minl, SP{h, False{}})
+      sample_long(sp_ok(x), x, h, t, s, r)
 
 def sample_pt(+s: S.SF, +r: RG) -> SP:
   sample_go(cy_poly(L_cy0(rg_cys(r))), s, r)

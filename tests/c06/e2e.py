@@ -338,10 +338,35 @@ def performance():
         record(f'perf.holes{n * n}.mesh', good, **{k: v for k, v in info.items() if k != 'sha256'})
 
 
+G4_BLADE = ('(path -110.39781362977364 78.96753968667143 (arc -108.40827724624296 78.76322380719142 2.0 -106.41874086271228 78.55890792771142 ccw) '
+            '(arc 93.89945907462925 57.98718602563798 201.37173825577656 -32.365542884350475 214.85568588603644 cw) '
+            '(arc -33.61959176978644 216.4136850493664 2.0 -34.8736406552224 217.97168421269635 ccw) '
+            '(arc 93.89945907462925 57.98718602563798 205.37173825577656 -110.39781362977364 78.96753968667143 ccw))')
+G4_PROF = ('(region (path -0.5 -1 (line 5.0 -1) (line 5.0 0) (arc 5.0 5.0 5.0 0 5.0 cw) (line 0 49.0) (arc 5.0 49.0 5.0 5.0 54.0 cw) '
+           '(line 5.0 55.0) (line -0.5 55.0) (line -0.5 -1)))')
+
+
+def g4_regressions():
+    out, dt = fresh('g4b.bcd', f'(node 1 (sweep (wall {G4_BLADE}) {G4_PROF}) (intent create any 0 1 0))')
+    ck = cli('g4b.bcd', 'check', '1')[0] if 'committed' in out else ''
+    defects = [ln for ln in ck.splitlines() if ln.strip() and not ln.startswith('ok:') and '-uncertain ' not in ln]
+    record('sweep.wall_fillet_over_cap_rotated', 'committed' in out and ck.strip() != '' and not defects, seconds=dt, out=out[-300:],
+           check=ck[:120], defects=defects)
+    two_arc = '(path 200 0 (arc 0 0 200 -200 0 ccw) (arc 0 0 200 200 0 ccw))'
+    out2, _ = fresh('g4h.bcd', f'(node 1 (prism 0 3 (region {two_arc} (circle 0 0 150.25) (circle 164 68 3.3))) (intent create any 0 1 2))')
+    v = PI * (200 ** 2 - 150.25 ** 2 - 3.3 ** 2) * 3
+    record('profile.hole_inside_arc_outer', 'committed' in out2 and contains(vol(out2, 1), v), volume=vol(out2, 1), exact=v, out=out2[-300:])
+    bulge = '(path 0 -10 (line 40 -10) (arc 40 0 10 40 10 ccw) (line 0 10) (line 0 -10))'
+    out3, _ = fresh('g4u.bcd', f'(node 1 (prism 0 2 (region {bulge} (circle 46.08 6.08 0.6))) (intent create any 0 1 1))')
+    v3 = (800 + PI * 50 - PI * 0.36) * 2
+    record('profile.hole_in_arc_bulge', 'committed' in out3 and contains(vol(out3, 1), v3), volume=vol(out3, 1), exact=v3, out=out3[-300:])
+
+
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
-    for f in (bracket, primitives, revolve_cavity, counterbore_island, move, concentric_arcs, atomic_rejections, rotation, zones, mcp, performance):
+    for f in (bracket, primitives, revolve_cavity, counterbore_island, move, concentric_arcs, atomic_rejections, rotation, zones, mcp, performance,
+              g4_regressions):
         f()
     rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=sum(r['ok'] for r in RESULTS),
                total=len(RESULTS), results=RESULTS)

@@ -88,11 +88,12 @@ def mass_lines(out):
 
 
 def wall_line(out):
-    m = re.search(r'min-wall \[([^,]+), ([^\]]+)\] (\w+) (lo=\w+) faces=(\d+) pairs=(\d+) pruned=(\d+)', out)
+    m = re.search(r'min-wall \[([^,]+), ([^\]]+)\] (\w+) (lo=[\w-]+) (?:hi=([\w-]+) (?:no-sampled-witness )?antipodal=30deg )?'
+                  r'(?:boxes-uncertain )?faces=(\d+) pairs=(\d+)', out)
     if m:
         g = m.groups()
-        return dict(lo=float(g[0]), hi=float(g[1]), st=g[2], locert=g[3], faces=int(g[4]),
-                    pairs=int(g[5]), pruned=int(g[6]))
+        return dict(lo=float(g[0]), hi=float(g[1]), st=g[2], locert=g[3], hicert=g[4], faces=int(g[5]),
+                    pairs=int(g[6]))
     m = re.search(r'min-wall none status=(\w+) reason=([\w-]+)', out)
     if m:
         return dict(none=True, st=m.group(1), reason=m.group(2))
@@ -100,7 +101,7 @@ def wall_line(out):
 
 
 def clear_line(out):
-    m = re.search(r'clearance \[([^,]+), ([^\]]+)\] (\w+) (lo=\w+) samples=(\d+)x(\d+)', out)
+    m = re.search(r'clearance \[([^,]+), ([^\]]+)\] (\w+) (lo=[\w-]+) (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', out)
     if m:
         g = m.groups()
         return dict(lo=float(g[0]), hi=float(g[1]), st=g[2], locert=g[3])
@@ -367,34 +368,61 @@ def clearance_cases():
           f'(node 4 (box 10 10 10) {IC})',
           f'(node 5 (move 4 5 0 0 0) {IS})',
           f'(node 6 (box 2 2 2) {IC})',
-          f'(node 7 (move 6 4 4 4 0) {IS})')
+          f'(node 7 (move 6 4 4 4 0) {IS})',
+          f'(node 8 (cylinder 10 20) {IC})',
+          f'(node 9 (cylinder 8 22) {IC})',
+          f'(node 10 (move 9 0 0 -1 0) {IS})',
+          '(node 11 (difference 8 10) (intent remove any any any any))',
+          f'(node 12 (cylinder 5 30) {IC})',
+          f'(node 13 (move 12 0 0 -5 0) {IS})')
     o, _ = cli('rl.bcd', 'clearance', '1', '3')
     c = clear_line(o)
-    record('clearance.disjoint', c is not None and not c.get('zero') and c['lo'] <= 10.0 <= c['hi']
-           and c['locert'] == 'lo=certified', **{k: v for k, v in (c or {}).items()})
+    record('clearance.disjoint', c is not None and not c.get('zero') and 10.0 - 1e-9 <= c['lo'] <= 10.0 <= c['hi']
+           and c['st'] == 'certified' and c['locert'] == 'lo=branch-and-bound', **{k: v for k, v in (c or {}).items()})
     o, _ = cli('rl.bcd', 'clearance', '1', '5')
     c = clear_line(o)
     record('clearance.interf', c is not None and c.get('zero') and c['st'] == 'certified'
            and c['state'] == 'interference', **{k: v for k, v in (c or {}).items()})
     o, _ = cli('rl.bcd', 'clearance', '7', '1')
     c = clear_line(o)
-    record('clearance.contained', c is not None and not c.get('zero') and c['lo'] == 0.0
-           and c['hi'] > 0.0, **{k: v for k, v in (c or {}).items()})
+    record('clearance.inside', c is not None and not c.get('zero') and 4.0 - 1e-9 <= c['lo'] <= 4.0 <= c['hi']
+           and c['st'] == 'certified' and 'state=inside' in o, **{k: v for k, v in (c or {}).items()})
+    o, dt = cli('rl.bcd', 'clearance', '13', '11')
+    c = clear_line(o)
+    record('clearance.coaxial_witness', c is not None and not c.get('zero') and 3.0 - 1e-6 <= c['lo'] <= 3.0 <= c['hi'] <= 3.0 + 1e-6
+           and c['st'] == 'certified' and 'hi=witness' in o and dt < 120, seconds=round(dt, 1), **{k: v for k, v in (c or {}).items()})
+
+
+def wall_ok(w, t, tol):
+    return (w is not None and not w.get('none') and t - tol <= w['lo'] <= t <= w['hi'] <= t + tol
+            and w['st'] == 'certified' and w['locert'] == 'lo=branch-and-bound' and w['hicert'] in ('sampled', 'witness'))
 
 
 def wall_cases():
     fresh('w.bcd', f'(node 1 (box 10 10 10) {IC})',
           f'(node 2 (box 40 30 10) {IC})',
-          f'(node 3 (cone 5 10) {IC})')
+          f'(node 3 (cone 5 10) {IC})',
+          f'(node 4 (cylinder 10 20) {IC})',
+          f'(node 5 (cylinder 8 22) {IC})',
+          f'(node 6 (move 5 0 0 -1 0) {IS})',
+          '(node 7 (difference 4 6) (intent remove any any any any))',
+          f'(node 8 (box 10 10 10) {IC})',
+          f'(node 9 (box 12 0.1 5) {IC})',
+          f'(node 10 (move 9 -1 4.95 5.01 0) {IS})',
+          '(node 11 (difference 8 10) (intent remove any any any any))')
     o, _ = cli('w.bcd', 'wall', '1')
     w = wall_line(o)
-    record('wall.box', w is not None and not w.get('none') and w['lo'] <= 10.0 <= w['hi']
-           and w['locert'] == 'lo=certified' and w['faces'] == 6 and w['pairs'] == 3,
+    record('wall.box', wall_ok(w, 10.0, 1e-9) and w['faces'] == 6 and w['pairs'] == 3,
            **{k: v for k, v in (w or {}).items()})
     o, _ = cli('w.bcd', 'wall', '2')
     w = wall_line(o)
-    record('wall.slab', w is not None and not w.get('none') and w['lo'] <= 10.0 <= w['hi']
-           and w['locert'] == 'lo=certified', **{k: v for k, v in (w or {}).items()})
+    record('wall.slab', wall_ok(w, 10.0, 1e-9), **{k: v for k, v in (w or {}).items()})
+    o, dt = cli('w.bcd', 'wall', '7')
+    w = wall_line(o)
+    record('wall.tube', wall_ok(w, 2.0, 1e-6) and dt < 120, seconds=round(dt, 1), **{k: v for k, v in (w or {}).items()})
+    o, _ = cli('w.bcd', 'wall', '11')
+    w = wall_line(o)
+    record('wall.slot_gap_excluded', wall_ok(w, 4.95, 2e-3), **{k: v for k, v in (w or {}).items()})
     o, _ = cli('w.bcd', 'wall', '3')
     w = wall_line(o)
     record('wall.cone_none', w is not None and w.get('none') and w['st'] == 'certified'
@@ -438,8 +466,8 @@ def mcp_queries():
         mass='cells=8/0/56' in body(5),
         section='curves=2' in body(6) and 'unresolved=2' in body(6),
         interference=body(7).strip() == 'relation disjoint status=certified',
-        clearance='lo=certified' in body(8),
-        min_wall='lo=certified' in body(9) and 'faces=6' in body(9))
+        clearance='lo=branch-and-bound' in body(8),
+        min_wall='lo=branch-and-bound' in body(9) and 'faces=6' in body(9))
     record('mcp.queries', all(checks.values()), **checks)
 
 

@@ -1,5 +1,5 @@
 {
- "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
+ "binary_sha256": "c1fb8b1c8b0695552b5dd62d73b723cafb0d2dbc4ee12cd8b2e07199a622f96f",
  "passed": 11,
  "total": 11,
  "results": [
@@ -44,7 +44,7 @@
     "verdict": "ruled",
     "check_n": 129,
     "committed": true,
-    "build_s": 0.1,
+    "build_s": 0.09,
     "header": true,
     "rows": true,
     "sched": true,
@@ -62,7 +62,7 @@
     "verdict": "ruled",
     "check_n": 897,
     "committed": true,
-    "build_s": 0.57,
+    "build_s": 0.96,
     "budget": true,
     "faces": true,
     "rows": true,
@@ -75,7 +75,7 @@
    "ok": true,
    "checks": {
     "oracle_gap": 10.0,
-    "raw": "clearance [0, 31.622776601683825] estimated lo=certified samples=226x35",
+    "raw": "clearance [0, 31.622776601683825] certified lo=branch-and-bound hi=sampled samples=226x35",
     "stackrows": [
      "stack s1 nominal 300 envelope [299.99999999999994, 300.00000000000006] certified"
     ],
@@ -99,26 +99,18 @@
    "name": "blade.tess",
    "ok": true,
    "checks": {
-    "mesh_bb": [
-     [
-      0.0,
-      -6.387595459395504,
-      0.0
-     ],
-     [
-      100.00000000000001,
-      19.394113024105195,
-      200.0
-     ]
-    ],
-    "tip_near": 3.552713678800501e-15,
-    "obj_verts": 5280,
-    "obj_tris": 8252,
-    "obj": true,
-    "bbox": true,
-    "tip": true,
-    "verts": true,
-    "tris": true
+    "refused": true,
+    "mesh_bb": null,
+    "tip_near": null,
+    "obj_verts": 0,
+    "obj_tris": 0,
+    "unpaired": 0,
+    "obj": false,
+    "bbox": false,
+    "tip": false,
+    "verts": false,
+    "tris": false,
+    "closed": true
    }
   },
   {

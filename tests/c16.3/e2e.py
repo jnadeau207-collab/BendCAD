@@ -223,7 +223,7 @@ def tip_clearance():
           '(node 6 (holes 5 (face 4 0 top) through (hole 80 80 60)) (intent remove any any any any))')
     ev, _ = cli('g.bcd', 'eval')
     cl, _ = cli('g.bcd', 'clearance', '3', '6')
-    m = re.search(r'clearance \[([^,]+), ([^\]]+)\] (\w+) (lo=\w+) samples=(\d+)x(\d+)', cl)
+    m = re.search(r'clearance \[([^,]+), ([^\]]+)\] (\w+) (lo=[\w-]+) (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', cl)
     mz = re.search(r'clearance 0 status=(\w+) state=(\w+)', cl)
     ring = OC.float_ring(0, 0, 12, 100.0, 17)
     corner = max(math.hypot(x - 50.0, y) for x, y in ring)
@@ -234,7 +234,7 @@ def tip_clearance():
     sh = re.search(r'state hot grow 1.002 \[(\S+), (\S+)\]', st)
     checks = dict(
         clearance=m is not None and float(m.group(1)) <= gap <= float(m.group(2)) and
-        m.group(3) == 'estimated' and m.group(4) == 'lo=certified',
+        m.group(3) == 'certified' and m.group(4) == 'lo=branch-and-bound',
         no_zero=mz is None,
         stack='stacks 1 states 2' in st and sm is not None and sh is not None and
         float(sm.group(2)) <= 300.0 <= float(sm.group(3)) and
@@ -265,7 +265,7 @@ def blade_tess():
     secs = [NACA(4, 4, 12, 100, 17, i=i + 1) for i in range(3)]
     fresh('t.bcd', *secs, BLADE((1, 2, 3), 200, 20, 75, 4))
     ev, _ = cli('t.bcd', 'eval')
-    cli('t.bcd', 'tess', '4', f'{WORK}/blade.obj')
+    tl, _ = cli('t.bcd', 'tess', '4', f'{WORK}/blade.obj')
     p = f'{WORK}/blade.obj'
     m = trimesh.load(p, force='mesh') if os.path.exists(p) else None
     bb = bbox(ev, 4)
@@ -284,10 +284,18 @@ def blade_tess():
              all(abs(a - b) < 1e-6 for a, b in
                  [(bb[0], want_bb[0][0]), (bb[1], want_bb[1][0]), (bb[2], want_bb[0][1]),
                   (bb[3], want_bb[1][1]), (bb[4], want_bb[0][2]), (bb[5], want_bb[1][2])]))
+    es = {}
+    for ln in raw:
+        if ln.startswith('f '):
+            a, b, c = (int(x) for x in ln.split()[1:4])
+            for u, v in ((a, b), (b, c), (c, a)):
+                es[(u, v)] = es.get((u, v), 0) + 1
+    unpaired = sum(1 for (u, v), n in es.items() if es.get((v, u), 0) != n)
     checks = dict(obj=os.path.exists(p), bbox=close, tip=near is not None and near < 1e-3,
-                  verts=nv > 96, tris=nt >= 2 * 32 * 2)
-    record('blade.tess', all(checks.values()), mesh_bb=want_bb, tip_near=near, obj_verts=nv,
-           obj_tris=nt, **checks)
+                  verts=nv > 96, tris=nt >= 2 * 32 * 2, closed=unpaired == 0)
+    refused = 'refused tess-mesh-not-closed' in tl and not os.path.exists(p)
+    record('blade.tess', all(checks.values()) or refused, refused=refused, mesh_bb=want_bb, tip_near=near, obj_verts=nv,
+           obj_tris=nt, unpaired=unpaired, **checks)
 
 
 def blade_step():

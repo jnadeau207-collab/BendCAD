@@ -1,0 +1,2 @@
+$ step 1 /home/jesse/g4/export/impeller.stp
+wrote /home/jesse/g4/export/impeller.stp entities 8266 products 1

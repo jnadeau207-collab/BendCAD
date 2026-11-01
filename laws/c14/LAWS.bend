@@ -915,14 +915,16 @@ law asm_q_parse_err:
   for why: String
   for fix: String
   for rq: AS.RQ
-  {AS.asm_q_go(p, AS.AR_err{why, fix}, rq) == "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix : String}
+  for old: List<&2, M.CE>
+  {AS.asm_q_go(p, AS.AR_err{why, fix}, rq, old) == "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix : String}
 
 law asm_q_ok:
   for p: M.Part
   for il: List<&2, AS.Inst>
   for ml: List<&2, AS.Mate>
   for rq: AS.RQ
-  {AS.asm_q_go(p, AS.AR_ok{AS.Asm{il, ml}}, rq) == Bool.pick(String, String.eq(AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), [])), ""), AS.asm_out(AS.Asm{il, ml}, AS.asm_solve(AS.Asm{il, ml}, M.ev_for(p, AS.inst_ids(il), [])), M.ev_for(p, AS.inst_ids(il), []), rq), AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), []))) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_q_go(p, AS.AR_ok{AS.Asm{il, ml}}, rq, old) == Bool.pick(String, String.eq(AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), old)), ""), AS.asm_out(AS.Asm{il, ml}, AS.asm_solve(AS.Asm{il, ml}, M.ev_for(p, AS.inst_ids(il), old)), M.ev_for(p, AS.inst_ids(il), old), rq), AS.nodes_err(il, ml, M.ev_for(p, AS.inst_ids(il), old))) : String}
 
 law explode_go_no:
   for p: M.Part
@@ -931,7 +933,8 @@ law explode_go_no:
   for dy: F64
   for dz: F64
   for gap: F64
-  {AS.asm_explode_go(False{}, p, xs, dx, dy, dz, gap) == "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)" : String}
+  for old: List<&2, M.CE>
+  {AS.asm_explode_go(False{}, p, xs, dx, dy, dz, gap, old) == "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)" : String}
 
 law explode_go_yes:
   for p: M.Part
@@ -940,46 +943,55 @@ law explode_go_yes:
   for dy: F64
   for dz: F64
   for gap: F64
-  {AS.asm_explode_go(True{}, p, xs, dx, dy, dz, gap) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 5n))), AS.RQ{4u64, "", [dx, dy, dz, gap]}) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_explode_go(True{}, p, xs, dx, dy, dz, gap, old) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 5n))), AS.RQ{4u64, "", [dx, dy, dz, gap]}, old) : String}
 
 law faces_go_needy:
   for p: M.Part
   for xs: List<&2, String>
   for nm: String
-  {AS.asm_faces_go(True{}, p, xs, nm) == "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)" : String}
+  for old: List<&2, M.CE>
+  {AS.asm_faces_go(True{}, p, xs, nm, old) == "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)" : String}
 
 law faces_go_yes:
   for p: M.Part
   for xs: List<&2, String>
   for nm: String
-  {AS.asm_faces_go(False{}, p, xs, nm) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 2n))), AS.RQ{5u64, nm, []}) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_faces_go(False{}, p, xs, nm, old) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 2n))), AS.RQ{5u64, nm, []}, old) : String}
 
 law asm_verb_solve:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(1u64, p, xs) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{1u64, "", []}) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(1u64, p, xs, old) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{1u64, "", []}, old) : String}
 
 law asm_verb_interf:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(2u64, p, xs) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{2u64, "", []}) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(2u64, p, xs, old) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{2u64, "", []}, old) : String}
 
 law asm_verb_clear:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(3u64, p, xs) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{3u64, "", []}) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(3u64, p, xs, old) == AS.asm_q_go(p, AS.asm_parse(AS.cat(AS.sdrop(xs, 1n))), AS.RQ{3u64, "", []}, old) : String}
 
 law asm_verb_explode:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(4u64, p, xs) == AS.asm_explode_v(p, xs) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(4u64, p, xs, old) == AS.asm_explode_v(p, xs, old) : String}
 
 law asm_verb_faces:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(5u64, p, xs) == AS.asm_faces_v(p, xs) : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(5u64, p, xs, old) == AS.asm_faces_v(p, xs, old) : String}
 
 law asm_verb_unknown:
   for p: M.Part
   for xs: List<&2, String>
-  {AS.asm_verb(0u64, p, xs) == "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..." : String}
+  for old: List<&2, M.CE>
+  {AS.asm_verb(0u64, p, xs, old) == "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..." : String}

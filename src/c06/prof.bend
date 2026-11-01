@@ -989,6 +989,19 @@ def orient_code(l: Lp) -> U64:
 def lp_ccw(+l: Lp, +c: U64) -> Lp:
   Bool.pick(Lp, U64.is_eq(c, 2u64), lp_rev(l), l)
 
+def in_bulge(+ax: F64, +ay: F64, +px: F64, +py: F64, +w: F64, +bx: F64, +by: F64, +qx: F64, +qy: F64) -> Bool:
+  +d = E.ex_sign(XE.orient2(ax, ay, px, py, bx, by))
+  +o1 = XE.orient2(ax, ay, qx, qy, bx, by)
+  +side = Bool.or(Bool.and(sgn_pos(d), sgn_pos(E.ex_sign(o1))), Bool.and(sgn_neg(d), sgn_neg(E.ex_sign(o1))))
+  +rhs = E.ex_mul(E.ex_mul(E.ex_of(4.0f64), E.ex_mul(E.ex_of(w), E.ex_of(w))),
+    E.ex_mul(XE.orient2(qx, qy, px, py, bx, by), XE.orient2(ax, ay, px, py, qx, qy)))
+  Bool.and(side, sgn_neg(E.ex_cmp(E.ex_mul(o1, o1), rhs)))
+
+def pc_bulge(+p: Pc, +qx: F64, +qy: F64) -> Bool:
+  match p:
+    case P_ln{ax, ay, bx, by}: False{}
+    case P_ar{+ax, +ay, +px, +py, +w, +bx, +by}: in_bulge(ax, ay, px, py, w, bx, by, qx, qy)
+
 def pip_go(ps: List<&2, Pc>, +qx: F64, +qy: F64, +odd: Bool) -> Bool:
   match ps:
     case []: odd
@@ -1002,7 +1015,7 @@ def pip_go(ps: List<&2, Pc>, +qx: F64, +qy: F64, +odd: Bool) -> Bool:
       +cross = Bool.and(Bool.not(Bool.and(ua, ub)), Bool.or(ua, ub))
       +s = ori(ax, ay, bx, by, qx, qy)
       +right = Bool.pick(Bool, ub, sgn_pos(s), sgn_neg(s))
-      pip_go(t, qx, qy, Bool.xor(odd, Bool.and(cross, right)))
+      pip_go(t, qx, qy, Bool.xor(Bool.xor(odd, Bool.and(cross, right)), pc_bulge(p, qx, qy)))
 
 def lp_has(l: Lp, +qx: F64, +qy: F64) -> Bool:
   match l:

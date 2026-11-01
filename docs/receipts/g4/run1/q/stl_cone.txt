@@ -1,0 +1,2 @@
+$ stl 3 /home/jesse/g4/export/cone.stl 3
+wrote /home/jesse/g4/export/cone.stl nverts 16878 ntris 33788 (sampled, not certified)

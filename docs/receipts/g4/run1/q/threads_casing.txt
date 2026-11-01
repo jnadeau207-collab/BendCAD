@@ -1,0 +1,26 @@
+$ threads 2
+threads node 2
+thread front_tap0 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c2.wall.0.0 status=certified
+thread ring_tap0 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c2.wall.0.0 status=certified
+thread front_tap1 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c3.wall.0.0 status=certified
+thread ring_tap1 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c3.wall.0.0 status=certified
+thread front_tap2 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c4.wall.0.0 status=certified
+thread ring_tap2 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c4.wall.0.0 status=certified
+thread front_tap3 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c5.wall.0.0 status=certified
+thread ring_tap3 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c5.wall.0.0 status=certified
+thread front_tap4 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c6.wall.0.0 status=certified
+thread ring_tap4 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c6.wall.0.0 status=certified
+thread front_tap5 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c7.wall.0.0 status=certified
+thread ring_tap5 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c7.wall.0.0 status=certified
+thread front_tap6 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c8.wall.0.0 status=certified
+thread ring_tap6 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c8.wall.0.0 status=certified
+thread front_tap7 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c9.wall.0.0 status=certified
+thread ring_tap7 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c9.wall.0.0 status=certified
+thread front_tap8 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c10.wall.0.0 status=certified
+thread ring_tap8 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c10.wall.0.0 status=certified
+thread front_tap9 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c11.wall.0.0 status=certified
+thread ring_tap9 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c11.wall.0.0 status=certified
+thread front_tap10 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c12.wall.0.0 status=certified
+thread ring_tap10 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c12.wall.0.0 status=certified
+thread front_tap11 M8x1.25 6H z=[105, 108] length=3 internal minor=[6.647, 6.912] model=6.8 face=n2003.c13.wall.0.0 status=certified
+thread ring_tap11 M8x1.25 6H z=[97, 105] length=8 internal minor=[6.647, 6.912] model=6.8 face=n2006.c13.wall.0.0 status=certified

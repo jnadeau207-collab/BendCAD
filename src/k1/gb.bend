@@ -13,6 +13,7 @@ import ./ls.bend as L
 import ./co.bend as CO
 import ./asm.bend as K1
 import ./vi.bend as VI
+import ../base/par.bend as B
 
 type BK is Data:
   BK{ t: F64, v: Nat }
@@ -253,6 +254,77 @@ def inside_pcs(ps: List<&2, W.PC>, +s: S.SF, +b: FB.KB, +fi: Nat) -> List<&2, W.
       +rest = inside_pcs(t, s, b, fi)
       Bool.pick(List<&2, W.PC>, ins, cut_of(h) <> rest, rest)
 
+type IP is Data:
+  IP{ i: Nat, p: W.PC }
+
+def ip_i(+x: IP) -> Nat:
+  IP{i, p} = x
+  i
+
+def ip_p(+x: IP) -> W.PC:
+  IP{i, p} = x
+  p
+
+def ips_of(xs: List<&2, W.PC>, +i: Nat) -> List<&2, IP>:
+  match xs:
+    case []: []
+    case +h <> +t: IP{i, h} <> ips_of(t, Nat.add(i, 1n))
+
+def pc_lo(+p: W.PC) -> Nat:
+  Bool.pick(Nat, Nat.is_lt(W.pc_va(p), W.pc_vb(p)), W.pc_va(p), W.pc_vb(p))
+
+def pc_hi(+p: W.PC) -> Nat:
+  Bool.pick(Nat, Nat.is_lt(W.pc_va(p), W.pc_vb(p)), W.pc_vb(p), W.pc_va(p))
+
+def nat_sgn(+a: Nat, +b: Nat) -> B.Sgn:
+  Bool.pick(B.Sgn, Nat.is_lt(a, b), B.Sn{}, Bool.pick(B.Sgn, Nat.is_lt(b, a), B.Sp{}, B.Sz{}))
+
+def key_sgn(+a: W.PC, +b: W.PC) -> B.Sgn:
+  +c = nat_sgn(pc_lo(a), pc_lo(b))
+  Bool.pick(B.Sgn, B.sgn_is(c, B.Sz{}), nat_sgn(pc_hi(a), pc_hi(b)), c)
+
+def ip_cmp_go(+a: IP, +b: IP) -> B.Sgn:
+  +c = key_sgn(ip_p(a), ip_p(b))
+  Bool.pick(B.Sgn, B.sgn_is(c, B.Sz{}), nat_sgn(ip_i(a), ip_i(b)), c)
+
+def ip_cmp(a: IP, b: IP) -> B.Sgn:
+  ip_cmp_go(a, b)
+
+def so_ip(+s: B.So<&2, IP>) -> List<&2, IP>:
+  B.So{ok, xs} = s
+  xs
+
+def v2_near(+a: V.Vec2, +b: V.Vec2) -> Bool:
+  +tol = F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.abs(V.v2_x(a)), F64.abs(V.v2_y(a)))))
+  Bool.and(F64.is_le(F64.abs(F64.sub(V.v2_x(a), V.v2_x(b))), tol), F64.is_le(F64.abs(F64.sub(V.v2_y(a), V.v2_y(b))), tol))
+
+def pc_same(+a: W.PC, +b: W.PC) -> Bool:
+  +m = poly_mid(W.pc_poly(a))
+  Bool.and(B.sgn_is(key_sgn(a, b), B.Sz{}),
+    Bool.or(v2_near(m, poly_mid(W.pc_poly(b))), v2_near(m, poly_mid(W.rev_v2(W.pc_poly(b))))))
+
+def dup_marks(xs: List<&2, IP>, +kept: List<&2, IP>, +tb: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match xs:
+    case []: tb
+    case +h <> +t:
+      match kept:
+        case []: dup_marks(t, [h], tb)
+        case +k <> +u:
+          +dup = pc_same(ip_p(k), ip_p(h))
+          dup_marks(t, Bool.pick(List<&2, IP>, dup, kept, [h]), Bool.pick(B.Tb<&2, Bool>, dup, B.tb_set(Bool, tb, U32.from_nat(ip_i(h)), True{}), tb))
+
+def keep_unmarked(xs: List<&2, W.PC>, +i: Nat, +tb: B.Tb<&2, Bool>) -> List<&2, W.PC>:
+  match xs:
+    case []: []
+    case +h <> +t:
+      +rest = keep_unmarked(t, Nat.add(i, 1n), tb)
+      Bool.pick(List<&2, W.PC>, B.tb_get(Bool, tb, U32.from_nat(i)), rest, h <> rest)
+
+def pcs_dedup(+xs: List<&2, W.PC>) -> List<&2, W.PC>:
+  +n = List.length(&2, W.PC, xs)
+  +tb = dup_marks(so_ip(B.msort(~IP, ~ip_cmp, ips_of(xs, 0n))), [], B.tb_of(Bool, W.false_list(n), False{}))
+  keep_unmarked(xs, 0n, tb)
+
 def partner_pcs(cs: List<&2, CO.CP>, +sd: U64, +s: S.SF, +b: FB.KB, +fi: Nat, +ob: FB.KB,
     +vmo: List<&2, Nat>, +hs: List<&2, PX.HX>, +gv: PX.GV) -> List<&2, W.PC>:
   match cs:
@@ -268,7 +340,7 @@ def face_pcs(+b: FB.KB, +fi: Nat, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, 
   +s = FB.face_sf(b, fi)
   +bp = loops_pcs(FB.face_ce(b, fi), b, s, sd, vmap, hs, gv)
   +bp2 = Bool.pick(List<&2, W.PC>, FB.face_same(b, fi), bp, rev_all(bp))
-  +pp = partner_pcs(CO.partner_of(cps, sd, fi), sd, s, b, fi, ob, vmo, hs, gv)
+  +pp = pcs_dedup(partner_pcs(CO.partner_of(cps, sd, fi), sd, s, b, fi, ob, vmo, hs, gv))
   List.append(&2, W.PC, bp2, List.append(&2, W.PC, chain_pcs(chs, sd, fi, s, 0n), pp))
 
 def fr_rgs(+r: FR) -> List<&2, W.RG>:
@@ -588,7 +660,7 @@ def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep) -> K1.KR:
 def finish(+m: EM, +ba: Ty.Brep) -> K1.KR:
   finish_go(em_ok(m), m, ba)
 
-def gbrun_go(+op: U64, +ra: Ty.Brep, +rb: Ty.Brep) -> K1.KR:
+def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep) -> K1.KR:
   +ba = FB.kb_of(ra)
   +bb = FB.kb_of(rb)
   +va = PX.add_vs(Ty.brep_vs(ra), PX.GV{[], 0n}, [])
@@ -600,8 +672,9 @@ def gbrun_go(+op: U64, +ra: Ty.Brep, +rb: Ty.Brep) -> K1.KR:
   +cx = {CO.CX{List.append(&2, PX.HX, CO.cx_hs(cx0), CO.cx_hs(tj)), CO.cx_g(tj), Bool.and(CO.cx_ok(cx0), CO.cx_ok(tj))} : CO.CX}
   +hs2 = List.append(&2, PX.HX, PX.hs_hs(hs), CO.cx_hs(cx))
   +cr = PX.all_chains(hs2, ba, bb, CO.cx_g(cx))
-  +ok = Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr))
-  +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), PX.cr_why(cr), 97u64), PX.hs_why(hs))
+  +none = Bool.and(strict, Bool.and(Nat.is_eq(List.length(&2, PX.HX, hs2), 0n), Nat.is_eq(List.length(&2, CO.CP, cps), 0n)))
+  +ok = Bool.and(Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr)), Bool.not(none))
+  +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), Bool.pick(U64, none, 98u64, PX.cr_why(cr)), 97u64), PX.hs_why(hs))
   +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
   +m = run_emit(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps)
   finish(Bool.pick(EM, ok, m, EM{em_st(m), False{}, why}), ra)
@@ -611,10 +684,13 @@ def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
     case []: ok
     case +h <> +t: fas_sup(t, Bool.and(ok, S.sf_ok(S.sf_of(Ty.fa_surf(h)))))
 
-def gbrun_s(+sup: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+def gbrun_s(+sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   match sup:
     case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
-    case True{}: gbrun_go(op, ba, bb)
+    case True{}: gbrun_go(strict, op, ba, bb)
+
+def gbrun_k(+strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+  gbrun_s(Bool.and(fas_sup(Ty.brep_fas(ba), True{}), fas_sup(Ty.brep_fas(bb), True{})), strict, op, ba, bb)
 
 def gbrun(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
-  gbrun_s(Bool.and(fas_sup(Ty.brep_fas(ba), True{}), fas_sup(Ty.brep_fas(bb), True{})), op, ba, bb)
+  gbrun_k(False{}, op, ba, bb)

@@ -3,7 +3,7 @@
   "name": "bore.eq",
   "ok": true,
   "checks": {
-   "seconds": 0.009239673614501953,
+   "seconds": 0.010441064834594727,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -32,7 +32,7 @@
   "name": "bore.uneq",
   "ok": true,
   "checks": {
-   "seconds": 0.009255409240722656,
+   "seconds": 0.00848388671875,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -60,7 +60,7 @@
   "name": "offaxis",
   "ok": true,
   "checks": {
-   "seconds": 0.008444070816040039,
+   "seconds": 0.008100271224975586,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -86,7 +86,7 @@
   "name": "fig8port",
   "ok": true,
   "checks": {
-   "seconds": 0.5987124443054199,
+   "seconds": 0.5227630138397217,
    "chamber_vol": [
     503.53703604342235,
     503.53703604443143
@@ -120,7 +120,7 @@
   "name": "cbore",
   "ok": true,
   "checks": {
-   "seconds": 1.470853567123413,
+   "seconds": 2.3356752395629883,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -148,7 +148,7 @@
   "name": "oring",
   "ok": true,
   "checks": {
-   "seconds": 0.02348041534423828,
+   "seconds": 0.026017189025878906,
    "nfaces": 12,
    "stp_volume": 868.0531085492286,
    "check_verdict": "ok",
@@ -172,7 +172,7 @@
   "name": "csink",
   "ok": true,
   "checks": {
-   "seconds": 0.013875961303710938,
+   "seconds": 0.03593778610229492,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -200,7 +200,7 @@
   "name": "sidefeat",
   "ok": true,
   "checks": {
-   "seconds": 0.007961511611938477,
+   "seconds": 0.00759434700012207,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -228,7 +228,7 @@
   "name": "chamfer",
   "ok": true,
   "checks": {
-   "seconds": 0.013899564743041992,
+   "seconds": 0.01243138313293457,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -255,7 +255,7 @@
   "name": "edgechamfer",
   "ok": true,
   "checks": {
-   "seconds": 0.007849931716918945,
+   "seconds": 0.009860515594482422,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -290,7 +290,7 @@
   "name": "g2pump",
   "ok": true,
   "checks": {
-   "seconds": 2.929543972015381,
+   "seconds": 1.8348181247711182,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -316,7 +316,7 @@
   "name": "spheres",
   "ok": true,
   "checks": {
-   "seconds": 0.011393547058105469,
+   "seconds": 0.00983285903930664,
    "ball_vol": [
     339.2920065868132,
     339.2920065885822
@@ -353,7 +353,7 @@
   "name": "fillets",
   "ok": true,
   "checks": {
-   "seconds": 0.012891769409179688,
+   "seconds": 0.012136697769165039,
    "committed": true,
    "proof": true,
    "hand": true,
@@ -374,6 +374,109 @@
    "fl.bcd": "9f8ebd4d385833505318f75d58e3e404e5946e54e915fcd18cb5653870364160",
    "fl.stp": "04f36c55d3f5e33cbeab42128d5c7874302f3b9c2c9559cb5a4518b9e23a7a25",
    "fl.bin": "5948a93ff9aa2411f21f6a22f973cd61b47324a89771ddfb6576c20052a06b23"
+  }
+ },
+ {
+  "name": "g4blade",
+  "ok": true,
+  "checks": {
+   "seconds": 0.5021905899047852,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "hinter": true,
+   "hunion": true,
+   "ident": true,
+   "second": true,
+   "hunion2": true,
+   "nfaces": 71,
+   "stp_volume": 1423262.3252762428,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "g4.bcd": "677c39e3f3be5cfaf9c57b90dd572c2cb880a10d7e2c3cfc7c02195395859722",
+   "g4.stp": "d0cadf8997087b630eeca28c193d1289244f0c16f0ba2734b0588a733e20e8c0",
+   "g4.bin": "9a7323a5a128788b12fbcb8b31ef7629c22786d2c8c58f0fb4e35c5ba725a428"
+  }
+ },
+ {
+  "name": "g4rotor",
+  "ok": true,
+  "checks": {
+   "seconds": 479.2142014503479,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "shroud": true,
+   "keyway": true,
+   "nfaces": 92,
+   "stp_volume": 2218539.418838544,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "gr.bcd": "730934d3e02ee4edce83ca280b589fdf619e96f845ef70c5e1f15639b90629f2",
+   "gr.stp": "42c1aee708065f0f87378858eaa25cebf1e0c94c60889e50f5159084fd6dc74e",
+   "gr.bin": "b2f469befe2e5b706a4380f908dfbc1cde757a63e5a7ceb5cecdf908a7b8fa24"
+  }
+ },
+ {
+  "name": "frame_seam",
+  "ok": true,
+  "checks": {
+   "seconds": 1.0852320194244385,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "stack": true,
+   "frame": true,
+   "nfaces": 20,
+   "stp_volume": 2620.0,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "fs.bcd": "3dd6835bd079e769ca65cad3c6fd3963c520379cc4bec07c0b3bb153249d075a",
+   "fs.stp": "fb33e3d21964c23da0688ee3dbb83254517ce7a1b20236237000fd2865c2890f",
+   "fs.bin": "e1b43fcc3d31f2f5748693eda82a44893a0da8e4e00a48ff3ba0c0aac7d13a85"
+  }
+ },
+ {
+  "name": "volute_panel",
+  "ok": true,
+  "checks": {
+   "seconds": 22.17808699607849,
+   "committed": true,
+   "proof": true,
+   "hand": true,
+   "check": true,
+   "genus": true,
+   "step": true,
+   "replay": true,
+   "reopen": true,
+   "sum": true,
+   "fused": true,
+   "nfaces": 70,
+   "stp_volume": 3601209.3996250485,
+   "check_verdict": "ok"
+  },
+  "artifacts": {
+   "vp.bcd": "0bd7adcb5a6e8f2df06580960b3a2397072eed456e77b194bf5c7b7b1adbaf7a",
+   "vp.stp": "919b7b4a80668f171aeeed38d32354228811598e2405a2d0615a2b63ed83f9ee",
+   "vp.bin": "9187eacb069a3714a81e012fa9fa4aea17abbcfc6de4e619a09df53514ae14be"
   }
  }
 ]

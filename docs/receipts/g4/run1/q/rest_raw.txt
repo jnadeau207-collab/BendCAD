@@ -1,0 +1,29 @@
+== stl 1 /home/jesse/g4/export/impeller.stl 3
+wrote /home/jesse/g4/export/impeller.stl nverts 109884 ntris 219808 (sampled, not certified)
+== stl 2 /home/jesse/g4/export/casing.stl 3
+wrote /home/jesse/g4/export/casing.stl nverts 59744 ntris 101904 (sampled, not certified)
+== stl 3 /home/jesse/g4/export/cone.stl 3
+wrote /home/jesse/g4/export/cone.stl nverts 16878 ntris 33788 (sampled, not certified)
+== stl 4 /home/jesse/g4/export/pedestal.stl 3
+wrote /home/jesse/g4/export/pedestal.stl nverts 15148 ntris 30336 (sampled, not certified)
+== stl 5 /home/jesse/g4/export/motor.stl 3
+wrote /home/jesse/g4/export/motor.stl nverts 14234 ntris 26850 (sampled, not certified)
+== stl 6 /home/jesse/g4/export/key.stl 3
+wrote /home/jesse/g4/export/key.stl nverts 8 ntris 12 (sampled, not certified)
+== stl 7 /home/jesse/g4/export/washer.stl 3
+wrote /home/jesse/g4/export/washer.stl nverts 2520 ntris 5040 (sampled, not certified)
+== stl 8 /home/jesse/g4/export/screw_m10x25.stl 3
+wrote /home/jesse/g4/export/screw_m10x25.stl nverts 2532 ntris 5060 (sampled, not certified)
+== stl 9 /home/jesse/g4/export/screw_m6x12.stl 3
+wrote /home/jesse/g4/export/screw_m6x12.stl nverts 2532 ntris 5060 (sampled, not certified)
+== stl 10 /home/jesse/g4/export/bolt_m10x16.stl 3
+wrote /home/jesse/g4/export/bolt_m10x16.stl nverts 1272 ntris 2540 (sampled, not certified)
+== stl 11 /home/jesse/g4/export/bolt_m12x25.stl 3
+wrote /home/jesse/g4/export/bolt_m12x25.stl nverts 1272 ntris 2540 (sampled, not certified)
+== stl 12 /home/jesse/g4/export/gasket.stl 3
+wrote /home/jesse/g4/export/gasket.stl nverts 17656 ntris 35368 (sampled, not certified)
+== stl 13 /home/jesse/g4/export/front_plate.stl 3
+wrote /home/jesse/g4/export/front_plate.stl nverts 27720 ntris 55520 (sampled, not certified)
+== stl 14 /home/jesse/g4/export/bolt_m8x20.stl 3
+wrote /home/jesse/g4/export/bolt_m8x20.stl nverts 1272 ntris 2540 (sampled, not certified)
+== clearance 1 3

@@ -401,15 +401,15 @@ def fnat_d(fs: List<&2, String>, +i: Nat, +dflt: Nat) -> Nat:
 def fbit(fs: List<&2, String>, +i: Nat) -> Bool:
   String.eq(fld(fs, i), "1")
 
-def jn_go(xs: List<&2, String>, +sep: String, +acc: String) -> String:
+def jn_go(xs: List<&2, String>, +sep: String) -> String:
   match xs:
-    case []: acc
-    case x <> t: jn_go(t, sep, acc ++ sep ++ x)
+    case []: ""
+    case x <> t: sep ++ x ++ jn_go(t, sep)
 
 def jn(xs: List<&2, String>, +sep: String) -> String:
   match xs:
     case []: ""
-    case x <> t: jn_go(t, sep, x)
+    case x <> t: x ++ jn_go(t, sep)
 
 def jn_tail(+xs: List<&2, String>, +sep: String) -> String:
   match xs:

@@ -1,0 +1,2 @@
+$ step 5 /home/jesse/g4/export/motor.stp
+wrote /home/jesse/g4/export/motor.stp entities 768 products 1

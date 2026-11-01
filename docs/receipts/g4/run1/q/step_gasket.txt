@@ -1,0 +1,2 @@
+$ step 12 /home/jesse/g4/export/gasket.stp
+wrote /home/jesse/g4/export/gasket.stp entities 764 products 1

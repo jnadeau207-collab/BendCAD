@@ -322,6 +322,18 @@ def ex_go(r: BO.Out, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
   BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, +proof, del} = r
   ex_sel(ok, vol, proof, a, b, wa, wb)
 
+def ex_code(r: BO.Out) -> U64:
+  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, proof, del} = r
+  Bool.pick(U64, ok, Bool.pick(U64, F64.is_le(I.i_hi(vol), 0.0f64), 0u64, 1u64), 2u64)
+
+def rel_code_go(dis: Bool, +a: M.Body, +b: M.Body) -> U64:
+  match dis:
+    case True{}: 0u64
+    case False{}: ex_code(BO.run(BO.tag_inter(), M.bool_in(a), M.bool_in(b), 0u64, 0u64, 0u64, False{}))
+
+def rel_code(+a: M.Body, +b: M.Body) -> U64:
+  rel_code_go(QA.ab_disjoint(wbox(a), wbox(b)), a, b)
+
 def rel_pair_go(dis: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
   match dis:
     case True{}: "relation disjoint status=certified"

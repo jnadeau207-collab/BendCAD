@@ -68,13 +68,20 @@ def vi_i(+r: VI) -> Nat:
 def peq(+a: V.Point, +b: V.Point) -> Bool:
   Bool.and(F64.is_eq(S.px(a), S.px(b)), Bool.and(F64.is_eq(S.py(a), S.py(b)), F64.is_eq(S.pz(a), S.pz(b))))
 
-def find_go(ps: List<&2, V.Point>, +p: V.Point, +i: Nat, +n: Nat) -> Nat:
+def same_tol(+p: V.Point) -> F64:
+  F64.mul(1.4210854715202004e-14f64, F64.add(1.0f64, F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))))
+
+def psame(+a: V.Point, +b: V.Point, +e: F64) -> Bool:
+  Bool.and(F64.is_le(F64.abs(F64.sub(S.px(a), S.px(b))), e),
+    Bool.and(F64.is_le(F64.abs(F64.sub(S.py(a), S.py(b))), e), F64.is_le(F64.abs(F64.sub(S.pz(a), S.pz(b))), e)))
+
+def find_go(ps: List<&2, V.Point>, +p: V.Point, +e: F64, +i: Nat, +n: Nat) -> Nat:
   match ps:
     case []: n
-    case +h <> +t: Bool.pick(Nat, peq(h, p), i, find_go(t, p, Nat.add(i, 1n), n))
+    case +h <> +t: Bool.pick(Nat, psame(h, p, e), i, find_go(t, p, e, Nat.add(i, 1n), n))
 
 def gv_add(+g: GV, +p: V.Point) -> VI:
-  +f = find_go(List.reverse(&2, V.Point, gv_ps(g)), p, 0n, gv_n(g))
+  +f = find_go(List.reverse(&2, V.Point, gv_ps(g)), p, same_tol(p), 0n, gv_n(g))
   Bool.pick(VI, Nat.is_lt(f, gv_n(g)), VI{g, f}, VI{GV{p <> gv_ps(g), Nat.add(gv_n(g), 1n)}, gv_n(g)})
 
 def gv_pt(+g: GV, +i: Nat) -> V.Point:
@@ -154,12 +161,16 @@ def any_coplanar(fs: List<&2, Nat>, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
     case []: False{}
     case +h <> +t: Bool.or(on_cop(h, b, g, p), any_coplanar(t, b, g, p))
 
+def at_v(+p: V.Point, +q: V.Point) -> Bool:
+  F64.is_le(S.dist(p, q), F64.mul(1.0e-9f64, F64.add(1.0f64, S.dlen(S.psub(q, S.pt(0.0f64, 0.0f64, 0.0f64))))))
+
 def snap_t(+t0: F64, +lo: F64, +hi: F64, +ob: FB.KB, +fo: Nat, +b: FB.KB, +e: Nat) -> F64:
   +ed = FB.edge_at(b, e)
   +gs = FB.face_surf(ob, fo)
   +eps = F64.mul(1.0e-9f64, F64.sub(hi, lo))
-  +nlo = Bool.and(F64.is_le(F64.abs(F64.sub(t0, lo)), eps), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v0(ed))))
-  +nhi = Bool.and(F64.is_le(F64.abs(F64.sub(t0, hi)), eps), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v1(ed))))
+  +p = EF.ev(EF.ek_curve(Ty.ed_kind(ed)), t0)
+  +nlo = Bool.and(Bool.or(F64.is_le(F64.abs(F64.sub(t0, lo)), eps), at_v(p, FB.vpt(b, Ty.ed_v0(ed)))), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v0(ed))))
+  +nhi = Bool.and(Bool.or(F64.is_le(F64.abs(F64.sub(t0, hi)), eps), at_v(p, FB.vpt(b, Ty.ed_v1(ed)))), GO.q_on_r(gs, FB.vpt(b, Ty.ed_v1(ed))))
   Bool.pick(F64, nlo, lo, Bool.pick(F64, nhi, hi, t0))
 
 def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: FB.KB, +b: FB.KB, +lo: F64, +hi: F64,
@@ -195,6 +206,21 @@ def in_plane(+k: Ty.EdgeKind, +s: S.SF) -> Bool:
   +m = F64.max(F64.max(pl_off(s, p0), pl_off(s, EF.ev(c, hi))), F64.max(pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.5f64, d)))),
     F64.max(pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.25f64, d)))), pl_off(s, EF.ev(c, F64.add(lo, F64.mul(0.75f64, d)))))))
   Bool.and(U64.is_eq(S.sf_kind(s), S.k_plane()), F64.is_le(m, tol))
+
+def cy_off(+s: S.SF, +p: V.Point) -> F64:
+  +a = S.sf_a(s)
+  F64.abs(F64.sub(F64.div(S.dlen(S.cross(S.psub(p, S.sf_o(s)), a)), S.dlen(a)), S.sf_r(s)))
+
+def on_cyl(+k: Ty.EdgeKind, +s: S.SF) -> Bool:
+  +c = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +d = F64.sub(hi, lo)
+  +p0 = EF.ev(c, lo)
+  +tol = F64.mul(1.0e-12f64, F64.add(1.0f64, F64.add(S.sf_r(s), S.dlen(S.psub(p0, S.sf_o(s))))))
+  +m = F64.max(F64.max(cy_off(s, p0), cy_off(s, EF.ev(c, hi))), F64.max(cy_off(s, EF.ev(c, F64.add(lo, F64.mul(0.5f64, d)))),
+    F64.max(cy_off(s, EF.ev(c, F64.add(lo, F64.mul(0.25f64, d)))), cy_off(s, EF.ev(c, F64.add(lo, F64.mul(0.75f64, d)))))))
+  Bool.and(U64.is_eq(S.sf_kind(s), S.k_cyl()), F64.is_le(m, tol))
 
 def ve_t(n: Nat, +c: G.GVal, +p: V.Point, +lo: F64, +hi: F64) -> F64:
   match n:
@@ -273,18 +299,24 @@ def near_bad(near: Bool, +k: Ty.EdgeKind, +nt: F64, +ob: FB.KB) -> Bool:
     case False{}: False{}
     case True{}: Bool.not(near_at_vertex(k, nt, ob))
 
+def near_on(near: Bool, +ob: FB.KB, +fo: Nat, +q: V.Point) -> Bool:
+  match near:
+    case False{}: False{}
+    case True{}: Bool.not(FB.bb_dis(FB.bb_pad(FB.face_bb(ob, fo), ve_tol(q)), FB.bb_pt(q)))
+
 def ef_hits(+inp: Bool, +side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB, +fo: Nat, +k: Ty.EdgeKind, +g: G.GVal, +st: HS) -> HS:
   match inp:
     case True{}: st
     case False{}:
       +r = EF.edge_hits(k, S.sf_of(g), g <> surfs_of(FB.edge_faces(b, e), b))
       +st2 = eh_keep(EF.ehs_hs(r), side, e, fo, ob, b, EF.ek_lo(k), EF.ek_hi(k), st)
-      Bool.pick(HS, near_bad(EF.ehs_near(r), k, EF.ehs_nt(r), ob), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
+      +near = near_on(EF.ehs_near(r), ob, fo, EF.ev(EF.ek_curve(k), EF.ehs_nt(r)))
+      Bool.pick(HS, near_bad(near, k, EF.ehs_nt(r), ob), HS{hs_hs(st2), hs_g(st2), False{}, why_near()}, st2)
 
 def ef_one(+side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB, +fo: Nat, +st: HS) -> HS:
   +k = Ty.ed_kind(FB.edge_at(b, e))
   +g = FB.face_surf(ob, fo)
-  ef_hits(in_plane(k, S.sf_of(g)), side, e, b, ob, fo, k, g, st)
+  ef_hits(Bool.or(in_plane(k, S.sf_of(g)), on_cyl(k, S.sf_of(g))), side, e, b, ob, fo, k, g, st)
 
 def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
   match fs:
@@ -958,6 +990,28 @@ def u_rngs(ls: List<&2, List<&2, V.Vec2>>, +acc: V.Vec2) -> V.Vec2:
     case []: acc
     case +h <> +t: u_rngs(t, u_rng(h, acc))
 
+def v_rng(ps: List<&2, V.Vec2>, +acc: V.Vec2) -> V.Vec2:
+  match ps:
+    case []: acc
+    case +q <> +t: v_rng(t, V.V2{F64.min(V.v2_x(acc), V.v2_y(q)), F64.max(V.v2_y(acc), V.v2_y(q))})
+
+def v_rngs(ls: List<&2, List<&2, V.Vec2>>, +acc: V.Vec2) -> V.Vec2:
+  match ls:
+    case []: acc
+    case +h <> +t: v_rngs(t, v_rng(h, acc))
+
+def tor_rho(+s: S.SF, +vr: V.Vec2) -> V.Vec2:
+  +a = F64.add(V.v2_x(vr), S.sf_t0(s))
+  +b = F64.add(V.v2_y(vr), S.sf_t0(s))
+  +ch = F64.sub(S.fcos(F64.mul(0.5f64, F64.sub(b, a))), 1.0e-12f64)
+  +cm = S.fcos(F64.mul(0.5f64, F64.add(a, b)))
+  +ca = S.fcos(a)
+  +cb = S.fcos(b)
+  +full = Bool.or(F64.is_lt(b, a), F64.is_lt(S.pi(), F64.sub(b, a)))
+  +cmax = Bool.pick(F64, Bool.or(full, F64.is_le(ch, cm)), 1.0f64, F64.max(ca, cb))
+  +cmin = Bool.pick(F64, Bool.or(full, F64.is_le(ch, F64.neg(cm))), F64.neg(1.0f64), F64.min(ca, cb))
+  V.V2{F64.add(S.sf_r(s), F64.mul(S.sf_r2(s), cmin)), F64.add(S.sf_r(s), F64.mul(S.sf_r2(s), cmax))}
+
 def inward(+n: V.Dir, +m: V.Dir) -> V.Dir:
   Bool.pick(V.Dir, F64.is_lt(0.0f64, S.dot(n, m)), n, S.dscale(F64.neg(1.0f64), n))
 
@@ -986,9 +1040,9 @@ def wd_go(ok: Bool, +s: S.SF, +b: FB.KB, +fi: Nat) -> WD:
       +a = S.sf_a(s)
       +m = rho_u(s, F64.mul(0.5f64, F64.add(u0, u1)))
       +ok = F64.is_lt(F64.sub(u1, u0), F64.sub(3.141592653589793f64, 1.0e-3f64))
-      +rr = Bool.pick(F64, S.is_tor(s), S.sf_r2(s), 0.0f64)
-      +ro = F64.add(S.sf_r(s), rr)
-      +ri = F64.sub(S.sf_r(s), rr)
+      +rho = Bool.pick(V.Vec2, S.is_tor(s), tor_rho(s, v_rngs(FB.face_polys(b, fi), V.V2{big, F64.neg(big)})), V.V2{S.sf_r(s), S.sf_r(s)})
+      +ro = V.v2_y(rho)
+      +ri = V.v2_x(rho)
       WD{ok, S.sf_o(s), inward(S.cross(a, rho_u(s, u0)), m), inward(S.cross(a, rho_u(s, u1)), m), a,
         sect_polys(8n, s, S.sf_o(s), u0, F64.div(F64.sub(u1, u0), 8.0f64), 0.0f64, ri, ro)}
 
@@ -1060,11 +1114,48 @@ def far_pss(ls: List<&2, List<&2, V.Point>>, +s: S.SF, +acc: F64) -> F64:
     case []: acc
     case +h <> +t: far_pss(t, s, far_ps(h, s, acc))
 
+def perp_d(+s: S.SF, +p: V.Point) -> V.Dir:
+  +a = S.dunit(S.sf_a(s))
+  +d = S.psub(p, S.sf_o(s))
+  S.dadd(d, F64.neg(S.dot(d, a)), a)
+
+def seg_d0(+a: V.Dir, +b: V.Dir) -> F64:
+  +ab = S.dadd(b, F64.neg(1.0f64), a)
+  +t = F64.max(0.0f64, F64.min(1.0f64, F64.div(F64.neg(S.dot(a, ab)), F64.max(S.dot(ab, ab), 1.0e-300f64))))
+  S.dlen(S.dadd(a, t, ab))
+
+def pn_fin(+best: F64, +pos: Bool, +neg: Bool) -> F64:
+  Bool.pick(F64, Bool.and(pos, neg), best, 0.0f64)
+
+def pn_go(ps: List<&2, V.Point>, +s: S.SF, +first: V.Dir, +prev: V.Dir, +best: F64, +pos: Bool, +neg: Bool) -> F64:
+  match ps:
+    case []:
+      +c = S.dot(S.cross(prev, first), S.sf_a(s))
+      pn_fin(F64.min(best, seg_d0(prev, first)), Bool.or(pos, F64.is_lt(0.0f64, c)), Bool.or(neg, F64.is_lt(c, 0.0f64)))
+    case +p <> +t:
+      +q = perp_d(s, p)
+      +c = S.dot(S.cross(prev, q), S.sf_a(s))
+      pn_go(t, s, first, q, F64.min(best, seg_d0(prev, q)), Bool.or(pos, F64.is_lt(0.0f64, c)), Bool.or(neg, F64.is_lt(c, 0.0f64)))
+
+def poly_near(ps: List<&2, V.Point>, +s: S.SF) -> F64:
+  match ps:
+    case []: 0.0f64
+    case +h <> +t:
+      +q0 = perp_d(s, h)
+      pn_go(t, s, q0, q0, F64.div(1.0f64, 0.0f64), False{}, False{})
+
+def near_pss(ls: List<&2, List<&2, V.Point>>, +s: S.SF, +acc: F64) -> F64:
+  match ls:
+    case []: acc
+    case +h <> +t: near_pss(t, s, F64.min(acc, poly_near(h, s)))
+
 def q_sep_w(+s: S.SF, +w: WD) -> Bool:
   WD{+ok, o, n0, n1, +a, +ps} = w
   +r = S.sf_r(s)
   +e = F64.mul(1.0e-9f64, F64.add(1.0f64, r))
-  Bool.and(Bool.and(ok, U64.is_eq(S.sf_kind(s), S.k_cyl())), Bool.and(par_ax(S.sf_a(s), a), F64.is_lt(far_pss(ps, s, 0.0f64), F64.sub(r, e))))
+  +inner = F64.is_lt(far_pss(ps, s, 0.0f64), F64.sub(r, e))
+  +outer = F64.is_lt(F64.add(r, e), near_pss(ps, s, F64.div(1.0f64, 0.0f64)))
+  Bool.and(Bool.and(ok, U64.is_eq(S.sf_kind(s), S.k_cyl())), Bool.and(par_ax(S.sf_a(s), a), Bool.or(inner, outer)))
 
 def sat_sep(+wa: WD, +wb: WD) -> Bool:
   WD{+oka, +oa, n0a, n1a, +aa, +pa} = wa
@@ -1077,12 +1168,38 @@ def faces_wd(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, WD>:
     case []: []
     case +h <> +t: wd_of(b, h) <> faces_wd(t, b)
 
+def rho_go(tor: Bool, +b: FB.KB, +fi: Nat) -> V.Vec2:
+  match tor:
+    case False{}: V.V2{0.0f64, F64.neg(1.0f64)}
+    case True{}:
+      +big = {1.0e300f64 : F64}
+      tor_rho(FB.face_sf(b, fi), v_rngs(FB.face_polys(b, fi), V.V2{big, F64.neg(big)}))
+
+def rho_of(+b: FB.KB, +fi: Nat) -> V.Vec2:
+  rho_go(S.is_tor(FB.face_sf(b, fi)), b, fi)
+
+def faces_rho(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, V.Vec2>:
+  match fs:
+    case []: []
+    case +h <> +t: rho_of(b, h) <> faces_rho(t, b)
+
+def t_sep(+x: FB.BB, +rho: V.Vec2, +s: S.SF) -> Bool:
+  +e = F64.mul(1.0e-9f64, F64.add(1.0f64, F64.abs(V.v2_y(rho))))
+  Bool.and(S.is_tor(s), Bool.or(F64.is_lt(F64.add(bb_far(s, x), e), V.v2_x(rho)), F64.is_lt(F64.add(V.v2_y(rho), e), bb_near(s, x))))
+
 def pair_if(+skip: Bool, +hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR) -> CR:
   match skip:
     case True{}: r
     case False{}: pair_go(hs, ba, fa, bb, fb, r)
 
-def pairs_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +bxa: FB.BB, +wa: WD, +hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +r: CR) -> CR:
+def skip_q(+bxa: FB.BB, +x: FB.BB, +wa: WD, +w: WD, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +h: Nat) -> Bool:
+  Bool.or(Bool.or(FB.bb_dis(bxa, x), Bool.or(q_sep(bxa, FB.face_sf(bb, h)), q_sep(x, FB.face_sf(ba, fa)))),
+    Bool.or(Bool.or(Bool.or(w_sep(bxa, w), w_sep(x, wa)), sat_sep(wa, w)), Bool.or(q_sep_w(FB.face_sf(ba, fa), w), q_sep_w(FB.face_sf(bb, h), wa))))
+
+def skip_t(+bxa: FB.BB, +x: FB.BB, +rha: V.Vec2, +rh: V.Vec2, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +h: Nat) -> Bool:
+  Bool.or(t_sep(x, rha, FB.face_sf(ba, fa)), t_sep(bxa, rh, FB.face_sf(bb, h)))
+
+def pairs_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +rhs: List<&2, V.Vec2>, +bxa: FB.BB, +wa: WD, +rha: V.Vec2, +hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +r: CR) -> CR:
   match fbs:
     case []: r
     case +h <> +t:
@@ -1092,19 +1209,21 @@ def pairs_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +bxa:
           match wds:
             case []: r
             case +w <> +wt:
-              +skip = Bool.or(Bool.or(FB.bb_dis(bxa, x), Bool.or(q_sep(bxa, FB.face_sf(bb, h)), q_sep(x, FB.face_sf(ba, fa)))),
-                Bool.or(Bool.or(Bool.or(w_sep(bxa, w), w_sep(x, wa)), sat_sep(wa, w)), Bool.or(q_sep_w(FB.face_sf(ba, fa), w), q_sep_w(FB.face_sf(bb, h), wa))))
-              pairs_b(t, xt, wt, bxa, wa, hs, ba, fa, bb, pair_if(skip, hs, ba, fa, bb, h, r))
+              match rhs:
+                case []: r
+                case +rh <> +rt:
+                  +skip = Bool.or(skip_q(bxa, x, wa, w, ba, fa, bb, h), skip_t(bxa, x, rha, rh, ba, fa, bb, h))
+                  pairs_b(t, xt, wt, rt, bxa, wa, rha, hs, ba, fa, bb, pair_if(skip, hs, ba, fa, bb, h, r))
 
 def faces_bb(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, FB.BB>:
   match fs:
     case []: []
     case +h <> +t: FB.face_bb(b, h) <> faces_bb(t, b)
 
-def pairs_a(fas: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +hs: List<&2, HX>, +ba: FB.KB, +bb: FB.KB, +r: CR) -> CR:
+def pairs_a(fas: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +rhs: List<&2, V.Vec2>, +hs: List<&2, HX>, +ba: FB.KB, +bb: FB.KB, +r: CR) -> CR:
   match fas:
     case []: r
-    case +h <> +t: pairs_a(t, bxs, wds, hs, ba, bb, pairs_b(L.nat_range(FB.nfaces(bb)), bxs, wds, FB.face_bb(ba, h), wd_of(ba, h), hs, ba, h, bb, r))
+    case +h <> +t: pairs_a(t, bxs, wds, rhs, hs, ba, bb, pairs_b(L.nat_range(FB.nfaces(bb)), bxs, wds, rhs, FB.face_bb(ba, h), wd_of(ba, h), rho_of(ba, h), hs, ba, h, bb, r))
 
 def segs_same(xs: List<&2, SEG>, ys: List<&2, SEG>) -> Bool:
   match xs:
@@ -1131,7 +1250,8 @@ def chs_uniq(cs: List<&2, CH>, +acc: List<&2, CH>) -> List<&2, CH>:
     case +h <> +t: chs_uniq(t, Bool.pick(List<&2, CH>, ch_in(acc, h), acc, h <> acc))
 
 def all_chains(+hs: List<&2, HX>, +ba: FB.KB, +bb: FB.KB, +g: GV) -> CR:
-  +r = pairs_a(L.nat_range(FB.nfaces(ba)), faces_bb(L.nat_range(FB.nfaces(bb)), bb), faces_wd(L.nat_range(FB.nfaces(bb)), bb), hs, ba, bb, CR{[], g, True{}, 0u64})
+  +r = pairs_a(L.nat_range(FB.nfaces(ba)), faces_bb(L.nat_range(FB.nfaces(bb)), bb), faces_wd(L.nat_range(FB.nfaces(bb)), bb),
+    faces_rho(L.nat_range(FB.nfaces(bb)), bb), hs, ba, bb, CR{[], g, True{}, 0u64})
   CR{chs_uniq(cr_chs(r), []), cr_g(r), cr_ok(r), cr_why(r)}
 
 def L_pp0_p(xs: List<&2, V.Point>) -> V.Point:
@@ -1163,24 +1283,26 @@ def pe_edges(es: List<&2, Nat>, +side: U64, +b: FB.KB, +v: Nat, +p: V.Point, +fo
     case []: acc
     case +h <> +t: pe_edges(t, side, b, v, p, fo, pe_one(side, h, b, v, p, fo, acc))
 
-def inner_vs(ss: List<&2, SEG>) -> List<&2, Nat>:
-  match ss:
-    case []: []
-    case +h <> +t:
-      match t:
-        case []: []
-        case +h2 <> +t2: seg_vb(h) <> inner_vs(h2 <> t2)
-
 def pv_hits(vs: List<&2, Nat>, +side: U64, +b: FB.KB, +g: GV, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
   match vs:
     case []: acc
     case +h <> +t: pv_hits(t, side, b, g, fo, pe_edges(L.nat_range(FB.nedges(b)), side, b, h, gv_pt(g, h), fo, acc))
 
+def seg_vbs(ss: List<&2, SEG>) -> List<&2, Nat>:
+  match ss:
+    case []: []
+    case +h <> +t: seg_vb(h) <> seg_vbs(t)
+
+def all_vs(ss: List<&2, SEG>) -> List<&2, Nat>:
+  match ss:
+    case []: []
+    case +h <> +t: seg_va(h) <> seg_vbs(h <> t)
+
 def chain_hits(cs: List<&2, CH>, +ba: FB.KB, +bb: FB.KB, +g: GV, +acc: List<&2, HX>) -> List<&2, HX>:
   match cs:
     case []: acc
     case +h <> +t:
-      +vs = inner_vs(ch_segs(h))
+      +vs = all_vs(ch_segs(h))
       +a1 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fa(h), no_face()), pv_hits(vs, 0u64, ba, g, ch_fb(h), acc), acc)
       +a2 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fb(h), no_face()), pv_hits(vs, 1u64, bb, g, ch_fa(h), a1), a1)
       chain_hits(t, ba, bb, g, a2)

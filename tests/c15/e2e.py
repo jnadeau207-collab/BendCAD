@@ -127,10 +127,10 @@ def stack_default_state():
 def toler_states():
     fresh('c.bcd', PAIR)
     ref, _ = cli('c.bcd', 'clearance', '1', '3')
-    mc = re.search(r'clearance \[' + FLT + r', ' + FLT + r'\] estimated lo=certified samples=(\d+)x(\d+)', ref)
+    mc = re.search(r'clearance \[' + FLT + r', ' + FLT + r'\] certified lo=branch-and-bound (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', ref)
     out, _ = cli('c.bcd', 'pmi', 'toler', '(pmi (nodes 1 3) (state cold 1) (state hot 1.002))')
-    m0 = re.search(r'state cold grow 1 clearance \[' + FLT + r', ' + FLT + r'\] estimated lo=certified samples=(\d+)x(\d+)', out)
-    m1 = re.search(r'state hot grow 1\.002 clearance \[' + FLT + r', ' + FLT + r'\] estimated lo=certified samples=(\d+)x(\d+)', out)
+    m0 = re.search(r'state cold grow 1 clearance \[' + FLT + r', ' + FLT + r'\] certified lo=branch-and-bound (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', out)
+    m1 = re.search(r'state hot grow 1\.002 clearance \[' + FLT + r', ' + FLT + r'\] certified lo=branch-and-bound (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', out)
     clo, chi = num(mc.group(1)), num(mc.group(2))
     checks = dict(
         header='toler nodes 1 3 states 2' in out,
@@ -167,9 +167,9 @@ def toler_inside():
     fresh('c.bcd', PAIR)
     cli('c.bcd', 'apply', '(node 4 (move 2 1 1 1) (intent same 0 0 1 0))')
     ref, _ = cli('c.bcd', 'clearance', '1', '4')
-    mc = re.search(r'clearance \[' + FLT + r', ' + FLT + r'\] estimated lo=certified samples=(\d+)x(\d+)', ref)
+    mc = re.search(r'clearance \[' + FLT + r', ' + FLT + r'\] certified lo=branch-and-bound (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', ref)
     out, _ = cli('c.bcd', 'pmi', 'toler', '(pmi (nodes 1 4) (state cold 1))')
-    m0 = re.search(r'state cold grow 1 clearance \[' + FLT + r', ' + FLT + r'\] estimated lo=certified samples=(\d+)x(\d+)', out)
+    m0 = re.search(r'state cold grow 1 clearance \[' + FLT + r', ' + FLT + r'\] certified lo=branch-and-bound (?:hi=sampled|hi=witness) samples=(\d+)x(\d+)', out)
     clo, chi = num(mc.group(1)), num(mc.group(2))
     checks = dict(
         nominal='nominal relation:\nrelation inside b-in-a status=certified' in out,

@@ -128,7 +128,7 @@ def Laws.dist_in_inside(k, c, fs, ps, cert):
 def Laws.dist_bd_boundary(unc, c, fs, ps, cert):
   {==}
 
-def Laws.wall_rep_empty(x, cert):
+def Laws.wall_rep_empty(x):
   {==}
 
 def Laws.wall_body_noface(b):

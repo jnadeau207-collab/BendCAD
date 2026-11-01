@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 import subprocess
@@ -56,22 +57,33 @@ def mesh(path):
     nv = 0
     nf = 0
     bad = 0
+    vol = 0.0
+    vs = []
     edges = {}
     for ln in read(path).splitlines():
         if ln.startswith('v '):
             nv += 1
+            vs.append([float(x) for x in ln.split()[1:4]])
         elif ln.startswith('f '):
             ids = [int(x) for x in ln.split()[1:]]
             nf += 1
             if len(ids) != 3 or any(i < 1 or i > nv for i in ids):
                 bad += 1
+            else:
+                (ax, ay, az), (bx, by, bz), (cx, cy, cz) = (vs[i - 1] for i in ids)
+                vol += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6.0
             for a, b in zip(ids, ids[1:] + ids[:1]):
                 e = (a, b) if a < b else (b, a)
                 edges[e] = edges.get(e, 0) + 1
     e1 = sum(1 for c in edges.values() if c == 1)
     e2 = sum(1 for c in edges.values() if c == 2)
     ex = sum(1 for c in edges.values() if c > 2)
-    return dict(nv=nv, nf=nf, bad=bad, e1=e1, e2=e2, ex=ex, euler=nv - len(edges) + nf)
+    return dict(nv=nv, nf=nf, bad=bad, e1=e1, e2=e2, ex=ex, euler=nv - len(edges) + nf, vol=vol)
+
+
+def poly_ok(m, n, area, h):
+    want = n / (2 * math.pi) * math.sin(2 * math.pi / n) * area * h
+    return abs(abs(m['vol']) - want) <= 1e-9 * want
 
 
 def bounds_ok(w, chord, ang, prof):
@@ -99,7 +111,7 @@ def cyl():
     t, _ = cli('cyl.bcd', 'tess', '1', f'{WORK}/cyl.obj')
     w = wrote(t)
     m = mesh('cyl.obj')
-    record('tess.cyl', w is not None and (w['nverts'], w['ntris']) == (64, 124)
+    record('tess.cyl', w is not None and (w['nverts'], w['ntris']) == (64, 124) and poly_ok(m, 32, math.pi * 25, 10)
            and m['bad'] == 0 and m['e1'] == 0 and m['ex'] == 0 and m['euler'] == 2
            and bounds_ok(w, 1.0, 0.2, 'display'),
            line=t.strip()[:200], mesh=m, seconds=dt)
@@ -107,7 +119,7 @@ def cyl():
 
 def presets():
     fresh('pre.bcd', f'(node 1 (cylinder 5 10) {IC})')
-    want = {0: (32, 60), 2: (252, 500), 3: (1258, 2512)}
+    want = {0: (32, 60), 2: (252, 500), 3: (1260, 2516)}
     got = {}
     oks = []
     for p, (ev, ef) in want.items():
@@ -123,13 +135,24 @@ def presets():
     record('tess.presets', all(oks), detail=got)
 
 
+def big_cyl():
+    fresh('big.bcd', f'(node 1 (cylinder 227 50) {IC})')
+    t, dt = cli('big.bcd', 'tess', '1', f'{WORK}/big.obj', '2')
+    w = wrote(t)
+    m = mesh('big.obj')
+    record('tess.big_cyl_sagitta', w is not None and (w['nverts'], w['ntris']) == (252, 500) and poly_ok(m, 126, math.pi * 227 ** 2, 50)
+           and m['bad'] == 0 and m['e1'] == 0 and m['ex'] == 0 and m['euler'] == 2
+           and bounds_ok(w, 0.25, 0.05, 'display') and dt < 120,
+           line=t.strip()[:200], mesh=m, seconds=dt)
+
+
 def rev():
     rg = '(region (path 2 0 (line 4 0) (line 4 3) (line 2 3)))'
     out, dt = fresh('rev.bcd', f'(node 1 (revolve {rg}) {IC})')
     t, _ = cli('rev.bcd', 'tess', '1', f'{WORK}/rev.obj')
     w = wrote(t)
     m = mesh('rev.obj')
-    record('tess.rev', w is not None and (w['nverts'], w['ntris']) == (128, 256)
+    record('tess.rev', w is not None and (w['nverts'], w['ntris']) == (128, 256) and poly_ok(m, 32, math.pi * 12, 3)
            and m['bad'] == 0 and m['e1'] == 0 and m['ex'] == 0 and m['euler'] == 0
            and bounds_ok(w, 1.0, 0.2, 'display'),
            line=t.strip()[:200], mesh=m, seconds=dt)
@@ -141,7 +164,7 @@ def rev_fine():
     t, dt = cli('rev3.bcd', 'tess', '1', f'{WORK}/rev3.obj', '3')
     w = wrote(t)
     m = mesh('rev3.obj')
-    record('tess.rev_fine', w is not None and (w['nverts'], w['ntris']) == (2516, 5032)
+    record('tess.rev_fine', w is not None and (w['nverts'], w['ntris']) == (2520, 5040)
            and m['bad'] == 0 and m['e1'] == 0 and m['ex'] == 0 and m['euler'] == 0
            and bounds_ok(w, 0.05, 0.01, 'manufacturing'),
            line=t.strip()[:200], mesh=m, seconds=dt)
@@ -149,11 +172,11 @@ def rev_fine():
 
 def overrides():
     fresh('ov.bcd', f'(node 1 (cylinder 5 10) {IC})')
-    t, _ = cli('ov.bcd', 'tess', '1', f'{WORK}/ov.obj', '1', '0.1')
+    t, _ = cli('ov.bcd', 'tess', '1', f'{WORK}/ov.obj', '1', '0.001')
     w = wrote(t)
     t2, _ = cli('ov.bcd', 'tess', '1', f'{WORK}/ov2.obj', '1', '1', '0.2', '1000000', 'manufacturing')
     w2 = wrote(t2)
-    record('tess.overrides', w is not None and w['chord'] <= 0.1 and w['ntris'] > 124
+    record('tess.overrides', w is not None and w['chord'] <= 0.001 and w['ntris'] > 124
            and w2 is not None and w2['profile'] == 'manufacturing'
            and (w2['nverts'], w2['ntris']) == (64, 124),
            chord=w and w['chord'], ntris=w and w['ntris'], prof2=w2 and w2['profile'])
@@ -198,10 +221,19 @@ def prism_arc():
     t, _ = cli('darc.bcd', 'tess', '1', f'{WORK}/darc.obj')
     w = wrote(t)
     m = mesh('darc.obj')
-    record('tess.prism_arc', w is not None and (w['nverts'], w['ntris']) == (22, 40)
+    record('tess.prism_arc', w is not None and (w['nverts'], w['ntris']) == (62, 120)
            and m['bad'] == 0 and m['e1'] == 0 and m['ex'] == 0 and m['euler'] == 2
            and bounds_ok(w, 1.0, 0.2, 'display'),
            line=t.strip()[:200], mesh=m, seconds=dt)
+
+
+def curved_trim_refused():
+    fresh('win.bcd', f'(node 1 (cylinder 20 20) {IC})', f'(node 2 (box 10 60 6) {IC})',
+          f'(node 3 (move 2 -5 -30 7 0) (intent same any any any any))', f'(node 4 (difference 1 3) {IR})')
+    t, _ = cli('win.bcd', 'tess', '4', f'{WORK}/win.obj')
+    ls, _ = wsl('ls', f'{WORK}/win.obj')
+    record('tess.curved_trim_refused', 'refused tess-mesh-not-closed' in t and 'no such file' in ls.lower(),
+           line=t.strip()[:200])
 
 
 def shell_cavity():
@@ -220,8 +252,8 @@ def shell_cavity():
 def main():
     wsl('rm', '-rf', WORK)
     wsl('mkdir', '-p', WORK)
-    for f in (box, cyl, presets, rev, rev_fine, overrides, refusal, replay, prism_slant, prism_arc,
-              shell_cavity):
+    for f in (box, cyl, presets, big_cyl, rev, rev_fine, overrides, refusal, replay, prism_slant, prism_arc,
+              shell_cavity, curved_trim_refused):
         f()
     rep = dict(binary_sha256=wsl('sha256sum', BIN)[0].split()[0], passed=sum(r['ok'] for r in RESULTS),
                total=len(RESULTS), results=RESULTS)

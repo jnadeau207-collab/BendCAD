@@ -848,6 +848,9 @@ def eg_circ(g: G.GVal, +tol: F64) -> CC:
     case G.GV_rq{w}:
       G.Rq{+a, +b, +c, +w0, +w1, +w2} = w
       circ3(a, rq_at(a, b, c, w0, w1, w2, 0.5f64), c, rq_at(a, b, c, w0, w1, w2, 0.25f64), tol)
+    case G.GV_cc{w}:
+      G.Cc{+o, +u, +v, +r} = w
+      CC{Bool.and(F64.is_lt(0.0f64, r), F64.is_lt(0.0f64, vlen3(vcross3(u, v)))), o, vunit3(vcross3(u, v)), r}
     case _: cc_none()
 
 def near_pt(vs: List<&2, List<&2, I.I>>, +p: V.Point, +r: F64) -> Bool:
@@ -927,7 +930,26 @@ def circ_tan_go(+cc: CC, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +be: List<&2,
   CC{+ok, +o, +n, +r} = cc
   Bool.and(ok, sec_ok(SO.fd_im(fd), o, n, r, sv, SO.fd_bx(fd), be, tol))
 
-def ln_sec(s: M.Im, +p: V.Point, +v: V.Dir, +sv: List<&2, List<&2, I.I>>, +tol: F64) -> Bool:
+def ln_tor_perp(+p: V.Point, +vu: V.Dir, +cp: V.Point, +au: V.Dir, +br: F64, +rr: F64, +t2: F64,
+    +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>) -> Bool:
+  +w0 = vsub3(p, cp)
+  +hl = vdot3(w0, au)
+  +w = vsum3(w0, vsc3(au, F64.neg(hl)))
+  +wv = vdot3(w, vu)
+  +disc = F64.add(F64.sub(F64.mul(wv, wv), vdot3(w, w)), F64.mul(br, br))
+  +sq = F64.sqrt(F64.max(0.0f64, disc))
+  +s = F64.sqrt(F64.mul(2.0f64, F64.mul(rr, t2)))
+  +reach = F64.add(t2, F64.div(F64.mul(2.0f64, F64.mul(s, br)), F64.max(sq, s)))
+  +q1 = vadd3(p, vu, F64.sub(F64.neg(wv), sq))
+  +q2 = vadd3(p, vu, F64.add(F64.neg(wv), sq))
+  +apart = F64.is_lt(F64.add(rr, t2), F64.abs(hl))
+  +tanp = F64.is_le(F64.abs(F64.sub(F64.abs(hl), rr)), t2)
+  +miss = F64.is_lt(disc, F64.neg(F64.mul(F64.mul(2.0f64, br), F64.add(t2, s))))
+  +ok1 = Bool.or(near_pt(sv, q1, reach), out_pt(bf, be, q1, reach))
+  +ok2 = Bool.or(near_pt(sv, q2, reach), out_pt(bf, be, q2, reach))
+  Bool.or(apart, Bool.and(tanp, Bool.or(miss, Bool.and(ok1, ok2))))
+
+def ln_sec(s: M.Im, +p: V.Point, +v: V.Dir, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
   match s:
     case M.M_to{+c, +a, +bigr, +r}:
       +cp = SO.pt_of(c)
@@ -941,7 +963,9 @@ def ln_sec(s: M.Im, +p: V.Point, +v: V.Dir, +sv: List<&2, List<&2, I.I>>, +tol: 
       +q = vadd3(p, au, F64.neg(vdot3(w, au)))
       +apart = Bool.or(F64.is_lt(F64.add(F64.add(br, rr), t2), dd), F64.is_lt(dd, F64.sub(F64.sub(br, rr), t2)))
       +touch = Bool.or(F64.is_le(F64.abs(F64.sub(dd, F64.add(br, rr))), t2), F64.is_le(F64.abs(F64.sub(dd, F64.sub(br, rr))), t2))
-      Bool.and(ax_par(a, vunit3(v)), Bool.or(apart, Bool.and(touch, near_pt(sv, q, reach))))
+      +perp = F64.is_le(F64.abs(vdot3(vunit3(v), au)), 1.0e-12f64)
+      Bool.or(Bool.and(ax_par(a, vunit3(v)), Bool.or(apart, Bool.and(touch, near_pt(sv, q, reach)))),
+        Bool.and(perp, ln_tor_perp(p, vunit3(v), cp, au, br, rr, t2, sv, bf, be)))
     case M.M_cy{+c, +a, +r}:
       +w = vsub3(p, SO.pt_of(c))
       +au = vunit3(SO.dr_of(a))
@@ -954,7 +978,7 @@ def edge_tan_go(g: G.GVal, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +be: List<&
   match g:
     case G.GV_ln{w}:
       G.Ln{+p, +v} = w
-      ln_sec(SO.fd_im(fd), p, v, sv, tol)
+      ln_sec(SO.fd_im(fd), p, v, sv, SO.fd_bx(fd), be, tol)
     case _: circ_tan_go(eg_circ(g, tol), fd, sv, be, tol)
 
 def circ_tan(+x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +tol: F64) -> Bool:

@@ -1,0 +1,10 @@
+$ threads 13
+threads node 13
+thread cone_tap0 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c14.wall.0.0 status=certified
+thread cone_tap1 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c15.wall.0.0 status=certified
+thread cone_tap2 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c16.wall.0.0 status=certified
+thread cone_tap3 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c17.wall.0.0 status=certified
+thread cone_tap4 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c18.wall.0.0 status=certified
+thread cone_tap5 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c19.wall.0.0 status=certified
+thread cone_tap6 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c20.wall.0.0 status=certified
+thread cone_tap7 M6x1 6H z=[108, 116] length=8 internal minor=[4.917, 5.153] model=5 face=n13.c21.wall.0.0 status=certified

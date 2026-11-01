@@ -1,0 +1,58 @@
+# G4 grade
+
+Verdict: **FAIL** (44 pass, 4 fail, 2 deferred of 50)
+
+Graded from the exported STEP files with OCCT (build123d) as a reader only; no BendCAD call.
+
+| Check | Result | Numbers |
+|---|---|---|
+| part.impeller | PASS | solids=1, step_volume=2530977.8864984103, certified=[2530977.886533938, 2530977.8865404823], mass_kg=6.833640293545709, evidence="impeller.stp" |
+| stl.impeller | FAIL | rule="STL at manufacturing tolerance exported", evidence="missing impeller.stl" |
+| part.casing | PASS | solids=1, step_volume=5964252.019567476, certified=[5964252.021506769, 5964252.021518697], mass_kg=46.819378353604684, evidence="casing.stp" |
+| stl.casing | FAIL | rule="STL at manufacturing tolerance exported", evidence="missing casing.stl" |
+| part.cone | PASS | solids=1, step_volume=270838.3625174395, certified=[270838.3625117472, 270838.3625183767], mass_kg=2.1260811457619004, evidence="cone.stp" |
+| stl.cone | FAIL | rule="STL at manufacturing tolerance exported", evidence="missing cone.stl" |
+| part.pedestal | PASS | solids=1, step_volume=5574745.861736553, certified=[5574745.854806222, 5574745.854817372], mass_kg=43.761755014631945, evidence="pedestal.stp" |
+| stl.pedestal | PASS | triangles=30336, unpaired_edges=0, mesh_volume=5574748.589709556, step_volume=5574745.861736553, rule="closed, consistently oriented, volume within 1% of STEP", evidence="pedestal.stl" |
+| part.motor | PASS | solids=1, step_volume=18143292.663860224, certified=[18143292.647502676, 18143292.64753896], mass_kg=42.00000003782417, evidence="motor.stp" |
+| stl.motor | FAIL | rule="STL at manufacturing tolerance exported", evidence="missing motor.stl" |
+| part.key | PASS | solids=1, step_volume=2799.9999999999995, certified=[2799.9999999973065, 2800.0000000026935], mass_kg=0.021979999999999996, evidence="key.stp" |
+| stl.key | PASS | triangles=12, unpaired_edges=0, mesh_volume=2800.0, step_volume=2799.9999999999995, rule="closed, consistently oriented, volume within 1% of STEP", evidence="key.stl" |
+| part.washer | PASS | solids=1, step_volume=8552.985968504052, certified=[8552.985999398044, 8552.98599939838], mass_kg=0.06714093985275682, evidence="washer.stp" |
+| stl.washer | PASS | triangles=5040, unpaired_edges=0, mesh_volume=8552.844210250578, step_volume=8552.985968504052, rule="closed, consistently oriented, volume within 1% of STEP", evidence="washer.stl" |
+| part.screw_m10x25 | PASS | solids=1, step_volume=3669.273757098358, certified=[3669.273764655297, 3669.2737646626374], mass_kg=0.02880379899322211, evidence="screw_m10x25.stp" |
+| stl.screw_m10x25 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=3669.2078828333733, step_volume=3669.273757098358, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m10x25.stl" |
+| part.screw_m6x12 | PASS | solids=1, step_volume=734.7536802970726, certified=[734.7536817942928, 734.7536817957644], mass_kg=0.0057678163903320204, evidence="screw_m6x12.stp" |
+| stl.screw_m6x12 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=734.7402450274542, step_volume=734.7536802970726, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m6x12.stl" |
+| part.bolt_m10x16 | PASS | solids=1, step_volume=2675.5330816994597, certified=[2675.53308299501, 2675.5330829976733], mass_kg=0.02100293469134076, evidence="bolt_m10x16.stp" |
+| stl.bolt_m10x16 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=2675.5122507984033, step_volume=2675.5330816994597, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m10x16.stl" |
+| part.bolt_m12x25 | PASS | solids=1, step_volume=4931.875116509014, certified=[4931.875119424991, 4931.875119429009], mass_kg=0.03871521966459576, evidence="bolt_m12x25.stp" |
+| stl.bolt_m12x25 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=4931.828246981732, step_volume=4931.875116509014, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m12x25.stl" |
+| part.gasket | PASS | solids=1, step_volume=141450.4113032516, certified=[141450.41128737945, 141450.4112887946], mass_kg=0.16266797299873934, evidence="gasket.stp" |
+| stl.gasket | PASS | triangles=35368, unpaired_edges=0, mesh_volume=141450.46597172818, step_volume=141450.4113032516, rule="closed, consistently oriented, volume within 1% of STEP", evidence="gasket.stl" |
+| part.front_plate | PASS | solids=1, step_volume=959618.3255119082, certified=[959618.3255948024, 959618.3255950464], mass_kg=7.53300385526848, evidence="front_plate.stp" |
+| stl.front_plate | PASS | triangles=55520, unpaired_edges=0, mesh_volume=959602.4172954565, step_volume=959618.3255119082, rule="closed, consistently oriented, volume within 1% of STEP", evidence="front_plate.stl" |
+| part.bolt_m8x20 | PASS | solids=1, step_volume=1781.0086022809494, certified=[1781.0086033177108, 1781.0086033192006], mass_kg=0.013980917527905454, evidence="bolt_m8x20.stp" |
+| stl.bolt_m8x20 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=1780.9919375601382, step_volume=1781.0086022809494, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m8x20.stl" |
+| mass.total | PASS | step_mass_kg=149.84924344074554, certified=[149.84924336502954, 149.84924336536852] |
+| balance.static | PASS | com_offset_um=0.6889378727098621, permissible_um=8.232152228891138, grade="G2.5", rpm=2900.0, impeller_mass_kg=6.833640293545709, residual_gmm=4.707953606699777, permissible_gmm=56.25556717395259, claimed_um=null |
+| impeller.blades | PASS | blades=10, beta1_deg=[30.13326609960911, 30.136976474737615], beta2_deg=[29.999234691272456, 30.001988981312373], claimed=[30.133721067245446, 29.999999999999996], camber_radii=[203.368, 203.369, 203.372, 203.373] |
+| impeller.diameter | PASS | blade_tip_diameter_mm=[441.99330405903817, 442.0223202358718], disc_od_mm=454.0000002, claimed=[[441.99330405903817, 442.0223202358718], 442.0, 454.0] |
+| assembly.instances | PASS | solids=40, instances=40, mismatched=[] |
+| envelope | PASS | box_mm=[[-390.72184075039473, -520.0, -433.0000001], [630.5411818368827, 645.0000001, 153.0000001]], claimed=[[-390.7218406503961, -520.0000000000015, -433.00000000000125], [630.5411817368843, 645.0000000000014, 153.00000000000122]] |
+| outlet.flange | PASS | holes=14, claimed=14, centres=[[245.433465, -48.0], [245.433465, 12.333333], [245.433465, 72.666667], [245.433465, 133.0], [336.710394, -48.0], [336.710394, 133.0], [427.987323, -48.0], [427.987323, 133.0], [519.264253, -48.0], [519.264253, 133.0], [610.541182, -48.0], [610.541182, 12.333333], [610.541182, 72.666667], [610.541182, 133.0]] |
+| inlet.flange | PASS | holes=12, pcd_mm=[482.0], claimed=[12, 482.0] |
+| clearance.cone | PASS | min_distance_mm=1.5, axial_overlap_mm=11.0, claimed=[1.5, 10.0] |
+| clearance.tongue | PASS | tongue_clearance_mm=26.436735459515674, fraction_of_d2=0.059811618686687044, claimed=26.436735459515717 |
+| clearance.back_wall | PASS | back_wall_clearance_mm=10.0, claimed=10.0 |
+| kernel_clearance.cone | DEFERRED | deferred="certified clearance moved after G6 by the owner (2026-10-31)", kernel=null, occt_mm=1.5, rule="certified lo <= OCCT distance, lo > 0", evidence="q/clear_impeller_cone.txt" |
+| kernel_clearance.casing | DEFERRED | deferred="certified clearance moved after G6 by the owner (2026-10-31)", kernel=null, occt_mm=10.0, rule="certified lo <= OCCT distance, lo > 0", evidence="q/clear_impeller_casing.txt" |
+| rotor.s200_k200000_c12 | PASS | case="rotor_s200_k200000_c12", kernel_rpm=6041.292600525679, grader_eb_rpm=6072.937193423234, rel=0.005238050031677307, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s200_k200000_c6 | PASS | case="rotor_s200_k200000_c6", kernel_rpm=6086.6854571501235, grader_eb_rpm=6127.817200287284, rel=0.006757658733431464, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s200_k20000_c12 | PASS | case="rotor_s200_k20000_c12", kernel_rpm=5364.650483248319, grader_eb_rpm=5402.73131648188, rel=0.007098474234709666, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s200_k20000_c6 | PASS | case="rotor_s200_k20000_c6", kernel_rpm=5377.594398171346, grader_eb_rpm=5405.530393553231, rel=0.005194887028182057, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s330_k200000_c12 | PASS | case="rotor_s330_k200000_c12", kernel_rpm=4960.507765564263, grader_eb_rpm=4939.946504317234, rel=0.004144991242582952, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s330_k200000_c6 | PASS | case="rotor_s330_k200000_c6", kernel_rpm=5152.705625211798, grader_eb_rpm=5178.683743451532, rel=0.005041646103869148, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s330_k20000_c12 | PASS | case="rotor_s330_k20000_c12", kernel_rpm=4781.718565122247, grader_eb_rpm=4757.033133434757, rel=0.005162460180644167, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| rotor.s330_k20000_c6 | PASS | case="rotor_s330_k20000_c6", kernel_rpm=4925.932047473874, grader_eb_rpm=4898.799572024029, rel=0.005508089674878817, rule="Euler-Bernoulli FE (40 el/segment, consistent mass) within 2% of the kernel Timoshenko result; >= 1.25 x 2900 rpm" |
+| interference.full | PASS | unexpected=[], overlaps=31, rule="only declared thread engagements and key fits overlap", evidence="q/interf_occt.json" |

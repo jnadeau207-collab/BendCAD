@@ -1,7 +1,7 @@
 {
- "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
- "passed": 62,
- "total": 62,
+ "binary_sha256": "c1fb8b1c8b0695552b5dd62d73b723cafb0d2dbc4ee12cd8b2e07199a622f96f",
+ "passed": 65,
+ "total": 65,
  "results": [
   {
    "name": "bracket.build",
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.03874969482421875
+   "seconds": 0.03790688514709473
   },
   {
    "name": "bracket.reopen",
@@ -52,12 +52,12 @@
   {
    "name": "bracket.mesh",
    "ok": true,
-   "triangles": 1636,
+   "triangles": 1040,
    "watertight": true,
    "euler": -8,
-   "mesh_volume": 96115.13967517373,
-   "rel_err": 0.00014465537761250357,
-   "sha256": "a48b755ccdedc2293a4af404bbd1de48a3f549c2f2eb0fabb2d8fdb5fceb4e93"
+   "mesh_volume": 96050.52002099357,
+   "rel_err": 0.0005277569185050038,
+   "sha256": "088cb5d379eaff4546d33094cddb1a84f209c04e99c2e71c08ad164d943cd468"
   },
   {
    "name": "bracket.delete",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.007640838623046875
+   "seconds": 0.007692098617553711
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.0047299861907958984
+   "seconds": 0.00392460823059082
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -104,9 +104,9 @@
    "triangles": 124,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 935.6902472002267,
-   "rel_err": 0.007201813034709512,
-   "sha256": "1cfa90a91482ca4b74eff2e395693dc2c245802a2d52feed97bf36b85d01c18e"
+   "mesh_volume": 936.4335456774164,
+   "rel_err": 0.006413148855793403,
+   "sha256": "6257fcb806c7f9e535ec403c265c64efe9cb0c7c49c358b619a9c0c9bd3102cb"
   },
   {
    "name": "primitive.cone",
@@ -116,17 +116,17 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.006068706512451172
+   "seconds": 0.005316495895385742
   },
   {
    "name": "primitive.cone.mesh",
    "ok": true,
-   "triangles": 126,
+   "triangles": 64,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 2090.4955010811573,
-   "rel_err": 0.00186192247469554,
-   "sha256": "7e4389bd52c5e2841504054760ad393ad0d154e5aa2878b6230ef1461058cff7"
+   "mesh_volume": 2080.9634348387012,
+   "rel_err": 0.006413148855794343,
+   "sha256": "f64c30a53794ef1a8ed42172625886efb1601ee25930e80aa816e1f397239243"
   },
   {
    "name": "primitive.sphere",
@@ -136,17 +136,17 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.004926204681396484
+   "seconds": 0.0044558048248291016
   },
   {
    "name": "primitive.sphere.mesh",
    "ok": true,
-   "triangles": 5166,
+   "triangles": 1856,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 4175.055615149298,
-   "rel_err": 0.003278891748122998,
-   "sha256": "3cb5d433e7a01257023001f69ee5cb05248620b573927c17b4e6a1acd76e61dc"
+   "mesh_volume": 4150.353492335909,
+   "rel_err": 0.009176089174043901,
+   "sha256": "7452207f0c8513f3a736434ad6088c117b7f4069764ee42f172338daf2052474"
   },
   {
    "name": "primitive.torus",
@@ -156,17 +156,17 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.009063243865966797
+   "seconds": 0.008809089660644531
   },
   {
    "name": "primitive.torus.mesh",
    "ok": true,
-   "triangles": 42336,
+   "triangles": 3840,
    "watertight": true,
    "euler": 0,
-   "mesh_volume": 59155.172235117825,
-   "rel_err": 0.001054655095250966,
-   "sha256": "1a3668e3054a9f944db639abb9f0b4e5c7ad45a75b8aa95464ce64b9b9aea6c9"
+   "mesh_volume": 58729.68259263877,
+   "rel_err": 0.008239840795839826,
+   "sha256": "364bb61e802689c0538ca6725bdd1a64dc15672b69b4ec90462df235136fe9bc"
   },
   {
    "name": "revolve.cavity",
@@ -181,7 +181,7 @@
    "name": "revolve.cavity.mesh",
    "ok": true,
    "euler": 2,
-   "mesh_volume": 140945.9173904058
+   "mesh_volume": 140041.08687627772
   },
   {
    "name": "feature.counterbore",
@@ -195,12 +195,12 @@
   {
    "name": "feature.counterbore.mesh",
    "ok": true,
-   "triangles": 348,
+   "triangles": 272,
    "watertight": true,
    "euler": 0,
-   "mesh_volume": 22898.615566035638,
-   "rel_err": 0.00019464266078196698,
-   "sha256": "39e6b026aa49734e65bc27e2ae18d28c45dc1c9ad189763144ef62e2cab1528c"
+   "mesh_volume": 22901.251306405153,
+   "rel_err": 0.00030976985654761636,
+   "sha256": "5680f476795fd129af585633508bad0099f8bba4e183b74c00ffa44cd0ba2d2f"
   },
   {
    "name": "feature.island",
@@ -214,12 +214,12 @@
   {
    "name": "feature.island.mesh",
    "ok": true,
-   "triangles": 520,
+   "triangles": 268,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 9358.474366933151,
-   "rel_err": 7.161530852704606e-06,
-   "sha256": "2df420bd943d83d89e5d272999b883738a0afe233dfd2767b642a24ceabda390"
+   "mesh_volume": 9378.554847741947,
+   "rel_err": 0.00215287714949359,
+   "sha256": "50f8c7e27c8f594cecacc46aab651e83206c5b2f3da6e48fd72fef27726796ce"
   },
   {
    "name": "move.rotate_translate",
@@ -480,9 +480,9 @@
    "triangles": 144,
    "watertight": true,
    "euler": 0,
-   "mesh_volume": 5625.723901119908,
-   "rel_err": 0.0004828410567840319,
-   "sha256": "492f933b28bfdeade35f6f2eaed40762edf1d8f70e14ebe011f85254b953fb6d"
+   "mesh_volume": 5625.426581729036,
+   "rel_err": 0.00042996555949529415,
+   "sha256": "39fa9c6c6806786de71697e1054ed32e916db5cc782c8a5ca56f7576ac399733"
   },
   {
    "name": "rotate.arc_bbox_encloses",
@@ -601,8 +601,8 @@
   {
    "name": "perf.holes100",
    "ok": true,
-   "build_s": 0.052,
-   "tess_s": 1.592,
+   "build_s": 0.049,
+   "tess_s": 1.982,
    "budget": [
     1.0,
     5.0
@@ -614,14 +614,14 @@
    "triangles": 13212,
    "watertight": true,
    "euler": -198,
-   "mesh_volume": 92743.43406719484,
-   "rel_err": 0.0017595618425267773
+   "mesh_volume": 92725.59490374179,
+   "rel_err": 0.0015668737806266411
   },
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.196,
-   "tess_s": 9.01,
+   "build_s": 0.41,
+   "tess_s": 11.085,
    "budget": [
     2.0,
     20.0
@@ -633,8 +633,36 @@
    "triangles": 52812,
    "watertight": true,
    "euler": -798,
-   "mesh_volume": 297373.7362687795,
-   "rel_err": 0.002196009743874673
+   "mesh_volume": 297302.3796149633,
+   "rel_err": 0.0019555266581101085
+  },
+  {
+   "name": "sweep.wall_fillet_over_cap_rotated",
+   "ok": true,
+   "seconds": 0.6468334197998047,
+   "out": "53246] area=[25675.061988726535, 25675.061988779853] bbox=[-115.40827724624339, -26.619591769786034]x[71.763223807191, 223.41368504936685]x[-1.0000000000003972, 55.00000000000041] vertices=64 edges=120 faces=58 solids=1 genus=0 linear_uncertainty=3.968624274530555e-13 | proof: wall-sweep\n\ncommitted\n",
+   "check": "edge-face-uncertain 67 4\nedge-face-uncertain 67 53\nedge-face-uncertain 116 53\nedge-face-uncertain 88 18\nedge-face-uncert",
+   "defects": []
+  },
+  {
+   "name": "profile.hole_inside_arc_outer",
+   "ok": true,
+   "volume": [
+    164123.53108509388,
+    164123.53108648836
+   ],
+   "exact": 164123.53108579112,
+   "out": "09388, 164123.53108648836] area=[116079.94788614624, 116079.94788702867] bbox=[-200.0000000000004, 200.0000000000004]x[-200.0000000000004, 200.0000000000004]x[-3.552713678800502e-13, 3.000000000000356] vertices=12 edges=14 faces=6 solids=1 genus=2 linear_uncertainty=3.552713678800501e-13\n\ncommitted\n"
+  },
+  {
+   "name": "profile.hole_in_arc_bulge",
+   "ok": true,
+   "volume": [
+    1911.8973186461965,
+    1911.897318650593
+   ],
+   "exact": 1911.8973186483947,
+   "out": ", 1911.897318650593] area=[2182.2689940866617, 2182.2689940909504] bbox=[-8.881784197001255e-14, 50.0000000000001]x[-10.000000000000092, 10.000000000000092]x[-8.881784197001255e-14, 2.0000000000000897] vertices=12 edges=16 faces=7 solids=1 genus=1 linear_uncertainty=8.881784197001252e-14\n\ncommitted\n"
   }
  ]
 }

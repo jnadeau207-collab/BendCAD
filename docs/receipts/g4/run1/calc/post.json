@@ -1,0 +1,34 @@
+{
+ "impeller_mass_kg": 6.8336402936505065,
+ "impeller_volume_m3": 0.0025309778865372245,
+ "centroid_z_m": 0.019391191890488026,
+ "blade_mass_total_kg": 1.0549522999850678,
+ "stresses": {
+  "running": {
+   "hub_bore_hoop_pa": 10042111.206889212,
+   "shroud_inner_hoop_pa": 12879853.91674292,
+   "ring_free_pa": 7460037.09148497,
+   "blade_load_share_pa": 2216160.927159171,
+   "factor_on_proof": 18.633751714219102,
+   "tip_speed": 67.11489105618995
+  },
+  "overspeed_120": {
+   "hub_bore_hoop_pa": 14460640.137920463,
+   "shroud_inner_hoop_pa": 18546989.640109807,
+   "ring_free_pa": 10742453.411738357,
+   "blade_load_share_pa": 3191271.7351092063,
+   "factor_on_proof": 12.940105357096597,
+   "tip_speed": 80.53786926742794
+  }
+ },
+ "bearing": {
+  "mass_impeller": 6.8336402936505065,
+  "load_point_from_shoulder": 0.051391191890488026,
+  "weight_n": 67.03801128071147,
+  "unbalance_n_at_grade": 5.188224251420176,
+  "radial_n": 72.22623553213165,
+  "permissible_n": 1049.009152978682,
+  "ratio": 0.0688518639966523,
+  "source": "ABB GB 12-2004 cast iron 112M 2-pole, 20,000 h: FX0 1258 N, FXmax 1014 N, E 60 mm"
+ }
+}

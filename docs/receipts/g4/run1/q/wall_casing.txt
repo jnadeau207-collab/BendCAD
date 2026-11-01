@@ -1,0 +1,2 @@
+$ wall 2
+min-wall [0, 2.999999999999886] certified lo=branch-and-bound hi=sampled antipodal=30deg faces=143 pairs=9760

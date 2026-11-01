@@ -132,15 +132,15 @@
   "ok": true
  },
  {
+  "name": "segs_arc_5_full",
+  "ok": true
+ },
+ {
   "name": "segs_edge_cc_full",
   "ok": true
  },
  {
   "name": "segs_edge_ln10",
-  "ok": true
- },
- {
-  "name": "segs_len_10_1",
   "ok": true
  },
  {
@@ -161,10 +161,6 @@
  },
  {
   "name": "tri_strip",
-  "ok": true
- },
- {
-  "name": "two_pi_bits",
   "ok": true
  }
 ]

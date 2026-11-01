@@ -198,11 +198,11 @@ def tri_add__got() -> Nat:
 def tri_add__want() -> Nat:
   7n
 
-def segs_len_10_1__got() -> Nat:
-  M10.segs_len(10.0f64, 1.0f64)
+def segs_arc_5_full__got() -> Nat:
+  M10.segs_arc(5.0f64, 6.283185307179586f64, 1.0f64)
 
-def segs_len_10_1__want() -> Nat:
-  11n
+def segs_arc_5_full__want() -> Nat:
+  5n
 
 def segs_ang_pi_02__got() -> Nat:
   M10.segs_ang(3.141592653589793f64, 0.2f64)
@@ -229,32 +229,26 @@ def cc_span_full__got() -> U64:
   F64.bits(M10.cc_span(G.Dom{F64.neg(1.0f64), 1.0f64}))
 
 def cc_span_full__want() -> U64:
-  4618760256179416344u64
+  4618760256179416345u64
 
 def cc_span_part__got() -> U64:
   F64.bits(M10.cc_span(G.Dom{0.0f64, 1.0f64}))
 
 def cc_span_part__want() -> U64:
-  4616189618054758400u64
+  4614256656552045849u64
 
 def segs_edge_ln10__got() -> Nat:
   M10.segs_edge(G.GV_ln{G.Ln{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}}},
     G.Dom{0.0f64, 10.0f64}, M10.q_preset(1u64))
 
 def segs_edge_ln10__want() -> Nat:
-  11n
+  1n
 
 def segs_edge_cc_full__got() -> Nat:
   M10.segs_edge(G.GV_cc{unit_circle()}, G.Dom{F64.neg(1.0f64), 1.0f64}, M10.q_preset(1u64))
 
 def segs_edge_cc_full__want() -> Nat:
   32n
-
-def two_pi_bits__got() -> U64:
-  F64.bits(M10.two_pi())
-
-def two_pi_bits__want() -> U64:
-  4618760256179416344u64
 
 def q_display_tag__got() -> U64:
   M10.q_display()

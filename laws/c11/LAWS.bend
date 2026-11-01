@@ -263,8 +263,7 @@ law dist_bd_boundary:
 
 law wall_rep_empty:
   for +x: QD.Wx
-  for +cert: Bool
-  {QD.wall_rep([], x, cert) == "min-wall none status=certified reason=all-faces-adjacent" : String}
+  {QD.wall_rep([], x) == "min-wall none status=certified reason=all-faces-adjacent" : String}
 
 law wall_body_noface:
   for +b: M.Body

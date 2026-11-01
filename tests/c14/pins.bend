@@ -983,13 +983,13 @@ def nodes_err_ok__want() -> String:
   ""
 
 def q_parse_err__got() -> String:
-  AS.asm_q_go(empty_part(), AS.AR_err{"w", "f"}, rq1())
+  AS.asm_q_go(empty_part(), AS.AR_err{"w", "f"}, rq1(), [])
 
 def q_parse_err__want() -> String:
   "error invalid-input | asm | why: w | fix: f"
 
 def q_unknown_node__got() -> String:
-  AS.asm_q_go(empty_part(), AS.AR_ok{pasm([ia0()], [])}, rq1())
+  AS.asm_q_go(empty_part(), AS.AR_ok{pasm([ia0()], [])}, rq1(), [])
 
 def q_unknown_node__want() -> String:
   "error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval)"
@@ -1001,49 +1001,49 @@ def ex_ok_vals__want() -> String:
   "100"
 
 def explode_go_no__got() -> String:
-  AS.asm_explode_go(False{}, empty_part(), [], 0.0f64, 0.0f64, 0.0f64, 0.0f64)
+  AS.asm_explode_go(False{}, empty_part(), [], 0.0f64, 0.0f64, 0.0f64, 0.0f64, [])
 
 def explode_go_no__want() -> String:
   "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)"
 
 def explode_go_yes__got() -> String:
-  AS.asm_explode_go(True{}, empty_part(), ["explode", "0", "0", "1", "5", "(assembly (inst a 1 0 0 0 0))"], 0.0f64, 0.0f64, 1.0f64, 5.0f64)
+  AS.asm_explode_go(True{}, empty_part(), ["explode", "0", "0", "1", "5", "(assembly (inst a 1 0 0 0 0))"], 0.0f64, 0.0f64, 1.0f64, 5.0f64, [])
 
 def explode_go_yes__want() -> String:
   "error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval)"
 
 def explode_v_full__got() -> String:
-  AS.asm_explode_v(empty_part(), ["explode", "0", "0", "1", "5", "(assembly (inst a 1 0 0 0 0))"])
+  AS.asm_explode_v(empty_part(), ["explode", "0", "0", "1", "5", "(assembly (inst a 1 0 0 0 0))"], [])
 
 def explode_v_full__want() -> String:
   "error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval)"
 
 def explode_v_bad__got() -> String:
-  AS.asm_explode_v(empty_part(), ["explode", "0", "0", "0", "5", "(assembly (inst a 1 0 0 0 0))"])
+  AS.asm_explode_v(empty_part(), ["explode", "0", "0", "0", "5", "(assembly (inst a 1 0 0 0 0))"], [])
 
 def explode_v_bad__want() -> String:
   "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)"
 
 def faces_go_needy__got() -> String:
-  AS.asm_faces_go(True{}, empty_part(), [], "")
+  AS.asm_faces_go(True{}, empty_part(), [], "", [])
 
 def faces_go_needy__want() -> String:
   "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)"
 
 def faces_go_yes__got() -> String:
-  AS.asm_faces_go(False{}, empty_part(), ["faces", "b", "(assembly (inst a 1 0 0 0 0))"], "b")
+  AS.asm_faces_go(False{}, empty_part(), ["faces", "b", "(assembly (inst a 1 0 0 0 0))"], "b", [])
 
 def faces_go_yes__want() -> String:
   "error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval)"
 
 def faces_v_full__got() -> String:
-  AS.asm_faces_v(empty_part(), ["faces", "b", "(assembly (inst a 1 0 0 0 0))"])
+  AS.asm_faces_v(empty_part(), ["faces", "b", "(assembly (inst a 1 0 0 0 0))"], [])
 
 def faces_v_full__want() -> String:
   "error invalid-input | asm | why: unknown-node a | fix: name a node from the design (eval)"
 
 def faces_v_needy__got() -> String:
-  AS.asm_faces_v(empty_part(), ["faces"])
+  AS.asm_faces_v(empty_part(), ["faces"], [])
 
 def faces_v_needy__want() -> String:
   "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)"
@@ -1055,31 +1055,31 @@ def verb_codes__want() -> String:
   "1,2,3,4,5,0"
 
 def verb_solve_empty__got() -> String:
-  AS.asm_verb(1u64, empty_part(), ["solve"])
+  AS.asm_verb(1u64, empty_part(), ["solve"], [])
 
 def verb_solve_empty__want() -> String:
   "error invalid-input | asm | why: assembly-parse-failed | fix: write one (assembly ...) form"
 
 def verb_unknown__got() -> String:
-  AS.asm_verb(99u64, empty_part(), ["bogus"])
+  AS.asm_verb(99u64, empty_part(), ["bogus"], [])
 
 def verb_unknown__want() -> String:
   "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..."
 
 def go_bogus__got() -> String:
-  AS.asm_go(empty_part(), ["bogus"])
+  AS.asm_go(empty_part(), ["bogus"], [])
 
 def go_bogus__want() -> String:
   "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..."
 
 def go_solve_empty__got() -> String:
-  AS.asm_go(empty_part(), ["solve"])
+  AS.asm_go(empty_part(), ["solve"], [])
 
 def go_solve_empty__want() -> String:
   "error invalid-input | asm | why: assembly-parse-failed | fix: write one (assembly ...) form"
 
 def go_interf_parse__got() -> String:
-  AS.asm_go(empty_part(), ["interf", "(assembly (inst a 1 0 0 0))"])
+  AS.asm_go(empty_part(), ["interf", "(assembly (inst a 1 0 0 0))"], [])
 
 def go_interf_parse__want() -> String:
   "error invalid-input | asm | why: bad-instance | fix: write (inst NAME NODE TX TY TZ Q) with finite numbers and a turn code 0-5"

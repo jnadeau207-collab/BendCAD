@@ -1,0 +1,2 @@
+$ stl 10 /home/jesse/g4/export/bolt_m10x16.stl 3
+wrote /home/jesse/g4/export/bolt_m10x16.stl nverts 1272 ntris 2540 (sampled, not certified)

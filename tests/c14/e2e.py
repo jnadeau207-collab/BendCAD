@@ -161,7 +161,7 @@ def clear_certified():
     m = re.search(r'clearance \[(\S+), (\S+)\]', o)
     lo, hi = (float(m.group(1)), float(m.group(2))) if m else (None, None)
     ok = (lo is not None and abs(lo - 4.0) < 1e-6 and hi >= 4.0 - 1e-9
-          and 'lo=certified' in o)
+          and 'lo=branch-and-bound' in o)
     record('clear.certified', ok, lo=lo, hi=hi, expect=4.0, seconds=round(dt, 2), detail=o)
 
 

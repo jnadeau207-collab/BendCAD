@@ -209,11 +209,11 @@ def k2_sol(+code: U64, +p: M.Part, +a: A4.Asm, +s: A4.AS, +cs: List<&2, M.CE>, +
     case A4.AS_conf{+ids, +res}: A4.conf_rep(a, ids, res)
     case A4.AS_ok{+sx, +dof, +red, +res}: k2_solved(code, p, a, A4.place_all(A4.asm_insts(a), sx, cs, 0n), xs)
 
-def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>) -> String:
+def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
-      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       Bool.pick(String, String.eq(e, ""), k2_sol(code, p, a, A4.asm_solve(a, cs), cs, xs), e)
 
@@ -454,11 +454,11 @@ def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, 
     case False{}: e
     case True{}: ip_sol(A4.asm_solve(a, cs), a, cs, ds)
 
-def ip_ar(+p: M.Part, +ar: A4.AR, +ds: List<&2, PD>) -> String:
+def ip_ar(+p: M.Part, +ar: A4.AR, +ds: List<&2, PD>, +old: List<&2, M.CE>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
-      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       ip_ok(String.eq(e, ""), e, a, cs, ds)
 
@@ -466,18 +466,18 @@ def top_items(+r: S.PS) -> List<&2, S.Sx>:
   S.PS{+ok, +xs} = r
   S.sx_xs(S.sx_nth(xs, 0n))
 
-def k2_interf(+p: M.Part, +xs: List<&2, String>) -> String:
+def k2_interf(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +its = top_items(S.parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))))
-  ip_ar(p, A4.asm_parse(S.sx_show(S.Sx_l{unpressed(its)})), presses(its))
+  ip_ar(p, A4.asm_parse(S.sx_show(S.Sx_l{unpressed(its)})), presses(its), old)
 
-def k2_pick(+i: Bool, +code: U64, +p: M.Part, +xs: List<&2, String>) -> String:
+def k2_pick(+i: Bool, +code: U64, +p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match i:
-    case True{}: k2_interf(p, xs)
-    case False{}: k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs)
+    case True{}: k2_interf(p, xs, old)
+    case False{}: k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs, old)
 
-def k2_asm(+p: M.Part, +xs: List<&2, String>) -> String:
+def k2_asm(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +code = k2_code(S.arg_at(xs, 0n))
-  k2_pick(U64.is_eq(code, 6u64), code, p, xs)
+  k2_pick(U64.is_eq(code, 6u64), code, p, xs, old)
 
 type AW is Data:
   AW{ ws: SW.WS, names: String }
@@ -513,13 +513,13 @@ def step_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>) -> AW:
     case False{}: aw_err(e)
     case True{}: step_sol(A4.asm_solve(a, cs), a, cs)
 
-def step_ar(+p: M.Part, +ar: A4.AR) -> AW:
+def step_ar(+p: M.Part, +ar: A4.AR, +old: List<&2, M.CE>) -> AW:
   match ar:
     case A4.AR_err{+why, +fix}: aw_err(why)
     case A4.AR_ok{+a}:
-      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), [])
+      +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
       step_ok(String.eq(e, ""), e, a, cs)
 
-def k2_step(+p: M.Part, +xs: List<&2, String>) -> AW:
-  step_ar(p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))))
+def k2_step(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> AW:
+  step_ar(p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), old)

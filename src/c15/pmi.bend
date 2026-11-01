@@ -10,7 +10,6 @@ import ../c06/build.bend as BD
 import ../c06/iv.bend as I
 import ../c11/qdist.bend as QD
 import ../c11/qinterf.bend as QI
-import ../c11/qaccel.bend as QA
 import ../c12/stepw.bend as SW
 import ../c12/blob.bend as BL
 
@@ -54,7 +53,7 @@ type FR is Data:
 type SR is Data:
   SR{ st: State, nom: F64, lo: F64, hi: F64 }
 type CI is Data:
-  CI{ hit: Bool, lo: F64, hi: F64, na: Nat, nb: Nat }
+  CI{ hit: Bool, lo: F64, hi: F64, hk: String, na: Nat, nb: Nat }
 type BT is Data:
   BT{ fns: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, vs: B.Tb<&2, Ty.Vertex>,
     es: B.Tb<&2, Ty.Edge>, ces: B.Tb<&2, Ty.Coedge>, lps: B.Tb<&2, Ty.Loop> }
@@ -700,10 +699,13 @@ def stks_rep(ss: List<&2, Stack>, +dms: List<&2, Dim>, +ts: List<&2, State>) -> 
 def clr_iv(+a: M.Body, +b: M.Body) -> CI:
   +sa = QI.sms_of(a)
   +sb = QI.sms_of(b)
-  CI{QI.rel_interf(a, b), QA.ab_ab_lo(QI.wbox(a), QI.wbox(b)),
-    QD.pts_min(sa, sb, V.dbl_max()), List.length(&2, V.Point, sa),
+  +hs = QD.pts_min(sa, sb, V.dbl_max())
+  +c = QI.rel_code(a, b)
+  +r = QD.clear_lo(a, b, hs)
+  CI{QD.ck_hit(c, a, b), I.i_lo(r),
+    I.i_hi(r), QD.hi_kind(I.i_hi(r), hs), List.length(&2, V.Point, sa),
     List.length(&2, V.Point, sb)}
-def clr_hit(+hit: Bool, +lo: F64, +hi: F64, +na: Nat, +nb: Nat, +s: State) -> String:
+def clr_hit(+hit: Bool, +lo: F64, +hi: F64, +hk: String, +na: Nat, +nb: Nat, +s: State) -> String:
   match hit:
     case True{}:
       State{+name, +grow} = s
@@ -712,11 +714,11 @@ def clr_hit(+hit: Bool, +lo: F64, +hi: F64, +na: Nat, +nb: Nat, +s: State) -> St
       State{+name, +grow} = s
       +e = I.iscale(I.I{lo, hi}, grow)
       "state " ++ name ++ " grow " ++ S.f_show(grow) ++ " clearance [" ++
-        S.f_show(I.i_lo(e)) ++ ", " ++ S.f_show(I.i_hi(e)) ++ "] estimated lo=certified samples=" ++
+        S.f_show(I.i_lo(e)) ++ ", " ++ S.f_show(I.i_hi(e)) ++ "] certified lo=branch-and-bound " ++ hk ++ " samples=" ++
         Nat.show(na) ++ "x" ++ Nat.show(nb) ++ "\n"
 def clr_st(+c: CI, +s: State) -> String:
-  CI{+hit, +lo, +hi, +na, +nb} = c
-  clr_hit(hit, lo, hi, na, nb, s)
+  CI{+hit, +lo, +hi, +hk, +na, +nb} = c
+  clr_hit(hit, lo, hi, hk, na, nb, s)
 def clr_rows(+c: CI, ts: List<&2, State>) -> List<&2, String>:
   match ts:
     case []: []
@@ -852,7 +854,7 @@ def rels_rep(+ts: List<&2, State>, +rel: String, +c: CI) -> String:
   zip_go(rel_rows(ts, rel), clr_rows(c, ts))
 def tol_rep(+c: CI, +rel: String, +rels: String, +ts: List<&2, State>, +p: M.Part, +ida: U64,
     +idb: U64) -> String:
-  CI{+hit, +lo, +hi, +na, +nb} = c
+  CI{+hit, +lo, +hi, +hk, +na, +nb} = c
   "toler nodes " ++ U64.show(ida) ++ " " ++ U64.show(idb) ++ " states " ++
     Nat.show(List.length(&2, State, ts)) ++ "\nnominal relation:\n" ++ rels ++
     "\n" ++ rels_rep(ts, rel, c) ++ env_rep(lo, hi, pmi_w(p)) ++ env_rel(pmi_w(p), rel)

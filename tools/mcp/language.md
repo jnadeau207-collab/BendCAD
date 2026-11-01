@@ -274,7 +274,10 @@ Any count may be `any`. The kernel measures every field from the result
   0.2 rad), 2 (fine: 0.25 mm, 0.05 rad) or 3 (manufacturing:
   0.05 mm, 0.01 rad); `chord`, `angle`, `maxTris` and
   `profile` (`display` or `manufacturing`) override the preset.
-  Shared edges share samples, indices are valid, and every edge
+  `chord` is the chordal deviation (sagitta) a segment may have from
+  its curve, so straight edges stay single segments and a circle of
+  radius r gets at least span*sqrt(r/(8*chord)) segments; `angle` caps
+  the turn per segment. Shared edges share samples, indices are valid, and every edge
   of a closed solid belongs to exactly two triangles. The reply
   names vertex/triangle counts, the pre-build estimate, and the
   sampled chord/angle maxima, labeled sampled, not certified.
@@ -335,12 +338,30 @@ Any count may be `any`. The kernel measures every field from the result
   `certified` or `estimated`).
 - `clearance A B`: clearance between the solids of two nodes. Proven
   interference answers `clearance 0` with `status=certified`; otherwise
-  the answer is an interval `[lo, hi]` with `status=estimated` and a
-  certified lower bound (`lo=certified`).
-- `wall NODE`: minimum wall thickness by the qualified exhaustive method:
-  every non-adjacent face pair contributes a certified lower bound, and
-  samples contribute the upper bound (`status=estimated lo=certified`,
-  with face/pair/prune counts). Faces sharing a vertex are adjacent and
+  the answer is a certified interval `[lo, hi]` that encloses the minimum
+  boundary distance, tagged `state=inside` when one solid lies inside the
+  other. A certified-empty exact intersection proves the solids disjoint
+  before the search starts. `lo` comes from branch-and-bound over face
+  pairs (box gaps, interval distances to each face's analytic surface, the
+  exact radial bound for coaxial cylinders, and for a cylinder against a
+  coaxial perpendicular plane the plane face's radial range from its
+  edges, exact for coaxial circle edges), `hi` from the closest sampled
+  boundary points (`hi=sampled`) or, when tighter, a witness pair the
+  search finds by projecting box centres onto both faces and confirming
+  each point lies on its face (`hi=witness`).
+- `wall NODE`: minimum wall thickness, certified. The wall is the
+  shortest antipodal chord between two non-adjacent faces: points p and q
+  whose chord lies within 30 degrees of the inward normal at both ends, so
+  a gap across air (a slot, a passage) or two coplanar faces split by a
+  sliver never count. `lo` comes from branch-and-bound over face-pair
+  boxes (box gaps, interval distances to each face's analytic surface,
+  and interval normals that rule out antipodal chords); `hi` is the
+  shortest sampled antipodal chord (`lo=branch-and-bound hi=sampled
+  antipodal=30deg`), a tighter antipodal witness pair found by the search
+  (`hi=witness`), or the bounding-box diagonal when no sample pair
+  qualifies (`hi=bounding-diagonal no-sampled-witness`). A face without
+  an analytic surface falls back to an estimate (`status=estimated
+  lo=estimated boxes-uncertain`). Faces sharing a vertex are adjacent and
   excluded; a solid with no non-adjacent pair answers `min-wall none`.
   A depth or plane argument outside its domain is `invalid-input` and
   publishes nothing, as do all query failures.

@@ -1,0 +1,13 @@
+{
+ "label": "COMPUTED",
+ "method": "blade as a clamped-clamped plate strip of span b (hub to shroud), Euler-Bernoulli, first mode 22.373/(2 pi) sqrt(E t^2 / (12 rho)) / b^2 (Blevins, Formulas for Natural Frequency and Mode Shape, table 8-1)",
+ "assumptions": "E=70 GPa, rho=2700 kg/m3 (6082-T6), t=4 mm, b=53.93 mm; ignores centrifugal stiffening (raises f) and root fillets (raise f); disc and shroud nodal-diameter modes not covered",
+ "blade_f1_hz": 7197.583860015787,
+ "excitation_hz": {
+  "x1": 48.333333333333336,
+  "x2": 96.66666666666667,
+  "bpf": 483.3333333333333
+ },
+ "margin_vs_bpf": 13.891552813825767,
+ "margin_vs_2x": 73.45776406912883
+}

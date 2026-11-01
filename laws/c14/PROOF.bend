@@ -436,38 +436,38 @@ def Laws.nodes_err_nil(ml, cs):
 def Laws.nodes_err_cons(i, t, ml, cs):
   {==}
 
-def Laws.asm_q_parse_err(p, why, fix, rq):
+def Laws.asm_q_parse_err(p, why, fix, rq, old):
   {==}
 
-def Laws.asm_q_ok(p, il, ml, rq):
+def Laws.asm_q_ok(p, il, ml, rq, old):
   {==}
 
-def Laws.explode_go_no(p, xs, dx, dy, dz, gap):
+def Laws.explode_go_no(p, xs, dx, dy, dz, gap, old):
   {==}
 
-def Laws.explode_go_yes(p, xs, dx, dy, dz, gap):
+def Laws.explode_go_yes(p, xs, dx, dy, dz, gap, old):
   {==}
 
-def Laws.faces_go_needy(p, xs, nm):
+def Laws.faces_go_needy(p, xs, nm, old):
   {==}
 
-def Laws.faces_go_yes(p, xs, nm):
+def Laws.faces_go_yes(p, xs, nm, old):
   {==}
 
-def Laws.asm_verb_solve(p, xs):
+def Laws.asm_verb_solve(p, xs, old):
   {==}
 
-def Laws.asm_verb_interf(p, xs):
+def Laws.asm_verb_interf(p, xs, old):
   {==}
 
-def Laws.asm_verb_clear(p, xs):
+def Laws.asm_verb_clear(p, xs, old):
   {==}
 
-def Laws.asm_verb_explode(p, xs):
+def Laws.asm_verb_explode(p, xs, old):
   {==}
 
-def Laws.asm_verb_faces(p, xs):
+def Laws.asm_verb_faces(p, xs, old):
   {==}
 
-def Laws.asm_verb_unknown(p, xs):
+def Laws.asm_verb_unknown(p, xs, old):
   {==}

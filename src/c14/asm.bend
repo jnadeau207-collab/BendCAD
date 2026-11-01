@@ -738,11 +738,11 @@ def nodes_err(+il: List<&2, Inst>, +ml: List<&2, Mate>, +cs: List<&2, M.CE>) -> 
     case +i <> t: nodes_ce(M.ce_has(cs, inst_node(i)),
       M.nr_ok(M.ce_r(M.ce_find(cs, inst_node(i)))), i, nodes_err(t, ml, cs))
 
-def asm_q_go(+p: M.Part, +ar: AR, +rq: RQ) -> String:
+def asm_q_go(+p: M.Part, +ar: AR, +rq: RQ, +old: List<&2, M.CE>) -> String:
   match ar:
     case AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case AR_ok{+a}:
-      +cs = M.ev_for(p, inst_ids(asm_insts(a)), [])
+      +cs = M.ev_for(p, inst_ids(asm_insts(a)), old)
       +e = nodes_err(asm_insts(a), asm_mates(a), cs)
       Bool.pick(String, String.eq(e, ""), asm_out(a, asm_solve(a, cs), cs, rq), e)
 
@@ -751,40 +751,40 @@ def ex_ok(+dx: F64, +dy: F64, +dz: F64, +gap: F64) -> Bool:
     Bool.and(T.is_finite(gap), nzn(dx, dy, dz)))))
 
 def asm_explode_go(+ok: Bool, +p: M.Part, +xs: List<&2, String>, +dx: F64, +dy: F64,
-    +dz: F64, +gap: F64) -> String:
+    +dz: F64, +gap: F64, +old: List<&2, M.CE>) -> String:
   match ok:
     case False{}: "error invalid-input | asm explode | why: need DX DY DZ GAP finite with a nonzero direction | fix: asm explode DX DY DZ GAP (assembly ...)"
-    case True{}: asm_q_go(p, asm_parse(cat(sdrop(xs, 5n))), RQ{4u64, "", [dx, dy, dz, gap]})
+    case True{}: asm_q_go(p, asm_parse(cat(sdrop(xs, 5n))), RQ{4u64, "", [dx, dy, dz, gap]}, old)
 
-def asm_explode_v(+p: M.Part, +xs: List<&2, String>) -> String:
+def asm_explode_v(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +dx = sdec(S.arg_at(xs, 1n))
   +dy = sdec(S.arg_at(xs, 2n))
   +dz = sdec(S.arg_at(xs, 3n))
   +gap = sdec(S.arg_at(xs, 4n))
-  asm_explode_go(ex_ok(dx, dy, dz, gap), p, xs, dx, dy, dz, gap)
+  asm_explode_go(ex_ok(dx, dy, dz, gap), p, xs, dx, dy, dz, gap, old)
 
-def asm_faces_go(+e: Bool, +p: M.Part, +xs: List<&2, String>, +nm: String) -> String:
+def asm_faces_go(+e: Bool, +p: M.Part, +xs: List<&2, String>, +nm: String, +old: List<&2, M.CE>) -> String:
   match e:
     case True{}: "error invalid-input | asm faces | why: need an instance name | fix: asm faces INST (assembly ...)"
-    case False{}: asm_q_go(p, asm_parse(cat(sdrop(xs, 2n))), RQ{5u64, nm, []})
+    case False{}: asm_q_go(p, asm_parse(cat(sdrop(xs, 2n))), RQ{5u64, nm, []}, old)
 
-def asm_faces_v(+p: M.Part, +xs: List<&2, String>) -> String:
+def asm_faces_v(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +nm = S.arg_at(xs, 1n)
-  asm_faces_go(String.eq(nm, ""), p, xs, nm)
+  asm_faces_go(String.eq(nm, ""), p, xs, nm, old)
 
 def verb_code(+v: String) -> U64:
   Bool.pick(U64, String.eq(v, "solve"), 1u64, Bool.pick(U64, String.eq(v, "interf"), 2u64,
     Bool.pick(U64, String.eq(v, "clear"), 3u64, Bool.pick(U64, String.eq(v, "explode"), 4u64,
       Bool.pick(U64, String.eq(v, "faces"), 5u64, 0u64)))))
 
-def asm_verb(+code: U64, +p: M.Part, +xs: List<&2, String>) -> String:
+def asm_verb(+code: U64, +p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match code:
-    case 1u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{1u64, "", []})
-    case 2u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{2u64, "", []})
-    case 3u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{3u64, "", []})
-    case 4u64: asm_explode_v(p, xs)
-    case 5u64: asm_faces_v(p, xs)
+    case 1u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{1u64, "", []}, old)
+    case 2u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{2u64, "", []}, old)
+    case 3u64: asm_q_go(p, asm_parse(cat(sdrop(xs, 1n))), RQ{3u64, "", []}, old)
+    case 4u64: asm_explode_v(p, xs, old)
+    case 5u64: asm_faces_v(p, xs, old)
     case _: "error invalid-input | asm | why: unknown verb | fix: asm solve|interf|clear|explode|faces ..."
 
-def asm_go(+p: M.Part, +xs: List<&2, String>) -> String:
-  asm_verb(verb_code(S.arg_at(xs, 0n)), p, xs)
+def asm_go(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
+  asm_verb(verb_code(S.arg_at(xs, 0n)), p, xs, old)

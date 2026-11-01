@@ -33,34 +33,30 @@ type LA is Data:
 def nf(+n: Nat) -> F64:
   U64.to_f64(U64.from_nat(n))
 
-def rq_pts(+w: G.RQBez, +j: Nat, +k: Nat) -> List<&2, V.Point>:
+def rq_pts(+w: G.RQBez, +j: Nat, +k: Nat, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
-    case 0n: []
-    case 1n+i: List.append(&2, V.Point, rq_pts(w, i, k), [G.gres_p(GO.rqb_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n)))))])
+    case 0n: acc
+    case 1n+i: rq_pts(w, i, k, G.gres_p(GO.rqb_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n))))) <> acc)
 
-def cc_pts(+w: G.Circle3, +j: Nat, +n: Nat, +lo: F64, +hi: F64) -> List<&2, V.Point>:
+def cc_pts(+w: G.Circle3, +j: Nat, +n: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
-    case 0n: []
-    case 1n+i:
-      List.append(&2, V.Point, cc_pts(w, i, n, lo, hi),
-        [G.gres_p(GO.circ_eval(w, F64.add(lo, F64.div(F64.mul(F64.sub(hi, lo), nf(j)), nf(n)))))])
+    case 0n: acc
+    case 1n+i: cc_pts(w, i, n, lo, hi, G.gres_p(GO.circ_eval(w, M10.cc_par(lo, hi, F64.div(nf(j), nf(n))))) <> acc)
 
-def bz_pts(+w: G.Bez3, +j: Nat, +k: Nat) -> List<&2, V.Point>:
+def bz_pts(+w: G.Bez3, +j: Nat, +k: Nat, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
-    case 0n: []
-    case 1n+i:
-      List.append(&2, V.Point, bz_pts(w, i, k),
-        [G.gres_p(GO.bez3_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n)))))])
+    case 0n: acc
+    case 1n+i: bz_pts(w, i, k, G.gres_p(GO.bez3_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n))))) <> acc)
 
 def rq_go(+w: G.RQBez, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
   +s = M10.segs_edge(G.GV_rq{w}, d, q)
   +m = Nat.sub(s, 1n)
-  rq_pts(w, m, m)
+  rq_pts(w, m, m, [])
 
 def cc_go2(+w: G.Circle3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
   +s = M10.segs_edge(G.GV_cc{w}, d, q)
-  cc_pts(w, Nat.sub(s, 1n), s, lo, hi)
+  cc_pts(w, Nat.sub(s, 1n), s, lo, hi, [])
 
 def pt_eq(+a: V.Point, +b: V.Point) -> Bool:
   V.Pt{+ax, +ay, +az} = a
@@ -74,7 +70,7 @@ def bz_line(+w: G.Bez3) -> Bool:
 def bz_pick(+line: Bool, +w: G.Bez3, +m: Nat) -> List<&2, V.Point>:
   match line:
     case True{}: []
-    case False{}: bz_pts(w, m, m)
+    case False{}: bz_pts(w, m, m, [])
 
 def bz_go(+w: G.Bez3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
   +s = M10.segs_edge(G.GV_bz{w}, d, q)
@@ -673,15 +669,21 @@ def ev_at(+c: G.GVal, +t: F64) -> V.Point:
     case G.GV_bz{+w}: G.gres_p(GO.bez3_eval(w, t))
     case _: pz()
 
-def seg_chord(+c: G.GVal, +ps: List<&2, V.Point>, +j: Nat, +tm: F64) -> F64:
-  M10.pt_dist(ev_at(c, tm), pt_mid(pt_nth(ps, j), pt_nth(ps, Nat.add(j, 1n))))
+def seg_tm(c: G.GVal, +lo: F64, +hi: F64, +f: F64) -> F64:
+  match c:
+    case G.GV_cc{w}: M10.cc_par(lo, hi, f)
+    case _: F64.add(lo, F64.mul(F64.sub(hi, lo), f))
 
-def segs_go(+c: G.GVal, +ps: List<&2, V.Point>, +lo: F64, +hi: F64, +s: Nat, +j: Nat, +acc: F64) -> F64:
-  match j:
-    case 0n: acc
-    case 1n+i:
-      +tm = F64.add(lo, F64.div(F64.mul(F64.sub(hi, lo), F64.add(nf(i), 0.5f64)), nf(s)))
-      segs_go(c, ps, lo, hi, s, i, F64.max(acc, seg_chord(c, ps, i, tm)))
+def segs_walk(+c: G.GVal, ps: List<&2, V.Point>, +a: V.Point, +lo: F64, +hi: F64, +s: Nat, +i: Nat, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +b <> +t:
+      segs_walk(c, t, b, lo, hi, s, Nat.add(i, 1n), F64.max(acc, M10.pt_dist(ev_at(c, seg_tm(c, lo, hi, F64.div(F64.add(nf(i), 0.5f64), nf(s)))), pt_mid(a, b))))
+
+def segs_go(+c: G.GVal, ps: List<&2, V.Point>, +lo: F64, +hi: F64, +s: Nat, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +a <> +t: segs_walk(c, t, a, lo, hi, s, 0n, acc)
 
 def edge_ang_step(+c: G.GVal, +d: G.Dom, +s: Nat) -> F64:
   match c:
@@ -690,12 +692,12 @@ def edge_ang_step(+c: G.GVal, +d: G.Dom, +s: Nat) -> F64:
 
 def meas_cc(+w: G.Circle3, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   G.Dom{+lo, +hi} = d
-  MQ{segs_go(G.GV_cc{w}, ps, lo, hi, s, s, 0.0f64), edge_ang_step(G.GV_cc{w}, d, s), s}
+  MQ{segs_go(G.GV_cc{w}, ps, lo, hi, s, 0.0f64), edge_ang_step(G.GV_cc{w}, d, s), s}
 
 def meas_bz_go(+line: Bool, +w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   match line:
     case True{}: MQ{0.0f64, 0.0f64, 1n}
-    case False{}: MQ{segs_go(G.GV_bz{w}, ps, 0.0f64, 1.0f64, s, s, 0.0f64), 0.0f64, s}
+    case False{}: MQ{segs_go(G.GV_bz{w}, ps, 0.0f64, 1.0f64, s, 0.0f64), 0.0f64, s}
 
 def meas_bz(+w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   meas_bz_go(bz_line(w), w, ps, s)
@@ -703,7 +705,7 @@ def meas_bz(+w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
 def meas_curve(+c: G.GVal, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   match c:
     case G.GV_ln{l}: MQ{0.0f64, 0.0f64, 1n}
-    case G.GV_rq{+w}: MQ{segs_go(G.GV_rq{w}, ps, 0.0f64, 1.0f64, s, s, 0.0f64), 0.0f64, s}
+    case G.GV_rq{+w}: MQ{segs_go(G.GV_rq{w}, ps, 0.0f64, 1.0f64, s, 0.0f64), F64.div(M10.rq_turn(w), nf(s)), s}
     case G.GV_cc{+w}: meas_cc(w, d, ps, s)
     case G.GV_bz{+w}: meas_bz(w, ps, s)
     case _: MQ{0.0f64, 0.0f64, s}
@@ -751,6 +753,56 @@ def obj_fs(ts: List<&2, Tri>) -> String:
       Tri{a, b, c} = t
       "f " ++ Nat.show(Nat.add(a, 1n)) ++ " " ++ Nat.show(Nat.add(b, 1n)) ++ " " ++ Nat.show(Nat.add(c, 1n)) ++ "\n" ++ obj_fs(r)
 
+def ek(+a: Nat, +b: Nat) -> U64:
+  U64.add(U64.mul(U64.from_nat(a), 4294967296u64), U64.from_nat(b))
+
+def dir_es(ts: List<&2, Tri>, +fw: List<&2, U64>, +bk: List<&2, U64>) -> List<&2, List<&2, U64>>:
+  match ts:
+    case []: [fw, bk]
+    case t <> +r:
+      Tri{+a, +b, +c} = t
+      dir_es(r, ek(a, b) <> ek(b, c) <> ek(c, a) <> fw, ek(b, a) <> ek(c, b) <> ek(a, c) <> bk)
+
+def u_cmp_go(+a: U64, +b: U64) -> B.Sgn:
+  B.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
+
+def u_cmp(a: U64, b: U64) -> B.Sgn:
+  u_cmp_go(a, b)
+
+def so_u(s: B.So<&2, U64>) -> List<&2, U64>:
+  B.So{ok, xs} = s
+  xs
+
+def u_same(xs: List<&2, U64>, ys: List<&2, U64>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case _: False{}
+    case +x <> +t:
+      match ys:
+        case []: False{}
+        case +y <> +u: Bool.and(U64.is_eq(x, y), u_same(t, u))
+
+def es_hd(xs: List<&2, List<&2, U64>>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +x <> t: x
+
+def es_tl(xs: List<&2, List<&2, U64>>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case x <> +t: es_hd(t)
+
+def closed(+ts: List<&2, Tri>) -> Bool:
+  +es = dir_es(ts, [], [])
+  u_same(so_u(B.msort(~U64, ~u_cmp, es_hd(es))), so_u(B.msort(~U64, ~u_cmp, es_tl(es))))
+
+def pri_out(ok: Bool, +r: M10.Tres) -> M10.Tres:
+  match ok:
+    case True{}: r
+    case False{}: M10.tres_fail("tess-mesh-not-closed")
+
 def pri_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   +br = M.bd_brep(b)
   +ps = all_pts(br, q)
@@ -758,9 +810,9 @@ def pri_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   +tb = B.tb_of(V.Point, all, pz())
   +mq = meas_go(Ty.brep_es(br), smps(Ty.brep_es(br), q), vx_pts(Ty.brep_vs(br)))
   +ts = faces_tris(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps))
-  M10.tres_ok(obj_vs(all, M.bd_pl(b)) ++ obj_fs(ts),
+  pri_out(closed(ts), M10.tres_ok(obj_vs(all, M.bd_pl(b)) ++ obj_fs(ts),
     List.length(&2, V.Point, all), List.length(&2, Tri, ts), est,
-    mq_chord(mq), mq_ang(mq), mq_n(mq))
+    mq_chord(mq), mq_ang(mq), mq_n(mq)))
 
 def pri_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   match ok:
@@ -796,8 +848,8 @@ def lath_pcs(ps: List<&2, F.Pc>, +q: M10.Q) -> List<&2, V.Vec2>:
             lath_pcs(t, q))
 
 def ring_segs(+r: F64, +q: M10.Q) -> Nat:
-  M10.nat_max(3n, M10.nat_max(M10.segs_len(F64.mul(M10.two_pi(), F64.abs(r)), M10.q_chord(q)),
-    M10.segs_ang(M10.two_pi(), M10.q_angle(q))))
+  M10.even_up(M10.nat_max(3n, M10.nat_max(M10.segs_arc(r, 6.283185307179586f64, M10.q_chord(q)),
+    M10.segs_ang(6.283185307179586f64, M10.q_angle(q)))))
 
 def rings_max(qs: List<&2, V.Vec2>, +q: M10.Q) -> Nat:
   match qs:
@@ -808,7 +860,7 @@ def ring_pts(i: Nat, +r: F64, +h: F64, +n: Nat) -> List<&2, V.Point>:
   match i:
     case 0n: []
     case 1n+(+j):
-      +t = F64.add(F64.neg(1.0f64), F64.div(F64.mul(2.0f64, nf(Nat.sub(n, Nat.add(j, 1n)))), nf(n)))
+      +t = M10.cc_par(F64.neg(1.0f64), 1.0f64, F64.div(nf(Nat.sub(n, Nat.add(j, 1n))), nf(n)))
       G.gres_p(GO.circ_eval(G.Cc{V.Pt{0.0f64, 0.0f64, h}, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}, r}, t)) <> ring_pts(j, r, h, n)
 
 def lath_ring(+q: V.Vec2, +n: Nat) -> List<&2, V.Point>:
@@ -878,10 +930,10 @@ def lath_est(+pcs: List<&2, V.Vec2>, +n: Nat) -> Nat:
   Nat.mul(Nat.mul(2n, n), List.length(&2, V.Vec2, pcs))
 
 def lath_chord(+pcs: List<&2, V.Vec2>, +n: Nat) -> F64:
-  F64.div(F64.mul(3.141592653589793f64, lath_rmax(pcs)), nf(n))
+  F64.div(F64.mul(4.934802200544679f64, lath_rmax(pcs)), F64.mul(nf(n), nf(n)))
 
 def lath_ang(+n: Nat) -> F64:
-  F64.div(M10.two_pi(), nf(n))
+  F64.div(6.283185307179586f64, nf(n))
 
 def la_add(a: LA, +l: F.Lp, +q: M10.Q) -> LA:
   LA{+b, +ps, +ts} = a

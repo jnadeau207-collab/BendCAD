@@ -1,0 +1,212 @@
+[
+ {
+  "part": "bolt_m10x16",
+  "triangles": 2540,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 2675.512,
+  "certified_volume": 2675.5330829963414,
+  "rel_err": 7.786185889618788e-06,
+  "bbox_mm": [
+   18.475,
+   16.0,
+   22.4
+  ],
+  "printable": true
+ },
+ {
+  "part": "bolt_m12x25",
+  "triangles": 2540,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 4931.828,
+  "certified_volume": 4931.875119427,
+  "rel_err": 9.503980561662575e-06,
+  "bbox_mm": [
+   20.785,
+   18.0,
+   32.5
+  ],
+  "printable": true
+ },
+ {
+  "part": "bolt_m8x20",
+  "triangles": 2540,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 1780.992,
+  "certified_volume": 1781.0086033184557,
+  "rel_err": 9.35748333074075e-06,
+  "bbox_mm": [
+   15.011,
+   13.0,
+   25.3
+  ],
+  "printable": true
+ },
+ {
+  "part": "casing",
+  "triangles": 101904,
+  "open_edges": 17660,
+  "repeated_edges": 0,
+  "mesh_volume": 5807026.536,
+  "certified_volume": 5964252.021512733,
+  "rel_err": 0.026361308225723072,
+  "bbox_mm": [
+   1021.263,
+   1122.368,
+   221.0
+  ],
+  "printable": false
+ },
+ {
+  "part": "cone",
+  "triangles": 33788,
+  "open_edges": 840,
+  "repeated_edges": 840,
+  "mesh_volume": 258562.279,
+  "certified_volume": 270838.362515062,
+  "rel_err": 0.04532623477551151,
+  "bbox_mm": [
+   400.0,
+   399.995,
+   52.0
+  ],
+  "printable": false
+ },
+ {
+  "part": "front_plate",
+  "triangles": 55520,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 959602.417,
+  "certified_volume": 959618.3255949244,
+  "rel_err": 1.6577736214044393e-05,
+  "bbox_mm": [
+   500.0,
+   499.994,
+   8.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "gasket",
+  "triangles": 35368,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 141450.466,
+  "certified_volume": 141450.41128808702,
+  "rel_err": 3.8659230930655513e-07,
+  "bbox_mm": [
+   405.108,
+   3.0,
+   221.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "impeller",
+  "triangles": 219808,
+  "open_edges": 24277,
+  "repeated_edges": 24277,
+  "mesh_volume": 2581637.073,
+  "certified_volume": 2530977.88653721,
+  "rel_err": 0.020015657444062335,
+  "bbox_mm": [
+   454.0,
+   453.994,
+   110.0
+  ],
+  "printable": false
+ },
+ {
+  "part": "key",
+  "triangles": 12,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 2800.0,
+  "certified_volume": 2800.0,
+  "rel_err": 0.0,
+  "bbox_mm": [
+   8.0,
+   7.0,
+   50.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "motor",
+  "triangles": 26850,
+  "open_edges": 2256,
+  "repeated_edges": 635,
+  "mesh_volume": 5799993.495,
+  "certified_volume": 18143292.647520818,
+  "rel_err": 0.68032299277784,
+  "bbox_mm": [
+   250.0,
+   309.998,
+   461.0
+  ],
+  "printable": false
+ },
+ {
+  "part": "pedestal",
+  "triangles": 30336,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 5574748.59,
+  "certified_volume": 5574745.854811797,
+  "rel_err": 4.905869845978911e-07,
+  "bbox_mm": [
+   400.0,
+   680.0,
+   277.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "screw_m10x25",
+  "triangles": 5060,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 3669.208,
+  "certified_volume": 3669.273764658967,
+  "rel_err": 1.7955004128706403e-05,
+  "bbox_mm": [
+   16.0,
+   16.0,
+   35.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "screw_m6x12",
+  "triangles": 5060,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 734.74,
+  "certified_volume": 734.7536817950286,
+  "rel_err": 1.82874450408327e-05,
+  "bbox_mm": [
+   10.0,
+   10.0,
+   18.0
+  ],
+  "printable": true
+ },
+ {
+  "part": "washer",
+  "triangles": 5040,
+  "open_edges": 0,
+  "repeated_edges": 0,
+  "mesh_volume": 8552.844,
+  "certified_volume": 8552.985999398212,
+  "rel_err": 1.6577736435432978e-05,
+  "bbox_mm": [
+   44.0,
+   43.999,
+   6.0
+  ],
+  "printable": true
+ }
+]

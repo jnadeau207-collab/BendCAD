@@ -1,0 +1,17 @@
+Source: ABB, Low Voltage General Purpose Motors, Cat. BU GB 12-2004, cast iron motor section
+URL: https://library.e.abb.com/public/611215d957dd8e6ec1257b13005710e4/Catal%20GPM_Sect4_GB_12_2004%20RevA.pdf
+Text extracted with pypdf 5.1.0; lines relevant to M2QA 112 M2A follow.
+
+--- technical data, 3000 r/min 400 V 50 Hz (output kW, type, product code, speed r/min, eff 100%, eff 75%, cos phi, IN A, Is/IN, TN Nm, Ts/TN, Tmax/TN)
+4 M2QA 112 M2A 3GQA 111 301-••A 2900 85.0 84.6 0.9 7.55 7.0 13.17 2.2 3.2
+--- 380/415 V data (..., J kg m2, weight kg, sound dB(A))
+4 M2QA 112 M2A 2885 85.0 0.92 7.82 2915 85.0 0.87 7.53 0.00671 42 67
+--- B5 flange dimensions (Type Poles AC AD D DB E EG F G GD HE L LA M N P S T); tolerances D m6, F h9, N j6
+112M 2-8 225 185 28 M10 60 22 8 24 7 270 395 11 215 180 250 15 4
+--- bearings (D-end, N-end)
+ 112M 2-8 6207 DDU C3 6206 DDU C3  
+--- permissible radial force, N, ball bearings, zero axial force, 50 Hz, IM B3 force sideways (size poles E X0@20kh Xmax@20kh X0@40kh Xmax@40kh); FR = FX0 - X/E (FX0 - FXmax)
+112 M 2 60 1258 1014 998 805
+--- permissible axial force N, zero radial force, 50 Hz; columns FAD FAZ for 2,4,6,8 poles at 20,000 h then 40,000 h
+IM B3: 112 920 770 1260 1050 1490 1270 1680 1470 690 540 950 740 1130 910 1270 1060
+IM V1: 112 840 840 1160 1160 1380 1380 1570 1570 620 620 850 850 1020 1020 1170 1170

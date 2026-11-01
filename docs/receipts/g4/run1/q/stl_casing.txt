@@ -1,0 +1,2 @@
+$ stl 2 /home/jesse/g4/export/casing.stl 3
+wrote /home/jesse/g4/export/casing.stl nverts 59744 ntris 101904 (sampled, not certified)

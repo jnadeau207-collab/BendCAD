@@ -7,6 +7,7 @@ import ../c06/sx.bend as S
 import ../c06/model.bend as M
 import ../c07/sol.bend as SO
 import ../c07/xs.bend as Q
+import ../c07/im.bend as Im
 import ../c07/rb.bend as R
 import ../c08/bool.bend as BO
 import ../c10/mesh.bend as M10
@@ -14,6 +15,7 @@ import ../base/par.bend as B
 import ./qcert.bend as QC
 import ./qaccel.bend as QA
 import ./qinterf.bend as QI
+import ./qclear.bend as QL
 
 type Wx is Data:
   Wx{ vs: B.Tb<&2, Ty.Vertex>, es: B.Tb<&2, Ty.Edge>, ces: B.Tb<&2, Ty.Coedge>, lps: B.Tb<&2, Ty.Loop>,
@@ -253,10 +255,10 @@ def wall_i(+x: Wx, +i: Nat, +acc: List<&2, Wp>) -> List<&2, Wp>:
 def wall_pairs(+x: Wx) -> List<&2, Wp>:
   wall_i(x, wx_nf(x), [])
 
-def wall_fin(+lo: F64, w: Wr, +x: Wx, cert: Bool) -> String:
+def wall_fin(+lo: F64, w: Wr, +x: Wx) -> String:
   Wr{+hi, +pr, +np} = w
   "min-wall " ++ QC.bv_show(QC.bv_mk(lo, hi, QC.st_estimated())) ++ " " ++
-    Bool.pick(String, cert, "lo=certified", "lo=estimated boxes-uncertain") ++
+    "lo=estimated boxes-uncertain" ++
     " faces=" ++ Nat.show(wx_nf(x)) ++ " pairs=" ++ Nat.show(np) ++ " pruned=" ++ Nat.show(pr)
 
 def f_ints(fs: List<&2, SO.Fd>) -> List<&2, V.Point>:
@@ -300,16 +302,28 @@ def pts_min(ps: List<&2, V.Point>, +qs: List<&2, V.Point>, +best: F64) -> F64:
     case []: best
     case p <> t: pts_min(t, qs, pts_min_one(qs, p, best))
 
+def nested(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>) -> Bool:
+  Bool.or(Nat.is_lt(0n, QI.ag_nin(QI.ag_of(b, sa))), Nat.is_lt(0n, QI.ag_nin(QI.ag_of(a, sb))))
+
+def hi_kind(+w: F64, +hi: F64) -> String:
+  Bool.pick(String, F64.is_lt(w, hi), "hi=witness", "hi=sampled")
+
+def clear_lo(+a: M.Body, +b: M.Body, +hi: F64) -> I.I:
+  QL.cert_lo(a, b, QA.ab_ab_lo(QI.wbox(a), QI.wbox(b)), hi)
+
+def clear_sep(+nest: Bool, +a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>) -> String:
+  +hs = pts_min(sa, sb, V.dbl_max())
+  +r = clear_lo(a, b, hs)
+  "clearance " ++ QC.bv_show(QC.bv_mk(I.i_lo(r), I.i_hi(r), QC.st_certified())) ++ " lo=branch-and-bound " ++ hi_kind(I.i_hi(r), hs) ++ " samples=" ++
+    Nat.show(List.length(&2, V.Point, sa)) ++ "x" ++ Nat.show(List.length(&2, V.Point, sb)) ++ Bool.pick(String, nest, " state=inside", "")
+
 def clear_int(hit: Bool, +a: M.Body, +b: M.Body) -> String:
   match hit:
     case True{}: "clearance 0 status=certified state=interference"
     case False{}:
       +sa = QI.sms_of(a)
       +sb = QI.sms_of(b)
-      +lo = QA.ab_ab_lo(QI.wbox(a), QI.wbox(b))
-      +hi = pts_min(sa, sb, V.dbl_max())
-      "clearance " ++ QC.bv_show(QC.bv_mk(lo, hi, QC.st_estimated())) ++ " lo=certified samples=" ++
-        Nat.show(List.length(&2, V.Point, sa)) ++ "x" ++ Nat.show(List.length(&2, V.Point, sb))
+      clear_sep(nested(a, b, sa, sb), a, b, sa, sb)
 
 def eb_of(+k: Ty.EdgeKind, +pa: V.Point, +pb: V.Point) -> QA.Ab:
   match k:
@@ -341,8 +355,19 @@ def dist_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
       Bool.pick(String, M.bd_open(b), "refused dist-needs-solid | dist | fix: thicken-open the shell to a solid first",
         dist_fin(QI.fin3(x, y, z), b, x, y, z))
 
+def clear_k(code: U64, +a: M.Body, +b: M.Body) -> String:
+  match code:
+    case 0u64: clear_sep(False{}, a, b, QI.sms_of(a), QI.sms_of(b))
+    case _: clear_int(QI.rel_interf(a, b), a, b)
+
+def ck_hit(code: U64, +a: M.Body, +b: M.Body) -> Bool:
+  match code:
+    case 0u64: False{}
+    case _: QI.rel_interf(a, b)
+
+
 def clear_go(+a: M.Body, +b: M.Body) -> String:
-  clear_int(QI.rel_interf(a, b), a, b)
+  clear_k(QI.rel_code(a, b), a, b)
 
 def bb_edges(es: List<&2, Ty.Edge>, +vs: B.Tb<&2, Ty.Vertex>, +acc: QA.Ab) -> QA.Ab:
   match es:
@@ -365,10 +390,10 @@ def wall_scan(ps: List<&2, Wp>, +x: Wx, +w: Wr) -> Wr:
       Wr{+hi, +pr, +np} = w
       wall_scan(t, x, wall_step(Bool.not(F64.is_lt(lo, hi)), x, lo, i, j, hi, pr, np))
 
-def wall_rep(ps: List<&2, Wp>, +x: Wx, cert: Bool) -> String:
+def wall_rep(ps: List<&2, Wp>, +x: Wx) -> String:
   match ps:
     case []: "min-wall none status=certified reason=all-faces-adjacent"
-    case Wp{+lo, +i, +j} <> t: wall_fin(lo, wall_scan(Wp{lo, i, j} <> t, x, Wr{V.dbl_max(), 0n, 0n}), x, cert)
+    case Wp{+lo, +i, +j} <> t: wall_fin(lo, wall_scan(Wp{lo, i, j} <> t, x, Wr{V.dbl_max(), 0n, 0n}), x)
 
 def clear_s(ra: M.NR, rb: M.NR) -> String:
   match ra:
@@ -391,9 +416,82 @@ def wx_of(+b: Ty.Brep, +fs: List<&2, SO.Fd>) -> Wx:
     B.tb_of(Ty.Coedge, Ty.brep_ces(b), ce_dflt()), B.tb_of(Ty.Loop, Ty.brep_lps(b), lp_dflt()),
     B.tb_of(Ty.Face, fas, fa_dflt()), B.tb_of(QA.Ab, fb_align(fs, bb, nf, 0n), QA.ab_zero()), bb, nf}
 
-def wall_out(+x: Wx, cert: Bool) -> String:
+def fd_lt(a: SO.Fd, b: SO.Fd) -> B.Sgn:
+  +ia = SO.fd_fi(a)
+  +ib = SO.fd_fi(b)
+  B.sgn_pick(Nat.is_lt(ia, ib), Nat.is_lt(ib, ia))
+
+def fd_so(s: B.So<&2, SO.Fd>) -> List<&2, SO.Fd>:
+  B.So{ok, xs} = s
+  xs
+
+def fd_tb(+fs: List<&2, SO.Fd>) -> B.Tb<&2, SO.Fd>:
+  B.tb_of(SO.Fd, fd_so(B.msort(~SO.Fd, ~fd_lt, fs)), QL.fd_none())
+
+def wpts(+x: Wx, +f: SO.Fd, +i: Nat) -> List<&2, V.Point>:
+  +es = face_eset(x, i)
+  f_int_go(SO.interior(f), face_smps(x, es, face_vset(x, es)))
+
+def aw_keep(lt: Bool, +fa: SO.Fd, +p: V.Point, +fb: SO.Fd, +q: V.Point, +d: F64, +best: F64) -> F64:
+  match lt:
+    case True{}: Bool.pick(F64, QL.anti_pt(fa, Im.p3(p), fb, Im.p3(q)), d, best)
+    case False{}: best
+
+def aw_one(qs: List<&2, V.Point>, +fa: SO.Fd, +p: V.Point, +fb: SO.Fd, +best: F64) -> F64:
+  match qs:
+    case []: best
+    case +q <> t:
+      +d = M10.pt_dist(p, q)
+      aw_one(t, fa, p, fb, aw_keep(F64.is_lt(d, best), fa, p, fb, q, d, best))
+
+def aw_ps(ps: List<&2, V.Point>, +qs: List<&2, V.Point>, +fa: SO.Fd, +fb: SO.Fd, +best: F64) -> F64:
+  match ps:
+    case []: best
+    case +p <> t: aw_ps(t, qs, fa, fb, aw_one(qs, fa, p, fb, best))
+
+def aw_step(go: Bool, +x: Wx, +ft: B.Tb<&2, SO.Fd>, +i: Nat, +j: Nat, +hi: F64) -> F64:
+  match go:
+    case False{}: hi
+    case True{}:
+      +fa = B.tb_get(SO.Fd, ft, U32.from_nat(i))
+      +fb = B.tb_get(SO.Fd, ft, U32.from_nat(j))
+      aw_ps(wpts(x, fa, i), wpts(x, fb, j), fa, fb, hi)
+
+def aw_scan(ps: List<&2, Wp>, +x: Wx, +ft: B.Tb<&2, SO.Fd>, +hi: F64) -> F64:
+  match ps:
+    case []: hi
+    case Wp{+lo, +i, +j} <> t: aw_scan(t, x, ft, aw_step(F64.is_lt(lo, hi), x, ft, i, j, hi))
+
+def aw_cbs(ps: List<&2, Wp>, +ft: B.Tb<&2, SO.Fd>) -> List<&2, QL.Cb>:
+  match ps:
+    case []: []
+    case Wp{lo, +i, +j} <> t:
+      +fa = B.tb_get(SO.Fd, ft, U32.from_nat(i))
+      +fb = B.tb_get(SO.Fd, ft, U32.from_nat(j))
+      QL.cb(fa, fb) <> aw_cbs(t, ft)
+
+def aw_fin(+lo: F64, +hi: F64, +hs: F64, +cap: F64, +x: Wx, +np: Nat) -> String:
+  "min-wall " ++ QC.bv_show(QC.bv_mk(lo, hi, QC.st_certified())) ++ " lo=branch-and-bound " ++
+    Bool.pick(String, F64.is_lt(hi, cap), hi_kind(hi, hs), "hi=bounding-diagonal no-sampled-witness") ++
+    " antipodal=30deg faces=" ++ Nat.show(wx_nf(x)) ++ " pairs=" ++ Nat.show(np)
+
+def aw_rep(ps: List<&2, Wp>, +x: Wx, +ft: B.Tb<&2, SO.Fd>, +cap: F64) -> String:
+  match ps:
+    case []: "min-wall none status=certified reason=all-faces-adjacent"
+    case Wp{+lo, +i, +j} <> t:
+      +all = {Wp{lo, i, j} <> t : List<&2, Wp>}
+      +hs = aw_scan(all, x, ft, cap)
+      +r = QL.wall_lo(aw_cbs(all, ft), hs)
+      aw_fin(F64.max(lo, I.i_lo(r)), I.i_hi(r), hs, cap, x, List.length(&2, Wp, all))
+
+def wall_go(cert: Bool, +x: Wx, +ps: List<&2, Wp>, +fs: List<&2, SO.Fd>) -> String:
+  match cert:
+    case True{}: aw_rep(ps, x, fd_tb(fs), QL.diag(SO.bbox(fs, [])))
+    case False{}: wall_rep(ps, x)
+
+def wall_out(+x: Wx, cert: Bool, +fs: List<&2, SO.Fd>) -> String:
   +ps = wp_so(B.msort(~Wp, ~wp_lt, wall_pairs(x)))
-  wall_rep(ps, x, cert)
+  wall_go(cert, x, ps, fs)
 
 def wall_body(has: Bool, +b: M.Body) -> String:
   match has:
@@ -402,7 +500,7 @@ def wall_body(has: Bool, +b: M.Body) -> String:
       +br = M.bd_brep(b)
       +fs = SO.fds_of(br)
       wall_out(wx_of(br, fs), Bool.and(QA.fd_allok(fs),
-        Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(br)), List.length(&2, SO.Fd, fs))))
+        Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(br)), List.length(&2, SO.Fd, fs))), fs)
 
 def wall_s(r: M.NR) -> String:
   match r:

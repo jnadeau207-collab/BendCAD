@@ -1,0 +1,2 @@
+$ stl 12 /home/jesse/g4/export/gasket.stl 3
+wrote /home/jesse/g4/export/gasket.stl nverts 17656 ntris 35368 (sampled, not certified)

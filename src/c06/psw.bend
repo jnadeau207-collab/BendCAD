@@ -12,7 +12,7 @@ type RP is Data:
   RP{ turn: Bool, cx: F64, cy: F64, r: F64, ccw: Bool, ax: F64, ay: F64, px: F64, py: F64, w: F64, bx: F64, by: F64 }
 
 type SN is Data:
-  SN{ turn: Bool, cx: F64, cy: F64, rho: F64, nx: F64, ny: F64, sg: F64, px: F64, py: F64, w: F64 }
+  SN{ turn: Bool, cx: F64, cy: F64, rho: F64, nx: F64, ny: F64, sg: F64, px: F64, py: F64, w: F64, ax: F64, ay: F64 }
 
 type PP is Data:
   PP{ line: Bool, ax: F64, ay: F64, px: F64, py: F64, w: F64, bx: F64, by: F64, cx: F64, cy: F64, r: F64, ccw: Bool }
@@ -75,8 +75,9 @@ def ang(+p: RP) -> I.I:
 
 def sn_of(+p: RP) -> SN:
   RP{+turn, +cx, +cy, +r, +ccw, +ax, +ay, +px, +py, +w, bx, by} = p
-  Bool.pick(SN, turn, SN{True{}, cx, cy, r, F64.div(F64.sub(ax, cx), r), F64.div(F64.sub(ay, cy), r), tsg(ccw), px, py, w},
-    SN{False{}, ax, ay, 0.0f64, rp_n0x(p), rp_n0y(p), 1.0f64, 0.0f64, 0.0f64, 1.0f64})
+  +h = hyp(F64.sub(ax, cx), F64.sub(ay, cy))
+  Bool.pick(SN, turn, SN{True{}, cx, cy, r, F64.div(F64.sub(ax, cx), h), F64.div(F64.sub(ay, cy), h), tsg(ccw), px, py, w, ax, ay},
+    SN{False{}, ax, ay, 0.0f64, rp_n0x(p), rp_n0y(p), 1.0f64, 0.0f64, 0.0f64, 1.0f64, ax, ay})
 
 def g1(+p: RP, +prev: RP) -> Bool:
   F64.is_le(hyp(F64.sub(rp_n0x(p), rp_n1x(prev)), F64.sub(rp_n0y(p), rp_n1y(prev))), 1.0e-9f64)
@@ -193,31 +194,31 @@ def umax(ps: List<&2, PP>, +m: F64) -> F64:
       umax(t, F64.max(m, Bool.pick(F64, line, ax, F64.max(ax, F64.add(cx, r)))))
 
 def sn_turn(+s: SN) -> Bool:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   turn
 
 def sn_cx(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   cx
 
 def sn_cy(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   cy
 
 def sn_rho(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   rho
 
 def sn_nx(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   nx
 
 def sn_ny(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   ny
 
 def sn_sg(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   sg
 
 def clear_ok(ss: List<&2, SN>, +lo: F64, +hi: F64) -> Bool:
@@ -227,8 +228,16 @@ def clear_ok(ss: List<&2, SN>, +lo: F64, +hi: F64) -> Bool:
       +ok = Bool.pick(Bool, F64.is_lt(0.0f64, sn_sg(s)), F64.is_lt(0.0f64, F64.add(sn_rho(s), lo)), F64.is_lt(0.0f64, F64.sub(sn_rho(s), hi)))
       Bool.and(Bool.or(Bool.not(sn_turn(s)), ok), clear_ok(t, lo, hi))
 
+def sn_ax(+s: SN) -> F64:
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, +ax, ay} = s
+  ax
+
+def sn_ay(+s: SN) -> F64:
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, +ay} = s
+  ay
+
 def vmap(+s: SN, +u: F64, +v: F64) -> V.Point:
-  GO.pd_add_raw(V.Pt{sn_cx(s), sn_cy(s), v}, F64.add(sn_rho(s), F64.mul(sn_sg(s), u)), V.Dr{sn_nx(s), sn_ny(s), 0.0f64})
+  GO.pd_add_raw(V.Pt{sn_ax(s), sn_ay(s), v}, F64.mul(sn_sg(s), u), V.Dr{sn_nx(s), sn_ny(s), 0.0f64})
 
 def row(vs: List<&2, V.Vec2>, +s: SN) -> List<&2, V.Point>:
   match vs:
@@ -277,12 +286,12 @@ def rq(+a: V.Point, +p: V.Point, +b: V.Point, +w: F64) -> G.GVal:
   G.GV_rq{G.Rq{a, p, b, 1.0f64, w, 1.0f64}}
 
 def ctl(+s: SN, +u: F64, +v: F64) -> V.Point:
-  SN{turn, +cx, +cy, +rho, nx, ny, +sg, +px, +py, w} = s
+  SN{turn, +cx, +cy, +rho, nx, ny, +sg, +px, +py, w, ax, ay} = s
   +k = F64.div(F64.add(rho, F64.mul(sg, u)), rho)
   V.Pt{F64.add(cx, F64.mul(k, F64.sub(px, cx))), F64.add(cy, F64.mul(k, F64.sub(py, cy))), v}
 
 def sn_w(+s: SN) -> F64:
-  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w} = s
+  SN{turn, cx, cy, rho, nx, ny, sg, px, py, w, ax, ay} = s
   w
 
 def a_g(+s0: SN, +a: V.Point, +b: V.Point, +u: F64, +v: F64) -> G.GVal:

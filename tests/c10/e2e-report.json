@@ -1,7 +1,7 @@
 {
- "binary_sha256": "168ae6ad8d58df847482dc5e1fa0c37fb783842e9768bb1be8076b7cdcf60fe5",
- "passed": 11,
- "total": 11,
+ "binary_sha256": "c1fb8b1c8b0695552b5dd62d73b723cafb0d2dbc4ee12cd8b2e07199a622f96f",
+ "passed": 13,
+ "total": 13,
  "results": [
   {
    "name": "tess.box",
@@ -14,14 +14,15 @@
     "e1": 0,
     "e2": 18,
     "ex": 0,
-    "euler": 2
+    "euler": 2,
+    "vol": 999.9999999999999
    },
-   "seconds": 0.008918285369873047
+   "seconds": 0.007807254791259766
   },
   {
    "name": "tess.cyl",
    "ok": true,
-   "line": "wrote /tmp/bc-e2e-c10/cyl.obj nverts 64 ntris 124 est 196 chord 0.038915227586487106 ang 0.19634954084936207 nsamp 64 profile display (sampled, not certified)",
+   "line": "wrote /tmp/bc-e2e-c10/cyl.obj nverts 64 ntris 124 est 196 chord 0.024076366639017178 ang 0.1963495408493621 nsamp 64 profile display (sampled, not certified)",
    "mesh": {
     "nv": 64,
     "nf": 124,
@@ -29,9 +30,10 @@
     "e1": 0,
     "e2": 186,
     "ex": 0,
-    "euler": 2
+    "euler": 2,
+    "vol": 780.3612880645128
    },
-   "seconds": 0.0040187835693359375
+   "seconds": 0.003570556640625
   },
   {
    "name": "tess.presets",
@@ -39,22 +41,38 @@
    "detail": {
     "0": {
      "ok": true,
-     "line": "wrote /tmp/bc-e2e-c10/p0.obj nverts 32 ntris 60 est 100 chord 0.15391950845843255 ang 0.39269908169872414 nsamp 32 profile display (sampled, not certified)"
+     "line": "wrote /tmp/bc-e2e-c10/p0.obj nverts 32 ntris 60 est 100 chord 0.09607359798384972 ang 0.3926990816987242 nsamp 32 profile display (sampled, not certified)"
     },
     "2": {
      "ok": true,
-     "line": "wrote /tmp/bc-e2e-c10/p2.obj nverts 252 ntris 500 est 760 chord 0.0025189115126276196 ang 0.049866550056980846 nsamp 252 profile display (sampled, not certified"
+     "line": "wrote /tmp/bc-e2e-c10/p2.obj nverts 252 ntris 500 est 760 chord 0.0015540899959209963 ang 0.04986655005698085 nsamp 252 profile display (sampled, not certified)"
     },
     "3": {
      "ok": true,
-     "line": "wrote /tmp/bc-e2e-c10/p3.obj nverts 1258 ntris 2512 est 3778 chord 0.00010110124531426123 ang 0.009989165830174222 nsamp 1258 profile manufacturing (sampled, no"
+     "line": "wrote /tmp/bc-e2e-c10/p3.obj nverts 1260 ntris 2516 est 3784 chord 0.00006216669154390617 ang 0.00997331001139617 nsamp 1260 profile manufacturing (sampled, not"
     }
    }
   },
   {
+   "name": "tess.big_cyl_sagitta",
+   "ok": true,
+   "line": "wrote /tmp/bc-e2e-c10/big.obj nverts 252 ntris 500 est 760 chord 0.07055568581481446 ang 0.04986655005698085 nsamp 252 profile display (sampled, not certified)",
+   "mesh": {
+    "nv": 252,
+    "nf": 500,
+    "bad": 0,
+    "e1": 0,
+    "e2": 750,
+    "ex": 0,
+    "euler": 2,
+    "vol": 8090802.222961675
+   },
+   "seconds": 0.06387758255004883
+  },
+  {
    "name": "tess.rev",
    "ok": true,
-   "line": "wrote /tmp/bc-e2e-c10/rev.obj nverts 128 ntris 256 est 256 chord 0.39269908169872414 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)",
+   "line": "wrote /tmp/bc-e2e-c10/rev.obj nverts 128 ntris 256 est 256 chord 0.019276571095877652 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)",
    "mesh": {
     "nv": 128,
     "nf": 256,
@@ -62,30 +80,32 @@
     "e1": 0,
     "e2": 384,
     "ex": 0,
-    "euler": 0
+    "euler": 0,
+    "vol": 112.37202548128985
    },
-   "seconds": 0.009835004806518555
+   "seconds": 0.011242866516113281
   },
   {
    "name": "tess.rev_fine",
    "ok": true,
-   "line": "wrote /tmp/bc-e2e-c10/rev3.obj nverts 2516 ntris 5032 est 5032 chord 0.019978331660348445 ang 0.009989165830174222 nsamp 629 profile manufacturing (sampled, not certified)",
+   "line": "wrote /tmp/bc-e2e-c10/rev3.obj nverts 2520 ntris 5040 est 5040 chord 0.00004973345629170752 ang 0.009973310011396168 nsamp 630 profile manufacturing (sampled, not certified)",
    "mesh": {
-    "nv": 2516,
-    "nf": 5032,
+    "nv": 2520,
+    "nf": 5040,
     "bad": 0,
     "e1": 0,
-    "e2": 7548,
+    "e2": 7560,
     "ex": 0,
-    "euler": 0
+    "euler": 0,
+    "vol": 113.0954606314273
    },
-   "seconds": 0.04686141014099121
+   "seconds": 0.052874088287353516
   },
   {
    "name": "tess.overrides",
    "ok": true,
-   "chord": 0.00040311608731613546,
-   "ntris": 1256,
+   "chord": 0.0009883511496741127,
+   "ntris": 628,
    "prof2": "manufacturing"
   },
   {
@@ -97,7 +117,7 @@
   {
    "name": "tess.replay",
    "ok": true,
-   "bytes": 16709
+   "bytes": 16756
   },
   {
    "name": "tess.prism_slant",
@@ -110,24 +130,26 @@
     "e1": 0,
     "e2": 12,
     "ex": 0,
-    "euler": 2
+    "euler": 2,
+    "vol": 30.0
    },
-   "seconds": 0.007062196731567383
+   "seconds": 0.008342981338500977
   },
   {
    "name": "tess.prism_arc",
    "ok": true,
-   "line": "wrote /tmp/bc-e2e-c10/darc.obj nverts 22 ntris 40 est 76 chord 0.027264545780130003 ang 0 nsamp 24 profile display (sampled, not certified)",
+   "line": "wrote /tmp/bc-e2e-c10/darc.obj nverts 62 ntris 120 est 196 chord 0.0030478603149228017 ang 0.18856180831641295 nsamp 64 profile display (sampled, not certified)",
    "mesh": {
-    "nv": 22,
-    "nf": 40,
+    "nv": 62,
+    "nf": 120,
     "bad": 0,
     "e1": 0,
-    "e2": 60,
+    "e2": 180,
     "ex": 0,
-    "euler": 2
+    "euler": 2,
+    "vol": 31.358168907839268
    },
-   "seconds": 0.006950855255126953
+   "seconds": 0.006193637847900391
   },
   {
    "name": "tess.shell_cavity",
@@ -140,9 +162,15 @@
     "e1": 0,
     "e2": 36,
     "ex": 0,
-    "euler": 4
+    "euler": 4,
+    "vol": 487.9999999999998
    },
-   "seconds": 0.08559775352478027
+   "seconds": 0.11444091796875
+  },
+  {
+   "name": "tess.curved_trim_refused",
+   "ok": true,
+   "line": "refused tess-mesh-not-closed | tess @ node 4 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet"
   }
  ]
 }

@@ -108,6 +108,7 @@ message ends with `[k1 reason N]`:
 | 93, 94 | Piece cycles or regions did not close |
 | 95 | A trim point could not be placed exactly on its plane |
 | 97 | Coplanar crossing computation failed |
+| 98 | K1-first booleans only: the boundaries neither cross nor share a face, so containment is undecided and C08 classifies the operands instead |
 
 Results that would be non-manifold, such as the union or intersection of
 equal-radius cross bores, which touch themselves at two tangent points,

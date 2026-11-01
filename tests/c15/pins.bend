@@ -91,7 +91,7 @@ def sr_bits(+r: PM.SR) -> String:
   PM.SR{+st, +nom, +lo, +hi} = r
   sr_bits_st(st, nom, lo, hi)
 def ci_bits(+c: PM.CI) -> String:
-  PM.CI{+hit, +lo, +hi, +na, +nb} = c
+  PM.CI{+hit, +lo, +hi, +hk, +na, +nb} = c
   bs(hit) ++ "," ++ fbits(lo) ++ "," ++ fbits(hi) ++ "," ++ Nat.show(na) ++ "x" ++ Nat.show(nb)
 def ds_box() -> String:
   "(param 1 W 10 9.9 10.1) (param 2 H 20 20 20) (node 1 (box W H 30) (intent create 6 0 1 0))"
@@ -383,16 +383,16 @@ def wn_checks(+w: PM.WN) -> String:
     bs(Bool.and(F64.is_le(I.i_lo(y), 0.0f64), F64.is_le(0.0f64, I.i_hi(y)))) ++
     bs(F64.is_lt(0.99f64, I.i_lo(z)))
 def ci_lo_eq(+c: PM.CI, +a: M.Body, +b: M.Body) -> String:
-  PM.CI{+hit, +lo, +hi, +na, +nb} = c
-  bs(U64.is_eq(F64.bits(lo), F64.bits(QA.ab_ab_lo(QI.wbox(a), QI.wbox(b)))))
+  PM.CI{+hit, +lo, +hi, +hk, +na, +nb} = c
+  bs(U64.is_eq(F64.bits(lo), F64.bits(I.i_lo(QD.clear_lo(a, b, QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max()))))))
 def ci_hi_eq(+c: PM.CI, +a: M.Body, +b: M.Body) -> String:
-  PM.CI{+hit, +lo, +hi, +na, +nb} = c
-  bs(U64.is_eq(F64.bits(hi), F64.bits(QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max()))))
+  PM.CI{+hit, +lo, +hi, +hk, +na, +nb} = c
+  bs(U64.is_eq(F64.bits(hi), F64.bits(I.i_hi(QD.clear_lo(a, b, QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max()))))))
 def ci_hit_eq(+c: PM.CI, +a: M.Body, +b: M.Body) -> String:
-  PM.CI{+hit, +lo, +hi, +na, +nb} = c
+  PM.CI{+hit, +lo, +hi, +hk, +na, +nb} = c
   bs(Bool.or(Bool.and(hit, QI.rel_interf(a, b)), Bool.and(Bool.not(hit), Bool.not(QI.rel_interf(a, b)))))
 def ci_nn(+c: PM.CI) -> String:
-  PM.CI{+hit, +lo, +hi, +na, +nb} = c
+  PM.CI{+hit, +lo, +hi, +hk, +na, +nb} = c
   Nat.show(na) ++ "x" ++ Nat.show(nb)
 def mb_tag(+m: Maybe<&2, String>) -> String:
   match m:
@@ -560,7 +560,7 @@ def rel_st_pair__got() -> String:
 def rel_st_pair__want() -> String:
   "state cold grow 1 relation relation disjoint status=certified\n"
 def clr_hit_line__got() -> String:
-  PM.clr_hit(True{}, 0.0f64, 0.0f64, 0n, 0n, st_cold())
+  PM.clr_hit(True{}, 0.0f64, 0.0f64, "hi=sampled", 0n, 0n, st_cold())
 def clr_hit_line__want() -> String:
   "state cold grow 1 clearance 0 status=certified state=interference\n"
 def em_dt_one__got() -> String:

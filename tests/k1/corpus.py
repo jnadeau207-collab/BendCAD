@@ -520,6 +520,101 @@ def fillets():
     record('fillets', all(checks.values()), artifacts=('fl.bcd', 'fl.stp', 'fl.bin'), seconds=dt, **checks, **info)
 
 
+def volute_panel():
+    band, back = open(os.path.join(HERE, 'volute.sx')).read().splitlines()[:2]
+    out, dt = fresh('vp.bcd', f'(node 1 (prism -20 105 {band}) {IC})', f'(node 2 (prism -23 -20 {back}) {IC})', f'(node 3 (union 1 2) {IA})')
+    ev, _ = cli('vp.bcd', 'eval')
+    r = dict(out=out, ev=ev)
+    checks, info = finish('vp', 'vp.bcd', r, 3, None, 3, 7)
+    one = re.search(r'node 3: ok .*?solids=(\d+)', ev)
+    checks.update(sum=iv_overlap(vol(ev, 3), iv_add(vol(ev, 1), vol(ev, 2))), fused=one is not None and one.group(1) == '1')
+    record('volute_panel', all(checks.values()), artifacts=('vp.bcd', 'vp.stp', 'vp.bin'), seconds=dt, **checks, **info)
+
+
+G4_SHROUD = ('(region (path 123.75 54.0 (line 227.0 54.0) (line 227.0 60.0) (line 134.75 60.0) (arc 134.75 66.0 6.0 128.75 66.0 cw) '
+             '(line 128.75 78.0) (line 123.75 78.0) (line 123.75 54.0)))')
+
+
+def keyway_cut():
+    x = lambda t: t / 2 * math.sqrt(196 - t * t) + 98 * math.asin(t / 14)
+    return (8 * 7.3 - ((x(4) - x(-4)) - 80)) * 62
+
+
+def g4rotor():
+    h0 = g4_footprint()
+    h1 = g4_footprint((26.12230196103542, -107.21818437608977), (108.40827724624296, 78.76322380719142),
+                      (216.19899366773637, -34.89310443621139), 203.37174316623742)
+    out, dt = fresh('gr.bcd', f'(node 1 (revolve {G4_HUB}) {IC})', f'(node 2 (sweep (wall {G4_BLADE}) {G4_PROF}) {IC})',
+                    f'(node 3 (union 1 2) {IA})', f'(node 4 (sweep (wall {G4_BLADE1}) {G4_PROF}) {IC})', f'(node 5 (union 3 4) {IA})',
+                    f'(node 6 (revolve {G4_SHROUD}) {IC})', f'(node 7 (union 5 6) {IA})', f'(node 9 (box 8 7.3 80) {IC})',
+                    '(node 8 (move 9 -4 10 -40 0) (intent same 0 0 1 0))', f'(node 10 (difference 7 8) {ID})')
+    ev, _ = cli('gr.bcd', 'eval')
+    v = {n: vol(ev, n) for n in (1, 2, 4, 6, 7, 10)}
+    ok = all(v.values())
+    sh = (v[1][0] + v[2][0] + v[4][0] + v[6][0] - 2 * (h0 + h1), v[1][1] + v[2][1] + v[4][1] + v[6][1] - 2 * (h0 + h1)) if ok else None
+    kc = keyway_cut()
+    r = dict(out=out, ev=ev)
+    checks, info = finish('gr', 'gr.bcd', r, 10, None, 10, 3)
+    checks.update(shroud=ok and iv_overlap(v[7], sh), keyway=ok and iv_overlap(v[10], (sh[0] - kc, sh[1] - kc)))
+    record('g4rotor', all(checks.values()), artifacts=('gr.bcd', 'gr.stp', 'gr.bin'), seconds=dt, **checks, **info)
+
+
+def frame_seam():
+    frame = ('(region (path -5 -8 (line 15 -8) (line 15 15) (line -5 15) (line -5 -8)) '
+             '(path 0 -3 (line 10 -3) (line 10 10) (line 0 10) (line 0 -3)))')
+    out, dt = fresh('fs.bcd', BOX, f'(node 2 (box 10 10 3) {IC})', '(node 3 (move 2 0 0 -3 0) (intent same 0 0 1 0))',
+                    f'(node 4 (union 1 3) {IA})', f'(node 5 (prism -12 -8 {frame}) {IC})',
+                    '(node 6 (move 5 0 0 0 4) (intent same 0 0 1 1))', f'(node 7 (union 4 6) {IA})')
+    ev, _ = cli('fs.bcd', 'eval')
+    hand = 1300 + (20 * 23 - 10 * 13) * 4
+    r = dict(out=out, ev=ev)
+    checks, info = finish('fs', 'fs.bcd', r, 7, hand, 7, 0)
+    checks.update(stack=contains(vol(ev, 4), 1300), frame=contains(vol(ev, 6), hand - 1300))
+    record('frame_seam', all(checks.values()), artifacts=('fs.bcd', 'fs.stp', 'fs.bin'), seconds=dt, **checks, **info)
+
+
+G4_HUB = ('(region (path 14.0 -32.0 (line 30.0 -32.0) (line 30.0 -14.0) (arc 36.0 -14.0 6.0 36.0 -8.0 cw) (line 227.0 -8.0) '
+          '(line 227.0 0) (line 30.0 0) (arc 30.0 6.0 6.0 24.0 6.0 cw) (line 24.0 30.0) (line 14.0 30.0) (line 14.0 -32.0)))')
+G4_BLADE = ('(path 135.72971219375614 1.004039703782334 (arc 134.0 0.0 2.0 132.27028780624386 -1.004039703782334 ccw) '
+            '(arc -41.88515439275838 -102.0954115682855 201.36927152119628 152.46815310271845 -154.78673323083166 cw) '
+            '(arc 154.39847053424393 -155.3100635410076 2.0 156.3287879657694 -155.83339385118353 ccw) '
+            '(arc -41.88515439275838 -102.0954115682855 205.36927152119628 135.72971219375614 1.004039703782334 ccw))')
+G4_PROF = ('(region (path -0.5 -1 (line 5.0 -1) (line 5.0 0) (arc 5.0 5.0 5.0 0 5.0 cw) (line 0 49.0) (arc 5.0 49.0 5.0 5.0 54.0 cw) '
+           '(line 5.0 55.0) (line -0.5 55.0) (line -0.5 -1)))')
+
+
+G4_BLADE1 = ('(path 109.21749463312395 80.59220363779905 (arc 108.40827724624296 78.76322380719142 2.0 107.59905985936197 76.9342439765838 ccw) '
+             '(arc 26.12230196103542 -107.21818437608977 201.37174316623742 214.3297399676161 -35.60436430755703 cw) '
+             '(arc 216.19899366773637 -34.89310443621139 2.0 218.06824736785666 -34.18184456486575 ccw) '
+             '(arc 26.12230196103542 -107.21818437608977 205.37174316623742 109.21749463312395 80.59220363779905 ccw))')
+
+
+def g4_footprint(c=(-41.88515439275838, -102.0954115682855), e1=(134.0, 0.0), e2=(154.39847053424393, -155.3100635410076),
+                 rc=203.36927152119628):
+    d = abs(math.atan2(e1[1] - c[1], e1[0] - c[0]) - math.atan2(e2[1] - c[1], e2[0] - c[0]))
+    ro, ri, h, f = rc + 2.0, rc - 2.0, 2.0, 5.0
+    a = d / 2 * (ro * ro - ri * ri) + math.pi * h * h
+    p = d * (ro + ri) + 2 * math.pi * h
+    return a + f * p + math.pi * f * f
+
+
+def g4blade():
+    hi = g4_footprint()
+    t = triple('g4.bcd', [f'(node 1 (revolve {G4_HUB}) {IC})'], [f'(node 2 (sweep (wall {G4_BLADE}) {G4_PROF}) {IC})'],
+               1, 2, None, hi, None)
+    ab = iv_add(t['va'], t['vb'])
+    hu = (ab[0] - hi, ab[1] - hi) if ab else None
+    checks, info = finish('g4', 'g4.bcd', t, t['u'], None, t['d'], 1)
+    o2, _ = cli('g4.bcd', 'apply', f'(node 6 (sweep (wall {G4_BLADE1}) {G4_PROF}) {IC})', f'(node 7 (union {t["u"]} 6) {IA})')
+    ev2, _ = cli('g4.bcd', 'eval')
+    h1 = g4_footprint((26.12230196103542, -107.21818437608977), (108.40827724624296, 78.76322380719142),
+                      (216.19899366773637, -34.89310443621139), 203.37174316623742)
+    u1 = iv_add(vol(ev2, t['u']), vol(ev2, 6))
+    checks.update(hinter=contains(t['vi'], hi), hunion=iv_overlap(t['vu'], hu), ident=t['ident'], second='committed' in o2,
+                  hunion2=u1 is not None and iv_overlap(vol(ev2, 7), (u1[0] - h1, u1[1] - h1)))
+    record('g4blade', all(checks.values()), artifacts=('g4.bcd', 'g4.stp', 'g4.bin'), seconds=t['seconds'], **checks, **info)
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     bore_eq()
@@ -536,6 +631,10 @@ def main():
     g2pump()
     spheres()
     fillets()
+    g4blade()
+    g4rotor()
+    frame_seam()
+    volute_panel()
     json.dump(RESULTS, open(OUT, 'w'), indent=1)
     n = sum(1 for r in RESULTS if r['ok'])
     print(f'{n}/{len(RESULTS)} corpus members hold')

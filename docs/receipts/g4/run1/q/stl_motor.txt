@@ -1,0 +1,2 @@
+$ stl 5 /home/jesse/g4/export/motor.stl 3
+wrote /home/jesse/g4/export/motor.stl nverts 14234 ntris 26850 (sampled, not certified)
