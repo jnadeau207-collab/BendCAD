@@ -87,6 +87,11 @@ parses) are pinned in `tests/c13/pins.bend`.
   stays raw with `ok: false`.
 - `BENDCAD_MAX_NODES`, when set, prepends `--max-nodes` to every design
   call (never to `geom`).
+- `BENDCAD_PORT`, when set without `BENDCAD_MAX_NODES`, routes design calls
+  to a persistent `bendcad serve PORT` that reuses evaluated nodes; a
+  timeout kills it (`cli-exceeded-timeout`), a death reports
+  `cli-killed-by-signal-server-closed`, and the next call restarts it.
+  `tools/speed/serve_e2e.mjs` proves its answers byte-identical to the CLI.
 - New `diagnose` tool: the `diag` verb over MCP. `isError` is true for
   grammar, legacy, rejected and `"ok":false` lines alike.
 

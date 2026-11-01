@@ -467,29 +467,30 @@ def write_bytes(path, data):
 def load(+src: String) -> M.Part:
   S.part_of(S.ps_xs(S.parse(src)))
 
-def commit_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
+def commit_go(ok: Bool, +path: String, +p: M.Part) -> IO(String):
   match ok:
     case True{}:
-      do IO<Unit>:
+      do IO<String>:
         w : Unit <- write_file(path, S.part_show(p))
-        IO.print("committed")
-    case False{}: IO.print("rejected: the design was not changed")
+        IO.pure(String, "committed")
+    case False{}: IO.pure(String, "rejected: the design was not changed")
 
 def part_errs(+p: M.Part, +cs: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
   KM.mats_err(ms, cs) ++ KT.ths_err(ts, cs)
 
-def commit_e(+path: String, +p: M.Part, +cs: List<&2, M.CE>, +errs: String) -> IO(Unit):
-  do IO<Unit>:
-    a : Unit <- IO.print(ces_s(cs) ++ errs)
-    commit_go(Bool.and(ces_ok(cs), String.eq(errs, "")), path, p)
+def commit_e(+path: String, +p: M.Part, +cs: List<&2, M.CE>, +errs: String) -> IO(String):
+  +head = ces_s(cs) ++ errs
+  do IO<String>:
+    a : String <- commit_go(Bool.and(ces_ok(cs), String.eq(errs, "")), path, p)
+    IO.pure(String, head ++ "\n" ++ a)
 
-def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(Unit):
+def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(String):
   commit_e(path, p, cs, part_errs(p, cs))
 
-def apply_go(ok: Bool, +path: String, +p: M.Part) -> IO(Unit):
+def apply_go(ok: Bool, +path: String, +p: M.Part) -> IO(String):
   match ok:
-    case False{}: IO.print("error invalid-input | apply | why: edits must be (param NAME NOM [LO HI]) with finite numbers LO <= NOM <= HI, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax")
+    case False{}: IO.pure(String, "error invalid-input | apply | why: edits must be (param NAME NOM [LO HI]) with finite numbers LO <= NOM <= HI, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax")
     case True{}: commit(path, p, M.ev_part(p, []))
 
 def cmd_code(+c: String) -> U64:
@@ -510,7 +511,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
   Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, 0u64))))))))))))))))))))))))))))))))))
 
-def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(Unit):
+def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
   apply_go(Bool.and(ok, edits_ok(xs)), path, edits(xs, p))
 
@@ -562,10 +563,10 @@ def tess_q_err(+a2: String, +p: U64, +q: M10.Q) -> String:
 def prof_s(+p: U64) -> String:
   Bool.pick(String, U64.is_eq(p, 1u64), "manufacturing", "display")
 
-def tess_write_ok(+t: M10.Tres, +out: String, +q: M10.Q) -> IO(Unit):
-  do IO<Unit>:
+def tess_write_ok(+t: M10.Tres, +out: String, +q: M10.Q) -> IO(String):
+  do IO<String>:
     w : Unit <- write_file(out, M10.tres_obj(t))
-    IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(M10.tres_nv(t)) ++ " ntris " ++ Nat.show(M10.tres_nt(t)) ++
+    IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(M10.tres_nv(t)) ++ " ntris " ++ Nat.show(M10.tres_nt(t)) ++
       " est " ++ Nat.show(M10.tres_est(t)) ++ " chord " ++ S.f_show(M10.tres_chord(t)) ++
       " ang " ++ S.f_show(M10.tres_ang(t)) ++ " nsamp " ++ Nat.show(M10.tres_nsamp(t)) ++
       " profile " ++ prof_s(M10.q_prof(q)) ++ " (sampled, not certified)")
@@ -575,26 +576,26 @@ def tess_fix(open: Bool, +t: M10.Tres, +q: M10.Q) -> String:
     case True{}: " | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet"
     case False{}: " | est " ++ Nat.show(M10.tres_est(t)) ++ " max " ++ Nat.show(M10.q_max(q)) ++ " | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris"
 
-def tess_write_go(+ok: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def tess_write_go(+ok: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match ok:
     case True{}: tess_write_ok(t, out, q)
-    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | tess @ node " ++ U64.show(id) ++
+    case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | tess @ node " ++ U64.show(id) ++
       tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
 
-def tess_write(+t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def tess_write(+t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   tess_write_go(M10.tres_ok_of(t), t, out, id, q)
 
-def tess_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def tess_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing tessellated")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing tessellated")
     case M.NR_ok{+b, fx}: tess_write(TS.body_q(b, q), out, id, q)
 
-def tess_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) -> IO(Unit):
+def tess_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) -> IO(String):
   match bad:
-    case True{}: IO.print(tess_q_err(a2, p, q))
+    case True{}: IO.pure(String, tess_q_err(a2, p, q))
     case False{}: tess_out(r, out, id, q)
 
-def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String, +a6: String) -> IO(Unit):
+def tess_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String, +a6: String) -> IO(String):
   +p = tess_p(a2)
   +base = M10.q_preset(p)
   +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
@@ -744,25 +745,25 @@ def mach_out(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
       Bool.and(Bool.or(U64.is_eq(ax, 3u64), U64.is_eq(ax, 5u64)), Bool.and(Nat.is_lt(0n, ns), Nat.is_le(ns, 8n)))))
   mach_args(ok, p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}), K3X.TL{F64.mul(0.5f64, d), fl, F64.mul(0.5f64, hd), hl}, U64.is_eq(ax, 5u64), ns, old)
 
-def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(Unit):
+def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(String):
   match w:
     case True{}:
-      do IO<Unit>:
+      do IO<String>:
         u : Unit <- write_file(out, SW.ws_s(r))
-        IO.print("wrote " ++ out ++ " entities " ++ Nat.show(SW.ws_nent(r)) ++ " products " ++
+        IO.pure(String, "wrote " ++ out ++ " entities " ++ Nat.show(SW.ws_nent(r)) ++ " products " ++
           Nat.show(SW.ws_nprod(r)))
-    case False{}: IO.print("refused " ++ SW.ws_why(r) ++ " | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces")
+    case False{}: IO.pure(String, "refused " ++ SW.ws_why(r) ++ " | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces")
 
-def step_out(r: M.NR, +out: String) -> IO(Unit):
+def step_out(r: M.NR, +out: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
     case M.NR_ok{+b, fx}:
       +w = SW.sw_ms(b)
       step_write_go(SW.ws_ok(w), w, out)
 
-def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(Unit):
+def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
     case M.NR_ok{+b, fx}:
       +st = SW.sw_stage(M.bd_brep(b), M.bd_pl(b), 1n)
       +kb = KX.k2_block(KM.mat_find(KA.part_ms(p), n), KA.part_ts(p), n, SW.er2_n(st))
@@ -780,121 +781,121 @@ def has_k2(+p: M.Part, +n: U64) -> Bool:
   Bool.or(is_some_g(KM.mat_find(ms, n)), KT.th_any(ts, n))
 
 
-def asm_step_io(+w: KA.AW, +out: String) -> IO(Unit):
+def asm_step_io(+w: KA.AW, +out: String) -> IO(String):
   KA.AW{+ws, +names} = w
-  do IO<Unit>:
-    u : Unit <- step_write_go(SW.ws_ok(ws), ws, out)
-    IO.print("instances " ++ names)
+  do IO<String>:
+    u : String <- step_write_go(SW.ws_ok(ws), ws, out)
+    IO.pure(String, u ++ "\ninstances " ++ names)
 
 def asm_k(c14: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match c14:
     case True{}: AS.asm_go(p, rest, old)
     case False{}: KA.k2_asm(p, rest, old)
 
-def asm_io(+st: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> IO(Unit):
+def asm_io(+st: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> IO(String):
   match st:
     case True{}: asm_step_io(KA.k2_step(p, rest, old), S.arg_at(rest, 1n))
-    case False{}: IO.print(asm_k(U64.is_eq(KA.k2_code(S.arg_at(rest, 0n)), 0u64), p, rest, old))
+    case False{}: IO.pure(String, asm_k(U64.is_eq(KA.k2_code(S.arg_at(rest, 0n)), 0u64), p, rest, old))
 
-def step_k(k2: Bool, +r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(Unit):
+def step_k(k2: Bool, +r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
   match k2:
     case True{}: step_k2(r, p, n, out)
     case False{}: step_out(r, out)
 
-def step_pick(+p: M.Part, +n: U64, +out: String, +old: List<&2, M.CE>) -> IO(Unit):
+def step_pick(+p: M.Part, +n: U64, +out: String, +old: List<&2, M.CE>) -> IO(String):
   +r = node_res(M.ev_for(p, [n], old), n)
   step_k(has_k2(p, n), r, p, n, out)
 
-def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(Unit):
+def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(String):
   match w:
     case True{}:
-      do IO<Unit>:
+      do IO<String>:
         u : Unit <- write_file(out, BL.es_s(e))
-        IO.print("wrote " ++ out ++ " archive " ++ BL.ar_ver())
-    case False{}: IO.print("refused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic curves and plane/sphere/cylinder/torus/bezier-patch faces")
+        IO.pure(String, "wrote " ++ out ++ " archive " ++ BL.ar_ver())
+    case False{}: IO.pure(String, "refused " ++ BL.es_why(e) ++ " | archive | fix: keep analytic curves and plane/sphere/cylinder/torus/bezier-patch faces")
 
-def arc_out_open(+open: Bool, +b: M.Body, +out: String, +lin: String) -> IO(Unit):
+def arc_out_open(+open: Bool, +b: M.Body, +out: String, +lin: String) -> IO(String):
   match open:
-    case True{}: IO.print("refused archive-open-shell-not-in-profile | archive | fix: thicken-open the shell to a solid first")
+    case True{}: IO.pure(String, "refused archive-open-shell-not-in-profile | archive | fix: thicken-open the shell to a solid first")
     case False{}:
       +e = BL.ar_mk("mm", lin, M.bd_brep(b))
       arc_write_go(BL.es_ok_of(e), e, out)
 
-def arc_out(r: M.NR, +out: String, +lin: String) -> IO(Unit):
+def arc_out(r: M.NR, +out: String, +lin: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing archived")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing archived")
     case M.NR_ok{+b, fx}: arc_out_open(M.bd_open(b), b, out, lin)
 
-def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(Unit):
+def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(String):
   match w:
     case True{}:
-      do IO<Unit>:
+      do IO<String>:
         u : Unit <- write_file(out, MO.mo_r_s(r))
-        IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_r_nv(r)) ++ " ntris " ++
+        IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_r_nv(r)) ++ " ntris " ++
           Nat.show(MO.mo_r_nt(r)) ++ " (sampled, not certified)")
-    case False{}: IO.print("refused " ++ MO.mo_r_why(r) ++ " | stl | fix: tessellate the node first (tess)")
+    case False{}: IO.pure(String, "refused " ++ MO.mo_r_why(r) ++ " | stl | fix: tessellate the node first (tess)")
 
-def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match w:
-    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | stl @ node " ++ U64.show(id) ++
+    case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | stl @ node " ++ U64.show(id) ++
       tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
     case True{}:
       +r = MO.mo_stl(M10.tres_obj(t))
       stl_write_go(MO.mo_r_ok(r), r, out)
 
-def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
     case M.NR_ok{+b, fx}:
       +t = TS.body_q(b, q)
       stl_tres_go(M10.tres_ok_of(t), t, out, id, q)
 
 def stl_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
-    IO(Unit):
+    IO(String):
   match bad:
-    case True{}: IO.print(tess_q_err(a2, p, q))
+    case True{}: IO.pure(String, tess_q_err(a2, p, q))
     case False{}: stl_out(r, out, id, q)
 
 def stl_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String,
-    +a6: String) -> IO(Unit):
+    +a6: String) -> IO(String):
   +p = tess_p(a2)
   +base = M10.q_preset(p)
   +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
     tess_prof(a6, M10.q_prof(base)))
   stl_with(Bool.not(String.eq(tess_q_err(a2, p, q), "")), r, out, id, a2, p, q)
 
-def mf3_write_go(+w: Bool, +r: MO.MO_B, +out: String) -> IO(Unit):
+def mf3_write_go(+w: Bool, +r: MO.MO_B, +out: String) -> IO(String):
   match w:
     case True{}:
-      do IO<Unit>:
+      do IO<String>:
         u : Unit <- write_bytes(out, MO.mo_b_xs(r))
-        IO.print("wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_b_nv(r)) ++ " ntris " ++
+        IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_b_nv(r)) ++ " ntris " ++
           Nat.show(MO.mo_b_nt(r)) ++ " (sampled, not certified)")
-    case False{}: IO.print("refused " ++ MO.mo_b_why(r) ++ " | 3mf | fix: tessellate the node first (tess)")
+    case False{}: IO.pure(String, "refused " ++ MO.mo_b_why(r) ++ " | 3mf | fix: tessellate the node first (tess)")
 
-def mf3_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def mf3_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match w:
-    case False{}: IO.print("refused " ++ M10.tres_why(t) ++ " | 3mf @ node " ++ U64.show(id) ++
+    case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | 3mf @ node " ++ U64.show(id) ++
       tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
     case True{}:
       +r = MO.mo_threemf(M10.tres_obj(t))
       mf3_write_go(MO.mo_b_ok(r), r, out)
 
-def mf3_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(Unit):
+def mf3_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.print("error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
     case M.NR_ok{+b, fx}:
       +t = TS.body_q(b, q)
       mf3_tres_go(M10.tres_ok_of(t), t, out, id, q)
 
 def mf3_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
-    IO(Unit):
+    IO(String):
   match bad:
-    case True{}: IO.print(tess_q_err(a2, p, q))
+    case True{}: IO.pure(String, tess_q_err(a2, p, q))
     case False{}: mf3_out(r, out, id, q)
 
 def mf3_args(r: M.NR, +out: String, +id: U64, +a2: String, +a3: String, +a4: String, +a5: String,
-    +a6: String) -> IO(Unit):
+    +a6: String) -> IO(String):
   +p = tess_p(a2)
   +base = M10.q_preset(p)
   +q = M10.q_mk(tess_f(a3, M10.q_chord(base)), tess_f(a4, M10.q_angle(base)), tess_mx(a5, M10.q_max(base)),
@@ -1014,7 +1015,9 @@ def geo_step_of_go(+w: Bool, +a: BL.APR, +out: String) -> IO(Unit):
       " | fix: export from a BendCAD BCAD2 archive")
     case True{}:
       +s = SW.sw_pr(BL.pr_ok(BL.apr_b(a)), M.pl_id())
-      step_write_go(SW.ws_ok(s), s, out)
+      do IO<Unit>:
+        o : String <- step_write_go(SW.ws_ok(s), s, out)
+        IO.print(o)
 
 def geo_step_of_data(+data: String, +out: String) -> IO(Unit):
   +a = BL.ar_parse(data)
@@ -1029,13 +1032,15 @@ def geo_stl_of(+file: String, +out: String, +a2: String, +a3: String, +a4: Strin
     +a6: String) -> IO(Unit):
   do IO<Unit>:
     data : String <- read_file(file)
-    stl_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+    o : String <- stl_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+    IO.print(o)
 
 def geo_mf3_of(+file: String, +out: String, +a2: String, +a3: String, +a4: String, +a5: String,
     +a6: String) -> IO(Unit):
   do IO<Unit>:
     data : String <- read_file(file)
-    mf3_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+    o : String <- mf3_args(imp_arc(data), out, 0u64, a2, a3, a4, a5, a6)
+    IO.print(o)
 
 def geo12(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "step_import"), 1u64, Bool.pick(U64, String.eq(c, "reopen"), 2u64,
@@ -1053,27 +1058,27 @@ def geo_go(code: U64, +args: List<&2, String>) -> IO(Unit):
       S.arg_at(args, 7n), S.arg_at(args, 8n), S.arg_at(args, 9n))
     case _: IO.print(GQ.geom(arg_drop(args, 2n)))
 
-def pmi_fr(+fr: PM.FR, +out: String) -> IO(Unit):
+def pmi_fr(+fr: PM.FR, +out: String) -> IO(String):
   match fr:
     case PM.FR_ok{+s, +n}:
-      do IO<Unit>:
+      do IO<String>:
         w : Unit <- write_file(out, s)
-        IO.print("wrote " ++ out ++ " ap242 PMI " ++ Nat.show(n) ++ " entities")
-    case PM.FR_err{+why, +fix}: IO.print("error invalid-input | pmi step42 | why: " ++ why ++
+        IO.pure(String, "wrote " ++ out ++ " ap242 PMI " ++ Nat.show(n) ++ " entities")
+    case PM.FR_err{+why, +fix}: IO.pure(String, "error invalid-input | pmi step42 | why: " ++ why ++
       " | fix: " ++ fix)
-    case PM.FR_line{+l}: IO.print(l)
+    case PM.FR_line{+l}: IO.pure(String, l)
 
-def pmi_vc_go(+code: U64, +p: M.Part, +rest: List<&2, String>) -> IO(Unit):
+def pmi_vc_go(+code: U64, +p: M.Part, +rest: List<&2, String>) -> IO(String):
   match code:
     case 4u64: pmi_fr(PM.pmi_file(p, rest), S.arg_at(rest, 1n))
-    case _: IO.print(PM.pmi_go(p, rest))
+    case _: IO.pure(String, PM.pmi_go(p, rest))
 
-def pmi_k(fits: Bool, +p: M.Part, +ms: List<&2, M.Grade>, +rest: List<&2, String>) -> IO(Unit):
+def pmi_k(fits: Bool, +p: M.Part, +ms: List<&2, M.Grade>, +rest: List<&2, String>) -> IO(String):
   match fits:
-    case True{}: IO.print(KF.fits_s(p, ms, AS.cat(AS.sdrop(rest, 1n))))
+    case True{}: IO.pure(String, KF.fits_s(p, ms, AS.cat(AS.sdrop(rest, 1n))))
     case False{}: pmi_vc_go(PM.verb_code(S.arg_at(rest, 0n)), p, rest)
 
-def pmi_run(+p: M.Part, +rest: List<&2, String>) -> IO(Unit):
+def pmi_run(+p: M.Part, +rest: List<&2, String>) -> IO(String):
   M.Pt{+ps, +ns, +ms, +ts} = p
   pmi_k(String.eq(S.arg_at(rest, 0n), "fits"), p, ms, rest)
 
@@ -1147,26 +1152,26 @@ def pair_q(+rel: Bool, +p: M.Part, +a: U64, +b: U64, +old: List<&2, M.CE>) -> St
   +cs = M.ev_for(p, [a, b], old)
   pair_go(rel, node_res(cs, a), node_res(cs, b))
 
-def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +old: List<&2, M.CE>) -> IO(Unit):
+def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +old: List<&2, M.CE>) -> IO(String):
   match code:
-    case 1u64: IO.print(S.part_show(p))
-    case 2u64: IO.print(ces_s(M.ev_part(p, old)))
-    case 3u64: IO.print(node_faces_vf(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), String.eq(S.arg_at(rest, 1n), "-f")))
-    case 4u64: IO.print(nr_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 5u64: IO.print(sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
+    case 1u64: IO.pure(String, S.part_show(p))
+    case 2u64: IO.pure(String, ces_s(M.ev_part(p, old)))
+    case 3u64: IO.pure(String, node_faces_vf(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), String.eq(S.arg_at(rest, 1n), "-f")))
+    case 4u64: IO.pure(String, nr_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 5u64: IO.pure(String, sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
     case 7u64: tess_args(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
-    case 8u64: IO.print(zone_line(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
-    case 9u64: IO.print(QI.classify_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
-    case 10u64: IO.print(QI.check_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 11u64: IO.print(QD.dist_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
-    case 12u64: IO.print(QD.extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 13u64: IO.print(mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n)), old))
-    case 14u64: IO.print(QN.sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
-    case 15u64: IO.print(pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
-    case 16u64: IO.print(pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
-    case 17u64: IO.print(QD.wall_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 8u64: IO.pure(String, zone_line(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
+    case 9u64: IO.pure(String, QI.classify_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 10u64: IO.pure(String, QI.check_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 11u64: IO.pure(String, QD.dist_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 12u64: IO.pure(String, QD.extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 13u64: IO.pure(String, mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n)), old))
+    case 14u64: IO.pure(String, QN.sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
+    case 15u64: IO.pure(String, pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
+    case 16u64: IO.pure(String, pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
+    case 17u64: IO.pure(String, QD.wall_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 18u64: step_pick(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 1n), old)
     case 19u64: arc_out(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.arg_at(rest, 2n))
@@ -1176,27 +1181,27 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 22u64: asm_io(String.eq(S.arg_at(rest, 0n), "step"), p, rest, old)
     case 23u64: pmi_run(p, rest)
-    case 24u64: IO.print(flat_go(p, rest))
-    case 25u64: IO.print(surf_go(p, rest))
-    case 26u64: IO.print(blade_go(p, rest))
-    case 27u64: IO.print(diag_s(M.ev_part(p, old)))
-    case 28u64: IO.print(threads_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), old))
-    case 29u64: IO.print(bal_out(p, rest, old))
-    case 30u64: IO.print(K3B.rotor_s(S.arg_at(rest, 0n)))
-    case 31u64: IO.print(modes_out(p, rest, old))
-    case 32u64: IO.print(spin_out(p, rest, old))
-    case 33u64: IO.print(mach_out(p, rest, old))
-    case _: IO.print("error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine")
+    case 24u64: IO.pure(String, flat_go(p, rest))
+    case 25u64: IO.pure(String, surf_go(p, rest))
+    case 26u64: IO.pure(String, blade_go(p, rest))
+    case 27u64: IO.pure(String, diag_s(M.ev_part(p, old)))
+    case 28u64: IO.pure(String, threads_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), old))
+    case 29u64: IO.pure(String, bal_out(p, rest, old))
+    case 30u64: IO.pure(String, K3B.rotor_s(S.arg_at(rest, 0n)))
+    case 31u64: IO.pure(String, modes_out(p, rest, old))
+    case 32u64: IO.pure(String, spin_out(p, rest, old))
+    case 33u64: IO.pure(String, mach_out(p, rest, old))
+    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine")
 
-def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
+def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:
-    case True{}: IO.print(E.json_err(0u64, T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
-    case False{}: IO.print(E.line(T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
+    case True{}: IO.pure(String, E.json_err(0u64, T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
+    case False{}: IO.pure(String, E.line(T.F_cancelled{}, cmd, path, "request-cancelled", "reissue the request"))
 
-def run_over_go(is_diag: Bool, +cmd: String, +path: String) -> IO(Unit):
+def run_over_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:
-    case True{}: IO.print(E.json_err(0u64, T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
-    case False{}: IO.print(E.line(T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
+    case True{}: IO.pure(String, E.json_err(0u64, T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
+    case False{}: IO.pure(String, E.line(T.F_exhausted{}, cmd, path, "node-budget-exceeded", "raise --max-nodes N or split the design"))
 
 def batch_split(xs: List<&2, String>, +cur: List<&2, String>, +acc: List<&2, List<&2, String>>) -> List<&2, List<&2, String>>:
   match xs:
@@ -1217,29 +1222,156 @@ def batch_go(cs: List<&2, List<&2, String>>, +path: String, +p: M.Part, +old: Li
     case +h <> +t:
       do IO<Unit>:
         u : Unit <- IO.print("== " ++ words(h))
-        v : Unit <- run_go(cmd_code(S.arg_at(h, 0n)), S.arg_at(h, 0n), path, arg_drop(h, 1n), p, old)
+        v : String <- run_go(cmd_code(S.arg_at(h, 0n)), S.arg_at(h, 0n), path, arg_drop(h, 1n), p, old)
+        w : Unit <- IO.print(v)
         batch_go(t, path, p, old)
 
 def batch_run(+path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
   batch_go(batch_split(rest, [], []), path, p, M.ev_part(p, []))
 
-def run_one(batch: Bool, +code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
+def run_one(batch: Bool, +code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(String):
   match batch:
-    case True{}: batch_run(path, rest, p)
+    case True{}:
+      do IO<String>:
+        u : Unit <- batch_run(path, rest, p)
+        IO.pure(String, "")
     case False{}: run_go(code, cmd, path, rest, p, [])
 
-def run_dec(d: R.Dec, +code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(Unit):
+def run_dec(d: R.Dec, +code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part) -> IO(String):
   match d:
     case R.D_go{}: run_one(U64.is_eq(code, 34u64), code, cmd, path, rest, p)
     case R.D_cancel{}: run_cancel_go(String.eq(cmd, "diag"), cmd, path)
     case R.D_over{}: run_over_go(String.eq(cmd, "diag"), cmd, path)
 
-def run_part(+cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +cap: U64, +cancel: Bool) -> IO(Unit):
+def run_part(+cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +cap: U64, +cancel: Bool) -> IO(String):
   M.Pt{+ps, +ns, +ms, +ts} = p
   run_dec(R.dec_of(cancel, R.over_ids(M.nd_ids(ns), U64.to_nat(cap))), cmd_code(cmd), cmd, path, rest, p)
 
-def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String, +cap: U64, +cancel: Bool) -> IO(Unit):
+def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String, +cap: U64, +cancel: Bool) -> IO(String):
   run_part(cmd, path, rest, load(src), cap, cancel)
+
+type SE is Data:
+  SE{ path: String, cs: List<&2, M.CE> }
+
+def sc_get(sc: List<&2, SE>, +path: String) -> List<&2, M.CE>:
+  match sc:
+    case []: []
+    case +e <> +t:
+      SE{+p, +cs} = e
+      Bool.pick(List<&2, M.CE>, String.eq(p, path), cs, sc_get(t, path))
+
+def sc_put(sc: List<&2, SE>, +path: String, +cs: List<&2, M.CE>) -> List<&2, SE>:
+  match sc:
+    case []: [SE{path, cs}]
+    case +e <> +t:
+      SE{+p, +old} = e
+      Bool.pick(List<&2, SE>, String.eq(p, path), SE{path, cs} <> t, SE{p, old} <> sc_put(t, path, cs))
+
+def req_end() -> String:
+  "<<end>>"
+
+def req_args(xs: List<&2, String>) -> List<&2, String>:
+  match xs:
+    case []: []
+    case +h <> +t: Bool.pick(List<&2, String>, String.eq(h, req_end()), [], h <> req_args(t))
+
+law srv_close:
+  for m: Socket & Result<&1, &1, (U32 & String), Unit>
+  for sc: List<&2, SE>
+  IO(List<&2, SE>)
+
+def srv_close(m, sc):
+  (s, r) = m
+  do IO<List<&2, SE>>:
+    u : Unit <- Socket.close(s)
+    IO.pure(List<&2, SE>, sc)
+
+law srv_answer:
+  for s: Socket
+  for act: IO(String)
+  for sc: List<&2, SE>
+  IO(List<&2, SE>)
+
+def srv_answer(s, act, sc):
+  do IO<List<&2, SE>>:
+    out : String <- act
+    m : Socket & Result<&1, &1, (U32 & String), Unit> <- TCP.send(s, out ++ "\n")
+    srv_close(m, sc)
+
+def srv_commit(s: Socket, +path: String, +p: M.Part, +cs: List<&2, M.CE>, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  srv_answer(s, commit(path, p, cs), sc_put(sc, path, Bool.pick(List<&2, M.CE>, ces_ok(cs), cs, sc_get(sc, path))))
+
+def srv_apply(ok: Bool, s: Socket, +path: String, +p: M.Part, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  match ok:
+    case False{}: srv_answer(s, IO.pure(String, "error invalid-input | apply | why: edits must be (param NAME NOM [LO HI]) with finite numbers LO <= NOM <= HI, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax"), sc)
+    case True{}: srv_commit(s, path, p, M.ev_part(p, sc_get(sc, path)), sc)
+
+def srv_query(s: Socket, +path: String, +verb: String, +rest: List<&2, String>, +p: M.Part, +cs: List<&2, M.CE>, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  srv_answer(s, run_go(cmd_code(verb), verb, path, rest, p, cs), sc_put(sc, path, cs))
+
+def srv_ps(r: S.PS, s: Socket, +path: String, +p: M.Part, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  S.PS{+ok, +xs} = r
+  srv_apply(Bool.and(ok, edits_ok(xs)), s, path, edits(xs, p), sc)
+
+def srv_cmd(isapply: Bool, s: Socket, +path: String, +verb: String, +rest: List<&2, String>, +p: M.Part, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  match isapply:
+    case True{}: srv_ps(edits_parse(rest), s, path, p, sc)
+    case False{}: srv_query(s, path, verb, rest, p, M.ev_part(p, sc_get(sc, path)), sc)
+
+def srv_handle(s: Socket, +args: List<&2, String>, +sc: List<&2, SE>) -> IO(List<&2, SE>):
+  do IO<List<&2, SE>>:
+    src : String <- read_file(S.arg_at(args, 0n))
+    srv_cmd(String.eq(S.arg_at(args, 1n), "apply"), s, S.arg_at(args, 0n), S.arg_at(args, 1n), arg_drop(args, 2n), load(src), sc)
+
+def trim_nl(+t: String) -> String:
+  S.arg_at(MO.mo_lines(t), 0n)
+
+law srv_req:
+  for q: Socket & Result<&1, &1, (U32 & String), String>
+  for sc: List<&2, SE>
+  IO(List<&2, SE>)
+
+def srv_req(q, sc):
+  (s, r) = q
+  do IO<List<&2, SE>>:
+    path : String <- IO.pass(String, r)
+    text : String <- read_file(trim_nl(path))
+    srv_handle(s, req_args(MO.mo_lines(text)), sc)
+
+law srv_conn:
+  for m: Listener & Result<&1, &1, (U32 & String), Socket>
+  for sc: List<&2, SE>
+  IO(Listener & List<&2, SE>)
+
+def srv_conn(m, sc):
+  (l, r) = m
+  do IO<Listener & List<&2, SE>>:
+    s : Socket <- IO.pass(Socket, r)
+    q : Socket & Result<&1, &1, (U32 & String), String> <- TCP.recv(s, 4096)
+    sc2 : List<&2, SE> <- srv_req(q, sc)
+    IO.pure(Listener & List<&2, SE>, (l, sc2))
+
+law srv_loop:
+  for n: Nat
+  for x: Listener & List<&2, SE>
+  IO(Unit)
+
+def srv_loop(n, x):
+  match n:
+    case 0n: IO.print("serve request budget spent")
+    case 1n+f:
+      (l, sc) = x
+      do IO<Unit>:
+        m : Listener & Result<&1, &1, (U32 & String), Socket> <- TCP.accept(l)
+        y : Listener & List<&2, SE> <- srv_conn(m, sc)
+        srv_loop(f, y)
+
+def serve(+port: U32) -> IO(Unit):
+  do IO<Unit>:
+    r : Result<&1, &1, (U32 & String), Listener> <- TCP.listen("127.0.0.1", port)
+    l : Listener <- IO.pass(Listener, r)
+    u : Unit <- IO.print("serving 127.0.0.1:" ++ U32.show(port))
+    srv_loop(1000000n, (l, []))
 
 def main_new(+path: String) -> IO(Unit):
   do IO<Unit>:
@@ -1247,10 +1379,19 @@ def main_new(+path: String) -> IO(Unit):
 ")
     IO.print("created " ++ path)
 
+def say_go(empty: Bool, +o: String) -> IO(Unit):
+  match empty:
+    case True{}: IO.pure(Unit, Unit{})
+    case False{}: IO.print(o)
+
+def say(+o: String) -> IO(Unit):
+  say_go(String.eq(o, ""), o)
+
 def main_old_go(+path: String, +cmd: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(Unit):
   do IO<Unit>:
     src : String <- read_file(path)
-    run(cmd, path, rest, src, cap, cancel)
+    o : String <- run(cmd, path, rest, src, cap, cancel)
+    say(o)
 
 def main_isnew_go(isnew: Bool, +path: String, +verb: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(Unit):
   match isnew:
@@ -1274,8 +1415,13 @@ def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
     case True{}: geo_go(geo12(S.arg_at(args, 2n)), args)
     case False{}: main_sel(S.arg_at(args, 1n), arg_drop(args, 2n))
 
+def main_srv(issrv: Bool, +args: List<&2, String>) -> IO(Unit):
+  match issrv:
+    case True{}: serve(U64.to_u32(S.u64_of(S.Sx_a{S.arg_at(args, 2n)})))
+    case False{}: main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)
+
 def main_go(+args: List<&2, String>) -> IO(Unit):
-  main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)
+  main_srv(String.eq(S.arg_at(args, 1n), "serve"), args)
 
 def main() -> IO(Unit):
   do IO<Unit>:

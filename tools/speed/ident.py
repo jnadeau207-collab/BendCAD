@@ -28,6 +28,7 @@ def battery():
         ('g2-asm-interf-pair', PUMP, ['asm', 'interf', PAIR], None),
         ('g2-threads-38', PUMP, ['threads', '38'], None),
         ('g3-eval', BOX, ['eval'], None),
+        ('g4-hub2-eval', 'tests/speed/hub2.bcd', ['eval'], None),
     ]
 
 

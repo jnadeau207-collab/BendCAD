@@ -1,5 +1,7 @@
-import { spawnSync } from 'node:child_process';
-import { readFileSync, appendFileSync } from 'node:fs';
+import { spawnSync, spawn } from 'node:child_process';
+import { readFileSync, appendFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { connect } from 'node:net';
+import { tmpdir } from 'node:os';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -9,6 +11,9 @@ const BIN = process.env.BENDCAD_BIN || '/home/jesse/bc/bendcad';
 const LOG = process.env.BENDCAD_LOG || '';
 const TIMEOUT = Number(process.env.BENDCAD_TIMEOUT_MS) || 600000;
 const MAXN = process.env.BENDCAD_MAX_NODES || '';
+const PORT = Number(process.env.BENDCAD_PORT) || 0;
+const REQ = PORT ? mkdtempSync(join(tmpdir(), 'bendcad-')) : '';
+const [WSL, PRE] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
 const REF = readFileSync(join(here, 'language.md'), 'utf8');
 const CODES = {'invalid-input':1,'unsupported-op':2,'numerical-uncertainty':3,'nonconvergence':4,'cancelled':5,'resource-exhausted':6};
 
@@ -55,20 +60,72 @@ function parseErr(text) {
 }
 
 function cli(args) {
-  const [cmd, pre] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
-  const full = [...pre, ...withCap(args)];
-  const r = spawnSync(cmd, full, { encoding: 'utf8', timeout: TIMEOUT });
-  const st = endState(r);
-  let out = (r.stdout || '') + (r.stderr || '');
+  const full = [...PRE, ...withCap(args)];
+  const r = spawnSync(WSL, full, { encoding: 'utf8', timeout: TIMEOUT });
+  return result(full, r.status, endState(r), r.signalCode, (r.stdout || '') + (r.stderr || ''));
+}
+
+function result(full, status, st, sig, out) {
   if (st === 'timeout') out += (out === '' || out.endsWith('\n') ? '' : '\n') + `error cancelled | mcp-timeout @ bendcad-mcp | why: cli-exceeded-timeout | fix: retry with a larger BENDCAD_TIMEOUT_MS (current ${TIMEOUT})\n`;
-  if (st === 'signal') out += (out === '' || out.endsWith('\n') ? '' : '\n') + `error cancelled | mcp-signal @ bendcad-mcp | why: cli-killed-by-signal-${r.signalCode} | fix: retry the request\n`;
+  if (st === 'signal') out += (out === '' || out.endsWith('\n') ? '' : '\n') + `error cancelled | mcp-signal @ bendcad-mcp | why: cli-killed-by-signal-${sig} | fix: retry the request\n`;
   if (LOG) {
-    const rec = JSON.stringify({ t: new Date().toISOString(), args: full, status: r.status, out }) + '\n';
+    const rec = JSON.stringify({ t: new Date().toISOString(), args: full, status, out }) + '\n';
     try { appendFileSync(LOG, rec); } catch {}
   }
-  const ok = r.status === 0 && st === 'exit' && !/^error|^node \d+: error|^node failed|rejected/m.test(out) && !/"ok":false/.test(out);
-  return { ok, text: out.trim() || `exit ${r.status}`, diags: parseErr(out) };
+  const ok = status === 0 && st === 'exit' && !/^error|^node \d+: error|^node failed|rejected/m.test(out) && !/"ok":false/.test(out);
+  return { ok, text: out.trim() || `exit ${status}`, diags: parseErr(out) };
 }
+
+let server = null;
+let seq = 0;
+
+function wslPath(p) {
+  return process.platform === 'win32' ? `/mnt/${p[0].toLowerCase()}${p.slice(2).replace(/\\/g, '/')}` : p;
+}
+
+function ask(file) {
+  return new Promise(res => {
+    const s = connect(PORT, '127.0.0.1');
+    let out = '';
+    let up = false;
+    s.setEncoding('utf8');
+    s.on('connect', () => { up = true; s.write(wslPath(file) + '\n'); });
+    s.on('data', d => { out += d; });
+    s.on('error', () => {});
+    s.on('close', () => res({ up, out }));
+  });
+}
+
+async function serve(args) {
+  if (!server) {
+    server = spawn(WSL, [...PRE, 'serve', String(PORT)], { stdio: 'ignore' });
+    server.on('exit', () => { server = null; });
+  }
+  const file = join(REQ, `${++seq}.req`);
+  writeFileSync(file, [...args, '<<end>>'].join('\n') + '\n');
+  const full = [...PRE, 'serve', String(PORT), ...args];
+  const live = server;
+  let late = false;
+  const timer = setTimeout(() => { late = true; live.kill(); }, TIMEOUT);
+  for (let i = 0; i < 600; i++) {
+    const r = await ask(file);
+    if (r.up) {
+      clearTimeout(timer);
+      if (r.out !== '') return result(full, 0, 'exit', null, r.out);
+      return result(full, null, late ? 'timeout' : 'signal', 'server-closed', '');
+    }
+    if (live.exitCode !== null) break;
+    await new Promise(z => setTimeout(z, 100));
+  }
+  clearTimeout(timer);
+  return result(full, null, 'signal', 'server-unreachable', '');
+}
+
+function call(args) {
+  return PORT && MAXN === '' && args[0] !== 'geom' && args[1] !== 'new' && !args.some(a => String(a).includes('\n')) ? serve(args) : cli(args);
+}
+
+process.on('exit', () => { if (server) server.kill(); });
 
 const design = { type: 'string', description: 'Design file path inside WSL, e.g. /home/jesse/work/bracket.bcd' };
 const node = { type: 'integer', description: 'Node id' };
@@ -77,54 +134,54 @@ const tools = [
   { name: 'reference', description: 'The BendCAD design language: parameters, profiles, operations, faces, intents. Read this first.',
     inputSchema: { type: 'object', properties: {} }, run: () => ({ ok: true, text: REF, diags: [] }) },
   { name: 'new_design', description: 'Create an empty design file.',
-    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'new']) },
+    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => call([a.design, 'new']) },
   { name: 'apply', description: 'Apply edits atomically. Each edit is (param NAME NOM [LO HI]), (node ID OP INTENT), (material NODE GRADE RHO CTE [E NU]), (thread NODE NAME FACE DESIG CLASS Z0 Z1) or (delete ID). The change is committed only if every node builds and meets its declared intent; otherwise nothing changes and each failure is diagnosed.',
     inputSchema: { type: 'object', properties: { design, edits: { type: 'array', items: { type: 'string' }, description: 'One edit per string; a single string holding several edits is also accepted' } }, required: ['design', 'edits'] },
-    run: a => cli([a.design, 'apply', ...(typeof a.edits === 'string' ? [a.edits] : Array.isArray(a.edits) ? a.edits.map(String) : [])]) },
+    run: a => call([a.design, 'apply', ...(typeof a.edits === 'string' ? [a.edits] : Array.isArray(a.edits) ? a.edits.map(String) : [])]) },
   { name: 'show', description: 'Print the design (parameters and nodes) as stored.',
-    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'show']) },
+    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => call([a.design, 'show']) },
   { name: 'evaluate', description: 'Evaluate every node: measured effect, certified volume and area intervals, bounding box, entity counts, genus.',
-    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'eval']) },
+    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => call([a.design, 'eval']) },
   { name: 'diagnose', description: 'Structured failures of the design as JSON lines: one {"node","ok"} object per evaluated node; failures carry code, kind, what, loc, why and fix.',
-    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => cli([a.design, 'diag']) },
+    inputSchema: { type: 'object', properties: { design }, required: ['design'] }, run: a => call([a.design, 'diag']) },
   { name: 'measure', description: 'Measures of one node\'s solid.',
-    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'measure', String(a.node)]) },
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => call([a.design, 'measure', String(a.node)]) },
   { name: 'faces', description: 'Faces of one node\'s solid by durable lineage name (nN.cK.top|bottom|wall.I.J), surface type and loop count. Use these names to select faces for features.',
-    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'faces', String(a.node)]) },
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => call([a.design, 'faces', String(a.node)]) },
   { name: 'sensitivity', description: 'Estimated derivatives of volume, area and bounding box of a node with respect to a parameter, or the reason none exists (topology change, failure).',
     inputSchema: { type: 'object', properties: { design, param: { type: 'string' }, node }, required: ['design', 'param', 'node'] },
-    run: a => cli([a.design, 'sens', a.param, String(a.node)]) },
+    run: a => call([a.design, 'sens', a.param, String(a.node)]) },
   { name: 'zone', description: 'Volume and area of a node certified over the whole tolerance envelope (every parameter anywhere in its [lo, hi] zone), for every operation once the kernel certifies the topology cannot change in the zone; otherwise topology-not-certified-over-zone.',
-    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'zone', String(a.node)]) },
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => call([a.design, 'zone', String(a.node)]) },
   { name: 'classify', description: 'Is a world point inside, outside or on the boundary of the solid of a node (certified ray casting)?',
     inputSchema: { type: 'object', properties: { design, node, x: { type: 'number' }, y: { type: 'number' }, z: { type: 'number' } }, required: ['design', 'node', 'x', 'y', 'z'] },
-    run: a => cli([a.design, 'classify', String(a.node), String(a.x), String(a.y), String(a.z)]) },
+    run: a => call([a.design, 'classify', String(a.node), String(a.x), String(a.y), String(a.z)]) },
   { name: 'check', description: 'Certify that the solid of a node is embedded (no crossing edges, piercing edges, penetrating or overlapping faces), that shells face outward and that cavities are nested correctly. Prints ok or one finding per line.',
-    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => cli([a.design, 'check', String(a.node)]) },
+    inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] }, run: a => call([a.design, 'check', String(a.node)]) },
   { name: 'intersect', description: 'Intersect two curves, a curve and a surface, or two surfaces (see reference: Geometry queries). Returns certified points, overlaps, traced curves and explicit unresolved boxes.',
     inputSchema: { type: 'object', properties: { a: { type: 'string', description: 'First geometry, e.g. (line 0 0 0 1 0 0 -5 5)' }, b: { type: 'string', description: 'Second geometry' }, box: { type: 'string', description: 'Optional (box X0 X1 Y0 Y1 Z0 Z1); required for surface/surface' } }, required: ['a', 'b'] },
-    run: a => cli(['geom', 'intersect', a.a, a.b, ...(a.box ? [a.box] : [])]) },
+    run: a => call(['geom', 'intersect', a.a, a.b, ...(a.box ? [a.box] : [])]) },
   { name: 'distance', description: 'Closest point and distance from a world point to the solid of a node: 0 certified when inside or on the boundary, otherwise a [lo, hi] interval with a certified lower bound, the nearest sample, and estimated status.',
     inputSchema: { type: 'object', properties: { design, node, x: { type: 'number' }, y: { type: 'number' }, z: { type: 'number' } }, required: ['design', 'node', 'x', 'y', 'z'] },
-    run: a => cli([a.design, 'dist', String(a.node), String(a.x), String(a.y), String(a.z)]) },
+    run: a => call([a.design, 'dist', String(a.node), String(a.x), String(a.y), String(a.z)]) },
   { name: 'extrema', description: 'Certified world-coordinate bounds of the solid of a node, with the nearest vertex witness per bound (sampled).',
     inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] },
-    run: a => cli([a.design, 'extrema', String(a.node)]) },
+    run: a => call([a.design, 'extrema', String(a.node)]) },
   { name: 'mass', description: 'Mass properties of a node\'s solid (plus the certified mass in kg when a material is bound):certified volume and area, centroid interval and centroidal inertia tensor from bounded octree integration (depth 0-6, default 4), with cell counts.',
     inputSchema: { type: 'object', properties: { design, node, depth: { type: 'integer', description: 'Octree depth 0-6 (default 4)' } }, required: ['design', 'node'] },
-    run: a => cli([a.design, 'mass', String(a.node), a.depth ?? ''].map(String)) },
+    run: a => call([a.design, 'mass', String(a.node), a.depth ?? ''].map(String)) },
   { name: 'section', description: 'Section of a node\'s solid by the world plane ax+by+cz=d: per-face intersection curves with sample points, unresolved boxes, coincident faces, and summary counts with certified or estimated status.',
     inputSchema: { type: 'object', properties: { design, node, a: { type: 'number' }, b: { type: 'number' }, c: { type: 'number' }, d: { type: 'number' } }, required: ['design', 'node', 'a', 'b', 'c', 'd'] },
-    run: a => cli([a.design, 'section', String(a.node), String(a.a), String(a.b), String(a.c), String(a.d)]) },
+    run: a => call([a.design, 'section', String(a.node), String(a.a), String(a.b), String(a.c), String(a.d)]) },
   { name: 'interference', description: 'Exact relation between the solids of two nodes: disjoint, inside (a-in-b, b-in-a) or interference, each certified, else uncertain with sample counts. Also reports exact per-solid cavity inside/disjoint verdicts. AABB overlap alone is never reported as interference.',
     inputSchema: { type: 'object', properties: { design, a: { ...node, description: 'First node id' }, b: { ...node, description: 'Second node id' } }, required: ['design', 'a', 'b'] },
-    run: a => cli([a.design, 'interf', String(a.a), String(a.b)]) },
+    run: a => call([a.design, 'interf', String(a.a), String(a.b)]) },
   { name: 'clearance', description: 'Clearance between the solids of two nodes: 0 certified on proven interference, otherwise a [lo, hi] interval with a certified lower bound and estimated status.',
     inputSchema: { type: 'object', properties: { design, a: { ...node, description: 'First node id' }, b: { ...node, description: 'Second node id' } }, required: ['design', 'a', 'b'] },
-    run: a => cli([a.design, 'clearance', String(a.a), String(a.b)]) },
+    run: a => call([a.design, 'clearance', String(a.a), String(a.b)]) },
   { name: 'min_wall', description: 'Minimum wall thickness of a node\'s solid by the qualified exhaustive method: every non-adjacent face pair bounds the minimum from below (certified lo) with sample upper bounds (estimated). Adjacent faces share a vertex and are excluded.',
     inputSchema: { type: 'object', properties: { design, node }, required: ['design', 'node'] },
-    run: a => cli([a.design, 'wall', String(a.node)]) },
+    run: a => call([a.design, 'wall', String(a.node)]) },
   { name: 'tessellate', description: 'Write a watertight triangle mesh (OBJ) of a node\'s solid to a WSL path, with stated chord/angle quality, a triangle budget, and sampled (not certified) measurements. Refuses as tess-budget-exceeded when the estimate tops the budget.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' },
         preset: { type: 'integer', description: '0 draft, 1 default, 2 fine, 3 manufacturing (default 1)' },
@@ -133,36 +190,36 @@ const tools = [
         maxTris: { type: 'integer', description: 'Triangle budget (preset default)' },
         profile: { type: 'string', description: 'display or manufacturing (preset default)' } },
       required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, 'tess', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+    run: a => call([a.design, 'tess', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
   { name: 'step_export', description: 'Write a STEP file (declared B-rep profile: analytic curves, trim-seg coedges, plane/sphere/cylinder/torus/bezier-patch faces, mm units) of a node\'s solid to a WSL path. Refuses with a named reason outside the profile.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' } }, required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, 'step', String(a.node), a.out]) },
+    run: a => call([a.design, 'step', String(a.node), a.out]) },
   { name: 'step_import', description: 'Import a STEP file: validates the declared profile (mm units, no open shells, no NURBS/spline geometry outside bezier form) and reports measures. Optionally writes a BCAD2 archive of the imported solid.',
     inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'STEP file path inside WSL' }, out: { type: 'string', description: 'Optional archive path' } }, required: ['file'] },
-    run: a => cli(['geom', 'step_import', a.file, ...(a.out ? [a.out] : [])]) },
+    run: a => call(['geom', 'step_import', a.file, ...(a.out ? [a.out] : [])]) },
   { name: 'archive', description: 'Write a versioned BCAD2 B-rep archive (topology plus analytic geometry, never a display mesh) of a node\'s solid to a WSL path, with optional lineage text.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' }, lineage: { type: 'string' } }, required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, 'archive', String(a.node), a.out, a.lineage ?? ''].map(String)) },
+    run: a => call([a.design, 'archive', String(a.node), a.out, a.lineage ?? ''].map(String)) },
   { name: 'reopen', description: 'Reopen a BCAD2 archive: validates version, units and the full B-rep, and reports measures, units and lineage. Verbose mode lists faces with analytic surface types.',
     inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'Archive path inside WSL' }, verbose: { type: 'boolean' } }, required: ['file'] },
-    run: a => cli(['geom', 'reopen', a.file, ...(a.verbose ? ['-v'] : [])]) },
+    run: a => call(['geom', 'reopen', a.file, ...(a.verbose ? ['-v'] : [])]) },
   { name: 'step_of', description: 'Export a BCAD2 archive to a STEP file (same declared profile as step_export).',
     inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'Archive path inside WSL' }, out: { type: 'string' } }, required: ['file', 'out'] },
-    run: a => cli(['geom', 'step_of', a.file, a.out]) },
+    run: a => call(['geom', 'step_of', a.file, a.out]) },
   { name: 'stl_export', description: 'Write an ASCII STL mesh of a node\'s solid to a WSL path, with stated chord/angle quality, a triangle budget, and sampled (not certified) measurements.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' },
         preset: { type: 'integer', description: '0 draft, 1 default, 2 fine, 3 manufacturing (default 1)' },
         chord: { type: 'number' }, angle: { type: 'number' }, maxTris: { type: 'integer' },
         profile: { type: 'string', description: 'display or manufacturing (preset default)' } },
       required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, 'stl', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+    run: a => call([a.design, 'stl', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
   { name: 'stl_of', description: 'Write an ASCII STL mesh of a BCAD2 archive\'s solid to a WSL path (same quality arguments as stl_export).',
     inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'Archive path inside WSL' }, out: { type: 'string' },
         preset: { type: 'integer' }, chord: { type: 'number' }, angle: { type: 'number' }, maxTris: { type: 'integer' },
         profile: { type: 'string' } }, required: ['file', 'out'] },
-    run: a => cli(['geom', 'stl_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+    run: a => call(['geom', 'stl_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
   { name: 'threemf_export', description: 'Write a 3MF package (store-mode OPC zip with model XML, millimetre units) of a node\'s solid to a WSL path, with stated chord/angle quality and sampled (not certified) measurements.',
     inputSchema: { type: 'object', properties: { design, node, out: { type: 'string' },
@@ -170,13 +227,13 @@ const tools = [
         chord: { type: 'number' }, angle: { type: 'number' }, maxTris: { type: 'integer' },
         profile: { type: 'string', description: 'display or manufacturing (preset default)' } },
       required: ['design', 'node', 'out'] },
-    run: a => cli([a.design, '3mf', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+    run: a => call([a.design, '3mf', String(a.node), a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
   { name: 'threemf_of', description: 'Write a 3MF package of a BCAD2 archive\'s solid to a WSL path (same quality arguments as threemf_export).',
     inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'Archive path inside WSL' }, out: { type: 'string' },
         preset: { type: 'integer' }, chord: { type: 'number' }, angle: { type: 'number' }, maxTris: { type: 'integer' },
         profile: { type: 'string' } }, required: ['file', 'out'] },
-    run: a => cli(['geom', '3mf_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
+    run: a => call(['geom', '3mf_of', a.file, a.out, a.preset ?? '', a.chord ?? '', a.angle ?? '',
       a.maxTris ?? '', a.profile ?? ''].map(String)) },
   { name: 'assembly', description: 'Solve an assembly of design-node instances with mates (see reference: Assemblies; Materials, threads and fits). Actions: solve (placements, dof, redundant mates, lineage), interf/clear (pairwise certified interference/clearance over solved placements), explode (exploded placements along dx,dy,dz with gap), faces (assembly-qualified face names of one instance), mass (per-instance and total certified mass from bound materials), engage (certified engagement of thread a.thread on inst with thread b.thread on inst2), gap (certified minimum gap between z-extruded inst and inst2, optionally against named faces of inst2), mesh (certified minimum gap of gears inst and inst2 over one pitch, teeth and teeth2), step (STEP AP242 of every placed instance as its own solid, in instance order, to out).',
     inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'solve, interf, clear, explode, faces, mass, engage, gap, mesh or step' },
@@ -189,67 +246,70 @@ const tools = [
         dx: { type: 'number' }, dy: { type: 'number' }, dz: { type: 'number' }, gap: { type: 'number' } },
       required: ['design', 'action', 'assembly'] },
     run: a => a.action === 'explode'
-      ? cli([a.design, 'asm', 'explode', a.dx ?? '', a.dy ?? '', a.dz ?? '', a.gap ?? '', a.assembly].map(String))
-      : a.action === 'faces' ? cli([a.design, 'asm', 'faces', a.inst ?? '', a.assembly])
-      : a.action === 'engage' ? cli([a.design, 'asm', 'engage', a.inst ?? '', a.thread ?? '', a.inst2 ?? '', a.thread2 ?? '', a.assembly].map(String))
-      : a.action === 'gap' ? cli([a.design, 'asm', 'gap', a.inst ?? '', a.inst2 ?? '', ...(a.faces ?? []), a.assembly].map(String))
-      : a.action === 'step' ? cli([a.design, 'asm', 'step', a.out ?? '', a.assembly].map(String))
-      : a.action === 'mesh' ? cli([a.design, 'asm', 'mesh', a.inst ?? '', a.teeth ?? '', a.inst2 ?? '', a.teeth2 ?? '', a.assembly].map(String))
-      : cli([a.design, 'asm', String(a.action), a.assembly]) },
+      ? call([a.design, 'asm', 'explode', a.dx ?? '', a.dy ?? '', a.dz ?? '', a.gap ?? '', a.assembly].map(String))
+      : a.action === 'faces' ? call([a.design, 'asm', 'faces', a.inst ?? '', a.assembly])
+      : a.action === 'engage' ? call([a.design, 'asm', 'engage', a.inst ?? '', a.thread ?? '', a.inst2 ?? '', a.thread2 ?? '', a.assembly].map(String))
+      : a.action === 'gap' ? call([a.design, 'asm', 'gap', a.inst ?? '', a.inst2 ?? '', ...(a.faces ?? []), a.assembly].map(String))
+      : a.action === 'step' ? call([a.design, 'asm', 'step', a.out ?? '', a.assembly].map(String))
+      : a.action === 'mesh' ? call([a.design, 'asm', 'mesh', a.inst ?? '', a.teeth ?? '', a.inst2 ?? '', a.teeth2 ?? '', a.assembly].map(String))
+      : call([a.design, 'asm', String(a.action), a.assembly]) },
   { name: 'pmi', description: 'Semantic PMI and GD&T (see reference: Semantic PMI; Materials, threads and fits). Actions: check (validate and evaluate), stack (worst-case stack-ups over envelope and states), toler (per-state interference/clearance plus envelope), fits (ISO 286 fits per material at every (temp NAME T)), step42 (STEP AP242 export with PMI).',
     inputSchema: { type: 'object', properties: { design, action: { type: 'string', description: 'check, stack, toler, fits or step42' },
         pmi: { type: 'string', description: 'One (pmi ...) form' }, out: { type: 'string', description: 'Output file (step42 only)' } },
       required: ['design', 'action', 'pmi'] },
-    run: a => a.action === 'step42' ? cli([a.design, 'pmi', 'step42', a.out ?? '', a.pmi])
-      : cli([a.design, 'pmi', String(a.action), a.pmi]) },
+    run: a => a.action === 'step42' ? call([a.design, 'pmi', 'step42', a.out ?? '', a.pmi])
+      : call([a.design, 'pmi', String(a.action), a.pmi]) },
   { name: 'threads', description: 'Thread features of a node (see reference: Materials, threads and fits): designation, class, span, side, ISO 965-1 diameter window, modelled diameter and face, each certified.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number' } }, required: ['design', 'node'] },
-    run: a => cli([a.design, 'threads', String(a.node)]) },
+    run: a => call([a.design, 'threads', String(a.node)]) },
   { name: 'surface', description: 'Boundary report of an open-shell node (see reference: Surface modeling). Per-edge durable names with certified or estimated lengths, area, boundary length and bounding box for a loft-open, sweep-open or patch node.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Open-shell node id' } },
       required: ['design', 'node'] },
-    run: a => cli([a.design, 'surf', String(a.node)]) },
+    run: a => call([a.design, 'surf', String(a.node)]) },
   { name: 'blade', description: 'Blade section report of a blade node (see reference: Blade sections). Per-section certified area, centroid, max thickness and max camber intervals, chord, stacking height, stacking-axis deviation and the twist schedule for a blade node.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Blade node id' } },
       required: ['design', 'node'] },
-    run: a => cli([a.design, 'blade', String(a.node)]) },
+    run: a => call([a.design, 'blade', String(a.node)]) },
   { name: 'flat_pattern', description: 'Sheet-metal flat pattern (see reference: Sheet metal). Certified bend allowances over a K-factor zone, developed runs, developed length interval and blank box for a flat, bend or hem node.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number', description: 'Sheet node id' },
         klo: { type: 'number', description: 'K-factor zone low end, 0 < KLO' },
         khi: { type: 'number', description: 'K-factor zone high end, KHI < 1' } },
       required: ['design', 'node', 'klo', 'khi'] },
-    run: a => cli([a.design, 'flat', String(a.node), String(a.klo), String(a.khi)]) },
+    run: a => call([a.design, 'flat', String(a.node), String(a.klo), String(a.khi)]) },
   { name: 'balance', description: 'ISO 21940-11 balance of a node about an axis (see reference: Rotor analysis): certified mass, centroid offset, residual unbalance, permissible unbalance at RPM for grade G, products of inertia relative to the axis, verdict within/exceeds/undecided. Needs a material.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number' }, point: { type: 'array', items: { type: 'number' }, description: '[PX, PY, PZ] on the axis (mm)' },
         axis: { type: 'array', items: { type: 'number' }, description: '[DX, DY, DZ] axis direction' }, rpm: { type: 'number' }, grade: { type: 'number', description: 'Balance grade G in mm/s, e.g. 2.5' } },
       required: ['design', 'node', 'point', 'axis', 'rpm', 'grade'] },
-    run: a => cli([a.design, 'balance', String(a.node), ...a.point.map(String), ...a.axis.map(String), String(a.rpm), String(a.grade)]) },
+    run: a => call([a.design, 'balance', String(a.node), ...a.point.map(String), ...a.axis.map(String), String(a.rpm), String(a.grade)]) },
   { name: 'rotor', description: 'Lateral critical speeds of a shaft from a (rotor ...) spec by Timoshenko beam elements and Sturm bisection, with a three-level refinement bound (see reference: Rotor analysis).',
     inputSchema: { type: 'object', properties: { design, spec: { type: 'string', description: '(rotor (seg L OD ID E NU RHO) ... (disc X M JD) (brg X KW KT) (n N) (modes K))' } },
       required: ['design', 'spec'] },
-    run: a => cli([a.design, 'rotor', a.spec]) },
+    run: a => call([a.design, 'rotor', a.spec]) },
   { name: 'modes', description: 'Natural frequencies of a node\'s solid by curved T10 finite elements on an isosurface-stuffing mesh and block LOBPCG, solved at element sizes H, H/2^(1/3), H/2^(2/3) with an extrapolated value and refinement bound per mode (see reference: Finite elements). Free-free (rigid modes skipped) unless a clamp is given: every mesh node within R of the axis through POINT along AXIS is fixed. Needs a material with E and NU. Long-running: size H to the thinnest wall.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number' }, k: { type: 'number', description: 'Number of elastic modes, 1..40' },
         h: { type: 'number', description: 'Coarsest element size H (mm)' }, point: { type: 'array', items: { type: 'number' } }, axis: { type: 'array', items: { type: 'number' } },
         r: { type: 'number', description: 'Clamp radius about the axis (mm)' } },
       required: ['design', 'node', 'k', 'h'] },
-    run: a => cli([a.design, 'modes', String(a.node), String(a.k), String(a.h), ...(a.r ? [...a.point.map(String), ...a.axis.map(String), String(a.r)] : [])]) },
+    run: a => call([a.design, 'modes', String(a.node), String(a.k), String(a.h), ...(a.r ? [...a.point.map(String), ...a.axis.map(String), String(a.r)] : [])]) },
   { name: 'spin', description: 'Centrifugal response of a node\'s solid spinning at RPM about an axis by curved T10 finite elements: radial growth at the outermost node, maximum radial growth, maximum von Mises stress and the external work, each at three element sizes with an extrapolated value and refinement bound (see reference: Finite elements). Nodes within R of the axis are clamped; R = 0 spins a free part whose centrifugal load is self-equilibrated. Needs a material with E and NU.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number' }, rpm: { type: 'number' }, h: { type: 'number', description: 'Coarsest element size H (mm)' },
         point: { type: 'array', items: { type: 'number' } }, axis: { type: 'array', items: { type: 'number' } }, r: { type: 'number', description: 'Clamp radius (mm), 0 for a free balanced part' } },
       required: ['design', 'node', 'rpm', 'h', 'point', 'axis', 'r'] },
-    run: a => cli([a.design, 'spin', String(a.node), String(a.rpm), String(a.h), ...a.point.map(String), ...a.axis.map(String), String(a.r)]) },
+    run: a => call([a.design, 'spin', String(a.node), String(a.rpm), String(a.h), ...a.point.map(String), ...a.axis.map(String), String(a.r)]) },
   { name: 'machine', description: 'Machinability of the solid of a node with a ball-end mill (see reference: Machinability): concave face radii below the ball radius, sharp concave edges, and reachability of NS x NS sampled points per face along 3-axis (+z) or 5-axis (normal, normal tilted toward +z, +z) tool directions, each tool position (ball, flute, holder) certified collision-free against the part by the embedding check. Verdict machinable, not-machinable or uncertain.',
     inputSchema: { type: 'object', properties: { design, node: { type: 'number' }, d: { type: 'number', description: 'Ball diameter (mm)' }, flute: { type: 'number', description: 'Flute length (mm)' },
         holder_d: { type: 'number', description: 'Holder diameter (mm)' }, holder_l: { type: 'number', description: 'Holder length (mm)' }, axes: { type: 'number', description: '3 or 5' },
         samples: { type: 'number', description: 'Samples per face side, 1 to 8' } },
       required: ['design', 'node', 'd', 'flute', 'holder_d', 'holder_l', 'axes', 'samples'] },
-    run: a => cli([a.design, 'machine', String(a.node), String(a.d), String(a.flute), String(a.holder_d), String(a.holder_l), String(a.axes), String(a.samples)]) },
+    run: a => call([a.design, 'machine', String(a.node), String(a.d), String(a.flute), String(a.holder_d), String(a.holder_l), String(a.axes), String(a.samples)]) },
 ];
 
 function send(msg) { process.stdout.write(JSON.stringify(msg) + '\n'); }
 
 const rl = createInterface({ input: process.stdin });
+let busy = 0;
+let closed = false;
+rl.on('close', () => { closed = true; if (busy === 0) process.exit(0); });
 rl.on('line', line => {
   let m;
   try { m = JSON.parse(line); } catch { return; }
@@ -261,8 +321,11 @@ rl.on('line', line => {
   } else if (m.method === 'tools/call') {
     const t = tools.find(x => x.name === m.params?.name);
     if (!t) { send({ jsonrpc: '2.0', id: m.id, error: { code: -32602, message: 'unknown tool' } }); return; }
-    const r = t.run(m.params.arguments || {});
-    send({ jsonrpc: '2.0', id: m.id, result: { content: [{ type: 'text', text: r.text }], isError: !r.ok, diagnostics: r.diags || [] } });
+    busy++;
+    Promise.resolve(t.run(m.params.arguments || {})).then(r => {
+      send({ jsonrpc: '2.0', id: m.id, result: { content: [{ type: 'text', text: r.text }], isError: !r.ok, diagnostics: r.diags || [] } });
+      if (--busy === 0 && closed) process.exit(0);
+    });
   } else if (m.method === 'ping') {
     send({ jsonrpc: '2.0', id: m.id, result: {} });
   } else if (m.id !== undefined) {

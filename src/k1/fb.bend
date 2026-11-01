@@ -19,18 +19,19 @@ def ce_fw(+c: CE) -> Bool:
   fwd
 
 type KB is Data:
-  KB{ b: Ty.Brep, x: Ty.Ix, box: List<&2, KB> }
-
-def kb_of(+b: Ty.Brep) -> KB:
-  KB{b, Ty.ix_of(b), []}
+  KB{ b: Ty.Brep, x: Ty.Ix, ef: B.Tb<&2, List<&2, Nat>>, box: List<&2, KB> }
 
 def kb_br(+k: KB) -> Ty.Brep:
-  KB{+b, x, box} = k
+  KB{+b, x, ef, box} = k
   b
 
 def kb_x(+k: KB) -> Ty.Ix:
-  KB{b, +x, box} = k
+  KB{b, +x, ef, box} = k
   x
+
+def kb_ef(+k: KB) -> B.Tb<&2, List<&2, Nat>>:
+  KB{b, x, +ef, box} = k
+  ef
 
 def kb_v(+k: KB, +i: Nat) -> Ty.Vertex:
   +x = kb_x(k)
@@ -98,8 +99,46 @@ def efaces_go(fs: List<&2, Ty.Face>, +k: KB, +e: Nat, +i: Nat) -> List<&2, Nat>:
       +rest = efaces_go(t, k, e, Nat.add(i, 1n))
       Bool.pick(List<&2, Nat>, hls_has(Ty.fa_loops(h), k, e), i <> rest, rest)
 
+def ef_in(inr: Bool, +b: KB, +e: Nat) -> List<&2, Nat>:
+  match inr:
+    case True{}: B.tb_get(List<&2, Nat>, kb_ef(b), U32.from_nat(e))
+    case False{}: efaces_go(Ty.brep_fas(kb_br(b)), b, e, 0n)
+
 def edge_faces(+b: KB, +e: Nat) -> List<&2, Nat>:
-  efaces_go(Ty.brep_fas(kb_br(b)), b, e, 0n)
+  ef_in(Nat.is_lt(e, kb_ne(b)), b, e)
+
+def ef_push(+xs: List<&2, Nat>, +fi: Nat) -> List<&2, Nat>:
+  match xs:
+    case []: [fi]
+    case +h <> +t: Bool.pick(List<&2, Nat>, Nat.is_eq(h, fi), h <> t, fi <> h <> t)
+
+def ef_set(inr: Bool, +t: B.Tb<&2, List<&2, Nat>>, +e: Nat, +fi: Nat) -> B.Tb<&2, List<&2, Nat>>:
+  match inr:
+    case True{}: B.tb_set(List<&2, Nat>, t, U32.from_nat(e), ef_push(B.tb_get(List<&2, Nat>, t, U32.from_nat(e)), fi))
+    case False{}: t
+
+def ef_hcs(hs: List<&2, Ty.HCoedge>, +k: KB, +fi: Nat, +t: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>>:
+  match hs:
+    case []: t
+    case +h <> +r:
+      +e = Ty.he_idx(Ty.ce_edge(kb_c(k, Ty.hc_idx(h))))
+      ef_hcs(r, k, fi, ef_set(Nat.is_lt(e, kb_ne(k)), t, e, fi))
+
+def ef_hls(hs: List<&2, Ty.HLoop>, +k: KB, +fi: Nat, +t: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>>:
+  match hs:
+    case []: t
+    case +h <> +r: ef_hls(r, k, fi, ef_hcs(Ty.lp_ces(kb_l(k, hl_i(h))), k, fi, t))
+
+def ef_go(n: Nat, +k: KB, +t: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>>:
+  match n:
+    case 0n: t
+    case 1n+(+i): ef_go(i, k, ef_hls(Ty.fa_loops(kb_f(k, i)), k, i, t))
+
+def kb_of(+b: Ty.Brep) -> KB:
+  +x = Ty.ix_of(b)
+  +z = {[] : List<&2, Nat>}
+  +k0 = {KB{b, x, B.tb_of(List<&2, Nat>, [], z), []} : KB}
+  {KB{b, x, ef_go(Ty.ix_nf(x), k0, B.tb_of(List<&2, Nat>, B.rep_n(List<&2, Nat>, Ty.ix_ne(x), z), z)), []} : KB}
 
 def face_surf(+b: KB, +fi: Nat) -> G.GVal:
   Ty.fa_surf(kb_f(b, fi))

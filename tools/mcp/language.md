@@ -617,7 +617,13 @@ once (`request-cancelled`); both default off. The MCP server reports its
 own timeout as `cancelled`/`cli-exceeded-timeout` (raise
 `BENDCAD_TIMEOUT_MS`), honours `BENDCAD_MAX_NODES` on every design call,
 and attaches a `diagnostics` array with the parsed failures to every tool
-result. A printed verdict always exits 0; nonzero means the CLI never
+result. With `BENDCAD_PORT` set (and `BENDCAD_MAX_NODES` unset) it keeps
+one `bendcad serve PORT` process alive and sends it every design call:
+nodes evaluated once are reused by structural key on later calls, so a
+query after the first evaluation answers in milliseconds with output
+byte-identical to the one-shot CLI. A server that dies reports
+`cancelled`/`cli-killed-by-signal-server-closed` and is restarted on the
+next call. A printed verdict always exits 0; nonzero means the CLI never
 reached its verdict (crash or unreadable file).
 
 ## Example

@@ -323,11 +323,42 @@ def ef_faces(fs: List<&2, Nat>, +side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB, +st:
     case []: st
     case +h <> +t: ef_faces(t, side, e, b, ob, ef_one(side, e, b, ob, h, st))
 
-def ef_edges(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
+def fb_one(sharp: Bool, +ob: FB.KB, +fi: Nat) -> FB.BB:
+  match sharp:
+    case True{}: FB.face_bb(ob, fi)
+    case False{}: FB.bb_huge()
+
+def fbs_of(n: Nat, +ob: FB.KB, +acc: List<&2, FB.BB>) -> List<&2, FB.BB>:
+  match n:
+    case 0n: acc
+    case 1n+(+i):
+      +k = S.sf_kind(S.sf_of(FB.face_surf(ob, i)))
+      fbs_of(i, ob, fb_one(Bool.and(U64.is_le(S.k_plane(), k), U64.is_le(k, S.k_tor())), ob, i) <> acc)
+
+def near_fs(bs: List<&2, FB.BB>, +eb: FB.BB, +i: Nat) -> List<&2, Nat>:
+  match bs:
+    case []: []
+    case +h <> +t:
+      +rest = near_fs(t, eb, Nat.add(i, 1n))
+      Bool.pick(List<&2, Nat>, FB.bb_dis(h, eb), rest, i <> rest)
+
+def bb_reach(+a: FB.BB) -> F64:
+  FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = a
+  F64.max(F64.max(F64.max(F64.abs(x0), F64.abs(x1)), F64.max(F64.abs(y0), F64.abs(y1))), F64.max(F64.abs(z0), F64.abs(z1)))
+
+def edge_box(+b: FB.KB, +e: Nat) -> FB.BB:
+  +ed = FB.edge_at(b, e)
+  +bx = FB.bb_join(FB.ek_bb(Ty.ed_kind(ed)), FB.bb_join(FB.bb_pt(FB.vpt(b, Ty.ed_v0(ed))), FB.bb_pt(FB.vpt(b, Ty.ed_v1(ed)))))
+  FB.bb_pad(bx, F64.mul(1.0e-6f64, F64.add(1.0f64, bb_reach(bx))))
+
+def ef_near(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +fbs: List<&2, FB.BB>, +st: HS) -> HS:
   match es:
     case []: st
     case +h <> +t:
-      ef_edges(t, side, b, ob, ef_faces(L.nat_range(FB.nfaces(ob)), side, h, b, ob, st))
+      ef_near(t, side, b, ob, fbs, ef_faces(near_fs(fbs, edge_box(b, h), 0n), side, h, b, ob, st))
+
+def ef_edges(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
+  ef_near(es, side, b, ob, fbs_of(FB.nfaces(ob), ob, []), st)
 
 def ve_fos(fs: List<&2, Nat>, +side: U64, +e: Nat, +t: F64, +p: V.Point, +v: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
   match fs:

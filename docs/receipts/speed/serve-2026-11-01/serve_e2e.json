@@ -1,0 +1,108 @@
+{
+  "binary": "/home/jesse/bc/bendcad-srv1",
+  "binary_sha256": "df3856111239b60f2dc94d0de42b401bcf41b6bacb5dc61e42aa2c3943147749",
+  "design": "/home/jesse/speed/hub2.bcd",
+  "design_sha256": "4f349bde3a571902f8b9dd00fe02048d1d2a9734efaf033320dc4e2326ddef1a",
+  "labels": "MEASURED wall-clock through the MCP server, one session per mode",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "evaluate",
+      "args": {},
+      "cli_ms": 170045.4592,
+      "serve_ms": 164321.5892,
+      "speedup": 1.0348333413026658,
+      "identical": true,
+      "error": false,
+      "sha256": "e85761145f4422dc04207fcce4083dbe08c4e88834474116554a2f02eea5178f",
+      "serve_sha256": "e85761145f4422dc04207fcce4083dbe08c4e88834474116554a2f02eea5178f"
+    },
+    {
+      "step": 2,
+      "tool": "measure",
+      "args": {
+        "node": 1201
+      },
+      "cli_ms": 164945.4927,
+      "serve_ms": 8.193,
+      "speedup": 20132.490259978033,
+      "identical": true,
+      "error": false,
+      "sha256": "c860cbe663a79b5c7d1648cfffdb7d93e493d76f59c57e616ae52dbe968c4170",
+      "serve_sha256": "c860cbe663a79b5c7d1648cfffdb7d93e493d76f59c57e616ae52dbe968c4170"
+    },
+    {
+      "step": 3,
+      "tool": "faces",
+      "args": {
+        "node": 1201
+      },
+      "cli_ms": 167818.3983,
+      "serve_ms": 13.0405,
+      "speedup": 12869.015628235114,
+      "identical": true,
+      "error": false,
+      "sha256": "efee5950893f2bbc6d20be9521375cd69aded7b50ee1a6ba2bd785d5e9d7a7ea",
+      "serve_sha256": "efee5950893f2bbc6d20be9521375cd69aded7b50ee1a6ba2bd785d5e9d7a7ea"
+    },
+    {
+      "step": 4,
+      "tool": "diagnose",
+      "args": {},
+      "cli_ms": 167618.9596,
+      "serve_ms": 10.2489,
+      "speedup": 16354.824381153097,
+      "identical": true,
+      "error": false,
+      "sha256": "6637ab3c3c2dde9fa5de12322d63a21921c298fbcafaeb4a544ff17d42fa82e6",
+      "serve_sha256": "6637ab3c3c2dde9fa5de12322d63a21921c298fbcafaeb4a544ff17d42fa82e6"
+    },
+    {
+      "step": 5,
+      "tool": "apply",
+      "args": {
+        "edits": [
+          "(node 9001 (move 1201 0 0 0 4) (intent same any any any any))"
+        ]
+      },
+      "cli_ms": 163716.2118,
+      "serve_ms": 10.0344,
+      "speedup": 16315.495874192777,
+      "identical": true,
+      "error": false,
+      "sha256": "ba5973ff40a32dd3e30ef6c2a7f59536aac52c73e836ed86443475de2892b48d",
+      "serve_sha256": "ba5973ff40a32dd3e30ef6c2a7f59536aac52c73e836ed86443475de2892b48d"
+    },
+    {
+      "step": 6,
+      "tool": "measure",
+      "args": {
+        "node": 9001
+      },
+      "cli_ms": 164196.0344,
+      "serve_ms": 11.2741,
+      "speedup": 14564.003725352799,
+      "identical": true,
+      "error": false,
+      "sha256": "e2ece25e621c218c46f47e6457292e164f507b6efec50a7f2b3dae54e679deae",
+      "serve_sha256": "e2ece25e621c218c46f47e6457292e164f507b6efec50a7f2b3dae54e679deae"
+    },
+    {
+      "step": 7,
+      "tool": "evaluate",
+      "args": {},
+      "cli_ms": 165169.4734,
+      "serve_ms": 8.3244,
+      "speedup": 19841.607010715485,
+      "identical": true,
+      "error": false,
+      "sha256": "7f426ab284165971761f50b50623cf042ea28464d41aae3a85e997ef4ccb7af7",
+      "serve_sha256": "7f426ab284165971761f50b50623cf042ea28464d41aae3a85e997ef4ccb7af7"
+    }
+  ],
+  "cli_total_ms": 1163510.0293999999,
+  "serve_total_ms": 164382.70450000002,
+  "warm_speedup": 7.078056252566399,
+  "final_design_identical": true,
+  "all_identical": true
+}
