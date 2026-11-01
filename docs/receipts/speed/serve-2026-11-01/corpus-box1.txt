@@ -1,0 +1,19 @@
+PASS bore.eq {}
+PASS bore.uneq {}
+PASS offaxis {}
+PASS fig8port {}
+PASS cbore {}
+PASS oring {}
+PASS csink {}
+PASS sidefeat {}
+PASS chamfer {}
+PASS edgechamfer {}
+PASS g3limits {}
+PASS g2pump {}
+PASS spheres {}
+PASS fillets {}
+PASS g4blade {}
+PASS g4rotor {}
+PASS frame_seam {}
+PASS volute_panel {}
+18/18 corpus members hold

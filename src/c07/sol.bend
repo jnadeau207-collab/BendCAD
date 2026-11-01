@@ -150,6 +150,11 @@ def to_box_go(ax: Bool, +o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: Li
     case False{}: ball(o, I.iadd(bigr, r))
     case True{}: bx_pad(cr_box(crit(o, k, bigr, r), fc, nf, ax_slab(eb, o, k, r)))
 
+def cy_go(ax: Bool, +bx: List<&2, I.I>, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
+  match ax:
+    case True{}: cy_box(bx, o, k, r)
+    case False{}: surf_box(M.M_cy{o, a, r}, bx)
+
 def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc) -> List<&2, I.I>:
   match s:
     case M.M_to{+o, +a, +bigr, +r}:
@@ -157,8 +162,7 @@ def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc) -> List<&2, I.I>:
       to_box_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), o, k, bigr, r, bx, fc, M.M_to{o, a, bigr, r})
     case M.M_cy{+o, +a, +r}:
       +k = axis_k(a)
-      Bool.pick(List<&2, I.I>, Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), cy_box(bx, o, k, r),
-        surf_box(M.M_cy{o, a, r}, bx))
+      cy_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), bx, o, a, k, r)
     case _: surf_box(s, bx)
 
 def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat, +slv: F64) -> Fd:

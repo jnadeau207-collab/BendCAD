@@ -2030,11 +2030,16 @@ def gate_go(ok: Bool, +r: Body, +f: Fx, +it: It, +nd: U64) -> NR:
       bad("intent", "node " ++ U64.show(nd), "declared " ++ it_show(it) ++ " but measured " ++ fx_show(f),
         "fix the operation or declare the effect it has")
 
+def fx_or(isb: Bool, +f0: Fx, +o: Op, +hasb: Bool, +b: Body, +rb: Body) -> Fx:
+  match isb:
+    case True{}: f0
+    case False{}: fx_of(o, hasb, b, rb)
+
 def publish(r: NR, +o: Op, +hasb: Bool, +b: Body, +it: It, +nd: U64) -> NR:
   match r:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+rb, f0}:
-      +f = Bool.pick(Fx, op_is_bool(o), f0, fx_of(o, hasb, b, rb))
+      +f = fx_or(op_is_bool(o), f0, o, hasb, b, rb)
       gate_go(it_ok(it, f), rb, f, it, nd)
 
 def cnt_w(c: Cnt) -> U64:

@@ -640,15 +640,18 @@ def gr_brep(+r: GR) -> Ty.Brep:
   GR{ok, why, brep, st} = r
   brep
 
-def run_emit(+op: U64, +ba: FB.KB, +bb: FB.KB, +vma: List<&2, Nat>, +vmb: List<&2, Nat>,
-    +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +gv: PX.GV, +cps: List<&2, CO.CP>) -> EM:
-  +fda = SO.fds_of(FB.kb_br(ba))
-  +fdb = SO.fds_of(FB.kb_br(bb))
+def run_emit_f(+op: U64, +ba: FB.KB, +bb: FB.KB, +vma: List<&2, Nat>, +vmb: List<&2, Nat>,
+    +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +gv: PX.GV, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>,
+    +fdb: List<&2, SO.Fd>) -> EM:
   +bba = SO.bbox(fda, [])
   +bbb = SO.bbox(fdb, [])
   +st0 = add_vs_go(List.reverse(&2, V.Point, PX.gv_ps(gv)), K1.as_empty())
   +m1 = side_go(L.nat_range(FB.nfaces(ba)), ba, 0u64, vma, hs, chs, fdb, bbb, op, gv, EM{st0, True{}, 0u64}, cps, bb, vmb)
   side_go(L.nat_range(FB.nfaces(bb)), bb, 1u64, vmb, hs, chs, fda, bba, op, gv, m1, cps, ba, vma)
+
+def run_emit(+op: U64, +ba: FB.KB, +bb: FB.KB, +vma: List<&2, Nat>, +vmb: List<&2, Nat>,
+    +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +gv: PX.GV, +cps: List<&2, CO.CP>) -> EM:
+  run_emit_f(op, ba, bb, vma, vmb, hs, chs, gv, cps, SO.fds_of(FB.kb_br(ba)), SO.fds_of(FB.kb_br(bb)))
 
 def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep) -> K1.KR:
   match ok:
@@ -660,7 +663,13 @@ def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep) -> K1.KR:
 def finish(+m: EM, +ba: Ty.Brep) -> K1.KR:
   finish_go(em_ok(m), m, ba)
 
-def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep) -> K1.KR:
+def emit_if(ok: Bool, +why: U64, +op: U64, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +vb: PX.VM, +hs3: List<&2, PX.HX>,
+    +cr: PX.CR, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> EM:
+  match ok:
+    case True{}: run_emit_f(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps, fda, fdb)
+    case False{}: EM{K1.as_empty(), False{}, why}
+
+def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
   +ba = FB.kb_of(ra)
   +bb = FB.kb_of(rb)
   +va = PX.add_vs(Ty.brep_vs(ra), PX.GV{[], 0n}, [])
@@ -676,21 +685,31 @@ def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep) -> K1.KR:
   +ok = Bool.and(Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr)), Bool.not(none))
   +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), Bool.pick(U64, none, 98u64, PX.cr_why(cr)), 97u64), PX.hs_why(hs))
   +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
-  +m = run_emit(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps)
-  finish(Bool.pick(EM, ok, m, EM{em_st(m), False{}, why}), ra)
+  finish(emit_if(ok, why, op, ba, bb, va, vb, hs3, cr, cps, fda, fdb), ra)
 
 def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
   match fs:
     case []: ok
     case +h <> +t: fas_sup(t, Bool.and(ok, S.sf_ok(S.sf_of(Ty.fa_surf(h)))))
 
-def gbrun_s(+sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+def gbrun_s(+sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
   match sup:
     case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
-    case True{}: gbrun_go(strict, op, ba, bb)
+    case True{}: gbrun_go(strict, op, ba, bb, fda, fdb)
+
+def sup_of(+ba: Ty.Brep, +bb: Ty.Brep) -> Bool:
+  Bool.and(fas_sup(Ty.brep_fas(ba), True{}), fas_sup(Ty.brep_fas(bb), True{}))
+
+def gbrun_f(+strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
+  gbrun_s(sup_of(ba, bb), strict, op, ba, bb, fda, fdb)
+
+def gbrun_kf(sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
+  match sup:
+    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
+    case True{}: gbrun_go(strict, op, ba, bb, SO.fds_of(ba), SO.fds_of(bb))
 
 def gbrun_k(+strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
-  gbrun_s(Bool.and(fas_sup(Ty.brep_fas(ba), True{}), fas_sup(Ty.brep_fas(bb), True{})), strict, op, ba, bb)
+  gbrun_kf(sup_of(ba, bb), strict, op, ba, bb)
 
 def gbrun(+op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   gbrun_k(False{}, op, ba, bb)

@@ -250,6 +250,9 @@ def wbox_of(+b: Ty.Brep) -> BX:
 def world_box_go(+w0: BX, +lin: F64) -> BX:
   bx_widen(w0, bake_eps(w0, lin))
 
+def world_box_f(+fs: List<&2, SO.Fd>, +lin: F64) -> BX:
+  world_box_go(wbox_of_go(fs), lin)
+
 def world_box(+b: Ty.Brep, +lin: F64) -> BX:
   world_box_go(wbox_of(b), lin)
 
@@ -1383,9 +1386,11 @@ def coin_contact(+b: Ty.Brep) -> CR:
   +ps = pv_so(B.msort(~PV, ~pv_lt, pv_of(b, Ty.brep_vs(b), mp, 0n, nso)))
   cr_go(ps, PV{V.Pt{0.0f64, 0.0f64, 0.0f64}, nso, 0n}, True{}, CR{True{}, 0n, 0n, 0n})
 
-def vcore(+b: Ty.Brep) -> VR:
-  +fds = SO.fds_of(b)
+def vcore_f(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
   vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds)
+
+def vcore(+b: Ty.Brep) -> VR:
+  vcore_f(b, SO.fds_of(b))
 
 def SM_p(x: SM) -> V.Point:
   SM{p, s} = x
@@ -1925,8 +1930,13 @@ def fn_tb(+fs: List<&2, BD.Fn>) -> B.Tb<&2, BD.Fn>:
 def fn_at(+t: B.Tb<&2, BD.Fn>, +i: Nat) -> BD.Fn:
   B.tb_get(BD.Fn, t, U32.from_nat(i))
 
+def src_in(same: Bool, +q: List<&2, I.I>, +f: SO.Fd) -> Bool:
+  match same:
+    case True{}: U64.is_eq(Mm.member(SO.fd_fc(f), q, SO.fd_im(f)), 1u64)
+    case False{}: False{}
+
 def src_hit(+q: List<&2, I.I>, +g: G.GVal, +f: SO.Fd) -> Bool:
-  Bool.and(S.coincide(SO.fd_g(f), g), U64.is_eq(Mm.member(SO.fd_fc(f), q, SO.fd_im(f)), 1u64))
+  src_in(S.coincide(SO.fd_g(f), g), q, f)
 
 def src_found(+q: List<&2, I.I>, +fns: B.Tb<&2, BD.Fn>, +sd: U64, +i: Nat) -> LK:
   LK{sd, Nat.sub(i, 1n), fn_at(fns, Nat.sub(i, 1n))}
@@ -1976,21 +1986,25 @@ def lk_fns(xs: List<&2, LK>, +all: List<&2, LK>, +seen: List<&2, LK>) -> List<&2
       +p = lk_count(seen, h, 0n)
       Bool.pick(BD.Fn, Nat.is_lt(1n, tot), fn_piece(lk_f(h), p), lk_f(h)) <> lk_fns(t, all, h <> seen)
 
-def k1_fns(+bc: Ty.Brep, +ba: Ty.Brep, +na: List<&2, BD.Fn>, +bb: Ty.Brep, +nb: List<&2, BD.Fn>, +nd: U64) -> List<&2, BD.Fn>:
-  +ls = lks_go(List.length(&2, Ty.Face, Ty.brep_fas(bc)), 0n, fd_tb(SO.fds_of(bc)), bc, fd_tb(SO.fds_of(ba)), fn_tb(na),
-    List.length(&2, Ty.Face, Ty.brep_fas(ba)), fd_tb(SO.fds_of(bb)), fn_tb(nb), List.length(&2, Ty.Face, Ty.brep_fas(bb)), nd)
+def k1_fns_f(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +ba: Ty.Brep, +fda: List<&2, SO.Fd>, +na: List<&2, BD.Fn>,
+    +bb: Ty.Brep, +fdb: List<&2, SO.Fd>, +nb: List<&2, BD.Fn>, +nd: U64) -> List<&2, BD.Fn>:
+  +ls = lks_go(List.length(&2, Ty.Face, Ty.brep_fas(bc)), 0n, fd_tb(fdc), bc, fd_tb(fda), fn_tb(na),
+    List.length(&2, Ty.Face, Ty.brep_fas(ba)), fd_tb(fdb), fn_tb(nb), List.length(&2, Ty.Face, Ty.brep_fas(bb)), nd)
   lk_fns(ls, ls, [])
+
+def k1_fns(+bc: Ty.Brep, +ba: Ty.Brep, +na: List<&2, BD.Fn>, +bb: Ty.Brep, +nb: List<&2, BD.Fn>, +nd: U64) -> List<&2, BD.Fn>:
+  k1_fns_f(bc, SO.fds_of(bc), ba, SO.fds_of(ba), na, bb, SO.fds_of(bb), nb, nd)
 
 def k1_box(+op: U64, +wa: BX, +wb: BX) -> BX:
   Bool.pick(BX, U64.is_eq(op, tag_union()), bx_hull(wa, wb),
     Bool.pick(BX, U64.is_eq(op, tag_inter()), bx_meet(wa, wb), wa))
 
 def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
-    +proof: String, +ba: Ty.Brep, +bbr: Ty.Brep) -> Out:
+    +proof: String, +ba: Ty.Brep, +bbr: Ty.Brep, +fdc: List<&2, SO.Fd>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   In{brep, +cells, +fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
   In{brep2, cells2, +fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
-  +fn = k1_fns(bc, ba, fns, bbr, fns2, nd)
-  +bbx = bx_meet(world_box(bc, F64.max(lin, lin2)), k1_box(op, wa, wb))
+  +fn = k1_fns_f(bc, fdc, ba, fda, fns, bbr, fdb, fns2, nd)
+  +bbx = bx_meet(world_box_f(fdc, F64.max(lin, lin2)), k1_box(op, wa, wb))
   +tm = VI.brep_vol(bc)
   +tok = VI.vr_ok(tm)
   +tvol = Bool.pick(I.I, tok, VI.vr_vol(tm), k1vol(op, vol, vol2))
@@ -2001,19 +2015,25 @@ def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX,
     bake_lin(lin, lin2, bbx), True{}, bool_mat(op, k1outc(op), vol, vol2, 1u64),
     fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, []}
 
-def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
-  +wa = bx_meet(world_box(ba, in_lin(a)), in_bb(a))
-  +wb = bx_meet(world_box(bb, in_lin(b)), in_bb(b))
+def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +fda: List<&2, SO.Fd>,
+    +fdb: List<&2, SO.Fd>) -> Out:
+  +wa = bx_meet(world_box_f(fda, in_lin(a)), in_bb(a))
+  +wb = bx_meet(world_box_f(fdb, in_lin(b)), in_bb(b))
   +bc = restamp(K1.kr_brep(kr))
-  +v = vcore(bc)
+  +fdc = SO.fds_of(bc)
+  +v = vcore_f(bc, fdc)
   Bool.pick(Out, VR_ok(v),
-    k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb),
+    k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),
     Bool.pick(Out, String.eq(vcode(v), "c04-vertex-link"),
       out_fail(fk_unsupported(), "validate", "node " ++ U64.show(nd),
         "non-manifold-result: the regularized result meets itself at isolated points",
         "BendCAD solids are manifold; change a radius or offset an operand so the contact is not tangent"),
       out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
         "validation-rejected: " ++ vcode(v), "report these operands")))
+
+
+def k1_out(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+  k1_out_f(kr, op, a, b, ba, bb, nd, SO.fds_of(ba), SO.fds_of(bb))
 
 def k1_curved(+kr: K1.KR) -> Bool:
   U64.is_eq(K1.kr_why(kr), 2u64)
@@ -2241,9 +2261,10 @@ def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.
       cls_or_k1(Out_ok(o), o, op, a, b, ba, bb, nd)
     case False{}: run_k1v(op, a, b, ba, bb, nd, an, bn, v)
 
-def k1_first(ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64) -> Out:
+def k1_first(ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64,
+    +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   match ok:
-    case True{}: k1_out(kr, op, a, b, ba, bb, nd)
+    case True{}: k1_out_f(kr, op, a, b, ba, bb, nd, fda, fdb)
     case False{}: out_fail(fk_unsupported(), "k1", "node " ++ U64.show(nd), "k1-refused", "")
 
 def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
@@ -2256,23 +2277,25 @@ def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
       run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
-    +bn: U64) -> Out:
-  +kr = GB.gbrun_k(True{}, op, ba, bb)
-  +o = k1_first(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd)
+    +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
+  +kr = GB.gbrun_f(True{}, op, ba, bb, fda, fdb)
+  +o = k1_first(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd, fda, fdb)
   run_intersect_cls(Out_ok(o), o, op, a, b, ba, bb, nd, an, bn)
 
 def run_broad_go(+disj: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX,
-    +wb: BX, +nd: U64, +an: U64, +bn: U64) -> Out:
+    +wb: BX, +nd: U64, +an: U64, +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   match disj:
     case True{}: run_disjoint(op, a, b, ba, bb, wa, wb, nd, an, bn)
-    case False{}: run_intersect(op, a, b, ba, bb, nd, an, bn)
+    case False{}: run_intersect(op, a, b, ba, bb, nd, an, bn, fda, fdb)
 
 def run_broad(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +ba = bake_of(a)
   +bb = bake_of(b)
-  +wa = world_box(ba, in_lin(a))
-  +wb = world_box(bb, in_lin(b))
-  run_broad_go(bx_disjoint(wa, wb), op, a, b, ba, bb, wa, wb, nd, an, bn)
+  +fda = SO.fds_of(ba)
+  +fdb = SO.fds_of(bb)
+  +wa = world_box_f(fda, in_lin(a))
+  +wb = world_box_f(fdb, in_lin(b))
+  run_broad_go(bx_disjoint(wa, wb), op, a, b, ba, bb, wa, wb, nd, an, bn, fda, fdb)
 
 def run_admit_go(+ok: Bool, +op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64, +code: U64) -> Out:
   match ok:
