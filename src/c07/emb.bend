@@ -641,14 +641,21 @@ def ef_thin_end(+s: I.I, +lo: F64, +hi: F64) -> Bool:
   Bool.and(F64.is_eq(I.i_lo(s), I.i_hi(s)),
     Bool.or(F64.is_eq(I.i_lo(s), lo), F64.is_eq(I.i_lo(s), hi)))
 
-def ef_far_go(es: List<&2, Mm.Er>, +p: List<&2, I.I>) -> Bool:
+def hb_or(fin: Bool, +p: List<&2, I.I>, +c: R.Cv) -> List<&2, I.I>:
+  match fin:
+    case True{}: p
+    case False{}: R.cv_hbox(c)
+
+def ef_far_go(es: List<&2, Mm.Er>, ok: Bool, +p: List<&2, I.I>) -> Bool:
   match es:
-    case []: True{}
+    case []: ok
     case e <> t:
-      Bool.and(X.vdisj(R.cv_box(Mm.er_c(e), I.I{0.0f64, 1.0f64}), p), ef_far_go(t, p))
+      match ok:
+        case False{}: False{}
+        case True{}: ef_far_go(t, X.vdisj(R.cv_box(Mm.er_c(e), I.I{0.0f64, 1.0f64}), p), p)
 
 def ef_far(+fd: SO.Fd, +p: List<&2, I.I>) -> Bool:
-  ef_far_go(Mm.fc_es(SO.fd_fc(fd)), p)
+  ef_far_go(Mm.fc_es(SO.fd_fc(fd)), True{}, p)
 
 def ef_un2(+endhit: Bool, +far: Bool, +cross: Bool, +mode: U64, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, Bool.and(endhit, far), [],
@@ -672,7 +679,7 @@ def ef_hit(h: S.Hit, +fd: SO.Fd, +c: R.Cv, +lo: F64, +hi: F64, +sv: List<&2, Lis
     case S.H_pt{s, t, +p, k}: ef_pt_x(near_any(sv, p, tol), fd, p, ofds, bb, c, s, lo, hi, cross, mode, pa0, pa1,
       tol, a, b)
     case S.H_un{s, t, +p}:
-      +q = Bool.pick(List<&2, I.I>, X.vfin(p), p, R.cv_hbox(c))
+      +q = hb_or(X.vfin(p), p, c)
       ef_pt(near_any(sv, q, tol), fd, q, "edge-face-uncertain",
         Bool.pick(String, cross, ef_bad2(mode), "edge-face-uncertain"), a, b)
     case S.H_ov{+s, t}: ef_ov(Mm.member(SO.fd_fc(fd), ov_pt(c, s, lo, hi), SO.fd_im(fd)),
@@ -901,13 +908,30 @@ def to_rads(+h: F64, +bigr: F64, +r: F64, +tol: F64) -> List<&2, F64>:
   Bool.pick(List<&2, F64>, F64.is_le(F64.abs(F64.sub(ah, r)), tol), [bigr],
     Bool.pick(List<&2, F64>, F64.is_lt(ah, F64.sub(r, tol)), [F64.sub(bigr, s), F64.add(bigr, s)], [F64.neg(1.0f64)]))
 
-def all_pairs(rs: List<&2, F64>, +o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+def cc_if(go: Bool, +o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point, +x: F64, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
+  match go:
+    case False{}: False{}
+    case True{}: cc_pair(o, n, r1, q, x, sv, bf, be, tol)
+
+def all_pairs(rs: List<&2, F64>, ok: Bool, +o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
   match rs:
-    case []: True{}
-    case +x <> t: Bool.and(Bool.and(F64.is_le(0.0f64, x), cc_pair(o, n, r1, q, x, sv, bf, be, tol)), all_pairs(t, o, n, r1, q, sv, bf, be, tol))
+    case []: ok
+    case +x <> t:
+      match ok:
+        case False{}: False{}
+        case True{}: all_pairs(t, cc_if(F64.is_le(0.0f64, x), o, n, r1, q, x, sv, bf, be, tol), o, n, r1, q, sv, bf, be, tol)
 
 def iw(+x: I.I) -> F64:
   F64.sub(I.i_hi(x), I.i_lo(x))
+
+def tor_sec(par: Bool, clear: Bool, +h: F64, +bigr: F64, +rr: F64, +o: V.Point, +n: V.Dir, +r1: F64, +q: V.Point,
+    +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +t2: F64) -> Bool:
+  match par:
+    case False{}: False{}
+    case True{}:
+      match clear:
+        case True{}: True{}
+        case False{}: all_pairs(to_rads(h, bigr, rr, t2), True{}, o, n, r1, q, sv, bf, be, t2)
 
 def sec_ok(s: M.Im, +o: V.Point, +n: V.Dir, +r1: F64, +sv: List<&2, List<&2, I.I>>, +bf: List<&2, I.I>, +be: List<&2, I.I>, +tol: F64) -> Bool:
   match s:
@@ -917,13 +941,12 @@ def sec_ok(s: M.Im, +o: V.Point, +n: V.Dir, +r1: F64, +sv: List<&2, List<&2, I.I
       +q = vadd3(cp, n, F64.neg(h))
       +t2 = F64.add(tol, F64.add(iw(bigr), iw(r)))
       +rr = I.imid(r)
-      Bool.and(ax_par(a, n), Bool.or(F64.is_lt(F64.add(rr, t2), F64.abs(h)),
-        all_pairs(to_rads(h, I.imid(bigr), rr, t2), o, n, r1, q, sv, bf, be, t2)))
+      tor_sec(ax_par(a, n), F64.is_lt(F64.add(rr, t2), F64.abs(h)), h, I.imid(bigr), rr, o, n, r1, q, sv, bf, be, t2)
     case M.M_cy{+c, +a, +r}:
       +cp = SO.pt_of(c)
       +q = vadd3(cp, n, F64.neg(vdot3(n, vsub3(cp, o))))
       +t2 = F64.add(tol, iw(r))
-      Bool.and(ax_par(a, n), cc_pair(o, n, r1, q, I.imid(r), sv, bf, be, t2))
+      cc_if(ax_par(a, n), o, n, r1, q, I.imid(r), sv, bf, be, t2)
     case _: False{}
 
 def circ_tan_go(+cc: CC, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +be: List<&2, I.I>, +tol: F64) -> Bool:
@@ -1099,29 +1122,44 @@ def nr_code(+b: List<&2, I.I>, +tb: List<&2, I.I>) -> U64:
   +fin = X.vfin(b)
   Bool.pick(U64, Bool.and(fin, X.vdisj(b, tb)), 0u64, Bool.pick(U64, Bool.and(fin, X.vsub_of(b, tb)), 1u64, 2u64))
 
-def near_go(d: Nat, +k: U64, +c: R.Cv, +lo: F64, +hi: F64, +tb: List<&2, I.I>) -> Bool:
-  match d:
-    case 0n: U64.is_eq(k, 1u64)
-    case 1n+(+e):
+type NI is Data:
+  NI{ d: Nat, lo: F64, hi: F64 }
+
+def near_go(fuel: Nat, k: U64, d: Nat, +lo: F64, +hi: F64, rest: List<&2, NI>, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
+  match fuel:
+    case 0n: False{}
+    case 1n+f:
       match k:
-        case 0u64: False{}
         case 1u64: True{}
+        case 0u64:
+          match rest:
+            case []: False{}
+            case NI{+d2, +lo2, +hi2} <> r2: near_go(f, nr_code(R.cv_box(c, I.I{lo2, hi2}), tb), d2, lo2, hi2, r2, c, tb)
         case _:
-          +m = F64.mul(0.5f64, F64.add(lo, hi))
-          Bool.or(near_go(e, nr_code(R.cv_box(c, I.I{lo, m}), tb), c, lo, m, tb), near_go(e, nr_code(R.cv_box(c, I.I{m, hi}), tb), c, m, hi, tb))
+          match d:
+            case 0n:
+              match rest:
+                case []: False{}
+                case NI{+d2, +lo2, +hi2} <> r2: near_go(f, nr_code(R.cv_box(c, I.I{lo2, hi2}), tb), d2, lo2, hi2, r2, c, tb)
+            case 1n+(+e):
+              +m = F64.mul(0.5f64, F64.add(lo, hi))
+              near_go(f, nr_code(R.cv_box(c, I.I{lo, m}), tb), e, lo, m, NI{e, m, hi} <> rest, c, tb)
 
 def near_one(far: Bool, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
   match far:
     case True{}: False{}
-    case False{}: near_go(30n, nr_code(R.cv_box(c, I.I{0.0f64, 1.0f64}), tb), c, 0.0f64, 1.0f64, tb)
+    case False{}: near_go(4294967295n, nr_code(R.cv_box(c, I.I{0.0f64, 1.0f64}), tb), 30n, 0.0f64, 1.0f64, [], c, tb)
 
-def near_cv(cs: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> Bool:
+def near_cv(cs: List<&2, Eg>, hit: Bool, +p: List<&2, I.I>, +tol: F64) -> Bool:
   match cs:
-    case []: False{}
+    case []: hit
     case +e <> t:
-      +tb = wid(p, rad(p, tol))
-      +bx = eg_bx(e)
-      Bool.or(near_one(Bool.or(Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 3n)), X.vdisj(bx, tb)), eg_c_of(e), tb), near_cv(t, p, tol))
+      match hit:
+        case True{}: True{}
+        case False{}:
+          +tb = wid(p, rad(p, tol))
+          +bx = eg_bx(e)
+          near_cv(t, near_one(Bool.or(Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 3n)), X.vdisj(bx, tb)), eg_c_of(e), tb), p, tol)
 
 def hull_go(es: List<&2, Eg>, +acc: List<&2, I.I>) -> List<&2, I.I>:
   match es:
@@ -1178,8 +1216,8 @@ def m2_fin(+prea: U64, +preb: U64, +fa: SO.Fd, +fb: SO.Fd, +p: List<&2, I.I>) ->
     case _: m2_fin_b(preb, prea, fa, fb, p)
 
 def m2(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +p: List<&2, I.I>, +tol: F64) -> U64:
-  m2_fin(m1pre(near_cv(csa, p, tol), off_face(fa, csa, p)),
-    m1pre(near_cv(csb, p, tol), off_face(fb, csb, p)), fa, fb, p)
+  m2_fin(m1pre(near_cv(csa, False{}, p, tol), off_face(fa, csa, p)),
+    m1pre(near_cv(csb, False{}, p, tol), off_face(fb, csb, p)), fa, fb, p)
 
 def bd_or_in(+m: U64) -> Bool:
   Bool.or(U64.is_eq(m, 1u64), U64.is_eq(m, 3u64))
@@ -1240,15 +1278,18 @@ def un_widen(+u: List<&2, I.I>, +tol: F64) -> List<&2, I.I>:
     case []: []
     case +x <> t: I.iwiden(x, tol) <> un_widen(t, tol)
 
-def un_seg_go(ts: List<&2, F64>, +a: F64, +u: List<&2, I.I>, +c: R.Cv) -> Bool:
+def un_seg_go(ts: List<&2, F64>, hit: Bool, +a: F64, +u: List<&2, I.I>, +c: R.Cv) -> Bool:
   match ts:
-    case []: False{}
-    case +b <> rest2: Bool.or(Bool.not(X.vdisj(u, R.cv_box(c, I.I{a, b}))), un_seg_go(rest2, b, u, c))
+    case []: hit
+    case +b <> rest2:
+      match hit:
+        case True{}: True{}
+        case False{}: un_seg_go(rest2, Bool.not(X.vdisj(u, R.cv_box(c, I.I{a, b}))), b, u, c)
 
 def un_seg(ts: List<&2, F64>, +u: List<&2, I.I>, +c: R.Cv) -> Bool:
   match ts:
     case []: False{}
-    case +a <> rest: un_seg_go(rest, a, u, c)
+    case +a <> rest: un_seg_go(rest, False{}, a, u, c)
 
 def un_near(+u: List<&2, I.I>, cs: List<&2, R.Cv>, +tol: F64) -> Bool:
   match cs:

@@ -110,8 +110,13 @@ def rs(+cs: List<&2, I.I>, +t: I.I) -> List<&2, I.I>:
   +hi = I.i_hi(t)
   rs_k(Bool.and(F64.is_eq(lo, 0.0f64), F64.is_eq(hi, 1.0f64)), cs, lo, hi)
 
+def box_k(pos: Bool, +xs: List<&2, I.I>, +ws: List<&2, I.I>) -> I.I:
+  match pos:
+    case True{}: hull(qdiv(xs, ws))
+    case False{}: I.idiv(hull(xs), hull(ws))
+
 def coord_box(+xs: List<&2, I.I>, +ws: List<&2, I.I>) -> I.I:
-  Bool.pick(I.I, allpos(ws), hull(qdiv(xs, ws)), I.idiv(hull(xs), hull(ws)))
+  box_k(allpos(ws), xs, ws)
 
 def rb_box(r: Rb, +t: I.I) -> List<&2, I.I>:
   Rb{+x, +y, +z, +w} = r
@@ -121,9 +126,13 @@ def rb_box(r: Rb, +t: I.I) -> List<&2, I.I>:
 def qder(+n: I.I, +dn: I.I, +w: I.I, +dw: I.I) -> I.I:
   I.idiv(I.isub(I.imul(dn, w), I.imul(n, dw)), I.isq(w))
 
+def der_k(poly: Bool, +xs: List<&2, I.I>, +ws: List<&2, I.I>, +t: I.I, +dn: I.I) -> I.I:
+  match poly:
+    case True{}: dn
+    case False{}: qder(hull(rs(xs, t)), dn, hull(rs(ws, t)), hull(rs(hodo(ws), t)))
+
 def coord_der(+xs: List<&2, I.I>, +ws: List<&2, I.I>, +t: I.I, +poly: Bool) -> I.I:
-  +dn = hull(rs(hodo(xs), t))
-  Bool.pick(I.I, poly, dn, qder(hull(rs(xs, t)), dn, hull(rs(ws, t)), hull(rs(hodo(ws), t))))
+  der_k(poly, xs, ws, t, hull(rs(hodo(xs), t)))
 
 def rb_der(r: Rb, +t: I.I) -> List<&2, I.I>:
   Rb{+x, +y, +z, +w} = r
