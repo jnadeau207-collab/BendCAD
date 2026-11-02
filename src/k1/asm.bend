@@ -3,6 +3,7 @@ import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c04/types.bend as Ty
 import ../c07/sol.bend as SO
+import ../base/par.bend as B
 
 def nth_fa0(xs: List<&2, Ty.Face>, +i: Nat) -> Ty.Face:
   match xs:
@@ -482,7 +483,7 @@ def k1asm_fin(+cok: Bool, +cntok: Bool, +conts: List<&2, Nat>, +gs: List<&2, GRP
           +shk = shells_go(gs, conts, as_nf(st), [], 0n)
           k1asm_sos(Nat.is_eq(no, 0n), sos, vs, es, ces, lps, fas, shk, ns, no)
 
-def k1asm_nf(+empty: Bool, +st: AS) -> KAB:
+def k1asm_nf(+empty: Bool, +st: AS, +pool: B.Tb<&2, SO.KF>) -> KAB:
   match empty:
     case True{}: KAB{False{}, 40u64, k1temp([], [], [], [], [], [], [], [], [])}
     case False{}:
@@ -499,7 +500,7 @@ def k1asm_nf(+empty: Bool, +st: AS) -> KAB:
       +fas = as_fas(st)
       +hsos = hsos_of(ns, [])
       +hshs = hshs_of(ns, [])
-      +fds = SO.fds_of(k1temp(vs, es, ces, lps, fas, shs, sos0, hsos, hshs))
+      +fds = SO.fds_re(k1temp(vs, es, ces, lps, fas, shs, sos0, hsos, hshs), pool)
       +conts = conts_of(gs, st, fds, n)
       +cntok = Bool.and(Nat.is_eq(as_nv(st), List.length(&2, Ty.Vertex, vs)),
         Bool.and(Nat.is_eq(as_ne(st), List.length(&2, Ty.Edge, es)),
@@ -563,9 +564,12 @@ def k1prune(+st: AS) -> AS:
   AS{vs2, ereidx_go(es, mp, []), ces, lps, fas, eks, List.length(&2, Ty.Vertex, vs2), ne, nc,
     nl, nf, ms, nm}
 
-def k1assemble(+st: AS) -> KAB:
+def k1assemble_p(+st: AS, +pool: B.Tb<&2, SO.KF>) -> KAB:
   +n = as_nf(st)
-  k1asm_nf(Nat.is_eq(n, 0n), k1prune(as_rev(st)))
+  k1asm_nf(Nat.is_eq(n, 0n), k1prune(as_rev(st)), pool)
+
+def k1assemble(+st: AS) -> KAB:
+  k1assemble_p(st, SO.pool_kf([]))
 
 def k1ed_gen(+e: Ty.Edge) -> U64:
   Ty.Ed{+g, +a, +b, +k} = e
