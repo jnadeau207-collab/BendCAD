@@ -844,5 +844,21 @@ def tb_tr(+p: B.Tb<&2, KF>) -> B.Tr<&2, KF>:
   B.Tb{+n, +t} = p
   t
 
+def kin(+k: KA, +t: B.Tr<&2, KF>) -> Bool:
+  KA{+ok, +ks} = k
+  +e = kfind(t, ks, kz(t, ks))
+  Bool.and(ok, keq(kf_k(e), ks))
+
+def ktag(+k: KA, +ta: B.Tr<&2, KF>, +tb: B.Tr<&2, KF>) -> U64:
+  U64.or(Bool.pick(U64, kin(k, ta), 1u64, 0u64), Bool.pick(U64, kin(k, tb), 2u64, 0u64))
+
+def ktags(ks: List<&2, KA>, +ta: B.Tr<&2, KF>, +tb: B.Tr<&2, KF>) -> List<&2, U64>:
+  match ks:
+    case []: []
+    case +k <> t: ktag(k, ta, tb) <> ktags(t, ta, tb)
+
+def tags_of(+b: Ty.Brep, +pa: B.Tb<&2, KF>, +pb: B.Tb<&2, KF>) -> List<&2, U64>:
+  ktags(fkeys(b), tb_tr(pa), tb_tr(pb))
+
 def fds_re(+b: Ty.Brep, +pool: B.Tb<&2, KF>) -> List<&2, Fd>:
   B.pmap_g(~FJ, ~RC, ~Fd, ~re_job, 1, RC{Ty.ix_of(b), tb_tr(pool)}, fj_shs(Ty.brep_shs(b), 0n))

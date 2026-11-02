@@ -1776,9 +1776,25 @@ def its_of(+egs: List<&2, Eg>, +fgs: List<&2, Fg>) -> List<&2, It>:
 def run_prs(+cx: Cx, +prs: List<&2, Pr>) -> List<&2, SO.Fi>:
   fs_cat(B.pmap_g(~Pr, ~Cx, ~Fs, ~chk, 2, cx, prs))
 
-def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat) -> List<&2, SO.Fi>:
+def tg_at(+tg: B.Tb<&2, U64>, +i: Nat) -> U64:
+  B.tb_get(U64, tg, U32.from_nat(i))
+
+def pr_keep(k: U64, +a: Nat, +b: Nat, +tg: B.Tb<&2, U64>) -> Bool:
+  match k:
+    case 2u64: U64.is_eq(U64.and(tg_at(tg, a), tg_at(tg, b)), 0u64)
+    case _: True{}
+
+def keep_new(ps: List<&2, Pr>, +tg: B.Tb<&2, U64>) -> List<&2, Pr>:
+  match ps:
+    case []: []
+    case +p <> +t:
+      Pr{+k, +a, +b} = p
+      +rest = keep_new(t, tg)
+      Bool.pick(List<&2, Pr>, pr_keep(k, a, b, tg), p <> rest, rest)
+
+def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat, +tg: List<&2, U64>) -> List<&2, SO.Fi>:
   List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)),
-    run_prs(mk_cx(egs, fgs, tol, nso), sweep(its_of(egs, fgs))))
+    run_prs(mk_cx(egs, fgs, tol, nso), keep_new(sweep(its_of(egs, fgs)), B.tb_of(U64, tg, 0u64))))
 
 def pr_so(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> Bool:
   match k:
@@ -1804,7 +1820,10 @@ def emb_cross(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   +fgs = shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n)
   cross_go(mk_cx(egs, fgs, tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b))), its_of(egs, fgs))
 
-def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
+def emb_fi_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> List<&2, SO.Fi>:
   +x = Ty.ix_of(b)
   emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n),
-    tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b)))
+    tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b)), tg)
+
+def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
+  emb_fi_t(b, fds, [])

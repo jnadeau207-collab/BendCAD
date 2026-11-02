@@ -1156,20 +1156,20 @@ def fi_partition(fs: List<&2, SO.Fi>, +acc: VR) -> VR:
       fi_partition(t, Bool.pick(VR, is_contact(c), VR{ok, st, Nat.add(nc, 1n), co, ca, cb},
         Bool.pick(VR, ok, VR{False{}, st, nc, c, a, b}, acc)))
 
-def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
+def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
   match bad:
     case True{}: vr_fail(10u64, "coincident-vertices", CR_a(cr), CR_b(cr))
     case False{}:
-      fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi(b, fds)),
+      fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi_t(b, fds, tg)),
         VR{True{}, 0u64, CR_nc(cr), "", 0n, 0n})
 
-def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
+def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
   match bad10:
     case True{}: vr_fail(f10, "c04-" ++ stage_why(f10), 0n, 0n)
-    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds)
+    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds, tg)
 
-def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
-  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds)
+def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
+  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds, tg)
 
 def VR_ok(v: VR) -> Bool:
   VR{ok, stage, nc, code, a, b} = v
@@ -1386,8 +1386,11 @@ def coin_contact(+b: Ty.Brep) -> CR:
   +ps = pv_so(B.msort(~PV, ~pv_lt, pv_of(b, Ty.brep_vs(b), mp, 0n, nso)))
   cr_go(ps, PV{V.Pt{0.0f64, 0.0f64, 0.0f64}, nso, 0n}, True{}, CR{True{}, 0n, 0n, 0n})
 
+def vcore_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
+  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds, tg)
+
 def vcore_f(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
-  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds)
+  vcore_t(b, fds, [])
 
 def vcore(+b: Ty.Brep) -> VR:
   vcore_f(b, SO.fds_of(b))
@@ -2042,7 +2045,7 @@ def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +
   +bc = restamp(K1.kr_brep(kr))
   +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, K1.kr_fk(kr),
     List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))))
-  +v = vcore_f(bc, fdc)
+  +v = vcore_t(bc, fdc, SO.tags_of(bc, SO.pool_kf(in_fk(a)), SO.pool_kf(in_fk(b))))
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),
     Bool.pick(Out, String.eq(vcode(v), "c04-vertex-link"),
@@ -2296,7 +2299,7 @@ def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
     case False{}:
       +bc = brep_append(ba, bb)
       +pool = SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))
-      +v = vcore_f(bc, SO.fds_re(bc, pool))
+      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.tags_of(bc, SO.pool_kf(in_fk(a)), SO.pool_kf(in_fk(b))))
       run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v, fda, fdb, pool)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
