@@ -70,10 +70,14 @@ def eg_of(e: Ty.Edge, +tv: B.Tb<&2, Ty.Vertex>) -> Eg:
   Ty.Ed{g, v0, v1, k} = e
   eg_k(k, hv_i(v0), hv_i(v1), tv)
 
-def egs_go(es: List<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>) -> List<&2, Eg>:
-  match es:
-    case []: []
-    case e <> t: eg_of(e, tv) <> egs_go(t, tv)
+def eg_job(+tv: B.Tb<&2, Ty.Vertex>, e: Ty.Edge) -> Eg:
+  eg_of(e, tv)
+
+def eg_x(tv: B.Tb<&2, Ty.Vertex>, e: Ty.Edge) -> Eg:
+  eg_job(tv, e)
+
+def egs_go(+es: List<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>) -> List<&2, Eg>:
+  B.pmap_g(~Ty.Edge, ~B.Tb<&2, Ty.Vertex>, ~Eg, ~eg_x, 4, tv, es)
 
 def eg_u(e: Eg) -> U64:
   Eg{g, d, a, b, pa, pb, c, bx, u, so} = e
@@ -1779,22 +1783,23 @@ def run_prs(+cx: Cx, +prs: List<&2, Pr>) -> List<&2, SO.Fi>:
 def tg_at(+tg: B.Tb<&2, U64>, +i: Nat) -> U64:
   B.tb_get(U64, tg, U32.from_nat(i))
 
-def pr_keep(k: U64, +a: Nat, +b: Nat, +tg: B.Tb<&2, U64>) -> Bool:
+def pr_keep(k: U64, +a: Nat, +b: Nat, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>) -> Bool:
   match k:
+    case 0u64: U64.is_eq(U64.and(tg_at(te, a), tg_at(te, b)), 0u64)
     case 2u64: U64.is_eq(U64.and(tg_at(tg, a), tg_at(tg, b)), 0u64)
     case _: True{}
 
-def keep_new(ps: List<&2, Pr>, +tg: B.Tb<&2, U64>) -> List<&2, Pr>:
+def keep_new(ps: List<&2, Pr>, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>) -> List<&2, Pr>:
   match ps:
     case []: []
     case +p <> +t:
       Pr{+k, +a, +b} = p
-      +rest = keep_new(t, tg)
-      Bool.pick(List<&2, Pr>, pr_keep(k, a, b, tg), p <> rest, rest)
+      +rest = keep_new(t, tg, te)
+      Bool.pick(List<&2, Pr>, pr_keep(k, a, b, tg, te), p <> rest, rest)
 
-def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat, +tg: List<&2, U64>) -> List<&2, SO.Fi>:
+def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat, +tg: List<&2, U64>, +et: List<&2, U64>) -> List<&2, SO.Fi>:
   List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)),
-    run_prs(mk_cx(egs, fgs, tol, nso), keep_new(sweep(its_of(egs, fgs)), B.tb_of(U64, tg, 0u64))))
+    run_prs(mk_cx(egs, fgs, tol, nso), keep_new(sweep(its_of(egs, fgs)), B.tb_of(U64, tg, 0u64), B.tb_of(U64, et, 0u64))))
 
 def pr_so(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> Bool:
   match k:
@@ -1820,10 +1825,10 @@ def emb_cross(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
   +fgs = shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n)
   cross_go(mk_cx(egs, fgs, tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b))), its_of(egs, fgs))
 
-def emb_fi_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> List<&2, SO.Fi>:
+def emb_fi_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> List<&2, SO.Fi>:
   +x = Ty.ix_of(b)
   emb_go(egs_go(Ty.brep_es(b), Ty.ix_tv(x)), shs_fg(Ty.brep_shs(b), x, fds, Ty.shmap_of(b), 0n),
-    tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b)), tg)
+    tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(b)), tg, et)
 
 def emb_fi(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:
-  emb_fi_t(b, fds, [])
+  emb_fi_t(b, fds, [], [])

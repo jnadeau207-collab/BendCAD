@@ -857,8 +857,132 @@ def ktags(ks: List<&2, KA>, +ta: B.Tr<&2, KF>, +tb: B.Tr<&2, KF>) -> List<&2, U6
     case []: []
     case +k <> t: ktag(k, ta, tb) <> ktags(t, ta, tb)
 
-def tags_of(+b: Ty.Brep, +pa: B.Tb<&2, KF>, +pb: B.Tb<&2, KF>) -> List<&2, U64>:
-  ktags(fkeys(b), tb_tr(pa), tb_tr(pb))
+def rk_ces(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> List<&2, KA>:
+  match hs:
+    case []: []
+    case h <> t: kce(Ty.tres_ce(Ty.ix_ce(x, h)), x, KA{True{}, []}) <> rk_ces(t, x)
+
+def ka_all(xs: List<&2, KA>, +ok: Bool) -> Bool:
+  match xs:
+    case []: ok
+    case +h <> t:
+      KA{+o, ks} = h
+      ka_all(t, Bool.and(ok, o))
+
+def ka_flat(xs: List<&2, KA>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +h <> t:
+      KA{o, +ks} = h
+      List.append(&2, U64, ks, ka_flat(t))
+
+def ka_take(n: Nat, +xs: List<&2, KA>) -> List<&2, KA>:
+  match n:
+    case 0n: []
+    case 1n+m:
+      match xs:
+        case []: []
+        case +h <> +t: h <> ka_take(m, t)
+
+def ka_drop(n: Nat, +xs: List<&2, KA>) -> List<&2, KA>:
+  match n:
+    case 0n: xs
+    case 1n+m:
+      match xs:
+        case []: []
+        case +h <> +t: ka_drop(m, t)
+
+def rk_min(n: Nat, +xs: List<&2, KA>, +i: Nat, +best: List<&2, U64>) -> List<&2, U64>:
+  match n:
+    case 0n: best
+    case 1n+m:
+      +c = ka_flat(List.append(&2, KA, ka_drop(i, xs), ka_take(i, xs)))
+      rk_min(m, xs, Nat.add(i, 1n), Bool.pick(List<&2, U64>, klt(c, best), c, best))
+
+def rk_lp(l: Ty.Loop, +x: Ty.Ix) -> KA:
+  Ty.Lp{g, cs, k} = l
+  +xs = rk_ces(cs, x)
+  KA{ka_all(xs, True{}), 13u64 <> rk_min(Nat.sub(List.length(&2, KA, xs), 1n), xs, 1n, ka_flat(xs))}
+
+def rk_lps(hs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> List<&2, KA>:
+  match hs:
+    case []: []
+    case h <> t: rk_lp(Ty.tres_lp(Ty.ix_lp(x, h)), x) <> rk_lps(t, x)
+
+def kas_kf(xs: List<&2, KA>) -> List<&2, KF>:
+  match xs:
+    case []: []
+    case +h <> t: kf_one(h, fd_dflt(), kas_kf(t))
+
+def kf_flat(xs: List<&2, KF>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +h <> t: List.append(&2, U64, kf_k(h), kf_flat(t))
+
+def kas_kf_all(xs: List<&2, KA>) -> List<&2, KF>:
+  match xs:
+    case []: []
+    case +h <> t:
+      KA{o, +ks} = h
+      KF{ks, fd_dflt()} <> kas_kf_all(t)
+
+def rk_fin(+lk: List<&2, KA>, +sk: KA) -> KA:
+  KA{+sok, +sks} = sk
+  KA{Bool.and(sok, ka_all(lk, True{})), List.append(&2, U64, kf_flat(kf_so(B.msort(~KF, ~kf_cmp, kas_kf_all(lk)))), sks)}
+
+def rkey(f: Ty.Face, +x: Ty.Ix) -> KA:
+  Ty.Fa{g, +s, ls, +same, +slv, sla} = f
+  rk_fin(rk_lps(ls, x), kgv(s, True{}, kbool(same, kf(slv, []))))
+
+def rk_job(+x: Ty.Ix, j: FJ) -> KA:
+  FJ{+h, +sh} = j
+  rkey(Ty.tres_fa(Ty.ix_fa(x, h)), x)
+
+def rk_x(x: Ty.Ix, j: FJ) -> KA:
+  rk_job(x, j)
+
+def rkeys(+b: Ty.Brep) -> List<&2, KA>:
+  B.pmap_g(~FJ, ~Ty.Ix, ~KA, ~rk_x, 1, Ty.ix_of(b), fj_shs(Ty.brep_shs(b), 0n))
+
+def rv_mk(+v: Bool, +k: KA) -> KA:
+  KA{+ok, +ks} = k
+  KA{Bool.and(v, ok), ks}
+
+def rv_go(+f: Ty.Face, +x: Ty.Ix, +t: B.Tr<&2, KF>) -> KA:
+  rv_mk(kin(fkey(f, x), t), rkey(f, x))
+
+def rv_job(c: RC, j: FJ) -> KA:
+  RC{+x, +t} = c
+  FJ{+h, +sh} = j
+  rv_go(Ty.tres_fa(Ty.ix_fa(x, h)), x, t)
+
+def vpool(+b: Ty.Brep, +fk: List<&2, KF>) -> B.Tb<&2, KF>:
+  pool_kf(kas_kf(B.pmap_g(~FJ, ~RC, ~KA, ~rv_job, 1, RC{Ty.ix_of(b), tb_tr(pool_kf(fk))}, fj_shs(Ty.brep_shs(b), 0n))))
+
+def rtags_of(+b: Ty.Brep, +pa: B.Tb<&2, KF>, +pb: B.Tb<&2, KF>) -> List<&2, U64>:
+  ktags(rkeys(b), tb_tr(pa), tb_tr(pb))
+
+def ekeys(es: List<&2, Ty.Edge>) -> List<&2, KA>:
+  match es:
+    case []: []
+    case e <> t: ked(e, True{}, KA{True{}, []}) <> ekeys(t)
+
+def kin_all(ks: List<&2, KA>, +t: B.Tr<&2, KF>, +ok: Bool) -> Bool:
+  match ks:
+    case []: ok
+    case +k <> r: kin_all(r, t, Bool.and(ok, kin(k, t)))
+
+def epool_go(all: Bool, +b: Ty.Brep) -> B.Tb<&2, KF>:
+  match all:
+    case False{}: pool_kf([])
+    case True{}: pool_kf(kas_kf(ekeys(Ty.brep_es(b))))
+
+def epool(+b: Ty.Brep, +fk: List<&2, KF>) -> B.Tb<&2, KF>:
+  +ks = fkeys(b)
+  epool_go(Bool.and(Bool.not(Nat.is_eq(List.length(&2, KA, ks), 0n)), kin_all(ks, tb_tr(pool_kf(fk)), True{})), b)
+
+def etags_of(+b: Ty.Brep, +pa: B.Tb<&2, KF>, +pb: B.Tb<&2, KF>) -> List<&2, U64>:
+  ktags(ekeys(Ty.brep_es(b)), tb_tr(pa), tb_tr(pb))
 
 def fds_re(+b: Ty.Brep, +pool: B.Tb<&2, KF>) -> List<&2, Fd>:
   B.pmap_g(~FJ, ~RC, ~Fd, ~re_job, 1, RC{Ty.ix_of(b), tb_tr(pool)}, fj_shs(Ty.brep_shs(b), 0n))

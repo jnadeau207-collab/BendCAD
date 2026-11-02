@@ -11,6 +11,8 @@ import ../../src/k1/px.bend as PX
 import ../../src/k1/co.bend as CO
 import ../../src/c06/build.bend as BD
 import ../../src/c07/ivx.bend as X
+import ../../src/c07/emb.bend as EM
+import ../../src/base/par.bend as B
 import ../../src/c07/sol.bend as SO
 import ../../src/c06/iv.bend as I
 
@@ -89,12 +91,75 @@ def s6(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>,
     v : Unit <- stamp("k1_fns_f", t0, t1, "")
     s7(bc)
 
-def s5(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +tg: List<&2, U64>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>, +rb: Ty.Brep, +fdb: List<&2, SO.Fd>) -> IO(Unit):
+def eg_sum(es: List<&2, EM.Eg>, +acc: F64) -> F64:
+  match es:
+    case []: acc
+    case +e <> t: eg_sum(t, F64.add(acc, I.i_lo(X.vn(EM.eg_bx(e), 0n))))
+
+def only(ps: List<&2, EM.Pr>, +k: U64) -> List<&2, EM.Pr>:
+  match ps:
+    case []: []
+    case +p <> +t:
+      EM.Pr{+pk, +a, +b} = p
+      +rest = only(t, k)
+      Bool.pick(List<&2, EM.Pr>, U64.is_eq(pk, k), p <> rest, rest)
+
+def vk(+cx: EM.Cx, +ps: List<&2, EM.Pr>, +k: U64, +tag: String) -> IO(Unit):
   do IO<Unit>:
     t0 : Nat <- IO.now()
-    u : Unit <- IO.print("vcore_t " ++ vr_s(B8.vcore_t(bc, fdc, tg)))
+    u : Unit <- IO.print(tag ++ " pairs " ++ Nat.show(List.length(&2, EM.Pr, only(ps, k))) ++ " fi " ++ Nat.show(List.length(&2, SO.Fi, EM.run_prs(cx, only(ps, k)))))
+    t1 : Nat <- IO.now()
+    stamp(tag, t0, t1, "")
+
+def v3(+cx: EM.Cx, +ps: List<&2, EM.Pr>) -> IO(Unit):
+  do IO<Unit>:
+    a : Unit <- vk(cx, ps, 0u64, "ee")
+    b : Unit <- vk(cx, ps, 1u64, "ef")
+    vk(cx, ps, 2u64, "ff")
+
+def v2(+bc: Ty.Brep, +egs: List<&2, EM.Eg>, +fgs: List<&2, EM.Fg>, +fdc: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> IO(Unit):
+  +cx = EM.mk_cx(egs, fgs, EM.tol_of(SO.bbox(fdc, [])), List.length(&2, Ty.Solid, Ty.brep_sos(bc)))
+  do IO<Unit>:
+    t0 : Nat <- IO.now()
+    u : Unit <- IO.print("cx edges " ++ Nat.show(List.length(&2, EM.It, EM.its_of(egs, fgs))))
+    t1 : Nat <- IO.now()
+    v : Unit <- stamp("mk_cx+its", t0, t1, "")
+    t2 : Nat <- IO.now()
+    w : Unit <- IO.print("kept pairs " ++ Nat.show(List.length(&2, EM.Pr, EM.keep_new(EM.sweep(EM.its_of(egs, fgs)), B.tb_of(U64, tg, 0u64), B.tb_of(U64, et, 0u64)))))
+    t3 : Nat <- IO.now()
+    x : Unit <- stamp("sweep+keep", t2, t3, "")
+    v3(cx, EM.keep_new(EM.sweep(EM.its_of(egs, fgs)), B.tb_of(U64, tg, 0u64), B.tb_of(U64, et, 0u64)))
+
+def v1(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> IO(Unit):
+  +x = Ty.ix_of(bc)
+  +egs = EM.egs_go(Ty.brep_es(bc), Ty.ix_tv(x))
+  +fgs = EM.shs_fg(Ty.brep_shs(bc), x, fdc, Ty.shmap_of(bc), 0n)
+  do IO<Unit>:
+    t0 : Nat <- IO.now()
+    u : Unit <- IO.print("c04 " ++ U64.show(B8.stage10_of(bc, B8.fuel_of(bc))))
+    t1 : Nat <- IO.now()
+    v : Unit <- stamp("stage10", t0, t1, "")
+    t2 : Nat <- IO.now()
+    w : Unit <- IO.print("coin " ++ Bool.pick(String, B8.CR_ok(B8.coin_contact(bc)), "ok", "bad"))
+    t3 : Nat <- IO.now()
+    y : Unit <- stamp("coin_contact", t2, t3, "")
+    t4 : Nat <- IO.now()
+    z : Unit <- IO.print("egs " ++ F64.show(eg_sum(egs, 0.0f64)))
+    t5 : Nat <- IO.now()
+    q : Unit <- stamp("egs_go", t4, t5, "")
+    t6 : Nat <- IO.now()
+    r : Unit <- IO.print("solid_fi " ++ Nat.show(List.length(&2, SO.Fi, SO.solid_fi(bc, fdc))))
+    t7 : Nat <- IO.now()
+    o : Unit <- stamp("solid_fi", t6, t7, "")
+    v2(bc, egs, fgs, fdc, tg, et)
+
+def s5(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>, +rb: Ty.Brep, +fdb: List<&2, SO.Fd>) -> IO(Unit):
+  do IO<Unit>:
+    t0 : Nat <- IO.now()
+    u : Unit <- IO.print("vcore_t " ++ vr_s(B8.vcore_t(bc, fdc, tg, et)))
     t1 : Nat <- IO.now()
     v : Unit <- stamp("vcore_t", t0, t1, "")
+    w : Unit <- v1(bc, fdc, tg, et)
     s6(bc, fdc, ra, fda, rb, fdb)
 
 def tg_sum(xs: List<&2, U64>, +acc: U64) -> U64:
@@ -103,13 +168,13 @@ def tg_sum(xs: List<&2, U64>, +acc: U64) -> U64:
     case +x <> t: tg_sum(t, U64.add(acc, x))
 
 def s4(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>, +rb: Ty.Brep, +fdb: List<&2, SO.Fd>) -> IO(Unit):
-  +tg = SO.tags_of(bc, SO.pool_kf(SO.kfs_of(ra, fda)), SO.pool_kf([]))
+  +tg = SO.rtags_of(bc, SO.vpool(ra, SO.kfs_of(ra, fda)), SO.vpool(rb, []))
   do IO<Unit>:
     t0 : Nat <- IO.now()
     u : Unit <- IO.print("tags " ++ Nat.show(List.length(&2, U64, tg)) ++ " old " ++ U64.show(tg_sum(tg, 0u64)))
     t1 : Nat <- IO.now()
     v : Unit <- stamp("tags", t0, t1, "")
-    s5(bc, fdc, tg, ra, fda, rb, fdb)
+    s5(bc, fdc, tg, SO.etags_of(bc, SO.epool(ra, SO.kfs_of(ra, fda)), SO.epool(rb, [])), ra, fda, rb, fdb)
 
 def s3(+bc: Ty.Brep, +fk: List<&2, SO.KF>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>, +rb: Ty.Brep, +fdb: List<&2, SO.Fd>) -> IO(Unit):
   +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, fk, List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb)))))

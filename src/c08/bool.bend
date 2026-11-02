@@ -818,49 +818,123 @@ def brep_append(+a: Ty.Brep, +b: Ty.Brep) -> Ty.Brep:
 type VS is Data:
   VS{ v: Nat, s: Nat }
 
-def vs_of_ces(+b: Ty.Brep, hs: List<&2, Ty.HCoedge>, +so: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
+type VT is Data:
+  VT{ te: B.Tb<&2, Ty.Edge>, ne: Nat, tc: B.Tb<&2, Ty.Coedge>, nc: Nat, tl: B.Tb<&2, Ty.Loop>, nl: Nat,
+    tf: B.Tb<&2, Ty.Face>, nf: Nat, tm: B.Tb<&2, Nat>, nm: Nat }
+
+def ed_dz() -> Ty.Edge:
+  Ty.Ed{0u64, Ty.HV{0n, 0u64}, Ty.HV{0n, 0u64}, Ty.EK_degenerate{}}
+
+def ce_dz() -> Ty.Coedge:
+  Ty.Ce{0u64, Ty.HE{0n, 0u64}, True{}, Ty.trim_zero()}
+
+def lp_dz() -> Ty.Loop:
+  Ty.Lp{0u64, [], Ty.LK_outer{}}
+
+def fa_dz() -> Ty.Face:
+  Ty.Fa{0u64, G.GV_f{0.0f64}, [], True{}, 0.0f64, 0.0f64}
+
+def vt_of(+b: Ty.Brep) -> VT:
+  +es = Ty.brep_es(b)
+  +cs = Ty.brep_ces(b)
+  +ls = Ty.brep_lps(b)
+  +fs = Ty.brep_fas(b)
+  +ms = Ty.shmap_of(b)
+  VT{B.tb_of(Ty.Edge, es, ed_dz()), List.length(&2, Ty.Edge, es), B.tb_of(Ty.Coedge, cs, ce_dz()),
+    List.length(&2, Ty.Coedge, cs), B.tb_of(Ty.Loop, ls, lp_dz()), List.length(&2, Ty.Loop, ls),
+    B.tb_of(Ty.Face, fs, fa_dz()), List.length(&2, Ty.Face, fs), B.tb_of(Nat, ms, 0n), List.length(&2, Nat, ms)}
+
+def vt_ed_go(ok: Bool, +t: B.Tb<&2, Ty.Edge>, +i: Nat) -> Ty.Edge:
+  match ok:
+    case True{}: B.tb_get(Ty.Edge, t, U32.from_nat(i))
+    case False{}: ed_dz()
+
+def vt_ed(+t: VT, +i: Nat) -> Ty.Edge:
+  VT{+te, +ne, tc, nc, tl, nl, tf, nf, tm, nm} = t
+  vt_ed_go(Nat.is_lt(i, ne), te, i)
+
+def vt_ce_go(ok: Bool, +t: B.Tb<&2, Ty.Coedge>, +i: Nat) -> Ty.Coedge:
+  match ok:
+    case True{}: B.tb_get(Ty.Coedge, t, U32.from_nat(i))
+    case False{}: ce_dz()
+
+def vt_ce(+t: VT, +i: Nat) -> Ty.Coedge:
+  VT{te, ne, +tc, +nc, tl, nl, tf, nf, tm, nm} = t
+  vt_ce_go(Nat.is_lt(i, nc), tc, i)
+
+def vt_lp_go(ok: Bool, +t: B.Tb<&2, Ty.Loop>, +i: Nat) -> Ty.Loop:
+  match ok:
+    case True{}: B.tb_get(Ty.Loop, t, U32.from_nat(i))
+    case False{}: lp_dz()
+
+def vt_lp(+t: VT, +i: Nat) -> Ty.Loop:
+  VT{te, ne, tc, nc, +tl, +nl, tf, nf, tm, nm} = t
+  vt_lp_go(Nat.is_lt(i, nl), tl, i)
+
+def vt_fa_go(ok: Bool, +t: B.Tb<&2, Ty.Face>, +i: Nat) -> Ty.Face:
+  match ok:
+    case True{}: B.tb_get(Ty.Face, t, U32.from_nat(i))
+    case False{}: fa_dz()
+
+def vt_fa(+t: VT, +i: Nat) -> Ty.Face:
+  VT{te, ne, tc, nc, tl, nl, +tf, +nf, tm, nm} = t
+  vt_fa_go(Nat.is_lt(i, nf), tf, i)
+
+def vt_m_go(ok: Bool, +t: B.Tb<&2, Nat>, +i: Nat) -> Nat:
+  match ok:
+    case True{}: B.tb_get(Nat, t, U32.from_nat(i))
+    case False{}: 0n
+
+def vt_m(+t: VT, +i: Nat) -> Nat:
+  VT{te, ne, tc, nc, tl, nl, tf, nf, +tm, +nm} = t
+  vt_m_go(Nat.is_lt(i, nm), tm, i)
+
+def vs_of_ces(+vt: VT, hs: List<&2, Ty.HCoedge>, +so: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
   match hs:
     case []: acc
     case Ty.HC{+ci, g} <> t:
-      +e = nth_ed(Ty.brep_es(b), Ty.he_idx(Ty.ce_edge(nth_ce(Ty.brep_ces(b), ci))))
-      vs_of_ces(b, t, so, VS{Ty.hv_idx(Ty.ed_v0(e)), so} <> VS{Ty.hv_idx(Ty.ed_v1(e)), so} <> acc)
+      +e = vt_ed(vt, Ty.he_idx(Ty.ce_edge(vt_ce(vt, ci))))
+      vs_of_ces(vt, t, so, VS{Ty.hv_idx(Ty.ed_v0(e)), so} <> VS{Ty.hv_idx(Ty.ed_v1(e)), so} <> acc)
 
-def vs_of_lps(+b: Ty.Brep, hs: List<&2, Ty.HLoop>, +so: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
+def vs_of_lps(+vt: VT, hs: List<&2, Ty.HLoop>, +so: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
   match hs:
     case []: acc
     case Ty.HL{+li, g} <> t:
-      vs_of_lps(b, t, so, vs_of_ces(b, Ty.lp_ces(nth_lp(Ty.brep_lps(b), li)), so, acc))
+      vs_of_lps(vt, t, so, vs_of_ces(vt, Ty.lp_ces(vt_lp(vt, li)), so, acc))
 
-def vs_of_hs(+b: Ty.Brep, hs: List<&2, Ty.HFace>, +sh: Nat, +mp: List<&2, Nat>, +acc: List<&2, VS>) -> List<&2, VS>:
+def vs_of_hs(+vt: VT, hs: List<&2, Ty.HFace>, +sh: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
   match hs:
     case []: acc
     case Ty.HF{+fi, g} <> t:
-      vs_of_hs(b, t, sh, mp, vs_of_lps(b, Ty.fa_loops(nth_fa(Ty.brep_fas(b), fi)), nth_nat(mp, sh), acc))
+      vs_of_hs(vt, t, sh, vs_of_lps(vt, Ty.fa_loops(vt_fa(vt, fi)), vt_m(vt, sh), acc))
 
-def vs_of_shs(+b: Ty.Brep, +shs: List<&2, Ty.Shell>, +mp: List<&2, Nat>, +at: Nat,
-    +acc: List<&2, VS>) -> List<&2, VS>:
+def vs_of_shs(+vt: VT, +shs: List<&2, Ty.Shell>, +at: Nat, +acc: List<&2, VS>) -> List<&2, VS>:
   match shs:
     case []: acc
     case Ty.Sh{g, fs, k} <> t:
-      vs_of_shs(b, t, mp, Nat.add(at, 1n), vs_of_hs(b, fs, at, mp, acc))
+      vs_of_shs(vt, t, Nat.add(at, 1n), vs_of_hs(vt, fs, at, acc))
 
 def vsmap_of(+b: Ty.Brep) -> List<&2, VS>:
-  vs_of_shs(b, Ty.brep_shs(b), Ty.shmap_of(b), 0n, [])
+  vs_of_shs(vt_of(b), Ty.brep_shs(b), 0n, [])
 
-def vs_find(xs: List<&2, VS>, +v: Nat, +dflt: Nat) -> Nat:
+def vs_set(ok: Bool, +tb: B.Tb<&2, Nat>, +w: Nat, +s: Nat) -> B.Tb<&2, Nat>:
+  match ok:
+    case True{}: B.tb_set(Nat, tb, U32.from_nat(w), s)
+    case False{}: tb
+
+def vs_put(xs: List<&2, VS>, +n: Nat, +tb: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
   match xs:
-    case []: dflt
-    case VS{+w, +s} <> t:
-      Bool.pick(Nat, Nat.is_eq(w, v), s, vs_find(t, v, dflt))
+    case []: tb
+    case VS{+w, +s} <> t: vs_put(t, n, vs_set(Nat.is_lt(w, n), tb, w, s))
 
 type PV is Data:
   PV{ p: V.Point, s: Nat, v: Nat }
 
-def pv_of(+b: Ty.Brep, +vs: List<&2, Ty.Vertex>, +mp: List<&2, VS>, +at: Nat, +nso: Nat) -> List<&2, PV>:
+def pv_of(+vs: List<&2, Ty.Vertex>, +tb: B.Tb<&2, Nat>, +at: Nat) -> List<&2, PV>:
   match vs:
     case []: []
     case Ty.Vx{g, p} <> t:
-      PV{p, vs_find(mp, at, nso), at} <> pv_of(b, t, mp, Nat.add(at, 1n), nso)
+      PV{p, B.tb_get(Nat, tb, U32.from_nat(at)), at} <> pv_of(t, tb, Nat.add(at, 1n))
 
 def pt_lt(+p: V.Point, +q: V.Point) -> Bool:
   Bool.pick(Bool, F64.is_lt(V.pt_x(p), V.pt_x(q)), True{},
@@ -1156,20 +1230,20 @@ def fi_partition(fs: List<&2, SO.Fi>, +acc: VR) -> VR:
       fi_partition(t, Bool.pick(VR, is_contact(c), VR{ok, st, Nat.add(nc, 1n), co, ca, cb},
         Bool.pick(VR, ok, VR{False{}, st, nc, c, a, b}, acc)))
 
-def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
+def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
   match bad:
     case True{}: vr_fail(10u64, "coincident-vertices", CR_a(cr), CR_b(cr))
     case False{}:
-      fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi_t(b, fds, tg)),
+      fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi_t(b, fds, tg, et)),
         VR{True{}, 0u64, CR_nc(cr), "", 0n, 0n})
 
-def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
+def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
   match bad10:
     case True{}: vr_fail(f10, "c04-" ++ stage_why(f10), 0n, 0n)
-    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds, tg)
+    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds, tg, et)
 
-def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
-  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds, tg)
+def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
+  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds, tg, et)
 
 def VR_ok(v: VR) -> Bool:
   VR{ok, stage, nc, code, a, b} = v
@@ -1381,16 +1455,18 @@ def cr_go(xs: List<&2, PV>, +prev: PV, first: Bool, +acc: CR) -> CR:
           Bool.pick(Nat, Bool.and(intra, CR_ok(acc)), v, CR_b(acc))})
 
 def coin_contact(+b: Ty.Brep) -> CR:
-  +mp = vsmap_of(b)
   +nso = nsolids(b)
-  +ps = pv_so(B.msort(~PV, ~pv_lt, pv_of(b, Ty.brep_vs(b), mp, 0n, nso)))
+  +vs = Ty.brep_vs(b)
+  +nv = List.length(&2, Ty.Vertex, vs)
+  +tb = vs_put(List.reverse(&2, VS, vsmap_of(b)), nv, B.tb_of(Nat, B.rep_n(Nat, nv, nso), nso))
+  +ps = pv_so(B.msort(~PV, ~pv_lt, pv_of(vs, tb, 0n)))
   cr_go(ps, PV{V.Pt{0.0f64, 0.0f64, 0.0f64}, nso, 0n}, True{}, CR{True{}, 0n, 0n, 0n})
 
-def vcore_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>) -> VR:
-  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds, tg)
+def vcore_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
+  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds, tg, et)
 
 def vcore_f(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
-  vcore_t(b, fds, [])
+  vcore_t(b, fds, [], [])
 
 def vcore(+b: Ty.Brep) -> VR:
   vcore_f(b, SO.fds_of(b))
@@ -2045,7 +2121,8 @@ def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +
   +bc = restamp(K1.kr_brep(kr))
   +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, K1.kr_fk(kr),
     List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))))
-  +v = vcore_t(bc, fdc, SO.tags_of(bc, SO.pool_kf(in_fk(a)), SO.pool_kf(in_fk(b))))
+  +v = vcore_t(bc, fdc, SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))),
+    SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),
     Bool.pick(Out, String.eq(vcode(v), "c04-vertex-link"),
@@ -2299,7 +2376,8 @@ def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
     case False{}:
       +bc = brep_append(ba, bb)
       +pool = SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))
-      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.tags_of(bc, SO.pool_kf(in_fk(a)), SO.pool_kf(in_fk(b))))
+      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))),
+        SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
       run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v, fda, fdb, pool)
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
