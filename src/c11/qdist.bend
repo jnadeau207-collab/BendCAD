@@ -308,22 +308,28 @@ def nested(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point
 def hi_kind(+w: F64, +hi: F64) -> String:
   Bool.pick(String, F64.is_lt(w, hi), "hi=witness", "hi=sampled")
 
+def clear_lo_t(+a: M.Body, +b: M.Body, +hi: F64, +tol: F64) -> I.I:
+  QL.cert_lo_t(a, b, QA.ab_ab_lo(QI.wbox(a), QI.wbox(b)), hi, tol)
+
 def clear_lo(+a: M.Body, +b: M.Body, +hi: F64) -> I.I:
-  QL.cert_lo(a, b, QA.ab_ab_lo(QI.wbox(a), QI.wbox(b)), hi)
+  clear_lo_t(a, b, hi, 0.0f64)
 
-def clear_sep(+nest: Bool, +a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>) -> String:
+def tol_s(+tol: F64) -> String:
+  Bool.pick(String, F64.is_lt(0.0f64, tol), " precision=" ++ F64.show(tol), "")
+
+def clear_sep(+nest: Bool, +a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +tol: F64) -> String:
   +hs = pts_min(sa, sb, V.dbl_max())
-  +r = clear_lo(a, b, hs)
+  +r = clear_lo_t(a, b, hs, tol)
   "clearance " ++ QC.bv_show(QC.bv_mk(I.i_lo(r), I.i_hi(r), QC.st_certified())) ++ " lo=branch-and-bound " ++ hi_kind(I.i_hi(r), hs) ++ " samples=" ++
-    Nat.show(List.length(&2, V.Point, sa)) ++ "x" ++ Nat.show(List.length(&2, V.Point, sb)) ++ Bool.pick(String, nest, " state=inside", "")
+    Nat.show(List.length(&2, V.Point, sa)) ++ "x" ++ Nat.show(List.length(&2, V.Point, sb)) ++ Bool.pick(String, nest, " state=inside", "") ++ tol_s(tol)
 
-def clear_int(hit: Bool, +a: M.Body, +b: M.Body) -> String:
+def clear_int(hit: Bool, +a: M.Body, +b: M.Body, +tol: F64) -> String:
   match hit:
     case True{}: "clearance 0 status=certified state=interference"
     case False{}:
       +sa = QI.sms_of(a)
       +sb = QI.sms_of(b)
-      clear_sep(nested(a, b, sa, sb), a, b, sa, sb)
+      clear_sep(nested(a, b, sa, sb), a, b, sa, sb, tol)
 
 def eb_of(+k: Ty.EdgeKind, +pa: V.Point, +pb: V.Point) -> QA.Ab:
   match k:
@@ -355,10 +361,10 @@ def dist_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
       Bool.pick(String, M.bd_open(b), "refused dist-needs-solid | dist | fix: thicken-open the shell to a solid first",
         dist_fin(QI.fin3(x, y, z), b, x, y, z))
 
-def clear_k(code: U64, +a: M.Body, +b: M.Body) -> String:
+def clear_k(code: U64, +a: M.Body, +b: M.Body, +tol: F64) -> String:
   match code:
-    case 0u64: clear_sep(False{}, a, b, QI.sms_of(a), QI.sms_of(b))
-    case _: clear_int(QI.rel_interf(a, b), a, b)
+    case 0u64: clear_sep(False{}, a, b, QI.sms_of(a), QI.sms_of(b), tol)
+    case _: clear_int(QI.rel_interf(a, b), a, b, tol)
 
 def ck_hit(code: U64, +a: M.Body, +b: M.Body) -> Bool:
   match code:
@@ -366,8 +372,8 @@ def ck_hit(code: U64, +a: M.Body, +b: M.Body) -> Bool:
     case _: QI.rel_interf(a, b)
 
 
-def clear_go(+a: M.Body, +b: M.Body) -> String:
-  clear_k(QI.rel_code(a, b), a, b)
+def clear_go(+a: M.Body, +b: M.Body, +tol: F64) -> String:
+  clear_k(QI.rel_code(a, b), a, b, tol)
 
 def bb_edges(es: List<&2, Ty.Edge>, +vs: B.Tb<&2, Ty.Vertex>, +acc: QA.Ab) -> QA.Ab:
   match es:
@@ -395,7 +401,7 @@ def wall_rep(ps: List<&2, Wp>, +x: Wx) -> String:
     case []: "min-wall none status=certified reason=all-faces-adjacent"
     case Wp{+lo, +i, +j} <> t: wall_fin(lo, wall_scan(Wp{lo, i, j} <> t, x, Wr{V.dbl_max(), 0n, 0n}), x)
 
-def clear_s(ra: M.NR, rb: M.NR) -> String:
+def clear_s_t(ra: M.NR, rb: M.NR, +tol: F64) -> String:
   match ra:
     case M.NR_err{k, d}: "error: node failed; nothing measured"
     case M.NR_ok{+a, fa}:
@@ -403,7 +409,10 @@ def clear_s(ra: M.NR, rb: M.NR) -> String:
         case M.NR_err{k, d}: "error: node failed; nothing measured"
         case M.NR_ok{+b, fb}:
           Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
-            "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_go(a, b))
+            "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_go(a, b, tol))
+
+def clear_s(ra: M.NR, rb: M.NR) -> String:
+  clear_s_t(ra, rb, 0.0f64)
 
 def bb_of(+b: Ty.Brep) -> QA.Ab:
   bb_seed(pt_abs(v_pts(Ty.brep_vs(b))), B.tb_of(Ty.Vertex, Ty.brep_vs(b), vx_dflt()), Ty.brep_es(b))

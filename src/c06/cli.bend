@@ -1143,14 +1143,17 @@ def surf_go(+p: M.Part, +xs: List<&2, String>) -> String:
   +cs = M.ev_for(p, [id], [])
   surf_has(M.ce_has(cs, id), cs, ns, X.env_of(M.pvs_of(ps)), id)
 
-def pair_go(rel: Bool, +a: M.NR, +b: M.NR) -> String:
+def pair_go(rel: Bool, +a: M.NR, +b: M.NR, +tol: F64) -> String:
   match rel:
     case True{}: QI.rel_s(a, b)
-    case False{}: QD.clear_s(a, b)
+    case False{}: QD.clear_s_t(a, b, tol)
 
-def pair_q(+rel: Bool, +p: M.Part, +a: U64, +b: U64, +old: List<&2, M.CE>) -> String:
+def pair_q(+rel: Bool, +p: M.Part, +a: U64, +b: U64, +old: List<&2, M.CE>, +tol: F64) -> String:
   +cs = M.ev_for(p, [a, b], old)
-  pair_go(rel, node_res(cs, a), node_res(cs, b))
+  pair_go(rel, node_res(cs, a), node_res(cs, b), tol)
+
+def tol_arg(+t: F64) -> F64:
+  Bool.pick(F64, Bool.and(T.is_finite(t), F64.is_lt(0.0f64, t)), t, 0.0f64)
 
 def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +old: List<&2, M.CE>) -> IO(String):
   match code:
@@ -1169,8 +1172,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 12u64: IO.pure(String, QD.extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 13u64: IO.pure(String, mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n)), old))
     case 14u64: IO.pure(String, QN.sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
-    case 15u64: IO.pure(String, pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
-    case 16u64: IO.pure(String, pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old))
+    case 15u64: IO.pure(String, pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, 0.0f64))
+    case 16u64: IO.pure(String, pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, tol_arg(tess_f(S.arg_at(rest, 2n), 0.0f64))))
     case 17u64: IO.pure(String, QD.wall_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 18u64: step_pick(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 1n), old)
     case 19u64: arc_out(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),

@@ -136,12 +136,15 @@ def mer_b(sa: Im.Im, sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>) -> F64:
     case Im.M_to{+o, +a, bigr, r}: mer_ax(o, a, sa, sb, ca, cb)
     case _: 0.0f64
 
-def mer(sa: Im.Im, sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>) -> F64:
+def mer_a(sa: Im.Im, sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>) -> F64:
   match sa:
     case Im.M_cy{+o, +a, r}: mer_ax(o, a, sa, sb, ca, cb)
     case Im.M_co{+o, +a, k}: mer_ax(o, a, sa, sb, ca, cb)
     case Im.M_to{+o, +a, bigr, r}: mer_ax(o, a, sa, sb, ca, cb)
-    case _: mer_b(sa, sb, ca, cb)
+    case _: 0.0f64
+
+def mer(+sa: Im.Im, +sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>) -> F64:
+  F64.max(mer_a(sa, sb, ca, cb), mer_b(sa, sb, ca, cb))
 
 def pair_lb(+c: Cb) -> F64:
   Cb{+a, +b, +fs, +fl} = c
@@ -557,11 +560,14 @@ def search(fuel: Nat, stop: Bool, h: Ph, +w: Bool, +hi: F64, +eps: F64, +minw: F
               +h2 = push_all(kids(x, F64.mul(0.5f64, hw)), pairs(cs), w, hw, eps)
               search(f, stop_of(h2, hw, eps, minw), h2, w, hw, eps, minw)
 
-def best_lo(+cs: List<&2, Cb>, +w: Bool, +hi: F64) -> I.I:
+def best_lo_t(+cs: List<&2, Cb>, +w: Bool, +hi: F64, +tol: F64) -> I.I:
   +sc = F64.add(1.0f64, hi)
-  +eps = F64.mul(1.0e-6f64, sc)
+  +eps = F64.max(F64.mul(1.0e-6f64, sc), tol)
   +h = root_all(cs, Ph_e{}, w, hi, eps)
   search(99841n, stop_of(h, hi, eps, eps), h, w, hi, eps, eps)
+
+def best_lo(+cs: List<&2, Cb>, +w: Bool, +hi: F64) -> I.I:
+  best_lo_t(cs, w, hi, 0.0f64)
 
 def cross_b(fbs: List<&2, SO.Fd>, +fa: SO.Fd, +acc: List<&2, Cb>) -> List<&2, Cb>:
   match fbs:
@@ -577,17 +583,20 @@ def world_fds(+b: M.Body) -> List<&2, SO.Fd>:
   +pl = M.bd_pl(b)
   SO.fds_of(BO.xf_brep(M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), M.bd_brep(b)))
 
-def cert_go(ok: Bool, +fas: List<&2, SO.Fd>, +fbs: List<&2, SO.Fd>, +lo0: F64, +hi: F64) -> I.I:
+def cert_go(ok: Bool, +fas: List<&2, SO.Fd>, +fbs: List<&2, SO.Fd>, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
   match ok:
     case False{}: I.I{lo0, hi}
     case True{}:
-      +r = best_lo(cross(fas, fbs, []), False{}, hi)
+      +r = best_lo_t(cross(fas, fbs, []), False{}, hi, tol)
       I.I{F64.max(lo0, I.i_lo(r)), I.i_hi(r)}
 
-def cert_lo(+a: M.Body, +b: M.Body, +lo0: F64, +hi: F64) -> I.I:
+def cert_lo_t(+a: M.Body, +b: M.Body, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
   +fas = world_fds(a)
   +fbs = world_fds(b)
-  cert_go(Bool.and(QA.fd_allok(fas), QA.fd_allok(fbs)), fas, fbs, lo0, hi)
+  cert_go(Bool.and(QA.fd_allok(fas), QA.fd_allok(fbs)), fas, fbs, lo0, hi, tol)
+
+def cert_lo(+a: M.Body, +b: M.Body, +lo0: F64, +hi: F64) -> I.I:
+  cert_lo_t(a, b, lo0, hi, 0.0f64)
 
 def wall_lo(+cs: List<&2, Cb>, +hi: F64) -> I.I:
   best_lo(cs, True{}, hi)
