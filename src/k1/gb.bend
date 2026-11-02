@@ -679,10 +679,10 @@ def run_emit(+op: U64, +ba: FB.KB, +bb: FB.KB, +vma: List<&2, Nat>, +vmb: List<&
 
 def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>) -> K1.KR:
   match ok:
-    case False{}: K1.KR{False{}, em_why(m), ba, 0n, 0n, 0n, 0n}
+    case False{}: K1.KR{False{}, em_why(m), ba, 0n, 0n, 0n, 0n, []}
     case True{}:
       +asb = K1.k1assemble_p(em_st(m), pool)
-      K1.k1run_d(K1.kab_ok(asb), K1.kab_why(asb), K1.kab_brep(asb))
+      K1.k1run_d(K1.kab_ok(asb), K1.kab_why(asb), K1.kab_brep(asb), K1.kab_fk(asb))
 
 def finish_p(+m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>) -> K1.KR:
   finish_go(em_ok(m), m, ba, pool)
@@ -722,7 +722,7 @@ def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
 
 def gbrun_s(+sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
   match sup:
-    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
+    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n, []}
     case True{}: gbrun_go(strict, op, ba, bb, fda, fdb)
 
 def sup_of(+ba: Ty.Brep, +bb: Ty.Brep) -> Bool:
@@ -733,7 +733,7 @@ def gbrun_f(+strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep, +fda: List<&2, 
 
 def gbrun_kf(sup: Bool, +strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:
   match sup:
-    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n}
+    case False{}: K1.KR{False{}, 2u64, ba, 0n, 0n, 0n, 0n, []}
     case True{}: gbrun_go(strict, op, ba, bb, SO.fds_of(ba), SO.fds_of(bb))
 
 def gbrun_k(+strict: Bool, +op: U64, +ba: Ty.Brep, +bb: Ty.Brep) -> K1.KR:

@@ -190,47 +190,63 @@ def er_st(+r: ER) -> AS:
   ER{idx, st} = r
   st
 
-def loop_eis_go(cs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>,
+def ce_at_go(ok: Bool, +tc: B.Tb<&2, Ty.Coedge>, +i: Nat) -> Ty.Coedge:
+  match ok:
+    case True{}: B.tb_get(Ty.Coedge, tc, U32.from_nat(i))
+    case False{}: Ty.ce_dflt()
+
+def ce_at(+tc: B.Tb<&2, Ty.Coedge>, +n: Nat, +i: Nat) -> Ty.Coedge:
+  ce_at_go(Nat.is_lt(i, n), tc, i)
+
+def lp_at_go(ok: Bool, +tl: B.Tb<&2, Ty.Loop>, +i: Nat) -> Ty.Loop:
+  match ok:
+    case True{}: B.tb_get(Ty.Loop, tl, U32.from_nat(i))
+    case False{}: Ty.lp_dflt()
+
+def lp_at(+tl: B.Tb<&2, Ty.Loop>, +n: Nat, +i: Nat) -> Ty.Loop:
+  lp_at_go(Nat.is_lt(i, n), tl, i)
+
+def nat_at_go(ok: Bool, +tn: B.Tb<&2, Nat>, +i: Nat) -> Nat:
+  match ok:
+    case True{}: B.tb_get(Nat, tn, U32.from_nat(i))
+    case False{}: 0n
+
+def nat_at(+tn: B.Tb<&2, Nat>, +n: Nat, +i: Nat) -> Nat:
+  nat_at_go(Nat.is_lt(i, n), tn, i)
+
+def nat_put_go(ok: Bool, +tn: B.Tb<&2, Nat>, +i: Nat, +v: Nat) -> B.Tb<&2, Nat>:
+  match ok:
+    case True{}: B.tb_set(Nat, tn, U32.from_nat(i), v)
+    case False{}: tn
+
+def nat_put(+tn: B.Tb<&2, Nat>, +n: Nat, +i: Nat, +v: Nat) -> B.Tb<&2, Nat>:
+  nat_put_go(Nat.is_lt(i, n), tn, i, v)
+
+def loop_eis_go(cs: List<&2, Ty.HCoedge>, +tc: B.Tb<&2, Ty.Coedge>, +nc: Nat,
     +acc: List<&2, Nat>) -> List<&2, Nat>:
   match cs:
     case []: acc
     case +h <> +t:
-      loop_eis_go(t, ces, Ty.he_idx(Ty.ce_edge(nth_ce0(ces, Ty.hc_idx(h)))) <> acc)
+      loop_eis_go(t, tc, nc, Ty.he_idx(Ty.ce_edge(ce_at(tc, nc, Ty.hc_idx(h)))) <> acc)
 
-def loop_eis(cs: List<&2, Ty.HCoedge>, +ces: List<&2, Ty.Coedge>) -> List<&2, Nat>:
-  loop_eis_go(cs, ces, [])
-
-def face_eis_go(ls: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>, +ces: List<&2, Ty.Coedge>,
-    +acc: List<&2, Nat>) -> List<&2, Nat>:
+def face_eis_go(ls: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +nl: Nat, +tc: B.Tb<&2, Ty.Coedge>,
+    +nc: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
   match ls:
     case []: acc
     case +h <> +t:
-      face_eis_go(t, lps, ces,
-        List.append(&2, Nat, acc, loop_eis(Ty.lp_ces(nth_lp0(lps, Ty.hlp_idx(h))), ces)))
+      face_eis_go(t, tl, nl, tc, nc,
+        List.append(&2, Nat, acc, loop_eis_go(Ty.lp_ces(lp_at(tl, nl, Ty.hlp_idx(h))), tc, nc, [])))
 
-def face_eis(+ls: List<&2, Ty.HLoop>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>) -> List<&2, Nat>:
-  face_eis_go(ls, lps, ces, [])
-
-def faces_eis(fs: List<&2, Ty.Face>, +lps: List<&2, Ty.Loop>,
-    +ces: List<&2, Ty.Coedge>) -> List<&2, List<&2, Nat>>:
+def faces_eis(fs: List<&2, Ty.Face>, +tl: B.Tb<&2, Ty.Loop>, +nl: Nat, +tc: B.Tb<&2, Ty.Coedge>,
+    +nc: Nat) -> List<&2, List<&2, Nat>>:
   match fs:
     case []: []
-    case +h <> +t: face_eis(Ty.fa_loops(h), lps, ces) <> faces_eis(t, lps, ces)
+    case +h <> +t: face_eis_go(Ty.fa_loops(h), tl, nl, tc, nc, []) <> faces_eis(t, tl, nl, tc, nc)
 
 def nat_mem(+x: Nat, xs: List<&2, Nat>) -> Bool:
   match xs:
     case []: False{}
     case +h <> +t: Bool.or(Nat.is_eq(x, h), nat_mem(x, t))
-
-def efaces_go(fs: List<&2, List<&2, Nat>>, +e: Nat, +i: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
-  match fs:
-    case []: acc
-    case +h <> +t: efaces_go(t, e, Nat.add(i, 1n),
-      Bool.pick(List<&2, Nat>, nat_mem(e, h), i <> acc, acc))
-
-def efaces(+fs: List<&2, List<&2, Nat>>, +e: Nat) -> List<&2, Nat>:
-  efaces_go(fs, e, 0n, [])
 
 def nat_nth(xs: List<&2, Nat>, +i: Nat) -> Nat:
   match xs:
@@ -240,33 +256,56 @@ def nat_nth(xs: List<&2, Nat>, +i: Nat) -> Nat:
         case 0n: h
         case 1n+j: nat_nth(t, j)
 
-def ufind_f(fuel: Nat, +p: List<&2, Nat>, +x: Nat) -> Nat:
-  match fuel:
-    case 0n: x
-    case 1n++j:
-      +r = nat_nth(p, x)
-      Bool.pick(Nat, Nat.is_eq(r, x), x, ufind_f(j, p, r))
-
-def uset_go(xs: List<&2, Nat>, +at: Nat, +i: Nat, +v: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+def hd_is(xs: List<&2, Nat>, +f: Nat) -> Bool:
   match xs:
-    case []: List.reverse(&2, Nat, acc)
-    case +h <> +t: uset_go(t, Nat.add(at, 1n), i, v,
-      Bool.pick(Nat, Nat.is_eq(at, i), v, h) <> acc)
+    case []: False{}
+    case +h <> t: Nat.is_eq(h, f)
 
-def uset(xs: List<&2, Nat>, +i: Nat, +v: Nat) -> List<&2, Nat>:
-  uset_go(xs, 0n, i, v, [])
+def ef_push(dup: Bool, +cur: List<&2, Nat>, +f: Nat) -> List<&2, Nat>:
+  match dup:
+    case True{}: cur
+    case False{}: f <> cur
 
-def uunion(+p: List<&2, Nat>, +a: Nat, +b: Nat, +n: Nat) -> List<&2, Nat>:
-  +ra = ufind_f(n, p, a)
-  +rb = ufind_f(n, p, b)
-  Bool.pick(List<&2, Nat>, Nat.is_eq(ra, rb), p, uset(p, ra, rb))
+def tef_put(ok: Bool, +tb: B.Tb<&2, List<&2, Nat>>, +e: Nat, +f: Nat) -> B.Tb<&2, List<&2, Nat>>:
+  match ok:
+    case False{}: tb
+    case True{}:
+      +k = U32.from_nat(e)
+      +cur = B.tb_get(List<&2, Nat>, tb, k)
+      B.tb_set(List<&2, Nat>, tb, k, ef_push(hd_is(cur, f), cur, f))
 
-def ul_go(fs: List<&2, Nat>, +fst: Nat, +p: List<&2, Nat>, +n: Nat) -> List<&2, Nat>:
+def tef_es(es: List<&2, Nat>, +f: Nat, +ne: Nat, +tb: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>>:
+  match es:
+    case []: tb
+    case +e <> +t: tef_es(t, f, ne, tef_put(Nat.is_lt(e, ne), tb, e, f))
+
+def tef_fs(fs: List<&2, List<&2, Nat>>, +i: Nat, +ne: Nat, +tb: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>>:
+  match fs:
+    case []: tb
+    case +h <> +t: tef_fs(t, Nat.add(i, 1n), ne, tef_es(h, i, ne, tb))
+
+def ufind_t(fuel: Nat, stop: Bool, +p: B.Tb<&2, Nat>, +n: Nat, +x: Nat) -> Nat:
+  match fuel stop:
+    case 0n _: x
+    case 1n++j True{}: x
+    case 1n++j False{}:
+      +r = nat_at(p, n, x)
+      ufind_t(j, Nat.is_eq(nat_at(p, n, r), r), p, n, r)
+
+def ufind(+p: B.Tb<&2, Nat>, +n: Nat, +x: Nat) -> Nat:
+  ufind_t(n, Nat.is_eq(nat_at(p, n, x), x), p, n, x)
+
+def uunion(+p: B.Tb<&2, Nat>, +a: Nat, +b: Nat, +n: Nat) -> B.Tb<&2, Nat>:
+  +ra = ufind(p, n, a)
+  +rb = ufind(p, n, b)
+  Bool.pick(B.Tb<&2, Nat>, Nat.is_eq(ra, rb), p, nat_put(p, n, ra, rb))
+
+def ul_go(fs: List<&2, Nat>, +fst: Nat, +p: B.Tb<&2, Nat>, +n: Nat) -> B.Tb<&2, Nat>:
   match fs:
     case []: p
     case +h <> +t: ul_go(t, fst, uunion(p, fst, h, n), n)
 
-def ul_go2(fs: List<&2, Nat>, +p: List<&2, Nat>, +n: Nat) -> List<&2, Nat>:
+def ul_go2(fs: List<&2, Nat>, +p: B.Tb<&2, Nat>, +n: Nat) -> B.Tb<&2, Nat>:
   match fs:
     case []: p
     case +f <> +t: ul_go(t, f, p, n)
@@ -276,17 +315,21 @@ def erange(n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
     case 0n: acc
     case 1n++j: erange(j, j <> acc)
 
-def comps_go(es: List<&2, Nat>, +fe: List<&2, List<&2, Nat>>, +p: List<&2, Nat>,
-    +n: Nat) -> List<&2, Nat>:
+def comps_go(es: List<&2, Nat>, +tef: B.Tb<&2, List<&2, Nat>>, +p: B.Tb<&2, Nat>,
+    +n: Nat) -> B.Tb<&2, Nat>:
   match es:
     case []: p
-    case +e <> +t: comps_go(t, fe, ul_go2(efaces(fe, e), p, n), n)
+    case +e <> +t: comps_go(t, tef, ul_go2(B.tb_get(List<&2, Nat>, tef, U32.from_nat(e)), p, n), n)
 
-def comps_of(+st: AS) -> List<&2, Nat>:
-  +fas = as_fas(st)
-  +fe = faces_eis(fas, as_lps(st), as_ces(st))
+def comps_of(+st: AS) -> B.Tb<&2, Nat>:
+  +lps = as_lps(st)
+  +ces = as_ces(st)
+  +fe = faces_eis(as_fas(st), B.tb_of(Ty.Loop, lps, Ty.lp_dflt()), List.length(&2, Ty.Loop, lps),
+    B.tb_of(Ty.Coedge, ces, Ty.ce_dflt()), List.length(&2, Ty.Coedge, ces))
   +n = as_nf(st)
-  comps_go(erange(as_ne(st), []), fe, erange(n, []), n)
+  +ne = as_ne(st)
+  +tef = tef_fs(fe, 0n, ne, B.tb_of(List<&2, Nat>, B.rep_n(List<&2, Nat>, ne, []), []))
+  comps_go(erange(ne, []), tef, B.tb_of(Nat, erange(n, []), 0n), n)
 
 type GRP is Data:
   GRP{ r: Nat, fs: List<&2, Nat> }
@@ -306,11 +349,11 @@ def gadd(g: List<&2, GRP>, +r: Nat, +f: Nat) -> List<&2, GRP>:
       Bool.pick(List<&2, GRP>, Nat.is_eq(grp_r(h), r), GRP{r, f <> grp_fs(h)} <> t,
         h <> gadd(t, r, f))
 
-def groups_go(fs: List<&2, Nat>, +p: List<&2, Nat>, +n: Nat,
+def groups_go(fs: List<&2, Nat>, +p: B.Tb<&2, Nat>, +n: Nat,
     +acc: List<&2, GRP>) -> List<&2, GRP>:
   match fs:
     case []: acc
-    case +e <> +t: groups_go(t, p, n, gadd(acc, ufind_f(n, p, e), e))
+    case +e <> +t: groups_go(t, p, n, gadd(acc, ufind(p, n, e), e))
 
 def hfas_of(fs: List<&2, Nat>, +acc: List<&2, Ty.HFace>) -> List<&2, Ty.HFace>:
   match fs:
@@ -446,46 +489,50 @@ def solids_go(gs: List<&2, GRP>, +conts: List<&2, Nat>, +gi: Nat, +nf: Nat,
         Bool.pick(Nat, keep, Nat.add(si, 1n), si))
 
 type KAB is Data:
-  KAB{ ok: Bool, why: U64, brep: Ty.Brep }
+  KAB{ ok: Bool, why: U64, brep: Ty.Brep, fk: List<&2, SO.KF> }
 
 def kab_ok(+r: KAB) -> Bool:
-  KAB{ok, why, brep} = r
+  KAB{ok, why, brep, fk} = r
   ok
 
 def kab_why(+r: KAB) -> U64:
-  KAB{ok, why, brep} = r
+  KAB{ok, why, brep, fk} = r
   why
 
 def kab_brep(+r: KAB) -> Ty.Brep:
-  KAB{ok, why, brep} = r
+  KAB{ok, why, brep, fk} = r
   brep
+
+def kab_fk(+r: KAB) -> List<&2, SO.KF>:
+  KAB{ok, why, brep, fk} = r
+  fk
 
 def k1asm_sos(+none: Bool, +sos: List<&2, Ty.Solid>, +vs: List<&2, Ty.Vertex>,
     +es: List<&2, Ty.Edge>, +ces: List<&2, Ty.Coedge>, +lps: List<&2, Ty.Loop>,
-    +fas: List<&2, Ty.Face>, +shs: List<&2, Ty.Shell>, +ns: Nat, +no: Nat) -> KAB:
+    +fas: List<&2, Ty.Face>, +shs: List<&2, Ty.Shell>, +ns: Nat, +no: Nat, +fk: List<&2, SO.KF>) -> KAB:
   match none:
-    case True{}: KAB{False{}, 40u64, k1temp(vs, es, ces, lps, fas, shs, sos, [], [])}
+    case True{}: KAB{False{}, 40u64, k1temp(vs, es, ces, lps, fas, shs, sos, [], []), fk}
     case False{}:
-      KAB{True{}, 0u64, k1temp(vs, es, ces, lps, fas, shs, sos, hsos_of(no, []), [])}
+      KAB{True{}, 0u64, k1temp(vs, es, ces, lps, fas, shs, sos, hsos_of(no, []), []), fk}
 
 def k1asm_fin(+cok: Bool, +cntok: Bool, +conts: List<&2, Nat>, +gs: List<&2, GRP>,
     +vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>, +ces: List<&2, Ty.Coedge>,
     +lps: List<&2, Ty.Loop>, +fas: List<&2, Ty.Face>, +shs: List<&2, Ty.Shell>, +ns: Nat,
-    +st: AS) -> KAB:
+    +st: AS, +fk: List<&2, SO.KF>) -> KAB:
   match cok:
-    case False{}: KAB{False{}, 31u64, k1temp(vs, es, ces, lps, fas, shs, [], [], [])}
+    case False{}: KAB{False{}, 31u64, k1temp(vs, es, ces, lps, fas, shs, [], [], []), fk}
     case True{}:
       match cntok:
-        case False{}: KAB{False{}, 44u64, k1temp(vs, es, ces, lps, fas, shs, [], [], [])}
+        case False{}: KAB{False{}, 44u64, k1temp(vs, es, ces, lps, fas, shs, [], [], []), fk}
         case True{}:
           +sos = solids_go(gs, conts, 0n, as_nf(st), [], 0n)
           +no = List.length(&2, Ty.Solid, sos)
           +shk = shells_go(gs, conts, as_nf(st), [], 0n)
-          k1asm_sos(Nat.is_eq(no, 0n), sos, vs, es, ces, lps, fas, shk, ns, no)
+          k1asm_sos(Nat.is_eq(no, 0n), sos, vs, es, ces, lps, fas, shk, ns, no, fk)
 
 def k1asm_nf(+empty: Bool, +st: AS, +pool: B.Tb<&2, SO.KF>) -> KAB:
   match empty:
-    case True{}: KAB{False{}, 40u64, k1temp([], [], [], [], [], [], [], [], [])}
+    case True{}: KAB{False{}, 40u64, k1temp([], [], [], [], [], [], [], [], []), []}
     case False{}:
       +p = comps_of(st)
       +n = as_nf(st)
@@ -500,14 +547,15 @@ def k1asm_nf(+empty: Bool, +st: AS, +pool: B.Tb<&2, SO.KF>) -> KAB:
       +fas = as_fas(st)
       +hsos = hsos_of(ns, [])
       +hshs = hshs_of(ns, [])
-      +fds = SO.fds_re(k1temp(vs, es, ces, lps, fas, shs, sos0, hsos, hshs), pool)
+      +tb = k1temp(vs, es, ces, lps, fas, shs, sos0, hsos, hshs)
+      +fds = SO.fds_re(tb, pool)
       +conts = conts_of(gs, st, fds, n)
       +cntok = Bool.and(Nat.is_eq(as_nv(st), List.length(&2, Ty.Vertex, vs)),
         Bool.and(Nat.is_eq(as_ne(st), List.length(&2, Ty.Edge, es)),
           Bool.and(Nat.is_eq(as_nc(st), List.length(&2, Ty.Coedge, ces)),
             Bool.and(Nat.is_eq(as_nl(st), List.length(&2, Ty.Loop, lps)),
               Nat.is_eq(as_nf(st), List.length(&2, Ty.Face, fas))))))
-      k1asm_fin(cont_ok(conts, n), cntok, conts, gs, vs, es, ces, lps, fas, shs, ns, st)
+      k1asm_fin(cont_ok(conts, n), cntok, conts, gs, vs, es, ces, lps, fas, shs, ns, st, SO.kfs_of(tb, fds))
 
 def as_rev(+a: AS) -> AS:
   AS{vs, es, ces, lps, fas, eks, nv, ne, nc, nl, nf, ms, nm} = a
@@ -523,11 +571,16 @@ def vzeros(n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
     case 0n: acc
     case 1n++j: vzeros(j, 0n <> acc)
 
-def vmark_go(es: List<&2, Ty.Edge>, +used: List<&2, Nat>) -> List<&2, Nat>:
+def vmark_go(es: List<&2, Ty.Edge>, +n: Nat, +used: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
   match es:
     case []: used
     case +h <> +t:
-      vmark_go(t, uset(uset(used, Ty.hv_idx(Ty.ed_v0(h)), 1n), Ty.hv_idx(Ty.ed_v1(h)), 1n))
+      vmark_go(t, n, nat_put(nat_put(used, n, Ty.hv_idx(Ty.ed_v0(h)), 1n), n, Ty.hv_idx(Ty.ed_v1(h)), 1n))
+
+def tb_take(n: Nat, +tn: B.Tb<&2, Nat>, +i: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: B.tb_get(Nat, tn, U32.from_nat(i)) <> tb_take(m, tn, Nat.add(i, 1n))
 
 def vprune_go(fs: List<&2, Nat>, vs: List<&2, Ty.Vertex>, +new: Nat,
     +vcc: List<&2, Ty.Vertex>, +mcc: List<&2, Nat>) -> VS2:
@@ -539,12 +592,12 @@ def vprune_go(fs: List<&2, Nat>, vs: List<&2, Ty.Vertex>, +new: Nat,
         Bool.pick(List<&2, Nat>, used, new <> mcc, 0n <> mcc))
     case _ _: VS2{List.reverse(&2, Ty.Vertex, vcc), List.reverse(&2, Nat, mcc)}
 
-def ereidx_go(es: List<&2, Ty.Edge>, +mp: List<&2, Nat>, +acc: List<&2, Ty.Edge>) -> List<&2, Ty.Edge>:
+def ereidx_go(es: List<&2, Ty.Edge>, +mp: B.Tb<&2, Nat>, +n: Nat, +acc: List<&2, Ty.Edge>) -> List<&2, Ty.Edge>:
   match es:
     case []: List.reverse(&2, Ty.Edge, acc)
     case +h <> +t:
       Ty.Ed{+g, +v0, +v1, +k} = h
-      ereidx_go(t, mp, Ty.Ed{g, hv(nat_nth(mp, Ty.hv_idx(v0))), hv(nat_nth(mp, Ty.hv_idx(v1))),
+      ereidx_go(t, mp, n, Ty.Ed{g, hv(nat_at(mp, n, Ty.hv_idx(v0))), hv(nat_at(mp, n, Ty.hv_idx(v1))),
         k} <> acc)
 
 def vs2_vs(+r: VS2) -> List<&2, Ty.Vertex>:
@@ -557,11 +610,11 @@ def vs2_mp(+r: VS2) -> List<&2, Nat>:
 
 def k1prune(+st: AS) -> AS:
   AS{+vs, +es, +ces, +lps, +fas, +eks, +nv, +ne, +nc, +nl, +nf, +ms, +nm} = st
-  +used = vmark_go(es, vzeros(nv, []))
+  +used = tb_take(nv, vmark_go(es, nv, B.tb_of(Nat, vzeros(nv, []), 0n)), 0n)
   +pr = vprune_go(used, vs, 0n, [], [])
   +vs2 = vs2_vs(pr)
   +mp = vs2_mp(pr)
-  AS{vs2, ereidx_go(es, mp, []), ces, lps, fas, eks, List.length(&2, Ty.Vertex, vs2), ne, nc,
+  AS{vs2, ereidx_go(es, B.tb_of(Nat, mp, 0n), List.length(&2, Nat, mp), []), ces, lps, fas, eks, List.length(&2, Ty.Vertex, vs2), ne, nc,
     nl, nf, ms, nm}
 
 def k1assemble_p(+st: AS, +pool: B.Tb<&2, SO.KF>) -> KAB:
@@ -679,19 +732,13 @@ def zeros(n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
     case 0n: acc
     case 1n++j: zeros(j, 0n <> acc)
 
-def uinc_go(xs: List<&2, Nat>, +at: Nat, +i: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
-  match xs:
-    case []: List.reverse(&2, Nat, acc)
-    case +h <> +t: uinc_go(t, Nat.add(at, 1n), i,
-      Bool.pick(Nat, Nat.is_eq(at, i), Nat.add(h, 1n), h) <> acc)
+def uinc(+tn: B.Tb<&2, Nat>, +n: Nat, +i: Nat) -> B.Tb<&2, Nat>:
+  nat_put(tn, n, i, Nat.add(nat_at(tn, n, i), 1n))
 
-def uinc(xs: List<&2, Nat>, +i: Nat) -> List<&2, Nat>:
-  uinc_go(xs, 0n, i, [])
-
-def k1use_go(cs: List<&2, Ty.Coedge>, +acc: List<&2, Nat>) -> List<&2, Nat>:
+def k1use_go(cs: List<&2, Ty.Coedge>, +n: Nat, +acc: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
   match cs:
     case []: acc
-    case +h <> +t: k1use_go(t, uinc(acc, Ty.he_idx(Ty.ce_edge(h))))
+    case +h <> +t: k1use_go(t, n, uinc(acc, n, Ty.he_idx(Ty.ce_edge(h))))
 
 def k1use_all(xs: List<&2, Nat>, +ok: Bool) -> Bool:
   match xs:
@@ -699,7 +746,7 @@ def k1use_all(xs: List<&2, Nat>, +ok: Bool) -> Bool:
     case +h <> +t: k1use_all(t, Bool.and(ok, Nat.is_eq(h, 2n)))
 
 def k1use(+ces: List<&2, Ty.Coedge>, +ne: Nat) -> Bool:
-  k1use_all(k1use_go(ces, zeros(ne, [])), True{})
+  k1use_all(tb_take(ne, k1use_go(ces, ne, B.tb_of(Nat, zeros(ne, []), 0n)), 0n), True{})
 
 def k1slv_ok(+h: Ty.Face) -> Bool:
   Bool.and(T.is_finite(Ty.fa_slv(h)), Bool.and(T.is_finite(Ty.fa_sla(h)),
@@ -750,49 +797,53 @@ def k1cert(+b: Ty.Brep) -> KCT:
     Bool.pick(U64, idx, Bool.pick(U64, use, Bool.pick(U64, slv, 0u64, 43u64), 42u64), 41u64)}
 
 type KR is Data:
-  KR{ ok: Bool, why: U64, brep: Ty.Brep, nv: Nat, ne: Nat, nf: Nat, nc: Nat }
+  KR{ ok: Bool, why: U64, brep: Ty.Brep, nv: Nat, ne: Nat, nf: Nat, nc: Nat, fk: List<&2, SO.KF> }
 
 def kr_ok(+r: KR) -> Bool:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   ok
 
 def kr_why(+r: KR) -> U64:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   why
 
 def kr_brep(+r: KR) -> Ty.Brep:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   brep
 
 def kr_nv(+r: KR) -> Nat:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   nv
 
 def kr_ne(+r: KR) -> Nat:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   ne
 
 def kr_nf(+r: KR) -> Nat:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   nf
 
 def kr_nc(+r: KR) -> Nat:
-  KR{ok, why, brep, nv, ne, nf, nc} = r
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
   nc
 
-def k1run_e(+okt: Bool, +whyt: U64, +brep: Ty.Brep) -> KR:
+def kr_fk(+r: KR) -> List<&2, SO.KF>:
+  KR{ok, why, brep, nv, ne, nf, nc, fk} = r
+  fk
+
+def k1run_e(+okt: Bool, +whyt: U64, +brep: Ty.Brep, +fk: List<&2, SO.KF>) -> KR:
   match okt:
-    case False{}: KR{False{}, whyt, brep, 0n, 0n, 0n, 0n}
+    case False{}: KR{False{}, whyt, brep, 0n, 0n, 0n, 0n, fk}
     case True{}:
       KR{True{}, 0u64, brep, List.length(&2, Ty.Vertex, Ty.brep_vs(brep)),
         List.length(&2, Ty.Edge, Ty.brep_es(brep)),
         List.length(&2, Ty.Face, Ty.brep_fas(brep)),
-        List.length(&2, Ty.Solid, Ty.brep_sos(brep))}
+        List.length(&2, Ty.Solid, Ty.brep_sos(brep)), fk}
 
-def k1run_d(+okc: Bool, +whyc: U64, +brep: Ty.Brep) -> KR:
+def k1run_d(+okc: Bool, +whyc: U64, +brep: Ty.Brep, +fk: List<&2, SO.KF>) -> KR:
   match okc:
-    case False{}: KR{False{}, whyc, brep, 0n, 0n, 0n, 0n}
+    case False{}: KR{False{}, whyc, brep, 0n, 0n, 0n, 0n, fk}
     case True{}:
       +ct = k1cert(brep)
-      k1run_e(kct_ok(ct), kct_why(ct), brep)
+      k1run_e(kct_ok(ct), kct_why(ct), brep, fk)
 

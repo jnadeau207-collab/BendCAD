@@ -2040,7 +2040,8 @@ def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +
   +wa = bx_meet(world_box_f(fda, in_lin(a)), in_bb(a))
   +wb = bx_meet(world_box_f(fdb, in_lin(b)), in_bb(b))
   +bc = restamp(K1.kr_brep(kr))
-  +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb))))
+  +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, K1.kr_fk(kr),
+    List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))))
   +v = vcore_f(bc, fdc)
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),

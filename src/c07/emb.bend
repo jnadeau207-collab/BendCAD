@@ -1095,19 +1095,24 @@ def ov_one(m: Maybe<&2, List<&2, I.I>>, +g: SO.Fd) -> U64:
 def ov_code(+m: U64) -> U64:
   Bool.pick(U64, U64.is_eq(m, 0u64), 0u64, Bool.pick(U64, U64.is_eq(m, 1u64), 1u64, 2u64))
 
-def ff_ov(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+def ov_max(top: Bool, +x: U64, +fa: SO.Fd, +fb: SO.Fd) -> U64:
+  match top:
+    case True{}: x
+    case False{}: U64.max(x, ov_code(ov_one(SO.interior(fb), fa)))
+
+def ov_w(+fa: SO.Fd, +fb: SO.Fd) -> U64:
   +x = ov_code(ov_one(SO.interior(fa), fb))
-  +y = ov_code(ov_one(SO.interior(fb), fa))
-  +w = U64.max(x, y)
+  ov_max(U64.is_eq(x, 2u64), x, fa, fb)
+
+def ff_ov(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
+  +w = ov_w(fa, fb)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1(Bool.pick(String, U64.is_eq(w, 1u64), "face-overlap", "face-overlap-uncertain"), ia, ib))
 
 def ff_ov_x(+fa: SO.Fd, +fb: SO.Fd, +ia: Nat, +ib: Nat, +cross: Bool) -> List<&2, SO.Fi>:
   match cross:
     case False{}: ff_ov(fa, fb, ia, ib)
     case True{}:
-      +x = ov_code(ov_one(SO.interior(fa), fb))
-      +y = ov_code(ov_one(SO.interior(fb), fa))
-      +w = U64.max(x, y)
+      +w = ov_w(fa, fb)
       Bool.pick(List<&2, SO.Fi>, U64.is_eq(w, 0u64), [], fi1("contact-face-face", ia, ib))
 
 def all_cvs(es: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2, Eg>:
@@ -1522,9 +1527,19 @@ def sep_pl_any(es: List<&2, Nat>, done: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y
 def sep_plane(+fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
   sep_pl_any(List.append(&2, Nat, fg_es(x), fg_es(y)), False{}, fa, fb, x, y, te, tol)
 
+def sep_or(s: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  match s:
+    case True{}: True{}
+    case False{}: sep_plane(fa, fb, x, y, te, tol)
+
+def sep_if(n: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  match n:
+    case False{}: False{}
+    case True{}: sep_or(sep(fa, fb, X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)), tol), fa, fb, x, y, te, tol)
+
 def ff_or_tr(+m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
     +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
-  ff_go_sep(Bool.and(is_none(m), Bool.or(sep(fa, fb, X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb)), tol), sep_plane(fa, fb, x, y, te, tol))), m, fa, fb, x, y, te, tol, ia, ib)
+  ff_go_sep(sep_if(is_none(m), fa, fb, x, y, te, tol), m, fa, fb, x, y, te, tol, ia, ib)
 
 def frame(+n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +m = SO.snap(n)
