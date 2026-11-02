@@ -244,13 +244,18 @@ def poly_mid(+poly: List<&2, V.Vec2>) -> V.Vec2:
     V.V2{F64.mul(0.5f64, F64.add(V.v2_x(a), V.v2_x(b))), F64.mul(0.5f64, F64.add(V.v2_y(a), V.v2_y(b)))},
     L.nth_v2(poly, Nat.div(n, 2n)))
 
+def pip_in(pip: Bool, +b: FB.KB, +fi: Nat, +p3: V.Point) -> Bool:
+  match pip:
+    case False{}: False{}
+    case True{}: Bool.not(FB.bnd_near(b, fi, p3))
+
 def inside_pcs(ps: List<&2, W.PC>, +s: S.SF, +b: FB.KB, +fi: Nat) -> List<&2, W.PC>:
   match ps:
     case []: []
     case +h <> +t:
       +q = poly_mid(W.pc_poly(h))
       +p3 = S.sf_at(s, V.v2_x(q), V.v2_y(q))
-      +ins = Bool.and(FB.pip_face(b, fi, s, q), Bool.not(FB.bnd_near(b, fi, p3)))
+      +ins = pip_in(FB.pip_face(b, fi, s, q), b, fi, p3)
       +rest = inside_pcs(t, s, b, fi)
       Bool.pick(List<&2, W.PC>, ins, cut_of(h) <> rest, rest)
 
@@ -383,6 +388,11 @@ def kc_why(+k: KC) -> U64:
   KC{ks, ok, why} = k
   why
 
+def cls_or(un: Bool, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +oc: U64) -> U64:
+  match un:
+    case True{}: SO.classify_in(fdo, bbo, p)
+    case False{}: oc
+
 def classify_rgs(rs: List<&2, W.RG>, +s: S.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64,
     +sd: U64, +pcp: List<&2, CO.CP>, +ob: FB.KB) -> KC:
   match rs:
@@ -391,7 +401,7 @@ def classify_rgs(rs: List<&2, W.RG>, +s: S.SF, +fdo: List<&2, SO.Fd>, +bbo: List
       +sp = W.sample_pt(s, h)
       +p = S.sf_at(s, V.v2_x(W.sp_q(sp)), V.v2_y(W.sp_q(sp)))
       +oc = CO.on_code(pcp, sd, ob, p)
-      +c = Bool.pick(U64, U64.is_eq(oc, 0u64), SO.classify_in(fdo, bbo, p), oc)
+      +c = cls_or(U64.is_eq(oc, 0u64), fdo, bbo, p, oc)
       +rest = classify_rgs(t, s, fdo, bbo, op, sd, pcp, ob)
       +good = Bool.and(W.sp_ok(sp), Bool.or(U64.is_le(c, 1u64), U64.is_le(4u64, c)))
       KC{keep_of(op, sd, c) <> kc_ks(rest), Bool.and(good, kc_ok(rest)),

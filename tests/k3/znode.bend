@@ -73,12 +73,8 @@ def walk(ids: List<&2, U64>, +p: M.Part, +cs: List<&2, M.CE>, +t0: Nat) -> IO(Un
         u : Unit <- IO.print("node " ++ U64.show(id) ++ " " ++ ok_s(cs, id))
         t1 : Nat <- IO.now()
         v : Unit <- IO.print("  eval_ms " ++ Nat.show(Nat.sub(t1, t0)))
-        t1b : Nat <- IO.now()
-        w : Unit <- IO.print("  vcore " ++ vr_s(B8.vcore(br_of(cs, id))))
-        t2 : Nat <- IO.now()
-        x : Unit <- IO.print("  vcore_ms " ++ Nat.show(Nat.sub(t2, t1b)))
         t3 : Nat <- IO.now()
-        walk(t, p, M.ev_for(p, [hd(t)], cs), t3)
+        walk(t, p, List.append(&2, M.CE, M.ev_for(p, [hd(t)], cs), cs), t3)
 
 def ids_of(+p: M.Part) -> List<&2, U64>:
   M.Pt{+ps, +ns, +ms, +ts} = p
