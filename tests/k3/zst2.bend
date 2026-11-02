@@ -144,9 +144,17 @@ def v1(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U6
     t3 : Nat <- IO.now()
     y : Unit <- stamp("coin_contact", t2, t3, "")
     t4 : Nat <- IO.now()
-    z : Unit <- IO.print("egs " ++ F64.show(eg_sum(egs, 0.0f64)))
+    z : Unit <- IO.print("egs " ++ F64.show(eg_sum(EM.egs_go(Ty.brep_es(bc), Ty.ix_tv(Ty.ix_of(bc))), 0.0f64)))
     t5 : Nat <- IO.now()
-    q : Unit <- stamp("egs_go", t4, t5, "")
+    q : Unit <- stamp("egs_go_timed", t4, t5, "")
+    t8 : Nat <- IO.now()
+    z2 : Unit <- IO.print("ix " ++ Nat.show(Ty.ix_nv(Ty.ix_of(bc))))
+    t9 : Nat <- IO.now()
+    q2 : Unit <- stamp("ix_of", t8, t9, "")
+    t10 : Nat <- IO.now()
+    z3 : Unit <- IO.print("vr_fi " ++ vr_s(B8.vr_fi(False{}, B8.coin_contact(bc), bc, fdc, tg, et)))
+    t11 : Nat <- IO.now()
+    q3 : Unit <- stamp("vr_fi", t10, t11, "")
     t6 : Nat <- IO.now()
     r : Unit <- IO.print("solid_fi " ++ Nat.show(List.length(&2, SO.Fi, SO.solid_fi(bc, fdc))))
     t7 : Nat <- IO.now()
@@ -176,11 +184,29 @@ def s4(+bc: Ty.Brep, +fdc: List<&2, SO.Fd>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>,
     v : Unit <- stamp("tags", t0, t1, "")
     s5(bc, fdc, tg, SO.etags_of(bc, SO.epool(ra, SO.kfs_of(ra, fda)), SO.epool(rb, [])), ra, fda, rb, fdb)
 
+def rot_cnt(+f: Ty.Face, +x: Ty.Ix, +t: B.Tr<&2, SO.KF>, +rt: B.Tr<&2, SO.KF>) -> U64:
+  +ex = SO.kin(SO.fkey(f, x), t)
+  +rk = SO.kin(SO.rkey(f, x), rt)
+  U64.add(Bool.pick(U64, ex, 1u64, 0u64), Bool.pick(U64, rk, 1000u64, 0u64))
+
+def rc_job(+c: SO.RC2, j: SO.FJ) -> U64:
+  SO.RC2{+x, +t, +rt} = c
+  SO.FJ{+h, +sh} = j
+  rot_cnt(Ty.tres_fa(Ty.ix_fa(x, h)), x, t, rt)
+
+def rc_x(c: SO.RC2, j: SO.FJ) -> U64:
+  rc_job(c, j)
+
+def u_sum(xs: List<&2, U64>, +acc: U64) -> U64:
+  match xs:
+    case []: acc
+    case +x <> t: u_sum(t, U64.add(acc, x))
+
 def s3(+bc: Ty.Brep, +fk: List<&2, SO.KF>, +ra: Ty.Brep, +fda: List<&2, SO.Fd>, +rb: Ty.Brep, +fdb: List<&2, SO.Fd>) -> IO(Unit):
   +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, fk, List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb)))))
   do IO<Unit>:
     t0 : Nat <- IO.now()
-    u : Unit <- IO.print("fdc " ++ F64.show(fd_sum(fdc, 0.0f64)) ++ " kr_fk " ++ kf_n(fk))
+    u : Unit <- IO.print("fdc " ++ F64.show(fd_sum(fdc, 0.0f64)) ++ " kr_fk " ++ kf_n(fk) ++ " exact+1000rot " ++ U64.show(u_sum(B.pmap_g(~SO.FJ, ~SO.RC2, ~U64, ~rc_x, 1, SO.RC2{Ty.ix_of(bc), SO.tb_tr(SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb)))), SO.tb_tr(SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb))))}, SO.fj_shs(Ty.brep_shs(bc), 0n)), 0u64)))
     t1 : Nat <- IO.now()
     v : Unit <- stamp("fdc_pooled", t0, t1, "")
     s4(bc, fdc, ra, fda, rb, fdb)
@@ -196,7 +222,8 @@ def g7(+ra: Ty.Brep, +m: GB.EM, +ok: Bool, +why: U64, +rb: Ty.Brep, +fda: List<&
   do IO<Unit>:
     t0 : Nat <- IO.now()
     s2b(GB.finish_p(Bool.pick(GB.EM, ok, m, GB.EM{GB.em_st(m), False{}, why}), ra,
-      SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb)))), t0, ra, fda, rb, fdb)
+      SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),
+      SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb)))), t0, ra, fda, rb, fdb)
 
 def g6b(+ra: Ty.Brep, +m: GB.EM, +ok: Bool, +why: U64, +t0: Nat, +rb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> IO(Unit):
   do IO<Unit>:

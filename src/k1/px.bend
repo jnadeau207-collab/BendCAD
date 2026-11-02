@@ -514,28 +514,62 @@ def ve_two(+go: Bool, +side: U64, +e: Nat, +k: Ty.EdgeKind, +b: FB.KB, +ob: FB.K
       +fs = vx_faces(L.nat_range(FB.nedges(ob)), ob, vi, [])
       Bool.pick(HS, on, HS{ve_fos(fs, side, e, t, p, vi_i(r), hs_hs(st)), vi_g(r), hs_ok(st), hs_why(st)}, st)
 
-def ve_one(+side: U64, +e: Nat, +b: FB.KB, +ob: FB.KB, +vi: Nat, +p: V.Point, +st: HS) -> HS:
-  +k = Ty.ed_kind(FB.edge_at(b, e))
-  +ed = FB.edge_at(b, e)
-  +q0 = FB.vpt(b, Ty.ed_v0(ed))
-  +q1 = FB.vpt(b, Ty.ed_v1(ed))
-  +tol = ve_tol(p)
-  +bx = FB.bb_pad(FB.ek_bb(k), tol)
-  +inb = Bool.not(FB.bb_dis(bx, FB.bb_pt(p)))
-  +far = Bool.and(F64.is_lt(tol, S.dist(p, q0)), F64.is_lt(tol, S.dist(p, q1)))
-  ve_two(Bool.and(inb, far), side, e, k, b, ob, vi, p, st)
+type VD is Data:
+  VD{ e: Nat, k: Ty.EdgeKind, bx: FB.BB, q0: V.Point, q1: V.Point }
 
-def ve_edges(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +vi: Nat, +p: V.Point, +st: HS) -> HS:
+def vd_job(+b: FB.KB, +e: Nat) -> VD:
+  +ed = FB.edge_at(b, e)
+  +k = Ty.ed_kind(ed)
+  VD{e, k, FB.ek_bb(k), FB.vpt(b, Ty.ed_v0(ed)), FB.vpt(b, Ty.ed_v1(ed))}
+
+def vd_x(b: FB.KB, e: Nat) -> VD:
+  vd_job(b, e)
+
+def vd_go(+d: VD, +p: V.Point, +tol: F64) -> Bool:
+  VD{+e, +k, +bx, +q0, +q1} = d
+  Bool.and(Bool.not(FB.bb_dis(FB.bb_pad(bx, tol), FB.bb_pt(p))),
+    Bool.and(F64.is_lt(tol, S.dist(p, q0)), F64.is_lt(tol, S.dist(p, q1))))
+
+def vd_e(+d: VD) -> Nat:
+  VD{+e, k, bx, q0, q1} = d
+  e
+
+def vd_es(ds: List<&2, VD>, +p: V.Point, +tol: F64) -> List<&2, Nat>:
+  match ds:
+    case []: []
+    case +d <> t:
+      +rest = vd_es(t, p, tol)
+      Bool.pick(List<&2, Nat>, vd_go(d, p, tol), vd_e(d) <> rest, rest)
+
+type VC is Data:
+  VC{ v: Nat, p: V.Point, es: List<&2, Nat> }
+
+type VX is Data:
+  VX{ ob: FB.KB, ds: List<&2, VD> }
+
+def vc_job(+c: VX, +h: Nat) -> VC:
+  VX{+ob, +ds} = c
+  +p = Ty.vx_p(FB.kb_v(ob, h))
+  VC{h, p, vd_es(ds, p, ve_tol(p))}
+
+def vc_x(c: VX, h: Nat) -> VC:
+  vc_job(c, h)
+
+def ve_hit(es: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +vi: Nat, +p: V.Point, +st: HS) -> HS:
   match es:
     case []: st
-    case +h <> +t: ve_edges(t, side, b, ob, vi, p, ve_one(side, h, b, ob, vi, p, st))
+    case +e <> +t: ve_hit(t, side, b, ob, vi, p, ve_two(True{}, side, e, Ty.ed_kind(FB.edge_at(b, e)), b, ob, vi, p, st))
 
-def ve_verts(vs: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
-  match vs:
+def vc_fold(cs: List<&2, VC>, +side: U64, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
+  match cs:
     case []: st
-    case +h <> +t:
-      +p = Ty.vx_p(FB.kb_v(ob, h))
-      ve_verts(t, side, b, ob, ve_edges(L.nat_range(FB.nedges(b)), side, b, ob, h, p, st))
+    case +c <> +t:
+      VC{+v, +p, +es} = c
+      vc_fold(t, side, b, ob, ve_hit(es, side, b, ob, v, p, st))
+
+def ve_verts(+vs: List<&2, Nat>, +side: U64, +b: FB.KB, +ob: FB.KB, +st: HS) -> HS:
+  +ds = B.pmap_g(~Nat, ~FB.KB, ~VD, ~vd_x, 8, b, L.nat_range(FB.nedges(b)))
+  vc_fold(B.pmap_g(~Nat, ~VX, ~VC, ~vc_x, 1, VX{ob, ds}, vs), side, b, ob, st)
 
 def all_hits(+ba: FB.KB, +bb: FB.KB, +g: GV) -> HS:
   +s0 = ef_edges(L.nat_range(FB.nedges(ba)), 0u64, ba, bb, HS{[], g, True{}, 0u64})

@@ -677,18 +677,18 @@ def run_emit(+op: U64, +ba: FB.KB, +bb: FB.KB, +vma: List<&2, Nat>, +vmb: List<&
     +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +gv: PX.GV, +cps: List<&2, CO.CP>) -> EM:
   run_emit_f(op, ba, bb, vma, vmb, hs, chs, gv, cps, SO.fds_of(FB.kb_br(ba)), SO.fds_of(FB.kb_br(bb)))
 
-def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>) -> K1.KR:
+def finish_go(+ok: Bool, +m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>, +rpool: B.Tb<&2, SO.KF>) -> K1.KR:
   match ok:
     case False{}: K1.KR{False{}, em_why(m), ba, 0n, 0n, 0n, 0n, []}
     case True{}:
-      +asb = K1.k1assemble_p(em_st(m), pool)
+      +asb = K1.k1assemble_p(em_st(m), pool, rpool)
       K1.k1run_d(K1.kab_ok(asb), K1.kab_why(asb), K1.kab_brep(asb), K1.kab_fk(asb))
 
-def finish_p(+m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>) -> K1.KR:
-  finish_go(em_ok(m), m, ba, pool)
+def finish_p(+m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>, +rpool: B.Tb<&2, SO.KF>) -> K1.KR:
+  finish_go(em_ok(m), m, ba, pool, rpool)
 
 def finish(+m: EM, +ba: Ty.Brep) -> K1.KR:
-  finish_p(m, ba, SO.pool_kf([]))
+  finish_p(m, ba, SO.pool_kf([]), SO.pool_kf([]))
 
 def emit_if(ok: Bool, +why: U64, +op: U64, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +vb: PX.VM, +hs3: List<&2, PX.HX>,
     +cr: PX.CR, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> EM:
@@ -713,7 +713,8 @@ def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2,
   +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), Bool.pick(U64, none, 98u64, PX.cr_why(cr)), 97u64), PX.hs_why(hs))
   +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
   finish_p(emit_if(ok, why, op, ba, bb, va, vb, hs3, cr, cps, fda, fdb), ra,
-    SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))))
+    SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),
+    SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb))))
 
 def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
   match fs:

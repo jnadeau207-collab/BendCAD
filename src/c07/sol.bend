@@ -986,3 +986,61 @@ def etags_of(+b: Ty.Brep, +pa: B.Tb<&2, KF>, +pb: B.Tb<&2, KF>) -> List<&2, U64>
 
 def fds_re(+b: Ty.Brep, +pool: B.Tb<&2, KF>) -> List<&2, Fd>:
   B.pmap_g(~FJ, ~RC, ~Fd, ~re_job, 1, RC{Ty.ix_of(b), tb_tr(pool)}, fj_shs(Ty.brep_shs(b), 0n))
+
+def rkfs_of(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, KF>:
+  kf_zip(rkeys(b), fs)
+
+def uv_no(u: Mm.Uv) -> Bool:
+  match u:
+    case Mm.Uv_no{}: True{}
+    case _: False{}
+
+def fd_rot_go(rok: Bool, +es: List<&2, Mm.Er>, +ok: Bool, +a: Fd, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  match rok:
+    case True{}:
+      Fd{+fc, +g, +bx, aok, s0, i0} = a
+      Mm.Fc{+im, +same, esa, +uv} = fc
+      Fd{Mm.Fc{im, same, es, uv}, g, bx, ok, sh, fi}
+    case False{}: fd_x(x, h, sh)
+
+def fd_rot(+a: Fd, +ea: Ea, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  Fd{+fc, g, bx, +aok, s0, i0} = a
+  Mm.Fc{im, same, +esa, +uv} = fc
+  +es = ea_es(ea)
+  +rok = Bool.and(aok, Bool.and(uv_no(uv), bx_same(eb_go(es, []), eb_go(esa, []))))
+  fd_rot_go(rok, es, ea_ok(ea), a, x, h, sh, fi)
+
+def fd_rhit(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  match hit:
+    case True{}: fd_rot(kf_f(e), lps_go(Ty.fa_loops(Ty.tres_fa(Ty.ix_fa(x, h))), x, Ea{[], True{}}), x, h, sh, fi)
+    case False{}: fd_x(x, h, sh)
+
+def fd_rk(+rk: KA, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  KA{+ok, +ks} = rk
+  +e = kfind(rt, ks, kz(rt, ks))
+  fd_rhit(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi)
+
+def fd_rr(+rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  fd_rk(rkey(Ty.tres_fa(Ty.ix_fa(x, h)), x), rt, x, h, sh, fi)
+
+def fd_pick2(hit: Bool, +e: KF, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  match hit:
+    case True{}: fd_at(kf_f(e), sh, fi)
+    case False{}: fd_rr(rt, x, h, sh, fi)
+
+def fd_re2(+k: KA, +t: B.Tr<&2, KF>, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat) -> Fd:
+  KA{+ok, +ks} = k
+  Ty.HF{+fi, +g} = h
+  +e = kfind(t, ks, kz(t, ks))
+  fd_pick2(Bool.and(ok, keq(kf_k(e), ks)), e, rt, x, h, sh, fi)
+
+type RC2 is Data:
+  RC2{ x: Ty.Ix, t: B.Tr<&2, KF>, rt: B.Tr<&2, KF> }
+
+def re_job2(c: RC2, j: FJ) -> Fd:
+  RC2{+x, +t, +rt} = c
+  FJ{+h, +sh} = j
+  fd_re2(fkey(Ty.tres_fa(Ty.ix_fa(x, h)), x), t, rt, x, h, sh)
+
+def fds_rr(+b: Ty.Brep, +pool: B.Tb<&2, KF>, +rpool: B.Tb<&2, KF>) -> List<&2, Fd>:
+  B.pmap_g(~FJ, ~RC2, ~Fd, ~re_job2, 1, RC2{Ty.ix_of(b), tb_tr(pool), tb_tr(rpool)}, fj_shs(Ty.brep_shs(b), 0n))
