@@ -610,18 +610,32 @@ def emit_face(rs: List<&2, W.RG>, +ks: List<&2, Bool>, +pcs: List<&2, W.PC>, +sa
       +m2 = emit_rg(h, pcs, same, flip, g, s, gv, m)
       emit_face(t, L_btail(ks), pcs, same, flip, g, s, gv, Bool.pick(EM, k, m2, m))
 
-def side_go(fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
-    +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64, +gv: PX.GV, +m: EM,
-    +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>) -> EM:
+type FC is Data:
+  FC{ b: FB.KB, sd: U64, vmap: List<&2, Nat>, hs: List<&2, PX.HX>, chs: List<&2, PX.CH>, fdo: List<&2, SO.Fd>,
+    bbo: List<&2, I.I>, op: U64, cps: List<&2, CO.CP>, ob: FB.KB, vmo: List<&2, Nat>, gv: PX.GV }
+
+def fr_job(c: FC, fi: Nat) -> FR:
+  FC{+b, +sd, +vmap, +hs, +chs, +fdo, +bbo, +op, +cps, +ob, +vmo, +gv} = c
+  face_run(b, fi, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv)
+
+def side_em(fs: List<&2, Nat>, frs: List<&2, FR>, +b: FB.KB, +sd: U64, +op: U64, +gv: PX.GV, +m: EM) -> EM:
   match fs:
     case []: m
     case +h <> +t:
-      +fr = face_run(b, h, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv)
-      +g = {[FB.face_surf(b, h)] : List<&2, G.GVal>}
-      +flip = Bool.and(U64.is_eq(op, 15u64), U64.is_eq(sd, 1u64))
-      +m2 = emit_face(fr_rgs(fr), fr_keep(fr), fr_pcs(fr), FB.face_same(b, h), flip, g, S.sf_of(PX.nth_g(g, 0n)), gv, m)
-      +m3 = Bool.pick(EM, fr_ok(fr), m2, EM{em_st(m2), False{}, Bool.pick(U64, em_ok(m), fr_why(fr), em_why(m))})
-      side_go(t, b, sd, vmap, hs, chs, fdo, bbo, op, gv, m3, cps, ob, vmo)
+      match frs:
+        case []: m
+        case +fr <> +rt:
+          +g = {[FB.face_surf(b, h)] : List<&2, G.GVal>}
+          +flip = Bool.and(U64.is_eq(op, 15u64), U64.is_eq(sd, 1u64))
+          +m2 = emit_face(fr_rgs(fr), fr_keep(fr), fr_pcs(fr), FB.face_same(b, h), flip, g, S.sf_of(PX.nth_g(g, 0n)), gv, m)
+          +m3 = Bool.pick(EM, fr_ok(fr), m2, EM{em_st(m2), False{}, Bool.pick(U64, em_ok(m), fr_why(fr), em_why(m))})
+          side_em(t, rt, b, sd, op, gv, m3)
+
+def side_go(+fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
+    +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64, +gv: PX.GV, +m: EM,
+    +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>) -> EM:
+  +frs = B.pmap_g(~Nat, ~FC, ~FR, ~fr_job, 1, FC{b, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv}, fs)
+  side_em(fs, frs, b, sd, op, gv, m)
 
 def add_vs_go(ps: List<&2, V.Point>, +st: K1.AS) -> K1.AS:
   match ps:

@@ -1957,14 +1957,26 @@ def src_of(m: Maybe<&2, List<&2, I.I>>, +g: G.GVal, +fa: B.Tb<&2, SO.Fd>, +na: B
     case Some{+q}:
       src_go(ka, False{}, q, g, fa, na, 0u64, 0n, src_go(kb, False{}, q, g, fb, nb, 1u64, 0n, LK{2u64, fi, BD.Fn{nd, 0n, role_created(), fi, 0n}}))
 
-def lks_go(+n: Nat, +i: Nat, +fr: B.Tb<&2, SO.Fd>, +bc: Ty.Brep, +fa: B.Tb<&2, SO.Fd>, +na: B.Tb<&2, BD.Fn>,
-    +ka: Nat, +fb: B.Tb<&2, SO.Fd>, +nb: B.Tb<&2, BD.Fn>, +kb: Nat, +nd: U64) -> List<&2, LK>:
+def nats(n: Nat, +i: Nat) -> List<&2, Nat>:
   match n:
     case 0n: []
-    case 1n+m:
-      +f = fd_at(fr, i)
-      src_of(SO.interior(f), SO.fd_g(f), fa, na, ka, fb, nb, kb, nd, i) <>
-        lks_go(m, Nat.add(i, 1n), fr, bc, fa, na, ka, fb, nb, kb, nd)
+    case 1n+m: i <> nats(m, Nat.add(i, 1n))
+
+type LC is Data:
+  LC{ fr: B.Tb<&2, SO.Fd>, fa: B.Tb<&2, SO.Fd>, na: B.Tb<&2, BD.Fn>, ka: Nat, fb: B.Tb<&2, SO.Fd>,
+    nb: B.Tb<&2, BD.Fn>, kb: Nat, nd: U64 }
+
+def lk_one(+c: LC, +i: Nat) -> LK:
+  LC{+fr, +fa, +na, +ka, +fb, +nb, +kb, +nd} = c
+  +f = fd_at(fr, i)
+  src_of(SO.interior(f), SO.fd_g(f), fa, na, ka, fb, nb, kb, nd, i)
+
+def lk_job(c: LC, i: Nat) -> LK:
+  lk_one(c, i)
+
+def lks_go(+n: Nat, +i: Nat, +fr: B.Tb<&2, SO.Fd>, +bc: Ty.Brep, +fa: B.Tb<&2, SO.Fd>, +na: B.Tb<&2, BD.Fn>,
+    +ka: Nat, +fb: B.Tb<&2, SO.Fd>, +nb: B.Tb<&2, BD.Fn>, +kb: Nat, +nd: U64) -> List<&2, LK>:
+  B.pmap_g(~Nat, ~LC, ~LK, ~lk_job, 1, LC{fr, fa, na, ka, fb, nb, kb, nd}, nats(n, i))
 
 def lk_same(+a: LK, +b: LK) -> Bool:
   Bool.and(U64.is_eq(lk_sd(a), lk_sd(b)), Nat.is_eq(lk_j(a), lk_j(b)))

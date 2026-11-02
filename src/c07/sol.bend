@@ -9,6 +9,7 @@ import ./rb.bend as R
 import ./im.bend as M
 import ./xs.bend as S
 import ./mem.bend as Mm
+import ../base/par.bend as B
 
 type Fd is Data:
   Fd{ fc: Mm.Fc, g: List<&2, G.GVal>, bx: List<&2, I.I>, ok: Bool, sh: Nat, fi: Nat }
@@ -197,24 +198,31 @@ def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
   Ty.Fa{g, +s, ls, same, +slv, sla} = f
   fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi, slv)
 
-def fhs_go(hs: List<&2, Ty.HFace>, +x: Ty.Ix, +sh: Nat) -> List<&2, Fd>:
+type FJ is Data:
+  FJ{ h: Ty.HFace, sh: Nat }
+
+def fj_hs(hs: List<&2, Ty.HFace>, +sh: Nat) -> List<&2, FJ>:
   match hs:
     case []: []
-    case +h <> t:
-      Ty.HF{+fi, +g} = h
-      fd_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, sh, fi) <> fhs_go(t, x, sh)
+    case +h <> t: FJ{h, sh} <> fj_hs(t, sh)
 
-def sh_fds(s: Ty.Shell, +x: Ty.Ix, +i: Nat) -> List<&2, Fd>:
-  Ty.Sh{g, hs, k} = s
-  fhs_go(hs, x, i)
-
-def shs_go(ss: List<&2, Ty.Shell>, +x: Ty.Ix, +i: Nat) -> List<&2, Fd>:
+def fj_shs(ss: List<&2, Ty.Shell>, +i: Nat) -> List<&2, FJ>:
   match ss:
     case []: []
-    case s <> t: List.append(&2, Fd, sh_fds(s, x, i), shs_go(t, x, Nat.add(i, 1n)))
+    case s <> t:
+      Ty.Sh{g, hs, k} = s
+      List.append(&2, FJ, fj_hs(hs, i), fj_shs(t, Nat.add(i, 1n)))
+
+def fd_x(+x: Ty.Ix, +h: Ty.HFace, +sh: Nat) -> Fd:
+  Ty.HF{+fi, +g} = h
+  fd_of(Ty.tres_fa(Ty.ix_fa(x, h)), x, sh, fi)
+
+def fd_job(x: Ty.Ix, j: FJ) -> Fd:
+  FJ{+h, +sh} = j
+  fd_x(x, h, sh)
 
 def fds_of(+b: Ty.Brep) -> List<&2, Fd>:
-  shs_go(Ty.brep_shs(b), Ty.ix_of(b), 0n)
+  B.pmap_g(~FJ, ~Ty.Ix, ~Fd, ~fd_job, 1, Ty.ix_of(b), fj_shs(Ty.brep_shs(b), 0n))
 
 def fd_bx(f: Fd) -> List<&2, I.I>:
   Fd{fc, g, bx, ok, sh, fi} = f
