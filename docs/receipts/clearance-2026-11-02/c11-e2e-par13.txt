@@ -1,0 +1,3 @@
+PASS carried.geom {'line': 'point s=[-7.993605777301129e-15, 9.769962616701379e-15] t=[-7.993605777301129e-15, 9.769962616701379e-15] at=[-1.1546319'}
+PASS mcp.queries {'distance': True, 'extrema': True, 'mass': True, 'section': True, 'interference': True, 'clearance': True, 'min_wall': True}
+36/36 passed

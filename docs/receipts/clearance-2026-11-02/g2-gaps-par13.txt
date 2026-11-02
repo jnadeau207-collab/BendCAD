@@ -1,0 +1,24 @@
+== asm gap drive_gear
+was: gap drive_gear idler_gear gap=[0.046842295714320616, 0.04684229574009963] traces=240/240 verdict=clearance status=certified
+now: gap drive_gear idler_gear gap=[0.046842295714320616, 0.04684229574009963] traces=240/240 verdict=clearance status=certified
+== asm mesh drive_gear
+was: mesh drive_gear idler_gear gap=[0.04674232068011839, 0.04684211955666678] over=pitch ratio=1 lipschitz=25.304999999832027 verdict=clearance status=certified
+now: mesh drive_gear idler_gear gap=[0.04674232068011839, 0.04684211955666678] over=pitch ratio=1 lipschitz=25.304999999832027 verdict=clearance status=certified
+== asm gap drive_gear
+was: gap drive_gear body gap=[0, inf] traces=240/2 verdict=contact status=uncertain
+now: gap drive_gear body gap=[0, inf] traces=240/2 verdict=contact status=uncertain
+== asm gap idler_gear
+was: gap idler_gear body gap=[0, inf] traces=240/2 verdict=contact status=uncertain
+now: gap idler_gear body gap=[0, inf] traces=240/2 verdict=contact status=uncertain
+== asm gap idler_gear
+was: gap idler_gear chamber gap=[0, 8.662120515044041] traces=240/10 verdict=contact status=uncertain
+now: gap idler_gear chamber gap=[0, 8.662120515044041] traces=240/10 verdict=contact status=uncertain
+== asm gap drive_gear
+was: gap drive_gear chamber gap=[0.029999999966145104, inf] traces=240/1 verdict=clearance status=certified
+now: gap drive_gear chamber gap=[0.029999999966145104, inf] traces=240/1 verdict=clearance status=certified
+== asm gap idler_gear
+was: gap idler_gear chamber gap=[0.03000000000415348, inf] traces=240/1 verdict=clearance status=certified
+now: gap idler_gear chamber gap=[0.03000000000415348, inf] traces=240/1 verdict=clearance status=certified
+== asm gap drive_gear
+was: gap drive_gear chamber gap=[0, 8.356791728022005] traces=240/10 verdict=contact status=uncertain
+now: gap drive_gear chamber gap=[0, 8.356791728022005] traces=240/10 verdict=contact status=uncertain
