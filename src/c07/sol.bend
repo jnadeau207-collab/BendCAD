@@ -639,3 +639,210 @@ def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
 
 def fd_dflt() -> Fd:
   Fd{Mm.Fc{M.M_pl{[], []}, True{}, [], Mm.Uv_no{}}, [], [], False{}, 0n, 0n}
+
+type KA is Data:
+  KA{ ok: Bool, ks: List<&2, U64> }
+
+type KF is Data:
+  KF{ k: List<&2, U64>, f: Fd }
+
+def kf(+x: F64, +acc: List<&2, U64>) -> List<&2, U64>:
+  F64.bits(x) <> acc
+
+def kpt(+p: V.Point, +acc: List<&2, U64>) -> List<&2, U64>:
+  V.Pt{+x, +y, +z} = p
+  kf(x, kf(y, kf(z, acc)))
+
+def kdr(+d: V.Dir, +acc: List<&2, U64>) -> List<&2, U64>:
+  V.Dr{+x, +y, +z} = d
+  kf(x, kf(y, kf(z, acc)))
+
+def kgv(+g: G.GVal, +ok: Bool, +acc: List<&2, U64>) -> KA:
+  match g:
+    case G.GV_ln{+v}:
+      G.Ln{+p, +d} = v
+      KA{ok, 1u64 <> kpt(p, kdr(d, acc))}
+    case G.GV_pl{+v}:
+      G.Pl{+o, +u, +w} = v
+      KA{ok, 2u64 <> kpt(o, kdr(u, kdr(w, acc)))}
+    case G.GV_cc{+v}:
+      G.Cc{+c, +u, +w, +r} = v
+      KA{ok, 3u64 <> kpt(c, kdr(u, kdr(w, kf(r, acc))))}
+    case G.GV_bz{+v}:
+      G.Bz{+p0, +p1, +p2, +p3} = v
+      KA{ok, 4u64 <> kpt(p0, kpt(p1, kpt(p2, kpt(p3, acc))))}
+    case G.GV_rq{+v}:
+      G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = v
+      KA{ok, 5u64 <> kpt(p0, kpt(p1, kpt(p2, kf(w0, kf(w1, kf(w2, acc))))))}
+    case G.GV_sp{+v}:
+      G.Sp{+c, +r} = v
+      KA{ok, 7u64 <> kpt(c, kf(r, acc))}
+    case G.GV_cy{+v}:
+      G.Cy{+o, +d, +r} = v
+      KA{ok, 8u64 <> kpt(o, kdr(d, kf(r, acc)))}
+    case G.GV_co{+v}:
+      G.Co{+o, +d, +k} = v
+      KA{ok, 9u64 <> kpt(o, kdr(d, kf(k, acc)))}
+    case G.GV_to{+v}:
+      G.To{+o, +d, +rr, +r} = v
+      KA{ok, 10u64 <> kpt(o, kdr(d, kf(rr, kf(r, acc))))}
+    case _: KA{False{}, acc}
+
+def kbool(+b: Bool, +acc: List<&2, U64>) -> List<&2, U64>:
+  Bool.pick(U64, b, 1u64, 0u64) <> acc
+
+def kek(k: Ty.EdgeKind, +fwd: Bool, +a: KA) -> KA:
+  match k:
+    case Ty.EK_curve{+c, +d}:
+      G.Dom{+lo, +hi} = d
+      KA{+ok, +acc} = a
+      kgv(c, ok, 11u64 <> kbool(fwd, kf(lo, kf(hi, acc))))
+    case Ty.EK_degenerate{}:
+      KA{+ok, +acc} = a
+      KA{ok, 12u64 <> kbool(fwd, acc)}
+
+def ked(e: Ty.Edge, +fwd: Bool, +a: KA) -> KA:
+  Ty.Ed{g, v0, v1, k} = e
+  kek(k, fwd, a)
+
+def kce(ce: Ty.Coedge, +x: Ty.Ix, +a: KA) -> KA:
+  Ty.Ce{g, eh, +fwd, tr} = ce
+  ked(Ty.tres_ed(Ty.ix_ed(x, eh)), fwd, a)
+
+def kces(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +a: KA) -> KA:
+  match hs:
+    case []: a
+    case h <> t: kces(t, x, kce(Ty.tres_ce(Ty.ix_ce(x, h)), x, a))
+
+def ksep(+a: KA) -> KA:
+  KA{+ok, +acc} = a
+  KA{ok, 13u64 <> acc}
+
+def klp(l: Ty.Loop, +x: Ty.Ix, +a: KA) -> KA:
+  Ty.Lp{g, cs, k} = l
+  ksep(kces(cs, x, a))
+
+def klps(hs: List<&2, Ty.HLoop>, +x: Ty.Ix, +a: KA) -> KA:
+  match hs:
+    case []: a
+    case h <> t: klps(t, x, klp(Ty.tres_lp(Ty.ix_lp(x, h)), x, a))
+
+def fkey(f: Ty.Face, +x: Ty.Ix) -> KA:
+  Ty.Fa{g, +s, ls, +same, +slv, sla} = f
+  klps(ls, x, kgv(s, True{}, kbool(same, kf(slv, []))))
+
+def fk_job(+x: Ty.Ix, j: FJ) -> KA:
+  FJ{+h, +sh} = j
+  fkey(Ty.tres_fa(Ty.ix_fa(x, h)), x)
+
+def fk_x(x: Ty.Ix, j: FJ) -> KA:
+  fk_job(x, j)
+
+def fkeys(+b: Ty.Brep) -> List<&2, KA>:
+  B.pmap_g(~FJ, ~Ty.Ix, ~KA, ~fk_x, 1, Ty.ix_of(b), fj_shs(Ty.brep_shs(b), 0n))
+
+def klt(a: List<&2, U64>, b: List<&2, U64>) -> Bool:
+  match a:
+    case []:
+      match b:
+        case []: False{}
+        case +y <> yt: True{}
+    case +x <> xt:
+      match b:
+        case []: False{}
+        case +y <> yt: Bool.or(U64.is_lt(x, y), Bool.and(U64.is_eq(x, y), klt(xt, yt)))
+
+def keq(a: List<&2, U64>, b: List<&2, U64>) -> Bool:
+  match a:
+    case []:
+      match b:
+        case []: True{}
+        case +y <> yt: False{}
+    case +x <> xt:
+      match b:
+        case []: False{}
+        case +y <> yt: Bool.and(U64.is_eq(x, y), keq(xt, yt))
+
+def kf_k(+e: KF) -> List<&2, U64>:
+  KF{+k, f} = e
+  k
+
+def kf_f(+e: KF) -> Fd:
+  KF{k, +f} = e
+  f
+
+def kf_cmp(a: KF, b: KF) -> B.Sgn:
+  +ka = kf_k(a)
+  +kb = kf_k(b)
+  B.sgn_pick(klt(ka, kb), klt(kb, ka))
+
+def kf_so(s: B.So<&2, KF>) -> List<&2, KF>:
+  B.So{ok, xs} = s
+  xs
+
+def kf_pad() -> KF:
+  KF{[18446744073709551615u64], fd_dflt()}
+
+def kf_one(+a: KA, +f: Fd, +rest: List<&2, KF>) -> List<&2, KF>:
+  KA{+ok, +xs} = a
+  Bool.pick(List<&2, KF>, ok, KF{xs, f} <> rest, rest)
+
+def kf_zip(ks: List<&2, KA>, fs: List<&2, Fd>) -> List<&2, KF>:
+  match ks:
+    case []: []
+    case +k <> kt:
+      match fs:
+        case []: []
+        case +f <> ft: kf_one(k, f, kf_zip(kt, ft))
+
+def kfs_of(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, KF>:
+  kf_zip(fkeys(b), fs)
+
+def kmin(t: B.Tr<&2, KF>) -> List<&2, U64>:
+  match t:
+    case B.TL{+v}: kf_k(v)
+    case B.TN{+l, r}: kmin(l)
+
+def kz(t: B.Tr<&2, KF>, +k: List<&2, U64>) -> Bool:
+  match t:
+    case B.TL{v}: False{}
+    case B.TN{l, +r}: klt(k, kmin(r))
+
+def kfind(t: B.Tr<&2, KF>, +k: List<&2, U64>, z: Bool) -> KF:
+  match t z:
+    case B.TL{+v} _: v
+    case B.TN{+l, r} True{}: kfind(l, k, kz(l, k))
+    case B.TN{l, +r} False{}: kfind(r, k, kz(r, k))
+
+def pool_kf(+xs: List<&2, KF>) -> B.Tb<&2, KF>:
+  B.tb_of(KF, kf_so(B.msort(~KF, ~kf_cmp, kf_pad() <> xs)), kf_pad())
+
+def fd_at(+f: Fd, +sh: Nat, +fi: Nat) -> Fd:
+  Fd{+fc, +g, +bx, +ok, s0, i0} = f
+  Fd{fc, g, bx, ok, sh, fi}
+
+def fd_pick(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+  match hit:
+    case True{}: fd_at(kf_f(e), sh, fi)
+    case False{}: fd_x(x, h, sh)
+
+def fd_re(+k: KA, +t: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat) -> Fd:
+  KA{+ok, +ks} = k
+  Ty.HF{+fi, +g} = h
+  +e = kfind(t, ks, kz(t, ks))
+  fd_pick(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi)
+
+type RC is Data:
+  RC{ x: Ty.Ix, t: B.Tr<&2, KF> }
+
+def re_job(c: RC, j: FJ) -> Fd:
+  RC{+x, +t} = c
+  FJ{+h, +sh} = j
+  fd_re(fkey(Ty.tres_fa(Ty.ix_fa(x, h)), x), t, x, h, sh)
+
+def tb_tr(+p: B.Tb<&2, KF>) -> B.Tr<&2, KF>:
+  B.Tb{+n, +t} = p
+  t
+
+def fds_re(+b: Ty.Brep, +pool: B.Tb<&2, KF>) -> List<&2, Fd>:
+  B.pmap_g(~FJ, ~RC, ~Fd, ~re_job, 1, RC{Ty.ix_of(b), tb_tr(pool)}, fj_shs(Ty.brep_shs(b), 0n))

@@ -319,11 +319,11 @@ def ex_sel(ok: Bool, +vol: I.I, +proof: String, +a: M.Body, +b: M.Body, +wa: QA.
     case True{}: ex_some(F64.is_le(I.i_hi(vol), 0.0f64), vol, proof, a, b, wa, wb)
 
 def ex_go(r: BO.Out, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
-  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, +proof, del} = r
+  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, +proof, del, fk49} = r
   ex_sel(ok, vol, proof, a, b, wa, wb)
 
 def ex_code(r: BO.Out) -> U64:
-  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, proof, del} = r
+  BO.Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, +vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, proof, del, fk50} = r
   Bool.pick(U64, ok, Bool.pick(U64, F64.is_le(I.i_hi(vol), 0.0f64), 0u64, 1u64), 2u64)
 
 def rel_code_go(dis: Bool, +a: M.Body, +b: M.Body) -> U64:

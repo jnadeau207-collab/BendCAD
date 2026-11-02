@@ -258,7 +258,7 @@ def world_box(+b: Ty.Brep, +lin: F64) -> BX:
 
 type In is Data:
   In{ brep: Ty.Brep, cells: List<&2, BD.Cl>, fns: List<&2, BD.Fn>, m: V.Mat3, tx: F64, ty: F64,
-    tz: F64, rv: List<&2, F.Lp>, vol: I.I, area: I.I, bb: BX, lin: F64, bo: Bool, px: Bool }
+    tz: F64, rv: List<&2, F.Lp>, vol: I.I, area: I.I, bb: BX, lin: F64, bo: Bool, px: Bool, fk: List<&2, SO.KF> }
 
 type Del is Data:
   Del{ f: BD.Fn, why: U64 }
@@ -267,11 +267,11 @@ type Out is Data:
   Out{ ok: Bool, kind: U64, what: String, loc: String, why: String, fix: String, carry: U64,
     brep: Ty.Brep, cells: List<&2, BD.Cl>, fns: List<&2, BD.Fn>, rv: List<&2, F.Lp>, nc: Nat,
     vol: I.I, area: I.I, bb: BX, lin: F64, hasm: Bool, mat: U64, fc: Nat, fm: Nat, sh: Nat,
-    ho: Nat, nct: Nat, proof: String, del: List<&2, Del> }
+    ho: Nat, nct: Nat, proof: String, del: List<&2, Del>, fk: List<&2, SO.KF> }
 
 def out_fail(+kind: U64, +what: String, +loc: String, +why: String, +fix: String) -> Out:
   Out{False{}, kind, what, loc, why, fix, 0u64, Ty.brep_empty(), [], [], [], 0n, I.ipt(0.0f64),
-    I.ipt(0.0f64), bx_zero(), 0.0f64, False{}, 4u64, 0n, 0n, 0n, 0n, 0n, "", []}
+    I.ipt(0.0f64), bx_zero(), 0.0f64, False{}, 4u64, 0n, 0n, 0n, 0n, 0n, "", [], []}
 
 def role_created() -> U64:
   4u64
@@ -1554,129 +1554,133 @@ def BX_z1(b: BX) -> F64:
   BX{x0, x1, y0, y1, z0, z1} = b
   z1
 
+def Out_fk(o: Out) -> List<&2, SO.KF>:
+  Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat, fc, fm, sh, ho, nct, proof, del, fk} = o
+  fk
+
 def Out_ok(o: Out) -> Bool:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk1} = o
   ok
 
 def Out_kind(o: Out) -> U64:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk2} = o
   kind
 
 def Out_what(o: Out) -> String:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk3} = o
   what
 
 def Out_loc(o: Out) -> String:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk4} = o
   loc
 
 def Out_why(o: Out) -> String:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk5} = o
   why
 
 def Out_fix(o: Out) -> String:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk6} = o
   fix
 
 def Out_carry(o: Out) -> U64:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk7} = o
   carry
 
 def Out_brep(o: Out) -> Ty.Brep:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk8} = o
   brep
 
 def Out_cells(o: Out) -> List<&2, BD.Cl>:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk9} = o
   cells
 
 def Out_fns(o: Out) -> List<&2, BD.Fn>:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk10} = o
   fns
 
 def Out_rv(o: Out) -> List<&2, F.Lp>:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk11} = o
   rv
 
 def Out_nc(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk12} = o
   nc
 
 def Out_vol(o: Out) -> I.I:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk13} = o
   vol
 
 def Out_area(o: Out) -> I.I:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk14} = o
   area
 
 def Out_bb(o: Out) -> BX:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk15} = o
   bb
 
 def Out_lin(o: Out) -> F64:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk16} = o
   lin
 
 def Out_hasm(o: Out) -> Bool:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk17} = o
   hasm
 
 def Out_mat(o: Out) -> U64:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk18} = o
   mat
 
 def Out_fc(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk19} = o
   fc
 
 def Out_fm(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk20} = o
   fm
 
 def Out_sh(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk21} = o
   sh
 
 def Out_ho(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk22} = o
   ho
 
 def Out_nct(o: Out) -> Nat:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk23} = o
   nct
 
 def Out_proof(o: Out) -> String:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk24} = o
   proof
 
 def Out_del(o: Out) -> List<&2, Del>:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk25} = o
   del
 
 def cells_shift(cs: List<&2, BD.Cl>, +n: Nat) -> List<&2, BD.Cl>:
@@ -1694,27 +1698,27 @@ def fn_created_here(fs: List<&2, BD.Fn>, +nd: U64) -> Nat:
         1n, 0n), fn_created_here(t, nd))
 
 def in_brep(x: In) -> Ty.Brep:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk27} = x
   brep
 
 def in_bo(x: In) -> Bool:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk28} = x
   bo
 
 def in_lin(x: In) -> F64:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk29} = x
   lin
 
 def in_bb(x: In) -> BX:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk30} = x
   bb
 
 def in_px(x: In) -> Bool:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk31} = x
   px
 
 def in_fns(x: In) -> List<&2, BD.Fn>:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk32} = x
   fns
 
 def empty_eab(+op: U64, sameab: Bool) -> U64:
@@ -1749,17 +1753,17 @@ def empty_outcome(+op: U64, +ea: Bool, +eb: Bool, +sameab: Bool) -> U64:
 
 def out_empty(+nd: U64, +proof: String, +del: List<&2, Del>) -> Out:
   Out{True{}, 0u64, "", "", "", "", 0u64, Ty.brep_empty(), [], [], [], 0n, I.ipt(0.0f64),
-    I.ipt(0.0f64), bx_zero(), 0.0f64, True{}, 3u64, 0n, 0n, 0n, 0n, 0n, proof, del}
+    I.ipt(0.0f64), bx_zero(), 0.0f64, True{}, 3u64, 0n, 0n, 0n, 0n, 0n, proof, del, []}
 
 def out_carry_direct(x: In, +side: U64, +proof: String, +del: List<&2, Del>) -> Out:
-  In{+brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{+brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk33} = x
   Out{True{}, 0u64, "", "", "", "", side, brep, cells, fns, rv, 0n, vol, area, bb, lin, False{}, 3u64,
-    0n, 0n, nsolids(brep), genus_of(brep), 0n, proof, del}
+    0n, 0n, nsolids(brep), genus_of(brep), 0n, proof, del, []}
 
 def out_carry_nct(x: In, +side: U64, +nc: Nat, +proof: String, +del: List<&2, Del>) -> Out:
-  In{+brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{+brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk34} = x
   Out{True{}, 0u64, "", "", "", "", side, brep, cells, fns, rv, 0n, vol, area, bb, lin, False{}, 3u64,
-    0n, 0n, nsolids(brep), genus_of(brep), nc, proof, del}
+    0n, 0n, nsolids(brep), genus_of(brep), nc, proof, del, []}
 
 def op_carry_nm(+side: U64) -> String:
   Bool.pick(String, U64.is_eq(side, 1u64), "carry-A", "carry-B")
@@ -1822,8 +1826,12 @@ def admit_fail(+op: U64, +code: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U6
                   "interval-placement: operand placement is not certified exact",
                   "use move or quarter-turn rotations; general-angle placements need certified intervals (a C11 item)"))))))))
 
+def in_fk(x: In) -> List<&2, SO.KF>:
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk} = x
+  fk
+
 def bake_of(x: In) -> Ty.Brep:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px} = x
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk35} = x
   xf_brep(m, tx, ty, tz, brep)
 
 def intersect_fail(+nd: U64, +an: U64, +bn: U64, v: VR) -> Out:
@@ -2013,8 +2021,8 @@ def k1_box(+op: U64, +wa: BX, +wb: BX) -> BX:
 
 def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
     +proof: String, +ba: Ty.Brep, +bbr: Ty.Brep, +fdc: List<&2, SO.Fd>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
-  In{brep, +cells, +fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa} = a
-  In{brep2, cells2, +fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb} = b
+  In{brep, +cells, +fns, m, tx, ty, tz, +rv, +vol, area, bb, +lin, bo, pxa, fk36} = a
+  In{brep2, cells2, +fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, +lin2, bo2, pxb, fk37} = b
   +fn = k1_fns_f(bc, fdc, ba, fda, fns, bbr, fdb, fns2, nd)
   +bbx = bx_meet(world_box_f(fdc, F64.max(lin, lin2)), k1_box(op, wa, wb))
   +tm = VI.brep_vol(bc)
@@ -2025,14 +2033,14 @@ def k1_out_ok(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX,
     List.append(&2, BD.Cl, cells, cells_shift(cells2, List.length(&2, BD.Cl, cells))), fn,
     [], 0n, tvol, tar, bbx,
     bake_lin(lin, lin2, bbx), True{}, bool_mat(op, k1outc(op), vol, vol2, 1u64),
-    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, []}
+    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, [], SO.kfs_of(bc, fdc)}
 
 def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +fda: List<&2, SO.Fd>,
     +fdb: List<&2, SO.Fd>) -> Out:
   +wa = bx_meet(world_box_f(fda, in_lin(a)), in_bb(a))
   +wb = bx_meet(world_box_f(fdb, in_lin(b)), in_bb(b))
   +bc = restamp(K1.kr_brep(kr))
-  +fdc = SO.fds_of(bc)
+  +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb))))
   +v = vcore_f(bc, fdc)
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),
@@ -2057,9 +2065,9 @@ def k1_curved_out(+nd: U64, +stage: String) -> Out:
 
 def out_why_add(o: Out, +x: String) -> Out:
   Out{ok, kind, what, loc, why, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del} = o
+    fc, fm, sh, ho, nct, proof, del, fk26} = o
   Out{ok, kind, what, loc, why ++ x, fix, carry, brep, cells, fns, rv, nc, vol, area, bb, lin, hasm, mat,
-    fc, fm, sh, ho, nct, proof, del}
+    fc, fm, sh, ho, nct, proof, del, []}
 
 def k1_note(+kr: K1.KR) -> String:
   " [k1 reason " ++ U64.show(K1.kr_why(kr)) ++ "]"
@@ -2101,15 +2109,15 @@ def run_k1m(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an:
 
 def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
     +proof: String) -> Out:
-  In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, lin, bo, pxa} = a
-  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, lin2, bo2, pxb} = b
+  In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, lin, bo, pxa, fk38} = a
+  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, lin2, bo2, pxb, fk39} = b
   +fn = List.append(&2, BD.Fn, fns, fns2)
   +bbx = bx_hull(wa, wb)
   Out{True{}, 0u64, "", "", "", "", 0u64, bc,
     List.append(&2, BD.Cl, cells, cells_shift(cells2, List.length(&2, BD.Cl, cells))), fn,
     [], 0n, I.iadd(vol, vol2), I.iadd(area, area2), bbx,
     bake_lin(lin, lin2, bbx), True{}, bool_mat(op, 2u64, vol, vol2, 0u64),
-    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, []}
+    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, [], []}
 
 def append_valid(a: In, b: In, +bc: Ty.Brep, +nd: U64, +wa: BX, +wb: BX, +proof: String) -> Out:
   +v = vcore(bc)
@@ -2142,8 +2150,8 @@ def run_disjoint(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, 
   run_disjoint_go(U64.is_eq(op, tag_union()), U64.is_eq(op, tag_diff()), a, b, ba, bb, wa, wb, nd, proof)
 
 def cavity_valid(+op: U64, a: In, b: In, +cv: CV, +nd: U64, +wm: BX) -> Out:
-  In{brep, cells, fns, m, tx, ty, tz, +rv, +vol, area, +bb, lin, bo, pxa} = a
-  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, lin2, bo2, pxb} = b
+  In{brep, cells, fns, m, tx, ty, tz, +rv, +vol, area, +bb, lin, bo, pxa, fk40} = a
+  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, lin2, bo2, pxb, fk41} = b
   +rb = CV_brep(cv)
   +rf = CV_fns(cv)
   +v = vcore(rb)
@@ -2151,7 +2159,7 @@ def cavity_valid(+op: U64, a: In, b: In, +cv: CV, +nd: U64, +wm: BX) -> Out:
     Out{True{}, 0u64, "", "", "", "", 0u64, rb, cells, rf, [],
       0n, I.isub(vol, vol2), I.iadd(area, area2), wm, bake_lin(lin, lin2, wm),
       True{}, bool_mat(op, 4u64, vol, vol2, 1u64), fn_created_here(rf, nd), 0n, nsolids(rb),
-      genus_of(rb), VR_nc(v), "", []},
+      genus_of(rb), VR_nc(v), "", [], []},
     out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
       "validation-rejected: " ++ vcode(v), "report these operands"))
 
@@ -2164,8 +2172,8 @@ def run_cavity_go(+ok: Bool, +op: U64, +a: In, +b: In, +cv: CV, +nd: U64, +wm: B
         "nest the tool strictly inside the minuend")
 
 def run_cavity(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bx: Ty.Brep, +nd: U64) -> Out:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, pxa} = a
-  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, rv2, vol2, area2, bb2, lin2, bo2, pxb} = b
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, pxa, fk42} = a
+  In{brep2, cells2, fns2, m2, tx2, ty2, tz2, rv2, vol2, area2, bb2, lin2, bo2, pxb, fk43} = b
   +fa = SO.fds_of(ba)
   +cv = cavity(ba, fns, bx, fa, SO.bbox(fa, []), nd, 1u64)
   run_cavity_go(CV_ok(cv), op, a, b, cv, nd, world_box(ba, in_lin(a)))
@@ -2303,8 +2311,8 @@ def run_broad_go(+disj: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Br
 def run_broad(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +ba = bake_of(a)
   +bb = bake_of(b)
-  +fda = SO.fds_of(ba)
-  +fdb = SO.fds_of(bb)
+  +fda = SO.fds_re(ba, SO.pool_kf(in_fk(a)))
+  +fdb = SO.fds_re(bb, SO.pool_kf(in_fk(b)))
   +wa = world_box_f(fda, in_lin(a))
   +wb = world_box_f(fdb, in_lin(b))
   run_broad_go(bx_disjoint(wa, wb), op, a, b, ba, bb, wa, wb, nd, an, bn, fda, fdb)

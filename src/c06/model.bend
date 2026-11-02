@@ -125,7 +125,7 @@ type Bb is Data:
   Bb{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
 type Xb is Data:
-  Xb{ mx: List<&2, Ms>, nc: Nat, bo: Bool, pr: String, dl: List<&2, B8.Del> }
+  Xb{ mx: List<&2, Ms>, nc: Nat, bo: Bool, pr: String, dl: List<&2, B8.Del>, fk: List<&2, SO.KF> }
 
 type Body is Data:
   Bd{ cells: List<&2, BD.Cl>, brep: Ty.Brep, fns: List<&2, BD.Fn>, pl: Pl, rv: List<&2, F.Lp>, xb: Xb }
@@ -595,30 +595,34 @@ def bd_brep(b: Body) -> Ty.Brep:
   brep
 
 def xb_id() -> Xb:
-  Xb{[], 0n, False{}, "", []}
+  Xb{[], 0n, False{}, "", [], []}
 
 def bd_xb(b: Body) -> Xb:
   Bd{cells, brep, fns, pl, rv, xb} = b
   xb
 
+def xb_fk(x: Xb) -> List<&2, SO.KF>:
+  Xb{mx, nc, bo, pr, dl, fk} = x
+  fk
+
 def xb_mx(x: Xb) -> List<&2, Ms>:
-  Xb{mx, nc, bo, pr, dl} = x
+  Xb{mx, nc, bo, pr, dl, fk44} = x
   mx
 
 def xb_nc(x: Xb) -> Nat:
-  Xb{mx, nc, bo, pr, dl} = x
+  Xb{mx, nc, bo, pr, dl, fk45} = x
   nc
 
 def xb_bo(x: Xb) -> Bool:
-  Xb{mx, nc, bo, pr, dl} = x
+  Xb{mx, nc, bo, pr, dl, fk46} = x
   bo
 
 def xb_pr(x: Xb) -> String:
-  Xb{mx, nc, bo, pr, dl} = x
+  Xb{mx, nc, bo, pr, dl, fk47} = x
   pr
 
 def xb_dl(x: Xb) -> List<&2, B8.Del>:
-  Xb{mx, nc, bo, pr, dl} = x
+  Xb{mx, nc, bo, pr, dl, fk48} = x
   dl
 
 def r_line(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> I.I:
@@ -1429,7 +1433,7 @@ def bool_in(+x: Body) -> B8.In:
   +p = bd_pl(x)
   B8.In{bd_brep(x), bd_cells(x), bd_fns(x), pl_m(p), pl_tx(p), pl_ty(p), pl_tz(p), bd_rv(x), ms_vol(m),
     ms_area(m), B8.BX{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}, ms_lin(m),
-    xb_bo(bd_xb(x)), pl_exact(p)}
+    xb_bo(bd_xb(x)), pl_exact(p), xb_fk(bd_xb(x))}
 
 def bool_mat(+t: U64) -> Mat:
   Bool.pick(Mat, U64.is_eq(t, 1u64), M_add{},
@@ -1449,11 +1453,11 @@ def bool_stored_ms(+r: B8.Out, +b: Ty.Brep) -> Ms:
 def bool_body(+r: B8.Out) -> Body:
   +b = B8.Out_brep(r)
   Bd{B8.Out_cells(r), b, B8.Out_fns(r), pl_id(), B8.Out_rv(r),
-    Xb{[bool_stored_ms(r, b)], B8.Out_nc(r), True{}, B8.Out_proof(r), B8.Out_del(r)}}
+    Xb{[bool_stored_ms(r, b)], B8.Out_nc(r), True{}, B8.Out_proof(r), B8.Out_del(r), B8.Out_fk(r)}}
 
 def bool_rewrap(+r: B8.Out, +b: Body) -> Body:
   Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
-    Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), B8.Out_proof(r), B8.Out_del(r)}}
+    Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), B8.Out_proof(r), B8.Out_del(r), []}}
 
 def bool_carry(+r: B8.Out, +b: Body, +b2: Body) -> Body:
   Bool.pick(Body, U64.is_eq(B8.Out_carry(r), 2u64), bool_rewrap(r, b2),
@@ -2223,7 +2227,7 @@ def nr_rv(clear: Bool, +rv: List<&2, F.Lp>) -> List<&2, F.Lp>:
     case False{}: rv
 
 def nr_take_ok(+b: Body, +fx: Fx, +vol: F64, +pr: String, +dl: List<&2, B8.Del>, +bo: Bool, +clear: Bool) -> NR:
-  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), nr_rv(clear, bd_rv(b)), Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), bo, pr, dl}}, fx}
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), nr_rv(clear, bd_rv(b)), Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), bo, pr, dl, []}}, fx}
 
 def nr_take(r: NR, +vol: F64, +pr: String, +dl: List<&2, B8.Del>, +bo: Bool, +clear: Bool) -> NR:
   match r:
@@ -2231,7 +2235,7 @@ def nr_take(r: NR, +vol: F64, +pr: String, +dl: List<&2, B8.Del>, +bo: Bool, +cl
     case NR_ok{+b, fx}: nr_take_ok(b, fx, vol, pr, dl, bo, clear)
 
 def nr_pr_ok(+b: Body, +fx: Fx, +pr: String) -> NR:
-  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), pr, xb_dl(bd_xb(b))}}, fx}
+  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), pr, xb_dl(bd_xb(b)), []}}, fx}
 
 def nr_pr(r: NR, +pr: String) -> NR:
   match r:
@@ -2239,11 +2243,11 @@ def nr_pr(r: NR, +pr: String) -> NR:
     case NR_ok{+b, fx}: nr_pr_ok(b, fx, pr)
 
 def nr_ident(+b: Body, +pr: String) -> NR:
-  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[body_ms(b)], xb_nc(bd_xb(b)), False{}, pr, []}},
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[body_ms(b)], xb_nc(bd_xb(b)), False{}, pr, [], []}},
     Fx{M_same{}, 0n, 0n, 0n, 0n}}
 
 def nr_rewhy_ok(+b: Body, +fx: Fx, +w: U64) -> NR:
-  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), dels_why(bd_fns(b), w)}}, fx}
+  NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b), Xb{xb_mx(bd_xb(b)), xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), dels_why(bd_fns(b), w), []}}, fx}
 
 def nr_rewhy(r: NR, +w: U64) -> NR:
   match r:
@@ -2254,7 +2258,7 @@ def mesh_nr(r: NR, +vol: F64, +dl: List<&2, B8.Del>, +pr: String) -> NR:
   match r:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+b, fx}:
-      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_formula(vol, bd_brep(b))], 0n, False{}, pr, dl}}, fx}
+      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_formula(vol, bd_brep(b))], 0n, False{}, pr, dl, []}}, fx}
 
 def mesh_go(bt: BD.Bt, +vol: F64, +what: String, +dl: List<&2, B8.Del>, +pr: String) -> NR:
   mesh_nr(bt_check(bt, [], pl_id(), what, []), vol, dl, pr)
@@ -2299,7 +2303,7 @@ def sw_scale(r: NR, +pp: List<&2, F.Lp>, +deg: U64, +g: U64) -> NR:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+b, fx}:
       +m = ms_scale_vol(rev_ms(pp, bd_brep(b), pl_id()), F9.sw_k(deg))
-      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[m], 0n, False{}, F9.guide_pr(g), []}}, fx}
+      NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[m], 0n, False{}, F9.guide_pr(g), [], []}}, fx}
 
 def sw_sec_go(ok: Bool, +code: U64, +lp: Nat, +b: BD.Bt, +pp: List<&2, F.Lp>, +deg: U64, +g: U64) -> NR:
   match ok:
@@ -2363,7 +2367,7 @@ def psw_ms(+pr: PW.PR, +l: F.Lp, +br: Ty.Brep) -> Ms:
 def psw_pub(r: NR, +pr: PW.PR, +l: F.Lp) -> NR:
   match r:
     case NR_err{k, d}: NR_err{k, d}
-    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[psw_ms(pr, l, bd_brep(b))], 0n, False{}, "path-sweep", []}}, fx}
+    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[psw_ms(pr, l, bd_brep(b))], 0n, False{}, "path-sweep", [], []}}, fx}
 
 def ms_div_go(+r: KD.MR, +br: Ty.Brep) -> Ms:
   KD.MR{c, +m, +e, +slv, +rad, +ar, +sla} = r
@@ -2377,7 +2381,7 @@ def ms_div(+br: Ty.Brep) -> Ms:
 def psw_wpub(r: NR) -> NR:
   match r:
     case NR_err{k, d}: NR_err{k, d}
-    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_div(bd_brep(b))], 0n, False{}, "wall-sweep", []}}, fx}
+    case NR_ok{+b, fx}: NR_ok{Bd{[], bd_brep(b), bd_fns(b), pl_id(), [], Xb{[ms_div(bd_brep(b))], 0n, False{}, "wall-sweep", [], []}}, fx}
 
 def psw_out(wall: Bool, +r: NR, +pr: PW.PR, +l: F.Lp) -> NR:
   match wall:
@@ -2700,7 +2704,7 @@ def op_offset(+base: U64, +d: X.Xp, +b: Body, +e: X.Env, +nd: U64, +ns: List<&2,
   of_kind(base_kind(o), o, X.xp_ev(d, e), b, e, nd)
 
 def nr_shell_ok(+b: Body, +fx: Fx, +vol: F64, +dl: List<&2, B8.Del>) -> NR:
-  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), True{}, xb_pr(bd_xb(b)), dl}}, fx}
+  NR_ok{Bd{[], bd_brep(b), bd_fns(b), bd_pl(b), [], Xb{[ms_set_vol(body_ms(b), vol)], xb_nc(bd_xb(b)), True{}, xb_pr(bd_xb(b)), dl, []}}, fx}
 
 def nr_shell(r: NR, +vol: F64, +dl: List<&2, B8.Del>) -> NR:
   match r:
@@ -2819,7 +2823,7 @@ def retag(fs: List<&2, BD.Fn>, +nd: U64, +i: Nat) -> List<&2, BD.Fn>:
     case f <> t: BD.Fn{nd, 0n, 2u64, i, 0n} <> retag(t, nd, Nat.add(i, 1n))
 
 def nr_pat_go(+acc: Body, +bv: I.I, +base: Body, +n: Nat, +nd: U64) -> NR:
-  NR_ok{Bd{[], bd_brep(acc), retag(bd_fns(acc), nd, 0n), bd_pl(acc), [], Xb{[ms_put_vol(body_ms(acc), I.I{F64.mul(I.i_lo(bv), n2f(n)), F64.mul(I.i_hi(bv), n2f(n))})], xb_nc(bd_xb(acc)), True{}, xb_pr(bd_xb(acc)), dels_why(bd_fns(base), 9u64)}}, Fx{M_add{}, 0n, 0n, 0n, 0n}}
+  NR_ok{Bd{[], bd_brep(acc), retag(bd_fns(acc), nd, 0n), bd_pl(acc), [], Xb{[ms_put_vol(body_ms(acc), I.I{F64.mul(I.i_lo(bv), n2f(n)), F64.mul(I.i_hi(bv), n2f(n))})], xb_nc(bd_xb(acc)), True{}, xb_pr(bd_xb(acc)), dels_why(bd_fns(base), 9u64), []}}, Fx{M_add{}, 0n, 0n, 0n, 0n}}
 
 def nr_pat_body(+acc: Body, +base: Body, +n: Nat, +nd: U64) -> NR:
   nr_pat_go(acc, ms_vol(body_ms(base)), base, n, nd)
@@ -3264,7 +3268,7 @@ def bl_mesh(r: NR, +v: I.I) -> NR:
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+b, fx}:
       NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
-        Xb{[ms_put_vol(body_ms(b), v)], xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), xb_dl(bd_xb(b))}},
+        Xb{[ms_put_vol(body_ms(b), v)], xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), xb_dl(bd_xb(b)), []}},
         fx}
 
 def bl_mesh_go(bt: BD.Bt, +v: I.I, +what: String) -> NR:
@@ -3397,7 +3401,7 @@ def op_blob_ms(+w: Bool, +ir: BL.IR, +b: Ty.Brep, +nd: U64) -> NR:
   match w:
     case False{}: bad("import", "node " ++ U64.show(nd), BL.ir_why(ir), "re-import the STEP file")
     case True{}: NR_ok{Bd{[], b, blob_fns(BL.lc_nf(BL.im_ct(BL.ir_m(ir))), nd), pl_id(), [],
-      Xb{blob_ms(ir) <> [], 0n, False{}, "import:step", []}}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
+      Xb{blob_ms(ir) <> [], 0n, False{}, "import:step", [], []}}, Fx{M_same{}, 0n, 0n, 0n, 0n}}
 
 def op_blob_go(+ir: BL.IR, +b: Ty.Brep, +nd: U64) -> NR:
   op_blob_ms(BL.ir_ok_of(ir), ir, b, nd)

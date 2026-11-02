@@ -58,7 +58,7 @@ def bd0() -> M.Body:
 
 def in0() -> B8.In:
   B8.In{Ty.brep_empty(), [], [], m3id(), 0.0f64, 0.0f64, 0.0f64, [], I.I{1.0f64, 1.0f64},
-    I.I{2.0f64, 2.0f64}, B8.bx_zero(), 0.5f64, False{}, True{}}
+    I.I{2.0f64, 2.0f64}, B8.bx_zero(), 0.5f64, False{}, True{}, []}
 
 def fq(+x: F64, +y: F64, +z: F64) -> V.Point:
   V.Pt{x, y, z}
@@ -2220,22 +2220,22 @@ def model_xb_id__got() -> M.Xb:
   M.xb_id()
 
 def model_xb_id__want() -> M.Xb:
-  M.Xb{[], 0n, False{}, "", []}
+  M.Xb{[], 0n, False{}, "", [], []}
 
 def model_xb_mx__got() -> List<&2, M.Ms>:
-  M.xb_mx(M.Xb{[mval()], 1n, True{}, "", []})
+  M.xb_mx(M.Xb{[mval()], 1n, True{}, "", [], []})
 
 def model_xb_mx__want() -> List<&2, M.Ms>:
   [mval()]
 
 def model_xb_nc__got() -> Nat:
-  M.xb_nc(M.Xb{[mval()], 1n, True{}, "", []})
+  M.xb_nc(M.Xb{[mval()], 1n, True{}, "", [], []})
 
 def model_xb_nc__want() -> Nat:
   1n
 
 def model_xb_bo__got() -> Bool:
-  M.xb_bo(M.Xb{[mval()], 1n, True{}, "", []})
+  M.xb_bo(M.Xb{[mval()], 1n, True{}, "", [], []})
 
 def model_xb_bo__want() -> Bool:
   True{}
@@ -2883,13 +2883,13 @@ def disjoint_proof_empty_default__want() -> String:
   ""
 
 def model_xb_pr_default__got() -> String:
-  M.xb_pr(M.Xb{[mval()], 1n, True{}, "p", []})
+  M.xb_pr(M.Xb{[mval()], 1n, True{}, "p", [], []})
 
 def model_xb_pr_default__want() -> String:
   "p"
 
 def model_xb_dl_default__got() -> List<&2, B8.Del>:
-  M.xb_dl(M.Xb{[mval()], 1n, True{}, "", []})
+  M.xb_dl(M.Xb{[mval()], 1n, True{}, "", [], []})
 
 def model_xb_dl_default__want() -> List<&2, B8.Del>:
   []
