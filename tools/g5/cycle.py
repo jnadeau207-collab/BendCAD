@@ -35,7 +35,11 @@ A9 = m4 / (rho9 * V9)
 F = m4 * V9 + (p9 - p0) * A9
 sfc = mdot * far / F * 3600 * 1000
 
-U2 = math.sqrt(w_c / (0.9 * 1.04))
+Z_BLADES = 12
+BETA2B = math.radians(30.0)
+PHI2 = 0.30
+sigma = 1 - math.sqrt(math.cos(BETA2B)) / Z_BLADES ** 0.7
+U2 = math.sqrt(w_c / (sigma - PHI2 * math.tan(BETA2B)))
 D2 = 0.066
 N = U2 / (math.pi * D2) * 60
 
@@ -47,5 +51,7 @@ out = {
     'nozzle_exit_area_mm2': round(A9 * 1e6), 'nozzle_exit_dia_mm': round(math.sqrt(4 * A9 / math.pi) * 1000, 1),
     'jet_velocity_m_s': round(V9), 'thrust_N': round(F, 1), 'tsfc_g_per_kN_s': round(sfc / 3.6, 1),
     'fuel_flow_g_s': round(mdot * far * 1000, 2), 'tip_speed_m_s': round(U2), 'shaft_rpm': round(N),
+    'slip_wiesner': round(sigma, 4), 'blades_main_plus_splitter': Z_BLADES, 'backsweep_deg': 30.0,
+    'exit_flow_coefficient': PHI2, 'bearing_ndm_mm_per_min': round(N * 15.0),
 }
 print(json.dumps(out, indent=1))

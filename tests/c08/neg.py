@@ -113,7 +113,7 @@ def c_mixed():
             and 'proof: k1-crossing-certified' in out, node_vol(out, 4))
 
 
-@case('place.rot45_union')
+@case('place.rot45_union_certified')
 def c_rot45u():
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
@@ -121,11 +121,11 @@ def c_rot45u():
                    '(node 3 (rotate 2 z 45) (intent same 0 0 1 0))',
                    '(node 4 (move 3 40 0 0 0) (intent same 0 0 1 0))',
                    '(node 5 (union 1 4) (intent add 0 0 2 0))')
-    k, w = node_err(out, 5)
-    return (k == 'unsupported-op' and w.startswith('interval-placement'), w)
+    m = re.search(r'node 5: ok .*?linear_uncertainty=(\S+)', out)
+    return (m is not None and float(m.group(1)) > 0.0, m and m.group(0)[-80:])
 
 
-@case('place.rot45_diff')
+@case('place.rot45_diff_certified')
 def c_rot45d():
     out, _ = fresh('n.bcd',
                    f'(node 1 {BOX10} {ICR})',
@@ -133,8 +133,8 @@ def c_rot45d():
                    '(node 3 (rotate 2 z 45) (intent same 0 0 1 0))',
                    '(node 4 (move 3 40 0 0 0) (intent same 0 0 1 0))',
                    '(node 5 (difference 1 4) (intent same 0 0 1 0))')
-    k, w = node_err(out, 5)
-    return (k == 'unsupported-op' and w.startswith('interval-placement'), w)
+    m = re.search(r'node 5: ok .*?linear_uncertainty=(\S+)', out)
+    return (m is not None and float(m.group(1)) > 0.0, m and m.group(0)[-80:])
 
 
 @case('feature.on_boolean')

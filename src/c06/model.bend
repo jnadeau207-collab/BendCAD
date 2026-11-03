@@ -1428,11 +1428,29 @@ def bool_tag(o: Op) -> U64:
     case O_intersection{a, b}: B8.tag_inter()
     case _: 0u64
 
+def bb_reach(+b: Bb, +p: Pl) -> F64:
+  Bb{+x0, +x1, +y0, +y1, +z0, +z1} = b
+  +mx = F64.max(F64.abs(x0), F64.abs(x1))
+  +my = F64.max(F64.abs(y0), F64.abs(y1))
+  +mz = F64.max(F64.abs(z0), F64.abs(z1))
+  +t = F64.add(F64.add(F64.mul(pl_tx(p), pl_tx(p)), F64.mul(pl_ty(p), pl_ty(p))), F64.mul(pl_tz(p), pl_tz(p)))
+  I.up(F64.add(I.up(F64.sqrt(I.up(F64.add(F64.add(F64.mul(mx, mx), F64.mul(my, my)), F64.mul(mz, mz))))), I.up(F64.sqrt(t))))
+
+def pl_lin_go(ex: Bool, +lin: F64, +b: Bb, +p: Pl) -> F64:
+  match ex:
+    case True{}: lin
+    case False{}:
+      +r = bb_reach(b, p)
+      I.up(F64.add(lin, pl_slop(Bb{F64.neg(r), r, F64.neg(r), r, F64.neg(r), r}, p)))
+
+def pl_lin(+lin: F64, +b: Bb, +p: Pl) -> F64:
+  pl_lin_go(pl_exact(p), lin, b, p)
+
 def bool_in(+x: Body) -> B8.In:
   +m = body_ms(x)
   +p = bd_pl(x)
   B8.In{bd_brep(x), bd_cells(x), bd_fns(x), pl_m(p), pl_tx(p), pl_ty(p), pl_tz(p), bd_rv(x), ms_vol(m),
-    ms_area(m), B8.BX{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}, ms_lin(m),
+    ms_area(m), B8.BX{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}, pl_lin(ms_lin(m), ms_bb(m), p),
     xb_bo(bd_xb(x)), pl_exact(p), xb_fk(bd_xb(x))}
 
 def bool_mat(+t: U64) -> Mat:

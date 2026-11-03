@@ -939,43 +939,43 @@ def stage_unknown__want() -> String:
   "stage-unknown"
 
 def admit_open_a_first__got() -> U64:
-  B8.admit_code(True{}, True{}, 1u64, 1u64, 1u64, 1u64, True{}, True{})
+  B8.admit_code(True{}, True{}, 1u64, 1u64, 1u64, 1u64)
 
 def admit_open_a_first__want() -> U64:
   1u64
 
 def admit_open_b__got() -> U64:
-  B8.admit_code(False{}, True{}, 0u64, 0u64, 0u64, 0u64, True{}, True{})
+  B8.admit_code(False{}, True{}, 0u64, 0u64, 0u64, 0u64)
 
 def admit_open_b__want() -> U64:
   2u64
 
 def admit_face_a__got() -> U64:
-  B8.admit_code(False{}, False{}, 1u64, 0u64, 0u64, 0u64, True{}, True{})
+  B8.admit_code(False{}, False{}, 1u64, 0u64, 0u64, 0u64)
 
 def admit_face_a__want() -> U64:
   3u64
 
 def admit_face_b__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 2u64, 0u64, 0u64, True{}, True{})
+  B8.admit_code(False{}, False{}, 0u64, 2u64, 0u64, 0u64)
 
 def admit_face_b__want() -> U64:
   4u64
 
 def admit_edge_a__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 1u64, 0u64, True{}, True{})
+  B8.admit_code(False{}, False{}, 0u64, 0u64, 1u64, 0u64)
 
 def admit_edge_a__want() -> U64:
   5u64
 
 def admit_edge_b__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 1u64, True{}, True{})
+  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 1u64)
 
 def admit_edge_b__want() -> U64:
   6u64
 
 def admit_clean__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 0u64, True{}, True{})
+  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 0u64)
 
 def admit_clean__want() -> U64:
   0u64

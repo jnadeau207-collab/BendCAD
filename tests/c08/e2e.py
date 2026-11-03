@@ -444,9 +444,8 @@ def rotated():
                     '(node 3 (rotate 2 z 45) (intent same 0 0 1 0))',
                     '(node 4 (move 3 40 0 0 0) (intent same 0 0 1 0))',
                     '(node 5 (union 1 4) (intent add 0 0 2 0))')
-    m = re.search(r'node 5: error (\S+) .*?why: ([^|]+)', out2)
-    record('rotated.inexact_refused', m is not None and m.group(1) == 'unsupported-op'
-           and 'interval-placement' in m.group(2), why=m and m.group(2).strip())
+    m = re.search(r'node 5: ok .*?linear_uncertainty=(\S+)', out2)
+    record('rotated.inexact_certified', m is not None and float(m.group(1)) > 0.0, line=m and m.group(0)[-120:])
 
 
 def moved_chain():

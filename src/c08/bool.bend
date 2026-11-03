@@ -1792,10 +1792,6 @@ def in_bb(x: In) -> BX:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk30} = x
   bb
 
-def in_px(x: In) -> Bool:
-  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk31} = x
-  px
-
 def in_fns(x: In) -> List<&2, BD.Fn>:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk32} = x
   fns
@@ -1862,12 +1858,15 @@ def carry_out_go(+bo: Bool, +x: In, +side: U64, +nd: U64, +proof: String, +del: 
 def carry_out(+x: In, +side: U64, +nd: U64, +proof: String, +del: List<&2, Del>) -> Out:
   carry_out_go(in_bo(x), x, side, nd, proof, del)
 
-def admit_code(+sha: Bool, +shb: Bool, +faa: U64, +fab: U64, +eda: U64, +edb: U64, +pxa: Bool,
-    +pxb: Bool) -> U64:
+def in_px(x: In) -> Bool:
+  In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk31} = x
+  px
+
+def admit_code(+sha: Bool, +shb: Bool, +faa: U64, +fab: U64, +eda: U64, +edb: U64) -> U64:
   Bool.pick(U64, sha, 1u64, Bool.pick(U64, shb, 2u64,
     Bool.pick(U64, Bool.not(U64.is_eq(faa, 0u64)), 3u64, Bool.pick(U64, Bool.not(U64.is_eq(fab, 0u64)), 4u64,
       Bool.pick(U64, Bool.not(U64.is_eq(eda, 0u64)), 5u64, Bool.pick(U64, Bool.not(U64.is_eq(edb, 0u64)),
-        6u64, Bool.pick(U64, Bool.not(pxa), 7u64, Bool.pick(U64, Bool.not(pxb), 8u64, 0u64))))))))
+        6u64, 0u64))))))
 
 def admit_fail(+op: U64, +code: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +nm = op_name(op)
@@ -1892,18 +1891,10 @@ def admit_fail(+op: U64, +code: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U6
               "node " ++ U64.show(an) ++ " edge " ++ Nat.show(admit_eds_at(Ty.brep_es(in_brep(a)), 0n)),
               "edge-kind-not-supported: edge outside the admitted domain",
               "boolean operands need line, cubic, circle or rational-quadratic edges"),
-            Bool.pick(Out, U64.is_eq(code, 6u64),
-              out_fail(fk_unsupported(), nm,
-                "node " ++ U64.show(bn) ++ " edge " ++ Nat.show(admit_eds_at(Ty.brep_es(in_brep(b)), 0n)),
-                "edge-kind-not-supported: edge outside the admitted domain",
-                "boolean operands need line, cubic, circle or rational-quadratic edges"),
-              Bool.pick(Out, U64.is_eq(code, 7u64),
-                out_fail(fk_unsupported(), nm, "node " ++ U64.show(an),
-                  "interval-placement: operand placement is not certified exact",
-                  "use move or quarter-turn rotations; general-angle placements need certified intervals (a C11 item)"),
-                out_fail(fk_unsupported(), nm, "node " ++ U64.show(bn),
-                  "interval-placement: operand placement is not certified exact",
-                  "use move or quarter-turn rotations; general-angle placements need certified intervals (a C11 item)"))))))))
+            out_fail(fk_unsupported(), nm,
+              "node " ++ U64.show(bn) ++ " edge " ++ Nat.show(admit_eds_at(Ty.brep_es(in_brep(b)), 0n)),
+              "edge-kind-not-supported: edge outside the admitted domain",
+              "boolean operands need line, cubic, circle or rational-quadratic edges"))))))
 
 def in_fk(x: In) -> List<&2, SO.KF>:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk} = x
@@ -2410,8 +2401,7 @@ def run_admit(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +br = in_brep(a)
   +bb = in_brep(b)
   +code = admit_code(admit_shs(Ty.brep_shs(br)), admit_shs(Ty.brep_shs(bb)), admit_fas(Ty.brep_fas(br), 0n),
-    admit_fas(Ty.brep_fas(bb), 0n), admit_eds(Ty.brep_es(br)), admit_eds(Ty.brep_es(bb)), in_px(a),
-    in_px(b))
+    admit_fas(Ty.brep_fas(bb), 0n), admit_eds(Ty.brep_es(br)), admit_eds(Ty.brep_es(bb)))
   run_admit_go(U64.is_eq(code, 0u64), op, a, b, nd, an, bn, code)
 
 def carry_dels(same: Bool, +gone: List<&2, Del>) -> List<&2, Del>:

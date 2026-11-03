@@ -23,6 +23,11 @@
  "thrust_N": 99.3,
  "tsfc_g_per_kN_s": 44.4,
  "fuel_flow_g_s": 4.4,
- "tip_speed_m_s": 345,
- "shaft_rpm": 99748
+ "tip_speed_m_s": 409,
+ "shaft_rpm": 118486,
+ "slip_wiesner": 0.8366,
+ "blades_main_plus_splitter": 12,
+ "backsweep_deg": 30.0,
+ "exit_flow_coefficient": 0.3,
+ "bearing_ndm_mm_per_min": 1777296
 }
