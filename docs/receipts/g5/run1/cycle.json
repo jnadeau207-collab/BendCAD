@@ -1,0 +1,28 @@
+{
+ "inputs": {
+  "PR": 2.4,
+  "eta_c": 0.74,
+  "eta_t": 0.8,
+  "eta_b": 0.95,
+  "dp_b": 0.05,
+  "eta_m": 0.97,
+  "TIT_K": 973.0,
+  "mdot_kg_s": 0.265,
+  "LHV_J_kg": 43000000.0,
+  "impeller_D2_m": 0.066
+ },
+ "T2_K": 398.8,
+ "compressor_work_J_kg": 111217,
+ "fuel_air": 0.0166,
+ "T5_K": 874.9,
+ "p5_kPa": 134.3,
+ "nozzle_choked": false,
+ "nozzle_exit_area_mm2": 1690,
+ "nozzle_exit_dia_mm": 46.4,
+ "jet_velocity_m_s": 368,
+ "thrust_N": 99.3,
+ "tsfc_g_per_kN_s": 44.4,
+ "fuel_flow_g_s": 4.4,
+ "tip_speed_m_s": 345,
+ "shaft_rpm": 99748
+}
