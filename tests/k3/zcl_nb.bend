@@ -141,24 +141,58 @@ def run_h(fuel: Nat, h: QL.Ph, +hi: F64, +eps: F64) -> QL.Ph:
         case QL.Ph_n{k, q, bw, +x, +cs}:
           run_h(f, QL.push_all(QL.kids(x, F64.mul(0.5f64, hi)), QL.pairs(cs), False{}, hi, eps), hi, eps)
 
-def go2(+a: M.Body, +b: M.Body, +fuel: Nat) -> String:
-  +hi = QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max())
-  +cs = QL.cross(QL.world_fds(a), QL.world_fds(b), [])
-  +h0 = QL.root_all(cs, QL.Ph_e{}, False{}, hi, 0.001f64)
+type SR is Data:
+  SR{ h: QL.Ph, hi: F64, n: Nat }
 
-  "hi " ++ F64.show(hi) ++ " pairs " ++ Nat.show(List.length(&2, QL.Cb, cs)) ++ "
-roots
-" ++ tops(6n, h0) ++
-    "dbg
-" ++ dbg_all(cs) ++ "after " ++ Nat.show(fuel) ++ "
-" ++ tops(6n, run_h(fuel, h0, hi, 0.001f64))
+def srch(fuel: Nat, stop: Bool, h: QL.Ph, +hi: F64, +eps: F64, +n: Nat) -> SR:
+  match fuel:
+    case 0n: SR{h, hi, n}
+    case 1n+(+f):
+      match stop:
+        case True{}: SR{h, hi, n}
+        case False{}:
+          match h:
+            case QL.Ph_e{}: SR{QL.Ph_e{}, hi, n}
+            case QL.Ph_n{+k, q, bw, +x, +cs}:
+              +hw = F64.min(hi, QL.wit_if(Bool.or(Nat.is_lt(Nat.sub(fuel, 65n), f), Nat.is_eq(Nat.mod(f, 256n), 0n)), False{}, x))
+              +h2 = QL.step(QL.fl_unset(x), k, x, cs, False{}, hw, eps)
+              srch(f, QL.stop_of(h2, hw, eps, eps), h2, hw, eps, Nat.add(n, 1n))
+
+def sr_s(+r: SR) -> String:
+  SR{+h, +hi, +n} = r
+  "pops " ++ Nat.show(n) ++ " hi " ++ F64.show(hi) ++ " lo " ++ F64.show(QL.ph_min(h, hi)) ++ "
+" ++ tops(4n, h)
+
+def st3(+hi: F64, +h0: QL.Ph, +fuel: Nat) -> IO(Unit):
+  do IO<Unit>:
+    t0 : Nat <- IO.now()
+    u : Unit <- IO.print(sr_s(srch(fuel, False{}, h0, hi, 0.001f64, 0n)))
+    t1 : Nat <- IO.now()
+    IO.print("search_ms " ++ Nat.show(Nat.sub(t1, t0)))
+
+def go2(+a: M.Body, +b: M.Body, +fuel: Nat) -> IO(Unit):
+  +hi = QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max())
+  +fas = QL.world_fds(a)
+  +fbs = QL.world_fds(b)
+  +cs = QL.cross_ax(QL.ax_go(fas, QL.Ax_no{}), fas, fbs, hi)
+  do IO<Unit>:
+    t0 : Nat <- IO.now()
+    u : Unit <- IO.print("hi " ++ F64.show(hi) ++ " pairs " ++ Nat.show(List.length(&2, QL.Cb, cs)))
+    t1 : Nat <- IO.now()
+    v : Unit <- IO.print("setup_ms " ++ Nat.show(Nat.sub(t1, t0)))
+    t2 : Nat <- IO.now()
+    w : Unit <- IO.print("roots
+" ++ tops(8n, QL.root_all(cs, QL.Ph_e{}, False{}, hi, 0.001f64)))
+    t3 : Nat <- IO.now()
+    x : Unit <- IO.print("roots_ms " ++ Nat.show(Nat.sub(t3, t2)))
+    st3(hi, QL.root_all(cs, QL.Ph_e{}, False{}, hi, 0.001f64), fuel)
 
 def go(+args: List<&2, String>, +src: String) -> IO(Unit):
   +p = S.part_of(S.ps_xs(S.parse(src)))
   +ia = S.u64_of(S.Sx_a{S.arg_at(args, 2n)})
   +ib = S.u64_of(S.Sx_a{S.arg_at(args, 3n)})
   +cs = M.ev_for(p, [ia, ib], [])
-  IO.print(go2(body_of(cs, ia), body_of(cs, ib), U64.to_nat(S.u64_of(S.Sx_a{S.arg_at(args, 4n)}))))
+  go2(body_of(cs, ia), body_of(cs, ib), U64.to_nat(S.u64_of(S.Sx_a{S.arg_at(args, 4n)})))
 
 def run(+args: List<&2, String>) -> IO(Unit):
   do IO<Unit>:

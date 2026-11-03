@@ -100,7 +100,8 @@ scatter.
 | Rotor first critical speed | lowest 4,781.7 r/min over spans 200/330 mm, bearing stiffness 2e4/2e5 N/mm, core 6/12 kg = 1.65 x running; refinement bound < 1e-8 | ESTIMATED (Timoshenko FE + Sturm, refinement bound), grader Euler-Bernoulli FE within 0.8 % in all 8 cases | `q/rotor_*.txt` |
 | Assembly | 40 instances, 40 mates, dof 0, max residual 7.1e-14 | CERTIFIED solve | `q/asm_solve.txt` |
 | Clearances (geometry) | cone 1.5 mm radial, 11 mm axial overlap; tongue 26.44 mm; back wall 10 mm | grader-recomputed from STEP | `grade.md` |
-| Clearances (kernel certified interval) | not run | DEFERRED by the owner to after G6 | sec. 6 |
+| Clearances (kernel certified interval), cold | impeller-cone [1.4999999995, 1.5000000000005] mm; impeller-front plate [39.8630467962, 39.8630467978] mm; impeller-casing [9.9999999995, 10.0] mm | CERTIFIED (re-run 2026-11-03, binary bendcad-fb7, `clearance A B 0.001`) | `../../clearance-2026-11-03/` |
+| Clearances, running (2,900 r/min, 120 % overspeed growth) | cone >= 1.4999 mm (collar grows away); front plate >= 39.80 mm; casing >= 9.94 mm | certified cold minus COMPUTED growth (max 59.9 um, free-ring formula, sec. 3) | sec. 6 |
 | Impeller natural frequencies | refused | REFUSED, sec. 6 | `q/modes_probe_h8.txt` |
 | Minimum wall, casing | [0, 3.0] mm | CERTIFIED but uninformative (lo = 0), sec. 6 | `q/wall_casing.txt` |
 | Minimum wall, impeller; 5-axis reach | did not finish in the run | REFUSED (time), sec. 6 | fin4/fin5 streams |
@@ -145,13 +146,12 @@ impeller and motor STLs are withheld: see sec. 6.
    `tess-mesh-not-closed` instead of publishing it (E2E
    `tess.curved_trim_refused`). Fix: a parameter-space mesher for
    trimmed curved faces. Workaround for printing: the STEP files.
-2. **Certified clearance (DEFERRED by the owner, 2026-10-31).** The
-   branch-and-bound clearance certifies box, slab, tube and coaxial
-   cylinder cases in under a second, but did not close the impeller-cone
-   pair: fillet tori and the cone's bellmouth against axis-aligned boxes
-   need hundreds of thousands of subdivisions. The geometric clearances
-   are verified by the grader from the STEP; the certified interval moves
-   after G6.
+2. **Certified clearance (CLOSED 2026-11-03).** The owner reversed the
+   deferral. Coaxial meridian footprints, a planar projection bound and a
+   per-face prefilter let the branch-and-bound close all three impeller
+   pairs in 79-143 s each (receipt `docs/receipts/clearance-2026-11-03`).
+   Sampling had put the cone gap at 1.80 mm; the certified minimum is the
+   design's 1.50 mm.
 3. **Impeller natural frequencies (REFUSED).** The impeller FE at element
    size 8 mm (coarser than the 4 mm blades) ran 11 h 40 min wall /
    68 CPU-hours without finishing; a blade-resolving mesh (H <= 2.4 mm)

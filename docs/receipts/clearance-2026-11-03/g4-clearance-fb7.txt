@@ -1,0 +1,14 @@
+== src/c11/qclear.bend
+ALL PROOFS CHECK
+a378a08805bccdfe748b82d40b90ac0d9de1eba967809b5305ad1643abd6ab61  /home/jesse/bc/bendcad-fb7
+== 1 3
+clearance [1.4999999994853819, 1.5000000000005185] certified lo=branch-and-bound hi=witness samples=1740x130 precision=0.001
+143.28 s
+== 1 13
+clearance [39.863046796165996, 39.863046797755196] certified lo=branch-and-bound hi=sampled samples=1740x112 precision=0.001
+79.39 s
+== 1 2
+clearance [9.999999999479844, 10] certified lo=branch-and-bound hi=sampled samples=1740x841 precision=0.001
+135.60 s
+
+[exited with code 0]
