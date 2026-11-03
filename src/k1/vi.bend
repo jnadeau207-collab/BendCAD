@@ -645,11 +645,89 @@ def tor_va(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   +raw = tor_lps(FB.face_ce(b, fi), b, FB.face_sf(b, fi), c, va0())
   VA{va_vol(raw), F64.abs(va_ar(raw)), va_slv(raw), va_sla(raw), va_ok(raw)}
 
+def gl5() -> List<&2, V.Vec2>:
+  [V.V2{0.5f64, 0.28444444444444444f64}, V.V2{0.23076534494715845f64, 0.23931433524968324f64},
+    V.V2{0.7692346550528415f64, 0.23931433524968324f64}, V.V2{0.04691007703066802f64, 0.11846344252809454f64},
+    V.V2{0.953089922969332f64, 0.11846344252809454f64}]
+
+def bg_go(ns: List<&2, V.Vec2>, +w: G.BezP, +c: V.Point, +u: F64, +v: F64, +acc: V.Vec2) -> V.Vec2:
+  match ns:
+    case []: acc
+    case +h <> +t:
+      +x = F64.mul(V.v2_x(h), u)
+      +n = S.cross(S.bp_su(w, x, v), S.bp_sv(w, x, v))
+      +gv = S.dot(S.psub(S.bp_at(w, x, v), c), n)
+      +wt = V.v2_y(h)
+      bg_go(t, w, c, u, v, V.V2{F64.add(V.v2_x(acc), F64.mul(wt, gv)), F64.add(V.v2_y(acc), F64.mul(wt, S.dlen(n)))})
+
+def bg_at(+w: G.BezP, +c: V.Point, +q: V.Vec2) -> V.Vec2:
+  +u = V.v2_x(q)
+  +r = bg_go(gl5(), w, c, u, V.v2_y(q), V.V2{0.0f64, 0.0f64})
+  V.V2{F64.mul(u, V.v2_x(r)), F64.mul(u, V.v2_y(r))}
+
+def bw_go(n: Nat, +w: G.BezP, +c: V.Point, +g: G.GVal, +t0: F64, +dt: F64, +k: F64, +q: V.Vec2, +gq: V.Vec2,
+    +acc: V.Vec2) -> V.Vec2:
+  match n:
+    case 0n: acc
+    case 1n+m:
+      +p = EF.ev(g, F64.add(t0, F64.mul(k, dt)))
+      +q1 = S.bp_newton(6n, w, p, q)
+      +g1 = bg_at(w, c, q1)
+      +dv = F64.sub(V.v2_y(q1), V.v2_y(q))
+      bw_go(m, w, c, g, t0, dt, F64.add(k, 1.0f64), q1, g1,
+        V.V2{F64.add(V.v2_x(acc), F64.mul(F64.mul(0.5f64, F64.add(V.v2_x(gq), V.v2_x(g1))), dv)),
+          F64.add(V.v2_y(acc), F64.mul(F64.mul(0.5f64, F64.add(V.v2_y(gq), V.v2_y(g1))), dv))})
+
+def bw_k(+n: Nat, +w: G.BezP, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2:
+  +g = EF.ek_curve(k)
+  +lo = EF.ek_lo(k)
+  +hi = EF.ek_hi(k)
+  +t0 = Bool.pick(F64, fw, lo, hi)
+  +dt = F64.div(Bool.pick(F64, fw, F64.sub(hi, lo), F64.sub(lo, hi)), L.f64_of(n))
+  +q0 = S.bp_uv(w, EF.ev(g, t0))
+  bw_go(n, w, c, g, t0, dt, 1.0f64, q0, bg_at(w, c, q0), V.V2{0.0f64, 0.0f64})
+
+def bw_ce(cur: Bool, +n: Nat, +w: G.BezP, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2:
+  match cur:
+    case True{}: bw_k(n, w, c, k, fw)
+    case False{}: V.V2{0.0f64, 0.0f64}
+
+def v2add(+a: V.Vec2, +b: V.Vec2) -> V.Vec2:
+  V.V2{F64.add(V.v2_x(a), V.v2_x(b)), F64.add(V.v2_y(a), V.v2_y(b))}
+
+def bw_ces(cs: List<&2, FB.CE>, +n: Nat, +b: FB.KB, +w: G.BezP, +c: V.Point, +acc: V.Vec2) -> V.Vec2:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +k = Ty.ed_kind(FB.edge_at(b, FB.ce_e(h)))
+      bw_ces(t, n, b, w, c, v2add(acc, bw_ce(EF.ek_is_curve(k), n, w, c, k, FB.ce_fw(h))))
+
+def bw_lps(ls: List<&2, List<&2, FB.CE>>, +n: Nat, +b: FB.KB, +w: G.BezP, +c: V.Point, +acc: V.Vec2) -> V.Vec2:
+  match ls:
+    case []: acc
+    case +h <> +t: bw_lps(t, n, b, w, c, bw_ces(h, n, b, w, c, acc))
+
+def bp_va_w(+w: G.BezP, +b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
+  +ls = FB.face_ce(b, fi)
+  +f = bw_lps(ls, 96n, b, w, c, V.V2{0.0f64, 0.0f64})
+  +h = bw_lps(ls, 48n, b, w, c, V.V2{0.0f64, 0.0f64})
+  +dv = F64.sub(V.v2_x(f), V.v2_x(h))
+  +da = F64.sub(V.v2_y(f), V.v2_y(h))
+  VA{F64.div(F64.add(V.v2_x(f), F64.div(dv, 3.0f64)), 3.0f64), F64.abs(F64.add(V.v2_y(f), F64.div(da, 3.0f64))),
+    F64.add(F64.div(F64.abs(dv), 3.0f64), F64.mul(1.0e-12f64, F64.abs(V.v2_x(f)))),
+    F64.add(F64.abs(da), F64.mul(1.0e-12f64, F64.abs(V.v2_y(f)))), True{}}
+
+def bp_va(+s: S.SF, +b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
+  match s:
+    case S.SF_bp{gw}: bp_va_w(S.gbp(gw), b, fi, c)
+    case _: VA{0.0f64, 0.0f64, 0.0f64, 0.0f64, False{}}
+
 def face_kv(+kd: U64, +b: FB.KB, +fi: Nat, +c: V.Point) -> VA:
   match kd:
     case 3u64: cone_va(b, fi, S.sf_of(FB.face_surf(b, fi)), c)
     case 4u64: sph_va(b, fi, c)
     case 5u64: tor_va(b, fi, c)
+    case 6u64: bp_va(S.sf_of(FB.face_surf(b, fi)), b, fi, c)
     case _: face_va_go(b, fi, c)
 
 def face_va(+b: FB.KB, +fi: Nat, +c: V.Point) -> VA:

@@ -7,6 +7,7 @@ import ../c03/types.bend as G
 import ../c03/ops.bend as GO
 import ../base/par.bend as B
 import ./types.bend as Ty
+import ../c03/bpi.bend as BI
 
 type HK is Data:
   HK{ i: Nat, g: U64 }
@@ -803,7 +804,7 @@ def s_on(+s: G.GVal, +p: V.Point) -> Bool:
 def coinc_on(+ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
   Bool.and(s_on(g_of(ss), ps), s_on(g_of(ss), pe))
 
-def coinc_go(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
+def coinc_ex(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
   +rs = surf_at(g_of(ss), V.v2_x(ts), V.v2_y(ts))
   +re = surf_at(g_of(ss), V.v2_x(te), V.v2_y(te))
   +ok = Bool.and(G.gres_ok(rs), G.gres_ok(re))
@@ -811,35 +812,50 @@ def coinc_go(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe:
   +near = Bool.and(p_near(G.gres_p(rs), ps), p_near(G.gres_p(re), pe))
   Bool.and(ok, Bool.or(exact, Bool.and(near, coinc_on(ss, ps, pe))))
 
-def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal) -> Bool:
+def coinc_bp(+g: G.GVal, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:
+  match g:
+    case G.GV_bp{w}:
+      +t = F64.max(tol, BI.bp_tol(w))
+      Bool.and(F64.is_le(BI.bp_gap(w, ps, V.v2_x(ts), V.v2_y(ts)), t), F64.is_le(BI.bp_gap(w, pe, V.v2_x(te), V.v2_y(te)), t))
+    case _: False{}
+
+def coinc_t(ex: Bool, +ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:
+  match ex:
+    case True{}: True{}
+    case False{}: Bool.and(F64.is_lt(0.0f64, tol), coinc_bp(g_of(ss), ts, te, ps, pe, tol))
+
+def coinc_go(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:
+  coinc_t(coinc_ex(ss, ts, te, ps, pe), ss, ts, te, ps, pe, tol)
+
+def ce_coinc_ok(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +surf: G.GVal, +tol: F64) -> Bool:
   +fwd = Ty.ce_fwd(ce)
   +trim = Ty.ce_trim(ce)
   +ts = trim_o_start(trim, fwd)
   +te = trim_o_end(trim, fwd)
   +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_start(ed, fwd))))
   +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, o_v_end(ed, fwd))))
-  coinc_go([surf], ts, te, ps, pe)
+  coinc_go([surf], ts, te, ps, pe, tol)
 def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
   GO.q_on_s(surf, p)
 
 def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
   pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))
 
-def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool) -> Bool:
+def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
     case Nil{}: True{}
     case h <> t:
       +ce = Ty.tres_ce(Ty.ix_ce(x, h))
       +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
       +fw = Ty.ce_fwd(ce)
-      +c = Bool.or(Bool.not(coinc), ce_coinc_ok(ce, ed, x, surf))
+      +c = Bool.or(Bool.not(coinc), ce_coinc_ok(ce, ed, x, surf, tol))
       +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_on(x, o_v_start(ed, fw), surf), vx_surf_on(x, o_v_end(ed, fw), surf)))
-      Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb))
+      Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb, tol))
 
-def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool) -> Bool:
+def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
     case Nil{}: True{}
-    case h <> t: Bool.and(hcs_face_ok(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, surf, coinc, memb), hls_face_ok(t, x, surf, coinc, memb))
+    case h <> t: Bool.and(hcs_face_ok(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, surf, coinc, memb, tol), hls_face_ok(t, x, surf, coinc, memb, tol))
 
 def surf_coinc(s: G.GVal) -> Bool:
   match s:
@@ -860,7 +876,7 @@ def fas_coinc_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
     case Nil{}: True{}
     case +h <> t:
       +sf = Ty.fa_surf(h)
-      Bool.and(hls_face_ok(Ty.fa_loops(h), x, sf, surf_coinc(sf), surf_quad(sf)), fas_coinc_ok(t, x))
+      Bool.and(hls_face_ok(Ty.fa_loops(h), x, sf, surf_coinc(sf), surf_quad(sf), Ty.fa_slv(h)), fas_coinc_ok(t, x))
 
 def embed_ok(+b: Ty.Brep, +x: Ty.Ix, +fuel: Nat) -> Bool:
   Bool.and(Bool.and(es_embed_ok(Ty.brep_es(b), x, fuel), ces_trim_ok(Ty.brep_ces(b))),

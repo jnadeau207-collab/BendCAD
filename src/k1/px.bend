@@ -4,6 +4,7 @@ import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 import ../base/par.bend as B
 import ./sf.bend as S
+import ../c03/bpi.bend as BI
 import ./ef.bend as EF
 import ./ss.bend as SS
 import ./fb.bend as FB
@@ -324,7 +325,7 @@ def fbs_of(n: Nat, +ob: FB.KB, +acc: List<&2, FB.BB>) -> List<&2, FB.BB>:
     case 0n: acc
     case 1n+(+i):
       +k = S.sf_kind(S.sf_of(FB.face_surf(ob, i)))
-      fbs_of(i, ob, fb_one(Bool.and(U64.is_le(S.k_plane(), k), U64.is_le(k, S.k_tor())), ob, i) <> acc)
+      fbs_of(i, ob, fb_one(Bool.and(U64.is_le(S.k_plane(), k), U64.is_le(k, S.k_bp())), ob, i) <> acc)
 
 def near_fs(bs: List<&2, FB.BB>, +eb: FB.BB, +i: Nat) -> List<&2, Nat>:
   match bs:
@@ -448,7 +449,9 @@ def far_k(+k: U64, +v: FV, +r: F64, +r2: F64, +t: F64) -> Bool:
     case _: False{}
 
 def far_f(+s: S.SF, +x: FB.BB) -> Bool:
-  far_k(S.sf_kind(s), fv_of(s, x), S.sf_r(s), S.sf_r2(s), EF.near_tol(s))
+  match s:
+    case S.SF_bp{gw}: FB.bb_dis(FB.bb_pad(FB.cnet_bb(S.gbp(gw)), BI.bp_tol(S.gbp(gw))), x)
+    case _: far_k(S.sf_kind(s), fv_of(s, x), S.sf_r(s), S.sf_r2(s), EF.near_tol(s))
 
 def ej_far(far: Bool, +b: FB.KB, +e: Nat, +k: Ty.EdgeKind, +g: G.GVal) -> EF.EHS:
   match far:
@@ -947,12 +950,12 @@ def near_sd(ps: List<&2, V.Point>, +p: V.Point, +prev: V.Point, +i: Nat, +best: 
       +d = seg_d(prev, h, p)
       near_sd(t, p, h, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(d, bd), i, best), F64.min(d, bd))
 
-def ins_brk(hs: List<&2, HX>, +xs: List<&2, PP>) -> List<&2, PP>:
+def ins_brk_c(hs: List<&2, HX>, +closed: Bool, +xs: List<&2, PP>) -> List<&2, PP>:
   match hs:
     case []: xs
     case +h <> +t:
       +ps = pps_pts(xs)
-      +cl = List.append(&2, V.Point, L_tail(ps), [L.nth_p(ps, 0n)])
+      +cl = Bool.pick(List<&2, V.Point>, closed, List.append(&2, V.Point, L_tail(ps), [L.nth_p(ps, 0n)]), L_tail(ps))
       +sd = near_sd(cl, hx_p(h), L.nth_p(ps, 0n), 0n, 0n, F64.div(1.0f64, 0.0f64))
       +i = nb2_i(sd)
       +sl = S.dist(L.nth_p(ps, i), L.nth_p(cl, i))
@@ -960,8 +963,11 @@ def ins_brk(hs: List<&2, HX>, +xs: List<&2, PP>) -> List<&2, PP>:
       +on = F64.is_le(nb2_d(sd), F64.add(F64.mul(0.25f64, sl), 1.0e-9f64))
       +same = F64.is_lt(nb2_d(np), 1.0e-9f64)
       +bp = {PP{hx_p(h), hx_v(h), True{}} : PP}
-      ins_brk(t, Bool.pick(List<&2, PP>, same, set_at(xs, nb2_i(np), bp),
+      ins_brk_c(t, closed, Bool.pick(List<&2, PP>, same, set_at(xs, nb2_i(np), bp),
         Bool.pick(List<&2, PP>, on, ins_at(xs, i, bp), xs)))
+
+def ins_brk(hs: List<&2, HX>, +xs: List<&2, PP>) -> List<&2, PP>:
+  ins_brk_c(hs, True{}, xs)
 
 def pv_xs(+r: PV) -> List<&2, PP>:
   PV{xs, g} = r
@@ -1103,10 +1109,18 @@ def do_poly_go(+brk: Bool, +xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, 
       +sd = run_side(ba, fa, bb, fb, mid_pp(xs))
       CR{run_keep(U64.is_eq(sd, 0u64), sd, fa, fb, cyc, True{}, ba, bb, cr_chs(r)), g, cr_ok(r), cr_why(r)}
 
+def do_open(+xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR, +g: GV) -> CR:
+  CR{List.append(&2, CH, keep_runs(poly_split(xs, [], []), ba, fa, bb, fb, []), cr_chs(r)), g, cr_ok(r), cr_why(r)}
+
+def do_poly_c(cl: Bool, +xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR, +g: GV) -> CR:
+  match cl:
+    case True{}: do_poly_go(has_brk(xs), xs, ba, fa, bb, fb, r, g)
+    case False{}: do_open(xs, ba, fa, bb, fb, r, g)
+
 def do_poly(+c: SS.IC, +hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR) -> CR:
   +pv = reg_pts(SS.ic_pts(c), cr_g(r), [])
-  +xs = ins_brk(hs, pv_xs(pv))
-  do_poly_go(has_brk(xs), xs, ba, fa, bb, fb, r, pv_g(pv))
+  +xs = ins_brk_c(hs, SS.ic_closed(c), pv_xs(pv))
+  do_poly_c(SS.ic_closed(c), xs, ba, fa, bb, fb, r, pv_g(pv))
 
 def do_ic(+k: U64, +c: SS.IC, +hs: List<&2, HX>, +g1: G.GVal, +g2: G.GVal, +ba: FB.KB, +fa: Nat,
     +bb: FB.KB, +fb: Nat, +r: CR) -> CR:

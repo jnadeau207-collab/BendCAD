@@ -1,0 +1,75 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k4e",
+ "rows": [
+  {
+   "name": "u20",
+   "op": "union",
+   "twist": 20,
+   "seconds": 4.93,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 193 20 | fix: report these operands"
+  },
+  {
+   "name": "i20",
+   "op": "intersection",
+   "twist": 20,
+   "seconds": 6.61,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 200 15 | fix: report these operands"
+  },
+  {
+   "name": "d20",
+   "op": "difference",
+   "twist": 20,
+   "seconds": 5.33,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 193 15 | fix: report these operands"
+  },
+  {
+   "name": "identity20",
+   "ok": false,
+   "why": "missing volume"
+  },
+  {
+   "name": "u30",
+   "op": "union",
+   "twist": 30,
+   "seconds": 5.8,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 193 20 | fix: report these operands"
+  },
+  {
+   "name": "i30",
+   "op": "intersection",
+   "twist": 30,
+   "seconds": 6.05,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 200 15 | fix: report these operands"
+  },
+  {
+   "name": "d30",
+   "op": "difference",
+   "twist": 30,
+   "seconds": 5.96,
+   "committed": false,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "error numerical-uncertainty | validate @ node 6 | why: validation-rejected: edge-face-uncertain 193 15 | fix: report these operands"
+  },
+  {
+   "name": "identity30",
+   "ok": false,
+   "why": "missing volume"
+  }
+ ]
+}

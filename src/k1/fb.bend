@@ -511,6 +511,20 @@ def bb_meet(+a: BB, +b: BB) -> BB:
   BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
   BB{F64.max(ax0, bx0), F64.min(ax1, bx1), F64.max(ay0, by0), F64.min(ay1, by1), F64.max(az0, bz0), F64.min(az1, bz1)}
 
+def pts_bb(ps: List<&2, V.Point>, +acc: BB) -> BB:
+  match ps:
+    case []: acc
+    case +h <> +t: pts_bb(t, bb_join(acc, bb_pt(h)))
+
+def cnet_bb(+w: G.BezP) -> BB:
+  G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
+  pts_bb([p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], bb_empty())
+
+def sf_xbb(+s: S.SF, +e: BB) -> BB:
+  match s:
+    case S.SF_bp{gw}: bb_join(e, cnet_bb(S.gbp(gw)))
+    case _: e
+
 def face_bb(+b: KB, +fi: Nat) -> BB:
   +s = S.sf_of(face_surf(b, fi))
   +ls = face_ce(b, fi)
@@ -518,7 +532,8 @@ def face_bb(+b: KB, +fi: Nat) -> BB:
   +tip = Bool.and(U64.is_eq(S.sf_kind(s), S.k_cone()), Nat.is_eq(Nat.mod(wraps_go(ls, s, b, 0n), 2n), 1n))
   +e1 = Bool.pick(BB, tip, bb_join(e0, bb_pt(S.sf_o(s))), Bool.pick(BB, S.is_sph(s), bb_join(e0, sph_bb(s)),
     Bool.pick(BB, S.is_tor(s), bb_meet(bb_pad(e0, F64.mul(2.0f64, S.sf_r2(s))), bb_join(e0, tor_bb(s))), e0)))
-  bb_pad(e1, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e1))), Ty.fa_slv(kb_f(b, fi))), 1.0e-9f64))
+  +e2 = sf_xbb(s, e1)
+  bb_pad(e2, F64.add(F64.add(F64.mul(1.0e-7f64, F64.add(1.0f64, bb_span(e2))), Ty.fa_slv(kb_f(b, fi))), 1.0e-9f64))
 
 def plane_n(+g: G.GVal) -> V.Dir:
   S.sf_a(S.sf_of(g))

@@ -10,6 +10,7 @@ type Im is Data:
   M_cy{ o: List<&2, I.I>, a: List<&2, I.I>, r: I.I }
   M_co{ o: List<&2, I.I>, a: List<&2, I.I>, k: I.I }
   M_to{ o: List<&2, I.I>, a: List<&2, I.I>, bigr: I.I, r: I.I }
+  M_no{}
 
 def p3(p: V.Point) -> List<&2, I.I>:
   V.Pt{x, y, z} = p
@@ -44,6 +45,9 @@ def vscale(+s: I.I, xs: List<&2, I.I>) -> List<&2, I.I>:
     case []: []
     case x <> t: I.imul(s, x) <> vscale(s, t)
 
+def i_all() -> I.I:
+  I.I{F64.neg(F64.div(1.0f64, 0.0f64)), F64.div(1.0f64, 0.0f64)}
+
 def im_val(s: Im, +p: List<&2, I.I>) -> I.I:
   match s:
     case M_pl{o, n}: X.vdot(n, X.vsub(p, o))
@@ -63,6 +67,7 @@ def im_val(s: Im, +p: List<&2, I.I>) -> I.I:
       +mm = X.vdot(m, m)
       +w = I.isub(I.iadd(mm, I.isq(bigr)), I.isq(r))
       I.isub(I.imul(aa, I.isq(w)), I.imul(I.imul(I.ipt(4.0f64), I.isq(bigr)), I.isub(I.imul(aa, mm), I.isq(X.vdot(a, m)))))
+    case M_no{}: i_all()
 
 def im_grad(s: Im, +p: List<&2, I.I>) -> List<&2, I.I>:
   match s:
@@ -80,6 +85,7 @@ def im_grad(s: Im, +p: List<&2, I.I>) -> List<&2, I.I>:
       +w = I.isub(I.iadd(X.vdot(m, m), I.isq(bigr)), I.isq(r))
       +c8 = I.imul(I.ipt(8.0f64), I.isq(bigr))
       X.vsub(vscale(I.isub(I.imul(I.imul(I.ipt(4.0f64), aa), w), I.imul(c8, aa)), m), vscale(I.imul(I.ineg(c8), X.vdot(a, m)), a))
+    case M_no{}: [i_all(), i_all(), i_all()]
 
 def im_side(s: Im, +p: List<&2, I.I>) -> I.I:
   match s:

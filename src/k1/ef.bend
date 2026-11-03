@@ -7,6 +7,9 @@ import ../c04/types.bend as Ty
 import ../c04/ops.bend as B4
 import ./sf.bend as S
 import ./ls.bend as L
+import ../c06/iv.bend as I
+import ../c07/isect.bend as Y
+import ../c03/bpi.bend as BI
 
 type BR is Data:
   BR{ a: F64, b: F64 }
@@ -25,6 +28,7 @@ type EH is Data:
 
 type EHS is Data:
   EHS{ hs: List<&2, EH>, near: Bool, nt: F64 }
+
 
 def ek_curve(+k: Ty.EdgeKind) -> G.GVal:
   match k:
@@ -256,10 +260,22 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
     case G.GV_bp{w}: bp_uv_of(w, p)
     case _: UV{False{}, 0.0f64, 0.0f64}
 
+def bp_on(+w: G.BezP, +p: V.Point) -> Bool:
+  +q = S.bp_uv(w, p)
+  F64.is_le(BI.bp_gap(w, p, V.v2_x(q), V.v2_y(q)), BI.bp_tol(w))
+
+def bp_flat(+w: G.BezP) -> Bool:
+  U64.is_eq(S.sf_kind(S.sf_of(G.GV_bp{w})), S.k_plane())
+
+def on_bp(flat: Bool, +w: G.BezP, +p: V.Point) -> Bool:
+  match flat:
+    case True{}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
+    case False{}: bp_on(w, p)
+
 def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
     case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.pick(Bool, B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p), B4.ax_on(w, p)))
-    case G.GV_bp{w}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
+    case G.GV_bp{w}: on_bp(bp_flat(w), w, p)
     case _: Bool.or(GO.q_on_r(g, p), GO.q_on_s(g, p))
 
 def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
@@ -422,5 +438,36 @@ def edge_hits_go(+isc: Bool, +s: S.SF, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F
       Bool.pick(EHS, emb, EHS{[], False{}, lo}, EHS{List.reverse(&2, EH, hits_go(sm_brs(sm), s, c, gs, lo, hi)), sm_near(sm), sm_nt(sm)})
     case False{}: EHS{[], False{}, lo}
 
+def yh_go(hs: List<&2, Y.Hx>, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> List<&2, EH>:
+  match hs:
+    case []: []
+    case +h <> +t:
+      match h:
+        case Y.Hx_uv{+sp, u, v, b, k}:
+          +ct = cert_t(c, gs, I.imid(sp), lo, hi)
+          EH{ct_t(ct), ct_p(ct), ct_ok(ct)} <> yh_go(t, c, gs, lo, hi)
+        case Y.Hx_un3{+sp, u, v}: EH{I.imid(sp), ev(c, I.imid(sp)), False{}} <> yh_go(t, c, gs, lo, hi)
+        case Y.Hx_c{w}: EH{lo, ev(c, lo), False{}} <> yh_go(t, c, gs, lo, hi)
+
+def eh_lt(+a: EH, +b: EH) -> Bool:
+  F64.is_lt(eh_t(a), eh_t(b))
+
+def eh_ins(+x: EH, xs: List<&2, EH>) -> List<&2, EH>:
+  match xs:
+    case []: [x]
+    case +h <> +t: Bool.pick(List<&2, EH>, eh_lt(x, h), x <> h <> t, h <> eh_ins(x, t))
+
+def eh_sort(xs: List<&2, EH>) -> List<&2, EH>:
+  match xs:
+    case []: []
+    case +h <> +t: eh_ins(h, eh_sort(t))
+
+def bp_hits(+isc: Bool, +w: G.BezP, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> EHS:
+  match isc:
+    case True{}: EHS{eh_sort(yh_go(Y.inter_cs_w(c, G.Dom{lo, hi}, G.GV_bp{w}, 40n), c, gs, lo, hi)), False{}, lo}
+    case False{}: EHS{[], False{}, lo}
+
 def edge_hits(+k: Ty.EdgeKind, +s: S.SF, +gs: List<&2, G.GVal>) -> EHS:
-  edge_hits_go(ek_is_curve(k), s, ek_curve(k), gs, ek_lo(k), ek_hi(k))
+  match s:
+    case S.SF_bp{gw}: bp_hits(ek_is_curve(k), S.gbp(gw), ek_curve(k), gs, ek_lo(k), ek_hi(k))
+    case _: edge_hits_go(ek_is_curve(k), s, ek_curve(k), gs, ek_lo(k), ek_hi(k))

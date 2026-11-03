@@ -9,6 +9,7 @@ import ./rb.bend as R
 import ./im.bend as M
 import ./xs.bend as S
 import ./mem.bend as Mm
+import ./isect.bend as Y
 import ../base/par.bend as B
 
 type Fd is Data:
@@ -98,6 +99,7 @@ def surf_box(s: M.Im, +bx: List<&2, I.I>) -> List<&2, I.I>:
       +rho = I.imul(k, I.idiv(I.ipt(X.imag(h)), I.isqrt(X.vdot(a, a))))
       axial_box(o, a, bx, rho, h)
     case M.M_to{o, a, bigr, r}: ball(o, I.iadd(bigr, r))
+    case M.M_no{}: bx
 
 def iz(+x: I.I) -> Bool:
   Bool.and(F64.is_eq(I.i_lo(x), 0.0f64), F64.is_eq(I.i_hi(x), 0.0f64))
@@ -186,9 +188,33 @@ def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc) -> List<&2, I.I>:
       cy_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), bx, o, a, k, r)
     case _: surf_box(s, bx)
 
+def cn_bx(ps: List<&2, V.Point>, +acc: List<&2, I.I>) -> List<&2, I.I>:
+  match ps:
+    case []: acc
+    case +h <> +t: cn_bx(t, Bool.pick(List<&2, I.I>, Nat.is_eq(List.length(&2, I.I, acc), 0n), M.p3(h), X.vhull(acc, M.p3(h))))
+
+def bp_bx(+g: G.GVal, +eb: List<&2, I.I>) -> List<&2, I.I>:
+  match g:
+    case G.GV_bp{w}:
+      G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
+      bx_pad(cn_bx([p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33], eb))
+    case _: eb
+
+def is_bpg(+g: G.GVal) -> Bool:
+  match g:
+    case G.GV_bp{w}: True{}
+    case _: False{}
+
+def fd_none(bp: Bool, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat, +slv: F64) -> Fd:
+  match bp:
+    case True{}:
+      +es = ea_es(ea)
+      Fd{Mm.Fc{M.M_no{}, same, es, Mm.uv_bp_of(s, es, slv)}, [s], bp_bx(s, eb_go(es, [])), ea_ok(ea), sh, fi}
+    case False{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea), Mm.Uv_no{}}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
+
 def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: Nat, +slv: F64) -> Fd:
   match m:
-    case None{}: Fd{Mm.Fc{M.M_pl{[], []}, same, ea_es(ea), Mm.Uv_no{}}, [s], eb_go(ea_es(ea), []), False{}, sh, fi}
+    case None{}: fd_none(is_bpg(s), s, same, ea, sh, fi, slv)
     case Some{+im}:
       +es = ea_es(ea)
       +fc = {Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)} : Mm.Fc}
@@ -303,12 +329,28 @@ def seg_box(+p: V.Point, +d: V.Dir, +tmax: F64) -> List<&2, I.I>:
 def face_code(+f: Fd, +sb: List<&2, I.I>) -> U64:
   Bool.pick(U64, X.vdisj(fd_bx(f), sb), 0u64, Bool.pick(U64, fd_ok(f), 1u64, 2u64))
 
+def hx_hit(h: Y.Hx) -> S.Hit:
+  match h:
+    case Y.Hx_c{w}: w
+    case Y.Hx_uv{+sp, u, v, +b, k}: S.H_pt{sp, X.iz(), b, k}
+    case Y.Hx_un3{+sp, u, v}: S.H_un{sp, X.iz(), [M.i_all(), M.i_all(), M.i_all()]}
+
+def hx_hits(hs: List<&2, Y.Hx>) -> List<&2, S.Hit>:
+  match hs:
+    case []: []
+    case h <> t: hx_hit(h) <> hx_hits(t)
+
+def hits_any(+g: G.GVal, +d: G.Dom, +s: G.GVal, im: M.Im) -> List<&2, S.Hit>:
+  match im:
+    case M.M_no{}: hx_hits(Y.inter_cs_w(g, d, s, 40n))
+    case _: S.inter_cs(g, d, s, 40n)
+
 def ray_face(k: U64, +f: Fd, +p: V.Point, +d: V.Dir, +tmax: F64, +self: Bool, +e0: F64, +acc: Rc) -> Rc:
   match k:
     case 0u64: acc
     case 1u64:
       +fc = fd_fc(f)
-      hits_go(S.inter_cs(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, tmax}, fd_g(f), 40n), fc, Mm.fc_s(fc), self, e0, acc)
+      hits_go(hits_any(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, tmax}, fd_g(f), Mm.fc_s(fc)), fc, Mm.fc_s(fc), self, e0, acc)
     case _: rc_put(acc, False{}, 2u64)
 
 def ray(fs: List<&2, Fd>, stop: Bool, +p: V.Point, +d: V.Dir, +tmax: F64, +sb: List<&2, I.I>, +skip: Nat, +i: Nat, +e0: F64, +acc: Rc) -> Rc:
@@ -431,6 +473,7 @@ def proj(s: M.Im, +p: List<&2, I.I>) -> List<&2, I.I>:
       +m = X.vsub(p, o)
       +c = X.vadd(o, Mm.vs(bigr, unit(X.vsub(m, Mm.vs(I.idiv(X.vdot(a, m), X.vdot(a, a)), a)))))
       X.vadd(c, Mm.vs(r, unit(X.vsub(p, c))))
+    case M.M_no{}: [M.i_all(), M.i_all(), M.i_all()]
 
 def snap(+q: List<&2, I.I>) -> List<&2, I.I>:
   M.p3(pt_of(q))
@@ -1044,3 +1087,56 @@ def re_job2(c: RC2, j: FJ) -> Fd:
 
 def fds_rr(+b: Ty.Brep, +pool: B.Tb<&2, KF>, +rpool: B.Tb<&2, KF>) -> List<&2, Fd>:
   B.pmap_g(~FJ, ~RC2, ~Fd, ~re_job2, 1, RC2{Ty.ix_of(b), tb_tr(pool), tb_tr(rpool)}, fj_shs(Ty.brep_shs(b), 0n))
+
+def pt_eq3(+a: V.Point, +b: V.Point) -> Bool:
+  Bool.and(F64.is_eq(V.pt_x(a), V.pt_x(b)), Bool.and(F64.is_eq(V.pt_y(a), V.pt_y(b)), F64.is_eq(V.pt_z(a), V.pt_z(b))))
+
+def pts_eq(xs: List<&2, V.Point>, ys: List<&2, V.Point>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> xt:
+      match ys:
+        case []: False{}
+        case +y <> yt: Bool.and(pt_eq3(x, y), pts_eq(xt, yt))
+
+def bp_pts(+g: G.GVal) -> List<&2, V.Point>:
+  match g:
+    case G.GV_bp{w}:
+      G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
+      [p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33]
+    case _: []
+
+def bp_in(fs: List<&2, Ty.Face>, +ps: List<&2, V.Point>) -> Bool:
+  match fs:
+    case []: False{}
+    case +f <> t: Bool.or(pts_eq(ps, bp_pts(Ty.fa_surf(f))), bp_in(t, ps))
+
+def curved_bp(+g: G.GVal) -> Bool:
+  Bool.and(is_bpg(g), Bool.not(Maybe.is_some(&2, M.Im, S.gv_im(g))))
+
+def ltag_go(cur: Bool, +g: G.GVal, +fa: List<&2, Ty.Face>, +fb: List<&2, Ty.Face>) -> U64:
+  match cur:
+    case False{}: 0u64
+    case True{}:
+      +ia = bp_in(fa, bp_pts(g))
+      +ib = bp_in(fb, bp_pts(g))
+      Bool.pick(U64, Bool.and(ia, Bool.not(ib)), 1u64, Bool.pick(U64, Bool.and(ib, Bool.not(ia)), 2u64, 0u64))
+
+def ltags_go(js: List<&2, FJ>, +x: Ty.Ix, +fa: List<&2, Ty.Face>, +fb: List<&2, Ty.Face>) -> List<&2, U64>:
+  match js:
+    case []: []
+    case j <> t:
+      FJ{+h, sh} = j
+      +g = Ty.fa_surf(Ty.tres_fa(Ty.ix_fa(x, h)))
+      ltag_go(curved_bp(g), g, fa, fb) <> ltags_go(t, x, fa, fb)
+
+def ltags(+b: Ty.Brep, +ba: Ty.Brep, +bb: Ty.Brep) -> List<&2, U64>:
+  ltags_go(fj_shs(Ty.brep_shs(b), 0n), Ty.ix_of(b), Ty.brep_fas(ba), Ty.brep_fas(bb))
+
+def tags_or(xs: List<&2, U64>, ys: List<&2, U64>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +x <> xt:
+      match ys:
+        case []: x <> xt
+        case +y <> yt: U64.or(x, y) <> tags_or(xt, yt)

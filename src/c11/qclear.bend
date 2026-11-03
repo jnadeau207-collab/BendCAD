@@ -44,6 +44,7 @@ def sdist(s: Im.Im, +p: List<&2, I.I>) -> F64:
       I.i_lo(iabs(I.idiv(I.isub(ax_rho(o, a, p), I.imul(iabs(k), iabs(ax_h(o, a, p)))), I.isqrt(I.iadd(I.ipt(1.0f64), I.isq(k))))))
     case Im.M_to{+o, +a, bigr, r}:
       I.i_lo(iabs(I.isub(I.isqrt(I.iadd(I.isq(I.isub(ax_rho(o, a, p), bigr)), I.isq(ax_h(o, a, p)))), r)))
+    case Im.M_no{}: 0.0f64
 
 def gap1(+a: I.I, +b: I.I) -> F64:
   F64.max(0.0f64, F64.max(F64.sub(I.i_lo(a), I.i_hi(b)), F64.sub(I.i_lo(b), I.i_hi(a))))
@@ -110,6 +111,7 @@ def bands_go(s: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +bx: List<&2, I.I>,
     case Im.M_sp{+so, +r}:
       +hh = widen(I.isub(h, ax_h(o, a, so)), slack(so, a, o, a, bx))
       band(widen(I.isqrt(pos(I.isub(I.isq(r), I.isq(hh)))), F64.mul(2.0f64, slack(so, a, o, a, bx))), p, h)
+    case Im.M_no{}: [Bd{p, h}]
 
 def bands(s: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +bx: List<&2, I.I>) -> List<&2, Bd>:
   bands_go(s, o, a, bx, ax_h(o, a, bx), ax_rho(o, a, bx))

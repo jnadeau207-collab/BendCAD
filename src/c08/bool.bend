@@ -966,7 +966,7 @@ type CR is Data:
 def surf_admit_nb(+s: G.GVal) -> U64:
   match s:
     case G.GV_nb{w}: 2u64
-    case G.GV_bp{w}: 1u64
+    case G.GV_bp{w}: 0u64
     case _: 3u64
 
 def surf_admit_go(m: Maybe<&2, MM.Im>, +s: G.GVal) -> U64:
@@ -2112,7 +2112,7 @@ def k1_out_f(+kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +
   +bc = restamp(K1.kr_brep(kr))
   +fdc = SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, K1.kr_fk(kr),
     List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))))
-  +v = vcore_t(bc, fdc, SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))),
+  +v = vcore_t(bc, fdc, SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
     SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
   Bool.pick(Out, VR_ok(v),
     k1_out_ok(op, a, b, bc, nd, VR_nc(v), wa, wb, k1proof(kr), ba, bb, fdc, fda, fdb),
@@ -2168,16 +2168,16 @@ def run_k1r(+has3: Bool, +ra: List<&2, U64>, +rb: List<&2, U64>, +nd: U64, +an: 
   +kr = GB.gbrun(op, ba, bb)
   Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
     Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "classify"),
-      run_k1r_fb(has3, ra, rb, nd, an, bn)))
+      out_why_add(run_k1r_fb(has3, ra, rb, nd, an, bn), k1_note(kr))))
 
 def run_k1m(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64) -> Out:
   +kr = GB.gbrun(op, ba, bb)
   Bool.pick(Out, K1.kr_ok(kr), k1_out(kr, op, a, b, ba, bb, nd),
     Bool.pick(Out, k1_curved(kr), k1_curved_out(nd, "classify"),
-      out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
+      out_why_add(out_fail(fk_unsupported(), "classify", "node " ++ U64.show(nd),
         "mixed-solid-relations: one operand has solids both inside and outside the other",
-        "boolean operands with mixed containment need per-solid measures (a C11 item)")))
+        "boolean operands with mixed containment need per-solid measures (a C11 item)"), k1_note(kr))))
 
 def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
     +proof: String) -> Out:
@@ -2367,7 +2367,7 @@ def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep,
     case False{}:
       +bc = brep_append(ba, bb)
       +pool = SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))
-      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))),
+      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
         SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
       run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v, fda, fdb, pool)
 

@@ -512,3 +512,19 @@ def inter_ss(+g1: G.GVal, +g2: G.GVal, +bx: List<&2, I.I>) -> Sr:
 def sample3(+k: U64, +g1: G.GVal, +g2: G.GVal, +x: List<&2, I.I>) -> List<&2, I.I>:
   Bool.pick(List<&2, I.I>, U64.is_eq(k, 0u64), x,
     Bool.pick(List<&2, I.I>, U64.is_eq(k, 2u64), Q.bq_box(bq_of_g(g2), X.vn(x, 0n), X.vn(x, 1n)), Q.bq_box(bq_of_g(g1), X.vn(x, 0n), X.vn(x, 1n))))
+
+def cbw_one(+c: R.Cv, +q: Q.Bq, +d: Nat) -> List<&2, Hx>:
+  cb_res(S.solve_r(d, mk_cb(c, q), [ud(1.0f64), ud(1.0f64), ud(1.0f64)]), c, q)
+
+def spans_cbw(cs: List<&2, R.Cv>, +q: Q.Bq, +d: Nat) -> List<&2, Hx>:
+  match cs:
+    case []: []
+    case c <> t: List.append(&2, Hx, cbw_one(c, q, d), spans_cbw(t, q, d))
+
+def csw_route(k: Bool, +g: G.GVal, +d: G.Dom, +s: G.GVal, +depth: Nat) -> List<&2, Hx>:
+  match k:
+    case True{}: dedupe(spans_cbw(curve_spans(g, d), bq_of_g(s), depth), [])
+    case False{}: inter_cs(g, d, s, depth)
+
+def inter_cs_w(+g: G.GVal, +d: G.Dom, +s: G.GVal, +depth: Nat) -> List<&2, Hx>:
+  csw_route(Bool.and(is_bp(s), Bool.not(is_nb(g))), g, d, s, depth)

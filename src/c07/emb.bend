@@ -554,6 +554,26 @@ def ee_same(same: Bool, ex: Bool, +x: Eg, +y: Eg, +cs: List<&2, Cr>, +tol: F64) 
     case True{}: [S.H_ov{I.I{0.0f64, 1.0f64}, X.iz()}]
     case False{}: ee_sel(ex, x, y, cs, tol)
 
+def is_ln(g: G.GVal) -> Bool:
+  match g:
+    case G.GV_ln{w}: True{}
+    case _: False{}
+
+def away_neg(+v: List<&2, I.I>, +p: List<&2, I.I>, +q: List<&2, I.I>) -> Bool:
+  F64.is_lt(I.i_hi(X.vdot(X.vsub(p, v), X.vsub(q, v))), 0.0f64)
+
+def ln_apart(+la: Bool, +lb: Bool, +e00: Bool, +e01: Bool, +e10: Bool, +e11: Bool, +x: Eg, +y: Eg) -> Bool:
+  +one = U64.is_eq(U64.add(U64.add(Bool.pick(U64, e00, 1u64, 0u64), Bool.pick(U64, e01, 1u64, 0u64)),
+    U64.add(Bool.pick(U64, e10, 1u64, 0u64), Bool.pick(U64, e11, 1u64, 0u64))), 1u64)
+  +k = Bool.and(Bool.and(la, lb), one)
+  Bool.and(k, Bool.or(Bool.or(Bool.and(e00, away_neg(eg_pa(x), eg_pb(x), eg_pb(y))), Bool.and(e01, away_neg(eg_pa(x), eg_pb(x), eg_pa(y)))),
+    Bool.or(Bool.and(e10, away_neg(eg_pb(x), eg_pa(x), eg_pb(y))), Bool.and(e11, away_neg(eg_pb(x), eg_pa(x), eg_pa(y))))))
+
+def ee_fin(apart: Bool, xs: List<&2, SO.Fi>) -> List<&2, SO.Fi>:
+  match apart:
+    case True{}: []
+    case False{}: xs
+
 def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
     +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> List<&2, SO.Fi>:
   +e00 = vq(eg_a(x), eg_a(y), eg_pa(x), eg_pa(y))
@@ -568,8 +588,9 @@ def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
   +fdb = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(y)))
   +bbA = SO.bbox(fda, [])
   +bbB = SO.bbox(fdb, [])
-  first(ee_hits(ee_same(g_same(eg_g(x), eg_g(y)), S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(e00, e01, e10, e11), tol), sv, sx, tol, ia, ib,
-    cross, x, y, fda, bbA, fdb, bbB))
+  ee_fin(ln_apart(is_ln(eg_g(x)), is_ln(eg_g(y)), e00, e01, e10, e11, x, y),
+    first(ee_hits(ee_same(g_same(eg_g(x), eg_g(y)), S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(e00, e01, e10, e11), tol), sv, sx, tol, ia, ib,
+      cross, x, y, fda, bbA, fdb, bbB)))
 
 def m_code(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad, "edge-face-uncertain"), a, b))
@@ -722,7 +743,7 @@ def ef_cs(on: Bool, +x: Eg, +fd: SO.Fd, +vs: List<&2, Nat>, +ie: Nat, +jf: Nat, 
     case False{}:
       Eg{g, +d, +a0, +a1, +pa0, +pa1, +c, bx, u, so} = x
       +sv = sh_pt(has(vs, a0), pa0, sh_pt(has(vs, a1), pa1, []))
-      ef_hits_go(S.inter_cs(SO.g1(g), d, SO.fd_g(fd), 40n), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf,
+      ef_hits_go(SO.hits_any(SO.g1(g), d, SO.fd_g(fd), SO.fd_im(fd)), fd, c, S.dlo(d), S.dhi(d), sv, tol, ie, jf,
         cross, ofds, pa0, pa1)
 
 def side_k(+a: List<&2, I.I>, +b: List<&2, I.I>, +m: List<&2, I.I>, +k: Nat, +tol: F64) -> Bool:
@@ -1382,6 +1403,7 @@ def sd2(b: M.Im, +c: List<&2, I.I>) -> I.I:
       +v = X.vsub(c, o)
       I.isq(I.isub(I.isqrt(I.iadd(I.isq(I.isub(rho_ax(v, a), bigr)), h2_ax(v, a))), r))
     case M.M_sp{+o, +r}: I.isq(I.isub(I.isqrt(X.vdot(X.vsub(c, o), X.vsub(c, o))), r))
+    case M.M_no{}: I.I{0.0f64, F64.div(1.0f64, 0.0f64)}
 
 def im_sp(a: M.Im) -> Bool:
   match a:
