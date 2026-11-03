@@ -6,7 +6,7 @@ import sys
 import time
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
+BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bin/bc')
 WORK = os.environ.get('G5_WORK', '/home/jesse/g5')
 IC = '(intent create any any any any)'
 IA = '(intent add any any any any)'
