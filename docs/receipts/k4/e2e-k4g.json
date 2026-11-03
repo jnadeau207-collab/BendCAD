@@ -1,0 +1,91 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k4g",
+ "rows": [
+  {
+   "name": "u20",
+   "op": "union",
+   "twist": 20,
+   "seconds": 2.46,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=add faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[39158.49687444402, 39158.49687453775] area=[11648.652873016023, 11648.6620561039] bbox=[-10.00000000000011, 50.00000000000013]x[-30.000000000000114, 30.00000000000012]x[-5.000000000000108, 30.000000000000085] vertices=296 edges=332 faces=39 solids=1 genus=0 linear_uncertainty=1.4122036873232006e-13 | proof: k1-crossing-certified V296 E332 F39 S1"
+  },
+  {
+   "name": "i20",
+   "op": "intersection",
+   "twist": 20,
+   "seconds": 2.31,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=same faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[640.3585953186574, 640.3585953225012] area=[668.1777853346574, 668.1778574150763] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-3.406717578344341, 10.343526946189519]x[-7.105427357601007e-14, 5.00000000000011] vertices=288 edges=320 faces=34 solids=1 genus=0 linear_uncertainty=1.1984862980363924e-13 | proof: k1-crossing-certified V288 E320 F34 S1"
+  },
+  {
+   "name": "d20",
+   "op": "difference",
+   "twist": 20,
+   "seconds": 2.23,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3798.855469810351, 3798.8554698125818] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-3.4067175783443404, 10.343526946189517]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=remove faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[3158.496874481454, 3158.496874500319] area=[2302.775826388373, 2302.78500945756] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-3.406717578344341, 10.343526946189519]x[-7.105427357601007e-14, 30.000000000000085] vertices=288 edges=320 faces=34 solids=1 genus=0 linear_uncertainty=1.2539974492676502e-13 | proof: k1-crossing-certified V288 E320 F34 S1"
+  },
+  {
+   "name": "identity20",
+   "ok": true,
+   "lhs": [
+    39798.855469762675,
+    39798.85546986025
+   ],
+   "rhs": [
+    39798.855469776536,
+    39798.8554698464
+   ],
+   "gap": 7.275957614183426e-12
+  },
+  {
+   "name": "u30",
+   "op": "union",
+   "twist": 30,
+   "seconds": 2.65,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=add faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[39070.35112867741, 39070.351128772825] area=[11656.486461766957, 11656.506672224337] bbox=[-10.00000000000011, 50.00000000000013]x[-30.000000000000114, 30.00000000000012]x[-5.000000000000108, 30.000000000000085] vertices=296 edges=332 faces=39 solids=1 genus=0 linear_uncertainty=1.4122036873232006e-13 | proof: k1-crossing-certified V296 E332 F39 S1"
+  },
+  {
+   "name": "i30",
+   "op": "intersection",
+   "twist": 30,
+   "seconds": 2.82,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=same faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[633.3069356574168, 633.3069356612174] area=[669.5990010119842, 669.5991561296421] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-4.815784930203682, 15.184215069796487]x[-7.105427357601007e-14, 5.00000000000011] vertices=288 edges=320 faces=34 solids=1 genus=0 linear_uncertainty=1.212363542890672e-13 | proof: k1-crossing-certified V288 E320 F34 S1"
+  },
+  {
+   "name": "d30",
+   "op": "difference",
+   "twist": 30,
+   "seconds": 2.59,
+   "committed": true,
+   "blade": "ok material=create faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[3703.6580643831126, 3703.658064385747] area=[38399.99999999997, 38400.00000000003] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-4.815784930203681, 15.184215069796485]x[-7.105427357601006e-14, 30.00000000000008] vertices=64 edges=96 faces=34 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14",
+   "box": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[35999.99999996618, 36000.00000003382] area=[9599.99999999204, 9600.00000000796] bbox=[-10.000000000000108, 50.00000000000012]x[-30.00000000000011, 30.000000000000117]x[-5.0000000000001075, 5.000000000000109] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13",
+   "result": "ok material=remove faces_created=32 faces_modified=0 solids=1 through_holes=0 | volume=[3070.3511287159995, 3070.351128734225] area=[2305.3206703933665, 2305.3408808320446] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-4.815784930203682, 15.184215069796487]x[-7.105427357601007e-14, 30.000000000000085] vertices=288 edges=320 faces=34 solids=1 genus=0 linear_uncertainty=1.2678746941219298e-13 | proof: k1-crossing-certified V288 E320 F34 S1"
+  },
+  {
+   "name": "identity30",
+   "ok": true,
+   "lhs": [
+    39703.65806433483,
+    39703.65806443404
+   ],
+   "rhs": [
+    39703.65806434929,
+    39703.658064419564
+   ],
+   "gap": 7.275957614183426e-12
+  }
+ ]
+}

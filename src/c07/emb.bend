@@ -1805,23 +1805,42 @@ def run_prs(+cx: Cx, +prs: List<&2, Pr>) -> List<&2, SO.Fi>:
 def tg_at(+tg: B.Tb<&2, U64>, +i: Nat) -> U64:
   B.tb_get(U64, tg, U32.from_nat(i))
 
-def pr_keep(k: U64, +a: Nat, +b: Nat, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>) -> Bool:
+def pr_keep(k: U64, +a: Nat, +b: Nat, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>, +em: B.Tb<&2, U64>) -> Bool:
   match k:
     case 0u64: U64.is_eq(U64.and(tg_at(te, a), tg_at(te, b)), 0u64)
     case 2u64: U64.is_eq(U64.and(tg_at(tg, a), tg_at(tg, b)), 0u64)
-    case _: True{}
+    case _: U64.is_eq(U64.and(tg_at(em, a), tg_at(tg, b)), 0u64)
 
-def keep_new(ps: List<&2, Pr>, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>) -> List<&2, Pr>:
+def keep_new(ps: List<&2, Pr>, +tg: B.Tb<&2, U64>, +te: B.Tb<&2, U64>, +em: B.Tb<&2, U64>) -> List<&2, Pr>:
   match ps:
     case []: []
     case +p <> +t:
       Pr{+k, +a, +b} = p
-      +rest = keep_new(t, tg, te)
-      Bool.pick(List<&2, Pr>, pr_keep(k, a, b, tg, te), p <> rest, rest)
+      +rest = keep_new(t, tg, te, em)
+      Bool.pick(List<&2, Pr>, pr_keep(k, a, b, tg, te, em), p <> rest, rest)
+
+def em_es(es: List<&2, Nat>, +t: U64, +m: B.Tb<&2, U64>) -> B.Tb<&2, U64>:
+  match es:
+    case []: m
+    case +e <> r: em_es(r, t, B.tb_set(U64, m, U32.from_nat(e), U64.or(tg_at(m, e), t)))
+
+def em_fs(fs: List<&2, Fg>, +tg: B.Tb<&2, U64>, +i: Nat, +m: B.Tb<&2, U64>) -> B.Tb<&2, U64>:
+  match fs:
+    case []: m
+    case +f <> r: em_fs(r, tg, Nat.add(i, 1n), em_es(fg_es(f), tg_at(tg, i), m))
+
+def zl_eg(es: List<&2, Eg>) -> List<&2, U64>:
+  match es:
+    case []: []
+    case e <> r: 0u64 <> zl_eg(r)
+
+def em_of(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tg: B.Tb<&2, U64>) -> B.Tb<&2, U64>:
+  em_fs(fgs, tg, 0n, B.tb_of(U64, zl_eg(egs), 0u64))
 
 def emb_go(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat, +tg: List<&2, U64>, +et: List<&2, U64>) -> List<&2, SO.Fi>:
   List.append(&2, SO.Fi, List.append(&2, SO.Fi, un_es(egs, 0n), un_fs(fgs, 0n)),
-    run_prs(mk_cx(egs, fgs, tol, nso), keep_new(sweep(its_of(egs, fgs)), B.tb_of(U64, tg, 0u64), B.tb_of(U64, et, 0u64))))
+    run_prs(mk_cx(egs, fgs, tol, nso), keep_new(sweep(its_of(egs, fgs)), B.tb_of(U64, tg, 0u64), B.tb_of(U64, et, 0u64),
+      em_of(egs, fgs, B.tb_of(U64, tg, 0u64)))))
 
 def pr_so(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> Bool:
   match k:

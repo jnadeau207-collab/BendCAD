@@ -514,7 +514,7 @@ def sample3(+k: U64, +g1: G.GVal, +g2: G.GVal, +x: List<&2, I.I>) -> List<&2, I.
     Bool.pick(List<&2, I.I>, U64.is_eq(k, 2u64), Q.bq_box(bq_of_g(g2), X.vn(x, 0n), X.vn(x, 1n)), Q.bq_box(bq_of_g(g1), X.vn(x, 0n), X.vn(x, 1n))))
 
 def cbw_one(+c: R.Cv, +q: Q.Bq, +d: Nat) -> List<&2, Hx>:
-  cb_res(S.solve_r(d, mk_cb(c, q), [ud(1.0f64), ud(1.0f64), ud(1.0f64)]), c, q)
+  cb_res(N.solve_ew(Nat.add(d, 80n), 1099511627776u64, mk_cb(c, q), [ud(1.0f64), ud(1.0f64), ud(1.0f64)]), c, q)
 
 def spans_cbw(cs: List<&2, R.Cv>, +q: Q.Bq, +d: Nat) -> List<&2, Hx>:
   match cs:
