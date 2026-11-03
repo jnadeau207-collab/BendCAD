@@ -3,3 +3,4 @@ tests/c06/e2e-meshes/perf*.obj
 .probe/
 __pycache__/
 print/
+.g5req/
