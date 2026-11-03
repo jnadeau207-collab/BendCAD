@@ -41,7 +41,14 @@ MATERIALS = [
     (16, '51CrV4', 7850, 1.2e-5, 206000, 0.30),
     (17, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
     (18, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
+    (20, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
+    (21, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
+    (22, 'NiCr22Mo9Nb', 8440, 1.28e-5, 205000, 0.31),
 ]
+
+R_CASE_O, T_CASE, Z_CASE0, Z_CASE1 = 54.0, 0.8, 20.0, 175.0
+R_NOZ_IN, R_NOZ_OUT, Z_NOZ1 = R_CASE_O - T_CASE, 23.2, 230.0
+R_LIN_I, R_LIN_O, T_LIN, Z_LIN0, Z_LIN1 = 22.0, 46.0, 0.5, 60.0, 150.0
 
 Z_TUN0, Z_TUN1 = Z_FRONT_BRG - 4.0, Z_REAR_BRG + B_W + 3.0
 R_TUN_O, R_TUN_MID = 15.0, 9.5
@@ -127,6 +134,28 @@ def nut_edits(nid, width_af=13.0, h=6.5):
             f'(node {nid} (move {nid}1 0.0 0.0 0.0 0) {IS})']
 
 
+def ring_rev(r0, r1, z0, z1):
+    return region(f'{f(r0)} {f(z0)}', f'(line {f(r1)} {f(z0)})', f'(line {f(r1)} {f(z1)})', f'(line {f(r0)} {f(z1)})', f'(line {f(r0)} {f(z0)})')
+
+
+def casing_edits():
+    return [f'(node 20 (revolve {ring_rev(R_CASE_O - T_CASE, R_CASE_O, Z_CASE0, Z_CASE1)}) {IC})']
+
+
+def nozzle_edits():
+    p = [f'{f(R_NOZ_IN)} {f(Z_CASE1)}', f'(line {f(R_CASE_O)} {f(Z_CASE1)})', f'(line {f(R_NOZ_OUT + T_CASE)} {f(Z_NOZ1)})',
+         f'(line {f(R_NOZ_OUT)} {f(Z_NOZ1)})', f'(line {f(R_NOZ_IN)} {f(Z_CASE1)})']
+    return [f'(node 21 (revolve {region(*p)}) {IC})']
+
+
+def liner_edits():
+    a, b, t = R_LIN_I, R_LIN_O, T_LIN
+    p = [f'{f(a)} {f(Z_LIN0)}', f'(line {f(b)} {f(Z_LIN0)})', f'(line {f(b)} {f(Z_LIN1)})', f'(line {f(b - t)} {f(Z_LIN1)})',
+         f'(line {f(b - t)} {f(Z_LIN0 + t)})', f'(line {f(a + t)} {f(Z_LIN0 + t)})', f'(line {f(a + t)} {f(Z_LIN1)})',
+         f'(line {f(a)} {f(Z_LIN1)})', f'(line {f(a)} {f(Z_LIN0)})']
+    return [f'(node 22 (revolve {region(*p)}) {IC})']
+
+
 def materials():
     return [f'(material {n} {g} {rho} {cte!r} {e} {nu})' for n, g, rho, cte, e, nu in MATERIALS]
 
@@ -134,7 +163,8 @@ def materials():
 def parts():
     return [('shaft', shaft_edits()), ('inner_ring', inner_ring_edits()), ('outer_ring', outer_ring_edits()),
             ('ball', ball_edits()), ('cage', cage_edits()), ('tunnel', tunnel_edits()), ('spring', spring_edits()),
-            ('nut_front', nut_edits(17)), ('nut_rear', nut_edits(18))]
+            ('nut_front', nut_edits(17)), ('nut_rear', nut_edits(18)),
+            ('casing', casing_edits()), ('nozzle', nozzle_edits()), ('liner', liner_edits())]
 
 
 def wsl(*args, timeout=600):
