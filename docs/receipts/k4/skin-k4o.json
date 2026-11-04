@@ -1,0 +1,70 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k4o",
+ "rows": [
+  {
+   "name": "skin.self_intersection_refused",
+   "ok": true,
+   "seconds": 0.17,
+   "line": "error numerical-uncertainty | skin @ node 1 | why: skin-self-intersection-uncertain: faces 8 and 8 could not be certified apart | fix: space the sections further apart, reduce twist between sections, or add sections"
+  },
+  {
+   "name": "skin.cylinder",
+   "ok": true,
+   "seconds": 0.18,
+   "vol": [
+    6283.1786179692335,
+    6283.178618006934
+   ],
+   "exact": 6283.185307179587,
+   "line": "ok material=create faces_created=36 faces_modified=0 solids=1 through_holes=0 | volume=[6283.1786179692335, 6283.178618006934] area=[1884.9542598307255, 1884.9542598345004] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.000000000000039]x[-3.552713678800503e-14, 20.0000000000000"
+  },
+  {
+   "name": "skin.cylinder_box_identity",
+   "ok": true,
+   "union": "ok material=add faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[13712.383963467197, 13712.383963514927] area=[3942.4772985202967, 3942.477298530415] bbox=[-15.000000000000057, 15.",
+   "inter": "ok material=same faces_created=34 faces_modified=0 solids=1 through_holes=0 | volume=[1570.7946544917133, 1570.7946545023244] area=[942.4769613058261, 942.476961308686] bbox=[-10.000000000000043, 10.0",
+   "seconds": [
+    1.85,
+    1.89
+   ]
+  },
+  {
+   "name": "skin.tilted_scaled",
+   "ok": true,
+   "seconds": 0.17,
+   "line": "ok material=create faces_created=36 faces_modified=0 solids=1 through_holes=0 | volume=[3567.074138928804, 3567.074138950208] area=[1352.552480401696, 1352.552481118014] bbox=[-10.000000000000044, 10.000000000000044]x[-10.000000000000044, 10.000000000000044]x[-3.9280740988514106e-14, 22.113091309838"
+  },
+  {
+   "name": "skin.blade",
+   "ok": true,
+   "seconds": 15.95,
+   "line": "ok material=create faces_created=67 faces_modified=0 solids=1 through_holes=0 | volume=[2890.8045977353686, 2890.804597754114] area=[2388.735190870962, 2388.735190897804] bbox=[-0.10648292224492989, 40.00666105149268]x[-1.1571767217427873, 14.032616724404996]x[-7.106610598038651e-14, 30.000000000000"
+  },
+  {
+   "name": "skin.blade_union_identity",
+   "ok": true,
+   "union": "ok material=add faces_created=65 faces_modified=0 solids=1 through_holes=0 | volume=[38263.17033010741, 38263.30786127796] area=[11313.027255946852, 11313.028712400263] bbox=[-10.00000000000011, 50.00",
+   "inter": "ok material=same faces_created=65 faces_modified=0 solids=1 through_holes=0 | volume=[627.5646882389364, 627.5663158811866] area=[675.7071949815127, 675.7072184327187] bbox=[-0.1064829222449299, 40.00",
+   "seconds": [
+    15.95,
+    12.64
+   ]
+  },
+  {
+   "name": "skin.mass",
+   "ok": true,
+   "seconds": 15.32,
+   "out": "mass volume=[2890.8045977353686, 2890.804597754114] certified octree=[0, 15479.58979592251] depth=4 cells=0/630/3466\ncentroid incomplete status=incomplete incomplete-cells=3466\nmoments volume=[983.2250080219576, 983.5149870027451] centroid [15.842123053629335, 15.851055124291817]x[3.8684696521824167"
+  },
+  {
+   "name": "skin.step",
+   "ok": true,
+   "seconds": 0.94,
+   "counts": [
+    65,
+    67
+   ],
+   "out": "wrote /home/jesse/k4/sk_bl.stp entities 3158 products 1"
+  }
+ ]
+}

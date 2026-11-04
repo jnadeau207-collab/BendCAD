@@ -817,6 +817,7 @@ def coinc_bp(+g: G.GVal, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +
     case G.GV_bp{w}:
       +t = F64.max(tol, BI.bp_tol(w))
       Bool.and(F64.is_le(BI.bp_gap(w, ps, V.v2_x(ts), V.v2_y(ts)), t), F64.is_le(BI.bp_gap(w, pe, V.v2_x(te), V.v2_y(te)), t))
+    case G.GV_pl{w}: Bool.and(F64.is_le(BI.pl_gap(w, ps, V.v2_x(ts), V.v2_y(ts)), tol), F64.is_le(BI.pl_gap(w, pe, V.v2_x(te), V.v2_y(te)), tol))
     case _: False{}
 
 def coinc_t(ex: Bool, +ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:

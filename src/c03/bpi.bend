@@ -47,3 +47,12 @@ def bp_span(+w: G.BezP) -> F64:
 
 def bp_tol(+w: G.BezP) -> F64:
   F64.mul(1.0e-9f64, F64.add(1.0f64, bp_span(w)))
+
+def pl_gap(+w: G.Plane3, +p: V.Point, +u: F64, +v: F64) -> F64:
+  G.Pl{+o, +e1, +e2} = w
+  +iu = I.ipt(u)
+  +iv = I.ipt(v)
+  +gx = I.isub(I.ipt(V.pt_x(p)), I.iadd(I.ipt(V.pt_x(o)), I.iadd(I.imul(iu, I.ipt(V.dr_x(e1))), I.imul(iv, I.ipt(V.dr_x(e2))))))
+  +gy = I.isub(I.ipt(V.pt_y(p)), I.iadd(I.ipt(V.pt_y(o)), I.iadd(I.imul(iu, I.ipt(V.dr_y(e1))), I.imul(iv, I.ipt(V.dr_y(e2))))))
+  +gz = I.isub(I.ipt(V.pt_z(p)), I.iadd(I.ipt(V.pt_z(o)), I.iadd(I.imul(iu, I.ipt(V.dr_z(e1))), I.imul(iv, I.ipt(V.dr_z(e2))))))
+  I.i_hi(I.isqrt(I.iadd(I.iadd(I.isq(gx), I.isq(gy)), I.isq(gz))))

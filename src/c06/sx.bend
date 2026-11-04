@@ -815,12 +815,79 @@ def blade_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   +l = List.length(&2, Sx, xs)
   blade_len(Bool.and(Nat.is_le(5n, l), Nat.is_le(l, 13n)), xs, ns, Nat.sub(l, 4n))
 
+def sk_nums(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, X.Xp>:
+  match xs:
+    case []: []
+    case +x <> t: to_xp(x, ns) <> sk_nums(t, ns)
+
+def sk_runs(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, List<&2, X.Xp>>:
+  match xs:
+    case []: []
+    case +x <> t:
+      +rest = sk_runs(t, ns)
+      Bool.pick(List<&2, List<&2, X.Xp>>, head_is(x, "run"), sk_nums(sx_drop(sx_xs(x), 1n), ns) <> rest, rest)
+
+def sk_frame(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, X.Xp>:
+  match xs:
+    case []: []
+    case +x <> t:
+      +rest = sk_frame(t, ns)
+      Bool.pick(List<&2, X.Xp>, head_is(x, "frame"), sk_nums(sx_drop(sx_xs(x), 1n), ns), rest)
+
+def sk_naca(xs: List<&2, Sx>) -> U64:
+  match xs:
+    case []: 0u64
+    case +x <> t:
+      +rest = sk_naca(t)
+      Bool.pick(U64, head_is(x, "naca"), u64_of(sx_nth(sx_xs(x), 1n)), rest)
+
+def sk_sec(+x: Sx, +ns: List<&2, NI>) -> M.SkS:
+  +ys = sx_drop(sx_xs(x), 1n)
+  M.SkS{sk_naca(ys), sk_runs(ys, ns), sk_frame(ys, ns)}
+
+def sk_secs(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.SkS>:
+  match xs:
+    case []: []
+    case +x <> t: sk_sec(x, ns) <> sk_secs(t, ns)
+
+def sk_all_sec(xs: List<&2, Sx>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: Bool.and(head_is(x, "sec"), sk_all_sec(t))
+
+def skin_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
+  +ys = sx_drop(xs, 1n)
+  Bool.pick(M.Op, Bool.and(Nat.is_le(2n, List.length(&2, Sx, ys)), sk_all_sec(ys)), M.O_skin{sk_secs(ys, ns)}, M.O_unk{"skin"})
+
+def sk_xs_sx(xs: List<&2, X.Xp>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  match xs:
+    case []: []
+    case x <> t: xp_sx(x, ns) <> sk_xs_sx(t, ns)
+
+def sk_runs_sx(rs: List<&2, List<&2, X.Xp>>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  match rs:
+    case []: []
+    case r <> t: ls(at("run") <> sk_xs_sx(r, ns)) <> sk_runs_sx(t, ns)
+
+def sk_src_sx(+src: U64, rs: List<&2, List<&2, X.Xp>>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  Bool.pick(List<&2, Sx>, U64.is_eq(src, 0u64), sk_runs_sx(rs, ns), [ls([at("naca"), at(U64.show(src))])])
+
+def sk_sec_sx(s: M.SkS, +ns: List<&2, NI>) -> Sx:
+  M.SkS{+src, rs, fr} = s
+  ls(at("sec") <> List.append(&2, Sx, sk_src_sx(src, rs, ns), [ls(at("frame") <> sk_xs_sx(fr, ns))]))
+
+def sk_secs_sx(ss: List<&2, M.SkS>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  match ss:
+    case []: []
+    case s <> t: sk_sec_sx(s, ns) <> sk_secs_sx(t, ns)
+
 def op_is_blade(+h: String) -> Bool:
-  Bool.or(String.eq(h, "naca4"), String.eq(h, "blade"))
+  Bool.or(String.eq(h, "naca4"), Bool.or(String.eq(h, "blade"), String.eq(h, "skin")))
 
 def op_of_blade(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   Bool.pick(M.Op, String.eq(h, "naca4"), naca_op(xs, ns),
-  Bool.pick(M.Op, String.eq(h, "blade"), blade_op(xs, ns), M.O_unk{h}))
+  Bool.pick(M.Op, String.eq(h, "blade"), blade_op(xs, ns),
+  Bool.pick(M.Op, String.eq(h, "skin"), skin_op(xs, ns), M.O_unk{h})))
 
 def op_is_feat(+h: String) -> Bool:
   Bool.or(String.eq(h, "sweep"), Bool.or(String.eq(h, "loft"), Bool.or(String.eq(h, "chamfer"),
@@ -1020,6 +1087,7 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
       ls([at("naca4"), at(U64.show(m)), at(U64.show(p)), at(U64.show(t)), xp_sx(c, ns), at(U64.show(n))])
     case M.O_blade{secs, z, tw, tp}:
       ls(sx_cat([at("blade")], sx_cat(us_sx(secs), [xp_sx(z, ns), at(U64.show(tw)), at(U64.show(tp))])))
+    case M.O_skin{secs}: ls(at("skin") <> sk_secs_sx(secs, ns))
     case M.O_blob{fmt, payload}: ls([at("import"), at(U64.show(fmt)), at(payload)])
 
 def cnt_sx(c: M.Cnt) -> Sx:

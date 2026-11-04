@@ -23,6 +23,8 @@ import ../c12/blob.bend as BL
 import ../c16/sheet.bend as SH
 import ../c16/surf.bend as SU
 import ../c16/blade.bend as BA
+import ../c16/skin.bend as SK
+import ../c16/skcert.bend as SC
 import ../k3/div.bend as KD
 
 type Sel is Data:
@@ -30,6 +32,9 @@ type Sel is Data:
 
 type Hl is Data:
   Hl{ x: X.Xp, y: X.Xp, r: X.Xp }
+
+type SkS is Data:
+  SkS{ src: U64, runs: List<&2, List<&2, X.Xp>>, fr: List<&2, X.Xp> }
 
 type Op is Data:
   O_prism{ rs: List<&2, F.Region>, z0: X.Xp, z1: X.Xp }
@@ -75,6 +80,7 @@ type Op is Data:
   O_thicken_open{ base: U64, t: X.Xp }
   O_naca4{ m: U64, p: U64, t: U64, c: X.Xp, n: U64 }
   O_blade{ secs: List<&2, U64>, z: X.Xp, tw: U64, tp: U64 }
+  O_skin{ secs: List<&2, SkS> }
 
 type Mat is Data:
   M_create{}
@@ -1217,6 +1223,16 @@ def us_w_go(xs: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
 def us_w(+xs: List<&2, U64>, +acc: List<&2, U64>) -> List<&2, U64>:
   U64.from_nat(List.length(&2, U64, xs)) <> us_w_go(xs, acc)
 
+def runs_w(rs: List<&2, List<&2, X.Xp>>, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
+  match rs:
+    case []: 62u64 <> acc
+    case r <> t: xps_w(r, e, runs_w(t, e, acc))
+
+def sks_w(ss: List<&2, SkS>, +e: X.Env, +acc: List<&2, U64>) -> List<&2, U64>:
+  match ss:
+    case []: 63u64 <> acc
+    case SkS{src, rs, fr} <> t: src <> runs_w(rs, e, xps_w(fr, e, sks_w(t, e, acc)))
+
 def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
   match o:
     case O_prism{rs, z0, z1}: 1u64 <> rgs_w(rs, e, X.xp_w(z0, e, X.xp_w(z1, e, [])))
@@ -1267,6 +1283,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_thicken_open{base, t}: 38u64 <> base <> X.xp_w(t, e, [])
     case O_naca4{m, p, t, c, n}: 39u64 <> m <> p <> t <> n <> X.xp_w(c, e, [])
     case O_blade{secs, z, tw, tp}: 40u64 <> tw <> tp <> us_w(secs, X.xp_w(z, e, []))
+    case O_skin{secs}: 46u64 <> sks_w(secs, e, [])
 
 def op_base(o: Op) -> U64:
   match o:
@@ -1386,6 +1403,7 @@ def op_name(o: Op) -> String:
     case O_thicken_open{base, t}: "thicken-open"
     case O_naca4{m, p, t, c, n}: "naca4"
     case O_blade{secs, z, tw, tp}: "blade"
+    case O_skin{secs}: "skin"
 
 def rls_holes(rs: List<&2, F.Rl>) -> List<&2, Bool>:
   match rs:
@@ -2233,6 +2251,10 @@ def ms_scale_vol(+m: Ms, +k: F64) -> Ms:
 def ms_put_vol(+m: Ms, +v: I.I) -> Ms:
   Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
   Ms{v, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin}
+
+def ms_put_va(+m: Ms, +v: I.I, +a: I.I) -> Ms:
+  Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
+  Ms{v, a, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin}
 
 def dels_why(fs: List<&2, BD.Fn>, +w: U64) -> List<&2, B8.Del>:
   match fs:
@@ -3289,6 +3311,14 @@ def bl_mesh(r: NR, +v: I.I) -> NR:
         Xb{[ms_put_vol(body_ms(b), v)], xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), xb_dl(bd_xb(b)), []}},
         fx}
 
+def sk_mesh(r: NR, +v: I.I, +a: I.I) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, fx}:
+      NR_ok{Bd{bd_cells(b), bd_brep(b), bd_fns(b), bd_pl(b), bd_rv(b),
+        Xb{[ms_put_va(body_ms(b), v, a)], xb_nc(bd_xb(b)), xb_bo(bd_xb(b)), xb_pr(bd_xb(b)), xb_dl(bd_xb(b)), []}},
+        fx}
+
 def bl_mesh_go(bt: BD.Bt, +v: I.I, +what: String) -> NR:
   bl_mesh(mesh_go(bt, I.imid(v), what, [], ""), v)
 
@@ -3402,6 +3432,98 @@ def bl_ns(+ok: Bool, +secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.E
     case False{}: bl_refuse(BA.ns_go(False{}), "blade", nd)
     case True{}: bl_tw(BA.tw_ok(tw), secs, z, tw, tp, e, nd, ns)
 
+def sk_xy(xs: List<&2, X.Xp>, +e: X.Env) -> List<&2, V.Vec2>:
+  match xs:
+    case []: []
+    case x <> t:
+      match t:
+        case []: []
+        case y <> u: V.V2{X.xp_ev(x, e), X.xp_ev(y, e)} <> sk_xy(u, e)
+
+def sk_rs(rs: List<&2, List<&2, X.Xp>>, +e: X.Env) -> List<&2, List<&2, V.Vec2>>:
+  match rs:
+    case []: []
+    case r <> t: sk_xy(r, e) <> sk_rs(t, e)
+
+def sk_f(xs: List<&2, X.Xp>, +i: Nat, +e: X.Env) -> F64:
+  match xs:
+    case []: 0.0f64
+    case x <> t:
+      match i:
+        case 0n: X.xp_ev(x, e)
+        case 1n+j: sk_f(t, j, e)
+
+def sk_fr(+xs: List<&2, X.Xp>, +e: X.Env) -> SK.Fr:
+  SK.Fr{V.Pt{sk_f(xs, 0n, e), sk_f(xs, 1n, e), sk_f(xs, 2n, e)}, V.Dr{sk_f(xs, 3n, e), sk_f(xs, 4n, e), sk_f(xs, 5n, e)},
+    V.Dr{sk_f(xs, 6n, e), sk_f(xs, 7n, e), sk_f(xs, 8n, e)}, sk_f(xs, 9n, e)}
+
+def sk_na(+a: BA.NA, +e: X.Env) -> List<&2, List<&2, V.Vec2>>:
+  BA.NA{+m, +p, +t, +c, +n} = a
+  SK.naca_runs(m, p, t, X.xp_ev(c, e), Nat.max(4n, U64.to_nat(n)))
+
+def sk_src(nn: Bool, +s: SkS, +e: X.Env, +ns: List<&2, Node>) -> List<&2, List<&2, V.Vec2>>:
+  match nn:
+    case True{}:
+      SkS{+src, rs, fr} = s
+      sk_na(bl_na(nd_op(ns, src)), e)
+    case False{}:
+      SkS{src, +rs, fr} = s
+      sk_rs(rs, e)
+
+def sk_sc(+s: SkS, +e: X.Env, +ns: List<&2, Node>) -> SK.Sc:
+  SkS{+src, +rs, +fr} = s
+  +f = sk_fr(fr, e)
+  SK.Sc{(sk_src(Bool.not(U64.is_eq(src, 0u64)), SkS{src, rs, fr}, e, ns)), f}
+
+def sk_scs(ss: List<&2, SkS>, +e: X.Env, +ns: List<&2, Node>) -> List<&2, SK.Sc>:
+  match ss:
+    case []: []
+    case +s <> t: sk_sc(s, e, ns) <> sk_scs(t, e, ns)
+
+def sk_src_ok(ss: List<&2, SkS>, +ns: List<&2, Node>) -> Bool:
+  match ss:
+    case []: True{}
+    case SkS{+src, rs, +fr} <> t:
+      Bool.and(Bool.and(Nat.is_eq(List.length(&2, X.Xp, fr), 10n), Bool.or(U64.is_eq(src, 0u64), bl_is_na(nd_op(ns, src)))), sk_src_ok(t, ns))
+
+def ck_a(+c: SC.Ck) -> Nat:
+  SC.Ck{ok, +a, b} = c
+  a
+
+def ck_b(+c: SC.Ck) -> Nat:
+  SC.Ck{ok, a, +b} = c
+  b
+
+def sk_ckg(ok: Bool, +r: SK.SkR, +nd: U64) -> NR:
+  match ok:
+    case True{}: sk_mesh(mesh_go(SK.skr_bt(r), I.imid(SK.skr_vol(r)), "skin", [], ""), SK.skr_vol(r), SK.skr_ar(r))
+    case False{}:
+      nr_err(T.F_uncertain{}, "skin", "node " ++ U64.show(nd),
+        "skin-self-intersection-uncertain: faces " ++ Nat.show(ck_a(SK.skr_ck(r))) ++ " and " ++ Nat.show(ck_b(SK.skr_ck(r))) ++ " could not be certified apart",
+        "space the sections further apart, reduce twist between sections, or add sections")
+
+def sk_ck(+r: SK.SkR, +nd: U64) -> NR:
+  sk_ckg(SK.ck_ok(SK.skr_ck(r)), r, nd)
+
+def sk_go(ok: Bool, +cs: List<&2, SK.Sc>, +nd: U64) -> NR:
+  match ok:
+    case False{}: nr_err(T.F_unsupported{}, "skin", "node " ++ U64.show(nd),
+      "skin-sections-incompatible: every section needs the same runs with the same point counts (2 or more each)",
+      "give every section the same run structure, or use naca4 sections with the same point count")
+    case True{}: sk_ck(SK.sk_run(cs, nd), nd)
+
+def sk_srcs(ok: Bool, +ss: List<&2, SkS>, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  match ok:
+    case False{}: nr_err(T.F_invalid{}, "skin", "node " ++ U64.show(nd),
+      "skin-section-invalid: a section names a node that is not naca4, or its frame is not 10 numbers",
+      "use (sec (naca N) (frame ox oy oz ux uy uz vx vy vz s)) or (sec (run x y ...) ... (frame ...))")
+    case True{}:
+      +cs = sk_scs(ss, e, ns)
+      sk_go(SK.sk_ok(cs), cs, nd)
+
+def op_skin(+ss: List<&2, SkS>, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  sk_srcs(sk_src_ok(ss, ns), ss, e, nd, ns)
+
 def op_blade(+secs: List<&2, U64>, +z: X.Xp, +tw: U64, +tp: U64, +e: X.Env, +nd: U64,
     +ns: List<&2, Node>) -> NR:
   bl_ns(BA.ns_ok(List.length(&2, U64, secs)), secs, z, tw, tp, e, nd, ns)
@@ -3492,6 +3614,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_thicken_open{base, t}: op_thicken_open(base, t, b, e, nd, ns)
     case O_naca4{m, p, t, c, n}: op_naca4(m, p, t, c, n, e, nd)
     case O_blade{secs, z, tw, tp}: op_blade(secs, z, tw, tp, e, nd, ns)
+    case O_skin{secs}: op_skin(secs, e, nd, ns)
 
 def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
     +ns: List<&2, Node>) -> NR:

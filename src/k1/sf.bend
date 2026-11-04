@@ -3,10 +3,22 @@ import ../c00/types.bend as T
 import ../c01/types.bend as V
 import ../c03/types.bend as G
 
+
+
+
 type SF is Data:
   SF{ kind: U64, o: V.Point, e1: V.Dir, a: V.Dir, r: F64, r2: F64, t0: F64 }
   SF_none{}
   SF_bp{ g: List<&2, G.GVal> }
+
+
+
+
+type FG is Data:
+  FG{ f: F64, g: V.Dir }
+
+
+
 
 type BW is Data:
   BW{ a: F64, b: F64, c: F64, d: F64 }
@@ -243,10 +255,21 @@ def bp_step(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
   +dv = F64.div(F64.sub(F64.mul(b2, a11), F64.mul(b1, a12)), det)
   Bool.pick(V.Vec2, F64.is_lt(1.0e-300f64, F64.abs(det)), V.V2{bp_clamp(F64.add(u, du)), bp_clamp(F64.add(v, dv))}, q)
 
+def bp_small(+a: V.Vec2, +b: V.Vec2) -> Bool:
+  Bool.and(F64.is_le(F64.abs(F64.sub(V.v2_x(a), V.v2_x(b))), 1.0e-15f64), F64.is_le(F64.abs(F64.sub(V.v2_y(a), V.v2_y(b))), 1.0e-15f64))
+
+def bp_nw(n: Nat, done: Bool, +w: G.BezP, +p: V.Point, +q: V.Vec2, +prev: V.Vec2) -> V.Vec2:
+  match n:
+    case 0n: q
+    case 1n+(+m):
+      match done:
+        case True{}: q
+        case False{}: bp_nw(m, bp_small(q, prev), w, p, bp_step(w, p, q), q)
+
 def bp_newton(n: Nat, +w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
   match n:
     case 0n: q
-    case 1n+m: bp_newton(m, w, p, bp_step(w, p, q))
+    case 1n+m: bp_nw(m, False{}, w, p, bp_step(w, p, q), q)
 
 def bp_grid() -> List<&2, F64>:
   [0.0f64, 0.25f64, 0.5f64, 0.75f64, 1.0f64]
@@ -272,7 +295,7 @@ def seed_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +best: V.Vec2, +bd: F64) 
       seed_u(t, w, p, b, seed_d(bp_grid(), w, p, h, bd))
 
 def bp_uv(+w: G.BezP, +p: V.Point) -> V.Vec2:
-  bp_newton(12n, w, p, seed_u(bp_grid(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))
+  bp_newton(24n, w, p, seed_u(bp_grid(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))
 
 def bp_f(+w: G.BezP, +p: V.Point) -> F64:
   +q = bp_uv(w, p)
@@ -520,11 +543,31 @@ def solve3(+a: V.Dir, +b: V.Dir, +c: V.Dir, +r: V.Dir) -> V.Dir:
   +x = dadd(dadd(dscale(dx(r), cross(b, c)), dy(r), cross(c, a)), dz(r), cross(a, b))
   Bool.pick(V.Dir, ok, dscale(F64.div(1.0f64, d), x), dr(0.0f64, 0.0f64, 0.0f64))
 
+def fg_f(+r: FG) -> F64:
+  FG{+f, g} = r
+  f
+
+def fg_g(+r: FG) -> V.Dir:
+  FG{f, +g} = r
+  g
+
+def bp_fg(+w: G.BezP, +p: V.Point) -> FG:
+  +q = bp_uv(w, p)
+  +n = bp_nrm(w, V.v2_x(q), V.v2_y(q))
+  FG{dot(psub(p, bp_at(w, V.v2_x(q), V.v2_y(q))), n), n}
+
+def sf_fg(+s: SF, +p: V.Point) -> FG:
+  match s:
+    case SF_bp{gw}: bp_fg(gbp(gw), p)
+    case _: FG{sf_f_a(s, p), sf_grad_a(s, p)}
+
 def newton2_step(+s1: SF, +s2: SF, +p: V.Point, +t: V.Dir, +p0: V.Point) -> V.Point:
-  +g1 = sf_grad(s1, p)
-  +g2 = sf_grad(s2, p)
-  +f1 = sf_f(s1, p)
-  +f2 = sf_f(s2, p)
+  +r1 = sf_fg(s1, p)
+  +r2 = sf_fg(s2, p)
+  +g1 = fg_g(r1)
+  +g2 = fg_g(r2)
+  +f1 = fg_f(r1)
+  +f2 = fg_f(r2)
   +f3 = dot(psub(p, p0), t)
   +rows = solve3(g1, g2, t, dr(f1, f2, f3))
   pt(F64.sub(px(p), dx(rows)), F64.sub(py(p), dy(rows)), F64.sub(pz(p), dz(rows)))
@@ -543,3 +586,16 @@ def newton3(n: Nat, +s1: SF, +s2: SF, +s3: SF, +p: V.Point) -> V.Point:
   match n:
     case 0n: p
     case 1n+m: newton3(m, s1, s2, s3, newton3_step(s1, s2, s3, p))
+
+def bp_grid5() -> List<&2, F64>:
+  [0.0f64, 0.25f64, 0.5f64, 0.75f64, 1.0f64]
+
+def seed5_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +best: V.Vec2, +bd: F64) -> V.Vec2:
+  match us:
+    case []: best
+    case +h <> +t:
+      +b = seed_v(bp_grid5(), w, p, h, best, bd)
+      seed5_u(t, w, p, b, seed_d(bp_grid5(), w, p, h, bd))
+
+def bp_uv_fine(+w: G.BezP, +p: V.Point) -> V.Vec2:
+  bp_newton(40n, w, p, seed5_u(bp_grid5(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))

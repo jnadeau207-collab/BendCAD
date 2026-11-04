@@ -849,15 +849,16 @@ def fr_near(ps: List<&2, V.Point>, +p: V.Point, +r: F64) -> Bool:
     case []: False{}
     case +h <> +t: Bool.or(F64.is_lt(S.dist(h, p), r), fr_near(t, p, r))
 
-def fr_cert(ps: List<&2, V.Point>, +gs: List<&2, G.GVal>, +acc: List<&2, V.Point>, +ok: Bool) -> PL:
+def fr_cert(ps: List<&2, V.Point>, +s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +acc: List<&2, V.Point>, +ok: Bool) -> PL:
   match ps:
     case []: PL{List.reverse(&2, V.Point, acc), ok}
     case +h <> +t:
       +c = EF.cert_gs(gs, h)
-      fr_cert(t, gs, EF.ct_p(c) <> acc, Bool.and(ok, EF.ct_ok(c)))
+      +need = Bool.and(fr_in(s1, h), fr_in(s2, h))
+      fr_cert(t, s1, s2, gs, Bool.pick(V.Point, EF.ct_ok(c), EF.ct_p(c), h) <> acc, Bool.and(ok, Bool.or(Bool.not(need), EF.ct_ok(c))))
 
-def fr_add(+tr: TR, +gs: List<&2, G.GVal>, +rest: ICS) -> ICS:
-  +pl = fr_cert(tr_pts(tr), gs, [], tr_ok(tr))
+def fr_add(+tr: TR, +s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +rest: ICS) -> ICS:
+  +pl = fr_cert(tr_pts(tr), s1, s2, gs, [], tr_ok(tr))
   +n = List.length(&2, V.Point, pl_pts(pl))
   Bool.pick(ICS, Bool.and(pl_ok(pl), Nat.is_le(3n, n)),
     ICS{IC{ic_poly(), gnone(), tr_closed(tr), pl_pts(pl), 0u64} <> ics_ics(rest), ics_why(rest)},
@@ -877,7 +878,7 @@ def fr_one(skip: Bool, +p: V.Point, +s1: S.SF, +s2: S.SF, +h: F64, +gs: List<&2,
     case True{}: FS{rest, seen}
     case False{}:
       +tr = fr_seed(s1, s2, h, p)
-      FS{fr_add(tr, gs, rest), List.append(&2, V.Point, tr_pts(tr), seen)}
+      FS{fr_add(tr, s1, s2, gs, rest), List.append(&2, V.Point, tr_pts(tr), seen)}
 
 def fr_all(qs: List<&2, V.Vec2>, +sb: S.SF, +s1: S.SF, +s2: S.SF, +h: F64, +gs: List<&2, G.GVal>, +fs: FS) -> ICS:
   match qs:
@@ -968,3 +969,8 @@ def ssi(+g1: G.GVal, +g2: G.GVal) -> ICS:
   +s1 = S.sf_of(g1)
   +s2 = S.sf_of(g2)
   ssi_disp(ssi_code(s1, s2), s1, s2, {[g1, g2] : List<&2, G.GVal>})
+
+def fr_seed_first(qs: List<&2, V.Vec2>) -> V.Vec2:
+  match qs:
+    case []: V.V2{0.5f64, 0.5f64}
+    case +h <> t: h

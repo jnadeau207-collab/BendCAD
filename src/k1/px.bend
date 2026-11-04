@@ -950,6 +950,14 @@ def near_sd(ps: List<&2, V.Point>, +p: V.Point, +prev: V.Point, +i: Nat, +best: 
       +d = seg_d(prev, h, p)
       near_sd(t, p, h, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(d, bd), i, best), F64.min(d, bd))
 
+def brk_at(xs: List<&2, PP>, +i: Nat) -> Bool:
+  match xs:
+    case []: False{}
+    case +h <> t:
+      match i:
+        case 0n: pp_brk(h)
+        case 1n+j: brk_at(t, j)
+
 def ins_brk_c(hs: List<&2, HX>, +closed: Bool, +xs: List<&2, PP>) -> List<&2, PP>:
   match hs:
     case []: xs
@@ -961,7 +969,7 @@ def ins_brk_c(hs: List<&2, HX>, +closed: Bool, +xs: List<&2, PP>) -> List<&2, PP
       +sl = S.dist(L.nth_p(ps, i), L.nth_p(cl, i))
       +np = near_pt(xs, hx_p(h), 0n, 0n, F64.div(1.0f64, 0.0f64))
       +on = F64.is_le(nb2_d(sd), F64.add(F64.mul(0.25f64, sl), 1.0e-9f64))
-      +same = F64.is_lt(nb2_d(np), 1.0e-9f64)
+      +same = Bool.or(F64.is_lt(nb2_d(np), 1.0e-9f64), Bool.and(Bool.not(closed), Bool.and(F64.is_lt(nb2_d(np), F64.mul(0.05f64, sl)), Bool.not(brk_at(xs, nb2_i(np))))))
       +bp = {PP{hx_p(h), hx_v(h), True{}} : PP}
       ins_brk_c(t, closed, Bool.pick(List<&2, PP>, same, set_at(xs, nb2_i(np), bp),
         Bool.pick(List<&2, PP>, on, ins_at(xs, i, bp), xs)))
@@ -1048,6 +1056,15 @@ def poly_split(xs: List<&2, PP>, +cur: List<&2, PP>, +acc: List<&2, List<&2, PP>
       poly_split(t, Bool.pick(List<&2, PP>, cut, [h], h <> cur),
         Bool.pick(List<&2, List<&2, PP>>, cut, List.reverse(&2, PP, h <> cur) <> acc, acc))
 
+def poly_split_o(xs: List<&2, PP>, +cur: List<&2, PP>, +acc: List<&2, List<&2, PP>>)
+    -> List<&2, List<&2, PP>>:
+  match xs:
+    case []: List.reverse(&2, List<&2, PP>, acc)
+    case +h <> +t:
+      +cut = Bool.and(pp_brk(h), Nat.is_lt(0n, List.length(&2, PP, cur)))
+      poly_split_o(t, Bool.pick(List<&2, PP>, cut, [h], h <> cur),
+        Bool.pick(List<&2, List<&2, PP>>, cut, List.reverse(&2, PP, h <> cur) <> acc, acc))
+
 def bz_at(+k: Ty.EdgeKind, +t: F64) -> V.Point:
   EF.ev(EF.ek_curve(k), t)
 
@@ -1110,7 +1127,7 @@ def do_poly_go(+brk: Bool, +xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, 
       CR{run_keep(U64.is_eq(sd, 0u64), sd, fa, fb, cyc, True{}, ba, bb, cr_chs(r)), g, cr_ok(r), cr_why(r)}
 
 def do_open(+xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR, +g: GV) -> CR:
-  CR{List.append(&2, CH, keep_runs(poly_split(xs, [], []), ba, fa, bb, fb, []), cr_chs(r)), g, cr_ok(r), cr_why(r)}
+  CR{List.append(&2, CH, keep_runs(poly_split_o(xs, [], []), ba, fa, bb, fb, []), cr_chs(r)), g, cr_ok(r), cr_why(r)}
 
 def do_poly_c(cl: Bool, +xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +r: CR, +g: GV) -> CR:
   match cl:

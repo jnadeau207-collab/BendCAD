@@ -261,7 +261,7 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
     case _: UV{False{}, 0.0f64, 0.0f64}
 
 def bp_on(+w: G.BezP, +p: V.Point) -> Bool:
-  +q = S.bp_uv(w, p)
+  +q = S.bp_uv_fine(w, p)
   F64.is_le(BI.bp_gap(w, p, V.v2_x(q), V.v2_y(q)), BI.bp_tol(w))
 
 def bp_flat(+w: G.BezP) -> Bool:
