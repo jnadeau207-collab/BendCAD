@@ -17,26 +17,69 @@ import ./asm.bend as K1
 import ./vi.bend as VI
 import ../base/par.bend as B
 
+
+
+
+
 type RY is Data:
   RY{ n: Nat, st: U64 }
+
+
+
+
 
 type BK is Data:
   BK{ t: F64, v: Nat }
 
+
+
+
+
 type FR is Data:
   FR{ rgs: List<&2, W.RG>, pcs: List<&2, W.PC>, keep: List<&2, Bool>, ok: Bool, why: U64 }
+
+
+
+
 
 type KC is Data:
   KC{ ks: List<&2, Bool>, ok: Bool, why: U64 }
 
+
+
+
+
 type EM is Data:
   EM{ st: K1.AS, ok: Bool, why: U64 }
+
+
+
+
 
 type EM2 is Data:
   EM2{ m: EM, cs: List<&2, Nat> }
 
+
+
+
+
 type GR is Data:
   GR{ ok: Bool, why: U64, brep: Ty.Brep, st: K1.AS }
+
+
+
+
+
+type IP is Data:
+  IP{ i: Nat, p: W.PC }
+
+
+
+
+
+type FC is Data:
+  FC{ b: FB.KB, sd: U64, vmap: List<&2, Nat>, hs: List<&2, PX.HX>, chs: List<&2, PX.CH>, fdo: List<&2, SO.Fd>,
+    bbo: List<&2, I.I>, op: U64, cps: List<&2, CO.CP>, ob: FB.KB, vmo: List<&2, Nat>, gv: PX.GV }
 
 def key_sub(+sd: U64, +e: Nat, +j: Nat) -> Nat:
   Nat.mul(2n, Nat.add(Nat.mul(Nat.add(Nat.mul(U64.to_nat(sd), 100000n), e), 4096n), j))
@@ -82,8 +125,18 @@ def arc_rebuild(+c0: V.Point, +n: V.Dir, +pa: V.Point, +pb: V.Point, +pm: V.Poin
   +span = F64.add(S.ang_diff(0.0f64, am), S.ang_diff(am, ab))
   Bool.pick(List<&2, Ty.EdgeKind>, F64.is_lt(F64.abs(span), 2.9f64), [PX.rq_arc(cc, pa, pb, 0.0f64, span)], [])
 
-def rebuild_go(+c: G.GVal, +pa: V.Point, +pb: V.Point, +pm: V.Point) -> List<&2, Ty.EdgeKind>:
+def bz_d(+p0: V.Point, +p1: V.Point, +p2: V.Point, +p3: V.Point, +t: F64) -> V.Dir:
+  +s = F64.sub(1.0f64, t)
+  S.dscale(3.0f64, S.dadd(S.dadd(S.dscale(F64.mul(s, s), S.psub(p1, p0)), F64.mul(2.0f64, F64.mul(s, t)), S.psub(p2, p1)), F64.mul(t, t), S.psub(p3, p2)))
+
+def bz_rebuild(+w: G.Bez3, +a: F64, +b: F64, +pa: V.Point, +pb: V.Point) -> Ty.EdgeKind:
+  G.Bz{+p0, +p1, +p2, +p3} = w
+  +h = F64.div(F64.sub(b, a), 3.0f64)
+  Ty.EK_curve{G.GV_bz{G.Bz{pa, S.padd(pa, h, bz_d(p0, p1, p2, p3, a)), S.padd(pb, F64.neg(h), bz_d(p0, p1, p2, p3, b)), pb}}, G.Dom{0.0f64, 1.0f64}}
+
+def rebuild_go(+c: G.GVal, +a: F64, +b: F64, +pa: V.Point, +pb: V.Point, +pm: V.Point) -> List<&2, Ty.EdgeKind>:
   match c:
+    case G.GV_bz{w}: [bz_rebuild(w, a, b, pa, pb)]
     case G.GV_ln{w}: [PX.ln_kind(pa, pb)]
     case G.GV_cc{w}:
       G.Cc{+c0, +u, +v, +r} = w
@@ -104,7 +157,7 @@ def k1l(xs: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:
 def sub_kind_x(+k: Ty.EdgeKind, +a: F64, +b: F64, +pa: V.Point, +pb: V.Point) -> Ty.EdgeKind:
   +c = EF.ek_curve(k)
   +exact = Bool.and(PX.peq(EF.ev(c, a), pa), PX.peq(EF.ev(c, b), pb))
-  +rb = rebuild_go(c, pa, pb, EF.ev(c, F64.mul(0.5f64, F64.add(a, b))))
+  +rb = rebuild_go(c, a, b, pa, pb, EF.ev(c, F64.mul(0.5f64, F64.add(a, b))))
   Bool.pick(Ty.EdgeKind, VI.bz_straight(c), PX.ln_kind(pa, pb), Bool.pick(Ty.EdgeKind, exact, sub_kind(k, a, b), k1l(rb)))
 
 def ek1(ks: List<&2, Ty.EdgeKind>) -> Ty.EdgeKind:
@@ -263,9 +316,6 @@ def inside_pcs(ps: List<&2, W.PC>, +s: S.SF, +b: FB.KB, +fi: Nat) -> List<&2, W.
       +ins = pip_in(FB.pip_face(b, fi, s, q), b, fi, p3)
       +rest = inside_pcs(t, s, b, fi)
       Bool.pick(List<&2, W.PC>, ins, cut_of(h) <> rest, rest)
-
-type IP is Data:
-  IP{ i: Nat, p: W.PC }
 
 def ip_i(+x: IP) -> Nat:
   IP{i, p} = x
@@ -434,9 +484,14 @@ def ry_hx(hs: List<&2, Y.Hx>, +ob: FB.KB, +fi: Nat, +p: V.Point, +tol: F64, +r: 
             Bool.pick(RY, inf, RY{Nat.add(ry_n(r), 1n), ry_st(r)}, r))))
         case _: ry_hx(t, ob, fi, p, tol, ry_bad(r, 2u64))
 
+def ry_bp(far: Bool, +w: G.BezP, +ob: FB.KB, +fi: Nat, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64, +r: RY) -> RY:
+  match far:
+    case True{}: r
+    case False{}: ry_hx(Y.inter_cs_w(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, len}, G.GV_bp{w}, 40n), ob, fi, p, tol, r)
+
 def ry_sf(+s: S.SF, +ob: FB.KB, +fi: Nat, +k: Ty.EdgeKind, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64, +r: RY) -> RY:
   match s:
-    case S.SF_bp{gw}: ry_hx(Y.inter_cs_w(G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, len}, G.GV_bp{S.gbp(gw)}, 40n), ob, fi, p, tol, r)
+    case S.SF_bp{gw}: ry_bp(EF.cs_far(G.GV_ln{G.Ln{p, d}}, 0.0f64, len, S.gbp(gw)), S.gbp(gw), ob, fi, p, d, len, tol, r)
     case _:
       +e = EF.edge_hits(k, s, [FB.face_surf(ob, fi)])
       ry_hits(EF.ehs_hs(e), ob, fi, p, tol, Bool.pick(RY, EF.ehs_near(e), ry_bad(r, 2u64), r))
@@ -731,10 +786,6 @@ def emit_face(rs: List<&2, W.RG>, +ks: List<&2, Bool>, +pcs: List<&2, W.PC>, +sa
       +m2 = emit_rg(h, pcs, same, flip, g, s, gv, m)
       emit_face(t, L_btail(ks), pcs, same, flip, g, s, gv, Bool.pick(EM, k, m2, m))
 
-type FC is Data:
-  FC{ b: FB.KB, sd: U64, vmap: List<&2, Nat>, hs: List<&2, PX.HX>, chs: List<&2, PX.CH>, fdo: List<&2, SO.Fd>,
-    bbo: List<&2, I.I>, op: U64, cps: List<&2, CO.CP>, ob: FB.KB, vmo: List<&2, Nat>, gv: PX.GV }
-
 def fr_job(c: FC, fi: Nat) -> FR:
   FC{+b, +sd, +vmap, +hs, +chs, +fdo, +bbo, +op, +cps, +ob, +vmo, +gv} = c
   face_run(b, fi, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv)
@@ -807,6 +858,48 @@ def emit_if(ok: Bool, +why: U64, +op: U64, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +
     case True{}: run_emit_f(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps, fda, fdb)
     case False{}: EM{K1.as_empty(), False{}, why}
 
+def is_cc(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{+c, +d}:
+      match c:
+        case G.GV_cc{w}: True{}
+        case _: False{}
+    case Ty.EK_degenerate{}: False{}
+
+def mid_hx(+side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List<&2, G.GVal>, +a: F64, +b: F64, +g: PX.GV) -> PX.HXG:
+  +t = F64.mul(0.5f64, F64.add(a, b))
+  +p = EF.ct_p(EF.cert_gs(gs, EF.ev(EF.ek_curve(k), t)))
+  +r = PX.gv_add(g, p)
+  PX.HXG{[PX.HX{side, e, t, p, PX.vi_i(r), PX.no_face()}], PX.vi_g(r)}
+
+def cc_ang(+a: F64, +b: F64) -> F64:
+  F64.mul(4.0f64, F64.sub(S.fatan2(b, 1.0f64), S.fatan2(a, 1.0f64)))
+
+def mids_go(bs: List<&2, PX.BP>, +side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List<&2, G.GVal>, +prev: F64, +pp: V.Point, +g: PX.GV,
+    +acc: List<&2, PX.HX>) -> PX.HXG:
+  match bs:
+    case []: PX.HXG{acc, g}
+    case +h <> +t:
+      +big = Bool.and(F64.is_le(2.9f64, cc_ang(prev, PX.bp_s(h))), Bool.not(Bool.and(PX.peq(EF.ev(EF.ek_curve(k), prev), pp), PX.peq(EF.ev(EF.ek_curve(k), PX.bp_s(h)), PX.bp_p(h)))))
+      +m = mid_hx(side, e, k, gs, prev, PX.bp_s(h), g)
+      mids_go(t, side, e, k, gs, PX.bp_s(h), PX.bp_p(h), Bool.pick(PX.GV, big, PX.hxg_g(m), g),
+        Bool.pick(List<&2, PX.HX>, big, List.append(&2, PX.HX, PX.hxg_hs(m), acc), acc))
+
+def edge_mids(+side: U64, +b: FB.KB, +e: Nat, +hs: List<&2, PX.HX>, +g: PX.GV, +acc: List<&2, PX.HX>) -> PX.HXG:
+  +ed = FB.edge_at(b, e)
+  +k = Ty.ed_kind(ed)
+  +mid = PX.dedup_bp(PX.bp_sort(edge_bks(hs, side, e)))
+  +go = Bool.and(is_cc(k), Nat.is_lt(0n, List.length(&2, PX.BP, mid)))
+  +bs = List.append(&2, PX.BP, mid, [PX.BP{EF.ek_hi(k), 0n, FB.vpt(b, Ty.ed_v1(ed))}])
+  mids_go(Bool.pick(List<&2, PX.BP>, go, bs, []), side, e, k, PX.surfs_of(FB.edge_faces(b, e), b), EF.ek_lo(k), FB.vpt(b, Ty.ed_v0(ed)), g, acc)
+
+def arc_mids(es: List<&2, Nat>, +side: U64, +b: FB.KB, +hs: List<&2, PX.HX>, +g: PX.GV, +acc: List<&2, PX.HX>) -> PX.HXG:
+  match es:
+    case []: PX.HXG{acc, g}
+    case +e <> +t:
+      +r = edge_mids(side, b, e, hs, g, acc)
+      arc_mids(t, side, b, hs, PX.hxg_g(r), PX.hxg_hs(r))
+
 def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
   +ba = FB.kb_of(ra)
   +bb = FB.kb_of(rb)
@@ -823,7 +916,10 @@ def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2,
   +ok = Bool.and(Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr)), Bool.not(none))
   +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), Bool.pick(U64, none, 98u64, PX.cr_why(cr)), 97u64), PX.hs_why(hs))
   +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
-  finish_p(emit_if(ok, why, op, ba, bb, va, vb, hs3, cr, cps, fda, fdb), ra,
+  +m0 = arc_mids(L.nat_range(FB.nedges(ba)), 0u64, ba, hs3, PX.cr_g(cr), [])
+  +m1 = arc_mids(L.nat_range(FB.nedges(bb)), 1u64, bb, hs3, PX.hxg_g(m0), PX.hxg_hs(m0))
+  +cr2 = {PX.CR{PX.cr_chs(cr), PX.hxg_g(m1), PX.cr_ok(cr), PX.cr_why(cr)} : PX.CR}
+  finish_p(emit_if(ok, why, op, ba, bb, va, vb, List.append(&2, PX.HX, hs3, PX.hxg_hs(m1)), cr2, cps, fda, fdb), ra,
     SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),
     SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb))))
 

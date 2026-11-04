@@ -7,8 +7,23 @@ import ./ef.bend as EF
 import ./ls.bend as L
 import ../base/par.bend as B
 
+
+
+
 type CE is Data:
   CE{ e: Nat, fwd: Bool }
+
+
+
+
+type KB is Data:
+  KB{ b: Ty.Brep, x: Ty.Ix, ef: B.Tb<&2, List<&2, Nat>>, box: List<&2, KB> }
+
+
+
+
+type BB is Data:
+  BB{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
 def ce_e(+c: CE) -> Nat:
   CE{e, fwd} = c
@@ -17,9 +32,6 @@ def ce_e(+c: CE) -> Nat:
 def ce_fw(+c: CE) -> Bool:
   CE{e, fwd} = c
   fwd
-
-type KB is Data:
-  KB{ b: Ty.Brep, x: Ty.Ix, ef: B.Tb<&2, List<&2, Nat>>, box: List<&2, KB> }
 
 def kb_br(+k: KB) -> Ty.Brep:
   KB{+b, x, ef, box} = k
@@ -382,9 +394,6 @@ def face_polys(+b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
 def bnd_near(+b: KB, +fi: Nat, +p: V.Point) -> Bool:
   F64.is_lt(lps_dist(face_ce(b, fi), b, p, F64.div(1.0f64, 0.0f64)), 1.0e-7f64)
 
-type BB is Data:
-  BB{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
-
 def bb_pt(+p: V.Point) -> BB:
   BB{V.pt_x(p), V.pt_x(p), V.pt_y(p), V.pt_y(p), V.pt_z(p), V.pt_z(p)}
 
@@ -482,8 +491,125 @@ def north(+b: KB, +fi: Nat, +s: S.SF) -> Bool:
   +sg = Bool.pick(F64, face_same(b, fi), w, F64.neg(w))
   Bool.and(S.is_sph(s), F64.is_lt(0.0f64, sg))
 
+def xr_up(+a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
+  +ax = V.v2_x(a)
+  +bx = V.v2_x(bb)
+  +qx = V.v2_x(q)
+  Bool.or(Bool.and(F64.is_le(ax, qx), F64.is_lt(qx, bx)), Bool.and(F64.is_le(bx, qx), F64.is_lt(qx, ax)))
+
+def xr_chord(+a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Nat:
+  +ax = V.v2_x(a)
+  +bx = V.v2_x(bb)
+  +t = F64.div(F64.sub(V.v2_x(q), ax), F64.sub(bx, ax))
+  +y = F64.add(V.v2_y(a), F64.mul(t, F64.sub(V.v2_y(bb), V.v2_y(a))))
+  Bool.pick(Nat, Bool.and(xr_up(a, bb, q), F64.is_lt(V.v2_y(q), y)), 1n, 0n)
+
+def xr_pad(+a: V.Vec2, +bb: V.Vec2, +m: V.Vec2) -> F64:
+  +dx = F64.sub(V.v2_x(m), F64.mul(0.5f64, F64.add(V.v2_x(a), V.v2_x(bb))))
+  +dy = F64.sub(V.v2_y(m), F64.mul(0.5f64, F64.add(V.v2_y(a), V.v2_y(bb))))
+  +sc = F64.add(1.0f64, F64.max(F64.max(F64.abs(V.v2_x(a)), F64.abs(V.v2_y(a))), F64.max(F64.abs(V.v2_x(bb)), F64.abs(V.v2_y(bb)))))
+  F64.add(F64.mul(2.0f64, F64.sqrt(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)))), F64.mul(1.0e-12f64, sc))
+
+def min3(+a: F64, +b: F64, +c: F64) -> F64:
+  F64.min(a, F64.min(b, c))
+
+def max3(+a: F64, +b: F64, +c: F64) -> F64:
+  F64.max(a, F64.max(b, c))
+
+def xr_code(+a: V.Vec2, +bb: V.Vec2, +m: V.Vec2, +q: V.Vec2) -> U64:
+  +pad = xr_pad(a, bb, m)
+  +qx = V.v2_x(q)
+  +qy = V.v2_y(q)
+  +miss = Bool.or(Bool.or(F64.is_lt(qx, F64.sub(min3(V.v2_x(a), V.v2_x(bb), V.v2_x(m)), pad)),
+    F64.is_lt(F64.add(max3(V.v2_x(a), V.v2_x(bb), V.v2_x(m)), pad), qx)), F64.is_lt(F64.add(max3(V.v2_y(a), V.v2_y(bb), V.v2_y(m)), pad), qy))
+  +above = F64.is_lt(qy, F64.sub(min3(V.v2_y(a), V.v2_y(bb), V.v2_y(m)), pad))
+  Bool.pick(U64, miss, 0u64, Bool.pick(U64, above, 1u64, 2u64))
+
+def xr_mid(+s: S.SF, +c: G.GVal, +t0: F64, +t1: F64) -> V.Vec2:
+  uv_raw(s, EF.ev(c, F64.mul(0.5f64, F64.add(t0, t1))))
+
+def xr_arc(n: Nat, code: U64, +s: S.SF, +c: G.GVal, +t0: F64, +t1: F64, +a: V.Vec2, +bb: V.Vec2, +m: V.Vec2, +q: V.Vec2) -> Nat:
+  match n:
+    case 0n: xr_chord(a, bb, q)
+    case 1n+(+k):
+      match code:
+        case 0u64: 0n
+        case 1u64: Bool.pick(Nat, xr_up(a, bb, q), 1n, 0n)
+        case _:
+          +tm = F64.mul(0.5f64, F64.add(t0, t1))
+          +m0 = xr_mid(s, c, t0, tm)
+          +m1 = xr_mid(s, c, tm, t1)
+          Nat.add(xr_arc(k, xr_code(a, m, m0, q), s, c, t0, tm, a, m, m0, q), xr_arc(k, xr_code(m, bb, m1, q), s, c, tm, t1, m, bb, m1, q))
+
+def xr_kind(cv: Bool, +s: S.SF, +k: Ty.EdgeKind, +a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Nat:
+  match cv:
+    case False{}: xr_chord(a, bb, q)
+    case True{}:
+      +m = xr_mid(s, EF.ek_curve(k), EF.ek_lo(k), EF.ek_hi(k))
+      xr_arc(30n, xr_code(a, bb, m, q), s, EF.ek_curve(k), EF.ek_lo(k), EF.ek_hi(k), a, bb, m, q)
+
+def xr_ce(+s: S.SF, +b: KB, +c: CE, +q: V.Vec2) -> Nat:
+  +ed = edge_at(b, ce_e(c))
+  +k = Ty.ed_kind(ed)
+  +a = uv_raw(s, vpt(b, Ty.ed_v0(ed)))
+  +bb = uv_raw(s, vpt(b, Ty.ed_v1(ed)))
+  +cv = Bool.and(Ty.ekind_is_curve(k), Bool.not(is_line(k)))
+  xr_kind(cv, s, k, a, bb, q)
+
+def xr_ces(cs: List<&2, CE>, +s: S.SF, +b: KB, +q: V.Vec2, +n: Nat) -> Nat:
+  match cs:
+    case []: n
+    case +h <> +t: xr_ces(t, s, b, q, Nat.add(n, xr_ce(s, b, h, q)))
+
+def xr_lps(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: KB, +q: V.Vec2, +n: Nat) -> Nat:
+  match ls:
+    case []: n
+    case +h <> +t: xr_lps(t, s, b, q, xr_ces(h, s, b, q, n))
+
+def pip_pl(+b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
+  Nat.is_eq(Nat.mod(xr_lps(face_ce(b, fi), s, b, q, 0n), 2n), 1n)
+
+def seg_near(+a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
+  +dx = F64.sub(V.v2_x(bb), V.v2_x(a))
+  +dy = F64.sub(V.v2_y(bb), V.v2_y(a))
+  +l2 = F64.add(F64.mul(dx, dx), F64.mul(dy, dy))
+  +qx = F64.sub(V.v2_x(q), V.v2_x(a))
+  +qy = F64.sub(V.v2_y(q), V.v2_y(a))
+  +t = F64.min(1.0f64, F64.max(0.0f64, Bool.pick(F64, F64.is_lt(0.0f64, l2), F64.div(F64.add(F64.mul(qx, dx), F64.mul(qy, dy)), l2), 0.0f64)))
+  +ex = F64.sub(qx, F64.mul(t, dx))
+  +ey = F64.sub(qy, F64.mul(t, dy))
+  +band = F64.add(F64.mul(0.0025f64, l2), F64.mul(1.0e-18f64, F64.add(1.0f64, F64.add(F64.mul(V.v2_x(a), V.v2_x(a)), F64.mul(V.v2_y(a), V.v2_y(a))))))
+  F64.is_le(F64.add(F64.mul(ex, ex), F64.mul(ey, ey)), band)
+
+def poly_near(ps: List<&2, V.Vec2>, +prev: V.Vec2, +q: V.Vec2) -> Bool:
+  match ps:
+    case []: False{}
+    case +h <> +t: Bool.or(seg_near(prev, h, q), poly_near(t, h, q))
+
+def polys_near(ls: List<&2, List<&2, V.Vec2>>, +q: V.Vec2) -> Bool:
+  match ls:
+    case []: False{}
+    case +h <> +t:
+      match h:
+        case []: polys_near(t, q)
+        case +a <> +r: Bool.or(poly_near(r, a, q), polys_near(t, q))
+
+def pip_pq(near: Bool, +b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2, +ps: List<&2, List<&2, V.Vec2>>) -> Bool:
+  match near:
+    case True{}: pip_pl(b, fi, s, q)
+    case False{}: pip(s, ps, q)
+
+def pip_p0(+b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
+  +ps = face_polys(b, fi)
+  pip_pq(polys_near(ps, q), b, fi, s, q, ps)
+
+def pip_go(pl: Bool, +b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
+  match pl:
+    case True{}: pip_p0(b, fi, s, q)
+    case False{}: Bool.xor(pip(s, face_polys(b, fi), q), north(b, fi, s))
+
 def pip_face(+b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
-  Bool.xor(pip(s, face_polys(b, fi), q), north(b, fi, s))
+  pip_go(U64.is_eq(S.sf_kind(s), S.k_plane()), b, fi, s, q)
 
 def pt_in_face(+b: KB, +fi: Nat, +p: V.Point) -> Bool:
   +s = face_sf(b, fi)

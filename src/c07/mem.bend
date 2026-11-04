@@ -9,28 +9,69 @@ import ./im.bend as M
 import ./eng.bend as N
 import ../k1/sf.bend as KS
 
+
+
+
+
+
 type Er is Data:
   Er{ c: R.Cv, fwd: Bool }
 
+
+
+
+
+
 type Sg is Data:
   Sg{ t0: F64, h0: F64, t1: F64, h1: F64 }
+
+
+
+
+
 
 type Uv is Data:
   Uv_no{}
   Uv_cy{ sf: KS.SF, r: F64, segs: List<&2, Sg>, tol: F64 }
   Uv_bp{ sf: KS.SF, segs: List<&2, Sg>, s3: List<&2, S3>, tol: F64 }
+  Uv_to{ sf: KS.SF, ur: F64, vr: F64, segs: List<&2, Sg>, s3: List<&2, S3>, tol: F64 }
+
+
+
+
+
 
 type S3 is Data:
   S3{ a: V.Point, b: V.Point }
 
+
+
+
+
+
 type Sb is Data:
   Sb{ gs: List<&2, Sg>, g3: List<&2, S3>, dev: F64 }
+
+
+
+
+
 
 type Fc is Data:
   Fc{ s: M.Im, same: Bool, es: List<&2, Er>, uv: Uv }
 
+
+
+
+
+
 type Ax is Data:
   Ax{ o: List<&2, I.I>, a: List<&2, I.I> }
+
+
+
+
+
 
 type Lg is Data:
   L_seg{ cut: M.Im, q: List<&2, I.I>, r: List<&2, I.I> }
@@ -38,11 +79,35 @@ type Lg is Data:
   L_tube{ cut: M.Im, ax: Ax, mq: List<&2, I.I>, cq: List<&2, I.I>, wq: List<&2, I.I>, wr: List<&2, I.I>, b: List<&2, I.I> }
   L_par{ cut: M.Im, ax: Ax, mq: List<&2, I.I>, mr: List<&2, I.I>, br: U64, rr: I.I }
 
+
+
+
+
+
 type Cn is Data:
   Cn{ n: Nat, u: Bool }
 
+
+
+
+
+
 type Lp is Data:
   Lp{ ls: List<&2, Lg>, d: List<&2, I.I>, ok: Bool }
+
+
+
+
+
+
+type Sa is Data:
+  Sa{ gs: List<&2, Sg>, dev: F64 }
+
+
+
+
+type Cm is Data:
+  Cm{ su: F64, cu: F64, sv: F64, cv: F64 }
 
 def vs(+s: I.I, xs: List<&2, I.I>) -> List<&2, I.I>:
   match xs:
@@ -396,6 +461,7 @@ def uv_has(u: Uv) -> Bool:
     case Uv_no{}: False{}
     case Uv_cy{sf, r, segs, tol}: True{}
     case Uv_bp{sf, segs, s3, tol}: True{}
+    case Uv_to{sf, ur, vr, segs, s3, tol}: True{}
 
 def two_pi() -> F64:
   6.283185307179586f64
@@ -493,11 +559,22 @@ def q_rad(+q: List<&2, I.I>) -> F64:
 def bp_mem(+w: V.Vec2, +segs: List<&2, Sg>, +s3: List<&2, S3>, +p: V.Point, +tol: F64) -> U64:
   uv_fin(np_scan(segs, V.v2_x(w), V.v2_y(w), 0n), s3_scan(s3, p, F64.div(1.0f64, 0.0f64)), tol)
 
+def tor_w(+sf: KS.SF, +ur: F64, +vr: F64, +p: V.Point) -> V.Vec2:
+  +w = KS.sf_uv(sf, p)
+  V.V2{KS.ang_diff(ur, V.v2_x(w)), KS.ang_diff(vr, V.v2_y(w))}
+
+def tor_jit(+w: V.Vec2) -> V.Vec2:
+  V.V2{F64.add(V.v2_x(w), 3.7194718385e-9f64), F64.add(V.v2_y(w), 2.2360679775e-9f64)}
+
+def tor_jd(+sf: KS.SF) -> F64:
+  F64.mul(1.0e-8f64, F64.add(1.0f64, F64.add(KS.sf_r(sf), KS.sf_r2(sf))))
+
 def uv_member(u: Uv, +q: List<&2, I.I>) -> U64:
   match u:
     case Uv_no{}: 2u64
     case Uv_cy{+sf, +r, +segs, +tol}: uv_mem_w(KS.sf_uv(sf, q_mid(q)), r, segs, tol)
     case Uv_bp{+sf, +segs, +s3, +tol}: bp_mem(KS.sf_uv(sf, q_mid(q)), segs, s3, q_mid(q), F64.add(tol, q_rad(q)))
+    case Uv_to{+sf, +ur, +vr, +segs, +s3, +tol}: bp_mem(tor_jit(tor_w(sf, ur, vr, q_mid(q))), segs, s3, q_mid(q), F64.add(F64.add(tol, q_rad(q)), tor_jd(sf)))
 
 def is_sph_im(s: M.Im) -> Bool:
   match s:
@@ -530,6 +607,22 @@ def member_n(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
 def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
   member_n(nappe_neg(fc_s(f), q), f, q, nf)
 
+def lim_of(+a: Nat, +b: Nat) -> Nat:
+  Bool.pick(Nat, Nat.is_lt(a, b), a, b)
+
+def member_lk(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  match k:
+    case True{}: uv_member(fc_uv(f), q)
+    case False{}: mem_go(lim_of(lim, Nat.mul(6n, List.length(&2, Er, fc_es(f)))), 2u64, f, q, nf, 0n, 0n)
+
+def member_ln(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  match neg:
+    case True{}: 0u64
+    case False{}: member_lk(uv_has(fc_uv(f)), f, q, nf, lim)
+
+def member_lim(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  member_ln(nappe_neg(fc_s(f), q), f, q, nf, lim)
+
 def er_uv(+e: Er, +sf: KS.SF, +t: F64) -> V.Vec2:
   KS.sf_uv(sf, q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t))))))
 
@@ -550,9 +643,6 @@ def sg_dev(+g: Sg, +m: V.Vec2, +r: F64) -> F64:
   +dt = F64.mul(r, F64.sub(tm, F64.mul(0.5f64, F64.add(t0, t1))))
   +dh = F64.sub(V.v2_y(m), F64.mul(0.5f64, F64.add(h0, h1)))
   F64.sqrt(F64.add(F64.mul(dt, dt), F64.mul(dh, dh)))
-
-type Sa is Data:
-  Sa{ gs: List<&2, Sg>, dev: F64 }
 
 def sa_gs(+x: Sa) -> List<&2, Sg>:
   Sa{gs, dev} = x
@@ -642,3 +732,79 @@ def sb_fin(+sf: KS.SF, +b: Sb, +slv: F64) -> Uv:
 def uv_bp_of(+g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
   +sf = KS.sf_of(g)
   sb_fin(sf, bp_ers(es, sf, Sb{[], [], 0.0f64}), slv)
+
+def tor_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +ur: F64, +vr: F64, +pp: V.Point, +pq: V.Vec2, +acc: Sb) -> Sb:
+  match n:
+    case 0n: acc
+    case 1n+m:
+      +nf = U64.to_f64(U64.from_nat(Nat.add(k, Nat.add(m, 1n))))
+      +t = F64.div(U64.to_f64(U64.from_nat(Nat.add(k, 1n))), nf)
+      +tm = F64.div(F64.add(U64.to_f64(U64.from_nat(k)), 0.5f64), nf)
+      +cp = er_p3(e, t)
+      +cq = tor_w(sf, ur, vr, cp)
+      +dv = p3d(er_p3(e, tm), p3lerp(pp, cp, 0.5f64))
+      tor_samp(m, Nat.add(k, 1n), e, sf, ur, vr, cp, cq,
+        Sb{sg_uv(pq, cq) <> sb_gs(acc), S3{pp, cp} <> sb_g3(acc), F64.max(sb_dev(acc), dv)})
+
+def tor_ers(es: List<&2, Er>, +sf: KS.SF, +ur: F64, +vr: F64, +acc: Sb) -> Sb:
+  match es:
+    case []: acc
+    case +e <> +t:
+      +p0 = er_p3(e, 0.0f64)
+      tor_ers(t, sf, ur, vr, tor_samp(Bool.pick(Nat, er_line(e), 1n, 32n), 0n, e, sf, ur, vr, p0, tor_w(sf, ur, vr, p0), acc))
+
+def cm_go(es: List<&2, Er>, +sf: KS.SF, +acc: Cm) -> Cm:
+  match es:
+    case []: acc
+    case +e <> +t:
+      Cm{+su, +cu, +sv, +cv} = acc
+      +w = KS.sf_uv(sf, er_p3(e, 0.5f64))
+      cm_go(t, sf, Cm{F64.add(su, KS.fsin(V.v2_x(w))), F64.add(cu, KS.fcos(V.v2_x(w))), F64.add(sv, KS.fsin(V.v2_y(w))), F64.add(cv, KS.fcos(V.v2_y(w)))})
+
+def uv_tor_go(+sf: KS.SF, +c: Cm, +es: List<&2, Er>, +slv: F64) -> Uv:
+  Cm{+su, +cu, +sv, +cv} = c
+  +ur = KS.fatan2(su, cu)
+  +vr = KS.fatan2(sv, cv)
+  +b = tor_ers(es, sf, ur, vr, Sb{[], [], 0.0f64})
+  Uv_to{sf, ur, vr, sb_gs(b), sb_g3(b), F64.add(F64.mul(4.0f64, F64.add(slv, sb_dev(b))), 1.0e-9f64)}
+
+def uv_tor_of(+g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
+  +sf = KS.sf_of(g)
+  uv_tor_go(sf, cm_go(es, sf, Cm{0.0f64, 0.0f64, 0.0f64, 0.0f64}), es, slv)
+
+def sg_vlo(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{t0, +h0, t1, +h1} = g
+      sg_vlo(t, F64.min(m, F64.min(h0, h1)))
+
+def sg_vhi(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{t0, +h0, t1, +h1} = g
+      sg_vhi(t, F64.max(m, F64.max(h0, h1)))
+
+def isin_rng(+a: F64, +b: F64) -> I.I:
+  +k0 = KS.f_round(F64.div(F64.sub(a, 1.5707963267948966f64), 6.283185307179586f64))
+  +top = F64.add(1.5707963267948966f64, F64.mul(6.283185307179586f64, k0))
+  +top2 = F64.add(top, 6.283185307179586f64)
+  +bot = F64.sub(top, 3.141592653589793f64)
+  +bot2 = F64.add(bot, 6.283185307179586f64)
+  +hasmax = Bool.or(Bool.and(F64.is_le(a, top), F64.is_le(top, b)), Bool.and(F64.is_le(a, top2), F64.is_le(top2, b)))
+  +hasmin = Bool.or(Bool.and(F64.is_le(a, bot), F64.is_le(bot, b)), Bool.and(F64.is_le(a, bot2), F64.is_le(bot2, b)))
+  +sa = KS.fsin(a)
+  +sb = KS.fsin(b)
+  I.I{Bool.pick(F64, hasmin, F64.neg(1.0f64), F64.min(sa, sb)), Bool.pick(F64, hasmax, 1.0f64, F64.max(sa, sb))}
+
+def tor_h(u: Uv) -> List<&2, I.I>:
+  match u:
+    case Uv_to{+sf, ur, +vr, +segs, s3, +tol}:
+      +r2 = KS.sf_r2(sf)
+      +wid = F64.div(F64.add(tol, F64.mul(1.0e-9f64, F64.add(1.0f64, r2))), F64.max(r2, 1.0e-300f64))
+      +a = F64.add(F64.add(vr, KS.sf_t0(sf)), F64.sub(sg_vlo(segs, F64.div(1.0f64, 0.0f64)), wid))
+      +b = F64.add(F64.add(vr, KS.sf_t0(sf)), F64.add(sg_vhi(segs, F64.neg(F64.div(1.0f64, 0.0f64))), wid))
+      Bool.pick(List<&2, I.I>, Bool.and(Nat.is_lt(0n, List.length(&2, Sg, segs)), F64.is_lt(F64.sub(b, a), 6.0f64)),
+        [I.iscale(isin_rng(a, b), r2)], [])
+    case _: []

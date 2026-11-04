@@ -44,6 +44,7 @@ MATERIALS = [
     (20, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
     (21, 'X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29),
     (22, 'NiCr22Mo9Nb', 8440, 1.28e-5, 205000, 0.31),
+    (19, 'AlZn5.5MgCu-T6', 2810, 2.36e-5, 71700, 0.33),
 ]
 
 R_CASE_O, T_CASE, Z_CASE0, Z_CASE1 = 54.0, 0.8, 20.0, 175.0
@@ -156,6 +157,84 @@ def liner_edits():
     return [f'(node 22 (revolve {region(*p)}) {IC})']
 
 
+IMP_Z0, IMP_R2, IMP_RH1, IMP_RS1, IMP_G = 1.0, 33.0, 9.0, 23.5, 0.3
+IMP_LS = 9.5 + 9.5 * math.pi / 2
+
+
+def imp_hub_pt(m):
+    if m < 0.0:
+        return IMP_RH1, IMP_Z0 + m * 24.0 * math.pi / 2
+    if m > 1.0:
+        return IMP_R2 + (m - 1.0) * 24.0 * math.pi / 2, IMP_Z0 + 24.0
+    a = m * math.pi / 2
+    return IMP_R2 - 24.0 * math.cos(a), IMP_Z0 + 24.0 * math.sin(a)
+
+
+def imp_shr_pt(m):
+    s = m * IMP_LS
+    if s <= 9.5:
+        return IMP_RS1 - 0.5 * (9.5 - s) / 12.5, IMP_Z0 + s
+    if m > 1.0:
+        return IMP_R2 + s - IMP_LS, IMP_Z0 + 19.0
+    a = (s - 9.5) / 9.5
+    return IMP_R2 - 9.5 * math.cos(a), IMP_Z0 + 9.5 + 9.5 * math.sin(a)
+
+
+def imp_theta(m):
+    a, b, s = 0.0825, 0.0175, m * IMP_LS
+    if s <= IMP_LS:
+        return -(a * s + (b - a) * s * s / (2 * IMP_LS))
+    return -(IMP_LS * (a + b) / 2 + b * (s - IMP_LS))
+
+
+def imp_sec(m, m0):
+    hr, hz = imp_hub_pt(m)
+    sr, sz = imp_shr_pt(m)
+    dr, dz = sr - hr, sz - hz
+    ln = math.hypot(dr, dz)
+    hr, hz = hr - 0.6 * dr / ln, hz - 0.6 * dz / ln
+    ln += 1.6
+    th = imp_theta(m)
+    c, s = math.cos(th), math.sin(th)
+    k = min(1.0, (m - m0) / 0.2)
+    k = k * k * (3 - 2 * k)
+    th_h, th_s = 0.5 + 1.1 * k, 0.4 + 0.4 * k
+    a, b, cc, d = (0.0, -th_h / 2), (ln, -th_s / 2), (ln, th_s / 2), (0.0, th_h / 2)
+    run = lambda p, q: f'(run {f(p[0])} {f(p[1])} {f(q[0])} {f(q[1])})'
+    o = (hr * c, hr * s, hz)
+    n = math.hypot(dr, dz)
+    u = (dr / n * c, dr / n * s, dz / n)
+    v = (-s, c, 0.0)
+    fr = '(frame ' + ' '.join(f(x) for x in (*o, *u, *v, 1.0)) + ')'
+    return f'(sec {run(a, b)} {run(b, cc)} {run(cc, d)} {run(d, a)} {fr})'
+
+
+def impeller_edits():
+    z0, g = IMP_Z0, IMP_G
+    ka = math.radians(80.0)
+    ar, az = IMP_R2 - 24.0 * math.cos(ka), z0 + 24.0 * math.sin(ka)
+    hub = [f'{f(4.0)} {f(z0 - 2)}', f'(line {f(IMP_RH1 - 0.2)} {f(z0 - 2)})', f'(line {f(IMP_RH1)} {f(z0)})',
+           f'(arc {f(IMP_R2)} {f(z0)} 24.0 {f(ar)} {f(az)} cw)', f'(line {f(34.0)} {f(az)})',
+           f'(line {f(34.0)} {f(z0 + 26.5)})', f'(line {f(12.0)} {f(z0 + 26.5)})', f'(line {f(12.0)} {f(z0 + 30)})',
+           f'(line {f(4.0)} {f(z0 + 30)})', f'(line {f(4.0)} {f(z0 - 2)})']
+    env = [f'0.0 {f(z0 - 3)}', f'(line {f(IMP_RS1 - 0.5 - g)} {f(z0 - 3)})', f'(line {f(IMP_RS1 - g)} {f(z0 + 9.5)})',
+           f'(arc {f(IMP_R2)} {f(z0 + 9.5)} {f(9.5 + g)} {f(IMP_R2)} {f(z0 + 19 + g)} cw)',
+           f'(line {f(IMP_R2)} {f(z0 + 31)})', f'(line 0.0 {f(z0 + 31)})', f'(line 0.0 {f(z0 - 3)})']
+    main = ' '.join(imp_sec(-0.03 + (1.013 + 0.03) * i / 10, -0.03) for i in range(11))
+    spl = ' '.join(imp_sec(0.35 + (1.013 - 0.35) * i / 8, 0.35) for i in range(9))
+    e = [f'(node 1901 (revolve {region(*hub)}) {IC})', f'(node 1902 (revolve {region(*env)}) {IC})',
+         f'(node 1903 (skin {main}) {IC})', f'(node 1904 (skin {spl}) {IC})', f'(node 1905 (rotate 1904 z 30.0) {IS})']
+    prev = 1901
+    for k in range(6):
+        for j, src in enumerate((1903, 1905)):
+            bid = 1910 + 2 * k + j
+            e.append(f'(node {bid} (rotate {src} z {f(60.0 * k)}) {IS})')
+            e.append(f'(node {bid + 20} (union {prev} {bid}) {IA})')
+            prev = bid + 20
+    e.append(f'(node 19 (intersection {prev} 1902) {IR})')
+    return e
+
+
 def materials():
     return [f'(material {n} {g} {rho} {cte!r} {e} {nu})' for n, g, rho, cte, e, nu in MATERIALS]
 
@@ -164,7 +243,8 @@ def parts():
     return [('shaft', shaft_edits()), ('inner_ring', inner_ring_edits()), ('outer_ring', outer_ring_edits()),
             ('ball', ball_edits()), ('cage', cage_edits()), ('tunnel', tunnel_edits()), ('spring', spring_edits()),
             ('nut_front', nut_edits(17)), ('nut_rear', nut_edits(18)),
-            ('casing', casing_edits()), ('nozzle', nozzle_edits()), ('liner', liner_edits())]
+            ('casing', casing_edits()), ('nozzle', nozzle_edits()), ('liner', liner_edits()),
+            ('impeller', impeller_edits())]
 
 
 def wsl(*args, timeout=600):

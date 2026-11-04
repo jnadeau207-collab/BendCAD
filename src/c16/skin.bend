@@ -304,10 +304,25 @@ def snap(ss: List<&2, List<&2, Q.H4>>) -> List<&2, List<&2, Q.H4>>:
     case []: []
     case +s <> t: s <> snap_go(t, Q.hnth(s, 3n))
 
+def pin_last(ss: List<&2, List<&2, Q.H4>>, +b: Q.H4) -> List<&2, List<&2, Q.H4>>:
+  match ss:
+    case []: []
+    case +s <> +t:
+      Bool.pick(List<&2, List<&2, Q.H4>>, Nat.is_eq(List.length(&2, List<&2, Q.H4>, t), 0n),
+        [List.append(&2, Q.H4, Q.take_h(3n, s), [b])], s <> pin_last(t, b))
+
+def pin(ss: List<&2, List<&2, Q.H4>>, +a: Q.H4, +b: Q.H4) -> List<&2, List<&2, Q.H4>>:
+  match ss:
+    case []: []
+    case +s <> +t: pin_last((a <> Q.drop_h(1n, s)) <> t, b)
+
+def pin_row(+ss: List<&2, List<&2, Q.H4>>, +r: List<&2, Q.H4>) -> List<&2, List<&2, Q.H4>>:
+  pin(ss, Q.hnth(r, 0n), Q.hnth(r, Nat.sub(List.length(&2, Q.H4, r), 1n)))
+
 def useg(+pu: Nat, +uk: List<&2, F64>, rows: List<&2, List<&2, Q.H4>>) -> List<&2, List<&2, List<&2, Q.H4>>>:
   match rows:
     case []: []
-    case +r <> t: snap(Q.bezs(Q.Bs{pu, uk, r})) <> useg(pu, uk, t)
+    case +r <> t: pin_row(snap(Q.bezs(Q.Bs{pu, uk, r})), r) <> useg(pu, uk, t)
 
 def seg_at(ss: List<&2, List<&2, Q.H4>>, +a: Nat) -> List<&2, Q.H4>:
   match ss:
@@ -342,7 +357,8 @@ def patches_b(n: Nat, +vc: List<&2, List<&2, List<&2, Q.H4>>>, +b: Nat) -> List<
     case 1n+(+m): patch_b(vc, b) <> patches_b(m, vc, Nat.add(b, 1n))
 
 def vcols(+pv: Nat, +vk: List<&2, F64>, +g: List<&2, List<&2, Q.H4>>, +c: Nat) -> List<&2, List<&2, Q.H4>>:
-  snap(Q.bezs(Q.Bs{pv, vk, col_of(g, c)}))
+  +cl = col_of(g, c)
+  pin_row(snap(Q.bezs(Q.Bs{pv, vk, cl})), cl)
 
 def col_a(+pv: Nat, +vk: List<&2, F64>, +nb: Nat, +g: List<&2, List<&2, Q.H4>>) -> List<&2, G.BezP>:
   patches_b(nb, [vcols(pv, vk, g, 0n), vcols(pv, vk, g, 1n), vcols(pv, vk, g, 2n), vcols(pv, vk, g, 3n)], 0n)

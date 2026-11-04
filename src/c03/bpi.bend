@@ -3,6 +3,7 @@ import ../c01/types.bend as V
 import ./types.bend as G
 import ../c06/iv.bend as I
 
+
 type IW is Data:
   IW{ a: I.I, b: I.I, c: I.I, d: I.I }
 
@@ -14,6 +15,11 @@ def pdist(+a: V.Point, +b: V.Point) -> F64:
 
 def iw(+t: F64) -> IW:
   +x = I.ipt(t)
+  +s = I.isub(I.ipt(1.0f64), x)
+  IW{I.imul(I.imul(s, s), s), I.iscale(I.imul(I.imul(s, s), x), 3.0f64), I.iscale(I.imul(s, I.imul(x, x)), 3.0f64),
+    I.imul(I.imul(x, x), x)}
+
+def iwi(+x: I.I) -> IW:
   +s = I.isub(I.ipt(1.0f64), x)
   IW{I.imul(I.imul(s, s), s), I.iscale(I.imul(I.imul(s, s), x), 3.0f64), I.iscale(I.imul(s, I.imul(x, x)), 3.0f64),
     I.imul(I.imul(x, x), x)}
@@ -56,3 +62,8 @@ def pl_gap(+w: G.Plane3, +p: V.Point, +u: F64, +v: F64) -> F64:
   +gy = I.isub(I.ipt(V.pt_y(p)), I.iadd(I.ipt(V.pt_y(o)), I.iadd(I.imul(iu, I.ipt(V.dr_y(e1))), I.imul(iv, I.ipt(V.dr_y(e2))))))
   +gz = I.isub(I.ipt(V.pt_z(p)), I.iadd(I.ipt(V.pt_z(o)), I.iadd(I.imul(iu, I.ipt(V.dr_z(e1))), I.imul(iv, I.ipt(V.dr_z(e2))))))
   I.i_hi(I.isqrt(I.iadd(I.iadd(I.isq(gx), I.isq(gy)), I.isq(gz))))
+
+def ibp_box(+w: G.BezP, +u: I.I, +v: I.I) -> List<&2, I.I>:
+  +wu = iwi(u)
+  +wv = iwi(v)
+  [ibp_k(w, 0u64, wu, wv), ibp_k(w, 1u64, wu, wv), ibp_k(w, 2u64, wu, wv)]

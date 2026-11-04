@@ -10,25 +10,48 @@ import ./ls.bend as L
 import ../c06/iv.bend as I
 import ../c07/isect.bend as Y
 import ../c03/bpi.bend as BI
+import ../c16/skcert.bend as SC
+
+
 
 type BR is Data:
   BR{ a: F64, b: F64 }
 
+
+
 type SM is Data:
   SM{ brs: List<&2, BR>, near: Bool, zeros: Nat, nt: F64 }
+
+
 
 type UV is Data:
   UV{ ok: Bool, u: F64, v: F64 }
 
+
+
 type CT is Data:
   CT{ ok: Bool, t: F64, p: V.Point }
+
+
 
 type EH is Data:
   EH{ t: F64, p: V.Point, ok: Bool }
 
+
+
 type EHS is Data:
   EHS{ hs: List<&2, EH>, near: Bool, nt: F64 }
 
+
+
+
+type CQ is Data:
+  CQ{ a: F64, b: F64, ps: List<&2, G.BezP> }
+
+
+
+type B6 is Data:
+  B6{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
 def ek_curve(+k: Ty.EdgeKind) -> G.GVal:
   match k:
@@ -462,10 +485,139 @@ def eh_sort(xs: List<&2, EH>) -> List<&2, EH>:
     case []: []
     case +h <> +t: eh_ins(h, eh_sort(t))
 
-def bp_hits(+isc: Bool, +w: G.BezP, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> EHS:
+def b6_pts(ps: List<&2, V.Point>, +acc: B6) -> B6:
+  match ps:
+    case []: acc
+    case +p <> t:
+      B6{+x0, +x1, +y0, +y1, +z0, +z1} = acc
+      b6_pts(t, B6{F64.min(x0, V.pt_x(p)), F64.max(x1, V.pt_x(p)), F64.min(y0, V.pt_y(p)), F64.max(y1, V.pt_y(p)),
+        F64.min(z0, V.pt_z(p)), F64.max(z1, V.pt_z(p))})
+
+def b6_pad(+bx: B6, +pad: F64) -> B6:
+  B6{+x0, +x1, +y0, +y1, +z0, +z1} = bx
+  +e = F64.add(pad, F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.max(F64.abs(x0), F64.abs(x1)), F64.max(F64.max(F64.abs(y0), F64.abs(y1)), F64.max(F64.abs(z0), F64.abs(z1)))))))
+  B6{F64.sub(x0, e), F64.add(x1, e), F64.sub(y0, e), F64.add(y1, e), F64.sub(z0, e), F64.add(z1, e)}
+
+def b6_of(+ps: List<&2, V.Point>, +pad: F64) -> B6:
+  +inf = F64.div(1.0f64, 0.0f64)
+  b6_pad(b6_pts(ps, B6{inf, F64.neg(inf), inf, F64.neg(inf), inf, F64.neg(inf)}), pad)
+
+def b6_dis(+a: B6, +b: B6) -> Bool:
+  B6{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  B6{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  Bool.or(Bool.or(Bool.or(F64.is_lt(ax1, bx0), F64.is_lt(bx1, ax0)), Bool.or(F64.is_lt(ay1, by0), F64.is_lt(by1, ay0))),
+    Bool.or(F64.is_lt(az1, bz0), F64.is_lt(bz1, az0)))
+
+def b6_diag(+a: B6) -> F64:
+  B6{+x0, +x1, +y0, +y1, +z0, +z1} = a
+  +dx = F64.sub(x1, x0)
+  +dy = F64.sub(y1, y0)
+  +dz = F64.sub(z1, z0)
+  F64.sqrt(F64.add(F64.mul(dx, dx), F64.add(F64.mul(dy, dy), F64.mul(dz, dz))))
+
+def cv_rad(+c: G.GVal) -> F64:
+  match c:
+    case G.GV_cc{w}:
+      G.Cc{o, u, v, +r} = w
+      r
+    case G.GV_rq{w}:
+      G.Rq{+p0, +p1, +p2, w0, +w1, w2} = w
+      +m = S.padd(p0, 0.5f64, S.psub(p2, p0))
+      +kk = F64.div(F64.mul(w1, w1), F64.sub(1.0f64, F64.mul(w1, w1)))
+      +c0 = S.padd(m, kk, S.psub(m, p1))
+      S.dist(p0, c0)
+    case _: 0.0f64
+
+def cv_kind(+c: G.GVal) -> U64:
+  match c:
+    case G.GV_ln{w}: 1u64
+    case G.GV_bz{w}: 2u64
+    case G.GV_cc{w}: 3u64
+    case G.GV_rq{w}: 3u64
+    case _: 0u64
+
+def bz_dv(+p0: V.Point, +p1: V.Point, +p2: V.Point, +p3: V.Point, +t: F64) -> V.Dir:
+  +s = F64.sub(1.0f64, t)
+  S.dscale(3.0f64, S.dadd(S.dadd(S.dscale(F64.mul(s, s), S.psub(p1, p0)), F64.mul(2.0f64, F64.mul(s, t)), S.psub(p2, p1)), F64.mul(t, t), S.psub(p3, p2)))
+
+def bz_cp(+c: G.GVal, +a: F64, +b: F64) -> List<&2, V.Point>:
+  match c:
+    case G.GV_bz{w}:
+      G.Bz{+p0, +p1, +p2, +p3} = w
+      +h = F64.div(F64.sub(b, a), 3.0f64)
+      +pa = ev(c, a)
+      +pb = ev(c, b)
+      [pa, S.padd(pa, h, bz_dv(p0, p1, p2, p3, a)), S.padd(pb, F64.neg(h), bz_dv(p0, p1, p2, p3, b)), pb]
+    case _: [ev(c, a), ev(c, b)]
+
+def bp0(ps: List<&2, G.BezP>, +d: G.BezP) -> G.BezP:
+  match ps:
+    case []: d
+    case +h <> t: h
+
+def cbox(k: U64, +c: G.GVal, +a: F64, +b: F64) -> B6:
+  match k:
+    case 1u64: b6_of([ev(c, a), ev(c, b)], 0.0f64)
+    case 2u64: b6_of(bz_cp(c, a, b), 0.0f64)
+    case _:
+      +pa = ev(c, a)
+      +pb = ev(c, b)
+      +pm = ev(c, F64.mul(0.5f64, F64.add(a, b)))
+      +ch = F64.add(S.dist(pa, pm), S.dist(pm, pb))
+      +r = cv_rad(c)
+      +sag = Bool.pick(F64, F64.is_lt(0.0f64, r), F64.div(F64.mul(ch, ch), F64.mul(4.0f64, r)), ch)
+      b6_of([pa, pb, pm], sag)
+
+def cq_a(+q: CQ) -> F64:
+  CQ{+a, b, ps} = q
+  a
+
+def cq_b(+q: CQ) -> F64:
+  CQ{a, +b, ps} = q
+  b
+
+def cq_ps(+q: CQ) -> List<&2, G.BezP>:
+  CQ{a, b, +ps} = q
+  ps
+
+def cq_quads(+a: F64, +b: F64, ps: List<&2, G.BezP>) -> List<&2, CQ>:
+  match ps:
+    case []: []
+    case +p <> t: CQ{a, b, [p]} <> cq_quads(a, b, t)
+
+def w0() -> G.BezP:
+  +z = S.pt(0.0f64, 0.0f64, 0.0f64)
+  G.Bp{z, z, z, z, z, z, z, z, z, z, z, z, z, z, z, z}
+
+def cs_far_go(n: Nat, +k: U64, +c: G.GVal, +qs: List<&2, CQ>) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+m):
+      match qs:
+        case []: True{}
+        case +q <> +t:
+          +a = cq_a(q)
+          +b = cq_b(q)
+          +p = bp0(cq_ps(q), w0())
+          +cb = cbox(k, c, a, b)
+          +pb = b6_of(SC.pts16(p), 0.0f64)
+          +dis = b6_dis(cb, pb)
+          +cut_c = F64.is_le(b6_diag(pb), b6_diag(cb))
+          +mid = F64.mul(0.5f64, F64.add(a, b))
+          +kids = Bool.pick(List<&2, CQ>, cut_c, [CQ{a, mid, [p]}, CQ{mid, b, [p]}], cq_quads(a, b, SC.quads(p)))
+          cs_far_go(m, k, c, Bool.pick(List<&2, CQ>, dis, t, List.append(&2, CQ, kids, t)))
+
+def cs_far(+c: G.GVal, +lo: F64, +hi: F64, +w: G.BezP) -> Bool:
+  +k = cv_kind(c)
+  Bool.and(Bool.not(U64.is_eq(k, 0u64)), cs_far_go(1500n, k, c, [CQ{lo, hi, [w]}]))
+
+def bp_hits_go(isc: Bool, +w: G.BezP, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> EHS:
   match isc:
     case True{}: EHS{eh_sort(yh_go(Y.inter_cs_w(c, G.Dom{lo, hi}, G.GV_bp{w}, 40n), c, gs, lo, hi)), False{}, lo}
     case False{}: EHS{[], False{}, lo}
+
+def bp_hits(+isc: Bool, +w: G.BezP, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> EHS:
+  bp_hits_go(Bool.and(isc, Bool.not(cs_far(c, lo, hi, w))), w, c, gs, lo, hi)
 
 def edge_hits(+k: Ty.EdgeKind, +s: S.SF, +gs: List<&2, G.GVal>) -> EHS:
   match s:

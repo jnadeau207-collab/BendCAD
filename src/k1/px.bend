@@ -11,44 +11,173 @@ import ./fb.bend as FB
 import ./ls.bend as L
 import ../c03/ops.bend as GO
 
+
+
+
+
 type GV is Data:
   GV{ ps: List<&2, V.Point>, n: Nat }
+
+
+
+
 
 type VI is Data:
   VI{ g: GV, i: Nat }
 
+
+
+
+
 type VM is Data:
   VM{ g: GV, mp: List<&2, Nat> }
+
+
+
+
 
 type HX is Data:
   HX{ side: U64, e: Nat, t: F64, p: V.Point, v: Nat, fo: Nat }
 
+
+
+
+
 type HS is Data:
   HS{ hs: List<&2, HX>, g: GV, ok: Bool, why: U64 }
+
+
+
+
 
 type SEG is Data:
   SEG{ va: Nat, vb: Nat, k: Ty.EdgeKind }
 
+
+
+
+
 type CH is Data:
   CH{ fa: Nat, fb: Nat, segs: List<&2, SEG>, pts: List<&2, V.Point>, closed: Bool, dv: F64 }
+
+
+
+
 
 type BP is Data:
   BP{ s: F64, v: Nat, p: V.Point }
 
+
+
+
+
 type CR is Data:
   CR{ chs: List<&2, CH>, g: GV, ok: Bool, why: U64 }
+
+
+
+
 
 type PP is Data:
   PP{ p: V.Point, v: Nat, brk: Bool }
 
+
+
+
+
 type PV is Data:
   PV{ xs: List<&2, PP>, g: GV }
+
+
+
+
 
 type HXG is Data:
   HXG{ hs: List<&2, HX>, g: GV }
 
+
+
+
+
 type NB2 is Data:
   NB2{ i: Nat, d: F64 }
+
+
+
+
+
+type EP is Data:
+  EP{ e: Nat, fo: Nat }
+
+
+
+
+
+type EJ is Data:
+  EJ{ e: Nat, fo: Nat, inp: Bool, r: EF.EHS }
+
+
+
+
+
+type EX is Data:
+  EX{ b: FB.KB, ob: FB.KB }
+
+
+
+
+
+type IV is Data:
+  IV{ lo: F64, hi: F64 }
+
+
+
+
+
+type FV is Data:
+  FV{ dd: IV, h: IV, rho: IV }
+
+
+
+
+
+type VD is Data:
+  VD{ e: Nat, k: Ty.EdgeKind, bx: FB.BB, q0: V.Point, q1: V.Point }
+
+
+
+
+
+type VC is Data:
+  VC{ v: Nat, p: V.Point, es: List<&2, Nat> }
+
+
+
+
+
+type VX is Data:
+  VX{ ob: FB.KB, ds: List<&2, VD> }
+
+
+
+
+
+type WD is Data:
+  WD{ ok: Bool, o: V.Point, n0: V.Dir, n1: V.Dir, a: V.Dir, polys: List<&2, List<&2, V.Point>> }
+
+
+
+
+
+type PJ is Data:
+  PJ{ fa: Nat, fb: Nat, x: SS.ICS, ph: List<&2, HX> }
+
+
+
+
+
+type PC is Data:
+  PC{ bxs: List<&2, FB.BB>, wds: List<&2, WD>, rhs: List<&2, V.Vec2>, hs: List<&2, HX>, ba: FB.KB, bb: FB.KB }
 
 def gv_ps(+g: GV) -> List<&2, V.Point>:
   GV{ps, n} = g
@@ -343,15 +472,6 @@ def edge_box(+b: FB.KB, +e: Nat) -> FB.BB:
   +bx = FB.bb_join(FB.ek_bb(Ty.ed_kind(ed)), FB.bb_join(FB.bb_pt(FB.vpt(b, Ty.ed_v0(ed))), FB.bb_pt(FB.vpt(b, Ty.ed_v1(ed)))))
   FB.bb_pad(bx, F64.mul(1.0e-6f64, F64.add(1.0f64, bb_reach(bx))))
 
-type EP is Data:
-  EP{ e: Nat, fo: Nat }
-
-type EJ is Data:
-  EJ{ e: Nat, fo: Nat, inp: Bool, r: EF.EHS }
-
-type EX is Data:
-  EX{ b: FB.KB, ob: FB.KB }
-
 def ep_fs(fs: List<&2, Nat>, +e: Nat, +acc: List<&2, EP>) -> List<&2, EP>:
   match fs:
     case []: acc
@@ -361,9 +481,6 @@ def ep_all(es: List<&2, Nat>, +b: FB.KB, +fbs: List<&2, FB.BB>) -> List<&2, EP>:
   match es:
     case []: []
     case +h <> +t: ep_fs(near_fs(fbs, edge_box(b, h), 0n), h, ep_all(t, b, fbs))
-
-type IV is Data:
-  IV{ lo: F64, hi: F64 }
 
 def iv_lo(+a: IV) -> F64:
   IV{+l, +h} = a
@@ -398,9 +515,6 @@ def iv_pos(+a: IV) -> IV:
 
 def iv_out(+a: IV, +t: F64) -> Bool:
   Bool.or(F64.is_lt(t, iv_lo(a)), F64.is_lt(iv_hi(a), F64.neg(t)))
-
-type FV is Data:
-  FV{ dd: IV, h: IV, rho: IV }
 
 def fv_dd(+v: FV) -> IV:
   FV{+dd, h, rho} = v
@@ -517,9 +631,6 @@ def ve_two(+go: Bool, +side: U64, +e: Nat, +k: Ty.EdgeKind, +b: FB.KB, +ob: FB.K
       +fs = vx_faces(L.nat_range(FB.nedges(ob)), ob, vi, [])
       Bool.pick(HS, on, HS{ve_fos(fs, side, e, t, p, vi_i(r), hs_hs(st)), vi_g(r), hs_ok(st), hs_why(st)}, st)
 
-type VD is Data:
-  VD{ e: Nat, k: Ty.EdgeKind, bx: FB.BB, q0: V.Point, q1: V.Point }
-
 def vd_job(+b: FB.KB, +e: Nat) -> VD:
   +ed = FB.edge_at(b, e)
   +k = Ty.ed_kind(ed)
@@ -543,12 +654,6 @@ def vd_es(ds: List<&2, VD>, +p: V.Point, +tol: F64) -> List<&2, Nat>:
     case +d <> t:
       +rest = vd_es(t, p, tol)
       Bool.pick(List<&2, Nat>, vd_go(d, p, tol), vd_e(d) <> rest, rest)
-
-type VC is Data:
-  VC{ v: Nat, p: V.Point, es: List<&2, Nat> }
-
-type VX is Data:
-  VX{ ob: FB.KB, ds: List<&2, VD> }
 
 def vc_job(+c: VX, +h: Nat) -> VC:
   VX{+ob, +ds} = c
@@ -1052,7 +1157,7 @@ def poly_split(xs: List<&2, PP>, +cur: List<&2, PP>, +acc: List<&2, List<&2, PP>
   match xs:
     case []: List.reverse(&2, List<&2, PP>, acc)
     case +h <> +t:
-      +cut = Bool.and(pp_brk(h), Nat.is_lt(1n, List.length(&2, PP, cur)))
+      +cut = Bool.and(pp_brk(h), Bool.or(Nat.is_lt(1n, List.length(&2, PP, cur)), Bool.and(Nat.is_eq(List.length(&2, PP, cur), 1n), Bool.not(Nat.is_eq(pp_v(h), pp_v(L_pp0(cur)))))))
       poly_split(t, Bool.pick(List<&2, PP>, cut, [h], h <> cur),
         Bool.pick(List<&2, List<&2, PP>>, cut, List.reverse(&2, PP, h <> cur) <> acc, acc))
 
@@ -1088,9 +1193,38 @@ def run_dev(+ss: List<&2, SEG>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> F
   +s2 = S.sf_of(FB.face_surf(bb, fb))
   F64.add(F64.mul(2.0f64, segs_dev(ss, s1, s2, 0.0f64)), 1.0e-12f64)
 
-def mk_pch(+fa: Nat, +fb: Nat, +h: List<&2, PP>, +closed: Bool, +ba: FB.KB, +bb: FB.KB) -> CH:
+def dec_eps(+p: V.Point) -> F64:
+  F64.mul(1.0e-6f64, F64.add(1.0f64, F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))))
+
+def dec_go(xs: List<&2, PP>, +s1: S.SF, +s2: S.SF, +cap: F64, +a: PP, +last: PP, +n: Nat, +out: List<&2, PP>) -> List<&2, PP>:
+  match xs:
+    case []: List.reverse(&2, PP, last <> out)
+    case +q <> t:
+      +fit = F64.is_le(seg_dev(s1, s2, herm_kind(s1, s2, pp_p(a), pp_p(q))), F64.min(cap, dec_eps(pp_p(a))))
+      +ok = Bool.and(Bool.not(pp_brk(last)), Bool.and(Nat.is_lt(n, 96n), fit))
+      dec_go(t, s1, s2, cap, Bool.pick(PP, ok, a, last), q, Bool.pick(Nat, ok, Nat.add(n, 1n), 1n),
+        Bool.pick(List<&2, PP>, ok, out, last <> out))
+
+def dec_c(xs: List<&2, PP>, +s1: S.SF, +s2: S.SF, +cap: F64) -> List<&2, PP>:
+  match xs:
+    case []: []
+    case +x0 <> t:
+      match t:
+        case []: [x0]
+        case +x1 <> t2: dec_go(t2, s1, s2, cap, x0, x1, 1n, [x0])
+
+def dec_pp(+xs: List<&2, PP>, +s1: S.SF, +s2: S.SF) -> List<&2, PP>:
+  dec_c(xs, s1, s2, segs_dev(segs_of(xs, s1, s2), s1, s2, 0.0f64))
+
+def dec_if(bp: Bool, +h: List<&2, PP>, +s1: S.SF, +s2: S.SF) -> List<&2, PP>:
+  match bp:
+    case True{}: dec_pp(h, s1, s2)
+    case False{}: h
+
+def mk_pch(+fa: Nat, +fb: Nat, +h0: List<&2, PP>, +closed: Bool, +ba: FB.KB, +bb: FB.KB) -> CH:
   +s1 = S.sf_of(FB.face_surf(ba, fa))
   +s2 = S.sf_of(FB.face_surf(bb, fb))
+  +h = dec_if(Bool.or(S.is_bp(s1), S.is_bp(s2)), h0, s1, s2)
   +ss = segs_of(h, s1, s2)
   CH{fa, fb, ss, pps_pts(h), closed, run_dev(ss, ba, fa, bb, fb)}
 
@@ -1196,9 +1330,6 @@ def q_sep(+x: FB.BB, +s: S.SF) -> Bool:
   +q = Bool.or(U64.is_eq(S.sf_kind(s), S.k_cyl()), S.is_sph(s))
   +e = F64.mul(1.0e-9f64, F64.add(1.0f64, r))
   Bool.and(q, Bool.or(F64.is_lt(bb_far(s, x), F64.sub(r, e)), F64.is_lt(F64.add(r, e), bb_near(s, x))))
-
-type WD is Data:
-  WD{ ok: Bool, o: V.Point, n0: V.Dir, n1: V.Dir, a: V.Dir, polys: List<&2, List<&2, V.Point>> }
 
 def rho_u(+s: S.SF, +u: F64) -> V.Dir:
   S.dadd(S.dscale(S.fcos(u), S.sf_e1(s)), S.fsin(u), S.sf_e2(s))
@@ -1428,12 +1559,6 @@ def faces_bb(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, FB.BB>:
   match fs:
     case []: []
     case +h <> +t: FB.face_bb(b, h) <> faces_bb(t, b)
-
-type PJ is Data:
-  PJ{ fa: Nat, fb: Nat, x: SS.ICS, ph: List<&2, HX> }
-
-type PC is Data:
-  PC{ bxs: List<&2, FB.BB>, wds: List<&2, WD>, rhs: List<&2, V.Vec2>, hs: List<&2, HX>, ba: FB.KB, bb: FB.KB }
 
 def pj_mk(+hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> PJ:
   PJ{fa, fb, SS.ssi(FB.face_surf(ba, fa), FB.face_surf(bb, fb)), pair_hits(hs, face_es(ba, fa), fa, face_es(bb, fb), fb)}

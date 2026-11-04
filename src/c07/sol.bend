@@ -12,20 +12,105 @@ import ./mem.bend as Mm
 import ./isect.bend as Y
 import ../base/par.bend as B
 
+
+
+
+
+
+
+
 type Fd is Data:
   Fd{ fc: Mm.Fc, g: List<&2, G.GVal>, bx: List<&2, I.I>, ok: Bool, sh: Nat, fi: Nat }
+
+
+
+
+
+
+
 
 type Ea is Data:
   Ea{ es: List<&2, Mm.Er>, ok: Bool }
 
+
+
+
+
+
+
+
 type Rc is Data:
   Rc{ n: Nat, st: U64 }
+
+
+
+
+
+
+
 
 type Ip is Data:
   Ip{ i: Nat, q: List<&2, I.I>, n: List<&2, I.I> }
 
+
+
+
+
+
+
+
 type Fi is Data:
   Fi{ code: String, a: Nat, b: Nat }
+
+
+
+
+
+
+
+
+type FJ is Data:
+  FJ{ h: Ty.HFace, sh: Nat }
+
+
+
+
+
+
+
+
+type KA is Data:
+  KA{ ok: Bool, ks: List<&2, U64> }
+
+
+
+
+
+
+
+
+type KF is Data:
+  KF{ k: List<&2, U64>, f: Fd }
+
+
+
+
+
+
+
+
+type RC is Data:
+  RC{ x: Ty.Ix, t: B.Tr<&2, KF> }
+
+
+
+
+
+
+
+
+type RC2 is Data:
+  RC2{ x: Ty.Ix, t: B.Tr<&2, KF>, rt: B.Tr<&2, KF> }
 
 def ea_es(a: Ea) -> List<&2, Mm.Er>:
   Ea{es, ok} = a
@@ -135,17 +220,22 @@ def bx_same(xs: List<&2, I.I>, ys: List<&2, I.I>) -> Bool:
           Bool.and(Bool.and(U64.is_eq(F64.bits(I.i_lo(x)), F64.bits(I.i_lo(y))), U64.is_eq(F64.bits(I.i_hi(x)), F64.bits(I.i_hi(y)))),
             bx_same(t, u))
 
-def cr_add(same: Bool, +p: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im, +acc: List<&2, I.I>, +h: List<&2, I.I>) -> List<&2, I.I>:
+def cr_mem(m: U64, +p: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im, +ex: Bool) -> U64:
+  match m:
+    case 2u64: Bool.pick(U64, ex, Mm.member_lim(fc, p, nf, 24n), 2u64)
+    case _: m
+
+def cr_add(same: Bool, +p: List<&2, I.I>, +u: Mm.Uv, +fc: Mm.Fc, +nf: M.Im, +ex: Bool, +acc: List<&2, I.I>, +h: List<&2, I.I>) -> List<&2, I.I>:
   match same:
     case True{}: acc
-    case False{}: Bool.pick(List<&2, I.I>, U64.is_eq(Mm.member(fc, p, nf), 0u64), acc, h)
+    case False{}: Bool.pick(List<&2, I.I>, U64.is_eq(cr_mem(Mm.uv_member(u, p), p, fc, nf, ex), 0u64), acc, h)
 
-def cr_box(ps: List<&2, List<&2, I.I>>, +fc: Mm.Fc, +nf: M.Im, +acc: List<&2, I.I>) -> List<&2, I.I>:
+def cr_box(ps: List<&2, List<&2, I.I>>, +u: Mm.Uv, +fc: Mm.Fc, +nf: M.Im, +ex: Bool, +acc: List<&2, I.I>) -> List<&2, I.I>:
   match ps:
     case []: acc
     case +p <> t:
       +h = X.vhull(acc, p)
-      cr_box(t, fc, nf, cr_add(bx_same(h, acc), p, fc, nf, acc, h))
+      cr_box(t, u, fc, nf, ex, cr_add(bx_same(h, acc), p, u, fc, nf, ex, acc, h))
 
 def ax_slab(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
   +w = I.ihull(I.isub(X.vn(o, k), r), I.iadd(X.vn(o, k), r))
@@ -168,24 +258,42 @@ def bx_pad(+b: List<&2, I.I>) -> List<&2, I.I>:
 def cy_box(+b: List<&2, I.I>, +o: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
   bx_pad(b)
 
-def to_box_go(ax: Bool, +o: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +nf: M.Im) -> List<&2, I.I>:
+def ax_hz(hs: List<&2, I.I>, +b: List<&2, I.I>, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
+  match hs:
+    case []: ax_slab(b, o, k, r)
+    case +hz <> t:
+      +sg = F64.is_lt(0.0f64, I.imid(X.vn(a, k)))
+      +w = I.iadd(X.vn(o, k), Bool.pick(I.I, sg, hz, I.ineg(hz)))
+      [Bool.pick(I.I, Nat.is_eq(k, 0n), I.ihull(X.vn(b, 0n), w), X.vn(b, 0n)), Bool.pick(I.I, Nat.is_eq(k, 1n), I.ihull(X.vn(b, 1n), w), X.vn(b, 1n)),
+        Bool.pick(I.I, Nat.is_eq(k, 2n), I.ihull(X.vn(b, 2n), w), X.vn(b, 2n))]
+
+def to_box_u(+u: Mm.Uv, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +ex: Bool) -> List<&2, I.I>:
+  bx_pad(cr_box(crit(o, k, bigr, r), u, fc, M.M_to{o, a, bigr, r}, ex, ax_hz(Mm.tor_h(u), eb, o, a, k, r)))
+
+def to_box_go(ax: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +g: G.GVal) -> List<&2, I.I>:
   match ax:
     case False{}: ball(o, I.iadd(bigr, r))
-    case True{}: bx_pad(cr_box(crit(o, k, bigr, r), fc, nf, ax_slab(eb, o, k, r)))
+    case True{}: to_box_u(Mm.uv_tor_of(g, Mm.fc_es(fc), 0.0f64), o, a, k, bigr, r, eb, fc, True{})
 
 def cy_go(ax: Bool, +bx: List<&2, I.I>, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +r: I.I) -> List<&2, I.I>:
   match ax:
     case True{}: cy_box(bx, o, k, r)
     case False{}: surf_box(M.M_cy{o, a, r}, bx)
 
-def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc) -> List<&2, I.I>:
+def co_go(ok: Bool, +bx: List<&2, I.I>, +s: M.Im) -> List<&2, I.I>:
+  match ok:
+    case True{}: bx_pad(bx)
+    case False{}: surf_box(s, bx)
+
+def fbox(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc, +g: G.GVal) -> List<&2, I.I>:
   match s:
     case M.M_to{+o, +a, +bigr, +r}:
       +k = axis_k(a)
-      to_box_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), o, k, bigr, r, bx, fc, M.M_to{o, a, bigr, r})
+      to_box_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), o, a, k, bigr, r, bx, fc, g)
     case M.M_cy{+o, +a, +r}:
       +k = axis_k(a)
       cy_go(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), bx, o, a, k, r)
+    case M.M_co{+o, +a, +kk}: co_go(Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n)), bx, M.M_co{o, a, kk})
     case _: surf_box(s, bx)
 
 def cn_bx(ps: List<&2, V.Point>, +acc: List<&2, I.I>) -> List<&2, I.I>:
@@ -218,14 +326,11 @@ def fd_mk(m: Maybe<&2, M.Im>, +s: G.GVal, +same: Bool, +ea: Ea, +sh: Nat, +fi: N
     case Some{+im}:
       +es = ea_es(ea)
       +fc = {Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)} : Mm.Fc}
-      Fd{fc, [s], fbox(im, eb_go(es, []), fc), ea_ok(ea), sh, fi}
+      Fd{fc, [s], fbox(im, eb_go(es, []), fc, s), ea_ok(ea), sh, fi}
 
 def fd_of(f: Ty.Face, +x: Ty.Ix, +sh: Nat, +fi: Nat) -> Fd:
   Ty.Fa{g, +s, ls, same, +slv, sla} = f
   fd_mk(S.gv_im(s), s, same, lps_go(ls, x, Ea{[], True{}}), sh, fi, slv)
-
-type FJ is Data:
-  FJ{ h: Ty.HFace, sh: Nat }
 
 def fj_hs(hs: List<&2, Ty.HFace>, +sh: Nat) -> List<&2, FJ>:
   match hs:
@@ -480,7 +585,7 @@ def snap(+q: List<&2, I.I>) -> List<&2, I.I>:
 
 def cand(+k: F64, +r: List<&2, I.I>, +w: List<&2, I.I>, +fc: Mm.Fc, +im: M.Im) -> Maybe<&2, List<&2, I.I>>:
   +q = snap(proj(im, snap(X.vadd(r, Mm.vs(I.ipt(k), w)))))
-  Bool.pick(Maybe<&2, List<&2, I.I>>, Bool.and(X.vfin(q), U64.is_eq(Mm.member(fc, q, im), 1u64)), Some{q}, None{})
+  Bool.pick(Maybe<&2, List<&2, I.I>>, Bool.and(X.vfin(q), U64.is_eq(Mm.member_lim(fc, q, im, 12n), 1u64)), Some{q}, None{})
 
 def ip_try(ks: List<&2, F64>, +m: Maybe<&2, List<&2, I.I>>, +r: List<&2, I.I>, +w: List<&2, I.I>, +fc: Mm.Fc, +im: M.Im) -> Maybe<&2, List<&2, I.I>>:
   match ks:
@@ -683,12 +788,6 @@ def solid_fi(+b: Ty.Brep, +fs: List<&2, Fd>) -> List<&2, Fi>:
 def fd_dflt() -> Fd:
   Fd{Mm.Fc{M.M_pl{[], []}, True{}, [], Mm.Uv_no{}}, [], [], False{}, 0n, 0n}
 
-type KA is Data:
-  KA{ ok: Bool, ks: List<&2, U64> }
-
-type KF is Data:
-  KF{ k: List<&2, U64>, f: Fd }
-
 def kf(+x: F64, +acc: List<&2, U64>) -> List<&2, U64>:
   F64.bits(x) <> acc
 
@@ -864,19 +963,77 @@ def fd_at(+f: Fd, +sh: Nat, +fi: Nat) -> Fd:
   Fd{+fc, +g, +bx, +ok, s0, i0} = f
   Fd{fc, g, bx, ok, sh, fi}
 
-def fd_pick(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+def ka_ok(+a: KA) -> Bool:
+  KA{+ok, ks} = a
+  ok
+
+def ka_ks(+a: KA) -> List<&2, U64>:
+  KA{ok, +ks} = a
+  ks
+
+def ka_is(+a: KA, +sk: List<&2, U64>) -> Bool:
+  KA{+ok, +ks} = a
+  Bool.and(ok, keq(ks, sk))
+
+def tr_bnd(t: B.Tr<&2, KF>, +sk: List<&2, U64>, +acc: List<&2, I.I>) -> List<&2, I.I>:
+  match t:
+    case B.TL{+v}:
+      +f = kf_f(v)
+      +hit = ka_is(kgv(fd_g(f), True{}, []), sk)
+      Bool.pick(List<&2, I.I>, hit, Bool.pick(List<&2, I.I>, Nat.is_eq(List.length(&2, I.I, acc), 0n), fd_bx(f), X.vhull(acc, fd_bx(f))), acc)
+    case B.TN{+l, +r}: tr_bnd(r, sk, tr_bnd(l, sk, acc))
+
+def is_to(+g: G.GVal) -> Bool:
+  match g:
+    case G.GV_to{w}: True{}
+    case _: False{}
+
+def fd_imo(m: Maybe<&2, M.Im>) -> M.Im:
+  match m:
+    case Some{+im}: im
+    case None{}: M.M_no{}
+
+def fast_to(ax: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +k: Nat, +bigr: I.I, +r: I.I, +eb: List<&2, I.I>, +fc: Mm.Fc, +g: G.GVal) -> List<&2, I.I>:
+  match ax:
+    case False{}: ball(o, I.iadd(bigr, r))
+    case True{}: to_box_u(Mm.uv_tor_of(g, Mm.fc_es(fc), 0.0f64), o, a, k, bigr, r, eb, fc, False{})
+
+def fast_box(s: M.Im, +bx: List<&2, I.I>, +fc: Mm.Fc, +g: G.GVal) -> List<&2, I.I>:
+  match s:
+    case M.M_to{+o, +a, +bigr, +r}:
+      +k = axis_k(a)
+      fast_to(Bool.and(Nat.is_lt(k, 3n), Bool.not(Nat.is_eq(List.length(&2, I.I, bx), 0n))), o, a, k, bigr, r, bx, fc, g)
+    case _: fbox(s, bx, fc, g)
+
+def fd_bnd(use: Bool, +f: Ty.Face, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +bx: List<&2, I.I>) -> Fd:
+  match use:
+    case False{}: fd_x(x, h, sh)
+    case True{}:
+      Ty.Fa{g2, +s, ls, +same, +slv, sla} = f
+      Ty.HF{+fi, +g} = h
+      +ea = lps_go(ls, x, Ea{[], True{}})
+      +es = ea_es(ea)
+      +im = fd_imo(S.gv_im(s))
+      +fc = {Mm.Fc{im, same, es, Mm.uv_of(F64.is_lt(0.0f64, slv), s, es, slv)} : Mm.Fc}
+      Fd{fc, [s], X.vmeet(bx, fast_box(im, eb_go(es, []), fc, s)), ea_ok(ea), sh, fi}
+
+def fd_xt(+x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +t: B.Tr<&2, KF>) -> Fd:
+  +f = Ty.tres_fa(Ty.ix_fa(x, h))
+  +s = Ty.fa_surf(f)
+  +ka = kgv(s, True{}, [])
+  +bx = tr_bnd(t, ka_ks(ka), [])
+  fd_bnd(Bool.and(Bool.and(ka_ok(ka), is_to(s)), Nat.is_eq(List.length(&2, I.I, bx), 3n)), f, x, h, sh, bx)
+
+def fd_pick(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat, +t: B.Tr<&2, KF>) -> Fd:
   match hit:
     case True{}: fd_at(kf_f(e), sh, fi)
-    case False{}: fd_x(x, h, sh)
+    case False{}: fd_xt(x, h, sh, t)
 
 def fd_re(+k: KA, +t: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat) -> Fd:
   KA{+ok, +ks} = k
   Ty.HF{+fi, +g} = h
   +e = kfind(t, ks, kz(t, ks))
-  fd_pick(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi)
-
-type RC is Data:
-  RC{ x: Ty.Ix, t: B.Tr<&2, KF> }
+  fd_pick(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi, t)
 
 def re_job(c: RC, j: FJ) -> Fd:
   RC{+x, +t} = c
@@ -1053,32 +1210,29 @@ def fd_rot(+a: Fd, +ea: Ea, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
   +rok = Bool.and(aok, Bool.and(uv_no(uv), bx_same(eb_go(es, []), eb_go(esa, []))))
   fd_rot_go(rok, es, ea_ok(ea), a, x, h, sh, fi)
 
-def fd_rhit(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+def fd_rhit(hit: Bool, +e: KF, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat, +t: B.Tr<&2, KF>) -> Fd:
   match hit:
     case True{}: fd_rot(kf_f(e), lps_go(Ty.fa_loops(Ty.tres_fa(Ty.ix_fa(x, h))), x, Ea{[], True{}}), x, h, sh, fi)
-    case False{}: fd_x(x, h, sh)
+    case False{}: fd_xt(x, h, sh, t)
 
-def fd_rk(+rk: KA, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+def fd_rk(+rk: KA, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat, +t: B.Tr<&2, KF>) -> Fd:
   KA{+ok, +ks} = rk
   +e = kfind(rt, ks, kz(rt, ks))
-  fd_rhit(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi)
+  fd_rhit(Bool.and(ok, keq(kf_k(e), ks)), e, x, h, sh, fi, t)
 
-def fd_rr(+rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
-  fd_rk(rkey(Ty.tres_fa(Ty.ix_fa(x, h)), x), rt, x, h, sh, fi)
+def fd_rr(+rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat, +t: B.Tr<&2, KF>) -> Fd:
+  fd_rk(rkey(Ty.tres_fa(Ty.ix_fa(x, h)), x), rt, x, h, sh, fi, t)
 
-def fd_pick2(hit: Bool, +e: KF, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat) -> Fd:
+def fd_pick2(hit: Bool, +e: KF, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat, +fi: Nat, +t: B.Tr<&2, KF>) -> Fd:
   match hit:
     case True{}: fd_at(kf_f(e), sh, fi)
-    case False{}: fd_rr(rt, x, h, sh, fi)
+    case False{}: fd_rr(rt, x, h, sh, fi, t)
 
 def fd_re2(+k: KA, +t: B.Tr<&2, KF>, +rt: B.Tr<&2, KF>, +x: Ty.Ix, +h: Ty.HFace, +sh: Nat) -> Fd:
   KA{+ok, +ks} = k
   Ty.HF{+fi, +g} = h
   +e = kfind(t, ks, kz(t, ks))
-  fd_pick2(Bool.and(ok, keq(kf_k(e), ks)), e, rt, x, h, sh, fi)
-
-type RC2 is Data:
-  RC2{ x: Ty.Ix, t: B.Tr<&2, KF>, rt: B.Tr<&2, KF> }
+  fd_pick2(Bool.and(ok, keq(kf_k(e), ks)), e, rt, x, h, sh, fi, t)
 
 def re_job2(c: RC2, j: FJ) -> Fd:
   RC2{+x, +t, +rt} = c
