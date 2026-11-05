@@ -1,0 +1,20 @@
+g2-threads-38               12.9 s rc=0 ea52755c6012
+g3-eval                      2.4 s rc=0 c98c930826b3
+g4-hub2-eval                 5.9 s rc=0 832fdd6676af
+SAME g1-bracket-eval.out
+SAME g1-bracket-mass.out
+SAME g1-strap-eval.out
+SAME g2-asm-interf-pair.out
+SAME g2-asm-solve.out
+SAME g2-eval.out
+SAME g2-interf-11-38.out
+SAME g2-mass-38.out
+SAME g2-step-38.out
+SAME g2-threads-38.out
+SAME g3-eval.out
+SAME g4-hub2-eval.out
+DIFF ident.json
+SAME step38.stp
+
+[exited with code 0]
+4ddcef1e52f746f5c3c4c6fbcb5949f00764ff748c495c96f77fde18a87e3397

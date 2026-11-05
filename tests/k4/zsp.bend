@@ -3,6 +3,7 @@ import ../../src/c01/types.bend as V
 import ../../src/c04/types.bend as Ty
 import ../../src/c03/types.bend as G
 import ../../src/c06/model.bend as M
+import ../../src/c08/bool.bend as B8
 import ../../src/c06/sx.bend as SX
 import ../../src/k1/sf.bend as S
 import ../../src/k1/fb.bend as FB
@@ -86,7 +87,7 @@ def read_file(path):
 
 def brep_of(r: M.NR) -> Ty.Brep:
   match r:
-    case M.NR_ok{+b, fx}: M.bd_brep(b)
+    case M.NR_ok{+b, fx}: B8.bake_of(M.bool_in(b))
     case M.NR_err{k, d}: Ty.brep_empty()
 
 def kinds2(js: List<&2, PX.PJ>, +ba: FB.KB, +bb: FB.KB) -> String:
@@ -96,11 +97,11 @@ def kinds2(js: List<&2, PX.PJ>, +ba: FB.KB, +bb: FB.KB) -> String:
       PX.PJ{+fa, +fb, +x, ph} = j
       Bool.pick(String, U64.is_eq(SS.ics_why(x), 0u64), "", " [" ++ Nat.show(fa) ++ "k" ++ U64.show(S.sf_kind(FB.face_sf(ba, fa))) ++ "/" ++ Nat.show(fb) ++ "k" ++ U64.show(S.sf_kind(FB.face_sf(bb, fb))) ++ " why" ++ U64.show(SS.ics_why(x)) ++ "]") ++ kinds2(t, ba, bb)
 
-def run(+src: String) -> String:
+def run(+src: String, +na: U64, +nb: U64) -> String:
   +p = SX.part_of(SX.ps_xs(SX.parse(src)))
-  +cs = M.ev_part(p, [])
-  +ra = brep_of(M.ce_r(M.ce_find(cs, 1930u64)))
-  +rb = brep_of(M.ce_r(M.ce_find(cs, 1911u64)))
+  +cs = M.ev_for(p, [na, nb], [])
+  +ra = brep_of(M.ce_r(M.ce_find(cs, na)))
+  +rb = brep_of(M.ce_r(M.ce_find(cs, nb)))
   +ba = FB.kb_of(ra)
   +bb = FB.kb_of(rb)
   +va = PX.add_vs(Ty.brep_vs(ra), PX.GV{[], 0n}, [])
@@ -110,8 +111,23 @@ def run(+src: String) -> String:
   +js = List.concat(&2, PX.PJ, B.pmap_g(~Nat, ~PX.PC, ~List<&2, PX.PJ>, ~PX.pj_job, 1, c, L.nat_range(FB.nfaces(ba))))
   "faces " ++ Nat.show(FB.nfaces(ba)) ++ " " ++ Nat.show(FB.nfaces(bb)) ++ " hs_ok " ++ (Bool.pick(String, PX.hs_ok(hs), "y", "n")) ++ " why " ++ U64.show(PX.hs_why(hs)) ++ " jobs " ++ Nat.show(List.length(&2, PX.PJ, js)) ++ kinds2(js, ba, bb)
 
+def num(+s: String) -> U64:
+  SX.u64_of(SX.Sx_a{s})
+
+def to2(xs: List<&1, String>) -> List<&2, String>:
+  match xs:
+    case []: []
+    case h <> t: h <> to2(t)
+
+def go2(+src: String, +args: List<&2, String>) -> IO(Unit):
+  IO.print(run(src, num(SX.arg_at(args, 2n)), num(SX.arg_at(args, 3n))))
+
+def go(+args: List<&2, String>) -> IO(Unit):
+  do IO<Unit>:
+    src : String <- read_file(SX.arg_at(args, 1n))
+    go2(src, args)
+
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    src : String <- read_file("/home/jesse/g5/imp.bcd")
-    IO.print(run(src))
+    go(to2(args))

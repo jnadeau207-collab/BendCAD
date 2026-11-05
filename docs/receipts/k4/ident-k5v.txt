@@ -1,0 +1,29 @@
+g1-bracket-eval              0.1 s rc=0 0eb8142f43a2
+g1-strap-eval                0.0 s rc=0 798d09bdcca3
+g1-bracket-mass             31.0 s rc=0 3546204abf22
+g2-eval                     97.9 s rc=0 4662a6e7016a
+g2-mass-38                  81.1 s rc=0 f0a9ee12afea
+g2-interf-11-38             64.8 s rc=0 7ab22f28673f
+g2-step-38                  18.5 s rc=0 c9c6c1b2e304
+g2-asm-solve                92.8 s rc=0 35c814e02801
+g2-asm-interf-pair          36.5 s rc=0 46a79e93075d
+g2-threads-38               10.2 s rc=0 ea52755c6012
+g3-eval                      1.7 s rc=0 c98c930826b3
+g4-hub2-eval                 6.0 s rc=0 832fdd6676af
+SAME g1-bracket-eval.out
+SAME g1-bracket-mass.out
+SAME g1-strap-eval.out
+SAME g2-asm-interf-pair.out
+SAME g2-asm-solve.out
+SAME g2-eval.out
+SAME g2-interf-11-38.out
+SAME g2-mass-38.out
+SAME g2-step-38.out
+SAME g2-threads-38.out
+SAME g3-eval.out
+SAME g4-hub2-eval.out
+DIFF ident.json
+SAME step38.stp
+da277b1ff76b783bc9a72ef0cc6bf4ee394c12759486c6baece8e2aeaa8d3e08  /home/jesse/bc/bendcad-k5v
+
+[exited with code 0]

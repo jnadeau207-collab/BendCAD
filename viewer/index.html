@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BendCAD Viewer</title>
+<style>
+  :root { --bg: #0f1216; --panel: #171b21; --ink: #e6e9ee; --dim: #8b95a3; --acc: #e0a040; --line: #2a313b; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #ui { position: absolute; left: 12px; top: 12px; width: 240px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  #ui h1 { font-size: 14px; margin: 0 0 6px; }
+  #ui .row { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+  #ui button { flex: 1; background: #222831; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 5px 6px; cursor: pointer; }
+  #ui button.on { border-color: var(--acc); color: var(--acc); }
+  #ui label { display: block; color: var(--dim); margin-top: 8px; }
+  #ui input[type=range] { width: 100%; }
+  #parts { max-height: 260px; overflow: auto; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+  #parts div { display: flex; align-items: center; gap: 6px; color: var(--dim); }
+  #parts span.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  #status { position: absolute; right: 12px; bottom: 10px; color: var(--dim); }
+  #title { position: absolute; right: 12px; top: 10px; color: var(--dim); text-align: right; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="ui">
+  <h1 id="name">BendCAD Viewer</h1>
+  <div class="row">
+    <button id="b-asm" class="on">Assembled</button>
+    <button id="b-exp">Exploded</button>
+  </div>
+  <div class="row">
+    <button id="b-sec">Section</button>
+    <button id="b-run">Run</button>
+  </div>
+  <label>Explode <span id="v-exp"></span></label>
+  <input id="s-exp" type="range" min="0" max="1" step="0.01" value="0">
+  <label>Rotor speed (display rev/s) <span id="v-rpm"></span></label>
+  <input id="s-rpm" type="range" min="0" max="12" step="0.1" value="3">
+  <div class="row">
+    <button id="b-rec">Record 6 s</button>
+    <button id="b-shot">Snapshot</button>
+  </div>
+  <div id="parts"></div>
+</div>
+<div id="title"></div>
+<div id="status">loading</div>
+<script src="bcview.js"></script>
+</body>
+</html>

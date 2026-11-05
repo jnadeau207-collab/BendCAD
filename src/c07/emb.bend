@@ -26,6 +26,12 @@ import ../c03/bpi.bend as BI
 
 
 
+type CP is Data:
+  CP{ lo: F64, hi: F64, p: G.BezP }
+
+type BQ is Data:
+  BQ{ a: G.BezP, b: G.BezP }
+
 type Eg is Data:
   Eg{ g: List<&2, G.GVal>, d: G.Dom, a: Nat, b: Nat, pa: List<&2, I.I>, pb: List<&2, I.I>, c: R.Cv, bx: List<&2, I.I>, u: U64, so: Nat }
 
@@ -1196,10 +1202,53 @@ def e_far_bp(g: G.GVal, +bx: List<&2, I.I>, +t2: F64) -> Bool:
     case G.GV_bp{+w}: bp_far_go(400n, [w], M.M_no{}, bx, t2)
     case _: False{}
 
+def eg_cv(e: Eg) -> R.Cv:
+  Eg{g, d, a, b, pa, pb, +c, bx, u, so} = e
+  c
+
+def eg_uu(e: Eg) -> U64:
+  Eg{g, d, a, b, pa, pb, c, bx, +u, so} = e
+  u
+
+def cp_l(qs: List<&2, G.BezP>, +lo: F64, +hi: F64) -> List<&2, CP>:
+  match qs:
+    case []: []
+    case +q <> t: CP{lo, hi, q} <> cp_l(t, lo, hi)
+
+def cp_bw(xs: List<&2, I.I>) -> F64:
+  match xs:
+    case []: 0.0f64
+    case +x <> t: F64.add(F64.sub(I.i_hi(x), I.i_lo(x)), cp_bw(t))
+
+def cpf_go(n: Nat, +c: R.Cv, +qs: List<&2, CP>, +tol: F64) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+m):
+      match qs:
+        case []: True{}
+        case +q <> +t:
+          CP{+lo, +hi, +p} = q
+          +bc = R.cv_box(c, I.I{lo, hi})
+          +bp = wid(bp_box(p), tol)
+          +cut = F64.is_le(cp_bw(bp), cp_bw(bc))
+          +mid = F64.mul(0.5f64, F64.add(lo, hi))
+          +kids = Bool.pick(List<&2, CP>, cut, [CP{lo, mid, p}, CP{mid, hi, p}], cp_l(SC.quads(p), lo, hi))
+          cpf_go(m, c, Bool.pick(List<&2, CP>, Bool.and(X.vfin(bc), X.vdisj(bc, bp)), t, List.append(&2, CP, kids, t)), tol)
+
+def e_cp(g: G.GVal, +e: Eg, +t2: F64) -> Bool:
+  match g:
+    case G.GV_bp{+w}: Bool.and(U64.is_eq(eg_uu(e), 0u64), cpf_go(3000n, eg_cv(e), [CP{0.0f64, 1.0f64, w}], F64.sqrt(t2)))
+    case _: False{}
+
+def e_far3(done: Bool, +e: Eg, +fd: SO.Fd, +t2: F64) -> Bool:
+  match done:
+    case True{}: True{}
+    case False{}: e_cp(SO.fd_g(fd), e, t2)
+
 def e_far2(done: Bool, +e: Eg, +fd: SO.Fd, +t2: F64) -> Bool:
   match done:
     case True{}: True{}
-    case False{}: e_far_bp(SO.fd_g(fd), eg_bx(e), t2)
+    case False{}: e_far3(e_far_bp(SO.fd_g(fd), eg_bx(e), t2), e, fd, t2)
 
 def e_far1(ok: Bool, +e: Eg, +fd: SO.Fd, +t2: F64) -> Bool:
   match ok:
@@ -1284,10 +1333,15 @@ def ff_code(+a: G.GVal, +b: G.GVal) -> U64:
   Bool.pick(U64, S.coincide(a, b), 1u64, Bool.pick(U64, ruled_pair(a, b), 0u64,
     Bool.pick(U64, circ_one(a, b), 3u64, Bool.pick(U64, circ_one(b, a), 4u64, 2u64))))
 
+def ov_mem(out: Bool, +q: List<&2, I.I>, +g: SO.Fd) -> U64:
+  match out:
+    case True{}: 0u64
+    case False{}: Mm.member(SO.fd_fc(g), q, SO.fd_im(g))
+
 def ov_one(m: Maybe<&2, List<&2, I.I>>, +g: SO.Fd) -> U64:
   match m:
     case None{}: 2u64
-    case Some{+q}: Mm.member(SO.fd_fc(g), q, SO.fd_im(g))
+    case Some{+q}: ov_mem(X.vdisj(q, SO.fd_bx(g)), q, g)
 
 def ov_code(+m: U64) -> U64:
   Bool.pick(U64, U64.is_eq(m, 0u64), 0u64, Bool.pick(U64, U64.is_eq(m, 1u64), 1u64, 2u64))
@@ -1771,10 +1825,49 @@ def cy_far(a: M.Im, +b: M.Im, +m: List<&2, I.I>, +t2: F64) -> Bool:
 def coax_far(+fa: SO.Fd, +fb: SO.Fd, +m: List<&2, I.I>, +t2: F64) -> Bool:
   Bool.or(cy_far(SO.fd_im(fa), SO.fd_im(fb), m, t2), cy_far(SO.fd_im(fb), SO.fd_im(fa), m, t2))
 
+def bw(xs: List<&2, I.I>) -> F64:
+  match xs:
+    case []: 0.0f64
+    case +x <> t: F64.add(F64.sub(I.i_hi(x), I.i_lo(x)), bw(t))
+
+def bq_l(qs: List<&2, G.BezP>, +o: G.BezP, +left: Bool) -> List<&2, BQ>:
+  match qs:
+    case []: []
+    case +q <> t: Bool.pick(BQ, left, BQ{q, o}, BQ{o, q}) <> bq_l(t, o, left)
+
+def bq_go(n: Nat, +qs: List<&2, BQ>, +tol: F64) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+m):
+      match qs:
+        case []: True{}
+        case +q <> +t:
+          BQ{+a, +b} = q
+          +ba = bp_box(a)
+          +bb = wid(bp_box(b), tol)
+          +la = F64.is_le(bw(bb), bw(ba))
+          +kids = Bool.pick(List<&2, BQ>, la, bq_l(SC.quads(a), b, True{}), bq_l(SC.quads(b), a, False{}))
+          bq_go(m, Bool.pick(List<&2, BQ>, X.vdisj(ba, bb), t, List.append(&2, BQ, kids, t)), tol)
+
+def bq_g2(+w: G.BezP, g: G.GVal, +t2: F64) -> Bool:
+  match g:
+    case G.GV_bp{+v}: bq_go(3000n, [BQ{w, v}], F64.sqrt(t2))
+    case _: False{}
+
+def bq_far(g: G.GVal, +h: G.GVal, +t2: F64) -> Bool:
+  match g:
+    case G.GV_bp{+w}: bq_g2(w, h, t2)
+    case _: False{}
+
+def im_far3(done: Bool, +fa: SO.Fd, +fb: SO.Fd, +t2: F64) -> Bool:
+  match done:
+    case True{}: True{}
+    case False{}: bq_far(SO.fd_g(fa), SO.fd_g(fb), t2)
+
 def im_far2(done: Bool, +fa: SO.Fd, +fb: SO.Fd, +t2: F64) -> Bool:
   match done:
     case True{}: True{}
-    case False{}: bp_far(SO.fd_g(fb), fa, t2)
+    case False{}: im_far3(bp_far(SO.fd_g(fb), fa, t2), fa, fb, t2)
 
 def im_far1(done: Bool, +fa: SO.Fd, +fb: SO.Fd, +t2: F64) -> Bool:
   match done:

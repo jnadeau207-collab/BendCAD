@@ -15,8 +15,10 @@ import ../c03/ops.bend as GO
 
 
 
+
 type GV is Data:
   GV{ ps: List<&2, V.Point>, n: Nat }
+
 
 
 
@@ -29,8 +31,10 @@ type VI is Data:
 
 
 
+
 type VM is Data:
   VM{ g: GV, mp: List<&2, Nat> }
+
 
 
 
@@ -43,8 +47,10 @@ type HX is Data:
 
 
 
+
 type HS is Data:
   HS{ hs: List<&2, HX>, g: GV, ok: Bool, why: U64 }
+
 
 
 
@@ -57,8 +63,10 @@ type SEG is Data:
 
 
 
+
 type CH is Data:
   CH{ fa: Nat, fb: Nat, segs: List<&2, SEG>, pts: List<&2, V.Point>, closed: Bool, dv: F64 }
+
 
 
 
@@ -71,8 +79,10 @@ type BP is Data:
 
 
 
+
 type CR is Data:
   CR{ chs: List<&2, CH>, g: GV, ok: Bool, why: U64 }
+
 
 
 
@@ -85,8 +95,10 @@ type PP is Data:
 
 
 
+
 type PV is Data:
   PV{ xs: List<&2, PP>, g: GV }
+
 
 
 
@@ -99,8 +111,10 @@ type HXG is Data:
 
 
 
+
 type NB2 is Data:
   NB2{ i: Nat, d: F64 }
+
 
 
 
@@ -113,8 +127,10 @@ type EP is Data:
 
 
 
+
 type EJ is Data:
   EJ{ e: Nat, fo: Nat, inp: Bool, r: EF.EHS }
+
 
 
 
@@ -127,8 +143,10 @@ type EX is Data:
 
 
 
+
 type IV is Data:
   IV{ lo: F64, hi: F64 }
+
 
 
 
@@ -141,8 +159,10 @@ type FV is Data:
 
 
 
+
 type VD is Data:
   VD{ e: Nat, k: Ty.EdgeKind, bx: FB.BB, q0: V.Point, q1: V.Point }
+
 
 
 
@@ -155,8 +175,10 @@ type VC is Data:
 
 
 
+
 type VX is Data:
   VX{ ob: FB.KB, ds: List<&2, VD> }
+
 
 
 
@@ -169,8 +191,10 @@ type WD is Data:
 
 
 
+
 type PJ is Data:
   PJ{ fa: Nat, fb: Nat, x: SS.ICS, ph: List<&2, HX> }
+
 
 
 
@@ -1095,7 +1119,7 @@ def reg_pts(ps: List<&2, V.Point>, +g: GV, +acc: List<&2, PP>) -> PV:
     case []: PV{List.reverse(&2, PP, acc), g}
     case +h <> +t:
       +r = gv_add(g, h)
-      reg_pts(t, vi_g(r), PP{h, vi_i(r), False{}} <> acc)
+      reg_pts(t, vi_g(r), PP{gv_pt(vi_g(r), vi_i(r)), vi_i(r), False{}} <> acc)
 
 def rot_to_brk(xs: List<&2, PP>, +pre: List<&2, PP>) -> List<&2, PP>:
   match xs:
@@ -1560,8 +1584,20 @@ def faces_bb(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, FB.BB>:
     case []: []
     case +h <> +t: FB.face_bb(b, h) <> faces_bb(t, b)
 
+def bx_pad1(+lo: F64, +hi: F64) -> V.Vec2:
+  +w = F64.add(F64.mul(0.05f64, F64.sub(hi, lo)), F64.mul(1.0e-6f64, F64.add(1.0f64, F64.max(F64.abs(lo), F64.abs(hi)))))
+  V.V2{F64.sub(lo, w), F64.add(hi, w)}
+
+def pj_box(+a: FB.BB, +b: FB.BB) -> SS.BX:
+  FB.BB{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  FB.BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  +x = bx_pad1(F64.max(ax0, bx0), F64.min(ax1, bx1))
+  +y = bx_pad1(F64.max(ay0, by0), F64.min(ay1, by1))
+  +z = bx_pad1(F64.max(az0, bz0), F64.min(az1, bz1))
+  SS.BX{V.v2_x(x), V.v2_y(x), V.v2_x(y), V.v2_y(y), V.v2_x(z), V.v2_y(z)}
+
 def pj_mk(+hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> PJ:
-  PJ{fa, fb, SS.ssi(FB.face_surf(ba, fa), FB.face_surf(bb, fb)), pair_hits(hs, face_es(ba, fa), fa, face_es(bb, fb), fb)}
+  PJ{fa, fb, SS.ssi_b(FB.face_surf(ba, fa), FB.face_surf(bb, fb), pj_box(FB.face_bb(ba, fa), FB.face_bb(bb, fb))), pair_hits(hs, face_es(ba, fa), fa, face_es(bb, fb), fb)}
 
 def pj_if(skip: Bool, +hs: List<&2, HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +rest: List<&2, PJ>) -> List<&2, PJ>:
   match skip:

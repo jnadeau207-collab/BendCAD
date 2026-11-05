@@ -38,6 +38,8 @@ import ../k2/fit.bend as KF
 import ../k2/kstep.bend as KX
 import ../c13/err.bend as E
 import ../c13/req.bend as R
+import ./vsrv.bend as VS
+
 
 def iv_s(+v: I.I) -> String:
   "[" ++ S.f_show(I.i_lo(v)) ++ ", " ++ S.f_show(I.i_hi(v)) ++ "]"
@@ -509,7 +511,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
-  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, 0u64))))))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, 0u64)))))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
@@ -732,6 +734,86 @@ def mach_args(ok: Bool, +p: M.Part, +n: U64, +t: K3X.TL, +five: Bool, +ns: Nat, 
   match ok:
     case True{}: mach_node(node_res(M.ev_for(p, [n], old), n), t, five, ns)
     case False{}: "error invalid-input | machine | why: needs NODE D FL HD HL AXES NS: ball diameter D > 0, flute length FL > 0, holder diameter HD > 0 and length HL > 0, AXES 3 or 5, 1 <= NS <= 8 samples per face side | fix: correct the arguments"
+
+def sc_sp(n: Nat, xs: List<&2, String>) -> List<&2, List<&2, String>>:
+  match n:
+    case 0n: []
+    case 1n+(+m):
+      match xs:
+        case []: []
+        case +h <> +t: [S.arg_at(h <> t, 0n), S.arg_at(h <> t, 1n), S.arg_at(h <> t, 2n), S.arg_at(h <> t, 3n), S.arg_at(h <> t, 4n),
+          S.arg_at(h <> t, 5n), S.arg_at(h <> t, 6n), S.arg_at(h <> t, 7n), S.arg_at(h <> t, 8n)] <> sc_sp(m, arg_drop(h <> t, 9n))
+
+def sc_specs(+xs: List<&2, String>) -> List<&2, List<&2, String>>:
+  sc_sp(List.length(&2, String, xs), xs)
+
+def sc_ids(xs: List<&2, List<&2, String>>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +h <> t: S.u64_of(S.Sx_a{S.arg_at(h, 1n)}) <> sc_ids(t)
+
+def sc_num(+s: String) -> String:
+  S.f_show(f_or_nan(S.dec(s)))
+
+def sc_json(+sp: List<&2, String>, +nt: Nat) -> String:
+  "{\"name\":\"" ++ S.arg_at(sp, 0n) ++ "\",\"mesh\":\"" ++ S.arg_at(sp, 0n) ++ ".obj\",\"node\":" ++ S.arg_at(sp, 1n) ++
+    ",\"color\":[" ++ sc_num(S.arg_at(sp, 2n)) ++ "," ++ sc_num(S.arg_at(sp, 3n)) ++ "," ++ sc_num(S.arg_at(sp, 4n)) ++
+    "],\"rotor\":" ++ sc_num(S.arg_at(sp, 5n)) ++ ",\"explode\":[" ++ sc_num(S.arg_at(sp, 6n)) ++ "," ++ sc_num(S.arg_at(sp, 7n)) ++ "," ++
+    sc_num(S.arg_at(sp, 8n)) ++ "],\"tris\":" ++ Nat.show(nt) ++ "}"
+
+def sc_tw(ok: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO(String):
+  match ok:
+    case False{}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " refused " ++ M10.tres_why(t))
+    case True{}:
+      do IO<String>:
+        w : Unit <- write_file(out, M10.tres_obj(t))
+        IO.pure(String, sc_json(sp, M10.tres_nt(t)))
+
+def sc_one(r: M.NR, +dir: String, +sp: List<&2, String>, +q: M10.Q) -> IO(String):
+  match r:
+    case M.NR_err{k, d}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " node failed")
+    case M.NR_ok{+b, fx}:
+      +t = TS.body_q(b, q)
+      sc_tw(M10.tres_ok_of(t), t, dir ++ "/" ++ S.arg_at(sp, 0n) ++ ".obj", sp)
+
+def sc_bad(+xs: List<&2, String>) -> String:
+  match xs:
+    case []: ""
+    case +h <> t: Bool.pick(String, String.starts_with(h, "!"), String.drop(h, 1n) ++ "; ", "") ++ sc_bad(t)
+
+def sc_good(+xs: List<&2, String>, +first: Bool) -> String:
+  match xs:
+    case []: ""
+    case +h <> t:
+      +bad = String.starts_with(h, "!")
+      Bool.pick(String, bad, "", Bool.pick(String, first, "", ",
+") ++ h) ++ sc_good(t, Bool.and(first, bad))
+
+def sc_all(xs: List<&2, List<&2, String>>, +cs: List<&2, M.CE>, +dir: String, +q: M10.Q) -> IO(List<&2, String>):
+  match xs:
+    case []: IO.pure(List<&2, String>, [])
+    case +h <> t:
+      do IO<List<&2, String>>:
+        a : String <- sc_one(node_res(cs, S.u64_of(S.Sx_a{S.arg_at(h, 1n)})), dir, h, q)
+        r : List<&2, String> <- sc_all(t, cs, dir, q)
+        IO.pure(List<&2, String>, a <> r)
+
+def sc_fin(+dir: String, +title: String, +es: List<&2, String>) -> IO(String):
+  do IO<String>:
+    w : Unit <- write_file(dir ++ "/scene.json", "{\"name\":\"" ++ title ++ "\",\"subtitle\":\"BendCAD scene\",\"parts\":[
+" ++ sc_good(es, True{}) ++ "
+]}
+")
+    IO.pure(String, "wrote " ++ dir ++ "/scene.json parts " ++ Nat.show(List.length(&2, String, es)) ++
+      Bool.pick(String, String.eq(sc_bad(es), ""), "", " | refused: " ++ sc_bad(es)))
+
+def scene_io(+p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> IO(String):
+  +dir = S.arg_at(rest, 0n)
+  +sp = sc_specs(arg_drop(rest, 2n))
+  +q = M10.q_preset(tess_p(""))
+  do IO<String>:
+    es : List<&2, String> <- sc_all(sp, M.ev_for(p, sc_ids(sp), old), dir, q)
+    sc_fin(dir, S.arg_at(rest, 1n), es)
 
 def mach_out(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +d = f_arg(xs, 1n)
@@ -1194,7 +1276,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 31u64: IO.pure(String, modes_out(p, rest, old))
     case 32u64: IO.pure(String, spin_out(p, rest, old))
     case 33u64: IO.pure(String, mach_out(p, rest, old))
-    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine")
+    case 35u64: scene_io(p, rest, old)
+    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:
@@ -1418,10 +1501,15 @@ def main_geo(isgeo: Bool, +args: List<&2, String>) -> IO(Unit):
     case True{}: geo_go(geo12(S.arg_at(args, 2n)), args)
     case False{}: main_sel(S.arg_at(args, 1n), arg_drop(args, 2n))
 
+def main_view(isview: Bool, +args: List<&2, String>) -> IO(Unit):
+  match isview:
+    case True{}: VS.view(U64.to_u32(S.u64_of(S.Sx_a{S.arg_at(args, 2n)})), S.arg_at(args, 3n))
+    case False{}: main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)
+
 def main_srv(issrv: Bool, +args: List<&2, String>) -> IO(Unit):
   match issrv:
     case True{}: serve(U64.to_u32(S.u64_of(S.Sx_a{S.arg_at(args, 2n)})))
-    case False{}: main_geo(String.eq(S.arg_at(args, 1n), "geom"), args)
+    case False{}: main_view(String.eq(S.arg_at(args, 1n), "view"), args)
 
 def main_go(+args: List<&2, String>) -> IO(Unit):
   main_srv(String.eq(S.arg_at(args, 1n), "serve"), args)

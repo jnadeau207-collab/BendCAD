@@ -38,19 +38,22 @@ Back comes a certified volume interval for every node, durable face names that s
 ## What works today
 
 - **Sketching and solving:** profiles with lines and arcs, islands and holes, and a constraint solver that reports rank and degrees of freedom.
-- **Solids:** boxes, cylinders, cones, spheres, tori, extrusions, revolves, pads, pockets, holes, placement and rotation.
-- **Booleans:** union, difference and intersection of solids whose boundaries don't cross. Crossing boundaries are refused by name until face splitting lands.
+- **Solids:** boxes, cylinders, cones, spheres, tori, extrusions, revolves, pads, pockets, holes, placement and arbitrary rotation.
+- **Freeform geometry:** a B-spline/NURBS library, and `skin` lofts through any number of sections (NACA or free point runs in their own frames), decomposed exactly into bicubic Bezier patch faces with a certified self-intersection check.
+- **True booleans:** union, difference and intersection of solids whose boundaries cross, including freeform patch faces. K1 traces and certifies every surface-surface intersection (planes, quadrics, tori, cones and patches), splits faces along the curves, and assembles a B-rep that must pass full embedding (C04) and face/edge (C07) validation before it is committed. Disjoint and separated pieces are proven apart by certified convex-hull subdivision rather than traced.
 - **Features:** sweep, loft, chamfer, fillet, draft, offset, shell, and linear and circular patterns.
-- **Truth about geometry:** certified curve and surface intersections, inside/outside classification, and embedding and cavity checks.
-- **Meshes:** display and manufacturing tessellation with stated chord and angle quality and a triangle budget.
-- **Queries:** closest points, sections, mass properties, interference and clearance, each certified or honestly marked approximate.
-- **For agents:** the `bendcad` CLI and an MCP server. In our first challenge, fresh AI agents built and edited a parameterized bracket from a written brief, and an independent grader passed every run.
+- **Truth about geometry:** certified curve and surface intersections, inside/outside classification, and embedding and cavity checks. Transformed and traced faces carry measured, certified slack, never a guessed tolerance.
+- **Meshes:** a general watertight tessellator for every face kind (seam-safe parameterisation, conforming refinement, one orientation per face), with display and manufacturing quality presets.
+- **Queries:** closest points, sections, mass properties, interference and certified clearance, each certified or honestly marked approximate.
+- **Interchange:** STEP AP242 per part and per assembly (freeform faces export as `B_SPLINE_SURFACE`), a versioned B-rep archive, and STL/3MF meshes.
+- **Viewer:** `bendcad DESIGN scene DIR TITLE NAME NODE R G B SPIN EX EY EZ ...` tessellates an assembly into `DIR`, and `bendcad view PORT DIR` serves the built-in WebGL viewer (`viewer/`) from the kernel itself: orbit, assembled and exploded views, a section cut, and a run mode that spins each part at its own speed ratio, with WebM recording and PNG snapshots.
+- **For agents:** the `bendcad` CLI, a cached server front end (`bendcad serve PORT`, repeat commands in about 0.02 s), and an MCP server. In our first challenge, fresh AI agents built and edited a parameterized bracket from a written brief, and an independent grader passed every run.
 
 ## How we keep it honest
 
-- **Laws, not just tests.** 591 properties are stated for *every* input and proven by Bend's checker and again by a Lean-proven kernel. Each family of laws is shown to catch a deliberately planted bug.
-- **Pins.** 2,631 fixed-input checks run as compiled code and are compared bit-for-bit.
-- **End-to-end journeys.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report.
+- **End-to-end journeys first.** Real designs are built, edited, refused and re-measured through the CLI and MCP server, and every run leaves a reproducible report. Geometry and numerics are judged this way, against independent oracles such as OCCT reading our STEP files.
+- **Byte identity.** Every speed change must reproduce a fixed battery of real designs bit-for-bit ([tools/speed/ident.py](tools/speed/ident.py)).
+- **Laws, honestly counted.** Bend laws are only proofs when they quantify over their inputs and pass Bend's Lean-checked `--verdict`. Most of the kernel's existing laws are fixed-input F64 checks, which we treat as tests rather than proofs. The work now is to move laws onto discrete structure (topology, the operation graph, parsing) where real proofs are possible.
 - **Receipts.** Every milestone closes with a dated receipt of exactly what was measured ([docs/receipts](docs/receipts)).
 
 ## Where it's going
@@ -62,8 +65,8 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 | G1 | Parameterized mounting bracket with curved edges and holes | ✅ passed |
 | G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | ✅ passed (run 1, SAE A gear pump, OCCT-graded 25/25, Oct 27) |
 | G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed (re-run on the K3 kernel, OCCT-graded PASS; mesh clearance 0.100 mm) |
-| G4 | Centrifugal blower with modal analysis and machining checks | in progress (K3 kernel packet closed Oct 27; gate run not yet done) |
-| G5 | A ~100 N micro turbojet, with drawings a shop can build from | planned |
+| G4 | Centrifugal blower with modal analysis and machining checks | run 1 graded 44/50 (Nov 1): every part, mass and fit passed; the four failures were curved-face STL exports, now covered by the general tessellator; clearance for all pairs certified Nov 3 |
+| G5 | A ~100 N micro turbojet, with drawings a shop can build from | in progress: cycle point (99 N at 99,700 r/min), shaft, bearings, casing with welded igniter boss, liner, 12-blade impeller, diffuser, straightener and exhaust weldment built; NGV and turbine on the current kernel |
 | G6 | A bespoke jet engine from a performance brief | the summit |
 
 And the kernel milestones that carry it there:
@@ -75,7 +78,9 @@ And the kernel milestones that carry it there:
 - **Shipped:** specialized modeling: sheet metal with certified flat patterns, open-shell surface modeling with thickening to solids, and NACA blade sections with ruled stacking and certified section reports.
 - **Shipped:** professional release qualification: a stable CLI with structured errors and resource/cancellation gates, a documented SDK boundary, reproducible builds, diagnostics, a versioned corpus, and regression gates every future capability re-runs.
 - **Shipped:** rotor analysis (K3): certified mass moments, balance and rotor critical speeds, curved-T10 FEM modes and spin growth, blade-root blends, and machinability verdicts that refuse a slot narrower than the tool.
-- **Now:** the G4 proof gate: a centrifugal blower with modal analysis and machining checks, on the closed K3 rotor kernel.
+- **Shipped:** freeform and true booleans (K4): NURBS and Bezier patch solids, certified surface-surface tracing for every face kind, face splitting, and full C04/C07 validation of the result.
+- **Shipped:** speed: whole-design work reuse, parallel validation, certified separation proofs, and a 6.4-minute split-parallel kernel build.
+- **Now:** the G5 micro turbojet, assembled in the kernel's own viewer and exported as STEP.
 
 The full plan is [MASTER_PLAN.md](MASTER_PLAN.md).
 
@@ -85,13 +90,25 @@ BendCAD builds with a pinned build of the Bend language that adds 64-bit integer
 
 ```sh
 bend src/c06/cli.bend -o bendcad.c
-cc -O3 bendcad.c -o bendcad -lpthread -lm
+python3 tools/build/csplit.py bendcad.c build 32
+ls build/tu*.c | xargs -P 10 -I{} cc -O3 -c {} -o {}.o
+cc build/tu*.c.o -o bendcad -lpthread -lm
 ./bendcad bracket.bcd new
 ./bendcad bracket.bcd apply '(param W 120)' '(node 1 (box W 80 8) (intent create 6 0 1 0))'
 ./bendcad bracket.bcd eval
 ```
 
-The kernel compiles to one large C file, so the `cc` step needs about 20 GB of memory (RAM plus swap) and several minutes.
+The kernel compiles to one large C file. Splitting it into translation units and compiling them in parallel brings the build to about 6 to 7 minutes. Code generation needs about 15 GB of memory.
+
+To look at a design, export a scene and serve the viewer:
+
+```sh
+mkdir -p viewer/bracket
+./bendcad bracket.bcd scene viewer/bracket Bracket bracket 1 0.7 0.72 0.75 0 0 0 0
+./bendcad view 8790 viewer
+```
+
+Then open `http://127.0.0.1:8790/?scene=bracket/scene.json`. Each part is `NAME NODE R G B SPIN EX EY EZ`: a colour, a speed ratio for run mode, and an explode offset.
 
 To drive it from an agent, point your MCP client at `node tools/mcp/bendcad-mcp.mjs`.
 

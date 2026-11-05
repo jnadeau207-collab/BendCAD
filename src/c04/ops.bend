@@ -842,6 +842,9 @@ def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
 def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
   pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))
 
+def vx_surf_tol(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal, +tol: F64) -> Bool:
+  GO.q_on_h(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))), tol)
+
 def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
     case Nil{}: True{}
@@ -850,7 +853,7 @@ def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool
       +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
       +fw = Ty.ce_fwd(ce)
       +c = Bool.or(Bool.not(coinc), ce_coinc_ok(ce, ed, x, surf, tol))
-      +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_on(x, o_v_start(ed, fw), surf), vx_surf_on(x, o_v_end(ed, fw), surf)))
+      +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_tol(x, o_v_start(ed, fw), surf, tol), vx_surf_tol(x, o_v_end(ed, fw), surf, tol)))
       Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb, tol))
 
 def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:

@@ -19,6 +19,10 @@ import ../c07/rb.bend as R
 import ../k1/asm.bend as K1
 import ../k1/gb.bend as GB
 import ../k1/vi.bend as VI
+import ../c03/bpi.bend as BI
+import ../c03/ops.bend as GOP
+import ../k1/sf.bend as KS
+import ../k1/px.bend as KP
 
 def tag_union() -> U64:
   14u64
@@ -584,10 +588,95 @@ def xf_fas(+m: V.Mat3, +tx: F64, +ty: F64, +tz: F64, xs: List<&2, Ty.Face>) -> L
     case Ty.Fa{g, s, ls, same, slv, sla} <> t:
       Ty.Fa{g, xf_gval(m, tx, ty, tz, s), ls, same, slv, sla} <> xf_fas(m, tx, ty, tz, t)
 
+def gp1(+g: G.GVal, +p: V.Point, +t: V.Vec2) -> F64:
+  match g:
+    case G.GV_pl{w}: BI.pl_gap(w, p, V.v2_x(t), V.v2_y(t))
+    case G.GV_bp{w}: BI.bp_gap(w, p, V.v2_x(t), V.v2_y(t))
+    case _: 0.0f64
+
+def gp_go(ex: Bool, +g: G.GVal, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> F64:
+  match ex:
+    case True{}: 0.0f64
+    case False{}: F64.max(gp1(g, ps, ts), gp1(g, pe, te))
+
+def qd1(on: Bool, +g: G.GVal, +p: V.Point) -> F64:
+  match on:
+    case True{}: 0.0f64
+    case False{}:
+      +k = KS.sf_of(g)
+      +gl = KS.dlen(KS.sf_grad(k, p))
+      +sc = F64.add(1.0f64, F64.max(F64.abs(V.pt_x(p)), F64.max(F64.abs(V.pt_y(p)), F64.abs(V.pt_z(p)))))
+      +d = F64.add(F64.mul(4.0f64, F64.div(F64.abs(KS.sf_f(k, p)), gl)), F64.mul(1.0e-15f64, sc))
+      Bool.pick(F64, Bool.and(F64.is_lt(0.0f64, gl), F64.is_lt(d, F64.mul(1.0e-9f64, sc))), d, 0.0f64)
+
+def qd_ce(+g: G.GVal, +x: Ty.Ix, +h: Ty.HCoedge) -> F64:
+  +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+  +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+  +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v0(ed))))
+  +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v1(ed))))
+  F64.max(qd1(GOP.q_on_s(g, ps), g, ps), qd1(GOP.q_on_s(g, pe), g, pe))
+
+def gp_ce(+g: G.GVal, +x: Ty.Ix, +h: Ty.HCoedge) -> F64:
+  +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+  +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+  +fw = Ty.ce_fwd(ce)
+  +ts = B4.trim_o_start(Ty.ce_trim(ce), fw)
+  +te = B4.trim_o_end(Ty.ce_trim(ce), fw)
+  +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, B4.o_v_start(ed, fw))))
+  +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, B4.o_v_end(ed, fw))))
+  gp_go(B4.coinc_ex([g], ts, te, ps, pe), g, ts, te, ps, pe)
+
+def gq_ce(q: Bool, +g: G.GVal, +x: Ty.Ix, +h: Ty.HCoedge) -> F64:
+  match q:
+    case True{}: qd_ce(g, x, h)
+    case False{}: gp_ce(g, x, h)
+
+def gp_ces(xs: List<&2, Ty.HCoedge>, +g: G.GVal, +x: Ty.Ix) -> F64:
+  match xs:
+    case []: 0.0f64
+    case +h <> t: F64.max(gq_ce(B4.surf_quad(g), g, x, h), gp_ces(t, g, x))
+
+def gp_lps(xs: List<&2, Ty.HLoop>, +g: G.GVal, +x: Ty.Ix) -> F64:
+  match xs:
+    case []: 0.0f64
+    case +h <> t: F64.max(gp_ces(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), g, x), gp_lps(t, g, x))
+
+def sl_fas(xs: List<&2, Ty.Face>, +x: Ty.Ix) -> List<&2, Ty.Face>:
+  match xs:
+    case []: []
+    case Ty.Fa{g, +s, +ls, same, +slv, sla} <> t:
+      Ty.Fa{g, s, ls, same, F64.max(slv, F64.mul(Bool.pick(F64, B4.surf_quad(s), 1.0f64, 2.0f64), gp_lps(ls, s, x))), sla} <> sl_fas(t, x)
+
+def is_ln(+k: Ty.EdgeKind) -> Bool:
+  match k:
+    case Ty.EK_curve{c, d}:
+      match c:
+        case G.GV_ln{w}: True{}
+        case _: False{}
+    case _: False{}
+
+def el_k(bad: Bool, +k: Ty.EdgeKind, +p0: V.Point, +p1: V.Point) -> Ty.EdgeKind:
+  match bad:
+    case True{}: KP.ln_kind(p0, p1)
+    case False{}: k
+
+def el_fix(xs: List<&2, Ty.Edge>, +x: Ty.Ix) -> List<&2, Ty.Edge>:
+  match xs:
+    case []: []
+    case Ty.Ed{tg, +a, +b, +k} <> t:
+      +p0 = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, a)))
+      +p1 = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, b)))
+      +bad = Bool.and(is_ln(k), Bool.not(B4.edge_ends_on_curve(k, p0, p1, 1000n)))
+      Ty.Ed{tg, a, b, el_k(bad, k, p0, p1)} <> el_fix(t, x)
+
+def xf_sl(+b: Ty.Brep) -> Ty.Brep:
+  Ty.Br{Ty.brep_vs(b), el_fix(Ty.brep_es(b), Ty.ix_of(b)), Ty.brep_ces(b), Ty.brep_lps(b), sl_fas(Ty.brep_fas(b), Ty.ix_of(b)),
+    Ty.brep_shs(b), Ty.brep_sos(b), Ty.brep_top(b), Ty.brep_stamp(b)}
+
 def xf_brep(+m: V.Mat3, +tx: F64, +ty: F64, +tz: F64, +b: Ty.Brep) -> Ty.Brep:
-  Ty.Br{xf_vs(m, tx, ty, tz, Ty.brep_vs(b)), xf_es(m, tx, ty, tz, Ty.brep_es(b)), Ty.brep_ces(b),
+  xf_sl(Ty.Br{xf_vs(m, tx, ty, tz, Ty.brep_vs(b)), xf_es(m, tx, ty, tz, Ty.brep_es(b)), Ty.brep_ces(b),
     Ty.brep_lps(b), xf_fas(m, tx, ty, tz, Ty.brep_fas(b)), Ty.brep_shs(b), Ty.brep_sos(b),
-    Ty.brep_top(b), Ty.brep_stamp(b)}
+    Ty.brep_top(b), Ty.brep_stamp(b)})
 
 def sh_hv(+s: Nat, +h: Ty.HVertex) -> Ty.HVertex:
   Ty.HV{i, g} = h
@@ -2191,8 +2280,9 @@ def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX
     bake_lin(lin, lin2, bbx), True{}, bool_mat(op, 2u64, vol, vol2, 0u64),
     fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, [], []}
 
-def append_valid(a: In, b: In, +bc: Ty.Brep, +nd: U64, +wa: BX, +wb: BX, +proof: String) -> Out:
-  +v = vcore(bc)
+def append_valid(+a: In, +b: In, +bc: Ty.Brep, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +wa: BX, +wb: BX, +proof: String) -> Out:
+  +v = vcore_t(bc, SO.fds_of(bc), SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
+    SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
   Bool.pick(Out, VR_ok(v), append_out(tag_union(), a, b, bc, nd, VR_nc(v), wa, wb, proof),
     out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
       "validation-rejected: " ++ vcode(v), "report these operands"))
@@ -2204,7 +2294,7 @@ def append_rebox(+op: U64, +a: In, +b: In, +bc: Ty.Brep, +ba: Ty.Brep, +bb: Ty.B
 def run_append(+a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, +wb: BX, +nd: U64,
     +proof: String) -> Out:
   +bc = brep_append(ba, bb)
-  append_valid(a, b, bc, nd, wa, wb, proof)
+  append_valid(a, b, bc, ba, bb, nd, wa, wb, proof)
 
 def run_disjoint_go(+is_union: Bool, +is_diff: Bool, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep,
     +wa: BX, +wb: BX, +nd: U64, +proof: String) -> Out:

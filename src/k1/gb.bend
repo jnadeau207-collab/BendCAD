@@ -21,8 +21,14 @@ import ../base/par.bend as B
 
 
 
+
+
+
 type RY is Data:
   RY{ n: Nat, st: U64 }
+
+
+
 
 
 
@@ -35,8 +41,14 @@ type BK is Data:
 
 
 
+
+
+
 type FR is Data:
   FR{ rgs: List<&2, W.RG>, pcs: List<&2, W.PC>, keep: List<&2, Bool>, ok: Bool, why: U64 }
+
+
+
 
 
 
@@ -49,8 +61,14 @@ type KC is Data:
 
 
 
+
+
+
 type EM is Data:
   EM{ st: K1.AS, ok: Bool, why: U64 }
+
+
+
 
 
 
@@ -63,6 +81,9 @@ type EM2 is Data:
 
 
 
+
+
+
 type GR is Data:
   GR{ ok: Bool, why: U64, brep: Ty.Brep, st: K1.AS }
 
@@ -70,8 +91,14 @@ type GR is Data:
 
 
 
+
+
+
 type IP is Data:
   IP{ i: Nat, p: W.PC }
+
+
+
 
 
 
@@ -599,8 +626,13 @@ def trim_of(+g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> G.GVal:
     G.GV_ts{G.Ts{V.V2{EF.uv_u(ua), EF.uv_v(ua)}, V.V2{EF.uv_u(ub), EF.uv_v(ub)}}},
     G.GV_ts{G.Ts{FB.uv_raw(s, pa), FB.uv_raw(s, pb)}})
 
+def pl_near(+s: S.SF, +p: V.Point) -> Bool:
+  +d = F64.abs(S.dot(S.psub(p, S.sf_o(s)), S.sf_a(s)))
+  F64.is_le(d, F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p)))))))
+
 def trim_ok(+g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> Bool:
-  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_plane())), Bool.and(EF.on_g(g, pa), EF.on_g(g, pb)))
+  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_plane())),
+    Bool.and(Bool.or(EF.on_g(g, pa), pl_near(s, pa)), Bool.or(EF.on_g(g, pb), pl_near(s, pb))))
 
 def mk_ed(+va: Nat, +vb: Nat, +e: W.ER) -> Ty.Edge:
   Ty.Ed{0u64, K1.hv(va), K1.hv(vb), W.er_k(e)}
@@ -759,10 +791,35 @@ def sf_tol(+s: S.SF) -> F64:
     case S.SF_bp{gw}: BI.bp_tol(S.gbp(gw))
     case _: 0.0f64
 
+def pl_tg_go(+g: G.GVal, +p: V.Point, +uv: EF.UV) -> F64:
+  match g:
+    case G.GV_pl{w}: BI.pl_gap(w, p, EF.uv_u(uv), EF.uv_v(uv))
+    case G.GV_bp{w}: BI.bp_gap(w, p, EF.uv_u(uv), EF.uv_v(uv))
+    case _: 0.0f64
+
+def pl_tg(+g: G.GVal, +p: V.Point) -> F64:
+  pl_tg_go(g, p, EF.pl_uv(g, p))
+
+def pl_off(+g: G.GVal, +s: S.SF, +p: V.Point) -> F64:
+  Bool.pick(F64, Bool.and(U64.is_eq(S.sf_kind(s), S.k_plane()), Bool.not(EF.on_g(g, p))),
+    F64.mul(2.0f64, F64.max(F64.abs(S.dot(S.psub(p, S.sf_o(s)), S.sf_a(s))), pl_tg(g, p))), 0.0f64)
+
+def hes_pl(hs: List<&2, W.HE>, +pcs: List<&2, W.PC>, +g: G.GVal, +s: S.SF, +gv: PX.GV, +best: F64) -> F64:
+  match hs:
+    case []: best
+    case +h <> +t:
+      +pc = W.nth_pc(pcs, W.he_i(h))
+      hes_pl(t, pcs, g, s, gv, F64.max(best, F64.max(pl_off(g, s, PX.gv_pt(gv, W.pc_va(pc))), pl_off(g, s, PX.gv_pt(gv, W.pc_vb(pc))))))
+
+def cys_pl(cs: List<&2, W.CY>, +pcs: List<&2, W.PC>, +g: G.GVal, +s: S.SF, +gv: PX.GV, +best: F64) -> F64:
+  match cs:
+    case []: best
+    case +h <> +t: cys_pl(t, pcs, g, s, gv, hes_pl(W.cy_hes(h), pcs, g, s, gv, best))
+
 def emit_rg(+r: W.RG, +pcs: List<&2, W.PC>, +same: Bool, +flip: Bool, +g: List<&2, G.GVal>, +s: S.SF,
     +gv: PX.GV, +m: EM) -> EM:
   +so = Bool.xor(same, flip)
-  +dv = F64.max(cys_dv(W.rg_cys(r), pcs, 0.0f64), sf_tol(s))
+  +dv = F64.max(F64.max(cys_dv(W.rg_cys(r), pcs, 0.0f64), sf_tol(s)), cys_pl(W.rg_cys(r), pcs, PX.nth_g(g, 0n), s, gv, 0.0f64))
   +x = emit_cys(W.rg_cys(r), pcs, Bool.not(so), m, g, s, gv, True{}, [])
   +st = em_st(em2_m(x))
   EM{K1.as_add_fa(st, mk_fa(g, hls_of(em2_cs(x)), so, dv)), em_ok(em2_m(x)), em_why(em2_m(x))}

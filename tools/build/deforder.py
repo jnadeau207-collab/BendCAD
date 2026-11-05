@@ -34,7 +34,7 @@ def order(defs):
     deps = {}
     for n, b in defs:
         rest = b.split('\n', 1)[1] if '\n' in b else ''
-        deps[n] = {m for m in re.findall(r'(?<![\w.])(\w+)\(', rest) if m in names and m != n}
+        deps[n] = {m for m in re.findall(r'(?<![\w.])(\w+)\(', rest) + re.findall(r'~(\w+)', rest) if m in names and m != n}
     out, state = [], {}
 
     def visit(n):

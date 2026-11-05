@@ -53,6 +53,9 @@ type CQ is Data:
 type B6 is Data:
   B6{ x0: F64, x1: F64, y0: F64, y1: F64, z0: F64, z1: F64 }
 
+type PP is Data:
+  PP{ a: G.BezP, b: G.BezP }
+
 def ek_curve(+k: Ty.EdgeKind) -> G.GVal:
   match k:
     case Ty.EK_curve{+c, +d}: c
@@ -249,10 +252,34 @@ def bp_step(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
   +ok = F64.is_lt(1.0e-300f64, F64.abs(det))
   Bool.pick(V.Vec2, ok, V.V2{F64.add(u, du), F64.add(v, dv)}, q)
 
+def cl01(+q: V.Vec2) -> V.Vec2:
+  V.V2{F64.max(0.0f64, F64.min(1.0f64, V.v2_x(q))), F64.max(0.0f64, F64.min(1.0f64, V.v2_y(q)))}
+
 def bp_newton(n: Nat, +w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
   match n:
     case 0n: q
-    case 1n+m: bp_newton(m, w, p, bp_step(w, p, q))
+    case 1n+m: bp_newton(m, w, p, cl01(bp_step(w, p, q)))
+
+def near01(+x: F64) -> F64:
+  Bool.pick(F64, F64.is_lt(x, 0.5f64), 0.0f64, 1.0f64)
+
+def bp_d2(+w: G.BezP, +p: V.Point, +u: F64, +v: F64) -> F64:
+  +d = S.psub(bp_pt(w, u, v), p)
+  S.dot(d, d)
+
+def bsnap_u(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
+  +u = V.v2_x(q)
+  +v = V.v2_y(q)
+  +s = near01(u)
+  +ok = Bool.and(F64.is_lt(F64.abs(F64.sub(u, s)), 1.0e-5f64), F64.is_le(bp_d2(w, p, s, v), bp_d2(w, p, u, v)))
+  V.V2{Bool.pick(F64, ok, s, u), v}
+
+def bsnap_v(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
+  +u = V.v2_x(q)
+  +v = V.v2_y(q)
+  +s = near01(v)
+  +ok = Bool.and(F64.is_lt(F64.abs(F64.sub(v, s)), 1.0e-5f64), F64.is_le(bp_d2(w, p, u, s), bp_d2(w, p, u, v)))
+  V.V2{u, Bool.pick(F64, ok, s, v)}
 
 def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
   G.Bp{+p00, p01, p02, +p03, p10, p11, p12, p13, p20, p21, p22, p23, +p30, p31, p32, p33} = w
@@ -267,7 +294,7 @@ def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
   +det = F64.sub(F64.mul(aa, bb), F64.mul(ab, ab))
   +u1 = F64.div(F64.sub(F64.mul(da, bb), F64.mul(db, ab)), det)
   +v1 = F64.div(F64.sub(F64.mul(db, aa), F64.mul(da, ab)), det)
-  +uv = bp_newton(12n, w, p, V.V2{u1, v1})
+  +uv = bsnap_v(w, p, bsnap_u(w, p, bp_newton(12n, w, p, cl01(V.V2{u1, v1}))))
   +u0 = snap01(V.v2_x(uv))
   +v0 = snap01(V.v2_y(uv))
   bp_scan_u(offs(), w, p, u0, ulp_of(F64.max(u0, 0.5f64)), v0, ulp_of(F64.max(v0, 0.5f64)))
@@ -305,6 +332,18 @@ def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
   match gs:
     case []: True{}
     case +h <> +t: Bool.and(on_g(h, p), on_all(t, p))
+
+def on_c(+g: G.GVal, +p: V.Point) -> Bool:
+  match g:
+    case G.GV_to{w}:
+      +m = F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))
+      Bool.or(on_g(G.GV_to{w}, p), GO.q_on_h(G.GV_to{w}, p, F64.mul(16.0f64, ulp_of(m))))
+    case _: on_g(g, p)
+
+def on_all_c(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
+  match gs:
+    case []: True{}
+    case +h <> +t: Bool.and(on_c(h, p), on_all_c(t, p))
 
 def ct_ok(+c: CT) -> Bool:
   CT{ok, t, p} = c
@@ -345,7 +384,7 @@ def nz_go(zs: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +
     case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
     case +h <> +t:
       +q = S.pt(x, y, F64.add(z, F64.mul(h, uz)))
-      Bool.pick(CT, on_all(gs, q), CT{True{}, 0.0f64, q}, nz_go(t, gs, x, y, z, uz))
+      Bool.pick(CT, on_all_c(gs, q), CT{True{}, 0.0f64, q}, nz_go(t, gs, x, y, z, uz))
 
 def ny_go(ys: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uy: F64, +uz: F64) -> CT:
   match ys:
@@ -610,6 +649,41 @@ def cs_far_go(n: Nat, +k: U64, +c: G.GVal, +qs: List<&2, CQ>) -> Bool:
 def cs_far(+c: G.GVal, +lo: F64, +hi: F64, +w: G.BezP) -> Bool:
   +k = cv_kind(c)
   Bool.and(Bool.not(U64.is_eq(k, 0u64)), cs_far_go(1500n, k, c, [CQ{lo, hi, [w]}]))
+
+def pp_l(qs: List<&2, G.BezP>, +o: G.BezP, +left: Bool) -> List<&2, PP>:
+  match qs:
+    case []: []
+    case +q <> t: Bool.pick(PP, left, PP{q, o}, PP{o, q}) <> pp_l(t, o, left)
+
+def pp_box(+p: G.BezP) -> B6:
+  b6_of(SC.pts16(p), 1.0e-9f64)
+
+def bb_far_go(n: Nat, +qs: List<&2, PP>) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+m):
+      match qs:
+        case []: True{}
+        case +q <> +t:
+          PP{+a, +b} = q
+          +ba = pp_box(a)
+          +bb = pp_box(b)
+          +la = F64.is_le(b6_diag(bb), b6_diag(ba))
+          +kids = Bool.pick(List<&2, PP>, la, pp_l(SC.quads(a), b, True{}), pp_l(SC.quads(b), a, False{}))
+          bb_far_go(m, Bool.pick(List<&2, PP>, b6_dis(ba, bb), t, List.append(&2, PP, kids, t)))
+
+def bb_far(+a: G.BezP, +b: G.BezP) -> Bool:
+  bb_far_go(4000n, [PP{a, b}])
+
+def gb_far(+w: G.BezP, +g: G.GVal) -> Bool:
+  match g:
+    case G.GV_bp{v}: bb_far(w, v)
+    case _: False{}
+
+def gg_far(+g1: G.GVal, +g2: G.GVal) -> Bool:
+  match g1:
+    case G.GV_bp{w}: gb_far(w, g2)
+    case _: False{}
 
 def bp_hits_go(isc: Bool, +w: G.BezP, +c: G.GVal, +gs: List<&2, G.GVal>, +lo: F64, +hi: F64) -> EHS:
   match isc:

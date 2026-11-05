@@ -1687,6 +1687,20 @@ def q_on_s_go(ok: Bool, +s: G.GVal, +q: V.Point) -> Bool:
 def q_on_s(+s: G.GVal, +q: V.Point) -> Bool:
   Bool.or(q_on_r(s, q), q_on_s_go(Bool.and(q_valid(s), V.pt_fin(q)), s, q))
 
+def rep_hh(s0: P.Sgn, +s: G.GVal, +q: V.Point, +h: F64) -> Bool:
+  match s0:
+    case P.Sz{}: True{}
+    case P.Su{}: False{}
+    case _: opp_go(corners_h(q, h), s, s0, False{})
+
+def q_on_h_go(ok: Bool, +s: G.GVal, +q: V.Point, +h: F64) -> Bool:
+  match ok:
+    case True{}: rep_hh(E.ex_sign(q_ex(s, q)), s, q, h)
+    case False{}: False{}
+
+def q_on_h(+s: G.GVal, +q: V.Point, +tol: F64) -> Bool:
+  Bool.or(q_on_s(s, q), q_on_h_go(Bool.and(Bool.and(q_valid(s), V.pt_fin(q)), F64.is_lt(0.0f64, tol)), s, q, F64.mul(0.5773502691896257f64, tol)))
+
 def tseg_eval_go(+a: V.Vec2, +b: V.Vec2, +t: F64, fin: Bool,
     dom: Bool) -> G.GRes:
   match fin:
