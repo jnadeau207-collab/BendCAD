@@ -1,0 +1,575 @@
+{
+ "pairs": [
+  {
+   "a": "bearing_front_balls",
+   "b": "bearing_front_cage",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "bearing_front_inner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "bearing_front_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_balls",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "bearing_front_inner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "bearing_front_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_cage",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "bearing_front_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "impeller",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "spring",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_inner",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "impeller",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "spring",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_front_outer",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "bearing_rear_cage",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "bearing_rear_inner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "bearing_rear_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "liner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_balls",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "bearing_rear_inner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "bearing_rear_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "liner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_cage",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_inner",
+   "b": "bearing_rear_outer",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_inner",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_inner",
+   "b": "liner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_inner",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_inner",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_outer",
+   "b": "casing",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_outer",
+   "b": "liner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_outer",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "bearing_rear_outer",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "diffuser",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "exhaust",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "front_cover",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "impeller",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "liner",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "manifold",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "ngv",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "nut_rear",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "spring",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "casing",
+   "b": "turbine",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "diffuser",
+   "b": "front_cover",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "diffuser",
+   "b": "impeller",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "diffuser",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "diffuser",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "exhaust",
+   "b": "ngv",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "exhaust",
+   "b": "nut_rear",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "exhaust",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "front_cover",
+   "b": "impeller",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "front_cover",
+   "b": "intake",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "front_cover",
+   "b": "nut_front",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "front_cover",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "impeller",
+   "b": "intake",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "impeller",
+   "b": "nut_front",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "impeller",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "impeller",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "impeller",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "intake",
+   "b": "nut_front",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "liner",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "liner",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "manifold",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "manifold",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "ngv",
+   "b": "nut_rear",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "ngv",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "ngv",
+   "b": "turbine",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "nut_front",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "nut_rear",
+   "b": "shaft",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "nut_rear",
+   "b": "turbine",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "shaft",
+   "b": "spring",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "shaft",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "shaft",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "shaft",
+   "b": "turbine",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "spring",
+   "b": "straightener",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "spring",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  },
+  {
+   "a": "straightener",
+   "b": "tunnel",
+   "overlap": 0.0,
+   "done": true
+  }
+ ],
+ "seconds": 22.4
+}

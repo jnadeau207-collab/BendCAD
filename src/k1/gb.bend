@@ -817,9 +817,9 @@ def cys_pl(cs: List<&2, W.CY>, +pcs: List<&2, W.PC>, +g: G.GVal, +s: S.SF, +gv: 
     case +h <> +t: cys_pl(t, pcs, g, s, gv, hes_pl(W.cy_hes(h), pcs, g, s, gv, best))
 
 def emit_rg(+r: W.RG, +pcs: List<&2, W.PC>, +same: Bool, +flip: Bool, +g: List<&2, G.GVal>, +s: S.SF,
-    +gv: PX.GV, +m: EM) -> EM:
+    +gv: PX.GV, +sl: F64, +m: EM) -> EM:
   +so = Bool.xor(same, flip)
-  +dv = F64.max(F64.max(cys_dv(W.rg_cys(r), pcs, 0.0f64), sf_tol(s)), cys_pl(W.rg_cys(r), pcs, PX.nth_g(g, 0n), s, gv, 0.0f64))
+  +dv = F64.max(F64.max(F64.max(cys_dv(W.rg_cys(r), pcs, 0.0f64), sf_tol(s)), cys_pl(W.rg_cys(r), pcs, PX.nth_g(g, 0n), s, gv, 0.0f64)), sl)
   +x = emit_cys(W.rg_cys(r), pcs, Bool.not(so), m, g, s, gv, True{}, [])
   +st = em_st(em2_m(x))
   EM{K1.as_add_fa(st, mk_fa(g, hls_of(em2_cs(x)), so, dv)), em_ok(em2_m(x)), em_why(em2_m(x))}
@@ -835,13 +835,13 @@ def L_btail(xs: List<&2, Bool>) -> List<&2, Bool>:
     case +h <> +t: t
 
 def emit_face(rs: List<&2, W.RG>, +ks: List<&2, Bool>, +pcs: List<&2, W.PC>, +same: Bool, +flip: Bool,
-    +g: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +m: EM) -> EM:
+    +g: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +sl: F64, +m: EM) -> EM:
   match rs:
     case []: m
     case +h <> +t:
       +k = L_b0(ks)
-      +m2 = emit_rg(h, pcs, same, flip, g, s, gv, m)
-      emit_face(t, L_btail(ks), pcs, same, flip, g, s, gv, Bool.pick(EM, k, m2, m))
+      +m2 = emit_rg(h, pcs, same, flip, g, s, gv, sl, m)
+      emit_face(t, L_btail(ks), pcs, same, flip, g, s, gv, sl, Bool.pick(EM, k, m2, m))
 
 def fr_job(c: FC, fi: Nat) -> FR:
   FC{+b, +sd, +vmap, +hs, +chs, +fdo, +bbo, +op, +cps, +ob, +vmo, +gv} = c
@@ -856,7 +856,7 @@ def side_em(fs: List<&2, Nat>, frs: List<&2, FR>, +b: FB.KB, +sd: U64, +op: U64,
         case +fr <> +rt:
           +g = {[FB.face_surf(b, h)] : List<&2, G.GVal>}
           +flip = Bool.and(U64.is_eq(op, 15u64), U64.is_eq(sd, 1u64))
-          +m2 = emit_face(fr_rgs(fr), fr_keep(fr), fr_pcs(fr), FB.face_same(b, h), flip, g, S.sf_of(PX.nth_g(g, 0n)), gv, m)
+          +m2 = emit_face(fr_rgs(fr), fr_keep(fr), fr_pcs(fr), FB.face_same(b, h), flip, g, S.sf_of(PX.nth_g(g, 0n)), gv, Ty.fa_slv(FB.kb_f(b, h)), m)
           +m3 = Bool.pick(EM, fr_ok(fr), m2, EM{em_st(m2), False{}, Bool.pick(U64, em_ok(m), fr_why(fr), em_why(m))})
           side_em(t, rt, b, sd, op, gv, m3)
 

@@ -1,0 +1,17 @@
+SAME g1-bracket-eval.out
+SAME g1-bracket-mass.out
+SAME g1-strap-eval.out
+SAME g2-asm-interf-pair.out
+SAME g2-asm-solve.out
+SAME g2-eval.out
+SAME g2-interf-11-38.out
+SAME g2-mass-38.out
+SAME g2-step-38.out
+SAME g2-threads-38.out
+SAME g3-eval.out
+SAME g4-hub2-eval.out
+DIFF ident.json
+SAME step38.stp
+7f7e1dbea6dc2e1e4a93336a1b9051eff0200ef1acf444ec61b7c9a0a191f477  /home/jesse/bc/bendcad-k5w
+
+[exited with code 0]

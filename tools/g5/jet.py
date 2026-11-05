@@ -58,7 +58,7 @@ R_CASE_O, T_CASE, Z_CASE0, Z_CASE1 = 54.0, 0.8, 20.0, 175.0
 R_NOZ_IN, R_NOZ_OUT, Z_NOZ1 = R_CASE_O - T_CASE, 23.2, 230.0
 R_LIN_I, R_LIN_O, T_LIN, Z_LIN0, Z_LIN1 = 22.0, 46.0, 0.5, 60.0, 150.0
 
-Z_TUN0, Z_TUN1 = Z_FRONT_BRG - 4.0, Z_REAR_BRG + B_W + 3.0
+Z_TUN0, Z_TUN1 = Z_FRONT_BRG - 2.0, Z_REAR_BRG + B_W + 3.0
 R_TUN_O, R_TUN_MID = 15.0, 9.5
 SPR_RI, SPR_RO, SPR_T, SPR_H = 5.6, 10.8, 0.5, 0.45
 
@@ -107,9 +107,10 @@ def ball_edits():
 
 
 def cage_edits():
-    z0 = B_W / 2 - CAGE_W / 2
-    p = [f'{f(CAGE_RI)} {f(z0)}', f'(line {f(CAGE_RO)} {f(z0)})', f'(line {f(CAGE_RO)} {f(z0 + CAGE_W)})',
-         f'(line {f(CAGE_RI)} {f(z0 + CAGE_W)})', f'(line {f(CAGE_RI)} {f(z0)})']
+    z0 = B_W / 2 - 1.0
+    z1 = B_W / 2 + BALL_D / 2 + 0.1 + 0.6
+    p = [f'{f(CAGE_RI)} {f(z0)}', f'(line {f(CAGE_RO)} {f(z0)})', f'(line {f(CAGE_RO)} {f(z1)})',
+         f'(line {f(CAGE_RI)} {f(z1)})', f'(line {f(CAGE_RI)} {f(z0)})']
     e = [f'(node 1401 (revolve {region(*p)}) {IC})', f'(node 1402 (sphere {f(BALL_D / 2 + 0.1)}) {IC})',
          f'(node 1403 (move 1402 {f(PITCH_R)} 0.0 {f(B_W / 2)} 0) {IS})',
          f'(node 1410 (difference 1401 1403) {IR})']
@@ -137,8 +138,8 @@ def spring_edits():
 
 def nut_edits(nid, width_af=13.0, h=6.5):
     r = width_af / 3 ** 0.5
-    hx = ' '.join(f'(line {f(r * math.cos(math.pi / 3 * k))} {f(r * math.sin(math.pi / 3 * k))})' for k in range(1, 7))
-    return [f'(node {nid}1 (prism 0.0 {f(h)} (region (path {f(r)} 0.0 {hx}) (circle 0.0 0.0 {f(R_JOURNAL - 0.65)}))) {IC})',
+    hx = ' '.join(f'(line {f(r * math.cos(math.pi / 3 * k))} {f(r * math.sin(math.pi / 3 * k))})' for k in range(1, 6)) + f' (line {f(r)} 0.0)'
+    return [f'(node {nid}1 (prism 0.0 {f(h)} (region (path {f(r)} 0.0 {hx}) (circle 0.0 0.0 {f(R_JOURNAL)}))) {IC})',
             f'(node {nid} (move {nid}1 0.0 0.0 0.0 0) {IS})']
 
 
@@ -209,7 +210,7 @@ def imp_sec(m, m0):
     dr, dz = sr - hr, sz - hz
     ln = math.hypot(dr, dz)
     hr, hz = hr - 0.6 * dr / ln, hz - 0.6 * dz / ln
-    ln += 1.6
+    ln += 0.6 - IMP_G
     th = imp_theta(m)
     c, s = math.cos(th), math.sin(th)
     k = min(1.0, (m - m0) / 0.2)
@@ -231,19 +232,19 @@ def impeller_edits():
     ar, az = IMP_R2 - 24.0 * math.cos(ka), z0 + 24.0 * math.sin(ka)
     hub = [f'{f(4.0)} {f(z0 - 2)}', f'(line {f(IMP_RH1 - 0.2)} {f(z0 - 2)})', f'(line {f(IMP_RH1)} {f(z0)})',
            f'(arc {f(IMP_R2)} {f(z0)} 24.0 {f(ar)} {f(az)} cw)', f'(line {f(34.0)} {f(az)})',
-           f'(line {f(34.0)} {f(z0 + 26.5)})', f'(line {f(12.0)} {f(z0 + 26.5)})', f'(line {f(12.0)} {f(z0 + 30)})',
-           f'(line {f(4.0)} {f(z0 + 30)})', f'(line {f(4.0)} {f(z0 - 2)})']
+           f'(line {f(34.0)} {f(z0 + 26.5)})', f'(line {f(10.5)} {f(z0 + 26.5)})', f'(line {f(10.5)} {f(z0 + 29)})',
+           f'(line {f(4.0)} {f(z0 + 29)})', f'(line {f(4.0)} {f(z0 - 2)})']
     env = [f'0.0 {f(z0 - 3)}', f'(line {f(IMP_RS1 - 0.5 - g)} {f(z0 - 3)})', f'(line {f(IMP_RS1 - g)} {f(z0 + 9.5)})',
            f'(arc {f(IMP_R2)} {f(z0 + 9.5)} {f(9.5 + g)} {f(IMP_R2)} {f(z0 + 19 + g)} cw)',
            f'(line {f(IMP_R2)} {f(z0 + 29)})', f'(line 0.0 {f(z0 + 29)})', f'(line 0.0 {f(z0 - 3)})']
-    main = ' '.join(imp_sec(-0.03 + (1.013 + 0.03) * i / 10, -0.03) for i in range(11))
+    main = ' '.join(imp_sec(0.02 + (1.013 - 0.02) * i / 10, 0.02) for i in range(11))
     spl = ' '.join(imp_sec(0.35 + (1.013 - 0.35) * i / 8, 0.35) for i in range(9))
     e = [f'(node 1901 (revolve {region(*hub)}) {IC})', f'(node 1902 (revolve {region(*env)}) {IC})',
          f'(node 1903 (skin {main}) {IC})', f'(node 1904 (skin {spl}) {IC})', f'(node 1905 (rotate 1904 z 30.0) {IS})']
     r, top = ring_of(1900, [(1903 if j == 0 else 1905, 60.0 * k) for k in range(6) for j in range(2)])
     e += r + [f'(node 1999 (union 1901 {top}) {IA})']
     prev = 1999
-    e.append(f'(node 19 (intersection {prev} 1902) {IS})')
+    e.append(f'(node 19 (move {prev} 0.0 0.0 0.0 0) {IS})')
     return e
 
 
@@ -360,8 +361,7 @@ TUR_N = 23
 
 def ngv_edits():
     hub = [(20.5, 151.0), (22.0, 151.0), (22.0, 161.0), (20.5, 161.0), (20.5, 151.0)]
-    shr = [(32.5, 161.0), (33.0, 161.0), (33.0, 153.5), (45.5, 149.5), (46.5, 149.5), (34.5, 155.0), (34.5, 174.0),
-           (32.5, 174.0), (32.5, 161.0)]
+    shr = [(33.1, 153.5), (45.5, 150.5), (46.5, 150.5), (34.5, 155.0), (34.5, 174.0), (33.1, 174.0), (33.1, 153.5)]
     vane = airfoil(7.0, 0.12, 0.0, math.tan(math.radians(65.0)), 0.3)
     secs = ' '.join(foil_sec(r, 153.75, vane) for r in (21.4, 27.25, 33.6))
     e = [f'(node 2601 (revolve {rz_region(hub)}) {IC})', f'(node 2602 (revolve {rz_region(shr)}) {IC})',

@@ -105,14 +105,22 @@ def run_b(r: M.NR) -> String:
       +gt = TS.faces_tg(Ty.brep_fas(br), x, tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), M10.q_chord(q))
       "faces " ++ Nat.show(List.length(&2, Ty.Face, Ty.brep_fas(br))) ++ tg_s(gt) ++ fs_s(Ty.brep_fas(br), x, tb, 0n, List.length(&2, V.Point, all))
 
-def run(+src: String) -> String:
+def run(+src: String, +n: U64) -> String:
   +p = SX.part_of(SX.ps_xs(SX.parse(src)))
-  +cs = M.ev_part(p, [])
-  +r = M.ce_r(M.ce_find(cs, 1930u64))
-  run_b(r)
+  +cs = M.ev_for(p, [n], [])
+  run_b(M.ce_r(M.ce_find(cs, n)))
+
+def to2(xs: List<&1, String>) -> List<&2, String>:
+  match xs:
+    case []: []
+    case h <> t: h <> to2(t)
+
+def go(+args: List<&2, String>) -> IO(Unit):
+  do IO<Unit>:
+    src : String <- read_file(SX.arg_at(args, 1n))
+    IO.print(run(src, SX.u64_of(SX.Sx_a{SX.arg_at(args, 2n)})))
 
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    src : String <- read_file("/home/jesse/g5/imp_t.bcd")
-    IO.print(run(src))
+    go(to2(args))

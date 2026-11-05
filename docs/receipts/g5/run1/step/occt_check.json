@@ -1,0 +1,152 @@
+{
+ "bearing_front_balls": {
+  "valid": true,
+  "solids": 7,
+  "faces": 14,
+  "volume": 229.16060442382235
+ },
+ "bearing_front_cage": {
+  "valid": true,
+  "solids": 1,
+  "faces": 30,
+  "volume": 216.5094444291326
+ },
+ "bearing_front_inner": {
+  "valid": true,
+  "solids": 1,
+  "faces": 12,
+  "volume": 415.4221650902757
+ },
+ "bearing_front_outer": {
+  "valid": true,
+  "solids": 1,
+  "faces": 12,
+  "volume": 838.7855846690265
+ },
+ "bearing_rear_balls": {
+  "valid": true,
+  "solids": 7,
+  "faces": 14,
+  "volume": 229.16060442382235
+ },
+ "bearing_rear_cage": {
+  "valid": true,
+  "solids": 1,
+  "faces": 30,
+  "volume": 216.50944442913374
+ },
+ "bearing_rear_inner": {
+  "valid": true,
+  "solids": 1,
+  "faces": 12,
+  "volume": 415.42216509027503
+ },
+ "bearing_rear_outer": {
+  "valid": true,
+  "solids": 1,
+  "faces": 12,
+  "volume": 838.7855846690277
+ },
+ "casing": {
+  "valid": true,
+  "solids": 1,
+  "faces": 14,
+  "volume": 41970.95163500153
+ },
+ "diffuser": {
+  "valid": true,
+  "solids": 1,
+  "faces": 331,
+  "volume": 11261.00148418873
+ },
+ "exhaust": {
+  "valid": true,
+  "solids": 1,
+  "faces": 30,
+  "volume": 29563.948863218597
+ },
+ "front_cover": {
+  "valid": true,
+  "solids": 1,
+  "faces": 18,
+  "volume": 44192.309981081686
+ },
+ "g5_assembly": {
+  "valid": true,
+  "solids": 36,
+  "faces": 1944,
+  "volume": 284921.69407549594
+ },
+ "impeller": {
+  "valid": true,
+  "solids": 1,
+  "faces": 296,
+  "volume": 29078.624883022778
+ },
+ "intake": {
+  "valid": true,
+  "solids": 1,
+  "faces": 12,
+  "volume": 6143.935366935393
+ },
+ "liner": {
+  "valid": true,
+  "solids": 1,
+  "faces": 16,
+  "volume": 21683.27249507686
+ },
+ "manifold": {
+  "valid": true,
+  "solids": 1,
+  "faces": 22,
+  "volume": 2061.912627591232
+ },
+ "ngv": {
+  "valid": true,
+  "solids": 1,
+  "faces": 400,
+  "volume": 12757.510454802616
+ },
+ "nut_front": {
+  "valid": true,
+  "solids": 1,
+  "faces": 9,
+  "volume": 624.6032387532803
+ },
+ "nut_rear": {
+  "valid": true,
+  "solids": 1,
+  "faces": 9,
+  "volume": 624.6032387532803
+ },
+ "shaft": {
+  "valid": true,
+  "solids": 1,
+  "faces": 14,
+  "volume": 12104.55649428147
+ },
+ "spring": {
+  "valid": true,
+  "solids": 1,
+  "faces": 8,
+  "volume": 133.95751074906877
+ },
+ "straightener": {
+  "valid": true,
+  "solids": 1,
+  "faces": 128,
+  "volume": 7366.2154174752095
+ },
+ "tunnel": {
+  "valid": true,
+  "solids": 1,
+  "faces": 16,
+  "volume": 48577.661804295574
+ },
+ "turbine": {
+  "valid": true,
+  "solids": 1,
+  "faces": 485,
+  "volume": 13376.871090764744
+ }
+}

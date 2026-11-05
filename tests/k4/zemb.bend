@@ -130,10 +130,40 @@ def ed_bad(es: List<&2, Ty.Edge>, +x: Ty.Ix, +i: Nat) -> String:
       +ok = O.edge_ends_on_curve(Ty.ed_kind(h), p0, p1, 1000n)
       Bool.pick(String, ok, "", "\nEDGE " ++ Nat.show(i) ++ " " ++ p3(p0) ++ p3(p1) ++ ek_s(Ty.ed_kind(h))) ++ ed_bad(t, x, Nat.add(i, 1n))
 
+def ce_n(cs: List<&2, Ty.Coedge>, +i: Nat) -> Nat:
+  match cs:
+    case []: 0n
+    case +c <> t: Nat.add(Bool.pick(Nat, Nat.is_eq(Ty.he_idx(Ty.ce_edge(c)), i), 1n, 0n), ce_n(t, i))
+
+def hc_has(hs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +i: Nat) -> Nat:
+  match hs:
+    case []: 0n
+    case +h <> t: Nat.add(Bool.pick(Nat, Nat.is_eq(Ty.he_idx(Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))), i), 1n, 0n), hc_has(t, x, i))
+
+def hl_has(ls: List<&2, Ty.HLoop>, +x: Ty.Ix, +i: Nat) -> Nat:
+  match ls:
+    case []: 0n
+    case +h <> t: Nat.add(hc_has(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, i), hl_has(t, x, i))
+
+def fa_of(fs: List<&2, Ty.Face>, +x: Ty.Ix, +i: Nat, +k: Nat) -> String:
+  match fs:
+    case []: ""
+    case +f <> t:
+      +n = hl_has(Ty.fa_loops(f), x, i)
+      Bool.pick(String, Nat.is_eq(n, 0n), "", " f" ++ Nat.show(k) ++ "x" ++ Nat.show(n) ++ "k" ++ U64.show(S.sf_kind(S.sf_of(Ty.fa_surf(f))))) ++ fa_of(t, x, i, Nat.add(k, 1n))
+
+def use_bad(es: List<&2, Ty.Edge>, +cs: List<&2, Ty.Coedge>, +fs: List<&2, Ty.Face>, +x: Ty.Ix, +i: Nat) -> String:
+  match es:
+    case []: ""
+    case +h <> t:
+      +n = ce_n(cs, i)
+      Bool.pick(String, Nat.is_eq(n, 2n), "", "
+USE e" ++ Nat.show(i) ++ " n=" ++ Nat.show(n) ++ " " ++ p3(vpt(x, Ty.ed_v0(h))) ++ p3(vpt(x, Ty.ed_v1(h))) ++ " |" ++ fa_of(fs, x, i, 0n)) ++ use_bad(t, cs, fs, x, Nat.add(i, 1n))
+
 def rep(+b: Ty.Brep) -> String:
   +x = Ty.ix_of(b)
   "faces " ++ Nat.show(List.length(&2, Ty.Face, Ty.brep_fas(b))) ++ " trim_ok " ++ yn(O.ces_trim_ok(Ty.brep_ces(b))) ++ " surf_ok " ++ yn(O.fas_surf_ok(Ty.brep_fas(b))) ++
-    ed_bad(Ty.brep_es(b), x, 0n) ++ fas_s(Ty.brep_fas(b), x, 0n)
+    use_bad(Ty.brep_es(b), Ty.brep_ces(b), Ty.brep_fas(b), x, 0n) ++ ed_bad(Ty.brep_es(b), x, 0n) ++ fas_s(Ty.brep_fas(b), x, 0n)
 
 def run_app(+src: String, +a: U64, +b: U64) -> String:
   +p = SX.part_of(SX.ps_xs(SX.parse(src)))

@@ -90,6 +90,47 @@ def brep_of(r: M.NR) -> Ty.Brep:
     case M.NR_ok{+b, fx}: B8.bake_of(M.bool_in(b))
     case M.NR_err{k, d}: Ty.brep_empty()
 
+def hit1(+h: PX.HX, +ps: List<&2, V.Point>, +cl: List<&2, V.Point>) -> String:
+  +sd = PX.near_sd(cl, PX.hx_p(h), L.nth_p(ps, 0n), 0n, 0n, F64.div(1.0f64, 0.0f64))
+  +i = PX.nb2_i(sd)
+  +sl = S.dist(L.nth_p(ps, i), L.nth_p(cl, i))
+  " hit d=" ++ F64.show(PX.nb2_d(sd)) ++ " sl=" ++ F64.show(sl) ++ " on=" ++ Bool.pick(String, F64.is_le(PX.nb2_d(sd), F64.add(F64.mul(0.25f64, sl), 1.0e-9f64)), "y", "n")
+
+def hits_s(hs: List<&2, PX.HX>, +ps: List<&2, V.Point>, +cl: List<&2, V.Point>) -> String:
+  match hs:
+    case []: ""
+    case +h <> t: hit1(h, ps, cl) ++ hits_s(t, ps, cl)
+
+def p3s(+p: V.Point) -> String:
+  "(" ++ F64.show(S.px(p)) ++ "," ++ F64.show(S.py(p)) ++ "," ++ F64.show(S.pz(p)) ++ ")"
+
+def runs_s(rs: List<&2, List<&2, PX.PP>>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> String:
+  match rs:
+    case []: ""
+    case +h <> t: "
+     run n=" ++ Nat.show(List.length(&2, PX.PP, h)) ++ " side=" ++ U64.show(PX.run_side(ba, fa, bb, fb, PX.mid_pp(h))) ++ " mid=" ++ p3s(PX.mid_pp(h)) ++ runs_s(t, ba, fa, bb, fb)
+
+def ic_r(+c: SS.IC, +hs: List<&2, PX.HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> String:
+  +xs = PX.ins_brk_c(hs, SS.ic_closed(c), PX.pv_xs(PX.reg_pts(SS.ic_pts(c), PX.GV{[], 0n}, [])))
+  runs_s(PX.poly_split_o(xs, [], []), ba, fa, bb, fb)
+
+def ic_s(cs: List<&2, SS.IC>, +hs: List<&2, PX.HX>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat) -> String:
+  match cs:
+    case []: ""
+    case +c <> t:
+      +ps = SS.ic_pts(c)
+      +cl = List.append(&2, V.Point, PX.L_tail(ps), [L.nth_p(ps, 0n)])
+      "
+   ic kind " ++ U64.show(SS.ic_kind(c)) ++ " n " ++ Nat.show(List.length(&2, V.Point, ps)) ++ " closed " ++ Bool.pick(String, SS.ic_closed(c), "y", "n") ++ " hits " ++ Nat.show(List.length(&2, PX.HX, hs)) ++ hits_s(hs, ps, cl) ++ ic_r(c, hs, ba, fa, bb, fb) ++ ic_s(t, hs, ba, fa, bb, fb)
+
+def pj_s(js: List<&2, PX.PJ>, +ba: FB.KB, +bb: FB.KB) -> String:
+  match js:
+    case []: ""
+    case +j <> t:
+      PX.PJ{+fa, +fb, +x, +ph} = j
+      Bool.pick(String, Bool.and(Bool.or(Nat.is_eq(fb, 2n), Nat.is_eq(fb, 3n)), S.is_bp(FB.face_sf(ba, fa))), "
+JOB " ++ Nat.show(fa) ++ "/" ++ Nat.show(fb) ++ ic_s(SS.ics_ics(x), ph, ba, fa, bb, fb), "") ++ pj_s(t, ba, bb)
+
 def kinds2(js: List<&2, PX.PJ>, +ba: FB.KB, +bb: FB.KB) -> String:
   match js:
     case []: ""
@@ -109,7 +150,7 @@ def run(+src: String, +na: U64, +nb: U64) -> String:
   +hs = PX.all_hits(ba, bb, PX.vm_g(vb))
   +c = {PX.PC{PX.faces_bb(L.nat_range(FB.nfaces(bb)), bb), PX.faces_wd(L.nat_range(FB.nfaces(bb)), bb), PX.faces_rho(L.nat_range(FB.nfaces(bb)), bb), PX.hs_hs(hs), ba, bb} : PX.PC}
   +js = List.concat(&2, PX.PJ, B.pmap_g(~Nat, ~PX.PC, ~List<&2, PX.PJ>, ~PX.pj_job, 1, c, L.nat_range(FB.nfaces(ba))))
-  "faces " ++ Nat.show(FB.nfaces(ba)) ++ " " ++ Nat.show(FB.nfaces(bb)) ++ " hs_ok " ++ (Bool.pick(String, PX.hs_ok(hs), "y", "n")) ++ " why " ++ U64.show(PX.hs_why(hs)) ++ " jobs " ++ Nat.show(List.length(&2, PX.PJ, js)) ++ kinds2(js, ba, bb)
+  "faces " ++ Nat.show(FB.nfaces(ba)) ++ " " ++ Nat.show(FB.nfaces(bb)) ++ " hs_ok " ++ (Bool.pick(String, PX.hs_ok(hs), "y", "n")) ++ " why " ++ U64.show(PX.hs_why(hs)) ++ " jobs " ++ Nat.show(List.length(&2, PX.PJ, js)) ++ kinds2(js, ba, bb) ++ pj_s(js, ba, bb)
 
 def num(+s: String) -> U64:
   SX.u64_of(SX.Sx_a{s})
