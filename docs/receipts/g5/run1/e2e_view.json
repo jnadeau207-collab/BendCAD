@@ -1,0 +1,241 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k5y",
+ "scene": "g5/scene.json",
+ "checks": [
+  {
+   "name": "root serves the viewer page",
+   "ok": true
+  },
+  {
+   "name": "viewer script served",
+   "ok": true
+  },
+  {
+   "name": "missing file is 404",
+   "ok": true
+  },
+  {
+   "name": "path traversal refused",
+   "ok": true
+  },
+  {
+   "name": "scene json served",
+   "ok": true,
+   "parts": 24
+  },
+  {
+   "name": "mesh shaft closed and outward",
+   "ok": true,
+   "node": 10,
+   "tris": 1512,
+   "volume": 12099.54,
+   "spin": 1
+  },
+  {
+   "name": "mesh impeller closed and outward",
+   "ok": false,
+   "node": 19,
+   "tris": 58976,
+   "volume": 27014.203,
+   "spin": 1
+  },
+  {
+   "name": "mesh turbine closed and outward",
+   "ok": true,
+   "node": 27,
+   "tris": 42100,
+   "volume": 13185.889,
+   "spin": 1
+  },
+  {
+   "name": "mesh nut_front closed and outward",
+   "ok": true,
+   "node": 4222,
+   "tris": 5742,
+   "volume": 638.582,
+   "spin": 1
+  },
+  {
+   "name": "mesh nut_rear closed and outward",
+   "ok": true,
+   "node": 4223,
+   "tris": 5742,
+   "volume": 638.582,
+   "spin": 1
+  },
+  {
+   "name": "mesh bearing_front_inner closed and outward",
+   "ok": true,
+   "node": 4201,
+   "tris": 11340,
+   "volume": 415.286,
+   "spin": 1
+  },
+  {
+   "name": "mesh bearing_front_balls closed and outward",
+   "ok": true,
+   "node": 4203,
+   "tris": 26732,
+   "volume": 0.104,
+   "spin": 0.3677
+  },
+  {
+   "name": "mesh bearing_front_cage closed and outward",
+   "ok": false,
+   "node": 4204,
+   "tris": 12403,
+   "volume": -503.965,
+   "spin": 0.3677
+  },
+  {
+   "name": "mesh bearing_front_outer closed and outward",
+   "ok": true,
+   "node": 4202,
+   "tris": 11340,
+   "volume": 838.497,
+   "spin": 0
+  },
+  {
+   "name": "mesh bearing_rear_inner closed and outward",
+   "ok": true,
+   "node": 4211,
+   "tris": 11340,
+   "volume": 415.286,
+   "spin": 1
+  },
+  {
+   "name": "mesh bearing_rear_balls closed and outward",
+   "ok": true,
+   "node": 4213,
+   "tris": 26732,
+   "volume": 0.104,
+   "spin": 0.3677
+  },
+  {
+   "name": "mesh bearing_rear_cage closed and outward",
+   "ok": false,
+   "node": 4214,
+   "tris": 12403,
+   "volume": -2771.063,
+   "spin": 0.3677
+  },
+  {
+   "name": "mesh bearing_rear_outer closed and outward",
+   "ok": true,
+   "node": 4212,
+   "tris": 11340,
+   "volume": 838.497,
+   "spin": 0
+  },
+  {
+   "name": "mesh spring closed and outward",
+   "ok": true,
+   "node": 4221,
+   "tris": 1008,
+   "volume": 133.902,
+   "spin": 0
+  },
+  {
+   "name": "mesh tunnel closed and outward",
+   "ok": true,
+   "node": 15,
+   "tris": 2016,
+   "volume": 48557.532,
+   "spin": 0
+  },
+  {
+   "name": "mesh front_cover closed and outward",
+   "ok": true,
+   "node": 23,
+   "tris": 16380,
+   "volume": 44172.471,
+   "spin": 0
+  },
+  {
+   "name": "mesh intake closed and outward",
+   "ok": true,
+   "node": 29,
+   "tris": 29736,
+   "volume": 6140.885,
+   "spin": 0
+  },
+  {
+   "name": "mesh diffuser closed and outward",
+   "ok": true,
+   "node": 24,
+   "tris": 24012,
+   "volume": 11241.83,
+   "spin": 0
+  },
+  {
+   "name": "mesh straightener closed and outward",
+   "ok": true,
+   "node": 25,
+   "tris": 20528,
+   "volume": 7473.015,
+   "spin": 0
+  },
+  {
+   "name": "mesh liner closed and outward",
+   "ok": true,
+   "node": 22,
+   "tris": 2016,
+   "volume": 21674.287,
+   "spin": 0
+  },
+  {
+   "name": "mesh manifold closed and outward",
+   "ok": true,
+   "node": 30,
+   "tris": 55162,
+   "volume": 2043.721,
+   "spin": 0
+  },
+  {
+   "name": "mesh ngv closed and outward",
+   "ok": true,
+   "node": 26,
+   "tris": 81938,
+   "volume": 12731.759,
+   "spin": 0
+  },
+  {
+   "name": "mesh casing closed and outward",
+   "ok": true,
+   "node": 20,
+   "tris": 43676,
+   "volume": 43614.013,
+   "spin": 0
+  },
+  {
+   "name": "mesh exhaust closed and outward",
+   "ok": true,
+   "node": 28,
+   "tris": 36146,
+   "volume": 29489.288,
+   "spin": 0
+  },
+  {
+   "name": "scene has a rotor group for run mode",
+   "ok": true,
+   "rotor": [
+    "shaft",
+    "impeller",
+    "turbine",
+    "nut_front",
+    "nut_rear",
+    "bearing_front_inner",
+    "bearing_front_balls",
+    "bearing_front_cage",
+    "bearing_rear_inner",
+    "bearing_rear_balls",
+    "bearing_rear_cage"
+   ]
+  },
+  {
+   "name": "scene has explode offsets",
+   "ok": true
+  }
+ ],
+ "pass": false
+}

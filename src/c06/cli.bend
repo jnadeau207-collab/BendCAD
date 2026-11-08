@@ -761,9 +761,17 @@ def sc_json(+sp: List<&2, String>, +nt: Nat) -> String:
     "],\"rotor\":" ++ sc_num(S.arg_at(sp, 5n)) ++ ",\"explode\":[" ++ sc_num(S.arg_at(sp, 6n)) ++ "," ++ sc_num(S.arg_at(sp, 7n)) ++ "," ++
     sc_num(S.arg_at(sp, 8n)) ++ "],\"tris\":" ++ Nat.show(nt) ++ "}"
 
+def sc_open(show: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO(String):
+  match show:
+    case False{}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " refused " ++ M10.tres_why(t))
+    case True{}:
+      do IO<String>:
+        w : Unit <- write_file(out, M10.tres_obj(t))
+        IO.pure(String, String.take(sc_json(sp, M10.tres_nt(t)), Nat.sub(String.length(sc_json(sp, M10.tres_nt(t))), 1n)) ++ ",\"open\":true}")
+
 def sc_tw(ok: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO(String):
   match ok:
-    case False{}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " refused " ++ M10.tres_why(t))
+    case False{}: sc_open(Bool.and(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), Bool.not(String.eq(M10.tres_obj(t), ""))), t, out, sp)
     case True{}:
       do IO<String>:
         w : Unit <- write_file(out, M10.tres_obj(t))
@@ -810,7 +818,7 @@ def sc_fin(+dir: String, +title: String, +es: List<&2, String>) -> IO(String):
 def scene_io(+p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> IO(String):
   +dir = S.arg_at(rest, 0n)
   +sp = sc_specs(arg_drop(rest, 2n))
-  +q = M10.q_preset(tess_p(""))
+  +q = M10.q_preset(2u64)
   do IO<String>:
     es : List<&2, String> <- sc_all(sp, M.ev_for(p, sc_ids(sp), old), dir, q)
     sc_fin(dir, S.arg_at(rest, 1n), es)

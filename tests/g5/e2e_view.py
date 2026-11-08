@@ -48,8 +48,9 @@ def obj_check(txt):
     return {'verts': len(vs), 'tris': len(fs), 'unpaired_directed_edges': unpaired, 'volume': vol}
 
 
-def main(scene_rel, out):
+def main(scene_rel, out, oracle=None):
     rep = {'binary': BIN, 'scene': scene_rel, 'checks': []}
+    ref = json.load(open(oracle)) if oracle else {}
 
     def chk(name, ok, **kw):
         rep['checks'].append(dict(name=name, ok=bool(ok), **kw))
@@ -77,8 +78,10 @@ def main(scene_rel, out):
         for p in sc['parts']:
             s, ct, txt = get(base + p['mesh'])
             m = obj_check(txt)
-            chk(f"mesh {p['name']} closed and outward", s == 200 and m['tris'] == p['tris'] and m['unpaired_directed_edges'] == 0
-                and m['volume'] > 0, node=p['node'], tris=m['tris'], volume=round(m['volume'], 3), spin=p['rotor'])
+            rv = ref.get(p['name'], {}).get('volume')
+            close = rv is None or abs(m['volume'] - rv) <= 0.03 * rv
+            chk(f"mesh {p['name']} closed, outward, volume matches OCCT", s == 200 and m['tris'] == p['tris'] and m['unpaired_directed_edges'] == 0
+                and m['volume'] > 0 and close, node=p['node'], tris=m['tris'], volume=round(m['volume'], 3), occt_volume=rv, spin=p['rotor'])
         rot = [p['name'] for p in sc['parts'] if p['rotor'] > 0]
         chk('scene has a rotor group for run mode', len(rot) > 0, rotor=rot)
         chk('scene has explode offsets', any(any(p['explode']) for p in sc['parts']))
@@ -91,4 +94,4 @@ def main(scene_rel, out):
 
 
 if __name__ == '__main__':
-    sys.exit(0 if main(sys.argv[1], sys.argv[2]) else 1)
+    sys.exit(0 if main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None) else 1)

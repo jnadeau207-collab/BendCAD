@@ -73,7 +73,7 @@ def scene():
     say('scene', out, dt)
     sc = json.load(open(os.path.join(VIEW, 'scene.json')))
     sc['subtitle'] = '100 N class, 99,700 r/min design point, BendCAD kernel geometry'
-    sc['view'] = {'tgt': [0, 0, 100], 'dist': 520, 'yaw': -1.0, 'pitch': 0.35, 'rps': 3.0}
+    sc['view'] = {'tgt': [0, 0, 100], 'dist': 760, 'yaw': -1.0, 'pitch': 0.3, 'rps': 3.0}
     json.dump(sc, open(os.path.join(VIEW, 'scene.json'), 'w'), indent=1)
     return out
 

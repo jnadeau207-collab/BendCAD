@@ -88,7 +88,7 @@ def fs_s(fs: List<&2, Ty.Face>, +x: TS.Ctx, +tb: B.Tb<&2, V.Point>, +i: Nat, +gb
     case []: ""
     case +f <> t:
       +u = TS.use_gen(f, x)
-      +r = TS.face_tg(u, f, x, tb, 0n, gb, 0.01f64)
+      +r = TS.face_tg(u, f, x, tb, 0n, gb, TS.TL{0.01f64, S.fcos(M10.q_angle(M10.q_preset(1u64)))})
       "\nF" ++ Nat.show(i) ++ " k" ++ U64.show(S.sf_kind(S.sf_of(Ty.fa_surf(f)))) ++ " gen=" ++ Bool.pick(String, u, "y", "n") ++ tg_s(r) ++
         fs_s(t, x, tb, Nat.add(i, 1n), Nat.add(gb, TS.gt_np(r)))
 
@@ -102,7 +102,7 @@ def run_b(r: M.NR) -> String:
       +all = List.append(&2, V.Point, ps, TS.bp_ps_of(Ty.brep_fas(br)))
       +tb = B.tb_of(V.Point, all, TS.pz())
       +x = TS.ctx_of(br, q)
-      +gt = TS.faces_tg(Ty.brep_fas(br), x, tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), M10.q_chord(q))
+      +gt = TS.faces_tg(Ty.brep_fas(br), x, tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TS.TL{M10.q_chord(q), S.fcos(M10.q_angle(q))})
       "faces " ++ Nat.show(List.length(&2, Ty.Face, Ty.brep_fas(br))) ++ tg_s(gt) ++ fs_s(Ty.brep_fas(br), x, tb, 0n, List.length(&2, V.Point, all))
 
 def run(+src: String, +n: U64) -> String:

@@ -37,27 +37,30 @@ function parseObj(txt) {
     if (ln[0] === 'v' && ln[1] === ' ') { const a = ln.split(' '); v.push(+a[1], +a[2], +a[3]); }
     else if (ln[0] === 'f') { const a = ln.split(' '); f.push(+a[1] - 1, +a[2] - 1, +a[3] - 1); }
   }
-  const vn = new Float32Array(v.length);
-  for (let i = 0; i < f.length; i += 3) {
-    const a = f[i] * 3, b = f[i + 1] * 3, c = f[i + 2] * 3;
-    const ux = v[b] - v[a], uy = v[b + 1] - v[a + 1], uz = v[b + 2] - v[a + 2];
-    const wx = v[c] - v[a], wy = v[c + 1] - v[a + 1], wz = v[c + 2] - v[a + 2];
-    const nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
-    for (const k of [a, b, c]) { vn[k] += nx; vn[k + 1] += ny; vn[k + 2] += nz; }
+  const nt = f.length / 3, fn = new Float32Array(f.length), ca = new Float32Array(f.length), adj = new Map();
+  const sub = (i, j) => [v[i * 3] - v[j * 3], v[i * 3 + 1] - v[j * 3 + 1], v[i * 3 + 2] - v[j * 3 + 2]];
+  const ang = (x, y) => { const d = x[0] * y[0] + x[1] * y[1] + x[2] * y[2], l = Math.hypot(...x) * Math.hypot(...y) || 1; return Math.acos(Math.max(-1, Math.min(1, d / l))); };
+  for (let t = 0; t < nt; t++) {
+    const [a, b, c] = [f[3 * t], f[3 * t + 1], f[3 * t + 2]];
+    const u = sub(b, a), w = sub(c, a);
+    let nx = u[1] * w[2] - u[2] * w[1], ny = u[2] * w[0] - u[0] * w[2], nz = u[0] * w[1] - u[1] * w[0];
+    const l = Math.hypot(nx, ny, nz) || 1; fn.set([nx / l, ny / l, nz / l], 3 * t);
+    ca[3 * t] = ang(sub(b, a), sub(c, a)); ca[3 * t + 1] = ang(sub(c, b), sub(a, b)); ca[3 * t + 2] = ang(sub(a, c), sub(b, c));
+    for (const k of [a, b, c]) { if (!adj.has(k)) adj.set(k, []); adj.get(k).push(t); }
   }
-  const pos = new Float32Array(f.length * 3), nor = new Float32Array(f.length * 3);
-  for (let i = 0; i < f.length; i += 3) {
-    const a = f[i] * 3, b = f[i + 1] * 3, c = f[i + 2] * 3;
-    const ux = v[b] - v[a], uy = v[b + 1] - v[a + 1], uz = v[b + 2] - v[a + 2];
-    const wx = v[c] - v[a], wy = v[c + 1] - v[a + 1], wz = v[c + 2] - v[a + 2];
-    let nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
-    const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+  const pos = new Float32Array(f.length * 3), nor = new Float32Array(f.length * 3), cos60 = 0.5;
+  for (let t = 0; t < nt; t++) {
     for (let j = 0; j < 3; j++) {
-      const k = f[i + j] * 3;
-      pos.set([v[k], v[k + 1], v[k + 2]], (i + j) * 3);
-      let sx = vn[k], sy = vn[k + 1], sz = vn[k + 2]; const sl = Math.hypot(sx, sy, sz) || 1; sx /= sl; sy /= sl; sz /= sl;
-      const sm = sx * nx + sy * ny + sz * nz > 0.82;
-      nor.set(sm ? [sx, sy, sz] : [nx, ny, nz], (i + j) * 3);
+      const k = f[3 * t + j];
+      pos.set([v[k * 3], v[k * 3 + 1], v[k * 3 + 2]], (3 * t + j) * 3);
+      let sx = 0, sy = 0, sz = 0;
+      for (const q of adj.get(k)) {
+        if (fn[3 * q] * fn[3 * t] + fn[3 * q + 1] * fn[3 * t + 1] + fn[3 * q + 2] * fn[3 * t + 2] < cos60) continue;
+        const cj = f[3 * q] === k ? 0 : f[3 * q + 1] === k ? 1 : 2, wgt = ca[3 * q + cj];
+        sx += wgt * fn[3 * q]; sy += wgt * fn[3 * q + 1]; sz += wgt * fn[3 * q + 2];
+      }
+      const l = Math.hypot(sx, sy, sz) || 1;
+      nor.set([sx / l, sy / l, sz / l], (3 * t + j) * 3);
     }
   }
   return { pos, nor, n: f.length };
