@@ -1,0 +1,189 @@
+{
+ "scene": "g5/scene.json",
+ "faces_scene": "g5/scene.json",
+ "binary": "/home/jesse/bc/bendcad-k6o",
+ "sha256": "b991e5053e0dd17f8926819d4677a504a4187b445ea6b593f67164cf084b6574",
+ "checks": [
+  {
+   "name": "all parts load and mesh",
+   "ok": true,
+   "parts": 24,
+   "tris": 4776652,
+   "load_ms": 5275,
+   "wall_ms": 6940
+  },
+  {
+   "name": "hardware WebGL renderer",
+   "ok": true,
+   "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 SUPER (0x00002783) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  {
+   "name": "full studio frame (MSAA + GTAO + outlines) under 50 ms at 1080p",
+   "ok": true,
+   "frame_ms": 25.63
+  },
+  {
+   "name": "casing",
+   "ok": true,
+   "face": 3
+  },
+  {
+   "name": "hover highlights the part under the cursor",
+   "ok": true,
+   "hovered": "casing"
+  },
+  {
+   "name": "click selects the part and opens its properties",
+   "ok": true,
+   "sel": [
+    "casing"
+   ],
+   "props": true,
+   "title": "Casing"
+  },
+  {
+   "name": "left drag orbits about the picked point",
+   "ok": true,
+   "moved_mm": 735.31,
+   "pivot_dist_before": 607.977,
+   "pivot_dist_after": 607.977
+  },
+  {
+   "name": "right drag pans view and target together",
+   "ok": true,
+   "target_moved_mm": 47.75
+  },
+  {
+   "name": "wheel zooms toward the cursor",
+   "ok": true,
+   "dist_before": 666.2,
+   "dist_after": 210.5
+  },
+  {
+   "name": "F fits the whole assembly inside the viewport",
+   "ok": true,
+   "minx": 709,
+   "miny": 97,
+   "maxx": 1219,
+   "maxy": 986
+  },
+  {
+   "name": "Front standard view looks along +Y",
+   "ok": true,
+   "dir": [
+    0,
+    -1,
+    0.0001
+   ]
+  },
+  {
+   "name": "view cube click snaps to an axis-aligned view",
+   "ok": true,
+   "dir": [
+    0,
+    -1,
+    0.0001
+   ]
+  },
+  {
+   "name": "P toggles orthographic projection",
+   "ok": true
+  },
+  {
+   "name": "section cuts with capped faces",
+   "ok": true,
+   "on": true,
+   "caps": 24,
+   "flip": true
+  },
+  {
+   "name": "measure: two picks on the casing land on the kernel 54 mm outer radius",
+   "ok": true,
+   "radii": [
+    53.997,
+    53.996
+   ],
+   "label": "68.460 mm"
+  },
+  {
+   "name": "exploded view: no two part envelopes overlap",
+   "ok": true,
+   "overlapping_pairs": 0,
+   "pairs": []
+  },
+  {
+   "name": "4K snapshot renders 3840x2160",
+   "ok": true,
+   "bytes": 6218863,
+   "w": 3840,
+   "h": 2160
+  },
+  {
+   "name": "every part carries kernel B-rep face tags",
+   "ok": true,
+   "tagged": 24,
+   "n": 24,
+   "faces": 1883
+  },
+  {
+   "name": "face mode selects a single B-rep face with its surface type",
+   "ok": true,
+   "part": "casing",
+   "face": 3,
+   "kind": "cylinder",
+   "area": 26266.585783444832
+  },
+  {
+   "name": "no page errors",
+   "ok": true,
+   "errors": []
+  }
+ ],
+ "shots": [
+  {
+   "file": "docs/receipts/g5/viewer/01-assembled-iso.png",
+   "note": "Assembled, isometric, studio lighting, B-rep edges"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/02-selected.png",
+   "note": "Selected Casing: outline, accent edges, properties"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/03-ortho-front.png",
+   "note": "Orthographic projection, front view"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/04-section.png",
+   "note": "Half section through the axis, hatched caps per part"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/05-section-x.png",
+   "note": "Section on X"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/05b-measure.png",
+   "note": "Measure tool, front orthographic"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/06-exploded.png",
+   "note": "Exploded: two lanes, axial stacking, leader lines, labels"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/07-exploded-front.png",
+   "note": "Exploded, front view"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/08-xray.png",
+   "note": "X-ray with one part selected"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/09-day.png",
+   "note": "Day studio"
+  },
+  {
+   "file": "docs/receipts/g5/viewer/10-face-select.png",
+   "note": "Face 3 (cylinder) selected"
+  }
+ ],
+ "pass": true
+}
