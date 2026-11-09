@@ -1,0 +1,13 @@
+g1-bracket-eval        IDENTICAL  ref       0.1 s  new       0.1 s  x0.50
+g1-strap-eval          IDENTICAL  ref       0.0 s  new       0.1 s  x0.57
+g1-bracket-mass        IDENTICAL  ref      18.1 s  new      26.5 s  x0.68
+g2-eval                IDENTICAL  ref     401.7 s  new      97.4 s  x4.12
+g2-mass-38             IDENTICAL  ref     134.1 s  new      68.5 s  x1.96
+g2-interf-11-38        IDENTICAL  ref     185.0 s  new      50.4 s  x3.67
+g2-step-38             IDENTICAL  ref      92.1 s  new      13.6 s  x6.78
+g2-asm-solve           IDENTICAL  ref     372.2 s  new      78.7 s  x4.73
+g2-asm-interf-pair     IDENTICAL  ref     170.0 s  new      32.9 s  x5.17
+g2-threads-38          IDENTICAL  ref      80.9 s  new      10.6 s  x7.61
+g3-eval                IDENTICAL  ref       1.1 s  new       1.1 s  x0.95
+g4-hub2-eval           IDENTICAL  ref     161.1 s  new       6.0 s  x26.89
+12/12 identical

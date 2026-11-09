@@ -221,8 +221,27 @@ def sk_dir(+cs: List<&2, Sc>) -> V.Dir:
   +a = sc_first(cs)
   KS.psub(centroid(sc_last(cs, a)), centroid(a))
 
+def sc_tl(cs: List<&2, Sc>) -> List<&2, Sc>:
+  match cs:
+    case []: []
+    case +h <> t: t
+
+def sc_pen(cs: List<&2, Sc>, +p: Sc, +q: Sc) -> Sc:
+  match cs:
+    case []: p
+    case +h <> t: sc_pen(t, q, h)
+
+def sk_d0(+cs: List<&2, Sc>) -> V.Dir:
+  +a = sc_first(cs)
+  KS.psub(centroid(sc_first(sc_tl(cs))), centroid(a))
+
+def sk_d1(+cs: List<&2, Sc>) -> V.Dir:
+  +a = sc_first(cs)
+  +z = sc_last(cs, a)
+  KS.psub(centroid(z), centroid(sc_pen(sc_tl(cs), a, a)))
+
 def orient(+cs: List<&2, Sc>) -> List<&2, Sc>:
-  +d = sk_dir(cs)
+  +d = sk_d0(cs)
   +s = loop_area(sc_first(cs), KS.dunit(d))
   Bool.pick(List<&2, Sc>, F64.is_lt(s, 0.0f64), scs_rev(cs), cs)
 
@@ -603,9 +622,8 @@ def pl_v(+p: G.Plane3) -> V.Dir:
   v
 
 def caps(+g: Gr, +cs: List<&2, Sc>, +nd: U64, +fi: Nat) -> List<&2, BD.FS>:
-  +d = sk_dir(cs)
-  +pb = cap_pl(sc_fr(sc_first(cs)), KS.dscale(F64.neg(1.0f64), d))
-  +pt_ = cap_pl(sc_fr(sc_last(cs, sc_first(cs))), d)
+  +pb = cap_pl(sc_fr(sc_first(cs)), KS.dscale(F64.neg(1.0f64), sk_d0(cs)))
+  +pt_ = cap_pl(sc_fr(sc_last(cs, sc_first(cs))), sk_d1(cs))
   [F9.face1(G.GV_pl{pb}, cap_bw(gr_nu(g), g, 0n, pl_o(pb), pl_u(pb), pl_v(pb)), nd, fi),
     F9.face1(G.GV_pl{pt_}, cap_fw(gr_nu(g), g, gr_nb(g), 0n, pl_o(pt_), pl_u(pt_), pl_v(pt_)), nd, Nat.add(fi, 1n))]
 
@@ -790,11 +808,13 @@ def shared_go(xs: List<&2, V.Point>, +ys: List<&2, V.Point>) -> List<&2, V.Point
       +rest = shared_go(t, ys)
       Bool.pick(List<&2, V.Point>, any_eq(ys, x), x <> rest, rest)
 
-def box_of(+p: G.BezP) -> List<&2, F64>:
-  +ps = SC.pts16(p)
+def pts_box(+ps: List<&2, V.Point>) -> List<&2, F64>:
   [SC.dmin(ps, V.Dr{1.0f64, 0.0f64, 0.0f64}, SC.inf()), SC.dmax(ps, V.Dr{1.0f64, 0.0f64, 0.0f64}, F64.neg(SC.inf())),
     SC.dmin(ps, V.Dr{0.0f64, 1.0f64, 0.0f64}, SC.inf()), SC.dmax(ps, V.Dr{0.0f64, 1.0f64, 0.0f64}, F64.neg(SC.inf())),
     SC.dmin(ps, V.Dr{0.0f64, 0.0f64, 1.0f64}, SC.inf()), SC.dmax(ps, V.Dr{0.0f64, 0.0f64, 1.0f64}, F64.neg(SC.inf()))]
+
+def box_of(+p: G.BezP) -> List<&2, F64>:
+  pts_box(SC.pts16(p))
 
 def box_dis(+a: List<&2, F64>, +b: List<&2, F64>, +tol: F64) -> Bool:
   Bool.or(Bool.or(F64.is_lt(F64.add(Q.fnth(a, 1n), tol), Q.fnth(b, 0n)), F64.is_lt(F64.add(Q.fnth(b, 1n), tol), Q.fnth(a, 0n))),
@@ -891,10 +911,60 @@ def regs(ps: List<&2, G.BezP>, +i: Nat) -> SC.Ck:
     case []: SC.Ck{True{}, 0n, 0n}
     case +p <> t: Bool.pick(SC.Ck, SC.cone_ok(p, SC.ctr_n(p)), regs(t, Nat.add(i, 1n)), SC.Ck{False{}, i, i})
 
-def cap_side(ps: List<&2, G.BezP>, +o: V.Point, +m: V.Dir, +tol: F64, +i: Nat) -> SC.Ck:
+def bz_pts(+b: G.Bez3) -> List<&2, V.Point>:
+  G.Bz{+a, +c, +d, +e} = b
+  [a, c, d, e]
+
+def cap_pts(n: Nat, +g: Gr, +b: Nat, +u: Nat) -> List<&2, V.Point>:
+  match n:
+    case 0n: []
+    case 1n+(+m): List.append(&2, V.Point, bz_pts(ue_curve(g, b, u)), cap_pts(m, g, b, Nat.add(u, 1n)))
+
+def cap_box(+g: Gr, +b: Nat) -> List<&2, F64>:
+  pts_box(cap_pts(gr_nu(g), g, b, 0n))
+
+def cq_pass(+p: G.BezP, +o: V.Point, +m: V.Dir, +tol: F64, +cb: List<&2, F64>) -> Bool:
+  Bool.or(side_ok(SC.pts16(p), o, m, tol, 1.0f64), box_dis(box_of(p), cb, tol))
+
+def cq_p(+q: SC.Pq) -> G.BezP:
+  SC.Pq{+a, +b, +d} = q
+  a
+
+def cq_d(+q: SC.Pq) -> Nat:
+  SC.Pq{+a, +b, +d} = q
+  d
+
+def cq_kids(xs: List<&2, G.BezP>, +d: Nat, +acc: List<&2, SC.Pq>) -> List<&2, SC.Pq>:
+  match xs:
+    case []: acc
+    case +x <> t: cq_kids(t, d, SC.Pq{x, x, d} <> acc)
+
+def cq_split(ok: Bool, +q: SC.Pq, +rest: List<&2, SC.Pq>) -> List<&2, SC.Pq>:
+  match ok:
+    case True{}: rest
+    case False{}: cq_kids(SC.quads(cq_p(q)), Nat.sub(cq_d(q), 1n), rest)
+
+def cq_bad(+q: SC.Pq, +o: V.Point, +m: V.Dir, +tol: F64, +cb: List<&2, F64>) -> Bool:
+  Bool.and(Nat.is_eq(cq_d(q), 0n), Bool.not(cq_pass(cq_p(q), o, m, tol, cb)))
+
+def cq_go(bad: Bool, +q: SC.Pq, +o: V.Point, +m: V.Dir, +tol: F64, +cb: List<&2, F64>, +t: List<&2, SC.Pq>) -> List<&2, SC.Pq>:
+  match bad:
+    case True{}: []
+    case False{}: cq_split(cq_pass(cq_p(q), o, m, tol, cb), q, t)
+
+def cq_wl(n: Nat, +ws: List<&2, SC.Pq>, +o: V.Point, +m: V.Dir, +tol: F64, +cb: List<&2, F64>) -> Bool:
+  match n:
+    case 0n: False{}
+    case 1n+(+k):
+      match ws:
+        case []: True{}
+        case +q <> t: Bool.and(Bool.not(cq_bad(q, o, m, tol, cb)), cq_wl(k, cq_go(cq_bad(q, o, m, tol, cb), q, o, m, tol, cb, t), o, m, tol, cb))
+
+def cap_side(ps: List<&2, G.BezP>, +o: V.Point, +m: V.Dir, +tol: F64, +cb: List<&2, F64>, +i: Nat) -> SC.Ck:
   match ps:
     case []: SC.Ck{True{}, 0n, 0n}
-    case +p <> t: Bool.pick(SC.Ck, side_ok(SC.pts16(p), o, m, tol, 1.0f64), cap_side(t, o, m, tol, Nat.add(i, 1n)), SC.Ck{False{}, i, 100000n})
+    case +p <> t: Bool.pick(SC.Ck, cq_wl(20000n, [SC.Pq{p, p, 5n}], o, m, tol, cb),
+      cap_side(t, o, m, tol, cb, Nat.add(i, 1n)), SC.Ck{False{}, i, 100000n})
 
 def ck_then(+a: SC.Ck, +b: SC.Ck) -> SC.Ck:
   Bool.pick(SC.Ck, ck_ok(a), b, a)
@@ -905,13 +975,12 @@ def toward(+n: V.Dir, +d: V.Dir) -> V.Dir:
 def sk_cert(+g: Gr, +cs: List<&2, Sc>) -> SC.Ck:
   +ps = cat_bps(gr_pg(g))
   +tol = F64.mul(1.0e-9f64, F64.add(1.0f64, KS.dlen(KS.psub(centroid(sc_first(cs)), pt(0.0f64, 0.0f64, 0.0f64)))))
-  +d = KS.dunit(sk_dir(cs))
   +f0 = sc_fr(sc_first(cs))
   +f1 = sc_fr(sc_last(cs, sc_first(cs)))
-  +n0 = toward(fr_n(f0), d)
-  +n1 = toward(fr_n(f1), d)
-  ck_then(regs(ps, 0n), ck_then(cap_side(ps, fr_o(f0), n0, F64.mul(1.0e3f64, tol), 0n),
-    ck_then(cap_side(ps, fr_o(f1), KS.dscale(F64.neg(1.0f64), n1), F64.mul(1.0e3f64, tol), 0n), pairs_i(ps, 0n, tol))))
+  +n0 = toward(fr_n(f0), KS.dunit(sk_d0(cs)))
+  +n1 = toward(fr_n(f1), KS.dunit(sk_d1(cs)))
+  ck_then(regs(ps, 0n), ck_then(cap_side(ps, fr_o(f0), n0, F64.mul(1.0e3f64, tol), cap_box(g, 0n), 0n),
+    ck_then(cap_side(ps, fr_o(f1), KS.dscale(F64.neg(1.0f64), n1), F64.mul(1.0e3f64, tol), cap_box(g, gr_nb(g)), 0n), pairs_i(ps, 0n, tol))))
 
 def ga_v(ns: List<&2, V.Vec2>, +w: G.BezP, +u: F64, +wu: F64, +v0: F64, +dv: F64, +acc: F64) -> F64:
   match ns:
