@@ -8,7 +8,7 @@ import jet
 
 DESIGN = 'g5.bcd'
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-VIEW = os.path.join(ROOT, 'viewer', 'g5')
+VIEW = os.environ.get('G5_VIEW', os.path.join(ROOT, 'viewer', 'g5'))
 EXPORT = f'{jet.WORK}/export'
 
 AL, AL2, SS, SH, RG = (0.80, 0.82, 0.85), (0.86, 0.87, 0.89), (0.64, 0.66, 0.69), (0.45, 0.47, 0.50), (0.72, 0.74, 0.77)
@@ -42,6 +42,41 @@ PARTS = [
     ('exhaust', 28, HRS, 0.0, (0, 0, 110)),
 ]
 
+LOOK = {
+    'shaft': ('ground-steel', '42CrMo4-QT', 7850, 'rotor cartridge'),
+    'impeller': ('aluminum-machined', 'AlZn5.5MgCu-T6', 2810, 'rotor cartridge'),
+    'turbine': ('inconel-cast', 'IN713C', 7910, 'rotor cartridge'),
+    'nut_front': ('stainless-bright', 'X5CrNi18-10', 7900, 'rotor cartridge'),
+    'nut_rear': ('stainless-bright', 'X5CrNi18-10', 7900, 'rotor cartridge'),
+    'bearing_front_inner': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
+    'bearing_front_balls': ('ceramic', 'Si3N4', 3200, 'rotor cartridge'),
+    'bearing_front_cage': ('peek-cf', 'PEEK-CF30', 1410, 'rotor cartridge'),
+    'bearing_front_outer': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
+    'bearing_rear_inner': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
+    'bearing_rear_balls': ('ceramic', 'Si3N4', 3200, 'rotor cartridge'),
+    'bearing_rear_cage': ('peek-cf', 'PEEK-CF30', 1410, 'rotor cartridge'),
+    'bearing_rear_outer': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
+    'spring': ('spring-blued', '51CrV4', 7850, 'rotor cartridge'),
+    'tunnel': ('stainless-brushed', 'X5CrNi18-10', 7900, 'rotor cartridge'),
+    'front_cover': ('aluminum-cast-blue', 'AlSi7Mg-T6', 2680, 'flow path'),
+    'intake': ('aluminum-spun', 'AlMg3-H22', 2670, 'flow path'),
+    'diffuser': ('aluminum-cast-satin', 'AlSi7Mg-T6', 2680, 'flow path'),
+    'straightener': ('aluminum-cast-graphite', 'AlSi7Mg-T6', 2680, 'flow path'),
+    'liner': ('inconel-heat', 'NiCr22Mo9Nb', 8440, 'flow path'),
+    'manifold': ('stainless-bright', 'X5CrNi18-10', 7900, 'flow path'),
+    'ngv': ('inconel-cast', 'IN713C', 7910, 'flow path'),
+    'casing': ('stainless-brushed', 'X5CrNi18-10', 7900, 'flow path'),
+    'exhaust': ('stainless-heat', 'X15CrNiSi25-21', 7900, 'flow path'),
+}
+
+
+def decorate(sc):
+    for p in sc['parts']:
+        finish, grade, rho, group = LOOK[p['name']]
+        p.update(finish=finish, grade=grade, density=rho, group=group)
+    sc['subtitle'] = '100 N class, 99,700 r/min design point, BendCAD kernel geometry'
+    return sc
+
 
 def say(tag, out, dt):
     ok = ('committed' in out or 'wrote' in out) and 'rejected' not in out
@@ -72,9 +107,7 @@ def scene():
     out, dt = jet.cli(DESIGN, 'scene', d, 'G5 micro turbojet', *spec, timeout=14400)
     say('scene', out, dt)
     sc = json.load(open(os.path.join(VIEW, 'scene.json')))
-    sc['subtitle'] = '100 N class, 99,700 r/min design point, BendCAD kernel geometry'
-    sc['view'] = {'tgt': [0, 0, 100], 'dist': 760, 'yaw': -1.0, 'pitch': 0.3, 'rps': 3.0}
-    json.dump(sc, open(os.path.join(VIEW, 'scene.json'), 'w'), indent=1)
+    json.dump(decorate(sc), open(os.path.join(VIEW, 'scene.json'), 'w'), indent=1)
     return out
 
 
@@ -98,4 +131,7 @@ if __name__ == '__main__':
         scene()
     elif what == 'step':
         step()
+    elif what == 'look':
+        f = os.path.join(VIEW, 'scene.json')
+        json.dump(decorate(json.load(open(f))), open(f, 'w'), indent=1)
     print('total', round(time.time() - t0, 1))

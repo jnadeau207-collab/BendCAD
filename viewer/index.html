@@ -4,48 +4,81 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BendCAD Viewer</title>
-<style>
-  :root { --bg: #0f1216; --panel: #171b21; --ink: #e6e9ee; --dim: #8b95a3; --acc: #e0a040; --line: #2a313b; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
-  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  #ui { position: absolute; left: 12px; top: 12px; width: 240px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-  #ui h1 { font-size: 14px; margin: 0 0 6px; }
-  #ui .row { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
-  #ui button { flex: 1; background: #222831; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; padding: 5px 6px; cursor: pointer; }
-  #ui button.on { border-color: var(--acc); color: var(--acc); }
-  #ui label { display: block; color: var(--dim); margin-top: 8px; }
-  #ui input[type=range] { width: 100%; }
-  #parts { max-height: 260px; overflow: auto; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
-  #parts div { display: flex; align-items: center; gap: 6px; color: var(--dim); }
-  #parts span.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
-  #status { position: absolute; right: 12px; bottom: 10px; color: var(--dim); }
-  #title { position: absolute; right: 12px; top: 10px; color: var(--dim); text-align: right; }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="viewer.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M8 1l6 3.5v7L8 15l-6-3.5v-7z%22 fill=%22%236EE7FF%22/%3E%3C/svg%3E">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+</script>
 </head>
-<body>
+<body data-theme="night">
 <canvas id="gl"></canvas>
-<div id="ui">
-  <h1 id="name">BendCAD Viewer</h1>
-  <div class="row">
-    <button id="b-asm" class="on">Assembled</button>
-    <button id="b-exp">Exploded</button>
+<header id="bar">
+  <div class="brand"><span class="mark">BendCAD</span><span class="doc" id="name">Viewer</span></div>
+  <nav class="tools">
+    <div class="grp">
+      <button data-act="fit" title="Fit all (F)"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg><span>Fit</span></button>
+      <div class="menu">
+        <button data-act="views" title="Standard views"><svg viewBox="0 0 20 20"><path d="M10 2l7 4v8l-7 4-7-4V6z"/><path d="M3 6l7 4 7-4M10 10v8"/></svg><span>Views</span></button>
+        <div class="drop" id="views">
+          <button data-view="iso">Isometric<kbd>0</kbd></button>
+          <button data-view="front">Front<kbd>1</kbd></button>
+          <button data-view="back">Back<kbd>2</kbd></button>
+          <button data-view="left">Left<kbd>3</kbd></button>
+          <button data-view="right">Right<kbd>4</kbd></button>
+          <button data-view="top">Top<kbd>5</kbd></button>
+          <button data-view="bottom">Bottom<kbd>6</kbd></button>
+        </div>
+      </div>
+      <button data-act="proj" id="b-proj" title="Perspective / orthographic (P)"><svg viewBox="0 0 20 20"><path d="M4 5h12l-2 10H6z"/></svg><span id="t-proj">Persp</span></button>
+    </div>
+    <div class="grp seg" id="selm">
+      <button data-sm="part" class="on" title="Select parts (G toggles)">Part</button>
+      <button data-sm="face" title="Select B-rep faces (G toggles)">Face</button>
+    </div>
+    <div class="grp seg" id="modes">
+      <button data-mode="shaded" title="Shaded">Shaded</button>
+      <button data-mode="edges" class="on" title="Shaded with edges">Edges</button>
+      <button data-mode="xray" title="X-ray">X-ray</button>
+    </div>
+    <div class="grp">
+      <button data-act="measure" id="b-meas" title="Measure distance (M)"><svg viewBox="0 0 20 20"><path d="M3 14L14 3l3 3L6 17z"/><path d="M6 11l1.5 1.5M8.5 8.5l1.5 1.5M11 6l1.5 1.5"/></svg><span>Measure</span></button>
+      <button data-act="section" id="b-sec" title="Section (S)"><svg viewBox="0 0 20 20"><path d="M10 2v16"/><path d="M10 4a6 6 0 0 0 0 12" class="fill"/><path d="M10 4a6 6 0 0 1 0 12"/></svg><span>Section</span></button>
+      <button data-act="explode" id="b-exp" title="Exploded view (E)"><svg viewBox="0 0 20 20"><rect x="7" y="2" width="6" height="4" rx="1"/><rect x="7" y="8" width="6" height="4" rx="1"/><rect x="7" y="14" width="6" height="4" rx="1"/></svg><span>Explode</span></button>
+      <button data-act="run" id="b-run" title="Run rotor (R)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M8 7l5 3-5 3z" class="fill"/></svg><span>Run</span></button>
+    </div>
+    <div class="grp">
+      <button data-act="shot" title="4K snapshot"><svg viewBox="0 0 20 20"><rect x="2" y="5" width="16" height="12" rx="2"/><circle cx="10" cy="11" r="3.2"/><path d="M7 5l1.5-2h3L13 5"/></svg><span>4K</span></button>
+      <button data-act="rec" id="b-rec" title="Record 6 s video"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" class="fill"/></svg><span>Rec</span></button>
+      <button data-act="theme" title="Light / dark studio"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6"/><path d="M10 4a6 6 0 0 1 0 12z" class="fill"/></svg></button>
+    </div>
+  </nav>
+</header>
+<aside id="tree"></aside>
+<aside id="props" hidden></aside>
+<div id="dock">
+  <div class="ctl" id="c-exp" hidden>
+    <label>Explode</label><input id="s-exp" type="range" min="0" max="1" step="0.001" value="0"><output id="o-exp">0%</output>
+    <button id="b-labels" class="on">Labels</button>
   </div>
-  <div class="row">
-    <button id="b-sec">Section</button>
-    <button id="b-run">Run</button>
+  <div class="ctl" id="c-sec" hidden>
+    <label>Section</label>
+    <div class="seg" id="sec-axis"><button data-ax="x">X</button><button data-ax="y" class="on">Y</button><button data-ax="z">Z</button></div>
+    <button id="b-flip">Flip</button>
+    <input id="s-sec" type="range" min="0" max="1" step="0.001" value="0.5"><output id="o-sec"></output>
+    <button id="b-caps" class="on">Caps</button>
   </div>
-  <label>Explode <span id="v-exp"></span></label>
-  <input id="s-exp" type="range" min="0" max="1" step="0.01" value="0">
-  <label>Rotor speed (display rev/s) <span id="v-rpm"></span></label>
-  <input id="s-rpm" type="range" min="0" max="12" step="0.1" value="3">
-  <div class="row">
-    <button id="b-rec">Record 6 s</button>
-    <button id="b-shot">Snapshot</button>
+  <div class="ctl" id="c-run" hidden>
+    <label>Rotor</label><input id="s-rpm" type="range" min="0" max="12" step="0.1" value="3"><output id="o-rpm"></output>
   </div>
-  <div id="parts"></div>
 </div>
-<div id="title"></div>
-<div id="status">loading</div>
-<script src="bcview.js"></script>
+<canvas id="cube" width="240" height="240"></canvas>
+<div id="labels"><svg id="leaders"></svg></div>
+<svg id="meas"></svg>
+<div id="hint">Left drag orbit &middot; Right or middle drag pan &middot; Wheel zoom to cursor &middot; Click select &middot; Double-click focus &middot; F fit &middot; Esc clear</div>
+<div id="status"></div>
+<div id="load"><div class="lt" id="load-t">Loading</div><div class="lb"><i id="load-b"></i></div></div>
+<script type="module" src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,104 @@
+:root {
+  --ink: #E8ECF4; --dim: #8F9AAB; --faint: #5B6575; --acc: #6EE7FF; --acc-ink: #04141A;
+  --glass: rgba(16, 21, 30, 0.42); --line: rgba(160, 180, 210, 0.14); --hov: rgba(110, 231, 255, 0.10);
+  --bg: #0A0E15;
+}
+body[data-theme="day"] {
+  --ink: #1C2128; --dim: #556070; --faint: #8A93A0; --acc: #0E7490; --acc-ink: #FFFFFF;
+  --glass: rgba(250, 248, 245, 0.46); --line: rgba(40, 50, 65, 0.14); --hov: rgba(14, 116, 144, 0.10);
+  --bg: #E8E5E0;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink);
+  font: 12.5px/1.45 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
+canvas#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+svg .fill { fill: currentColor; }
+
+#bar { position: absolute; left: 0; right: 0; top: 0; height: 46px; display: flex; align-items: center; gap: 18px; padding: 0 14px;
+  background: var(--glass); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-bottom: 1px solid var(--line); z-index: 5; }
+.brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; flex: 0 1 auto; }
+.mark { font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; font-size: 12px; color: var(--acc); }
+.doc { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tools { display: flex; gap: 10px; margin-left: auto; align-items: center; }
+.grp { display: flex; gap: 2px; padding-left: 10px; border-left: 1px solid var(--line); }
+.grp:first-child { border-left: 0; }
+.grp > button, .menu > button, .ctl button { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 9px; border-radius: 6px; color: var(--dim); }
+.grp button:hover, .ctl button:hover { color: var(--ink); background: var(--hov); }
+.grp button.on, .ctl button.on, .seg button.on { color: var(--acc); background: var(--hov); }
+.seg { display: flex; }
+.menu { position: relative; }
+.drop { position: absolute; top: 36px; left: 0; display: none; flex-direction: column; min-width: 150px; padding: 4px;
+  background: var(--glass); backdrop-filter: blur(2px); border: 1px solid var(--line); border-radius: 8px; }
+.menu.open .drop { display: flex; }
+.drop button { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 5px; color: var(--dim); text-align: left; }
+.drop button:hover { color: var(--ink); background: var(--hov); }
+kbd { font: 11px "JetBrains Mono", monospace; color: var(--faint); }
+
+#tree { position: absolute; left: 14px; top: 62px; bottom: 44px; width: 250px; overflow: auto; z-index: 4; scrollbar-width: thin; }
+#tree h4 { margin: 12px 0 4px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+#tree h4:first-child { margin-top: 0; }
+.row { display: flex; align-items: center; gap: 8px; height: 24px; padding: 0 6px; border-radius: 5px; color: var(--dim); cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
+body[data-theme="day"] .row { text-shadow: none; }
+.row:hover, .row.hov { color: var(--ink); background: var(--hov); }
+.row.sel { color: var(--acc); background: var(--hov); }
+.row.off { opacity: 0.45; }
+.row .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); }
+.row .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .eye, .row .iso { opacity: 0; color: var(--faint); display: flex; }
+.row:hover .eye, .row:hover .iso, .row.off .eye { opacity: 1; }
+.row .eye:hover, .row .iso:hover { color: var(--ink); }
+
+#props { position: absolute; right: 14px; top: 62px; width: 310px; padding: 14px 16px; z-index: 4; border-radius: 10px;
+  background: var(--glass); backdrop-filter: blur(2px); border: 1px solid var(--line); }
+#props h3 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+#props .sub { color: var(--dim); margin-bottom: 10px; }
+#props dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; margin: 0; }
+#props dt { color: var(--faint); }
+#props dd { margin: 0; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 11.5px; }
+#props .acts { display: flex; gap: 6px; margin-top: 12px; }
+#props .acts button { flex: 1; height: 28px; border-radius: 6px; border: 1px solid var(--line); color: var(--dim); }
+#props .acts button:hover { color: var(--ink); background: var(--hov); }
+#props .fin { display: flex; align-items: center; gap: 8px; }
+#props .fin i { width: 12px; height: 12px; border-radius: 3px; }
+
+#dock { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 4; }
+.ctl { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: var(--glass); backdrop-filter: blur(2px); border: 1px solid var(--line); }
+.ctl label { color: var(--faint); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+.ctl output { font: 11.5px "JetBrains Mono", monospace; color: var(--dim); min-width: 64px; text-align: right; }
+.ctl button { height: 26px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 260px; height: 3px; border-radius: 2px; background: var(--line); outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 4px var(--hov); cursor: pointer; }
+
+#cube { position: absolute; right: 14px; bottom: 40px; width: 120px; height: 120px; z-index: 4; cursor: pointer; }
+#props:not([hidden]) ~ #cube { }
+#labels { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+#leaders { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--dim); stroke-width: 1; opacity: 0.8; }
+#leaders circle { fill: var(--dim); stroke: none; }
+#labels div { position: absolute; transform: translate(0, -50%); white-space: nowrap; font-size: 11px; color: var(--ink); padding: 2px 7px; border-radius: 4px;
+  background: var(--glass); border: 1px solid var(--line); transition: opacity 0.2s; }
+#labels div.left { transform: translate(-100%, -50%); }
+#labels div.sel { color: var(--acc); border-color: var(--acc); }
+#hint { position: absolute; left: 14px; bottom: 12px; color: var(--faint); font-size: 11px; z-index: 4; }
+#status { position: absolute; right: 14px; bottom: 12px; color: var(--faint); font: 11px "JetBrains Mono", monospace; z-index: 4; }
+#load { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 300px; z-index: 6; text-align: center; transition: opacity 0.4s; }
+#load .lt { color: var(--dim); margin-bottom: 10px; }
+#load .lb { height: 2px; background: var(--line); border-radius: 1px; overflow: hidden; }
+#load .lb i { display: block; height: 100%; width: 0; background: var(--acc); transition: width 0.2s; }
+body.ready #load { display: none; }
+body.grab canvas#gl { cursor: grabbing; }
+body.point canvas#gl { cursor: pointer; }
+@media (max-width: 1180px) { .grp > button span, .menu > button span { display: none; } .grp > button, .menu > button { padding: 0 7px; } }
+@media (max-width: 900px) { #tree { width: 190px; } #props { width: 240px; } #hint { display: none; } }
+#props .face { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+#props .face h4 { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc); }
+#meas { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
+#meas line { stroke: var(--acc); stroke-width: 1.5; stroke-dasharray: 5 4; }
+#meas circle { fill: var(--acc); stroke: var(--bg); stroke-width: 1.5; }
+.mlab { display: inline-flex; flex-direction: column; gap: 2px; padding: 6px 9px; border-radius: 6px; background: var(--glass); border: 1px solid var(--acc);
+  backdrop-filter: blur(2px); font: 11px "JetBrains Mono", monospace; color: var(--dim); }
+.mlab b { color: var(--ink); font-size: 13px; }
+.mlab i { color: var(--faint); font-style: normal; font-family: Inter, sans-serif; font-size: 10px; }

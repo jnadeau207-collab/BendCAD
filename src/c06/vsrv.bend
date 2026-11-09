@@ -28,7 +28,9 @@ def v_ctype(+p: String) -> String:
     Bool.pick(String, String.ends_with(p, ".js"), "text/javascript; charset=utf-8",
       Bool.pick(String, String.ends_with(p, ".json"), "application/json",
         Bool.pick(String, Bool.or(String.ends_with(p, ".stp"), String.ends_with(p, ".step")), "model/step",
-          "text/plain; charset=utf-8"))))
+          Bool.pick(String, String.ends_with(p, ".css"), "text/css; charset=utf-8",
+            Bool.pick(String, String.ends_with(p, ".svg"), "image/svg+xml",
+              "text/plain; charset=utf-8"))))))
 
 def v_hdr(+code: String, +ct: String) -> String:
   "HTTP/1.1 " ++ code ++ "\r\nContent-Type: " ++ ct ++ "\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n"
