@@ -1,16 +1,16 @@
 {
  "scene": "g5/scene.json",
  "faces_scene": "g5/scene.json",
- "binary": "/home/jesse/bc/bendcad-k6o",
- "sha256": "b991e5053e0dd17f8926819d4677a504a4187b445ea6b593f67164cf084b6574",
+ "binary": "/home/jesse/bc/bendcad",
+ "sha256": "9d3cb8411855858b2477ff2b8bba3f37a499eef5ae890ddeabbac86d85ddf2fb",
  "checks": [
   {
    "name": "all parts load and mesh",
    "ok": true,
    "parts": 24,
    "tris": 4776652,
-   "load_ms": 5275,
-   "wall_ms": 6940
+   "load_ms": 7042,
+   "wall_ms": 8705
   },
   {
    "name": "hardware WebGL renderer",
@@ -20,7 +20,7 @@
   {
    "name": "full studio frame (MSAA + GTAO + outlines) under 50 ms at 1080p",
    "ok": true,
-   "frame_ms": 25.63
+   "frame_ms": 15.55
   },
   {
    "name": "casing",
@@ -114,7 +114,7 @@
   {
    "name": "4K snapshot renders 3840x2160",
    "ok": true,
-   "bytes": 6218863,
+   "bytes": 6076649,
    "w": 3840,
    "h": 2160
   },
