@@ -1,0 +1,355 @@
+{
+ "method": "meridional (r,z) vertex-cloud distance, rotor swept through 360 deg; sampled, cold, not certified",
+ "rows": [
+  {
+   "rotor": "turbine",
+   "stator": "ngv",
+   "gap_mm": 0.122,
+   "at_r": 32.98,
+   "at_z": 170.61
+  },
+  {
+   "rotor": "impeller",
+   "stator": "front_cover",
+   "gap_mm": 0.273,
+   "at_r": 23.34,
+   "at_z": 12.0
+  },
+  {
+   "rotor": "impeller",
+   "stator": "tunnel",
+   "gap_mm": 0.5,
+   "at_r": 10.5,
+   "at_z": 28.01
+  },
+  {
+   "rotor": "impeller",
+   "stator": "diffuser",
+   "gap_mm": 0.5,
+   "at_r": 34.0,
+   "at_z": 26.96
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "exhaust",
+   "gap_mm": 1.495,
+   "at_r": 7.51,
+   "at_z": 178.5
+  },
+  {
+   "rotor": "turbine",
+   "stator": "exhaust",
+   "gap_mm": 2.55,
+   "at_r": 21.5,
+   "at_z": 171.5
+  },
+  {
+   "rotor": "shaft",
+   "stator": "exhaust",
+   "gap_mm": 3.0,
+   "at_r": 0.0,
+   "at_z": 178.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "tunnel",
+   "gap_mm": 4.924,
+   "at_r": 5.0,
+   "at_z": 37.0
+  },
+  {
+   "rotor": "impeller",
+   "stator": "intake",
+   "gap_mm": 9.495,
+   "at_r": 22.84,
+   "at_z": 1.49
+  },
+  {
+   "rotor": "impeller",
+   "stator": "straightener",
+   "gap_mm": 11.5,
+   "at_r": 34.0,
+   "at_z": 27.41
+  },
+  {
+   "rotor": "turbine",
+   "stator": "liner",
+   "gap_mm": 12.51,
+   "at_r": 21.5,
+   "at_z": 162.5
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "intake",
+   "gap_mm": 13.504,
+   "at_r": 7.51,
+   "at_z": -7.5
+  },
+  {
+   "rotor": "turbine",
+   "stator": "tunnel",
+   "gap_mm": 14.036,
+   "at_r": 12.0,
+   "at_z": 162.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "front_cover",
+   "gap_mm": 15.503,
+   "at_r": 7.51,
+   "at_z": -7.5
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "ngv",
+   "gap_mm": 17.025,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "intake",
+   "gap_mm": 17.117,
+   "at_r": 4.0,
+   "at_z": -6.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "front_cover",
+   "gap_mm": 19.105,
+   "at_r": 4.0,
+   "at_z": -6.0
+  },
+  {
+   "rotor": "impeller",
+   "stator": "casing",
+   "gap_mm": 19.2,
+   "at_r": 34.0,
+   "at_z": 25.75
+  },
+  {
+   "rotor": "turbine",
+   "stator": "casing",
+   "gap_mm": 20.222,
+   "at_r": 32.98,
+   "at_z": 170.61
+  },
+  {
+   "rotor": "shaft",
+   "stator": "ngv",
+   "gap_mm": 20.23,
+   "at_r": 5.0,
+   "at_z": 138.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "liner",
+   "gap_mm": 20.809,
+   "at_r": 5.0,
+   "at_z": 138.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "tunnel",
+   "gap_mm": 24.253,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "liner",
+   "gap_mm": 26.346,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "impeller",
+   "stator": "manifold",
+   "gap_mm": 28.849,
+   "at_r": 34.0,
+   "at_z": 27.5
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "tunnel",
+   "gap_mm": 29.21,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "diffuser",
+   "gap_mm": 31.149,
+   "at_r": 5.0,
+   "at_z": 37.0
+  },
+  {
+   "rotor": "impeller",
+   "stator": "liner",
+   "gap_mm": 32.129,
+   "at_r": 10.5,
+   "at_z": 30.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "diffuser",
+   "gap_mm": 34.408,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "straightener",
+   "gap_mm": 40.5,
+   "at_r": 5.0,
+   "at_z": 37.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "manifold",
+   "gap_mm": 44.66,
+   "at_r": 5.0,
+   "at_z": 37.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "casing",
+   "gap_mm": 45.695,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "straightener",
+   "gap_mm": 47.197,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "shaft",
+   "stator": "casing",
+   "gap_mm": 48.2,
+   "at_r": 5.0,
+   "at_z": 37.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "casing",
+   "gap_mm": 50.289,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "liner",
+   "gap_mm": 62.698,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "manifold",
+   "gap_mm": 67.014,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "turbine",
+   "stator": "manifold",
+   "gap_mm": 107.7,
+   "at_r": 32.2,
+   "at_z": 163.25
+  },
+  {
+   "rotor": "impeller",
+   "stator": "ngv",
+   "gap_mm": 121.413,
+   "at_r": 10.5,
+   "at_z": 30.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "manifold",
+   "gap_mm": 121.905,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "turbine",
+   "stator": "straightener",
+   "gap_mm": 123.962,
+   "at_r": 32.2,
+   "at_z": 163.25
+  },
+  {
+   "rotor": "turbine",
+   "stator": "diffuser",
+   "gap_mm": 136.122,
+   "at_r": 21.5,
+   "at_z": 162.5
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "straightener",
+   "gap_mm": 137.359,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "turbine",
+   "stator": "front_cover",
+   "gap_mm": 142.934,
+   "at_r": 21.5,
+   "at_z": 162.5
+  },
+  {
+   "rotor": "impeller",
+   "stator": "exhaust",
+   "gap_mm": 144.008,
+   "at_r": 10.5,
+   "at_z": 30.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "diffuser",
+   "gap_mm": 147.491,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "ngv",
+   "gap_mm": 152.554,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "front_cover",
+   "gap_mm": 154.0,
+   "at_r": 7.51,
+   "at_z": 172.0
+  },
+  {
+   "rotor": "turbine",
+   "stator": "intake",
+   "gap_mm": 170.238,
+   "at_r": 12.0,
+   "at_z": 162.0
+  },
+  {
+   "rotor": "nut_front",
+   "stator": "exhaust",
+   "gap_mm": 175.006,
+   "at_r": 7.51,
+   "at_z": -1.0
+  },
+  {
+   "rotor": "nut_rear",
+   "stator": "intake",
+   "gap_mm": 180.505,
+   "at_r": 7.51,
+   "at_z": 172.0
+  }
+ ]
+}

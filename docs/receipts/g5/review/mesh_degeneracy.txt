@@ -1,0 +1,4 @@
+viewer/g5/impeller.obj tris 727904 repeated-index 29224 zero-area 94854 | edge multiplicity after dropping them: {1: 91738, 2: 856222, 4: 4, 18: 8, 20: 4, 22: 2, 36: 4, 38: 2, 40: 2, 50: 8, 52: 4, 54: 18, 56: 8, 58: 4, 62: 8, 64: 4, 66: 2, 100: 4, 102: 2, 104: 2, 108: 8, 110: 4, 112: 4, 124: 4, 126: 2, 128: 2}
+viewer/g5/turbine.obj tris 1695946 repeated-index 73190 zero-area 96084 | edge multiplicity after dropping them: {1: 84389, 2: 2246901, 3: 21, 4: 272, 5: 11, 6: 67, 7: 6, 8: 13, 9: 2, 10: 4, 13: 1}
+viewer/g5/ngv.obj tris 919504 repeated-index 5260 zero-area 34 | edge multiplicity after dropping them: {1: 52, 2: 1370674, 3: 1, 4: 71, 5: 1, 6: 39, 8: 34, 10: 12, 12: 11, 14: 6, 16: 6}
+viewer/g5/casing.obj tris 121328 repeated-index 0 zero-area 0 | edge multiplicity after dropping them: {2: 181992}

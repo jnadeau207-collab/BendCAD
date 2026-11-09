@@ -1,0 +1,2668 @@
+{
+ "method": "voxels 0.25 mm x 0.25 mm x 0.5 mm from kernel tessellation, rotor frozen, zero-area triangles dropped; air connected to the outside world vs sealed pockets",
+ "grid": [
+  516,
+  482,
+  482
+ ],
+ "outside_label": 1,
+ "probes": {
+  "intake throat (r=10, z=-20)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  },
+  "compressor inducer (r=20, z=5)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  },
+  "outer combustor annulus (r=50, z=100)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  },
+  "inner combustor annulus (r=18.5, z=100)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  },
+  "combustion zone inside liner (r=34, z=105)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  },
+  "nozzle exit (r=18, z=228)": {
+   "connected_to_outside": true,
+   "sealed_region": 0
+  }
+ },
+ "sealed_pockets": [
+  {
+   "region": 391,
+   "volume_mm3": 0.6
+  },
+  {
+   "region": 387,
+   "volume_mm3": 0.6
+  },
+  {
+   "region": 195,
+   "volume_mm3": 0.6
+  },
+  {
+   "region": 191,
+   "volume_mm3": 0.6
+  },
+  {
+   "region": 392,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 386,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 196,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 190,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 390,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 389,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 388,
+   "volume_mm3": 0.5
+  },
+  {
+   "region": 194,
+   "volume_mm3": 0.5
+  }
+ ],
+ "sections": [
+  {
+   "z": -26.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -25.5,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -25.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -24.5,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -24.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -23.5,
+   "open_connected_mm2": 10630.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -23.0,
+   "open_connected_mm2": 10419.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -22.5,
+   "open_connected_mm2": 10271.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -22.0,
+   "open_connected_mm2": 10154.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -21.5,
+   "open_connected_mm2": 10575.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -21.0,
+   "open_connected_mm2": 10685.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -20.5,
+   "open_connected_mm2": 10752.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -20.0,
+   "open_connected_mm2": 10794.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -19.5,
+   "open_connected_mm2": 10827.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -19.0,
+   "open_connected_mm2": 10853.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -18.5,
+   "open_connected_mm2": 10871.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -18.0,
+   "open_connected_mm2": 10887.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -17.5,
+   "open_connected_mm2": 10899.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -17.0,
+   "open_connected_mm2": 10910.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -16.5,
+   "open_connected_mm2": 10917.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -16.0,
+   "open_connected_mm2": 10922.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -15.5,
+   "open_connected_mm2": 10928.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -15.0,
+   "open_connected_mm2": 10930.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -14.5,
+   "open_connected_mm2": 10932.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -14.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -13.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -13.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -12.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -12.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -11.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -11.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -10.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -10.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -9.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -9.0,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -8.5,
+   "open_connected_mm2": 10933.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -8.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -7.5,
+   "open_connected_mm2": 10748.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -7.0,
+   "open_connected_mm2": 10652.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -6.5,
+   "open_connected_mm2": 10652.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -6.0,
+   "open_connected_mm2": 10652.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -5.5,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -5.0,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -4.5,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -4.0,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -3.5,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -3.0,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -2.5,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -2.0,
+   "open_connected_mm2": 10602.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -1.5,
+   "open_connected_mm2": 10605.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -1.0,
+   "open_connected_mm2": 10704.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": -0.5,
+   "open_connected_mm2": 10511.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 0.0,
+   "open_connected_mm2": 10510.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 0.5,
+   "open_connected_mm2": 10509.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 1.0,
+   "open_connected_mm2": 10511.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 1.5,
+   "open_connected_mm2": 10513.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 2.0,
+   "open_connected_mm2": 10476.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 2.5,
+   "open_connected_mm2": 10474.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 3.0,
+   "open_connected_mm2": 10472.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 3.5,
+   "open_connected_mm2": 10467.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 4.0,
+   "open_connected_mm2": 10461.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 4.5,
+   "open_connected_mm2": 10455.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 5.0,
+   "open_connected_mm2": 10447.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 5.5,
+   "open_connected_mm2": 10436.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 6.0,
+   "open_connected_mm2": 10429.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 6.5,
+   "open_connected_mm2": 10420.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 7.0,
+   "open_connected_mm2": 10411.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 7.5,
+   "open_connected_mm2": 10323.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 8.0,
+   "open_connected_mm2": 10231.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 8.5,
+   "open_connected_mm2": 10136.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 9.0,
+   "open_connected_mm2": 10042.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 9.5,
+   "open_connected_mm2": 9945.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 10.0,
+   "open_connected_mm2": 9845.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 10.5,
+   "open_connected_mm2": 9739.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 11.0,
+   "open_connected_mm2": 9630.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 11.5,
+   "open_connected_mm2": 9519.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 12.0,
+   "open_connected_mm2": 9410.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 12.5,
+   "open_connected_mm2": 9302.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 13.0,
+   "open_connected_mm2": 9192.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 13.5,
+   "open_connected_mm2": 9087.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 14.0,
+   "open_connected_mm2": 8979.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 14.5,
+   "open_connected_mm2": 8876.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 15.0,
+   "open_connected_mm2": 8775.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 15.5,
+   "open_connected_mm2": 8678.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 16.0,
+   "open_connected_mm2": 8584.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 16.5,
+   "open_connected_mm2": 3291.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 17.0,
+   "open_connected_mm2": 3321.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 17.5,
+   "open_connected_mm2": 3356.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 18.0,
+   "open_connected_mm2": 3407.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 18.5,
+   "open_connected_mm2": 3472.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 19.0,
+   "open_connected_mm2": 3569.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 19.5,
+   "open_connected_mm2": 3721.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 20.0,
+   "open_connected_mm2": 9981.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 20.5,
+   "open_connected_mm2": 6696.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 21.0,
+   "open_connected_mm2": 6611.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 21.5,
+   "open_connected_mm2": 6514.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 22.0,
+   "open_connected_mm2": 6410.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 22.5,
+   "open_connected_mm2": 6282.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 23.0,
+   "open_connected_mm2": 6137.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 23.5,
+   "open_connected_mm2": 5965.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 24.0,
+   "open_connected_mm2": 5737.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 24.5,
+   "open_connected_mm2": 5432.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 25.0,
+   "open_connected_mm2": 1994.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 25.5,
+   "open_connected_mm2": 1994.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 26.0,
+   "open_connected_mm2": 1994.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 26.5,
+   "open_connected_mm2": 1994.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 27.0,
+   "open_connected_mm2": 5193.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 27.5,
+   "open_connected_mm2": 4760.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 28.0,
+   "open_connected_mm2": 8044.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 28.5,
+   "open_connected_mm2": 7718.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 29.0,
+   "open_connected_mm2": 7551.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 29.5,
+   "open_connected_mm2": 7551.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 30.0,
+   "open_connected_mm2": 7847.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 30.5,
+   "open_connected_mm2": 7650.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 31.0,
+   "open_connected_mm2": 7650.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 31.5,
+   "open_connected_mm2": 7650.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 32.0,
+   "open_connected_mm2": 7615.6,
+   "sealed_mm2": 0.1
+  },
+  {
+   "z": 32.5,
+   "open_connected_mm2": 7621.6,
+   "sealed_mm2": 1.6
+  },
+  {
+   "z": 33.0,
+   "open_connected_mm2": 7583.6,
+   "sealed_mm2": 1.6
+  },
+  {
+   "z": 33.5,
+   "open_connected_mm2": 7582.8,
+   "sealed_mm2": 2.0
+  },
+  {
+   "z": 34.0,
+   "open_connected_mm2": 7582.5,
+   "sealed_mm2": 2.8
+  },
+  {
+   "z": 34.5,
+   "open_connected_mm2": 7571.7,
+   "sealed_mm2": 3.9
+  },
+  {
+   "z": 35.0,
+   "open_connected_mm2": 7552.1,
+   "sealed_mm2": 3.9
+  },
+  {
+   "z": 35.5,
+   "open_connected_mm2": 7552.2,
+   "sealed_mm2": 7.5
+  },
+  {
+   "z": 36.0,
+   "open_connected_mm2": 7552.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 36.5,
+   "open_connected_mm2": 7650.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 37.0,
+   "open_connected_mm2": 7847.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 37.5,
+   "open_connected_mm2": 7551.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 38.0,
+   "open_connected_mm2": 7819.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 38.5,
+   "open_connected_mm2": 7819.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 39.0,
+   "open_connected_mm2": 7987.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 39.5,
+   "open_connected_mm2": 7890.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 40.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 40.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 41.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 41.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 42.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 42.5,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 43.0,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 43.5,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 44.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 44.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 45.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 45.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 46.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 46.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 47.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 47.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 48.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 48.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 49.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 49.5,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 50.0,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 50.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 51.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 51.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 52.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 52.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 53.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 53.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 54.0,
+   "open_connected_mm2": 7419.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 54.5,
+   "open_connected_mm2": 7870.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 55.0,
+   "open_connected_mm2": 7872.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 55.5,
+   "open_connected_mm2": 7865.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 56.0,
+   "open_connected_mm2": 7415.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 56.5,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 57.0,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 57.5,
+   "open_connected_mm2": 8324.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 58.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 58.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 59.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 59.5,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 60.0,
+   "open_connected_mm2": 8324.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 60.5,
+   "open_connected_mm2": 3199.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 61.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 61.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 62.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 62.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 63.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 63.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 64.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 64.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 65.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 65.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 66.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 66.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 67.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 67.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 68.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 68.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 69.0,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 69.5,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 70.0,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 70.5,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 71.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 71.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 72.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 72.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 73.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 73.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 74.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 74.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 75.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 75.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 76.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 76.5,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 77.0,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 77.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 78.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 78.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 79.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 79.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 80.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 80.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 81.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 81.5,
+   "open_connected_mm2": 8109.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 82.0,
+   "open_connected_mm2": 8108.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 82.5,
+   "open_connected_mm2": 8108.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 83.0,
+   "open_connected_mm2": 8108.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 83.5,
+   "open_connected_mm2": 8109.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 84.0,
+   "open_connected_mm2": 8109.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 84.5,
+   "open_connected_mm2": 8109.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 85.0,
+   "open_connected_mm2": 8109.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 85.5,
+   "open_connected_mm2": 8109.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 86.0,
+   "open_connected_mm2": 8109.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 86.5,
+   "open_connected_mm2": 8109.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 87.0,
+   "open_connected_mm2": 8108.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 87.5,
+   "open_connected_mm2": 8108.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 88.0,
+   "open_connected_mm2": 8108.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 88.5,
+   "open_connected_mm2": 8109.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 89.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 89.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 90.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 90.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 91.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 91.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 92.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 92.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 93.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 93.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 94.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 94.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 95.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 95.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 96.0,
+   "open_connected_mm2": 8111.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 96.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 97.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 97.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 98.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 98.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 99.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 99.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 100.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 100.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 101.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 101.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 102.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 102.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 103.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 103.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 104.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 104.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 105.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 105.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 106.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 106.5,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 107.0,
+   "open_connected_mm2": 8111.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 107.5,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 108.0,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 108.5,
+   "open_connected_mm2": 8111.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 109.0,
+   "open_connected_mm2": 8110.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 109.5,
+   "open_connected_mm2": 8110.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 110.0,
+   "open_connected_mm2": 8110.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 110.5,
+   "open_connected_mm2": 8109.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 111.0,
+   "open_connected_mm2": 8109.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 111.5,
+   "open_connected_mm2": 8108.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 112.0,
+   "open_connected_mm2": 8108.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 112.5,
+   "open_connected_mm2": 8109.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 113.0,
+   "open_connected_mm2": 8109.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 113.5,
+   "open_connected_mm2": 8109.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 114.0,
+   "open_connected_mm2": 8109.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 114.5,
+   "open_connected_mm2": 8109.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 115.0,
+   "open_connected_mm2": 8110.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 115.5,
+   "open_connected_mm2": 8110.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 116.0,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 116.5,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 117.0,
+   "open_connected_mm2": 8110.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 117.5,
+   "open_connected_mm2": 8110.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 118.0,
+   "open_connected_mm2": 8110.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 118.5,
+   "open_connected_mm2": 8110.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 119.0,
+   "open_connected_mm2": 8110.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 119.5,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 120.0,
+   "open_connected_mm2": 8110.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 120.5,
+   "open_connected_mm2": 8110.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 121.0,
+   "open_connected_mm2": 8110.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 121.5,
+   "open_connected_mm2": 8109.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 122.0,
+   "open_connected_mm2": 8109.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 122.5,
+   "open_connected_mm2": 8109.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 123.0,
+   "open_connected_mm2": 8109.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 123.5,
+   "open_connected_mm2": 8109.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 124.0,
+   "open_connected_mm2": 8108.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 124.5,
+   "open_connected_mm2": 8109.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 125.0,
+   "open_connected_mm2": 8109.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 125.5,
+   "open_connected_mm2": 8109.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 126.0,
+   "open_connected_mm2": 8109.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 126.5,
+   "open_connected_mm2": 8109.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 127.0,
+   "open_connected_mm2": 8109.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 127.5,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 128.0,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 128.5,
+   "open_connected_mm2": 8110.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 129.0,
+   "open_connected_mm2": 8110.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 129.5,
+   "open_connected_mm2": 8110.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 130.0,
+   "open_connected_mm2": 8110.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 130.5,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 131.0,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 131.5,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 132.0,
+   "open_connected_mm2": 8111.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 132.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 133.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 133.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 134.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 134.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 135.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 135.5,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 136.0,
+   "open_connected_mm2": 8111.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 136.5,
+   "open_connected_mm2": 8208.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 137.0,
+   "open_connected_mm2": 8208.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 137.5,
+   "open_connected_mm2": 8208.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 138.0,
+   "open_connected_mm2": 8208.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 138.5,
+   "open_connected_mm2": 8038.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 139.0,
+   "open_connected_mm2": 8038.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 139.5,
+   "open_connected_mm2": 8038.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 140.0,
+   "open_connected_mm2": 8003.8,
+   "sealed_mm2": 0.1
+  },
+  {
+   "z": 140.5,
+   "open_connected_mm2": 8010.0,
+   "sealed_mm2": 1.6
+  },
+  {
+   "z": 141.0,
+   "open_connected_mm2": 7971.8,
+   "sealed_mm2": 1.6
+  },
+  {
+   "z": 141.5,
+   "open_connected_mm2": 7971.4,
+   "sealed_mm2": 2.0
+  },
+  {
+   "z": 142.0,
+   "open_connected_mm2": 7970.8,
+   "sealed_mm2": 2.8
+  },
+  {
+   "z": 142.5,
+   "open_connected_mm2": 7959.8,
+   "sealed_mm2": 3.9
+  },
+  {
+   "z": 143.0,
+   "open_connected_mm2": 7940.4,
+   "sealed_mm2": 3.9
+  },
+  {
+   "z": 143.5,
+   "open_connected_mm2": 7940.5,
+   "sealed_mm2": 7.5
+  },
+  {
+   "z": 144.0,
+   "open_connected_mm2": 7940.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 144.5,
+   "open_connected_mm2": 8038.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 145.0,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 145.5,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 146.0,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 146.5,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 147.0,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 147.5,
+   "open_connected_mm2": 8236.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 148.0,
+   "open_connected_mm2": 8562.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 148.5,
+   "open_connected_mm2": 8562.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 149.0,
+   "open_connected_mm2": 8562.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 149.5,
+   "open_connected_mm2": 8562.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 150.0,
+   "open_connected_mm2": 8774.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 150.5,
+   "open_connected_mm2": 8774.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 151.0,
+   "open_connected_mm2": 8285.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 151.5,
+   "open_connected_mm2": 7906.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 152.0,
+   "open_connected_mm2": 7752.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 152.5,
+   "open_connected_mm2": 7599.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 153.0,
+   "open_connected_mm2": 7470.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 153.5,
+   "open_connected_mm2": 7360.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 154.0,
+   "open_connected_mm2": 7581.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 154.5,
+   "open_connected_mm2": 7829.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 155.0,
+   "open_connected_mm2": 8086.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 155.5,
+   "open_connected_mm2": 8057.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 156.0,
+   "open_connected_mm2": 8037.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 156.5,
+   "open_connected_mm2": 8017.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 157.0,
+   "open_connected_mm2": 8005.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 157.5,
+   "open_connected_mm2": 7997.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 158.0,
+   "open_connected_mm2": 7990.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 158.5,
+   "open_connected_mm2": 7996.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 159.0,
+   "open_connected_mm2": 8004.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 159.5,
+   "open_connected_mm2": 8024.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 160.0,
+   "open_connected_mm2": 8052.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 160.5,
+   "open_connected_mm2": 8096.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 161.0,
+   "open_connected_mm2": 8273.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 161.5,
+   "open_connected_mm2": 8475.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 162.0,
+   "open_connected_mm2": 8475.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 162.5,
+   "open_connected_mm2": 8073.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 163.0,
+   "open_connected_mm2": 7639.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 163.5,
+   "open_connected_mm2": 7505.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 164.0,
+   "open_connected_mm2": 7441.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 164.5,
+   "open_connected_mm2": 6842.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 165.0,
+   "open_connected_mm2": 6822.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 165.5,
+   "open_connected_mm2": 6806.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 166.0,
+   "open_connected_mm2": 6790.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 166.5,
+   "open_connected_mm2": 6776.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 167.0,
+   "open_connected_mm2": 6760.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 167.5,
+   "open_connected_mm2": 6750.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 168.0,
+   "open_connected_mm2": 6744.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 168.5,
+   "open_connected_mm2": 6743.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 169.0,
+   "open_connected_mm2": 6751.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 169.5,
+   "open_connected_mm2": 6762.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 170.0,
+   "open_connected_mm2": 6792.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 170.5,
+   "open_connected_mm2": 7398.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 171.0,
+   "open_connected_mm2": 7639.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 171.5,
+   "open_connected_mm2": 7640.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 172.0,
+   "open_connected_mm2": 8475.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 172.5,
+   "open_connected_mm2": 8380.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 173.0,
+   "open_connected_mm2": 8380.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 173.5,
+   "open_connected_mm2": 8380.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 174.0,
+   "open_connected_mm2": 8679.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 174.5,
+   "open_connected_mm2": 7580.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 175.0,
+   "open_connected_mm2": 9998.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 175.5,
+   "open_connected_mm2": 9762.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 176.0,
+   "open_connected_mm2": 9793.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 176.5,
+   "open_connected_mm2": 9826.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 177.0,
+   "open_connected_mm2": 9856.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 177.5,
+   "open_connected_mm2": 9891.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 178.0,
+   "open_connected_mm2": 9972.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 178.5,
+   "open_connected_mm2": 10100.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 179.0,
+   "open_connected_mm2": 10130.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 179.5,
+   "open_connected_mm2": 10160.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 180.0,
+   "open_connected_mm2": 10191.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 180.5,
+   "open_connected_mm2": 10218.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 181.0,
+   "open_connected_mm2": 10249.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 181.5,
+   "open_connected_mm2": 10019.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 182.0,
+   "open_connected_mm2": 10049.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 182.5,
+   "open_connected_mm2": 10075.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 183.0,
+   "open_connected_mm2": 10106.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 183.5,
+   "open_connected_mm2": 10132.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 184.0,
+   "open_connected_mm2": 10159.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 184.5,
+   "open_connected_mm2": 10184.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 185.0,
+   "open_connected_mm2": 10082.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 185.5,
+   "open_connected_mm2": 10043.3,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 186.0,
+   "open_connected_mm2": 10067.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 186.5,
+   "open_connected_mm2": 10092.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 187.0,
+   "open_connected_mm2": 10115.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 187.5,
+   "open_connected_mm2": 10141.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 188.0,
+   "open_connected_mm2": 10162.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 188.5,
+   "open_connected_mm2": 10190.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 189.0,
+   "open_connected_mm2": 10210.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 189.5,
+   "open_connected_mm2": 10236.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 190.0,
+   "open_connected_mm2": 10255.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 190.5,
+   "open_connected_mm2": 10278.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 191.0,
+   "open_connected_mm2": 10299.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 191.5,
+   "open_connected_mm2": 10318.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 192.0,
+   "open_connected_mm2": 10341.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 192.5,
+   "open_connected_mm2": 10357.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 193.0,
+   "open_connected_mm2": 10476.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 193.5,
+   "open_connected_mm2": 10588.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 194.0,
+   "open_connected_mm2": 10612.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 194.5,
+   "open_connected_mm2": 10629.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 195.0,
+   "open_connected_mm2": 10648.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 195.5,
+   "open_connected_mm2": 10666.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 196.0,
+   "open_connected_mm2": 10682.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 196.5,
+   "open_connected_mm2": 10700.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 197.0,
+   "open_connected_mm2": 10715.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 197.5,
+   "open_connected_mm2": 10732.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 198.0,
+   "open_connected_mm2": 10745.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 198.5,
+   "open_connected_mm2": 10762.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 199.0,
+   "open_connected_mm2": 10774.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 199.5,
+   "open_connected_mm2": 10792.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 200.0,
+   "open_connected_mm2": 10806.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 200.5,
+   "open_connected_mm2": 10821.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 201.0,
+   "open_connected_mm2": 10834.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 201.5,
+   "open_connected_mm2": 10847.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 202.0,
+   "open_connected_mm2": 10860.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 202.5,
+   "open_connected_mm2": 10871.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 203.0,
+   "open_connected_mm2": 10883.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 203.5,
+   "open_connected_mm2": 10892.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 204.0,
+   "open_connected_mm2": 10905.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 204.5,
+   "open_connected_mm2": 10913.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 205.0,
+   "open_connected_mm2": 10927.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 205.5,
+   "open_connected_mm2": 10936.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 206.0,
+   "open_connected_mm2": 10945.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 206.5,
+   "open_connected_mm2": 11026.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 207.0,
+   "open_connected_mm2": 11026.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 207.5,
+   "open_connected_mm2": 11028.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 208.0,
+   "open_connected_mm2": 11029.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 208.5,
+   "open_connected_mm2": 11030.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 209.0,
+   "open_connected_mm2": 11031.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 209.5,
+   "open_connected_mm2": 11032.7,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 210.0,
+   "open_connected_mm2": 11033.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 210.5,
+   "open_connected_mm2": 11037.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 211.0,
+   "open_connected_mm2": 11038.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 211.5,
+   "open_connected_mm2": 11040.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 212.0,
+   "open_connected_mm2": 11041.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 212.5,
+   "open_connected_mm2": 11043.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 213.0,
+   "open_connected_mm2": 11043.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 213.5,
+   "open_connected_mm2": 11046.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 214.0,
+   "open_connected_mm2": 11045.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 214.5,
+   "open_connected_mm2": 11047.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 215.0,
+   "open_connected_mm2": 11048.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 215.5,
+   "open_connected_mm2": 11049.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 216.0,
+   "open_connected_mm2": 11052.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 216.5,
+   "open_connected_mm2": 11053.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 217.0,
+   "open_connected_mm2": 11057.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 217.5,
+   "open_connected_mm2": 11056.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 218.0,
+   "open_connected_mm2": 11059.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 218.5,
+   "open_connected_mm2": 11058.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 219.0,
+   "open_connected_mm2": 11061.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 219.5,
+   "open_connected_mm2": 11061.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 220.0,
+   "open_connected_mm2": 11062.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 220.5,
+   "open_connected_mm2": 11064.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 221.0,
+   "open_connected_mm2": 11064.0,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 221.5,
+   "open_connected_mm2": 11068.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 222.0,
+   "open_connected_mm2": 11069.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 222.5,
+   "open_connected_mm2": 11072.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 223.0,
+   "open_connected_mm2": 11071.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 223.5,
+   "open_connected_mm2": 11074.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 224.0,
+   "open_connected_mm2": 11073.8,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 224.5,
+   "open_connected_mm2": 11076.6,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 225.0,
+   "open_connected_mm2": 11077.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 225.5,
+   "open_connected_mm2": 11078.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 226.0,
+   "open_connected_mm2": 11079.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 226.5,
+   "open_connected_mm2": 11079.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 227.0,
+   "open_connected_mm2": 11083.1,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 227.5,
+   "open_connected_mm2": 11084.2,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 228.0,
+   "open_connected_mm2": 11086.5,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 228.5,
+   "open_connected_mm2": 11086.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 229.0,
+   "open_connected_mm2": 11089.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 229.5,
+   "open_connected_mm2": 11089.4,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 230.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 230.5,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 231.0,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  },
+  {
+   "z": 231.5,
+   "open_connected_mm2": 11209.9,
+   "sealed_mm2": 0.0
+  }
+ ],
+ "seconds": 31.6
+}

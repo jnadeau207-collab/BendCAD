@@ -1964,25 +1964,53 @@ def faces_tg(fs: List<&2, Ty.Face>, +x: Ctx, +ps: B.Tb<&2, V.Point>, +bbase: Nat
       +r = face_tg(u, f, x, ps, bbase, gbase, tol)
       fg_add(r, fa_sk(f), faces_tg(t, x, ps, Nat.add(bbase, Bool.pick(Nat, u, 0n, face_bp_used(f))), Nat.add(gbase, gt_np(r)), tol))
 
-def pri_fin(+gt: TGO, +ns: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ) -> M10.Tres:
+def pri_fin(+gt: TGO, +ns: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
   TGO{+ts, +gp, +gok} = gt
   +all2 = List.append(&2, V.Point, all, gp)
   +nt = List.length(&2, Tri, ts)
-  pri_out(Bool.and(gok, closed(ts)), M10.tres_ok(obj_vs(all2, M.bd_pl(b)) ++ obj_fg(Nat.add(Nat.add(nt, List.length(&2, Nat, ns)), 1n), ts, ns, ks, 0n, 0n),
+  pri_out(Bool.and(gok, closed(ts)), M10.tres_ok(obj_vs(all2, M.bd_pl(b)) ++ obj_fg(Nat.add(Nat.add(nt, List.length(&2, Nat, ns)), 1n), ts, ns, ks, 0n, 0n) ++ es,
     List.length(&2, V.Point, all2), List.length(&2, Tri, ts), est,
     mq_chord(mq), mq_ang(mq), mq_n(mq)))
 
-def fg_fin(+fg: FG, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ) -> M10.Tres:
+def e_pt(+p: V.Point, +pl: M.Pl) -> String:
+  +q = pl_pt(p, pl)
+  " " ++ F64.show(V.pt_x(q)) ++ " " ++ F64.show(V.pt_y(q)) ++ " " ++ F64.show(V.pt_z(q))
+
+def e_pts(ps: List<&2, V.Point>, +pl: M.Pl) -> String:
+  match ps:
+    case []: ""
+    case +p <> t: e_pt(p, pl) ++ e_pts(t, pl)
+
+def e_kind(k: Ty.EdgeKind, +a: V.Point, +b: V.Point, +s: List<&2, V.Point>, +pl: M.Pl) -> String:
+  match k:
+    case Ty.EK_degenerate{}: ""
+    case _: "e" ++ e_pt(a, pl) ++ e_pts(s, pl) ++ e_pt(b, pl) ++ "\n"
+
+def e_line(e: Ty.Edge, +s: List<&2, V.Point>, +vt: B.Tb<&2, V.Point>, +pl: M.Pl) -> String:
+  Ty.Ed{g, v0, v1, k} = e
+  e_kind(k, B.tb_get(V.Point, vt, ux(hv_i(v0))), B.tb_get(V.Point, vt, ux(hv_i(v1))), s, pl)
+
+def obj_es(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +vt: B.Tb<&2, V.Point>, +pl: M.Pl) -> String:
+  match es:
+    case []: ""
+    case e <> t:
+      match ss:
+        case []: ""
+        case +s <> u: e_line(e, s, vt, pl) ++ obj_es(t, u, vt, pl)
+
+def fg_fin(+fg: FG, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
   FG{+gt, +ns, +ks} = fg
-  pri_fin(gt, ns, ks, all, b, est, mq)
+  pri_fin(gt, ns, ks, all, b, est, mq, es)
 
 def pri_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   +br = M.bd_brep(b)
   +ps = all_pts(br, q)
   +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
   +tb = B.tb_of(V.Point, all, pz())
-  +mq = meas_go(Ty.brep_es(br), smps(Ty.brep_es(br), q), vx_pts(Ty.brep_vs(br)))
-  fg_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}), all, b, est, mq)
+  +ss = smps(Ty.brep_es(br), q)
+  +mq = meas_go(Ty.brep_es(br), ss, vx_pts(Ty.brep_vs(br)))
+  fg_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}), all, b, est, mq,
+    obj_es(Ty.brep_es(br), ss, tb, M.bd_pl(b)))
 
 def pri_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   match ok:

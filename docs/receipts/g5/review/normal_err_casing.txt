@@ -1,0 +1,2 @@
+cylinder n 34746 median 0.0022 p99 0.0149 max 6.1735 deg
+build ms 544 verts 62012
