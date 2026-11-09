@@ -239,3 +239,56 @@ export function hatchTexture() {
   t.anisotropy = 8;
   return t;
 }
+
+export function mirrorFloor(renderer, scene, Reflector) {
+  const shader = {
+    name: 'StudioFloor',
+    uniforms: { color: { value: null }, tDiffuse: { value: null }, textureMatrix: { value: null }, strength: { value: 0.32 }, fade: { value: 400 }, ctr: { value: new THREE.Vector3() } },
+    vertexShader: `uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 wp;
+      void main() { vUv = textureMatrix * vec4(position, 1.0); wp = (modelMatrix * vec4(position, 1.0)).xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform sampler2D tDiffuse; uniform float strength, fade; uniform vec3 ctr; varying vec4 vUv; varying vec3 wp;
+      void main() {
+        vec4 r = texture2DProj(tDiffuse, vUv);
+        float f = 1.0 - smoothstep(fade * 0.25, fade, length(wp.xy - ctr.xy));
+        gl_FragColor = vec4(r.rgb, r.a * strength * f);
+      }`
+  };
+  const w = Math.max(256, renderer.domElement.width >> 1), h = Math.max(256, renderer.domElement.height >> 1);
+  const m = new Reflector(new THREE.PlaneGeometry(1, 1), { shader, textureWidth: w, textureHeight: h, multisample: 4, clipBias: 0.0 });
+  m.material.transparent = true; m.material.depthWrite = false;
+  m.renderOrder = -2;
+  m.userData.helper = true;
+  const rt = m.getRenderTarget();
+  const a = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType }), b = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType });
+  const blur = new THREE.ShaderMaterial({
+    uniforms: { tex: { value: null }, dir: { value: new THREE.Vector2() } }, depthTest: false, depthWrite: false,
+    vertexShader: 'varying vec2 uv0; void main() { uv0 = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: `varying vec2 uv0; uniform sampler2D tex; uniform vec2 dir;
+      void main() { vec4 s = texture2D(tex, uv0) * 0.227;
+        s += (texture2D(tex, uv0 + dir) + texture2D(tex, uv0 - dir)) * 0.1945;
+        s += (texture2D(tex, uv0 + dir * 2.0) + texture2D(tex, uv0 - dir * 2.0)) * 0.1216;
+        s += (texture2D(tex, uv0 + dir * 3.0) + texture2D(tex, uv0 - dir * 3.0)) * 0.054;
+        s += (texture2D(tex, uv0 + dir * 4.0) + texture2D(tex, uv0 - dir * 4.0)) * 0.0162;
+        gl_FragColor = s; }`
+  });
+  const qs = new THREE.Scene(), qc = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  qs.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blur));
+  m.material.uniforms.tDiffuse.value = b.texture;
+  const base = m.onBeforeRender;
+  m.onBeforeRender = function (r, sc, cam) {
+    const hidden = [];
+    sc.traverse(o => { if (o !== m && o.visible && (o.userData.helper || o.userData.stencil || o.userData.cap || o.isLineSegments)) { hidden.push(o); o.visible = false; } });
+    const bg = sc.background, ca = r.getClearAlpha(), cc = r.getClearColor(new THREE.Color());
+    sc.background = null; r.setClearColor(0x000000, 0);
+    base.call(this, r, sc, cam);
+    sc.background = bg;
+    hidden.forEach(o => { o.visible = true; });
+    const prev = r.getRenderTarget();
+    blur.uniforms.tex.value = rt.texture; blur.uniforms.dir.value.set(1.6 / w, 0);
+    r.setRenderTarget(a); r.clear(); r.render(qs, qc);
+    blur.uniforms.tex.value = a.texture; blur.uniforms.dir.value.set(0, 1.6 / h);
+    r.setRenderTarget(b); r.clear(); r.render(qs, qc);
+    r.setRenderTarget(prev); r.setClearColor(cc, ca);
+  };
+  return m;
+}

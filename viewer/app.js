@@ -4,7 +4,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { SCHEMES, FINISHES, environment, background, partMaterial, grid, ContactShadow, hatchTexture } from './studio.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { SCHEMES, FINISHES, environment, background, partMaterial, grid, ContactShadow, hatchTexture, mirrorFloor } from './studio.js';
 import { layout, offsetAt, leader } from './explode.js';
 
 const $ = id => document.getElementById(id);
@@ -83,6 +84,8 @@ const shadow = new ContactShadow(renderer, 1024);
 scene.add(shadow.plane);
 let gridMesh = grid(st.scheme);
 scene.add(gridMesh);
+const floor = mirrorFloor(renderer, scene, Reflector);
+scene.add(floor);
 
 const pickRT = new THREE.WebGLRenderTarget(1, 1, { type: THREE.FloatType });
 const pickBuf = new Float32Array(4);
@@ -290,6 +293,9 @@ function hover(p, face) {
   const hf = p && face >= 0 ? { part: p, face } : null;
   if (st.hov === p && (st.hface && st.hface.face) === (hf && hf.face)) return;
   st.hov = p; st.hface = hf;
+  const tip = $('tip');
+  tip.hidden = !p;
+  if (p) tip.innerHTML = hf && st.selMode === 'face' ? `${p.label}<span>f${hf.face} · ${p.info.kinds[hf.face] || 'untagged'}</span>` : `${p.label}<span>${p.grade || ''}</span>`;
   document.body.classList.toggle('point', !!p);
   document.querySelectorAll('#tree .row').forEach(r => r.classList.toggle('hov', st.parts[+r.dataset.i] === p));
   applyLook();
@@ -413,6 +419,11 @@ function placeGrid() {
   gridMesh.scale.set(R * 2, R * 2, 1);
   gridMesh.material.uniforms.fade.value = R;
   gridMesh.material.uniforms.ctr.value.copy(c);
+  floor.position.copy(gridMesh.position).setZ(box.min.z - 0.3);
+  floor.scale.copy(gridMesh.scale);
+  floor.material.uniforms.fade.value = Math.max(s.x, s.y, s.z) * 1.6;
+  floor.material.uniforms.ctr.value.copy(c);
+  floor.material.uniforms.strength.value = st.scheme === 'night' ? 0.34 : 0.22;
   const span = Math.max(s.x, s.y, s.z);
   gridMesh.material.uniforms.cell.value = span > 600 ? 10 : span > 60 ? 5 : 1;
   shadow.update(scene, box, Math.max(40, s.z * 0.35), SCHEMES[st.scheme].shadow);
@@ -590,6 +601,7 @@ function controls() {
       return;
     }
     hoverQ = [e.clientX, e.clientY];
+    const tip = $('tip'); tip.style.left = `${e.clientX + 16}px`; tip.style.top = `${e.clientY + 18}px`;
   });
   cv.addEventListener('pointerup', e => {
     document.body.classList.remove('grab');
@@ -597,7 +609,7 @@ function controls() {
     else if (drag && !drag.moved && drag.btn === 0) select(drag.hit ? drag.hit.part : null, e.ctrlKey || e.metaKey, drag.hit ? drag.hit.face : -1);
     drag = null;
   });
-  cv.addEventListener('pointerleave', () => { hoverQ = null; if (!drag) hover(null); });
+  cv.addEventListener('pointerleave', () => { hoverQ = null; if (!drag) hover(null); $('tip').hidden = true; });
   cv.addEventListener('dblclick', e => { const h = pick(e.clientX, e.clientY); if (h) fit([h.part]); else fit(); });
   cv.addEventListener('wheel', e => {
     e.preventDefault();

@@ -66,9 +66,10 @@ def main(scene_rel, out, oracle=None):
             except OSError:
                 time.sleep(0.1)
         s, ct, html = get('/')
-        chk('root serves the viewer page', s == 200 and 'text/html' in ct and 'bcview.js' in html)
-        s, ct, js = get('/bcview.js')
+        chk('root serves the viewer page', s == 200 and 'text/html' in ct and 'app.js' in html)
+        s, ct, js = get('/app.js')
         chk('viewer script served', s == 200 and 'javascript' in ct and 'MediaRecorder' in js and 'explode' in js)
+        chk('viewer stylesheet served as css', status('/viewer.css') == 200 and 'text/css' in get('/viewer.css')[1])
         chk('missing file is 404', status('/no/such.obj') == 404)
         chk('path traversal refused', status('/../README.md') == 404)
         s, ct, sj = get('/' + scene_rel)
