@@ -1,0 +1,66 @@
+{
+ "binary": "/home/jesse/bc/bendcad",
+ "ready": false,
+ "checks": [
+  {
+   "check": "design point is one number everywhere",
+   "status": "fail",
+   "evidence": "cycle.json shaft_rpm=118486, scene/plan states 99700 r/min",
+   "basis": "computed: cycle.json vs scene subtitle"
+  },
+  {
+   "check": "combustor liner admits air (perforated walls)",
+   "status": "fail",
+   "evidence": "0 liner cylinder faces with holes; kernel lists 17 faces, all loops=1",
+   "basis": "kernel: faces 22 (certified B-rep topology)"
+  },
+  {
+   "check": "fuel reaches the primary zone (injector inside the liner)",
+   "status": "fail",
+   "evidence": "parts reaching into the liner gas volume: none",
+   "basis": "measured: kernel tessellation vertices vs liner interior"
+  },
+  {
+   "check": "turbine tip clearance survives thermal growth",
+   "status": "fail",
+   "evidence": "cold swept gap 0.122 mm vs free thermal growth of a 33 mm IN713C rim at TIT 0.238 mm (shroud growth and spin not yet subtracted)",
+   "basis": "estimated: swept_clearance.json + alpha*r*dT"
+  },
+  {
+   "check": "bearing speed within catalog limit",
+   "status": "not-analyzed",
+   "evidence": "n*dm=1777296 mm/min; no catalog limit or lubrication path is in the repo",
+   "basis": "none"
+  },
+  {
+   "check": "kernel meshes are conforming (no zero-area T-junction fillers)",
+   "status": "fail",
+   "evidence": "zero-area triangles: {'impeller': 116024, 'turbine': 179072, 'ngv': 5298}",
+   "basis": "measured: tessellation of every part"
+  },
+  {
+   "check": "airflow simulated through the running machine (CFD)",
+   "status": "not-analyzed",
+   "evidence": "0 receipts in docs/receipts/g5/cfd",
+   "basis": "receipt presence"
+  },
+  {
+   "check": "stress and creep at speed (FEM)",
+   "status": "not-analyzed",
+   "evidence": "0 receipts in docs/receipts/g5/fem",
+   "basis": "receipt presence"
+  },
+  {
+   "check": "rotor dynamics: critical speeds and blade modes",
+   "status": "not-analyzed",
+   "evidence": "0 receipts in docs/receipts/g5/modes",
+   "basis": "receipt presence"
+  },
+  {
+   "check": "lubrication path to both bearings",
+   "status": "not-analyzed",
+   "evidence": "0 receipts in docs/receipts/g5/lube",
+   "basis": "receipt presence"
+  }
+ ]
+}

@@ -30,6 +30,15 @@ Make the smallest coherent commit that closes a contract. Pair implementation wi
 
 Read `MASTER_PLAN.md` before implementation. Numeric work begins only after its Bend handoff gate closes.
 
+## Function, not proxies
+
+A machine gate (G5 and later) passes only when its readiness script (`tools/g5/readiness.py` is the pattern) reports every check `pass`. Valid B-reps, zero overlaps, OCCT-clean STEP and a pretty viewer are proxies. They proved nothing about whether G5 runs: its liner had no air holes, no fuel reached the flame zone, and two documents disagreed on shaft speed by 19%.
+
+- Every functional claim (flow path, combustion, sealing, lubrication, running clearances, stress, modes) is a named check. Each one is measured from kernel output, reported as `pass`, `fail` or `not-analyzed`, and never inferred from appearance.
+- A check measures the property itself, not something that usually travels with it. Closed meshes were "proven" by pairing directed edges, while 17% of the impeller was zero-area filler hiding cracks.
+- Each design number has one source file, and everything that states it is generated from that file.
+- Judge visuals at full resolution, with the kernel's truth (faces, edges, normals) in hand. A downscaled screenshot hid both the streaking and the edge noise.
+
 ## Speed and parallelism are law
 
 - Victor's standard: correct, compact, fast, one general mechanism, parallel by construction.
