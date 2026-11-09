@@ -1,5 +1,5 @@
 {
- "binary": "/home/jesse/bc/bendcad-k5y",
+ "binary": "/home/jesse/bc/bendcad-k6k",
  "scene": "g5/scene.json",
  "checks": [
   {
@@ -24,195 +24,219 @@
    "parts": 24
   },
   {
-   "name": "mesh shaft closed and outward",
+   "name": "mesh shaft closed, outward, volume matches OCCT",
    "ok": true,
    "node": 10,
    "tris": 1512,
    "volume": 12099.54,
+   "occt_volume": 12104.55649428147,
    "spin": 1
   },
   {
-   "name": "mesh impeller closed and outward",
+   "name": "mesh impeller closed, outward, volume matches OCCT",
    "ok": false,
    "node": 19,
-   "tris": 58976,
-   "volume": 27014.203,
+   "tris": 713906,
+   "volume": 27123.068,
+   "occt_volume": 29078.624883022778,
    "spin": 1
   },
   {
-   "name": "mesh turbine closed and outward",
+   "name": "mesh turbine closed, outward, volume matches OCCT",
    "ok": true,
    "node": 27,
-   "tris": 42100,
-   "volume": 13185.889,
+   "tris": 1695946,
+   "volume": 13376.387,
+   "occt_volume": 13376.871090764744,
    "spin": 1
   },
   {
-   "name": "mesh nut_front closed and outward",
+   "name": "mesh nut_front closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4222,
-   "tris": 5742,
-   "volume": 638.582,
+   "tris": 17672,
+   "volume": 626.13,
+   "occt_volume": 624.6032387532803,
    "spin": 1
   },
   {
-   "name": "mesh nut_rear closed and outward",
+   "name": "mesh nut_rear closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4223,
-   "tris": 5742,
-   "volume": 638.582,
+   "tris": 17672,
+   "volume": 626.13,
+   "occt_volume": 624.6032387532803,
    "spin": 1
   },
   {
-   "name": "mesh bearing_front_inner closed and outward",
+   "name": "mesh bearing_front_inner closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4201,
    "tris": 11340,
    "volume": 415.286,
+   "occt_volume": 415.4221650902757,
    "spin": 1
   },
   {
-   "name": "mesh bearing_front_balls closed and outward",
+   "name": "mesh bearing_front_balls closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4203,
-   "tris": 26732,
-   "volume": 0.104,
+   "tris": 175640,
+   "volume": 227.544,
+   "occt_volume": 229.16060442382235,
    "spin": 0.3677
   },
   {
-   "name": "mesh bearing_front_cage closed and outward",
+   "name": "mesh bearing_front_cage closed, outward, volume matches OCCT",
    "ok": false,
    "node": 4204,
-   "tris": 12403,
-   "volume": -503.965,
+   "tris": 307092,
+   "volume": -638.278,
+   "occt_volume": 216.5094444291326,
    "spin": 0.3677
   },
   {
-   "name": "mesh bearing_front_outer closed and outward",
+   "name": "mesh bearing_front_outer closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4202,
    "tris": 11340,
    "volume": 838.497,
+   "occt_volume": 838.7855846690265,
    "spin": 0
   },
   {
-   "name": "mesh bearing_rear_inner closed and outward",
+   "name": "mesh bearing_rear_inner closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4211,
    "tris": 11340,
    "volume": 415.286,
+   "occt_volume": 415.42216509027503,
    "spin": 1
   },
   {
-   "name": "mesh bearing_rear_balls closed and outward",
+   "name": "mesh bearing_rear_balls closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4213,
-   "tris": 26732,
-   "volume": 0.104,
+   "tris": 175640,
+   "volume": 227.544,
+   "occt_volume": 229.16060442382235,
    "spin": 0.3677
   },
   {
-   "name": "mesh bearing_rear_cage closed and outward",
+   "name": "mesh bearing_rear_cage closed, outward, volume matches OCCT",
    "ok": false,
    "node": 4214,
-   "tris": 12403,
-   "volume": -2771.063,
+   "tris": 307092,
+   "volume": -3158.97,
+   "occt_volume": 216.50944442913374,
    "spin": 0.3677
   },
   {
-   "name": "mesh bearing_rear_outer closed and outward",
+   "name": "mesh bearing_rear_outer closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4212,
    "tris": 11340,
    "volume": 838.497,
+   "occt_volume": 838.7855846690277,
    "spin": 0
   },
   {
-   "name": "mesh spring closed and outward",
+   "name": "mesh spring closed, outward, volume matches OCCT",
    "ok": true,
    "node": 4221,
    "tris": 1008,
    "volume": 133.902,
+   "occt_volume": 133.95751074906877,
    "spin": 0
   },
   {
-   "name": "mesh tunnel closed and outward",
+   "name": "mesh tunnel closed, outward, volume matches OCCT",
    "ok": true,
    "node": 15,
    "tris": 2016,
    "volume": 48557.532,
+   "occt_volume": 48577.661804295574,
    "spin": 0
   },
   {
-   "name": "mesh front_cover closed and outward",
+   "name": "mesh front_cover closed, outward, volume matches OCCT",
    "ok": true,
    "node": 23,
    "tris": 16380,
    "volume": 44172.471,
+   "occt_volume": 44192.309981081686,
    "spin": 0
   },
   {
-   "name": "mesh intake closed and outward",
+   "name": "mesh intake closed, outward, volume matches OCCT",
    "ok": true,
    "node": 29,
    "tris": 29736,
    "volume": 6140.885,
+   "occt_volume": 6143.935366935393,
    "spin": 0
   },
   {
-   "name": "mesh diffuser closed and outward",
+   "name": "mesh diffuser closed, outward, volume matches OCCT",
    "ok": true,
    "node": 24,
-   "tris": 24012,
-   "volume": 11241.83,
+   "tris": 64572,
+   "volume": 11260.289,
+   "occt_volume": 11261.00148418873,
    "spin": 0
   },
   {
-   "name": "mesh straightener closed and outward",
+   "name": "mesh straightener closed, outward, volume matches OCCT",
    "ok": true,
    "node": 25,
-   "tris": 20528,
-   "volume": 7473.015,
+   "tris": 53474,
+   "volume": 7360.146,
+   "occt_volume": 7366.2154174752095,
    "spin": 0
   },
   {
-   "name": "mesh liner closed and outward",
+   "name": "mesh liner closed, outward, volume matches OCCT",
    "ok": true,
    "node": 22,
    "tris": 2016,
    "volume": 21674.287,
+   "occt_volume": 21683.27249507686,
    "spin": 0
   },
   {
-   "name": "mesh manifold closed and outward",
+   "name": "mesh manifold closed, outward, volume matches OCCT",
    "ok": true,
    "node": 30,
-   "tris": 55162,
-   "volume": 2043.721,
+   "tris": 147862,
+   "volume": 2059.976,
+   "occt_volume": 2061.912627591232,
    "spin": 0
   },
   {
-   "name": "mesh ngv closed and outward",
+   "name": "mesh ngv closed, outward, volume matches OCCT",
    "ok": true,
    "node": 26,
-   "tris": 81938,
-   "volume": 12731.759,
+   "tris": 919504,
+   "volume": 12773.965,
+   "occt_volume": 12757.510454802616,
    "spin": 0
   },
   {
-   "name": "mesh casing closed and outward",
+   "name": "mesh casing closed, outward, volume matches OCCT",
    "ok": true,
    "node": 20,
-   "tris": 43676,
-   "volume": 43614.013,
+   "tris": 121328,
+   "volume": 41942.093,
+   "occt_volume": 41970.95163500153,
    "spin": 0
   },
   {
-   "name": "mesh exhaust closed and outward",
+   "name": "mesh exhaust closed, outward, volume matches OCCT",
    "ok": true,
    "node": 28,
-   "tris": 36146,
-   "volume": 29489.288,
+   "tris": 128374,
+   "volume": 29619.125,
+   "occt_volume": 29563.948863218597,
    "spin": 0
   },
   {

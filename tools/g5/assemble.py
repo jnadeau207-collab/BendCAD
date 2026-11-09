@@ -69,7 +69,7 @@ def scene():
     spec = []
     for name, node, col, spin, ex in PARTS:
         spec += [name, str(node), *(repr(c) for c in col), repr(spin), *(repr(float(e)) for e in ex)]
-    out, dt = jet.cli(DESIGN, 'scene', d, 'G5 micro turbojet', *spec, timeout=7200)
+    out, dt = jet.cli(DESIGN, 'scene', d, 'G5 micro turbojet', *spec, timeout=14400)
     say('scene', out, dt)
     sc = json.load(open(os.path.join(VIEW, 'scene.json')))
     sc['subtitle'] = '100 N class, 99,700 r/min design point, BendCAD kernel geometry'
