@@ -1,0 +1,115 @@
+{
+ "binary": "/home/jesse/bc/bendcad-k6l",
+ "sha256": "22117c91a1b2713a2c4dab2b7140c162fbc8c010af5f47ba9be59d14faf60a24",
+ "preset": 2,
+ "rows": [
+  {
+   "design": "d_balls.bcd",
+   "node": 13,
+   "preset": 2,
+   "seconds": 0.22,
+   "tess": "wrote /var/tmp/acc_13.obj nverts 14240 ntris 28476 est 28980 chord 0.0006168502750680849 ang 0.049866550056980846 nsamp 126 profile display (sampled, not certif",
+   "exact": [
+    32.737229202697534,
+    32.737229202802325
+   ],
+   "tris": 28476,
+   "volume": 32.71735417389332,
+   "area": 49.47436227055256,
+   "unmatched": 0,
+   "folds": 0,
+   "fold_area": 0.0,
+   "rel_err": -0.0006071078506222755
+  },
+  {
+   "design": "d_balls.bcd",
+   "node": 4150,
+   "preset": 2,
+   "seconds": 5.6,
+   "tess": "wrote /var/tmp/acc_4150.obj nverts 25092 ntris 50176 est 920 chord 0.0002095834973972548 ang 0.0496215285043192 nsamp 456 profile display (sampled, not certifie",
+   "exact": [
+    65.47445840539505,
+    65.47445840560466
+   ],
+   "tris": 50176,
+   "volume": 65.01253079547735,
+   "area": 98.63303998028144,
+   "unmatched": 0,
+   "folds": 0,
+   "fold_area": 0.0,
+   "rel_err": -0.007055081038802631
+  },
+  {
+   "design": "d_balls.bcd",
+   "node": 4155,
+   "preset": 2,
+   "seconds": 22.32,
+   "tess": "wrote /var/tmp/acc_4155.obj nverts 87834 ntris 175640 est 3220 chord 0.0002095834973972548 ang 0.0496215285043192 nsamp 1596 profile display (sampled, not certi",
+   "exact": [
+    229.16060441888263,
+    229.1606044196164
+   ],
+   "tris": 175640,
+   "volume": 227.54386835999424,
+   "area": 345.2156428219822,
+   "unmatched": 0,
+   "folds": 0,
+   "fold_area": 0.0,
+   "rel_err": -0.007055034888533756
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 20,
+   "preset": 2,
+   "seconds": 36.1,
+   "tess": "wrote /var/tmp/acc_20.obj nverts 60660 ntris 121328 est 4360 chord 0.016784171955944508 ang 0.04986655005698085 nsamp 1340 profile display (sampled, not certifi",
+   "exact": [
+    41970.95182488003,
+    41970.95227930599
+   ],
+   "tris": 121328,
+   "volume": 41942.09347682851,
+   "area": 105150.25012581836,
+   "unmatched": 0,
+   "folds": 2928,
+   "fold_area": 79.4949026280031,
+   "rel_err": -0.0006875844805398487
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 30,
+   "preset": 2,
+   "seconds": 36.17,
+   "tess": "wrote /var/tmp/acc_30.obj nverts 73929 ntris 147862 est 5494 chord 0.015385490959613118 ang 0.04986655005698085 nsamp 1786 profile display (sampled, not certifi",
+   "exact": [
+    2061.912623579343,
+    2061.912631675903
+   ],
+   "tris": 147862,
+   "volume": 2059.976156479796,
+   "area": 5792.390428061835,
+   "unmatched": 0,
+   "folds": 16986,
+   "fold_area": 881.5789988858828,
+   "rel_err": -0.0009391625628943482
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 14,
+   "preset": 2,
+   "seconds": 62.86,
+   "tess": "wrote /var/tmp/acc_14.obj nverts 108259 ntris 216518 est 8321 chord 0.002657493893025215 ang 0.04986655005698085 nsamp 3260 profile display (sampled, not certif",
+   "exact": [
+    216.50906281171544,
+    216.5098295666714
+   ],
+   "tris": 216518,
+   "volume": 216.59904453450937,
+   "area": 504.73920287023736,
+   "unmatched": 0,
+   "folds": 727,
+   "fold_area": 9.370347525124659,
+   "rel_err": 0.00041383111403672736
+  }
+ ]
+}

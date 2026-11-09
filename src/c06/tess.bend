@@ -232,25 +232,29 @@ type RF is Data:
 def nf(+n: Nat) -> F64:
   U64.to_f64(U64.from_nat(n))
 
-def rq_pts(+w: G.RQBez, +j: Nat, +k: Nat, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+def dm_at(+lo: F64, +hi: F64, +f: F64) -> F64:
+  F64.add(lo, F64.mul(F64.sub(hi, lo), f))
+
+def rq_pts(+w: G.RQBez, +j: Nat, +k: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
     case 0n: acc
-    case 1n+i: rq_pts(w, i, k, G.gres_p(GO.rqb_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n))))) <> acc)
+    case 1n+i: rq_pts(w, i, k, lo, hi, G.gres_p(GO.rqb_eval(w, dm_at(lo, hi, F64.div(nf(j), nf(Nat.add(k, 1n)))))) <> acc)
 
 def cc_pts(+w: G.Circle3, +j: Nat, +n: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
     case 0n: acc
     case 1n+i: cc_pts(w, i, n, lo, hi, G.gres_p(GO.circ_eval(w, M10.cc_par(lo, hi, F64.div(nf(j), nf(n))))) <> acc)
 
-def bz_pts(+w: G.Bez3, +j: Nat, +k: Nat, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+def bz_pts(+w: G.Bez3, +j: Nat, +k: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
   match j:
     case 0n: acc
-    case 1n+i: bz_pts(w, i, k, G.gres_p(GO.bez3_eval(w, F64.div(nf(j), nf(Nat.add(k, 1n))))) <> acc)
+    case 1n+i: bz_pts(w, i, k, lo, hi, G.gres_p(GO.bez3_eval(w, dm_at(lo, hi, F64.div(nf(j), nf(Nat.add(k, 1n)))))) <> acc)
 
 def rq_go(+w: G.RQBez, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
-  +s = M10.segs_edge(G.GV_rq{w}, d, q)
+  G.Dom{+lo, +hi} = d
+  +s = M10.segs_edge(G.GV_rq{w}, G.Dom{lo, hi}, q)
   +m = Nat.sub(s, 1n)
-  rq_pts(w, m, m, [])
+  rq_pts(w, m, m, lo, hi, [])
 
 def cc_go2(+w: G.Circle3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
@@ -266,14 +270,15 @@ def bz_line(+w: G.Bez3) -> Bool:
   G.Bz{+p0, +p1, +p2, +p3} = w
   Bool.and(pt_eq(p0, p1), pt_eq(p2, p3))
 
-def bz_pick(+line: Bool, +w: G.Bez3, +m: Nat) -> List<&2, V.Point>:
+def bz_pick(+line: Bool, +w: G.Bez3, +m: Nat, +lo: F64, +hi: F64) -> List<&2, V.Point>:
   match line:
     case True{}: []
-    case False{}: bz_pts(w, m, m, [])
+    case False{}: bz_pts(w, m, m, lo, hi, [])
 
 def bz_go(+w: G.Bez3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
-  +s = M10.segs_edge(G.GV_bz{w}, d, q)
-  bz_pick(bz_line(w), w, Nat.sub(s, 1n))
+  G.Dom{+lo, +hi} = d
+  +s = M10.segs_edge(G.GV_bz{w}, G.Dom{lo, hi}, q)
+  bz_pick(bz_line(w), w, Nat.sub(s, 1n), lo, hi)
 
 def cv_pts(+c: G.GVal, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
   match c:
@@ -890,20 +895,28 @@ def meas_cc(+w: G.Circle3, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   G.Dom{+lo, +hi} = d
   MQ{segs_go(G.GV_cc{w}, ps, lo, hi, s, 0.0f64), edge_ang_step(G.GV_cc{w}, d, s), s}
 
-def meas_bz_go(+line: Bool, +w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
+def meas_bz_go(+line: Bool, +w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat, +lo: F64, +hi: F64) -> MQ:
   match line:
     case True{}: MQ{0.0f64, 0.0f64, 1n}
-    case False{}: MQ{segs_go(G.GV_bz{w}, ps, 0.0f64, 1.0f64, s, 0.0f64), 0.0f64, s}
+    case False{}: MQ{segs_go(G.GV_bz{w}, ps, lo, hi, s, 0.0f64), 0.0f64, s}
 
-def meas_bz(+w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
-  meas_bz_go(bz_line(w), w, ps, s)
+def meas_bz(+w: G.Bez3, +ps: List<&2, V.Point>, +s: Nat, +lo: F64, +hi: F64) -> MQ:
+  meas_bz_go(bz_line(w), w, ps, s, lo, hi)
+
+def meas_rq(+w: G.RQBez, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
+  G.Dom{+lo, +hi} = d
+  MQ{segs_go(G.GV_rq{w}, ps, lo, hi, s, 0.0f64), F64.div(F64.mul(M10.rq_turn(w), F64.abs(F64.sub(hi, lo))), nf(s)), s}
+
+def meas_bzd(+w: G.Bez3, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
+  G.Dom{+lo, +hi} = d
+  meas_bz(w, ps, s, lo, hi)
 
 def meas_curve(+c: G.GVal, +d: G.Dom, +ps: List<&2, V.Point>, +s: Nat) -> MQ:
   match c:
     case G.GV_ln{l}: MQ{0.0f64, 0.0f64, 1n}
-    case G.GV_rq{+w}: MQ{segs_go(G.GV_rq{w}, ps, 0.0f64, 1.0f64, s, 0.0f64), F64.div(M10.rq_turn(w), nf(s)), s}
+    case G.GV_rq{+w}: meas_rq(w, d, ps, s)
     case G.GV_cc{+w}: meas_cc(w, d, ps, s)
-    case G.GV_bz{+w}: meas_bz(w, ps, s)
+    case G.GV_bz{+w}: meas_bzd(w, d, ps, s)
     case _: MQ{0.0f64, 0.0f64, s}
 
 def meas_kind(k: Ty.EdgeKind, +ss: List<&2, V.Point>, +vs: List<&2, V.Point>, +v0: Ty.HVertex, +v1: Ty.HVertex) -> MQ:
