@@ -490,7 +490,7 @@ def ry_hits(hs: List<&2, EF.EH>, +ob: FB.KB, +fi: Nat, +p: V.Point, +tol: F64, +
       +nb = FB.bnd_near(ob, fi, q)
       +inf = FB.pt_in_face(ob, fi, q)
       +r1 = Bool.pick(RY, Bool.not(EF.eh_ok(h)), ry_bad(r, 2u64),
-        Bool.pick(RY, on, ry_bad(r, 1u64), Bool.pick(RY, nb, ry_bad(r, 2u64),
+        Bool.pick(RY, Bool.and(on, Bool.or(inf, nb)), ry_bad(r, 1u64), Bool.pick(RY, nb, ry_bad(r, 2u64),
           Bool.pick(RY, inf, RY{Nat.add(ry_n(r), 1n), ry_st(r)}, r))))
       ry_hits(t, ob, fi, p, tol, r1)
 
@@ -507,7 +507,7 @@ def ry_hx(hs: List<&2, Y.Hx>, +ob: FB.KB, +fi: Nat, +p: V.Point, +tol: F64, +r: 
           +on = F64.is_lt(S.dist(q, p), tol)
           +nb = FB.bnd_near(ob, fi, q)
           +inf = FB.pt_in_face(ob, fi, q)
-          ry_hx(t, ob, fi, p, tol, Bool.pick(RY, on, ry_bad(r, 1u64), Bool.pick(RY, nb, ry_bad(r, 2u64),
+          ry_hx(t, ob, fi, p, tol, Bool.pick(RY, Bool.and(on, Bool.or(inf, nb)), ry_bad(r, 1u64), Bool.pick(RY, nb, ry_bad(r, 2u64),
             Bool.pick(RY, inf, RY{Nat.add(ry_n(r), 1n), ry_st(r)}, r))))
         case _: ry_hx(t, ob, fi, p, tol, ry_bad(r, 2u64))
 
