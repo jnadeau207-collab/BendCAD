@@ -295,7 +295,7 @@ function hover(p, face) {
   st.hov = p; st.hface = hf;
   const tip = $('tip');
   tip.hidden = !p;
-  if (p) tip.innerHTML = hf && st.selMode === 'face' ? `${p.label}<span>f${hf.face} · ${p.info.kinds[hf.face] || 'untagged'}</span>` : `${p.label}<span>${p.grade || ''}</span>`;
+  if (p) tip.innerHTML = hf && st.selMode === 'face' ? `${p.label}<span>${p.info.gtag}${hf.face} · ${p.info.kinds[hf.face] || 'untagged'}</span>` : `${p.label}<span>${p.grade || ''}</span>`;
   document.body.classList.toggle('point', !!p);
   document.querySelectorAll('#tree .row').forEach(r => r.classList.toggle('hov', st.parts[+r.dataset.i] === p));
   applyLook();
@@ -341,9 +341,9 @@ function props() {
       <dt>Centroid</dt><dd>${i.centroid.map(x => fmt(x, 1)).join(', ')}</dd>
       <dt>Triangles</dt><dd>${i.tris.toLocaleString()}</dd>
       ${p.rotor ? `<dt>Spin ratio</dt><dd>${fmt(+p.rotor, 4)}</dd>` : ''}
-      <dt>B-rep faces</dt><dd>${i.kinds.length ? i.kinds.length : 'not tagged'}</dd>
+      <dt>${i.gtag === 'p' ? 'Revolved pieces' : 'B-rep faces'}</dt><dd>${i.kinds.length ? i.kinds.filter(k => k !== 'axis').length : 'not tagged'}</dd>
     </dl>
-    ${st.face && st.face.part === p ? `<div class="face"><h4>Face f${st.face.face}</h4><dl>
+    ${st.face && st.face.part === p ? `<div class="face"><h4>${i.gtag === 'p' ? 'Revolved piece p' : 'B-rep face f'}${st.face.face}</h4><dl>
       <dt>Surface</dt><dd>${i.kinds[st.face.face] || 'other'}</dd>
       <dt>Area</dt><dd>${fmt(i.farea[st.face.face] || 0, 2)} mm²</dd>
       <dt>Same-type faces</dt><dd>${i.kinds.filter(k => k === i.kinds[st.face.face]).length}</dd></dl></div>` : ''}

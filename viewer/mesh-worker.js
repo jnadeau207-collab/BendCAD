@@ -12,7 +12,7 @@ function parse(txt) {
     i = e + 1;
   }
   const v = new Float64Array(nv * 3), f = new Uint32Array(nf * 3), tf = new Int32Array(nf).fill(-1), kinds = [];
-  let iv = 0, iff = 0, cur = -1;
+  let iv = 0, iff = 0, cur = -1, gtag = 'f';
   for (let i = 0; i < txt.length;) {
     const j = txt.indexOf('\n', i);
     const e = j < 0 ? txt.length : j;
@@ -20,11 +20,11 @@ function parse(txt) {
     if (txt.charCodeAt(i + 1) === 32) {
       if (c0 === 118) { const a = txt.slice(i + 2, e).trim().split(/\s+/); v[iv++] = +a[0]; v[iv++] = +a[1]; v[iv++] = +a[2]; }
       else if (c0 === 102) { const a = txt.slice(i + 2, e).trim().split(/\s+/); tf[iff / 3] = cur; for (let k = 0; k < 3; k++) f[iff++] = parseInt(a[k], 10) - 1; }
-      else if (c0 === 103) { const a = txt.slice(i + 2, e).trim().split(/\s+/); cur = parseInt(a[0].slice(1), 10); kinds[cur] = a[1] || 'other'; }
+      else if (c0 === 103) { const a = txt.slice(i + 2, e).trim().split(/\s+/); gtag = a[0][0]; cur = parseInt(a[0].slice(1), 10); kinds[cur] = a[1] || 'other'; }
     }
     i = e + 1;
   }
-  return { v, f, tf, kinds };
+  return { v, f, tf, kinds, gtag };
 }
 
 function weld(v) {
@@ -46,7 +46,7 @@ function weld(v) {
 }
 
 function build(txt) {
-  const { v: raw, f: rf, tf, kinds } = parse(txt);
+  const { v: raw, f: rf, tf, kinds, gtag } = parse(txt);
   const grouped = kinds.length > 0;
   const { w: v, map } = weld(raw);
   const nt = rf.length / 3, nv = v.length / 3;
@@ -129,7 +129,7 @@ function build(txt) {
   }
   return {
     pos: Float32Array.from(pos), nor: Float32Array.from(nor), fid: Float32Array.from(fid), idx, edges: Float32Array.from(edges),
-    kinds, farea: Array.from(farea),
+    kinds, gtag, farea: Array.from(farea),
     tris: nt, volume: vol, area, centroid: vol ? [cx / vol, cy / vol, cz / vol] : [0, 0, 0], lo, hi
   };
 }

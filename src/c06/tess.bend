@@ -94,7 +94,7 @@ type Ctx is Data:
 
 
 type LA is Data:
-  LA{ b: Nat, ps: List<&2, V.Point>, ts: List<&2, Tri> }
+  LA{ b: Nat, ps: List<&2, V.Point>, ts: List<&2, Tri>, s: String, np: Nat }
 
 
 
@@ -2006,6 +2006,34 @@ def arc_segs(+ax: F64, +ay: F64, +px: F64, +py: F64, +w: F64, +bx: F64, +by: F64
   M10.segs_edge(G.GV_rq{G.Rq{V.Pt{ax, 0.0f64, ay}, V.Pt{px, 0.0f64, py}, V.Pt{bx, 0.0f64, by}, 1.0f64, w, 1.0f64}},
     G.Dom{0.0f64, 1.0f64}, q)
 
+def s_rep(n: Nat, +x: String) -> List<&2, String>:
+  match n:
+    case 0n: []
+    case 1n+m: x <> s_rep(m, x)
+
+def ln_kind(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> String:
+  Bool.pick(String, F64.is_eq(ax, bx), Bool.pick(String, F64.is_eq(ax, 0.0f64), "axis", "cylinder"),
+    Bool.pick(String, F64.is_eq(ay, by), "plane", "cone"))
+
+def ar_kind(+ax: F64, +px: F64, +w: F64, +bx: F64) -> String:
+  +mx = F64.mul(0.5f64, F64.add(ax, bx))
+  +cx = F64.sub(px, F64.div(F64.sub(px, mx), F64.sub(1.0f64, F64.mul(w, w))))
+  Bool.pick(String, F64.is_lt(F64.abs(cx), 0.0000001f64), "sphere", "torus")
+
+def pc_h(+pi: Nat) -> String:
+  "g p" ++ Nat.show(pi) ++ " "
+
+def pc_tags(p: F.Pc, +q: M10.Q, +pi: Nat) -> List<&2, String>:
+  match p:
+    case F.P_ln{+ax, +ay, +bx, +by}: [pc_h(pi) ++ ln_kind(ax, ay, bx, by) ++ "\n"]
+    case F.P_ar{+ax, +ay, +px, +py, +w, +bx, +by}:
+      (pc_h(pi) ++ ar_kind(ax, px, w, bx) ++ "\n") <> s_rep(Nat.sub(arc_segs(ax, ay, px, py, w, bx, by, q), 1n), "")
+
+def lath_tags(ps: List<&2, F.Pc>, +q: M10.Q, +pi: Nat) -> List<&2, String>:
+  match ps:
+    case []: []
+    case p <> t: List.append(&2, String, pc_tags(p, q, pi), lath_tags(t, q, Nat.add(pi, 1n)))
+
 def lath_pcs(ps: List<&2, F.Pc>, +q: M10.Q) -> List<&2, V.Vec2>:
   match ps:
     case []: []
@@ -2075,20 +2103,33 @@ def nl_hd(xs: List<&2, List<&2, Nat>>) -> List<&2, Nat>:
     case []: []
     case x <> t: x
 
-def bands(rs: List<&2, List<&2, Nat>>, +first: List<&2, Nat>) -> List<&2, Tri>:
+def bands(rs: List<&2, List<&2, Nat>>, +first: List<&2, Nat>) -> List<&2, List<&2, Tri>>:
   match rs:
     case []: []
     case +r <> +t:
       +nx = Bool.pick(List<&2, Nat>, Nat.is_eq(List.length(&2, List<&2, Nat>, t), 0n), first, nl_hd(t))
       +ax = Bool.and(Nat.is_eq(n_hd(r), n_hd(n_drop(r, 1n))), Nat.is_eq(n_hd(nx), n_hd(n_drop(nx, 1n))))
-      List.append(&2, Tri, Bool.pick(List<&2, Tri>, ax, [], band(r, nx, n_hd(r), n_hd(nx))), bands(t, first))
+      Bool.pick(List<&2, Tri>, ax, [], band(r, nx, n_hd(r), n_hd(nx))) <> bands(t, first)
+
+def tl_cat(xs: List<&2, List<&2, Tri>>) -> List<&2, Tri>:
+  match xs:
+    case []: []
+    case x <> t: List.append(&2, Tri, x, tl_cat(t))
+
+def obj_tag(bl: List<&2, List<&2, Tri>>, +tags: List<&2, String>) -> String:
+  match bl:
+    case []: ""
+    case x <> t:
+      match tags:
+        case []: obj_fs(x) ++ obj_tag(t, [])
+        case g <> u: g ++ obj_fs(x) ++ obj_tag(t, u)
 
 def lath_rmax(qs: List<&2, V.Vec2>) -> F64:
   match qs:
     case []: 0.0f64
     case v <> t: F64.max(F64.abs(V.v2_x(v)), lath_rmax(t))
 
-def lath_lp(+pcs: List<&2, V.Vec2>, +n: Nat, +b: Nat) -> List<&2, Tri>:
+def lath_lp(+pcs: List<&2, V.Vec2>, +n: Nat, +b: Nat) -> List<&2, List<&2, Tri>>:
   +rs = lath_rings(pcs, n)
   +ids = ids_of(rs, b, n)
   bands(ids, nl_hd(ids))
@@ -2106,12 +2147,14 @@ def lath_ang(+n: Nat) -> F64:
   F64.div(6.283185307179586f64, nf(n))
 
 def la_add(a: LA, +l: F.Lp, +q: M10.Q) -> LA:
-  LA{+b, +ps, +ts} = a
+  LA{+b, +ps, +ts, +s, +np} = a
   +pcs = lath_pcs(F.lp_pcs(l), q)
   +n = rings_max(pcs, q)
   +p = lath_pts(pcs, n)
+  +bl = lath_lp(pcs, n, b)
   LA{Nat.add(b, List.length(&2, V.Point, p)), List.append(&2, V.Point, ps, p),
-    List.append(&2, Tri, ts, lath_lp(pcs, n, b))}
+    List.append(&2, Tri, ts, tl_cat(bl)), s ++ obj_tag(bl, lath_tags(F.lp_pcs(l), q, np)),
+    Nat.add(np, List.length(&2, F.Pc, F.lp_pcs(l)))}
 
 def lath_go(ls: List<&2, F.Lp>, +a: LA, +q: M10.Q) -> LA:
   match ls:
@@ -2119,8 +2162,8 @@ def lath_go(ls: List<&2, F.Lp>, +a: LA, +q: M10.Q) -> LA:
     case l <> t: lath_go(t, la_add(a, l, q), q)
 
 def la_obj(a: LA, +pl: M.Pl) -> String:
-  LA{b, ps, ts} = a
-  obj_vs(ps, pl) ++ obj_fs(ts)
+  LA{b, +ps, ts, +s, np} = a
+  obj_vs(ps, pl) ++ s
 
 def rev_est_go(ls: List<&2, F.Lp>, +q: M10.Q) -> Nat:
   match ls:
@@ -2138,11 +2181,11 @@ def rev_mq_go(ls: List<&2, F.Lp>, +q: M10.Q) -> MQ:
       mq_max(MQ{lath_chord(pcs, n), lath_ang(n), n}, rev_mq_go(t, q))
 
 def la_ps(+a: LA) -> List<&2, V.Point>:
-  LA{b, ps, ts} = a
+  LA{b, ps, ts, s, np} = a
   ps
 
 def la_ts(+a: LA) -> List<&2, Tri>:
-  LA{b, ps, ts} = a
+  LA{b, ps, ts, s, np} = a
   ts
 
 def rev_emit2(+a: LA, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
@@ -2151,7 +2194,7 @@ def rev_emit2(+a: LA, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
     mq_chord(mq), mq_ang(mq), mq_n(mq))
 
 def rev_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
-  rev_emit2(lath_go(M.bd_rv(b), LA{0n, [], []}, q), b, q, est)
+  rev_emit2(lath_go(M.bd_rv(b), LA{0n, [], [], "", 0n}, q), b, q, est)
 
 def rev_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   match ok:
