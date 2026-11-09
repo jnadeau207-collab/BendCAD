@@ -24,3 +24,10 @@ All four were found while proving G5 and while building the agent-loop demo. Eac
    - Steps: a helical tooth skin whose sections fall every 30 degrees from 0, unioned with a cylinder. The patch spanning 150 to 180 degrees ends exactly at theta = pi of the cylinder.
    - Its trace keeps only the part from 179.2 degrees onward, which leaves degree-1 vertices, so face cycles fail (K1 reason 93; probe `tests/k4/zcyc.bend`).
    - Workaround in `tools/g5/threads.py`: section angles are kept more than 2 degrees from 0 and 180 in the cutter's own frame.
+7. **A plane through a cone's apex was refused as a tangency.** (Fixed 2026-11-09, `src/k1/ss.bend` `pk_apex`.)
+   - A helical thread's end caps are planes containing the axis, so they pass through the apex of every coaxial chamfer cone. The infinite plane cuts the cone in two generator lines, one tangent line, or only the apex.
+   - Before the fix, every threaded shaft end and nut refused the boolean (K1 reason 71); the front nut gave up after 62 minutes. The kernel now returns the generator lines.
+8. **A coplanar edge crossing was refused when the first edge could not be extruded.** (Fixed 2026-11-09, `src/k1/co.bend` `pair_sw`.)
+   - Crossings in a shared face plane are found by extruding edge A along the plane normal and intersecting edge B with it. Only lines, arcs and straight Béziers extrude, so a curved Bézier edge refused the boolean (K1 reason 97).
+   - Steps: one diffuser vane prism (Bézier edges) unioned with a Ø6.2 boss whose end faces are flush with the vane's. Probe: `tests/k4/zcx.bend`.
+   - When A cannot be extruded, edge B is extruded instead and A is intersected with it. The repro now commits in 0.9 s.

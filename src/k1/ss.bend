@@ -922,13 +922,29 @@ def fr_cone(+so: S.SF, +sk: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
   +fin = Bool.and(F64.is_lt(V.v2_x(vd), V.v2_y(vd)), F64.is_lt(h, F64.div(1.0f64, 0.0f64)))
   Bool.pick(ICS, fin, fr_all(fr_seeds(sk, so, vd), FP{sk, so, sk, h, gs, bx, vd, bx_pad(bx)}, FS{ICS{[], 0u64}, []}), ICS{[], why_kind()})
 
-def pk_ics_go(gen: Bool, +sp: S.SF, +sk: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
-  match gen:
-    case True{}: fr_cone(sp, sk, gs, bx)
-    case False{}: one(pk_go(sp, sk, gs))
+def apex_ln(+sk: S.SF, +th: F64) -> IC:
+  IC{ic_line(), G.GV_ln{G.Ln{S.sf_o(sk), S.dunit(k_dir(sk, th))}}, False{}, [], 0u64}
+
+def pk_apex(+sp: S.SF, +sk: S.SF) -> ICS:
+  +n = S.sf_a(sp)
+  +c = S.dot(n, S.sf_a(sk))
+  +ne1 = S.dot(n, S.sf_e1(sk))
+  +ne2 = S.dot(n, S.sf_e2(sk))
+  +sw = F64.mul(S.sf_r(sk), F64.sqrt(F64.add(F64.mul(ne1, ne1), F64.mul(ne2, ne2))))
+  +x = F64.div(F64.neg(c), sw)
+  +phi = S.fatan2(ne2, ne1)
+  +dth = S.fatan2(F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(x, x)))), x)
+  Bool.pick(ICS, F64.is_lt(F64.abs(c), sw), ICS{[apex_ln(sk, F64.add(phi, dth)), apex_ln(sk, F64.sub(phi, dth))], 0u64},
+    Bool.pick(ICS, F64.is_eq(F64.abs(c), sw), ICS{[apex_ln(sk, phi)], 0u64}, ICS{[], 0u64}))
+
+def pk_ics_go(+code: U64, +sp: S.SF, +sk: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
+  match code:
+    case 5u64: fr_cone(sp, sk, gs, bx)
+    case 3u64: pk_apex(sp, sk)
+    case _: one(pk_go(sp, sk, gs))
 
 def pk_ics(+sp: S.SF, +sk: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
-  pk_ics_go(U64.is_eq(pk_code(sp, sk), 5u64), sp, sk, gs, bx)
+  pk_ics_go(pk_code(sp, sk), sp, sk, gs, bx)
 
 def tp_sep(+n: V.Dir, +a: V.Dir, +dl: F64, +sp: S.SF, +st: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
   +c = F64.div(S.dot(a, n), F64.mul(S.dlen(a), S.dlen(n)))

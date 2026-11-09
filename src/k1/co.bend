@@ -218,10 +218,47 @@ def surfs(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, G.GVal>:
     case []: []
     case +h <> +t: FB.face_surf(b, h) <> surfs(t, b)
 
-def pair_go(ok: Bool, on: Bool, +ex: List<&2, G.GVal>, +gs: List<&2, G.GVal>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>,
+def sw_hit(hs: List<&2, EF.EH>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>, +ea: Nat, +eb: Nat, +ba: FB.KB,
+    +bb: FB.KB, +c: CX) -> CX:
+  match hs:
+    case []: c
+    case +h <> +t:
+      +p = EF.eh_p(h)
+      +ta = EF.eh_t(h)
+      +tb = ta_of(kb, p)
+      +ka1 = ek1(ka)
+      +kb1 = ek1(kb)
+      +ina = strict_in(ta, EF.ek_lo(ka1), EF.ek_hi(ka1))
+      +inb = strict_in(tb, EF.ek_lo(kb1), EF.ek_hi(kb1))
+      +on = F64.is_lt(S.dist(EF.ev(EF.ek_curve(kb1), tb), p), 1.0e-6f64)
+      +keep = Bool.and(inb, Bool.and(ina, on))
+      +r = PX.gv_add(cx_g(c), p)
+      +v = PX.vi_i(r)
+      +nhs = hx_faces(FB.edge_faces(ba, ea), 1u64, eb, tb, p, v,
+        hx_faces(FB.edge_faces(bb, eb), 0u64, ea, ta, p, v, cx_hs(c)))
+      sw_hit(t, ka, kb, ea, eb, ba, bb,
+        Bool.pick(CX, keep, CX{nhs, PX.vi_g(r), Bool.and(cx_ok(c), EF.eh_ok(h))}, c))
+
+def sw_go(ok: Bool, on: Bool, +ex: List<&2, G.GVal>, +gs: List<&2, G.GVal>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>,
     +ea: Nat, +eb: Nat, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   match ok:
     case False{}: CX{cx_hs(c), cx_g(c), False{}}
+    case True{}:
+      match on:
+        case True{}: c
+        case False{}: sw_hit(EF.ehs_hs(EF.edge_hits(ek1(ka), S.sf_of(g1(ex)), gs)), ka, kb, ea, eb, ba, bb, c)
+
+def pair_sw(+n: V.Dir, +gs: List<&2, G.GVal>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>,
+    +ea: Nat, +eb: Nat, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
+  +ex = extr_of(kb, n)
+  +ok = Bool.not(Nat.is_eq(List.length(&2, G.GVal, ex), 0n))
+  +on = Bool.and(ok, Bool.or(PX.in_plane(ek1(ka), S.sf_of(g1(ex))), PX.on_cyl(ek1(ka), S.sf_of(g1(ex)))))
+  sw_go(ok, on, ex, gs, ka, kb, ea, eb, ba, bb, c)
+
+def pair_go(ok: Bool, on: Bool, +ex: List<&2, G.GVal>, +gs: List<&2, G.GVal>, +ka: List<&2, Ty.EdgeKind>, +kb: List<&2, Ty.EdgeKind>,
+    +ea: Nat, +eb: Nat, +ba: FB.KB, +bb: FB.KB, +n: V.Dir, +c: CX) -> CX:
+  match ok:
+    case False{}: pair_sw(n, gs, ka, kb, ea, eb, ba, bb, c)
     case True{}:
       match on:
         case True{}: c
@@ -238,7 +275,7 @@ def pair_x(+e: EP, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   +gs = List.append(&2, G.GVal, surfs(FB.edge_faces(ba, ea), ba), surfs(FB.edge_faces(bb, eb), bb))
   +ok = Bool.not(Nat.is_eq(List.length(&2, G.GVal, ex), 0n))
   +on = Bool.and(ok, Bool.or(PX.in_plane(ek1(kb), S.sf_of(g1(ex))), PX.on_cyl(ek1(kb), S.sf_of(g1(ex)))))
-  pair_go(ok, on, ex, gs, ka, kb, ea, eb, ba, bb, c)
+  pair_go(ok, on, ex, gs, ka, kb, ea, eb, ba, bb, ep_n(e), c)
 
 def pairs_x(es: List<&2, EP>, +ba: FB.KB, +bb: FB.KB, +c: CX) -> CX:
   match es:
