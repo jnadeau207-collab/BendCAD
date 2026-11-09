@@ -1,5 +1,5 @@
 {
- "binary": "/home/jesse/bc/bendcad-k6k",
+ "binary": "/home/jesse/bc/bendcad-k6l",
  "scene": "g5/scene.json",
  "checks": [
   {
@@ -34,10 +34,10 @@
   },
   {
    "name": "mesh impeller closed, outward, volume matches OCCT",
-   "ok": false,
+   "ok": true,
    "node": 19,
-   "tris": 713906,
-   "volume": 27123.068,
+   "tris": 727904,
+   "volume": 29130.234,
    "occt_volume": 29078.624883022778,
    "spin": 1
   },
@@ -88,10 +88,10 @@
   },
   {
    "name": "mesh bearing_front_cage closed, outward, volume matches OCCT",
-   "ok": false,
+   "ok": true,
    "node": 4204,
-   "tris": 307092,
-   "volume": -638.278,
+   "tris": 216518,
+   "volume": 216.599,
    "occt_volume": 216.5094444291326,
    "spin": 0.3677
   },
@@ -124,10 +124,10 @@
   },
   {
    "name": "mesh bearing_rear_cage closed, outward, volume matches OCCT",
-   "ok": false,
+   "ok": true,
    "node": 4214,
-   "tris": 307092,
-   "volume": -3158.97,
+   "tris": 216518,
+   "volume": 216.599,
    "occt_volume": 216.50944442913374,
    "spin": 0.3677
   },
@@ -261,5 +261,5 @@
    "ok": true
   }
  ],
- "pass": false
+ "pass": true
 }
