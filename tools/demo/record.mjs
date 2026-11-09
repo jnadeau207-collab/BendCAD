@@ -1,0 +1,25 @@
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'C:/dev/Aethalgard_CAD/node_modules/.pnpm/playwright-core@1.62.1/node_modules/playwright-core');
+const PORT = +(process.env.G5_VIEW_PORT || 8791);
+const OUT = path.resolve(process.argv[2] || path.join(ROOT, 'docs/receipts/demo'));
+fs.mkdirSync(OUT, { recursive: true });
+const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true, args: ['--enable-gpu', '--ignore-gpu-blocklist', '--use-angle=d3d11', '--auto-accept-this-tab-capture', '--use-fake-ui-for-media-stream'] });
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+const page = await ctx.newPage();
+const errors = [];
+page.on('pageerror', e => errors.push(String(e)));
+await page.goto(`http://127.0.0.1:${PORT}/demo.html?rec=1`);
+await page.waitForFunction(() => document.body.dataset.done === '1', null, { timeout: 300000 });
+await page.screenshot({ path: path.join(OUT, 'agent_loop_final.png') });
+await page.waitForFunction(() => document.body.dataset.saved === '1', null, { timeout: 60000 });
+const b64 = await page.evaluate(async () => { const b = new Uint8Array(await window.__video.arrayBuffer()); let s = ''; for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode(...b.subarray(i, i + 32768)); return btoa(s); });
+fs.writeFileSync(path.join(OUT, 'agent_loop.webm'), Buffer.from(b64, 'base64'));
+await ctx.close();
+await browser.close();
+console.log(errors.length ? 'errors: ' + errors.join(' | ') : 'ok', path.join(OUT, 'agent_loop.webm'));

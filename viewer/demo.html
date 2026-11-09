@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Loop Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #070A10; --ink: #E8ECF4; --dim: #8F9AAB; --faint: #5B6575; --acc: #6EE7FF; --ok: #4ADE80; --no: #F59E0B; --line: rgba(160, 180, 210, 0.14); }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 14px/1.5 Inter, system-ui, sans-serif; overflow: hidden; }
+  main { display: grid; grid-template-columns: 640px 1fr; height: 100%; }
+  #log { padding: 28px 28px 20px; overflow: hidden; border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+  h1 { margin: 0 0 4px; font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--acc); }
+  .sub { color: var(--dim); margin-bottom: 18px; }
+  #steps { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+  .st { opacity: 0; transform: translateY(8px); transition: opacity 0.4s, transform 0.4s; }
+  .st.on { opacity: 1; transform: none; }
+  .say { font-weight: 500; display: flex; gap: 10px; align-items: baseline; }
+  .say b { font: 600 10.5px "JetBrains Mono", monospace; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.06em; }
+  .say b.ok { color: #052e14; background: var(--ok); }
+  .say b.no { color: #2a1702; background: var(--no); }
+  .cmd { font: 11.5px "JetBrains Mono", monospace; color: var(--faint); margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rep { font: 11.5px "JetBrains Mono", monospace; color: var(--dim); margin-top: 3px; padding: 7px 9px; border-left: 2px solid var(--line); background: rgba(255,255,255,0.02);
+    white-space: pre-wrap; word-break: break-all; max-height: 92px; overflow: hidden; }
+  .st.refused .rep { border-left-color: var(--no); color: #F8D9A8; }
+  .rep em { color: var(--acc); font-style: normal; }
+  .t { color: var(--faint); font: 11px "JetBrains Mono", monospace; margin-left: auto; }
+  iframe { width: 100%; height: 100%; border: 0; display: block; }
+  #foot { color: var(--faint); font-size: 12px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <section id="log">
+    <h1>BendCAD · agent loop</h1>
+    <div class="sub">An agent edits a part. The kernel proves every number or refuses, and never publishes geometry it cannot stand behind.</div>
+    <div id="steps"></div>
+    <div id="foot"></div>
+  </section>
+  <iframe id="v" src="index.html?scene=demo/scene.json"></iframe>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+function mark(s) {
+  return esc(s).replace(/(volume=\[[^\]]+\]|clearance \[[^\]]+\]|certified|why:[^|]+|fix: .+$|rejected: the design was not changed|committed)/g, '<em>$1</em>');
+}
+async function play() {
+  const tr = await (await fetch('demo/transcript.json')).json();
+  const v = $('v').contentWindow;
+  while (!(v.document && v.document.body && v.document.body.dataset.ready === '1')) await wait(200);
+  const parts = () => v.bcv.st.parts;
+  const showOnly = names => { if (!names.length) return; for (const p of parts()) v.bcv.st.parts.length && p.root && (p.root.visible = names.includes(p.name), p.leader.visible = false); v.bcv.st.shadowDirty = true; v.bcv.st.dirty = true; };
+  showOnly(['plate_one_hole']);
+  for (const p of parts()) p.root.visible = false;
+  v.bcv.st.dirty = true;
+  v.bcv.view('iso');
+  await wait(800);
+  if (window.startRec) { await window.startRec(); await wait(600); }
+  document.body.dataset.playing = '1';
+  for (const s of tr.steps) {
+    const refused = /rejected: the design was not changed/.test(s.reply);
+    const el = document.createElement('div');
+    el.className = 'st' + (refused ? ' refused' : '');
+    el.innerHTML = `<div class="say"><b class="${refused ? 'no' : 'ok'}">${refused ? 'REFUSED' : 'OK'}</b><span>${esc(s.say)}</span><span class="t">${s.seconds.toFixed(2)} s</span></div>
+      <div class="cmd">$ ${esc(s.cmd)}</div><div class="rep">${mark(refused ? s.reply.split('\n').filter(l => /error|rejected/.test(l)).join('\n') : s.key)}</div>`;
+    $('steps').append(el);
+    while ($('steps').scrollHeight > $('steps').clientHeight && $('steps').children.length > 1) $('steps').firstElementChild.remove();
+    requestAnimationFrame(() => el.classList.add('on'));
+    if (s.show.length) { showOnly(s.show); v.bcv.fit(); }
+    if (/clearance/.test(s.cmd)) { v.bcv.setSection(true); }
+    if (/declares it ADDS/.test(s.say)) { v.bcv.setSection(false); }
+    await wait(refused ? 5200 : 3600);
+  }
+  v.bcv.setSection(true);
+  const bolt = parts().find(p => p.name === 'bolt');
+  v.bcv.select(bolt);
+  $('foot').textContent = `${tr.steps.length} steps · binary sha256 ${tr.sha256.slice(0, 12)}… · every number above is a certified interval or a structured refusal`;
+  await wait(4000);
+  document.body.dataset.done = '1';
+}
+async function rec() {
+  const st = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30, width: 1920, height: 1080 }, audio: false, preferCurrentTab: true });
+  const r = new MediaRecorder(st, { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 16e6 }), ch = [];
+  r.ondataavailable = e => ch.push(e.data);
+  r.start(500);
+  const obs = new MutationObserver(async () => {
+    if (document.body.dataset.done !== '1') return;
+    obs.disconnect();
+    r.onstop = async () => { window.__video = new Blob(ch, { type: 'video/webm' }); document.body.dataset.saved = '1'; };
+    r.stop(); st.getTracks().forEach(t => t.stop());
+  });
+  obs.observe(document.body, { attributes: true });
+}
+if (new URLSearchParams(location.search).get('rec') === '1') window.startRec = rec;
+play();
+</script>
+</body>
+</html>
