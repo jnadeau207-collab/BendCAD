@@ -510,6 +510,21 @@ def sf_f(+s: SF, +p: V.Point) -> F64:
     case SF_bp{gw}: bp_f(gbp(gw), p)
     case _: sf_f_a(s, p)
 
+def sf_dist(+s: SF, +p: V.Point) -> F64:
+  +a = dunit(sf_a(s))
+  +d = psub(p, sf_o(s))
+  +h = dot(d, a)
+  +rho = dlen(dadd(d, F64.neg(h), a))
+  +k = sf_kind(s)
+  +r = sf_r(s)
+  +cone = F64.div(F64.abs(F64.sub(rho, F64.abs(F64.mul(r, h)))), F64.sqrt(F64.add(1.0f64, F64.mul(r, r))))
+  +tor = F64.abs(F64.sub(F64.sqrt(F64.add(F64.mul(F64.sub(rho, r), F64.sub(rho, r)), F64.mul(h, h))), sf_r2(s)))
+  Bool.pick(F64, U64.is_eq(k, k_plane()), F64.abs(h),
+    Bool.pick(F64, U64.is_eq(k, k_cyl()), F64.abs(F64.sub(rho, r)),
+      Bool.pick(F64, U64.is_eq(k, k_cone()), cone,
+        Bool.pick(F64, U64.is_eq(k, k_sph()), F64.abs(F64.sub(dlen(d), r)),
+          Bool.pick(F64, U64.is_eq(k, k_tor()), tor, 0.0f64)))))
+
 def sf_tan_u_a(+s: SF, +u: F64, +v: F64) -> V.Dir:
   +rr = sf_rad(s, v)
   Bool.pick(V.Dir, U64.is_eq(sf_kind(s), k_plane()), sf_e1(s),

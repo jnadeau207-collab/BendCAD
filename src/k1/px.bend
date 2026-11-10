@@ -1579,6 +1579,69 @@ def skip_q(+bxa: FB.BB, +x: FB.BB, +wa: WD, +w: WD, +ba: FB.KB, +fa: Nat, +bb: F
 def skip_t(+bxa: FB.BB, +x: FB.BB, +rha: V.Vec2, +rh: V.Vec2, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +h: Nat) -> Bool:
   Bool.or(t_sep(x, rha, FB.face_sf(ba, fa)), t_sep(bxa, rh, FB.face_sf(bb, h)))
 
+def cs_clear(+sa: S.SF, +sb: S.SF, +c: V.Point, +hd: F64) -> Bool:
+  +e = F64.add(hd, F64.mul(1.0e-9f64, F64.add(1.0f64, F64.add(hd, S.dist(c, S.pt(0.0f64, 0.0f64, 0.0f64))))))
+  Bool.or(F64.is_lt(e, S.sf_dist(sa, c)), F64.is_lt(e, S.sf_dist(sb, c)))
+
+def cs_half(+x: FB.BB, +hi: Bool) -> FB.BB:
+  FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
+  +dx = F64.sub(x1, x0)
+  +dy = F64.sub(y1, y0)
+  +dz = F64.sub(z1, z0)
+  +ax = Bool.and(F64.is_le(dy, dx), F64.is_le(dz, dx))
+  +ay = Bool.and(Bool.not(ax), F64.is_le(dz, dy))
+  +az = Bool.and(Bool.not(ax), Bool.not(ay))
+  +mx = F64.mul(0.5f64, F64.add(x0, x1))
+  +my = F64.mul(0.5f64, F64.add(y0, y1))
+  +mz = F64.mul(0.5f64, F64.add(z0, z1))
+  +lo = Bool.not(hi)
+  FB.BB{Bool.pick(F64, Bool.and(ax, hi), mx, x0), Bool.pick(F64, Bool.and(ax, lo), mx, x1),
+    Bool.pick(F64, Bool.and(ay, hi), my, y0), Bool.pick(F64, Bool.and(ay, lo), my, y1),
+    Bool.pick(F64, Bool.and(az, hi), mz, z0), Bool.pick(F64, Bool.and(az, lo), mz, z1)}
+
+def cs_hd(+x: FB.BB) -> F64:
+  FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
+  F64.mul(0.5f64, S.dist(S.pt(x0, y0, z0), S.pt(x1, y1, z1)))
+
+def cs_cl(+sa: S.SF, +sb: S.SF, +x: FB.BB) -> Bool:
+  FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
+  cs_clear(sa, sb, S.pt(F64.mul(0.5f64, F64.add(x0, x1)), F64.mul(0.5f64, F64.add(y0, y1)), F64.mul(0.5f64, F64.add(z0, z1))), cs_hd(x))
+
+def cs_w(fuel: Nat, clear: Bool, small: Bool, +x: FB.BB, todo: List<&2, FB.BB>, +sa: S.SF, +sb: S.SF, +hmin: F64) -> Bool:
+  match fuel:
+    case 0n: False{}
+    case 1n+(+m):
+      match clear:
+        case True{}:
+          match todo:
+            case []: True{}
+            case +h <> +t: cs_w(m, cs_cl(sa, sb, h), F64.is_lt(cs_hd(h), hmin), h, t, sa, sb, hmin)
+        case False{}:
+          match small:
+            case True{}: False{}
+            case False{}:
+              +lo = cs_half(x, False{})
+              cs_w(m, cs_cl(sa, sb, lo), F64.is_lt(cs_hd(lo), hmin), lo, cs_half(x, True{}) <> todo, sa, sb, hmin)
+
+def cs_pad(+lo: F64, +hi: F64) -> V.Vec2:
+  +w = F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.abs(lo), F64.abs(hi))))
+  V.V2{F64.sub(lo, w), F64.add(hi, w)}
+
+def cs_box(+a: FB.BB, +b: FB.BB) -> FB.BB:
+  FB.BB{+ax0, +ax1, +ay0, +ay1, +az0, +az1} = a
+  FB.BB{+bx0, +bx1, +by0, +by1, +bz0, +bz1} = b
+  +x = cs_pad(F64.max(ax0, bx0), F64.min(ax1, bx1))
+  +y = cs_pad(F64.max(ay0, by0), F64.min(ay1, by1))
+  +z = cs_pad(F64.max(az0, bz0), F64.min(az1, bz1))
+  FB.BB{V.v2_x(x), V.v2_y(x), V.v2_x(y), V.v2_y(y), V.v2_x(z), V.v2_y(z)}
+
+def cs_sep(skip: Bool, +a: FB.BB, +b: FB.BB, +sa: S.SF, +sb: S.SF) -> Bool:
+  match skip:
+    case True{}: True{}
+    case False{}:
+      +x = cs_box(a, b)
+      cs_w(20000n, cs_cl(sa, sb, x), False{}, x, [], sa, sb, F64.mul(0.015625f64, cs_hd(x)))
+
 def faces_bb(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, FB.BB>:
   match fs:
     case []: []
@@ -1617,7 +1680,7 @@ def pj_b(fbs: List<&2, Nat>, +bxs: List<&2, FB.BB>, +wds: List<&2, WD>, +rhs: Li
               match rhs:
                 case []: []
                 case +rh <> +rt:
-                  +skip = Bool.or(skip_q(bxa, x, wa, w, ba, fa, bb, h), skip_t(bxa, x, rha, rh, ba, fa, bb, h))
+                  +skip = cs_sep(Bool.or(skip_q(bxa, x, wa, w, ba, fa, bb, h), skip_t(bxa, x, rha, rh, ba, fa, bb, h)), bxa, x, FB.face_sf(ba, fa), FB.face_sf(bb, h))
                   pj_if(skip, hs, ba, fa, bb, h, pj_b(t, xt, wt, rt, bxa, wa, rha, hs, ba, fa, bb))
 
 def pj_one(+c: PC, +fa: Nat) -> List<&2, PJ>:
