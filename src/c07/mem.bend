@@ -515,7 +515,7 @@ def q_mid(+q: List<&2, I.I>) -> V.Point:
 def uv_mem_w(+w: V.Vec2, +r: F64, +segs: List<&2, Sg>, +tol: F64) -> U64:
   +t = V.v2_x(w)
   +h = V.v2_y(w)
-  uv_fin(uv_scan(segs, t, h, 0n), uv_scan_d(segs, r, t, h, F64.div(1.0f64, 0.0f64)), tol)
+  uv_fin(uv_scan(segs, F64.add(t, F64.div(F64.mul(0.5f64, tol), r)), h, 0n), uv_scan_d(segs, r, t, h, F64.div(1.0f64, 0.0f64)), tol)
 
 def np_cross(+g: Sg, +t: F64, +h: F64) -> Nat:
   sg_cross1(g, t, h)
