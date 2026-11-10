@@ -431,8 +431,32 @@ def seg_box(+p: V.Point, +d: V.Dir, +tmax: F64) -> List<&2, I.I>:
   +a = M.p3(p)
   X.vhull(a, X.vadd(a, Mm.vs(I.ipt(tmax), M.d3(d))))
 
-def face_code(+f: Fd, +sb: List<&2, I.I>) -> U64:
-  Bool.pick(U64, X.vdisj(fd_bx(f), sb), 0u64, Bool.pick(U64, fd_ok(f), 1u64, 2u64))
+def rm_ax(+lo: F64, +hi: F64, +p: F64, +d: F64, +pad: F64, +t: I.I) -> I.I:
+  +a = F64.sub(F64.sub(lo, pad), p)
+  +c = F64.sub(F64.add(hi, pad), p)
+  +flat = F64.is_lt(F64.abs(d), 1.0e-300f64)
+  +u = F64.div(a, d)
+  +v = F64.div(c, d)
+  Bool.pick(I.I, flat, Bool.pick(I.I, Bool.and(F64.is_le(a, 0.0f64), F64.is_le(0.0f64, c)), t, I.I{1.0f64, 0.0f64}),
+    I.I{F64.max(I.i_lo(t), F64.min(u, v)), F64.min(I.i_hi(t), F64.max(u, v))})
+
+def rm_box(+x0: F64, +x1: F64, +y0: F64, +y1: F64, +z0: F64, +z1: F64, +p: V.Point, +d: V.Dir, +tmax: F64) -> Bool:
+  V.Pt{+px, +py, +pz} = p
+  V.Dr{+dx, +dy, +dz} = d
+  +m = F64.max(F64.max(F64.max(F64.abs(px), F64.abs(py)), F64.abs(pz)), tmax)
+  +pad = F64.mul(1.0e-9f64, F64.add(1.0f64, m))
+  +t = rm_ax(z0, z1, pz, dz, pad, rm_ax(y0, y1, py, dy, pad, rm_ax(x0, x1, px, dx, pad, I.I{F64.neg(pad), F64.add(tmax, pad)})))
+  F64.is_lt(I.i_hi(t), I.i_lo(t))
+
+def ray_miss(+bx: List<&2, I.I>, +p: V.Point, +d: V.Dir, +tmax: F64) -> Bool:
+  +x = X.vn(bx, 0n)
+  +y = X.vn(bx, 1n)
+  +z = X.vn(bx, 2n)
+  Bool.and(Nat.is_eq(List.length(&2, I.I, bx), 3n),
+    rm_box(I.i_lo(x), I.i_hi(x), I.i_lo(y), I.i_hi(y), I.i_lo(z), I.i_hi(z), p, d, tmax))
+
+def face_code(+f: Fd, +sb: List<&2, I.I>, +p: V.Point, +d: V.Dir, +tmax: F64) -> U64:
+  Bool.pick(U64, Bool.or(X.vdisj(fd_bx(f), sb), ray_miss(fd_bx(f), p, d, tmax)), 0u64, Bool.pick(U64, fd_ok(f), 1u64, 2u64))
 
 def hx_hit(h: Y.Hx) -> S.Hit:
   match h:
@@ -465,7 +489,7 @@ def ray(fs: List<&2, Fd>, stop: Bool, +p: V.Point, +d: V.Dir, +tmax: F64, +sb: L
       match stop:
         case True{}: acc
         case False{}:
-          +r = ray_face(face_code(f, sb), f, p, d, tmax, Nat.is_eq(i, skip), e0, acc)
+          +r = ray_face(face_code(f, sb, p, d, tmax), f, p, d, tmax, Nat.is_eq(i, skip), e0, acc)
           ray(t, U64.is_eq(rc_st(r), 2u64), p, d, tmax, sb, skip, Nat.add(i, 1n), e0, r)
 
 def dr(+x: F64, +y: F64, +z: F64) -> V.Dir:

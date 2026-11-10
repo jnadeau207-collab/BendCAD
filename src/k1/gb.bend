@@ -528,11 +528,15 @@ def ry_face(far: Bool, +ob: FB.KB, +fi: Nat, +k: Ty.EdgeKind, +p: V.Point, +d: V
     case True{}: r
     case False{}: ry_sf(FB.face_sf(ob, fi), ob, fi, k, p, d, len, tol, r)
 
+def ry_miss(+x: FB.BB, +p: V.Point, +d: V.Dir, +len: F64) -> Bool:
+  FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
+  SO.rm_box(x0, x1, y0, y1, z0, z1, p, d, len)
+
 def ry_faces(fs: List<&2, Nat>, +ob: FB.KB, +k: Ty.EdgeKind, +sb: FB.BB, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64,
     +r: RY) -> RY:
   match fs:
     case []: r
-    case +h <> +t: ry_faces(t, ob, k, sb, p, d, len, tol, ry_face(FB.bb_dis(FB.face_bb(ob, h), sb), ob, h, k, p, d, len, tol, r))
+    case +h <> +t: ry_faces(t, ob, k, sb, p, d, len, tol, ry_face(Bool.or(FB.bb_dis(FB.face_bb(ob, h), sb), ry_miss(FB.face_bb(ob, h), p, d, len)), ob, h, k, p, d, len, tol, r))
 
 def ob_bb(fs: List<&2, Nat>, +ob: FB.KB, +acc: FB.BB) -> FB.BB:
   match fs:

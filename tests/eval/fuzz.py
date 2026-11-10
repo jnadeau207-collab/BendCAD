@@ -107,8 +107,11 @@ def why(line):
 
 def occt_volume(path):
     from build123d import import_step
-    s = import_step(path)
-    return s.volume
+    from OCP.BRepGProp import BRepGProp
+    from OCP.GProp import GProp_GProps
+    g = GProp_GProps()
+    BRepGProp.VolumeProperties_s(import_step(path).wrapped, g, 1e-9)
+    return g.Mass()
 
 
 def one(seed):
