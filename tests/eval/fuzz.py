@@ -167,7 +167,7 @@ def one(seed):
             ov = occt_volume(sp)
             lo, hi = u['v']
             rec['occt_v'] = ov
-            rec['occt_ok'] = bool(abs(ov - 0.5 * (lo + hi)) <= 1e-6 * max(1.0, hi) + (hi - lo))
+            rec['occt_ok'] = bool(abs(ov - 0.5 * (lo + hi)) <= 1e-7 * max(1.0, hi) + (hi - lo))
         except Exception as ex:
             rec['occt_err'] = str(ex)[:120]
             rec['occt_ok'] = False

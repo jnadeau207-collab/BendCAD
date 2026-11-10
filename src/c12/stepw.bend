@@ -658,6 +658,18 @@ def sw_bp_pts(+w: G.BezP, +pl: M.Pl, +ctr: Nat) -> ER2:
   sw_bp_pts_t(sw_bp_ok(e00, e01, e02, e03, e10, e11, e12, e13, e20, e21, e22, e23, e30, e31, e32, e33),
     e00, e01, e02, e03, e10, e11, e12, e13, e20, e21, e22, e23, e30, e31, e32, e33, ctr)
 
+def sw_bp_t(flat: Bool, +s: KS.SF, +w: G.BezP, +pl: M.Pl, +ctr: Nat) -> ER2:
+  match flat:
+    case True{}:
+      +a = KS.sf_a(s)
+      +u = KS.sf_e1(s)
+      sw_surf_pl(G.Pl{KS.sf_o(s), u, BL.cross3(V.dr_x(a), V.dr_y(a), V.dr_z(a), V.dr_x(u), V.dr_y(u), V.dr_z(u))}, pl, ctr)
+    case False{}: sw_bp_pts(w, pl, ctr)
+
+def sw_bp(+w: G.BezP, +pl: M.Pl, +ctr: Nat) -> ER2:
+  +s = KS.sf_of(G.GV_bp{w})
+  sw_bp_t(U64.is_eq(KS.sf_kind(s), KS.k_plane()), s, w, pl, ctr)
+
 def sw_surf_kind(+g: G.GVal, +pl: M.Pl, +ctr: Nat) -> ER2:
   match g:
     case G.GV_pl{w}: sw_surf_pl(w, pl, ctr)
@@ -665,7 +677,7 @@ def sw_surf_kind(+g: G.GVal, +pl: M.Pl, +ctr: Nat) -> ER2:
     case G.GV_cy{w}: sw_surf_cy(w, pl, ctr)
     case G.GV_to{w}: sw_surf_to(w, pl, ctr)
     case G.GV_co{w}: sw_surf_co(w, pl, ctr)
-    case G.GV_bp{w}: sw_bp_pts(w, pl, ctr)
+    case G.GV_bp{w}: sw_bp(w, pl, ctr)
     case _: er2_fail("step-surface-not-in-profile " ++ BL.gv_nm(g), ctr)
 
 def sw_surf(+f: Ty.Face, +pl: M.Pl, +ctr: Nat) -> ER2:
