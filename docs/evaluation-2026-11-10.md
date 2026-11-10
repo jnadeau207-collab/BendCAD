@@ -176,7 +176,7 @@ This was not measured today. It is gated on A: any edit that touches a curved bo
 
 A first. B, C, the perturbation half of E and all of F depend on it. D is independent and small. The fact queries in E can be built alongside A, starting with spaces and restraint, since those serve the widest range of products.
 
-G5R stays paused as instructed. Its open kernel defects (the torus and cylinder case among them) fall inside A and B.
+G5R is live work under `docs/g5r-plan.md` and runs alongside this plan. Its open kernel defects (the torus and cylinder case among them) fall inside A and B.
 
 ## Not proposed
 
