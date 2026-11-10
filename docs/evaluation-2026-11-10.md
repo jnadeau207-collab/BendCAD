@@ -78,7 +78,7 @@ Where the 200 refusals came from:
 
 Two things stand out.
 
-Refusing is the expensive path. Committed operations had a median of 0.98 s; refused ones 45 s.
+Refusing is the expensive path. Committed operations had a median of 0.98 s; refused ones 64 s (179 operations, leaving out the 21 whose input was missing).
 
 The 63 checker rejections are the constructor and the checker disagreeing about the same geometry. The user is told `numerical-uncertainty ... fix: report these operands`. That is not a diagnosis an agent can act on, and the doctrine says failures are diagnoses.
 
