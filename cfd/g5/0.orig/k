@@ -1,0 +1,14 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      k;
+}
+dimensions [0 2 -2 0 0 0 0];
+internalField uniform 1.0;
+boundaryField
+{
+    "(inlet|ambient|outlet)" { type inletOutlet; inletValue uniform 1.0; value uniform 1.0; }
+    "(impeller|turbine|shaft|nut_front|nut_rear|spacer|intake|front_cover|diffuser|casing|tunnel|liner|fuel_ring|lube_tube|ngv|exhaust)" { type kqRWallFunction; value uniform 1.0; }
+}

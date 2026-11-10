@@ -732,7 +732,7 @@ function frame(now) {
   }
   if (st.run) {
     st.ang += dt * st.rps * 2 * Math.PI;
-    for (const p of st.parts) p.spin.rotation.z = st.ang * (+p.rotor || 0);
+    for (const p of st.parts) { p.spin.rotation.z = st.ang * (+p.rotor || 0); if (p.self) p.self.rotation.z = st.ang * (+p.selfspin || 0); }
     moving = true;
   }
   if (!moving && st.shadowDirty) { placeGrid(); st.shadowDirty = false; st.dirty = true; }
@@ -792,9 +792,21 @@ function partObject(p, m, i) {
   cap.renderOrder = 10 + i * 3 + 2; cap.visible = false; cap.userData.cap = true;
   cap.onAfterRender = r => r.clearStencil();
   const spin = new THREE.Group(), root = new THREE.Group();
-  spin.add(mesh, edges, stB, stF);
+  let info = m;
+  if (p.xf) {
+    const place = new THREE.Group();
+    place.matrixAutoUpdate = false;
+    place.matrix.fromArray(p.xf);
+    const self = new THREE.Group();
+    self.add(mesh, edges, stB, stF);
+    place.add(self);
+    spin.add(place);
+    p.self = self;
+    const b = new THREE.Box3(new THREE.Vector3(...m.lo), new THREE.Vector3(...m.hi)).applyMatrix4(place.matrix);
+    info = Object.assign({}, m, { lo: b.min.toArray(), hi: b.max.toArray() });
+  } else spin.add(mesh, edges, stB, stF);
   root.add(spin);
-  Object.assign(p, { i, info: m, mesh, edges, stB, stF, cap, spin, root });
+  Object.assign(p, { i, info, mesh, edges, stB, stF, cap, spin, root });
   scene.add(root, cap);
 }
 
@@ -813,7 +825,9 @@ async function main() {
   $('name').textContent = sc.name || 'BendCAD Viewer';
   const base = src.slice(0, src.lastIndexOf('/') + 1);
   st.parts = sc.parts.map(p => Object.assign({ label: pretty(p.name) }, p));
-  const load = pool(Math.max(2, Math.min(8, (navigator.hardwareConcurrency || 4) - 2)));
+  const fetchMesh = pool(Math.max(2, Math.min(8, (navigator.hardwareConcurrency || 4) - 2)));
+  const meshes = new Map();
+  const load = u => { if (!meshes.has(u)) meshes.set(u, fetchMesh(u)); return meshes.get(u); };
   const totalTris = st.parts.reduce((s, p) => s + (p.tris || 1), 0);
   let doneTris = 0, done = 0;
   const t0 = performance.now();

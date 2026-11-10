@@ -1,0 +1,100 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+castellatedMesh true;
+snap            true;
+addLayers       false;
+geometry
+{
+    impeller.stl { type triSurfaceMesh; name impeller; }
+    turbine.stl { type triSurfaceMesh; name turbine; }
+    shaft.stl { type triSurfaceMesh; name shaft; }
+    nut_front.stl { type triSurfaceMesh; name nut_front; }
+    nut_rear.stl { type triSurfaceMesh; name nut_rear; }
+    spacer.stl { type triSurfaceMesh; name spacer; }
+    intake.stl { type triSurfaceMesh; name intake; }
+    front_cover.stl { type triSurfaceMesh; name front_cover; }
+    diffuser.stl { type triSurfaceMesh; name diffuser; }
+    casing.stl { type triSurfaceMesh; name casing; }
+    tunnel.stl { type triSurfaceMesh; name tunnel; }
+    liner.stl { type triSurfaceMesh; name liner; }
+    fuel_ring.stl { type triSurfaceMesh; name fuel_ring; }
+    lube_tube.stl { type triSurfaceMesh; name lube_tube; }
+    ngv.stl { type triSurfaceMesh; name ngv; }
+    exhaust.stl { type triSurfaceMesh; name exhaust; }
+    core { type searchableCylinder; point1 (0 0 -0.03); point2 (0 0 0.235); radius 0.0535; }
+}
+castellatedMeshControls
+{
+    maxLocalCells 4000000;
+    maxGlobalCells 14000000;
+    minRefinementCells 10;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 2;
+    features ();
+    refinementSurfaces
+    {
+        impeller { level (4 4); patchInfo { type wall; } }
+        turbine { level (4 4); patchInfo { type wall; } }
+        shaft { level (3 3); patchInfo { type wall; } }
+        nut_front { level (3 3); patchInfo { type wall; } }
+        nut_rear { level (3 3); patchInfo { type wall; } }
+        spacer { level (3 3); patchInfo { type wall; } }
+        intake { level (3 3); patchInfo { type wall; } }
+        front_cover { level (3 3); patchInfo { type wall; } }
+        diffuser { level (4 4); patchInfo { type wall; } }
+        casing { level (3 3); patchInfo { type wall; } }
+        tunnel { level (3 3); patchInfo { type wall; } }
+        liner { level (4 4); patchInfo { type wall; } }
+        fuel_ring { level (3 3); patchInfo { type wall; } }
+        lube_tube { level (3 3); patchInfo { type wall; } }
+        ngv { level (4 4); patchInfo { type wall; } }
+        exhaust { level (3 3); patchInfo { type wall; } }
+    }
+    resolveFeatureAngle 30;
+    refinementRegions
+    {
+        core { mode inside; levels ((1e15 2)); }
+    }
+    locationInMesh (0.0 0.0 -0.07);
+    allowFreeStandingZoneFaces true;
+}
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 2.0;
+    nSolveIter 50;
+    nRelaxIter 5;
+    nFeatureSnapIter 10;
+    implicitFeatureSnap true;
+    explicitFeatureSnap false;
+    multiRegionFeatureSnap false;
+}
+addLayersControls
+{
+    relativeSizes true;
+    layers { }
+    expansionRatio 1.2;
+    finalLayerThickness 0.5;
+    minThickness 0.1;
+    nGrow 0;
+    featureAngle 60;
+    nRelaxIter 3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedialAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+meshQualityControls
+{
+    #includeEtc "caseDicts/mesh/generation/meshQualityDict"
+}
+mergeTolerance 1e-6;

@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+dimensions [0 1 -1 0 0 0 0];
+internalField uniform (0 0 0);
+boundaryField
+{
+    "(inlet|ambient)" { type pressureInletOutletVelocity; value uniform (0 0 0); }
+    outlet { type inletOutlet; inletValue uniform (0 0 0); value uniform (0 0 0); }
+    "(impeller|turbine|shaft|nut_front|nut_rear|spacer)" { type rotatingWallVelocity; origin (0 0 0); axis (0 0 1); omega 12407.82490510801; value uniform (0 0 0); }
+    "(intake|front_cover|diffuser|casing|tunnel|liner|fuel_ring|lube_tube|ngv|exhaust)" { type noSlip; }
+}

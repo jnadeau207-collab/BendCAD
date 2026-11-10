@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      flowReport;
+}
+massIn { type surfaceFieldValue; libs (fieldFunctionObjects); writeControl timeStep; writeInterval 10;
+    log true; writeFields false; regionType patch; name inlet; operation sum; fields (phi); }
+massOut { type surfaceFieldValue; libs (fieldFunctionObjects); writeControl timeStep; writeInterval 10;
+    log true; writeFields false; regionType patch; name outlet; operation sum; fields (phi); }
+massAmb { type surfaceFieldValue; libs (fieldFunctionObjects); writeControl timeStep; writeInterval 10;
+    log true; writeFields false; regionType patch; name ambient; operation sum; fields (phi); }
+torqueImp { type forces; libs (forces); writeControl timeStep; writeInterval 10; log true; patches (impeller); CofR (0 0 0); }
+torqueTur { type forces; libs (forces); writeControl timeStep; writeInterval 10; log true; patches (turbine); CofR (0 0 0); }
+Tmax { type fieldMinMax; libs (fieldFunctionObjects); writeControl timeStep; writeInterval 10; log true; fields (T U p); }

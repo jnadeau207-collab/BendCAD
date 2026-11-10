@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+actions
+(
+    { name impellerCells; type cellSet; action new; source cylinderToCell; p1 (0 0 -0.0078); p2 (0 0 0.02775); radius 0.03425; }
+    { name impeller_zone; type cellZoneSet; action new; source setToCellZone; set impellerCells; }
+    { name turbineCells; type cellSet; action new; source cylinderToCell; p1 (0 0 0.1615); p2 (0 0 0.1736); radius 0.03313; }
+    { name turbine_zone; type cellZoneSet; action new; source setToCellZone; set turbineCells; }
+    { name heatCells; type cellSet; action new; source cylinderAnnulusToCell; p1 (0 0 0.061); p2 (0 0 0.115); outerRadius 0.045; innerRadius 0.023; }
+    { name heat_zone; type cellZoneSet; action new; source setToCellZone; set heatCells; }
+);

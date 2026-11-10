@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+cd ${0%/*}
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+runApplication blockMesh
+runApplication decomposePar -force
+runParallel snappyHexMesh -overwrite
+runApplication reconstructParMesh -constant
+rm -rf processor*
+runApplication topoSet
+runApplication checkMesh -constant
+rm -rf 0 && cp -r 0.orig 0
+runApplication decomposePar -force
+runParallel rhoSimpleFoam
+runApplication reconstructPar -latestTime

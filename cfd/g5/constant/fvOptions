@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+combustion_heat_release
+{
+    type scalarSemiImplicitSource;
+    active true;
+    selectionMode cellZone;
+    cellZone heat_zone;
+    volumeMode absolute;
+    sources { h (179740.0 0); }
+}

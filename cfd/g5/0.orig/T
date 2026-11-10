@@ -1,0 +1,15 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+dimensions [0 0 0 1 0 0 0];
+internalField uniform 288.15;
+boundaryField
+{
+    "(inlet|ambient)" { type totalTemperature; T0 uniform 288.15; value uniform 288.15; }
+    outlet { type inletOutlet; inletValue uniform 288.15; value uniform 288.15; }
+    "(impeller|turbine|shaft|nut_front|nut_rear|spacer|intake|front_cover|diffuser|casing|tunnel|liner|fuel_ring|lube_tube|ngv|exhaust)" { type zeroGradient; }
+}

@@ -1,0 +1,25 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+application rhoSimpleFoam;
+startFrom latestTime;
+startTime 0;
+stopAt endTime;
+endTime 3000;
+deltaT 1;
+writeControl timeStep;
+writeInterval 250;
+purgeWrite 2;
+writeFormat binary;
+writePrecision 8;
+writeCompression off;
+timeFormat general;
+runTimeModifiable true;
+functions
+{
+    #include "flowReport"
+}

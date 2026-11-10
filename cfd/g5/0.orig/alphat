@@ -1,0 +1,14 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      alphat;
+}
+dimensions [1 -1 -1 0 0 0 0];
+internalField uniform 0;
+boundaryField
+{
+    "(inlet|ambient|outlet)" { type calculated; value uniform 0; }
+    "(impeller|turbine|shaft|nut_front|nut_rear|spacer|intake|front_cover|diffuser|casing|tunnel|liner|fuel_ring|lube_tube|ngv|exhaust)" { type compressible::alphatWallFunction; value uniform 0; }
+}

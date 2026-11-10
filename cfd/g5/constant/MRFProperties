@@ -1,0 +1,25 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      MRFProperties;
+}
+impeller
+{
+    cellZone impeller_zone;
+    active yes;
+    nonRotatingPatches (front_cover intake diffuser);
+    origin (0 0 0);
+    axis (0 0 1);
+    omega constant 12407.82490510801;
+}
+turbine
+{
+    cellZone turbine_zone;
+    active yes;
+    nonRotatingPatches (ngv exhaust);
+    origin (0 0 0);
+    axis (0 0 1);
+    omega constant 12407.82490510801;
+}
