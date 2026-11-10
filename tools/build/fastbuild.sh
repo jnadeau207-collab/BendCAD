@@ -12,10 +12,11 @@ if [ -n "$cin" ]; then cp "$cin" $tmp/cli.c; else
 ulimit -s unlimited; export BUN_JSC_maxPerThreadStackUsage=1073741824
 for try in 1 2 3 4 5; do BEND_NO_TELEMETRY=1 $HOME/.bend/bin/bend "$src" -o $tmp/cli.c && break; done; fi
 test -s $tmp/cli.c
+if [ -n "$KEEPC" ]; then cp $tmp/cli.c "$KEEPC"; fi
 t1=$(date +%s)
 python3 /mnt/c/dev/BendCAD-k3/tools/build/csplit.py $tmp/cli.c $tmp ${UNITS:-32} > /dev/null
 t2=$(date +%s)
-ls $tmp/tu*.c | xargs -P ${JOBS:-10} -I{} $Z cc -I$SR/include -std=c11 -O3 -c {} -o {}.o
+ls $tmp/tu*.c | xargs -P ${JOBS:-10} -I{} $Z cc -I$SR/include -std=c11 -O3 ${XCFLAGS:-} -c {} -o {}.o
 t3=$(date +%s)
 $Z cc -L$SR/lib/x86_64-linux-gnu -Wl,--allow-shlib-undefined -Wl,-rpath,$SR/lib/x86_64-linux-gnu $tmp/tu*.c.o -o $tmp/bendcad -lpthread -lm
 mv $tmp/bendcad "$out"
