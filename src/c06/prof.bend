@@ -870,10 +870,16 @@ def so_v(s: B.So<&2, V.Vec2>) -> List<&2, V.Vec2>:
   B.So{ok, xs} = s
   xs
 
-def v_dup(xs: List<&2, V.Vec2>, +prev: V.Vec2, first: Bool) -> Bool:
+def v_dup_zz(xs: List<&2, V.Vec2>, zz: Bool, +prev: V.Vec2, first: Bool) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> t: Bool.or(Bool.and(Bool.not(first), sgn_zero(v_cmp_go(h, prev))), v_dup(t, h, False{}))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: v_dup_zz(t, Bool.and(Bool.not(first), sgn_zero(v_cmp_go(h, prev))), h, False{})
+
+def v_dup(xs: List<&2, V.Vec2>, +prev: V.Vec2, first: Bool) -> Bool:
+  v_dup_zz(xs, False{}, prev, first)
 
 def pcs_starts(ps: List<&2, Pc>) -> List<&2, V.Vec2>:
   match ps:

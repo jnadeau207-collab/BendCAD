@@ -722,15 +722,27 @@ def nats_eq(xs: List<&2, Nat>, ys: List<&2, Nat>) -> Bool:
         case []: False{}
         case +y <> yt: Bool.and(Nat.is_eq(x, y), nats_eq(xt, yt))
 
-def all2(xs: List<&2, Nat>) -> Bool:
+def all2_zz(xs: List<&2, Nat>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case +x <> t: Bool.and(Nat.is_le(2n, x), all2(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all2_zz(t, Nat.is_le(2n, x))
+
+def all2(xs: List<&2, Nat>) -> Bool:
+  all2_zz(xs, True{})
+
+def same_go_zz(cs: List<&2, Sc>, zz: Bool, +ls: List<&2, Nat>) -> Bool:
+  match cs:
+    case []: zz
+    case +c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: same_go_zz(t, nats_eq(lens(sc_runs(c)), ls), ls)
 
 def same_go(cs: List<&2, Sc>, +ls: List<&2, Nat>) -> Bool:
-  match cs:
-    case []: True{}
-    case +c <> t: Bool.and(nats_eq(lens(sc_runs(c)), ls), same_go(t, ls))
+  same_go_zz(cs, True{}, ls)
 
 def sz_go(ps: List<&2, V.Point>, +m: F64) -> F64:
   match ps:
@@ -796,10 +808,16 @@ def corners(+p: G.BezP) -> List<&2, V.Point>:
 def pt_eq(+a: V.Point, +b: V.Point) -> Bool:
   Bool.and(F64.is_eq(V.pt_x(a), V.pt_x(b)), Bool.and(F64.is_eq(V.pt_y(a), V.pt_y(b)), F64.is_eq(V.pt_z(a), V.pt_z(b))))
 
-def any_eq(ys: List<&2, V.Point>, +x: V.Point) -> Bool:
+def any_eq_zz(ys: List<&2, V.Point>, zz: Bool, +x: V.Point) -> Bool:
   match ys:
-    case []: False{}
-    case +y <> t: Bool.or(F64.is_le(Q.pdist(x, y), F64.mul(1.0e-12f64, F64.add(1.0f64, KS.dlen(KS.psub(x, pt(0.0f64, 0.0f64, 0.0f64)))))), any_eq(t, x))
+    case []: zz
+    case +y <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_eq_zz(t, F64.is_le(Q.pdist(x, y), F64.mul(1.0e-12f64, F64.add(1.0f64, KS.dlen(KS.psub(x, pt(0.0f64, 0.0f64, 0.0f64)))))), x)
+
+def any_eq(ys: List<&2, V.Point>, +x: V.Point) -> Bool:
+  any_eq_zz(ys, False{}, x)
 
 def shared_go(xs: List<&2, V.Point>, +ys: List<&2, V.Point>) -> List<&2, V.Point>:
   match xs:
@@ -821,10 +839,16 @@ def box_dis(+a: List<&2, F64>, +b: List<&2, F64>, +tol: F64) -> Bool:
     Bool.or(Bool.or(F64.is_lt(F64.add(Q.fnth(a, 3n), tol), Q.fnth(b, 2n)), F64.is_lt(F64.add(Q.fnth(b, 3n), tol), Q.fnth(a, 2n))),
       Bool.or(F64.is_lt(F64.add(Q.fnth(a, 5n), tol), Q.fnth(b, 4n)), F64.is_lt(F64.add(Q.fnth(b, 5n), tol), Q.fnth(a, 4n)))))
 
-def side_ok(ps: List<&2, V.Point>, +o: V.Point, +m: V.Dir, +tol: F64, +sg: F64) -> Bool:
+def side_ok_zz(ps: List<&2, V.Point>, zz: Bool, +o: V.Point, +m: V.Dir, +tol: F64, +sg: F64) -> Bool:
   match ps:
-    case []: True{}
-    case +q <> t: Bool.and(F64.is_le(F64.neg(tol), F64.mul(sg, KS.dot(m, KS.psub(q, o)))), side_ok(t, o, m, tol, sg))
+    case []: zz
+    case +q <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: side_ok_zz(t, F64.is_le(F64.neg(tol), F64.mul(sg, KS.dot(m, KS.psub(q, o)))), o, m, tol, sg)
+
+def side_ok(ps: List<&2, V.Point>, +o: V.Point, +m: V.Dir, +tol: F64, +sg: F64) -> Bool:
+  side_ok_zz(ps, True{}, o, m, tol, sg)
 
 def wedge(+a: G.BezP, +b: G.BezP, +o: V.Point, +tol: F64) -> Bool:
   +m = KS.dunit(KS.dadd(SC.ctr_n(a), F64.neg(1.0f64), SC.ctr_n(b)))

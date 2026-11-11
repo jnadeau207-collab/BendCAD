@@ -732,10 +732,16 @@ def pt_ok(+x: Sx) -> Bool:
   +ys = sx_xs(x)
   Bool.and(head_is(x, "pt"), Nat.is_eq(List.length(&2, Sx, ys), 4n))
 
-def all_pt(xs: List<&2, Sx>) -> Bool:
+def all_pt_zz(xs: List<&2, Sx>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case +x <> t: Bool.and(pt_ok(x), all_pt(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_pt_zz(t, pt_ok(x))
+
+def all_pt(xs: List<&2, Sx>) -> Bool:
+  all_pt_zz(xs, True{})
 
 def pt_xps(+x: Sx, +ns: List<&2, NI>) -> List<&2, X.Xp>:
   +ys = sx_xs(x)
@@ -850,10 +856,16 @@ def sk_secs(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.SkS>:
     case []: []
     case +x <> t: sk_sec(x, ns) <> sk_secs(t, ns)
 
-def sk_all_sec(xs: List<&2, Sx>) -> Bool:
+def sk_all_sec_zz(xs: List<&2, Sx>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case +x <> t: Bool.and(head_is(x, "sec"), sk_all_sec(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sk_all_sec_zz(t, head_is(x, "sec"))
+
+def sk_all_sec(xs: List<&2, Sx>) -> Bool:
+  sk_all_sec_zz(xs, True{})
 
 def skin_op(+xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   +ys = sx_drop(xs, 1n)

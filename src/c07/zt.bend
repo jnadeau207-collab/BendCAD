@@ -334,10 +334,16 @@ def sweep_ok(xs: List<&2, Ix>) -> Bool:
       +hi = ix_hi(x)
       Bool.and(scan(t, stop_at(t, hi), x, hi), sweep_ok(t))
 
-def lzs_ok(ls: List<&2, Lz>) -> Bool:
+def lzs_ok_zz(ls: List<&2, Lz>, zz: Bool) -> Bool:
   match ls:
-    case []: True{}
-    case x <> t: Bool.and(lz_ok(x), lzs_ok(t))
+    case []: zz
+    case x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: lzs_ok_zz(t, lz_ok(x))
+
+def lzs_ok(ls: List<&2, Lz>) -> Bool:
+  lzs_ok_zz(ls, True{})
 
 def shift(xs: List<&2, Ix>, +o: Nat) -> List<&2, Ix>:
   match xs:
@@ -394,10 +400,16 @@ def pm_xok(+p: Pm, +hole: Bool) -> Bool:
   +inner = Bool.and(xpos_go(16n, x_code(p, s), p, s), ends)
   Bool.pick(Bool, hole, Bool.and(Bool.not(Bool.or(za, zb)), inner), Bool.or(axis, inner))
 
-def pms_xok(ps: List<&2, Pm>, +hole: Bool) -> Bool:
+def pms_xok_zz(ps: List<&2, Pm>, zz: Bool, +hole: Bool) -> Bool:
   match ps:
-    case []: True{}
-    case +p <> t: Bool.and(pm_xok(p, hole), pms_xok(t, hole))
+    case []: zz
+    case +p <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: pms_xok_zz(t, pm_xok(p, hole), hole)
+
+def pms_xok(ps: List<&2, Pm>, +hole: Bool) -> Bool:
+  pms_xok_zz(ps, True{}, hole)
 
 def zd_n(z: Zd) -> Nat:
   Zd{ids, vs} = z

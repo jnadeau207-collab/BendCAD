@@ -18,10 +18,16 @@ def nums(xs: List<&2, S.Sx>) -> List<&2, F64>:
     case []: []
     case x <> t: S.some_v(S.num(S.sx_s(x))) <> nums(t)
 
-def allfin(xs: List<&2, F64>) -> Bool:
+def allfin_zz(xs: List<&2, F64>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case +x <> t: Bool.and(T.is_finite(x), allfin(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: allfin_zz(t, T.is_finite(x))
+
+def allfin(xs: List<&2, F64>) -> Bool:
+  allfin_zz(xs, True{})
 
 def f(xs: List<&2, F64>, +i: Nat) -> F64:
   X.fn_(xs, i)

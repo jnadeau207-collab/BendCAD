@@ -402,10 +402,16 @@ def so_hk(s: B.So<&2, HK>) -> List<&2, HK>:
   B.So{ok, xs} = s
   xs
 
-def hk_adj_go(xs: List<&2, HK>, +prev: HK, first: Bool) -> Bool:
+def hk_adj_go_zz(xs: List<&2, HK>, zz: Bool, +prev: HK, first: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case +h <> t: Bool.and(Bool.or(first, Bool.not(hk_eq(h, prev))), hk_adj_go(t, h, False{}))
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hk_adj_go_zz(t, Bool.or(first, Bool.not(hk_eq(h, prev))), h, False{})
+
+def hk_adj_go(xs: List<&2, HK>, +prev: HK, first: Bool) -> Bool:
+  hk_adj_go_zz(xs, True{}, prev, first)
 
 def hks_distinct(+xs: List<&2, HK>) -> Bool:
   hk_adj_go(so_hk(B.msort(~HK, ~hk_cmp, xs)), HK{0n, 0u64}, True{})
@@ -479,30 +485,60 @@ def hsh_nodup_go(done: Bool, +xs: List<&2, Ty.HShell>) -> Nat:
 def hsh_nodup_c(+xs: List<&2, Ty.HShell>, +fuel: Nat) -> Nat:
   hsh_nodup_go(Nat.is_le(List.length(&2, Ty.HShell, xs), fuel), xs)
 
-def hcs_live(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+def hcs_live_zz(xs: List<&2, Ty.HCoedge>, zz: Bool, +x: Ty.Ix) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_ce(x, h)), hcs_live(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hcs_live_zz(t, Ty.tres_ok(Ty.ix_ce(x, h)), x)
+
+def hcs_live(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  hcs_live_zz(xs, True{}, x)
+
+def hls_live_zz(xs: List<&2, Ty.HLoop>, zz: Bool, +x: Ty.Ix) -> Bool:
+  match xs:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hls_live_zz(t, Ty.tres_ok(Ty.ix_lp(x, h)), x)
 
 def hls_live(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> Bool:
+  hls_live_zz(xs, True{}, x)
+
+def hfs_live_zz(xs: List<&2, Ty.HFace>, zz: Bool, +x: Ty.Ix) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_lp(x, h)), hls_live(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hfs_live_zz(t, Ty.tres_ok(Ty.ix_fa(x, h)), x)
 
 def hfs_live(xs: List<&2, Ty.HFace>, +x: Ty.Ix) -> Bool:
+  hfs_live_zz(xs, True{}, x)
+
+def hss_live_zz(xs: List<&2, Ty.HShell>, zz: Bool, +x: Ty.Ix) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_fa(x, h)), hfs_live(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hss_live_zz(t, Ty.tres_ok(Ty.ix_sh(x, h)), x)
 
 def hss_live(xs: List<&2, Ty.HShell>, +x: Ty.Ix) -> Bool:
+  hss_live_zz(xs, True{}, x)
+
+def hos_live_zz(xs: List<&2, Ty.HSolid>, zz: Bool, +x: Ty.Ix) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_sh(x, h)), hss_live(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hos_live_zz(t, Ty.tres_ok(Ty.ix_so(x, h)), x)
 
 def hos_live(xs: List<&2, Ty.HSolid>, +x: Ty.Ix) -> Bool:
-  match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_so(x, h)), hos_live(t, x))
+  hos_live_zz(xs, True{}, x)
 
 def es_live(es: List<&2, Ty.Edge>, +x: Ty.Ix) -> Bool:
   match es:
@@ -511,25 +547,49 @@ def es_live(es: List<&2, Ty.Edge>, +x: Ty.Ix) -> Bool:
       Bool.and(Bool.and(Ty.tres_ok(Ty.ix_vx(x, Ty.ed_v0(h))), Ty.tres_ok(Ty.ix_vx(x, Ty.ed_v1(h)))),
         es_live(t, x))
 
-def ces_live(cs: List<&2, Ty.Coedge>, +x: Ty.Ix) -> Bool:
+def ces_live_zz(cs: List<&2, Ty.Coedge>, zz: Bool, +x: Ty.Ix) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Ty.tres_ok(Ty.ix_ed(x, Ty.ce_edge(h))), ces_live(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ces_live_zz(t, Ty.tres_ok(Ty.ix_ed(x, Ty.ce_edge(h))), x)
+
+def ces_live(cs: List<&2, Ty.Coedge>, +x: Ty.Ix) -> Bool:
+  ces_live_zz(cs, True{}, x)
+
+def lps_live_zz(ls: List<&2, Ty.Loop>, zz: Bool, +x: Ty.Ix) -> Bool:
+  match ls:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: lps_live_zz(t, hcs_live(Ty.lp_ces(h), x), x)
 
 def lps_live(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
-  match ls:
-    case Nil{}: True{}
-    case h <> t: Bool.and(hcs_live(Ty.lp_ces(h), x), lps_live(t, x))
+  lps_live_zz(ls, True{}, x)
+
+def fas_live_zz(fs: List<&2, Ty.Face>, zz: Bool, +x: Ty.Ix) -> Bool:
+  match fs:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fas_live_zz(t, hls_live(Ty.fa_loops(h), x), x)
 
 def fas_live(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
-  match fs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(hls_live(Ty.fa_loops(h), x), fas_live(t, x))
+  fas_live_zz(fs, True{}, x)
+
+def shs_live_zz(ss: List<&2, Ty.Shell>, zz: Bool, +x: Ty.Ix) -> Bool:
+  match ss:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: shs_live_zz(t, hfs_live(Ty.sh_faces(h), x), x)
 
 def shs_live(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
-  match ss:
-    case Nil{}: True{}
-    case h <> t: Bool.and(hfs_live(Ty.sh_faces(h), x), shs_live(t, x))
+  shs_live_zz(ss, True{}, x)
 
 def sos_live(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
   match os:
@@ -689,10 +749,16 @@ def loop_one_ok(+hcs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
       Bool.and(Bool.and(chain, hks_distinct(hcs_keys(all, []))),
         Bool.and(loop_seam_ok(all, x), loop_pole_ok(all, x)))
 
-def lps_loop_ok(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
+def lps_loop_ok_zz(ls: List<&2, Ty.Loop>, zz: Bool, +x: Ty.Ix) -> Bool:
   match ls:
-    case Nil{}: True{}
-    case h <> t: Bool.and(loop_one_ok(Ty.lp_ces(h), x), lps_loop_ok(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: lps_loop_ok_zz(t, loop_one_ok(Ty.lp_ces(h), x), x)
+
+def lps_loop_ok(ls: List<&2, Ty.Loop>, +x: Ty.Ix) -> Bool:
+  lps_loop_ok_zz(ls, True{}, x)
 
 def loop_c_go(done: Bool, +b: Ty.Brep) -> Nat:
   match done:
@@ -709,10 +775,16 @@ def hls_outer(xs: List<&2, Ty.HLoop>, +x: Ty.Ix) -> Nat:
       +o = U64.is_eq(Ty.lkind_tag(Ty.lp_kind(Ty.tres_lp(Ty.ix_lp(x, h)))), 0u64)
       Nat.add(Bool.pick(Nat, o, 1n, 0n), hls_outer(t, x))
 
-def fas_kind_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+def fas_kind_ok_zz(fs: List<&2, Ty.Face>, zz: Bool, +x: Ty.Ix) -> Bool:
   match fs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Nat.is_eq(hls_outer(Ty.fa_loops(h), x), 1n), fas_kind_ok(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fas_kind_ok_zz(t, Nat.is_eq(hls_outer(Ty.fa_loops(h), x), 1n), x)
+
+def fas_kind_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  fas_kind_ok_zz(fs, True{}, x)
 
 def facekind_c_go(done: Bool, +b: Ty.Brep) -> Nat:
   match done:
@@ -740,15 +812,27 @@ def sos_skeys(os: List<&2, Ty.Solid>, acc: List<&2, HK>) -> List<&2, HK>:
     case Nil{}: acc
     case h <> t: hss_keys(so_sh_list(h), sos_skeys(t, acc))
 
-def shs_no_open(ss: List<&2, Ty.Shell>) -> Bool:
+def shs_no_open_zz(ss: List<&2, Ty.Shell>, zz: Bool) -> Bool:
   match ss:
-    case Nil{}: True{}
-    case h <> t: Bool.and(U64.is_ne(Ty.skind_tag(Ty.sh_kind(h)), 2u64), shs_no_open(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: shs_no_open_zz(t, U64.is_ne(Ty.skind_tag(Ty.sh_kind(h)), 2u64))
+
+def shs_no_open(ss: List<&2, Ty.Shell>) -> Bool:
+  shs_no_open_zz(ss, True{})
+
+def hss_kind_zz(xs: List<&2, Ty.HShell>, zz: Bool, +x: Ty.Ix, +tag: U64) -> Bool:
+  match xs:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hss_kind_zz(t, U64.is_eq(Ty.skind_tag(Ty.sh_kind(Ty.tres_sh(Ty.ix_sh(x, h)))), tag), x, tag)
 
 def hss_kind(xs: List<&2, Ty.HShell>, +x: Ty.Ix, +tag: U64) -> Bool:
-  match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(U64.is_eq(Ty.skind_tag(Ty.sh_kind(Ty.tres_sh(Ty.ix_sh(x, h)))), tag), hss_kind(t, x, tag))
+  hss_kind_zz(xs, True{}, x, tag)
 
 def sos_kinds(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
   match os:
@@ -786,15 +870,27 @@ def es_embed_ok(es: List<&2, Ty.Edge>, +x: Ty.Ix, +fuel: Nat) -> Bool:
       +p1 = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, Ty.ed_v1(h))))
       Bool.and(Bool.and(fin_ok, edge_ends_on_curve(kind, p0, p1, fuel)), es_embed_ok(t, x, fuel))
 
-def ces_trim_ok(cs: List<&2, Ty.Coedge>) -> Bool:
+def ces_trim_ok_zz(cs: List<&2, Ty.Coedge>, zz: Bool) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(trim_fin(Ty.ce_trim(h)), ces_trim_ok(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ces_trim_ok_zz(t, trim_fin(Ty.ce_trim(h)))
+
+def ces_trim_ok(cs: List<&2, Ty.Coedge>) -> Bool:
+  ces_trim_ok_zz(cs, True{})
+
+def fas_surf_ok_zz(fs: List<&2, Ty.Face>, zz: Bool) -> Bool:
+  match fs:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fas_surf_ok_zz(t, surf_fin_ok(Ty.fa_surf(h)))
 
 def fas_surf_ok(fs: List<&2, Ty.Face>) -> Bool:
-  match fs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(surf_fin_ok(Ty.fa_surf(h)), fas_surf_ok(t))
+  fas_surf_ok_zz(fs, True{})
 
 def s_on(+s: G.GVal, +p: V.Point) -> Bool:
   match s:
@@ -856,10 +952,16 @@ def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool
       +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_tol(x, o_v_start(ed, fw), surf, tol), vx_surf_tol(x, o_v_end(ed, fw), surf, tol)))
       Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb, tol))
 
-def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
+def hls_face_ok_zz(xs: List<&2, Ty.HLoop>, zz: Bool, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(hcs_face_ok(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, surf, coinc, memb, tol), hls_face_ok(t, x, surf, coinc, memb, tol))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hls_face_ok_zz(t, hcs_face_ok(Ty.lp_ces(Ty.tres_lp(Ty.ix_lp(x, h))), x, surf, coinc, memb, tol), x, surf, coinc, memb, tol)
+
+def hls_face_ok(xs: List<&2, Ty.HLoop>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
+  hls_face_ok_zz(xs, True{}, x, surf, coinc, memb, tol)
 
 def surf_coinc(s: G.GVal) -> Bool:
   match s:
@@ -1430,10 +1532,16 @@ def ep_edges(xs: List<&2, EP>, +pk: HK, +pp: U32, first: Bool) -> List<&2, B.Ed>
       +p = ep_p(h)
       ed_keep(Bool.and(Bool.not(first), hk_eq(k, pk)), pp, p, ep_edges(t, k, p, False{}))
 
-def all_zero(xs: List<&2, U32>) -> Bool:
+def all_zero_zz(xs: List<&2, U32>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(U32.is_eq(h, 0), all_zero(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_zero_zz(t, U32.is_eq(h, 0))
+
+def all_zero(xs: List<&2, U32>) -> Bool:
+  all_zero_zz(xs, True{})
 
 def cc_conn(c: B.CC) -> Bool:
   B.CC{ok, ps} = c
@@ -1445,10 +1553,16 @@ def sh_adj(+fs: List<&2, Ty.HFace>, +x: Ty.Ix) -> List<&2, B.Ed>:
 def sh_conn_ok(+fs: List<&2, Ty.HFace>, +x: Ty.Ix) -> Bool:
   Bool.and(hks_distinct(hfs_keys(fs, [])), cc_conn(B.components(B.ulen(Ty.HFace, fs), sh_adj(fs, x))))
 
-def shs_conn_ok(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
+def shs_conn_ok_zz(ss: List<&2, Ty.Shell>, zz: Bool, +x: Ty.Ix) -> Bool:
   match ss:
-    case Nil{}: True{}
-    case h <> t: Bool.and(sh_conn_ok(Ty.sh_faces(h), x), shs_conn_ok(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: shs_conn_ok_zz(t, sh_conn_ok(Ty.sh_faces(h), x), x)
+
+def shs_conn_ok(ss: List<&2, Ty.Shell>, +x: Ty.Ix) -> Bool:
+  shs_conn_ok_zz(ss, True{}, x)
 
 def conn_c_go(done: Bool, +b: Ty.Brep) -> Nat:
   match done:
@@ -1497,10 +1611,16 @@ def vs_pts(vs: List<&2, Ty.Vertex>) -> List<&2, V.Point>:
       +p = Ty.vx_p(h)
       pt_keep(Bool.not(pt_nan(p)), p, vs_pts(t))
 
-def pt_adj(xs: List<&2, V.Point>, +prev: V.Point, first: Bool) -> Bool:
+def pt_adj_zz(xs: List<&2, V.Point>, zz: Bool, +prev: V.Point, first: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case +h <> t: Bool.and(Bool.or(first, Bool.not(vx_coin_pt(h, prev))), pt_adj(t, h, False{}))
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: pt_adj_zz(t, Bool.or(first, Bool.not(vx_coin_pt(h, prev))), h, False{})
+
+def pt_adj(xs: List<&2, V.Point>, +prev: V.Point, first: Bool) -> Bool:
+  pt_adj_zz(xs, True{}, prev, first)
 
 def coin_ok(vs: List<&2, Ty.Vertex>) -> Bool:
   pt_adj(so_pt(B.msort(~V.Point, ~pt_cmp, vs_pts(vs))), V.Pt{0.0f64, 0.0f64, 0.0f64}, True{})
@@ -1616,20 +1736,32 @@ def sweep_one(xs: List<&2, SG>, +h: SG, go: Bool) -> Bool:
         case False{}: True{}
         case True{}: Bool.and(Bool.not(pair_bad(sg_ov(h, y), h, y)), sweep_one(r, h, peek_x(r, h)))
 
-def sweep_all(xs: List<&2, SG>) -> Bool:
+def sweep_all_zz(xs: List<&2, SG>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case +h <> +t: Bool.and(sweep_one(t, h, peek_x(t, h)), sweep_all(t))
+    case Nil{}: zz
+    case +h <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: sweep_all_zz(t, sweep_one(t, h, peek_x(t, h)))
+
+def sweep_all(xs: List<&2, SG>) -> Bool:
+  sweep_all_zz(xs, True{})
 
 def vs_all(+s: SG, xs: List<&2, SG>) -> Bool:
   match xs:
     case Nil{}: True{}
     case +h <> t: Bool.and(Bool.not(sg_bad(s, h)), vs_all(s, t))
 
-def risky_ok(rs: List<&2, SG>, +all: List<&2, SG>) -> Bool:
+def risky_ok_zz(rs: List<&2, SG>, zz: Bool, +all: List<&2, SG>) -> Bool:
   match rs:
-    case Nil{}: True{}
-    case +h <> t: Bool.and(vs_all(h, all), risky_ok(t, all))
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: risky_ok_zz(t, vs_all(h, all), all)
+
+def risky_ok(rs: List<&2, SG>, +all: List<&2, SG>) -> Bool:
+  risky_ok_zz(rs, True{}, all)
 
 def sp_ok(p: SP2, +all: List<&2, SG>) -> Bool:
   SP2{safe, risky} = p
@@ -1639,10 +1771,16 @@ def face_xing_ok(+x: Ty.Ix, fl: List<&2, Ty.HLoop>) -> Bool:
   +segs = hls_segs(fl, x)
   sp_ok(sg_split(segs, SP2{[], []}), segs)
 
-def fas_xing_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+def fas_xing_ok_zz(fs: List<&2, Ty.Face>, zz: Bool, +x: Ty.Ix) -> Bool:
   match fs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(face_xing_ok(x, Ty.fa_loops(h)), fas_xing_ok(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fas_xing_ok_zz(t, face_xing_ok(x, Ty.fa_loops(h)), x)
+
+def fas_xing_ok(fs: List<&2, Ty.Face>, +x: Ty.Ix) -> Bool:
+  fas_xing_ok_zz(fs, True{}, x)
 
 def xing_c_go(done: Bool, +b: Ty.Brep) -> Nat:
   match done:
@@ -1652,10 +1790,16 @@ def xing_c_go(done: Bool, +b: Ty.Brep) -> Nat:
 def brep_xing_c(+b: Ty.Brep, +fuel: Nat) -> Nat:
   xing_c_go(ck_done(b, fuel), b)
 
-def hcs_all_lines(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+def hcs_all_lines_zz(xs: List<&2, Ty.HCoedge>, zz: Bool, +x: Ty.Ix) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(edge_is_line(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))), hcs_all_lines(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: hcs_all_lines_zz(t, edge_is_line(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))), x)
+
+def hcs_all_lines(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix) -> Bool:
+  hcs_all_lines_zz(xs, True{}, x)
 
 def hc_start_pt(+x: Ty.Ix, +h: Ty.HCoedge) -> V.Point:
   +ce = Ty.tres_ce(Ty.ix_ce(x, h))
@@ -1977,10 +2121,16 @@ def cp_so_own_c(+top: Ty.Compound, +ffull: Nat) -> Nat:
   +cs = Ty.cp_solids(top)
   cp_so_own_go(Nat.is_le(List.length(&2, Ty.HSolid, cs), ffull), cs)
 
-def sos_outer_all(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
+def sos_outer_all_zz(os: List<&2, Ty.Solid>, zz: Bool, +x: Ty.Ix) -> Bool:
   match os:
-    case Nil{}: True{}
-    case h <> t: Bool.and(hss_kind([Ty.so_outer(h)], x, 0u64), sos_outer_all(t, x))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sos_outer_all_zz(t, hss_kind([Ty.so_outer(h)], x, 0u64), x)
+
+def sos_outer_all(os: List<&2, Ty.Solid>, +x: Ty.Ix) -> Bool:
+  sos_outer_all_zz(os, True{}, x)
 
 def sos_outer_go(done: Bool, +sos: List<&2, Ty.Solid>, +shs: List<&2, Ty.Shell>) -> Nat:
   match done:

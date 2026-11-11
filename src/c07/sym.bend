@@ -131,10 +131,16 @@ def rf_of(x: X.Xp) -> Rf:
     case X.X_div{a, b}: rf_div(rf_of(a), rf_of(b))
     case X.X_neg{a}: rf_neg(rf_of(a))
 
-def ok_all(xs: List<&2, Mo>) -> Bool:
+def ok_all_zz(xs: List<&2, Mo>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case x <> t: Bool.and(E.ex_ok(mo_c(x)), ok_all(t))
+    case []: zz
+    case x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ok_all_zz(t, E.ex_ok(mo_c(x)))
+
+def ok_all(xs: List<&2, Mo>) -> Bool:
+  ok_all_zz(xs, True{})
 
 def is_zero(+x: X.Xp) -> Bool:
   +r = rf_of(x)

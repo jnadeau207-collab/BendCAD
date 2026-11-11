@@ -188,22 +188,33 @@ def pl_hit(+o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Point, +u: F64, +v: F64) -
   Bool.and(F64.is_eq(V.pt_x(q), V.pt_x(p)),
     Bool.and(F64.is_eq(V.pt_y(q), V.pt_y(p)), F64.is_eq(V.pt_z(q), V.pt_z(p))))
 
-def pl_scan_v(vs: List<&2, F64>, +o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Point, +u: F64,
-    +v0: F64, +dv: F64) -> UV:
+def pl_scan_v(vs: List<&2, F64>, hit: Bool, +vf: F64, +o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Point,
+    +u: F64, +v0: F64, +dv: F64) -> UV:
   match vs:
-    case []: UV{False{}, u, v0}
+    case []:
+      match hit:
+        case True{}: UV{True{}, u, vf}
+        case False{}: UV{False{}, u, v0}
     case +h <> +t:
-      +v = F64.add(v0, F64.mul(h, dv))
-      Bool.pick(UV, pl_hit(o, e1, e2, p, u, v), UV{True{}, u, v},
-        pl_scan_v(t, o, e1, e2, p, u, v0, dv))
+      match hit:
+        case True{}: UV{True{}, u, vf}
+        case False{}:
+          +v = F64.add(v0, F64.mul(h, dv))
+          pl_scan_v(t, pl_hit(o, e1, e2, p, u, v), v, o, e1, e2, p, u, v0, dv)
 
-def pl_scan_u(us: List<&2, F64>, +o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Point, +u0: F64,
-    +du: F64, +v0: F64, +dv: F64) -> UV:
+def pl_scan_u(us: List<&2, F64>, hit: Bool, +r: UV, +o: V.Point, +e1: V.Dir, +e2: V.Dir, +p: V.Point,
+    +u0: F64, +du: F64, +v0: F64, +dv: F64) -> UV:
   match us:
-    case []: UV{False{}, u0, v0}
+    case []:
+      match hit:
+        case True{}: r
+        case False{}: UV{False{}, u0, v0}
     case +h <> +t:
-      +r = pl_scan_v(offs(), o, e1, e2, p, F64.add(u0, F64.mul(h, du)), v0, dv)
-      Bool.pick(UV, uv_ok(r), r, pl_scan_u(t, o, e1, e2, p, u0, du, v0, dv))
+      match hit:
+        case True{}: r
+        case False{}:
+          +q = pl_scan_v(offs(), False{}, v0, o, e1, e2, p, F64.add(u0, F64.mul(h, du)), v0, dv)
+          pl_scan_u(t, uv_ok(q), q, o, e1, e2, p, u0, du, v0, dv)
 
 def bp_hit(+w: G.BezP, +p: V.Point, +u: F64, +v: F64) -> Bool:
   +r = GO.bezp_eval(w, u, v)
@@ -211,19 +222,33 @@ def bp_hit(+w: G.BezP, +p: V.Point, +u: F64, +v: F64) -> Bool:
   Bool.and(G.gres_ok(r), Bool.and(F64.is_eq(V.pt_x(q), V.pt_x(p)),
     Bool.and(F64.is_eq(V.pt_y(q), V.pt_y(p)), F64.is_eq(V.pt_z(q), V.pt_z(p)))))
 
-def bp_scan_v(vs: List<&2, F64>, +w: G.BezP, +p: V.Point, +u: F64, +v0: F64, +dv: F64) -> UV:
+def bp_scan_v(vs: List<&2, F64>, hit: Bool, +vf: F64, +w: G.BezP, +p: V.Point, +u: F64, +v0: F64,
+    +dv: F64) -> UV:
   match vs:
-    case []: UV{False{}, u, v0}
+    case []:
+      match hit:
+        case True{}: UV{True{}, u, vf}
+        case False{}: UV{False{}, u, v0}
     case +h <> +t:
-      +v = F64.max(0.0f64, F64.min(1.0f64, F64.add(v0, F64.mul(h, dv))))
-      Bool.pick(UV, bp_hit(w, p, u, v), UV{True{}, u, v}, bp_scan_v(t, w, p, u, v0, dv))
+      match hit:
+        case True{}: UV{True{}, u, vf}
+        case False{}:
+          +v = F64.max(0.0f64, F64.min(1.0f64, F64.add(v0, F64.mul(h, dv))))
+          bp_scan_v(t, bp_hit(w, p, u, v), v, w, p, u, v0, dv)
 
-def bp_scan_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +u0: F64, +du: F64, +v0: F64, +dv: F64) -> UV:
+def bp_scan_u(us: List<&2, F64>, hit: Bool, +r: UV, +w: G.BezP, +p: V.Point, +u0: F64, +du: F64, +v0: F64,
+    +dv: F64) -> UV:
   match us:
-    case []: UV{False{}, u0, v0}
+    case []:
+      match hit:
+        case True{}: r
+        case False{}: UV{False{}, u0, v0}
     case +h <> +t:
-      +r = bp_scan_v(offs(), w, p, F64.max(0.0f64, F64.min(1.0f64, F64.add(u0, F64.mul(h, du)))), v0, dv)
-      Bool.pick(UV, uv_ok(r), r, bp_scan_u(t, w, p, u0, du, v0, dv))
+      match hit:
+        case True{}: r
+        case False{}:
+          +q = bp_scan_v(offs(), False{}, v0, w, p, F64.max(0.0f64, F64.min(1.0f64, F64.add(u0, F64.mul(h, du)))), v0, dv)
+          bp_scan_u(t, uv_ok(q), q, w, p, u0, du, v0, dv)
 
 def snap01(+x: F64) -> F64:
   Bool.pick(F64, F64.is_lt(F64.abs(x), 1.0e-12f64), 0.0f64, Bool.pick(F64, F64.is_lt(F64.abs(F64.sub(x, 1.0f64)), 1.0e-12f64), 1.0f64, x))
@@ -297,7 +322,7 @@ def bp_uv_of(+w: G.BezP, +p: V.Point) -> UV:
   +uv = bsnap_v(w, p, bsnap_u(w, p, bp_newton(12n, w, p, cl01(V.V2{u1, v1}))))
   +u0 = snap01(V.v2_x(uv))
   +v0 = snap01(V.v2_y(uv))
-  bp_scan_u(offs(), w, p, u0, ulp_of(F64.max(u0, 0.5f64)), v0, ulp_of(F64.max(v0, 0.5f64)))
+  bp_scan_u(offs(), False{}, UV{False{}, u0, v0}, w, p, u0, ulp_of(F64.max(u0, 0.5f64)), v0, ulp_of(F64.max(v0, 0.5f64)))
 
 def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
   match g:
@@ -306,7 +331,7 @@ def pl_uv(+g: G.GVal, +p: V.Point) -> UV:
       +d = S.psub(p, o)
       +u0 = S.dot(d, e1)
       +v0 = S.dot(d, e2)
-      pl_scan_u(offs(), o, e1, e2, p, u0, ulp_of(u0), v0, ulp_of(v0))
+      pl_scan_u(offs(), False{}, UV{False{}, u0, v0}, o, e1, e2, p, u0, ulp_of(u0), v0, ulp_of(v0))
     case G.GV_bp{w}: bp_uv_of(w, p)
     case _: UV{False{}, 0.0f64, 0.0f64}
 
@@ -317,33 +342,70 @@ def bp_on(+w: G.BezP, +p: V.Point) -> Bool:
 def bp_flat(+w: G.BezP) -> Bool:
   U64.is_eq(S.sf_kind(S.sf_of(G.GV_bp{w})), S.k_plane())
 
+def or_qr(a: Bool, +g: G.GVal, +p: V.Point) -> Bool:
+  match a:
+    case True{}: True{}
+    case False{}: GO.q_on_r(g, p)
+
 def on_bp(flat: Bool, +w: G.BezP, +p: V.Point) -> Bool:
   match flat:
-    case True{}: Bool.or(uv_ok(bp_uv_of(w, p)), GO.q_on_r(G.GV_bp{w}, p))
+    case True{}: or_qr(uv_ok(bp_uv_of(w, p)), G.GV_bp{w}, p)
     case False{}: bp_on(w, p)
+
+def pl_ax(g: G.GVal, +p: V.Point) -> Bool:
+  match g:
+    case G.GV_pl{w}: B4.ax_on(w, p)
+    case _: False{}
+
+def pl_ex(obl: Bool, +g: G.GVal, +p: V.Point) -> Bool:
+  match obl:
+    case True{}: GO.q_on_r(g, p)
+    case False{}: pl_ax(g, p)
+
+def pl_on(a: Bool, +g: G.GVal, +p: V.Point) -> Bool:
+  match a:
+    case True{}: True{}
+    case False{}: pl_ex(B4.surf_obl(g), g, p)
 
 def on_g(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
-    case G.GV_pl{w}: Bool.or(uv_ok(pl_uv(G.GV_pl{w}, p)), Bool.pick(Bool, B4.surf_obl(G.GV_pl{w}), GO.q_on_r(G.GV_pl{w}, p), B4.ax_on(w, p)))
+    case G.GV_pl{w}: pl_on(uv_ok(pl_uv(G.GV_pl{w}, p)), G.GV_pl{w}, p)
     case G.GV_bp{w}: on_bp(bp_flat(w), w, p)
-    case _: Bool.or(GO.q_on_r(g, p), GO.q_on_s(g, p))
+    case _: GO.q_on_s(g, p)
+
+def on_all_s(gs: List<&2, G.GVal>, ok: Bool, +p: V.Point) -> Bool:
+  match gs:
+    case []: ok
+    case +h <> +t:
+      match ok:
+        case True{}: on_all_s(t, on_g(h, p), p)
+        case False{}: False{}
 
 def on_all(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
-  match gs:
-    case []: True{}
-    case +h <> +t: Bool.and(on_g(h, p), on_all(t, p))
+  on_all_s(gs, True{}, p)
+
+def or_qh(a: Bool, +g: G.GVal, +p: V.Point) -> Bool:
+  match a:
+    case True{}: True{}
+    case False{}:
+      +m = F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))
+      GO.q_on_h(g, p, F64.mul(16.0f64, ulp_of(m)))
 
 def on_c(+g: G.GVal, +p: V.Point) -> Bool:
   match g:
-    case G.GV_to{w}:
-      +m = F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))
-      Bool.or(on_g(G.GV_to{w}, p), GO.q_on_h(G.GV_to{w}, p, F64.mul(16.0f64, ulp_of(m))))
+    case G.GV_to{w}: or_qh(on_g(G.GV_to{w}, p), G.GV_to{w}, p)
     case _: on_g(g, p)
 
-def on_all_c(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
+def on_all_cs(gs: List<&2, G.GVal>, ok: Bool, +p: V.Point) -> Bool:
   match gs:
-    case []: True{}
-    case +h <> +t: Bool.and(on_c(h, p), on_all_c(t, p))
+    case []: ok
+    case +h <> +t:
+      match ok:
+        case True{}: on_all_cs(t, on_c(h, p), p)
+        case False{}: False{}
+
+def on_all_c(gs: List<&2, G.GVal>, +p: V.Point) -> Bool:
+  on_all_cs(gs, True{}, p)
 
 def ct_ok(+c: CT) -> Bool:
   CT{ok, t, p} = c
@@ -357,13 +419,15 @@ def ct_p(+c: CT) -> V.Point:
   CT{ok, t, p} = c
   p
 
+def cert_cm(okp: Bool, +c: G.GVal, +gs: List<&2, G.GVal>, +tm: F64, +lo: F64, +hi: F64) -> U64:
+  match okp:
+    case True{}: 1u64
+    case False{}: Bool.pick(U64, Bool.and(Bool.and(F64.is_le(lo, tm), F64.is_le(tm, hi)), on_all(gs, ev(c, tm))), 2u64, 3u64)
+
 def cert_code(+c: G.GVal, +gs: List<&2, G.GVal>, +t0: F64, +u: F64, +k: F64, +lo: F64,
     +hi: F64) -> U64:
   +tp = F64.add(t0, F64.mul(k, u))
-  +tm = F64.sub(t0, F64.mul(k, u))
-  +okp = Bool.and(Bool.and(F64.is_le(lo, tp), F64.is_le(tp, hi)), on_all(gs, ev(c, tp)))
-  +okm = Bool.and(Bool.and(F64.is_le(lo, tm), F64.is_le(tm, hi)), on_all(gs, ev(c, tm)))
-  Bool.pick(U64, okp, 1u64, Bool.pick(U64, okm, 2u64, 3u64))
+  cert_cm(Bool.and(Bool.and(F64.is_le(lo, tp), F64.is_le(tp, hi)), on_all(gs, ev(c, tp))), c, gs, F64.sub(t0, F64.mul(k, u)), lo, hi)
 
 def cert_go(n: Nat, +mode: U64, +c: G.GVal, +gs: List<&2, G.GVal>, +t0: F64, +u: F64, +k: F64,
     +lo: F64, +hi: F64) -> CT:
@@ -379,33 +443,53 @@ def cert_go(n: Nat, +mode: U64, +c: G.GVal, +gs: List<&2, G.GVal>, +t0: F64, +u:
 def nudges() -> List<&2, F64>:
   [0.0f64, 1.0f64, F64.neg(1.0f64), 2.0f64, F64.neg(2.0f64)]
 
-def nz_go(zs: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uz: F64) -> CT:
-  match zs:
-    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
-    case +h <> +t:
-      +q = S.pt(x, y, F64.add(z, F64.mul(h, uz)))
-      Bool.pick(CT, on_all_c(gs, q), CT{True{}, 0.0f64, q}, nz_go(t, gs, x, y, z, uz))
-
-def ny_go(ys: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uy: F64, +uz: F64) -> CT:
-  match ys:
-    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
-    case +h <> +t:
-      +r = nz_go(nudges(), gs, x, F64.add(y, F64.mul(h, uy)), z, uz)
-      Bool.pick(CT, ct_ok(r), r, ny_go(t, gs, x, y, z, uy, uz))
-
-def nx_go(xs: List<&2, F64>, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +ux: F64, +uy: F64,
+def nz_go(zs: List<&2, F64>, hit: Bool, +qf: V.Point, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64,
     +uz: F64) -> CT:
-  match xs:
-    case []: CT{False{}, 0.0f64, S.pt(x, y, z)}
+  match zs:
+    case []:
+      match hit:
+        case True{}: CT{True{}, 0.0f64, qf}
+        case False{}: CT{False{}, 0.0f64, S.pt(x, y, z)}
     case +h <> +t:
-      +r = ny_go(nudges(), gs, F64.add(x, F64.mul(h, ux)), y, z, uy, uz)
-      Bool.pick(CT, ct_ok(r), r, nx_go(t, gs, x, y, z, ux, uy, uz))
+      match hit:
+        case True{}: CT{True{}, 0.0f64, qf}
+        case False{}:
+          +q = S.pt(x, y, F64.add(z, F64.mul(h, uz)))
+          nz_go(t, on_all_c(gs, q), q, gs, x, y, z, uz)
+
+def ny_go(ys: List<&2, F64>, hit: Bool, +r: CT, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +uy: F64,
+    +uz: F64) -> CT:
+  match ys:
+    case []:
+      match hit:
+        case True{}: r
+        case False{}: CT{False{}, 0.0f64, S.pt(x, y, z)}
+    case +h <> +t:
+      match hit:
+        case True{}: r
+        case False{}:
+          +q = nz_go(nudges(), False{}, S.pt(x, y, z), gs, x, F64.add(y, F64.mul(h, uy)), z, uz)
+          ny_go(t, ct_ok(q), q, gs, x, y, z, uy, uz)
+
+def nx_go(xs: List<&2, F64>, hit: Bool, +r: CT, +gs: List<&2, G.GVal>, +x: F64, +y: F64, +z: F64, +ux: F64,
+    +uy: F64, +uz: F64) -> CT:
+  match xs:
+    case []:
+      match hit:
+        case True{}: r
+        case False{}: CT{False{}, 0.0f64, S.pt(x, y, z)}
+    case +h <> +t:
+      match hit:
+        case True{}: r
+        case False{}:
+          +q = ny_go(nudges(), False{}, CT{False{}, 0.0f64, S.pt(x, y, z)}, gs, F64.add(x, F64.mul(h, ux)), y, z, uy, uz)
+          nx_go(t, ct_ok(q), q, gs, x, y, z, ux, uy, uz)
 
 def cert_gs(+gs: List<&2, G.GVal>, +p: V.Point) -> CT:
   +x = S.px(p)
   +y = S.py(p)
   +z = S.pz(p)
-  nx_go(nudges(), gs, x, y, z, ulp_of(x), ulp_of(y), ulp_of(z))
+  nx_go(nudges(), False{}, CT{False{}, 0.0f64, S.pt(x, y, z)}, gs, x, y, z, ulp_of(x), ulp_of(y), ulp_of(z))
 
 def g_at(gs: List<&2, G.GVal>, +i: Nat) -> G.GVal:
   match gs:

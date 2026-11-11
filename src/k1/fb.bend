@@ -94,15 +94,27 @@ def hls_ce(hs: List<&2, Ty.HLoop>, +b: KB) -> List<&2, List<&2, CE>>:
 def face_ce(+b: KB, +fi: Nat) -> List<&2, List<&2, CE>>:
   hls_ce(Ty.fa_loops(kb_f(b, fi)), b)
 
-def hcs_has(hs: List<&2, Ty.HCoedge>, +k: KB, +e: Nat) -> Bool:
+def hcs_has_zz(hs: List<&2, Ty.HCoedge>, zz: Bool, +k: KB, +e: Nat) -> Bool:
   match hs:
-    case []: False{}
-    case +h <> +t: Bool.or(Nat.is_eq(Ty.he_idx(Ty.ce_edge(kb_c(k, Ty.hc_idx(h)))), e), hcs_has(t, k, e))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: hcs_has_zz(t, Nat.is_eq(Ty.he_idx(Ty.ce_edge(kb_c(k, Ty.hc_idx(h)))), e), k, e)
+
+def hcs_has(hs: List<&2, Ty.HCoedge>, +k: KB, +e: Nat) -> Bool:
+  hcs_has_zz(hs, False{}, k, e)
+
+def hls_has_zz(hs: List<&2, Ty.HLoop>, zz: Bool, +k: KB, +e: Nat) -> Bool:
+  match hs:
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: hls_has_zz(t, hcs_has(Ty.lp_ces(kb_l(k, hl_i(h))), k, e), k, e)
 
 def hls_has(hs: List<&2, Ty.HLoop>, +k: KB, +e: Nat) -> Bool:
-  match hs:
-    case []: False{}
-    case +h <> +t: Bool.or(hcs_has(Ty.lp_ces(kb_l(k, hl_i(h))), k, e), hls_has(t, k, e))
+  hls_has_zz(hs, False{}, k, e)
 
 def efaces_go(fs: List<&2, Ty.Face>, +k: KB, +e: Nat, +i: Nat) -> List<&2, Nat>:
   match fs:
@@ -581,10 +593,16 @@ def seg_near(+a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
   +band = F64.add(F64.mul(0.0025f64, l2), F64.mul(1.0e-18f64, F64.add(1.0f64, F64.add(F64.mul(V.v2_x(a), V.v2_x(a)), F64.mul(V.v2_y(a), V.v2_y(a))))))
   F64.is_le(F64.add(F64.mul(ex, ex), F64.mul(ey, ey)), band)
 
-def poly_near(ps: List<&2, V.Vec2>, +prev: V.Vec2, +q: V.Vec2) -> Bool:
+def poly_near_zz(ps: List<&2, V.Vec2>, zz: Bool, +prev: V.Vec2, +q: V.Vec2) -> Bool:
   match ps:
-    case []: False{}
-    case +h <> +t: Bool.or(seg_near(prev, h, q), poly_near(t, h, q))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: poly_near_zz(t, seg_near(prev, h, q), h, q)
+
+def poly_near(ps: List<&2, V.Vec2>, +prev: V.Vec2, +q: V.Vec2) -> Bool:
+  poly_near_zz(ps, False{}, prev, q)
 
 def polys_near(ls: List<&2, List<&2, V.Vec2>>, +q: V.Vec2) -> Bool:
   match ls:

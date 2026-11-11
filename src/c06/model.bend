@@ -1469,7 +1469,7 @@ def bool_in(+x: Body) -> B8.In:
   +p = bd_pl(x)
   B8.In{bd_brep(x), bd_cells(x), bd_fns(x), pl_m(p), pl_tx(p), pl_ty(p), pl_tz(p), bd_rv(x), ms_vol(m),
     ms_area(m), B8.BX{ms_x0(m), ms_x1(m), ms_y0(m), ms_y1(m), ms_z0(m), ms_z1(m)}, pl_lin(ms_lin(m), ms_bb(m), p),
-    xb_bo(bd_xb(x)), pl_exact(p), xb_fk(bd_xb(x))}
+    xb_bo(bd_xb(x)), pl_exact(p), SO.pool_kf(xb_fk(bd_xb(x)))}
 
 def bool_mat(+t: U64) -> Mat:
   Bool.pick(Mat, U64.is_eq(t, 1u64), M_add{},
@@ -1811,10 +1811,16 @@ def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +fl
     Bool.pick(U64, fi_planar(inf), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
   ech_go(code, b, nm, fr, hole, r, c, fl, e, nd, np)
-def nat_has(xs: List<&2, Nat>, +x: Nat) -> Bool:
+def nat_has_zz(xs: List<&2, Nat>, zz: Bool, +x: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> t: Bool.or(Nat.is_eq(h, x), nat_has(t, x))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: nat_has_zz(t, Nat.is_eq(h, x), x)
+
+def nat_has(xs: List<&2, Nat>, +x: Nat) -> Bool:
+  nat_has_zz(xs, False{}, x)
 
 def shared_go(+n: Nat, +e: Nat, +b: FB.KB, +f1: Nat, +f2: Nat) -> Nat:
   match n:
@@ -2122,10 +2128,16 @@ def ce_find(cs: List<&2, CE>, +id: U64) -> CE:
     case []: CE{0u64, [], bad("node", "-", "missing-input-node", "reference an earlier node id")}
     case +c <> t: Bool.pick(CE, U64.is_eq(ce_id(c), id), c, ce_find(t, id))
 
-def ce_has(cs: List<&2, CE>, +id: U64) -> Bool:
+def ce_has_zz(cs: List<&2, CE>, zz: Bool, +id: U64) -> Bool:
   match cs:
-    case []: False{}
-    case c <> t: Bool.or(U64.is_eq(ce_id(c), id), ce_has(t, id))
+    case []: zz
+    case c <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: ce_has_zz(t, U64.is_eq(ce_id(c), id), id)
+
+def ce_has(cs: List<&2, CE>, +id: U64) -> Bool:
+  ce_has_zz(cs, False{}, id)
 
 def nr_ok(r: NR) -> Bool:
   match r:
@@ -2165,10 +2177,16 @@ def so_u(s: B.So<&2, U64>) -> List<&2, U64>:
   B.So{ok, xs} = s
   xs
 
-def u_dup(xs: List<&2, U64>, +prev: U64, +first: Bool) -> Bool:
+def u_dup_zz(xs: List<&2, U64>, zz: Bool, +prev: U64, +first: Bool) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> t: Bool.or(Bool.and(Bool.not(first), U64.is_eq(h, prev)), u_dup(t, h, False{}))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: u_dup_zz(t, Bool.and(Bool.not(first), U64.is_eq(h, prev)), h, False{})
+
+def u_dup(xs: List<&2, U64>, +prev: U64, +first: Bool) -> Bool:
+  u_dup_zz(xs, False{}, prev, first)
 
 def ids_dup(+xs: List<&2, U64>) -> Bool:
   u_dup(so_u(B.msort(~U64, ~u_cmp, xs)), 0u64, True{})
@@ -3730,10 +3748,16 @@ def ev_part(+p: Part, +old: List<&2, CE>) -> List<&2, CE>:
   Pt{+ps, +ns, +ms, +ts} = p
   ev_go(Bool.not(Bool.or(ids_dup(nd_ids(ns)), ids_dup(pm_ids(ps)))), p, old)
 
-def u_has(xs: List<&2, U64>, +i: U64) -> Bool:
+def u_has_zz(xs: List<&2, U64>, zz: Bool, +i: U64) -> Bool:
   match xs:
-    case []: False{}
-    case h <> t: Bool.or(U64.is_eq(h, i), u_has(t, i))
+    case []: zz
+    case h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: u_has_zz(t, U64.is_eq(h, i), i)
+
+def u_has(xs: List<&2, U64>, +i: U64) -> Bool:
+  u_has_zz(xs, False{}, i)
 
 def need_push(+o: Op, +t: List<&2, U64>) -> List<&2, U64>:
   +t2 = Bool.pick(List<&2, U64>, op_has_b2(o), op_base2(o) <> t, t)

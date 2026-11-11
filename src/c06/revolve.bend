@@ -89,10 +89,16 @@ def ax_code(+l: F.Lp, +hole: Bool) -> U64:
 def vcount(+x: F64) -> Nat:
   Bool.pick(Nat, F64.is_lt(0.0f64, x), 2n, 1n)
 
-def has_n(xs: List<&2, Nat>, +i: Nat) -> Bool:
+def has_n_zz(xs: List<&2, Nat>, zz: Bool, +i: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case x <> t: Bool.or(Nat.is_eq(x, i), has_n(t, i))
+    case []: zz
+    case x <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: has_n_zz(t, Nat.is_eq(x, i), i)
+
+def has_n(xs: List<&2, Nat>, +i: Nat) -> Bool:
+  has_n_zz(xs, False{}, i)
 
 def vi_go(ps: List<&2, F.Pc>, +b: Nat, +js: List<&2, Nat>, +i: Nat) -> List<&2, VI>:
   match ps:
@@ -343,10 +349,16 @@ def sgs_fs(ss: List<&2, F.Sg>, +p0: Nat, +all: List<&2, F.Pc>, +vs: List<&2, VI>
       List.append(&2, BD.FS, seg_fs(s, p0, all, vs, n, cb, sb, sh, nd, lk, si),
         sgs_fs(t, Nat.add(p0, F.sg_npc(s)), all, vs, n, cb, sb, sh, nd, lk, Nat.add(si, 1n)))
 
-def sgs_ssok(ss: List<&2, F.Sg>) -> Bool:
+def sgs_ssok_zz(ss: List<&2, F.Sg>, zz: Bool) -> Bool:
   match ss:
-    case []: True{}
-    case +s <> t: Bool.and(Bool.or(sg_axis(s), ss_ok(ss_of(s))), sgs_ssok(t))
+    case []: zz
+    case +s <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sgs_ssok_zz(t, Bool.or(sg_axis(s), ss_ok(ss_of(s))))
+
+def sgs_ssok(ss: List<&2, F.Sg>) -> Bool:
+  sgs_ssok_zz(ss, True{})
 
 def lp_sgs(l: F.Lp) -> List<&2, F.Sg>:
   match l:
@@ -645,10 +657,16 @@ def side_ss_p(+p: F.Pc) -> SS:
     case F.P_ln{ax, ay, bx, by}: ss_line(ax, ay, bx, by)
     case F.P_ar{ax, ay, px, py, w, bx, by}: SS{False{}, G.GV_f{0.0f64}, True{}, False{}}
 
-def pcs_ssok_t(ps: List<&2, F.Pc>) -> Bool:
+def pcs_ssok_t_zz(ps: List<&2, F.Pc>, zz: Bool) -> Bool:
   match ps:
-    case []: True{}
-    case p <> t: Bool.and(ss_ok(side_ss_p(p)), pcs_ssok_t(t))
+    case []: zz
+    case p <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: pcs_ssok_t_zz(t, ss_ok(side_ss_p(p)))
+
+def pcs_ssok_t(ps: List<&2, F.Pc>) -> Bool:
+  pcs_ssok_t_zz(ps, True{})
 
 def pcs_ssok(ps: List<&2, F.Pc>) -> Bool:
   pcs_ssok_t(ps)

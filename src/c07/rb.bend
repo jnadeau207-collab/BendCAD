@@ -90,15 +90,27 @@ def qdiv(xs: List<&2, I.I>, ws: List<&2, I.I>) -> List<&2, I.I>:
         case []: []
         case w <> u: I.idiv(x, w) <> qdiv(t, u)
 
-def allpos(ws: List<&2, I.I>) -> Bool:
+def allpos_zz(ws: List<&2, I.I>, zz: Bool) -> Bool:
   match ws:
-    case []: True{}
-    case +w <> t: Bool.and(X.ipos(w), allpos(t))
+    case []: zz
+    case +w <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: allpos_zz(t, X.ipos(w))
+
+def allpos(ws: List<&2, I.I>) -> Bool:
+  allpos_zz(ws, True{})
+
+def allone_zz(ws: List<&2, I.I>, zz: Bool) -> Bool:
+  match ws:
+    case []: zz
+    case +w <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: allone_zz(t, Bool.and(F64.is_eq(I.i_lo(w), 1.0f64), F64.is_eq(I.i_hi(w), 1.0f64)))
 
 def allone(ws: List<&2, I.I>) -> Bool:
-  match ws:
-    case []: True{}
-    case +w <> t: Bool.and(Bool.and(F64.is_eq(I.i_lo(w), 1.0f64), F64.is_eq(I.i_hi(w), 1.0f64)), allone(t))
+  allone_zz(ws, True{})
 
 def rs_k(full: Bool, +cs: List<&2, I.I>, +lo: F64, +hi: F64) -> List<&2, I.I>:
   match full:

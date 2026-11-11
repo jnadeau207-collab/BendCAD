@@ -101,10 +101,16 @@ def hx_pt(h: Hx) -> Bool:
     case Hx_uv{s, u, v, p, c}: True{}
     case _: False{}
 
-def dup_of(hs: List<&2, Hx>, +s: I.I) -> Bool:
+def dup_of_zz(hs: List<&2, Hx>, zz: Bool, +s: I.I) -> Bool:
   match hs:
-    case []: False{}
-    case +h <> t: Bool.or(Bool.and(hx_pt(h), Bool.not(X.idisj(hx_s(h), s))), dup_of(t, s))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: dup_of_zz(t, Bool.and(hx_pt(h), Bool.not(X.idisj(hx_s(h), s))), s)
+
+def dup_of(hs: List<&2, Hx>, +s: I.I) -> Bool:
+  dup_of_zz(hs, False{}, s)
 
 def dedupe(hs: List<&2, Hx>, +seen: List<&2, Hx>) -> List<&2, Hx>:
   match hs:
@@ -173,10 +179,16 @@ def pn_pts(ps: List<&2, V.Point>) -> S.Pn:
         case []: S.pn_none()
         case b <> u: pn_scan(a, b, u)
 
-def pts_on(ps: List<&2, V.Point>, +pn: S.Pn) -> Bool:
+def pts_on_zz(ps: List<&2, V.Point>, zz: Bool, +pn: S.Pn) -> Bool:
   match ps:
-    case []: True{}
-    case p <> t: Bool.and(S.ez(S.edot(S.pn_n(pn), S.esub3(p, S.pn_o(pn)))), pts_on(t, pn))
+    case []: zz
+    case p <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: pts_on_zz(t, S.ez(S.edot(S.pn_n(pn), S.esub3(p, S.pn_o(pn)))), pn)
+
+def pts_on(ps: List<&2, V.Point>, +pn: S.Pn) -> Bool:
+  pts_on_zz(ps, True{}, pn)
 
 def g_on(+g: G.GVal, +pn: S.Pn) -> Bool:
   Bool.pick(Bool, is_nb(g), pts_on(nb_pts(g), pn), S.on_go(S.gv_xc(g), Some{S.pn_xs(pn)}))

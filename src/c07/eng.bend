@@ -150,9 +150,6 @@ def pb_j(p: Pb, +x: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
       +v2 = X.vn(x, 3n)
       rows4(Q.bq_du(a, u1, v1), Q.bq_dv(a, u1, v1), neg3(Q.bq_du(b, u2, v2)), neg3(Q.bq_dv(b, u2, v2)))
 
-def excl(+f: List<&2, I.I>, +mvf: List<&2, I.I>) -> Bool:
-  Bool.or(X.vany0_not(f), X.vany0_not(mvf))
-
 def mvform(+p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -> List<&2, I.I>:
   +y = X.vpts(X.vmid(x))
   X.vadd(pb_f(p, y), X.mv(jx, X.vsub(x, y)))
@@ -183,14 +180,16 @@ def rowmag(r: List<&2, I.I>) -> F64:
     case []: 0.0f64
     case +x <> t: F64.max(X.imag(x), rowmag(t))
 
-def noisy(fs: List<&2, I.I>, +tol: F64) -> Bool:
+def noisy_zz(fs: List<&2, I.I>, zz: Bool, +tol: F64) -> Bool:
   match fs:
-    case []: True{}
-    case +f <> t: Bool.and(F64.is_le(X.imag(f), tol), noisy(t, tol))
+    case []: zz
+    case +f <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: noisy_zz(t, F64.is_le(X.imag(f), tol), tol)
 
-def fscale(+p: Pb, +x: List<&2, I.I>) -> F64:
-  +m = rowmag(pb_f(p, x))
-  Bool.pick(F64, T.is_finite(m), F64.mul(9.094947017729282e-13f64, m), 0.0f64)
+def noisy(fs: List<&2, I.I>, +tol: F64) -> Bool:
+  noisy_zz(fs, True{}, tol)
 
 def pb_cls(+n: Nat, +m: Nat) -> U64:
   Bool.pick(U64, Nat.is_eq(m, n), 0u64, Bool.pick(U64, Nat.is_eq(Nat.add(m, 1n), n), 1u64, 2u64))
@@ -200,9 +199,15 @@ def code_qa(ex: Bool, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>) -
     case True{}: 0u64
     case False{}: code_sq(p, x, jx, pb_n(p))
 
+def code_qj(ex: Bool, +p: Pb, +x: List<&2, I.I>) -> U64:
+  match ex:
+    case True{}: 0u64
+    case False{}:
+      +jx = pb_j(p, x)
+      code_qa(X.vany0_not(mvform(p, x, jx)), p, x, jx)
+
 def code_q(+p: Pb, +x: List<&2, I.I>) -> U64:
-  +jx = pb_j(p, x)
-  code_qa(excl(pb_f(p, x), mvform(p, x, jx)), p, x, jx)
+  code_qj(X.vany0_not(pb_f(p, x)), p, x)
 
 def code_qw(+p: Pb, +x: List<&2, I.I>, +w: U64) -> U64:
   +c = code_q(p, x)
@@ -230,10 +235,29 @@ def half_hi(+x: List<&2, I.I>, +i: Nat) -> List<&2, I.I>:
   +a = X.vn(x, i)
   X.vset(x, i, I.I{cut(a, i), I.i_hi(a)})
 
-def refine(n: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
+def f_same(+a: F64, +b: F64) -> Bool:
+  Bool.and(F64.is_eq(a, b), F64.is_eq(F64.div(1.0f64, a), F64.div(1.0f64, b)))
+
+def v_same(xs: List<&2, I.I>, ys: List<&2, I.I>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t:
+      match ys:
+        case []: False{}
+        case +y <> u: Bool.and(Bool.and(f_same(I.i_lo(x), I.i_lo(y)), f_same(I.i_hi(x), I.i_hi(y))), v_same(t, u))
+
+def refine_s(n: Nat, stop: Bool, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
   match n:
     case 0n: x
-    case 1n+m: refine(m, p, X.vmeet(kraw(p, x, pb_j(p, x), pb_n(p)), x))
+    case 1n+m:
+      match stop:
+        case True{}: x
+        case False{}:
+          +y = X.vmeet(kraw(p, x, pb_j(p, x), pb_n(p)), x)
+          refine_s(m, v_same(x, y), p, y)
+
+def refine(n: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
+  refine_s(n, False{}, p, x)
 
 def pt_box(+p: Pb, +x: List<&2, I.I>) -> List<&2, I.I>:
   refine(12n, p, x)
@@ -325,10 +349,16 @@ def fp_x(f: Fp) -> List<&2, I.I>:
   Fp{x, j, c} = f
   x
 
-def fp_seen(fs: List<&2, Fp>, +x: List<&2, I.I>) -> Bool:
+def fp_seen_zz(fs: List<&2, Fp>, zz: Bool, +x: List<&2, I.I>) -> Bool:
   match fs:
-    case []: False{}
-    case f <> t: Bool.or(Bool.not(X.vdisj(fp_x(f), x)), fp_seen(t, x))
+    case []: zz
+    case f <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: fp_seen_zz(t, Bool.not(X.vdisj(fp_x(f), x)), x)
+
+def fp_seen(fs: List<&2, Fp>, +x: List<&2, I.I>) -> Bool:
+  fp_seen_zz(fs, False{}, x)
 
 def fp_dedupe(fs: List<&2, Fp>, +seen: List<&2, Fp>) -> List<&2, Fp>:
   match fs:
@@ -405,10 +435,16 @@ def code_a(ex: Bool, +p: Pb, +x: List<&2, I.I>, +jx: List<&2, List<&2, I.I>>, +f
     case True{}: 0u64
     case False{}: code_b(Bool.and(small, noisy(fx, tol)), p, x, jx)
 
+def code_j(ex: Bool, +p: Pb, +x: List<&2, I.I>, +fx: List<&2, I.I>, +tol: F64, +small: Bool) -> U64:
+  match ex:
+    case True{}: 0u64
+    case False{}:
+      +jx = pb_j(p, x)
+      code_a(X.vany0_not(mvform(p, x, jx)), p, x, jx, fx, tol, small)
+
 def code_of(+p: Pb, +x: List<&2, I.I>, +tol: F64, +small: Bool) -> U64:
-  +jx = pb_j(p, x)
   +fx = pb_f(p, x)
-  code_a(excl(fx, mvform(p, x, jx)), p, x, jx, fx, tol, small)
+  code_j(X.vany0_not(fx), p, x, fx, tol, small)
 
 def code_w(+p: Pb, +x: List<&2, I.I>, +w: U64, +tol: F64) -> U64:
   +c = code_of(p, x, tol, U64.is_lt(w, 16u64))
@@ -434,16 +470,27 @@ def bb(d: Nat, +w: U64, +c: U64, +tol: F64, +p: Pb, +x: List<&2, I.I>) -> List<&
 def budget(+n: Nat) -> U64:
   Bool.pick(U64, Nat.is_eq(n, 1n), 4194304u64, Bool.pick(U64, Nat.is_eq(n, 2n), 67108864u64, Bool.pick(U64, Nat.is_eq(n, 3n), 1073741824u64, 17179869184u64)))
 
+def tol_of(+fx: List<&2, I.I>) -> F64:
+  +m = rowmag(fx)
+  Bool.pick(F64, T.is_finite(m), F64.mul(9.094947017729282e-13f64, m), 0.0f64)
+
+def code_top(+p: Pb, +x: List<&2, I.I>, +w: U64, +tol: F64, +fx: List<&2, I.I>) -> U64:
+  +c = code_j(X.vany0_not(fx), p, x, fx, tol, U64.is_lt(w, 16u64))
+  Bool.pick(U64, Bool.and(U64.is_eq(c, 9u64), U64.is_lt(w, 2u64)), 8u64, c)
+
+def solve_f(+d: Nat, +w: U64, +p: Pb, +x: List<&2, I.I>, +fx: List<&2, I.I>, +tol: F64) -> List<&2, Res>:
+  bb(d, w, code_top(p, x, w, tol, fx), tol, p, x)
+
+def solve_w(+d: Nat, +w: U64, +p: Pb, +x: List<&2, I.I>, +fx: List<&2, I.I>) -> List<&2, Res>:
+  solve_f(d, w, p, x, fx, tol_of(fx))
+
 def solve(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
-  +w = budget(pb_n(p))
-  +tol = fscale(p, x)
-  bb(d, w, code_w(p, x, w, tol), tol, p, x)
+  solve_w(d, budget(pb_n(p)), p, x, pb_f(p, x))
 
 def solve_e(+d: Nat, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
   +rs = solve(d, p, x)
   resc_e(rs, p, accs_of(rs), x, False{})
 
 def solve_ew(+d: Nat, +w: U64, +p: Pb, +x: List<&2, I.I>) -> List<&2, Res>:
-  +tol = fscale(p, x)
-  +rs = bb(d, w, code_w(p, x, w, tol), tol, p, x)
+  +rs = solve_w(d, w, p, x, pb_f(p, x))
   resc_e(rs, p, accs_of(rs), x, False{})

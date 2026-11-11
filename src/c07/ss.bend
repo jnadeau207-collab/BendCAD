@@ -138,10 +138,16 @@ def drop_g(xs: List<&2, Ep>, +h: Ep) -> List<&2, Ep>:
     case []: []
     case +e <> +t: Bool.pick(List<&2, Ep>, same_kc(h, e), drop_g(t, h), e <> t)
 
-def has_ov(xs: List<&2, Ep>, +e: Ep) -> Bool:
+def has_ov_zz(xs: List<&2, Ep>, zz: Bool, +e: Ep) -> Bool:
   match xs:
-    case []: False{}
-    case +x <> t: Bool.or(Bool.not(X.vdisj(ep_z(x), ep_z(e))), has_ov(t, e))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: has_ov_zz(t, Bool.not(X.vdisj(ep_z(x), ep_z(e))), e)
+
+def has_ov(xs: List<&2, Ep>, +e: Ep) -> Bool:
+  has_ov_zz(xs, False{}, e)
 
 def ep_dummy() -> Ep:
   Ep{0n, 0.0f64, [], 0, 0}

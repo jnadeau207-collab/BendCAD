@@ -162,10 +162,16 @@ def p9(+a: F64, +b: F64, +c: F64, +d: F64, +e: F64, +f: F64, +g: F64, +h: F64,
     +i: F64) -> List<&2, F64>:
   [a, b, c, d, e, f, g, h, i]
 
-def fins(xs: List<&2, F64>) -> Bool:
+def fins_zz(xs: List<&2, F64>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case x <> t: Bool.and(T.is_finite(x), fins(t))
+    case []: zz
+    case x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fins_zz(t, T.is_finite(x))
+
+def fins(xs: List<&2, F64>) -> Bool:
+  fins_zz(xs, True{})
 
 def nzn(+x: F64, +y: F64, +z: F64) -> Bool:
   Bool.not(Bool.and(F64.is_eq(x, 0.0f64), Bool.and(F64.is_eq(y, 0.0f64), F64.is_eq(z, 0.0f64))))
@@ -238,10 +244,16 @@ def mate_of(+x: S.Sx) -> ER:
         Bool.pick(ER, String.eq(h, "axis"), mate_axis(xs),
           ER_err{"unknown-mate", "use fix, coinc, plane or axis"}))))
 
-def inst_has(+il: List<&2, Inst>, +nm: String) -> Bool:
+def inst_has_zz(+il: List<&2, Inst>, zz: Bool, +nm: String) -> Bool:
   match il:
-    case []: False{}
-    case i <> t: Bool.or(String.eq(inst_name(i), nm), inst_has(t, nm))
+    case []: zz
+    case i <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: inst_has_zz(t, String.eq(inst_name(i), nm), nm)
+
+def inst_has(+il: List<&2, Inst>, +nm: String) -> Bool:
+  inst_has_zz(il, False{}, nm)
 
 def inst_at(+il: List<&2, Inst>, +nm: String) -> Inst:
   match il:
@@ -505,10 +517,16 @@ def row_bad(+d: SL.Dr, +sol: List<&2, F64>) -> Bool:
   F64.is_lt(F64.mul(0.000000001f64, F64.add(1.0f64, F64.max(F64.abs(e), F64.abs(rr)))),
     F64.abs(F64.add(e, rr)))
 
-def u_has(+xs: List<&2, U64>, +v: U64) -> Bool:
+def u_has_zz(+xs: List<&2, U64>, zz: Bool, +v: U64) -> Bool:
   match xs:
-    case []: False{}
-    case x <> t: Bool.or(U64.is_eq(x, v), u_has(t, v))
+    case []: zz
+    case x <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: u_has_zz(t, U64.is_eq(x, v), v)
+
+def u_has(+xs: List<&2, U64>, +v: U64) -> Bool:
+  u_has_zz(xs, False{}, v)
 
 def u_add(+xs: List<&2, U64>, +v: U64) -> List<&2, U64>:
   Bool.pick(List<&2, U64>, u_has(xs, v), xs, v <> xs)

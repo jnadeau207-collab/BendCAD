@@ -154,15 +154,27 @@ def vhull(xs: List<&2, I.I>, ys: List<&2, I.I>) -> List<&2, I.I>:
         case []: []
         case y <> u: I.ihull(x, y) <> vhull(t, u)
 
-def vany0_not(xs: List<&2, I.I>) -> Bool:
+def vany0_not_zz(xs: List<&2, I.I>, zz: Bool) -> Bool:
   match xs:
-    case []: False{}
-    case +x <> t: Bool.or(Bool.not(has0(x)), vany0_not(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: vany0_not_zz(t, Bool.not(has0(x)))
+
+def vany0_not(xs: List<&2, I.I>) -> Bool:
+  vany0_not_zz(xs, False{})
+
+def vfin_zz(xs: List<&2, I.I>, zz: Bool) -> Bool:
+  match xs:
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: vfin_zz(t, ifin(x))
 
 def vfin(xs: List<&2, I.I>) -> Bool:
-  match xs:
-    case []: True{}
-    case +x <> t: Bool.and(ifin(x), vfin(t))
+  vfin_zz(xs, True{})
 
 def vwid(xs: List<&2, I.I>) -> F64:
   match xs:

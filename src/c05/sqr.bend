@@ -467,10 +467,16 @@ def sub(+n: U32, +adj: P.Tb<&2, List<&2, U32>>, +gt: P.Tb<&2, U32>, +vs: List<&2
   +m = mp_set(vs, 0, P.tb_of(U32, P.rep_n(U32, U32.to_nat(n), P.inf()), P.inf()))
   SG{P.ulen(U32, vs), sub_adj(vs, adj, m), sub_gid(vs, gt)}
 
-def no_edges(xs: List<&2, List<&2, U32>>) -> Bool:
+def no_edges_zz(xs: List<&2, List<&2, U32>>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(is_nil_u(h), no_edges(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: no_edges_zz(t, is_nil_u(h))
+
+def no_edges(xs: List<&2, List<&2, U32>>) -> Bool:
+  no_edges_zz(xs, True{})
 
 def sg_nil() -> SG:
   SG{0, [], []}

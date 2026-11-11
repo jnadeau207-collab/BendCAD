@@ -198,20 +198,38 @@ def lines_go(ts: List<&2, TE>, cs: List<&2, I.I>, +kind: String) -> String:
         case []: ""
         case +c <> +ct: temp_line(kind, te_nm(x), te_t(x), c) ++ lines_go(t, ct, kind)
 
-def all_pos(cs: List<&2, I.I>) -> Bool:
+def all_pos_zz(cs: List<&2, I.I>, zz: Bool) -> Bool:
   match cs:
-    case []: True{}
-    case +h <> +t: Bool.and(F64.is_lt(0.0f64, I.i_lo(h)), all_pos(t))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_pos_zz(t, F64.is_lt(0.0f64, I.i_lo(h)))
+
+def all_pos(cs: List<&2, I.I>) -> Bool:
+  all_pos_zz(cs, True{})
+
+def all_neg_zz(cs: List<&2, I.I>, zz: Bool) -> Bool:
+  match cs:
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_neg_zz(t, F64.is_lt(I.i_hi(h), 0.0f64))
 
 def all_neg(cs: List<&2, I.I>) -> Bool:
+  all_neg_zz(cs, True{})
+
+def all_mixed_zz(cs: List<&2, I.I>, zz: Bool) -> Bool:
   match cs:
-    case []: True{}
-    case +h <> +t: Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), all_neg(t))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_mixed_zz(t, Bool.and(F64.is_lt(I.i_lo(h), 0.0f64), F64.is_lt(0.0f64, I.i_hi(h))))
 
 def all_mixed(cs: List<&2, I.I>) -> Bool:
-  match cs:
-    case []: True{}
-    case +h <> +t: Bool.and(Bool.and(F64.is_lt(I.i_lo(h), 0.0f64), F64.is_lt(0.0f64, I.i_hi(h))), all_mixed(t))
+  all_mixed_zz(cs, True{})
 
 def verdict_of(+kind: String, +cs: List<&2, I.I>) -> String:
   Bool.pick(String, String.eq(kind, "press"), Bool.pick(String, all_neg(cs), "verdict=press-certified", "fit-not-press"),

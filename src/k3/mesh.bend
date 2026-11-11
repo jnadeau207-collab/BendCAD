@@ -391,10 +391,16 @@ def ct_ok(+c: CT) -> Bool:
   CT{k, a, b, p, f, len, red, ok} = c
   ok
 
-def cts_ok(cs: List<&2, CT>) -> Bool:
+def cts_ok_zz(cs: List<&2, CT>, zz: Bool) -> Bool:
   match cs:
-    case []: True{}
-    case +c <> t: Bool.and(ct_ok(c), cts_ok(t))
+    case []: zz
+    case +c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: cts_ok_zz(t, ct_ok(c))
+
+def cts_ok(cs: List<&2, CT>) -> Bool:
+  cts_ok_zz(cs, True{})
 
 def lab(+lt: B.Tb<&2, U32>, +v: Nat) -> U32:
   B.tb_get(U32, lt, U32.from_nat(v))
@@ -1101,15 +1107,27 @@ def hits(xs: List<&2, FS>, +p: V.Point, +tol: F64, +i: Nat, +acc: List<&2, Nat>)
     case []: acc
     case +x <> +t: hits(t, p, tol, Nat.add(i, 1n), Bool.pick(List<&2, Nat>, on_fs(x, p, tol), i <> acc, acc))
 
-def has_n(xs: List<&2, Nat>, +i: Nat) -> Bool:
+def has_n_zz(xs: List<&2, Nat>, zz: Bool, +i: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case +x <> +t: Bool.or(Nat.is_eq(x, i), has_n(t, i))
+    case []: zz
+    case +x <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: has_n_zz(t, Nat.is_eq(x, i), i)
+
+def has_n(xs: List<&2, Nat>, +i: Nat) -> Bool:
+  has_n_zz(xs, False{}, i)
+
+def meets_zz(xs: List<&2, Nat>, zz: Bool, +ys: List<&2, Nat>) -> Bool:
+  match xs:
+    case []: zz
+    case +x <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: meets_zz(t, has_n(ys, x), ys)
 
 def meets(xs: List<&2, Nat>, +ys: List<&2, Nat>) -> Bool:
-  match xs:
-    case []: False{}
-    case +x <> +t: Bool.or(has_n(ys, x), meets(t, ys))
+  meets_zz(xs, False{}, ys)
 
 def nw(f: Nat, +sa: S.SF, +sb: S.SF, +x: V.Point) -> V.Point:
   match f:

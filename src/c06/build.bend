@@ -744,15 +744,27 @@ def singles_sorted(us: List<&2, Use>) -> List<&2, Nat>:
     case []: []
     case u <> t: skel_go(t, use_e(u), 1n, [])
 
-def e_mem(es: List<&2, Nat>, +e: Nat) -> Bool:
+def e_mem_zz(es: List<&2, Nat>, zz: Bool, +e: Nat) -> Bool:
   match es:
-    case []: False{}
-    case h <> t: Bool.or(Nat.is_eq(h, e), e_mem(t, e))
+    case []: zz
+    case h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: e_mem_zz(t, Nat.is_eq(h, e), e)
+
+def e_mem(es: List<&2, Nat>, +e: Nat) -> Bool:
+  e_mem_zz(es, False{}, e)
+
+def run_open2_zz(rs: List<&2, Use>, zz: Bool, +ss: List<&2, Nat>) -> Bool:
+  match rs:
+    case []: zz
+    case u <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: run_open2_zz(t, e_mem(ss, use_e(u)), ss)
 
 def run_open2(rs: List<&2, Use>, +ss: List<&2, Nat>) -> Bool:
-  match rs:
-    case []: False{}
-    case u <> t: Bool.or(e_mem(ss, use_e(u)), run_open2(t, ss))
+  run_open2_zz(rs, False{}, ss)
 
 def runs_open(fs: List<&2, FS>, +ss: List<&2, Nat>, +cur: Nat, +acc: List<&2, Use>, +n: Nat) -> List<&2, Bool>:
   match fs:

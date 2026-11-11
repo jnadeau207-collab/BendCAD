@@ -45,10 +45,16 @@ def is_z(s: P.Sgn) -> Bool:
     case P.Sz{}: True{}
     case _: False{}
 
-def pzero_all(a: List<&2, E.Ex>) -> Bool:
+def pzero_all_zz(a: List<&2, E.Ex>, zz: Bool) -> Bool:
   match a:
-    case []: True{}
-    case x <> t: Bool.and(is_z(E.ex_sign(x)), pzero_all(t))
+    case []: zz
+    case x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: pzero_all_zz(t, is_z(E.ex_sign(x)))
+
+def pzero_all(a: List<&2, E.Ex>) -> Bool:
+  pzero_all_zz(a, True{})
 
 def ptx(p: V.Point) -> F64:
   V.Pt{x, y, z} = p

@@ -131,10 +131,16 @@ def pm_set(ps: List<&2, M.Param>, +name: String, +d: M.Dim) -> List<&2, M.Param>
     case []: []
     case +p <> +t: Bool.pick(List<&2, M.Param>, String.eq(pm_name(p), name), M.Pm{pm_idv(p), name, d} <> t, p <> pm_set(t, name, d))
 
-def pm_has(ps: List<&2, M.Param>, +name: String) -> Bool:
+def pm_has_zz(ps: List<&2, M.Param>, zz: Bool, +name: String) -> Bool:
   match ps:
-    case []: False{}
-    case p <> t: Bool.or(String.eq(pm_name(p), name), pm_has(t, name))
+    case []: zz
+    case p <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: pm_has_zz(t, String.eq(pm_name(p), name), name)
+
+def pm_has(ps: List<&2, M.Param>, +name: String) -> Bool:
+  pm_has_zz(ps, False{}, name)
 
 def nd_idv(n: M.Node) -> U64:
   M.Nd{id, op, it} = n
@@ -209,10 +215,16 @@ def edit_ok(+x: S.Sx) -> Bool:
   Bool.or(Bool.and(S.head_is(x, "param"), pm_ok(S.sx_xs(x))), Bool.or(S.head_is(x, "node"), Bool.or(S.head_is(x, "delete"),
     Bool.or(Bool.and(S.head_is(x, "material"), mat_ok(S.sx_xs(x))), Bool.and(S.head_is(x, "thread"), thr_ok(S.sx_xs(x)))))))
 
-def edits_ok(xs: List<&2, S.Sx>) -> Bool:
+def edits_ok_zz(xs: List<&2, S.Sx>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case x <> t: Bool.and(edit_ok(x), edits_ok(t))
+    case []: zz
+    case x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: edits_ok_zz(t, edit_ok(x))
+
+def edits_ok(xs: List<&2, S.Sx>) -> Bool:
+  edits_ok_zz(xs, True{})
 
 def edits(xs: List<&2, S.Sx>, +p: M.Part) -> M.Part:
   match xs:
@@ -627,10 +639,16 @@ def bal_args(+ok: Bool, +p: M.Part, +n: U64, +pt: List<&2, I.I>, +dx: F64, +dy: 
     bal_node(node_res(M.ev_for(p, [n], old), n), KM.mat_find(ms, n), pt, [I.ipt(F64.div(dx, l)), I.ipt(F64.div(dy, l)), I.ipt(F64.div(dz, l))], rpm, g),
     "error invalid-input | balance | why: needs NODE PX PY PZ DX DY DZ RPM G with a non-zero axis, RPM > 0 and G > 0 | fix: correct the arguments")
 
-def fin_all(xs: List<&2, F64>) -> Bool:
+def fin_all_zz(xs: List<&2, F64>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case +x <> t: Bool.and(F64.is_eq(x, x), fin_all(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fin_all_zz(t, F64.is_eq(x, x))
+
+def fin_all(xs: List<&2, F64>) -> Bool:
+  fin_all_zz(xs, True{})
 
 def bal_out(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +rpm = f_arg(xs, 7n)

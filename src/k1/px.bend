@@ -315,10 +315,16 @@ def cop_in(cop: Bool, +h: Nat, +b: FB.KB, +p: V.Point) -> Bool:
 def on_cop(+h: Nat, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
   cop_in(FB.coplanar(FB.face_surf(b, h), g), h, b, p)
 
-def any_coplanar(fs: List<&2, Nat>, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
+def any_coplanar_zz(fs: List<&2, Nat>, zz: Bool, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
   match fs:
-    case []: False{}
-    case +h <> +t: Bool.or(on_cop(h, b, g, p), any_coplanar(t, b, g, p))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_coplanar_zz(t, on_cop(h, b, g, p), b, g, p)
+
+def any_coplanar(fs: List<&2, Nat>, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
+  any_coplanar_zz(fs, False{}, b, g, p)
 
 def flush_of(atend: Bool, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
   match atend:
@@ -1266,10 +1272,16 @@ def keep_runs(rs: List<&2, List<&2, PP>>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb:
       +sd = run_side(ba, fa, bb, fb, mid_pp(h))
       keep_runs(t, ba, fa, bb, fb, run_keep(U64.is_eq(sd, 0u64), sd, fa, fb, h, False{}, ba, bb, acc))
 
-def has_brk(xs: List<&2, PP>) -> Bool:
+def has_brk_zz(xs: List<&2, PP>, zz: Bool) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> +t: Bool.or(pp_brk(h), has_brk(t))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: has_brk_zz(t, pp_brk(h))
+
+def has_brk(xs: List<&2, PP>) -> Bool:
+  has_brk_zz(xs, False{})
 
 def do_poly_go(+brk: Bool, +xs: List<&2, PP>, +ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat,
     +r: CR, +g: GV) -> CR:
@@ -1479,15 +1491,27 @@ def par_ax(+a: V.Dir, +b: V.Dir) -> Bool:
 def poly_sep(+pa: List<&2, V.Point>, +pb: List<&2, V.Point>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
   Bool.or(axes_sep(pa, L_hd_pt(pa, o), ax, pa, pb, e), axes_sep(pb, L_hd_pt(pb, o), ax, pa, pb, e))
 
-def all_b(qs: List<&2, List<&2, V.Point>>, +pa: List<&2, V.Point>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
+def all_b_zz(qs: List<&2, List<&2, V.Point>>, zz: Bool, +pa: List<&2, V.Point>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
   match qs:
-    case []: True{}
-    case +q <> +t: Bool.and(poly_sep(pa, q, ax, o, e), all_b(t, pa, ax, o, e))
+    case []: zz
+    case +q <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_b_zz(t, poly_sep(pa, q, ax, o, e), pa, ax, o, e)
+
+def all_b(qs: List<&2, List<&2, V.Point>>, +pa: List<&2, V.Point>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
+  all_b_zz(qs, True{}, pa, ax, o, e)
+
+def all_ab_zz(ps: List<&2, List<&2, V.Point>>, zz: Bool, +qs: List<&2, List<&2, V.Point>>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
+  match ps:
+    case []: zz
+    case +p <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_ab_zz(t, all_b(qs, p, ax, o, e), qs, ax, o, e)
 
 def all_ab(ps: List<&2, List<&2, V.Point>>, +qs: List<&2, List<&2, V.Point>>, +ax: V.Dir, +o: V.Point, +e: F64) -> Bool:
-  match ps:
-    case []: True{}
-    case +p <> +t: Bool.and(all_b(qs, p, ax, o, e), all_ab(t, qs, ax, o, e))
+  all_ab_zz(ps, True{}, qs, ax, o, e)
 
 def far_ps(ps: List<&2, V.Point>, +s: S.SF, +acc: F64) -> F64:
   match ps:
@@ -1718,10 +1742,16 @@ def segs_same(xs: List<&2, SEG>, ys: List<&2, SEG>) -> Bool:
 def ch_same(+a: CH, +b: CH) -> Bool:
   Bool.and(Bool.and(Nat.is_eq(ch_fa(a), ch_fa(b)), Nat.is_eq(ch_fb(a), ch_fb(b))), segs_same(ch_segs(a), ch_segs(b)))
 
-def ch_in(cs: List<&2, CH>, +c: CH) -> Bool:
+def ch_in_zz(cs: List<&2, CH>, zz: Bool, +c: CH) -> Bool:
   match cs:
-    case []: False{}
-    case +h <> +t: Bool.or(ch_same(h, c), ch_in(t, c))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: ch_in_zz(t, ch_same(h, c), c)
+
+def ch_in(cs: List<&2, CH>, +c: CH) -> Bool:
+  ch_in_zz(cs, False{}, c)
 
 def chs_uniq(cs: List<&2, CH>, +acc: List<&2, CH>) -> List<&2, CH>:
   match cs:

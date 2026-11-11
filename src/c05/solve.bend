@@ -61,10 +61,16 @@ def nfree(xs: List<&2, Bool>) -> Nat:
 def fin(x: F64) -> Bool:
   (F64.class(x) < 2 : U32)
 
-def all_fin(xs: List<&2, F64>) -> Bool:
+def all_fin_zz(xs: List<&2, F64>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(fin(h), all_fin(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_fin_zz(t, fin(h))
+
+def all_fin(xs: List<&2, F64>) -> Bool:
+  all_fin_zz(xs, True{})
 
 def pxi(p: Pt) -> Nat:
   Pt{x, y} = p
@@ -230,10 +236,16 @@ def cn_rad(c: Cn, +ps: P.Tb<&2, F64>) -> Bool:
     case K_on_circ{id, p, o, r}: rad_pos(ps, r)
     case _: True{}
 
-def rad_ok(cs: List<&2, Cn>, +ps: P.Tb<&2, F64>) -> Bool:
+def rad_ok_zz(cs: List<&2, Cn>, zz: Bool, +ps: P.Tb<&2, F64>) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(cn_rad(h, ps), rad_ok(t, ps))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: rad_ok_zz(t, cn_rad(h, ps), ps)
+
+def rad_ok(cs: List<&2, Cn>, +ps: P.Tb<&2, F64>) -> Bool:
+  rad_ok_zz(cs, True{}, ps)
 
 def g_fin(g: List<&2, Gv>) -> Bool:
   match g:
@@ -717,10 +729,16 @@ def lin_cn(c: Cn) -> Bool:
     case K_same{id, i, j}: True{}
     case _: False{}
 
-def all_lin(cs: List<&2, Cn>) -> Bool:
+def all_lin_zz(cs: List<&2, Cn>, zz: Bool) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(lin_cn(h), all_lin(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_lin_zz(t, lin_cn(h))
+
+def all_lin(cs: List<&2, Cn>) -> Bool:
+  all_lin_zz(cs, True{})
 
 def pt_refs(p: Pt, acc: List<&2, Nat>) -> List<&2, Nat>:
   Pt{x, y} = p
@@ -841,20 +859,38 @@ def runs_bad(xs: List<&2, PK>, +r: RN, +acc: Bool) -> Bool:
 def pair_cert(+cs: List<&2, Cn>) -> Bool:
   runs_bad(so_pk(P.msort(~PK, ~pk_cmp, pks(cs, []))), RN{0n, 0n, False{}, False{}, False{}, 0n, 0.0f64, False{}}, False{})
 
-def refs_fixed(rs: List<&2, Nat>, +ft: P.Tb<&2, Bool>) -> Bool:
+def refs_fixed_zz(rs: List<&2, Nat>, zz: Bool, +ft: P.Tb<&2, Bool>) -> Bool:
   match rs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(Bool.not(P.tb_get(Bool, ft, U32.from_nat(h))), refs_fixed(t, ft))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: refs_fixed_zz(t, Bool.not(P.tb_get(Bool, ft, U32.from_nat(h))), ft)
+
+def refs_fixed(rs: List<&2, Nat>, +ft: P.Tb<&2, Bool>) -> Bool:
+  refs_fixed_zz(rs, True{}, ft)
+
+def id_in_zz(xs: List<&2, U64>, zz: Bool, +i: U64) -> Bool:
+  match xs:
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: id_in_zz(t, U64.is_eq(h, i), i)
 
 def id_in(xs: List<&2, U64>, +i: U64) -> Bool:
-  match xs:
-    case Nil{}: False{}
-    case h <> t: Bool.or(U64.is_eq(h, i), id_in(t, i))
+  id_in_zz(xs, False{}, i)
+
+def fixed_viol_zz(cs: List<&2, Cn>, zz: Bool, +vs: List<&2, U64>, +ft: P.Tb<&2, Bool>) -> Bool:
+  match cs:
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: fixed_viol_zz(t, Bool.and(id_in(vs, cn_id(h)), refs_fixed(cn_refs(h), ft)), vs, ft)
 
 def fixed_viol(cs: List<&2, Cn>, +vs: List<&2, U64>, +ft: P.Tb<&2, Bool>) -> Bool:
-  match cs:
-    case Nil{}: False{}
-    case +h <> t: Bool.or(Bool.and(id_in(vs, cn_id(h)), refs_fixed(cn_refs(h), ft)), fixed_viol(t, vs, ft))
+  fixed_viol_zz(cs, False{}, vs, ft)
 
 def de_one(c: Cn, +vs: List<&2, U64>) -> List<&2, DE>:
   match c:
@@ -911,15 +947,27 @@ def tri_go(xs: List<&2, DE>, +e: DE, +f: DE) -> Bool:
       +tri = Bool.and(closes(e, f, g), F64.is_lt((da + db + dc - m - m : F64), F64.neg(slack)))
       Bool.or(tri, tri_go(t, e, f))
 
-def tri_f(xs: List<&2, DE>, +all: List<&2, DE>, +e: DE) -> Bool:
+def tri_f_zz(xs: List<&2, DE>, zz: Bool, +all: List<&2, DE>, +e: DE) -> Bool:
   match xs:
-    case Nil{}: False{}
-    case +f <> t: Bool.or(tri_go(all, e, f), tri_f(t, all, e))
+    case Nil{}: zz
+    case +f <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: tri_f_zz(t, tri_go(all, e, f), all, e)
+
+def tri_f(xs: List<&2, DE>, +all: List<&2, DE>, +e: DE) -> Bool:
+  tri_f_zz(xs, False{}, all, e)
+
+def tri_e_zz(xs: List<&2, DE>, zz: Bool, +all: List<&2, DE>) -> Bool:
+  match xs:
+    case Nil{}: zz
+    case +e <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: tri_e_zz(t, tri_f(all, all, e), all)
 
 def tri_e(xs: List<&2, DE>, +all: List<&2, DE>) -> Bool:
-  match xs:
-    case Nil{}: False{}
-    case +e <> t: Bool.or(tri_f(all, all, e), tri_e(t, all))
+  tri_e_zz(xs, False{}, all)
 
 def certify(+cx: Cx, +vs: List<&2, U64>) -> Bool:
   Cx{+cs, ps0, +ft, np, nf, tl, ta, lmin, lmax, od, ho} = cx
@@ -955,10 +1003,16 @@ def cn_geo(c: Cn, +ps: P.Tb<&2, F64>, +tl: F64) -> Bool:
     case K_equal{id, a, b, c, d}: Bool.and(seg_long(ps, a, b, tl), seg_long(ps, c, d, tl))
     case _: True{}
 
-def geo_ok(cs: List<&2, Cn>, +ps: P.Tb<&2, F64>, +tl: F64) -> Bool:
+def geo_ok_zz(cs: List<&2, Cn>, zz: Bool, +ps: P.Tb<&2, F64>, +tl: F64) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(cn_geo(h, ps, tl), geo_ok(t, ps, tl))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: geo_ok_zz(t, cn_geo(h, ps, tl), ps, tl)
+
+def geo_ok(cs: List<&2, Cn>, +ps: P.Tb<&2, F64>, +tl: F64) -> Bool:
+  geo_ok_zz(cs, True{}, ps, tl)
 
 def solved_at(+cx: Cx, +ps: List<&2, F64>, +ds: List<&2, Dr>) -> Bool:
   Bool.and(geo_ok(cx_cs(cx), ptb(ps), cx_tl(cx)), F64.is_le(maxabs(res_of(ds)), 1.0f64))
@@ -1420,10 +1474,16 @@ def mg_fin(m: MG, +ps: List<&2, F64>, +free: List<&2, Bool>) -> Sol:
   MG{inv, conf, ce, nc, cix, rix, pvs, dof, fi} = m
   mg_out(inv, conf, ce, nc, cix, rix, pvs, Nat.add(dof, Nat.sub(nfree(free), fi)), ps)
 
-def all_cn_ok(cs: List<&2, Cn>, +np: Nat) -> Bool:
+def all_cn_ok_zz(cs: List<&2, Cn>, zz: Bool, +np: Nat) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case c <> t: Bool.and(cn_ok(c, np), all_cn_ok(t, np))
+    case Nil{}: zz
+    case c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_cn_ok_zz(t, cn_ok(c, np), np)
+
+def all_cn_ok(cs: List<&2, Cn>, +np: Nat) -> Bool:
+  all_cn_ok_zz(cs, True{}, np)
 
 def u64_cmp_go(+a: U64, +b: U64) -> P.Sgn:
   P.sgn_pick(U64.is_lt(a, b), U64.is_lt(b, a))
@@ -1431,10 +1491,16 @@ def u64_cmp_go(+a: U64, +b: U64) -> P.Sgn:
 def u64_cmp(a: U64, b: U64) -> P.Sgn:
   u64_cmp_go(a, b)
 
-def distinct_go(xs: List<&2, U64>, +prev: U64, first: Bool) -> Bool:
+def distinct_go_zz(xs: List<&2, U64>, zz: Bool, +prev: U64, first: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case +h <> t: Bool.and(Bool.or(first, Bool.not(U64.is_eq(h, prev))), distinct_go(t, h, False{}))
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: distinct_go_zz(t, Bool.or(first, Bool.not(U64.is_eq(h, prev))), h, False{})
+
+def distinct_go(xs: List<&2, U64>, +prev: U64, first: Bool) -> Bool:
+  distinct_go_zz(xs, True{}, prev, first)
 
 def so_ids_ok(s: P.So<&2, U64>) -> Bool:
   P.So{ok, xs} = s
@@ -1552,10 +1618,16 @@ def cn_decomp(c: Cn) -> Bool:
     case K_same{id, i, j}: True{}
     case _: False{}
 
-def all_decomp(cs: List<&2, Cn>) -> Bool:
+def all_decomp_zz(cs: List<&2, Cn>, zz: Bool) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case c <> t: Bool.and(cn_decomp(c), all_decomp(t))
+    case Nil{}: zz
+    case c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_decomp_zz(t, cn_decomp(c))
+
+def all_decomp(cs: List<&2, Cn>) -> Bool:
+  all_decomp_zz(cs, True{})
 
 def ins_nat(+x: Nat, +xs: List<&2, Nat>) -> List<&2, Nat>:
   match xs:

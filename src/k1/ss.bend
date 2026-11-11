@@ -774,10 +774,16 @@ def fr_seeds(+sb: S.SF, +so: S.SF, +vd: V.Vec2) -> List<&2, V.Vec2>:
 def fr_tan(+s1: S.SF, +s2: S.SF, +p: V.Point) -> V.Dir:
   S.cross(S.sf_grad(s1, p), S.sf_grad(s2, p))
 
-def fr_near(ps: List<&2, V.Point>, +p: V.Point, +r: F64) -> Bool:
+def fr_near_zz(ps: List<&2, V.Point>, zz: Bool, +p: V.Point, +r: F64) -> Bool:
   match ps:
-    case []: False{}
-    case +h <> +t: Bool.or(F64.is_lt(S.dist(h, p), r), fr_near(t, p, r))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: fr_near_zz(t, F64.is_lt(S.dist(h, p), r), p, r)
+
+def fr_near(ps: List<&2, V.Point>, +p: V.Point, +r: F64) -> Bool:
+  fr_near_zz(ps, False{}, p, r)
 
 def fs_ics(+f: FS) -> ICS:
   FS{ics, seen} = f

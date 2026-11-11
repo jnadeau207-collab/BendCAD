@@ -284,7 +284,13 @@ def n_share(xs: List<&2, Nat>, +ys: List<&2, Nat>) -> Bool:
     case []: False{}
     case x <> t: Bool.pick(Bool, n_mem(x, ys), True{}, n_share(t, ys))
 
-def fd_allok(+fs: List<&2, SO.Fd>) -> Bool:
+def fd_allok_zz(+fs: List<&2, SO.Fd>, zz: Bool) -> Bool:
   match fs:
-    case []: True{}
-    case f <> t: Bool.and(SO.fd_ok(f), fd_allok(t))
+    case []: zz
+    case f <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fd_allok_zz(t, SO.fd_ok(f))
+
+def fd_allok(+fs: List<&2, SO.Fd>) -> Bool:
+  fd_allok_zz(fs, True{})

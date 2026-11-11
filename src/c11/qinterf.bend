@@ -132,10 +132,16 @@ def wit_map(cs: List<&2, List<&2, I.I>>, +fa: List<&2, SO.Fd>, +ba: List<&2, I.I
     case []: []
     case +c <> t: wit_hit(c, fa, ba, pa, fb, bb, pb) <> wit_map(t, fa, ba, pa, fb, bb, pb)
 
-def wit_any(bs: List<&2, Bool>) -> Bool:
+def wit_any_zz(bs: List<&2, Bool>, zz: Bool) -> Bool:
   match bs:
-    case []: False{}
-    case +h <> t: Bool.or(h, wit_any(t))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: wit_any_zz(t, h)
+
+def wit_any(bs: List<&2, Bool>) -> Bool:
+  wit_any_zz(bs, False{})
 
 def wit_batch_go(cs: List<&2, List<&2, I.I>>) -> List<&2, List<&2, List<&2, I.I>>>:
   match cs:

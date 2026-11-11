@@ -270,10 +270,16 @@ def iota_go(-A: Data, xs: List<&2, A>, +i: U32) -> List<&2, U32>:
     case Nil{}: []
     case h <> t: i <> iota_go(A, t, (i + 1 : U32))
 
-def ands(xs: List<&2, Bool>) -> Bool:
+def ands_zz(xs: List<&2, Bool>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(h, ands(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ands_zz(t, h)
+
+def ands(xs: List<&2, Bool>) -> Bool:
+  ands_zz(xs, True{})
 
 def upick_f(c: Bool, +a: F64, +b: F64) -> F64:
   match c:

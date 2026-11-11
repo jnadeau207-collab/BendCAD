@@ -940,10 +940,16 @@ def sr_spt_nm(+r: SPt) -> String:
   SPt{nm, args} = r
   nm
 
-def sr_has_nm(ps: List<&2, SPt>, +s: String) -> Bool:
+def sr_has_nm_zz(ps: List<&2, SPt>, zz: Bool, +s: String) -> Bool:
   match ps:
-    case []: False{}
-    case +h <> t: Bool.or(String.eq(sr_spt_nm(h), s), sr_has_nm(t, s))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: sr_has_nm_zz(t, String.eq(sr_spt_nm(h), s), s)
+
+def sr_has_nm(ps: List<&2, SPt>, +s: String) -> Bool:
+  sr_has_nm_zz(ps, False{}, s)
 
 def sr_first_nm(ps: List<&2, SPt>) -> String:
   match ps:
@@ -3142,10 +3148,16 @@ def sr_vl_bad(+r: SR_VL) -> U64:
   SR_VL{ok, vls, bad} = r
   bad
 
-def sr_u64_mem(xs: List<&2, U64>, +id: U64) -> Bool:
+def sr_u64_mem_zz(xs: List<&2, U64>, zz: Bool, +id: U64) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> t: Bool.or(U64.is_eq(h, id), sr_u64_mem(t, id))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: sr_u64_mem_zz(t, U64.is_eq(h, id), id)
+
+def sr_u64_mem(xs: List<&2, U64>, +id: U64) -> Bool:
+  sr_u64_mem_zz(xs, False{}, id)
 
 def sr_firsts_hr(+h: SA, +acc: List<&2, U64>) -> List<&2, U64>:
   match h:
@@ -4888,10 +4900,16 @@ def sr_si_en_go(xs: List<&2, SA>, +acc: List<&2, String>) -> List<&2, String>:
 def sr_si_en(xs: List<&2, SA>) -> List<&2, String>:
   sr_si_en_go(xs, [])
 
-def sr_has_en(xs: List<&2, String>, +s: String) -> Bool:
+def sr_has_en_zz(xs: List<&2, String>, zz: Bool, +s: String) -> Bool:
   match xs:
-    case []: False{}
-    case h <> t: Bool.or(String.eq(h, s), sr_has_en(t, s))
+    case []: zz
+    case h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: sr_has_en_zz(t, String.eq(h, s), s)
+
+def sr_has_en(xs: List<&2, String>, +s: String) -> Bool:
+  sr_has_en_zz(xs, False{}, s)
 
 def sr_unit_ok(+e: SE) -> Bool:
   SE{+id, +ps} = e

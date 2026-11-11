@@ -86,15 +86,27 @@ def right_half(rs: List<&2, List<&2, F64>>, +n: Nat) -> List<&2, List<&2, F64>>:
     case []: []
     case r <> t: rdrop(n, r) <> right_half(t, n)
 
-def rfin(r: List<&2, F64>) -> Bool:
+def rfin_zz(r: List<&2, F64>, zz: Bool) -> Bool:
   match r:
-    case []: True{}
-    case +x <> t: Bool.and(T.is_finite(x), rfin(t))
+    case []: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: rfin_zz(t, T.is_finite(x))
+
+def rfin(r: List<&2, F64>) -> Bool:
+  rfin_zz(r, True{})
+
+def mfin_zz(rs: List<&2, List<&2, F64>>, zz: Bool) -> Bool:
+  match rs:
+    case []: zz
+    case r <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: mfin_zz(t, rfin(r))
 
 def mfin(rs: List<&2, List<&2, F64>>) -> Bool:
-  match rs:
-    case []: True{}
-    case r <> t: Bool.and(rfin(r), mfin(t))
+  mfin_zz(rs, True{})
 
 def inv(+rs: List<&2, List<&2, F64>>) -> List<&2, List<&2, F64>>:
   +n = List.length(&2, List<&2, F64>, rs)

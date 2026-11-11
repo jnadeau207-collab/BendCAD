@@ -571,20 +571,38 @@ def band_ok(+s: S.SF, +r: RG) -> Bool:
   +n = Nat.add(List.length(&2, CY, filt(rg_cys(r), 2u64)), List.length(&2, CY, filt(rg_cys(r), 3u64)))
   Bool.or(Nat.is_eq(n, 2n), Bool.and(Nat.is_eq(n, 1n), pole_ok(s, L_cy0(rg_cys(r)))))
 
-def bands_ok(rs: List<&2, RG>, +s: S.SF) -> Bool:
+def bands_ok_zz(rs: List<&2, RG>, zz: Bool, +s: S.SF) -> Bool:
   match rs:
-    case []: True{}
-    case +h <> +t: Bool.and(band_ok(s, h), bands_ok(t, s))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case False{}: False{}
+        case True{}: bands_ok_zz(t, band_ok(s, h), s)
+
+def bands_ok(rs: List<&2, RG>, +s: S.SF) -> Bool:
+  bands_ok_zz(rs, True{}, s)
+
+def any_same_zz(cs: List<&2, CY>, zz: Bool, +c: CY) -> Bool:
+  match cs:
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_same_zz(t, cy_same(h, c), c)
 
 def any_same(cs: List<&2, CY>, +c: CY) -> Bool:
-  match cs:
-    case []: False{}
-    case +h <> +t: Bool.or(cy_same(h, c), any_same(t, c))
+  any_same_zz(cs, False{}, c)
+
+def in_bands_zz(rs: List<&2, RG>, zz: Bool, +c: CY) -> Bool:
+  match rs:
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: in_bands_zz(t, any_same(rg_cys(h), c), c)
 
 def in_bands(rs: List<&2, RG>, +c: CY) -> Bool:
-  match rs:
-    case []: False{}
-    case +h <> +t: Bool.or(any_same(rg_cys(h), c), in_bands(t, c))
+  in_bands_zz(rs, False{}, c)
 
 def south(ds: List<&2, CY>, +bs: List<&2, RG>) -> List<&2, RG>:
   match ds:
@@ -593,10 +611,16 @@ def south(ds: List<&2, CY>, +bs: List<&2, RG>) -> List<&2, RG>:
       +rest = south(t, bs)
       Bool.pick(List<&2, RG>, in_bands(bs, h), rest, RG{[h], True{}} <> rest)
 
-def odd_wind(cs: List<&2, CY>) -> Bool:
+def odd_wind_zz(cs: List<&2, CY>, zz: Bool) -> Bool:
   match cs:
-    case []: False{}
-    case +h <> +t: Bool.or(F64.is_lt(1.0f64, F64.abs(cy_wind(h))), odd_wind(t))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: odd_wind_zz(t, F64.is_lt(1.0f64, F64.abs(cy_wind(h))))
+
+def odd_wind(cs: List<&2, CY>) -> Bool:
+  odd_wind_zz(cs, False{})
 
 def regions(+s: S.SF, +cs: List<&2, CY>) -> RS:
   +wr = wraps(cs)
@@ -617,10 +641,16 @@ def drop1c(xs: List<&2, CY>) -> List<&2, CY>:
 def hole_part(+r: RG) -> List<&2, CY>:
   Bool.pick(List<&2, CY>, rg_band(r), filt(rg_cys(r), 1u64), drop1c(rg_cys(r)))
 
-def any_contains(cs: List<&2, CY>, +s: S.SF, +q: V.Vec2) -> Bool:
+def any_contains_zz(cs: List<&2, CY>, zz: Bool, +s: S.SF, +q: V.Vec2) -> Bool:
   match cs:
-    case []: False{}
-    case +h <> +t: Bool.or(cy_contains(s, h, q), any_contains(t, s, q))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_contains_zz(t, cy_contains(s, h, q), s, q)
+
+def any_contains(cs: List<&2, CY>, +s: S.SF, +q: V.Vec2) -> Bool:
+  any_contains_zz(cs, False{}, s, q)
 
 def rg_inside(+s: S.SF, +r: RG, +q: V.Vec2) -> Bool:
   +cs = rg_cys(r)

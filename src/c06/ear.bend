@@ -222,10 +222,16 @@ def blocks(+p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP, +j: Nat
       Bool.and(same(q, c), Bool.or(ang_in(c, a, b, pn), ang_in(c, a, b, nn)))))
   Bool.and(Bool.not(self), Bool.and(Bool.not(gone(p, j)), Bool.pick(Bool, co, dupb, in_tri(a, b, c, q))))
 
-def any_block(js: List<&2, Nat>, +p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP) -> Bool:
+def any_block_zz(js: List<&2, Nat>, zz: Bool, +p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP) -> Bool:
   match js:
-    case []: False{}
-    case +j <> t: Bool.or(blocks(p, ia, ib, ic, a, b, c, j), any_block(t, p, ia, ib, ic, a, b, c))
+    case []: zz
+    case +j <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_block_zz(t, blocks(p, ia, ib, ic, a, b, c, j), p, ia, ib, ic, a, b, c)
+
+def any_block(js: List<&2, Nat>, +p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP) -> Bool:
+  any_block_zz(js, False{}, p, ia, ib, ic, a, b, c)
 
 def ear_go(cv: Bool, +p: Pg, +g: Gr, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP) -> Bool:
   match cv:
@@ -350,10 +356,16 @@ def seg_clear(+p: Pg, +m: QP, +q: QP, +ea: Nat) -> Bool:
   +touch = Bool.or(same(a, m), Bool.or(same(b, m), Bool.or(same(a, q), same(b, q))))
   Bool.or(Bool.or(touch, gone(p, ea)), sep(m, q, a, b))
 
-def all_clear(es: List<&2, Nat>, +p: Pg, +m: QP, +q: QP) -> Bool:
+def all_clear_zz(es: List<&2, Nat>, zz: Bool, +p: Pg, +m: QP, +q: QP) -> Bool:
   match es:
-    case []: True{}
-    case +e <> t: Bool.and(seg_clear(p, m, q, e), all_clear(t, p, m, q))
+    case []: zz
+    case +e <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_clear_zz(t, seg_clear(p, m, q, e), p, m, q)
+
+def all_clear(es: List<&2, Nat>, +p: Pg, +m: QP, +q: QP) -> Bool:
+  all_clear_zz(es, True{}, p, m, q)
 
 def gr_with(g: Gr, +c: B.Tb<&2, List<&2, Nat>>) -> Gr:
   Gr{x0, y0, cs, nx, ny, cells} = g

@@ -748,10 +748,16 @@ def sw_oedges_go(es: List<&2, Ty.Coedge>, +ne: Nat, +ecbase: Nat, +ctr: Nat) -> 
       +rr = sw_oedges_go(t, ne, ecbase, er_n(r))
       er_cat(r, rr)
 
-def sw_bok_go(hs: List<&2, Ty.HCoedge>, +nce: Nat) -> Bool:
+def sw_bok_go_zz(hs: List<&2, Ty.HCoedge>, zz: Bool, +nce: Nat) -> Bool:
   match hs:
-    case []: True{}
-    case h <> t: Bool.and(Nat.is_lt(BL.hc_i(h), nce), sw_bok_go(t, nce))
+    case []: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sw_bok_go_zz(t, Nat.is_lt(BL.hc_i(h), nce), nce)
+
+def sw_bok_go(hs: List<&2, Ty.HCoedge>, +nce: Nat) -> Bool:
+  sw_bok_go_zz(hs, True{}, nce)
 
 def sw_bref_go(hs: List<&2, Ty.HCoedge>, +oebase: Nat, +acc: List<&2, String>) -> BL.ES:
   match hs:
@@ -816,10 +822,16 @@ def sw_bounds_go(ls: List<&2, Ty.Loop>, +lids: List<&2, Nat>, +ctr: Nat,
           +rr = sw_bounds_go(t, tids, er_n(r), ctr <> acc)
           er2_cat_s(er2_lift(r, []), rr)
 
-def sw_fok_go(hs: List<&2, Ty.HLoop>, +nlp: Nat) -> Bool:
+def sw_fok_go_zz(hs: List<&2, Ty.HLoop>, zz: Bool, +nlp: Nat) -> Bool:
   match hs:
-    case []: True{}
-    case h <> t: Bool.and(Nat.is_lt(BL.hl_i(h), nlp), sw_fok_go(t, nlp))
+    case []: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sw_fok_go_zz(t, Nat.is_lt(BL.hl_i(h), nlp), nlp)
+
+def sw_fok_go(hs: List<&2, Ty.HLoop>, +nlp: Nat) -> Bool:
+  sw_fok_go_zz(hs, True{}, nlp)
 
 def sw_fref_go(hs: List<&2, Ty.HLoop>, +lbbase: Nat, +acc: List<&2, String>) -> BL.ES:
   match hs:
@@ -862,10 +874,16 @@ def sw_faces_go(fs: List<&2, Ty.Face>, +ids: List<&2, Nat>, +nlp: Nat, +lbbase: 
           +rr = sw_faces_go(t, tids, nlp, lbbase, er_n(r))
           er_cat(r, rr)
 
-def sw_sok_go(hs: List<&2, Ty.HFace>, +nf: Nat) -> Bool:
+def sw_sok_go_zz(hs: List<&2, Ty.HFace>, zz: Bool, +nf: Nat) -> Bool:
   match hs:
-    case []: True{}
-    case h <> t: Bool.and(Nat.is_lt(BL.hf_i(h), nf), sw_sok_go(t, nf))
+    case []: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sw_sok_go_zz(t, Nat.is_lt(BL.hf_i(h), nf), nf)
+
+def sw_sok_go(hs: List<&2, Ty.HFace>, +nf: Nat) -> Bool:
+  sw_sok_go_zz(hs, True{}, nf)
 
 def sw_sref_go(hs: List<&2, Ty.HFace>, +fabase: Nat, +acc: List<&2, String>) -> BL.ES:
   match hs:

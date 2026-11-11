@@ -729,10 +729,16 @@ def recs_t(+w: Bool, +sec: String, +sep: U32, +mx: Nat) -> SP:
 def recs_n(+sec: String, +sep: U32, +mx: Nat) -> SP:
   recs_t(String.eq(sec, ""), sec, sep, mx)
 
-def sps_ok(xs: List<&2, SP>) -> Bool:
+def sps_ok_zz(xs: List<&2, SP>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case h <> t: Bool.and(sp_ok(h), sps_ok(t))
+    case []: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: sps_ok_zz(t, sp_ok(h))
+
+def sps_ok(xs: List<&2, SP>) -> Bool:
+  sps_ok_zz(xs, True{})
 
 def sp_nth(xs: List<&2, SP>, +i: Nat) -> SP:
   match xs:
@@ -1107,10 +1113,16 @@ def ebs_of(es: List<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>, +nv: Nat,
         Ty.vx_p(v_get(tv, nv, hv_i(Ty.ed_v1(e)))))
       ebs_of(t, tv, nv, r <> acc)
 
-def ebs_ok(xs: List<&2, EB>) -> Bool:
+def ebs_ok_zz(xs: List<&2, EB>, zz: Bool) -> Bool:
   match xs:
-    case []: True{}
-    case h <> t: Bool.and(eb_ok_of(h), ebs_ok(t))
+    case []: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ebs_ok_zz(t, eb_ok_of(h))
+
+def ebs_ok(xs: List<&2, EB>) -> Bool:
+  ebs_ok_zz(xs, True{})
 
 def eb_get_t(+w: Bool, +teb: B.Tb<&2, EB>, +i: Nat) -> EB:
   match w:

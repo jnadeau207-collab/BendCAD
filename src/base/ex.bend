@@ -26,10 +26,16 @@ def ex_cs(e: Ex) -> List<&2, F64>:
 def fin(x: F64) -> Bool:
   (F64.class(x) < 2 : U32)
 
-def ex_fin(cs: List<&2, F64>) -> Bool:
+def ex_fin_zz(cs: List<&2, F64>, zz: Bool) -> Bool:
   match cs:
-    case Nil{}: True{}
-    case c <> t: Bool.and(fin(c), ex_fin(t))
+    case Nil{}: zz
+    case c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: ex_fin_zz(t, fin(c))
+
+def ex_fin(cs: List<&2, F64>) -> Bool:
+  ex_fin_zz(cs, True{})
 
 def two_sum(+a: F64, +b: F64) -> Tw:
   +s = (a + b : F64)

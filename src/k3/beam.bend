@@ -259,10 +259,16 @@ def bnds(ss: List<&2, SG>, +x: F64) -> List<&2, F64>:
       +x1 = F64.add(x, sg_len(s))
       x1 <> bnds(t, x1)
 
-def on_any(xs: List<&2, F64>, +x: F64) -> Bool:
+def on_any_zz(xs: List<&2, F64>, zz: Bool, +x: F64) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> t: Bool.or(near(x, h), on_any(t, x))
+    case []: zz
+    case +h <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: on_any_zz(t, near(x, h), x)
+
+def on_any(xs: List<&2, F64>, +x: F64) -> Bool:
+  on_any_zz(xs, False{}, x)
 
 def ats_ok(ats: List<&2, AT>, +xs: List<&2, F64>) -> Bool:
   match ats:

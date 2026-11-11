@@ -75,10 +75,16 @@ def nth_v2(xs: List<&2, V.Vec2>, +i: Nat) -> V.Vec2:
         case 0n: h
         case 1n+j: nth_v2(t, j)
 
-def mem_n(xs: List<&2, Nat>, +x: Nat) -> Bool:
+def mem_n_zz(xs: List<&2, Nat>, zz: Bool, +x: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> +t: Bool.or(Nat.is_eq(h, x), mem_n(t, x))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: mem_n_zz(t, Nat.is_eq(h, x), x)
+
+def mem_n(xs: List<&2, Nat>, +x: Nat) -> Bool:
+  mem_n_zz(xs, False{}, x)
 
 def last_p(xs: List<&2, V.Point>, +d: V.Point) -> V.Point:
   match xs:

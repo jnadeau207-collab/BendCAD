@@ -66,10 +66,16 @@ def ep_n(+e: EP) -> V.Dir:
   EP{ea, eb, n} = e
   n
 
-def ep_has(xs: List<&2, EP>, +a: Nat, +b: Nat) -> Bool:
+def ep_has_zz(xs: List<&2, EP>, zz: Bool, +a: Nat, +b: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> +t: Bool.or(Bool.and(Nat.is_eq(ep_ea(h), a), Nat.is_eq(ep_eb(h), b)), ep_has(t, a, b))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: ep_has_zz(t, Bool.and(Nat.is_eq(ep_ea(h), a), Nat.is_eq(ep_eb(h), b)), a, b)
+
+def ep_has(xs: List<&2, EP>, +a: Nat, +b: Nat) -> Bool:
+  ep_has_zz(xs, False{}, a, b)
 
 def eps_eb(ebs: List<&2, Nat>, +ea: Nat, +n: V.Dir, +acc: List<&2, EP>) -> List<&2, EP>:
   match ebs:

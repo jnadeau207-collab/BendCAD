@@ -104,9 +104,12 @@ type IP is Data:
 
 
 
+type CK is Data:
+  CK{ bp: Bool, bx: FB.BB, fbs: List<&2, FB.BB> }
+
 type FC is Data:
   FC{ b: FB.KB, sd: U64, vmap: List<&2, Nat>, hs: List<&2, PX.HX>, chs: List<&2, PX.CH>, fdo: List<&2, SO.Fd>,
-    bbo: List<&2, I.I>, op: U64, cps: List<&2, CO.CP>, ob: FB.KB, vmo: List<&2, Nat>, gv: PX.GV }
+    bbo: List<&2, I.I>, op: U64, cps: List<&2, CO.CP>, ob: FB.KB, vmo: List<&2, Nat>, gv: PX.GV, ck: CK }
 
 def key_sub(+sd: U64, +e: Nat, +j: Nat) -> Nat:
   Nat.mul(2n, Nat.add(Nat.mul(Nat.add(Nat.mul(U64.to_nat(sd), 100000n), e), 4096n), j))
@@ -532,16 +535,24 @@ def ry_miss(+x: FB.BB, +p: V.Point, +d: V.Dir, +len: F64) -> Bool:
   FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
   SO.rm_box(x0, x1, y0, y1, z0, z1, p, d, len)
 
-def ry_faces(fs: List<&2, Nat>, +ob: FB.KB, +k: Ty.EdgeKind, +sb: FB.BB, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64,
+def ry_faces(fs: List<&2, Nat>, bs: List<&2, FB.BB>, +ob: FB.KB, +k: Ty.EdgeKind, +sb: FB.BB, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64,
     +r: RY) -> RY:
   match fs:
     case []: r
-    case +h <> +t: ry_faces(t, ob, k, sb, p, d, len, tol, ry_face(Bool.or(FB.bb_dis(FB.face_bb(ob, h), sb), ry_miss(FB.face_bb(ob, h), p, d, len)), ob, h, k, p, d, len, tol, r))
+    case +h <> +t:
+      match bs:
+        case []: r
+        case +x <> +u: ry_faces(t, u, ob, k, sb, p, d, len, tol, ry_face(Bool.or(FB.bb_dis(x, sb), ry_miss(x, p, d, len)), ob, h, k, p, d, len, tol, r))
 
-def ob_bb(fs: List<&2, Nat>, +ob: FB.KB, +acc: FB.BB) -> FB.BB:
+def face_bbs(fs: List<&2, Nat>, +ob: FB.KB) -> List<&2, FB.BB>:
   match fs:
+    case []: []
+    case +h <> +t: FB.face_bb(ob, h) <> face_bbs(t, ob)
+
+def ob_bb(bs: List<&2, FB.BB>, +acc: FB.BB) -> FB.BB:
+  match bs:
     case []: acc
-    case +h <> +t: ob_bb(t, ob, FB.bb_join(acc, FB.face_bb(ob, h)))
+    case +h <> +t: ob_bb(t, FB.bb_join(acc, h))
 
 def bb_reach(+x: FB.BB, +p: V.Point) -> F64:
   FB.BB{+x0, +x1, +y0, +y1, +z0, +z1} = x
@@ -550,63 +561,76 @@ def bb_reach(+x: FB.BB, +p: V.Point) -> F64:
   +dz = F64.max(F64.abs(F64.sub(z0, V.pt_z(p))), F64.abs(F64.sub(z1, V.pt_z(p))))
   F64.add(F64.sqrt(F64.add(F64.mul(dx, dx), F64.add(F64.mul(dy, dy), F64.mul(dz, dz)))), 1.0f64)
 
-def ry_dir(+ob: FB.KB, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64) -> RY:
+def ry_dir(+ob: FB.KB, +fbs: List<&2, FB.BB>, +p: V.Point, +d: V.Dir, +len: F64, +tol: F64) -> RY:
   +q = S.padd(p, len, d)
   +sb = FB.bb_pad(FB.bb_join(FB.bb_pt(p), FB.bb_pt(q)), tol)
   +k = {Ty.EK_curve{G.GV_ln{G.Ln{p, d}}, G.Dom{0.0f64, len}} : Ty.EdgeKind}
-  ry_faces(L.nat_range(FB.nfaces(ob)), ob, k, sb, p, d, len, tol, RY{0n, 0u64})
+  ry_faces(L.nat_range(FB.nfaces(ob)), fbs, ob, k, sb, p, d, len, tol, RY{0n, 0u64})
 
-def ry_go(ds: List<&2, V.Dir>, +ob: FB.KB, +p: V.Point, +len: F64, +tol: F64) -> U64:
+def ry_go(ds: List<&2, V.Dir>, +ob: FB.KB, +fbs: List<&2, FB.BB>, +p: V.Point, +len: F64, +tol: F64) -> U64:
   match ds:
     case []: 2u64
     case +d <> +t:
-      +r = ry_dir(ob, p, d, len, tol)
+      +r = ry_dir(ob, fbs, p, d, len, tol)
       Bool.pick(U64, U64.is_eq(ry_st(r), 1u64), 3u64,
         Bool.pick(U64, U64.is_eq(ry_st(r), 0u64), Bool.pick(U64, Nat.is_eq(Nat.mod(ry_n(r), 2n), 1n), 1u64, 0u64),
-          ry_go(t, ob, p, len, tol)))
+          ry_go(t, ob, fbs, p, len, tol)))
 
-def k1_cls(+ob: FB.KB, +p: V.Point) -> U64:
-  +bx = ob_bb(L.nat_range(FB.nfaces(ob)), ob, FB.bb_empty())
+def k1_cls(+ob: FB.KB, +bx: FB.BB, +fbs: List<&2, FB.BB>, +p: V.Point) -> U64:
   +len = bb_reach(bx, p)
-  ry_go(SO.dirs(), ob, p, len, F64.mul(1.0e-9f64, len))
+  ry_go(SO.dirs(), ob, fbs, p, len, F64.mul(1.0e-9f64, len))
+
+def has_bp_zz(fs: List<&2, Nat>, zz: Bool, +ob: FB.KB) -> Bool:
+  match fs:
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: has_bp_zz(t, S.is_bp(S.sf_of(FB.face_surf(ob, h))), ob)
 
 def has_bp(fs: List<&2, Nat>, +ob: FB.KB) -> Bool:
-  match fs:
-    case []: False{}
-    case +h <> +t: Bool.or(S.is_bp(S.sf_of(FB.face_surf(ob, h))), has_bp(t, ob))
+  has_bp_zz(fs, False{}, ob)
 
-def cls_k(bp: Bool, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +ob: FB.KB) -> U64:
+def ck_of(+ob: FB.KB) -> CK:
+  +fbs = face_bbs(L.nat_range(FB.nfaces(ob)), ob)
+  CK{has_bp(L.nat_range(FB.nfaces(ob)), ob), ob_bb(fbs, FB.bb_empty()), fbs}
+
+def cls_k(bp: Bool, +bx: FB.BB, +fbs: List<&2, FB.BB>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +ob: FB.KB) -> U64:
   match bp:
-    case True{}: k1_cls(ob, p)
+    case True{}: k1_cls(ob, bx, fbs, p)
     case False{}: SO.classify_in(fdo, bbo, p)
 
-def cls_or(un: Bool, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +oc: U64, +ob: FB.KB) -> U64:
+def cls_ck(ck: CK, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +ob: FB.KB) -> U64:
+  CK{+bp, +bx, +fbs} = ck
+  cls_k(bp, bx, fbs, fdo, bbo, p, ob)
+
+def cls_or(un: Bool, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +p: V.Point, +oc: U64, +ob: FB.KB, +ck: CK) -> U64:
   match un:
-    case True{}: cls_k(has_bp(L.nat_range(FB.nfaces(ob)), ob), fdo, bbo, p, ob)
+    case True{}: cls_ck(ck, fdo, bbo, p, ob)
     case False{}: oc
 
 def classify_rgs(rs: List<&2, W.RG>, +s: S.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64,
-    +sd: U64, +pcp: List<&2, CO.CP>, +ob: FB.KB) -> KC:
+    +sd: U64, +pcp: List<&2, CO.CP>, +ob: FB.KB, +ck: CK) -> KC:
   match rs:
     case []: KC{[], True{}, 0u64}
     case +h <> +t:
       +sp = W.sample_pt(s, h)
       +p = S.sf_at(s, V.v2_x(W.sp_q(sp)), V.v2_y(W.sp_q(sp)))
       +oc = CO.on_code(pcp, sd, ob, p)
-      +c = cls_or(U64.is_eq(oc, 0u64), fdo, bbo, p, oc, ob)
-      +rest = classify_rgs(t, s, fdo, bbo, op, sd, pcp, ob)
+      +c = cls_or(U64.is_eq(oc, 0u64), fdo, bbo, p, oc, ob, ck)
+      +rest = classify_rgs(t, s, fdo, bbo, op, sd, pcp, ob, ck)
       +good = Bool.and(W.sp_ok(sp), Bool.or(U64.is_le(c, 1u64), U64.is_le(4u64, c)))
       KC{keep_of(op, sd, c) <> kc_ks(rest), Bool.and(good, kc_ok(rest)),
         Bool.pick(U64, good, kc_why(rest), Bool.pick(U64, W.sp_ok(sp), 92u64, 91u64))}
 
 def face_run(+b: FB.KB, +fi: Nat, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
     +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64,
-    +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>, +gv: PX.GV) -> FR:
+    +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>, +gv: PX.GV, +ck: CK) -> FR:
   +s = FB.face_sf(b, fi)
   +pcs = face_pcs(b, fi, sd, vmap, hs, chs, cps, ob, vmo, gv)
   +cs = W.face_cycles(s, pcs)
   +rs = W.regions(s, W.cs_cys(cs))
-  +kc = classify_rgs(W.rs_rgs(rs), s, fdo, bbo, op, sd, CO.partner_of(cps, sd, fi), ob)
+  +kc = classify_rgs(W.rs_rgs(rs), s, fdo, bbo, op, sd, CO.partner_of(cps, sd, fi), ob, ck)
   +ok = Bool.and(W.cs_ok(cs), Bool.and(W.rs_ok(rs), kc_ok(kc)))
   FR{W.rs_rgs(rs), pcs, kc_ks(kc), ok,
     Bool.pick(U64, W.cs_ok(cs), Bool.pick(U64, W.rs_ok(rs), kc_why(kc), 94u64), 93u64)}
@@ -848,8 +872,8 @@ def emit_face(rs: List<&2, W.RG>, +ks: List<&2, Bool>, +pcs: List<&2, W.PC>, +sa
       emit_face(t, L_btail(ks), pcs, same, flip, g, s, gv, sl, Bool.pick(EM, k, m2, m))
 
 def fr_job(c: FC, fi: Nat) -> FR:
-  FC{+b, +sd, +vmap, +hs, +chs, +fdo, +bbo, +op, +cps, +ob, +vmo, +gv} = c
-  face_run(b, fi, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv)
+  FC{+b, +sd, +vmap, +hs, +chs, +fdo, +bbo, +op, +cps, +ob, +vmo, +gv, +ck} = c
+  face_run(b, fi, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv, ck)
 
 def side_em(fs: List<&2, Nat>, frs: List<&2, FR>, +b: FB.KB, +sd: U64, +op: U64, +gv: PX.GV, +m: EM) -> EM:
   match fs:
@@ -867,7 +891,7 @@ def side_em(fs: List<&2, Nat>, frs: List<&2, FR>, +b: FB.KB, +sd: U64, +op: U64,
 def side_go(+fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>,
     +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>, +bbo: List<&2, I.I>, +op: U64, +gv: PX.GV, +m: EM,
     +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>) -> EM:
-  +frs = B.pmap_g(~Nat, ~FC, ~FR, ~fr_job, 1, FC{b, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv}, fs)
+  +frs = B.pmap_g(~Nat, ~FC, ~FR, ~fr_job, 1, FC{b, sd, vmap, hs, chs, fdo, bbo, op, cps, ob, vmo, gv, ck_of(ob)}, fs)
   side_em(fs, frs, b, sd, op, gv, m)
 
 def add_vs_go(ps: List<&2, V.Point>, +st: K1.AS) -> K1.AS:
@@ -913,12 +937,6 @@ def finish_p(+m: EM, +ba: Ty.Brep, +pool: B.Tb<&2, SO.KF>, +rpool: B.Tb<&2, SO.K
 def finish(+m: EM, +ba: Ty.Brep) -> K1.KR:
   finish_p(m, ba, SO.pool_kf([]), SO.pool_kf([]))
 
-def emit_if(ok: Bool, +why: U64, +op: U64, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +vb: PX.VM, +hs3: List<&2, PX.HX>,
-    +cr: PX.CR, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> EM:
-  match ok:
-    case True{}: run_emit_f(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), hs3, PX.cr_chs(cr), PX.cr_g(cr), cps, fda, fdb)
-    case False{}: EM{K1.as_empty(), False{}, why}
-
 def is_cc(+k: Ty.EdgeKind) -> Bool:
   match k:
     case Ty.EK_curve{+c, +d}:
@@ -961,6 +979,30 @@ def arc_mids(es: List<&2, Nat>, +side: U64, +b: FB.KB, +hs: List<&2, PX.HX>, +g:
       +r = edge_mids(side, b, e, hs, g, acc)
       arc_mids(t, side, b, hs, PX.hxg_g(r), PX.hxg_hs(r))
 
+def gbrun_fin(ok: Bool, +why: U64, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +vb: PX.VM,
+    +hs2: List<&2, PX.HX>, +cr: PX.CR, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
+  match ok:
+    case False{}: K1.KR{False{}, why, ra, 0n, 0n, 0n, 0n, []}
+    case True{}:
+      +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
+      +m0 = arc_mids(L.nat_range(FB.nedges(ba)), 0u64, ba, hs3, PX.cr_g(cr), [])
+      +m1 = arc_mids(L.nat_range(FB.nedges(bb)), 1u64, bb, hs3, PX.hxg_g(m0), PX.hxg_hs(m0))
+      +cr2 = {PX.CR{PX.cr_chs(cr), PX.hxg_g(m1), PX.cr_ok(cr), PX.cr_why(cr)} : PX.CR}
+      finish_p(run_emit_f(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), List.append(&2, PX.HX, hs3, PX.hxg_hs(m1)), PX.cr_chs(cr2), PX.cr_g(cr2), cps, fda, fdb), ra,
+        SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),
+        SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb))))
+
+def gbrun_ch(none: Bool, +hok: Bool, +hwhy: U64, +cok: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +ba: FB.KB, +bb: FB.KB,
+    +va: PX.VM, +vb: PX.VM, +hs2: List<&2, PX.HX>, +g: PX.GV, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>,
+    +fdb: List<&2, SO.Fd>) -> K1.KR:
+  match none:
+    case True{}: K1.KR{False{}, Bool.pick(U64, hok, Bool.pick(U64, cok, 98u64, 97u64), hwhy), ra, 0n, 0n, 0n, 0n, []}
+    case False{}:
+      +cr = PX.all_chains(hs2, ba, bb, g)
+      +ok = Bool.and(Bool.and(hok, cok), PX.cr_ok(cr))
+      +why = Bool.pick(U64, hok, Bool.pick(U64, cok, PX.cr_why(cr), 97u64), hwhy)
+      gbrun_fin(ok, why, op, ra, rb, ba, bb, va, vb, hs2, cr, cps, fda, fdb)
+
 def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
   +ba = FB.kb_of(ra)
   +bb = FB.kb_of(rb)
@@ -970,19 +1012,10 @@ def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2,
   +cps = CO.coin_pairs(ba, bb)
   +cx0 = CO.crossings(cps, ba, bb, PX.hs_g(hs))
   +tj = CO.tjunctions(cps, ba, bb, CO.cx_g(cx0))
-  +cx = {CO.CX{List.append(&2, PX.HX, CO.cx_hs(cx0), CO.cx_hs(tj)), CO.cx_g(tj), Bool.and(CO.cx_ok(cx0), CO.cx_ok(tj))} : CO.CX}
-  +hs2 = List.append(&2, PX.HX, PX.hs_hs(hs), CO.cx_hs(cx))
-  +cr = PX.all_chains(hs2, ba, bb, CO.cx_g(cx))
+  +cok = Bool.and(CO.cx_ok(cx0), CO.cx_ok(tj))
+  +hs2 = List.append(&2, PX.HX, PX.hs_hs(hs), List.append(&2, PX.HX, CO.cx_hs(cx0), CO.cx_hs(tj)))
   +none = Bool.and(strict, Bool.and(Nat.is_eq(List.length(&2, PX.HX, hs2), 0n), Nat.is_eq(List.length(&2, CO.CP, cps), 0n)))
-  +ok = Bool.and(Bool.and(Bool.and(PX.hs_ok(hs), CO.cx_ok(cx)), PX.cr_ok(cr)), Bool.not(none))
-  +why = Bool.pick(U64, PX.hs_ok(hs), Bool.pick(U64, CO.cx_ok(cx), Bool.pick(U64, none, 98u64, PX.cr_why(cr)), 97u64), PX.hs_why(hs))
-  +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
-  +m0 = arc_mids(L.nat_range(FB.nedges(ba)), 0u64, ba, hs3, PX.cr_g(cr), [])
-  +m1 = arc_mids(L.nat_range(FB.nedges(bb)), 1u64, bb, hs3, PX.hxg_g(m0), PX.hxg_hs(m0))
-  +cr2 = {PX.CR{PX.cr_chs(cr), PX.hxg_g(m1), PX.cr_ok(cr), PX.cr_why(cr)} : PX.CR}
-  finish_p(emit_if(ok, why, op, ba, bb, va, vb, List.append(&2, PX.HX, hs3, PX.hxg_hs(m1)), cr2, cps, fda, fdb), ra,
-    SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),
-    SO.pool_kf(List.append(&2, SO.KF, SO.rkfs_of(ra, fda), SO.rkfs_of(rb, fdb))))
+  gbrun_ch(none, PX.hs_ok(hs), PX.hs_why(hs), cok, op, ra, rb, ba, bb, va, vb, hs2, CO.cx_g(tj), cps, fda, fdb)
 
 def fas_sup(fs: List<&2, Ty.Face>, +ok: Bool) -> Bool:
   match fs:

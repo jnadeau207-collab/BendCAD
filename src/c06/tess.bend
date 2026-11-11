@@ -1857,10 +1857,16 @@ def sph_ax(+sf: KS.SF, +ax: Nat) -> KS.SF:
     Bool.pick(KS.SF, Nat.is_eq(ax, 2n), KS.SF{KS.k_sph(), o, V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}, r, 0.0f64, 0.0f64},
       KS.SF{KS.k_sph(), o, V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, r, 0.0f64, 0.0f64}))
 
-def rs_wrap(rs: List<&2, List<&2, TP>>, +g: GS) -> Bool:
+def rs_wrap_zz(rs: List<&2, List<&2, TP>>, zz: Bool, +g: GS) -> Bool:
   match rs:
-    case []: False{}
-    case +r <> t: Bool.or(F64.is_lt(KS.pi(), F64.abs(r_wrap(r, g))), rs_wrap(t, g))
+    case []: zz
+    case +r <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: rs_wrap_zz(t, F64.is_lt(KS.pi(), F64.abs(r_wrap(r, g))), g)
+
+def rs_wrap(rs: List<&2, List<&2, TP>>, +g: GS) -> Bool:
+  rs_wrap_zz(rs, False{}, g)
 
 def sph_try(+sf: KS.SF, +rs: List<&2, List<&2, TP>>, +ax: Nat) -> Bool:
   rs_wrap(rs, gs_of(sph_ax(sf, ax), rs))

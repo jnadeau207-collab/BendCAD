@@ -160,15 +160,27 @@ def ids_of(xs: List<&2, Seg>) -> List<&2, U64>:
     case Nil{}: []
     case h <> t: s_id(h) <> ids_of(t)
 
-def all_seg_ok(xs: List<&2, Seg>) -> Bool:
+def all_seg_ok_zz(xs: List<&2, Seg>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(seg_ok(h), all_seg_ok(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: all_seg_ok_zz(t, seg_ok(h))
+
+def all_seg_ok(xs: List<&2, Seg>) -> Bool:
+  all_seg_ok_zz(xs, True{})
+
+def distinct_go_zz(xs: List<&2, U64>, zz: Bool, +prev: U64, first: Bool) -> Bool:
+  match xs:
+    case Nil{}: zz
+    case +h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: distinct_go_zz(t, Bool.or(first, Bool.not(U64.is_eq(h, prev))), h, False{})
 
 def distinct_go(xs: List<&2, U64>, +prev: U64, first: Bool) -> Bool:
-  match xs:
-    case Nil{}: True{}
-    case +h <> t: Bool.and(Bool.or(first, Bool.not(U64.is_eq(h, prev))), distinct_go(t, h, False{}))
+  distinct_go_zz(xs, True{}, prev, first)
 
 def ids_distinct(s: P.So<&2, U64>) -> Bool:
   P.So{ok, xs} = s
@@ -641,10 +653,16 @@ def lu_go(xs: List<&2, HO>, +best: U32, found: Bool, +last: U32) -> U32:
       +up = seg_up(ho_s(x), ho_neg(x))
       lu_go(t, P.upick(up, ho_h(x), best), Bool.or(found, up), ho_h(x))
 
-def strict_go(xs: List<&2, HO>, +prev: HO) -> Bool:
+def strict_go_zz(xs: List<&2, HO>, zz: Bool, +prev: HO) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case +x <> t: Bool.and(P.sgn_is(ho_ccw(prev, x), P.Sn{}), strict_go(t, x))
+    case Nil{}: zz
+    case +x <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: strict_go_zz(t, P.sgn_is(ho_ccw(prev, x), P.Sn{}), x)
+
+def strict_go(xs: List<&2, HO>, +prev: HO) -> Bool:
+  strict_go_zz(xs, True{}, prev)
 
 def strict(xs: List<&2, HO>) -> Bool:
   match xs:
@@ -670,10 +688,16 @@ def gr_nps(x: GR) -> List<&2, NP>:
   GR{ok, lu, nps} = x
   nps
 
-def grs_ok(xs: List<&2, GR>) -> Bool:
+def grs_ok_zz(xs: List<&2, GR>, zz: Bool) -> Bool:
   match xs:
-    case Nil{}: True{}
-    case h <> t: Bool.and(gr_ok(h), grs_ok(t))
+    case Nil{}: zz
+    case h <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: grs_ok_zz(t, gr_ok(h))
+
+def grs_ok(xs: List<&2, GR>) -> Bool:
+  grs_ok_zz(xs, True{})
 
 def grs_lu(xs: List<&2, GR>) -> List<&2, U32>:
   match xs:

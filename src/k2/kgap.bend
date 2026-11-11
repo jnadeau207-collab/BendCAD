@@ -478,10 +478,16 @@ def pl_trace(+x: BX, +fi: Nat, +o: V.Point, +n: V.Dir) -> TF:
       F64.add(F64.mul(c, nx), F64.mul(V.v2_y(sv), hx)), F64.add(F64.mul(c, ny), F64.mul(V.v2_y(sv), hy)), 0.0f64, 0.0f64, 0.0f64,
       V.v2_x(z), V.v2_y(z), Bool.not(fp_cv(f))}}))
 
-def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: FB.KB) -> Bool:
+def any_wrap_zz(ls: List<&2, List<&2, FB.CE>>, zz: Bool, +sf: KS.SF, +b: FB.KB) -> Bool:
   match ls:
-    case []: False{}
-    case +h <> +t: Bool.or(F64.is_lt(KS.pi(), F64.abs(FB.lp_turn(h, sf, b, 0.0f64))), any_wrap(t, sf, b))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: any_wrap_zz(t, F64.is_lt(KS.pi(), F64.abs(FB.lp_turn(h, sf, b, 0.0f64))), sf, b)
+
+def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: FB.KB) -> Bool:
+  any_wrap_zz(ls, False{}, sf, b)
 
 def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
   +aw = bx_dr(x, a)
@@ -522,10 +528,16 @@ def face_trace(g: G.GVal, +x: BX, +fi: Nat) -> TF:
     case G.GV_bp{w}: bp_trace(KS.sf_of(G.GV_bp{w}), x, fi)
     case _: TF{3u64, tr0()}
 
-def s_mem(xs: List<&2, String>, +s: String) -> Bool:
+def s_mem_zz(xs: List<&2, String>, zz: Bool, +s: String) -> Bool:
   match xs:
-    case []: False{}
-    case +h <> +t: Bool.or(String.eq(h, s), s_mem(t, s))
+    case []: zz
+    case +h <> +t:
+      match zz:
+        case True{}: True{}
+        case False{}: s_mem_zz(t, String.eq(h, s), s)
+
+def s_mem(xs: List<&2, String>, +s: String) -> Bool:
+  s_mem_zz(xs, False{}, s)
 
 def tl_add(+use: Bool, +tf: TF, +nm: String, +acc: TL) -> TL:
   TF{+code, +tr} = tf

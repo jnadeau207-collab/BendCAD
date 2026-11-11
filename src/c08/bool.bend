@@ -262,7 +262,7 @@ def world_box(+b: Ty.Brep, +lin: F64) -> BX:
 
 type In is Data:
   In{ brep: Ty.Brep, cells: List<&2, BD.Cl>, fns: List<&2, BD.Fn>, m: V.Mat3, tx: F64, ty: F64,
-    tz: F64, rv: List<&2, F.Lp>, vol: I.I, area: I.I, bb: BX, lin: F64, bo: Bool, px: Bool, fk: List<&2, SO.KF> }
+    tz: F64, rv: List<&2, F.Lp>, vol: I.I, area: I.I, bb: BX, lin: F64, bo: Bool, px: Bool, fk: B.Tb<&2, SO.KF> }
 
 type Del is Data:
   Del{ f: BD.Fn, why: U64 }
@@ -1266,13 +1266,6 @@ def sm_int_fd(fs: List<&2, SO.Fd>, +at: Nat) -> List<&2, SM>:
     case []: []
     case +f <> t: List.append(&2, SM, sm_mid_pt(SO.interior(f), at), sm_int_fd(t, at))
 
-def sm_int_of(+own: List<&2, SO.Fd>, ss: List<&2, Ty.Solid>, +at: Nat) -> List<&2, SM>:
-  match ss:
-    case []: []
-    case Ty.So{g, ou, cs} <> t:
-      List.append(&2, SM, sm_int_fd(fds_sub(own, sh_ids(ou, cs)), at),
-        sm_int_of(own, t, Nat.add(at, 1n)))
-
 def container_go(ss: List<&2, Ty.Solid>, +fs: List<&2, SO.Fd>, +p: V.Point, +at: Nat, +nso: Nat) -> Nat:
   match ss:
     case []: nso
@@ -1319,20 +1312,20 @@ def fi_partition(fs: List<&2, SO.Fi>, +acc: VR) -> VR:
       fi_partition(t, Bool.pick(VR, is_contact(c), VR{ok, st, Nat.add(nc, 1n), co, ca, cb},
         Bool.pick(VR, ok, VR{False{}, st, nc, c, a, b}, acc)))
 
-def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
+def vr_fi(+bad: Bool, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>, +sk: List<&2, Bool>) -> VR:
   match bad:
     case True{}: vr_fail(10u64, "coincident-vertices", CR_a(cr), CR_b(cr))
     case False{}:
-      fi_partition(List.append(&2, SO.Fi, SO.solid_fi(b, fds), EM.emb_fi_t(b, fds, tg, et)),
+      fi_partition(List.append(&2, SO.Fi, SO.solid_fi_s(b, fds, sk), EM.emb_fi_t(b, fds, tg, et)),
         VR{True{}, 0u64, CR_nc(cr), "", 0n, 0n})
 
-def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
+def vr_stage_go(+bad10: Bool, +f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>, +sk: List<&2, Bool>) -> VR:
   match bad10:
     case True{}: vr_fail(f10, "c04-" ++ stage_why(f10), 0n, 0n)
-    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds, tg, et)
+    case False{}: vr_fi(Bool.not(CR_ok(cr)), cr, b, fds, tg, et, sk)
 
-def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
-  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds, tg, et)
+def vr_stage(+f10: U64, +cr: CR, +b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>, +sk: List<&2, Bool>) -> VR:
+  vr_stage_go(Bool.not(U64.is_eq(f10, 0u64)), f10, cr, b, fds, tg, et, sk)
 
 def VR_ok(v: VR) -> Bool:
   VR{ok, stage, nc, code, a, b} = v
@@ -1349,10 +1342,16 @@ def rel_class(rs: List<&2, U64>, +nin: Nat, +nout: Nat, +nbad: Nat) -> U64:
         Nat.add(nout, Bool.pick(Nat, U64.is_eq(r, agg_out()), 1n, 0n)),
         Nat.add(nbad, Bool.pick(Nat, agg_ok(r), 0n, 1n)))
 
-def n_has(xs: List<&2, Nat>, +i: Nat) -> Bool:
+def n_has_zz(xs: List<&2, Nat>, zz: Bool, +i: Nat) -> Bool:
   match xs:
-    case []: False{}
-    case x <> t: Bool.or(Nat.is_eq(x, i), n_has(t, i))
+    case []: zz
+    case x <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: n_has_zz(t, Nat.is_eq(x, i), i)
+
+def n_has(xs: List<&2, Nat>, +i: Nat) -> Bool:
+  n_has_zz(xs, False{}, i)
 
 def n_pos(xs: List<&2, Nat>, +i: Nat, +at: Nat, +dflt: Nat) -> Nat:
   match xs:
@@ -1508,10 +1507,16 @@ def cav_fns_k(w: OW, +conts: List<&2, Nat>, +cavs: List<&2, Nat>, +nso: Nat) -> 
   Bool.pick(Nat, Bool.and(hit, Bool.not(out)), Nat.add(nso, n_pos(cavs, sh, 0n, 0n)),
     nth_nat(conts, ti))
 
-def cav_ok_conts(cs: List<&2, Nat>, +nso: Nat) -> Bool:
+def cav_ok_conts_zz(cs: List<&2, Nat>, zz: Bool, +nso: Nat) -> Bool:
   match cs:
-    case []: True{}
-    case c <> t: Bool.and(Nat.is_lt(c, nso), cav_ok_conts(t, nso))
+    case []: zz
+    case c <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: cav_ok_conts_zz(t, Nat.is_lt(c, nso), nso)
+
+def cav_ok_conts(cs: List<&2, Nat>, +nso: Nat) -> Bool:
+  cav_ok_conts_zz(cs, True{}, nso)
 
 def PV_p(x: PV) -> V.Point:
   PV{p, s, v} = x
@@ -1551,8 +1556,11 @@ def coin_contact(+b: Ty.Brep) -> CR:
   +ps = pv_so(B.msort(~PV, ~pv_lt, pv_of(vs, tb, 0n)))
   cr_go(ps, PV{V.Pt{0.0f64, 0.0f64, 0.0f64}, nso, 0n}, True{}, CR{True{}, 0n, 0n, 0n})
 
+def vcore_s(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>, +sk: List<&2, Bool>) -> VR:
+  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds, tg, et, sk)
+
 def vcore_t(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +tg: List<&2, U64>, +et: List<&2, U64>) -> VR:
-  vr_stage(stage10_of(b, fuel_of(b)), coin_contact(b), b, fds, tg, et)
+  vcore_s(b, fds, tg, et, [])
 
 def vcore_f(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> VR:
   vcore_t(b, fds, [], [])
@@ -1592,8 +1600,49 @@ def ag_fold(xs: List<&2, SM>, cs: List<&2, U64>, +acc: AG) -> AG:
           AG{+ok, +unc, +bad, +ms} = acc
           ag_fold(t, u, AG{ok, Bool.or(unc, U64.is_eq(c, 2u64)), bad, ag_set(ms, SM_s(x), c, 0n)})
 
+def face_p1(+b: Ty.Brep, hs: List<&2, Ty.HFace>) -> Maybe<&2, V.Point>:
+  match hs:
+    case []: None{}
+    case Ty.HF{+fi, g} <> t: fa_v0(b, Ty.fa_loops(nth_fa(Ty.brep_fas(b), fi)))
+
+def fds_clear_zz(fs: List<&2, SO.Fd>, zz: Bool, +bx: List<&2, I.I>) -> Bool:
+  match fs:
+    case []: zz
+    case +f <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: fds_clear_zz(t, Bool.and(SO.fd_ok(f), X.vdisj(SO.fd_bx(f), bx)), bx)
+
+def fds_clear(fs: List<&2, SO.Fd>, +bx: List<&2, I.I>) -> Bool:
+  fds_clear_zz(fs, True{}, bx)
+
+def sm_full(+b: Ty.Brep, +ou: Ty.HShell, +sub: List<&2, SO.Fd>, +at: Nat) -> List<&2, SM>:
+  sm_dedup(List.append(&2, SM, sm_tag(solid_pts(b, ou), at), sm_int_fd(sub, at)))
+
+def sm_one(mp: Maybe<&2, V.Point>, +b: Ty.Brep, +ou: Ty.HShell, +sub: List<&2, SO.Fd>, +at: Nat) -> List<&2, SM>:
+  match mp:
+    case None{}: sm_full(b, ou, sub, at)
+    case Some{p}: [SM{p, at}]
+
+def sm_sol(clear: Bool, +b: Ty.Brep, +ou: Ty.HShell, +sub: List<&2, SO.Fd>, +at: Nat) -> List<&2, SM>:
+  match clear:
+    case True{}: sm_one(face_p1(b, Ty.sh_faces(nth_sh(Ty.brep_shs(b), Ty.hsh_idx(ou)))), b, ou, sub, at)
+    case False{}: sm_full(b, ou, sub, at)
+
+def sm_clear(+sub: List<&2, SO.Fd>, +fds: List<&2, SO.Fd>, +eps: F64) -> Bool:
+  +bs = SO.bbox(sub, [])
+  Bool.and(Nat.is_eq(List.length(&2, I.I, bs), 3n), fds_clear(fds, SO.wide(bs, eps)))
+
+def sm_all(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +eps: F64, +own: List<&2, SO.Fd>, ss: List<&2, Ty.Solid>, +at: Nat) -> List<&2, SM>:
+  match ss:
+    case []: []
+    case Ty.So{g, +ou, +cs} <> t:
+      +sub = fds_sub(own, sh_ids(ou, cs))
+      List.append(&2, SM, sm_sol(sm_clear(sub, fds, eps), b, ou, sub, at),
+        sm_all(b, fds, eps, own, t, Nat.add(at, 1n)))
+
 def ag_run(+b: Ty.Brep, +fds: List<&2, SO.Fd>, +bb: List<&2, I.I>, +own: List<&2, SO.Fd>) -> AG:
-  +xs = sm_dedup(List.append(&2, SM, sm_of(b, Ty.brep_sos(b), 0n), sm_int_of(own, Ty.brep_sos(b), 0n)))
+  +xs = sm_all(b, fds, F64.mul(SO.eps_of(bb), 4.0f64), own, Ty.brep_sos(b), 0n)
   ag_fold(xs, cj_run(fds, bb, xs), AG{True{}, False{}, 0n, ag_masks(nsolids(b))})
 
 def CV_ok(c: CV) -> Bool:
@@ -1985,7 +2034,7 @@ def admit_fail(+op: U64, +code: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U6
               "edge-kind-not-supported: edge outside the admitted domain",
               "boolean operands need line, cubic, circle or rational-quadratic edges"))))))
 
-def in_fk(x: In) -> List<&2, SO.KF>:
+def in_fk(x: In) -> B.Tb<&2, SO.KF>:
   In{brep, cells, fns, m, tx, ty, tz, rv, vol, area, bb, lin, bo, px, fk} = x
   fk
 
@@ -2021,10 +2070,16 @@ def intersect_fail(+nd: U64, +an: U64, +bn: U64, v: VR) -> Out:
                 " between nodes " ++ U64.show(an) ++ " and " ++ U64.show(bn),
               "report these operands"))))))
 
-def rel_has(rs: List<&2, U64>, +c: U64) -> Bool:
+def rel_has_zz(rs: List<&2, U64>, zz: Bool, +c: U64) -> Bool:
   match rs:
-    case []: False{}
-    case r <> t: Bool.or(U64.is_eq(r, c), rel_has(t, c))
+    case []: zz
+    case r <> t:
+      match zz:
+        case True{}: True{}
+        case False{}: rel_has_zz(t, U64.is_eq(r, c), c)
+
+def rel_has(rs: List<&2, U64>, +c: U64) -> Bool:
+  rel_has_zz(rs, False{}, c)
 
 def rel_why(+ra: List<&2, U64>, +rb: List<&2, U64>) -> String:
   Bool.pick(String, Bool.or(rel_has(ra, 3u64), rel_has(rb, 3u64)),
@@ -2269,7 +2324,7 @@ def run_k1m(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an:
         "boolean operands with mixed containment need per-solid measures (a C11 item)"), k1_note(kr))))
 
 def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX, +wb: BX,
-    +proof: String) -> Out:
+    +proof: String, +fk: List<&2, SO.KF>) -> Out:
   In{brep, +cells, fns, m, tx, ty, tz, +rv, +vol, area, bb, lin, bo, pxa, fk38} = a
   In{brep2, cells2, fns2, m2, tx2, ty2, tz2, +rv2, +vol2, area2, bb2, lin2, bo2, pxb, fk39} = b
   +fn = List.append(&2, BD.Fn, fns, fns2)
@@ -2278,28 +2333,30 @@ def append_out(+op: U64, a: In, b: In, +bc: Ty.Brep, +nd: U64, +nc: Nat, +wa: BX
     List.append(&2, BD.Cl, cells, cells_shift(cells2, List.length(&2, BD.Cl, cells))), fn,
     [], 0n, I.iadd(vol, vol2), I.iadd(area, area2), bbx,
     bake_lin(lin, lin2, bbx), True{}, bool_mat(op, 2u64, vol, vol2, 0u64),
-    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, [], []}
+    fn_created_here(fn, nd), 0n, nsolids(bc), genus_of(bc), nc, proof, [], fk}
 
-def append_valid(+a: In, +b: In, +bc: Ty.Brep, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +wa: BX, +wb: BX, +proof: String) -> Out:
-  +v = vcore_t(bc, SO.fds_of(bc), SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
+def append_valid(+a: In, +b: In, +bc: Ty.Brep, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +wa: BX, +wb: BX, +proof: String,
+    +fdc: List<&2, SO.Fd>) -> Out:
+  +v = vcore_t(bc, fdc, SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
     SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
-  Bool.pick(Out, VR_ok(v), append_out(tag_union(), a, b, bc, nd, VR_nc(v), wa, wb, proof),
+  Bool.pick(Out, VR_ok(v), append_out(tag_union(), a, b, bc, nd, VR_nc(v), wa, wb, proof, SO.kfs_of(bc, fdc)),
     out_fail(fk_uncertain(), "validate", "node " ++ U64.show(nd),
       "validation-rejected: " ++ vcode(v), "report these operands"))
 
 def append_rebox(+op: U64, +a: In, +b: In, +bc: Ty.Brep, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64,
-    +nc: Nat) -> Out:
-  append_out(op, a, b, bc, nd, nc, world_box(ba, in_lin(a)), world_box(bb, in_lin(b)), "")
+    +nc: Nat, +pool: B.Tb<&2, SO.KF>) -> Out:
+  append_out(op, a, b, bc, nd, nc, world_box(ba, in_lin(a)), world_box(bb, in_lin(b)), "", SO.kfs_of(bc, SO.fds_re(bc, pool)))
 
 def run_append(+a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, +wb: BX, +nd: U64,
-    +proof: String) -> Out:
+    +proof: String, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   +bc = brep_append(ba, bb)
-  append_valid(a, b, bc, ba, bb, nd, wa, wb, proof)
+  append_valid(a, b, bc, ba, bb, nd, wa, wb, proof,
+    SO.fds_re(bc, SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))))
 
 def run_disjoint_go(+is_union: Bool, +is_diff: Bool, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep,
-    +wa: BX, +wb: BX, +nd: U64, +proof: String) -> Out:
+    +wa: BX, +wb: BX, +nd: U64, +proof: String, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   match is_union:
-    case True{}: run_append(a, b, ba, bb, wa, wb, nd, proof)
+    case True{}: run_append(a, b, ba, bb, wa, wb, nd, proof, fda, fdb)
     case False{}:
       match is_diff:
         case True{}: carry_out(a, 1u64, nd, proof, del_classified(in_fns(b)))
@@ -2307,9 +2364,9 @@ def run_disjoint_go(+is_union: Bool, +is_diff: Bool, +a: In, +b: In, +ba: Ty.Bre
           out_empty(nd, proof, List.append(&2, Del, del_classified(in_fns(a)), del_classified(in_fns(b))))
 
 def run_disjoint(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX, +wb: BX, +nd: U64,
-    +an: U64, +bn: U64) -> Out:
+    +an: U64, +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   +proof = "disjoint-boxes A" ++ bx_show(wa) ++ " B" ++ bx_show(wb)
-  run_disjoint_go(U64.is_eq(op, tag_union()), U64.is_eq(op, tag_diff()), a, b, ba, bb, wa, wb, nd, proof)
+  run_disjoint_go(U64.is_eq(op, tag_union()), U64.is_eq(op, tag_diff()), a, b, ba, bb, wa, wb, nd, proof, fda, fdb)
 
 def cavity_valid(+op: U64, a: In, b: In, +cv: CV, +nd: U64, +wm: BX, +pool: B.Tb<&2, SO.KF>) -> Out:
   In{brep, cells, fns, m, tx, ty, tz, +rv, +vol, area, +bb, lin, bo, pxa, fk40} = a
@@ -2345,7 +2402,7 @@ def run_assemble(+op: U64, +outc: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Bre
     case 0u64: carry_out(a, 1u64, nd, "", del_classified(in_fns(b)))
     case 1u64: carry_out(b, 2u64, nd, "", del_classified(in_fns(a)))
     case 3u64: out_empty(nd, "", List.append(&2, Del, del_classified(in_fns(a)), del_classified(in_fns(b))))
-    case 2u64: append_rebox(op, a, b, bc, ba, bb, nd, nc)
+    case 2u64: append_rebox(op, a, b, bc, ba, bb, nd, nc, pool)
     case _: run_cavity(op, a, b, ba, bb, nd, fa, pool)
 
 def run_outcome_go(+bad: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
@@ -2431,17 +2488,17 @@ def merge_try(+try: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: 
       merge_pick(Bool.and(Out_ok(k), Nat.is_lt(Out_sh(k), Out_sh(o))), k, o)
 
 def cls_or_k1(+ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64,
-    +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
+    +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>, +apart: Bool) -> Out:
   match ok:
-    case True{}: merge_try(Bool.and(U64.is_eq(op, tag_union()), Nat.is_lt(1n, Out_sh(o))), o, op, a, b, ba, bb, nd, fda, fdb)
+    case True{}: merge_try(Bool.and(Bool.not(apart), Bool.and(U64.is_eq(op, tag_union()), Nat.is_lt(1n, Out_sh(o)))), o, op, a, b, ba, bb, nd, fda, fdb)
     case False{}: k1_or_f(GB.gbrun_f(False{}, op, ba, bb, fda, fdb), op, a, b, ba, bb, nd, o, fda, fdb)
 
 def run_intersect_go(+ok: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +bc: Ty.Brep,
-    +nd: U64, +an: U64, +bn: U64, +v: VR, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>, +pool: B.Tb<&2, SO.KF>) -> Out:
+    +nd: U64, +an: U64, +bn: U64, +v: VR, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>, +pool: B.Tb<&2, SO.KF>, +apart: Bool) -> Out:
   match ok:
     case True{}:
       +o = run_classify(op, a, b, ba, bb, bc, nd, an, bn, VR_nc(v), fda, fdb, pool)
-      cls_or_k1(Out_ok(o), o, op, a, b, ba, bb, nd, fda, fdb)
+      cls_or_k1(Out_ok(o), o, op, a, b, ba, bb, nd, fda, fdb, apart)
     case False{}: run_k1v(op, a, b, ba, bb, nd, an, bn, v)
 
 def k1_first(ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64,
@@ -2451,33 +2508,53 @@ def k1_first(ok: Bool, +kr: K1.KR, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: 
     case False{}: out_fail(fk_unsupported(), "k1", "node " ++ U64.show(nd), "k1-refused", "")
 
 def run_intersect_cls(ok: Bool, +o: Out, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
-    +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
+    +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>, +apart: Bool) -> Out:
   match ok:
     case True{}: o
     case False{}:
       +bc = brep_append(ba, bb)
       +pool = SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ba, fda), SO.kfs_of(bb, fdb)))
-      +v = vcore_t(bc, SO.fds_re(bc, pool), SO.tags_or(SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b))), SO.ltags(bc, ba, bb)),
-        SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))))
-      run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v, fda, fdb, pool)
+      +fdc = SO.fds_re(bc, pool)
+      +rt = SO.rtags_of(bc, SO.vpool(ba, in_fk(a)), SO.vpool(bb, in_fk(b)))
+      +v = vcore_s(bc, fdc, SO.tags_or(rt, SO.ltags(bc, ba, bb)),
+        SO.etags_of(bc, SO.epool(ba, in_fk(a)), SO.epool(bb, in_fk(b))), SO.sk_of(bc, fdc, rt, nsolids(ba)))
+      run_intersect_go(VR_ok(v), op, a, b, ba, bb, bc, nd, an, bn, v, fda, fdb, pool, apart)
+
+def sos_clear(ss: List<&2, Ty.Solid>, +own: List<&2, SO.Fd>, +fds: List<&2, SO.Fd>, +eps: F64) -> Bool:
+  match ss:
+    case []: True{}
+    case Ty.So{g, +ou, +cs} <> t: Bool.and(sm_clear(fds_sub(own, sh_ids(ou, cs)), fds, eps), sos_clear(t, own, fds, eps))
+
+def far_apart(+ba: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Bool:
+  +bx = SO.bbox(List.append(&2, SO.Fd, fda, fdb), [])
+  Bool.and(Nat.is_eq(List.length(&2, I.I, bx), 3n),
+    sos_clear(Ty.brep_sos(ba), fda, fdb, F64.mul(F64.add(X.vwid(bx), 1.0f64), 1.0e-6f64)))
+
+def run_intersect_k(far: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
+    +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
+  match far:
+    case True{}:
+      run_intersect_cls(False{}, out_fail(fk_unsupported(), "k1", "node " ++ U64.show(nd), "k1-refused", ""), op, a, b, ba, bb, nd, an, bn, fda, fdb, True{})
+    case False{}:
+      +kr = GB.gbrun_f(True{}, op, ba, bb, fda, fdb)
+      +o = k1_first(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd, fda, fdb)
+      run_intersect_cls(Out_ok(o), o, op, a, b, ba, bb, nd, an, bn, fda, fdb, U64.is_eq(K1.kr_why(kr), 98u64))
 
 def run_intersect(+op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +nd: U64, +an: U64,
     +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
-  +kr = GB.gbrun_f(True{}, op, ba, bb, fda, fdb)
-  +o = k1_first(K1.kr_ok(kr), kr, op, a, b, ba, bb, nd, fda, fdb)
-  run_intersect_cls(Out_ok(o), o, op, a, b, ba, bb, nd, an, bn, fda, fdb)
+  run_intersect_k(far_apart(ba, fda, fdb), op, a, b, ba, bb, nd, an, bn, fda, fdb)
 
 def run_broad_go(+disj: Bool, +op: U64, +a: In, +b: In, +ba: Ty.Brep, +bb: Ty.Brep, +wa: BX,
     +wb: BX, +nd: U64, +an: U64, +bn: U64, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> Out:
   match disj:
-    case True{}: run_disjoint(op, a, b, ba, bb, wa, wb, nd, an, bn)
+    case True{}: run_disjoint(op, a, b, ba, bb, wa, wb, nd, an, bn, fda, fdb)
     case False{}: run_intersect(op, a, b, ba, bb, nd, an, bn, fda, fdb)
 
 def run_broad(+op: U64, +a: In, +b: In, +nd: U64, +an: U64, +bn: U64) -> Out:
   +ba = bake_of(a)
   +bb = bake_of(b)
-  +fda = SO.fds_re(ba, SO.pool_kf(in_fk(a)))
-  +fdb = SO.fds_re(bb, SO.pool_kf(in_fk(b)))
+  +fda = SO.fds_re(ba, in_fk(a))
+  +fdb = SO.fds_re(bb, in_fk(b))
   +wa = world_box_f(fda, in_lin(a))
   +wb = world_box_f(fdb, in_lin(b))
   run_broad_go(bx_disjoint(wa, wb), op, a, b, ba, bb, wa, wb, nd, an, bn, fda, fdb)
