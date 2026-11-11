@@ -1,6 +1,6 @@
 {
- "binary": "/root/bc/bendcad-head",
- "source": "docs/receipts/eval-fuzz-4e10100-150.json (head 4e10100, 4 shared cores)",
+ "binary": "/root/bc/bendcad-t3",
+ "source": "docs/receipts/eval-fuzz-k1tor-150.json (t3 = e5f029f booleans, 4 shared cores)",
  "seeds": [
   3,
   4,
@@ -52,12 +52,12 @@
   "base_refused_valid": [],
   "base_committed_invalid": [],
   "ops": 126,
-  "committed": 70,
-  "commit_rate": 0.5556,
+  "committed": 73,
+  "commit_rate": 0.5794,
   "refusals": {
    "validation-rejected: c04-embedding": 9,
-   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]": 6,
    "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]": 3,
+   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 5 0 between nodes 1 and 12 [k1 reason 4 [k1 42]": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
@@ -70,9 +70,9 @@
    "validation-rejected: edge-overlap 4 6": 2,
    "validation-rejected: face-face-uncertain 4 7": 1,
    "operand-failed-check: face-face-uncertain 4 7": 1,
+   "validation-rejected: face-face-uncertain 10 12": 1,
    "face-face-uncertain 4 7 between nodes 1 and 10 [k1 reason 40] [k1 40]": 1,
    "validation-rejected: edge-face-uncertain 11 1": 1,
-   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]": 1,
    "intersect-rejected: c04-embedding on the combined boundary [k1 reason 40] [k1 40]": 1,
    "validation-rejected: edge-face-uncertain 25 1": 1,
    "validation-rejected: edge-face-uncertain 5 0": 1,
@@ -83,7 +83,7 @@
   "by_mode": {
    "nearmiss": {
     "ops": 33,
-    "committed": 27
+    "committed": 30
    },
    "general": {
     "ops": 45,
@@ -110,13 +110,13 @@
     "committed": 0
    }
   },
-  "identity_checked": 23,
+  "identity_checked": 24,
   "identity_violations": [],
-  "occt_checked": 20,
+  "occt_checked": 21,
   "occt_mismatch": [],
-  "seconds_median": 1.07,
-  "seconds_p95": 11.55,
-  "seconds_max": 13.95,
+  "seconds_median": 1.38,
+  "seconds_p95": 17.85,
+  "seconds_max": 151.88,
   "intent_mismatches": 17
  },
  "cases": [
@@ -126,6 +126,7 @@
    "b": "torus",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     1193.3496270806963,
     1193.3496270807716
@@ -137,7 +138,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.4,
+     "s": 0.68,
      "intent_mismatch": false,
      "v": [
       5850.523369167036,
@@ -146,7 +147,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.72,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -155,7 +156,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.01,
+     "s": 1.6,
      "intent_mismatch": true,
      "v": [
       1193.3496270806963,
@@ -174,6 +175,7 @@
    "b": "cone",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     6688.108511852261,
     6688.108511852394
@@ -185,7 +187,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.46,
      "intent_mismatch": false,
      "v": [
       6735.662354417448,
@@ -194,7 +196,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.37,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -203,7 +205,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.81,
+     "s": 1.34,
      "intent_mismatch": true,
      "v": [
       6688.108511852261,
@@ -222,6 +224,7 @@
    "b": "cone",
    "mode": "tangent",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     24008.55432625779,
     24008.554326332527
@@ -233,19 +236,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 4.23,
+     "s": 7.41,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": false,
-     "s": 6.16,
+     "s": 10.5,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "difference": {
      "ok": false,
-     "s": 5.54,
+     "s": 10.75,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     }
@@ -257,6 +260,7 @@
    "b": "torus",
    "mode": "tangent",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     686.6016432841927,
     686.6016432863898
@@ -268,7 +272,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.87,
      "intent_mismatch": false,
      "v": [
       2871.066573938751,
@@ -277,7 +281,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.5,
+     "s": 1.01,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -286,7 +290,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.42,
+     "s": 2.26,
      "intent_mismatch": true,
      "v": [
       686.6016432841927,
@@ -305,6 +309,7 @@
    "b": "box",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     276.5684152022392,
     276.56841520294387
@@ -316,7 +321,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.74,
+     "s": 0.88,
      "intent_mismatch": false,
      "v": [
       3291.6835180176668,
@@ -325,7 +330,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.57,
+     "s": 0.68,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -334,7 +339,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.08,
+     "s": 3.32,
      "intent_mismatch": true,
      "v": [
       276.5684152022392,
@@ -353,6 +358,7 @@
    "b": "prism",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     9501.611555459967,
     9501.61155549038
@@ -364,7 +370,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.57,
+     "s": 1.77,
      "intent_mismatch": false,
      "v": [
       12391.172504132166,
@@ -373,7 +379,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.08,
+     "s": 2.4,
      "intent_mismatch": false,
      "v": [
       48.196154233284346,
@@ -382,7 +388,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.13,
+     "s": 2.56,
      "intent_mismatch": false,
      "v": [
       9453.415401232356,
@@ -401,6 +407,7 @@
    "b": "cone",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     5078.879470024292,
     5078.879470040546
@@ -412,7 +419,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.1,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       5145.482247260448,
@@ -421,7 +428,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -430,7 +437,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.7,
      "intent_mismatch": true,
      "v": [
       5078.879470024292,
@@ -449,6 +456,7 @@
    "b": "box",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3408.7073214934635,
     3408.7073214935313
@@ -460,7 +468,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.25,
      "intent_mismatch": false,
      "v": [
       6944.114798139898,
@@ -469,7 +477,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -478,7 +486,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.81,
+     "s": 0.61,
      "intent_mismatch": true,
      "v": [
       3408.7073214934635,
@@ -497,6 +505,7 @@
    "b": "box",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     4423.59526886348,
     4423.595268866918
@@ -508,13 +517,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 3.1,
+     "s": 5.3,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 4 7"
     },
     "intersection": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -523,7 +532,7 @@
     },
     "difference": {
      "ok": false,
-     "s": 2.45,
+     "s": 4.12,
      "intent_mismatch": false,
      "why": "operand-failed-check: face-face-uncertain 4 7"
     }
@@ -535,6 +544,7 @@
    "b": "revolve",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     23056.69838968184,
     23056.698389700163
@@ -546,19 +556,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 10.59,
+     "s": 18.79,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 8.93,
+     "s": 22.88,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 12.75,
+     "s": 20.32,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
     }
@@ -570,6 +580,7 @@
    "b": "cone",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     2017.9617326668254,
     2017.961732670551
@@ -581,7 +592,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.79,
      "intent_mismatch": false,
      "v": [
       2053.137120101353,
@@ -590,7 +601,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.36,
+     "s": 0.76,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -599,7 +610,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.46,
+     "s": 1.52,
      "intent_mismatch": true,
      "v": [
       2017.9617326668254,
@@ -618,6 +629,7 @@
    "b": "box",
    "mode": "tangent",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     6996.373957591419,
     6996.37395761158
@@ -629,13 +641,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 8.37,
+     "s": 13.68,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": true,
-     "s": 1.87,
+     "s": 2.05,
      "intent_mismatch": false,
      "v": [
       277.39346562818247,
@@ -644,7 +656,7 @@
     },
     "difference": {
      "ok": false,
-     "s": 9.64,
+     "s": 17.85,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     }
@@ -656,6 +668,7 @@
    "b": "torus",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     15689.821452782882,
     15689.821452794213
@@ -667,21 +680,21 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 12.0,
+     "s": 151.88,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "why": "validation-rejected: face-face-uncertain 10 12"
     },
     "intersection": {
      "ok": false,
-     "s": 12.55,
+     "s": 38.06,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
     },
     "difference": {
      "ok": false,
-     "s": 13.95,
+     "s": 29.0,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
     }
    }
   },
@@ -691,6 +704,7 @@
    "b": "sphere",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3610.2298412385203,
     3610.229841241347
@@ -702,19 +716,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 4.52,
+     "s": 10.34,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 3 4"
     },
     "intersection": {
      "ok": false,
-     "s": 4.77,
+     "s": 4.61,
      "intent_mismatch": false,
      "why": "face-face-uncertain 4 7 between nodes 1 and 10 [k1 reason 40] [k1 40]"
     },
     "difference": {
      "ok": false,
-     "s": 5.14,
+     "s": 10.44,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 3 4"
     }
@@ -726,6 +740,7 @@
    "b": "cone",
    "mode": "axis",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     13866.933509187189,
     13866.933509231578
@@ -737,19 +752,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 5.8,
+     "s": 7.05,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 5 0 between nodes 1 and 12 [k1 reason 4 [k1 42]"
     },
     "intersection": {
      "ok": false,
-     "s": 5.36,
+     "s": 4.92,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 5 0 between nodes 1 and 12 [k1 reason 4 [k1 42]"
     },
     "difference": {
      "ok": false,
-     "s": 6.45,
+     "s": 5.77,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 5 0 between nodes 1 and 12 [k1 reason 4 [k1 42]"
     }
@@ -761,6 +776,7 @@
    "b": "sphere",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     5057.998916028569,
     5057.998916037964
@@ -781,7 +797,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.1,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -790,7 +806,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.31,
+     "s": 0.2,
      "intent_mismatch": true,
      "v": [
       5057.998916028569,
@@ -809,6 +825,7 @@
    "b": "cone",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     6459.556098562524,
     6459.556098574512
@@ -820,13 +837,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.17,
+     "s": 2.83,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 11 1"
     },
     "intersection": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.38,
      "intent_mismatch": false,
      "v": [
       851.5455217430032,
@@ -835,7 +852,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.46,
+     "s": 0.47,
      "intent_mismatch": false,
      "v": [
       5608.010448879813,
@@ -851,6 +868,7 @@
    "b": "cylinder",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     2159.8712944703157,
     2159.871294474381
@@ -862,19 +880,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1.44,
+     "s": 1.14,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 1.84,
+     "s": 1.38,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 1.07,
+     "s": 1.41,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     }
@@ -886,6 +904,7 @@
    "b": "cylinder",
    "mode": "axis",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     22596.64449958939,
     22596.64449966039
@@ -897,19 +916,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 8.73,
+     "s": 5.38,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": false,
-     "s": 7.6,
+     "s": 3.97,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-loop-closure-or-trim"
     },
     "difference": {
      "ok": false,
-     "s": 7.54,
+     "s": 4.47,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-loop-closure-or-trim"
     }
@@ -921,6 +940,7 @@
    "b": "cone",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     778.6407443004342,
     778.6407443004842
@@ -932,19 +952,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 5.63,
+     "s": 2.35,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 4.31,
+     "s": 2.6,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 3.51,
+     "s": 3.09,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     }
@@ -956,6 +976,7 @@
    "b": "cylinder",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     468.4921931805104,
     468.49219318201006
@@ -967,7 +988,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.15,
      "intent_mismatch": false,
      "v": [
       7415.8291541107355,
@@ -976,7 +997,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -985,7 +1006,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.73,
+     "s": 0.53,
      "intent_mismatch": true,
      "v": [
       468.4921931805104,
@@ -1004,6 +1025,7 @@
    "b": "sphere",
    "mode": "coplanar",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     11733.146253492088,
     11733.146253529632
@@ -1015,7 +1037,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.87,
+     "s": 0.41,
      "intent_mismatch": true,
      "v": [
       11733.146253492088,
@@ -1024,7 +1046,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.62,
+     "s": 0.31,
      "intent_mismatch": false,
      "v": [
       619.4266820957984,
@@ -1033,7 +1055,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.68,
+     "s": 0.64,
      "intent_mismatch": false,
      "v": [
       11113.719571394306,
@@ -1052,6 +1074,7 @@
    "b": "box",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3023.242599162624,
     3023.242599172299
@@ -1063,13 +1086,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.36,
+     "s": 2.1,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-overlap 4 6"
     },
     "intersection": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.15,
      "intent_mismatch": false,
      "v": [
       35.99969385262054,
@@ -1078,7 +1101,7 @@
     },
     "difference": {
      "ok": false,
-     "s": 2.8,
+     "s": 1.63,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-overlap 4 6"
     }
@@ -1090,6 +1113,7 @@
    "b": "prism",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3225.020169393684,
     3225.020169399644
@@ -1101,7 +1125,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       4273.911139388558,
@@ -1110,7 +1134,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.16,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1119,7 +1143,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.46,
+     "s": 0.51,
      "intent_mismatch": true,
      "v": [
       3225.020169393684,
@@ -1138,6 +1162,7 @@
    "b": "box",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     623.4048170392432,
     623.4048170392626
@@ -1149,7 +1174,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.31,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       1630.9175548416506,
@@ -1158,7 +1183,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1167,7 +1192,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.74,
+     "s": 0.66,
      "intent_mismatch": true,
      "v": [
       623.4048170392432,
@@ -1186,6 +1211,7 @@
    "b": "torus",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     1493.86497311635,
     1493.8649731191185
@@ -1197,7 +1223,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.82,
+     "s": 0.47,
      "intent_mismatch": false,
      "v": [
       2081.603337757744,
@@ -1206,7 +1232,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.27,
+     "s": 0.43,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1215,7 +1241,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.44,
+     "s": 1.41,
      "intent_mismatch": true,
      "v": [
       1493.86497311635,
@@ -1234,6 +1260,7 @@
    "b": "prism",
    "mode": "seam",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     2682.3564567692697,
     2682.3564567769017
@@ -1245,19 +1272,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 11.55,
+     "s": 10.23,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 1 9 between nodes 1 and 11 [k1 reason 72] [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 10.4,
+     "s": 7.78,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 1 9 between nodes 1 and 11 [k1 reason 72] [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 8.77,
+     "s": 6.54,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 1 9 between nodes 1 and 11 [k1 reason 72] [k1 72]"
     }
@@ -1269,6 +1296,7 @@
    "b": "cone",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     14665.303095402502,
     14665.303095413332
@@ -1280,19 +1308,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 11.66,
+     "s": 7.07,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
     },
     "intersection": {
      "ok": false,
-     "s": 11.56,
+     "s": 9.88,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
     },
     "difference": {
      "ok": false,
-     "s": 10.37,
+     "s": 9.34,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
     }
@@ -1304,6 +1332,7 @@
    "b": "revolve",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3420.0323895123906,
     3420.0323895125343
@@ -1315,19 +1344,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.82,
+     "s": 0.97,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
     },
     "intersection": {
      "ok": false,
-     "s": 0.23,
+     "s": 0.18,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 40] [k1 40]"
     },
     "difference": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.59,
      "intent_mismatch": false,
      "v": [
       3420.032389509041,
@@ -1342,6 +1371,7 @@
    "b": "prism",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     4031.7646983637997,
     4031.764698371225
@@ -1353,19 +1383,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 8.45,
+     "s": 9.1,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 25 1"
     },
     "intersection": {
      "ok": false,
-     "s": 7.33,
+     "s": 8.72,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 5 0"
     },
     "difference": {
      "ok": false,
-     "s": 6.83,
+     "s": 6.31,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 25 0"
     }
@@ -1377,6 +1407,7 @@
    "b": "torus",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     3321.499023734421,
     3321.4990237450547
@@ -1387,24 +1418,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 0.49,
+     "ok": true,
+     "s": 4.05,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "v": [
+      13167.23835624848,
+      13167.265550441785
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 0.58,
+     "ok": true,
+     "s": 6.0,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "v": [
+      974.6388988602265,
+      974.6554306964689
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 0.43,
+     "ok": true,
+     "s": 10.52,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 73] [k1 73]"
+     "v": [
+      2346.8413777020874,
+      2346.8622066752964
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 13167.251775509718,
+   "occt_ok": true
   },
   {
    "seed": 106,
@@ -1412,6 +1456,7 @@
    "b": "sphere",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     12921.591373881516,
     12921.591373892108
@@ -1423,7 +1468,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 3.42,
+     "s": 2.74,
      "intent_mismatch": false,
      "v": [
       13570.07755220589,
@@ -1432,7 +1477,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 3.76,
+     "s": 5.33,
      "intent_mismatch": false,
      "v": [
       0.03359022538687056,
@@ -1441,7 +1486,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 8.34,
+     "s": 5.49,
      "intent_mismatch": false,
      "v": [
       12921.557783386908,
@@ -1460,6 +1505,7 @@
    "b": "prism",
    "mode": "coplanar",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     5717.519454626911,
     5717.519454645207
@@ -1471,19 +1517,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1.63,
+     "s": 1.2,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": false,
-     "s": 1.44,
+     "s": 1.79,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "difference": {
      "ok": false,
-     "s": 2.19,
+     "s": 1.31,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     }
@@ -1495,6 +1541,7 @@
    "b": "cylinder",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     1073.5444114061647,
     1073.5444114062013
@@ -1506,13 +1553,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 5.97,
+     "s": 4.22,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-penetration 8 0"
     },
     "intersection": {
      "ok": true,
-     "s": 0.92,
+     "s": 0.8,
      "intent_mismatch": false,
      "v": [
       33.48301925920296,
@@ -1521,7 +1568,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.02,
+     "s": 1.42,
      "intent_mismatch": false,
      "v": [
       1040.0605226954096,
@@ -1537,6 +1584,7 @@
    "b": "revolve",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     660.2905137775571,
     660.290513778777
@@ -1548,13 +1596,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.34,
+     "s": 1.67,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 11 14"
     },
     "intersection": {
      "ok": true,
-     "s": 0.36,
+     "s": 0.23,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1563,7 +1611,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.63,
+     "s": 0.78,
      "intent_mismatch": true,
      "v": [
       660.2905137775571,
@@ -1579,6 +1627,7 @@
    "b": "cylinder",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     1819.7109211239242,
     1819.710921124012
@@ -1590,19 +1639,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1.56,
+     "s": 1.59,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 1.87,
+     "s": 1.88,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 1.13,
+     "s": 1.22,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
     }
@@ -1614,6 +1663,7 @@
    "b": "cone",
    "mode": "nearmiss",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     118.19418826814956,
     118.19418826815614
@@ -1625,7 +1675,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.37,
+     "s": 0.34,
      "intent_mismatch": false,
      "v": [
       1549.0253995515147,
@@ -1634,7 +1684,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.36,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1643,7 +1693,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.31,
+     "s": 0.82,
      "intent_mismatch": true,
      "v": [
       118.19418826814956,
@@ -1662,6 +1712,7 @@
    "b": "prism",
    "mode": "general",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     117.5213268014924,
     117.52132680149641
@@ -1673,7 +1724,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.3,
      "intent_mismatch": false,
      "v": [
       3181.7855782375677,
@@ -1691,7 +1742,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.39,
+     "s": 0.56,
      "intent_mismatch": true,
      "v": [
       117.5213268014924,
@@ -1710,6 +1761,7 @@
    "b": "prism",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     679.2476628523416,
     679.2476628535951
@@ -1721,7 +1773,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.44,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       10144.273381327932,
@@ -1730,7 +1782,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.68,
+     "s": 0.36,
      "intent_mismatch": false,
      "v": [
       498.09116253626263,
@@ -1739,7 +1791,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.95,
+     "s": 0.51,
      "intent_mismatch": false,
      "v": [
       181.15650031602436,
@@ -1758,6 +1810,7 @@
    "b": "cylinder",
    "mode": "tangent",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     2594.970796309244,
     2594.9707963093083
@@ -1769,7 +1822,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.21,
      "intent_mismatch": false,
      "v": [
       10073.690833091367,
@@ -1787,7 +1840,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.01,
+     "s": 0.67,
      "intent_mismatch": true,
      "v": [
       2594.970796309244,
@@ -1806,6 +1859,7 @@
    "b": "box",
    "mode": "coplanar",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     473.3915255380348,
     473.39152553891694
@@ -1817,7 +1871,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.19,
      "intent_mismatch": false,
      "v": [
       502.1144744948542,
@@ -1826,7 +1880,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       197.32256366449255,
@@ -1835,7 +1889,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       276.06896187350804,
@@ -1854,6 +1908,7 @@
    "b": "cone",
    "mode": "coaxial",
    "ok_base": true,
+   "input_valid": true,
    "va": [
     2451.3854672354246,
     2451.3854672399907
@@ -1865,19 +1920,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 3.38,
+     "s": 4.16,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     },
     "intersection": {
      "ok": false,
-     "s": 5.02,
+     "s": 3.75,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     },
     "difference": {
      "ok": false,
-     "s": 4.01,
+     "s": 2.6,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     }
