@@ -103,7 +103,7 @@ Run 1 failed four checks, all missing manufacturing-quality STL exports of curve
 - The fuzz's three timeouts (seed 25, sphere and prism) and its 142 refusals.
 - Tessellation: the blade and union are not conforming yet, and cylinder walls refine isotropically (plate 227 s against a 5 s budget).
 - The reducer's 16 reproducers are shallow (0 to 2 reduction steps); naming the geometric cause and a succeeding edit is not done.
-- Pins: c00 to c07 hold in full (33, 30, 44, 409, 500, 31, 82 + 25, 14 + 17). `tests/c08/pins.bend` had not compiled since early November (none of its 486 pins ran); repaired, 486/486. c08 `pins_build` onwards had not finished when this was written. The full C13 regression gate was not run; the C06 E2E was, and fails only on the plate budget.
+- Pins: all 25 pin files hold (`tools/pins/run.sh`). Two files did not compile at 4e10100 (`tests/c08/pins.bend`, 486 pins, and `tests/k1/pins.bend`, 22 pins), so none of those pins had run since early November; and four pins in c08 and k1 still asserted refusals that c07e44e (rotated operands) and d73e301 (K4 patch faces) removed on purpose. Repaired; c08 486/486, c08 build 54/54, k1 22/22. The full C13 regression gate was not run; the C06 E2E was, and fails only on the plate budget.
 - G5 itself was not rebuilt: its design lives on the owner's machine and took 72 minutes to tessellate on 16 cores.
 
 ## How to repeat
