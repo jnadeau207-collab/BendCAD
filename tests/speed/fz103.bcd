@@ -1,0 +1,7 @@
+(bendcad 1)
+(node 1 (revolve (region (path 3.756340088785826 0 (line 17.123661339487377 0) (line 15.4659404308141 10.021855314509832) (arc 16.29480088515074 15.032782971764748 5.0790162077911685 17.123661339487377 20.043710629019664 ccw) (line 3.756340088785826 20.043710629019664) (line 3.756340088785826 0)))) (intent create any any any any))
+(node 2 (sphere 7.995180871830408) (intent create any any any any))
+(node 10 (rotate 2 z -90) (intent same any any any any))
+(node 11 (rotate 10 x 45) (intent same any any any any))
+(node 12 (move 11 2.5 2.5 0 0) (intent same any any any any))
+(node 100 (intersection 1 12) (intent same any any any any))
