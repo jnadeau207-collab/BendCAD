@@ -8,6 +8,13 @@ import ../../src/c04/ops.bend as Op
 import ../../src/base/par.bend as B
 import ./LAWS.bend as Laws
 
+def and_true(b: Bool) -> {b == Bool.and(b, True{}) : Bool}:
+  match b:
+    case False{}:
+      {==}
+    case True{}:
+      {==}
+
 def Laws.tok_ok(v):
   match v:
     case Ty.T_f{w}: {==}
@@ -371,6 +378,7 @@ def Laws.l1_seam_use(f):
     case False{}: {==}
 
 def Laws.l1_outer_rule(g, su, ls, sa, slv, sla, x):
+  %and_true(Nat.is_eq(Op.hls_outer(ls, x), 1n)) : {Op.fas_kind_ok(Ty.Fa{g, su, ls, sa, slv, sla} <> Nil{}, x) == _ : Bool}
   {==}
 
 def Laws.l1_ov_start(a, b, f):
@@ -507,8 +515,17 @@ def Laws.l1_edge_line(g, v0, v1, k):
 def Laws.l1_lines_nil(x):
   {==}
 
+def lines_zz(t: List<&2, Ty.HCoedge>, b: Bool, +x: Ty.Ix) -> {Op.hcs_all_lines_zz(t, b, x) == Bool.and(b, Op.hcs_all_lines_zz(t, True{}, x)) : Bool}:
+  match t b:
+    case _ True{}:
+      {==}
+    case Nil{} False{}:
+      {==}
+    case Con{h, u} False{}:
+      {==}
+
 def Laws.l1_lines_cons(h, t, x):
-  {==}
+  lines_zz(t, Op.edge_is_line(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(Ty.tres_ce(Ty.ix_ce(x, h)))))), x)
 
 def Laws.l1_plane_pos(w):
   {==}
