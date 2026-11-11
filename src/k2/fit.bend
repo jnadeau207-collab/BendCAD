@@ -242,11 +242,11 @@ def fe_name(+f: FE) -> String:
 
 def tg_at(+cs: List<&2, M.CE>, +n: U64, +nm: String) -> KT.TG:
   +b = M.nr_body(M.ce_r(M.ce_find(cs, n)))
-  KT.tg_of(b, M.name_idx(M.bd_fns(b), nm, 0n))
+  KT.tg_named(b, nm)
 
 def face_known(+cs: List<&2, M.CE>, +n: U64, +nm: String) -> Bool:
   +b = M.nr_body(M.ce_r(M.ce_find(cs, n)))
-  Nat.is_lt(M.name_idx(M.bd_fns(b), nm, 0n), List.length(&2, BD.Fn, M.bd_fns(b)))
+  KT.ta_found(KT.tg_find(b, nm))
 
 def needs_mat(ts: List<&2, TE>) -> Bool:
   match ts:
