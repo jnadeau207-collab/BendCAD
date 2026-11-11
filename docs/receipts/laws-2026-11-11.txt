@@ -1,0 +1,25 @@
+# Law gate, 2026-11-11, source 3241d155dd56bebab85656f60ce9643da9b10245
+# bend: 9ea0fe732dccd43983172bceaffcb2fcd9b451e337dda378cbe384ca5f1a5ad5  /root/.bend/bin/bend (numeric/2026-10-05 a4d17acecf79c71696610f0683d8d003bc392920 (built 2026-11-11 in cloud session)); Lean 4.34.0
+base laws=13 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 2s
+c00 laws=8 check=[ALL PROOFS CHECK] 4s verdict=[ALL PROOFS CHECK] 4s
+c01 laws=10 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c02 laws=16 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 1s
+c03 laws=10 check=[ALL PROOFS CHECK] 62s verdict=[ALL PROOFS CHECK] 62s
+c04 laws=104 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 4s
+c05 laws=36 check=[ALL PROOFS CHECK] 360s verdict=[ALL PROOFS CHECK] 357s
+c06 laws=6 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 36s
+c07 laws=5 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 2s
+c08 laws=4 check=[ALL PROOFS CHECK] 7s verdict=[ALL PROOFS CHECK] 20s
+c09 laws=2 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 8s
+c10 laws=18 check=[ALL PROOFS CHECK] 10s verdict=[ALL PROOFS CHECK] 51s
+c11 laws=65 check=[ALL PROOFS CHECK] 15s verdict=[ALL PROOFS CHECK] 56s
+c12 laws=64 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 60s
+c13 laws=4 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 8s
+c14 laws=153 check=[ALL PROOFS CHECK] 70s verdict=[ALL PROOFS CHECK] 123s
+c15 laws=20 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 58s
+c16.1 laws=11 check=[ALL PROOFS CHECK] 23s verdict=[ALL PROOFS CHECK] 132s
+c16.2 laws=13 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 45s
+c16.3 laws=15 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 45s
+k1 laws=3 check=[ALL PROOFS CHECK] 7s verdict=[ALL PROOFS CHECK] 17s
+k2 laws=6 check=[ALL PROOFS CHECK] 10s verdict=[ALL PROOFS CHECK] 41s
+k3 laws=7 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 6s
