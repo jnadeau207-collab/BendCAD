@@ -704,6 +704,21 @@ def cc_code(a: Shp, b: Shp) -> U64:
     case Sh_cir{ax, ay, ra} Sh_cir{bx, by, rb}: code_of(cir_cir(ax, ay, ra, bx, by, rb), 9u64)
     case _ _: 15u64
 
+def prj_in(+px: F64, +py: F64, +qx: F64, +qy: F64, +vx: F64, +vy: F64) -> Bool:
+  Bool.and(sgn_pos(E.ex_sign(dot_ex(px, py, vx, vy, qx, qy))), sgn_pos(E.ex_sign(dot_ex(qx, qy, vx, vy, px, py))))
+
+def seg_tri_meet(+px: F64, +py: F64, +qx: F64, +qy: F64, +ax: F64, +ay: F64, +cx: F64, +cy: F64, +bx: F64, +by: F64) -> Bool:
+  +oa = ori(px, py, qx, qy, ax, ay)
+  +ob = ori(px, py, qx, qy, bx, by)
+  Bool.and(Bool.or(Bool.and(sgn_pos(oa), sgn_neg(ob)), Bool.and(sgn_neg(oa), sgn_pos(ob))),
+    Bool.and(prj_in(px, py, qx, qy, ax, ay), Bool.and(prj_in(px, py, qx, qy, cx, cy), prj_in(px, py, qx, qy, bx, by))))
+
+def meet(a: Shp, b: Shp) -> Bool:
+  match a b:
+    case Sh_seg{px, py, qx, qy} Sh_tri{ax, ay, cx, cy, w, bx, by}: seg_tri_meet(px, py, qx, qy, ax, ay, cx, cy, bx, by)
+    case Sh_tri{ax, ay, cx, cy, w, bx, by} Sh_seg{px, py, qx, qy}: seg_tri_meet(px, py, qx, qy, ax, ay, cx, cy, bx, by)
+    case _ _: False{}
+
 def pair_tag(+t: U64, +a: Shp, +b: Shp) -> U64:
   match t:
     case 0u64: ss_code(a, b)
@@ -712,7 +727,7 @@ def pair_tag(+t: U64, +a: Shp, +b: Shp) -> U64:
     case 5u64: cp_code(b, a, 15u64)
     case 6u64: cp_code(a, b, 9u64)
     case 7u64: cp_code(a, b, 15u64)
-    case _: code_of(cvx_sep(a, b), 15u64)
+    case _: code_of(cvx_sep(a, b), Bool.pick(U64, meet(a, b), 9u64, 15u64))
 
 def pair_code(+a: Shp, +b: Shp) -> U64:
   pair_tag((U64.mul(sh_tag(a), 3u64) + sh_tag(b) : U64), a, b)

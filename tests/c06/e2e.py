@@ -199,9 +199,11 @@ def atomic_rejections():
            '(node 2 (revolve (region (path -1 0 (line 5 0) (line 5 5) (line -1 5)))) (intent create any 0 1 0))',
            '(node 2 (holes 7 (face 7 0 top) through (hole 5 10 1)) (intent remove any any 1 any))',
            '(node 2 (sphere 10) (intent create any any 1 any)) (node 3 (holes 2 (face 2 0 top) through (hole 0 0 1)) (intent remove any any 1 any))',
-           '(node 2 (holes 1 (face 9 0 top) through (hole 5 10 1)) (intent remove any any 1 any))']
+           '(node 2 (holes 1 (face 9 0 top) through (hole 5 10 1)) (intent remove any any 1 any))',
+           '(node 2 (revolve (region (path 2.2486825912897497 0.0 (line 15.026197788288677 0.0) (line 3.5325193111438087 5.792310579095314) (arc 9.279358549716243 8.688465868642972 6.435361426926282 15.026197788288677 11.584621158190629 ccw) (line 2.2486825912897497 11.584621158190629) (line 2.2486825912897497 0.0)))) (intent create any 0 1 0))']
     whys = ['curves-cross-or-touch', 'declared material=add', 'depth-reaches-opposite-face', 'curves-cross-or-touch',
-            'profile-crosses-revolve-axis', 'input-node-missing-or-failed', 'features-need-an-extruded-body', 'face-not-found']
+            'profile-crosses-revolve-axis', 'input-node-missing-or-failed', 'features-need-an-extruded-body', 'face-not-found',
+            'curves-cross-or-touch']
     for i, e in enumerate(bad):
         out, _ = cli('rej.bcd', 'apply', e)
         record(f'reject.{i}', 'rejected' in out and whys[i] in out and read('rej.bcd') == before, why=re.findall(r'why: ([^|]+)', out)[-1:])
