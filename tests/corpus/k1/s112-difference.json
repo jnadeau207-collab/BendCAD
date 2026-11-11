@@ -1,0 +1,21 @@
+{
+ "seed": 112,
+ "op": "difference",
+ "kinds": [
+  "sphere",
+  "prism",
+  "coplanar"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "validation-rejected",
+  null
+ ],
+ "bnode": 10,
+ "steps": 0,
+ "edits": [
+  "(node 1 (sphere 11.092761628662457) (intent create any any any any))",
+  "(node 2 (prism 0.0 13.497766486773687 (region (path 12.404288298130567 -1.3945086601291672 (line 6.45406684866472 10.55556381799919) (line -8.148211273828569 10.223847451810052) (line -12.51713361078547 0.7429352037604905) (line -7.401769951487347 -11.089142934825341) (line 7.998591276119544 -11.57560069590695) (line 12.404288298130567 -1.3945086601291672)))) (intent create any any any any))",
+  "(node 10 (move 2 5.0 -3.0 0.0 0) (intent same any any any any))"
+ ]
+}

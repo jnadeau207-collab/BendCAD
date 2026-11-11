@@ -1,0 +1,23 @@
+{
+ "seed": 124,
+ "op": "union",
+ "kinds": [
+  "cone",
+  "torus",
+  "general"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "intersect-rejected",
+  "73"
+ ],
+ "bnode": 13,
+ "steps": 2,
+ "edits": [
+  "(node 1 (cone 4.0 30.0) (intent create any any any any))",
+  "(node 2 (torus 10.0 5.0) (intent create any any any any))",
+  "(node 11 (rotate 2 y -70.0) (intent same any any any any))",
+  "(node 12 (rotate 11 z -30.0) (intent same any any any any))",
+  "(node 13 (move 12 1.0 3.0 -10.0 0) (intent same any any any any))"
+ ]
+}

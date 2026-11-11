@@ -1,0 +1,22 @@
+{
+ "seed": 87,
+ "op": "union",
+ "kinds": [
+  "cylinder",
+  "revolve",
+  "axis"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "intersect-rejected",
+  "72"
+ ],
+ "bnode": 11,
+ "steps": 0,
+ "edits": [
+  "(node 1 (cylinder 13.376629031512119 25.143956870244562) (intent create any any any any))",
+  "(node 2 (revolve (region (path 1.408750989462776 0.0 (line 15.541388819771477 0.0) (line 14.491646915011911 9.124729861776661) (arc 15.016517867391695 13.687094792664992 4.592457215832472 15.541388819771477 18.249459723553322 ccw) (line 1.408750989462776 18.249459723553322) (line 1.408750989462776 0.0)))) (intent create any any any any))",
+  "(node 10 (rotate 2 y 45.0) (intent same any any any any))",
+  "(node 11 (move 10 -5.0 7.0 0.0 0) (intent same any any any any))"
+ ]
+}
