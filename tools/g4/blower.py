@@ -182,7 +182,7 @@ def blade_exact(k):
 
 def blade_path(k):
     b = blade_exact(k)
-    h = Fraction(TB / 2)
+    h = Fraction(int(TB), 2)
     E1, C, E2, R, d1, d2 = b['E1'], b['C'], b['E2'], b['R'], b['d1'], b['d2']
     s = 1 if b['sweep'] > 0 else -1
     ro, ri = R + h, R - h
