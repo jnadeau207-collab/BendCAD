@@ -10,6 +10,9 @@ type Rb is Data:
 type Cv is Data:
   Cv{ rb: Rb, a: F64, b: F64 }
 
+type Bd is Data:
+  Bd{ b: List<&2, I.I>, d: List<&2, I.I> }
+
 def comb(+a: I.I, +b: I.I, +t: I.I) -> I.I:
   I.iadd(a, I.imul(t, I.isub(b, a)))
 
@@ -138,18 +141,34 @@ def rb_box(r: Rb, +t: I.I) -> List<&2, I.I>:
 def qder(+n: I.I, +dn: I.I, +w: I.I, +dw: I.I) -> I.I:
   I.idiv(I.isub(I.imul(dn, w), I.imul(n, dw)), I.isq(w))
 
-def der_k(poly: Bool, +xs: List<&2, I.I>, +ws: List<&2, I.I>, +t: I.I, +dn: I.I) -> I.I:
-  match poly:
-    case True{}: dn
-    case False{}: qder(hull(rs(xs, t)), dn, hull(rs(ws, t)), hull(rs(hodo(ws), t)))
+def hd(+xs: List<&2, I.I>, +t: I.I) -> I.I:
+  hull(rs(hodo(xs), t))
 
-def coord_der(+xs: List<&2, I.I>, +ws: List<&2, I.I>, +t: I.I, +poly: Bool) -> I.I:
-  der_k(poly, xs, ws, t, hull(rs(hodo(xs), t)))
+def der_k(poly: Bool, +x: List<&2, I.I>, +y: List<&2, I.I>, +z: List<&2, I.I>, +w: List<&2, I.I>, +t: I.I) -> List<&2, I.I>:
+  match poly:
+    case True{}: [hd(x, t), hd(y, t), hd(z, t)]
+    case False{}:
+      +hw = hull(rs(w, t))
+      +dw = hd(w, t)
+      [qder(hull(rs(x, t)), hd(x, t), hw, dw), qder(hull(rs(y, t)), hd(y, t), hw, dw), qder(hull(rs(z, t)), hd(z, t), hw, dw)]
+
+def bd_k(poly: Bool, +rx: List<&2, I.I>, +ry: List<&2, I.I>, +rz: List<&2, I.I>, +rw: List<&2, I.I>,
+    +x: List<&2, I.I>, +y: List<&2, I.I>, +z: List<&2, I.I>, +w: List<&2, I.I>, +t: I.I) -> Bd:
+  match poly:
+    case True{}: Bd{[coord_box(rx, rw), coord_box(ry, rw), coord_box(rz, rw)], [hd(x, t), hd(y, t), hd(z, t)]}
+    case False{}:
+      +hw = hull(rw)
+      +dw = hd(w, t)
+      Bd{[coord_box(rx, rw), coord_box(ry, rw), coord_box(rz, rw)],
+        [qder(hull(rx), hd(x, t), hw, dw), qder(hull(ry), hd(y, t), hw, dw), qder(hull(rz), hd(z, t), hw, dw)]}
 
 def rb_der(r: Rb, +t: I.I) -> List<&2, I.I>:
   Rb{+x, +y, +z, +w} = r
-  +poly = allone(w)
-  [coord_der(x, w, t, poly), coord_der(y, w, t, poly), coord_der(z, w, t, poly)]
+  der_k(allone(w), x, y, z, w, t)
+
+def rb_bd(r: Rb, +t: I.I) -> Bd:
+  Rb{+x, +y, +z, +w} = r
+  bd_k(allone(w), rs(x, t), rs(y, t), rs(z, t), rs(w, t), x, y, z, w, t)
 
 def cv_box(c: Cv, +t: I.I) -> List<&2, I.I>:
   Cv{rb, a, b} = c
@@ -158,6 +177,10 @@ def cv_box(c: Cv, +t: I.I) -> List<&2, I.I>:
 def cv_der(c: Cv, +t: I.I) -> List<&2, I.I>:
   Cv{rb, a, b} = c
   rb_der(rb, t)
+
+def cv_bd(c: Cv, +t: I.I) -> Bd:
+  Cv{rb, a, b} = c
+  rb_bd(rb, t)
 
 def cv_par(c: Cv, +t: I.I) -> I.I:
   Cv{rb, +a, +b} = c
