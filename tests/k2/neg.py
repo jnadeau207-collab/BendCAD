@@ -87,7 +87,7 @@ def c8():
 @case('thread.external_major_mismatch')
 def c9():
     _, s = plate()
-    out, _ = E.cli('n.bcd', 'apply', f'(thread 4 t {s} M10 6g 0 20)')
+    out, _ = E.cli('n.bcd', 'apply', f'(thread 4 t {s} M12 6g 0 20)')
     return refused(out, 'thread-major-diameter-mismatch'), out[-200:]
 
 

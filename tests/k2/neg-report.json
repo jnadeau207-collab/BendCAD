@@ -37,7 +37,7 @@
  {
   "name": "thread.span_outside_face",
   "ok": true,
-  "info": "r invalid-input | thread | why: thread-span-outside-face: t | fix: write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class\n\nrejected: the design was not changed\n"
+  "info": "sible=[4, 20] along=(0,0,1) Z=dot(point,along) frame=world | fix: write (thread 3 t n2.c0.wall.0.0 M8 6H Z0 Z1) with 4 <= Z0 < Z1 <= 20, Z measured along (0,0,1)\n\nrejected: the design was not changed\n"
  },
  {
   "name": "thread.external_major_mismatch",
