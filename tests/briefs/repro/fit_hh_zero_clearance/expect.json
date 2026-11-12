@@ -1,0 +1,37 @@
+{
+ "item": 3,
+ "claim": "H7/h5 at the reference temperature has minimum clearance exactly 0 and is a clearance fit (ISO 286-1); other kinds still classify",
+ "limit_s": 30,
+ "steps": [
+  {
+   "args": [
+    "pmi",
+    "fits",
+    "(pmi (node 1) (temp cold 20) (fit seat 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/h5 clearance))"
+   ],
+   "must": [
+    "temp cold T=20 clearance=\\[0, 0\\.03",
+    "verdict=clearance-certified status=certified"
+   ],
+   "must_not": [
+    "fit-not-clearance",
+    "-7\\.1"
+   ]
+  },
+  {
+   "args": [
+    "pmi",
+    "fits",
+    "(pmi (node 1) (fit run 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/g6 clearance) (fit loc 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/k6 transition) (fit prs 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/s6 press))"
+   ],
+   "must": [
+    "verdict=clearance-certified",
+    "verdict=transition-certified",
+    "verdict=press-certified"
+   ],
+   "must_not": [
+    "error"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+{
+ "item": 7,
+ "claim": "the countersink edit (param CS 2.6) commits like 2.45 to 2.7",
+ "limit_s": 60,
+ "steps": [
+  {"args": ["apply", "(param CS 2.6)"], "must": ["^committed"]},
+  {"args": ["check", "4"], "must": ["^ok:"]}
+ ]
+}

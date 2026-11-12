@@ -1,0 +1,60 @@
+{
+ "item": 4,
+ "claim": "one assembly grammar: (press ...) is accepted by asm solve, mass and clear; asm clear reports a declared press pair as declared without timing out",
+ "limit_s": 120,
+ "steps": [
+  {
+   "args": [
+    "asm",
+    "solve",
+    "(assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))"
+   ],
+   "must": [
+    "^asm solved ninst 4 nmates 4 dof 0"
+   ],
+   "must_not": [
+    "unknown-assembly-entry"
+   ]
+  },
+  {
+   "args": [
+    "asm",
+    "mass",
+    "(assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))"
+   ],
+   "must": [
+    "^total=\\[.*\\] kg status=certified"
+   ],
+   "must_not": [
+    "unknown-assembly-entry"
+   ]
+  },
+  {
+   "args": [
+    "asm",
+    "clear",
+    "(assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))"
+   ],
+   "limit_s": 60,
+   "must": [
+    "^pair bearing shaft",
+    "^declared press-fit inner status=declared"
+   ],
+   "must_not": [
+    "unknown-assembly-entry",
+    "^error"
+   ]
+  },
+  {
+   "args": [
+    "asm",
+    "interf",
+    "(assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))"
+   ],
+   "limit_s": 300,
+   "must": [
+    "^declared press-fit inner status=declared"
+   ]
+  }
+ ]
+}
