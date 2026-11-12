@@ -1,0 +1,89 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "pad_cell_face_sealed_cavity",
+   "item": 1,
+   "claim": "(face N CELL top|bottom) on a boolean body resolves to the face its name nN.cK.top|bottom implies, or is refused naming the faces to use; a holes or pocket cut that leaves a sealed cavity is refused with the face it opens through, and following that fix commits",
+   "verdict": "pass",
+   "seconds": 1.546,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd faces 4 -f",
+     "seconds": 0.158,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,30) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn2.c0.top plane loops=2 frame o=(0,0,2) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 plane loops=1 frame o=(0,2,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn2.c0.wall.1.0 plane loops=1 frame o=(18,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.2.0 plane loops=1 frame o=(0,18,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn2.c0.wall.3.0 plane loops=1 frame o=(2,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn3.c0.top plane loops=2 frame o=(0,0,26) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn3.c0.wall.0.0 cylinder loops=2 axis o=(10,10,2) d=(0,0,1) radius=[3.5, 3.5] diameter=[7, 7] convex\nn4.c0.bottom plane loops=1 frame o=(0,0,20) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn4.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,1) radius=[2, 2] diameter=[4, 4] concave\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd check 4",
+     "seconds": 0.196,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok: embedded, shells outward, cavities nested\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 5 (holes 3 (face 2 n2.c0.top) 1 (hole 10 10 2)) (intent remove any any 1 any))",
+     "seconds": 0.248,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[11999.9999999889, 12000.0000000111] area=[3199.99999999804, 3200.00000000196] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[4831.999999980647, 4832.000000019352] area=[4991.99999999712, 4992.000000002881] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=16 edges=24 faces=11 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=add faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5755.628240149646, 5755.628240161159] area=[5519.787565797565, 5519.787565808606] bbox=[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 30.000000000000064] vertices=18 edges=26 faces=13 solids=1 genus=0 linear_uncertainty=6.905587213168481e-14 | proof: k1-crossing-certified V18 E26 F13 S1\nnode 4: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5680.230016463565, 5680.230016474929] area=[5595.185789483645, 5595.185789494837] bbox=[-5.329070518200754e-14, 20.000000000000068]x[-5.329070518200754e"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 5 (holes 3 (face 3 n3.c0.top) 1 (hole 10 10 2)) (intent remove any any 1 any))",
+     "seconds": 0.208,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[11999.9999999889, 12000.0000000111] area=[3199.99999999804, 3200.00000000196] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[4831.999999980647, 4832.000000019352] area=[4991.99999999712, 4992.000000002881] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=16 edges=24 faces=11 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=add faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5755.628240149646, 5755.628240161159] area=[5519.787565797565, 5519.787565808606] bbox=[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 30.000000000000064] vertices=18 edges=26 faces=13 solids=1 genus=0 linear_uncertainty=6.905587213168481e-14 | proof: k1-crossing-certified V18 E26 F13 S1\nnode 4: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5680.230016463565, 5680.230016474929] area=[5595.185789483645, 5595.185789494837] bbox=[-5.329070518200754e-14, 20.000000000000068]x[-5.329070518200754e"
+    },
+    {
+     "cmd": "BIN design.bcd faces 5 -f",
+     "seconds": 0.15,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,30) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn2.c0.top plane loops=2 frame o=(0,0,2) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 plane loops=1 frame o=(0,2,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn2.c0.wall.1.0 plane loops=1 frame o=(18,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.2.0 plane loops=1 frame o=(0,18,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn2.c0.wall.3.0 plane loops=1 frame o=(2,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn3.c0.top plane loops=2 frame o=(0,0,26) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn3.c0.wall.0.0 cylinder loops=2 axis o=(10,10,2) d=(0,0,1) radius=[3.5, 3.5] diameter=[7, 7] convex\nn5.c0.bottom plane loops=1 frame o=(0,0,25) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn5.c0.wall.0.0 cylinder loops=2 axis o=(10,10,26) d=(0,0,1) radius=[2, 2] diameter=[4, 4] concave\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 6 (holes 3 (face 3 0 bottom) 2 (hole 10 10 1)) (intent remove any any 1 any))",
+     "seconds": 0.204,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[11999.9999999889, 12000.0000000111] area=[3199.99999999804, 3200.00000000196] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[4831.999999980647, 4832.000000019352] area=[4991.99999999712, 4992.000000002881] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=16 edges=24 faces=11 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=add faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5755.628240149646, 5755.628240161159] area=[5519.787565797565, 5519.787565808606] bbox=[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 30.000000000000064] vertices=18 edges=26 faces=13 solids=1 genus=0 linear_uncertainty=6.905587213168481e-14 | proof: k1-crossing-certified V18 E26 F13 S1\nnode 4: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5680.230016463565, 5680.230016474929] area=[5595.185789483645, 5595.185789494837] bbox=[-5.329070518200754e-14, 20.000000000000068]x[-5.329070518200754e"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 6 (holes 3 (face 3 n1.c0.bottom) 2 (hole 10 -10 1)) (intent remove any any 1 any))",
+     "seconds": 0.229,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[11999.9999999889, 12000.0000000111] area=[3199.99999999804, 3200.00000000196] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[4831.999999980647, 4832.000000019352] area=[4991.99999999712, 4992.000000002881] bbox=[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 20.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006] vertices=16 edges=24 faces=11 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=add faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5755.628240149646, 5755.628240161159] area=[5519.787565797565, 5519.787565808606] bbox=[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 20.000000000000064]x[-5.329070518200753e-14, 30.000000000000064] vertices=18 edges=26 faces=13 solids=1 genus=0 linear_uncertainty=6.905587213168481e-14 | proof: k1-crossing-certified V18 E26 F13 S1\nnode 4: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[5680.230016463565, 5680.230016474929] area=[5595.185789483645, 5595.185789494837] bbox=[-5.329070518200754e-14, 20.000000000000068]x[-5.329070518200754e"
+    },
+    {
+     "cmd": "BIN design.bcd faces 6 -f",
+     "seconds": 0.153,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,30) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=2 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn2.c0.top plane loops=2 frame o=(0,0,2) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 plane loops=1 frame o=(0,2,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn2.c0.wall.1.0 plane loops=1 frame o=(18,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.2.0 plane loops=1 frame o=(0,18,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn2.c0.wall.3.0 plane loops=1 frame o=(2,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn3.c0.top plane loops=1 frame o=(0,0,26) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn3.c0.wall.0.0 cylinder loops=2 axis o=(10,10,2) d=(0,0,1) radius=[3.5, 3.5] diameter=[7, 7] convex\nn6.c0.bottom plane loops=1 frame o=(0,0,2) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn6.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,-1) radius=[1, 1] diameter=[2, 2] concave\n\n"
+    }
+   ]
+  }
+ ]
+}
