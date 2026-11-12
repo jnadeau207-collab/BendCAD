@@ -1,0 +1,35 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "fit_hh_zero_clearance",
+   "item": 3,
+   "claim": "H7/h5 at the reference temperature has minimum clearance exactly 0 and is a clearance fit (ISO 286-1); other kinds still classify",
+   "verdict": "pass",
+   "seconds": 0.013,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd pmi fits (pmi (node 1) (temp cold 20) (fit seat 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/h5 clearance))",
+     "seconds": 0.007,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fits 1\nfit seat hole 1.n1.c1.wall.0.0 H7=[22, 22.021] shaft 2.n2.c0.wall.0.0 h5=[21.991, 22] nominal=22\n  temp cold T=20 clearance=[0, 0.030000000000000002]\n  verdict=clearance-certified status=certified\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd pmi fits (pmi (node 1) (fit run 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/g6 clearance) (fit loc 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/k6 transition) (fit prs 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/s6 press))",
+     "seconds": 0.006,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fits 3\nfit run hole 1.n1.c1.wall.0.0 H7=[22, 22.021] shaft 2.n2.c0.wall.0.0 g6=[21.98, 21.993] nominal=22\n  temp nominal T=20 clearance=[0.006999999999999999, 0.04100000000000001]\n  verdict=clearance-certified status=certified\nfit loc hole 1.n1.c1.wall.0.0 H7=[22, 22.021] shaft 2.n2.c0.wall.0.0 k6=[22.002, 22.015] nominal=22\n  temp nominal T=20 clearance=[-0.015000000000000001, 0.019000000000000003]\n  verdict=transition-certified status=certified\nfit prs hole 1.n1.c1.wall.0.0 H7=[22, 22.021] shaft 2.n2.c0.wall.0.0 s6=[22.035, 22.048] nominal=22\n  temp nominal T=20 interference=[0.013999999999999999, 0.04800000000000001]\n  verdict=press-certified status=certified\n\n"
+    }
+   ]
+  }
+ ]
+}

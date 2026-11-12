@@ -112,25 +112,42 @@ def lower(+l: String) -> String:
   Bool.pick(String, String.eq(l, "D"), "d", Bool.pick(String, String.eq(l, "E"), "e", Bool.pick(String, String.eq(l, "F"), "f",
     Bool.pick(String, String.eq(l, "G"), "g", l))))
 
-def shaft_lim(+l: String, +g: Nat, +d: F64) -> V.Vec2:
+def shaft_dev(+l: String, +g: Nat, +d: F64) -> V.Vec2:
   +ri = rng_go(tops(), d, 0n)
   +si = rng_go(subtops(), d, 0n)
-  +it = F64.div(KT.f_at(it_tab(g), ri), 1000.0f64)
+  +it = KT.f_at(it_tab(g), ri)
   +up = Bool.or(Bool.or(String.eq(l, "d"), String.eq(l, "e")), Bool.or(String.eq(l, "f"), String.eq(l, "g")))
-  +es = F64.neg(F64.div(KT.f_at(es_up(l), ri), 1000.0f64))
+  +es = F64.neg(KT.f_at(es_up(l), ri))
   +kz = Bool.and(String.eq(l, "k"), Nat.is_lt(7n, g))
   +sub = Bool.or(String.eq(l, "r"), String.eq(l, "s"))
-  +ei = Bool.pick(F64, kz, 0.0f64, F64.div(Bool.pick(F64, sub, KT.f_at(ei_sub(l), si), KT.f_at(ei_lo(l), ri)), 1000.0f64))
-  Bool.pick(V.Vec2, String.eq(l, "h"), V.V2{F64.sub(d, it), d},
-    Bool.pick(V.Vec2, String.eq(l, "js"), V.V2{F64.sub(d, F64.mul(0.5f64, it)), F64.add(d, F64.mul(0.5f64, it))},
-      Bool.pick(V.Vec2, up, V.V2{F64.add(F64.sub(d, it), es), F64.add(d, es)}, V.V2{F64.add(d, ei), F64.add(F64.add(d, ei), it)})))
+  +ei = Bool.pick(F64, kz, 0.0f64, Bool.pick(F64, sub, KT.f_at(ei_sub(l), si), KT.f_at(ei_lo(l), ri)))
+  Bool.pick(V.Vec2, String.eq(l, "h"), V.V2{F64.neg(it), 0.0f64},
+    Bool.pick(V.Vec2, String.eq(l, "js"), V.V2{F64.neg(F64.mul(0.5f64, it)), F64.mul(0.5f64, it)},
+      Bool.pick(V.Vec2, up, V.V2{F64.sub(es, it), es}, V.V2{ei, F64.add(ei, it)})))
+
+def hole_dev(+l: String, +g: Nat, +d: F64) -> V.Vec2:
+  +ri = rng_go(tops(), d, 0n)
+  +it = KT.f_at(it_tab(g), ri)
+  +ei = Bool.pick(F64, String.eq(l, "H"), 0.0f64, KT.f_at(es_up(lower(l)), ri))
+  Bool.pick(V.Vec2, String.eq(l, "JS"), V.V2{F64.neg(F64.mul(0.5f64, it)), F64.mul(0.5f64, it)}, V.V2{ei, F64.add(ei, it)})
+
+def mm_of(+d: F64, +um: F64) -> F64:
+  F64.add(d, F64.div(um, 1000.0f64))
+
+def lim_of(+d: F64, +v: V.Vec2) -> V.Vec2:
+  V.V2{mm_of(d, V.v2_x(v)), mm_of(d, V.v2_y(v))}
 
 def hole_lim(+l: String, +g: Nat, +d: F64) -> V.Vec2:
-  +ri = rng_go(tops(), d, 0n)
-  +it = F64.div(KT.f_at(it_tab(g), ri), 1000.0f64)
-  +ei = Bool.pick(F64, String.eq(l, "H"), 0.0f64, F64.div(KT.f_at(es_up(lower(l)), ri), 1000.0f64))
-  Bool.pick(V.Vec2, String.eq(l, "JS"), V.V2{F64.sub(d, F64.mul(0.5f64, it)), F64.add(d, F64.mul(0.5f64, it))},
-    V.V2{F64.add(d, ei), F64.add(F64.add(d, ei), it)})
+  lim_of(d, hole_dev(l, g, d))
+
+def shaft_lim(+l: String, +g: Nat, +d: F64) -> V.Vec2:
+  lim_of(d, shaft_dev(l, g, d))
+
+def um_iv(+n: F64) -> I.I:
+  Bool.pick(I.I, F64.is_eq(n, 0.0f64), I.ipt(0.0f64), I.idiv(I.ipt(n), I.ipt(1000.0f64)))
+
+def lim_iv(+d: F64, +um: F64) -> I.I:
+  I.iadd(I.ipt(d), um_iv(um))
 
 def fe_of(+x: S.Sx) -> FE:
   +xs = S.sx_xs(x)
@@ -161,12 +178,15 @@ def cte_of(m: Maybe<&2, M.Grade>) -> F64:
       M.Gr{+n, +gr, +rho, +cte, e, nu} = g
       cte
 
-def gf(+cte: F64, +t: F64) -> I.I:
-  Bool.pick(I.I, F64.is_eq(t, 20.0f64), I.ipt(1.0f64), I.iadd(I.ipt(1.0f64), I.imul(I.ipt(cte), I.isub(I.ipt(t), I.ipt(20.0f64)))))
+def therm(+d: F64, +h: F64, +s: F64, +ah: F64, +as: F64, +dt: I.I) -> I.I:
+  I.imul(dt, I.isub(I.imul(lim_iv(d, h), I.ipt(ah)), I.imul(lim_iv(d, s), I.ipt(as))))
 
-def clear_iv(+h: V.Vec2, +s: V.Vec2, +fh: I.I, +fs: I.I) -> I.I:
-  I.I{I.i_lo(I.isub(I.imul(I.ipt(V.v2_x(h)), fh), I.imul(I.ipt(V.v2_y(s)), fs))),
-    I.i_hi(I.isub(I.imul(I.ipt(V.v2_y(h)), fh), I.imul(I.ipt(V.v2_x(s)), fs)))}
+def clear_iv(+hd: V.Vec2, +sd: V.Vec2, +d: F64, +ah: F64, +as: F64, +t: F64) -> I.I:
+  +lo = um_iv(F64.sub(V.v2_x(hd), V.v2_y(sd)))
+  +hi = um_iv(F64.sub(V.v2_y(hd), V.v2_x(sd)))
+  +dt = I.isub(I.ipt(t), I.ipt(20.0f64))
+  Bool.pick(I.I, F64.is_eq(t, 20.0f64), I.I{I.i_lo(lo), I.i_hi(hi)},
+    I.I{I.i_lo(I.iadd(lo, therm(d, V.v2_x(hd), V.v2_y(sd), ah, as, dt))), I.i_hi(I.iadd(hi, therm(d, V.v2_y(hd), V.v2_x(sd), ah, as, dt)))})
 
 def iv_s(+a: F64, +b: F64) -> String:
   "[" ++ S.f_show(a) ++ ", " ++ S.f_show(b) ++ "]"
@@ -175,12 +195,12 @@ def temp_line(+kind: String, +nm: String, +t: F64, +c: I.I) -> String:
   "  temp " ++ nm ++ " T=" ++ S.f_show(t) ++ Bool.pick(String, String.eq(kind, "press"),
     " interference=" ++ iv_s(F64.neg(I.i_hi(c)), F64.neg(I.i_lo(c))), " clearance=" ++ iv_s(I.i_lo(c), I.i_hi(c))) ++ "\n"
 
-def temps_go(ts: List<&2, TE>, +kind: String, +h: V.Vec2, +s: V.Vec2, +ah: F64, +as: F64, +acc: List<&2, I.I>) -> List<&2, I.I>:
+def temps_go(ts: List<&2, TE>, +hd: V.Vec2, +sd: V.Vec2, +d: F64, +ah: F64, +as: F64, +acc: List<&2, I.I>) -> List<&2, I.I>:
   match ts:
     case []: acc
     case +x <> +t:
       TE{+nm, +tt} = x
-      temps_go(t, kind, h, s, ah, as, clear_iv(h, s, gf(ah, tt), gf(as, tt)) <> acc)
+      temps_go(t, hd, sd, d, ah, as, clear_iv(hd, sd, d, ah, as, tt) <> acc)
 
 def te_nm(+x: TE) -> String:
   TE{+nm, +tt} = x
@@ -204,7 +224,7 @@ def all_pos_zz(cs: List<&2, I.I>, zz: Bool) -> Bool:
     case +h <> +t:
       match zz:
         case False{}: False{}
-        case True{}: all_pos_zz(t, F64.is_lt(0.0f64, I.i_lo(h)))
+        case True{}: all_pos_zz(t, F64.is_le(0.0f64, I.i_lo(h)))
 
 def all_pos(cs: List<&2, I.I>) -> Bool:
   all_pos_zz(cs, True{})
@@ -215,7 +235,7 @@ def all_neg_zz(cs: List<&2, I.I>, zz: Bool) -> Bool:
     case +h <> +t:
       match zz:
         case False{}: False{}
-        case True{}: all_neg_zz(t, F64.is_lt(I.i_hi(h), 0.0f64))
+        case True{}: all_neg_zz(t, F64.is_le(I.i_hi(h), 0.0f64))
 
 def all_neg(cs: List<&2, I.I>) -> Bool:
   all_neg_zz(cs, True{})
@@ -258,11 +278,13 @@ def needs_mat(ts: List<&2, TE>) -> Bool:
 def fit_ok(+f: FE, +fc: FC, +ms: List<&2, M.Grade>, +tes: List<&2, TE>, +d: F64) -> String:
   FE{+nm, +a, +hs, +b, +ss, +c, +k} = f
   FC{+ok, +hl, +hg, +sl, +sg} = fc
+  +hd = hole_dev(hl, hg, d)
+  +sd = shaft_dev(sl, sg, d)
   +h = hole_lim(hl, hg, d)
   +s = shaft_lim(sl, sg, d)
   +ah = Bool.pick(F64, needs_mat(tes), cte_of(KM.mat_find(ms, a)), 0.0f64)
   +as = Bool.pick(F64, needs_mat(tes), cte_of(KM.mat_find(ms, b)), 0.0f64)
-  +cl = List.reverse(&2, I.I, temps_go(tes, k, h, s, ah, as, []))
+  +cl = List.reverse(&2, I.I, temps_go(tes, hd, sd, d, ah, as, []))
   +v = verdict_of(k, cl)
   +head = "fit " ++ nm ++ " hole " ++ U64.show(a) ++ "." ++ hs ++ " " ++ hl ++ Nat.show(hg) ++ "=" ++ iv_s(V.v2_x(h), V.v2_y(h)) ++
     " shaft " ++ U64.show(b) ++ "." ++ ss ++ " " ++ sl ++ Nat.show(sg) ++ "=" ++ iv_s(V.v2_x(s), V.v2_y(s)) ++ " nominal=" ++ S.f_show(d) ++ "\n"
