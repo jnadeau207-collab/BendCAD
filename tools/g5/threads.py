@@ -45,6 +45,8 @@ def wrap_clear(phase, per_turn):
 
 
 def helix_secs(r_base, z0, length, p, pts, per_turn=PER_TURN, phase=0.0):
+    if not wrap_clear(phase, 1):
+        raise ValueError(f'helix phase {math.degrees(phase):.2f} deg lies within 2 deg of the cutter seam; no section count avoids it')
     while not wrap_clear(phase, per_turn):
         per_turn += 1
     n = max(2, int(round(length / p * per_turn)) + 1)
@@ -70,4 +72,4 @@ def ext_helix(nid, d, z0, length, ic, p=None, datum=None):
 def int_helix(nid, d, z0, length, ic, p=None):
     p = p or PITCH[d]
     r, pts = int_tooth(d, p)
-    return f'(node {nid} (skin {helix_secs(r, z0, length, p, pts)}) {ic})'
+    return f'(node {nid} (skin {helix_secs(r, z0, length, p, pts, phase=SEAM_OFF)}) {ic})'

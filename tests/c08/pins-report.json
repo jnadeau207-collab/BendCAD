@@ -60,14 +60,6 @@
   "ok": true
  },
  {
-  "name": "admit_interval_a",
-  "ok": true
- },
- {
-  "name": "admit_interval_b",
-  "ok": true
- },
- {
   "name": "admit_open_a_first",
   "ok": true
  },
@@ -77,6 +69,10 @@
  },
  {
   "name": "admit_open_beats_interval",
+  "ok": true
+ },
+ {
+  "name": "admit_rotated_is_admitted",
   "ok": true
  },
  {
@@ -424,11 +420,11 @@
   "ok": true
  },
  {
-  "name": "d2_bp_kind_is_bezier",
+  "name": "d2_bp_kind_admitted",
   "ok": true
  },
  {
-  "name": "d2_curved_patch_refused",
+  "name": "d2_curved_patch_admitted",
   "ok": true
  },
  {

@@ -58,7 +58,7 @@ def bd0() -> M.Body:
 
 def in0() -> B8.In:
   B8.In{Ty.brep_empty(), [], [], m3id(), 0.0f64, 0.0f64, 0.0f64, [], I.I{1.0f64, 1.0f64},
-    I.I{2.0f64, 2.0f64}, B8.bx_zero(), 0.5f64, False{}, True{}, []}
+    I.I{2.0f64, 2.0f64}, B8.bx_zero(), 0.5f64, False{}, True{}, P.tb_of(SO.KF, [], SO.kf_pad())}
 
 def fq(+x: F64, +y: F64, +z: F64) -> V.Point:
   V.Pt{x, y, z}
@@ -1172,17 +1172,17 @@ def d2_flat_patch_admitted__got() -> U64:
 def d2_flat_patch_admitted__want() -> U64:
   0u64
 
-def d2_curved_patch_refused__got() -> U64:
+def d2_curved_patch_admitted__got() -> U64:
   B8.surf_admit(G.GV_bp{curved_bp()})
 
-def d2_curved_patch_refused__want() -> U64:
-  1u64
+def d2_curved_patch_admitted__want() -> U64:
+  0u64
 
-def d2_bp_kind_is_bezier__got() -> U64:
+def d2_bp_kind_admitted__got() -> U64:
   B8.surf_admit_nb(G.GV_bp{curved_bp()})
 
-def d2_bp_kind_is_bezier__want() -> U64:
-  1u64
+def d2_bp_kind_admitted__want() -> U64:
+  0u64
 
 def flat_bp_line_on_plane__got() -> Bool:
   XS.ez(XS.ex_horner(XS.comp_go(XS.gv_xc(flat_line()), XS.gv_xs(G.GV_bp{flat_bp()})), 1.0f64))
@@ -2414,26 +2414,20 @@ def bx_mag_reads__got() -> F64:
 def bx_mag_reads__want() -> F64:
   3.0f64
 
-def admit_interval_a__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 0u64, False{}, True{})
+def admit_rotated_is_admitted__got() -> U64:
+  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 0u64)
 
-def admit_interval_a__want() -> U64:
-  7u64
-
-def admit_interval_b__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 0u64, True{}, False{})
-
-def admit_interval_b__want() -> U64:
-  8u64
+def admit_rotated_is_admitted__want() -> U64:
+  0u64
 
 def admit_open_beats_interval__got() -> U64:
-  B8.admit_code(True{}, False{}, 0u64, 0u64, 0u64, 0u64, False{}, False{})
+  B8.admit_code(True{}, False{}, 0u64, 0u64, 0u64, 0u64)
 
 def admit_open_beats_interval__want() -> U64:
   1u64
 
 def admit_edge_beats_interval__got() -> U64:
-  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 1u64, False{}, True{})
+  B8.admit_code(False{}, False{}, 0u64, 0u64, 0u64, 1u64)
 
 def admit_edge_beats_interval__want() -> U64:
   6u64
@@ -2715,19 +2709,19 @@ def intersect_transverse_still_crosses__want() -> String:
   "boundaries-cross-or-overlap: edge-crossing 3 7 between nodes 1 and 2"
 
 def append_out_rebox__got() -> B8.BX:
-  B8.Out_bb(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.BX{0.0f64, 1.0f64, 0.0f64, 1.0f64, 0.0f64, 1.0f64}, B8.BX{2.0f64, 3.0f64, 2.0f64, 3.0f64, 2.0f64, 3.0f64}, ""))
+  B8.Out_bb(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.BX{0.0f64, 1.0f64, 0.0f64, 1.0f64, 0.0f64, 1.0f64}, B8.BX{2.0f64, 3.0f64, 2.0f64, 3.0f64, 2.0f64, 3.0f64}, "", []))
 
 def append_out_rebox__want() -> B8.BX:
   B8.BX{0.0f64, 3.0f64, 0.0f64, 3.0f64, 0.0f64, 3.0f64}
 
 def append_out_no_del__got() -> List<&2, B8.Del>:
-  B8.Out_del(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.bx_zero(), B8.bx_zero(), ""))
+  B8.Out_del(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.bx_zero(), B8.bx_zero(), "", []))
 
 def append_out_no_del__want() -> List<&2, B8.Del>:
   []
 
 def append_out_proof__got() -> String:
-  B8.Out_proof(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.bx_zero(), B8.bx_zero(), "p"))
+  B8.Out_proof(B8.append_out(14u64, in0(), in0(), Ty.brep_empty(), 9u64, 0n, B8.bx_zero(), B8.bx_zero(), "p", []))
 
 def append_out_proof__want() -> String:
   "p"

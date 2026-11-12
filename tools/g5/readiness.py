@@ -11,7 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 VIEW = os.path.join(ROOT, 'viewer', 'g5')
 REC = os.path.join(ROOT, 'docs', 'receipts', 'g5')
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
-DESIGN = '/home/jesse/g5/g5.bcd'
+DESIGN = os.environ.get('G5_DESIGN', '/home/jesse/g5/g5.bcd')
 sys.path.insert(0, os.path.dirname(__file__))
 import jet
 
@@ -24,7 +24,8 @@ def chk(name, status, evidence, basis):
 
 
 def kernel(*a):
-    p = subprocess.run(['wsl.exe', '-e', BIN, DESIGN, *a], capture_output=True, text=True, env=dict(os.environ, MSYS_NO_PATHCONV='1'), timeout=900)
+    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
+    p = subprocess.run([*pre, BIN, DESIGN, *a], capture_output=True, text=True, env=dict(os.environ, MSYS_NO_PATHCONV='1'), timeout=900)
     return p.stdout + p.stderr
 
 
@@ -69,29 +70,63 @@ chk('turbine tip clearance survives thermal growth', 'pass' if gap > growth else
 ndm = cyc['bearing_ndm_mm_per_min']
 chk('bearing speed within catalog limit', 'not-analyzed', f'n*dm={ndm:.0f} mm/min; no catalog limit or lubrication path is in the repo', 'none')
 
+sys.path.insert(0, os.path.join(ROOT, 'tools', 'mesh'))
+import check as meshcheck
+
 bad = {}
 for p in sc['parts']:
-    t = []
-    with open(os.path.join(VIEW, p['mesh']), encoding='utf-8') as f:
-        vv = []
-        for ln in f:
-            if ln.startswith('v '):
-                vv.append(ln.split()[1:4])
-            elif ln.startswith('f '):
-                t.append([int(x) - 1 for x in ln.split()[1:4]])
-    V = np.array(vv, float)
-    T = V[np.array(t)]
-    a = np.linalg.norm(np.cross(T[:, 1] - T[:, 0], T[:, 2] - T[:, 0]), axis=1)
-    z = int((a <= 1e-12).sum())
-    if z:
-        bad[p['name']] = z
+    r = meshcheck.check(os.path.join(VIEW, p['mesh']))
+    if not r['conforming']:
+        bad[p['name']] = {k: r[k] for k in ('zero_area', 'same_direction_pairs', 't_junctions') if r[k]} | (
+            {'edge_uses': r['edge_uses']} if set(r['edge_uses']) - {'2'} else {})
 chk('kernel meshes are conforming (no zero-area T-junction fillers)', 'fail' if bad else 'pass',
-    f'zero-area triangles: {bad}' if bad else 'none', 'measured: tessellation of every part')
+    f'non-conforming parts: {bad}' if bad else 'every part: no zero-area triangle, every edge used twice in opposite directions, no T-junction',
+    'measured: tools/mesh/check.py on the tessellation of every part')
 
-for name, pat in (('airflow simulated through the running machine (CFD)', 'cfd'), ('stress and creep at speed (FEM)', 'fem'),
-                  ('rotor dynamics: critical speeds and blade modes', 'modes'), ('lubrication path to both bearings', 'lube')):
-    found = glob.glob(os.path.join(REC, pat, '*.json'))
-    chk(name, 'pass' if found else 'not-analyzed', f'{len(found)} receipts in docs/receipts/g5/{pat}', 'receipt presence')
+SPLIT = {'primary': 0.20, 'secondary': 0.30, 'dilution': 0.50}
+
+
+def near(x, want, rel):
+    return x is not None and abs(x / want - 1.0) <= rel
+
+
+def cfd(r):
+    sp = r.get('liner_split', {})
+    bad = [k for k, w in SPLIT.items() if not near(sp.get(k), w, 0.10)]
+    ok = (r.get('converged') is True and r.get('mesh_levels', 0) >= 3 and near(r.get('mass_flow_kg_s'), cyc['inputs']['mdot_kg_s'], 0.05)
+          and near(r.get('pressure_ratio'), cyc['inputs']['PR'], 0.10) and not bad)
+    return ok, (f"mdot {r.get('mass_flow_kg_s')} vs {cyc['inputs']['mdot_kg_s']}, PR {r.get('pressure_ratio')} vs {cyc['inputs']['PR']}, "
+                f"split off plan: {bad or 'none'}, levels {r.get('mesh_levels')}, converged {r.get('converged')}")
+
+
+def fem(r):
+    ps = r.get('parts', [])
+    over = [p['name'] for p in ps if not p.get('max_von_mises_MPa', 1e30) < p.get('allowable_MPa', 0)]
+    need = {'impeller', 'turbine'} - {p['name'] for p in ps}
+    return r.get('converged') is True and ps and not over and not need, f'over allowable: {over or "none"}; missing: {sorted(need) or "none"}'
+
+
+def modes(r):
+    crit = [c for c in r.get('critical_speeds_rpm', []) if abs(c / rpm - 1.0) < 0.15]
+    return bool(r.get('critical_speeds_rpm')) and not crit, f'critical speeds within 15% of {rpm:.0f} r/min: {crit or "none"}'
+
+
+def lube(r):
+    hit = {p['to'] for p in r.get('paths', []) if p.get('connected') is True and p.get('min_section_mm2', 0) > 0}
+    miss = {'bearing_front', 'bearing_rear'} - hit
+    return not miss, f'bearings without a connected lube path: {sorted(miss) or "none"}'
+
+
+for name, pat, judge in (('airflow simulated through the running machine (CFD)', 'cfd', cfd), ('stress and creep at speed (FEM)', 'fem', fem),
+                         ('rotor dynamics: critical speeds and blade modes', 'modes', modes), ('lubrication path to both bearings', 'lube', lube)):
+    found = sorted(glob.glob(os.path.join(REC, pat, '*.json')))
+    rs = [json.load(open(p, encoding='utf-8')) for p in found]
+    rs = [r for r in rs if r.get('source')]
+    if not rs:
+        chk(name, 'not-analyzed', f'no receipt with a named kernel or solver source in docs/receipts/g5/{pat}', 'none')
+        continue
+    ok, ev = judge(rs[-1])
+    chk(name, 'pass' if ok else 'fail', ev, f'measured: {rs[-1]["source"]}')
 
 rep = dict(binary=BIN, ready=all(c['status'] == 'pass' for c in checks), checks=checks)
 os.makedirs(os.path.join(REC, 'review'), exist_ok=True)

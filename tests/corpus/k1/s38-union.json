@@ -1,0 +1,21 @@
+{
+ "seed": 38,
+ "op": "union",
+ "kinds": [
+  "revolve",
+  "sphere",
+  "coaxial"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "validation-rejected",
+  null
+ ],
+ "bnode": 10,
+ "steps": 0,
+ "edits": [
+  "(node 1 (revolve (region (path 4.018033734688128 0.0 (line 9.0156658341163 0.0) (line 8.723701060428729 6.480776158196461) (arc 8.869683447272514 9.72116423729469 3.243674730984987 9.0156658341163 12.961552316392922 ccw) (line 4.018033734688128 12.961552316392922) (line 4.018033734688128 0.0)))) (intent create any any any any))",
+  "(node 2 (sphere 2.567850581589885) (intent create any any any any))",
+  "(node 10 (move 2 0.0 0.0 2.6405652964223965 0) (intent same any any any any))"
+ ]
+}

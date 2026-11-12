@@ -88,14 +88,35 @@ def Laws.p7_len(a, b, c, d, e, f, g):
 def Laws.p9_len(a, b, c, d, e, f, g, h, i):
   {==}
 
+def fins_zz_l(t: List<&2, F64>, b: Bool) -> {AS.fins_zz(t, b) == Bool.and(b, AS.fins_zz(t, True{})) : Bool}:
+  match t b:
+    case _ True{}:
+      {==}
+    case Nil{} False{}:
+      {==}
+    case Con{h, u} False{}:
+      {==}
+
 def Laws.fins_cons(x, t):
-  {==}
+  fins_zz_l(t, T.is_finite(x))
 
 def Laws.inst_has_nil(nm):
   {==}
 
+def inst_has_zz_l(t: List<&2, AS.Inst>, b: Bool, +nm: String) -> {AS.inst_has_zz(t, b, nm) == Bool.or(b, AS.inst_has_zz(t, False{}, nm)) : Bool}:
+  match t b:
+    case _ False{}:
+      {==}
+    case Nil{} True{}:
+      {==}
+    case Con{h, u} True{}:
+      {==}
+
+def inst_has_cons_l(i: AS.Inst, t: List<&2, AS.Inst>, +nm: String) -> {AS.inst_has(i <> t, nm) == Bool.or(String.eq(AS.inst_name(i), nm), AS.inst_has(t, nm)) : Bool}:
+  inst_has_zz_l(t, String.eq(AS.inst_name(i), nm), nm)
+
 def Laws.inst_has_cons(i, t, nm):
-  {==}
+  inst_has_cons_l(i, t, nm)
 
 def Laws.inst_at_cons(i, t, nm):
   {==}
@@ -271,8 +292,20 @@ def Laws.maxres_cons(d, t, sol, m):
 def Laws.u_has_nil(v):
   {==}
 
+def u_has_zz_l(t: List<&2, U64>, b: Bool, +v: U64) -> {AS.u_has_zz(t, b, v) == Bool.or(b, AS.u_has_zz(t, False{}, v)) : Bool}:
+  match t b:
+    case _ False{}:
+      {==}
+    case Nil{} True{}:
+      {==}
+    case Con{h, u} True{}:
+      {==}
+
+def u_has_cons_l(x: U64, t: List<&2, U64>, +v: U64) -> {AS.u_has(x <> t, v) == Bool.or(U64.is_eq(x, v), AS.u_has(t, v)) : Bool}:
+  u_has_zz_l(t, U64.is_eq(x, v), v)
+
 def Laws.u_has_cons(x, t, v):
-  {==}
+  u_has_cons_l(x, t, v)
 
 def Laws.viol_nil(sol, acc):
   {==}

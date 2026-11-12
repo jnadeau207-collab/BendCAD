@@ -22,6 +22,26 @@ def f(x):
     return repr(float(x))
 
 
+def revolve_valid(r0, r1, rm, z1):
+    cx, cz = (rm + r1) / 2, z1 * 0.75
+    rad = math.hypot(rm - cx, z1 * 0.25)
+    a0 = math.atan2(z1 * 0.5 - cz, rm - cx)
+    a1 = math.atan2(z1 - cz, r1 - cx)
+    while a1 <= a0:
+        a1 += 2 * math.pi
+    p, d = (r1, 0.0), (rm - r1, z1 * 0.5)
+    A, B, C = d[0] ** 2 + d[1] ** 2, 2 * (d[0] * (p[0] - cx) + d[1] * (p[1] - cz)), (p[0] - cx) ** 2 + (p[1] - cz) ** 2 - rad * rad
+    disc = B * B - 4 * A * C
+    for t in ([(-B - math.sqrt(disc)) / (2 * A), (-B + math.sqrt(disc)) / (2 * A)] if disc > 0 else []):
+        if 1e-9 < t < 1 - 1e-9:
+            a = math.atan2(p[1] + t * d[1] - cz, p[0] + t * d[0] - cx)
+            while a < a0:
+                a += 2 * math.pi
+            if a <= a1:
+                return False
+    return min(cx + rad * math.cos(a) for a in (a0, a1, math.pi) if a0 <= a <= a1 or a in (a0, a1)) > r0
+
+
 def shape(rng, nid, kind):
     if kind == 'box':
         a, b, c = (rng.uniform(4, 30) for _ in range(3))
@@ -44,7 +64,7 @@ def shape(rng, nid, kind):
         rm = rng.uniform(r0 + 1, r1 + 4)
         p = (f'(region (path {f(r0)} 0.0 (line {f(r1)} 0.0) (line {f(rm)} {f(z1 * 0.5)}) (arc {f((rm + r1) / 2)} {f(z1 * 0.75)} '
              f'{f(math.hypot(rm - (rm + r1) / 2, z1 * 0.25))} {f(r1)} {f(z1)} ccw) (line {f(r0)} {f(z1)}) (line {f(r0)} 0.0)))')
-        return [f'(node {nid} (revolve {p}) {IC})'], dict(kind=kind)
+        return [f'(node {nid} (revolve {p}) {IC})'], dict(kind=kind, valid=revolve_valid(r0, r1, rm, z1))
     n = rng.randint(3, 7)
     rad = rng.uniform(5, 15)
     pts = [(rad * math.cos(2 * math.pi * k / n + rng.uniform(-0.2, 0.2)), rad * math.sin(2 * math.pi * k / n + rng.uniform(-0.2, 0.2))) for k in range(n)]
@@ -124,7 +144,7 @@ def one(seed):
     d = f'{WORK}/c{seed}.bcd'
     run(d, 'new')
     out, dt0 = run(d, 'apply', *ea, *eb, *pe)
-    rec = dict(seed=seed, a=ka, b=kb, mode=mode, ok_base='committed' in out)
+    rec = dict(seed=seed, a=ka, b=kb, mode=mode, ok_base='committed' in out, input_valid=ia.get('valid', True) and ib.get('valid', True))
     va, vb = vol(nline(out, 1)), vol(nline(out, bnode))
     rec['va'], rec['vb'] = va, vb
     res = {}
@@ -196,7 +216,10 @@ def summarize(recs):
     times = sorted(o['s'] for _, _, o in ops)
     idf = [r for r in recs if r.get('id_ui') is False or r.get('id_di') is False]
     occ = [r for r in recs if 'occt_ok' in r]
-    return dict(cases=len(recs), base_ok=sum(r['ok_base'] for r in recs), ops=tot, committed=ok,
+    return dict(cases=len(recs), base_ok=sum(r['ok_base'] for r in recs),
+                base_refused_valid=[r['seed'] for r in recs if not r['ok_base'] and r.get('input_valid', True)],
+                base_committed_invalid=[r['seed'] for r in recs if r['ok_base'] and r.get('input_valid') is False],
+                ops=tot, committed=ok,
                 commit_rate=round(ok / tot, 4) if tot else None,
                 refusals=dict(sorted(why.items(), key=lambda kv: -kv[1])),
                 by_mode={k: dict(ops=v[0], committed=v[1]) for k, v in by.items()},

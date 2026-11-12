@@ -80,7 +80,7 @@ def axial_pt(+t: KT.TG, +z: F64) -> V.Point:
   KS.padd(o, F64.sub(z, KS.dot(KS.psub(o, KS.pt(0.0f64, 0.0f64, 0.0f64)), a)), a)
 
 def wa_of(+b: M.Body, +th: M.Thr) -> WA:
-  +t = KT.tg_of(b, M.name_idx(M.bd_fns(b), KT.th_face(th), 0n))
+  +t = KT.tg_named(b, KT.th_face(th))
   +z = KT.th_z(th)
   +d = place_dr(b, KT.tg_ax(t))
   +p0 = place_pt(b, axial_pt(t, V.v2_x(z)))
@@ -254,7 +254,7 @@ def fwa(+b: M.Body, +t: KT.TG) -> WA:
   WA{p0, d, KS.dot(KS.psub(p0, KS.pt(0.0f64, 0.0f64, 0.0f64)), d), KS.dot(KS.psub(p1, KS.pt(0.0f64, 0.0f64, 0.0f64)), d)}
 
 def tg_at(+b: M.Body, +f: String) -> KT.TG:
-  KT.tg_of(b, M.name_idx(M.bd_fns(b), f, 0n))
+  KT.tg_named(b, f)
 
 def inside(+b: M.Body, +p: V.Point) -> Bool:
   U64.is_eq(SO.classify(SO.fds_of(M.bd_brep(b)), QI.loc_pt(M.bd_pl(b), V.pt_x(p), V.pt_y(p), V.pt_z(p))), 1u64)

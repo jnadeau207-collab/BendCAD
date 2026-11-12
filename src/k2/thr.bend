@@ -175,6 +175,40 @@ def tg_of(+b: M.Body, +fi: Nat) -> TG:
   +k = FB.kb_of(M.bd_brep(b))
   tg_cy(FB.face_surf(k, fi), k, fi)
 
+type TA is Data:
+  TA{ found: Bool, t: TG }
+
+def tg_join(+a: TG, +b: TG) -> TG:
+  TG{+ok1, +ax1, +o1, +r1, +sd1, +s1, +e1} = a
+  TG{+ok2, +ax2, +o2, +r2, +sd2, +s2, +e2} = b
+  +same = Bool.and(Bool.and(Bool.and(ok1, ok2), F64.is_eq(r1, r2)), Bool.and(Bool.and(F64.is_eq(KS.dot(ax1, ax2), 1.0f64), F64.is_eq(KS.dlen(KS.cross(KS.psub(o2, o1), ax1)), 0.0f64)), Bool.not(Bool.xor(sd1, sd2))))
+  TG{same, ax1, o1, r1, sd1, F64.min(s1, s2), F64.max(e1, e2)}
+
+def ta_add(+acc: TA, +g: TG) -> TA:
+  TA{+f, +t} = acc
+  TA{True{}, Bool.pick(TG, f, tg_join(t, g), g)}
+
+def tg_fold(fs: List<&2, BD.Fn>, +nm: String, +k: FB.KB, +i: Nat, +acc: TA) -> TA:
+  match fs:
+    case []: acc
+    case +f <> t:
+      +hit = Bool.or(String.eq(BD.fn_name(f), nm), String.eq(BD.fn_base(f), nm))
+      tg_fold(t, nm, k, Nat.add(i, 1n), Bool.pick(TA, hit, ta_add(acc, tg_cy(FB.face_surf(k, i), k, i)), acc))
+
+def tg_find(+b: M.Body, +nm: String) -> TA:
+  tg_fold(M.bd_fns(b), nm, FB.kb_of(M.bd_brep(b)), 0n, TA{False{}, TG{False{}, V.Dr{0.0f64, 0.0f64, 1.0f64}, V.Pt{0.0f64, 0.0f64, 0.0f64}, 0.0f64, False{}, 0.0f64, 0.0f64}})
+
+def ta_found(+a: TA) -> Bool:
+  TA{+f, +t} = a
+  f
+
+def ta_tg(+a: TA) -> TG:
+  TA{+f, +t} = a
+  t
+
+def tg_named(+b: M.Body, +nm: String) -> TG:
+  ta_tg(tg_find(b, nm))
+
 def tg_ok(+t: TG) -> Bool:
   TG{+ok, +ax, +o, +r, +inn, +t0, +t1} = t
   ok
@@ -241,11 +275,10 @@ def ds_d(+d: DS) -> F64:
   dd
 
 def th_code(+th: M.Thr, +b: M.Body) -> U64:
-  +fi = M.name_idx(M.bd_fns(b), th_face(th), 0n)
-  +nf = List.length(&2, BD.Fn, M.bd_fns(b))
+  +ta = tg_find(b, th_face(th))
   +ds = desig(th_d(th))
   +k = cls_code(th_c(th))
-  +tg = tg_of(b, fi)
+  +tg = tg_named(b, th_face(th))
   +z = th_z(th)
   +sp = tg_span(tg)
   +eps = {1.0e-9f64 : F64}
@@ -257,7 +290,7 @@ def th_code(+th: M.Thr, +b: M.Body) -> U64:
   +inr = Bool.and(Bool.not(cls_inner(k)), Bool.and(F64.is_le(F64.sub(V.v2_x(wr), eps), dm), F64.is_le(dm, F64.add(V.v2_y(wr), eps))))
   +fits = Bool.or(Bool.or(inw, inr), Bool.and(Bool.not(cls_inner(k)), F64.is_le(F64.abs(F64.sub(dm, ds_d(ds))), eps)))
   Bool.pick(U64, Bool.not(ds_ok(ds)), 1u64, Bool.pick(U64, U64.is_eq(k, 0u64), 2u64,
-    Bool.pick(U64, Nat.is_le(nf, fi), 3u64, Bool.pick(U64, Bool.not(tg_ok(tg)), 4u64,
+    Bool.pick(U64, Bool.not(ta_found(ta)), 3u64, Bool.pick(U64, Bool.not(tg_ok(tg)), 4u64,
       Bool.pick(U64, Bool.not(Bool.xor(tg_inner(tg), cls_inner(k))), Bool.pick(U64, inside, Bool.pick(U64, fits, 0u64, 7u64), 6u64), 5u64)))))
 
 def th_why(+code: U64, +th: M.Thr, +inner: Bool) -> String:
@@ -276,7 +309,7 @@ def th_err1(+th: M.Thr, +cs: List<&2, M.CE>) -> String:
   +r = M.ce_r(M.ce_find(cs, n))
   +b = M.nr_body(r)
   +code = th_code(th, b)
-  +tg = tg_of(b, M.name_idx(M.bd_fns(b), th_face(th), 0n))
+  +tg = tg_named(b, th_face(th))
   Bool.pick(String, Bool.not(KM.nd_known(cs, n)), KM.err_line("thread", "unknown-node " ++ U64.show(n), "bind threads to evaluated design nodes"),
     Bool.pick(String, U64.is_eq(code, 0u64), "",
       KM.err_line("thread", th_why(code, th, tg_inner(tg)), "write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class")))
@@ -289,7 +322,7 @@ def ths_err(ts: List<&2, M.Thr>, +cs: List<&2, M.CE>) -> String:
 def th_line(+th: M.Thr, +b: M.Body) -> String:
   +ds = desig(th_d(th))
   +k = cls_code(th_c(th))
-  +tg = tg_of(b, M.name_idx(M.bd_fns(b), th_face(th), 0n))
+  +tg = tg_named(b, th_face(th))
   +w = win(k, ds, pr_or(pr_find(pitches(), ds_p(ds))))
   +z = th_z(th)
   "thread " ++ th_name(th) ++ " " ++ ds_name(ds) ++ " " ++ th_c(th) ++ " z=[" ++ S.f_show(V.v2_x(z)) ++ ", " ++ S.f_show(V.v2_y(z)) ++

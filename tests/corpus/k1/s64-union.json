@@ -1,0 +1,21 @@
+{
+ "seed": 64,
+ "op": "union",
+ "kinds": [
+  "sphere",
+  "box",
+  "coaxial"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "validation-rejected",
+  null
+ ],
+ "bnode": 10,
+ "steps": 1,
+ "edits": [
+  "(node 1 (sphere 9.0) (intent create any any any any))",
+  "(node 2 (box 20.0 9.0 10.0) (intent create any any any any))",
+  "(node 10 (move 2 0.0 0.0 7.0 0) (intent same any any any any))"
+ ]
+}

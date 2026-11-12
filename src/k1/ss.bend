@@ -1108,20 +1108,20 @@ def rev_ok(+st: S.SF, +so: S.SF) -> Bool:
   Bool.pick(Bool, U64.is_eq(S.sf_kind(so), S.k_sph()), is_zero_d(S.cross(S.psub(S.sf_o(so), S.sf_o(st)), S.sf_a(st))),
     coax(S.sf_o(st), S.sf_a(st), S.sf_o(so), S.sf_a(so)))
 
-def rev_go2(ok: Bool, +st: S.SF, +so: S.SF) -> ICS:
+def rev_go2(ok: Bool, +st: S.SF, +so: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
   match ok:
-    case False{}: ICS{[], why_kind()}
+    case False{}: Bool.pick(ICS, S.is_tor(st), fr_tor(so, st, gs, bx), ICS{[], why_kind()})
     case True{}:
       +o = S.sf_o(st)
       +a = S.sf_a(st)
       +sc = rev_sc(st, so)
       rx_ics(mp_all(mp_of(st, o, a), mp_of(so, o, a), sc), o, a, sc)
 
-def rev_go(+s1: S.SF, +s2: S.SF) -> ICS:
+def rev_go(+s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
   +t1 = S.is_tor(s1)
   +st = Bool.pick(S.SF, t1, s1, s2)
   +so = Bool.pick(S.SF, t1, s2, s1)
-  rev_go2(Bool.and(S.is_tor(st), rev_ok(st, so)), st, so)
+  rev_go2(Bool.and(S.is_tor(st), rev_ok(st, so)), st, so, gs, bx)
 
 def ssi_disp(+code: U64, +s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -> ICS:
   match code:
@@ -1147,7 +1147,7 @@ def ssi_disp(+code: U64, +s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +bx: BX) -
     case 20u64: tcy_go(s1, s2, gs, bx)
     case 21u64: tcy_go(s2, s1, gs, bx)
     case 22u64: fr_ssi(s1, s2, gs, bx)
-    case 10u64: rev_go(s1, s2)
+    case 10u64: rev_go(s1, s2, gs, bx)
     case _: ICS{[], why_kind()}
 
 def to_code(+k1: U64, +k2: U64) -> U64:

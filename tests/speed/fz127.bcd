@@ -1,0 +1,8 @@
+(bendcad 1)
+(node 1 (box 4.612734219251122 10.973459828222143 9.278737400555954) (intent create any any any any))
+(node 2 (torus 8.720640090035815 3.855833736854643) (intent create any any any any))
+(node 10 (rotate 2 y -67.42072920654834) (intent same any any any any))
+(node 11 (rotate 10 z 165.91863209164478) (intent same any any any any))
+(node 12 (rotate 11 x 74.17707188504124) (intent same any any any any))
+(node 13 (move 12 -9.016682814784915 10.139785655404467 -9.419882153339948 0) (intent same any any any any))
+(node 100 (difference 1 13) (intent same any any any any))

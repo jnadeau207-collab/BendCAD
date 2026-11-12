@@ -29,6 +29,10 @@ def battery():
         ('g2-threads-38', PUMP, ['threads', '38'], None),
         ('g3-eval', BOX, ['eval'], None),
         ('g4-hub2-eval', 'tests/speed/hub2.bcd', ['eval'], None),
+        ('k4-blade-union-eval', 'tests/speed/k4blade.bcd', ['eval'], None),
+        ('fz127-box-torus-eval', 'tests/speed/fz127.bcd', ['eval'], None),
+        ('fz103-revolve-sphere-eval', 'tests/speed/fz103.bcd', ['eval'], None),
+        ('fz1-cyl-torus-refusal', 'tests/speed/fz1.bcd', ['apply', '(node 100 (union 1 13) (intent add any any any any))'], None),
     ]
 
 

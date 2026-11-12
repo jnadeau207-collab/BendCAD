@@ -1,0 +1,17 @@
+g1-bracket-eval        IDENTICAL  ref       0.1 s  new       0.1 s  x1.38
+g1-strap-eval          IDENTICAL  ref       0.1 s  new       0.1 s  x0.62
+g1-bracket-mass        IDENTICAL  ref      26.5 s  new      23.6 s  x1.12
+g2-eval                IDENTICAL  ref      77.0 s  new      74.0 s  x1.04
+g2-mass-38             IDENTICAL  ref      94.3 s  new      77.6 s  x1.21
+g2-interf-11-38        IDENTICAL  ref      39.7 s  new      46.3 s  x0.86
+g2-step-38             IDENTICAL  ref      13.5 s  new      17.3 s  x0.78
+g2-asm-solve           IDENTICAL  ref      73.6 s  new      77.6 s  x0.95
+g2-asm-interf-pair     IDENTICAL  ref      41.2 s  new      38.6 s  x1.07
+g2-threads-38          IDENTICAL  ref      14.2 s  new      16.0 s  x0.89
+g3-eval                IDENTICAL  ref       2.9 s  new       3.5 s  x0.84
+g4-hub2-eval           IDENTICAL  ref      11.1 s  new      11.3 s  x0.98
+k4-blade-union-eval    IDENTICAL  ref      62.8 s  new      64.3 s  x0.98
+fz127-box-torus-eval   IDENTICAL  ref       1.5 s  new       1.2 s  x1.20
+fz103-revolve-sphere-eval IDENTICAL  ref       2.1 s  new       1.8 s  x1.18
+fz1-cyl-torus-refusal  IDENTICAL  ref      13.4 s  new      13.5 s  x0.99
+16/16 identical

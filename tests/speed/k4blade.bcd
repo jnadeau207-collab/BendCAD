@@ -1,0 +1,6 @@
+(bendcad 1)
+(node 1 (naca4 4 4 12 40 33) (intent create any any any any))
+(node 3 (skin (sec (naca 1) (frame 0 0 0 1 0 0 -0 1 0 1)) (sec (naca 1) (frame 0 0 10 0.984807753012208 0.17364817766693033 0 -0.17364817766693033 0.984807753012208 0 0.9)) (sec (naca 1) (frame 0 0 20 0.9396926207859084 0.3420201433256687 0 -0.3420201433256687 0.9396926207859084 0 0.7999999999999999)) (sec (naca 1) (frame 0 0 30 0.8660254037844387 0.49999999999999994 0 -0.49999999999999994 0.8660254037844387 0 0.7))) (intent create any any any any))
+(node 4 (box 60 60 10) (intent create any any any any))
+(node 5 (move 4 -10 -30 -5 0) (intent same any any any any))
+(node 6 (union 3 5) (intent add any any any any))

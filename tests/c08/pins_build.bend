@@ -429,8 +429,8 @@ def ev_vol_cyl_sphere__got() -> Bool:
 def ev_vol_cyl_sphere__want() -> Bool:
   True{}
 
-def ev_rot45_refused__got() -> Bool:
-  String.eq(last_s(base_rot45() ++ " (node 5 (union 1 4) (intent add 0 0 2 0))"), "err unsupported-op interval-placement: operand placement is not certified exact")
+def ev_rot45_admitted__got() -> Bool:
+  String.starts_with(last_s(base_rot45() ++ " (node 5 (union 1 4) (intent add 0 0 2 0))"), "ok ")
 
-def ev_rot45_refused__want() -> Bool:
+def ev_rot45_admitted__want() -> Bool:
   True{}

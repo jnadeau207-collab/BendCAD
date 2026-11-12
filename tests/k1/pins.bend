@@ -115,14 +115,14 @@ def sphere_operand_admitted__want() -> Bool:
 def pt3(+x: F64, +y: F64, +z: F64) -> V.Point:
   V.Pt{x, y, z}
 
-def curved_patch_refused__got() -> Bool:
+def curved_patch_supported__got() -> Bool:
   GB.fas_sup([Ty.Fa{0u64, G.GV_bp{G.Bp{pt3(0.0f64, 0.0f64, 0.0f64), pt3(0.0f64, 1.0f64, 0.0f64), pt3(0.0f64, 2.0f64, 0.0f64), pt3(0.0f64, 3.0f64, 0.0f64),
     pt3(1.0f64, 0.0f64, 0.0f64), pt3(1.0f64, 1.0f64, 1.0f64), pt3(1.0f64, 2.0f64, 1.0f64), pt3(1.0f64, 3.0f64, 0.0f64),
     pt3(2.0f64, 0.0f64, 0.0f64), pt3(2.0f64, 1.0f64, 1.0f64), pt3(2.0f64, 2.0f64, 1.0f64), pt3(2.0f64, 3.0f64, 0.0f64),
     pt3(3.0f64, 0.0f64, 0.0f64), pt3(3.0f64, 1.0f64, 0.0f64), pt3(3.0f64, 2.0f64, 0.0f64), pt3(3.0f64, 3.0f64, 0.0f64)}}, [], True{}, 0.0f64, 0.0f64}], True{})
 
-def curved_patch_refused__want() -> Bool:
-  False{}
+def curved_patch_supported__want() -> Bool:
+  True{}
 
 def sph(+z: F64, +r: F64) -> S.SF:
   S.sf_of(G.GV_sp{G.Sp{V.Pt{0.0f64, 0.0f64, z}, r}})
@@ -161,25 +161,25 @@ def ball_on_shaft_one_tangent_circle__want() -> Nat:
   1n
 
 def torus_plane_two_circles__got() -> Nat:
-  ics_n(SS.tp_go(zplane(0.6f64), tor(5.0f64, 1.0f64)))
+  ics_n(SS.tp_go(zplane(0.6f64), tor(5.0f64, 1.0f64), [], SS.bx_all()))
 
 def torus_plane_two_circles__want() -> Nat:
   2n
 
 def torus_plane_outer_radius__got() -> F64:
-  ics_r(SS.tp_go(zplane(0.0f64), tor(5.0f64, 1.0f64)), 0n)
+  ics_r(SS.tp_go(zplane(0.0f64), tor(5.0f64, 1.0f64), [], SS.bx_all()), 0n)
 
 def torus_plane_outer_radius__want() -> F64:
   6.0f64
 
 def torus_tangent_plane_circle__got() -> F64:
-  ics_r(SS.tp_go(zplane(1.0f64), tor(5.0f64, 1.0f64)), 0n)
+  ics_r(SS.tp_go(zplane(1.0f64), tor(5.0f64, 1.0f64), [], SS.bx_all()), 0n)
 
 def torus_tangent_plane_circle__want() -> F64:
   5.0f64
 
 def torus_tangent_cylinder_circle__got() -> Nat:
-  ics_n(SS.tcy_go(zcyl(4.0f64), tor(5.0f64, 1.0f64)))
+  ics_n(SS.tcy_go(zcyl(4.0f64), tor(5.0f64, 1.0f64), [], SS.bx_all()))
 
 def torus_tangent_cylinder_circle__want() -> Nat:
   1n

@@ -1,0 +1,21 @@
+{
+ "seed": 19,
+ "op": "union",
+ "kinds": [
+  "revolve",
+  "box",
+  "nearmiss"
+ ],
+ "refusal": [
+  "numerical-uncertainty",
+  "validation-rejected",
+  null
+ ],
+ "bnode": 10,
+ "steps": 0,
+ "edits": [
+  "(node 1 (revolve (region (path 1.48275376890575 0.0 (line 9.994973226900001 0.0) (line 8.57500792322026 6.298103984220035) (arc 9.284990575060132 9.447155976330052 3.2280960046017286 9.994973226900001 12.59620796844007 ccw) (line 1.48275376890575 12.59620796844007) (line 1.48275376890575 0.0)))) (intent create any any any any))",
+  "(node 2 (box 19.202358378877896 19.46998955896529 6.799363529468827) (intent create any any any any))",
+  "(node 10 (move 2 19.999999823733038 0.0 0.0 0) (intent same any any any any))"
+ ]
+}
