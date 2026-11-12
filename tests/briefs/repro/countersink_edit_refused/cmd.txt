@@ -1,0 +1,1 @@
+BIN design.bcd apply '(param CS 2.6)'   # second 45-degree countersink chamfer refuses: intersect @ node 4 face-penetration [k1 reason 42]; CS 2.45 commits

@@ -1,0 +1,1 @@
+BIN design.bcd dist 2 10 10 2

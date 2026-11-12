@@ -1,0 +1,404 @@
+{
+ "id": "B1",
+ "sentence": "L-bracket, 3 mm plate, two M5 clearance holes per leg, inside fillet",
+ "process": "sheet or mill",
+ "binary": "/home/jesse/bc/bendcad-a15",
+ "parts": [
+  3
+ ],
+ "design_notes": "Milled from an L profile extruded 30 mm; inside fillet R3 is an arc in the profile; M5 clearance 5.5 mm (ISO 273 medium) supplied by the agent.",
+ "edits": [
+  {
+   "edit": "(param T 3)",
+   "status": "committed",
+   "s": 0.002,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(param L 40)",
+   "status": "committed",
+   "s": 0.003,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(param W 30)",
+   "status": "committed",
+   "s": 0.011,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(param R 3)",
+   "status": "committed",
+   "s": 0.019,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(param D 5.5)",
+   "status": "committed",
+   "s": 0.006,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(node 1 (prism 0 W (region (path 0 0 (line L 0) (line L T) (line (+ T R) T) (arc (+ T R) (+ T R) R T (+ T R) cw) (line T L) (line 0 L)))) (intent create any 0 1 0))",
+   "status": "committed",
+   "s": 0.016,
+   "refusals": [],
+   "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 2 (holes 1 (face 1 n1.c0.wall.2.0) through (hole 25 -8 (/ D 2)) (hole 25 -22 (/ D 2))) (intent remove any any 1 2))",
+   "status": "committed",
+   "s": 0.21,
+   "refusals": [],
+   "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 3 (holes 2 (face 1 n1.c0.wall.4.0) through (hole 25 8 (/ D 2)) (hole 25 22 (/ D 2))) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 0.385,
+   "refusals": [],
+   "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\n\ncommitted\n"
+  }
+ ],
+ "built": true,
+ "build_incremental_s": 0.652,
+ "build_oneshot": {
+  "s": 0.456,
+  "timeout": false,
+  "committed": true
+ },
+ "probes": [
+  {
+   "name": "sheet-metal route: holes on a bent sheet",
+   "note": "the brief allows sheet; the sheet route is tried for the record",
+   "steps": [
+    {
+     "edit": "(node 50 (flat 80 30 3) (intent create any any 1 any))",
+     "status": "committed",
+     "s": 0.476,
+     "refusals": [],
+     "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\nnode 50: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999992666, 7200.000000007334] area=[5459.99999999517, 5460.00000000483] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 30.00000000000015]x[-1.421085471520201e-13, 3.000000000000143] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
+    },
+    {
+     "edit": "(node 51 (bend 50 (edge 0) 3 90) (intent add any any 1 any))",
+     "status": "committed",
+     "s": 0.43,
+     "refusals": [],
+     "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\nnode 50: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999992666, 7200.000000007334] area=[5459.99999999517, 5460.00000000483] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 30.00000000000015]x[-1.421085471520201e-13, 3.000000000000143] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 51: ok material=add faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[7296.172512351481, 7296.172512352387] area=[5530.526509052161, 5530.526509064007] bbox=[-8.171241461241156e-14, 46.00000000000011]x[-8.171241461241156e-14, 40.00000000000011]x[-8.171241461241156e-14, 30.000000000000092] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=8.171241461241152e-14\n\ncommitted\n"
+    },
+    {
+     "edit": "(node 52 (holes 51 (face 50 0 top) through (hole 20 15 2.75)) (intent remove any any 1 any))",
+     "status": "rejected",
+     "s": 0.438,
+     "refusals": [
+      {
+       "line": "node 52: error unsupported-op | holes @ node 52 | why: features-need-an-extruded-body | fix: features act on prism, box and cylinder bodies along z; other placements need booleans (C08)",
+       "why": "features-need-an-extruded-body",
+       "fix": "features act on prism, box and cylinder bodies along z; other placements need booleans (C08)"
+      }
+     ],
+     "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\nnode 50: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999992666, 7200.000000007334] area=[5459.99999999517, 5460.00000000483] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 30.00000000000015]x[-1.421085471520201e-13, 3.000000000000143] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 51: ok material=add faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[7296.172512351481, 7296.172512352387] area=[5530.526509052161, 5530.526509064007] bbox=[-8.171241461241156e-14, 46.00000000000011]x[-8.171241461241156e-14, 40.00000000000011]x[-8.171241461241156e-14, 30.000000000000092] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=8.171241461241152e-14\nnode 52: error unsupported-op | holes @ node 52 | why: features-need-an-extruded-body | fix: features act on prism, box and cylinder bodies along z; other placements need booleans (C08)\n\nrejected: the design was not changed\n"
+    }
+   ],
+   "then": []
+  }
+ ],
+ "eval": {
+  "s": 0.402,
+  "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[6987.942495875637, 6987.942495889741] area=[5227.2345024674705, 5227.234502473302] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[6845.392729219204, 6845.392729232897] area=[5235.873882262522, 5235.873882272996] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\n\n"
+ },
+ "certified_volume": {
+  "3": [
+   6702.842962562709,
+   6702.842962576116
+  ]
+ },
+ "check": [
+  {
+   "node": 3,
+   "out": "ok: embedded, shells outward, cavities nested\n",
+   "s": 0.549,
+   "timeout": false
+  }
+ ],
+ "mass": [
+  {
+   "node": 3,
+   "out": "mass volume=[6702.842962562709, 6702.842962576116] certified octree=[0, 16007.81250005366] depth=4 cells=0/2730/1366\ncentroid incomplete status=incomplete incomplete-cells=1366\nmoments volume=[6702.842829715218, 6702.843095423615] centroid [10.95506502716874, 10.955066709155574]x[10.955065174944384, 10.955066561379935]x[14.999999672449139, 15.000000327550863] inertia-centroid [1546153.2375391342, 1546153.5665262903] [1546153.216996582, 1546153.5870688383] [2073132.9033900572, 2073133.5297260645] [598960.2885299205, 598960.6779160803] [-0.05339789991449116, 0.05339789979445228] [-0.05401464932931624, 0.05401464907539972] status=certified method=divergence\n\n",
+   "s": 0.874,
+   "timeout": false
+  }
+ ],
+ "step": [
+  {
+   "node": 3,
+   "s": 0.414,
+   "out": "wrote /var/tmp/briefs/B1/n3.stp entities 386 products 1\n",
+   "timeout": false,
+   "occt_volume": 6702.842971802905,
+   "occt_solids": 1,
+   "certified": [
+    6702.842962562709,
+    6702.842962576116
+   ],
+   "agree": true,
+   "rel_err": 1.3775486336472763e-09
+  }
+ ],
+ "tess": [
+  {
+   "node": 3,
+   "s": 2.035,
+   "out": "wrote /var/tmp/briefs/B1/n3.obj nverts 4664 ntris 9340 est 930 chord 0.01324200165146105 ang 0.1963495408493621 nsamp 305 profile display (sampled, not certified)\n",
+   "timeout": false,
+   "judge_s": 0.06,
+   "triangles": 9340,
+   "vertices": 4664,
+   "zero_area": 0,
+   "edge_uses": {
+    "2": 14010
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 6703.803167503793,
+   "volume_rel_err": 0.00014325338363770868
+  }
+ ],
+ "stl_manufacturing": [
+  {
+   "node": 3,
+   "preset": 3,
+   "s": 53.797,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/briefs/B1/n3.stl nverts 25602 ntris 51216 (sampled, not certified)\n"
+  }
+ ],
+ "checks": [
+  {
+   "req": "valid solid",
+   "verdict": "pass",
+   "detail": "ok: embedded, shells outward, cavities nested",
+   "cmd": "check 3",
+   "s": 0.583,
+   "info": false,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  {
+   "req": "3 mm plate",
+   "verdict": "pass",
+   "detail": "min-wall [2.999999999971803, 3.0] within [2.999, 3.001]",
+   "cmd": "wall 3",
+   "s": 16.377,
+   "info": false,
+   "out": "min-wall [2.999999999971803, 3] certified lo=branch-and-bound hi=sampled antipodal=30deg faces=13 pairs=49\n"
+  },
+  {
+   "req": "two holes per leg (4 through holes)",
+   "verdict": "pass",
+   "detail": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 4\n...[39 chars clipped]...\n4, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1",
+   "cmd": "measure 3",
+   "s": 0.811,
+   "info": false,
+   "out": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[6702.842962562709, 6702.842962576116] area=[5244.513262059883, 5244.513262070375] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\n"
+  },
+  {
+   "req": "inside fillet present (cylinder face in the corner)",
+   "verdict": "pass",
+   "detail": "n1.c0.top plane loops=1\nn1.c0.bottom plane loops=1\nn1.c0.wall.0.0 plane loops=3\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=3\nn1.c0.wall.3.0 cylinder loops=1\nn1.c0.wall.4.0 plane loops=3\nn1.c0.wall.5.0 plane loops=1\nn1.c0.wall.6.0 plane loops=3\nn2.c0.wall.0.0 cylinder loops=2\nn2.c1.wall.0.0 cylinder loops=2\nn3.c0.wall.0.0 cylinder loops=2\nn3.c1.wall.0.0 cylinder loops=2",
+   "cmd": "faces 3",
+   "s": 0.753,
+   "info": false,
+   "out": "n1.c0.top plane loops=1\nn1.c0.bottom plane loops=1\nn1.c0.wall.0.0 plane loops=3\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=3\nn1.c0.wall.3.0 cylinder loops=1\nn1.c0.wall.4.0 plane loops=3\nn1.c0.wall.5.0 plane loops=1\nn1.c0.wall.6.0 plane loops=3\nn2.c0.wall.0.0 cylinder loops=2\nn2.c1.wall.0.0 cylinder loops=2\nn3.c0.wall.0.0 cylinder loops=2\nn3.c1.wall.0.0 cylinder loops=2\n\n"
+  },
+  {
+   "req": "M5 clearance diameter to ISO 273",
+   "verdict": "not-analyzed",
+   "detail": "the kernel holds no ISO 273 clearance-hole data; the size was supplied by the agent from memory and nothing checks it against the standard",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "hole diameter measured",
+   "verdict": "not-analyzed",
+   "detail": "no query reports a hole diameter: dist from a point on the hole axis returns lo=0 (face boxes), so the 5.5 mm size is not certified by measurement",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "3-axis mill reach (ball end mill D6)",
+   "verdict": "fail",
+   "detail": "verdict not-machinable samples=99 reachable=42 blocked=57 uncertain=0 tight-faces=4 sharp-concave-edges=0 status=certified",
+   "cmd": "machine 3 6 20 10 40 3 3",
+   "s": 21.121,
+   "info": true,
+   "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=0/0\nface 1 reach=0/0\nface 2 reach=6/9 blocked=(33.333333333333336,0,5)\nface 3 reach=6/9 blocked=(40,2.5,5)\nface 4 reach=6/9 blocked=(34.333333333333336,3,5)\nface 5 reach=6/9 blocked=(5.223542864692438,3.102222521132795,5)\nface 6 reach=6/9 blocked=(3,34.333333333333336,5)\nface 7 reach=6/9 blocked=(2.5,40,5)\nface 8 reach=6/9 blocked=(0,33.333333333333336,5)\nface 9 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(24.28824762596807,2.5,5.343703977705062)\nface 10 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(24.28824762596807,2.5,19.34370397770506)\nface 11 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(2.5,26.375,10.381569860407208)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(2.5,26.375,24.381569860407208)\nverdict not-machinable samples=99 reachable=42 blocked=57 uncertain=0 tight-faces=4 sharp-concave-edges=0 status=certified\n\n"
+  },
+  {
+   "req": "makeable on the declared process with standard tools",
+   "verdict": "not-analyzed",
+   "detail": "machine models only a ball-end mill along +z; holes need a drill and the kernel has no drill/tool library, so standard-tool reach is not analysed",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "drawing output valid for another tool",
+   "verdict": "not-analyzed",
+   "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  }
+ ],
+ "timed_edit": {
+  "label": "plate thickness 3 -> 4 mm",
+  "apply": {
+   "edit": "(param T 4)",
+   "status": "committed",
+   "s": 0.876,
+   "refusals": [],
+   "out": "node 1: ok material=create faces_created=9 faces_modified=0 solids=1 through_holes=0 | volume=[9177.942495873625, 9177.942495891752] area=[5373.234502467338, 5373.234502473435] bbox=[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 40.000000000000085]x[-7.105427357601004e-14, 30.000000000000078] vertices=14 edges=21 faces=9 solids=1 genus=0 linear_uncertainty=7.105427357601002e-14\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[8987.876140331517, 8987.876140349495] area=[5416.431401451829, 5416.431401462664] bbox=[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 40.00000000000009]x[-7.105427357601006e-14, 30.00000000000008] vertices=18 edges=25 faces=11 solids=1 genus=2 linear_uncertainty=2.2182256032010719e-13 | proof: k1-crossing-certified V18 E25 F11 S1\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[8797.809784789524, 8797.809784807121] area=[5459.628300438644, 5459.628300449565] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\n\ncommitted\n"
+  },
+  "check": {
+   "s": 1.058,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  "tess": {
+   "s": 7.627,
+   "out": "wrote /var/tmp/briefs/B1/edit.obj nverts 4970 ntris 9952 est 930 chord 0.01324200165146105 ang 0.1963495408493621 nsamp 305 profile display (sampled, not certified)\n",
+   "timeout": false
+  },
+  "visible_rechecked_s": 9.561,
+  "checks": [
+   {
+    "req": "valid solid",
+    "verdict": "pass",
+    "detail": "ok: embedded, shells outward, cavities nested",
+    "cmd": "check 3",
+    "s": 0.649,
+    "info": false,
+    "out": "ok: embedded, shells outward, cavities nested\n"
+   },
+   {
+    "req": "3 mm plate",
+    "verdict": "fail",
+    "detail": "min-wall [3.999999999971803, 4.0] outside [2.999, 3.001]",
+    "cmd": "wall 3",
+    "s": 20.05,
+    "info": false,
+    "out": "min-wall [3.999999999971803, 4] certified lo=branch-and-bound hi=sampled antipodal=30deg faces=13 pairs=49\n"
+   },
+   {
+    "req": "two holes per leg (4 through holes)",
+    "verdict": "pass",
+    "detail": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[8797.809784789524, 8797.809784807121] area=[5459.628300438644, 5459.628300449565] bbox=[-7.105427357601007e-14, 4\n...[39 chars clipped]...\n4, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1",
+    "cmd": "measure 3",
+    "s": 0.424,
+    "info": false,
+    "out": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[8797.809784789524, 8797.809784807121] area=[5459.628300438644, 5459.628300449565] bbox=[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 40.0000000000001]x[-7.105427357601007e-14, 30.000000000000085] vertices=22 edges=29 faces=13 solids=1 genus=4 linear_uncertainty=2.4646951146678576e-13 | proof: k1-crossing-certified V22 E29 F13 S1\n"
+   },
+   {
+    "req": "inside fillet present (cylinder face in the corner)",
+    "verdict": "pass",
+    "detail": "n1.c0.top plane loops=1\nn1.c0.bottom plane loops=1\nn1.c0.wall.0.0 plane loops=3\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=3\nn1.c0.wall.3.0 cylinder loops=1\nn1.c0.wall.4.0 plane loops=3\nn1.c0.wall.5.0 plane loops=1\nn1.c0.wall.6.0 plane loops=3\nn2.c0.wall.0.0 cylinder loops=2\nn2.c1.wall.0.0 cylinder loops=2\nn3.c0.wall.0.0 cylinder loops=2\nn3.c1.wall.0.0 cylinder loops=2",
+    "cmd": "faces 3",
+    "s": 0.379,
+    "info": false,
+    "out": "n1.c0.top plane loops=1\nn1.c0.bottom plane loops=1\nn1.c0.wall.0.0 plane loops=3\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=3\nn1.c0.wall.3.0 cylinder loops=1\nn1.c0.wall.4.0 plane loops=3\nn1.c0.wall.5.0 plane loops=1\nn1.c0.wall.6.0 plane loops=3\nn2.c0.wall.0.0 cylinder loops=2\nn2.c1.wall.0.0 cylinder loops=2\nn3.c0.wall.0.0 cylinder loops=2\nn3.c1.wall.0.0 cylinder loops=2\n\n"
+   },
+   {
+    "req": "M5 clearance diameter to ISO 273",
+    "verdict": "not-analyzed",
+    "detail": "the kernel holds no ISO 273 clearance-hole data; the size was supplied by the agent from memory and nothing checks it against the standard",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "hole diameter measured",
+    "verdict": "not-analyzed",
+    "detail": "no query reports a hole diameter: dist from a point on the hole axis returns lo=0 (face boxes), so the 5.5 mm size is not certified by measurement",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "3-axis mill reach (ball end mill D6)",
+    "verdict": "fail",
+    "detail": "verdict not-machinable samples=99 reachable=42 blocked=57 uncertain=0 tight-faces=4 sharp-concave-edges=0 status=certified",
+    "cmd": "machine 3 6 20 10 40 3 3",
+    "s": 13.58,
+    "info": true,
+    "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=0/0\nface 1 reach=0/0\nface 2 reach=6/9 blocked=(33.333333333333336,0,5)\nface 3 reach=6/9 blocked=(40,3.3333333333333335,5)\nface 4 reach=6/9 blocked=(34.5,4,5)\nface 5 reach=6/9 blocked=(6.223542864692438,4.102222521132795,5)\nface 6 reach=6/9 blocked=(4,34.5,5)\nface 7 reach=6/9 blocked=(3.3333333333333335,40,5)\nface 8 reach=6/9 blocked=(0,33.333333333333336,5)\nface 9 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(24.28824762596807,3.3333333333333335,5.343703977705062)\nface 10 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(24.28824762596807,3.3333333333333335,19.34370397770506)\nface 11 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(3.3333333333333335,26.375,10.381569860407208)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(3.3333333333333335,26.375,24.381569860407208)\nverdict not-machinable samples=99 reachable=42 blocked=57 uncertain=0 tight-faces=4 sharp-concave-edges=0 status=certified\n\n"
+   },
+   {
+    "req": "makeable on the declared process with standard tools",
+    "verdict": "not-analyzed",
+    "detail": "machine models only a ball-end mill along +z; holes need a drill and the kernel has no drill/tool library, so standard-tool reach is not analysed",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "drawing output valid for another tool",
+    "verdict": "not-analyzed",
+    "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   }
+  ]
+ },
+ "budgets": {
+  "edit": {
+   "verdict": "pass",
+   "measured_s": 2.348,
+   "budget_s": 5.0,
+   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+  },
+  "part": {
+   "verdict": "pass",
+   "measured_s": 0.225,
+   "budget_s": 60.0,
+   "note": "serial re-time of the one-shot build"
+  },
+  "export": {
+   "verdict": "pass",
+   "measured_s": 54.211,
+   "budget_s": 300.0
+  },
+  "scene": {
+   "verdict": "not-exercised",
+   "measured_s": null,
+   "budget_s": 60.0
+  }
+ },
+ "verdicts": {
+  "pass": 4,
+  "fail": 0,
+  "not-analyzed": 4
+ },
+ "authoring_refusals": 2,
+ "wall_s": 148.1,
+ "pass": false,
+ "timed_edit_serial": {
+  "label": "plate thickness 3 -> 4 mm",
+  "build_s": 0.225,
+  "apply_s": 0.223,
+  "apply_status": "committed",
+  "check_s": 0.303,
+  "tess_s": 1.822,
+  "tess_out": "wrote /var/tmp/briefs/B1-retime/edit.obj nverts 4970 ntris 9952 est 930 chord 0.01324200165146105 ang 0.1963495408493621 nsamp 305 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 2.348
+ },
+ "build_oneshot_serial_s": 0.225
+}

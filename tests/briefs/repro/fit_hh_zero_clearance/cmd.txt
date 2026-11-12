@@ -1,0 +1,1 @@
+BIN design.bcd pmi fits '(pmi (node 1) (temp cold 20) (fit seat 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/h5 clearance))'

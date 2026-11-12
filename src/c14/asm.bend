@@ -179,7 +179,8 @@ def nzn(+x: F64, +y: F64, +z: F64) -> Bool:
 def entry_kind(+h: String) -> U64:
   Bool.pick(U64, String.eq(h, "inst"), 1u64,
     Bool.pick(U64, Bool.or(String.eq(h, "fix"),
-      Bool.or(String.eq(h, "coinc"), Bool.or(String.eq(h, "plane"), String.eq(h, "axis")))), 2u64, 0u64))
+      Bool.or(String.eq(h, "coinc"), Bool.or(String.eq(h, "plane"), String.eq(h, "axis")))), 2u64,
+        Bool.pick(U64, String.eq(h, "press"), 3u64, 0u64)))
 
 def inst_of(+x: S.Sx) -> ER:
   +xs = S.sx_xs(x)
@@ -280,6 +281,7 @@ def insts_wrap(+k: U64, +r: ER, +rec: IR, +acc: List<&2, Inst>) -> IR:
   match k:
     case 1u64: insts_wrap_inst(r, rec, acc)
     case 2u64: rec
+    case 3u64: rec
     case _: IR_err{"unknown-assembly-entry", "use (inst ...) or a mate (fix, coinc, plane, axis)"}
 
 def insts_nacc_i(+r: ER, +acc: List<&2, Inst>) -> List<&2, Inst>:
@@ -319,6 +321,7 @@ def mates_wrap(+k: U64, +r: ER, +rec: MR, +il: List<&2, Inst>) -> MR:
   match k:
     case 1u64: rec
     case 2u64: mates_wrap_mate(r, rec, il)
+    case 3u64: rec
     case _: MR_err{"unknown-assembly-entry", "use (inst ...) or a mate (fix, coinc, plane, axis)"}
 
 def mates_nacc_m(+r: ER, +il: List<&2, Inst>, +acc: List<&2, Mate>) -> List<&2, Mate>:

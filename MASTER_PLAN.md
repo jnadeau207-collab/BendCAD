@@ -1,6 +1,6 @@
 # BendCAD Master Plan
 
-**Revision 6 — October 11, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; A4: certified-rounding membership; A5: C06 closeout ownership; A6: laws are proofs, pins are tests; A7: no variable-radius cone fillet; see Amendment record)**
+**Revision 7 — November 11, 2026 (Amendments A1: C04/C07/C11 boundary; A2: proof methodology; A3: BendCAD is Aethalgard v2, agent-native; A4: certified-rounding membership; A5: C06 closeout ownership; A6: laws are proofs, pins are tests; A7: no variable-radius cone fillet; A8: one product an agent pilots for a normal person; see Amendment record)**
 
 **Objective:** deliver production-qualified binary64 in Bend 2, including actual GPU execution on Metal, then build an independent professional CAD kernel whose geometry and topology algorithms are written in Bend. That kernel is Aethalgard v2: **BendCAD**. It is open source and built to be the world's best CAD kernel for AI agents (§14): never silently wrong, self-explaining, identity by meaning, toleranced and state-aware, fast and massively parallel.
 
@@ -414,7 +414,10 @@ advances them and none may regress them.
    - what changed since the previous revision;
    - the full stack-up behind this clearance.
 
-   Rendering is a debugging aid for humans, never the interface.
+   Queries are the first source. The agent also looks (A8): the
+   viewer renders fixed inspection views to image files, the same
+   views a person checks, and a disagreement between a view and a
+   query is a defect.
 9. **Fast and massively parallel.** See §15. This is Bend law, not an
    optimization.
 
@@ -598,10 +601,13 @@ general mechanism, and parallel by construction.
   transactions, exposed through MCP (primary), a CLI and the Bend
   library. There is no separate application layer between the agent
   and the kernel.
-- **No app port now.** Aethalgard v1 is frozen (A3) and its viewer is
-  not ported. A viewer, if built later, is a thin consumer of kernel
-  tessellation and graph events, and it inherits §15: it cannot be
-  slow.
+- **The viewer is part of the product (A8).** Aethalgard v1 stays
+  frozen (A3) and is not ported. BendCAD's own viewer opens the design
+  file, shows the feature tree, checks and sections, edits parameters,
+  and renders inspection views for the agent. It stays a thin consumer
+  of kernel tessellation and graph events, and it inherits §15: it
+  cannot be slow. `docs/direction.md` holds the product definition,
+  the speed budgets and the brief ladder.
 - **Engineering where the kernel needs it.** Tolerances and fits are
   kernel semantics (§14, property 6; C15). Materials, analysis and
   domain packs arrive when the challenge ladder requires them.
@@ -751,4 +757,6 @@ The amendment:
 - The laws now cover the plan's named invariants: failure keeps the accepted model (C00, C06), parallel map equals sequential map and tables read back what was written (base), the validator returns exactly the B-rep it accepts (C04), evaluation yields one cache entry per node in order (C06), the boolean outcome table is the regularized set algebra (C08), and feature builders produce closed oriented-use cycles with V − E + F = 2 for every input (C09). That last law found a real defect: the variable-radius cone builder wired edge 3 back to vertex 0, so its bottom face loop never closed.
 
 **A7 — 2026-10-11: no variable-radius cone fillet.** C09's intent (§2, §5) and law L9 asked the single-edge fillet to publish a quarter-cone when its end radii differ. The C09 check phase showed that no F64 cone through the blend's exact tangent vertices passes A4's certified membership (receipt `docs/receipts/c09-2026-10-09.txt` §5), so the kernel could only refuse it as numerical uncertainty. Owner decision: unequal end radii are a named refusal, `unsupported-op` / `fillet-cone-not-certified`, decided before anything is built, with the fix "give the edge equal end radii". Intent §2 and §5, L9, the MCP reference and the E2E journey say so; the unreachable cone builder is deleted. C09 closes on this.
+
+**A8 — 2026-11-11: one product an agent pilots for a normal person.** Owner direction: the scope is strengthened, not narrowed or redirected. A person tells an agent what they need and gets a design that works, can be made, and can be seen and changed. The product is the kernel, engineering data held as cited records, and the viewer. A8 adds standard features built by construction from that data, function and manufacture checks as kernel facts, the viewer as a live document with inspection renders the agent reads, an agent manual generated from examples that run, speed budgets, and the brief ladder of everyday requests next to the gate ladder. §14 property 8 and §16 are amended. The definition, budgets, ladder and order of work are in `docs/direction.md`.
 

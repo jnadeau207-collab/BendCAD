@@ -1,0 +1,1 @@
+BIN design.bcd asm gap lid body n702.c0.wall.1.0 '(assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))'   # lid lip arc R3.8 concentric inside the R4 inner corner: prints gap=[0, 0] verdict=interference status=certified; the flat walls give 0.2, interf 705 714 is disjoint and OCCT common volume is 0

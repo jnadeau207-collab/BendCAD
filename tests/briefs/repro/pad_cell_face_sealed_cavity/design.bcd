@@ -1,0 +1,5 @@
+(bendcad 1)
+(node 1 (box 20 20 30) (intent create any 0 1 0))
+(node 2 (pocket 1 (face 1 0 top) 28 (region (path 2 2 (line 18 2) (line 18 18) (line 2 18)))) (intent remove any any 1 0))
+(node 3 (pad 2 (face 2 n2.c0.top) 24 (region (circle 10 10 3.5))) (intent add any any 1 0))
+(node 4 (holes 3 (face 3 0 top) 6 (hole 10 10 2)) (intent remove any any 1 any))

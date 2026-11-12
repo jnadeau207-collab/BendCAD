@@ -1,0 +1,53 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "asm_press_breaks_solve",
+   "item": 4,
+   "claim": "one assembly grammar: (press ...) is accepted by asm solve, mass and clear; asm clear reports a declared press pair as declared without timing out",
+   "verdict": "pass",
+   "seconds": 29.533,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd asm solve (assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
+     "seconds": 1.664,
+     "limit_s": 120,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "asm solved ninst 4 nmates 4 dof 0 max-residual 7.105427357601002e-15\ninst housing node 102 t=0 0 1.25607396694702e-15 q=0\ninst bearing node 401 t=0 0 6.900000000000003 q=0\ninst shaft node 204 t=0 0 -1.9999999999999953 q=0\ninst collar node 313 t=-0 -0 45.5 q=0\nredundant []\nlineage asm(housing=n102,bearing=n401,shaft=n204,collar=n313) mates[1,2,3,4]\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd asm mass (assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
+     "seconds": 1.671,
+     "limit_s": 120,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "assembly mass\nhousing 6082-T6 mass=[0.0581280561155681, 0.0581280561156844] kg\nbearing 100Cr6 mass=[0.018033841389033918, 0.018033841389034418] kg\nshaft C45 mass=[0.028692856728740977, 0.0286928567287984] kg\ncollar 6082-T6 mass=[0.009730071501954339, 0.00973007399852934] kg\ntotal=[0.11458482573529728, 0.1145848282320466] kg status=certified\n"
+    },
+    {
+     "cmd": "BIN design.bcd asm clear (assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
+     "seconds": 0.303,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "assembly pairs ninst 2\npair bearing shaft\nrelation interference status=certified witness=press radial=0.0019999999999997797\ndeclared press-fit inner status=declared\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd asm interf (assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
+     "seconds": 25.895,
+     "limit_s": 300,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "assembly pairs ninst 2\npair bearing shaft\nrelation interference status=certified a:in=10 out=24 uncertain=6 b:in=4 out=165 uncertain=6\nwitness=press radial=0.0019999999999997797\ndeclared press-fit inner status=declared\n\n"
+    }
+   ]
+  }
+ ]
+}

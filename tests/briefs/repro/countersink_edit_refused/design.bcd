@@ -1,0 +1,6 @@
+(bendcad 1)
+(param 1 CS 2.45 2.45 2.45)
+(node 1 (box 80 50 14) (intent create 6 0 1 0))
+(node 2 (holes 1 (face 1 0 top) through (hole 6 6 2.75) (hole 74 6 2.75)) (intent remove any any 1 2))
+(node 3 (chamfer 2 (face 2 n1.c0.top) (circle 6 6 2.75) CS) (intent remove any any 1 2))
+(node 4 (chamfer 3 (face 3 n1.c0.top) (circle 74 6 2.75) CS) (intent remove any any 1 2))

@@ -1,0 +1,43 @@
+{
+ "item": 2,
+ "claim": "asm gap between a lid lip arc R3.8 and the concentric R4 inner corner of the body certifies the true gap 0.2, never interference",
+ "limit_s": 60,
+ "steps": [
+  {
+   "args": [
+    "asm",
+    "gap",
+    "lid",
+    "body",
+    "n702.c0.wall.1.0",
+    "(assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))"
+   ],
+   "must": [
+    "gap=\\[0\\.19999\\d*, 0\\.2000\\d*\\] .*verdict=clearance status=certified"
+   ],
+   "must_not": [
+    "verdict=interference",
+    "gap=\\[0, 0\\]"
+   ]
+  },
+  {
+   "args": [
+    "asm",
+    "gap",
+    "lid",
+    "body",
+    "n702.c0.wall.0.0",
+    "n702.c0.wall.1.0",
+    "n702.c0.wall.3.0",
+    "n702.c0.wall.7.0",
+    "(assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))"
+   ],
+   "must": [
+    "gap=\\[0\\.19999\\d*, 0\\.2000\\d*\\] .*verdict=clearance status=certified"
+   ],
+   "must_not": [
+    "verdict=interference"
+   ]
+  }
+ ]
+}

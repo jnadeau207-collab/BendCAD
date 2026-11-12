@@ -1,0 +1,28 @@
+{
+ "item": 6,
+ "claim": "faces NODE -f prints the certified defining parameters of every analytic face; a 5.5 mm hole reads diameter [5.5, 5.5] concave",
+ "limit_s": 30,
+ "steps": [
+  {
+   "args": [
+    "faces",
+    "2",
+    "-f"
+   ],
+   "must": [
+    "^n2\\.c0\\.wall\\.0\\.0 cylinder loops=2 axis o=\\(10,10,\\S+\\) d=\\(0,0,-?1\\) radius=\\[2\\.75, 2\\.75\\] diameter=\\[5\\.5, 5\\.5\\] concave",
+    "^n1\\.c0\\.top plane loops=2 frame o="
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "2",
+    "-v"
+   ],
+   "must": [
+    "diameter=\\[5\\.5, 5\\.5\\] concave"
+   ]
+  }
+ ]
+}

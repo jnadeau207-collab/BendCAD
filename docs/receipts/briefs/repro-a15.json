@@ -1,0 +1,163 @@
+{
+ "binary": "/home/jesse/bc/bendcad-a15",
+ "sha256": "72d0a783667e0675246d3f7ac55ce5bf6dfa9c846d2bcf9cc83b45bbb5a8be52",
+ "passed": 0,
+ "total": 7,
+ "cases": [
+  {
+   "case": "asm_gap_concave_arc",
+   "item": 2,
+   "claim": "asm gap between a lid lip arc R3.8 and the concentric R4 inner corner of the body certifies the true gap 0.2, never interference",
+   "verdict": "fail",
+   "seconds": 0.889,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd asm gap lid body n702.c0.wall.1.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
+     "seconds": 0.889,
+     "limit_s": 60,
+     "verdict": "fail",
+     "missing": [
+      "gap=\\[0\\.19999\\d*, 0\\.2000\\d*\\] .*verdict=clearance status=certified"
+     ],
+     "forbidden": [
+      "verdict=interference",
+      "gap=\\[0, 0\\]"
+     ],
+     "output_head": "gap lid body gap=[0, 0] traces=28/1 verdict=interference status=certified\n"
+    }
+   ]
+  },
+  {
+   "case": "asm_press_breaks_solve",
+   "item": 4,
+   "claim": "one assembly grammar: (press ...) is accepted by asm solve, mass and clear; asm clear reports a declared press pair as declared without timing out",
+   "verdict": "fail",
+   "seconds": 0.005,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd asm solve (assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
+     "seconds": 0.005,
+     "limit_s": 120,
+     "verdict": "fail",
+     "missing": [
+      "^asm solved ninst 4 nmates 4 dof 0"
+     ],
+     "forbidden": [
+      "unknown-assembly-entry"
+     ],
+     "output_head": "error invalid-input | asm | why: unknown-assembly-entry | fix: use (inst ...) or a mate (fix, coinc, plane, axis)\n"
+    }
+   ]
+  },
+  {
+   "case": "countersink_edit_refused",
+   "item": 7,
+   "claim": "the countersink edit (param CS 2.6) commits like 2.45 to 2.7",
+   "verdict": "fail",
+   "seconds": 0.447,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (param CS 2.6)",
+     "seconds": 0.447,
+     "limit_s": 60,
+     "verdict": "fail",
+     "missing": [
+      "^committed"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[55334.76775554964, 55334.76775565507] area=[12028.772090872118, 12028.772090891356] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=12 edges=16 faces=8 solids=1 genus=2 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[55257.96000395704, 55257.960004067565] area=[12011.252489316405, 12011.25248934043] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 14.000000000000147] vertices=19 edges=25 faces=10 solids=1 genus=2 linear_uncertainty=1.7430501486614978e-13 | proof: k1-crossing-certified V19 E25 F10 S1\nnode 4: error unsupported-op | intersect @ node 4 | why: boundaries-cross-or-overlap: face-penetration 9 11 between nodes 0 and 0 [k1 reason 42] | fix: move the operands apart or nest one inside the other; general intersecting boolean"
+    }
+   ]
+  },
+  {
+   "case": "dist_inside_hole",
+   "item": 6,
+   "claim": "faces NODE -f prints the certified defining parameters of every analytic face; a 5.5 mm hole reads diameter [5.5, 5.5] concave",
+   "verdict": "fail",
+   "seconds": 0.013,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd faces 2 -f",
+     "seconds": 0.013,
+     "limit_s": 30,
+     "verdict": "fail",
+     "missing": [
+      "^n2\\.c0\\.wall\\.0\\.0 cylinder loops=2 axis o=\\(10,10,\\S+\\) d=\\(0,0,-?1\\) radius=\\[2\\.75, 2\\.75\\] diameter=\\[5\\.5, 5\\.5\\] concave"
+     ],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,4) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=2 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 cylinder loops=2\n\n"
+    }
+   ]
+  },
+  {
+   "case": "fit_hh_zero_clearance",
+   "item": 3,
+   "claim": "H7/h5 at the reference temperature has minimum clearance exactly 0 and is a clearance fit (ISO 286-1); other kinds still classify",
+   "verdict": "fail",
+   "seconds": 0.006,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd pmi fits (pmi (node 1) (temp cold 20) (fit seat 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/h5 clearance))",
+     "seconds": 0.006,
+     "limit_s": 30,
+     "verdict": "fail",
+     "missing": [
+      "temp cold T=20 clearance=\\[0, 0\\.03",
+      "verdict=clearance-certified status=certified"
+     ],
+     "forbidden": [
+      "fit-not-clearance",
+      "-7\\.1"
+     ],
+     "output_head": "fits 1\nfit seat hole 1.n1.c1.wall.0.0 H7=[22, 22.021] shaft 2.n2.c0.wall.0.0 h5=[21.991, 22] nominal=22\n  temp cold T=20 clearance=[-7.105427357601003e-15, 0.030000000000008246]\nerror invalid-input | pmi fits | why: fit-not-clearance: seat | fix: choose classes whose envelope gives the declared kind at every state\n\n"
+    }
+   ]
+  },
+  {
+   "case": "pad_cell_face_sealed_cavity",
+   "item": 1,
+   "claim": "(face N CELL top|bottom) on a boolean body resolves to the face its name nN.cK.top|bottom implies, or is refused naming the faces to use; a holes or pocket cut that leaves a sealed cavity is refused with the face it opens through, and following that fix commits",
+   "verdict": "fail",
+   "seconds": 0.225,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd faces 4 -f",
+     "seconds": 0.225,
+     "limit_s": 60,
+     "verdict": "fail",
+     "missing": [
+      "^n3\\.c0\\.top plane loops=2 frame o=\\(0,0,26\\)",
+      "^n4\\.c0\\.bottom plane loops=1 frame o=\\(0,0,20\\)"
+     ],
+     "forbidden": [
+      "n4\\.cav"
+     ],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,30) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn2.c0.top plane loops=2 frame o=(0,0,2) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 plane loops=1 frame o=(0,2,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn2.c0.wall.1.0 plane loops=1 frame o=(18,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.2.0 plane loops=1 frame o=(0,18,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn2.c0.wall.3.0 plane loops=1 frame o=(2,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn3.c0.top plane loops=1 frame o=(0,0,26) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn3.c0.wall.0.0 cylinder loops=2\nn4.cav.0.0.1 plane loops=1 frame o=(0,0,24) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn4.cav.0.1.1 plane loops=1 frame o=(0,0,18) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn4.cav.0.2.1 cylinder loops=2\n\n"
+    }
+   ]
+  },
+  {
+   "case": "thread_span_frame",
+   "item": 5,
+   "claim": "thread-span-outside-face prints the admissible span and the axis it is measured along; a retry built from the message alone commits",
+   "verdict": "fail",
+   "seconds": 0.133,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (thread 4 t n2.c0.wall.0.0 M4 6H 0 12)",
+     "seconds": 0.133,
+     "limit_s": 30,
+     "verdict": "fail",
+     "missing": [
+      "thread-span-outside-face: t z=\\[0, 12\\] admissible=\\[",
+      "along=\\(0,1,0\\)",
+      "capture Z0: admissible=\\[(\\S+), ",
+      "capture Z1: admissible=\\[\\S+, (\\S+?)\\]"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[-1.650000000000022, 1.650000000000022]x[-1.650000000000022, 1.650000000000022]x[-2.1316282072803012e-14, 12.000000000000025] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[3.349999999999978, 6.650000000000023]x[-1.0000000000000233, 11.000000000000023]x[3.349999999999978, 6.650000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 4: ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[914.4701400051024, 914.4701400069334] area=[686.5665855689792, 686.5665855703544] bbox=[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.00000000"
+    }
+   ]
+  }
+ ]
+}

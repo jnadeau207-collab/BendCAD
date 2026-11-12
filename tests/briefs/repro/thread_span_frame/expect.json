@@ -1,0 +1,40 @@
+{
+ "item": 5,
+ "claim": "thread-span-outside-face prints the admissible span and the axis it is measured along; a retry built from the message alone commits",
+ "limit_s": 30,
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(thread 4 t n2.c0.wall.0.0 M4 6H 0 12)"
+   ],
+   "must": [
+    "thread-span-outside-face: t z=\\[0, 12\\] admissible=\\[",
+    "along=\\(0,1,0\\)",
+    "^rejected"
+   ],
+   "capture": {
+    "Z0": "admissible=\\[(\\S+), ",
+    "Z1": "admissible=\\[\\S+, (\\S+?)\\]"
+   }
+  },
+  {
+   "args": [
+    "apply",
+    "(thread 4 t n2.c0.wall.0.0 M4 6H {Z0} {Z1})"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "threads",
+    "4"
+   ],
+   "must": [
+    "^thread t M4x0\\.7 6H z=\\[\\S+, \\S+\\] .*status=certified"
+   ]
+  }
+ ]
+}

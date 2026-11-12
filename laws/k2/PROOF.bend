@@ -42,10 +42,10 @@ def neg_go(xs: List<&2, I.I>, +ys: List<&2, I.I>) -> {F.all_neg(List.append(&2, 
     case []:
       {==}
     case +h <> +t:
-      %neg_zz(List.append(&2, I.I, t, ys), F64.is_lt(I.i_hi(h), 0.0f64)) : {_ == Bool.and(F.all_neg_zz(t, F64.is_lt(I.i_hi(h), 0.0f64)), F.all_neg(ys)) : Bool}
-      %neg_zz(t, F64.is_lt(I.i_hi(h), 0.0f64)) : {Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == Bool.and(_, F.all_neg(ys)) : Bool}
-      %and_assoc(F64.is_lt(I.i_hi(h), 0.0f64), F.all_neg(t), F.all_neg(ys)) : {Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == _ : Bool}
-      %neg_go(t, ys) : {Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == Bool.and(F64.is_lt(I.i_hi(h), 0.0f64), _) : Bool}
+      %neg_zz(List.append(&2, I.I, t, ys), F64.is_le(I.i_hi(h), 0.0f64)) : {_ == Bool.and(F.all_neg_zz(t, F64.is_le(I.i_hi(h), 0.0f64)), F.all_neg(ys)) : Bool}
+      %neg_zz(t, F64.is_le(I.i_hi(h), 0.0f64)) : {Bool.and(F64.is_le(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == Bool.and(_, F.all_neg(ys)) : Bool}
+      %and_assoc(F64.is_le(I.i_hi(h), 0.0f64), F.all_neg(t), F.all_neg(ys)) : {Bool.and(F64.is_le(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == _ : Bool}
+      %neg_go(t, ys) : {Bool.and(F64.is_le(I.i_hi(h), 0.0f64), F.all_neg(List.append(&2, I.I, t, ys))) == Bool.and(F64.is_le(I.i_hi(h), 0.0f64), _) : Bool}
       {==}
 
 def pos_go(xs: List<&2, I.I>, +ys: List<&2, I.I>) -> {F.all_pos(List.append(&2, I.I, xs, ys)) == Bool.and(F.all_pos(xs), F.all_pos(ys)) : Bool}:
@@ -53,10 +53,10 @@ def pos_go(xs: List<&2, I.I>, +ys: List<&2, I.I>) -> {F.all_pos(List.append(&2, 
     case []:
       {==}
     case +h <> +t:
-      %pos_zz(List.append(&2, I.I, t, ys), F64.is_lt(0.0f64, I.i_lo(h))) : {_ == Bool.and(F.all_pos_zz(t, F64.is_lt(0.0f64, I.i_lo(h))), F.all_pos(ys)) : Bool}
-      %pos_zz(t, F64.is_lt(0.0f64, I.i_lo(h))) : {Bool.and(F64.is_lt(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == Bool.and(_, F.all_pos(ys)) : Bool}
-      %and_assoc(F64.is_lt(0.0f64, I.i_lo(h)), F.all_pos(t), F.all_pos(ys)) : {Bool.and(F64.is_lt(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == _ : Bool}
-      %pos_go(t, ys) : {Bool.and(F64.is_lt(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == Bool.and(F64.is_lt(0.0f64, I.i_lo(h)), _) : Bool}
+      %pos_zz(List.append(&2, I.I, t, ys), F64.is_le(0.0f64, I.i_lo(h))) : {_ == Bool.and(F.all_pos_zz(t, F64.is_le(0.0f64, I.i_lo(h))), F.all_pos(ys)) : Bool}
+      %pos_zz(t, F64.is_le(0.0f64, I.i_lo(h))) : {Bool.and(F64.is_le(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == Bool.and(_, F.all_pos(ys)) : Bool}
+      %and_assoc(F64.is_le(0.0f64, I.i_lo(h)), F.all_pos(t), F.all_pos(ys)) : {Bool.and(F64.is_le(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == _ : Bool}
+      %pos_go(t, ys) : {Bool.and(F64.is_le(0.0f64, I.i_lo(h)), F.all_pos(List.append(&2, I.I, t, ys))) == Bool.and(F64.is_le(0.0f64, I.i_lo(h)), _) : Bool}
       {==}
 
 def mix_go(xs: List<&2, I.I>, +ys: List<&2, I.I>) -> {F.all_mixed(List.append(&2, I.I, xs, ys)) == Bool.and(F.all_mixed(xs), F.all_mixed(ys)) : Bool}:

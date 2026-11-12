@@ -1,0 +1,35 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "dist_inside_hole",
+   "item": 6,
+   "claim": "faces NODE -f prints the certified defining parameters of every analytic face; a 5.5 mm hole reads diameter [5.5, 5.5] concave",
+   "verdict": "pass",
+   "seconds": 0.024,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd faces 2 -f",
+     "seconds": 0.012,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,4) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=2 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,1) radius=[2.75, 2.75] diameter=[5.5, 5.5] concave\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd faces 2 -v",
+     "seconds": 0.012,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2 frame o=(0,0,4) x=(1,0,0) y=(0,1,0) n=(0,0,1)\nn1.c0.bottom plane loops=2 frame o=(0,0,0) x=(1,0,0) y=(0,-1,0) n=(0,0,-1)\nn1.c0.wall.0.0 plane loops=1 frame o=(0,0,0) x=(1,0,0) y=(0,0,1) n=(0,-1,0)\nn1.c0.wall.1.0 plane loops=1 frame o=(20,0,0) x=(0,1,0) y=(0,0,1) n=(1,0,0)\nn1.c0.wall.2.0 plane loops=1 frame o=(0,20,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)\nn1.c0.wall.3.0 plane loops=1 frame o=(0,0,0) x=(0,1,0) y=(0,0,-1) n=(-1,0,0)\nn2.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,1) radius=[2.75, 2.75] diameter=[5.5, 5.5] concave\n\n"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+BIN design.bcd faces 4 -f   # node 4 = holes on (face 3 0 top) of a pad on a pocket floor: prints n4.cav.* faces at z 18..24 (sealed cavity) instead of a blind hole open at the pad top z=26; BIN design.bcd step 4 x.stp refuses step-cavities-not-in-profile

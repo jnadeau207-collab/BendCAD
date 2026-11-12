@@ -1,0 +1,35 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "asm_gap_concave_arc",
+   "item": 2,
+   "claim": "asm gap between a lid lip arc R3.8 and the concentric R4 inner corner of the body certifies the true gap 0.2, never interference",
+   "verdict": "pass",
+   "seconds": 1.769,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd asm gap lid body n702.c0.wall.1.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
+     "seconds": 0.877,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "gap lid body gap=[0.19999999832960016, 0.20000000009500024] traces=28/1 verdict=clearance status=certified\n"
+    },
+    {
+     "cmd": "BIN design.bcd asm gap lid body n702.c0.wall.0.0 n702.c0.wall.1.0 n702.c0.wall.3.0 n702.c0.wall.7.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
+     "seconds": 0.892,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "gap lid body gap=[0.19999999756160017, 0.20000000000700024] traces=28/4 verdict=clearance status=certified\n"
+    }
+   ]
+  }
+ ]
+}

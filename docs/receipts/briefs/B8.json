@@ -1,0 +1,397 @@
+{
+ "id": "B8",
+ "sentence": "Pipe flange with bolt circle, raised face and O-ring groove to the standard",
+ "process": "lathe and mill",
+ "binary": "/home/jesse/bc/bendcad-a15",
+ "parts": [
+  802,
+  803
+ ],
+ "design_notes": "EN 1092-1 type 01 DN50 PN16 as remembered by the agent: D 165, bore 61.5, thickness 18, K 125 with 4 x 18 holes, raised face d1 102 x 2. Face O-ring groove 4.8 x 2.65 at ID 76 for a 3.53 cord (Parker-style face-seal gland); O-ring seated against the outer groove wall.",
+ "edits": [
+  {
+   "edit": "(param GD 2.65)",
+   "status": "committed",
+   "s": 0.008,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(node 801 (revolve (region (path 30.75 0 (line 82.5 0) (line 82.5 18) (line 51 18) (line 51 20) (line 42.8 20) (line 42.8 (- 20 GD)) (line 38 (- 20 GD)) (line 38 20) (line 30.75 20)))) (intent create any 0 1 1))",
+   "status": "committed",
+   "s": 0.075,
+   "refusals": [],
+   "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338586.63735554926, 338586.63735556626] area=[52004.7152743252, 52004.71527438241] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 802 (holes 801 (face 801 n801.c0.wall.2.0) through (hole 44.19417382415922 44.19417382415922 9) (hole -44.19417382415922 44.19417382415922 9) (hole -44.19417382415922 -44.19417382415922 9) (hole 44.19417382415922 -44.19417382415922 9)) (intent remove any any 1 5))",
+   "status": "committed",
+   "s": 1.19,
+   "refusals": [],
+   "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338586.63735554926, 338586.63735556626] area=[52004.7152743252, 52004.71527438241] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\nnode 802: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 803 (torus 41.035 1.765) (intent create any 0 1 1))",
+   "status": "committed",
+   "s": 1.063,
+   "refusals": [],
+   "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338586.63735554926, 338586.63735556626] area=[52004.7152743252, 52004.71527438241] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\nnode 802: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\nnode 803: ok material=create faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[-1.7650000000000763, 1.7650000000000763] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 804 (move 803 0 0 (+ (- 20 GD) 1.765) 0) (intent same any any 1 1))",
+   "status": "committed",
+   "s": 1.006,
+   "refusals": [],
+   "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338586.63735554926, 338586.63735556626] area=[52004.7152743252, 52004.71527438241] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\nnode 802: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\nnode 803: ok material=create faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[-1.7650000000000763, 1.7650000000000763] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\nnode 804: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[17.349999999999923, 20.88000000000008] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\n\ncommitted\n"
+  }
+ ],
+ "built": true,
+ "build_incremental_s": 3.342,
+ "build_oneshot": {
+  "s": 0.867,
+  "timeout": false,
+  "committed": true
+ },
+ "probes": [],
+ "eval": {
+  "s": 0.816,
+  "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338586.63735554926, 338586.63735556626] area=[52004.7152743252, 52004.71527438241] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\nnode 802: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\nnode 803: ok material=create faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[-1.7650000000000763, 1.7650000000000763] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\nnode 804: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[17.349999999999923, 20.88000000000008] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\n\n"
+ },
+ "certified_volume": {
+  "802": [
+   320264.8689995017,
+   320264.8690001422
+  ],
+  "803": [
+   2523.327369054114,
+   2523.327369060642
+  ]
+ },
+ "check": [
+  {
+   "node": 802,
+   "out": "ok: embedded, shells outward, cavities nested\n",
+   "s": 1.087,
+   "timeout": false
+  },
+  {
+   "node": 803,
+   "out": "ok: embedded, shells outward, cavities nested\n",
+   "s": 0.082,
+   "timeout": false
+  }
+ ],
+ "mass": [
+  {
+   "node": 802,
+   "out": "mass volume=[320264.8689995017, 320264.8690001422] certified octree=[149152.58789235965, 517647.2168029894] depth=4 cells=748/1500/1848\ncentroid [-55.39522058831955, 55.39522058833513]x[-72.13235294126777, 72.13235294125509]x[2.545261941427789, 35.49799465235023] status=certified incomplete-cells=1848\ninertia-centroid [-3095071855.6805882, 2875539052.473106] [-1978596387.1815293, 1939347165.7808108] [-3798323961.539692, 4573487831.007415] [-2538543577.4783077, 2538543577.477946] [-1104776037.9055545, 1104776037.905824] [-1439690240.8078315, 1439690240.807615] status=certified\nmoments volume=[320264.8672768992, 320264.87072274525] centroid [-6.35636846983844e-7, 6.356368551625266e-7]x[-3.7054381952055153e-7, 3.705438147950904e-7]x[9.227233912802792, 9.227233966131761] inertia-centroid [621863658.6873708, 621863680.7828832] [621863647.9343716, 621863691.5358822] [1225374434.8035138, 1225374500.1969233] [-13.548793245222491, 13.548793218400402] [-1.1847787685421156, 1.184778769451641] [-0.5007859547397804, 0.5007859559558501] status=certified method=divergence\n\n",
+   "s": 6.792,
+   "timeout": false
+  },
+  {
+   "node": 803,
+   "out": "mass volume=[2523.327369054114, 2523.327369060642] certified octree=[0, 35161.02390127791] depth=4 cells=0/384/3712\ncentroid incomplete status=incomplete incomplete-cells=3712\nmoments volume=[2523.3273568189147, 2523.3273812958582] centroid [-2.012247572833159e-7, 2.0122476449200962e-7]x[-2.0130112554870163e-7, 2.0130112554870163e-7]x[-1.4953995317856764e-7, 1.4953995317856764e-7] inertia-centroid [2129392.0945006744, 2129392.1691390974] [2129392.0944961826, 2129392.169143589] [4254853.835196777, 4254853.959579495] [-0.024302078902190324, 0.024302078779954234] [-0.008945136198773894, 0.008945136198773894] [-0.008943346782159469, 0.008943346782159469] status=certified method=divergence\n\n",
+   "s": 1.265,
+   "timeout": false
+  }
+ ],
+ "step": [
+  {
+   "node": 802,
+   "s": 0.607,
+   "out": "wrote /var/tmp/briefs/B8/n802.stp entities 658 products 1\n",
+   "timeout": false,
+   "occt_volume": 320264.86903036665,
+   "occt_solids": 1,
+   "certified": [
+    320264.8689995017,
+    320264.8690001422
+   ],
+   "agree": true,
+   "rel_err": 9.537325461383233e-11
+  },
+  {
+   "node": 803,
+   "s": 0.033,
+   "out": "wrote /var/tmp/briefs/B8/n803.stp entities 230 products 1\n",
+   "timeout": false,
+   "occt_volume": 2523.32736905738,
+   "occt_solids": 1,
+   "certified": [
+    2523.327369054114,
+    2523.327369060642
+   ],
+   "agree": true,
+   "rel_err": 9.010867088885518e-16
+  }
+ ],
+ "tess": [
+  {
+   "node": 802,
+   "s": 4.316,
+   "out": "wrote /var/tmp/briefs/B8/n802.obj nverts 6144 ntris 12304 est 1824 chord 0.39726004954378225 ang 0.1963495408493621 nsamp 596 profile display (sampled, not certified)\n",
+   "timeout": false,
+   "judge_s": 0.07,
+   "triangles": 12304,
+   "vertices": 6144,
+   "zero_area": 0,
+   "edge_uses": {
+    "2": 18456
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 317834.53941304475,
+   "volume_rel_err": -0.007588498839623109
+  },
+  {
+   "node": 803,
+   "s": 0.075,
+   "out": "wrote /var/tmp/briefs/B8/n803.obj nverts 1920 ntris 3840 est 3840 chord 0.20625931072589088 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)\n",
+   "timeout": false,
+   "judge_s": 0.02,
+   "triangles": 3840,
+   "vertices": 1920,
+   "zero_area": 0,
+   "edge_uses": {
+    "2": 5760
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2502.5355532605486,
+   "volume_rel_err": -0.008239840795844229
+  }
+ ],
+ "stl_manufacturing": [
+  {
+   "node": 802,
+   "preset": 3,
+   "s": 63.363,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/briefs/B8/n802.stl nverts 63048 ntris 126112 (sampled, not certified)\n"
+  }
+ ],
+ "checks": [
+  {
+   "req": "flange valid",
+   "verdict": "pass",
+   "detail": "ok: embedded, shells outward, cavities nested",
+   "cmd": "check 802",
+   "s": 0.942,
+   "info": false,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  {
+   "req": "O-ring valid",
+   "verdict": "pass",
+   "detail": "ok: embedded, shells outward, cavities nested",
+   "cmd": "check 803",
+   "s": 0.088,
+   "info": false,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  {
+   "req": "O-ring seated in the groove without interference",
+   "verdict": "pass",
+   "detail": "relation disjoint status=certified",
+   "cmd": "interf 802 804",
+   "s": 73.585,
+   "info": false,
+   "out": "relation disjoint status=certified method=exact-intersection\n"
+  },
+  {
+   "req": "O-ring touches the groove (clearance 0)",
+   "verdict": "not-analyzed",
+   "detail": "timeout after 600.104 s",
+   "cmd": "clearance 802 804",
+   "s": 600.104,
+   "info": false,
+   "out": ""
+  },
+  {
+   "req": "five through openings (bore + 4 bolt holes)",
+   "verdict": "pass",
+   "detail": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50\n...[33 chars clipped]...\n, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1",
+   "cmd": "measure 802",
+   "s": 0.502,
+   "info": false,
+   "out": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320264.8689995017, 320264.8690001422] area=[54040.46731382593, 54040.46731393401] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\n"
+  },
+  {
+   "req": "flange dimensions to EN 1092-1 / ASME B16.5",
+   "verdict": "not-analyzed",
+   "detail": "the kernel holds no EN 1092-1 / ASME B16.5 flange data; the size was supplied by the agent from memory and nothing checks it against the standard",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "O-ring groove and squeeze to ISO 3601-2",
+   "verdict": "not-analyzed",
+   "detail": "the kernel holds no ISO 3601 O-ring and gland data; the size was supplied by the agent from memory and nothing checks it against the standard; no seal squeeze or gland-fill check",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "makeable on the declared process with standard tools",
+   "verdict": "not-analyzed",
+   "detail": "no turning check; no face-groove tool",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "drawing output valid for another tool",
+   "verdict": "not-analyzed",
+   "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  }
+ ],
+ "timed_edit": {
+  "label": "groove depth 2.65 -> 2.7 mm",
+  "apply": {
+   "edit": "(param GD 2.7)",
+   "status": "committed",
+   "s": 0.503,
+   "refusals": [],
+   "out": "node 801: ok material=create faces_created=20 faces_modified=0 solids=1 through_holes=1 | volume=[338525.71559081087, 338525.7155908278] area=[52030.09934296619, 52030.09934302342] bbox=[-82.50000000000017, 82.50000000000017]x[-82.50000000000017, 82.50000000000017]x[-1.4654943925052071e-13, 20.000000000000153] vertices=20 edges=40 faces=20 solids=1 genus=1 linear_uncertainty=1.4654943925052066e-13\nnode 802: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320203.94723476336, 320203.94723540376] area=[54065.85138246691, 54065.85138257505] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\nnode 803: ok material=create faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[-1.7650000000000763, 1.7650000000000763] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\nnode 804: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[2523.327369054114, 2523.327369060642] area=[2859.2944691855273, 2859.294469188141] bbox=[-42.80000000000009, 42.80000000000009]x[-42.80000000000009, 42.80000000000009]x[17.299999999999923, 20.83000000000008] vertices=8 edges=16 faces=8 solids=1 genus=1 linear_uncertainty=7.602807272633071e-14\n\ncommitted\n"
+  },
+  "check": {
+   "s": 0.762,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  "tess": {
+   "s": 3.82,
+   "out": "wrote /var/tmp/briefs/B8/edit.obj nverts 6144 ntris 12304 est 1824 chord 0.39726004954378225 ang 0.1963495408493621 nsamp 596 profile display (sampled, not certified)\n",
+   "timeout": false
+  },
+  "visible_rechecked_s": 5.085,
+  "checks": [
+   {
+    "req": "flange valid",
+    "verdict": "pass",
+    "detail": "ok: embedded, shells outward, cavities nested",
+    "cmd": "check 802",
+    "s": 0.728,
+    "info": false,
+    "out": "ok: embedded, shells outward, cavities nested\n"
+   },
+   {
+    "req": "O-ring valid",
+    "verdict": "pass",
+    "detail": "ok: embedded, shells outward, cavities nested",
+    "cmd": "check 803",
+    "s": 0.058,
+    "info": false,
+    "out": "ok: embedded, shells outward, cavities nested\n"
+   },
+   {
+    "req": "O-ring seated in the groove without interference",
+    "verdict": "pass",
+    "detail": "relation disjoint status=certified",
+    "cmd": "interf 802 804",
+    "s": 36.018,
+    "info": false,
+    "out": "relation disjoint status=certified method=exact-intersection\n"
+   },
+   {
+    "req": "O-ring touches the groove (clearance 0)",
+    "verdict": "not-analyzed",
+    "detail": "timeout after 600.102 s",
+    "cmd": "clearance 802 804",
+    "s": 600.102,
+    "info": false,
+    "out": ""
+   },
+   {
+    "req": "five through openings (bore + 4 bolt holes)",
+    "verdict": "pass",
+    "detail": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320203.94723476336, 320203.94723540376] area=[54065.85138246691, 54065.85138257505] bbox=[-82.50000000000018, 82.\n...[35 chars clipped]...\n, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1",
+    "cmd": "measure 802",
+    "s": 0.458,
+    "info": false,
+    "out": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[320203.94723476336, 320203.94723540376] area=[54065.85138246691, 54065.85138257505] bbox=[-82.50000000000018, 82.50000000000018]x[-82.50000000000018, 82.50000000000018]x[-1.4654943925052074e-13, 20.000000000000156] vertices=28 edges=48 faces=24 solids=1 genus=5 linear_uncertainty=7.014389069581758e-13 | proof: k1-crossing-certified V28 E48 F24 S1\n"
+   },
+   {
+    "req": "flange dimensions to EN 1092-1 / ASME B16.5",
+    "verdict": "not-analyzed",
+    "detail": "the kernel holds no EN 1092-1 / ASME B16.5 flange data; the size was supplied by the agent from memory and nothing checks it against the standard",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "O-ring groove and squeeze to ISO 3601-2",
+    "verdict": "not-analyzed",
+    "detail": "the kernel holds no ISO 3601 O-ring and gland data; the size was supplied by the agent from memory and nothing checks it against the standard; no seal squeeze or gland-fill check",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "makeable on the declared process with standard tools",
+    "verdict": "not-analyzed",
+    "detail": "no turning check; no face-groove tool",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "drawing output valid for another tool",
+    "verdict": "not-analyzed",
+    "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   }
+  ]
+ },
+ "budgets": {
+  "edit": {
+   "verdict": "pass",
+   "measured_s": 3.858,
+   "budget_s": 5.0,
+   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+  },
+  "part": {
+   "verdict": "pass",
+   "measured_s": 0.342,
+   "budget_s": 60.0,
+   "note": "serial re-time of the one-shot build"
+  },
+  "export": {
+   "verdict": "pass",
+   "measured_s": 63.97,
+   "budget_s": 300.0
+  },
+  "scene": {
+   "verdict": "not-exercised",
+   "measured_s": null,
+   "budget_s": 60.0
+  }
+ },
+ "verdicts": {
+  "pass": 4,
+  "fail": 0,
+  "not-analyzed": 5
+ },
+ "authoring_refusals": 0,
+ "wall_s": 1400.5,
+ "pass": false,
+ "timed_edit_serial": {
+  "label": "groove depth 2.65 -> 2.7 mm",
+  "build_s": 0.342,
+  "apply_s": 0.351,
+  "apply_status": "committed",
+  "check_s": 0.488,
+  "tess_s": 3.019,
+  "tess_out": "wrote /var/tmp/briefs/B8-retime/edit.obj nverts 6144 ntris 12304 est 1824 chord 0.39726004954378225 ang 0.1963495408493621 nsamp 596 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 3.858
+ },
+ "build_oneshot_serial_s": 0.342
+}

@@ -1,0 +1,1 @@
+BIN design.bcd apply '(thread 4 t n2.c0.wall.0.0 M4 6H 0 12)'

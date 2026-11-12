@@ -8,6 +8,7 @@ import ../c06/build.bend as BD
 import ../c06/sx.bend as S
 import ../k1/sf.bend as KS
 import ../k1/fb.bend as FB
+import ../k1/ef.bend as EF
 
 type TR is Data:
   TR{ k: U64, ax: F64, ay: F64, bx: F64, by: F64, r: F64, t0: F64, t1: F64, z0: F64, z1: F64, ex: Bool }
@@ -489,6 +490,37 @@ def any_wrap_zz(ls: List<&2, List<&2, FB.CE>>, zz: Bool, +sf: KS.SF, +b: FB.KB) 
 def any_wrap(ls: List<&2, List<&2, FB.CE>>, +sf: KS.SF, +b: FB.KB) -> Bool:
   any_wrap_zz(ls, False{}, sf, b)
 
+def ln_angs(cs: List<&2, FB.CE>, +x: BX, +cx: F64, +cy: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +ed = FB.edge_at(bx_b(x), FB.ce_e(h))
+      +p = bx_pt(x, FB.vpt(bx_b(x), Ty.ed_v0(ed)))
+      ln_angs(t, x, cx, cy, Bool.pick(List<&2, F64>, FB.is_line(Ty.ed_kind(ed)), KS.fatan2(F64.sub(V.pt_y(p), cy), F64.sub(V.pt_x(p), cx)) <> acc, acc))
+
+def ek_mid(+k: Ty.EdgeKind, +x: BX) -> V.Point:
+  bx_pt(x, EF.ev(EF.ek_curve(k), F64.mul(0.5f64, F64.add(EF.ek_lo(k), EF.ek_hi(k)))))
+
+def mid_go(cs: List<&2, FB.CE>, +x: BX, +acc: V.Point, +got: Bool) -> V.Point:
+  match cs:
+    case []: acc
+    case +h <> +t:
+      +k = Ty.ed_kind(FB.edge_at(bx_b(x), FB.ce_e(h)))
+      +take = Bool.and(Bool.not(got), Bool.and(EF.ek_is_curve(k), Bool.not(FB.is_line(k))))
+      mid_go(t, x, Bool.pick(V.Point, take, ek_mid(k, x), acc), Bool.or(got, take))
+
+def L_hd(ls: List<&2, List<&2, FB.CE>>) -> List<&2, FB.CE>:
+  match ls:
+    case []: []
+    case +h <> +t: h
+
+def ex_rng(+as: List<&2, F64>, +m: V.Point, +cx: F64, +cy: F64) -> V.Vec2:
+  +ta = f4(as, 0n)
+  +tb = f4(as, 1n)
+  +s = KS.wrap_to(F64.sub(tb, ta), 0.0f64)
+  +mm = KS.wrap_to(F64.sub(KS.fatan2(F64.sub(V.pt_y(m), cy), F64.sub(V.pt_x(m), cx)), ta), 0.0f64)
+  Bool.pick(V.Vec2, F64.is_lt(mm, s), V.V2{ta, F64.add(ta, s)}, V.V2{tb, F64.add(tb, F64.sub(KS.two_pi(), s))})
+
 def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
   +aw = bx_dr(x, a)
   +vert = F64.is_le(F64.add(F64.abs(V.dr_x(aw)), F64.abs(V.dr_y(aw))), F64.mul(1.0e-12f64, F64.abs(V.dr_z(aw))))
@@ -504,10 +536,13 @@ def cy_trace(+x: BX, +fi: Nat, +o: V.Point, +a: V.Dir, +r: F64) -> TF:
   +full = Bool.or(Bool.or(wraps, in_xy(ps, cx, cy)), F64.is_le(KS.pi(), F64.sub(V.v2_y(ar), V.v2_x(ar))))
   +z = zr(ps, big())
   +nl = List.length(&2, List<&2, FB.CE>, ls)
-  +ex = Bool.or(Bool.and(Nat.is_eq(nl, 2n), wraps), Bool.and(Nat.is_eq(nl, 1n), Nat.is_eq(fp_n(f), 4n)))
+  +as = ln_angs(L_hd(ls), x, cx, cy, [])
+  +two = Bool.and(Bool.and(Nat.is_eq(nl, 1n), Nat.is_eq(fp_n(f), 4n)), Nat.is_eq(List.length(&2, F64, as), 2n))
+  +er = ex_rng(as, mid_go(L_hd(ls), x, V.Pt{F64.nan(), F64.nan(), F64.nan()}, False{}), cx, cy)
+  +ex = Bool.or(Bool.and(Nat.is_eq(nl, 2n), wraps), two)
   Bool.pick(TF, Bool.not(vert), TF{2u64, tr0()},
-    TF{1u64, TR{2u64, cx, cy, 0.0f64, 0.0f64, r, Bool.pick(F64, full, 0.0f64, V.v2_x(ar)),
-      Bool.pick(F64, full, KS.two_pi(), V.v2_y(ar)), V.v2_x(z), V.v2_y(z), ex}})
+    TF{1u64, TR{2u64, cx, cy, 0.0f64, 0.0f64, r, Bool.pick(F64, two, V.v2_x(er), Bool.pick(F64, full, 0.0f64, V.v2_x(ar))),
+      Bool.pick(F64, two, V.v2_y(er), Bool.pick(F64, full, KS.two_pi(), V.v2_y(ar))), V.v2_x(z), V.v2_y(z), ex}})
 
 def sf_trace(+flat: Bool, +s: KS.SF, +x: BX, +fi: Nat) -> TF:
   match flat:

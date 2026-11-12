@@ -1565,14 +1565,6 @@ def feat_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>,
       "features act on prism, box and cylinder bodies along z; other placements need booleans (C08)")
     case 6u64: bad(kind_what(kind), "node " ++ U64.show(nd), "feature-on-empty-compound",
       "features need material to act on; pick a non-empty base node")
-    case 7u64:
-      +lo = BD.cl_lo(o)
-      +hi = BD.cl_hi(o)
-      +a0 = f_nth(iv, 0n)
-      +a1 = f_nth(iv, 1n)
-      +top = Bool.not(F64.is_eq(a1, hi))
-      feat_k1(kind, b, rs, Bool.pick(F64, top, F64.min(a1, hi), F64.min(a0, lo)),
-        Bool.pick(F64, top, F64.max(a1, hi), F64.max(a0, lo)), F64.is_eq(f_nth(iv, 2n), 0.0f64), e, nd)
     case 2u64: bad(kind_what(kind), "node " ++ U64.show(nd), "no-such-face", "that cell's top or bottom is part of another face; select the owning cell")
     case 3u64: bad(kind_what(kind), "node " ++ U64.show(nd), "nonpositive-amount", "use a positive finite height or depth")
     case _: bad(kind_what(kind), "node " ++ U64.show(nd), "depth-reaches-opposite-face", "use a smaller depth or a through cut")
@@ -1890,6 +1882,108 @@ def op_lchamf(+b: Body, +n1: String, +n2: String, +cc: X.Xp, +e: X.Env, +nd: U64
       Bool.pick(U64, Nat.is_lt(ei, ne), Bool.pick(U64, axok, Bool.pick(U64, convex, Bool.pick(U64, cok, 0u64, 5u64), 3u64), 4u64), 2u64), 2u64),
     1u64)
   lch_go(code, b, n1, n2, fr, c, len, e, nd)
+
+def sg_add(s: F.Seg, +e: X.Env, +acc: V.Point) -> V.Point:
+  match s:
+    case F.S_line{x, y}: pt3(F64.add(V.pt_x(acc), X.xp_ev(x, e)), F64.add(V.pt_y(acc), X.xp_ev(y, e)), F64.add(V.pt_z(acc), 1.0f64))
+    case F.S_arc{cx, cy, r, x, y, ccw}: pt3(F64.add(V.pt_x(acc), X.xp_ev(x, e)), F64.add(V.pt_y(acc), X.xp_ev(y, e)), F64.add(V.pt_z(acc), 1.0f64))
+
+def sg_acc(ss: List<&2, F.Seg>, +e: X.Env, +acc: V.Point) -> V.Point:
+  match ss:
+    case []: acc
+    case s <> t: sg_acc(t, e, sg_add(s, e, acc))
+
+def lp_probe(l: F.Loop, +e: X.Env) -> V.Vec2:
+  match l:
+    case F.L_circ{cx, cy, r}: V.V2{X.xp_ev(cx, e), X.xp_ev(cy, e)}
+    case F.L_path{x, y, segs}:
+      +s = sg_acc(segs, e, pt3(X.xp_ev(x, e), X.xp_ev(y, e), 1.0f64))
+      V.V2{F64.div(V.pt_x(s), V.pt_z(s)), F64.div(V.pt_y(s), V.pt_z(s))}
+
+def rgs_probe(rs: List<&2, F.Region>, +e: X.Env) -> V.Vec2:
+  match rs:
+    case []: V.V2{0.0f64, 0.0f64}
+    case r <> t:
+      F.Rg{o, hs} = r
+      lp_probe(o, e)
+
+def dir_eq(+a: V.Dir, +b: V.Dir) -> Bool:
+  Bool.and(F64.is_eq(V.dr_x(a), V.dr_x(b)), Bool.and(F64.is_eq(V.dr_y(a), V.dr_y(b)), F64.is_eq(V.dr_z(a), V.dr_z(b))))
+
+def on_fd(+fds: List<&2, SO.Fd>, +fi: Nat, +p: V.Point) -> Bool:
+  +fd = fd_by(fds, fi)
+  U64.is_eq(Mm.member(SO.fd_fc(fd), MM.p3(p), SO.fd_im(fd)), 1u64)
+
+def cand_hit(par: Bool, +strict: Bool, +fds: List<&2, SO.Fd>, +fi: Nat, +fr: FR, +n: V.Dir, +p: V.Point) -> Bool:
+  match par:
+    case False{}: False{}
+    case True{}:
+      match strict:
+        case False{}: True{}
+        case True{}: on_fd(fds, fi, pmove(p, F64.neg(pdot(fr_o(fr), p, n)), n))
+
+def cand_go(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +fds: List<&2, SO.Fd>, +fi: Nat, +n: V.Dir, +p: V.Point,
+    +strict: Bool, +base: U64) -> String:
+  match fs:
+    case []: ""
+    case f <> t:
+      match fas:
+        case []: ""
+        case +a <> u:
+          +fr = frame_of(a)
+          +par = Bool.and(fa_planar(a), Bool.and(fr_ok(fr), dir_eq(fr_n(fr), n)))
+          Bool.pick(String, cand_hit(par, strict, fds, fi, fr, n, p), " (face " ++ U64.show(base) ++ " " ++ BD.fn_name(f) ++ ")", "") ++
+            cand_go(t, u, fds, Nat.add(fi, 1n), n, p, strict, base)
+
+def cand_or(+s: String, +b: Body, +fds: List<&2, SO.Fd>, +n: V.Dir, +p: V.Point, +base: U64) -> String:
+  Bool.pick(String, String.is_empty(s), cand_go(bd_fns(b), Ty.brep_fas(bd_brep(b)), fds, 0n, n, p, False{}, base), s)
+
+def faces_for(+b: Body, +fr: FR, +rs: List<&2, F.Region>, +e: X.Env, +base: U64) -> String:
+  +q = rgs_probe(rs, e)
+  +p = fr_pt(fr_at(fr, V.v2_x(q), V.v2_y(q)))
+  +fds = SO.fds_of(bd_brep(b))
+  cand_or(cand_go(bd_fns(b), Ty.brep_fas(bd_brep(b)), fds, 0n, fr_n(fr), p, True{}, base), b, fds, fr_n(fr), p, base)
+
+def side_n(+side: U64) -> V.Dir:
+  V.Dr{0.0f64, 0.0f64, Bool.pick(F64, U64.is_eq(side, 0u64), 1.0f64, F64.neg(1.0f64))}
+
+def cell_fr(+side: U64) -> FR:
+  FR{True{}, pt3(0.0f64, 0.0f64, 0.0f64), V.Dr{1.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 1.0f64, 0.0f64}, side_n(side)}
+
+def cell_nm(+o: BD.Cl, +side: U64) -> String:
+  "n" ++ U64.show(BD.cl_nd(o)) ++ ".c" ++ Nat.show(BD.cl_k(o)) ++ Bool.pick(String, U64.is_eq(side, 0u64), ".top", ".bottom")
+
+def base_idx(fs: List<&2, BD.Fn>, +nm: String, +i: Nat) -> Nat:
+  match fs:
+    case []: i
+    case +f <> t: Bool.pick(Nat, String.eq(BD.fn_base(f), nm), i, base_idx(t, nm, Nat.add(i, 1n)))
+
+def feat_bc_go(ok: Bool, +kind: U64, +b: Body, +nm: String, +z: F64, +side: U64, +rs: List<&2, F.Region>, +a: F64,
+    +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  match ok:
+    case True{}:
+      +up = Bool.not(Bool.xor(U64.is_eq(kind, 0u64), U64.is_eq(side, 0u64)))
+      feat_k1(kind, b, rs, Bool.pick(F64, up, z, F64.sub(z, a)), Bool.pick(F64, up, F64.add(z, a), z), thru, e, nd)
+    case False{}:
+      bad(kind_what(kind), "node " ++ U64.show(nd), "face-not-found: " ++ nm ++ " is not a face of node " ++ U64.show(base),
+        "select the face by name (coordinates in its frame, faces " ++ U64.show(base) ++ " -f):" ++ faces_for(b, cell_fr(side), rs, e, base))
+
+def feat_bc(+kind: U64, +b: Body, +o: BD.Cl, +side: U64, +rs: List<&2, F.Region>, +a: F64, +thru: Bool, +e: X.Env,
+    +nd: U64, +base: U64) -> NR:
+  +nm = cell_nm(o, side)
+  +fns = bd_fns(b)
+  +fi = base_idx(fns, nm, 0n)
+  +fa = fa_nth(Ty.brep_fas(bd_brep(b)), fi)
+  +fr = frame_of(fa)
+  +ok = Bool.and(Nat.is_lt(fi, List.length(&2, BD.Fn, fns)), Bool.and(fa_planar(fa), Bool.and(fr_ok(fr), dir_eq(fr_n(fr), side_n(side)))))
+  feat_bc_go(ok, kind, b, nm, V.pt_z(fr_o(fr)), side, rs, a, thru, e, nd, base)
+
+def feat_cell_go(code: U64, +o: BD.Cl, +cs: List<&2, BD.Cl>, +rs: List<&2, F.Region>, +e: X.Env, +nd: U64,
+    +iv: List<&2, F64>, +pl: Pl, +kind: U64, +b: Body, +side: U64, +a: F64, +thru: Bool, +base: U64) -> NR:
+  match code:
+    case 7u64: feat_bc(kind, b, o, side, rs, a, thru, e, nd, base)
+    case _: feat_go(code, o, cs, rs, e, nd, iv, pl, kind, b)
+
 def op_feat_cell(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
   Sel{+snd, +sk, +side, nm} = s
   +cs = bd_cells(b)
@@ -1910,7 +2004,7 @@ def op_feat_cell(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X
       Bool.pick(U64, Nat.is_eq(ix, 0n), 1u64, Bool.pick(U64, Bool.not(owner), 2u64,
         Bool.pick(U64, Bool.not(aok), 3u64, Bool.pick(U64, Bool.not(nonempty), 4u64,
           Bool.pick(U64, isBool, 7u64, 0u64)))))))
-  feat_go(code, o, cs, rs, e, nd, iv, bd_pl(b), kind, b)
+  feat_cell_go(code, o, cs, rs, e, nd, iv, bd_pl(b), kind, b, side, a, thru, base)
 
 def op_feat_sel(+named: Bool, +kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
   match named:
@@ -1919,8 +2013,43 @@ def op_feat_sel(+named: Bool, +kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Reg
       op_feat_nm(kind, b, nm, rs, amt, thru, e, nd)
     case False{}: op_feat_cell(kind, b, s, rs, amt, thru, e, nd, base)
 
+def so_cavs(ss: List<&2, Ty.Solid>, +n: Nat) -> Nat:
+  match ss:
+    case []: n
+    case s <> t:
+      Ty.So{g, o, cv} = s
+      so_cavs(t, Nat.add(n, List.length(&2, Ty.HShell, cv)))
+
+def n_cav(+br: Ty.Brep) -> Nat:
+  so_cavs(Ty.brep_sos(br), 0n)
+
+def sel_fr_go(named: Bool, +b: Body, +nm: String, +side: U64) -> FR:
+  match named:
+    case True{}: frame_of(fa_nth(Ty.brep_fas(bd_brep(b)), name_idx(bd_fns(b), nm, 0n)))
+    case False{}: cell_fr(side)
+
+def sel_s(+s: Sel) -> String:
+  Sel{+nd, +k, +side, +nm} = s
+  "(face " ++ U64.show(nd) ++ " " ++ Bool.pick(String, String.is_empty(nm), Nat.show(k) ++ Bool.pick(String, U64.is_eq(side, 0u64), " top", " bottom"), nm) ++ ")"
+
+def seal_go(sealed: Bool, +rb: Body, +fx: Fx, +kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +e: X.Env,
+    +nd: U64, +base: U64) -> NR:
+  match sealed:
+    case False{}: NR_ok{rb, fx}
+    case True{}:
+      Sel{snd, sk, +side, +nm} = s
+      bad(kind_what(kind), "node " ++ U64.show(nd), "feature-sealed-cavity: the cut from " ++ sel_s(s) ++
+        " does not open on that face and would leave a closed void",
+        "start the cut on the face it opens through:" ++ faces_for(b, sel_fr_go(Bool.not(String.is_empty(nm)), b, nm, side), rs, e, base))
+
+def feat_seal(r: NR, +kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+rb, fx}:
+      seal_go(Bool.and(Bool.not(U64.is_eq(kind, 0u64)), Nat.is_lt(n_cav(bd_brep(b)), n_cav(bd_brep(rb)))), rb, fx, kind, b, s, rs, e, nd, base)
+
 def op_feat(+kind: U64, +b: Body, +s: Sel, +rs: List<&2, F.Region>, +amt: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
-  op_feat_sel(Bool.not(String.is_empty(sel_nm(s))), kind, b, s, rs, amt, thru, e, nd, base)
+  feat_seal(op_feat_sel(Bool.not(String.is_empty(sel_nm(s))), kind, b, s, rs, amt, thru, e, nd, base), kind, b, s, rs, e, nd, base)
 
 def fn_w(f: BD.Fn) -> List<&2, U64>:
   BD.Fn{nd, k, role, i, j} = f
