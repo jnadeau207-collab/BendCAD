@@ -115,6 +115,18 @@ Packets, in order, one at a time:
 
 The ladder is re-run after every packet; a packet lands when its briefs move and nothing else regresses.
 
+Progress:
+
+| Packet | Kernel | Result |
+|---|---|---|
+| P2 | `p2` | Six of seven reproducers pass (`docs/receipts/briefs/repro.json`; all seven fail on `a15`). Cell faces resolve to their named face and a cut that would seal a void is refused; `asm gap` uses the exact span of an arc face; fits are computed from the tabulated deviations; one assembly grammar for every verb; `thread-span-outside-face` prints the admissible span; `faces -f` prints certified cylinder, cone, sphere and torus parameters. B7 6/1/5 to 7/0/5, B13 3/1/5 to 4/0/5. Identity 16/16, fuzz gate unchanged, laws and 163 mutants hold, K2 E2E 34/34, K2 refusals 20/20. |
+
+Carried forward:
+
+- The countersink edit (rank 7) is one K1 difference that fails its edge-use check for some sizes and not their neighbours (`tests/corpus/k1/countersink-74-6-difference.json`). It belongs with the curved-boolean robustness work.
+- An external thread callout on a bare cylinder of the root diameter is accepted and labelled `root-core`. P5 makes that binding come only from the thread feature, and makes the diameter-mismatch refusal print the admissible windows.
+- The c14 `asm clear` and `asm interf` paths are unreachable now that K2 answers both verbs; they are removed with their laws moved, not left as a second evaluator.
+
 ## Oversight
 
 - One scoreboard, generated from receipts (`tools/readme/ladder.py`). A row is done when its receipt says pass.

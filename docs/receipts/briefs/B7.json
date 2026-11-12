@@ -524,13 +524,13 @@
  "budgets": {
   "edit": {
    "verdict": "fail",
-   "measured_s": 32.334,
+   "measured_s": 31.965,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 0.885,
+   "measured_s": 0.881,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -555,13 +555,13 @@
  "pass": false,
  "timed_edit_serial": {
   "label": "enclosure height 30 -> 32 mm",
-  "build_s": 0.885,
-  "apply_s": 0.868,
+  "build_s": 0.881,
+  "apply_s": 0.893,
   "apply_status": "committed",
-  "check_s": 0.513,
-  "tess_s": 30.953,
-  "tess_out": "wrote /var/tmp/briefs-p2/B7-retime/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
-  "visible_rechecked_s": 32.334
+  "check_s": 0.516,
+  "tess_s": 30.556,
+  "tess_out": "wrote /var/tmp/briefs/B7-retime/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 31.965
  },
- "build_oneshot_serial_s": 0.885
+ "build_oneshot_serial_s": 0.881
 }

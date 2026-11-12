@@ -646,14 +646,14 @@
  },
  "budgets": {
   "edit": {
-   "verdict": "fail",
-   "measured_s": 5.194,
+   "verdict": "pass",
+   "measured_s": 3.895,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 1.677,
+   "measured_s": 1.674,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -678,13 +678,13 @@
  "pass": false,
  "timed_edit_serial": {
   "label": "housing seat nominal 22 -> 22.01",
-  "build_s": 1.677,
-  "apply_s": 1.673,
+  "build_s": 1.674,
+  "apply_s": 1.707,
   "apply_status": "committed",
-  "check_s": 0.386,
-  "tess_s": 3.135,
-  "tess_out": "wrote /var/tmp/briefs-p2/B13-retime/edit.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
-  "visible_rechecked_s": 5.194
+  "check_s": 0.364,
+  "tess_s": 1.824,
+  "tess_out": "wrote /var/tmp/briefs/B13-retime/edit.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 3.895
  },
- "build_oneshot_serial_s": 1.677
+ "build_oneshot_serial_s": 1.674
 }
