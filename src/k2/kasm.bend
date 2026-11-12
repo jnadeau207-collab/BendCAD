@@ -5,6 +5,7 @@ import ../c06/model.bend as M
 import ../c06/sx.bend as S
 import ../c14/asm.bend as A4
 import ../c11/qinterf.bend as QI
+import ../c11/qdist.bend as QD
 import ../c07/sol.bend as SO
 import ../c12/stepw.bend as SW
 import ../k1/sf.bend as KS
@@ -220,7 +221,7 @@ def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>, +old: List<
 def k2_code(+v: String) -> U64:
   Bool.pick(U64, String.eq(v, "mass"), 1u64, Bool.pick(U64, String.eq(v, "engage"), 2u64,
     Bool.pick(U64, String.eq(v, "gap"), 3u64, Bool.pick(U64, String.eq(v, "mesh"), 4u64,
-      Bool.pick(U64, String.eq(v, "interf"), 6u64, 0u64)))))
+      Bool.pick(U64, String.eq(v, "interf"), 6u64, Bool.pick(U64, String.eq(v, "clear"), 7u64, 0u64))))))
 
 def k2_skip(xs: List<&2, String>, +i: Nat) -> Nat:
   match xs:
@@ -304,13 +305,6 @@ def presses(xs: List<&2, S.Sx>) -> List<&2, PD>:
     case +h <> +t:
       +r = presses(t)
       Bool.pick(List<&2, PD>, is_press(h), pd_of(h) <> r, r)
-
-def unpressed(xs: List<&2, S.Sx>) -> List<&2, S.Sx>:
-  match xs:
-    case []: []
-    case +h <> +t:
-      +r = unpressed(t)
-      Bool.pick(List<&2, S.Sx>, is_press(h), r, h <> r)
 
 def s_pre(a: String, b: String) -> Bool:
   match a b:
@@ -409,20 +403,43 @@ def pps(xs: List<&2, A4.IN>) -> List<&2, PP>:
     case []: []
     case +x <> +t: List.append(&2, PP, List.reverse(&2, PP, pp_in(x, t, [])), pps(t))
 
-def pp_s(+ds: List<&2, PD>, +q: PP) -> String:
-  PP{+x, +y} = q
-  "pair " ++ A4.in_name(x) ++ " " ++ A4.in_name(y) ++ "\n" ++ pair_s(pd_find(ds, A4.in_name(x), A4.in_name(y)), QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y)
+type PX is Data:
+  PX{ ds: List<&2, PD>, cl: Bool }
 
-def pp_f(ds: List<&2, PD>, q: PP) -> String:
-  pp_s(ds, q)
+def press_decl(faces: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
+  match faces:
+    case True{}: wit_s(press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
+    case False{}: "declared press-fit " ++ pd_name(d) ++ " status=declared\n"
+
+def clear_pair(pr: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
+  match pr:
+    case True{}: press_decl(pd_faces(d), d, x, y)
+    case False{}: QD.clear_s(A4.in_nr(x), A4.in_nr(y)) ++ "\n"
+
+def pp_k(cl: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
+  match cl:
+    case True{}: clear_pair(Bool.not(String.eq(pd_name(d), "")), d, x, y)
+    case False{}: pair_s(d, QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y)
+
+def px_cl(+c: PX) -> Bool:
+  PX{+ds, +cl} = c
+  cl
+
+def pp_s(+c: PX, +q: PP) -> String:
+  PX{+ds, +cl} = c
+  PP{+x, +y} = q
+  "pair " ++ A4.in_name(x) ++ " " ++ A4.in_name(y) ++ "\n" ++ pp_k(cl, pd_find(ds, A4.in_name(x), A4.in_name(y)), x, y)
+
+def pp_f(c: PX, q: PP) -> String:
+  pp_s(c, q)
 
 def cat_s(xs: List<&2, String>) -> String:
   match xs:
     case []: ""
     case +x <> +t: x ++ cat_s(t)
 
-def ip_go(+xs: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
-  cat_s(B.pmap_g(~PP, ~List<&2, PD>, ~String, ~pp_f, 1, ds, pps(xs)))
+def ip_go(+xs: List<&2, A4.IN>, +c: PX) -> String:
+  cat_s(B.pmap_g(~PP, ~PX, ~String, ~pp_f, 1, c, pps(xs)))
 
 def is_some_in(m: Maybe<&2, A4.IN>) -> Bool:
   match m:
@@ -439,45 +456,51 @@ def pd_known(ds: List<&2, PD>, +ins: List<&2, A4.IN>) -> String:
         " | fix: write (press NAME A AFACE B BFACE) with two instance names
 ")
 
-def ip_rep(+ins: List<&2, A4.IN>, +ds: List<&2, PD>) -> String:
+def ip_rep(+ins: List<&2, A4.IN>, +c: PX) -> String:
+  PX{+ds, +cl} = c
   +e = pd_known(ds, ins)
   Bool.pick(String, String.eq(e, ""), "assembly pairs ninst " ++ Nat.show(List.length(&2, A4.IN, ins)) ++ "
-" ++ ip_go(ins, ds), e)
+" ++ ip_go(ins, PX{ds, cl}), e)
 
-def ip_sol(+s: A4.AS, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
+def ip_place(cl: Bool, +ins: List<&2, A4.IN>) -> List<&2, A4.IN>:
+  match cl:
+    case True{}: ins
+    case False{}: snap_ins(ins)
+
+def ip_sol(+s: A4.AS, +a: A4.Asm, +cs: List<&2, M.CE>, +c: PX) -> String:
   match s:
     case A4.AS_conf{+ids, +res}: A4.conf_rep(a, ids, res)
-    case A4.AS_ok{+sx, +dof, +red, +res}: ip_rep(snap_ins(A4.place_all(A4.asm_insts(a), sx, cs, 0n)), ds)
+    case A4.AS_ok{+sx, +dof, +red, +res}: ip_rep(ip_place(px_cl(c), A4.place_all(A4.asm_insts(a), sx, cs, 0n)), c)
 
-def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +ds: List<&2, PD>) -> String:
+def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +c: PX) -> String:
   match ok:
     case False{}: e
-    case True{}: ip_sol(A4.asm_solve(a, cs), a, cs, ds)
+    case True{}: ip_sol(A4.asm_solve(a, cs), a, cs, c)
 
-def ip_ar(+p: M.Part, +ar: A4.AR, +ds: List<&2, PD>, +old: List<&2, M.CE>) -> String:
+def ip_ar(+p: M.Part, +ar: A4.AR, +c: PX, +old: List<&2, M.CE>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
       +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
       +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
-      ip_ok(String.eq(e, ""), e, a, cs, ds)
+      ip_ok(String.eq(e, ""), e, a, cs, c)
 
 def top_items(+r: S.PS) -> List<&2, S.Sx>:
   S.PS{+ok, +xs} = r
   S.sx_xs(S.sx_nth(xs, 0n))
 
-def k2_interf(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
-  +its = top_items(S.parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))))
-  ip_ar(p, A4.asm_parse(S.sx_show(S.Sx_l{unpressed(its)})), presses(its), old)
+def k2_interf(+p: M.Part, +xs: List<&2, String>, +cl: Bool, +old: List<&2, M.CE>) -> String:
+  +txt = A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))
+  ip_ar(p, A4.asm_parse(txt), PX{presses(top_items(S.parse(txt))), cl}, old)
 
 def k2_pick(+i: Bool, +code: U64, +p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match i:
-    case True{}: k2_interf(p, xs, old)
+    case True{}: k2_interf(p, xs, U64.is_eq(code, 7u64), old)
     case False{}: k2_ar(code, p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), xs, old)
 
 def k2_asm(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   +code = k2_code(S.arg_at(xs, 0n))
-  k2_pick(U64.is_eq(code, 6u64), code, p, xs, old)
+  k2_pick(Bool.or(U64.is_eq(code, 6u64), U64.is_eq(code, 7u64)), code, p, xs, old)
 
 type AW is Data:
   AW{ ws: SW.WS, names: String }
