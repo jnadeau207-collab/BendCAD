@@ -2,7 +2,7 @@
  "id": "B7",
  "sentence": "Electronics enclosure 100 x 60 x 30 with lid, four M3 insert bosses, rounded edges, cable port",
  "process": "print",
- "binary": "/home/jesse/bc/bendcad-a15",
+ "binary": "/home/jesse/bc/bendcad-p2",
  "parts": [
   705,
   713
@@ -12,78 +12,78 @@
   {
    "edit": "(param H 30)",
    "status": "committed",
-   "s": 0.003,
+   "s": 0.002,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(node 701 (prism 0 H (region (path 6.0 0.0 (line 94.0 0.0) (arc 94.0 6.0 6.0 100.0 6.0 ccw) (line 100.0 54.0) (arc 94.0 54.0 6.0 94.0 60.0 ccw) (line 6.0 60.0) (arc 6.0 54.0 6.0 0.0 54.0 ccw) (line 0.0 6.0) (arc 6.0 6.0 6.0 6.0 0.0 ccw)))) (intent create any 0 1 0))",
    "status": "committed",
-   "s": 0.015,
+   "s": 0.012,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 702 (pocket 701 (face 701 0 top) (- H 2) (region (path 6.0 2.0 (line 94.0 2.0) (arc 94.0 6.0 4.0 98.0 6.0 ccw) (line 98.0 54.0) (arc 94.0 54.0 4.0 94.0 58.0 ccw) (line 6.0 58.0) (arc 6.0 54.0 4.0 2.0 54.0 ccw) (line 2.0 6.0) (arc 6.0 6.0 4.0 6.0 2.0 ccw)))) (intent remove any any 1 0))",
    "status": "committed",
-   "s": 0.03,
+   "s": 0.024,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 703 (pad 702 (face 702 n702.c0.top) 24 (region (circle 8 8 3.5)) (region (circle 92 8 3.5)) (region (circle 8 52 3.5)) (region (circle 92 52 3.5))) (intent add any any 1 0))",
    "status": "committed",
-   "s": 0.353,
+   "s": 0.193,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\n\ncommitted\n"
   },
   {
    "edit": "(node 704 (holes 703 (face 703 n703.c0.top) 6 (hole 8 8 2) (hole 92 8 2) (hole 8 52 2) (hole 92 52 2)) (intent remove any any 1 0))",
    "status": "committed",
-   "s": 0.693,
+   "s": 0.429,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.7763568394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\n\ncommitted\n"
   },
   {
    "edit": "(node 705 (holes 704 (face 701 n701.c0.wall.2.0) 3 (hole 30 15 4)) (intent remove any any 1 1))",
    "status": "committed",
-   "s": 0.924,
+   "s": 0.615,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.7763568394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\nnode 705: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[32221.875657998582, 32221.875658063025] area=[31911.362456222538, 31911.362456286362] bbox=[-1.7763568394002517e-13, 100.00000000000024]x[-1.7763568394002517e-13, 60.00000000000021]x[-1.7763568394002517e-13, 30.000000000000195] vertices=50 edges=66 faces=36 solids=1 genus=1 linear_uncertainty=3.0486724256206874e-13 | proof: k1-crossing-certified V50 E66 F36 S1\n\ncommitted\n"
   },
   {
    "edit": "(node 711 (prism 0 2 (region (path 6.0 0.0 (line 94.0 0.0) (arc 94.0 6.0 6.0 100.0 6.0 ccw) (line 100.0 54.0) (arc 94.0 54.0 6.0 94.0 60.0 ccw) (line 6.0 60.0) (arc 6.0 54.0 6.0 0.0 54.0 ccw) (line 0.0 6.0) (arc 6.0 6.0 6.0 6.0 0.0 ccw)))) (intent create any 0 1 0))",
    "status": "committed",
-   "s": 0.837,
+   "s": 0.588,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.7763568394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\nnode 705: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[32221.875657998582, 32221.875658063025] area=[31911.362456222538, 31911.362456286362] bbox=[-1.7763568394002517e-13, 100.00000000000024]x[-1.7763568394002517e-13, 60.00000000000021]x[-1.7763568394002517e-13, 30.000000000000195] vertices=50 edges=66 faces=36 solids=1 genus=1 linear_uncertainty=3.0486724256206874e-13 | proof: k1-crossing-certified V50 E66 F36 S1\nnode 711: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[11938.194671045103, 11938.19467107183] area=[12557.59289473302, 12557.592894756219] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 712 (pad 711 (face 711 0 bottom) 3 (region (path 6.0 2.2 (line 94.0 2.2) (arc 94.0 6.0 3.8 97.8 6.0 ccw) (line 97.8 54.0) (arc 94.0 54.0 3.8 94.0 57.8 ccw) (line 6.0 57.8) (arc 6.0 54.0 3.8 2.2 54.0 ccw) (line 2.2 6.0) (arc 6.0 6.0 3.8 6.0 2.2 ccw)) (path 6.0 3.8 (line 94.0 3.8) (arc 94.0 6.0 2.2 96.2 6.0 ccw) (line 96.2 54.0) (arc 94.0 54.0 2.2 94.0 56.2 ccw) (line 6.0 56.2) (arc 6.0 54.0 2.2 3.8 54.0 ccw) (line 3.8 6.0) (arc 6.0 6.0 2.2 6.0 3.8 ccw)))) (intent add any any 1 any))",
    "status": "committed",
-   "s": 0.882,
+   "s": 0.604,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x\n...[10 chars clipped]...\n8394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\nnode 705: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[32221.875657998582, 32221.875658063025] area=[31911.362456222538, 31911.362456286362] bbox=[-1.7763568394002517e-13, 100.00000000000024]x[-1.7763568394002517e-13, 60.00000000000021]x[-1.7763568394002517e-13, 30.000000000000195] vertices=50 edges=66 faces=36 solids=1 genus=1 linear_uncertainty=3.0486724256206874e-13 | proof: k1-crossing-certified V50 E66 F36 S1\nnode 711: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[11938.194671045103, 11938.19467107183] area=[12557.59289473302, 12557.592894756219] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 712: ok material=add faces_created=18 faces_modified=1 solids=1 through_holes=0 | volume=[13334.272539437923, 13334.27253952577] area=[14302.690230260987, 14302.690230286717] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 713 (holes 712 (face 711 0 top) through (hole 8 8 1.7) (hole 92 8 1.7) (hole 8 52 1.7) (hole 92 52 1.7)) (intent remove any any 1 any))",
    "status": "committed",
-   "s": 1.821,
+   "s": 1.349,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x\n...[461 chars clipped]...\n-1.7763568394002517e-13, 60.00000000000021]x[-1.7763568394002517e-13, 30.000000000000195] vertices=50 edges=66 faces=36 solids=1 genus=1 linear_uncertainty=3.0486724256206874e-13 | proof: k1-crossing-certified V50 E66 F36 S1\nnode 711: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[11938.194671045103, 11938.19467107183] area=[12557.59289473302, 12557.592894756219] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 712: ok material=add faces_created=18 faces_modified=1 solids=1 through_holes=0 | volume=[13334.272539437923, 13334.27253952577] area=[14302.690230260987, 14302.690230286717] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\n\ncommitted\n"
   },
   {
    "edit": "(node 714 (move 713 0 0 H 0) (intent same any any 1 any))",
    "status": "committed",
-   "s": 2.049,
+   "s": 1.153,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x\n...[910 chars clipped]...\n00002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 712: ok material=add faces_created=18 faces_modified=1 solids=1 through_holes=0 | volume=[13334.272539437923, 13334.27253952577] area=[14302.690230260987, 14302.690230286717] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 714: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[26.99999999999982, 32.000000000000185] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\n\ncommitted\n"
   }
  ],
  "built": true,
- "build_incremental_s": 7.607,
+ "build_incremental_s": 4.969,
  "build_oneshot": {
-  "s": 1.86,
+  "s": 1.309,
   "timeout": false,
   "committed": true
  },
@@ -95,7 +95,7 @@
     {
      "edit": "(node 750 (fillet 701 2) (intent remove any any 1 any))",
      "status": "rejected",
-     "s": 2.003,
+     "s": 1.156,
      "refusals": [
       {
        "line": "node 750: error unsupported-op | fillet @ node 750 | why: fillet-base-not-admitted | fix: stay inside the admitted feature",
@@ -115,7 +115,7 @@
     {
      "edit": "(node 751 (shell 701 2 open) (intent remove any any 1 any))",
      "status": "rejected",
-     "s": 2.2,
+     "s": 1.106,
      "refusals": [
       {
        "line": "node 751: error unsupported-op | shell @ node 751 | why: shell-base-not-admitted | fix: stay inside the admitted feature",
@@ -135,22 +135,22 @@
     {
      "edit": "(node 752 (holes 703 (face 703 0 top) 6 (hole 8 8 2) (hole 92 8 2) (hole 8 52 2) (hole 92 52 2)) (intent remove any any 1 0))",
      "status": "committed",
-     "s": 3.943,
+     "s": 1.329,
      "refusals": [],
-     "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x\n...[1317 chars clipped]...\n00002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 714: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[26.99999999999982, 32.000000000000185] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 752: ok material=remove faces_created=12 faces_modified=0 solids=1 through_holes=0 | volume=[32322.406622913008, 32322.4066229784] area=[32062.158903595013, 32062.158903658477] bbox=[-5.578892903201916e-11, 100.00000000009224]x[-9.216871710293631e-11, 60.00000000009221]x[-9.216871710293631e-11, 30.00000000009219] vertices=48 edges=64 faces=39 solids=1 genus=0 linear_uncertainty=2.62456723021502e-13\n\ncommitted\n"
+     "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x\n...[1368 chars clipped]...\n[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 714: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[26.99999999999982, 32.000000000000185] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 752: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.7763568394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\n\ncommitted\n"
     }
    ],
    "then": [
     {
      "cmd": "faces 752",
-     "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=1\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=1\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=1\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=1\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=1\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=1\nn703.c3.wall.0.0 cylinder loops=2\nn752.cav.0.0.1 plane loops=1\nn752.cav.0.1.1 plane loops=1\nn752.cav.0.2.1 cylinder loops=2\nn752.cav.0.3.1 plane loops=1\nn752.cav.0.4.1 plane loops=1\nn752.cav.0.5.1 cylinder loops=2\nn752.cav.0.6.1 plane loops=1\nn752.cav.0.7.1 plane loops=1\nn752.cav.0.8.1 cylinder loops=2\nn752.cav.0.9.1 plane loops=1\nn752.cav.0.10.1 plane loops=1\nn752.cav.0.11.1 cylinder loops=2\n\n",
-     "s": 1.785,
+     "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=1\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=1\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn752.c0.bottom plane loops=1\nn752.c0.wall.0.0 cylinder loops=2\nn752.c1.bottom plane loops=1\nn752.c1.wall.0.0 cylinder loops=2\nn752.c2.bottom plane loops=1\nn752.c2.wall.0.0 cylinder loops=2\nn752.c3.bottom plane loops=1\nn752.c3.wall.0.0 cylinder loops=2\n\n",
+     "s": 0.393,
      "timeout": false
     },
     {
      "cmd": "step 752 /var/tmp/briefs/B7/probe_cav.stp",
-     "out": "refused step-cavities-not-in-profile | step | fix: keep analytic curves, trim-seg coedges and plane/sphere/cylinder/torus/bezier-patch faces\n",
-     "s": 1.61,
+     "out": "wrote /var/tmp/briefs/B7/probe_cav.stp entities 864 products 1\n",
+     "s": 0.413,
      "timeout": false
     }
    ]
@@ -163,14 +163,14 @@
     {
      "cmd": "asm gap body lid (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
      "out": "error invalid-input | asm gap | why: gap-axes-not-parallel: face n705.c0.wall.0.0 is not parallel to z on body | fix: gap measures parts extruded along z\n",
-     "s": 1.996,
+     "s": 1.15,
      "timeout": false
     }
    ]
   }
  ],
  "eval": {
-  "s": 1.634,
+  "s": 1.11,
   "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[179072.9200657062, 179072.92006604775] area=[21229.168026334166, 21229.16802636741] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[28929.48655675082, 28929.48655738669] area=[29548.884780733217, 29548.884780776585] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 30.000000000000185] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[32623.9995176577, 32623.99951772295] area=[31660.03504393559, 31660.035043998912] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 30.00000000000019] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2004620348070628e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[32322.40662291338, 32322.406622978026] area=[31961.627938679925, 31961.62793874385] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.7763568394002515e-13, 60.000000000000206]x[-1.7763568394002515e-13, 30.000000000000192] vertices=48 edges=64 faces=35 solids=1 genus=0 linear_uncertainty=2.624567230213875e-13 | proof: k1-crossing-certified V48 E64 F35 S1\nnode 705: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[32221.875657998582, 32221.875658063025] area=[31911.362456222538, 31911.362456286362] bbox=[-1.7763568394002517e-13, 100.00000000000024]x[-1.7763568394002517e-13, 60.00000000000021]x[-1.7763568394002517e-13, 30.000000000000195] vertices=50 edges=66 faces=36 solids=1 genus=1 linear_uncertainty=3.0486724256206874e-13 | proof: k1-crossing-certified V50 E66 F36 S1\nnode 711: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[11938.194671045103, 11938.19467107183] area=[12557.59289473302, 12557.592894756219] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 712: ok material=add faces_created=18 faces_modified=1 solids=1 through_holes=0 | volume=[13334.272539437923, 13334.27253952577] area=[14302.690230260987, 14302.690230286717] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 714: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[26.99999999999982, 32.000000000000185] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\n\n"
  },
  "certified_volume": {
@@ -187,13 +187,13 @@
   {
    "node": 705,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 1.026,
+   "s": 0.634,
    "timeout": false
   },
   {
    "node": 713,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 1.068,
+   "s": 0.649,
    "timeout": false
   }
  ],
@@ -201,21 +201,21 @@
   {
    "node": 705,
    "out": "mass volume=[32221.875657998582, 32221.875658063025] certified octree=[0, 74355.46875092182] depth=4 cells=0/2404/1692\ncentroid incomplete status=incomplete incomplete-cells=1692\nmoments volume=[32221.874880825813, 32221.876435236005] centroid [49.84712101353442, 49.84712290118307]x[29.99999921025079, 30.00000078974921]x[10.150788174431042, 10.150788848230974] inertia-centroid [18708603.562644728, 18708605.253422655] [41679429.403521515, 41679432.92354617] [54640664.86841377, 54640669.3539247] [-1.0403778537613442, 1.0403778554111471] [23886.862085717392, 23887.737097471774] [-0.22362391204742413, 0.2236239112274846] status=certified method=divergence\n\n",
-   "s": 3.245,
+   "s": 2.344,
    "timeout": false
   },
   {
    "node": 713,
    "out": "mass volume=[13261.63891731758, 13261.638917344104] certified octree=[6884.765625280893, 20156.25000082685] depth=4 cells=940/1344/1812\ncentroid [17.078488372090636, 152.40691489370596]x[10.247093023245169, 91.44414893619859]x[-1.1554521276580787, 1.869281914998458] status=certified incomplete-cells=1812\ninertia-centroid [-160915354.02916452, 42685478.43444376] [-446943092.09556663, 115160357.30465561] [-607731695.7711844, 157680954.45245978] [-31595673.48762161, 270584876.6601122] [-4213691.255838514, 6184452.244452104] [-2528214.753502519, 3710671.346670335] status=certified\nmoments volume=[13261.63889261293, 13261.638942048765] centroid [49.999999939659475, 50.00000006034052]x[29.999999971618912, 30.00000002838108]x[0.7368202558927073, 0.7368202657931411] inertia-centroid [4292313.290766805, 4292313.314765027] [11492562.807011815, 11492562.873204103] [15759257.73115794, 15759257.82030129] [-0.014907858034605535, 0.014907857592227312] [-0.0022026153577903865, 0.0022026152975308314] [-0.0009744684165447221, 0.0009744682214599951] status=certified method=divergence\n\n",
-   "s": 3.097,
+   "s": 2.242,
    "timeout": false
   }
  ],
  "step": [
   {
    "node": 705,
-   "s": 0.996,
-   "out": "wrote /var/tmp/briefs/B7/n705.stp entities 898 products 1\n",
+   "s": 0.526,
+   "out": "wrote /var/tmp/briefs-p2/B7/n705.stp entities 898 products 1\n",
    "timeout": false,
    "occt_volume": 32221.875663811683,
    "occt_solids": 1,
@@ -228,8 +228,8 @@
   },
   {
    "node": 713,
-   "s": 0.907,
-   "out": "wrote /var/tmp/briefs/B7/n713.stp entities 938 products 1\n",
+   "s": 0.621,
+   "out": "wrote /var/tmp/briefs-p2/B7/n713.stp entities 938 products 1\n",
    "timeout": false,
    "occt_volume": 13261.638917405777,
    "occt_solids": 1,
@@ -244,10 +244,10 @@
  "tess": [
   {
    "node": 705,
-   "s": 45.838,
-   "out": "wrote /var/tmp/briefs/B7/n705.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
+   "s": 23.728,
+   "out": "wrote /var/tmp/briefs-p2/B7/n705.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
    "timeout": false,
-   "judge_s": 0.27,
+   "judge_s": 0.2,
    "triangles": 39410,
    "vertices": 19705,
    "zero_area": 0,
@@ -262,10 +262,10 @@
   },
   {
    "node": 713,
-   "s": 3.495,
-   "out": "wrote /var/tmp/briefs/B7/n713.obj nverts 5007 ntris 10026 est 2020 chord 0.009143580944788503 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
+   "s": 2.377,
+   "out": "wrote /var/tmp/briefs-p2/B7/n713.obj nverts 5007 ntris 10026 est 2020 chord 0.009143580944788503 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
    "timeout": false,
-   "judge_s": 0.06,
+   "judge_s": 0.05,
    "triangles": 10026,
    "vertices": 5007,
    "zero_area": 0,
@@ -283,10 +283,10 @@
   {
    "node": 705,
    "preset": 3,
-   "s": 122.817,
+   "s": 94.965,
    "ok": true,
    "timeout": false,
-   "out": "wrote /var/tmp/briefs/B7/n705.stl nverts 106063 ntris 212126 (sampled, not certified)\n"
+   "out": "wrote /var/tmp/briefs-p2/B7/n705.stl nverts 106063 ntris 212126 (sampled, not certified)\n"
   }
  ],
  "checks": [
@@ -295,7 +295,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 705",
-   "s": 0.844,
+   "s": 0.555,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -304,7 +304,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 713",
-   "s": 0.902,
+   "s": 0.592,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -313,25 +313,25 @@
    "verdict": "pass",
    "detail": "relation disjoint status=certified",
    "cmd": "interf 705 714",
-   "s": 2.849,
+   "s": 1.812,
    "info": false,
    "out": "relation disjoint status=certified method=exact-intersection\n"
   },
   {
    "req": "lip-to-wall clearance 0.2 (z-extruded gap)",
-   "verdict": "fail",
-   "detail": "gap= [0.0, 0.0] outside [0.1999, 0.2001]",
+   "verdict": "pass",
+   "detail": "gap= [0.19999999756160017, 0.20000000000700024] within [0.1999, 0.2001]",
    "cmd": "asm gap lid body n702.c0.wall.0.0 n702.c0.wall.1.0 n702.c0.wall.2.0 n702.c0.wall.3.0 n702.c0.wall.4.0 n702.c0.wall.5.0 n702.c0.wall.6.0 n702.c0.wall.7.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
-   "s": 1.397,
+   "s": 0.929,
    "info": false,
-   "out": "gap lid body gap=[0, 0] traces=28/8 verdict=interference status=certified\n"
+   "out": "gap lid body gap=[0.19999999756160017, 0.20000000000700024] traces=28/8 verdict=clearance status=certified\n"
   },
   {
    "req": "printable wall >= 1.2 mm (body)",
    "verdict": "not-analyzed",
-   "detail": "timeout after 600.006 s",
+   "detail": "timeout after 600.103 s",
    "cmd": "wall 705",
-   "s": 600.006,
+   "s": 600.103,
    "info": false,
    "out": ""
   },
@@ -340,7 +340,7 @@
    "verdict": "pass",
    "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
    "cmd": "faces 705",
-   "s": 0.521,
+   "s": 0.469,
    "info": false,
    "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
   },
@@ -349,7 +349,7 @@
    "verdict": "pass",
    "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
    "cmd": "faces 705",
-   "s": 0.52,
+   "s": 0.48,
    "info": false,
    "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
   },
@@ -358,7 +358,7 @@
    "verdict": "pass",
    "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
    "cmd": "faces 705",
-   "s": 0.54,
+   "s": 0.48,
    "info": false,
    "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
   },
@@ -400,27 +400,27 @@
   "apply": {
    "edit": "(param H 32)",
    "status": "committed",
-   "s": 1.031,
+   "s": 1.189,
    "refusals": [],
    "out": "node 701: ok material=create faces_created=10 faces_modified=0 solids=1 through_holes=0 | volume=[191011.11473675346, 191011.11473711746] area=[21848.566250019965, 21848.566250053922] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 32.00000000000019] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 702: ok material=remove faces_created=9 faces_modified=1 solids=1 through_holes=0 | volume=[30143.15026287266, 30143.15026355203] area=[30762.548486876098, 30762.54848692089] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 32.00000000000019] vertices=32 edges=48 faces=19 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 703: ok material=add faces_created=8 faces_modified=1 solids=1 through_holes=0 | volume=[33837.66322380009, 33837.66322386777] area=[32873.698750077965, 32873.69875014371] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-1.7763568394002512e-13, 32.0000000000002] vertices=40 edges=56 faces=27 solids=1 genus=0 linear_uncertainty=2.2049029269055634e-13 | proof: k1-crossing-certified V40 E56 F27 S1\nnode 704: ok material=remove faces_created=8 faces_modified=4 solids=1 through_holes=0 | volume=[33536.07032905577, 33536.07032912284] area=[33175.2916448223, 33175.29164488865] bbox=[-1.7763568394002515e-13, 100.00000000000023]x[-1.\n...[903 chars clipped]...\n00002]x[-1.776356839400251e-13, 60.00000000000019]x[-1.776356839400251e-13, 2.0000000000001785] vertices=16 edges=24 faces=10 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 712: ok material=add faces_created=18 faces_modified=1 solids=1 through_holes=0 | volume=[13334.272539437923, 13334.27253952577] area=[14302.690230260987, 14302.690230286717] bbox=[-1.776356839400251e-13, 100.0000000000002]x[-1.776356839400251e-13, 60.00000000000019]x[-3.0000000000001785, 2.0000000000001785] vertices=48 edges=72 faces=28 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-13\nnode 713: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[-3.000000000000179, 2.000000000000179] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\nnode 714: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=4 | volume=[13261.63891731758, 13261.638917344104] area=[14315.507928286179, 14315.507928314813] bbox=[-1.7763568394002512e-13, 100.00000000000021]x[-1.7763568394002512e-13, 60.0000000000002]x[28.99999999999982, 34.000000000000185] vertices=56 edges=80 faces=32 solids=1 genus=4 linear_uncertainty=2.144950883575805e-13 | proof: k1-crossing-certified V56 E80 F32 S1\n\ncommitted\n"
   },
   "check": {
-   "s": 0.596,
+   "s": 0.558,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
   "tess": {
-   "s": 19.298,
-   "out": "wrote /var/tmp/briefs/B7/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
+   "s": 19.748,
+   "out": "wrote /var/tmp/briefs-p2/B7/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
    "timeout": false
   },
-  "visible_rechecked_s": 20.925,
+  "visible_rechecked_s": 21.495,
   "checks": [
    {
     "req": "body valid",
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 705",
-    "s": 0.593,
+    "s": 0.561,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -429,7 +429,7 @@
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 713",
-    "s": 0.636,
+    "s": 0.612,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -438,25 +438,25 @@
     "verdict": "pass",
     "detail": "relation disjoint status=certified",
     "cmd": "interf 705 714",
-    "s": 2.089,
+    "s": 2.028,
     "info": false,
     "out": "relation disjoint status=certified method=exact-intersection\n"
    },
    {
     "req": "lip-to-wall clearance 0.2 (z-extruded gap)",
-    "verdict": "fail",
-    "detail": "gap= [0.0, 0.0] outside [0.1999, 0.2001]",
+    "verdict": "pass",
+    "detail": "gap= [0.19999999756160017, 0.20000000000700024] within [0.1999, 0.2001]",
     "cmd": "asm gap lid body n702.c0.wall.0.0 n702.c0.wall.1.0 n702.c0.wall.2.0 n702.c0.wall.3.0 n702.c0.wall.4.0 n702.c0.wall.5.0 n702.c0.wall.6.0 n702.c0.wall.7.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
-    "s": 1.034,
+    "s": 0.972,
     "info": false,
-    "out": "gap lid body gap=[0, 0] traces=28/8 verdict=interference status=certified\n"
+    "out": "gap lid body gap=[0.19999999756160017, 0.20000000000700024] traces=28/8 verdict=clearance status=certified\n"
    },
    {
     "req": "printable wall >= 1.2 mm (body)",
     "verdict": "not-analyzed",
-    "detail": "timeout after 600.102 s",
+    "detail": "timeout after 600.104 s",
     "cmd": "wall 705",
-    "s": 600.102,
+    "s": 600.104,
     "info": false,
     "out": ""
    },
@@ -465,7 +465,7 @@
     "verdict": "pass",
     "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
     "cmd": "faces 705",
-    "s": 0.518,
+    "s": 0.441,
     "info": false,
     "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
    },
@@ -474,7 +474,7 @@
     "verdict": "pass",
     "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
     "cmd": "faces 705",
-    "s": 0.53,
+    "s": 0.455,
     "info": false,
     "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
    },
@@ -483,7 +483,7 @@
     "verdict": "pass",
     "detail": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylind\n...[726 chars clipped]...\noops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2",
     "cmd": "faces 705",
-    "s": 0.493,
+    "s": 0.464,
     "info": false,
     "out": "n701.c0.top plane loops=2\nn701.c0.bottom plane loops=1\nn702.c0.top plane loops=5\nn701.c0.wall.0.0 plane loops=1\nn701.c0.wall.1.0 cylinder loops=1\nn701.c0.wall.2.0 plane loops=2\nn701.c0.wall.3.0 cylinder loops=1\nn701.c0.wall.4.0 plane loops=1\nn701.c0.wall.5.0 cylinder loops=1\nn701.c0.wall.6.0 plane loops=1\nn701.c0.wall.7.0 cylinder loops=1\nn702.c0.wall.0.0 plane loops=1\nn702.c0.wall.1.0 cylinder loops=1\nn702.c0.wall.2.0 plane loops=2\nn702.c0.wall.3.0 cylinder loops=1\nn702.c0.wall.4.0 plane loops=1\nn702.c0.wall.5.0 cylinder loops=1\nn702.c0.wall.6.0 plane loops=1\nn702.c0.wall.7.0 cylinder loops=1\nn703.c0.top plane loops=2\nn703.c0.wall.0.0 cylinder loops=2\nn703.c1.top plane loops=2\nn703.c1.wall.0.0 cylinder loops=2\nn703.c2.top plane loops=2\nn703.c2.wall.0.0 cylinder loops=2\nn703.c3.top plane loops=2\nn703.c3.wall.0.0 cylinder loops=2\nn704.c0.bottom plane loops=1\nn704.c0.wall.0.0 cylinder loops=2\nn704.c1.bottom plane loops=1\nn704.c1.wall.0.0 cylinder loops=2\nn704.c2.bottom plane loops=1\nn704.c2.wall.0.0 cylinder loops=2\nn704.c3.bottom plane loops=1\nn704.c3.wall.0.0 cylinder loops=2\nn705.c0.wall.0.0 cylinder loops=2\n\n"
    },
@@ -524,19 +524,19 @@
  "budgets": {
   "edit": {
    "verdict": "fail",
-   "measured_s": 19.456,
+   "measured_s": 32.334,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 1.136,
+   "measured_s": 0.885,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
   "export": {
    "verdict": "pass",
-   "measured_s": 123.813,
+   "measured_s": 95.491,
    "budget_s": 300.0
   },
   "scene": {
@@ -546,22 +546,22 @@
   }
  },
  "verdicts": {
-  "pass": 6,
-  "fail": 1,
+  "pass": 7,
+  "fail": 0,
   "not-analyzed": 5
  },
  "authoring_refusals": 3,
- "wall_s": 1445.1,
+ "wall_s": 1376.1,
  "pass": false,
  "timed_edit_serial": {
   "label": "enclosure height 30 -> 32 mm",
-  "build_s": 1.136,
-  "apply_s": 0.966,
+  "build_s": 0.885,
+  "apply_s": 0.868,
   "apply_status": "committed",
-  "check_s": 0.579,
-  "tess_s": 17.911,
-  "tess_out": "wrote /var/tmp/briefs/B7-retime/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
-  "visible_rechecked_s": 19.456
+  "check_s": 0.513,
+  "tess_s": 30.953,
+  "tess_out": "wrote /var/tmp/briefs-p2/B7-retime/edit.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 32.334
  },
- "build_oneshot_serial_s": 1.136
+ "build_oneshot_serial_s": 0.885
 }

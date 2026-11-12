@@ -1,6 +1,6 @@
 # BendCAD agent manual
 
-What a piloting agent needs to drive the kernel CLI, written from the brief-ladder baseline of 2026-11-11 (`tests/briefs/`, binary `/home/jesse/bc/bendcad-a15`). Every example is an edit that committed in a brief (`Bn` is the brief in `tests/briefs/briefs.py`) or a query whose output is stored in `docs/receipts/briefs/Bn.json`. Refusals are quoted verbatim. Nothing here is claimed that was not run; section 8 lists what was not exercised. The older language reference is `tools/mcp/language.md`; the CLI does not serve it.
+What a piloting agent needs to drive the kernel CLI, written from the brief-ladder baseline of 2026-11-11 and updated for packet P2 (binary `/home/jesse/bc/bendcad-p2`, E2E `tests/briefs/repro/run.py`) (`tests/briefs/`, binary `/home/jesse/bc/bendcad-a15`). Every example is an edit that committed in a brief (`Bn` is the brief in `tests/briefs/briefs.py`) or a query whose output is stored in `docs/receipts/briefs/Bn.json`. Refusals are quoted verbatim. Nothing here is claimed that was not run; section 8 lists what was not exercised. The older language reference is `tools/mcp/language.md`; the CLI does not serve it.
 
 ## 1. Invocation
 
@@ -26,7 +26,7 @@ A design is an ordered list of parameters, nodes, materials and thread callouts 
 
 - `(param NAME NOM)` or `(param NAME NOM LO HI)`: a number with a tolerance zone. Re-applying it with a new value is an edit; every node that uses it re-evaluates. B1 `(param T 3)` then `(param T 4)`; B3 `(param DS 22 22 22.021)` (an H7 zone typed by hand).
 - `(node ID OP INTENT)`: one operation. Re-applying an id replaces that node. B5 replaced its ring with `(node 301 (prism 0 10 (region (circle 0 0 12.5) (circle 0 0 4))) (intent create any 0 1 1))` and the twelve nodes after it re-evaluated.
-- `(intent MATERIAL FACES_CREATED FACES_MODIFIED SOLIDS THROUGH_HOLES)`: MATERIAL is `create`, `add`, `remove` or `same`; each count may be `any`. The kernel measures all five and refuses a mismatch: `why: declared material=remove ... through_holes=0 but measured material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1 | fix: fix the operation or declare the effect it has` (B5: a clearance bore that opened into the split). Following the fix worked. A `bend` measures as `add` (B1 probe); `move` and `rotate` are `same`. Intent catches miscounts but not wrong geometry: B7's misplaced holes became sealed cavities and still matched `through_holes 0` (section 7).
+- `(intent MATERIAL FACES_CREATED FACES_MODIFIED SOLIDS THROUGH_HOLES)`: MATERIAL is `create`, `add`, `remove` or `same`; each count may be `any`. The kernel measures all five and refuses a mismatch: `why: declared material=remove ... through_holes=0 but measured material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1 | fix: fix the operation or declare the effect it has` (B5: a clearance bore that opened into the split). Following the fix worked. A `bend` measures as `add` (B1 probe); `move` and `rotate` are `same`. Intent catches miscounts but not wrong geometry; since P2 a `holes` or `pocket` cut that would leave a closed void is refused on its own: `why: feature-sealed-cavity: the cut from (face 2 n2.c0.top) does not open on that face and would leave a closed void | fix: start the cut on the face it opens through: (face 3 n3.c0.top)`. Following the fix commits (`tests/briefs/repro/pad_cell_face_sealed_cavity`).
 - Expressions: numbers, parameter names, `(+ a b)`, `(- a b)`, `(* a b)`, `(/ a b)`. B1 `(line (+ T R) T)`; B2 `(hole (- 30 (/ S 2)) (- 30 (/ S 2)) (/ M 2))`; B7 `(pocket 701 (face 701 0 top) (- H 2) ...)`.
 - `(material NODE GRADE RHO CTE [E NU])`: any grade name. B13 `(material 401 100Cr6 7810 11.5e-6)`; B14 `(material 1403 PLA 1240 68e-6 3500 0.36)`.
 - `(thread NODE NAME FACE DESIG CLASS Z0 Z1)`: a semantic ISO metric thread on a cylinder face (section 5).
@@ -39,11 +39,11 @@ A design is an ordered list of parameters, nodes, materials and thread callouts 
 - revolves: every face comes in two halves, `nN.c0.wall.I.0` and `nN.c0.wall.I.1` (B3, B4, B8). Holes placed through either half's frame committed (B3 probe); a thread callout on either half committed (B4 probe).
 - tools keep their names: B5's tap bore is `n311.c0.wall.0.0` on node 313.
 - a pocket floor is `nN.c0.top` of the pocket node (B7 `n702.c0.top`); a pad top is `nN.cK.top` of the pad node (B7 `n703.c0.top`).
-- holes inside a solid become cavity faces `nN.cav.K.I.J` (seen in B7's defect).
+- holes inside a solid become cavity faces `nN.cav.K.I.J`; a feature that would create one is refused (above).
 
 A frame line reads `n1.c0.wall.2.0 plane loops=1 frame o=(0,3,0) x=(1,0,0) y=(0,0,-1) n=(0,1,0)`. Feature coordinates on that face are (x, y) in that frame: B1 put a hole at world (25, 3, 8) as `(hole 25 -8 r)` because the frame's y is world -z.
 
-`FACE` in a feature is `(face NODE CELL top|bottom)` or `(face NODE NAME)`. Use the named form for anything raised off the base: on a pad standing on a pocket floor, `(face 703 0 top)` placed B7's insert holes at the wrong height as sealed cavities, while `(face 703 n703.c0.top)` cut them correctly.
+`FACE` in a feature is `(face NODE CELL top|bottom)` or `(face NODE NAME)`. The cell form means the face named `nNODE.cCELL.top|bottom`, and the feature is cut at that face's real height; its coordinates stay world (body) x, y. On a body made by a boolean or a named-face feature, when that face does not exist the cell form is refused with the faces to use: `why: face-not-found: n3.c0.bottom is not a face of node 3 | fix: select the face by name (coordinates in its frame, faces 3 -f): (face 3 n1.c0.bottom)`. The named form takes coordinates in the face's frame (`faces NODE -f`). Before P2 the cell form on a pad standing on a pocket floor cut at a stale height and committed a sealed cavity.
 
 ## 3. Operations used
 
@@ -80,13 +80,13 @@ Refused, with the fix and what happened:
 |---|---|---|
 | eval | `eval` | every node's line |
 | measure | `measure NODE` | one node's line; B11 `through_holes=4` (rim + three spokes + bore) |
-| faces | `faces NODE [-f\|-v]` | names, surface kinds (`plane`, `cylinder`, `cone`, ...), frames |
+| faces | `faces NODE [-f\|-v]` | names and surface kinds; `-f` adds every planar face's frame and every analytic curved face's defining parameters: `n2.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,1) radius=[2.75, 2.75] diameter=[5.5, 5.5] concave`; cones print `apex= axis= tan-half-angle=`, spheres `center= radius= diameter=`, tori `center= axis= major-radius= minor-radius=`, each `convex` or `concave`; `-v` prints the same plus the faces deleted by the node |
 | check | `check NODE` | `ok: embedded, shells outward, cavities nested` on every committed part |
 | mass | `mass NODE [DEPTH]` | certified volume and divergence moments; the octree centroid can be `incomplete` (B1) |
 | wall | `wall NODE` | `min-wall [2.999999999971803, 3] certified ...` (B1, 16-19 s); B2 in 1.3 s; no answer in 600 s on B3, B4, B5, B7, B11, B12, B14 |
 | clearance | `clearance A B` | exact for coaxial cylinders: the gauge-pin method (B2 `clearance 91 4` gave `[0.09999999966998627, 0.10000000000003212]`) measures a bore; between non-coaxial curved parts it took over 600 s (B8, B9, B13) |
 | interf | `interf A B` | `relation disjoint status=certified` (B7 lid on body, B8 O-ring in its groove in 74 s, B6 gears in 440 s); found the real interference of B9's first leaf design |
-| dist | `dist NODE X Y Z` | inside a hole: `distance [0, 3.1250390622552344] estimated lo=certified`: it cannot certify a hole size |
+| dist | `dist NODE X Y Z` | inside a hole: `distance [0, 3.1250390622552344] estimated lo=certified`; read a hole size from `faces NODE -f` instead |
 | zone | `zone NODE` | refused on a revolve with holes (B3) and on a boolean (B4): `topology-not-certified-over-zone` |
 | section | `section NODE A B C D` | B1 at z = 22: `status=estimated` with over 1000 unresolved boxes |
 | threads | `threads NODE` | `thread m4 M4x0.7 6H z=[0.5, 7] length=6.5 internal minor=[3.242, 3.422] model=3.3 face=n311.c0.wall.0.0 status=certified` (B5) |
@@ -95,40 +95,39 @@ Refused, with the fix and what happened:
 | step | `step NODE FILE` | AP242; OCCT read every exported part back as one solid within the certified volume (receipts `step`); a part with cavities is refused `step-cavities-not-in-profile` |
 | tess | `tess NODE OUT.obj [PRESET CHORD ANGLE MAXTRIS PROFILE]` | default preset is the display preset; every mesh that was written is conforming by `tools/mesh/check.py`; B11 refused `tess-mesh-not-closed` |
 | stl | `stl NODE OUT.stl 3` | the manufacturing preset: 25-168 s per part |
-| pmi fits | `pmi fits (pmi (node N) (temp NAME T)... (fit NAME HN HFACE SN SFACE CLASS KIND))` | B13 H7/h5 printed both temperatures, then `why: fit-not-clearance: seat` |
-| asm | `asm solve\|interf\|clear\|mass\|gap\|mesh ... (assembly ...)` | B6 `asm mesh p 20 w 40 (assembly ...)`: `gap=[0.0471, 0.0472] ... verdict=clearance status=certified` in 1.4 s; B13 `asm solve` `dof 0`; B13 `asm interf` (44-71 s) found the real bearing-on-k5 interference and printed `declared press-fit inner status=declared` once declared; `asm clear` on four parts gave no answer in 600 s; B7 `asm gap` |
+| pmi fits | `pmi fits (pmi (node N) (temp NAME T)... (fit NAME HN HFACE SN SFACE CLASS KIND))` | at 20 C the envelope comes from the tabulated deviations, so H7/h5 prints `clearance=[0, 0.030000000000000002]` and `verdict=clearance-certified`; zero minimum clearance is a clearance fit and zero maximum clearance an interference fit (ISO 286-1). B13 before P2: `why: fit-not-clearance: seat` on a rounding error |
+| asm | `asm solve\|interf\|clear\|mass\|gap\|mesh ... (assembly ...)` | B6 `asm mesh p 20 w 40 (assembly ...)`: `gap=[0.0471, 0.0472] ... verdict=clearance status=certified` in 1.4 s; B13 `asm solve` `dof 0`; B13 `asm interf` (44-71 s) found the real bearing-on-k5 interference and printed `declared press-fit inner status=declared` once declared; `asm clear` on four parts gave no answer in 600 s (non-coaxial curved pairs, P4); `asm clear` reports a declared press pair as `declared press-fit NAME status=declared` (with its press witness) instead of measuring it; B7 `asm gap` |
 
-Assembly form (B13): `(assembly (inst NAME NODE TX TY TZ Q)... (fix ID INST) (coinc ID A AX AY AZ B BX BY BZ))`. `(press NAME A AFACE B BFACE)` is accepted only by `asm interf`; `asm solve`, `asm clear` and `asm mass` refuse the same text with `why: unknown-assembly-entry`. Keep two texts.
+Assembly form (B13): `(assembly (inst NAME NODE TX TY TZ Q)... (fix ID INST) (coinc ID A AX AY AZ B BX BY BZ) (press NAME A AFACE B BFACE)...)`. One grammar for every `asm` verb: a verb with no use for `press` ignores it, `asm interf` certifies it and `asm clear` reports it as declared. Before P2 only `asm interf` accepted `press`.
 
-`asm gap A B [FACE...]` needs every face of A, and the named faces of B, parallel to z: `why: gap-axes-not-parallel: face n705.c0.wall.0.0 is not parallel to z on body | fix: gap measures parts extruded along z` (B7, a side port). Swapping the parts and naming the body's inner walls was accepted.
+`asm gap A B [FACE...]` needs every face of A, and the named faces of B, parallel to z: `why: gap-axes-not-parallel: face n705.c0.wall.0.0 is not parallel to z on body | fix: gap measures parts extruded along z` (B7, a side port). Swapping the parts and naming the body's inner walls was accepted. Arc faces are traced over their exact angular span (before P2 a quarter-arc corner was traced as a full circle and `asm gap` certified an interference 0.2 away from the real lid lip).
 
 ## 5. Engineering data the kernel holds
 
-- Threads (ISO 261 / ISO 965-1): model a tapped hole at its tap drill (M4 6H takes 3.242 to 3.422; B5 used 3.3; a bore at the basic minor diameter also commits) and an external thread inside the class's major window (B4 used 7.95 for M8x1 6g). Z0..Z1 is measured along the face axis in world coordinates, oriented so its first non-zero component is positive, over the projections of the face's edge start points. `thread-span-outside-face` does not print that span: for B5's tap along -y it is a world y range (`0.5 7`), not the tool cylinder's 0..13.
-- Fits (ISO 286): only inside `pmi fits`, between two cylinders of the same nominal size. A lone bore or shaft cannot take a class.
+- Threads (ISO 261 / ISO 965-1): model a tapped hole at its tap drill (M4 6H takes 3.242 to 3.422; B5 used 3.3; a bore at the basic minor diameter also commits) and an external thread inside the class's major window (B4 used 7.95 for M8x1 6g). Z0..Z1 is measured along the face axis in world coordinates, oriented so its first non-zero component is positive, over the projections of the face's edge start points. `thread-span-outside-face` prints that span and the axis: `why: thread-span-outside-face: t z=[0, 12] admissible=[0, 10] along=(0,1,0) Z=dot(point,along) frame=world | fix: write (thread 4 t n2.c0.wall.0.0 M4 6H Z0 Z1) with 0 <= Z0 < Z1 <= 10, Z measured along (0,1,0)`; `frame=node-N-before-placement` when the node has a placement.
+- Fits (ISO 286): only inside `pmi fits`, between two cylinders of the same nominal size. A lone bore or shaft cannot take a class; its size is read from `faces NODE -f`.
 - Materials: any grade name with density and CTE (E and NU for FE).
 - Nothing else. Clearance holes, counterbores, countersinks, keyways, ring grooves, O-ring glands, flanges, gears, bearings and fasteners were all typed by the agent (`docs/receipts/briefs/friction.json`).
 
 ## 6. Workarounds that worked
 
-- Gauge pin: a cylinder of radius r - 0.1 coaxial with a bore, then `clearance PIN PART`, certifies the bore radius (B2, B3).
+- Gauge pin: a cylinder of radius r - 0.1 coaxial with a bore, then `clearance PIN PART`, certifies the bore radius (B2, B3). Since P2 `faces NODE -f` prints it directly.
 - Cross holes and counterbores on curved surfaces: placed cylinders (`move ... 4`) and `difference` (B5). Make each tool long enough to leave the part: a short tool leaves its end cap inside, visible only as an extra face in `faces -f`.
 - Arcs with computed endpoints: ulp snap (B14).
 - Gears: polyline teeth from `docs/receipts/g3/gear.py`, checked with `asm mesh` (B6).
 - Hinge swing: one `rotate` node per sampled angle and one `clearance` per angle (B9). This samples the swing; it does not certify it.
-- Press fits in an assembly: declare them only in the text given to `asm interf`.
 
 ## 7. Known wrong or missing answers (repros in `tests/briefs/repro/`)
 
-- `pad_cell_face_sealed_cavity`: holes on `(face PAD 0 top)` cut at the wrong height and commit as sealed cavities.
-- `asm_gap_concave_arc`: `asm gap` reports certified interference between concentric corner arcs 0.2 apart.
-- `countersink_edit_refused`: `(param CS 2.6)` refuses with k1 reason 42; 2.45, 2.5, 2.55 and 2.7 commit.
-- `fit_hh_zero_clearance`: H7/h5 fails `clearance` on a rounding error of -7.1e-15.
-- `asm_press_breaks_solve`: see section 4.
+- `pad_cell_face_sealed_cavity`: fixed in P2 (cell faces resolve by name; sealed cuts refused).
+- `asm_gap_concave_arc`: fixed in P2 (gap [0.19999999756160017, 0.20000000000700024] certified clearance).
+- `countersink_edit_refused`: `(param CS 2.6)` refuses with k1 reason 42 (the boolean's result fails the edge-use check); 2.59, 2.6 and 2.62 refuse, 2.61, 2.63 and 2.65 commit, and the same countersink at (6, 6) or (40, 6) commits. Reduced to one difference in `tests/corpus/k1/countersink-74-6-difference.json`; not fixed.
+- `fit_hh_zero_clearance`: fixed in P2.
+- `asm_press_breaks_solve`: fixed in P2 (section 4).
 - `modelled_thread_reason82`: a 10 mm internal M3 helix differenced from the standoff refuses with k1 reason 82 after about 200 s.
 - `tess_curved_boolean_not_closed`: the handwheel cannot be meshed.
 - `wall_stepped_revolve`, `clearance_oring_slow`, `asm_clear_slow`, `interf_gears_slow`, `tess_display_slow`: queries far over budget.
-- `dist_inside_hole`, `thread_span_frame`: answers that cannot be used as stated.
+- `dist_inside_hole`, `thread_span_frame`: fixed in P2 (`faces -f` hole size; the span message).
 
 ## 8. Not exercised in this baseline
 
