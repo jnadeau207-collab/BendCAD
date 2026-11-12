@@ -1,0 +1,1 @@
+BIN design.bcd wall 1   # stepped solid revolve (dia 8 x 10 + dia 10 x 10): no answer in 300 s; a ring prism answers in 0.04 s

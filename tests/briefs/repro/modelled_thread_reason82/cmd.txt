@@ -1,0 +1,1 @@
+BIN design.bcd apply '(node 1002 (difference 1001 1010) (intent remove any any 1 any))'   # M3 x 10 internal helix (tools/g5/threads.py int_helix) differenced from the hex standoff: refused after ~200 s, edge-face-penetration [k1 reason 82]; one turn (0.5 mm) of the same helix commits in ~56-61 s

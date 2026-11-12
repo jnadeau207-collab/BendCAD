@@ -1,0 +1,6 @@
+(bendcad 1)
+(param 1 GD 2.7 2.7 2.7)
+(node 801 (revolve (region (path 30.75 0 (line 82.5 0) (line 82.5 18) (line 51 18) (line 51 20) (line 42.8 20) (line 42.8 (- 20 GD)) (line 38 (- 20 GD)) (line 38 20) (line 30.75 20)))) (intent create any 0 1 1))
+(node 802 (holes 801 (face 801 n801.c0.wall.2.0) through (hole 44.19417382415922 44.19417382415922 9) (hole -44.19417382415922 44.19417382415922 9) (hole -44.19417382415922 -44.19417382415922 9) (hole 44.19417382415922 -44.19417382415922 9)) (intent remove any any 1 5))
+(node 803 (torus 41.035 1.765) (intent create any 0 1 1))
+(node 804 (move 803 0 0 (+ (- 20 GD) 1.765) 0) (intent same any any 1 1))

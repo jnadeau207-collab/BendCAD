@@ -1,0 +1,1 @@
+BIN design.bcd tess 705 out.obj   # prismatic enclosure body (rounded-rect walls, 4 bosses, 5 holes): 45 s at the default display preset, 39,410-44,730 triangles; 20-43 s again after the height edit

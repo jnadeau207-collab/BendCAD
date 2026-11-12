@@ -1,0 +1,1 @@
+BIN design.bcd clearance 906 915   # two prismatic hinge leaves (planes and coaxial cylinders only) 0.4 apart: no answer in 600 s at 0, 60, 90 and 120 deg; pin-to-leaf clearance answers in 0.6 s

@@ -1,0 +1,1 @@
+BIN design.bcd clearance 802 804   # flange with face groove vs seated O-ring torus: no answer in 600 s (interf 802 804 answers disjoint in 74 s)

@@ -1,0 +1,3 @@
+(bendcad 1)
+(node 1 (box 20 20 4) (intent create any 0 1 0))
+(node 2 (holes 1 (face 1 0 top) through (hole 10 10 2.75)) (intent remove any any 1 1))

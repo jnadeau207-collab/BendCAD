@@ -1,0 +1,440 @@
+{
+ "id": "B3",
+ "sentence": "Flanged housing for a 608 bearing: H7 seat, shoulder, retaining-ring groove, four-bolt flange",
+ "process": "lathe and mill",
+ "binary": "/home/jesse/bc/bendcad-a15",
+ "parts": [
+  102
+ ],
+ "design_notes": "One revolve profile (seat 22 H7 as parameter zone [22, 22.021], shoulder bore 19, DIN 472 groove 23.0 x 1.1 for a 22 bore), flange 64 x 6 with four 5.5 holes on a 50 PCD at 45 deg.",
+ "edits": [
+  {
+   "edit": "(param DS 22 22 22.021)",
+   "status": "committed",
+   "s": 0.003,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(param DH 5.5)",
+   "status": "committed",
+   "s": 0.004,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 16.5) (line (/ DS 2) 16.5) (line (/ DS 2) 15) (line 11.5 15) (line 11.5 13.9) (line (/ DS 2) 13.9) (line (/ DS 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+   "status": "committed",
+   "s": 0.034,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (hole 17.67766952966369 17.67766952966369 (/ DH 2)) (hole -17.67766952966369 17.67766952966369 (/ DH 2)) (hole -17.67766952966369 -17.67766952966369 (/ DH 2)) (hole 17.67766952966369 -17.67766952966369 (/ DH 2))) (intent remove any any 1 5))",
+   "status": "committed",
+   "s": 0.767,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 190 (cylinder 10.9 4) (intent create any 0 1 0))",
+   "status": "committed",
+   "s": 0.941,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 191 (move 190 0 0 8 0) (intent same any any 1 0))",
+   "status": "committed",
+   "s": 0.716,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 192 (cylinder 9.4 3) (intent create any 0 1 0))",
+   "status": "committed",
+   "s": 0.731,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 193 (move 192 0 0 2 0) (intent same any any 1 0))",
+   "status": "committed",
+   "s": 0.656,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 193: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[1.9999999999999831, 5.000000000000019] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\n\ncommitted\n"
+  }
+ ],
+ "built": true,
+ "build_incremental_s": 3.852,
+ "build_oneshot": {
+  "s": 0.665,
+  "timeout": false,
+  "committed": true
+ },
+ "probes": [
+  {
+   "name": "holes on the half face that does not contain them",
+   "note": "",
+   "steps": [
+    {
+     "edit": "(node 150 (holes 102 (face 101 n101.c0.wall.2.1) through (hole 0 25 1)) (intent remove any any 1 any))",
+     "status": "committed",
+     "s": 1.101,
+     "refusals": [],
+     "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 193: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[1.9999999999999831, 5.000000000000019] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 150: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=6 | volume=[21512.99817323067, 21512.9981732737] area=[9534.419544370128, 9534.419544389199] bbox=[-32.000000000000085, 32.000000000000085]x[-32.000000000000085, 32.000000000000085]x[-5.684341886080807e-14, 16.50000000000007] vertices=34 edges=58 faces=29 solids=1 genus=6 linear_uncertainty=3.2307490016592146e-13 | proof: k1-crossing-certified V34 E58 F29 S1\n\ncommitted\n"
+    }
+   ],
+   "then": []
+  },
+  {
+   "name": "fillet on a revolve edge",
+   "note": "",
+   "steps": [
+    {
+     "edit": "(node 151 (fillet 102 1) (intent remove any any 1 any))",
+     "status": "rejected",
+     "s": 0.837,
+     "refusals": [
+      {
+       "line": "node 151: error unsupported-op | fillet @ node 151 | why: fillet-base-not-admitted | fix: stay inside the admitted feature",
+       "why": "fillet-base-not-admitted",
+       "fix": "stay inside the admitted feature"
+      }
+     ],
+     "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 193: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[1.9999999999999831, 5.000000000000019] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 151: error unsupported-op | fillet @ node 151 | why: fillet-base-not-admitted | fix: stay inside the admitted feature\n\nrejected: the design was not changed\n"
+    }
+   ],
+   "then": []
+  }
+ ],
+ "eval": {
+  "s": 0.924,
+  "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 193: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[1.9999999999999831, 5.000000000000019] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\n\n"
+ },
+ "certified_volume": {
+  "102": [
+   21531.84772915219,
+   21531.847729195255
+  ]
+ },
+ "check": [
+  {
+   "node": 102,
+   "out": "ok: embedded, shells outward, cavities nested\n",
+   "s": 1.001,
+   "timeout": false
+  }
+ ],
+ "mass": [
+  {
+   "node": 102,
+   "out": "mass volume=[21531.84772915219, 21531.847729195255] certified octree=[6732.00000004445, 39105.00000026214] depth=4 cells=272/2516/1308\ncentroid [-37.882352941231844, 36.41176470594565]x[-49.10294117652769, 49.10294117652059]x[0.5325949366961602, 34.46346507341981] status=certified incomplete-cells=1308\ninertia-centroid [-139094830.41437, 35266079.06636182] [-100984879.12145391, 22210619.066268574] [-147335272.3735526, 49682820.00044819] [-78078261.14604571, 78078261.14605623] [-52383685.44041204, 50519190.60335705] [-67950476.17223237, 67950476.17222303] status=certified\nmoments volume=[21531.84762940946, 21531.847828937982] centroid [-1.94337531378238e-7, 1.9433753287774062e-7]x[-9.200285324509906e-8, 9.200285311838053e-8]x[4.699518476512573, 4.699518554039822] inertia-centroid [5474345.167633679, 5474345.351312168] [5474345.049151314, 5474345.469794536] [10290990.024135936, 10290990.588515295] [-0.11164663341457882, 0.11164663328652198] [-0.036858242786569344, 0.03685824304155337] [-0.01679203870151571, 0.01679203861807088] status=certified method=divergence\n\n",
+   "s": 8.34,
+   "timeout": false
+  }
+ ],
+ "step": [
+  {
+   "node": 102,
+   "s": 1.375,
+   "out": "wrote /var/tmp/briefs/B3/n102.stp entities 758 products 1\n",
+   "timeout": false,
+   "occt_volume": 21531.84772999757,
+   "occt_solids": 1,
+   "certified": [
+    21531.84772915219,
+    21531.847729195255
+   ],
+   "agree": true,
+   "rel_err": 3.826190000313504e-11
+  }
+ ],
+ "tess": [
+  {
+   "node": 102,
+   "s": 9.468,
+   "out": "wrote /var/tmp/briefs/B3/n102.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
+   "timeout": false,
+   "judge_s": 0.24,
+   "triangles": 13976,
+   "vertices": 6980,
+   "zero_area": 0,
+   "edge_uses": {
+    "2": 20964
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 21369.033182197276,
+   "volume_rel_err": -0.007561568752682881
+  }
+ ],
+ "stl_manufacturing": [
+  {
+   "node": 102,
+   "preset": 3,
+   "s": 82.219,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/briefs/B3/n102.stl nverts 96036 ntris 192088 (sampled, not certified)\n"
+  }
+ ],
+ "checks": [
+  {
+   "req": "valid solid",
+   "verdict": "pass",
+   "detail": "ok: embedded, shells outward, cavities nested",
+   "cmd": "check 102",
+   "s": 0.629,
+   "info": false,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  {
+   "req": "22 H7 seat: gauge pin 21.8 clears by 0.1 at nominal",
+   "verdict": "pass",
+   "detail": "clearance [0.09999999975982374, 0.10000000000005153] within [0.0999, 0.1001]",
+   "cmd": "clearance 191 102",
+   "s": 1.263,
+   "info": false,
+   "out": "clearance [0.09999999975982374, 0.10000000000005153] certified lo=branch-and-bound hi=witness samples=7x140\n"
+  },
+  {
+   "req": "shoulder bore 19: gauge pin 18.8 clears by 0.1",
+   "verdict": "pass",
+   "detail": "clearance [0.09999999988035488, 0.10000000000003303] within [0.0999, 0.1001]",
+   "cmd": "clearance 193 102",
+   "s": 1.145,
+   "info": false,
+   "out": "clearance [0.09999999988035488, 0.10000000000003303] certified lo=branch-and-bound hi=witness samples=7x140\n"
+  },
+  {
+   "req": "H7 seat zone certified (zone volume over DS in [22, 22.021])",
+   "verdict": "not-analyzed",
+   "detail": "kernel refused: error numerical-uncertainty | zone @ node 102 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value",
+   "cmd": "zone 102",
+   "s": 0.439,
+   "info": false,
+   "out": "error numerical-uncertainty | zone @ node 102 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value\n"
+  },
+  {
+   "req": "five through openings (bore + four bolt holes)",
+   "verdict": "pass",
+   "detail": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00\n...[32 chars clipped]...\n8, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1",
+   "cmd": "measure 102",
+   "s": 0.422,
+   "info": false,
+   "out": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21531.84772915219, 21531.847729195255] area=[9503.003617834262, 9503.00361785327] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+  },
+  {
+   "req": "minimum wall >= 2 mm",
+   "verdict": "not-analyzed",
+   "detail": "timeout after 600.105 s",
+   "cmd": "wall 102",
+   "s": 600.105,
+   "info": false,
+   "out": ""
+  },
+  {
+   "req": "retaining-ring groove to DIN 472",
+   "verdict": "not-analyzed",
+   "detail": "the kernel holds no DIN 472 / ISO 464 retaining-ring groove data; the size was supplied by the agent from memory and nothing checks it against the standard",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "H7 tolerance from ISO 286 applied to the seat",
+   "verdict": "not-analyzed",
+   "detail": "ISO 286 lives only inside pmi fits, which needs a mating shaft cylinder; a single bore cannot take a class, so the zone [22, 22.021] was typed by the agent",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "3-axis mill reach (ball end mill D6)",
+   "verdict": "fail",
+   "detail": "verdict not-machinable samples=172 reachable=94 blocked=78 uncertain=0 tight-faces=4 sharp-concave-edges=8 status=certified",
+   "cmd": "machine 102 6 20 10 40 3 3",
+   "s": 19.685,
+   "info": true,
+   "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=0/6 blocked=(21.333333333333336,15.994053043423884,0)\nface 1 reach=0/6 blocked=(21.333333333333336,-5.3313510144746274,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=5/5\nface 5 reach=5/5\nface 6 reach=6/9 blocked=(-13.85640646055102,7.999999999999999,7.75)\nface 7 reach=6/9 blocked=(13.856406460551021,-7.999999999999995,7.75)\nface 8 reach=3/3\nface 9 reach=3/3\nface 10 reach=9/9\nface 11 reach=9/9\nface 12 reach=0/0\nface 13 reach=0/0\nface 14 reach=0/9 blocked=(-9.959292143521045,5.749999999999999,14.816666666666666)\nface 15 reach=0/9 blocked=(9.959292143521045,-5.749999999999998,14.816666666666666)\nface 16 reach=0/0\nface 17 reach=0/0\nface 18 reach=6/9 blocked=(-9.526279441628827,5.499999999999999,8.066666666666666)\nface 19 reach=6/9 blocked=(9.526279441628827,-5.499999999999998,8.066666666666666)\nface 20 reach=0/0\nface 21 reach=0/0\nface 22 reach=9/9\nface 23 reach=9/9\nface 24 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(19.05266952966369,20.059239390070896,5)\nface 25 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(-16.30266952966369,20.059239390070896,5)\nface 26 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(-16.30266952966369,-15.296099669256481,5)\nface 27 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(19.05266952966369,-15.296099669256481,5)\nedge 49 sharp-concave radius=0\nedge 47 sharp-concave radius=0\nedge 41 sharp-concave radius=0\nedge 39 sharp-concave radius=0\nedge 37 sharp-concave radius=0\nedge 35 sharp-concave radius=0\nedge 19 sharp-concave radius=0\nedge 15 sharp-concave radius=0\nverdict not-machinable samples=172 reachable=94 blocked=78 uncertain=0 tight-faces=4 sharp-concave-edges=8 status=certified\n\n"
+  },
+  {
+   "req": "makeable on the declared process (lathe) with standard tools",
+   "verdict": "not-analyzed",
+   "detail": "no turning process check (no lathe tool, groove insert or boring bar reach)",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "drawing output valid for another tool",
+   "verdict": "not-analyzed",
+   "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  }
+ ],
+ "timed_edit": {
+  "label": "bolt hole 5.5 -> 6.6 mm",
+  "apply": {
+   "edit": "(param DH 6.6)",
+   "status": "committed",
+   "s": 0.477,
+   "refusals": [],
+   "out": "node 101: ok material=create faces_created=24 faces_modified=0 solids=1 through_holes=1 | volume=[22102.046795799684, 22102.046795800863] area=[9278.379743107129, 9278.379743117062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21280.960139836767, 21280.96013987933] area=[9502.31246745047, 9502.312467469479] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 190: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[-1.936228954946274e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 191: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1493.010492691992, 1493.010492692035] area=[1020.4521257390278, 1020.4521257390456] bbox=[-10.900000000000025, 10.900000000000025]x[-10.900000000000025, 10.900000000000025]x[7.99999999999998, 12.000000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9362289549462734e-14\nnode 192: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[-1.6697754290362364e-14, 3.0000000000000178] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\nnode 193: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[832.7733806135692, 832.7733806135958] area=[732.3680794048469, 732.3680794048585] bbox=[-9.400000000000022, 9.400000000000022]x[-9.400000000000022, 9.400000000000022]x[1.9999999999999831, 5.000000000000019] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.6697754290362358e-14\n\ncommitted\n"
+  },
+  "check": {
+   "s": 0.671,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  "tess": {
+   "s": 2.726,
+   "out": "wrote /var/tmp/briefs/B3/edit.obj nverts 6819 ntris 13654 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
+   "timeout": false
+  },
+  "visible_rechecked_s": 3.874,
+  "checks": [
+   {
+    "req": "valid solid",
+    "verdict": "pass",
+    "detail": "ok: embedded, shells outward, cavities nested",
+    "cmd": "check 102",
+    "s": 0.628,
+    "info": false,
+    "out": "ok: embedded, shells outward, cavities nested\n"
+   },
+   {
+    "req": "22 H7 seat: gauge pin 21.8 clears by 0.1 at nominal",
+    "verdict": "pass",
+    "detail": "clearance [0.09999999975982374, 0.10000000000005153] within [0.0999, 0.1001]",
+    "cmd": "clearance 191 102",
+    "s": 1.203,
+    "info": false,
+    "out": "clearance [0.09999999975982374, 0.10000000000005153] certified lo=branch-and-bound hi=witness samples=7x140\n"
+   },
+   {
+    "req": "shoulder bore 19: gauge pin 18.8 clears by 0.1",
+    "verdict": "pass",
+    "detail": "clearance [0.09999999988035488, 0.10000000000003303] within [0.0999, 0.1001]",
+    "cmd": "clearance 193 102",
+    "s": 1.02,
+    "info": false,
+    "out": "clearance [0.09999999988035488, 0.10000000000003303] certified lo=branch-and-bound hi=witness samples=7x140\n"
+   },
+   {
+    "req": "H7 seat zone certified (zone volume over DS in [22, 22.021])",
+    "verdict": "not-analyzed",
+    "detail": "kernel refused: error numerical-uncertainty | zone @ node 102 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value",
+    "cmd": "zone 102",
+    "s": 0.402,
+    "info": false,
+    "out": "error numerical-uncertainty | zone @ node 102 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value\n"
+   },
+   {
+    "req": "five through openings (bore + four bolt holes)",
+    "verdict": "pass",
+    "detail": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21280.960139836767, 21280.96013987933] area=[9502.31246745047, 9502.312467469479] bbox=[-32.00000000000008, 32.00\n...[32 chars clipped]...\n8, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1",
+    "cmd": "measure 102",
+    "s": 0.39,
+    "info": false,
+    "out": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21280.960139836767, 21280.96013987933] area=[9502.31246745047, 9502.312467469479] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 16.500000000000068] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.907674101493293e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+   },
+   {
+    "req": "minimum wall >= 2 mm",
+    "verdict": "not-analyzed",
+    "detail": "timeout after 600.114 s",
+    "cmd": "wall 102",
+    "s": 600.114,
+    "info": false,
+    "out": ""
+   },
+   {
+    "req": "retaining-ring groove to DIN 472",
+    "verdict": "not-analyzed",
+    "detail": "the kernel holds no DIN 472 / ISO 464 retaining-ring groove data; the size was supplied by the agent from memory and nothing checks it against the standard",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "H7 tolerance from ISO 286 applied to the seat",
+    "verdict": "not-analyzed",
+    "detail": "ISO 286 lives only inside pmi fits, which needs a mating shaft cylinder; a single bore cannot take a class, so the zone [22, 22.021] was typed by the agent",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "3-axis mill reach (ball end mill D6)",
+    "verdict": "fail",
+    "detail": "verdict not-machinable samples=172 reachable=130 blocked=42 uncertain=0 tight-faces=0 sharp-concave-edges=8 status=certified",
+    "cmd": "machine 102 6 20 10 40 3 3",
+    "s": 21.147,
+    "info": true,
+    "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=0/6 blocked=(21.333333333333336,15.994053043423884,0)\nface 1 reach=0/6 blocked=(21.333333333333336,-5.3313510144746274,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=5/5\nface 5 reach=5/5\nface 6 reach=6/9 blocked=(-13.85640646055102,7.999999999999999,7.75)\nface 7 reach=6/9 blocked=(13.856406460551021,-7.999999999999995,7.75)\nface 8 reach=3/3\nface 9 reach=3/3\nface 10 reach=9/9\nface 11 reach=9/9\nface 12 reach=0/0\nface 13 reach=0/0\nface 14 reach=0/9 blocked=(-9.959292143521045,5.749999999999999,14.816666666666666)\nface 15 reach=0/9 blocked=(9.959292143521045,-5.749999999999998,14.816666666666666)\nface 16 reach=0/0\nface 17 reach=0/0\nface 18 reach=6/9 blocked=(-9.526279441628827,5.499999999999999,8.066666666666666)\nface 19 reach=6/9 blocked=(9.526279441628827,-5.499999999999998,8.066666666666666)\nface 20 reach=0/0\nface 21 reach=0/0\nface 22 reach=9/9\nface 23 reach=9/9\nface 24 reach=9/9\nface 25 reach=9/9\nface 26 reach=9/9\nface 27 reach=9/9\nedge 49 sharp-concave radius=0\nedge 47 sharp-concave radius=0\nedge 41 sharp-concave radius=0\nedge 39 sharp-concave radius=0\nedge 37 sharp-concave radius=0\nedge 35 sharp-concave radius=0\nedge 19 sharp-concave radius=0\nedge 15 sharp-concave radius=0\nverdict not-machinable samples=172 reachable=130 blocked=42 uncertain=0 tight-faces=0 sharp-concave-edges=8 status=certified\n\n"
+   },
+   {
+    "req": "makeable on the declared process (lathe) with standard tools",
+    "verdict": "not-analyzed",
+    "detail": "no turning process check (no lathe tool, groove insert or boring bar reach)",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   },
+   {
+    "req": "drawing output valid for another tool",
+    "verdict": "not-analyzed",
+    "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+    "cmd": null,
+    "s": 0.0,
+    "info": false
+   }
+  ]
+ },
+ "budgets": {
+  "edit": {
+   "verdict": "pass",
+   "measured_s": 2.544,
+   "budget_s": 5.0,
+   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+  },
+  "part": {
+   "verdict": "pass",
+   "measured_s": 0.289,
+   "budget_s": 60.0,
+   "note": "serial re-time of the one-shot build"
+  },
+  "export": {
+   "verdict": "pass",
+   "measured_s": 83.594,
+   "budget_s": 300.0
+  },
+  "scene": {
+   "verdict": "not-exercised",
+   "measured_s": null,
+   "budget_s": 60.0
+  }
+ },
+ "verdicts": {
+  "pass": 4,
+  "fail": 0,
+  "not-analyzed": 6
+ },
+ "authoring_refusals": 4,
+ "wall_s": 1367.1,
+ "pass": false,
+ "timed_edit_serial": {
+  "label": "bolt hole 5.5 -> 6.6 mm",
+  "build_s": 0.289,
+  "apply_s": 0.295,
+  "apply_status": "committed",
+  "check_s": 0.384,
+  "tess_s": 1.865,
+  "tess_out": "wrote /var/tmp/briefs/B3-retime/edit.obj nverts 6819 ntris 13654 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)\n",
+  "visible_rechecked_s": 2.544
+ },
+ "build_oneshot_serial_s": 0.289
+}

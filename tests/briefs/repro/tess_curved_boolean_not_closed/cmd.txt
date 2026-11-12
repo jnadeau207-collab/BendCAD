@@ -1,0 +1,1 @@
+BIN design.bcd tess 1110 out.obj   # handwheel (torus rim, cylinder spokes, D-bore): refused tess-mesh-not-closed after ~68 s; stl refuses the same; STEP exports and OCCT agrees

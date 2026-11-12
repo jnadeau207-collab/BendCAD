@@ -82,6 +82,39 @@ Each brief leaves `docs/receipts/briefs/<id>.json`: build time, refusals met and
 4. **Data library and the function and manufacture checks.**
 5. **G5** rebuilt on the result, readiness all-pass, then G6.
 
+## Baseline (2026-11-12, kernel `a15`)
+
+Measured by `tests/briefs/run.py`; receipts in `docs/receipts/briefs/`, scoreboard in `docs/receipts/briefs/summary.md`, every refusal and gap in `friction.json`, reproducers in `tests/briefs/repro/`, vocabulary in `docs/agent-manual.md`.
+
+- 13 of 14 briefs build, each in 0.03 to 5.2 s of kernel time. B10 does not: its modelled thread is refused.
+- OCCT agrees with the certified volume on every exported part. Every mesh that was written is conforming.
+- No brief passes. 70 required checks are not-analyzed and 3 fail.
+
+| Rank | Blocker | Briefs |
+|---|---|---|
+| 1 | Wrong answers: holes on a pad's cell face commit as sealed cavities; `asm gap` certifies an interference that does not exist; H7/h5 refused on a rounding error of 7e-15 | B7, B13 |
+| 2 | `wall` gives no answer on revolved or boolean parts in 600 s | B3, B4, B5, B7, B11, B12, B14 |
+| 3 | Display tessellation takes 15 to 49 s on prismatic parts (39,410 triangles against an estimate of 2,588); one part cannot be meshed | B5, B6, B7, B9, B11 |
+| 4 | `clearance`, `asm clear` and `interf` take 440 s to over 600 s on non-coaxial curved pairs | B6, B8, B9, B13 |
+| 5 | No query certifies a hole size; no drill, flat end mill or tap in `machine`; no lathe, print or drawing output | all |
+| 6 | Standard features and their data are typed by the agent: clearance hole, counterbore, countersink, keyway, ring groove, O-ring gland, tapped hole, modelled thread | all |
+| 7 | An everyday edit is refused (countersink 2.6); `press` breaks three assembly verbs; a refusal names no usable fix (`thread-span-outside-face`) | B5, B12, B13 |
+
+Wrong answers rank first whatever their count: a kernel that is sometimes silently wrong cannot be piloted.
+
+Packets, in order, one at a time:
+
+| Packet | Closes |
+|---|---|
+| P2 Wrong answers and refused everyday edits | ranks 1 and 7, hole-size query |
+| P3 Display tessellation of analytic faces inside the edit budget | rank 3 |
+| P4 `wall` and clearance on curved parts | ranks 2 and 4 |
+| P5 Standard features by construction, with their data (S1, S2) | rank 6, B10 |
+| P6 Process checks and drawing output (S3) | rank 5 |
+| P7 Live document in the viewer (S4) | acceptance point 4 |
+
+The ladder is re-run after every packet; a packet lands when its briefs move and nothing else regresses.
+
 ## Oversight
 
 - One scoreboard, generated from receipts (`tools/readme/ladder.py`). A row is done when its receipt says pass.

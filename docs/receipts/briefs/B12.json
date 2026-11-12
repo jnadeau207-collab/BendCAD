@@ -1,0 +1,312 @@
+{
+ "id": "B12",
+ "sentence": "Bearing cap with a pocket, two ribs and four countersunk holes",
+ "process": "mill",
+ "binary": "/home/jesse/bc/bendcad-a15",
+ "parts": [
+  1208
+ ],
+ "design_notes": "80 x 50 x 14 block, 32 x 6 bearing pocket from below, two 48 x 4 x 6 ribs on top, four 5.5 holes countersunk 90 deg to 10.4 (ISO 10642 M5 head as remembered; chamfer 2.45).",
+ "edits": [
+  {
+   "edit": "(param CS 2.45)",
+   "status": "committed",
+   "s": 0.002,
+   "refusals": [],
+   "out": "\ncommitted\n"
+  },
+  {
+   "edit": "(node 1201 (box 80 50 14) (intent create 6 0 1 0))",
+   "status": "committed",
+   "s": 0.017,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1202 (pocket 1201 (face 1201 0 bottom) 6 (region (circle 40 25 16))) (intent remove any any 1 0))",
+   "status": "committed",
+   "s": 0.019,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1203 (pad 1202 (face 1201 0 top) 6 (region (path 16 10 (line 64 10) (line 64 14) (line 16 14))) (region (path 16 36 (line 64 36) (line 64 40) (line 16 40)))) (intent add any any 1 0))",
+   "status": "committed",
+   "s": 0.139,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1204 (holes 1203 (face 1201 0 top) through (hole 6 6 2.75) (hole 74 6 2.75) (hole 6 44 2.75) (hole 74 44 2.75)) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 0.609,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.0000000000002]x[-1.4210854715202014e-13, 50.00000000000017]x[-1.4210854715202014e-13, 20.000000000000128] vertices=34 edges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1205 (chamfer 1204 (face 1204 n1201.c0.top) (circle 6 6 2.75) CS) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 0.818,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.0000000000002]x[-1.4210854715202014e-13, 50.00000000000017]x[-1.4210854715202014e-13, 20.000000000000128] vertices=34 edges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\nnode 1205: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52080.79109991742, 52080.79110002158] area=[14251.742891749023, 14251.74289177753] bbox=[-1.4210854715202016e-13, 80.00000000000021]x[-1.4210854715202016e-13, 50.00000000000018]x[-1.4210854715202016e-13, 20.00000000000013] vertices=41 edges=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1206 (chamfer 1205 (face 1205 n1201.c0.top) (circle 74 6 2.75) CS) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 1.12,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.0000000000002]x[-1.4210854715202014e-13, 50.00000000000017]x[-1.4210854715202014e-13, 20.000000000000128] vertices=34 edges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\nnode 1205: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52080.79109991742, 52080.79110002158] area=[14251.742891749023, 14251.74289177753] bbox=[-1.4210854715202016e-13, 80.00000000000021]x[-1.4210854715202016e-13, 50.00000000000018]x[-1.4210854715202016e-13, 20.00000000000013] vertices=41 edges=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52013.53300459617, 52013.5330047002] area=[14234.755812259604, 14234.755812288075] bbox=[-1.421085471520202e-13, 80.00000000000023]x[-1.421085471520202e-13, 50.000000000000185]x[-1.421085471520202e-13, 20.000000000000135] vertices=48 edges=64 faces=26 solids=1 genus=4 linear_uncertainty=2.7622348852673976e-13 | proof: k1-crossing-certified V48 E64 F26 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1207 (chamfer 1206 (face 1206 n1201.c0.top) (circle 6 44 2.75) CS) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 1.525,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.00000000000\n...[108 chars clipped]...\ndges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\nnode 1205: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52080.79109991742, 52080.79110002158] area=[14251.742891749023, 14251.74289177753] bbox=[-1.4210854715202016e-13, 80.00000000000021]x[-1.4210854715202016e-13, 50.00000000000018]x[-1.4210854715202016e-13, 20.00000000000013] vertices=41 edges=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52013.53300459617, 52013.5330047002] area=[14234.755812259604, 14234.755812288075] bbox=[-1.421085471520202e-13, 80.00000000000023]x[-1.421085471520202e-13, 50.000000000000185]x[-1.421085471520202e-13, 20.000000000000135] vertices=48 edges=64 faces=26 solids=1 genus=4 linear_uncertainty=2.7622348852673976e-13 | proof: k1-crossing-certified V48 E64 F26 S1\nnode 1207: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51946.274909274915, 51946.274909378815] area=[14217.76873277018, 14217.768732798619] bbox=[-1.4210854715202021e-13, 80.00000000000024]x[-1.4210854715202021e-13, 50.00000000000019]x[-1.4210854715202021e-13, 20.00000000000014] vertices=55 edges=73 faces=28 solids=1 genus=4 linear_uncertainty=3.097522238704197e-13 | proof: k1-crossing-certified V55 E73 F28 S1\n\ncommitted\n"
+  },
+  {
+   "edit": "(node 1208 (chamfer 1207 (face 1207 n1201.c0.top) (circle 74 44 2.75) CS) (intent remove any any 1 4))",
+   "status": "committed",
+   "s": 1.696,
+   "refusals": [],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.00000000000\n...[565 chars clipped]...\nes=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52013.53300459617, 52013.5330047002] area=[14234.755812259604, 14234.755812288075] bbox=[-1.421085471520202e-13, 80.00000000000023]x[-1.421085471520202e-13, 50.000000000000185]x[-1.421085471520202e-13, 20.000000000000135] vertices=48 edges=64 faces=26 solids=1 genus=4 linear_uncertainty=2.7622348852673976e-13 | proof: k1-crossing-certified V48 E64 F26 S1\nnode 1207: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51946.274909274915, 51946.274909378815] area=[14217.76873277018, 14217.768732798619] bbox=[-1.4210854715202021e-13, 80.00000000000024]x[-1.4210854715202021e-13, 50.00000000000019]x[-1.4210854715202021e-13, 20.00000000000014] vertices=55 edges=73 faces=28 solids=1 genus=4 linear_uncertainty=3.097522238704197e-13 | proof: k1-crossing-certified V55 E73 F28 S1\nnode 1208: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51879.01681395367, 51879.016814057424] area=[14200.781653280761, 14200.781653309166] bbox=[-1.4210854715202024e-13, 80.00000000000026]x[-1.4210854715202024e-13, 50.0000000000002]x[-1.4210854715202024e-13, 20.000000000000142] vertices=62 edges=82 faces=30 solids=1 genus=4 linear_uncertainty=3.432809592140996e-13 | proof: k1-crossing-certified V62 E82 F30 S1\n\ncommitted\n"
+  }
+ ],
+ "built": true,
+ "build_incremental_s": 5.945,
+ "build_oneshot": {
+  "s": 1.696,
+  "timeout": false,
+  "committed": true
+ },
+ "probes": [
+  {
+   "name": "countersink with a named countersink feature",
+   "note": "",
+   "steps": [
+    {
+     "edit": "(node 1250 (countersink 1208 (face 1208 n1201.c0.top) (circle 6 6 2.75) 90 10.4) (intent remove any any 1 any))",
+     "status": "rejected",
+     "s": 1.733,
+     "refusals": [
+      {
+       "line": "node 1250: error invalid-input | countersink @ node 1250 | why: unknown-op | fix: use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import",
+       "why": "unknown-op",
+       "fix": "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import"
+      }
+     ],
+     "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.00000000000\n...[933 chars clipped]...\n2e-13, 50.000000000000185]x[-1.421085471520202e-13, 20.000000000000135] vertices=48 edges=64 faces=26 solids=1 genus=4 linear_uncertainty=2.7622348852673976e-13 | proof: k1-crossing-certified V48 E64 F26 S1\nnode 1207: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51946.274909274915, 51946.274909378815] area=[14217.76873277018, 14217.768732798619] bbox=[-1.4210854715202021e-13, 80.00000000000024]x[-1.4210854715202021e-13, 50.00000000000019]x[-1.4210854715202021e-13, 20.00000000000014] vertices=55 edges=73 faces=28 solids=1 genus=4 linear_uncertainty=3.097522238704197e-13 | proof: k1-crossing-certified V55 E73 F28 S1\nnode 1208: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51879.01681395367, 51879.016814057424] area=[14200.781653280761, 14200.781653309166] bbox=[-1.4210854715202024e-13, 80.00000000000026]x[-1.4210854715202024e-13, 50.0000000000002]x[-1.4210854715202024e-13, 20.000000000000142] vertices=62 edges=82 faces=30 solids=1 genus=4 linear_uncertainty=3.432809592140996e-13 | proof: k1-crossing-certified V62 E82 F30 S1\nnode 1250: error invalid-input | countersink @ node 1250 | why: unknown-op | fix: use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import\n\nrejected: the design was not changed\n"
+    }
+   ],
+   "then": []
+  }
+ ],
+ "eval": {
+  "s": 1.607,
+  "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.0000000000002]x[-1.4210854715202014e-13, 50.00000000000017]x[-1.4210854715202014e-13, 20.000000000000128] vertices=34 edges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\nnode 1205: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52080.79109991742, 52080.79110002158] area=[14251.742891749023, 14251.74289177753] bbox=[-1.4210854715202016e-13, 80.00000000000021]x[-1.4210854715202016e-13, 50.00000000000018]x[-1.4210854715202016e-13, 20.00000000000013] vertices=41 edges=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52013.53300459617, 52013.5330047002] area=[14234.755812259604, 14234.755812288075] bbox=[-1.421085471520202e-13, 80.00000000000023]x[-1.421085471520202e-13, 50.000000000000185]x[-1.421085471520202e-13, 20.000000000000135] vertices=48 edges=64 faces=26 solids=1 genus=4 linear_uncertainty=2.7622348852673976e-13 | proof: k1-crossing-certified V48 E64 F26 S1\nnode 1207: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51946.274909274915, 51946.274909378815] area=[14217.76873277018, 14217.768732798619] bbox=[-1.4210854715202021e-13, 80.00000000000024]x[-1.4210854715202021e-13, 50.00000000000019]x[-1.4210854715202021e-13, 20.00000000000014] vertices=55 edges=73 faces=28 solids=1 genus=4 linear_uncertainty=3.097522238704197e-13 | proof: k1-crossing-certified V55 E73 F28 S1\nnode 1208: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51879.01681395367, 51879.016814057424] area=[14200.781653280761, 14200.781653309166] bbox=[-1.4210854715202024e-13, 80.00000000000026]x[-1.4210854715202024e-13, 50.0000000000002]x[-1.4210854715202024e-13, 20.000000000000142] vertices=62 edges=82 faces=30 solids=1 genus=4 linear_uncertainty=3.432809592140996e-13 | proof: k1-crossing-certified V62 E82 F30 S1\n\n"
+ },
+ "certified_volume": {
+  "1208": [
+   51879.01681395367,
+   51879.016814057424
+  ]
+ },
+ "check": [
+  {
+   "node": 1208,
+   "out": "ok: embedded, shells outward, cavities nested\n",
+   "s": 1.739,
+   "timeout": false
+  }
+ ],
+ "mass": [
+  {
+   "node": 1208,
+   "out": "mass volume=[51879.01681395367, 51879.016814057424] certified octree=[29062.500000099473, 61250.00000022412] depth=4 cells=1488/960/1648\ncentroid [18.979591836730645, 87.0698924731375]x[11.862244897956565, 54.41868279571158]x[3.8982780611980163, 17.856182795617123] status=certified incomplete-cells=1648\ninertia-centroid [-175885847.96399477, 83866892.56506664] [-422936857.4564474, 200451862.12061584] [-564384034.4827951, 268016020.26780778] [-58856022.21020152, 261154017.64854482] [-19307983.65262731, 85676793.60507698] [-12067489.78289229, 53547996.0031739] status=certified\nmoments volume=[51879.01655030614, 51879.017077704906] centroid [39.99999892252286, 40.000001077477144]x[24.999999406357567, 25.000000593642433]x[7.783859288720507, 7.783859377719545] inertia-centroid [12164659.01175972, 12164660.721800715] [29142977.242177054, 29142982.467955336] [39315316.343080685, 39315323.18086138] [-1.3602545625503373, 1.3602545615025994] [-0.497203867695395, 0.4972038724498974] [-0.2729136818914023, 0.2729136822013849] status=certified method=divergence\n\n",
+   "s": 4.123,
+   "timeout": false
+  }
+ ],
+ "step": [
+  {
+   "node": 1208,
+   "s": 1.563,
+   "out": "wrote /var/tmp/briefs/B12/n1208.stp entities 954 products 1\n",
+   "timeout": false,
+   "occt_volume": 51879.01681807859,
+   "occt_solids": 1,
+   "certified": [
+    51879.01681395367,
+    51879.016814057424
+   ],
+   "agree": true,
+   "rel_err": 7.851044493064158e-11
+  }
+ ],
+ "tess": [
+  {
+   "node": 1208,
+   "s": 14.893,
+   "out": "wrote /var/tmp/briefs/B12/n1208.obj nverts 14220 ntris 28452 est 1936 chord 0.0770443732448586 ang 0.1963495408493621 nsamp 716 profile display (sampled, not certified)\n",
+   "timeout": false,
+   "judge_s": 0.15,
+   "triangles": 28452,
+   "vertices": 14220,
+   "zero_area": 0,
+   "edge_uses": {
+    "2": 42678
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 51891.62777846161,
+   "volume_rel_err": 0.0002430841066490544
+  }
+ ],
+ "stl_manufacturing": [
+  {
+   "node": 1208,
+   "preset": 3,
+   "s": 162.096,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/briefs/B12/n1208.stl nverts 117717 ntris 235446 (sampled, not certified)\n"
+  }
+ ],
+ "checks": [
+  {
+   "req": "valid solid",
+   "verdict": "pass",
+   "detail": "ok: embedded, shells outward, cavities nested",
+   "cmd": "check 1208",
+   "s": 2.658,
+   "info": false,
+   "out": "ok: embedded, shells outward, cavities nested\n"
+  },
+  {
+   "req": "four through holes",
+   "verdict": "pass",
+   "detail": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51879.01681395367, 51879.016814057424] area=[14200.781653280761, 14200.781653309166] bbox=[-1.4210854715202024e-1\n...[45 chars clipped]...\n3, 50.0000000000002]x[-1.4210854715202024e-13, 20.000000000000142] vertices=62 edges=82 faces=30 solids=1 genus=4 linear_uncertainty=3.432809592140996e-13 | proof: k1-crossing-certified V62 E82 F30 S1",
+   "cmd": "measure 1208",
+   "s": 1.741,
+   "info": false,
+   "out": "ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[51879.01681395367, 51879.016814057424] area=[14200.781653280761, 14200.781653309166] bbox=[-1.4210854715202024e-13, 80.00000000000026]x[-1.4210854715202024e-13, 50.0000000000002]x[-1.4210854715202024e-13, 20.000000000000142] vertices=62 edges=82 faces=30 solids=1 genus=4 linear_uncertainty=3.432809592140996e-13 | proof: k1-crossing-certified V62 E82 F30 S1\n"
+  },
+  {
+   "req": "countersink cones present",
+   "verdict": "pass",
+   "detail": "n1201.c0.top plane loops=7\nn1201.c0.bottom plane loops=6\nn1202.c0.bottom plane loops=1\nn1201.c0.wall.0.0 plane loops=1\nn1201.c0.wall.1.0 plane loops=1\nn1201.c0.wall.2.0 plane loops=1\nn1201.c0.wall.3.0\n...[547 chars clipped]...\n1 cone loops=1\nn1206.c0.wall.0.0 cone loops=1\nn1206.c0.wall.0.1 cone loops=1\nn1207.c0.wall.0.0 cone loops=1\nn1207.c0.wall.0.1 cone loops=1\nn1208.c0.wall.0.0 cone loops=1\nn1208.c0.wall.0.1 cone loops=1",
+   "cmd": "faces 1208",
+   "s": 1.696,
+   "info": false,
+   "out": "n1201.c0.top plane loops=7\nn1201.c0.bottom plane loops=6\nn1202.c0.bottom plane loops=1\nn1201.c0.wall.0.0 plane loops=1\nn1201.c0.wall.1.0 plane loops=1\nn1201.c0.wall.2.0 plane loops=1\nn1201.c0.wall.3.0 plane loops=1\nn1202.c0.wall.0.0 cylinder loops=2\nn1203.c0.top plane loops=1\nn1203.c0.wall.0.0 plane loops=1\nn1203.c0.wall.1.0 plane loops=1\nn1203.c0.wall.2.0 plane loops=1\nn1203.c0.wall.3.0 plane loops=1\nn1203.c1.top plane loops=1\nn1203.c1.wall.0.0 plane loops=1\nn1203.c1.wall.1.0 plane loops=1\nn1203.c1.wall.2.0 plane loops=1\nn1203.c1.wall.3.0 plane loops=1\nn1204.c0.wall.0.0 cylinder loops=2\nn1204.c1.wall.0.0 cylinder loops=2\nn1204.c2.wall.0.0 cylinder loops=2\nn1204.c3.wall.0.0 cylinder loops=2\nn1205.c0.wall.0.0 cone loops=1\nn1205.c0.wall.0.1 cone loops=1\nn1206.c0.wall.0.0 cone loops=1\nn1206.c0.wall.0.1 cone loops=1\nn1207.c0.wall.0.0 cone loops=1\nn1207.c0.wall.0.1 cone loops=1\nn1208.c0.wall.0.0 cone loops=1\nn1208.c0.wall.0.1 cone loops=1\n\n"
+  },
+  {
+   "req": "minimum wall >= 3 mm",
+   "verdict": "not-analyzed",
+   "detail": "timeout after 600.101 s",
+   "cmd": "wall 1208",
+   "s": 600.101,
+   "info": false,
+   "out": ""
+  },
+  {
+   "req": "countersink to ISO 10642 / ISO 15065",
+   "verdict": "not-analyzed",
+   "detail": "the kernel holds no ISO 15065 countersink data; the size was supplied by the agent from memory and nothing checks it against the standard",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "3-axis mill reach (ball end mill D6)",
+   "verdict": "fail",
+   "detail": "verdict not-machinable samples=269 reachable=157 blocked=112 uncertain=0 tight-faces=4 sharp-concave-edges=9 status=certified",
+   "cmd": "machine 1208 6 20 10 40 3 3",
+   "s": 30.947,
+   "info": true,
+   "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=7/9 blocked=(40,41.66666666666667,14)\nface 1 reach=0/8 blocked=(66.66666666666667,41.66666666666667,0)\nface 2 reach=0/9 blocked=(50.66666666666667,35.63352862133836,6)\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nface 6 reach=9/9\nface 7 reach=0/9 blocked=(48,38.85640646055102,5)\nface 8 reach=9/9\nface 9 reach=3/9 blocked=(56,10,17)\nface 10 reach=3/9 blocked=(64,13.333333333333334,17)\nface 11 reach=3/9 blocked=(56,14,17)\nface 12 reach=3/9 blocked=(16,13.333333333333334,17)\nface 13 reach=9/9\nface 14 reach=3/9 blocked=(56,36,17)\nface 15 reach=3/9 blocked=(64,39.333333333333336,17)\nface 16 reach=3/9 blocked=(56,40,17)\nface 17 reach=3/9 blocked=(16,39.333333333333336,17)\nface 18 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(3.3437039777050623,5.288247625968067,9.625000000000002)\nface 19 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(75.375,8.381569860407208,9.625000000000009)\nface 20 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(8.656296022294939,43.288247625968076,9.625000000000002)\nface 21 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(74,41.25,9.625000000000009)\nface 22 reach=9/9\nface 23 reach=9/9\nface 24 reach=9/9\nface 25 reach=9/9\nface 26 reach=9/9\nface 27 reach=9/9\nface 28 reach=9/9\nface 29 reach=9/9\nedge 37 sharp-concave radius=0\nedge 11 sharp-concave radius=0\nedge 10 sharp-concave radius=0\nedge 9 sharp-concave radius=0\nedge 8 sharp-concave radius=0\nedge 7 sharp-concave radius=0\nedge 6 sharp-concave radius=0\nedge 5 sharp-concave radius=0\nedge 4 sharp-concave radius=0\nverdict not-machinable samples=269 reachable=157 blocked=112 uncertain=0 tight-faces=4 sharp-concave-edges=9 status=certified\n\n"
+  },
+  {
+   "req": "makeable on the declared process with standard tools",
+   "verdict": "not-analyzed",
+   "detail": "no countersink, drill or flat end mill in the machine check; pocket floor needs a flat end mill",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  },
+  {
+   "req": "drawing output valid for another tool",
+   "verdict": "not-analyzed",
+   "detail": "no drawing export exists in the CLI (no command emits a 2D drawing)",
+   "cmd": null,
+   "s": 0.0,
+   "info": false
+  }
+ ],
+ "timed_edit": {
+  "label": "countersink 2.45 -> 2.6",
+  "apply": {
+   "edit": "(param CS 2.6)",
+   "status": "rejected",
+   "s": 2.275,
+   "refusals": [
+    {
+     "line": "node 1206: error unsupported-op | intersect @ node 1206 | why: boundaries-cross-or-overlap: face-penetration 23 25 between nodes 0 and 0 [k1 reason 42] | fix: move the operands apart or nest one inside the other; general intersecting booleans need face splitting",
+     "why": "boundaries-cross-or-overlap: face-penetration 23 25 between nodes 0 and 0 [k1 reason 42]",
+     "fix": "move the operands apart or nest one inside the other; general intersecting booleans need face splitting"
+    },
+    {
+     "line": "node 1207: error invalid-input | chamfer @ node 1207 | why: input-node-missing-or-failed | fix: fix the input node first",
+     "why": "input-node-missing-or-failed",
+     "fix": "fix the input node first"
+    },
+    {
+     "line": "node 1208: error invalid-input | chamfer @ node 1208 | why: input-node-missing-or-failed | fix: fix the input node first",
+     "why": "input-node-missing-or-failed",
+     "fix": "fix the input node first"
+    }
+   ],
+   "out": "node 1201: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1202: ok material=remove faces_created=2 faces_modified=1 solids=1 through_holes=0 | volume=[51174.513684033336, 51174.51368413882] area=[12243.185789479588, 12243.185789498893] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=10 edges=14 faces=8 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 1203: ok material=add faces_created=10 faces_modified=1 solids=1 through_holes=0 | volume=[53478.5136840326, 53478.51368413956] area=[13491.185789475749, 13491.185789502731] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 20.000000000000124] vertices=26 edges=38 faces=18 solids=1 genus=0 linear_uncertainty=1.7563728249569997e-13 | proof: k1-crossing-certified V26 E38 F18 S1\nnode 1204: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=4 | volume=[52148.04919523867, 52148.04919534297] area=[14268.729971238445, 14268.729971266985] bbox=[-1.4210854715202014e-13, 80.0000000000002]x[-1.4210854715202014e-13, 50.00000000000017]x[-1.4210854715202014e-13, 20.000000000000128] vertices=34 edges=46 faces=22 solids=1 genus=4 linear_uncertainty=2.091660178393799e-13 | proof: k1-crossing-certified V34 E46 F22 S1\nnode 1205: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=4 | volume=[52071.24144364867, 52071.24144375282] area=[14251.210369685143, 14251.210369713646] bbox=[-1.4210854715202016e-13, 80.00000000000021]x[-1.4210854715202016e-13, 50.00000000000018]x[-1.4210854715202016e-13, 20.00000000000013] vertices=41 edges=55 faces=24 solids=1 genus=4 linear_uncertainty=2.4269475318305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: error unsupported-op | intersect @ node 1206 | why: boundaries-cross-or-overlap: face-penetration 23 25 between nodes 0 and 0 [k1 reason 42] | fix: move the operands apart or nest one inside the other; general intersecting booleans need face splitting\nnode 1207: error invalid-input | chamfer @ node 1207 | why: input-node-missing-or-failed | fix: fix the input node first\nnode 1208: error invalid-input | chamfer @ node 1208 | why: input-node-missing-or-failed | fix: fix the input node first\n\nrejected: the design was not changed\n"
+  }
+ },
+ "budgets": {
+  "edit": {
+   "verdict": "fail",
+   "measured_s": null,
+   "budget_s": 5.0,
+   "note": "the timed edit was refused by the kernel"
+  },
+  "part": {
+   "verdict": "pass",
+   "measured_s": 1.143,
+   "budget_s": 60.0,
+   "note": "serial re-time of the one-shot build"
+  },
+  "export": {
+   "verdict": "pass",
+   "measured_s": 163.659,
+   "budget_s": 300.0
+  },
+  "scene": {
+   "verdict": "not-exercised",
+   "measured_s": null,
+   "budget_s": 60.0
+  }
+ },
+ "verdicts": {
+  "pass": 3,
+  "fail": 0,
+  "not-analyzed": 4
+ },
+ "authoring_refusals": 1,
+ "wall_s": 835.0,
+ "pass": false,
+ "timed_edit_serial": {
+  "label": "countersink 2.45 -> 2.6",
+  "build_s": 1.143,
+  "apply_s": 1.019,
+  "apply_status": "rejected"
+ },
+ "build_oneshot_serial_s": 1.143
+}
