@@ -1,0 +1,3582 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "host_cores": 16,
+ "runner": "tests/briefs/mesh.py",
+ "budgets": {
+  "brief_mesh_s": 2.0,
+  "edit_s": 5.0,
+  "tri_factor": 2.0,
+  "plate_s": {
+   "25": 5.0,
+   "100": 5.0,
+   "400": 20.0
+  },
+  "slower_factor": 1.1,
+  "slower_slack_s": 0.25
+ },
+ "ref": null,
+ "method": "each case built from its brief edits; measure and tess run twice pinned to one core, the second run recorded; mesh_s = tess_s - eval_s (eval_s from measure); one more tess on all cores checks byte identity across thread counts; tools/mesh/check.py judges conformity; deviation samples each triangle centroid and edge midpoints against the analytic surface printed by faces -f",
+ "wall_s": 3791.5,
+ "acceptance": {
+  "1_display_time": {
+   "brief_parts_le_2s": false,
+   "holes100_le_5s": false,
+   "worst": [
+    1000000000.0,
+    "B11.n1110"
+   ]
+  },
+  "2_triangles": {
+   "ruled_parts_le_2x_est": false,
+   "curved_parts": [
+    {
+     "id": "B8.n803",
+     "kinds": [
+      "torus"
+     ],
+     "triangles": 3840,
+     "est": 3840
+    },
+    {
+     "id": "B11.n1110",
+     "kinds": [
+      "cylinder",
+      "plane",
+      "torus"
+     ],
+     "triangles": null,
+     "est": null
+    }
+   ]
+  },
+  "3_conforming": {
+   "all": false,
+   "volume_within_chord_bound": true
+  },
+  "5_b11": [
+   {
+    "id": "B11.n1110",
+    "written": false,
+    "conforming": null,
+    "out": "refused tess-mesh-not-closed | tess @ node 1110 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet"
+   }
+  ],
+  "8_scaling": {
+   "points": [
+    {
+     "holes": 25,
+     "triangles": 441120,
+     "tess_s": 102.594,
+     "eval_s": 0.011,
+     "mesh_s": 102.583
+    },
+    {
+     "holes": 100,
+     "triangles": 1764590,
+     "tess_s": 589.175,
+     "eval_s": 0.064,
+     "mesh_s": 589.111
+    }
+   ],
+   "loglog_slope_mesh_s_vs_triangles": 1.2608172148529362
+  },
+  "7_stl_not_slower": null,
+  "4_edit_budget": {
+   "B1": {
+    "verdict": "pass",
+    "s": 2.146,
+    "apply_s": 0.21,
+    "check_s": 0.279,
+    "tess_s": 1.657
+   },
+   "B2": {
+    "verdict": "fail",
+    "s": 6.494,
+    "apply_s": 0.032,
+    "check_s": 0.068,
+    "tess_s": 6.394
+   },
+   "B3": {
+    "verdict": "pass",
+    "s": 3.327,
+    "apply_s": 0.249,
+    "check_s": 0.366,
+    "tess_s": 2.712
+   },
+   "B4": {
+    "verdict": "pass",
+    "s": 1.044,
+    "apply_s": 0.199,
+    "check_s": 0.306,
+    "tess_s": 0.539
+   },
+   "B5": {
+    "verdict": "fail",
+    "s": 37.413,
+    "apply_s": 1.323,
+    "check_s": 1.473,
+    "tess_s": 34.617
+   },
+   "B6": {
+    "verdict": "fail",
+    "s": 6.755,
+    "apply_s": 0.367,
+    "check_s": 0.193,
+    "tess_s": 6.195
+   },
+   "B7": {
+    "verdict": "fail",
+    "s": 32.419,
+    "apply_s": 0.911,
+    "check_s": 0.527,
+    "tess_s": 30.981
+   },
+   "B8": {
+    "verdict": "pass",
+    "s": 2.479,
+    "apply_s": 0.31,
+    "check_s": 0.47,
+    "tess_s": 1.699
+   },
+   "B9": {
+    "verdict": "fail",
+    "s": 15.504,
+    "apply_s": 0.476,
+    "check_s": 0.33,
+    "tess_s": 14.698
+   },
+   "B10": {
+    "verdict": "fail",
+    "s": 76.693,
+    "apply_s": 76.421,
+    "check_s": 0.134,
+    "tess_s": 0.138
+   },
+   "B11": {
+    "verdict": "fail",
+    "s": 57.582,
+    "apply_s": 4.942,
+    "check_s": 5.305,
+    "tess_s": 47.335
+   },
+   "B12": {
+    "verdict": "fail",
+    "s": null,
+    "apply_s": 0.938,
+    "check_s": null,
+    "tess_s": null
+   },
+   "B13": {
+    "verdict": "fail",
+    "s": 5.207,
+    "apply_s": 1.717,
+    "check_s": 0.373,
+    "tess_s": 3.117
+   },
+   "B14": {
+    "verdict": "pass",
+    "s": 3.115,
+    "apply_s": 0.427,
+    "check_s": 0.545,
+    "tess_s": 2.143
+   }
+  }
+ },
+ "rows": [
+  {
+   "id": "B1.n3",
+   "group": "brief",
+   "node": 3,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.282,
+   "certified_volume": [
+    6702.842962562709,
+    6702.842962576116
+   ],
+   "certified_area": [
+    5244.513262059883,
+    5244.513262070375
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    3.046,
+    4.588
+   ],
+   "tess_s": 4.588,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B1_n3.obj nverts 4664 ntris 9340 est 930 chord 0.01324200165146105 ang 0.1963495408493621 nsamp 305 profile display (sampled, not certified)",
+   "mesh_s": 4.306,
+   "written": true,
+   "ntris": 9340,
+   "est": 930,
+   "chord": 0.01324200165146105,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "fbf45d500f447f1fde726f5cacaa5fe1aeb49bc219c0ac06959a7bb834bddc54",
+   "triangles": 9340,
+   "vertices": 4664,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 14010
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 6703.803167503793,
+   "mesh_area": 5245.61408111607,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 8,
+      "triangles": 322,
+      "max_dev": 3.552713678800501e-15,
+      "max_vertex_off": 3.552713678800501e-15
+     },
+     "cylinder": {
+      "faces": 5,
+      "triangles": 9018,
+      "max_dev": 0.013242001651460722,
+      "max_vertex_off": 2.6645352591003757e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.013242001651460722,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": 0.9602049343802719,
+   "volume_rel_err": 0.00014325338363770868,
+   "volume_bound_achieved": 69.46243033177022,
+   "volume_bound_preset": 5245.614081122774,
+   "tess_all_cores_s": 1.176,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 4.306 s (tess 4.588 - eval 0.282) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "9340 <= 2.0 x est 930"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 14010}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.01324200165146105 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.013242001651460722 <= reported chord 0.01324200165146105 over 13 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.960205 <= chord x area 69.4624"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B2.n4",
+   "group": "brief",
+   "node": 4,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 0.015,
+   "certified_volume": [
+    25467.42169828922,
+    25467.421698358892
+   ],
+   "certified_area": [
+    11241.414827631414,
+    11241.414827656336
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    20.805,
+    16.91
+   ],
+   "tess_s": 16.91,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B2_n4.obj nverts 9501 ntris 19026 est 1792 chord 0.05320877027223114 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified)",
+   "mesh_s": 16.895,
+   "written": true,
+   "ntris": 19026,
+   "est": 1792,
+   "chord": 0.05320877027223114,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "ebb3adb940aa6af1130a2d990a33a064c8cd792b3562e2aa344dfa80e85e9a41",
+   "triangles": 19026,
+   "vertices": 9501,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 28539
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 25472.467684366973,
+   "mesh_area": 11246.74253081327,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 10,
+      "triangles": 616,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "cylinder": {
+      "faces": 9,
+      "triangles": 18410,
+      "max_dev": 0.05320877027222792,
+      "max_vertex_off": 1.554312234475219e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.05320877027222792,
+    "max_vertex_off": 1.554312234475219e-14
+   },
+   "volume_err": 5.04598604291823,
+   "volume_rel_err": 0.00019813493893063754,
+   "volume_bound_achieved": 598.4253396678102,
+   "volume_bound_preset": 11246.742530848105,
+   "tess_all_cores_s": 3.892,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 16.895 s (tess 16.91 - eval 0.015) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "19026 <= 2.0 x est 1792"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 28539}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.05320877027223114 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.05320877027222792 <= reported chord 0.05320877027223114 over 19 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 5.04599 <= chord x area 598.425"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B3.n102",
+   "group": "brief",
+   "node": 102,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 0.769,
+   "certified_volume": [
+    21531.84772915219,
+    21531.847729195255
+   ],
+   "certified_area": [
+    9503.003617834262,
+    9503.00361785327
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    7.412,
+    7.362
+   ],
+   "tess_s": 7.362,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B3_n102.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)",
+   "mesh_s": 6.593,
+   "written": true,
+   "ntris": 13976,
+   "est": 2032,
+   "chord": 0.15408874648970752,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "06b8a4e6f2784658ef965387423c0daf40aee908947e426b43d89f1b653c4ba7",
+   "triangles": 13976,
+   "vertices": 6980,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 20964
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 21369.033182197276,
+   "mesh_area": 9462.511944565735,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 12,
+      "triangles": 656,
+      "max_dev": 8.881784197001252e-16,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 16,
+      "triangles": 13320,
+      "max_dev": 0.15408874648970183,
+      "max_vertex_off": 7.105427357601002e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.15408874648970183,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -162.81454697644585,
+   "volume_rel_err": -0.007561568752682881,
+   "volume_bound_achieved": 1458.066604203552,
+   "volume_bound_preset": 9462.511944587268,
+   "tess_all_cores_s": 1.929,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 6.593 s (tess 7.362 - eval 0.769) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "13976 <= 2.0 x est 2032"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 20964}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.15408874648970752 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.15408874648970183 <= reported chord 0.15408874648970752 over 28 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 162.815 <= chord x area 1458.07"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B4.n204",
+   "group": "brief",
+   "node": 204,
+   "preset": "default (1)",
+   "built": true,
+   "core": 8,
+   "eval_s": 0.653,
+   "certified_volume": [
+    3655.1409845529915,
+    3655.140984560304
+   ],
+   "certified_area": [
+    1832.2438010463036,
+    1832.2438010499702
+   ],
+   "surface_kinds": [
+    "cone",
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    1.416,
+    1.385
+   ],
+   "tess_s": 1.385,
+   "timing": "warm: second of two runs, one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B4_n204.obj nverts 832 ntris 1660 est 1450 chord 0.024076366639017167 ang 0.1963495408493621 nsamp 494 profile display (sampled, not certified)",
+   "mesh_s": 0.732,
+   "written": true,
+   "ntris": 1660,
+   "est": 1450,
+   "chord": 0.024076366639017167,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "31b1ff4d1b1d673a7e9c0724848748edcfc3973723bc61a051f0629a6962d719",
+   "triangles": 1660,
+   "vertices": 832,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 2490
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3632.7997755244724,
+   "mesh_area": 1828.7055139587103,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 19,
+      "triangles": 398,
+      "max_dev": 4.440892098500626e-16,
+      "max_vertex_off": 7.105427357601002e-15
+     },
+     "cone": {
+      "faces": 4,
+      "triangles": 128,
+      "max_dev": 0.01367080742571102,
+      "max_vertex_off": 1.8935549368764817e-15
+     },
+     "cylinder": {
+      "faces": 12,
+      "triangles": 1134,
+      "max_dev": 0.02407636663901691,
+      "max_vertex_off": 1.7763568394002505e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.02407636663901691,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -22.341209032175357,
+   "volume_rel_err": -0.006112270122156518,
+   "volume_bound_achieved": 44.02858443251841,
+   "volume_bound_preset": 1828.7055139623665,
+   "tess_all_cores_s": 0.593,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.732 s (tess 1.385 - eval 0.653) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "pass",
+     "detail": "1660 <= 2.0 x est 1450"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 2490}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.024076366639017167 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.02407636663901691 <= reported chord 0.024076366639017167 over 35 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 22.3412 <= chord x area 44.0286"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "id": "B5.n313",
+   "group": "brief",
+   "node": 313,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 1.636,
+   "certified_volume": [
+    3603.7301859090157,
+    3603.731110566421
+   ],
+   "certified_area": [
+    2097.9760575195955,
+    2097.9762869914434
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    10.665,
+    14.968
+   ],
+   "tess_s": 14.968,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B5_n313.obj nverts 9245 ntris 18494 est 1309 chord 0.056261448460124236 ang 0.1963495408493621 nsamp 389 profile display (sampled, not certified)",
+   "mesh_s": 13.332,
+   "written": true,
+   "ntris": 18494,
+   "est": 1309,
+   "chord": 0.056261448460124236,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "d75c5560a9b63fb56252ea82a0f649ecf2f69a0c1590f9bc340280c64f2f6cd7",
+   "triangles": 18494,
+   "vertices": 9245,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 27741
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3598.5322876359446,
+   "mesh_area": 2092.876874316925,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 5,
+      "triangles": 259,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 5,
+      "triangles": 18235,
+      "max_dev": 0.05866408409638524,
+      "max_vertex_off": 3.552713678800501e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.05866408409638524,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": -5.198360601773857,
+   "volume_rel_err": -0.0014424942120232925,
+   "volume_bound_achieved": 122.77716728701068,
+   "volume_bound_preset": 2092.8773366456276,
+   "tess_all_cores_s": 8.681,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 13.332 s (tess 14.968 - eval 1.636) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "18494 <= 2.0 x est 1309"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 27741}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.056261448460124236 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.05866408409638524 <= reported chord 0.056261448460124236 over 10 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 5.19836 <= chord x area 122.777"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B6.n1",
+   "group": "brief",
+   "node": 1,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 0.261,
+   "certified_volume": [
+    2185.985262570908,
+    2185.9852625764397
+   ],
+   "certified_area": [
+    1766.381083942161,
+    1766.38108394468
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    7.83,
+    7.732
+   ],
+   "tess_s": 7.732,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B6_n1.obj nverts 2972 ntris 5944 est 2244 chord 0.007473680143075172 ang 0.1924500897298756 nsamp 826 profile display (sampled, not certified)",
+   "mesh_s": 7.471,
+   "written": true,
+   "ntris": 5944,
+   "est": 2244,
+   "chord": 0.007473680143075172,
+   "ang": 0.1924500897298756,
+   "obj_sha256": "c5e47a01f63b28503e911cb847d92743d1419ec6032898431d5ccf243e4ea55e",
+   "triangles": 5944,
+   "vertices": 2972,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 8916
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2186.235266215076,
+   "mesh_area": 1766.4683170767591,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 9,
+      "triangles": 596,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 4876,
+      "max_dev": 0.014942722005633069,
+      "max_vertex_off": 4.440892098500626e-16
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.014942722005633069,
+    "max_vertex_off": 4.440892098500626e-16
+   },
+   "volume_err": 0.25000364140214515,
+   "volume_rel_err": 0.00011436657221915709,
+   "volume_bound_achieved": 26.395844996602275,
+   "volume_bound_preset": 1766.468317079525,
+   "tess_all_cores_s": 3.401,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 7.471 s (tess 7.732 - eval 0.261) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "5944 <= 2.0 x est 2244"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 8916}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.007473680143075172 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max 0.014942722005633069)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.250004 <= chord x area 26.3958"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B6.n2",
+   "group": "brief",
+   "node": 2,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 0.236,
+   "certified_volume": [
+    9501.331873269304,
+    9501.331873290103
+   ],
+   "certified_area": [
+    4650.143855623394,
+    4650.14385563084
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    5.56,
+    5.753
+   ],
+   "tess_s": 5.753,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B6_n2.obj nverts 3625 ntris 7250 est 4176 chord 0.009329782886282 ang 0.1959591794226546 nsamp 1550 profile display (sampled, not certified)",
+   "mesh_s": 5.517,
+   "written": true,
+   "ntris": 7250,
+   "est": 4176,
+   "chord": 0.009329782886282,
+   "ang": 0.1959591794226546,
+   "obj_sha256": "c7d494bf8f6deebe7bf4da3e79208c71afa1f9d16914ef45d4bf0a30f485bc53",
+   "triangles": 7250,
+   "vertices": 3625,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 10875
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 9501.705662660863,
+   "mesh_area": 4650.316674617013,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 9,
+      "triangles": 1080,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 5218,
+      "max_dev": 0.01962654904431327,
+      "max_vertex_off": 8.881784197001252e-16
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.01962654904431327,
+    "max_vertex_off": 8.881784197001252e-16
+   },
+   "volume_err": 0.3737893811594404,
+   "volume_rel_err": 3.9340735187941015e-05,
+   "volume_bound_achieved": 91.26966829635775,
+   "volume_bound_preset": 4650.316674627412,
+   "tess_all_cores_s": 4.045,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 5.517 s (tess 5.753 - eval 0.236) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "pass",
+     "detail": "7250 <= 2.0 x est 4176"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 10875}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.009329782886282 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max 0.01962654904431327)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.373789 <= chord x area 91.2697"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B7.n705",
+   "group": "brief",
+   "node": 705,
+   "preset": "default (1)",
+   "built": true,
+   "core": 8,
+   "eval_s": 1.009,
+   "certified_volume": [
+    32221.875657998582,
+    32221.875658063025
+   ],
+   "certified_area": [
+    31911.362456222538,
+    31911.362456286362
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    143.803
+   ],
+   "tess_s": 143.803,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B7_n705.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)",
+   "mesh_s": 142.794,
+   "written": true,
+   "ntris": 39410,
+   "est": 2588,
+   "chord": 0.019261093311216095,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "53deeedd8b5e668e355e1c93decebabb1b3725b4fbd9c542b54d9ecb36cfad6f",
+   "triangles": 39410,
+   "vertices": 19705,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 59115
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 32209.451980687732,
+   "mesh_area": 31909.378410155914,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 19,
+      "triangles": 848,
+      "max_dev": 3.552713678800501e-15,
+      "max_vertex_off": 3.552713678800501e-15
+     },
+     "cylinder": {
+      "faces": 17,
+      "triangles": 38562,
+      "max_dev": 0.019261093311215394,
+      "max_vertex_off": 2.220446049250313e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.019261093311215394,
+    "max_vertex_off": 2.220446049250313e-14
+   },
+   "volume_err": -12.423677343071176,
+   "volume_rel_err": -0.000385566547240237,
+   "volume_bound_achieved": 614.609515093139,
+   "volume_bound_preset": 31909.378410188136,
+   "tess_all_cores_s": 18.878,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 142.794 s (tess 143.803 - eval 1.009) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "39410 <= 2.0 x est 2588"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 59115}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.019261093311216095 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.019261093311215394 <= reported chord 0.019261093311216095 over 36 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 12.4237 <= chord x area 614.61"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B7.n713",
+   "group": "brief",
+   "node": 713,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 2.017,
+   "certified_volume": [
+    13261.63891731758,
+    13261.638917344104
+   ],
+   "certified_area": [
+    14315.507928286179,
+    14315.507928314813
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    5.376,
+    4.372
+   ],
+   "tess_s": 4.372,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B7_n713.obj nverts 5007 ntris 10026 est 2020 chord 0.009143580944788503 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)",
+   "mesh_s": 2.355,
+   "written": true,
+   "ntris": 10026,
+   "est": 2020,
+   "chord": 0.009143580944788503,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "7f5b1ca4ad796787d1d3bcbb7197ada54e6f83a129c566fbf94fb0cde1e8a1c9",
+   "triangles": 10026,
+   "vertices": 5007,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 15039
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 13261.208595483315,
+   "mesh_area": 14315.435132238794,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 16,
+      "triangles": 676,
+      "max_dev": 7.105427357601002e-15,
+      "max_vertex_off": 8.881784197001252e-16
+     },
+     "cylinder": {
+      "faces": 16,
+      "triangles": 9350,
+      "max_dev": 0.009143580944780183,
+      "max_vertex_off": 3.2862601528904634e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.009143580944780183,
+    "max_vertex_off": 3.2862601528904634e-14
+   },
+   "volume_err": -0.4303218475270114,
+   "volume_rel_err": -3.244861741520119e-05,
+   "volume_bound_achieved": 130.89433990475678,
+   "volume_bound_preset": 14315.435132252056,
+   "tess_all_cores_s": 1.538,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 2.355 s (tess 4.372 - eval 2.017) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "10026 <= 2.0 x est 2020"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 15039}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.009143580944788503 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.009143580944780183 <= reported chord 0.009143580944788503 over 32 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.430322 <= chord x area 130.894"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B8.n802",
+   "group": "brief",
+   "node": 802,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 1.006,
+   "certified_volume": [
+    320264.8689995017,
+    320264.8690001422
+   ],
+   "certified_area": [
+    54040.46731382593,
+    54040.46731393401
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    6.433,
+    6.559
+   ],
+   "tess_s": 6.559,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B8_n802.obj nverts 6144 ntris 12304 est 1824 chord 0.39726004954378225 ang 0.1963495408493621 nsamp 596 profile display (sampled, not certified)",
+   "mesh_s": 5.553,
+   "written": true,
+   "ntris": 12304,
+   "est": 1824,
+   "chord": 0.39726004954378225,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "0457f9303399b74911fdeae5ec5d42e894e1e32ef55771f2c104ae79bd9b0537",
+   "triangles": 12304,
+   "vertices": 6144,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 18456
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 317834.53941304475,
+   "mesh_area": 53805.67260791786,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 10,
+      "triangles": 592,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 14,
+      "triangles": 11712,
+      "max_dev": 0.3972600495437746,
+      "max_vertex_off": 2.842170943040401e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.3972600495437746,
+    "max_vertex_off": 2.842170943040401e-14
+   },
+   "volume_err": -2430.329586777196,
+   "volume_rel_err": -0.007588498839623109,
+   "volume_bound_achieved": 21374.844166278235,
+   "volume_bound_preset": 53805.67260823812,
+   "tess_all_cores_s": 1.775,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 5.553 s (tess 6.559 - eval 1.006) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "12304 <= 2.0 x est 1824"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 18456}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.39726004954378225 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.3972600495437746 <= reported chord 0.39726004954378225 over 24 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 2430.33 <= chord x area 21374.8"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B8.n803",
+   "group": "brief",
+   "node": 803,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 0.006,
+   "certified_volume": [
+    2523.327369054114,
+    2523.327369060642
+   ],
+   "certified_area": [
+    2859.2944691855273,
+    2859.294469188141
+   ],
+   "surface_kinds": [
+    "torus"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    0.044,
+    0.038
+   ],
+   "tess_s": 0.038,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B8_n803.obj nverts 1920 ntris 3840 est 3840 chord 0.20625931072589088 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)",
+   "mesh_s": 0.032,
+   "written": true,
+   "ntris": 3840,
+   "est": 3840,
+   "chord": 0.20625931072589088,
+   "ang": 0.19634954084936207,
+   "obj_sha256": "69d9b883492bd8b0b9d649de4d73afc684ad95c9dcd128050e9f43e63dcc5128",
+   "triangles": 3840,
+   "vertices": 1920,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 5760
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2502.5355532605486,
+   "mesh_area": 2846.525156093016,
+   "deviation": {
+    "per_kind": {},
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": null,
+    "max_vertex_off": null
+   },
+   "volume_err": -20.79181579682927,
+   "volume_rel_err": -0.008239840795844229,
+   "volume_bound_achieved": 587.1223166629184,
+   "volume_bound_preset": 2846.5251560962797,
+   "tess_all_cores_s": 0.042,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.032 s (tess 0.038 - eval 0.006) <= 2.0"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 5760}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.20625931072589088 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max None)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 20.7918 <= chord x area 587.122"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "id": "B9.n906",
+   "group": "brief",
+   "node": 906,
+   "preset": "default (1)",
+   "built": true,
+   "core": 8,
+   "eval_s": 0.831,
+   "certified_volume": [
+    2140.257668440426,
+    2140.257668444709
+   ],
+   "certified_area": [
+    2570.1265906753424,
+    2570.1265906804847
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    58.389,
+    71.401
+   ],
+   "tess_s": 71.401,
+   "timing": "warm: second of two runs, one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B9_n906.obj nverts 10504 ntris 21012 est 1084 chord 0.009577780898505136 ang 0.1963495408493621 nsamp 358 profile display (sampled, not certified)",
+   "mesh_s": 70.57,
+   "written": true,
+   "ntris": 21012,
+   "est": 1084,
+   "chord": 0.009577780898505136,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "0325e1af19790e2b69e003e3b4d4d433d8507e241a06f51e57b407112920e5d8",
+   "triangles": 21012,
+   "vertices": 10504,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 31518
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2140.1942501979793,
+   "mesh_area": 2569.840037577809,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 8,
+      "triangles": 364,
+      "max_dev": 3.552713678800501e-15,
+      "max_vertex_off": 7.105427357601002e-15
+     },
+     "cylinder": {
+      "faces": 6,
+      "triangles": 20648,
+      "max_dev": 0.014966931444474696,
+      "max_vertex_off": 4.440892098500626e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.014966931444474696,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -0.0634182445883198,
+   "volume_rel_err": -2.9631125973008786e-05,
+   "volume_bound_achieved": 38.46261966783475,
+   "volume_bound_preset": 2569.8400375799506,
+   "tess_all_cores_s": 15.099,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 70.57 s (tess 71.401 - eval 0.831) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "21012 <= 2.0 x est 1084"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 31518}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.009577780898505136 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.014966931444474696 <= reported chord 0.009577780898505136 over 14 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.0634182 <= chord x area 38.4626"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B9.n915",
+   "group": "brief",
+   "node": 915,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.36,
+   "certified_volume": [
+    2140.257668440425,
+    2140.2576684447076
+   ],
+   "certified_area": [
+    2570.1265906753424,
+    2570.1265906804847
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    28.77,
+    28.494
+   ],
+   "tess_s": 28.494,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B9_n915.obj nverts 10545 ntris 21094 est 1075 chord 0.016820169556720277 ang 0.1990214674565842 nsamp 355 profile display (sampled, not certified)",
+   "mesh_s": 28.134,
+   "written": true,
+   "ntris": 21094,
+   "est": 1075,
+   "chord": 0.016820169556720277,
+   "ang": 0.1990214674565842,
+   "obj_sha256": "934dc4d45955c6d2d11e284da9233d039b69171d8cdde29de57f918c8007fdeb",
+   "triangles": 21094,
+   "vertices": 10545,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 31641
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2140.325051012399,
+   "mesh_area": 2569.9196758885164,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 8,
+      "triangles": 361,
+      "max_dev": 7.105427357601002e-15,
+      "max_vertex_off": 7.105427357601002e-15
+     },
+     "cylinder": {
+      "faces": 6,
+      "triangles": 20733,
+      "max_dev": 0.016820169556720277,
+      "max_vertex_off": 1.3322676295501878e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.016820169556720277,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": 0.0673825698327164,
+   "volume_rel_err": 3.1483391381445065e-05,
+   "volume_bound_achieved": 43.22648469773787,
+   "volume_bound_preset": 2569.919675890658,
+   "tess_all_cores_s": 15.845,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 28.134 s (tess 28.494 - eval 0.36) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "21094 <= 2.0 x est 1075"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 31641}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.016820169556720277 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.016820169556720277 <= reported chord 0.016820169556720277 over 14 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.0673826 <= chord x area 43.2265"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B9.n921",
+   "group": "brief",
+   "node": 921,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 0.005,
+   "certified_volume": [
+    282.7433388230532,
+    282.7433388231096
+   ],
+   "certified_area": [
+    391.1282853719005,
+    391.128285371958
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    10.376,
+    10.522
+   ],
+   "tess_s": 10.522,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B9_n921.obj nverts 8630 ntris 17256 est 196 chord 0.007222909991705156 ang 0.1963495408493621 nsamp 64 profile display (sampled, not certified)",
+   "mesh_s": 10.517,
+   "written": true,
+   "ntris": 17256,
+   "est": 196,
+   "chord": 0.007222909991705156,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "86ab73da1d6ed177ebab0d75aa548503ad7830726d8d8ef525b02f989e570fdc",
+   "triangles": 17256,
+   "vertices": 8630,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 25884
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 281.9805360456705,
+   "mesh_area": 390.8054449509195,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 2,
+      "triangles": 60,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 17196,
+      "max_dev": 0.03134334453745624,
+      "max_vertex_off": 4.440892098500626e-16
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.03134334453745624,
+    "max_vertex_off": 4.440892098500626e-16
+   },
+   "volume_err": -0.7628027774109114,
+   "volume_rel_err": -0.0026978629473149627,
+   "volume_bound_achieved": 12.249149708238752,
+   "volume_bound_preset": 390.8054449509477,
+   "tess_all_cores_s": 10.6,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 10.517 s (tess 10.522 - eval 0.005) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "17256 <= 2.0 x est 196"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 25884}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.007222909991705156 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.03134334453745624 <= reported chord 0.007222909991705156 over 3 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.762803 <= chord x area 12.2491"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B10.n1002",
+   "group": "brief",
+   "node": 1002,
+   "preset": "default (1)",
+   "built": false,
+   "core": 6,
+   "eval_s": 0.136,
+   "why": "node does not evaluate on this binary: error invalid-input | node @ - | why: missing-input-node | fix: reference an earlier node id",
+   "budgets": [
+    {
+     "name": "written",
+     "verdict": "fail",
+     "detail": "node does not evaluate on this binary: error invalid-input | node @ - | why: missing-input-node | fix: reference an earlier node id"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B10.n1001",
+   "group": "brief",
+   "node": 1001,
+   "preset": "default (1)",
+   "built": "partial",
+   "core": 8,
+   "eval_s": 0.418,
+   "certified_volume": [
+    212.8852994322078,
+    212.88529943269657
+   ],
+   "certified_area": [
+    311.6424650586712,
+    311.6424650589524
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    43.995,
+    43.091
+   ],
+   "tess_s": 43.091,
+   "timing": "warm: second of two runs, one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B10_n1001.obj nverts 3426 ntris 6852 est 248 chord 0.0060190916597542945 ang 0.1963495408493621 nsamp 82 profile display (sampled, not certified)",
+   "mesh_s": 42.673,
+   "written": true,
+   "ntris": 6852,
+   "est": 248,
+   "chord": 0.0060190916597542945,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "010816eca0a56d11af9fb7db1ef3c4aea2d9eb0a744036c50c3bad596fd860ef",
+   "triangles": 6852,
+   "vertices": 3426,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 10278
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 213.01618749671465,
+   "mesh_area": 311.65891711844694,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 4,
+      "triangles": 80,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 6764,
+      "max_dev": 0.0062085007023517935,
+      "max_vertex_off": 4.440892098500626e-16
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.0062085007023517935,
+    "max_vertex_off": 4.440892098500626e-16
+   },
+   "volume_err": 0.13088806426245014,
+   "volume_rel_err": 0.0006148290399167768,
+   "volume_bound_achieved": 1.9349346060684613,
+   "volume_bound_preset": 311.6589171186913,
+   "tess_all_cores_s": 14.944,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 42.673 s (tess 43.091 - eval 0.418) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "6852 <= 2.0 x est 248"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 10278}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0060190916597542945 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max 0.0062085007023517935)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.130888 <= chord x area 1.93493"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B11.n1110",
+   "group": "brief",
+   "node": 1110,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 8.929,
+   "certified_volume": [
+    33010.08889304646,
+    33010.138656395124
+   ],
+   "certified_area": [
+    13933.495551887709,
+    13933.498905478498
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane",
+    "torus"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    108.637
+   ],
+   "tess_s": 108.637,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "refused tess-mesh-not-closed | tess @ node 1110 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet",
+   "mesh_s": 99.708,
+   "written": false,
+   "budgets": [
+    {
+     "name": "written",
+     "verdict": "fail",
+     "detail": "refused tess-mesh-not-closed | tess @ node 1110 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B12.n1208",
+   "group": "brief",
+   "node": 1208,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 1.896,
+   "certified_volume": [
+    51879.01681395367,
+    51879.016814057424
+   ],
+   "certified_area": [
+    14200.781653280761,
+    14200.781653309166
+   ],
+   "surface_kinds": [
+    "cone",
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    35.452,
+    37.631
+   ],
+   "tess_s": 37.631,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B12_n1208.obj nverts 14220 ntris 28452 est 1936 chord 0.0770443732448586 ang 0.1963495408493621 nsamp 716 profile display (sampled, not certified)",
+   "mesh_s": 35.735,
+   "written": true,
+   "ntris": 28452,
+   "est": 1936,
+   "chord": 0.0770443732448586,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "e1954113816d0c53a8747b445dea9a038b5b9241c671f60cfce44f9a4806f749",
+   "triangles": 28452,
+   "vertices": 14220,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 42678
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 51891.62777846161,
+   "mesh_area": 14201.975313646555,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 17,
+      "triangles": 492,
+      "max_dev": 5.329070518200751e-15,
+      "max_vertex_off": 3.552713678800501e-15
+     },
+     "cylinder": {
+      "faces": 5,
+      "triangles": 26028,
+      "max_dev": 0.07704437324485447,
+      "max_vertex_off": 1.865174681370263e-14
+     },
+     "cone": {
+      "faces": 8,
+      "triangles": 1932,
+      "max_dev": 0.03337312021513794,
+      "max_vertex_off": 2.763362727283444e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.07704437324485447,
+    "max_vertex_off": 2.763362727283444e-14
+   },
+   "volume_err": 12.610964456063812,
+   "volume_rel_err": 0.0002430841066490544,
+   "volume_bound_achieved": 1094.1822869307307,
+   "volume_bound_preset": 14201.975313698433,
+   "tess_all_cores_s": 12.321,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 35.735 s (tess 37.631 - eval 1.896) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "28452 <= 2.0 x est 1936"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 42678}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0770443732448586 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.07704437324485447 <= reported chord 0.0770443732448586 over 30 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 12.611 <= chord x area 1094.18"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B13.n102",
+   "group": "brief",
+   "node": 102,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 0.771,
+   "certified_volume": [
+    21531.84772915219,
+    21531.847729195255
+   ],
+   "certified_area": [
+    9503.003617834262,
+    9503.00361785327
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    7.629,
+    7.355
+   ],
+   "tess_s": 7.355,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B13_n102.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)",
+   "mesh_s": 6.584,
+   "written": true,
+   "ntris": 13976,
+   "est": 2032,
+   "chord": 0.15408874648970752,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "06b8a4e6f2784658ef965387423c0daf40aee908947e426b43d89f1b653c4ba7",
+   "triangles": 13976,
+   "vertices": 6980,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 20964
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 21369.033182197276,
+   "mesh_area": 9462.511944565735,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 12,
+      "triangles": 656,
+      "max_dev": 8.881784197001252e-16,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 16,
+      "triangles": 13320,
+      "max_dev": 0.15408874648970183,
+      "max_vertex_off": 7.105427357601002e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.15408874648970183,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -162.81454697644585,
+   "volume_rel_err": -0.007561568752682881,
+   "volume_bound_achieved": 1458.066604203552,
+   "volume_bound_preset": 9462.511944587268,
+   "tess_all_cores_s": 2.123,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 6.584 s (tess 7.355 - eval 0.771) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "13976 <= 2.0 x est 2032"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 20964}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.15408874648970752 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.15408874648970183 <= reported chord 0.15408874648970752 over 28 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 162.815 <= chord x area 1458.07"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B13.n204",
+   "group": "brief",
+   "node": 204,
+   "preset": "default (1)",
+   "built": true,
+   "core": 8,
+   "eval_s": 0.677,
+   "certified_volume": [
+    3655.1409845529915,
+    3655.140984560304
+   ],
+   "certified_area": [
+    1832.2438010463036,
+    1832.2438010499702
+   ],
+   "surface_kinds": [
+    "cone",
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    1.405,
+    1.412
+   ],
+   "tess_s": 1.412,
+   "timing": "warm: second of two runs, one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B13_n204.obj nverts 832 ntris 1660 est 1450 chord 0.024076366639017167 ang 0.1963495408493621 nsamp 494 profile display (sampled, not certified)",
+   "mesh_s": 0.735,
+   "written": true,
+   "ntris": 1660,
+   "est": 1450,
+   "chord": 0.024076366639017167,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "31b1ff4d1b1d673a7e9c0724848748edcfc3973723bc61a051f0629a6962d719",
+   "triangles": 1660,
+   "vertices": 832,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 2490
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3632.7997755244724,
+   "mesh_area": 1828.7055139587103,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 19,
+      "triangles": 398,
+      "max_dev": 4.440892098500626e-16,
+      "max_vertex_off": 7.105427357601002e-15
+     },
+     "cone": {
+      "faces": 4,
+      "triangles": 128,
+      "max_dev": 0.01367080742571102,
+      "max_vertex_off": 1.8935549368764817e-15
+     },
+     "cylinder": {
+      "faces": 12,
+      "triangles": 1134,
+      "max_dev": 0.02407636663901691,
+      "max_vertex_off": 1.7763568394002505e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.02407636663901691,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -22.341209032175357,
+   "volume_rel_err": -0.006112270122156518,
+   "volume_bound_achieved": 44.02858443251841,
+   "volume_bound_preset": 1828.7055139623665,
+   "tess_all_cores_s": 0.604,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.735 s (tess 1.412 - eval 0.677) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "pass",
+     "detail": "1660 <= 2.0 x est 1450"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 2490}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.024076366639017167 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.02407636663901691 <= reported chord 0.024076366639017167 over 35 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 22.3412 <= chord x area 44.0286"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "id": "B13.n313",
+   "group": "brief",
+   "node": 313,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 3.209,
+   "certified_volume": [
+    3603.7301859090157,
+    3603.731110566421
+   ],
+   "certified_area": [
+    2097.9760575195955,
+    2097.9762869914434
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    21.69,
+    22.669
+   ],
+   "tess_s": 22.669,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B13_n313.obj nverts 9245 ntris 18494 est 1309 chord 0.056261448460124236 ang 0.1963495408493621 nsamp 389 profile display (sampled, not certified)",
+   "mesh_s": 19.46,
+   "written": true,
+   "ntris": 18494,
+   "est": 1309,
+   "chord": 0.056261448460124236,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "d75c5560a9b63fb56252ea82a0f649ecf2f69a0c1590f9bc340280c64f2f6cd7",
+   "triangles": 18494,
+   "vertices": 9245,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 27741
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3598.5322876359446,
+   "mesh_area": 2092.876874316925,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 5,
+      "triangles": 259,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 5,
+      "triangles": 18235,
+      "max_dev": 0.05866408409638524,
+      "max_vertex_off": 3.552713678800501e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.05866408409638524,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": -5.198360601773857,
+   "volume_rel_err": -0.0014424942120232925,
+   "volume_bound_achieved": 122.77716728701068,
+   "volume_bound_preset": 2092.8773366456276,
+   "tess_all_cores_s": 10.341,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 19.46 s (tess 22.669 - eval 3.209) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "18494 <= 2.0 x est 1309"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 27741}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.056261448460124236 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.05866408409638524 <= reported chord 0.056261448460124236 over 10 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 5.19836 <= chord x area 122.777"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "B13.n401",
+   "group": "brief",
+   "node": 401,
+   "preset": "default (1)",
+   "built": true,
+   "core": 4,
+   "eval_s": 0.012,
+   "certified_volume": [
+    2309.070600388467,
+    2309.070600388529
+   ],
+   "certified_area": [
+    1319.4689145070245,
+    1319.4689145084017
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    0.018,
+    0.02
+   ],
+   "tess_s": 0.02,
+   "timing": "warm: second of two runs, one core (taskset -c 4)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B13_n401.obj nverts 128 ntris 256 est 256 chord 0.05301057051366354 ang 0.19634954084936207 nsamp 32 profile display (sampled, not certified)",
+   "mesh_s": 0.008,
+   "written": true,
+   "ntris": 256,
+   "est": 256,
+   "chord": 0.05301057051366354,
+   "ang": 0.19634954084936207,
+   "obj_sha256": "4c157460ee01cdb714f328bfe70b6786ac64917c038096f01fc4fd379747e745",
+   "triangles": 256,
+   "vertices": 128,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 384
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 2294.262186909669,
+   "mesh_area": 1314.1786649888381,
+   "deviation": {
+    "per_kind": {},
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": null,
+    "max_vertex_off": null
+   },
+   "volume_err": -14.808413478829152,
+   "volume_rel_err": -0.006413148855794039,
+   "volume_bound_achieved": 69.66536078797394,
+   "volume_bound_preset": 1314.178664988869,
+   "tess_all_cores_s": 0.015,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.008 s (tess 0.02 - eval 0.012) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "pass",
+     "detail": "256 <= 2.0 x est 256"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 384}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.05301057051366354 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max None)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 14.8084 <= chord x area 69.6654"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "id": "B14.n1403",
+   "group": "brief",
+   "node": 1403,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 1.176,
+   "certified_volume": [
+    9644.557952856048,
+    9644.55795287534
+   ],
+   "certified_area": [
+    11078.100276742858,
+    11078.100276765017
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    3.298,
+    3.31
+   ],
+   "tess_s": 3.31,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/B14_n1403.obj nverts 1819 ntris 3638 est 1524 chord 0.14445819983410144 ang 0.1963495408493621 nsamp 496 profile display (sampled, not certified)",
+   "mesh_s": 2.134,
+   "written": true,
+   "ntris": 3638,
+   "est": 1524,
+   "chord": 0.14445819983410144,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "6a1874776588d69d0b1a0f23c952a8525067488e500d70495be50b46c56d1dec",
+   "triangles": 3638,
+   "vertices": 1819,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 5457
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 9592.384029002113,
+   "mesh_area": 11037.165763773133,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 14,
+      "triangles": 450,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "cylinder": {
+      "faces": 22,
+      "triangles": 3154,
+      "max_dev": 0.1444581998340979,
+      "max_vertex_off": 7.105427357601002e-15
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.1444581998340979,
+    "max_vertex_off": 7.105427357601002e-15
+   },
+   "volume_err": -52.17392386358188,
+   "volume_rel_err": -0.0054096749813276205,
+   "volume_bound_achieved": 1594.4090975148881,
+   "volume_bound_preset": 11037.16576378278,
+   "tess_all_cores_s": 2.303,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 2.134 s (tess 3.31 - eval 1.176) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "3638 <= 2.0 x est 1524"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 5457}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.14445819983410144 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "not-measured",
+     "detail": "not measured: the mesh has no face groups that match faces -f (mapped False, max 0.1444581998340979)"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 52.1739 <= chord x area 1594.41"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "plate.holes25",
+   "group": "plate",
+   "node": 2,
+   "preset": "2",
+   "built": true,
+   "core": 8,
+   "holes": 25,
+   "eval_s": 0.011,
+   "certified_volume": [
+    33545.13322350064,
+    33545.13322357601
+   ],
+   "certified_area": [
+    14396.194490181391,
+    14396.194490203296
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    102.594
+   ],
+   "tess_s": 102.594,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/plate_holes25.obj nverts 220512 ntris 441120 est 19036 chord 0.0009324539975621177 ang 0.04986655005698085 nsamp 6312 profile display (sampled, not certified)",
+   "mesh_s": 102.583,
+   "written": true,
+   "ntris": 441120,
+   "est": 19036,
+   "chord": 0.0009324539975621177,
+   "ang": 0.04986655005698085,
+   "obj_sha256": "3d30fbd56bb2e6ac6a52c1edaf61826ead060ef3cb0a51f4c923a843229096dc",
+   "triangles": 441120,
+   "vertices": 220512,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 661680
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 33571.57015896332,
+   "mesh_area": 14424.866100807343,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 6412,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 25,
+      "triangles": 434708,
+      "max_dev": 0.04972539730185588,
+      "max_vertex_off": 5.329070518200751e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.04972539730185588,
+    "max_vertex_off": 5.329070518200751e-15
+   },
+   "volume_err": 26.436935424986586,
+   "volume_rel_err": 0.0007881004749277912,
+   "volume_bound_achieved": 717.2821979264036,
+   "volume_bound_preset": 3606.2165252395216,
+   "tess_all_cores_s": 25.19,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "tess 102.594 s <= 5.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "441120 <= 2.0 x est 19036"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 661680}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0009324539975621177 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.04972539730185588 <= reported chord 0.0009324539975621177 over 31 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 26.4369 <= chord x area 717.282"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "plate.holes100",
+   "group": "plate",
+   "node": 2,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "holes": 100,
+   "eval_s": 0.064,
+   "certified_volume": [
+    92580.5328940387,
+    92580.53289426937
+   ],
+   "certified_area": [
+    42064.77796073554,
+    42064.777960803025
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    589.175
+   ],
+   "tess_s": 589.175,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/plate_holes100.obj nverts 882097 ntris 1764590 est 76036 chord 0.0009324539975687429 ang 0.04986655005698085 nsamp 25212 profile display (sampled, not certified)",
+   "mesh_s": 589.111,
+   "written": true,
+   "ntris": 1764590,
+   "est": 76036,
+   "chord": 0.0009324539975687429,
+   "ang": 0.04986655005698085,
+   "obj_sha256": "8b4ba24f3056b1fe926beec4f3f74a9e11f988ca55d04d12ffc0eac3648e0179",
+   "triangles": 1764590,
+   "vertices": 882097,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 2646885
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 92686.25192636043,
+   "mesh_area": 42179.465260617304,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 25612,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 100,
+      "triangles": 1738978,
+      "max_dev": 0.049725397301862984,
+      "max_vertex_off": 9.325873406851315e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.049725397301862984,
+    "max_vertex_off": 9.325873406851315e-15
+   },
+   "volume_err": 105.71903220639797,
+   "volume_rel_err": 0.0011419142761606804,
+   "volume_bound_achieved": 2097.3906681796616,
+   "volume_bound_preset": 10544.866315269664,
+   "tess_all_cores_s": 147.961,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "tess 589.175 s <= 5.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "1764590 <= 2.0 x est 76036"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 2646885}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0009324539975687429 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.049725397301862984 <= reported chord 0.0009324539975687429 over 106 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 105.719 <= chord x area 2097.39"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "plate.holes400",
+   "group": "plate",
+   "node": 2,
+   "preset": "2",
+   "built": true,
+   "core": 4,
+   "holes": 400,
+   "eval_s": 0.313,
+   "certified_volume": [
+    296722.1315761907,
+    296722.1315770532
+   ],
+   "certified_area": [
+    141539.11184294664,
+    141539.11184321015
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    1200.164
+   ],
+   "tess_s": 1200.164,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 4)",
+   "timeout": true,
+   "tess_out": "",
+   "mesh_s": 1199.851,
+   "written": false,
+   "budgets": [
+    {
+     "name": "written",
+     "verdict": "fail",
+     "detail": ""
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "blade.n3",
+   "group": "blade",
+   "node": 3,
+   "preset": "default (1)",
+   "built": true,
+   "core": 6,
+   "eval_s": 0.865,
+   "certified_volume": [
+    2890.804597830608,
+    2890.8045978493537
+   ],
+   "certified_area": [
+    2388.735190929468,
+    2388.73519095631
+   ],
+   "surface_kinds": [
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    23.108,
+    22.912
+   ],
+   "tess_s": 22.912,
+   "timing": "warm: second of two runs, one core (taskset -c 6)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/blade_n3.obj nverts 10891 ntris 11248 est 8454 chord 0.8474358767326692 ang 0 nsamp 229 profile display (sampled, not certified)",
+   "mesh_s": 22.047,
+   "written": true,
+   "ntris": 11248,
+   "est": 8454,
+   "chord": 0.8474358767326692,
+   "ang": 0.0,
+   "obj_sha256": "b339cfc70342a0ff80cdee522afb999a3a5560446ff55f892e88e30631d71760",
+   "triangles": 11248,
+   "vertices": 9789,
+   "zero_area": 534,
+   "zero_area_by_group": {
+    "f32 bicubic": 28,
+    "f29 bicubic": 24,
+    "f34 bicubic": 24,
+    "f28 bicubic": 21,
+    "f35 bicubic": 21,
+    "f24 bicubic": 20,
+    "f25 bicubic": 20,
+    "f26 bicubic": 20,
+    "f27 bicubic": 20,
+    "f36 bicubic": 20
+   },
+   "edge_uses": {
+    "2": 16872
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": false,
+   "volume": 2875.6286360522477,
+   "mesh_area": 2923.63454667972,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 2,
+      "triangles": 126,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.0,
+    "max_vertex_off": 0.0
+   },
+   "volume_err": -15.175961787733286,
+   "volume_rel_err": -0.005249736284172516,
+   "volume_bound_achieved": 2477.5928053208213,
+   "volume_bound_preset": 2923.634546689093,
+   "tess_all_cores_s": 13.791,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "conforming",
+     "verdict": "fail",
+     "detail": "zero-area 534, edge uses {'2': 16872}, same-direction 0, T 0"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "blade.n6",
+   "group": "blade",
+   "node": 6,
+   "preset": "default (1)",
+   "built": true,
+   "core": 8,
+   "eval_s": 33.759,
+   "certified_volume": [
+    38263.170330141314,
+    38263.30786134174
+   ],
+   "certified_area": [
+    11313.02725619871,
+    11313.028712656089
+   ],
+   "surface_kinds": [
+    "planar-patch",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    79.422,
+    79.413
+   ],
+   "tess_s": 79.413,
+   "timing": "warm: second of two runs, one core (taskset -c 8)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/blade_n6.obj nverts 14833 ntris 19132 est 9112 chord 0.583296937819624 ang 0 nsamp 863 profile display (sampled, not certified)",
+   "mesh_s": 45.654,
+   "written": true,
+   "ntris": 19132,
+   "est": 9112,
+   "chord": 0.583296937819624,
+   "ang": 0.0,
+   "obj_sha256": "bdf9ccd231906276c83630c545532a87ea343a58d09dcfc5fd587a68e1d26d39",
+   "triangles": 19132,
+   "vertices": 14183,
+   "zero_area": 860,
+   "zero_area_by_group": {
+    "f35 bicubic": 42,
+    "f36 bicubic": 40,
+    "f34 bicubic": 38,
+    "f27 bicubic": 32,
+    "f25 bicubic": 31,
+    "f28 bicubic": 31,
+    "f29 bicubic": 30,
+    "f38 bicubic": 30,
+    "f37 bicubic": 29,
+    "f40 bicubic": 29
+   },
+   "edge_uses": {
+    "2": 28698
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": false,
+   "volume": 38254.141436492566,
+   "mesh_area": 11625.833257713977,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 7,
+      "triangles": 764,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     }
+    },
+    "mapped": false,
+    "unmeasured_faces": 0,
+    "max_dev": 0.0,
+    "max_vertex_off": 0.0
+   },
+   "volume_err": -9.097659248960554,
+   "volume_rel_err": -0.00023776500536707226,
+   "volume_bound_achieved": 6781.381704426319,
+   "volume_bound_preset": 11625.90202331419,
+   "tess_all_cores_s": 31.874,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "conforming",
+     "verdict": "fail",
+     "detail": "zero-area 860, edge uses {'2': 28698}, same-direction 0, T 0"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "repro.tess_display_slow.n705",
+   "group": "repro",
+   "node": 705,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 2.033,
+   "certified_volume": [
+    32221.875657998582,
+    32221.875658063025
+   ],
+   "certified_area": [
+    31911.362456222538,
+    31911.362456286362
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane"
+   ],
+   "ruled_only": true,
+   "tess_runs_s": [
+    142.526
+   ],
+   "tess_s": 142.526,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/repro_tess_display_slow_n705.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)",
+   "mesh_s": 140.493,
+   "written": true,
+   "ntris": 39410,
+   "est": 2588,
+   "chord": 0.019261093311216095,
+   "ang": 0.1963495408493621,
+   "obj_sha256": "53deeedd8b5e668e355e1c93decebabb1b3725b4fbd9c542b54d9ecb36cfad6f",
+   "triangles": 39410,
+   "vertices": 19705,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 59115
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 32209.451980687732,
+   "mesh_area": 31909.378410155914,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 19,
+      "triangles": 848,
+      "max_dev": 3.552713678800501e-15,
+      "max_vertex_off": 3.552713678800501e-15
+     },
+     "cylinder": {
+      "faces": 17,
+      "triangles": 38562,
+      "max_dev": 0.019261093311215394,
+      "max_vertex_off": 2.220446049250313e-14
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.019261093311215394,
+    "max_vertex_off": 2.220446049250313e-14
+   },
+   "volume_err": -12.423677343071176,
+   "volume_rel_err": -0.000385566547240237,
+   "volume_bound_achieved": 614.609515093139,
+   "volume_bound_preset": 31909.378410188136,
+   "tess_all_cores_s": 23.322,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 140.493 s (tess 142.526 - eval 2.033) <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "39410 <= 2.0 x est 2588"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 59115}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.019261093311216095 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "pass",
+     "detail": "measured max deviation 0.019261093311215394 <= reported chord 0.019261093311216095 over 36 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 12.4237 <= chord x area 614.61"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  }
+ ],
+ "stl": [
+  {
+   "id": "B1.n3",
+   "s": 33.085,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B1_n3.stl nverts 25602 ntris 51216 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B2.n4",
+   "s": 101.543,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B2_n4.stl nverts 35819 ntris 71662 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B3.n102",
+   "s": 41.754,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B3_n102.stl nverts 96036 ntris 192088 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B4.n204",
+   "s": 15.656,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B4_n204.stl nverts 15149 ntris 30294 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B5.n313",
+   "s": 51.471,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B5_n313.stl nverts 57597 ntris 115198 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B6.n1",
+   "s": 14.106,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B6_n1.stl nverts 9581 ntris 19162 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B6.n2",
+   "s": 26.313,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B6_n2.stl nverts 2882 ntris 5764 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B7.n705",
+   "s": 85.886,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B7_n705.stl nverts 106063 ntris 212126 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B7.n713",
+   "s": 97.914,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B7_n713.stl nverts 62545 ntris 125102 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B8.n802",
+   "s": 51.771,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B8_n802.stl nverts 63048 ntris 126112 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B8.n803",
+   "s": 111.757,
+   "ok": false,
+   "timeout": false,
+   "out": "bend: memory fault (machine stack overflow?)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B9.n906",
+   "s": 38.673,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B9_n906.stl nverts 43847 ntris 87698 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B9.n915",
+   "s": 32.597,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B9_n915.stl nverts 30509 ntris 61022 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B9.n921",
+   "s": 5.413,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B9_n921.stl nverts 6255 ntris 12506 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B10.n1002",
+   "s": 0.139,
+   "ok": false,
+   "timeout": false,
+   "out": "error: node failed; nothing exported",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B10.n1001",
+   "s": 5.988,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B10_n1001.stl nverts 6267 ntris 12534 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B11.n1110",
+   "s": 45.857,
+   "ok": false,
+   "timeout": false,
+   "out": "refused tess-mesh-not-closed | stl @ node 1110 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B12.n1208",
+   "s": 101.067,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B12_n1208.stl nverts 117717 ntris 235446 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B13.n102",
+   "s": 45.541,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B13_n102.stl nverts 96036 ntris 192088 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B13.n204",
+   "s": 14.796,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B13_n204.stl nverts 15149 ntris 30294 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B13.n313",
+   "s": 52.752,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B13_n313.stl nverts 57597 ntris 115198 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B13.n401",
+   "s": 0.262,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B13_n401.stl nverts 2520 ntris 5040 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  },
+  {
+   "id": "B14.n1403",
+   "s": 19.645,
+   "ok": true,
+   "timeout": false,
+   "out": "wrote /var/tmp/mesh-bendcad-p2/B14_n1403.stl nverts 23610 ntris 47220 (sampled, not certified)",
+   "timing": "one run, all cores, nothing else running"
+  }
+ ],
+ "edits": [
+  {
+   "brief": "B1",
+   "label": "plate thickness 3 -> 4 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.21,
+   "apply_status": "committed",
+   "check_s": 0.279,
+   "tess_s": 1.657,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B1.obj nverts 4970 ntris 9952 est 930 chord 0.01324200165146105 ang 0.1963495408493621 nsamp 305 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 2.146,
+   "verdict": "pass"
+  },
+  {
+   "brief": "B2",
+   "label": "bolt square 31 -> 31.5 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.032,
+   "apply_status": "committed",
+   "check_s": 0.068,
+   "tess_s": 6.394,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B2.obj nverts 9499 ntris 19022 est 1792 chord 0.05320877027223114 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 6.494,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B3",
+   "label": "bolt hole 5.5 -> 6.6 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.249,
+   "apply_status": "committed",
+   "check_s": 0.366,
+   "tess_s": 2.712,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B3.obj nverts 6819 ntris 13654 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 3.327,
+   "verdict": "pass"
+  },
+  {
+   "brief": "B4",
+   "label": "seat diameter 8.004 -> 8.006",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.199,
+   "apply_status": "committed",
+   "check_s": 0.306,
+   "tess_s": 0.539,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B4.obj nverts 832 ntris 1660 est 1450 chord 0.024076366639017167 ang 0.1963495408493621 nsamp 494 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 1.044,
+   "verdict": "pass"
+  },
+  {
+   "brief": "B5",
+   "label": "collar OD 24 -> 25 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 1.323,
+   "apply_status": "committed",
+   "check_s": 1.473,
+   "tess_s": 34.617,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B5.obj nverts 16859 ntris 33722 est 1535 chord 0.05147980008401515 ang 0.1963495408493621 nsamp 459 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 37.413,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B6",
+   "label": "face width 8 -> 10 mm (gear 20)",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.367,
+   "apply_status": "committed",
+   "check_s": 0.193,
+   "tess_s": 6.195,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B6.obj nverts 3200 ntris 6400 est 2244 chord 0.007473680143075172 ang 0.1924500897298756 nsamp 826 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 6.755,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B7",
+   "label": "enclosure height 30 -> 32 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.911,
+   "apply_status": "committed",
+   "check_s": 0.527,
+   "tess_s": 30.981,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B7.obj nverts 19705 ntris 39410 est 2588 chord 0.019261093311216095 ang 0.1963495408493621 nsamp 848 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 32.419,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B8",
+   "label": "groove depth 2.65 -> 2.7 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.31,
+   "apply_status": "committed",
+   "check_s": 0.47,
+   "tess_s": 1.699,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B8.obj nverts 6144 ntris 12304 est 1824 chord 0.39726004954378225 ang 0.1963495408493621 nsamp 596 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 2.479,
+   "verdict": "pass"
+  },
+  {
+   "brief": "B9",
+   "label": "pin 3.0 -> 2.9 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.476,
+   "apply_status": "committed",
+   "check_s": 0.33,
+   "tess_s": 14.698,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B9.obj nverts 10504 ntris 21012 est 1084 chord 0.009577780898505136 ang 0.1963495408493621 nsamp 358 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 15.504,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B10",
+   "label": "length 10 -> 12 mm",
+   "built": "partial",
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 76.421,
+   "apply_status": "committed",
+   "check_s": 0.134,
+   "tess_s": 0.138,
+   "tess_out": "error: node failed; nothing tessellated",
+   "shown": false,
+   "visible_rechecked_s": 76.693,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B11",
+   "label": "spoke diameter 7 -> 8 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 4.942,
+   "apply_status": "committed",
+   "check_s": 5.305,
+   "tess_s": 47.335,
+   "tess_out": "refused tess-mesh-not-closed | tess @ node 1110 | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet",
+   "shown": false,
+   "visible_rechecked_s": 57.582,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B12",
+   "label": "countersink 2.45 -> 2.6",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.938,
+   "apply_status": "rejected",
+   "apply_out": "305983e-13 | proof: k1-crossing-certified V41 E55 F24 S1\nnode 1206: error unsupported-op | intersect @ node 1206 | why: boundaries-cross-or-overlap: face-penetration 23 25 between nodes 0 and 0 [k1 reason 42] | fix: move the operands apart or nest one inside the other; general intersecting booleans need face splitting\nnode 1207: error invalid-input | chamfer @ node 1207 | why: input-node-missing-or-failed | fix: fix the input node first\nnode 1208: error invalid-input | chamfer @ node 1208 | why: input-node-missing-or-failed | fix: fix the input node first\n\nrejected: the design was not changed\n"
+  },
+  {
+   "brief": "B13",
+   "label": "housing seat nominal 22 -> 22.01",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 1.717,
+   "apply_status": "committed",
+   "check_s": 0.373,
+   "tess_s": 3.117,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B13.obj nverts 6980 ntris 13976 est 2032 chord 0.15408874648970752 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 5.207,
+   "verdict": "fail"
+  },
+  {
+   "brief": "B14",
+   "label": "blade height 14 -> 16 mm",
+   "built": true,
+   "timing": "one run, all cores, nothing else running",
+   "apply_s": 0.427,
+   "apply_status": "committed",
+   "check_s": 0.545,
+   "tess_s": 2.143,
+   "tess_out": "wrote /var/tmp/mesh-bendcad-p2/edit/B14.obj nverts 1819 ntris 3638 est 1524 chord 0.14445819983410144 ang 0.1963495408493621 nsamp 496 profile display (sampled, not certified)",
+   "shown": true,
+   "visible_rechecked_s": 3.115,
+   "verdict": "pass"
+  }
+ ],
+ "passed": 4,
+ "total": 29
+}
