@@ -34,11 +34,13 @@ PRESET_ANGLE = {None: 0.2, '0': 0.4, '1': 0.2, '2': 0.05, '3': 0.01}
 
 
 def run(args, core=None, timeout=TIMEOUT):
-    cmd = (['taskset', '-c', str(core)] if core is not None else []) + [BIN, *args]
+    cmd = (['taskset', '-c', str(core)] if core is not None else []) + ['/usr/bin/time', '-f', 'maxrss_kb %M', BIN, *args]
     t0 = time.time()
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        return dict(out=p.stdout + p.stderr, s=round(time.time() - t0, 3), timeout=False)
+        m = re.search(r'maxrss_kb (\d+)\s*$', p.stderr)
+        err = p.stderr[:m.start()] if m else p.stderr
+        return dict(out=p.stdout + err, s=round(time.time() - t0, 3), timeout=False, rss_kb=int(m.group(1)) if m else None)
     except subprocess.TimeoutExpired:
         return dict(out='', s=round(time.time() - t0, 3), timeout=True)
 
@@ -167,6 +169,18 @@ def plate_edits(n):
     return [f'(node 1 (box {w} {w} 8) (intent create 6 0 1 0))', f'(node 2 (holes 1 (face 1 0 top) through {hs}) (intent remove any any 1 any))']
 
 
+def DIMPLE(z):
+    return ['(node 1 (box 20 20 10) (intent create any any any any))', '(node 2 (sphere 6) (intent create any any any any))',
+            f'(node 3 (move 2 10 10 {z} 0) (intent same any any any any))', '(node 4 (difference 1 3) (intent remove any any any any))']
+
+
+BALLHOLE = ['(node 1 (sphere 6) (intent create any any any any))', '(node 2 (cylinder 2 20) (intent create any any any any))',
+            '(node 4 (move 2 0 0 -10 0) (intent same any any any any))', '(node 3 (difference 1 4) (intent remove any any any any))']
+SPHEREBOX = ['(node 1 (box 20 20 20) (intent create any any any any))', '(node 2 (sphere 12) (intent create any any any any))',
+             '(node 4 (move 2 10 10 10 0) (intent same any any any any))', '(node 3 (intersection 1 4) (intent same any any any any))']
+RSS_KB = 4000000
+
+
 def cases():
     cs = []
     for b in BRIEFS:
@@ -180,6 +194,17 @@ def cases():
     for n in (3, 6):
         cs.append(dict(id=f'blade.n{n}', group='blade', design=os.path.join(ROOT, 'tests', 'speed', 'k4blade.bcd'), node=n, preset=None,
                        budget_s=None, budget_on='ref'))
+    for z in (9, 10, 12):
+        for pr in (None, '2'):
+            cs.append(dict(id=f"curved.dimple{z}.p{pr or '1'}", group='curved', edits=DIMPLE(z), node=4, preset=pr, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
+    for nm, ed in (('ballhole', BALLHOLE), ('spherebox', SPHEREBOX)):
+        for pr in (None, '2'):
+            cs.append(dict(id=f'curved.{nm}.p{pr or "1"}', group='curved', edits=ed, node=3, preset=pr, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
+    for pr in (None, '2'):
+        cs.append(dict(id=f'curved.fz103.p{pr or "1"}', group='curved', design=os.path.join(ROOT, 'tests', 'speed', 'fz103.bcd'), node=100, preset=pr,
+                       budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
+    b11 = [b for b in BRIEFS if b['id'] == 'B11'][0]
+    cs.append(dict(id='curved.B11.p3', group='fine', brief='B11', edits=b11['edits'], node=1110, preset='3', budget_s=None, budget_on='none'))
     cs.append(dict(id='repro.tess_display_slow.n705', group='repro', design=os.path.join(ROOT, 'tests', 'briefs', 'repro', 'tess_display_slow', 'design.bcd'),
                    node=705, preset=None, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
     return cs
@@ -249,6 +274,9 @@ def serial(c, core):
     if not ok:
         return r
     r.update(tess_line(t['out']))
+    r['tess_maxrss_kb'] = t.get('rss_kb')
+    m = re.search(r'refined=(\d+)', t['out'])
+    r['refined'] = int(m.group(1)) if m else None
     r['obj'] = ob
     r['obj_sha256'] = sha(ob)
     mc = check(ob)
@@ -286,7 +314,8 @@ def stl(c):
     ok = (not t['timeout']) and t['out'].startswith('wrote')
     if os.path.exists(sp):
         os.remove(sp)
-    return dict(id=c['id'], s=t['s'], ok=ok, timeout=t['timeout'], out=t['out'].strip()[:300], timing='one run, all cores, nothing else running')
+    return dict(id=c['id'], s=t['s'], ok=ok, timeout=t['timeout'], out=t['out'].strip()[:300], maxrss_kb=t.get('rss_kb'),
+                crashed=bool(not ok and not t['timeout'] and not t['out'].startswith(('refused', 'error'))), timing='one run, all cores, nothing else running')
 
 
 def edit(b):
@@ -332,6 +361,13 @@ def judge(rows, ref, stls, refstl, edits):
                 b.append(('time', r['mesh_s'] <= BUDGET['brief_mesh_s'], f"mesh {r['mesh_s']} s (tess {r['tess_s']} - eval {r['eval_s']}) <= {BUDGET['brief_mesh_s']}"))
             if r['group'] == 'plate':
                 b.append(('time', r['tess_s'] <= BUDGET['plate_s'][r['holes']], f"tess {r['tess_s']} s <= {BUDGET['plate_s'][r['holes']]}"))
+            if r['group'] == 'curved':
+                b.append(('time', r['mesh_s'] <= BUDGET['brief_mesh_s'], f"mesh {r['mesh_s']} s <= {BUDGET['brief_mesh_s']}"))
+                b.append(('triangles', r['triangles'] <= BUDGET['tri_factor'] * r['est'], f"{r['triangles']} <= {BUDGET['tri_factor']} x est {r['est']}"))
+            if r['group'] in ('curved', 'fine'):
+                b.append(('direct', r.get('refined') == 0, f"refined={r.get('refined')} (every analytic face on the direct path)"))
+            if r['group'] == 'fine':
+                b.append(('memory', (r.get('tess_maxrss_kb') or 1e12) <= RSS_KB, f"peak RSS {r.get('tess_maxrss_kb')} kB <= {RSS_KB}"))
             if r['ruled_only'] and r['group'] != 'blade':
                 b.append(('triangles', r['triangles'] <= BUDGET['tri_factor'] * r['est'], f"{r['triangles']} <= {BUDGET['tri_factor']} x est {r['est']}"))
             b.append(('conforming', bool(r['conforming']), f"zero-area {r['zero_area']}, edge uses {r['edge_uses']}, same-direction {r['same_direction_pairs']}, T {r['t_junctions']}"))
@@ -362,7 +398,7 @@ def judge(rows, ref, stls, refstl, edits):
     v['1_display_time'] = dict(
         brief_parts_le_2s=all(r.get('written') and r['mesh_s'] <= 2.0 for r in br if r['built']),
         holes100_le_5s=any(r['id'] == 'plate.holes100' for r in rows) and all(r.get('written') and r['tess_s'] <= 5.0 for r in rows if r['id'] == 'plate.holes100'),
-        worst=max(((r.get('mesh_s') or 1e9) if r.get('written') else 1e9, r['id']) for r in br if r['built']))
+        worst=max((((r.get('mesh_s') or 1e9) if r.get('written') else 1e9, r['id']) for r in br if r['built']), default=None))
     v['2_triangles'] = dict(ruled_parts_le_2x_est=all(r['triangles'] <= 2 * r['est'] for r in rows if r.get('written') and r['ruled_only'] and r['group'] != 'blade'),
                             curved_parts=[dict(id=r['id'], kinds=r['surface_kinds'], triangles=r.get('triangles'), est=r.get('est')) for r in rows
                                           if r.get('surface_kinds') and not r['ruled_only']])
@@ -383,6 +419,7 @@ def judge(rows, ref, stls, refstl, edits):
                 s['ref_s'] = q['s']
                 s['not_slower'] = bool(s['ok'] and s['s'] <= q['s'] * BUDGET['slower_factor'] + BUDGET['slower_slack_s'])
         v['7_stl_not_slower'] = all(s.get('not_slower', True) for s in stls) if rs else None
+        v['7_stl_no_crash'] = dict(all=not any(s.get('crashed') for s in stls), crashed=[s['id'] for s in stls if s.get('crashed')])
     if edits is not None:
         v['4_edit_budget'] = {e['brief']: dict(verdict=e.get('verdict', 'fail'), s=e.get('visible_rechecked_s'), apply_s=e.get('apply_s'), check_s=e.get('check_s'),
                                                tess_s=e.get('tess_s')) for e in edits if e}

@@ -1,0 +1,1590 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p3",
+ "sha256": "19f6422657944d0c7cb987006d094bdca4abf86bcd069207c15839c9301c4ea5",
+ "host_cores": 16,
+ "runner": "tests/briefs/mesh.py",
+ "budgets": {
+  "brief_mesh_s": 2.0,
+  "edit_s": 5.0,
+  "tri_factor": 2.0,
+  "plate_s": {
+   "25": 5.0,
+   "100": 5.0,
+   "400": 20.0
+  },
+  "slower_factor": 1.1,
+  "slower_slack_s": 0.25
+ },
+ "ref": null,
+ "method": "each case built from its brief edits; measure and tess run twice pinned to one core, the second run recorded; mesh_s = tess_s - eval_s (eval_s from measure); one more tess on all cores checks byte identity across thread counts; tools/mesh/check.py judges conformity; deviation samples each triangle centroid and edge midpoints against the analytic surface printed by faces -f",
+ "wall_s": 409.2,
+ "acceptance": {
+  "1_display_time": {
+   "brief_parts_le_2s": true,
+   "holes100_le_5s": false,
+   "worst": null
+  },
+  "2_triangles": {
+   "ruled_parts_le_2x_est": true,
+   "curved_parts": [
+    {
+     "id": "curved.dimple9.p1",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 3386,
+     "est": 282
+    },
+    {
+     "id": "curved.dimple9.p2",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 19106,
+     "est": 954
+    },
+    {
+     "id": "curved.dimple10.p1",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 2294,
+     "est": 222
+    },
+    {
+     "id": "curved.dimple10.p2",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 16934,
+     "est": 726
+    },
+    {
+     "id": "curved.dimple12.p1",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 1658,
+     "est": 222
+    },
+    {
+     "id": "curved.dimple12.p2",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": 37882,
+     "est": 726
+    },
+    {
+     "id": "curved.ballhole.p1",
+     "kinds": [
+      "cylinder",
+      "sphere"
+     ],
+     "triangles": 5854,
+     "est": 484
+    },
+    {
+     "id": "curved.ballhole.p2",
+     "kinds": [
+      "cylinder",
+      "sphere"
+     ],
+     "triangles": 32038,
+     "est": 1828
+    },
+    {
+     "id": "curved.spherebox.p1",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": null,
+     "est": null
+    },
+    {
+     "id": "curved.spherebox.p2",
+     "kinds": [
+      "plane",
+      "sphere"
+     ],
+     "triangles": null,
+     "est": null
+    },
+    {
+     "id": "curved.fz103.p1",
+     "kinds": [
+      "cylinder",
+      "plane",
+      "sphere"
+     ],
+     "triangles": 2574,
+     "est": 710
+    },
+    {
+     "id": "curved.fz103.p2",
+     "kinds": [
+      "cylinder",
+      "plane",
+      "sphere"
+     ],
+     "triangles": 34882,
+     "est": 1572
+    },
+    {
+     "id": "curved.B11.p3",
+     "kinds": [
+      "cylinder",
+      "plane",
+      "torus"
+     ],
+     "triangles": 249580,
+     "est": 19459
+    }
+   ]
+  },
+  "3_conforming": {
+   "all": false,
+   "volume_within_chord_bound": true
+  },
+  "5_b11": []
+ },
+ "rows": [
+  {
+   "id": "curved.dimple9.p1",
+   "group": "curved",
+   "node": 4,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.066,
+   "certified_volume": [
+    3435.5605198989415,
+    3435.5605199111287
+   ],
+   "certified_area": [
+    1753.9380400228165,
+    1753.9380400289833
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    0.703,
+    0.707
+   ],
+   "tess_s": 0.707,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple9_p1.obj nverts 1695 ntris 3386 est 282 chord 0.009143580944769662 ang 0.18856180831641298 nsamp 132 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 0.641,
+   "written": true,
+   "ntris": 3386,
+   "est": 282,
+   "chord": 0.009143580944769662,
+   "ang": 0.18856180831641298,
+   "tess_maxrss_kb": 42296,
+   "refined": 2,
+   "obj_sha256": "38f9237544ce96e0c0a22f1021592c4a3fdc28b7ef65ab12bf8440867b348937",
+   "triangles": 3386,
+   "vertices": 1695,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 5079
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3438.2716302119193,
+   "mesh_area": 1753.490595351233,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 74,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 3312,
+      "max_dev": 0.029971638719342053,
+      "max_vertex_off": 3.552713678800501e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.029971638719342053,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": 2.7111103068841658,
+   "volume_rel_err": 0.0007891318727108628,
+   "volume_bound_achieved": 52.55498662772478,
+   "volume_bound_preset": 1753.4905953573266,
+   "tess_all_cores_s": 0.478,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.641 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "3386 <= 2.0 x est 282"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 5079}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.009143580944769662 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.029971638719342053 <= reported chord 0.009143580944769662 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 2.71111 <= chord x area 52.555"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.dimple9.p2",
+   "group": "curved",
+   "node": 4,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.067,
+   "certified_volume": [
+    3435.5605198989415,
+    3435.5605199111287
+   ],
+   "certified_area": [
+    1753.9380400228165,
+    1753.9380400289833
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    5.705,
+    5.877
+   ],
+   "tess_s": 5.877,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple9_p2.obj nverts 9555 ntris 19106 est 954 chord 0.0006336613677897067 ang 0.0496215285043192 nsamp 468 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 5.81,
+   "written": true,
+   "ntris": 19106,
+   "est": 954,
+   "chord": 0.0006336613677897067,
+   "ang": 0.0496215285043192,
+   "tess_maxrss_kb": 71340,
+   "refined": 2,
+   "obj_sha256": "87d9422ec5eda0c8c065f1b69d578da621c9a837839450a70e5a7abd27635d98",
+   "triangles": 19106,
+   "vertices": 9555,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 28659
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3436.626049506693,
+   "mesh_area": 1753.6872337836098,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 242,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 18864,
+      "max_dev": 0.010168964452862639,
+      "max_vertex_off": 4.440892098500626e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.010168964452862639,
+    "max_vertex_off": 4.440892098500626e-15
+   },
+   "volume_err": 1.0655296016579996,
+   "volume_rel_err": 0.00031014723666909896,
+   "volume_bound_achieved": 17.833183147878156,
+   "volume_bound_preset": 438.42180845199607,
+   "tess_all_cores_s": 3.148,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 5.81 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "19106 <= 2.0 x est 954"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 28659}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0006336613677897067 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.010168964452862639 <= reported chord 0.0006336613677897067 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 1.06553 <= chord x area 17.8332"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.dimple10.p1",
+   "group": "curved",
+   "node": 4,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.071,
+   "certified_volume": [
+    3547.610657874825,
+    3547.610657891317
+   ],
+   "certified_area": [
+    1713.09733552517,
+    1713.0973355332953
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    0.507,
+    0.505
+   ],
+   "tess_s": 0.505,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple10_p1.obj nverts 1149 ntris 2294 est 222 chord 0.009143580944772174 ang 0.18856180831641298 nsamp 102 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 0.434,
+   "written": true,
+   "ntris": 2294,
+   "est": 222,
+   "chord": 0.009143580944772174,
+   "ang": 0.18856180831641298,
+   "tess_maxrss_kb": 40260,
+   "refined": 2,
+   "obj_sha256": "4befbf850e4f1ae609944f12970dfeb57cf21a6b70c0916c88fc9cfbd2cd7e58",
+   "triangles": 2294,
+   "vertices": 1149,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 3441
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3550.5701476698723,
+   "mesh_area": 1712.5615762925293,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 74,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 2220,
+      "max_dev": 0.029804298513539607,
+      "max_vertex_off": 4.440892098500626e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.029804298513539607,
+    "max_vertex_off": 4.440892098500626e-15
+   },
+   "volume_err": 2.9594897868014414,
+   "volume_rel_err": 0.000834220570463453,
+   "volume_bound_achieved": 51.041696450886406,
+   "volume_bound_preset": 1712.5615763007752,
+   "tess_all_cores_s": 0.333,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.434 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "2294 <= 2.0 x est 222"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 3441}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.009143580944772174 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.029804298513539607 <= reported chord 0.009143580944772174 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 2.95949 <= chord x area 51.0417"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.dimple10.p2",
+   "group": "curved",
+   "node": 4,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.073,
+   "certified_volume": [
+    3547.610657874825,
+    3547.610657891317
+   ],
+   "certified_area": [
+    1713.09733552517,
+    1713.0973355332953
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    3.415,
+    3.502
+   ],
+   "tess_s": 3.502,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple10_p2.obj nverts 8469 ntris 16934 est 726 chord 0.0006336613677890786 ang 0.0496215285043192 nsamp 354 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 3.429,
+   "written": true,
+   "ntris": 16934,
+   "est": 726,
+   "chord": 0.0006336613677890786,
+   "ang": 0.0496215285043192,
+   "tess_maxrss_kb": 67124,
+   "refined": 2,
+   "obj_sha256": "5f74efb12097c812eb5b956e1adb3f2ae1207b80849494b568638106dce6cb80",
+   "triangles": 16934,
+   "vertices": 8469,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 25401
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3548.360738727522,
+   "mesh_area": 1712.9236041658714,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 242,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 16692,
+      "max_dev": 0.008095911646753606,
+      "max_vertex_off": 3.552713678800501e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.008095911646753606,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": 0.7500808444510767,
+   "volume_rel_err": 0.0002114326843573823,
+   "volume_bound_achieved": 13.867678165211576,
+   "volume_bound_preset": 428.2309010497138,
+   "tess_all_cores_s": 1.844,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 3.429 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "16934 <= 2.0 x est 726"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 25401}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0006336613677890786 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.008095911646753606 <= reported chord 0.0006336613677890786 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.750081 <= chord x area 13.8677"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.dimple12.p1",
+   "group": "curved",
+   "node": 4,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.059,
+   "certified_volume": [
+    3765.427748526698,
+    3765.427748537227
+   ],
+   "certified_area": [
+    1650.2654824550364,
+    1650.2654824598367
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    0.337,
+    0.333
+   ],
+   "tess_s": 0.333,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple12_p1.obj nverts 831 ntris 1658 est 222 chord 0.008620650787169105 ang 0.18856180831641298 nsamp 102 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 0.274,
+   "written": true,
+   "ntris": 1658,
+   "est": 222,
+   "chord": 0.008620650787169105,
+   "ang": 0.18856180831641298,
+   "tess_maxrss_kb": 39116,
+   "refined": 2,
+   "obj_sha256": "4329b6da934395109a62598f0acac2885ef8a7a84f4e5c839c2a849f0870a527",
+   "triangles": 1658,
+   "vertices": 831,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 2487
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3767.0513810748907,
+   "mesh_area": 1649.978406226649,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 74,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 1584,
+      "max_dev": 0.02608809703545223,
+      "max_vertex_off": 2.6645352591003757e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.02608809703545223,
+    "max_vertex_off": 2.6645352591003757e-15
+   },
+   "volume_err": 1.623632542928135,
+   "volume_rel_err": 0.00043119471448128173,
+   "volume_bound_achieved": 43.044796773306246,
+   "volume_bound_preset": 1649.9784062319136,
+   "tess_all_cores_s": 0.235,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.274 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "1658 <= 2.0 x est 222"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 2487}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.008620650787169105 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.02608809703545223 <= reported chord 0.008620650787169105 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 1.62363 <= chord x area 43.0448"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.dimple12.p2",
+   "group": "curved",
+   "node": 4,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.057,
+   "certified_volume": [
+    3765.427748526698,
+    3765.427748537227
+   ],
+   "certified_area": [
+    1650.2654824550364,
+    1650.2654824598367
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    7.03,
+    6.82
+   ],
+   "tess_s": 6.82,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_dimple12_p2.obj nverts 18943 ntris 37882 est 726 chord 0.0005974216668540623 ang 0.0496215285043192 nsamp 354 profile display (sampled, not certified) faces direct=6 grid=0 refined=2 f6(bound 6.000000600001) f7(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 6.763,
+   "written": true,
+   "ntris": 37882,
+   "est": 726,
+   "chord": 0.0005974216668540623,
+   "ang": 0.0496215285043192,
+   "tess_maxrss_kb": 106700,
+   "refined": 2,
+   "obj_sha256": "abeedd324e523be6f5be1588e9e13cdfafda0b9c1fd47951610dee60d2f038cf",
+   "triangles": 37882,
+   "vertices": 18943,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 56823
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 3765.528653499578,
+   "mesh_area": 1650.2486234779499,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 6,
+      "triangles": 242,
+      "max_dev": 1.7763568394002505e-15,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 37640,
+      "max_dev": 0.0018523714589013807,
+      "max_vertex_off": 4.440892098500626e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.0018523714589013807,
+    "max_vertex_off": 4.440892098500626e-15
+   },
+   "volume_err": 0.10090496761540635,
+   "volume_rel_err": 2.6797743670621867e-05,
+   "volume_bound_achieved": 3.056873455486455,
+   "volume_bound_preset": 412.5621558747521,
+   "tess_all_cores_s": 3.527,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 6.763 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "37882 <= 2.0 x est 726"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 56823}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0005974216668540623 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.0018523714589013807 <= reported chord 0.0005974216668540623 over 8 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.100905 <= chord x area 3.05687"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.ballhole.p1",
+   "group": "curved",
+   "node": 3,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 1.088,
+   "certified_volume": [
+    758.2520214448496,
+    758.2520214465392
+   ],
+   "certified_area": [
+    568.6890160836584,
+    568.6890160848833
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    2.222,
+    2.205
+   ],
+   "tess_s": 2.205,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_ballhole_p1.obj nverts 2927 ntris 5854 est 484 chord 0.00547114242327505 ang 0.18856180831641295 nsamp 180 profile display (sampled, not certified) faces direct=1 grid=0 refined=2 f0(bound 6.000000600001) f1(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 1.117,
+   "written": true,
+   "ntris": 5854,
+   "est": 484,
+   "chord": 0.00547114242327505,
+   "ang": 0.18856180831641295,
+   "tess_maxrss_kb": 47276,
+   "refined": 2,
+   "obj_sha256": "9afee9db1421a0d17fbf6e7749e240ac4a3be0feb2af197e43a52ac1ae917405",
+   "triangles": 5854,
+   "vertices": 2927,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 8781
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 754.1763966547004,
+   "mesh_area": 567.582823209969,
+   "deviation": {
+    "per_kind": {
+     "sphere": {
+      "faces": 2,
+      "triangles": 5734,
+      "max_dev": 0.02988309070544304,
+      "max_vertex_off": 2.6645352591003757e-15
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 120,
+      "max_dev": 0.003047860314923323,
+      "max_vertex_off": 4.440892098500626e-16
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.02988309070544304,
+    "max_vertex_off": 2.6645352591003757e-15
+   },
+   "volume_err": -4.07562479099397,
+   "volume_rel_err": -0.00537502660820254,
+   "volume_bound_achieved": 16.96112898967975,
+   "volume_bound_preset": 567.5828232108138,
+   "tess_all_cores_s": 1.172,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 1.117 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "5854 <= 2.0 x est 484"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 8781}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.00547114242327505 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.02988309070544304 <= reported chord 0.00547114242327505 over 3 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 4.07562 <= chord x area 16.9611"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.ballhole.p2",
+   "group": "curved",
+   "node": 3,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 1.091,
+   "certified_volume": [
+    758.2520214448496,
+    758.2520214465392
+   ],
+   "certified_area": [
+    568.6890160836584,
+    568.6890160848833
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    6.777,
+    6.626
+   ],
+   "tess_s": 6.626,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_ballhole_p2.obj nverts 16019 ntris 32038 est 1828 chord 0.0003790802788022699 ang 0.049621528504319196 nsamp 684 profile display (sampled, not certified) faces direct=1 grid=0 refined=2 f0(bound 6.000000600001) f1(bound 6.000000600001) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 5.535,
+   "written": true,
+   "ntris": 32038,
+   "est": 1828,
+   "chord": 0.0003790802788022699,
+   "ang": 0.049621528504319196,
+   "tess_maxrss_kb": 97808,
+   "refined": 2,
+   "obj_sha256": "93af5f11191b28c1c7647fb3817be8074713924b4e91fcdee5dbe8313cd19e1c",
+   "triangles": 32038,
+   "vertices": 16019,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 48057
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 752.5762712137522,
+   "mesh_area": 567.3559583046623,
+   "deviation": {
+    "per_kind": {
+     "sphere": {
+      "faces": 2,
+      "triangles": 31582,
+      "max_dev": 0.04654923952893686,
+      "max_vertex_off": 1.7763568394002505e-15
+     },
+     "cylinder": {
+      "faces": 1,
+      "triangles": 456,
+      "max_dev": 0.0002112204559294728,
+      "max_vertex_off": 4.440892098500626e-16
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.04654923952893686,
+    "max_vertex_off": 1.7763568394002505e-15
+   },
+   "volume_err": -5.675750231942175,
+   "volume_rel_err": -0.007485308408569365,
+   "volume_bound_achieved": 26.409988402138044,
+   "volume_bound_preset": 141.83898957701038,
+   "tess_all_cores_s": 3.428,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 5.535 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "32038 <= 2.0 x est 1828"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 48057}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0003790802788022699 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.04654923952893686 <= reported chord 0.0003790802788022699 over 3 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 5.67575 <= chord x area 26.41"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.spherebox.p1",
+   "group": "curved",
+   "node": 3,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.54,
+   "certified_volume": [
+    6383.716272068419,
+    6383.716272120502
+   ],
+   "certified_area": [
+    1734.1591447749167,
+    1734.1591447882154
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    10.604,
+    10.467
+   ],
+   "tess_s": 10.467,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "refused tess-mesh-not-closed: open edges on faces f2 f6 f7 | tess @ node 3 | fix: export STEP for exchange; the listed faces (indices as in faces NODE) left open edges in the mesh, a tessellator defect to report with the design",
+   "mesh_s": 9.927,
+   "written": false,
+   "budgets": [
+    {
+     "name": "written",
+     "verdict": "fail",
+     "detail": "refused tess-mesh-not-closed: open edges on faces f2 f6 f7 | tess @ node 3 | fix: export STEP for exchange; the listed faces (indices as in faces NODE) left open edges in the mesh, a tessellator defec"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.spherebox.p2",
+   "group": "curved",
+   "node": 3,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.547,
+   "certified_volume": [
+    6383.716272068419,
+    6383.716272120502
+   ],
+   "certified_area": [
+    1734.1591447749167,
+    1734.1591447882154
+   ],
+   "surface_kinds": [
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    11.017,
+    11.092
+   ],
+   "tess_s": 11.092,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "refused tess-mesh-not-closed: open edges on faces f2 f6 f7 | tess @ node 3 | fix: export STEP for exchange; the listed faces (indices as in faces NODE) left open edges in the mesh, a tessellator defect to report with the design",
+   "mesh_s": 10.545,
+   "written": false,
+   "budgets": [
+    {
+     "name": "written",
+     "verdict": "fail",
+     "detail": "refused tess-mesh-not-closed: open edges on faces f2 f6 f7 | tess @ node 3 | fix: export STEP for exchange; the listed faces (indices as in faces NODE) left open edges in the mesh, a tessellator defec"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.fz103.p1",
+   "group": "curved",
+   "node": 100,
+   "preset": "default (1)",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.872,
+   "certified_volume": [
+    779.3760852886408,
+    779.3763440463918
+   ],
+   "certified_area": [
+    641.0549262480303,
+    641.0550605408718
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    1.707,
+    1.696
+   ],
+   "tess_s": 1.696,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_fz103_p1.obj nverts 1287 ntris 2574 est 710 chord 0.025607555486898127 ang 0.1984804330777411 nsamp 268 profile display (sampled, not certified) faces direct=4 grid=0 refined=2 f4(bound 7.995181671349496) f5(bound 7.995181671349496) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 0.824,
+   "written": true,
+   "ntris": 2574,
+   "est": 710,
+   "chord": 0.025607555486898127,
+   "ang": 0.1984804330777411,
+   "tess_maxrss_kb": 43192,
+   "refined": 2,
+   "obj_sha256": "8a590b0d6932086867b7e2a37698a3bfddeb467172258e181862a561ffe4848c",
+   "triangles": 2574,
+   "vertices": 1287,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 3861
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 774.9763237246538,
+   "mesh_area": 639.4744601206455,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 2,
+      "triangles": 74,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 2,
+      "triangles": 162,
+      "max_dev": 0.018087804239688587,
+      "max_vertex_off": 8.881784197001252e-16
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 2338,
+      "max_dev": 0.04353856283648305,
+      "max_vertex_off": 3.552713678800501e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.04353856283648305,
+    "max_vertex_off": 3.552713678800501e-15
+   },
+   "volume_err": -4.399890942862498,
+   "volume_rel_err": -0.005645400590957863,
+   "volume_bound_achieved": 27.8419283431643,
+   "volume_bound_preset": 639.474589499521,
+   "tess_all_cores_s": 0.911,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "pass",
+     "detail": "mesh 0.824 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "2574 <= 2.0 x est 710"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 3861}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.025607555486898127 <= preset 1.0"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.04353856283648305 <= reported chord 0.025607555486898127 over 6 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 4.39989 <= chord x area 27.8419"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.fz103.p2",
+   "group": "curved",
+   "node": 100,
+   "preset": "2",
+   "built": true,
+   "core": 2,
+   "eval_s": 0.89,
+   "certified_volume": [
+    779.3760852886408,
+    779.3763440463918
+   ],
+   "certified_area": [
+    641.0549262480303,
+    641.0550605408718
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane",
+    "sphere"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    11.526,
+    11.68
+   ],
+   "tess_s": 11.68,
+   "timing": "warm: second of two runs, one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_fz103_p2.obj nverts 17441 ntris 34882 est 1572 chord 0.0017494776677981806 ang 0.04986974737915296 nsamp 652 profile display (sampled, not certified) faces direct=4 grid=0 refined=2 f4(bound 7.995181671349496) f5(bound 7.995181671349496) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 10.79,
+   "written": true,
+   "ntris": 34882,
+   "est": 1572,
+   "chord": 0.0017494776677981806,
+   "ang": 0.04986974737915296,
+   "tess_maxrss_kb": 104500,
+   "refined": 2,
+   "obj_sha256": "a2251236a9a901910b283379917ecf86282adacb94ff8652467b492952607f33",
+   "triangles": 34882,
+   "vertices": 17441,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 52323
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 779.1167707532319,
+   "mesh_area": 640.960451123405,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 2,
+      "triangles": 290,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 2,
+      "triangles": 256,
+      "max_dev": 0.0011675381106508453,
+      "max_vertex_off": 1.3322676295501878e-15
+     },
+     "sphere": {
+      "faces": 2,
+      "triangles": 34336,
+      "max_dev": 0.0027487521236331247,
+      "max_vertex_off": 4.440892098500626e-15
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.0027487521236331247,
+    "max_vertex_off": 4.440892098500626e-15
+   },
+   "volume_err": -0.2594439142843612,
+   "volume_rel_err": -0.0003328866206098432,
+   "volume_bound_achieved": 1.7619707800658044,
+   "volume_bound_preset": 160.24024215972676,
+   "tess_all_cores_s": 9.383,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "time",
+     "verdict": "fail",
+     "detail": "mesh 10.79 s <= 2.0"
+    },
+    {
+     "name": "triangles",
+     "verdict": "fail",
+     "detail": "34882 <= 2.0 x est 1572"
+    },
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=2 (every analytic face on the direct path)"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 52323}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.0017494776677981806 <= preset 0.25"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.0027487521236331247 <= reported chord 0.0017494776677981806 over 6 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 0.259444 <= chord x area 1.76197"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  },
+  {
+   "id": "curved.B11.p3",
+   "group": "fine",
+   "node": 1110,
+   "preset": "3",
+   "built": true,
+   "core": 2,
+   "eval_s": 8.42,
+   "certified_volume": [
+    33010.08889304646,
+    33010.138656395124
+   ],
+   "certified_area": [
+    13933.495551887709,
+    13933.498905478498
+   ],
+   "surface_kinds": [
+    "cylinder",
+    "plane",
+    "torus"
+   ],
+   "ruled_only": false,
+   "tess_runs_s": [
+    172.197
+   ],
+   "tess_s": 172.197,
+   "timing": "first run only (over 90 s, warm repeat skipped), one core (taskset -c 2)",
+   "timeout": false,
+   "tess_out": "wrote /var/tmp/mesh-p3c/curved_B11_p3.obj nverts 124784 ntris 249580 est 19459 chord 0.022671771398839937 ang 0.009997917317482383 nsamp 7978 profile manufacturing (sampled, not certified) faces direct=10 grid=1 refined=8 f9(bound 0.40674554591989537) f10(bound 0.40674554591989676) f11(bound 0.11039277981229842) f12(bound 0.406745545919901) f13(bound 0.11046757821244864) f14(bound 0.40674554591990075) f15(bound 0.40674554591989537) f16(bound 0.40674554591989676) freeform=0 chord-bound=sampled-on-refined-faces",
+   "mesh_s": 163.777,
+   "written": true,
+   "ntris": 249580,
+   "est": 19459,
+   "chord": 0.022671771398839937,
+   "ang": 0.009997917317482383,
+   "tess_maxrss_kb": 510604,
+   "refined": 8,
+   "obj_sha256": "e6c168aa6791953937e8bfae59dd99b9ffe8d7a5f9e13c46835cd4c210b81e5d",
+   "triangles": 249580,
+   "vertices": 124784,
+   "zero_area": 0,
+   "zero_area_by_group": {},
+   "edge_uses": {
+    "2": 374370
+   },
+   "same_direction_pairs": 0,
+   "t_junctions": 0,
+   "conforming": true,
+   "volume": 32609.872112862635,
+   "mesh_area": 15426.369238516634,
+   "deviation": {
+    "per_kind": {
+     "plane": {
+      "faces": 5,
+      "triangles": 2836,
+      "max_dev": 0.0,
+      "max_vertex_off": 0.0
+     },
+     "cylinder": {
+      "faces": 6,
+      "triangles": 5123,
+      "max_dev": 0.01596880063016881,
+      "max_vertex_off": 3.9968028886505635e-15
+     },
+     "torus": {
+      "faces": 8,
+      "triangles": 241621,
+      "max_dev": 0.7278811791511686,
+      "max_vertex_off": 1.163513729807164e-13
+     }
+    },
+    "mapped": true,
+    "unmeasured_faces": 0,
+    "max_dev": 0.7278811791511686,
+    "max_vertex_off": 1.163513729807164e-13
+   },
+   "volume_err": -400.24166185815557,
+   "volume_rel_err": -0.012124819217214011,
+   "volume_bound_achieved": 11228.588713027135,
+   "volume_bound_preset": 771.3433436001651,
+   "tess_all_cores_s": 37.373,
+   "all_cores": 16,
+   "identical_across_threads": true,
+   "budgets": [
+    {
+     "name": "direct",
+     "verdict": "fail",
+     "detail": "refined=8 (every analytic face on the direct path)"
+    },
+    {
+     "name": "memory",
+     "verdict": "pass",
+     "detail": "peak RSS 510604 kB <= 4000000"
+    },
+    {
+     "name": "conforming",
+     "verdict": "pass",
+     "detail": "zero-area 0, edge uses {'2': 374370}, same-direction 0, T 0"
+    },
+    {
+     "name": "chord_claim",
+     "verdict": "pass",
+     "detail": "reported chord 0.022671771398839937 <= preset 0.05"
+    },
+    {
+     "name": "deviation_measured",
+     "verdict": "fail",
+     "detail": "measured max deviation 0.7278811791511686 <= reported chord 0.022671771398839937 over 19 analytic faces, 0 freeform faces not measured"
+    },
+    {
+     "name": "volume",
+     "verdict": "pass",
+     "detail": "|dV| 400.242 <= chord x area 11228.6"
+    },
+    {
+     "name": "deterministic",
+     "verdict": "pass",
+     "detail": "1 core and 16 cores byte-identical"
+    }
+   ],
+   "pass": false
+  }
+ ],
+ "stl": null,
+ "edits": null,
+ "passed": 0,
+ "total": 13
+}
