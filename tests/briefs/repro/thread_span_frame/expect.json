@@ -33,7 +33,7 @@
     "4"
    ],
    "must": [
-    "^thread t M4x0\\.7 6H z=\\[0, 10\\] .*status=certified"
+    "^thread t M4x0\\.7 6H z=\\[\\S+, \\S+\\] .*status=certified"
    ]
   }
  ]

@@ -1,0 +1,44 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 1,
+ "total": 1,
+ "cases": [
+  {
+   "case": "thread_span_frame",
+   "item": 5,
+   "claim": "thread-span-outside-face prints the admissible span and the axis it is measured along; a retry built from the message alone commits",
+   "verdict": "pass",
+   "seconds": 0.395,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (thread 4 t n2.c0.wall.0.0 M4 6H 0 12)",
+     "seconds": 0.132,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[-1.650000000000022, 1.650000000000022]x[-1.650000000000022, 1.650000000000022]x[-2.1316282072803012e-14, 12.000000000000025] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[3.349999999999978, 6.650000000000023]x[-1.0000000000000233, 11.000000000000023]x[3.349999999999978, 6.650000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 4: ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[914.4701400051024, 914.4701400069334] area=[686.5665855689792, 686.5665855703544] bbox=[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.00000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (thread 4 t n2.c0.wall.0.0 M4 6H 0 10)",
+     "seconds": 0.131,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[-1.650000000000022, 1.650000000000022]x[-1.650000000000022, 1.650000000000022]x[-2.1316282072803012e-14, 12.000000000000025] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[102.6358319927754, 102.63583199278168] area=[141.5130410809489, 141.51304108095553] bbox=[3.349999999999978, 6.650000000000023]x[-1.0000000000000233, 11.000000000000023]x[3.349999999999978, 6.650000000000023] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=2.1316282072803006e-14\nnode 4: ok material=remove faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[914.4701400051024, 914.4701400069334] area=[686.5665855689792, 686.5665855703544] bbox=[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.000000000000023]x[-1.7763568394002514e-14, 10.00000000"
+    },
+    {
+     "cmd": "BIN design.bcd threads 4",
+     "seconds": 0.132,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "threads node 4\nthread t M4x0.7 6H z=[0, 10] length=10 internal minor=[3.242, 3.422] model=3.3 face=n2.c0.wall.0.0 status=certified\n\n"
+    }
+   ]
+  }
+ ]
+}

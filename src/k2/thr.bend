@@ -293,6 +293,33 @@ def th_code(+th: M.Thr, +b: M.Body) -> U64:
     Bool.pick(U64, Bool.not(ta_found(ta)), 3u64, Bool.pick(U64, Bool.not(tg_ok(tg)), 4u64,
       Bool.pick(U64, Bool.not(Bool.xor(tg_inner(tg), cls_inner(k))), Bool.pick(U64, inside, Bool.pick(U64, fits, 0u64, 7u64), 6u64), 5u64)))))
 
+def v0_s(+x: F64) -> String:
+  S.f_show(F64.add(x, 0.0f64))
+
+def dir_s(+d: V.Dir) -> String:
+  "(" ++ v0_s(V.dr_x(d)) ++ "," ++ v0_s(V.dr_y(d)) ++ "," ++ v0_s(V.dr_z(d)) ++ ")"
+
+def pl_world(+p: M.Pl) -> Bool:
+  M.Pl{+m, +tx, +ty, +tz, mi, ti} = p
+  V.M3{+a, +b, +c, +d, +e, +f, +g, +h, +i} = m
+  +one = Bool.and(F64.is_eq(a, 1.0f64), Bool.and(F64.is_eq(e, 1.0f64), F64.is_eq(i, 1.0f64)))
+  +off = Bool.and(Bool.and(F64.is_eq(b, 0.0f64), F64.is_eq(c, 0.0f64)), Bool.and(Bool.and(F64.is_eq(d, 0.0f64), F64.is_eq(f, 0.0f64)),
+    Bool.and(F64.is_eq(g, 0.0f64), F64.is_eq(h, 0.0f64))))
+  +tr = Bool.and(F64.is_eq(tx, 0.0f64), Bool.and(F64.is_eq(ty, 0.0f64), F64.is_eq(tz, 0.0f64)))
+  Bool.and(one, Bool.and(off, tr))
+
+def span_s(+th: M.Thr, +tg: TG, +b: M.Body) -> String:
+  +z = th_z(th)
+  +sp = tg_span(tg)
+  " z=[" ++ S.f_show(V.v2_x(z)) ++ ", " ++ S.f_show(V.v2_y(z)) ++ "] admissible=[" ++ S.f_show(V.v2_x(sp)) ++ ", " ++
+    S.f_show(V.v2_y(sp)) ++ "] along=" ++ dir_s(tg_ax(tg)) ++ " Z=dot(point,along) frame=" ++
+    Bool.pick(String, pl_world(M.bd_pl(b)), "world", "node-" ++ U64.show(th_node(th)) ++ "-before-placement")
+
+def span_fix(+th: M.Thr, +tg: TG) -> String:
+  +sp = tg_span(tg)
+  "write (thread " ++ U64.show(th_node(th)) ++ " " ++ th_name(th) ++ " " ++ th_face(th) ++ " " ++ th_d(th) ++ " " ++ th_c(th) ++
+    " Z0 Z1) with " ++ S.f_show(V.v2_x(sp)) ++ " <= Z0 < Z1 <= " ++ S.f_show(V.v2_y(sp)) ++ ", Z measured along " ++ dir_s(tg_ax(tg))
+
 def th_why(+code: U64, +th: M.Thr, +inner: Bool) -> String:
   match code:
     case 1u64: "unknown-thread " ++ th_d(th)
@@ -310,9 +337,11 @@ def th_err1(+th: M.Thr, +cs: List<&2, M.CE>) -> String:
   +b = M.nr_body(r)
   +code = th_code(th, b)
   +tg = tg_named(b, th_face(th))
+  +six = U64.is_eq(code, 6u64)
   Bool.pick(String, Bool.not(KM.nd_known(cs, n)), KM.err_line("thread", "unknown-node " ++ U64.show(n), "bind threads to evaluated design nodes"),
     Bool.pick(String, U64.is_eq(code, 0u64), "",
-      KM.err_line("thread", th_why(code, th, tg_inner(tg)), "write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class")))
+      KM.err_line("thread", th_why(code, th, tg_inner(tg)) ++ Bool.pick(String, six, span_s(th, tg, b), ""),
+        Bool.pick(String, six, span_fix(th, tg), "write (thread NODE NAME FACE DESIGNATION CLASS Z0 Z1) on a cylindrical face sized to the class"))))
 
 def ths_err(ts: List<&2, M.Thr>, +cs: List<&2, M.CE>) -> String:
   match ts:
