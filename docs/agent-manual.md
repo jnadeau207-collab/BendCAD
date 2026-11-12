@@ -1,6 +1,6 @@
 # BendCAD agent manual
 
-What a piloting agent needs to drive the kernel CLI, written from the brief-ladder baseline of 2026-11-11 and updated for packet P2 (binary `/home/jesse/bc/bendcad-p2`, E2E `tests/briefs/repro/run.py`) (`tests/briefs/`, binary `/home/jesse/bc/bendcad-a15`). Every example is an edit that committed in a brief (`Bn` is the brief in `tests/briefs/briefs.py`) or a query whose output is stored in `docs/receipts/briefs/Bn.json`. Refusals are quoted verbatim. Nothing here is claimed that was not run; section 8 lists what was not exercised. The older language reference is `tools/mcp/language.md`; the CLI does not serve it.
+What a piloting agent needs to drive the kernel CLI, written from the brief-ladder baseline of 2026-11-11 and updated for packet P2 (binary `/home/jesse/bc/bendcad-p2`, E2E `tests/briefs/repro/run.py`) and packet P3 (binary `/home/jesse/bc/bendcad-p3`, E2E `tests/briefs/mesh.py`) (`tests/briefs/`, binary `/home/jesse/bc/bendcad-a15`). Every example is an edit that committed in a brief (`Bn` is the brief in `tests/briefs/briefs.py`) or a query whose output is stored in `docs/receipts/briefs/Bn.json`. Refusals are quoted verbatim. Nothing here is claimed that was not run; section 8 lists what was not exercised. The older language reference is `tools/mcp/language.md`; the CLI does not serve it.
 
 ## 1. Invocation
 
@@ -93,8 +93,8 @@ Refused, with the fix and what happened:
 | machine | `machine NODE D FL HD HL AXES NS` | ball-end mill reach only; every drilled hole reports `concave-radius=2.75 below-tool-radius` (B1), so every mill brief reads `not-machinable` |
 | balance | `balance NODE PX PY PZ DX DY DZ RPM G` | B14 at 3000 rpm, G6.3: `within status=certified` |
 | step | `step NODE FILE` | AP242; OCCT read every exported part back as one solid within the certified volume (receipts `step`); a part with cavities is refused `step-cavities-not-in-profile` |
-| tess | `tess NODE OUT.obj [PRESET CHORD ANGLE MAXTRIS PROFILE]` | default preset is the display preset; every mesh that was written is conforming by `tools/mesh/check.py`; B11 refused `tess-mesh-not-closed` |
-| stl | `stl NODE OUT.stl 3` | the manufacturing preset: 25-168 s per part |
+| tess | `tess NODE OUT.obj [PRESET CHORD ANGLE MAXTRIS PROFILE]` | default preset 1 (chord 1, angle 0.2). Since P3 every plane, cylinder, cone, sphere and torus face is meshed directly from its sampled boundary (planes, cylinders, cones) or a parameter grid stitched to it (spheres, tori, and cylinders or cones whose boundary alone gives triangles over the chord), and each triangle carries a deviation bound computed from its parameter extent; the line ends `faces direct=N grid=N refined=N freeform=N chord-bound=certified` and `chord` is the largest bound. A face whose bound would exceed the preset chord is refined by the older sampled refiner and named, e.g. `refined=1 f2(bound inf)`; freeform patches always take that refiner. Every brief part meshes conforming in 0.01-0.13 s beyond its evaluation (one core); the 100-hole plate at preset 2 in 3.1 s; B11 (torus rim, spokes, D-bore) in 0.13 s, 4,572 triangles. An open mesh is refused as `tess-mesh-not-closed: open edges on faces f..` naming the face indices of `faces NODE` (`docs/receipts/briefs/mesh.json`) |
+| stl | `stl NODE OUT.stl 3` | the manufacturing preset (chord 0.05, angle 0.01): 0.3-4.7 s per brief part since P3 (was 14-102 s); B11 64 s, 249,580 triangles (was refused); the revolved O-ring of B8 still crashes with `bend: memory fault` after 100 s, as on p2 (lathe path, not changed by P3) |
 | pmi fits | `pmi fits (pmi (node N) (temp NAME T)... (fit NAME HN HFACE SN SFACE CLASS KIND))` | at 20 C the envelope comes from the tabulated deviations, so H7/h5 prints `clearance=[0, 0.030000000000000002]` and `verdict=clearance-certified`; zero minimum clearance is a clearance fit and zero maximum clearance an interference fit (ISO 286-1). B13 before P2: `why: fit-not-clearance: seat` on a rounding error |
 | asm | `asm solve\|interf\|clear\|mass\|gap\|mesh ... (assembly ...)` | B6 `asm mesh p 20 w 40 (assembly ...)`: `gap=[0.0471, 0.0472] ... verdict=clearance status=certified` in 1.4 s; B13 `asm solve` `dof 0`; B13 `asm interf` (44-71 s) found the real bearing-on-k5 interference and printed `declared press-fit inner status=declared` once declared; `asm clear` on four parts gave no answer in 600 s (non-coaxial curved pairs, P4); `asm clear` reports a declared press pair as `declared press-fit NAME status=declared` (with its press witness) instead of measuring it; B7 `asm gap` |
 
@@ -125,8 +125,9 @@ Assembly form (B13): `(assembly (inst NAME NODE TX TY TZ Q)... (fix ID INST) (co
 - `fit_hh_zero_clearance`: fixed in P2.
 - `asm_press_breaks_solve`: fixed in P2 (section 4).
 - `modelled_thread_reason82`: a 10 mm internal M3 helix differenced from the standoff refuses with k1 reason 82 after about 200 s.
-- `tess_curved_boolean_not_closed`: the handwheel cannot be meshed.
-- `wall_stepped_revolve`, `clearance_oring_slow`, `asm_clear_slow`, `interf_gears_slow`, `tess_display_slow`: queries far over budget.
+- `tess_curved_boolean_not_closed`: fixed in P3. The cause was the ear clipper's point grid, which also indexed the padding entries of its power-of-two table: every face whose parameter domain contains (0, 0) saw phantom points there, so ears were blocked and the face was left partly open (the D-flat and the bore of the handwheel).
+- `tess_display_slow`: fixed in P3 (enclosure body 143 s on one core to 1.0 s with evaluation, 39,410 to 1,664 triangles).
+- `wall_stepped_revolve`, `clearance_oring_slow`, `asm_clear_slow`, `interf_gears_slow`: queries far over budget.
 - `dist_inside_hole`, `thread_span_frame`: fixed in P2 (`faces -f` hole size; the span message).
 
 ## 8. Not exercised in this baseline

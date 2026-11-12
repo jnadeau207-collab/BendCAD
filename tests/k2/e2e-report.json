@@ -61,22 +61,22 @@
  {
   "name": "fit.iso286",
   "ok": true,
-  "out": "fits 2\nfit run hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 clearance=[0.006999999999994343, 0.041000000000011035]\n  temp hot T=80 clearance=[0.02128482999998482, 0.05532328400001774]\n  verdict=clearance-certified status=certified\nfit press hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 4.n4.c0.wall.0.0 p6=[20.022, 20.035] nominal=20\n  temp cold T=20 interference=[0.0009999999999905638, 0.035000000000007254]\n  temp hot T=80 interference=[0.0010014039999788336, 0.03504914000001592]\n  verdict=press-certified status=certified\n\n"
+  "out": "fits 2\nfit run hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.98, 19.993] nominal=20\n  temp cold T=20 clearance=[0.006999999999999999, 0.04100000000000001]\n  temp hot T=80 clearance=[0.02128482999999998, 0.055323284000000035]\n  verdict=clearance-certified status=certified\nfit press hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 4.n4.c0.wall.0.0 p6=[20.022, 20.035] nominal=20\n  temp cold T=20 interference=[0.0009999999999999998, 0.03500000000000001]\n  temp hot T=80 interference=[0.0010014039999999775, 0.035049140000000034]\n  verdict=press-certified status=certified\n\n"
  },
  {
   "name": "fit.declared_kind_refused",
   "ok": true,
-  "out": "ll.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp cold T=20 interference=[-0.041000000000011035, -0.006999999999994343]\nerror invalid-input | pmi fits | why: fit-not-press: bad | fix: choose classes whose envelope gives the declared kind at every state\n\n"
+  "out": "ole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.98, 19.993] nominal=20\n  temp cold T=20 interference=[-0.04100000000000001, -0.006999999999999999]\nerror invalid-input | pmi fits | why: fit-not-press: bad | fix: choose classes whose envelope gives the declared kind at every state\n\n"
  },
  {
   "name": "fit.transition",
   "ok": true,
-  "out": "fits 1\nfit dowel hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 k6=[20.002, 20.015] nominal=20\n  temp cold T=20 clearance=[-0.015000000000007676, 0.019000000000009013]\n  temp hot T=80 clearance=[-0.0007303500000190867, 0.03330810400001739]\n  verdict=transition-certified status=certified\n\n"
+  "out": "fits 1\nfit dowel hole 2.n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 k6=[20.002, 20.015] nominal=20\n  temp cold T=20 clearance=[-0.015000000000000001, 0.019000000000000003]\n  temp hot T=80 clearance=[-0.0007303500000000203, 0.033308104000000026]\n  verdict=transition-certified status=certified\n\n"
  },
  {
   "name": "fit.transition_refused",
   "ok": true,
-  "out": "0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.979999999999997, 19.993] nominal=20\n  temp nominal T=20 clearance=[0.006999999999994343, 0.041000000000011035]\nerror invalid-input | pmi fits | why: fit-not-transition: loose | fix: choose classes whose envelope gives the declared kind at every state\n\n"
+  "out": ".n2.c0.wall.0.0 H7=[20, 20.021] shaft 3.n3.c0.wall.0.0 g6=[19.98, 19.993] nominal=20\n  temp nominal T=20 clearance=[0.006999999999999999, 0.04100000000000001]\nerror invalid-input | pmi fits | why: fit-not-transition: loose | fix: choose classes whose envelope gives the declared kind at every state\n\n"
  },
  {
   "name": "fit.unknown_class",
@@ -105,8 +105,8 @@
    0.09349622487848899,
    0.09359613204786021
   ],
-  "oracle": 0.09359613199288969,
-  "seconds": 0.2122819423675537,
+  "oracle": 0.09359613199289163,
+  "seconds": 0.2663431167602539,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {

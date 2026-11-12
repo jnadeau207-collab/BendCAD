@@ -120,6 +120,7 @@ Progress:
 | Packet | Kernel | Result |
 |---|---|---|
 | P2 | `p2` | Six of seven reproducers pass (`docs/receipts/briefs/repro.json`; all seven fail on `a15`). Cell faces resolve to their named face and a cut that would seal a void is refused; `asm gap` uses the exact span of an arc face; fits are computed from the tabulated deviations; one assembly grammar for every verb; `thread-span-outside-face` prints the admissible span; `faces -f` prints certified cylinder, cone, sphere and torus parameters. B7 6/1/5 to 7/0/5, B13 3/1/5 to 4/0/5. Identity 16/16, fuzz gate unchanged, laws and 163 mutants hold, K2 E2E 34/34, K2 refusals 20/20. |
+| P3 | `p3` | Analytic faces meshed directly from their boundary samples (planes, cylinders, cones) or a parameter grid stitched to them (spheres, tori, and ruled faces whose boundary alone overshoots the chord), each triangle with a certified deviation bound (`docs/receipts/briefs/mesh.json`, failing p2 run in `mesh-p2.json`). Every brief part meshes conforming within 0.13 s beyond evaluation on one core (enclosure 143 s to 1.0 s, 39,410 to 1,664 triangles); 100-hole plate 589 s to 3.1 s; 25/100/400 holes scale with slope 1.06; B11 meshes (cause of the old refusal: phantom padding points in the ear clipper's grid). Edit budget now met by B5, B6, B7, B9; B11 misses it on evaluation (three 5 s re-evaluations), B12 on the refused countersink edit. Identity 16/16, fuzz gate 0 regressions, C06 E2E 66/66 (64/66 on p2), K2 E2E 34/34, K2 refusals 20/20. |
 
 Carried forward:
 
