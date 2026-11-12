@@ -80,7 +80,7 @@ def unm_s(+ts: List<&2, TS.Tri>) -> String:
   Nat.show(List.length(&2, U64, u)) ++ kshow(12n, u)
 
 def tg_s(+r: TS.TGO) -> String:
-  TS.TGO{+ts, +ps, +ok} = r
+  TS.TGO{+ts, +ps, +ok, st} = r
   " ok=" ++ Bool.pick(String, ok, "y", "n") ++ " tris=" ++ Nat.show(List.length(&2, TS.Tri, ts)) ++ " new=" ++ Nat.show(List.length(&2, V.Point, ps)) ++ " closed=" ++ Bool.pick(String, TS.closed(ts), "y", "n") ++ " unm=" ++ unm_s(ts)
 
 def fs_s(fs: List<&2, Ty.Face>, +x: TS.Ctx, +tb: B.Tb<&2, V.Point>, +i: Nat, +gb: Nat) -> String:

@@ -318,16 +318,16 @@ def s_has(a: String, +b: String) -> Bool:
     case SNil{}: False{}
     case SCon{+h, +t}: Bool.or(s_pre(SCon{h, t}, b), s_has(t, b))
 
-def press_bad(+nm: String, +x: String, +y: String) -> String:
-  "error invalid-input | asm interf | why: declared-press-not-interfering " ++ nm ++ " between " ++ x ++ " and " ++ y ++
+def press_bad(+v: String, +nm: String, +x: String, +y: String) -> String:
+  "error invalid-input | " ++ v ++ " | why: declared-press-not-interfering " ++ nm ++ " between " ++ x ++ " and " ++ y ++
     " | fix: name the hole and shaft faces (press NAME A AFACE B BFACE) and check the fit classes and the placements
 "
 
-def wit_s(+w: F64, +nm: String, +x: String, +y: String) -> String:
+def wit_s(+v: String, +w: F64, +nm: String, +x: String, +y: String) -> String:
   Bool.pick(String, F64.is_lt(0.0f64, w), "relation interference status=certified witness=press radial=" ++ S.f_show(w) ++
     "
 declared press-fit " ++ nm ++ " status=declared
-", press_bad(nm, x, y))
+", press_bad(v, nm, x, y))
 
 def press_wit_of(+d: PD, +x: A4.IN, +y: A4.IN) -> F64:
   PD{+n, +a, +fa, +b, +fb} = d
@@ -340,8 +340,8 @@ def press_wit_of(+d: PD, +x: A4.IN, +y: A4.IN) -> F64:
 
 def press_unc(+faces: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
   match faces:
-    case False{}: press_bad(pd_name(d), A4.in_name(x), A4.in_name(y))
-    case True{}: wit_s(press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
+    case False{}: press_bad("asm interf", pd_name(d), A4.in_name(x), A4.in_name(y))
+    case True{}: wit_s("asm interf", press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
 
 def pd_faces(+d: PD) -> Bool:
   PD{+n, +a, +fa, +b, +fb} = d
@@ -360,7 +360,7 @@ def press_go(+code: U64, +d: PD, +rel: String, +x: A4.IN, +y: A4.IN) -> String:
     case 1u64: rel ++ "
 " ++ press_cert(pd_faces(d), d, x, y)
     case 2u64: rel ++ "
-" ++ press_bad(pd_name(d), A4.in_name(x), A4.in_name(y))
+" ++ press_bad("asm interf", pd_name(d), A4.in_name(x), A4.in_name(y))
     case _: press_unc(pd_faces(d), d, x, y)
 
 def snap9(+x: F64) -> F64:
@@ -408,7 +408,7 @@ type PX is Data:
 
 def press_decl(faces: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
   match faces:
-    case True{}: wit_s(press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
+    case True{}: wit_s("asm clear", press_wit_of(d, x, y), pd_name(d), A4.in_name(x), A4.in_name(y))
     case False{}: "declared press-fit " ++ pd_name(d) ++ " status=declared\n"
 
 def clear_pair(pr: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:

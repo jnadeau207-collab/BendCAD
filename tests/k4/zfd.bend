@@ -130,7 +130,7 @@ def ms_s(+mf: List<&2, U64>, +mb: List<&2, U64>, +tb: B.Tb<&2, V.Point>, +nb: Na
   " missF=" ++ Nat.show(List.length(&2, U64, mf)) ++ " missB=" ++ Nat.show(List.length(&2, U64, mb)) ++ " F:" ++ f ++ " B:" ++ g
 
 def fd_t(+r: TS.TGO, +rs: List<&2, List<&2, TS.TP>>, +tb: B.Tb<&2, V.Point>, +nb: Nat) -> String:
-  TS.TGO{+ts, +ps, +ok} = r
+  TS.TGO{+ts, +ps, +ok, st} = r
   +es = TS.dir_es(ts, [], [])
   +sg = segs(rs, [])
   +h = " tris=" ++ Nat.show(List.length(&2, TS.Tri, ts)) ++ " segs=" ++ Nat.show(List.length(&2, U64, sg))

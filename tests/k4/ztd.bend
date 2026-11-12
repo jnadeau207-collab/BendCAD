@@ -65,7 +65,7 @@ def tps_s(rs: List<&2, List<&2, TS.TP>>) -> String:
     case +r <> t: "\n  pts" ++ tp_s(r) ++ tps_s(t)
 
 def tg_s(+r: TS.TGO) -> String:
-  TS.TGO{+ts, +ps, +ok} = r
+  TS.TGO{+ts, +ps, +ok, st} = r
   " ok=" ++ Bool.pick(String, ok, "y", "n") ++ " tris=" ++ Nat.show(List.length(&2, TS.Tri, ts)) ++ " new=" ++ Nat.show(List.length(&2, V.Point, ps))
 
 def face_s(f: Ty.Face, +x: TS.Ctx, +tol: TS.TL) -> String:

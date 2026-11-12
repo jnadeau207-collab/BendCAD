@@ -613,18 +613,19 @@ def tess_write_ok(+t: M10.Tres, +out: String, +q: M10.Q) -> IO(String):
     IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(M10.tres_nv(t)) ++ " ntris " ++ Nat.show(M10.tres_nt(t)) ++
       " est " ++ Nat.show(M10.tres_est(t)) ++ " chord " ++ S.f_show(M10.tres_chord(t)) ++
       " ang " ++ S.f_show(M10.tres_ang(t)) ++ " nsamp " ++ Nat.show(M10.tres_nsamp(t)) ++
-      " profile " ++ prof_s(M10.q_prof(q)) ++ " (sampled, not certified)")
+      " profile " ++ prof_s(M10.q_prof(q)) ++ " (sampled, not certified)" ++
+      Bool.pick(String, String.eq(M10.tres_why(t), ""), "", " " ++ M10.tres_why(t)))
 
 def tess_fix(open: Bool, +t: M10.Tres, +q: M10.Q) -> String:
   match open:
-    case True{}: " | fix: export STEP; faces trimmed on a curved surface (a cylinder with cut-outs, a torus, cone or sphere face after a boolean) are not tessellated yet"
+    case True{}: " | fix: export STEP for exchange; the listed faces (indices as in faces NODE) left open edges in the mesh, a tessellator defect to report with the design"
     case False{}: " | est " ++ Nat.show(M10.tres_est(t)) ++ " max " ++ Nat.show(M10.q_max(q)) ++ " | fix: coarsen quality (preset 0, larger chord/angle) or raise max-tris"
 
 def tess_write_go(+ok: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match ok:
     case True{}: tess_write_ok(t, out, q)
     case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | tess @ node " ++ U64.show(id) ++
-      tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
+      tess_fix(String.starts_with(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
 
 def tess_write(+t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   tess_write_go(M10.tres_ok_of(t), t, out, id, q)
@@ -819,7 +820,7 @@ def sc_open(show: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO
 
 def sc_tw(ok: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO(String):
   match ok:
-    case False{}: sc_open(Bool.and(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), Bool.not(String.eq(M10.tres_obj(t), ""))), t, out, sp)
+    case False{}: sc_open(Bool.and(String.starts_with(M10.tres_why(t), "tess-mesh-not-closed"), Bool.not(String.eq(M10.tres_obj(t), ""))), t, out, sp)
     case True{}:
       do IO<String>:
         w : Unit <- write_file(out, M10.tres_obj(t))
@@ -976,7 +977,7 @@ def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(String):
 def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match w:
     case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | stl @ node " ++ U64.show(id) ++
-      tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
+      tess_fix(String.starts_with(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
     case True{}:
       +r = MO.mo_stl(M10.tres_obj(t))
       stl_write_go(MO.mo_r_ok(r), r, out)
@@ -1014,7 +1015,7 @@ def mf3_write_go(+w: Bool, +r: MO.MO_B, +out: String) -> IO(String):
 def mf3_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match w:
     case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | 3mf @ node " ++ U64.show(id) ++
-      tess_fix(String.eq(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
+      tess_fix(String.starts_with(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
     case True{}:
       +r = MO.mo_threemf(M10.tres_obj(t))
       mf3_write_go(MO.mo_b_ok(r), r, out)

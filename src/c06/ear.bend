@@ -211,16 +211,29 @@ def in_tri(+a: QP, +b: QP, +c: QP, +q: QP) -> Bool:
 def ang_in(+v: QP, +w1: QP, +w2: QP, +n: QP) -> Bool:
   Bool.and(sgp(ori(v, w1, n)), sgp(ori(v, n, w2)))
 
+def bl_co(co: Bool, +p: Pg, +a: QP, +b: QP, +c: QP, +q: QP, +j: Nat) -> Bool:
+  match co:
+    case False{}: in_tri(a, b, c, q)
+    case True{}:
+      +pn = pt(p, prv(p, j))
+      +nn = pt(p, nxt(p, j))
+      Bool.or(Bool.and(same(q, a), Bool.or(ang_in(a, b, c, pn), ang_in(a, b, c, nn))),
+        Bool.or(Bool.and(same(q, b), Bool.or(ang_in(b, c, a, pn), ang_in(b, c, a, nn))),
+          Bool.and(same(q, c), Bool.or(ang_in(c, a, b, pn), ang_in(c, a, b, nn)))))
+
+def bl_go(skip: Bool, +p: Pg, +a: QP, +b: QP, +c: QP, +q: QP, +j: Nat) -> Bool:
+  match skip:
+    case True{}: False{}
+    case False{}: bl_co(Bool.or(same(q, a), Bool.or(same(q, b), same(q, c))), p, a, b, c, q, j)
+
+def in_bb(+a: QP, +b: QP, +c: QP, +q: QP) -> Bool:
+  Bool.and(Bool.and(F64.is_le(F64.min(qx(a), F64.min(qx(b), qx(c))), qx(q)), F64.is_le(qx(q), F64.max(qx(a), F64.max(qx(b), qx(c))))),
+    Bool.and(F64.is_le(F64.min(qy(a), F64.min(qy(b), qy(c))), qy(q)), F64.is_le(qy(q), F64.max(qy(a), F64.max(qy(b), qy(c))))))
+
 def blocks(+p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP, +j: Nat) -> Bool:
   +q = pt(p, j)
   +self = Bool.or(Nat.is_eq(j, ia), Bool.or(Nat.is_eq(j, ib), Nat.is_eq(j, ic)))
-  +co = Bool.or(same(q, a), Bool.or(same(q, b), same(q, c)))
-  +pn = pt(p, prv(p, j))
-  +nn = pt(p, nxt(p, j))
-  +dupb = Bool.or(Bool.and(same(q, a), Bool.or(ang_in(a, b, c, pn), ang_in(a, b, c, nn))),
-    Bool.or(Bool.and(same(q, b), Bool.or(ang_in(b, c, a, pn), ang_in(b, c, a, nn))),
-      Bool.and(same(q, c), Bool.or(ang_in(c, a, b, pn), ang_in(c, a, b, nn)))))
-  Bool.and(Bool.not(self), Bool.and(Bool.not(gone(p, j)), Bool.pick(Bool, co, dupb, in_tri(a, b, c, q))))
+  bl_go(Bool.or(Bool.or(self, gone(p, j)), Bool.not(in_bb(a, b, c, q))), p, a, b, c, q, j)
 
 def any_block_zz(js: List<&2, Nat>, zz: Bool, +p: Pg, +ia: Nat, +ib: Nat, +ic: Nat, +a: QP, +b: QP, +c: QP) -> Bool:
   match js:
@@ -543,6 +556,14 @@ def g_ny(+g: Gr) -> Nat:
   Gr{x0, y0, cs, nx, ny, cells} = g
   ny
 
+def q_take(xs: List<&2, QP>, +n: Nat) -> List<&2, QP>:
+  match xs:
+    case []: []
+    case +x <> t:
+      match n:
+        case 0n: []
+        case 1n+(+m): x <> q_take(t, m)
+
 def tri_poly(+o: List<&2, QP>, +hs: List<&2, List<&2, QP>>) -> List<&2, Tri>:
   +rs = {o <> hs : List<&2, List<&2, QP>>}
   +all = cat_q(rs)
@@ -561,5 +582,172 @@ def tri_poly(+o: List<&2, QP>, +hs: List<&2, List<&2, QP>>) -> List<&2, Tri>:
   +ok = Bool.not(Nat.is_eq(List.length(&2, Pg, bs), 0n))
   +p = pg_hd(bs, p0)
   +r = Nat.add(n, Nat.mul(2n, nh))
-  Bool.pick(List<&2, Tri>, ok, clip(Nat.add(Nat.mul(8n, r), 64n), False{}, p, gr_fill(gr_frame(all), B.tb_list(QP, pg_pts(p))), n_seq(r, 0n), r, [], 0n, True{}), [])
+  Bool.pick(List<&2, Tri>, ok, clip(Nat.add(Nat.mul(8n, r), 64n), False{}, p, gr_fill(gr_frame(all), q_take(B.tb_list(QP, pg_pts(p)), r)), n_seq(r, 0n), r, [], 0n, True{}), [])
 
+
+type Wq is Data:
+  Wq{ a: F64, ka: F64, b: F64, c: F64 }
+
+type PQ is Data:
+  PL{ k: F64, s: F64, i: Nat }
+  PN{ k: F64, s: F64, i: Nat, l: PQ, r: PQ }
+
+type KS is Data:
+  KS{ k: F64, s: F64 }
+
+type CQ is Data:
+  CQ{ ts: List<&2, Tri>, ok: Bool }
+
+def pq_k(t: PQ) -> F64:
+  match t:
+    case PL{+k, s, i}: k
+    case PN{+k, s, i, l, r}: k
+
+def pq_s(t: PQ) -> F64:
+  match t:
+    case PL{k, +s, i}: s
+    case PN{k, +s, i, l, r}: s
+
+def pq_i(t: PQ) -> Nat:
+  match t:
+    case PL{k, s, +i}: i
+    case PN{k, s, +i, l, r}: i
+
+def pq_lt(+a: PQ, +b: PQ) -> Bool:
+  Bool.or(F64.is_lt(pq_k(a), pq_k(b)), Bool.and(F64.is_eq(pq_k(a), pq_k(b)),
+    Bool.or(F64.is_lt(pq_s(a), pq_s(b)), Bool.and(F64.is_eq(pq_s(a), pq_s(b)), Nat.is_le(pq_i(a), pq_i(b))))))
+
+def pq_join(+a: PQ, +b: PQ) -> PQ:
+  +m = Bool.pick(PQ, pq_lt(a, b), a, b)
+  PN{pq_k(m), pq_s(m), pq_i(m), a, b}
+
+def pq_pairs(xs: List<&2, PQ>) -> List<&2, PQ>:
+  match xs:
+    case []: []
+    case +a <> t:
+      match t:
+        case []: [a]
+        case +b <> u: pq_join(a, b) <> pq_pairs(u)
+
+def pq_lift(d: Nat, +xs: List<&2, PQ>) -> PQ:
+  match d:
+    case 0n:
+      match xs:
+        case []: PL{inf(), inf(), 0n}
+        case +h <> t: h
+    case 1n+e: pq_lift(e, pq_pairs(xs))
+
+def pq_set(t: PQ, +n: U32, +j: U32, +k: F64, +s: F64, z: Bool) -> PQ:
+  match t z:
+    case PL{a, b, +i} _: PL{k, s, i}
+    case PN{a, b, c, l, +r} True{}:
+      +h = U32.shr(n)
+      pq_join(pq_set(l, h, j, k, s, U32.is_lt(j, U32.shr(h))), r)
+    case PN{a, b, c, +l, r} False{}:
+      +h = U32.shr(n)
+      +m = U32.sub(j, h)
+      pq_join(l, pq_set(r, h, m, k, s, U32.is_lt(m, U32.shr(h))))
+
+def pq_put(+t: PQ, +n: U32, +j: Nat, +x: KS) -> PQ:
+  KS{+k, +s} = x
+  pq_set(t, n, u(j), k, s, U32.is_lt(u(j), U32.shr(n)))
+
+def wq_key(+w: Wq, +a: QP, +b: QP, +c: QP) -> KS:
+  Wq{+wa, +wk, +wb, +wc} = w
+  +du = F64.sub(F64.max(qx(a), F64.max(qx(b), qx(c))), F64.min(qx(a), F64.min(qx(b), qx(c))))
+  +dv = F64.sub(F64.max(qy(a), F64.max(qy(b), qy(c))), F64.min(qy(a), F64.min(qy(b), qy(c))))
+  +ym = F64.max(F64.abs(qy(a)), F64.max(F64.abs(qy(b)), F64.abs(qy(c))))
+  +l2 = F64.max(d2(a, b), F64.max(d2(b, c), d2(c, a)))
+  +cr = F64.abs(F64.sub(F64.mul(F64.sub(qx(b), qx(a)), F64.sub(qy(c), qy(a))), F64.mul(F64.sub(qy(b), qy(a)), F64.sub(qx(c), qx(a)))))
+  +k = F64.add(F64.add(F64.mul(F64.add(wa, F64.mul(wk, ym)), F64.mul(du, du)), F64.mul(wb, F64.mul(du, dv))), F64.mul(wc, F64.mul(dv, dv)))
+  KS{Bool.pick(F64, F64.is_lt(F64.mul(1.0e-9f64, l2), cr), k, 1.0e300f64), l2}
+
+def ek_go(e: Bool, +p: Pg, +w: Wq, +b: Nat) -> KS:
+  match e:
+    case False{}: KS{inf(), inf()}
+    case True{}: wq_key(w, pt(p, prv(p, b)), pt(p, b), pt(p, nxt(p, b)))
+
+def ear_key(+p: Pg, +g: Gr, +w: Wq, +b: Nat) -> KS:
+  ek_go(Bool.and(Bool.not(gone(p, b)), sgp(ori(pt(p, prv(p, b)), pt(p, b), pt(p, nxt(p, b))))), p, w, b)
+
+def root_ok(+p: Pg, +g: Gr, +t: PQ) -> Bool:
+  ear_if(gone(p, pq_i(t)), p, g, pq_i(t))
+
+def pq_all(xs: List<&2, Nat>, +p: Pg, +g: Gr, +w: Wq, +t: PQ, +n: U32) -> PQ:
+  match xs:
+    case []: t
+    case +b <> r: pq_all(r, p, g, w, pq_put(t, n, b, ear_key(p, g, w, b)), n)
+
+def pq_leaves(n: Nat, +i: Nat) -> List<&2, PQ>:
+  match n:
+    case 0n: []
+    case 1n+m: PL{inf(), inf(), i} <> pq_leaves(m, Nat.add(i, 1n))
+
+def clip_cut(+p: Pg, +g: Gr, +w: Wq, +t: PQ, +n: U32, +b: Nat) -> PQ:
+  +a = prv(p, b)
+  +c = nxt(p, b)
+  +p2 = unlink(p, b)
+  pq_put(pq_put(pq_put(t, n, b, KS{inf(), inf()}), n, a, ear_key(p2, g, w, a)), n, c, ear_key(p2, g, w, c))
+
+def clip_q(f: Nat, last: Bool, has: Bool, vb: Bool, fresh: Bool, +p: Pg, +g: Gr, +w: Wq, +t: PQ, +n: U32, +r: Nat, +acc: List<&2, Tri>, +alive: Nat) -> CQ:
+  match f:
+    case 0n: CQ{acc, False{}}
+    case 1n+(+m):
+      match last:
+        case True{}: CQ{tri_of(p, alive) <> acc, True{}}
+        case False{}:
+          match has:
+            case True{}:
+              match vb:
+                case True{}:
+                  +b = pq_i(t)
+                  +p2 = unlink(p, b)
+                  +t2 = clip_cut(p, g, w, t, n, b)
+                  +r2 = Nat.sub(r, 1n)
+                  clip_q(m, Nat.is_le(r2, 3n), F64.is_lt(pq_k(t2), inf()), root_ok(p2, g, t2), False{}, p2, g, w, t2, n, r2, tri_of(p, b) <> acc, prv(p, b))
+                case False{}:
+                  +t2 = pq_put(t, n, pq_i(t), KS{inf(), inf()})
+                  clip_q(m, False{}, F64.is_lt(pq_k(t2), inf()), root_ok(p, g, t2), fresh, p, g, w, t2, n, r, acc, alive)
+            case False{}:
+              match fresh:
+                case True{}: CQ{acc, False{}}
+                case False{}:
+                  +t2 = pq_all(walk(r, p, alive), p, g, w, t, n)
+                  clip_q(m, False{}, F64.is_lt(pq_k(t2), inf()), root_ok(p, g, t2), True{}, p, g, w, t2, n, r, acc, alive)
+
+def dm_d(+x: B.Dm) -> Nat:
+  B.Dm{+d, k} = x
+  d
+
+def dm_k(+x: B.Dm) -> U32:
+  B.Dm{d, +k} = x
+  k
+
+def tri_poly_q_go(ok: Bool, small: Bool, +p: Pg, +g: Gr, +w: Wq, +t: PQ, +k: U32, +tot: Nat) -> CQ:
+  match ok:
+    case False{}: CQ{[], False{}}
+    case True{}:
+      match small:
+        case True{}: CQ{[], False{}}
+        case False{}: clip_q(Nat.add(Nat.mul(16n, tot), 64n), Nat.is_le(tot, 3n), F64.is_lt(pq_k(t), inf()), root_ok(p, g, t), False{}, p, g, w, t, k, tot, [], 0n)
+
+def tri_poly_q(+o: List<&2, QP>, +hs: List<&2, List<&2, QP>>, +w: Wq) -> CQ:
+  +rs = {o <> hs : List<&2, List<&2, QP>>}
+  +all = cat_q(rs)
+  +n = List.length(&2, QP, all)
+  +nh = List.length(&2, List<&2, QP>, hs)
+  +tot = Nat.add(n, Nat.mul(2n, nh))
+  +pad = {QP{0n, 0.0f64, 0.0f64} : QP}
+  +no = List.length(&2, QP, o)
+  +p0 = mk_pg(B.tb_of(QP, List.append(&2, QP, all, rep_q(Nat.mul(2n, nh), pad)), pad),
+    B.tb_of(Nat, List.append(&2, Nat, rings_nx(rs, 0n), rep_n(Nat.mul(2n, nh), 0n)), 0n),
+    B.tb_of(Nat, List.append(&2, Nat, rings_pv(rs, 0n), rep_n(Nat.mul(2n, nh), 0n)), 0n),
+    B.tb_of(Bool, rep_b(tot, False{}), False{}), B.tb_of(Bool, rep_b(tot, False{}), False{}),
+    B.tb_of(Bool, List.append(&2, Bool, rep_b(no, True{}), rep_b(Nat.sub(tot, no), False{})), False{}))
+  +g = gr_fill(gr_frame(all), all)
+  +bs = bridge_all(so_hb(B.msort(~HB, ~hb_cmp, hbs(hs, no))), p0, g, B.tb_of(List<&2, Nat>, rep_l(Nat.mul(g_nx(g), g_ny(g))), []), long_edges(n, p0, g, 0n), n, True{})
+  +p = pg_hd(bs, p0)
+  +g2 = gr_fill(gr_frame(all), q_take(B.tb_list(QP, pg_pts(p)), tot))
+  +k = dm_k(B.dims(u(tot)))
+  +t0 = pq_all(n_seq(tot, 0n), p, g2, w, pq_lift(dm_d(B.dims(u(tot))), pq_leaves(U32.to_nat(k), 0n)), k)
+  tri_poly_q_go(Bool.not(Nat.is_eq(List.length(&2, Pg, bs), 0n)), Nat.is_lt(tot, 3n), p, g2, w, t0, k, tot)
