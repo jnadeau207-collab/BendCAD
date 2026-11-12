@@ -127,6 +127,11 @@ Carried forward:
 - The countersink edit (rank 7) is one K1 difference that fails its edge-use check for some sizes and not their neighbours (`tests/corpus/k1/countersink-74-6-difference.json`). It belongs with the curved-boolean robustness work.
 - An external thread callout on a bare cylinder of the root diameter is accepted and labelled `root-core`. P5 makes that binding come only from the thread feature, and makes the diameter-mismatch refusal print the admissible windows.
 - The c14 `asm clear` and `asm interf` paths are unreachable now that K2 answers both verbs; they are removed with their laws moved, not left as a second evaluator.
+- A face cut from a sphere by a boolean never takes the direct mesher: every triangle bound comes back as the sphere radius, so the face goes to the old refiner and is named in the output. Measured on `p3`: a 6 mm spherical dimple in a plate gives 2,294 triangles against an estimate of 222 at the default preset and 16,934 to 37,882 against 726 at preset 2, in 1.9 to 3.6 s. The meshes are conforming. No brief has such a face, so the ladder did not show it.
+- A torus face at the manufacturing preset overshoots the chord on its first grid and goes to the old refiner (B11 writes 249,580 triangles in 64 s). The cause named by P3 is fans in the strip between the grid and the boundary.
+- The manufacturing STL of the B8 O-ring crashes (`bend: memory fault`) on `p2` and `p3` alike, in the revolve mesher that P3 did not touch. A crash is a defect whatever the preset.
+- The per-triangle bound is evaluated in plain floating point with a fixed pad. It becomes an outward-rounded bound so that `chord-bound=certified` is literal.
+- B11 misses the edit budget on evaluation, not on meshing: the handwheel takes about 5 s to evaluate and apply, check and tess each evaluate it again.
 
 ## Oversight
 

@@ -106,7 +106,7 @@
    "instead": "brief left failing: semantic M3 6H callout only", "repro": "tests/briefs/repro/modelled_thread_reason82"},
   {"brief": "B11", "type": "defect", "what": "tess and stl refuse tess-mesh-not-closed on the handwheel (torus rim, rotated cylinder spokes, D-bore) after 68-78 s; the fix says export STEP, which works and OCCT agrees, but there is no mesh to view. A single spoke unioned into the torus or into the hub tessellates (19 s)",
    "repro": "tests/briefs/repro/tess_curved_boolean_not_closed",
-   "fixed_by": "a409da0", "p3_note": "the ear clipper indexed the padding of its point table as points at (0, 0); the handwheel now meshes conforming in 0.13 s beyond evaluation (4,572 triangles) and its manufacturing STL writes (docs/receipts/briefs/mesh.json)"},
+   "fixed_by": "696aaa9", "p3_note": "the ear clipper indexed the padding of its point table as points at (0, 0); the handwheel now meshes conforming in 0.13 s beyond evaluation (4,572 triangles) and its manufacturing STL writes (docs/receipts/briefs/mesh.json)"},
   {"brief": "B12", "type": "refusal", "edit": "(node 1250 (countersink 1208 (face 1208 n1201.c0.top) (circle 6 6 2.75) 90 10.4) (intent remove any any 1 any))", "why": "unknown-op",
    "fix": "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet", "fix_worked": "yes: chamfer on the hole edge", "instead": "(chamfer BASE (face N n1201.c0.top) (circle X Y R) CS)"},
   {"brief": "B12", "type": "defect", "edit": "(param CS 2.6) on the committed countersunk cap",
@@ -127,7 +127,7 @@
   {"brief": "ALL", "type": "defect", "what": "dist from a point inside a hole returns lo = 0 (face-box lower bound), so dist cannot certify a hole size", "repro": "tests/briefs/repro/dist_inside_hole",
    "fixed_by": "710eb0a", "p2_note": "item 6: faces NODE -f prints radius and diameter intervals of every cylinder face"},
   {"brief": "ALL", "type": "defect", "what": "display tessellation dominates the edit budget: 10 s for the 7-hole plate (B2), 9.5 s for the housing (B3), 20 s for the collar (B5; 46 s after the OD edit), 45 s for the enclosure body (B7), 68 s then refused for the handwheel (B11)", "repro": "tests/briefs/repro/tess_display_slow",
-   "fixed_by": "a409da0", "p3_note": "analytic faces meshed directly from their boundary samples; every brief part meshes in 0.13 s or less beyond evaluation on one core, the enclosure body in 1.0 s with evaluation (was 143 s), 1,664 triangles (was 39,410)"},
+   "fixed_by": "696aaa9", "p3_note": "analytic faces meshed directly from their boundary samples; every brief part meshes in 0.13 s or less beyond evaluation on one core, the enclosure body in 1.0 s with evaluation (was 143 s), 1,664 triangles (was 39,410)"},
   {"brief": "B5", "type": "defect", "what": "thread-span-outside-face gives no admissible span; the span is the world projection of the face's edge start points on the canonicalised axis, not the tool cylinder's local 0..H", "repro": "tests/briefs/repro/thread_span_frame",
    "fixed_by": "2afe9b0", "p2_note": "item 5: the refusal prints admissible=[lo, hi] along=(axis) frame=world and a fix with the bounds"}
  ]
