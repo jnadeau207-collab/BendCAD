@@ -26,6 +26,10 @@
     "gap",
     "lid",
     "body",
+    "n702.c0.wall.0.0",
+    "n702.c0.wall.1.0",
+    "n702.c0.wall.3.0",
+    "n702.c0.wall.7.0",
     "(assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))"
    ],
    "must": [
