@@ -1,0 +1,28 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p2",
+ "sha256": "b36e8f1ccaf48d5dea2a00fd405ffd0e4fd8e7780bdba0ebf257717a03018221",
+ "passed": 0,
+ "total": 1,
+ "cases": [
+  {
+   "case": "countersink_edit_refused",
+   "item": 7,
+   "claim": "the countersink edit (param CS 2.6) commits like 2.45 to 2.7",
+   "verdict": "fail",
+   "seconds": 0.448,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (param CS 2.6)",
+     "seconds": 0.448,
+     "limit_s": 60,
+     "verdict": "fail",
+     "missing": [
+      "^committed"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[55999.99999994736, 56000.00000005264] area=[11639.999999990465, 11640.000000009535] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[55334.76775554964, 55334.76775565507] area=[12028.772090872118, 12028.772090891356] bbox=[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 50.000000000000156]x[-1.421085471520201e-13, 14.000000000000146] vertices=12 edges=16 faces=8 solids=1 genus=2 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[55257.96000395704, 55257.960004067565] area=[12011.252489316405, 12011.25248934043] bbox=[-1.4210854715202011e-13, 80.00000000000018]x[-1.4210854715202011e-13, 50.00000000000016]x[-1.4210854715202011e-13, 14.000000000000147] vertices=19 edges=25 faces=10 solids=1 genus=2 linear_uncertainty=1.7430501486614978e-13 | proof: k1-crossing-certified V19 E25 F10 S1\nnode 4: error unsupported-op | intersect @ node 4 | why: boundaries-cross-or-overlap: face-penetration 9 11 between nodes 0 and 0 [k1 reason 42] | fix: move the operands apart or nest one inside the other; general intersecting boolean"
+    }
+   ]
+  }
+ ]
+}
