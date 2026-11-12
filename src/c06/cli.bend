@@ -260,12 +260,42 @@ def wdir_s(+d: V.Dir, +pl: M.Pl) -> String:
   +v = M.m3_ap(m, V.dr_x(d), V.dr_y(d), V.dr_z(d))
   v3_s(M.f_nth(v, 0n), M.f_nth(v, 1n), M.f_nth(v, 2n))
 
+def wpt_s(+p: V.Point, +pl: M.Pl) -> String:
+  +o = TS.pl_pt(p, pl)
+  v3_s(V.pt_x(o), V.pt_y(o), V.pt_z(o))
+
+def pv_s(+x: F64) -> String:
+  "[" ++ S.f_show(x) ++ ", " ++ S.f_show(x) ++ "]"
+
+def sense_s(+same: Bool) -> String:
+  Bool.pick(String, same, " convex", " concave")
+
+def geo_s(s: G.GVal, +same: Bool, +pl: M.Pl) -> String:
+  match s:
+    case G.GV_cy{w}:
+      G.Cy{+o, +a, +r} = w
+      " axis o=" ++ wpt_s(o, pl) ++ " d=" ++ wdir_s(a, pl) ++ " radius=" ++ pv_s(r) ++ " diameter=" ++ pv_s(F64.mul(2.0f64, r)) ++ sense_s(same)
+    case G.GV_co{w}:
+      G.Co{+o, +a, +k} = w
+      " apex=" ++ wpt_s(o, pl) ++ " axis=" ++ wdir_s(a, pl) ++ " tan-half-angle=" ++ pv_s(F64.abs(k)) ++ sense_s(same)
+    case G.GV_sp{w}:
+      G.Sp{+c, +r} = w
+      " center=" ++ wpt_s(c, pl) ++ " radius=" ++ pv_s(r) ++ " diameter=" ++ pv_s(F64.mul(2.0f64, r)) ++ sense_s(same)
+    case G.GV_to{w}:
+      G.To{+o, +a, +rr, +r} = w
+      " center=" ++ wpt_s(o, pl) ++ " axis=" ++ wdir_s(a, pl) ++ " major-radius=" ++ pv_s(rr) ++ " minor-radius=" ++ pv_s(r) ++ sense_s(same)
+    case _: ""
+
+def face_geo(f: Ty.Face, +pl: M.Pl) -> String:
+  Ty.Fa{g, s, ls, same, slv, sla} = f
+  geo_s(s, same, pl)
+
 def frame_s(+a: Ty.Face, +pl: M.Pl) -> String:
   +fr = M.frame_of(a)
   +o = TS.pl_pt(M.fr_o(fr), pl)
   Bool.pick(String, M.fa_planar(a),
     " frame o=" ++ v3_s(V.pt_x(o), V.pt_y(o), V.pt_z(o)) ++ " x=" ++ wdir_s(M.fr_u(fr), pl) ++ " y=" ++
-      wdir_s(M.fr_w(fr), pl) ++ " n=" ++ wdir_s(M.fr_n(fr), pl), "")
+      wdir_s(M.fr_w(fr), pl) ++ " n=" ++ wdir_s(M.fr_n(fr), pl), face_geo(a, pl))
 
 def faces_s(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +pl: M.Pl, +v: Bool) -> String:
   match fs:
@@ -1267,7 +1297,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
   match code:
     case 1u64: IO.pure(String, S.part_show(p))
     case 2u64: IO.pure(String, ces_s(M.ev_part(p, old)))
-    case 3u64: IO.pure(String, node_faces_vf(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), String.eq(S.arg_at(rest, 1n), "-f")))
+    case 3u64: IO.pure(String, node_faces_vf(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), Bool.or(String.eq(S.arg_at(rest, 1n), "-f"), String.eq(S.arg_at(rest, 1n), "-v"))))
     case 4u64: IO.pure(String, nr_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 5u64: IO.pure(String, sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
