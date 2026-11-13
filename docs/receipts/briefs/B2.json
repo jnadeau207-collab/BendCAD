@@ -2,7 +2,7 @@
  "id": "B2",
  "sentence": "NEMA 17 motor mount plate: 31 mm bolt square, 22 mm pilot, M3 clearance, two adjustment slots",
  "process": "mill",
- "binary": "/home/jesse/bc/bendcad-p3",
+ "binary": "/home/jesse/bc/bendcad-p3t",
  "parts": [
   4
  ],
@@ -11,42 +11,42 @@
   {
    "edit": "(param S 31)",
    "status": "committed",
-   "s": 0.004,
+   "s": 0.002,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(param P 22.1)",
    "status": "committed",
-   "s": 0.003,
+   "s": 0.007,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(param M 3.4)",
    "status": "committed",
-   "s": 0.004,
+   "s": 0.005,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(node 1 (box 60 80 6) (intent create 6 0 1 0))",
    "status": "committed",
-   "s": 0.009,
+   "s": 0.01,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 2 (holes 1 (face 1 0 top) through (hole 30 30 (/ P 2))) (intent remove any any 1 1))",
    "status": "committed",
-   "s": 0.012,
+   "s": 0.024,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 3 (holes 2 (face 1 0 top) through (hole (- 30 (/ S 2)) (- 30 (/ S 2)) (/ M 2)) (hole (+ 30 (/ S 2)) (- 30 (/ S 2)) (/ M 2)) (hole (- 30 (/ S 2)) (+ 30 (/ S 2)) (/ M 2)) (hole (+ 30 (/ S 2)) (+ 30 (/ S 2)) (/ M 2))) (intent remove any any 1 5))",
    "status": "committed",
-   "s": 0.028,
+   "s": 0.029,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
@@ -60,28 +60,28 @@
   {
    "edit": "(node 90 (cylinder 10.95 4) (intent create any 0 1 0))",
    "status": "committed",
-   "s": 0.035,
+   "s": 0.045,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 91 (move 90 30 30 1 0) (intent same any any 1 0))",
    "status": "committed",
-   "s": 0.04,
+   "s": 0.058,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   }
  ],
  "built": true,
- "build_incremental_s": 0.171,
+ "build_incremental_s": 0.216,
  "build_oneshot": {
-  "s": 0.039,
+  "s": 0.065,
   "timeout": false,
   "committed": true
  },
  "probes": [],
  "eval": {
-  "s": 0.054,
+  "s": 0.055,
   "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\n"
  },
  "certified_volume": {
@@ -94,7 +94,7 @@
   {
    "node": 4,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 0.137,
+   "s": 0.167,
    "timeout": false
   }
  ],
@@ -102,15 +102,15 @@
   {
    "node": 4,
    "out": "mass volume=[25467.42169828922, 25467.421698358892] certified octree=[13387.500000301781, 27618.750000631313] depth=4 cells=1904/168/2024\ncentroid [14.541751527490566, 63.88392857144452]x[19.92362525457615, 86.06092436977156]x[1.4541751527445785, 6.388392857149156] status=certified incomplete-cells=2024\ninertia-centroid [-177013096.61777133, 87464108.59891436] [-98109092.34911838, 49098641.88565144] [-273170334.06733996, 135591486.96175718] [-31814048.863908004, 135337431.55294627] [-2367696.7643238334, 10066768.638392027] [-3181404.886394659, 13533743.155311054] status=certified\nmoments volume=[25467.42158164292, 25467.42181500521] centroid [29.999999586002204, 30.0000004139978]x[40.127264322985845, 40.12726480230693]x[2.9999999926390752, 3.0000000073609248] inertia-centroid [14457948.350223688, 14457948.693659646] [8328322.450703915, 8328323.1083220625] [22633466.27175766, 22633467.270771764] [-0.25427577843046495, 0.25427578085530916] [-0.01988816245888754, 0.019888162459718306] [-0.01287200284437502, 0.012872002858112899] status=certified method=divergence\n\n",
-   "s": 3.573,
+   "s": 2.806,
    "timeout": false
   }
  ],
  "step": [
   {
    "node": 4,
-   "s": 0.045,
-   "out": "wrote /var/tmp/briefs-p3/B2/n4.stp entities 656 products 1\n",
+   "s": 0.083,
+   "out": "wrote /var/tmp/briefs/B2/n4.stp entities 656 products 1\n",
    "timeout": false,
    "occt_volume": 25467.421646808594,
    "occt_solids": 1,
@@ -125,10 +125,10 @@
  "tess": [
   {
    "node": 4,
-   "s": 0.066,
-   "out": "wrote /var/tmp/briefs-p3/B2/n4.obj nverts 576 ntris 1176 est 1792 chord 0.053208775594102045 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified\n",
+   "s": 0.185,
+   "out": "wrote /var/tmp/briefs/B2/n4.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
    "timeout": false,
-   "judge_s": 0.0,
+   "judge_s": 0.01,
    "triangles": 1176,
    "vertices": 576,
    "zero_area": 0,
@@ -146,10 +146,10 @@
   {
    "node": 4,
    "preset": 3,
-   "s": 3.081,
+   "s": 4.144,
    "ok": true,
    "timeout": false,
-   "out": "wrote /var/tmp/briefs-p3/B2/n4.stl nverts 10844 ntris 21712 (sampled, not certified)\n"
+   "out": "wrote /var/tmp/briefs/B2/n4.stl nverts 10844 ntris 21712 (sampled, not certified)\n"
   }
  ],
  "checks": [
@@ -158,7 +158,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 4",
-   "s": 0.076,
+   "s": 0.104,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -167,7 +167,7 @@
    "verdict": "pass",
    "detail": "clearance [0.09999999966998627, 0.10000000000003212] within [0.0999, 0.1001]",
    "cmd": "clearance 91 4",
-   "s": 1.286,
+   "s": 2.218,
    "info": false,
    "out": "clearance [0.09999999966998627, 0.10000000000003212] certified lo=branch-and-bound hi=witness samples=7x127\n"
   },
@@ -176,7 +176,7 @@
    "verdict": "pass",
    "detail": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13",
    "cmd": "measure 4",
-   "s": 0.033,
+   "s": 0.11,
    "info": false,
    "out": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\n"
   },
@@ -185,7 +185,7 @@
    "verdict": "pass",
    "detail": "min-wall [5.999999999999988, 6.0] >= 3.0",
    "cmd": "wall 4",
-   "s": 1.052,
+   "s": 1.523,
    "info": false,
    "out": "min-wall [5.999999999999988, 6] certified lo=branch-and-bound hi=sampled antipodal=30deg faces=19 pairs=125\n"
   },
@@ -218,7 +218,7 @@
    "verdict": "fail",
    "detail": "verdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified",
    "cmd": "machine 4 6 20 10 40 3 3",
-   "s": 8.941,
+   "s": 10.025,
    "info": true,
    "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=6/6\nface 1 reach=0/6 blocked=(50,40,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nface 6 reach=6/6\nface 7 reach=0/6 concave-radius=1.7 below-tool-radius blocked=(15.35,15.972243186433547,5)\nface 8 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.35,15.972243186433547,5)\nface 9 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(15.35,46.972243186433545,5)\nface 10 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.35,46.972243186433545,5)\nface 11 reach=0/9 blocked=(14.75,69.66666666666667,5)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(9.618430139592792,72.375,5.000000000000001)\nface 13 reach=0/9 blocked=(9.25,69.66666666666667,5)\nface 14 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(14.381569860407208,61.625,5.000000000000001)\nface 15 reach=0/9 blocked=(50.75,69.66666666666667,5)\nface 16 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(45.618430139592796,72.375,5.000000000000001)\nface 17 reach=0/9 blocked=(45.25,69.66666666666667,5)\nface 18 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(50.381569860407204,61.625,5.000000000000001)\nverdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified\n\n"
   },
@@ -244,27 +244,27 @@
   "apply": {
    "edit": "(param S 31.5)",
    "status": "committed",
-   "s": 0.036,
+   "s": 0.045,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   },
   "check": {
-   "s": 0.1,
+   "s": 0.146,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
   "tess": {
-   "s": 0.068,
-   "out": "wrote /var/tmp/briefs-p3/B2/edit.obj nverts 576 ntris 1176 est 1792 chord 0.053208775594102045 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified\n",
+   "s": 0.111,
+   "out": "wrote /var/tmp/briefs/B2/edit.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
    "timeout": false
   },
-  "visible_rechecked_s": 0.204,
+  "visible_rechecked_s": 0.302,
   "checks": [
    {
     "req": "valid solid",
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 4",
-    "s": 0.072,
+    "s": 0.145,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -273,7 +273,7 @@
     "verdict": "pass",
     "detail": "clearance [0.09999999966998627, 0.10000000000003212] within [0.0999, 0.1001]",
     "cmd": "clearance 91 4",
-    "s": 1.128,
+    "s": 1.871,
     "info": false,
     "out": "clearance [0.09999999966998627, 0.10000000000003212] certified lo=branch-and-bound hi=witness samples=7x127\n"
    },
@@ -282,7 +282,7 @@
     "verdict": "pass",
     "detail": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13",
     "cmd": "measure 4",
-    "s": 0.034,
+    "s": 0.046,
     "info": false,
     "out": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\n"
    },
@@ -291,7 +291,7 @@
     "verdict": "pass",
     "detail": "min-wall [5.999999999999988, 6.0] >= 3.0",
     "cmd": "wall 4",
-    "s": 1.172,
+    "s": 1.35,
     "info": false,
     "out": "min-wall [5.999999999999988, 6] certified lo=branch-and-bound hi=sampled antipodal=30deg faces=19 pairs=125\n"
    },
@@ -324,7 +324,7 @@
     "verdict": "fail",
     "detail": "verdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified",
     "cmd": "machine 4 6 20 10 40 3 3",
-    "s": 9.34,
+    "s": 12.577,
     "info": true,
     "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=6/6\nface 1 reach=0/6 blocked=(50,40,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nface 6 reach=6/6\nface 7 reach=0/6 concave-radius=1.7 below-tool-radius blocked=(15.1,15.722243186433547,5)\nface 8 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.6,15.722243186433547,5)\nface 9 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(15.1,47.222243186433545,5)\nface 10 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.6,47.222243186433545,5)\nface 11 reach=0/9 blocked=(14.75,69.66666666666667,5)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(9.618430139592792,72.375,5.000000000000001)\nface 13 reach=0/9 blocked=(9.25,69.66666666666667,5)\nface 14 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(14.381569860407208,61.625,5.000000000000001)\nface 15 reach=0/9 blocked=(50.75,69.66666666666667,5)\nface 16 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(45.618430139592796,72.375,5.000000000000001)\nface 17 reach=0/9 blocked=(45.25,69.66666666666667,5)\nface 18 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(50.381569860407204,61.625,5.000000000000001)\nverdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified\n\n"
    },
@@ -349,7 +349,7 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 0.16,
+   "measured_s": 0.157,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
@@ -361,7 +361,7 @@
   },
   "export": {
    "verdict": "pass",
-   "measured_s": 3.126,
+   "measured_s": 4.227,
    "budget_s": 300.0
   },
   "scene": {
@@ -376,17 +376,17 @@
   "not-analyzed": 5
  },
  "authoring_refusals": 0,
- "wall_s": 33.1,
+ "wall_s": 41.5,
  "pass": false,
  "timed_edit_serial": {
   "label": "bolt square 31 -> 31.5 mm",
   "build_s": 0.032,
   "apply_s": 0.032,
   "apply_status": "committed",
-  "check_s": 0.067,
-  "tess_s": 0.061,
-  "tess_out": "wrote /var/tmp/briefs-p3/B2-retime/edit.obj nverts 576 ntris 1176 est 1792 chord 0.053208775594102045 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified\n",
-  "visible_rechecked_s": 0.16
+  "check_s": 0.063,
+  "tess_s": 0.062,
+  "tess_out": "wrote /var/tmp/briefs/B2-retime/edit.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
+  "visible_rechecked_s": 0.157
  },
  "build_oneshot_serial_s": 0.032
 }
