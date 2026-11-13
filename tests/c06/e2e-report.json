@@ -1,7 +1,7 @@
 {
- "binary_sha256": "c1fb8b1c8b0695552b5dd62d73b723cafb0d2dbc4ee12cd8b2e07199a622f96f",
- "passed": 65,
- "total": 65,
+ "binary_sha256": "8131ab000774c995a80549fbf605cab3f7ca0002a62fd1cad76da10c85d69321",
+ "passed": 66,
+ "total": 66,
  "results": [
   {
    "name": "bracket.build",
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.03790688514709473
+   "seconds": 0.09970784187316895
   },
   {
    "name": "bracket.reopen",
@@ -55,9 +55,9 @@
    "triangles": 1040,
    "watertight": true,
    "euler": -8,
-   "mesh_volume": 96050.52002099357,
-   "rel_err": 0.0005277569185050038,
-   "sha256": "088cb5d379eaff4546d33094cddb1a84f209c04e99c2e71c08ad164d943cd468"
+   "mesh_volume": 96050.52002099366,
+   "rel_err": 0.0005277569185040954,
+   "sha256": "98701850a21033208f26a30439efb4ade0360e0e67196cfe75eeedaed882d5b3"
   },
   {
    "name": "bracket.delete",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.007692098617553711
+   "seconds": 0.09264993667602539
   },
   {
    "name": "primitive.box.mesh",
@@ -86,7 +86,7 @@
    "euler": 2,
    "mesh_volume": 6000.0,
    "rel_err": 0.0,
-   "sha256": "abd1200ad2a4e19a0a3dd29bdc32e6015dced2bdd7985f17fe4fa9d456c0187f"
+   "sha256": "efb29e6ce77ab2a6841241e54ed9c5c5e7529e9718989e5f868bf2f616157a60"
   },
   {
    "name": "primitive.cylinder",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.00392460823059082
+   "seconds": 0.09978532791137695
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -104,9 +104,9 @@
    "triangles": 124,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 936.4335456774164,
-   "rel_err": 0.006413148855793403,
-   "sha256": "6257fcb806c7f9e535ec403c265c64efe9cb0c7c49c358b619a9c0c9bd3102cb"
+   "mesh_volume": 936.4335456774162,
+   "rel_err": 0.006413148855793644,
+   "sha256": "4fa4a4004e36fd24284e89d3e2506553e776c01b81838e69222433ba6e9ddc6b"
   },
   {
    "name": "primitive.cone",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.005316495895385742
+   "seconds": 0.09819316864013672
   },
   {
    "name": "primitive.cone.mesh",
@@ -126,7 +126,7 @@
    "euler": 2,
    "mesh_volume": 2080.9634348387012,
    "rel_err": 0.006413148855794343,
-   "sha256": "f64c30a53794ef1a8ed42172625886efb1601ee25930e80aa816e1f397239243"
+   "sha256": "8ef2d1dbcd5e29796b9ce52367de589b06c231f148eabacef008146ce270d9d7"
   },
   {
    "name": "primitive.sphere",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.0044558048248291016
+   "seconds": 0.08700394630432129
   },
   {
    "name": "primitive.sphere.mesh",
@@ -146,7 +146,7 @@
    "euler": 2,
    "mesh_volume": 4150.353492335909,
    "rel_err": 0.009176089174043901,
-   "sha256": "7452207f0c8513f3a736434ad6088c117b7f4069764ee42f172338daf2052474"
+   "sha256": "7950f892bd443ab24e2e5f7bbb5fe33e008646a0cbf5f2b38b61e5337d45f33b"
   },
   {
    "name": "primitive.torus",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.008809089660644531
+   "seconds": 0.0773019790649414
   },
   {
    "name": "primitive.torus.mesh",
@@ -166,7 +166,7 @@
    "euler": 0,
    "mesh_volume": 58729.68259263877,
    "rel_err": 0.008239840795839826,
-   "sha256": "364bb61e802689c0538ca6725bdd1a64dc15672b69b4ec90462df235136fe9bc"
+   "sha256": "835debcb251f3a53d906b63b05f18a5743fcefef824db38d824c85769d0a6c18"
   },
   {
    "name": "revolve.cavity",
@@ -198,9 +198,9 @@
    "triangles": 272,
    "watertight": true,
    "euler": 0,
-   "mesh_volume": 22901.251306405153,
-   "rel_err": 0.00030976985654761636,
-   "sha256": "5680f476795fd129af585633508bad0099f8bba4e183b74c00ffa44cd0ba2d2f"
+   "mesh_volume": 22901.25130640517,
+   "rel_err": 0.00030976985654841086,
+   "sha256": "ebf8a26d4b8b633204a2f0aab3a9a742010686228976b44085ebac33703d00b6"
   },
   {
    "name": "feature.island",
@@ -217,9 +217,9 @@
    "triangles": 268,
    "watertight": true,
    "euler": 2,
-   "mesh_volume": 9378.554847741947,
-   "rel_err": 0.00215287714949359,
-   "sha256": "50f8c7e27c8f594cecacc46aab651e83206c5b2f3da6e48fd72fef27726796ce"
+   "mesh_volume": 9378.554847741949,
+   "rel_err": 0.002152877149493784,
+   "sha256": "afbd3d2939c2a6dd7bffc3f8ad0801f6260855f2368ae306df9d32e065c059f2"
   },
   {
    "name": "move.rotate_translate",
@@ -347,6 +347,13 @@
    ]
   },
   {
+   "name": "reject.8",
+   "ok": true,
+   "why": [
+    "curves-cross-or-touch "
+   ]
+  },
+  {
    "name": "feature.pad_caps_hole",
    "ok": true,
    "volume": [
@@ -388,9 +395,9 @@
    "exact": [
     -5,
     5,
-    -12.020815280171307,
+    -12.020815280171309,
     3.5355339059327378,
-    -3.5355339059327373,
+    -3.5355339059327378,
     12.020815280171309
    ]
   },
@@ -480,9 +487,9 @@
    "triangles": 144,
    "watertight": true,
    "euler": 0,
-   "mesh_volume": 5625.426581729036,
-   "rel_err": 0.00042996555949529415,
-   "sha256": "39fa9c6c6806786de71697e1054ed32e916db5cc782c8a5ca56f7576ac399733"
+   "mesh_volume": 5625.426581729035,
+   "rel_err": 0.0004299655594951324,
+   "sha256": "80cab2f76dccf3ff58f2b1ea58f14607573d77ef79e23fe742a0a3675a4a219e"
   },
   {
    "name": "rotate.arc_bbox_encloses",
@@ -601,8 +608,8 @@
   {
    "name": "perf.holes100",
    "ok": true,
-   "build_s": 0.049,
-   "tess_s": 1.982,
+   "build_s": 0.123,
+   "tess_s": 0.578,
    "budget": [
     1.0,
     5.0
@@ -614,14 +621,14 @@
    "triangles": 13212,
    "watertight": true,
    "euler": -198,
-   "mesh_volume": 92725.59490374179,
-   "rel_err": 0.0015668737806266411
+   "mesh_volume": 92725.5949037421,
+   "rel_err": 0.001566873780629942
   },
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.41,
-   "tess_s": 11.085,
+   "build_s": 0.263,
+   "tess_s": 2.358,
    "budget": [
     2.0,
     20.0
@@ -633,13 +640,13 @@
    "triangles": 52812,
    "watertight": true,
    "euler": -798,
-   "mesh_volume": 297302.3796149633,
-   "rel_err": 0.0019555266581101085
+   "mesh_volume": 297302.3796149543,
+   "rel_err": 0.0019555266580797027
   },
   {
    "name": "sweep.wall_fillet_over_cap_rotated",
    "ok": true,
-   "seconds": 0.6468334197998047,
+   "seconds": 0.4988853931427002,
    "out": "53246] area=[25675.061988726535, 25675.061988779853] bbox=[-115.40827724624339, -26.619591769786034]x[71.763223807191, 223.41368504936685]x[-1.0000000000003972, 55.00000000000041] vertices=64 edges=120 faces=58 solids=1 genus=0 linear_uncertainty=3.968624274530555e-13 | proof: wall-sweep\n\ncommitted\n",
    "check": "edge-face-uncertain 67 4\nedge-face-uncertain 67 53\nedge-face-uncertain 116 53\nedge-face-uncertain 88 18\nedge-face-uncert",
    "defects": []

@@ -14,6 +14,7 @@ import ./prof.bend as F
 import ./model.bend as M
 import ../c10/mesh.bend as M10
 import ../k1/sf.bend as KS
+import ./iv.bend as IV
 
 
 
@@ -145,7 +146,7 @@ type FW is Data:
   FW{ i: Nat, b: F64, ok: Bool }
 
 type FS is Data:
-  FS{ ch: F64, pd: Nat, pg: Nat, pr: Nat, rl: List<&2, FW> }
+  FS{ ch: F64, cs: F64, pd: Nat, pg: Nat, pr: Nat, rl: List<&2, FW> }
 
 type TGO is Data:
   TGO{ ts: List<&2, Tri>, ps: List<&2, V.Point>, ok: Bool, st: FS }
@@ -218,6 +219,7 @@ type CM4 is Data:
 type GS is Data:
   GS{ sf: KS.SF, ur: F64, vr: F64, pu: Bool, pv: Bool }
   GS_st{ sf: KS.SF, c: V.Dir, e1: V.Dir, e2: V.Dir }
+  GS_eq{ sf: KS.SF, c: V.Dir, e1: V.Dir, e2: V.Dir }
 
 
 
@@ -1075,12 +1077,12 @@ def use_gen(f: Ty.Face, +x: Ctx) -> Bool:
   Bool.or(U64.is_le(k, 6u64), Bool.not(Nat.is_eq(List.length(&2, Ty.HLoop, ls), 0n)))
 
 def fs0() -> FS:
-  FS{0.0f64, 0n, 0n, 0n, []}
+  FS{0.0f64, 1.0f64, 0n, 0n, 0n, []}
 
 def fs_add(+a: FS, +b: FS) -> FS:
-  FS{+ca, +da, +ga, +ra, +la} = a
-  FS{+cb, +db, +gb, +rb, +lb} = b
-  FS{F64.max(ca, cb), Nat.add(da, db), Nat.add(ga, gb), Nat.add(ra, rb), List.append(&2, FW, la, lb)}
+  FS{+ca, +na, +da, +ga, +ra, +la} = a
+  FS{+cb, +nb, +db, +gb, +rb, +lb} = b
+  FS{F64.max(ca, cb), F64.min(na, nb), Nat.add(da, db), Nat.add(ga, gb), Nat.add(ra, rb), List.append(&2, FW, la, lb)}
 
 def fw_at(xs: List<&2, FW>, +i: Nat) -> List<&2, FW>:
   match xs:
@@ -1090,8 +1092,8 @@ def fw_at(xs: List<&2, FW>, +i: Nat) -> List<&2, FW>:
       FW{i, b, ok} <> fw_at(t, i)
 
 def fs_at(+s: FS, +i: Nat) -> FS:
-  FS{+c, +d, +g, +r, l} = s
-  FS{c, d, g, r, fw_at(l, i)}
+  FS{+c, +n, +d, +g, +r, l} = s
+  FS{c, n, d, g, r, fw_at(l, i)}
 
 def tg_at(+t: TGO, +i: Nat) -> TGO:
   TGO{+ts, +ps, +ok, +st} = t
@@ -1143,11 +1145,13 @@ def gs_pu(+g: GS) -> Bool:
   match g:
     case GS{sf, ur, vr, +pu, pv}: pu
     case GS_st{sf, c, e1, e2}: False{}
+    case GS_eq{sf, c, e1, e2}: False{}
 
 def gs_pv(+g: GS) -> Bool:
   match g:
     case GS{sf, ur, vr, pu, +pv}: pv
     case GS_st{sf, c, e1, e2}: False{}
+    case GS_eq{sf, c, e1, e2}: False{}
 
 def gs_of(+sf: KS.SF, +rs: List<&2, List<&2, TP>>) -> GS:
   gs_mk(sf, cm_rings(rs, sf, CM4{0.0f64, 0.0f64, 0.0f64, 0.0f64}))
@@ -1156,6 +1160,7 @@ def gs_sf(+g: GS) -> KS.SF:
   match g:
     case GS{+sf, ur, vr, pu, pv}: sf
     case GS_st{+sf, c, e1, e2}: sf
+    case GS_eq{+sf, c, e1, e2}: sf
 
 def st_uv(+sf: KS.SF, +c: V.Dir, +e1: V.Dir, +e2: V.Dir, +p: V.Point) -> V.Vec2:
   +d = KS.dscale(F64.div(1.0f64, KS.sf_r(sf)), KS.psub(p, KS.sf_o(sf)))
@@ -1167,12 +1172,27 @@ def st_at(+sf: KS.SF, +c: V.Dir, +e1: V.Dir, +e2: V.Dir, +x: F64, +y: F64) -> V.
   +r = F64.div(KS.sf_r(sf), F64.add(1.0f64, q))
   KS.padd(KS.padd(KS.padd(KS.sf_o(sf), F64.mul(r, F64.sub(1.0f64, q)), c), F64.mul(r, F64.mul(2.0f64, x)), e1), F64.mul(r, F64.mul(2.0f64, y)), e2)
 
+def eq_uv(+sf: KS.SF, +c: V.Dir, +e1: V.Dir, +e2: V.Dir, +p: V.Point) -> V.Vec2:
+  +d = KS.dscale(F64.div(1.0f64, KS.sf_r(sf)), KS.psub(p, KS.sf_o(sf)))
+  +x = KS.dot(d, e1)
+  +y = KS.dot(d, e2)
+  +s = F64.sqrt(F64.add(F64.mul(x, x), F64.mul(y, y)))
+  +k = Bool.pick(F64, F64.is_lt(s, 1.0e-12f64), 1.0f64, F64.div(KS.fatan2(s, KS.dot(d, c)), s))
+  V.V2{F64.mul(k, x), F64.mul(k, y)}
+
+def eq_at(+sf: KS.SF, +c: V.Dir, +e1: V.Dir, +e2: V.Dir, +x: F64, +y: F64) -> V.Point:
+  +t = F64.sqrt(F64.add(F64.mul(x, x), F64.mul(y, y)))
+  +k = Bool.pick(F64, F64.is_lt(t, 1.0e-12f64), 1.0f64, F64.div(KS.fsin(t), t))
+  +r = KS.sf_r(sf)
+  KS.padd(KS.padd(KS.padd(KS.sf_o(sf), F64.mul(r, KS.fcos(t)), c), F64.mul(r, F64.mul(k, x)), e1), F64.mul(r, F64.mul(k, y)), e2)
+
 def g_uvw(+g: GS, +p: V.Point) -> V.Vec2:
   match g:
     case GS{+sf, +ur, +vr, +pu, +pv}:
       +w = KS.sf_uv(sf, p)
       V.V2{Bool.pick(F64, pu, KS.ang_diff(ur, V.v2_x(w)), V.v2_x(w)), Bool.pick(F64, pv, KS.ang_diff(vr, V.v2_y(w)), V.v2_y(w))}
     case GS_st{+sf, +c, +e1, +e2}: st_uv(sf, c, e1, e2, p)
+    case GS_eq{+sf, +c, +e1, +e2}: eq_uv(sf, c, e1, e2, p)
 
 def g_uv(+g: GS, +p: V.Point) -> V.Vec2:
   g_uvw(g, p)
@@ -1250,6 +1270,7 @@ def g_at(+g: GS, +u: F64, +v: F64) -> V.Point:
   match g:
     case GS{+sf, +ur, +vr, +pu, +pv}: KS.sf_at(sf, Bool.pick(F64, pu, F64.add(u, ur), u), Bool.pick(F64, pv, F64.add(v, vr), v))
     case GS_st{+sf, +c, +e1, +e2}: st_at(sf, c, e1, e2, u, v)
+    case GS_eq{+sf, +c, +e1, +e2}: eq_at(sf, c, e1, e2, u, v)
 
 def p_mid(+a: V.Point, +b: V.Point) -> V.Point:
   V.Pt{F64.mul(0.5f64, F64.add(V.pt_x(a), V.pt_x(b))), F64.mul(0.5f64, F64.add(V.pt_y(a), V.pt_y(b))), F64.mul(0.5f64, F64.add(V.pt_z(a), V.pt_z(b)))}
@@ -1514,7 +1535,37 @@ def fl_ok(+vt: B.Tb<&2, VX>, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
   Bool.and(Bool.and(uv_fat(vt, s, a, d, c), uv_fat(vt, s, d, b, c)),
     F64.is_lt(F64.add(opq(vt, a, b, c), opq(vt, a, b, d)), F64.neg(1.0e-9f64)))
 
-def fl_go(n: Nat, es: List<&2, ER2>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +used: B.Tb<&2, Bool>, +acc: List<&2, FL>) -> List<&2, FL>:
+def ct_cn(+sf: KS.SF, +nf: V.Dir, +ln: F64, +p: V.Point) -> F64:
+  +g = KS.sf_grad(sf, p)
+  +lg = KS.dlen(g)
+  Bool.pick(F64, F64.is_lt(lg, 1.0e-12f64), 1.0f64, F64.div(F64.abs(KS.dot(nf, g)), F64.max(F64.mul(ln, lg), 1.0e-300f64)))
+
+def ct_cs(+k: U64, +sf: KS.SF, +a: VX, +b: VX, +c: VX) -> F64:
+  +nf = KS.cross(KS.psub(vx_p(b), vx_p(a)), KS.psub(vx_p(c), vx_p(a)))
+  +ln = KS.dlen(nf)
+  Bool.pick(F64, U64.is_eq(k, 1u64), 1.0f64, F64.min(ct_cn(sf, nf, ln, vx_p(a)), F64.min(ct_cn(sf, nf, ln, vx_p(b)), ct_cn(sf, nf, ln, vx_p(c)))))
+
+type FM is Data:
+  FM_cot{}
+  FM_nrm{ k: U64, sf: KS.SF }
+
+def fn_ok(+vt: B.Tb<&2, VX>, +k: U64, +sf: KS.SF, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
+  +o = uvo(vt, a, b, c)
+  +s = Bool.pick(F64, F64.is_lt(0.0f64, o), 1.0f64, F64.neg(1.0f64))
+  +va = B.tb_get(VX, vt, U32.from_nat(a))
+  +vb = B.tb_get(VX, vt, U32.from_nat(b))
+  +vc = B.tb_get(VX, vt, U32.from_nat(c))
+  +vd = B.tb_get(VX, vt, U32.from_nat(d))
+  +q0 = F64.min(ct_cs(k, sf, va, vb, vc), ct_cs(k, sf, va, vb, vd))
+  +q1 = F64.min(ct_cs(k, sf, va, vd, vc), ct_cs(k, sf, vd, vb, vc))
+  Bool.and(Bool.and(uv_fat(vt, s, a, d, c), uv_fat(vt, s, d, b, c)), F64.is_lt(F64.add(q0, 1.0e-9f64), q1))
+
+def fl_pick(md: FM, +vt: B.Tb<&2, VX>, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
+  match md:
+    case FM_cot{}: fl_ok(vt, a, b, c, d)
+    case FM_nrm{+k, +sf}: fn_ok(vt, k, sf, a, b, c, d)
+
+def fl_go(n: Nat, +md: FM, es: List<&2, ER2>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +used: B.Tb<&2, Bool>, +acc: List<&2, FL>) -> List<&2, FL>:
   match n:
     case 0n: acc
     case 1n+(+m):
@@ -1531,8 +1582,8 @@ def fl_go(n: Nat, es: List<&2, ER2>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +use
               +b = er_b(e)
               +c = opp(B.tb_get(Tri, tt, U32.from_nat(te)), a)
               +d = opp(B.tb_get(Tri, tt, U32.from_nat(tf)), b)
-              +ok = Bool.and(Bool.and(pair, Bool.not(Bool.or(B.tb_get(Bool, used, U32.from_nat(te)), B.tb_get(Bool, used, U32.from_nat(tf))))), fl_ok(vt, a, b, c, d))
-              fl_go(m, Bool.pick(List<&2, ER2>, pair, t2, f <> t2), tt, vt,
+              +ok = Bool.and(Bool.and(pair, Bool.not(Bool.or(B.tb_get(Bool, used, U32.from_nat(te)), B.tb_get(Bool, used, U32.from_nat(tf))))), fl_pick(md, vt, a, b, c, d))
+              fl_go(m, md, Bool.pick(List<&2, ER2>, pair, t2, f <> t2), tt, vt,
                 Bool.pick(B.Tb<&2, Bool>, ok, B.tb_set(Bool, B.tb_set(Bool, used, U32.from_nat(te), True{}), U32.from_nat(tf), True{}), used),
                 Bool.pick(List<&2, FL>, ok, FL{te, tf, a, b, c, d} <> acc, acc))
 
@@ -1548,7 +1599,7 @@ def tb_tris(n: Nat, +tt: B.Tb<&2, Tri>, +i: Nat) -> List<&2, Tri>:
     case 0n: []
     case 1n+(+m): B.tb_get(Tri, tt, U32.from_nat(i)) <> tb_tris(m, tt, Nat.add(i, 1n))
 
-def flips(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
+def flips_m(n: Nat, go: Bool, +md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
   match n:
     case 0n: ts
     case 1n+(+m):
@@ -1557,8 +1608,11 @@ def flips(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, T
         case True{}:
           +nt = List.length(&2, Tri, ts)
           +tt = B.tb_of(Tri, ts, Tri{0n, 0n, 0n})
-          +fs = fl_go(Nat.mul(3n, nt), so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n))), tt, vt, B.tb_of(Bool, rep_bl(nt), False{}), [])
-          flips(m, Bool.not(Nat.is_eq(List.length(&2, FL, fs), 0n)), tb_tris(nt, fl_apply(fs, tt), 0n), vt)
+          +fs = fl_go(Nat.mul(3n, nt), md, so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n))), tt, vt, B.tb_of(Bool, rep_bl(nt), False{}), [])
+          flips_m(m, Bool.not(Nat.is_eq(List.length(&2, FL, fs), 0n)), md, tb_tris(nt, fl_apply(fs, tt), 0n), vt)
+
+def flips(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
+  flips_m(n, go, FM_cot{}, ts, vt)
 
 def rf_sub(+ts: List<&2, Tri>, +mk: B.Tb<&2, Bool>, +d: MD, +vt0: B.Tb<&2, VX>) -> RF:
   MD{+md, +vt, +nv} = d
@@ -1743,12 +1797,19 @@ def rs_at(rs: List<&2, List<&2, TP>>, +i: Nat) -> List<&2, TP>:
         case 0n: h
         case 1n+(+j): rs_at(t, j)
 
+def wr_sel(rs: List<&2, List<&2, TP>>, +g: GS, +want: Bool) -> List<&2, List<&2, TP>>:
+  match rs:
+    case []: []
+    case +r <> t:
+      +w = F64.is_lt(KS.pi(), F64.abs(r_wrap(r, g)))
+      +rest = wr_sel(t, g, want)
+      Bool.pick(List<&2, List<&2, TP>>, Bool.xor(w, want), rest, r <> rest)
+
 def band_of(+g: GS, +rs: List<&2, List<&2, TP>>) -> Bool:
-  +pu = gs_pu(g)
-  +a = r_wrap(rs_at(rs, 0n), g)
-  +b = r_wrap(rs_at(rs, 1n), g)
-  Bool.and(Bool.and(pu, Nat.is_eq(List.length(&2, List<&2, TP>, rs), 2n)),
-    Bool.and(Bool.and(F64.is_lt(KS.pi(), F64.abs(a)), F64.is_lt(KS.pi(), F64.abs(b))), F64.is_lt(F64.mul(a, b), 0.0f64)))
+  +ws = wr_sel(rs, g, True{})
+  +a = r_wrap(rs_at(ws, 0n), g)
+  +b = r_wrap(rs_at(ws, 1n), g)
+  Bool.and(Bool.and(gs_pu(g), Nat.is_eq(List.length(&2, List<&2, TP>, ws), 2n)), F64.is_lt(F64.mul(a, b), 0.0f64))
 
 def near_j(r: List<&2, TP>, +g: GS, +u0: F64, +i: Nat, +bi: Nat, +bd: F64) -> Nat:
   match r:
@@ -1782,7 +1843,7 @@ def bd_ring(+rs: List<&2, List<&2, TP>>, +g: GS) -> List<&2, TP>:
   List.append(&2, TP, ra, a0 <> List.append(&2, TP, rb2, [tp0(rb2)]))
 
 type GD is Data:
-  GD{ u0: F64, v0: F64, du: F64, dv: F64, nu: Nat, nv: Nat }
+  GD{ u0: F64, v0: F64, du: F64, dv: F64, nu: Nat, nv: Nat, mg: F64 }
 
 type CR is Data:
   CR{ j: Nat, u: F64 }
@@ -1797,7 +1858,7 @@ type LV is Data:
   LV{ ns: List<&2, Nat>, vis: B.Tb<&2, Bool> }
 
 type DR is Data:
-  DR{ ts: List<&2, Tri>, vs: List<&2, VX>, ok: Bool }
+  DR{ ts: List<&2, Tri>, gt: List<&2, Tri>, vs: List<&2, VX>, ok: Bool }
 
 type HA is Data:
   HA{ h: List<&2, QP>, k: Nat }
@@ -1824,6 +1885,13 @@ def gs_isst(+g: GS) -> Bool:
   match g:
     case GS{sf, ur, vr, pu, pv}: False{}
     case GS_st{sf, c, e1, e2}: True{}
+    case GS_eq{sf, c, e1, e2}: False{}
+
+def gs_iseq(+g: GS) -> Bool:
+  match g:
+    case GS{sf, ur, vr, pu, pv}: False{}
+    case GS_st{sf, c, e1, e2}: False{}
+    case GS_eq{sf, c, e1, e2}: True{}
 
 def dx_wq(+sf: KS.SF) -> EA.Wq:
   +k = KS.sf_kind(sf)
@@ -1843,41 +1911,112 @@ def dx_steps(+sf: KS.SF, +g: GS, +tol: TL) -> V.Vec2:
   +st = F64.min(F64.mul(0.5f64, an), F64.sqrt(F64.div(ch, F64.mul(2.0f64, r))))
   +sa = F64.min(an, F64.sqrt(F64.div(F64.mul(2.0f64, ch), r)))
   Bool.pick(V.Vec2, U64.is_eq(k, 5u64), V.V2{F64.min(an, F64.sqrt(F64.div(F64.mul(2.0f64, ch), F64.add(r, r2)))), F64.min(an, F64.sqrt(F64.div(F64.mul(2.0f64, ch), r2)))},
-    Bool.pick(V.Vec2, U64.is_eq(k, 4u64), Bool.pick(V.Vec2, gs_isst(g), V.V2{st, st}, V.V2{sa, F64.mul(r, sa)}), V.V2{f_inf(), f_inf()}))
+    Bool.pick(V.Vec2, U64.is_eq(k, 4u64), Bool.pick(V.Vec2, gs_isst(g), V.V2{st, st}, Bool.pick(V.Vec2, gs_iseq(g), V.V2{sa, sa}, V.V2{sa, F64.mul(r, sa)})), V.V2{f_inf(), f_inf()}))
 
-def s4(+x: F64) -> F64:
-  +s = KS.fsin(F64.mul(0.25f64, x))
-  F64.mul(2.0f64, F64.mul(s, s))
+type I3 is Data:
+  I3{ x: IV.I, y: IV.I, z: IV.I }
+
+def i3p(+p: V.Point) -> I3:
+  I3{IV.ipt(V.pt_x(p)), IV.ipt(V.pt_y(p)), IV.ipt(V.pt_z(p))}
+
+def i3d(+d: V.Dir) -> I3:
+  I3{IV.ipt(V.dr_x(d)), IV.ipt(V.dr_y(d)), IV.ipt(V.dr_z(d))}
+
+def i3sub(+a: I3, +b: I3) -> I3:
+  I3{+ax, +ay, +az} = a
+  I3{+bx, +by, +bz} = b
+  I3{IV.isub(ax, bx), IV.isub(ay, by), IV.isub(az, bz)}
+
+def i3dot(+a: I3, +b: I3) -> IV.I:
+  I3{+ax, +ay, +az} = a
+  I3{+bx, +by, +bz} = b
+  IV.iadd(IV.iadd(IV.imul(ax, bx), IV.imul(ay, by)), IV.imul(az, bz))
+
+def i3cross(+a: I3, +b: I3) -> I3:
+  I3{+ax, +ay, +az} = a
+  I3{+bx, +by, +bz} = b
+  I3{IV.isub(IV.imul(ay, bz), IV.imul(az, by)), IV.isub(IV.imul(az, bx), IV.imul(ax, bz)), IV.isub(IV.imul(ax, by), IV.imul(ay, bx))}
+
+def iabs_hi(+a: IV.I) -> F64:
+  F64.max(F64.abs(IV.i_lo(a)), F64.abs(IV.i_hi(a)))
+
+def imx(+a: IV.I, +b: IV.I) -> IV.I:
+  IV.I{F64.max(IV.i_lo(a), IV.i_lo(b)), F64.max(IV.i_hi(a), IV.i_hi(b))}
+
+def ct_off(+k: U64, +sf: KS.SF, +p: V.Point) -> F64:
+  +w = i3sub(i3p(p), i3p(KS.sf_o(sf)))
+  +ax = i3d(KS.sf_a(sf))
+  +h = i3dot(w, ax)
+  +ww = i3dot(w, w)
+  +rho = IV.isqrt(IV.isub(ww, IV.isq(h)))
+  +r = IV.ipt(F64.abs(KS.sf_r(sf)))
+  +r2 = IV.ipt(F64.abs(KS.sf_r2(sf)))
+  Bool.pick(F64, U64.is_eq(k, 1u64), iabs_hi(h),
+    Bool.pick(F64, U64.is_eq(k, 2u64), iabs_hi(IV.isub(rho, r)),
+      Bool.pick(F64, U64.is_eq(k, 3u64), iabs_hi(IV.isub(rho, IV.imul(r, IV.ipt(iabs_hi(h))))),
+        Bool.pick(F64, U64.is_eq(k, 4u64), iabs_hi(IV.isub(IV.isqrt(ww), r)),
+          iabs_hi(IV.isub(IV.isqrt(IV.iadd(IV.isq(IV.isub(rho, r)), IV.isq(h))), r2))))))
 
 def ct_sph(+r: F64, +a: V.Point, +b: V.Point, +c: V.Point) -> F64:
-  +la = KS.dist(b, c)
-  +lb = KS.dist(c, a)
-  +lc = KS.dist(a, b)
-  +a2 = KS.dlen(KS.cross(KS.psub(b, a), KS.psub(c, a)))
-  +rho = F64.div(F64.mul(la, F64.mul(lb, lc)), F64.mul(2.0f64, a2))
-  Bool.pick(F64, F64.is_lt(0.0f64, a2), F64.sub(r, F64.sqrt(F64.max(0.0f64, F64.sub(F64.mul(r, r), F64.mul(rho, rho))))), f_inf())
+  +pa = i3p(a)
+  +pb = i3p(b)
+  +pc = i3p(c)
+  +la = i3dot(i3sub(pb, pc), i3sub(pb, pc))
+  +lb = i3dot(i3sub(pc, pa), i3sub(pc, pa))
+  +lc = i3dot(i3sub(pa, pb), i3sub(pa, pb))
+  +cr = i3cross(i3sub(pb, pa), i3sub(pc, pa))
+  +cr2 = i3dot(cr, cr)
+  +lm = imx(la, imx(lb, lc))
+  +obt = F64.is_lt(IV.i_hi(IV.isub(IV.iadd(IV.iadd(la, lb), lc), lm)), IV.i_lo(lm))
+  +m2 = Bool.pick(IV.I, obt, IV.iscale(lm, 0.25f64), IV.idiv(IV.imul(IV.imul(la, lb), lc), IV.iscale(cr2, 4.0f64)))
+  +ir = IV.ipt(r)
+  +x = IV.i_hi(IV.idiv(m2, IV.iadd(ir, IV.isqrt(IV.isub(IV.isq(ir), m2)))))
+  Bool.pick(F64, F64.is_eq(x, x), x, f_inf())
+
+def tl_c2(+tol: TL) -> F64:
+  TL{ch, +ca} = tol
+  F64.min(F64.sub(F64.mul(2.0f64, F64.mul(ca, ca)), 1.0f64), 0.9950041652780258f64)
 
 def ct_tri(+k: U64, +sf: KS.SF, +a: VX, +b: VX, +c: VX) -> F64:
-  +du = F64.sub(F64.max(vx_u(a), F64.max(vx_u(b), vx_u(c))), F64.min(vx_u(a), F64.min(vx_u(b), vx_u(c))))
-  +dv = F64.sub(F64.max(vx_v(a), F64.max(vx_v(b), vx_v(c))), F64.min(vx_v(a), F64.min(vx_v(b), vx_v(c))))
+  +du = IV.isub(IV.ipt(F64.max(vx_u(a), F64.max(vx_u(b), vx_u(c)))), IV.ipt(F64.min(vx_u(a), F64.min(vx_u(b), vx_u(c)))))
+  +dv = IV.isub(IV.ipt(F64.max(vx_v(a), F64.max(vx_v(b), vx_v(c)))), IV.ipt(F64.min(vx_v(a), F64.min(vx_v(b), vx_v(c)))))
   +vm = F64.max(F64.abs(vx_v(a)), F64.max(F64.abs(vx_v(b)), F64.abs(vx_v(c))))
-  +r = F64.abs(KS.sf_r(sf))
-  +r2 = F64.abs(KS.sf_r2(sf))
-  +wide = F64.is_le(KS.pi(), du)
+  +r = IV.ipt(F64.abs(KS.sf_r(sf)))
+  +r2 = IV.ipt(F64.abs(KS.sf_r2(sf)))
+  +wide = F64.is_le(KS.pi(), IV.i_hi(du))
   +flat = F64.is_le(KS.dlen(KS.cross(KS.psub(vx_p(b), vx_p(a)), KS.psub(vx_p(c), vx_p(a)))), 4.0e-12f64)
+  +rul = IV.i_hi(IV.iscale(IV.imul(r, IV.isq(du)), 0.125f64))
+  +con = IV.i_hi(IV.iscale(IV.imul(IV.imul(r, IV.ipt(vm)), IV.isq(du)), 0.125f64))
+  +tor = IV.i_hi(IV.iscale(IV.iadd(IV.iadd(IV.imul(IV.iadd(r, r2), IV.isq(du)), IV.imul(IV.iscale(r2, 2.0f64), IV.imul(du, dv))), IV.imul(r2, IV.isq(dv))), 0.125f64))
+  +off = F64.max(ct_off(k, sf, vx_p(a)), F64.max(ct_off(k, sf, vx_p(b)), ct_off(k, sf, vx_p(c))))
   +x = Bool.pick(F64, flat, f_inf(), Bool.pick(F64, U64.is_eq(k, 1u64), 0.0f64,
-    Bool.pick(F64, U64.is_eq(k, 2u64), Bool.pick(F64, wide, f_inf(), F64.mul(r, s4(du))),
-      Bool.pick(F64, U64.is_eq(k, 3u64), Bool.pick(F64, wide, f_inf(), F64.mul(F64.mul(r, vm), s4(du))),
-        Bool.pick(F64, U64.is_eq(k, 4u64), ct_sph(r, vx_p(a), vx_p(b), vx_p(c)),
-          Bool.pick(F64, U64.is_eq(k, 5u64), F64.mul(0.125f64, F64.add(F64.add(F64.mul(F64.add(r, r2), F64.mul(du, du)), F64.mul(F64.mul(2.0f64, r2), F64.mul(du, dv))), F64.mul(r2, F64.mul(dv, dv)))), f_inf()))))))
-  F64.add(F64.mul(x, 1.0000001f64), 1.0e-12f64)
+    Bool.pick(F64, U64.is_eq(k, 2u64), Bool.pick(F64, wide, f_inf(), rul),
+      Bool.pick(F64, U64.is_eq(k, 3u64), Bool.pick(F64, wide, f_inf(), con),
+        Bool.pick(F64, U64.is_eq(k, 4u64), ct_sph(F64.abs(KS.sf_r(sf)), vx_p(a), vx_p(b), vx_p(c)),
+          Bool.pick(F64, U64.is_eq(k, 5u64), tor, f_inf()))))))
+  IV.up(F64.add(x, off))
 
-def ct_go(ts: List<&2, Tri>, +k: U64, +sf: KS.SF, +vt: B.Tb<&2, VX>, +acc: F64) -> F64:
+type CT is Data:
+  CT{ ch: F64, cs: F64 }
+
+def ct_ch(+x: CT) -> F64:
+  CT{+ch, cs} = x
+  ch
+
+def ct_mc(+x: CT) -> F64:
+  CT{ch, +cs} = x
+  cs
+
+def ct_one(+k: U64, +sf: KS.SF, +a: VX, +b: VX, +c: VX, +acc: CT) -> CT:
+  CT{+ch, +cs} = acc
+  CT{F64.max(ch, ct_tri(k, sf, a, b, c)), F64.min(cs, ct_cs(k, sf, a, b, c))}
+
+def ct_go(ts: List<&2, Tri>, +k: U64, +sf: KS.SF, +vt: B.Tb<&2, VX>, +acc: CT) -> CT:
   match ts:
     case []: acc
     case +t <> r:
       Tri{+a, +b, +c} = t
-      ct_go(r, k, sf, vt, F64.max(acc, ct_tri(k, sf, B.tb_get(VX, vt, U32.from_nat(a)), B.tb_get(VX, vt, U32.from_nat(b)), B.tb_get(VX, vt, U32.from_nat(c)))))
+      ct_go(r, k, sf, vt, ct_one(k, sf, B.tb_get(VX, vt, U32.from_nat(a)), B.tb_get(VX, vt, U32.from_nat(b)), B.tb_get(VX, vt, U32.from_nat(c)), acc))
 
 def cq_ts(+c: EA.CQ) -> List<&2, Tri>:
   EA.CQ{+ts, ok} = c
@@ -1897,38 +2036,38 @@ def qs_bb(rs: List<&2, List<&2, QP>>, +acc: List<&2, F64>) -> List<&2, F64>:
     case []: acc
     case +r <> t: qs_bb(t, q_bb(r, acc))
 
-def gd_of(+bb: List<&2, F64>, +st: V.Vec2) -> GD:
+def gd_of(+bb: List<&2, F64>, +st: V.Vec2, +mg: F64) -> GD:
   +w = F64.sub(EA.f4(bb, 1n), EA.f4(bb, 0n))
   +h = F64.sub(EA.f4(bb, 3n), EA.f4(bb, 2n))
   +nu = Nat.max(1n, f_ceil(F64.div(w, V.v2_x(st))))
   +nv = Nat.max(1n, f_ceil(F64.div(h, V.v2_y(st))))
   +du = F64.div(w, nf(nu))
   +dv = F64.div(h, nf(nv))
-  GD{F64.add(EA.f4(bb, 0n), F64.mul(0.5f64, du)), F64.add(EA.f4(bb, 2n), F64.mul(0.5f64, dv)), du, dv, Nat.max(1n, Nat.sub(nu, 1n)), Nat.max(1n, Nat.sub(nv, 1n))}
+  GD{F64.add(EA.f4(bb, 0n), F64.mul(0.5f64, du)), F64.add(EA.f4(bb, 2n), F64.mul(0.5f64, dv)), du, dv, Nat.max(1n, Nat.sub(nu, 1n)), Nat.max(1n, Nat.sub(nv, 1n)), mg}
 
 def gd_nu(+g: GD) -> Nat:
-  GD{u0, v0, du, dv, +nu, nv} = g
+  GD{u0, v0, du, dv, +nu, nv, mg} = g
   nu
 
 def gd_nv(+g: GD) -> Nat:
-  GD{u0, v0, du, dv, nu, +nv} = g
+  GD{u0, v0, du, dv, nu, +nv, mg} = g
   nv
 
 def gd_ci(+g: GD, +x: F64) -> Nat:
-  GD{+u0, v0, +du, dv, +nu, nv} = g
+  GD{+u0, v0, +du, dv, +nu, nv, mg} = g
   Nat.min(Nat.sub(nu, 1n), f_tr(F64.div(F64.sub(x, u0), du)))
 
 def gd_cj(+g: GD, +y: F64) -> Nat:
-  GD{u0, +v0, du, +dv, nu, +nv} = g
+  GD{u0, +v0, du, +dv, nu, +nv, mg} = g
   Nat.min(Nat.sub(nv, 1n), f_tr(F64.div(F64.sub(y, v0), dv)))
 
 def gd_mu(+g: GD) -> F64:
-  GD{u0, v0, +du, dv, nu, nv} = g
-  F64.mul(0.5f64, du)
+  GD{u0, v0, +du, dv, nu, nv, +mg} = g
+  F64.mul(mg, du)
 
 def gd_mv(+g: GD) -> F64:
-  GD{u0, v0, du, +dv, nu, nv} = g
-  F64.mul(0.5f64, dv)
+  GD{u0, v0, du, +dv, nu, nv, +mg} = g
+  F64.mul(mg, dv)
 
 def bl_row(n: Nat, +i: Nat, +j: Nat, +nu: Nat, +t: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
   match n:
@@ -1972,13 +2111,13 @@ def cr_rows(n: Nat, +j: Nat, +a: QP, +b: QP, +g: GD) -> List<&2, CR>:
   match n:
     case 0n: []
     case 1n+m:
-      GD{u0, +v0, du, +dv, nu, nv} = g
+      GD{u0, +v0, du, +dv, nu, nv, mg} = g
       +vc = F64.add(v0, F64.mul(F64.add(nf(j), 0.5f64), dv))
       +uc = F64.add(qx(a), F64.div(F64.mul(F64.sub(vc, qy(a)), F64.sub(qx(b), qx(a))), F64.sub(qy(b), qy(a))))
       CR{j, uc} <> cr_rows(m, Nat.add(j, 1n), a, b, g)
 
 def cr_seg(+g: GD, +a: QP, +b: QP) -> List<&2, CR>:
-  GD{u0, +v0, du, +dv, nu, +nv} = g
+  GD{u0, +v0, du, +dv, nu, +nv, mg} = g
   +lo = cnt_lt(F64.sub(F64.div(F64.sub(F64.min(qy(a), qy(b)), v0), dv), 0.5f64), nv)
   +hi = cnt_lt(F64.sub(F64.div(F64.sub(F64.max(qy(a), qy(b)), v0), dv), 0.5f64), nv)
   cr_rows(Nat.sub(hi, lo), lo, a, b, g)
@@ -2079,7 +2218,7 @@ def ins_rows(n: Nat, +j: Nat, +xs: List<&2, CR>, +g: GD) -> List<&2, List<&2, Bo
   match n:
     case 0n: []
     case 1n+m:
-      GD{+u0, v0, +du, dv, +nu, nv} = g
+      GD{+u0, v0, +du, dv, +nu, nv, mg} = g
       +go = Nat.is_eq(cr_hj(xs), Nat.add(j, 1n))
       +f = List.length(&2, CR, xs)
       rf_go(nu, 0n, row_us(f, go, xs, j), False{}, u0, du) <> ins_rows(m, Nat.add(j, 1n), row_rest(f, go, xs, j), g)
@@ -2231,11 +2370,11 @@ def ids_go(n: Nat, +k: Nat, +c: Nat, +used: B.Tb<&2, Bool>) -> List<&2, Nat>:
       Bool.pick(Nat, on, c, 0n) <> ids_go(m, Nat.add(k, 1n), Bool.pick(Nat, on, Nat.add(c, 1n), c), used)
 
 def gd_u(+g: GD, +i: Nat) -> F64:
-  GD{+u0, v0, +du, dv, nu, nv} = g
+  GD{+u0, v0, +du, dv, nu, nv, mg} = g
   F64.add(u0, F64.mul(nf(i), du))
 
 def gd_v(+g: GD, +j: Nat) -> F64:
-  GD{u0, +v0, du, +dv, nu, nv} = g
+  GD{u0, +v0, du, +dv, nu, nv, mg} = g
   F64.add(v0, F64.mul(nf(j), dv))
 
 def nd_vx(+g: GD, +gs: GS, +k: Nat) -> VX:
@@ -2352,13 +2491,13 @@ def dx_full(+no: List<&2, QP>, +nh: List<&2, List<&2, QP>>, +gd: GD, +gs: GS, +n
   +os = {no <> lps_sel(ls, False{}) : List<&2, List<&2, QP>>}
   +hs = List.append(&2, List<&2, QP>, nh, lps_sel(ls, True{}))
   +c = clip_all(os, 0n, assign(hs, os), w)
-  DR{List.append(&2, Tri, of_ea(cq_ets(c)), tri_map(cg_ts(cg), cm)), vs_go(nn, 0n, used, gd, gs), cq_ok(c)}
+  DR{of_ea(cq_ets(c)), tri_map(cg_ts(cg), cm), vs_go(nn, 0n, used, gd, gs), cq_ok(c)}
 
 def dx_grid(on: Bool, +no: List<&2, QP>, +nh: List<&2, List<&2, QP>>, +gd: GD, +gs: GS, +nb: Nat, +w: EA.Wq) -> DR:
   match on:
     case False{}:
       +c = EA.tri_poly_q(to_ea(no), to_eas(nh), w)
-      DR{cq_ts(c), [], cq_ok(c)}
+      DR{cq_ts(c), [], [], cq_ok(c)}
     case True{}: dx_full(no, nh, gd, gs, nb, w)
 
 def dx_steps2(+sf: KS.SF, +g: GS, +tol: TL, +bb: List<&2, F64>) -> V.Vec2:
@@ -2379,7 +2518,8 @@ def dx_try(+qs: List<&2, List<&2, QP>>, +nb: Nat, +g: GS, +sf: KS.SF, +tol: TL, 
   +no = Bool.pick(List<&2, QP>, ccw, o, q_rev(o, []))
   +nh = Bool.pick(List<&2, List<&2, QP>>, ccw, hs, qrevs(hs))
   +bb = qs_bb(qs, [f_inf(), F64.neg(f_inf()), f_inf(), F64.neg(f_inf())])
-  +gd = gd_of(bb, Bool.pick(V.Vec2, Nat.is_eq(lvl, 0n), dx_steps(sf, g, tol), dx_steps2(sf, g, tol, bb)))
+  +ks = KS.sf_kind(sf)
+  +gd = gd_of(bb, Bool.pick(V.Vec2, Nat.is_eq(lvl, 0n), dx_steps(sf, g, tol), dx_steps2(sf, g, tol, bb)), Bool.pick(F64, Bool.or(U64.is_eq(ks, 2u64), U64.is_eq(ks, 3u64)), 0.5f64, 1.0f64))
   dx_grid(Bool.and(Nat.is_le(3n, gd_nu(gd)), Nat.is_le(3n, gd_nv(gd))), no, nh, gd, g, nb, dx_wq(sf))
 
 def gen_ref(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
@@ -2392,55 +2532,173 @@ def gen_ref(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +v
   +r = ref_go(48n, False{}, RF{td, vt, nb}, g, nx, nb, Nat.add(nb, cap), tol)
   gen_fin(r, sf, same, B.tb_of(Nat, g_ids(rs), 0n), nb, base, Bool.not(Nat.is_eq(List.length(&2, Tri, t0), 0n)), nx)
 
-def dr_ts(+d: DR) -> List<&2, Tri>:
-  DR{+ts, vs, ok} = d
+def dr_st(+d: DR) -> List<&2, Tri>:
+  DR{+ts, gt, vs, ok} = d
   ts
 
+def dr_gt(+d: DR) -> List<&2, Tri>:
+  DR{ts, +gt, vs, ok} = d
+  gt
+
+def dr_ts(+d: DR) -> List<&2, Tri>:
+  DR{+ts, +gt, vs, ok} = d
+  List.append(&2, Tri, ts, gt)
+
+type FQ is Data:
+  FQ{ ts: List<&2, Tri>, ct: CT }
+
+def fq_ts(+x: FQ) -> List<&2, Tri>:
+  FQ{+ts, ct} = x
+  ts
+
+def fq_ct(+x: FQ) -> CT:
+  FQ{ts, +ct} = x
+  ct
+
+def fq_go(bad: Bool, +st: List<&2, Tri>, +gt: List<&2, Tri>, +ts: List<&2, Tri>, +ct: CT, +k: U64, +sf: KS.SF, +vt: B.Tb<&2, VX>) -> FQ:
+  match bad:
+    case False{}: FQ{ts, ct}
+    case True{}:
+      +t2 = List.append(&2, Tri, flips_m(64n, True{}, FM_nrm{k, sf}, st, vt), gt)
+      FQ{t2, ct_go(t2, k, sf, vt, CT{0.0f64, 1.0f64})}
+
 def dr_vs(+d: DR) -> List<&2, VX>:
-  DR{ts, +vs, ok} = d
+  DR{ts, gt, +vs, ok} = d
   vs
 
 def dr_ok(+d: DR) -> Bool:
-  DR{ts, vs, +ok} = d
+  DR{ts, gt, vs, +ok} = d
   ok
 
-def gen_end(ok: Bool, +ts: List<&2, Tri>, +ng: Nat, +dok: Bool, +vt: B.Tb<&2, VX>, +ch: F64, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+def gen_end(ok: Bool, +ts: List<&2, Tri>, +ng: Nat, +dok: Bool, +vt: B.Tb<&2, VX>, +ch: F64, +cs: F64, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   match ok:
     case True{}:
       +nb = List.length(&2, VX, vxs)
       +gr = Nat.is_lt(0n, ng)
       tg_st(gen_fin(RF{ts, vt, Nat.add(nb, ng)}, sf, same, B.tb_of(Nat, g_ids(rs), 0n), nb, base, True{}, B.tb_of(Nat, g_nx(rs, 0n), 0n)),
-        FS{ch, Bool.pick(Nat, gr, 0n, 1n), Bool.pick(Nat, gr, 1n, 0n), 0n, []})
-    case False{}: tg_st(gen_ref(rs, g, qs, vxs, sf, same, base, tol), FS{0.0f64, 0n, 0n, 1n, [FW{0n, ch, dok}]})
+        FS{ch, cs, Bool.pick(Nat, gr, 0n, 1n), Bool.pick(Nat, gr, 1n, 0n), 0n, []})
+    case False{}: tg_st(gen_ref(rs, g, qs, vxs, sf, same, base, tol), FS{0.0f64, 1.0f64, 0n, 0n, 1n, [FW{0n, ch, dok}]})
 
-def gen_at(f: Nat, ok: Bool, skip: Bool, +ts: List<&2, Tri>, +ng: Nat, +dok: Bool, +vt: B.Tb<&2, VX>, +ch: F64, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+def gen_at(f: Nat, ok: Bool, skip: Bool, +keep: Bool, +ts: List<&2, Tri>, +ng: Nat, +dok: Bool, +vt: B.Tb<&2, VX>, +ch: F64, +cs: F64, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   match f:
-    case 0n: gen_end(ok, ts, ng, dok, vt, ch, rs, g, qs, vxs, sf, same, base, tol)
+    case 0n: gen_end(ok, ts, ng, dok, vt, ch, cs, rs, g, qs, vxs, sf, same, base, tol)
     case 1n+(+m):
       match ok:
-        case True{}: gen_end(True{}, ts, ng, dok, vt, ch, rs, g, qs, vxs, sf, same, base, tol)
+        case True{}: gen_end(True{}, ts, ng, dok, vt, ch, cs, rs, g, qs, vxs, sf, same, base, tol)
         case False{}:
           match skip:
-            case True{}: gen_end(False{}, ts, ng, dok, vt, ch, rs, g, qs, vxs, sf, same, base, tol)
+            case True{}: gen_end(False{}, ts, ng, dok, vt, ch, cs, rs, g, qs, vxs, sf, same, base, tol)
             case False{}:
               +d = dx_try(qs, List.length(&2, VX, vxs), g, sf, tol, Nat.sub(1n, m))
-              +ruled = Bool.or(U64.is_eq(KS.sf_kind(sf), 2u64), U64.is_eq(KS.sf_kind(sf), 3u64))
               +vs = dr_vs(d)
               +dk = dr_ok(d)
               +vt2 = B.tb_of(VX, List.append(&2, VX, vxs, vs), vx0())
               +k = KS.sf_kind(sf)
-              +ts2 = dr_ts(d)
-              +ch2 = ct_go(ts2, k, sf, vt2, 0.0f64)
-              gen_at(m, Bool.and(dk, F64.is_le(ch2, tl_ch(tol))), Bool.and(Nat.is_eq(m, 1n), Bool.not(ruled)), ts2, List.length(&2, VX, vs), dk, vt2, ch2, rs, g, qs, vxs, sf, same, base, tol)
+              +ts1 = dr_ts(d)
+              +ct1 = ct_go(ts1, k, sf, vt2, CT{0.0f64, 1.0f64})
+              +over = F64.is_lt(tl_ch(tol), ct_ch(ct1))
+              +bad = Bool.and(U64.is_le(2u64, k), Bool.or(Bool.and(U64.is_le(4u64, k), over), Bool.and(Bool.not(over), F64.is_lt(ct_mc(ct1), tl_c2(tol)))))
+              +fq = fq_go(bad, dr_st(d), dr_gt(d), ts1, ct1, k, sf, vt2)
+              +ts2 = fq_ts(fq)
+              +ch2 = ct_ch(fq_ct(fq))
+              +cs2 = ct_mc(fq_ct(fq))
+              +chk = Bool.and(dk, F64.is_le(ch2, tl_ch(tol)))
+              +acc = Bool.and(chk, Bool.or(Bool.or(Nat.is_eq(m, 0n), U64.is_le(4u64, k)), F64.is_le(tl_c2(tol), cs2)))
+              +old = Bool.and(keep, Bool.or(Bool.not(acc), F64.is_lt(cs2, cs)))
+              gen_at(m, Bool.or(acc, old), Bool.and(Nat.is_eq(m, 1n), U64.is_eq(k, 1u64)), chk, Bool.pick(List<&2, Tri>, old, ts, ts2), Bool.pick(Nat, old, ng, List.length(&2, VX, vs)),
+                Bool.pick(Bool, old, dok, dk), Bool.pick(B.Tb<&2, VX>, old, vt, vt2), Bool.pick(F64, old, ch, ch2), Bool.pick(F64, old, cs, cs2), rs, g, qs, vxs, sf, same, base, tol)
 
 def gen_dir(an: Bool, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   match an:
-    case False{}: tg_st(gen_ref(rs, g, qs, vxs, sf, same, base, tol), FS{0.0f64, 0n, 0n, 1n, [FW{0n, F64.neg(1.0f64), False{}}]})
-    case True{}: gen_at(2n, False{}, False{}, [], 0n, False{}, B.tb_of(VX, [], vx0()), 0.0f64, rs, g, qs, vxs, sf, same, base, tol)
+    case False{}: tg_st(gen_ref(rs, g, qs, vxs, sf, same, base, tol), FS{0.0f64, 1.0f64, 0n, 0n, 1n, [FW{0n, F64.neg(1.0f64), False{}}]})
+    case True{}: gen_at(2n, False{}, False{}, False{}, [], 0n, False{}, B.tb_of(VX, [], vx0()), 0.0f64, 1.0f64, rs, g, qs, vxs, sf, same, base, tol)
+
+def ax_e1(+c: V.Dir) -> V.Dir:
+  +x = F64.abs(V.dr_x(c))
+  +y = F64.abs(V.dr_y(c))
+  +z = F64.abs(V.dr_z(c))
+  +e = Bool.pick(V.Dir, Bool.and(F64.is_le(x, y), F64.is_le(x, z)), V.Dr{1.0f64, 0.0f64, 0.0f64}, Bool.pick(V.Dir, F64.is_le(y, z), V.Dr{0.0f64, 1.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}))
+  KS.dunit(KS.cross(e, c))
+
+def st_of(+sf: KS.SF, +c: V.Dir) -> GS:
+  +e1 = ax_e1(c)
+  GS_st{sf, c, e1, KS.cross(c, e1)}
+
+def eq_of(+sf: KS.SF, +c: V.Dir) -> GS:
+  +e1 = ax_e1(c)
+  GS_eq{sf, c, e1, KS.cross(c, e1)}
+
+def nw_sum(rs: List<&2, List<&2, TP>>, +acc: V.Dir) -> V.Dir:
+  match rs:
+    case []: acc
+    case +r <> t:
+      +n = newell(r)
+      nw_sum(t, V.Dr{F64.add(V.dr_x(acc), V.pt_x(n)), F64.add(V.dr_y(acc), V.pt_y(n)), F64.add(V.dr_z(acc), V.pt_z(n))})
+
+def qs_area(qs: List<&2, List<&2, QP>>, +acc: F64) -> F64:
+  match qs:
+    case []: acc
+    case +q <> t: qs_area(t, F64.add(acc, q_area(q)))
+
+def eq_pick(+sf: KS.SF, +c: V.Dir, +rs: List<&2, List<&2, TP>>, +same: Bool) -> GS:
+  +ga = eq_of(sf, c)
+  Bool.pick(GS, Bool.xor(F64.is_lt(qs_area(g_qps(rs, ga, 0n), 0.0f64), 0.0f64), same), ga, eq_of(sf, KS.dscale(F64.neg(1.0f64), c)))
+
+
+def tp_ddg(r: List<&2, TP>, +prev: Nat) -> List<&2, TP>:
+  match r:
+    case []: []
+    case +h <> t:
+      +rest = tp_ddg(t, tp_id(h))
+      Bool.pick(List<&2, TP>, Nat.is_eq(tp_id(h), prev), rest, h <> rest)
+
+def tp_last(r: List<&2, TP>, +d: Nat) -> Nat:
+  match r:
+    case []: d
+    case +h <> t: tp_last(t, tp_id(h))
+
+def tp_dd(+r: List<&2, TP>) -> List<&2, TP>:
+  tp_ddg(r, tp_last(r, 4294967295n))
+
+def rs_dd(rs: List<&2, List<&2, TP>>) -> List<&2, List<&2, TP>>:
+  match rs:
+    case []: []
+    case +r <> t: tp_dd(r) <> rs_dd(t)
+
+def big_i(qs: List<&2, List<&2, QP>>, +i: Nat, +bi: Nat, +ba: F64) -> Nat:
+  match qs:
+    case []: bi
+    case +q <> t:
+      +a = F64.abs(q_area(q))
+      big_i(t, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(ba, a), i, bi), F64.max(a, ba))
+
+def ring_rm(rs: List<&2, List<&2, TP>>, +i: Nat) -> List<&2, List<&2, TP>>:
+  match rs:
+    case []: []
+    case +h <> +t:
+      match i:
+        case 0n: t
+        case 1n+(+m): h <> ring_rm(t, m)
+
+def gen_sph(on: Bool, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+  match on:
+    case False{}: gen_dir(True{}, rs, g, qs, vxs, sf, same, base, tol)
+    case True{}:
+      +r2 = rs_dd(rs)
+      +gs = eq_pick(sf, KS.dunit(nw_sum(r2, V.Dr{0.0f64, 0.0f64, 0.0f64})), r2, same)
+      +bi = big_i(g_qps(r2, gs, 0n), 0n, 0n, F64.neg(1.0f64))
+      +r3 = {rs_at(r2, bi) <> ring_rm(r2, bi) : List<&2, List<&2, TP>>}
+      gen_dir(True{}, r3, gs, g_qps(r3, gs, 0n), g_vxs(r3, gs), sf, same, base, tol)
+
+def gen_cs(an: Bool, sp: Bool, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+  match an:
+    case False{}: gen_dir(False{}, rs, g, qs, vxs, sf, same, base, tol)
+    case True{}: gen_sph(sp, rs, g, qs, vxs, sf, same, base, tol)
 
 def gen_core(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   +k = KS.sf_kind(sf)
-  gen_dir(Bool.and(U64.is_le(1u64, k), U64.is_le(k, 5u64)), rs, g, qs, vxs, sf, same, base, tol)
+  +lean = F64.is_lt(F64.mul(1.0e-6f64, F64.mul(KS.sf_r(sf), KS.sf_r(sf))), KS.dlen(nw_sum(rs, V.Dr{0.0f64, 0.0f64, 0.0f64})))
+  gen_cs(Bool.and(U64.is_le(1u64, k), U64.is_le(k, 5u64)), Bool.and(U64.is_eq(k, 4u64), lean), rs, g, qs, vxs, sf, same, base, tol)
 
 def is_pole(+g: GS, +p: V.Point) -> Bool:
   +sf = gs_sf(g)
@@ -2553,13 +2811,49 @@ def gen_np(+rs0: List<&2, List<&2, TP>>, +g: GS, +sf: KS.SF, +same: Bool, +base:
   +wss = rings_ws(rs, g, 0.0f64, True{}, ch)
   gen_core(rs, g, wss_q(wss, 0n), wss_v(wss, rs), sf, same, base, tol)
 
+type UI is Data:
+  UI{ lo: F64, hi: F64 }
+
+def r_ui(r: List<&2, TP>, +g: GS, +prev: V.Vec2, +lo: F64, +hi: F64) -> UI:
+  match r:
+    case []: UI{lo, hi}
+    case +h <> t:
+      +w = uw_next(g, prev, g_uv(g, tp_p(h)))
+      r_ui(t, g, w, F64.min(lo, V.v2_x(w)), F64.max(hi, V.v2_x(w)))
+
+def hs_ui(hs: List<&2, List<&2, TP>>, +g: GS) -> List<&2, UI>:
+  match hs:
+    case []: []
+    case +h <> t: r_ui(h, g, g_uv(g, tp_p(tp0(h))), f_inf(), F64.neg(f_inf())) <> hs_ui(t, g)
+
+def ui_d(uis: List<&2, UI>, +u: F64, +acc: F64) -> F64:
+  match uis:
+    case []: acc
+    case +x <> t:
+      UI{+lo, +hi} = x
+      ui_d(t, u, F64.min(acc, F64.max(0.0f64, F64.sub(F64.abs(KS.ang_diff(F64.mul(0.5f64, F64.add(lo, hi)), u)), F64.mul(0.5f64, F64.sub(hi, lo))))))
+
+def cut_i(r: List<&2, TP>, +g: GS, +uis: List<&2, UI>, +i: Nat, +bi: Nat, +bd: F64) -> Nat:
+  match r:
+    case []: bi
+    case +h <> t:
+      +d = ui_d(uis, V.v2_x(g_uv(g, tp_p(h))), f_inf())
+      cut_i(t, g, uis, Nat.add(i, 1n), Bool.pick(Nat, F64.is_lt(bd, d), i, bi), F64.max(d, bd))
+
 def gen_bd(band: Bool, +rs0: List<&2, List<&2, TP>>, +g: GS, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   match band:
     case False{}: gen_np(rs0, g, sf, same, base, tol)
     case True{}:
-      +r = bd_ring(rs0, g)
+      +wr = wr_sel(rs0, g, True{})
+      +hs = wr_sel(rs0, g, False{})
+      +ra = rs_at(wr, 0n)
+      +ci = cut_i(ra, g, hs_ui(hs, g), 0n, 0n, F64.neg(1.0f64))
+      +r = bd_ring([List.append(&2, TP, tp_drop(ra, ci), tp_take(ra, ci)), rs_at(wr, 1n)], g)
       +w0 = g_uv(g, tp_p(tp0(r)))
-      gen_core([r], g, [uw_q(r, g, w0, 0n)], uw_v(r, g, w0), sf, same, base, tol)
+      +qr = uw_q(r, g, w0, 0n)
+      +bb = q_bb(qr, [f_inf(), F64.neg(f_inf()), f_inf(), F64.neg(f_inf())])
+      +hw = rings_ws(hs, g, F64.mul(0.5f64, F64.add(EA.f4(bb, 0n), EA.f4(bb, 1n))), False{}, 1.0f64)
+      gen_core(r <> hs, g, qr <> wss_q(hw, List.length(&2, TP, r)), List.append(&2, VX, uw_v(r, g, w0), wss_v(hw, hs)), sf, same, base, tol)
 
 def sph_ax(+sf: KS.SF, +ax: Nat) -> KS.SF:
   +o = KS.sf_o(sf)
@@ -2588,21 +2882,6 @@ def sph_pick(+sf: KS.SF, +rs: List<&2, List<&2, TP>>) -> KS.SF:
       Bool.pick(KS.SF, Bool.not(sph_try(sf, rs, 1n)), sph_ax(sf, 1n),
         Bool.pick(KS.SF, Bool.not(sph_try(sf, rs, 2n)), sph_ax(sf, 2n), sf))))
 
-def rs_nw(rs: List<&2, List<&2, TP>>, +acc: V.Dir) -> V.Dir:
-  match rs:
-    case []: acc
-    case +r <> t:
-      +n = newell(r)
-      rs_nw(t, V.Dr{F64.add(V.dr_x(acc), V.pt_x(n)), F64.add(V.dr_y(acc), V.pt_y(n)), F64.add(V.dr_z(acc), V.pt_z(n))})
-
-def st_of(+sf: KS.SF, +c: V.Dir) -> GS:
-  +x = F64.abs(V.dr_x(c))
-  +y = F64.abs(V.dr_y(c))
-  +z = F64.abs(V.dr_z(c))
-  +e = Bool.pick(V.Dir, Bool.and(F64.is_le(x, y), F64.is_le(x, z)), V.Dr{1.0f64, 0.0f64, 0.0f64}, Bool.pick(V.Dir, F64.is_le(y, z), V.Dr{0.0f64, 1.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}))
-  +e1 = KS.dunit(KS.cross(e, c))
-  GS_st{sf, c, e1, KS.cross(c, e1)}
-
 def st_area(rs: List<&2, List<&2, TP>>, +g: GS, +acc: F64) -> F64:
   match rs:
     case []: acc
@@ -2624,7 +2903,7 @@ def gen_pick(st: Bool, +gs: GS, +rs0: List<&2, List<&2, TP>>, +sf0: KS.SF, +same
     case False{}: gen_ax(rs0, sf0, same, base, tol)
 
 def gen_st(+rs0: List<&2, List<&2, TP>>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
-  +m = rs_nw(rs0, V.Dr{0.0f64, 0.0f64, 0.0f64})
+  +m = nw_sum(rs0, V.Dr{0.0f64, 0.0f64, 0.0f64})
   +c = KS.dunit(m)
   +ga = st_of(sf, c)
   +gb = st_of(sf, KS.dscale(F64.neg(1.0f64), c))
@@ -2805,13 +3084,14 @@ def pri_out(ok: Bool, +ts: List<&2, Tri>, +ns: List<&2, Nat>, +r: M10.Tres) -> M
       M10.Tres{False{}, "tess-mesh-not-closed" ++ open_faces(ts, ns), obj, nv, nt, est, chord, ang, nsamp}
 
 def fs_ch(+s: FS) -> F64:
-  FS{+ch, pd, pg, pr, rl} = s
+  FS{+ch, cs, pd, pg, pr, rl} = s
   ch
 
 def fs_note(+s: FS) -> String:
-  FS{ch, +pd, +pg, +pr, +rl} = s
+  FS{ch, +cs, +pd, +pg, +pr, +rl} = s
   "faces direct=" ++ Nat.show(pd) ++ " grid=" ++ Nat.show(pg) ++ " refined=" ++ Nat.show(Nat.sub(pr, fw_nf(rl))) ++ fw_show(rl) ++ " freeform=" ++ Nat.show(fw_nf(rl)) ++
-    Bool.pick(String, Nat.is_eq(pr, 0n), " chord-bound=certified", Bool.pick(String, Nat.is_eq(pr, fw_nf(rl)), " chord-bound=certified-on-analytic-faces,sampled-on-freeform", " chord-bound=sampled-on-refined-faces"))
+    Bool.pick(String, Nat.is_eq(pr, 0n), " chord-bound=certified", Bool.pick(String, Nat.is_eq(pr, fw_nf(rl)), " chord-bound=certified-on-analytic-faces,sampled-on-freeform", " chord-bound=sampled-on-refined-faces")) ++
+    " normal-dev=" ++ F64.show(KS.fatan2(F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(cs, cs)))), cs))
 
 def pri_fin(+gt: TGO, +ns: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
   TGO{+ts, +gp, +gok, +st} = gt
@@ -2866,9 +3146,30 @@ def pri_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
     case False{}: M10.tres_fail_est("tess-budget-exceeded", est)
     case True{}: pri_emit(b, q, est)
 
+def est_grid_go(on: Bool, +s: G.GVal, +ls: List<&2, Ty.HLoop>, +x: Ctx, +tol: TL) -> Nat:
+  match on:
+    case False{}: 0n
+    case True{}:
+      +rs = rings(ls, x)
+      +sf = sph_pick(KS.sf_of(s), rs)
+      +g = gs_of(sf, rs)
+      +qs = wss_q(rings_ws(rs, g, 0.0f64, True{}, 1.0f64), 0n)
+      +gd = gd_of(qs_bb(qs, [f_inf(), F64.neg(f_inf()), f_inf(), F64.neg(f_inf())]), dx_steps(sf, g, tol), 1.0f64)
+      Nat.mul(2n, Nat.mul(gd_nu(gd), gd_nv(gd)))
+
+def est_grid(f: Ty.Face, +x: Ctx, +tol: TL) -> Nat:
+  Ty.Fa{g, +s, +ls, same, slv, sla} = f
+  +k = KS.sf_kind(KS.sf_of(s))
+  est_grid_go(Bool.or(U64.is_eq(k, 4u64), U64.is_eq(k, 5u64)), s, ls, x, tol)
+
+def est_all(fs: List<&2, Ty.Face>, +x: Ctx, +tol: TL) -> Nat:
+  match fs:
+    case []: 0n
+    case +f <> t: Nat.add(Nat.add(est_face(f, x), est_grid(f, x, tol)), est_all(t, x, tol))
+
 def pri_q(+b: M.Body, +q: M10.Q) -> M10.Tres:
   +br = M.bd_brep(b)
-  +est = est_faces(Ty.brep_fas(br), ctx_of(br, q))
+  +est = est_all(Ty.brep_fas(br), ctx_of(br, q), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))})
   pri_go(M10.budget_ok(est, M10.q_max(q)), b, q, est)
 
 def rq2(j: Nat, +w: G.RQBez, +k: Nat) -> List<&2, V.Vec2>:

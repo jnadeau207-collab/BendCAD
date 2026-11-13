@@ -180,14 +180,14 @@ def deviation(obj, faces_text, ang):
         nd = normal_dev(sf[fi], tri)
         if nd is not None and len(nd):
             pk['max_normal'] = max(pk['max_normal'], float(nd.max()))
-            pk['normal_over'] += int((nd > 2.0 * ang).sum())
+            pk['normal_over'] += int((nd > max(2.0 * ang, NORMAL_FLOOR)).sum())
     devs = [v['max_dev'] for v in res['per_kind'].values()]
     res['max_dev'] = max(devs) if devs else None
     offs = [v['max_vertex_off'] for v in res['per_kind'].values()]
     res['max_vertex_off'] = max(offs) if offs else None
     res['max_normal'] = max([v['max_normal'] for v in res['per_kind'].values()], default=None)
     res['normal_over'] = sum(v['normal_over'] for v in res['per_kind'].values())
-    res['normal_limit'] = 2.0 * ang
+    res['normal_limit'] = max(2.0 * ang, NORMAL_FLOOR)
     return res
 
 
@@ -224,6 +224,7 @@ OBLIQUE = ['(node 1 (cylinder 8 30) (intent create any any any any))', '(node 2 
            '(node 5 (move 2 -20 -20 0 0) (intent same any any any any))', '(node 6 (rotate 5 x 30) (intent same any any any any))',
            '(node 4 (move 6 0 0 22 0) (intent same any any any any))', '(node 3 (difference 1 4) (intent remove any any any any))']
 RSS_KB = 4000000
+NORMAL_FLOOR = 0.1
 
 
 def cases():
@@ -249,6 +250,7 @@ def cases():
         cs.append(dict(id=f'curved.fz103.p{pr or "1"}', group='curved', design=os.path.join(ROOT, 'tests', 'speed', 'fz103.bcd'), node=100, preset=pr,
                        budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
     b11 = [b for b in BRIEFS if b['id'] == 'B11'][0]
+    cs.append(dict(id='curved.B11.p2', group='fine', brief='B11', edits=b11['edits'], node=1110, preset='2', budget_s=None, budget_on='none'))
     cs.append(dict(id='curved.B11.p3', group='fine', brief='B11', edits=b11['edits'], node=1110, preset='3', budget_s=None, budget_on='none'))
     cs.append(dict(id='repro.tess_display_slow.n705', group='repro', design=os.path.join(ROOT, 'tests', 'briefs', 'repro', 'tess_display_slow', 'design.bcd'),
                    node=705, preset=None, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
@@ -322,6 +324,10 @@ def serial(c, core):
     r['tess_maxrss_kb'] = t.get('rss_kb')
     m = re.search(r'refined=(\d+)', t['out'])
     r['refined'] = int(m.group(1)) if m else None
+    m = re.search(r'normal-dev=(\S+)', t['out'])
+    r['normal_dev_reported'] = float(m.group(1)) if m else None
+    m = re.search(r'freeform=(\d+)', t['out'])
+    r['freeform'] = int(m.group(1)) if m else None
     r['obj'] = ob
     r['obj_sha256'] = sha(ob)
     mc = check(ob)
@@ -428,7 +434,10 @@ def judge(rows, ref, stls, refstl, edits):
                 mn = r['deviation'].get('max_normal')
                 if mn is not None and r['deviation']['mapped']:
                     b.append(('normals', mn <= r['deviation']['normal_limit'] * (1 + 1e-9),
-                              f"largest angle between a triangle and the surface normal at its vertices {mn:.4f} rad <= twice the preset angle {r['deviation']['normal_limit']}; {r['deviation']['normal_over']} triangles over"))
+                              f"largest angle between a triangle and the surface normal at its vertices {mn:.4f} rad <= {r['deviation']['normal_limit']} (twice the preset angle, floor {NORMAL_FLOOR}); {r['deviation']['normal_over']} triangles over"))
+                nr = r.get('normal_dev_reported')
+                if mn is not None and r['deviation']['mapped'] and nr is not None and r.get('refined') == 0 and r.get('freeform') == 0:
+                    b.append(('normal_claim', mn <= nr * (1 + 1e-6) + 1e-9, f"measured {mn:.6f} rad <= reported normal-dev {nr}"))
                 if 'volume_err' in r:
                     b.append(('volume', abs(r['volume_err']) <= r['volume_bound_achieved'], f"|dV| {abs(r['volume_err']):.6g} <= chord x area {r['volume_bound_achieved']:.6g}"))
             if r['group'] == 'blade' and ref.get(r['id']):

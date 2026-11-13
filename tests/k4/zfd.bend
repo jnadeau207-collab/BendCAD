@@ -150,7 +150,7 @@ def fd_s(f: Ty.Face, +x: TS.Ctx, +tb: B.Tb<&2, V.Point>, +gb: Nat, +nb: Nat) -> 
   +sf = S.sf_of(s)
   +rs = TS.rings(ls, x)
   +hd = " k" ++ U64.show(S.sf_kind(sf)) ++ " same=" ++ b_s(same) ++ " rings" ++ rsz(rs)
-  +cs = ch_s(sf, rs, same, TS.rs_nw(rs, V.Dr{0.0f64, 0.0f64, 0.0f64}))
+  +cs = ch_s(sf, rs, same, TS.nw_sum(rs, V.Dr{0.0f64, 0.0f64, 0.0f64}))
   +tt = fd_t(TS.face_tg(True{}, f, x, tb, 0n, gb, TS.TL{0.01f64, S.fcos(M10.q_angle(M10.q_preset(1u64)))}), rs, tb, nb)
   hd ++ cs ++ tt
 

@@ -2,6 +2,7 @@ import Base
 import ../c00/types.bend as T
 import ../c03/types.bend as G
 import ../c01/types.bend as V
+import ../base/par.bend as B
 import ../c04/types.bend as Ty
 import ./iv.bend as I
 import ./xp.bend as X
@@ -965,22 +966,54 @@ def arc_out(r: M.NR, +out: String, +lin: String) -> IO(String):
     case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing archived")
     case M.NR_ok{+b, fx}: arc_out_open(M.bd_open(b), b, out, lin)
 
-def stl_write_go(+w: Bool, +r: MO.MO_R, +out: String) -> IO(String):
+law stl_end:
+  for w: File & Result<&1, &1, (U32 & String), Unit>
+  IO(Unit)
+
+def stl_end(w):
+  (f, r) = w
+  do IO<Unit>:
+    u : Unit <- IO.pass(Unit, r)
+    w2 : File & Result<&1, &1, (U32 & String), Unit> <- File.write(f, "endsolid bendcad
+")
+    write_go(w2)
+
+def stl_put(n: Nat, ts: List<&2, MO.MO_F>, w: File & Result<&1, &1, (U32 & String), Unit>, +tb: B.Tb<&2, V.Point>) -> IO(Unit):
+  match n:
+    case 0n: stl_end(w)
+    case 1n+m:
+      match ts:
+        case []: stl_end(w)
+        case +h <> +t:
+          (f, r) = w
+          do IO<Unit>:
+            u : Unit <- IO.pass(Unit, r)
+            w2 : File & Result<&1, &1, (U32 & String), Unit> <- File.write(f, MO.mo_chunk(h <> t, tb))
+            stl_put(m, MO.mo_drop(h <> t), w2, tb)
+
+def stl_file(+path: String, +vs: List<&2, V.Point>, +ts: List<&2, MO.MO_F>) -> IO(Unit):
+  do IO<Unit>:
+    f : File <- IO.try(File, File.open(path, "w"))
+    w : File & Result<&1, &1, (U32 & String), Unit> <- File.write(f, "solid bendcad
+")
+    stl_put(Nat.add(Nat.div(List.length(&2, MO.MO_F, ts), MO.mo_chunk_n()), 2n), ts, w, MO.mo_tb(vs))
+
+def stl_g_go(+w: Bool, +g: MO.MO_G, +out: String) -> IO(String):
   match w:
     case True{}:
       do IO<String>:
-        u : Unit <- write_file(out, MO.mo_r_s(r))
-        IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(MO.mo_r_nv(r)) ++ " ntris " ++
-          Nat.show(MO.mo_r_nt(r)) ++ " (sampled, not certified)")
-    case False{}: IO.pure(String, "refused " ++ MO.mo_r_why(r) ++ " | stl | fix: tessellate the node first (tess)")
+        u : Unit <- stl_file(out, MO.mo_g_vs(g), MO.mo_g_ts(g))
+        IO.pure(String, "wrote " ++ out ++ " nverts " ++ Nat.show(List.length(&2, V.Point, MO.mo_g_vs(g))) ++ " ntris " ++
+          Nat.show(List.length(&2, MO.MO_F, MO.mo_g_ts(g))) ++ " (sampled, not certified)")
+    case False{}: IO.pure(String, "refused " ++ MO.mo_g_why(g) ++ " | stl | fix: tessellate the node first (tess)")
 
 def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match w:
     case False{}: IO.pure(String, "refused " ++ M10.tres_why(t) ++ " | stl @ node " ++ U64.show(id) ++
       tess_fix(String.starts_with(M10.tres_why(t), "tess-mesh-not-closed"), t, q))
     case True{}:
-      +r = MO.mo_stl(M10.tres_obj(t))
-      stl_write_go(MO.mo_r_ok(r), r, out)
+      +g = MO.mo_mesh(M10.tres_obj(t))
+      stl_g_go(MO.mo_g_ok(g), g, out)
 
 def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:

@@ -271,6 +271,34 @@ def mo_stl_go(ts: List<&2, MO_F>, +tb: B.Tb<&2, V.Point>, +acc: List<&2, String>
     case +h <> t: mo_stl_go(t, tb, mo_facet(B.tb_get(V.Point, tb, mo_ux(mo_f_a(h))),
       B.tb_get(V.Point, tb, mo_ux(mo_f_b(h))), B.tb_get(V.Point, tb, mo_ux(mo_f_c(h)))) <> acc)
 
+def mo_chunk_go(n: Nat, ts: List<&2, MO_F>, +tb: B.Tb<&2, V.Point>) -> String:
+  match n:
+    case 0n: ""
+    case 1n+m:
+      match ts:
+        case []: ""
+        case +h <> t: mo_facet(B.tb_get(V.Point, tb, mo_ux(mo_f_a(h))), B.tb_get(V.Point, tb, mo_ux(mo_f_b(h))), B.tb_get(V.Point, tb, mo_ux(mo_f_c(h)))) ++ mo_chunk_go(m, t, tb)
+
+def mo_chunk_n() -> Nat:
+  2048n
+
+def mo_chunk(+ts: List<&2, MO_F>, +tb: B.Tb<&2, V.Point>) -> String:
+  mo_chunk_go(mo_chunk_n(), ts, tb)
+
+def mo_drop_go(n: Nat, ts: List<&2, MO_F>) -> List<&2, MO_F>:
+  match n:
+    case 0n: ts
+    case 1n+m:
+      match ts:
+        case []: []
+        case h <> t: mo_drop_go(m, t)
+
+def mo_drop(+ts: List<&2, MO_F>) -> List<&2, MO_F>:
+  mo_drop_go(mo_chunk_n(), ts)
+
+def mo_tb(+vs: List<&2, V.Point>) -> B.Tb<&2, V.Point>:
+  B.tb_of(V.Point, vs, V.Pt{0.0f64, 0.0f64, 0.0f64})
+
 def mo_stl_of(+vs: List<&2, V.Point>, +ts: List<&2, MO_F>) -> String:
   "solid bendcad\n" ++ BL.jn(mo_stl_go(ts, B.tb_of(V.Point, vs, V.Pt{0.0f64, 0.0f64, 0.0f64}),
     []), "") ++ "endsolid bendcad\n"

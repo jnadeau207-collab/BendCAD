@@ -660,7 +660,9 @@ def wq_key(+w: Wq, +a: QP, +b: QP, +c: QP) -> KS:
   +l2 = F64.max(d2(a, b), F64.max(d2(b, c), d2(c, a)))
   +cr = F64.abs(F64.sub(F64.mul(F64.sub(qx(b), qx(a)), F64.sub(qy(c), qy(a))), F64.mul(F64.sub(qy(b), qy(a)), F64.sub(qx(c), qx(a)))))
   +k = F64.add(F64.add(F64.mul(F64.add(wa, F64.mul(wk, ym)), F64.mul(du, du)), F64.mul(wb, F64.mul(du, dv))), F64.mul(wc, F64.mul(dv, dv)))
-  KS{Bool.pick(F64, F64.is_lt(F64.mul(1.0e-9f64, l2), cr), k, 1.0e300f64), l2}
+  +sn = F64.mul(F64.mul(0.25f64, d2(a, b)), d2(b, c))
+  +flat = Bool.and(F64.is_lt(0.0f64, wc), F64.is_lt(F64.mul(cr, cr), sn))
+  Bool.pick(KS, F64.is_lt(F64.mul(1.0e-9f64, l2), cr), Bool.pick(KS, flat, KS{1.0e300f64, k}, KS{k, l2}), KS{1.0e300f64, 1.0e300f64})
 
 def ek_go(e: Bool, +p: Pg, +w: Wq, +b: Nat) -> KS:
   match e:
