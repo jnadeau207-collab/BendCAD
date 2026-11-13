@@ -121,7 +121,39 @@ def sdist(g, P):
     return None
 
 
-def deviation(obj, faces_text):
+def snormal(g, P):
+    k = g['kind']
+    if k in ('cylinder', 'cone', 'torus') and 'a' in g:
+        a = g['a'] / np.linalg.norm(g['a'])
+        w = P - g['o']
+        h = w @ a
+        rad = w - np.outer(h, a)
+        rho = np.linalg.norm(rad, axis=1)
+        e = rad / np.maximum(rho, 1e-300)[:, None]
+        if k == 'cylinder':
+            return e
+        if k == 'cone':
+            n = e - np.outer(g['t'] * np.sign(h), a)
+            return n / np.linalg.norm(n, axis=1)[:, None]
+        n = w - g['R'] * e
+        return n / np.maximum(np.linalg.norm(n, axis=1), 1e-300)[:, None]
+    if k == 'sphere' and 'r' in g:
+        n = P - g['o']
+        return n / np.maximum(np.linalg.norm(n, axis=1), 1e-300)[:, None]
+    return None
+
+
+def normal_dev(g, tri):
+    fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    ln = np.linalg.norm(fn, axis=1)
+    sn = snormal(g, tri.reshape(-1, 3))
+    if sn is None:
+        return None
+    c = np.abs(np.einsum('ij,ikj->ik', fn, sn.reshape(-1, 3, 3))) / np.maximum(ln, 1e-300)[:, None]
+    return np.arccos(np.clip(c.min(axis=1), -1.0, 1.0))
+
+
+def deviation(obj, faces_text, ang):
     V, T, tags = load(obj)
     sf = surfaces(faces_text)
     res = dict(per_kind={}, mapped=True, unmeasured_faces=0)
@@ -140,15 +172,22 @@ def deviation(obj, faces_text):
         if ds is None:
             res['unmeasured_faces'] += 1
             continue
-        pk = res['per_kind'].setdefault(kind, dict(faces=0, triangles=0, max_dev=0.0, max_vertex_off=0.0))
+        pk = res['per_kind'].setdefault(kind, dict(faces=0, triangles=0, max_dev=0.0, max_vertex_off=0.0, max_normal=0.0, normal_over=0))
         pk['faces'] += 1
         pk['triangles'] += int(sel.sum())
         pk['max_dev'] = max(pk['max_dev'], float(ds.max()))
         pk['max_vertex_off'] = max(pk['max_vertex_off'], float(dv.max()))
+        nd = normal_dev(sf[fi], tri)
+        if nd is not None and len(nd):
+            pk['max_normal'] = max(pk['max_normal'], float(nd.max()))
+            pk['normal_over'] += int((nd > 2.0 * ang).sum())
     devs = [v['max_dev'] for v in res['per_kind'].values()]
     res['max_dev'] = max(devs) if devs else None
     offs = [v['max_vertex_off'] for v in res['per_kind'].values()]
     res['max_vertex_off'] = max(offs) if offs else None
+    res['max_normal'] = max([v['max_normal'] for v in res['per_kind'].values()], default=None)
+    res['normal_over'] = sum(v['normal_over'] for v in res['per_kind'].values())
+    res['normal_limit'] = 2.0 * ang
     return res
 
 
@@ -178,6 +217,12 @@ BALLHOLE = ['(node 1 (sphere 6) (intent create any any any any))', '(node 2 (cyl
             '(node 4 (move 2 0 0 -10 0) (intent same any any any any))', '(node 3 (difference 1 4) (intent remove any any any any))']
 SPHEREBOX = ['(node 1 (box 20 20 20) (intent create any any any any))', '(node 2 (sphere 12) (intent create any any any any))',
              '(node 4 (move 2 10 10 10 0) (intent same any any any any))', '(node 3 (intersection 1 4) (intent same any any any any))']
+XDRILL = ['(node 1 (cylinder 8 30) (intent create any any any any))', '(node 2 (cylinder 3 30) (intent create any any any any))',
+          '(node 5 (rotate 2 y 90) (intent same any any any any))', '(node 4 (move 5 -15 0 15 0) (intent same any any any any))',
+          '(node 3 (difference 1 4) (intent remove any any any any))']
+OBLIQUE = ['(node 1 (cylinder 8 30) (intent create any any any any))', '(node 2 (box 40 40 20) (intent create any any any any))',
+           '(node 5 (move 2 -20 -20 0 0) (intent same any any any any))', '(node 6 (rotate 5 x 30) (intent same any any any any))',
+           '(node 4 (move 6 0 0 22 0) (intent same any any any any))', '(node 3 (difference 1 4) (intent remove any any any any))']
 RSS_KB = 4000000
 
 
@@ -197,7 +242,7 @@ def cases():
     for z in (9, 10, 12):
         for pr in (None, '2'):
             cs.append(dict(id=f"curved.dimple{z}.p{pr or '1'}", group='curved', edits=DIMPLE(z), node=4, preset=pr, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
-    for nm, ed in (('ballhole', BALLHOLE), ('spherebox', SPHEREBOX)):
+    for nm, ed in (('ballhole', BALLHOLE), ('spherebox', SPHEREBOX), ('xdrill', XDRILL), ('oblique', OBLIQUE)):
         for pr in (None, '2'):
             cs.append(dict(id=f'curved.{nm}.p{pr or "1"}', group='curved', edits=ed, node=3, preset=pr, budget_s=BUDGET['brief_mesh_s'], budget_on='mesh_s'))
     for pr in (None, '2'):
@@ -280,9 +325,9 @@ def serial(c, core):
     r['obj'] = ob
     r['obj_sha256'] = sha(ob)
     mc = check(ob)
-    r.update({k: mc[k] for k in ('triangles', 'vertices', 'zero_area', 'zero_area_by_group', 'edge_uses', 'same_direction_pairs', 't_junctions', 'conforming', 'volume')})
+    r.update({k: mc[k] for k in ('triangles', 'vertices', 'zero_area', 'zero_area_by_group', 'edge_uses', 'same_direction_pairs', 't_junctions', 'duplicate_triangles', 'conforming', 'volume')})
     r['mesh_area'] = mesh_area(ob)
-    dv = deviation(ob, fx['out'])
+    dv = deviation(ob, fx['out'], PRESET_ANGLE[c['preset']])
     r['deviation'] = dv
     if r['certified_volume']:
         lo, hi = r['certified_volume']
@@ -370,7 +415,7 @@ def judge(rows, ref, stls, refstl, edits):
                 b.append(('memory', (r.get('tess_maxrss_kb') or 1e12) <= RSS_KB, f"peak RSS {r.get('tess_maxrss_kb')} kB <= {RSS_KB}"))
             if r['ruled_only'] and r['group'] != 'blade':
                 b.append(('triangles', r['triangles'] <= BUDGET['tri_factor'] * r['est'], f"{r['triangles']} <= {BUDGET['tri_factor']} x est {r['est']}"))
-            b.append(('conforming', bool(r['conforming']), f"zero-area {r['zero_area']}, edge uses {r['edge_uses']}, same-direction {r['same_direction_pairs']}, T {r['t_junctions']}"))
+            b.append(('conforming', bool(r['conforming']), f"zero-area {r['zero_area']}, edge uses {r['edge_uses']}, same-direction {r['same_direction_pairs']}, T {r['t_junctions']}, duplicate triangles {r.get('duplicate_triangles')}"))
             if r['group'] != 'blade':
                 ch = PRESET_CHORD[r['preset'] if r['preset'] != 'default (1)' else None]
                 b.append(('chord_claim', r.get('chord') is not None and r['chord'] <= ch, f"reported chord {r.get('chord')} <= preset {ch}"))
@@ -380,6 +425,10 @@ def judge(rows, ref, stls, refstl, edits):
                 else:
                     b.append(('deviation_measured', md <= max(r.get('chord') or 0.0, 1e-9) * (1 + 1e-6) + 1e-9,
                               f"measured max deviation {md} <= reported chord {r.get('chord')} over {sum(v['faces'] for v in r['deviation']['per_kind'].values())} analytic faces, {r['deviation']['unmeasured_faces']} freeform faces not measured"))
+                mn = r['deviation'].get('max_normal')
+                if mn is not None and r['deviation']['mapped']:
+                    b.append(('normals', mn <= r['deviation']['normal_limit'] * (1 + 1e-9),
+                              f"largest angle between a triangle and the surface normal at its vertices {mn:.4f} rad <= twice the preset angle {r['deviation']['normal_limit']}; {r['deviation']['normal_over']} triangles over"))
                 if 'volume_err' in r:
                     b.append(('volume', abs(r['volume_err']) <= r['volume_bound_achieved'], f"|dV| {abs(r['volume_err']):.6g} <= chord x area {r['volume_bound_achieved']:.6g}"))
             if r['group'] == 'blade' and ref.get(r['id']):
@@ -488,7 +537,8 @@ def main():
     rec = dict(binary=BIN, sha256=sha(BIN), host_cores=os.cpu_count(), runner='tests/briefs/mesh.py', budgets=BUDGET, ref=refp,
                method='each case built from its brief edits; measure and tess run twice pinned to one core, the second run recorded; mesh_s = tess_s - eval_s (eval_s from measure); '
                       'one more tess on all cores checks byte identity across thread counts; tools/mesh/check.py judges conformity; deviation samples each triangle centroid and edge midpoints '
-                      'against the analytic surface printed by faces -f',
+                      'against the analytic surface printed by faces -f; normals compares each triangle normal with the analytic surface normal at its three vertices; '
+                      'duplicate triangles are triangles with the same three welded vertices',
                wall_s=round(time.time() - t0, 1), acceptance=v, rows=rows, stl=stls, edits=edits,
                passed=sum(1 for r in rows if r['pass']), total=len(rows))
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

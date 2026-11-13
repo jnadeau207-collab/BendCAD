@@ -66,10 +66,12 @@ def check(path, tol=1e-9):
     flipped = sum(1 for (x, y), n in dirc.items() if n > 1)
     tj = tjunctions(W, U, und, tol * scale)
     zt = collections.Counter(tags[i] for i in np.nonzero(zero)[0])
+    dup = collections.Counter(tuple(sorted(t)) for t in U.tolist())
+    dups = sum(n for n in dup.values() if n > 1)
     return dict(file=path, vertices=int(len(W)), triangles=int(len(U)), zero_area=int(zero.sum()),
                 zero_area_by_group=dict(zt.most_common(10)), edge_uses={str(k): v for k, v in sorted(uses.items())},
-                same_direction_pairs=flipped, t_junctions=len(tj),
-                conforming=bool(zero.sum() == 0 and set(uses) <= {2} and flipped == 0 and not tj),
+                same_direction_pairs=flipped, t_junctions=len(tj), duplicate_triangles=int(dups),
+                conforming=bool(zero.sum() == 0 and set(uses) <= {2} and flipped == 0 and not tj and dups == 0),
                 min_area=float(area.min()) if len(area) else None,
                 volume=float(np.einsum('ij,ij->i', P[:, 0], np.cross(P[:, 1], P[:, 2])).sum() / 6.0))
 
