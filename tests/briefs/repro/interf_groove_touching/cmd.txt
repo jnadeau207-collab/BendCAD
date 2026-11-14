@@ -1,0 +1,1 @@
+BIN design.bcd asm interf '(assembly (inst housing 103 0 0 0 0) (inst bearing 401 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9))'   # p5e: no answer in 300 s (C07/RB subdivision of a boolean's rational arc against the bearing's exact circle); groove drawn in the profile: 1.4 s

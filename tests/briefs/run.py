@@ -153,6 +153,17 @@ def judge(spec, out):
     if k == 'fits':
         bad = re.findall(r'fit-not-\S+|refused|error', out)
         return ('fail' if bad else 'pass'), clip(out.strip(), 600)
+    if k == 'std':
+        m = re.search(r'^std node \d+: (\d+) features, (\d+) pass, (\d+) fail', out, re.M)
+        if not m:
+            return 'not-analyzed', 'no std summary line'
+        lines = '; '.join(ln for ln in out.splitlines() if ln.startswith('std ') and 'status=' in ln and (len(a) < 2 or re.search(a[1], ln)))
+        sel = [ln for ln in out.splitlines() if ln.startswith('std ') and 'status=' in ln and (len(a) < 2 or re.search(a[1], ln))]
+        if any('status=fail' in ln for ln in sel):
+            return 'fail', clip(lines, 800)
+        if len(sel) < a[0]:
+            return 'not-analyzed', f'{len(sel)} standard features found, {a[0]} required: ' + clip(lines, 600)
+        return 'pass', clip(lines, 800)
     return 'not-analyzed', f'unknown judge {k}'
 
 

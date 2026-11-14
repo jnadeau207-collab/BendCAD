@@ -1,0 +1,3 @@
+(bendcad 1)
+(node 1 (box 60 40 10) (intent create any 0 1 0))
+(node 2 (cylinder 10 20) (intent create any 0 1 0))

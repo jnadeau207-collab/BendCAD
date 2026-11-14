@@ -1,0 +1,36 @@
+PASS material.mass {}
+PASS material.step {}
+PASS material.rebind {}
+PASS material.persists {}
+PASS asm.mass {}
+PASS asm.mass_unbound_refused {}
+PASS thread.semantic {}
+PASS thread.minor_mismatch {}
+PASS thread.step {}
+PASS thread.engagement {}
+PASS fit.iso286 {}
+PASS fit.declared_kind_refused {}
+PASS fit.transition {}
+PASS fit.transition_refused {}
+PASS fit.unknown_class {}
+PASS mesh.tip_to_bore {}
+PASS mesh.gear_to_gear {}
+PASS mesh.rotating {}
+PASS mesh.involute_rotating {}
+PASS mesh.involute_static {}
+PASS mesh.involute_tip_to_bore {}
+PASS torus.oring {}
+PASS torus.garter {}
+PASS torus.oring_inexact {}
+PASS torus.oring_half {}
+PASS torus.oring_racetrack {}
+PASS torus.bean_concave_turn {}
+PASS asm.step {}
+PASS asm.step_refused {}
+PASS press.declared {}
+PASS press.bare_on_certified_interference {}
+PASS press.declared_not_interfering {}
+PASS press.unknown_instance {}
+PASS interf.exact_contact {}
+34/34 passed
+K2 0

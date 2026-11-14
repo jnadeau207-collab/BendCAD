@@ -153,6 +153,9 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_naca4{m, p, t, c, n}: Z_err{"topology-not-certified-over-zone"}
             case M.O_blade{secs, z, tw, tp}: Z_err{"topology-not-certified-over-zone"}
             case M.O_skin{secs}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_sholes{base, f, hs, d, thru}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_groove{base, f, std, zg}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_keyway{base, f, side, l, zg, thru}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
 
 def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
@@ -604,6 +607,9 @@ def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id
             case M.O_naca4{m, p, t, c, n}: False{}
             case M.O_blade{secs, z, tw, tp}: False{}
             case M.O_skin{secs}: False{}
+            case M.O_sholes{base, f, hs, d, thru}: False{}
+            case M.O_groove{base, f, std, zg}: False{}
+            case M.O_keyway{base, f, side, l, zg, thru}: False{}
             case _:
               +cs = M.bd_cells(b)
               +ds = BD.cds_of(cs)
@@ -650,6 +656,9 @@ def prof_dz(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +z:
             case M.O_naca4{m, p, t, c, n}: dz_zero(ZT.zd_n(z))
             case M.O_blade{secs, zz, tw, tp}: dz_zero(ZT.zd_n(z))
             case M.O_skin{secs}: dz_zero(ZT.zd_n(z))
+            case M.O_sholes{base, f, hs, d, thru}: dz_zero(ZT.zd_n(z))
+            case M.O_groove{base, f, std, zg}: dz_zero(ZT.zd_n(z))
+            case M.O_keyway{base, f, side, l, zg, thru}: dz_zero(ZT.zd_n(z))
             case _:
               +ds = BD.cds_of(M.bd_cells(b))
               cells_md(ds, B.tb_of(BD.Cd, ds, BD.cd_pad()), ns, z, n)

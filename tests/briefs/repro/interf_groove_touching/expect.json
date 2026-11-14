@@ -1,0 +1,18 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "a 608 ring seated in a housing whose DIN 472 groove was built by the groove feature certifies disjoint as fast as the same housing with the groove drawn in its profile (1.4 s); on p5e the pair ran past 300 s because a rational arc coincident with an exact circle was only separated by subdivision",
+ "steps": [
+  {
+   "args": [
+    "asm",
+    "interf",
+    "(assembly (inst housing 103 0 0 0 0) (inst bearing 401 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9))"
+   ],
+   "must": [
+    "pair housing bearing",
+    "relation disjoint status=certified"
+   ]
+  }
+ ]
+}

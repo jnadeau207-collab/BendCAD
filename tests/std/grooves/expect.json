@@ -1,0 +1,184 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "2",
+    "-f"
+   ],
+   "must": [
+    "diameter=\\[7\\.6, 7\\.6\\]"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (keyway 2 (face 1 n1.c0.wall.0.0.p0) +y 10 5) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "ambiguous-face: n1\\.c0\\.wall\\.0\\.0 was split into 2 pieces",
+    "n1\\.c0\\.wall\\.0\\.0\\.p0",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "keyway-outside-face: z=\\[5, 15\\] face-span=\\[30\\.9, 40\\]",
+    "the face is 9\\.1 long",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "std",
+    "3"
+   ],
+   "must": [
+    "ring-groove \\d+ DIN 471 d1=8 .*groove-diameter=\\[7\\.6, 7\\.6\\] width=0\\.9 .*status=pass",
+    "keyway \\d+ DIN 6885-1 shaft d1=8 .*b=2 .*t1=1\\.2 .*status=pass",
+    "^std node 3: 2 features, 2 pass, 0 fail"
+   ],
+   "count": [
+    "status=pass",
+    2
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "13",
+    "-f"
+   ],
+   "must": [
+    "diameter=\\[23, 23\\]"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "std",
+    "14"
+   ],
+   "must": [
+    "ring-groove \\d+ DIN 472 d1=22 .*groove-diameter=\\[23, 23\\] width=1\\.1 .*status=pass",
+    "keyway \\d+ DIN 6885-1 hub d1=22 .*b=6 .*t2=2\\.8 .*status=pass"
+   ],
+   "count": [
+    "status=pass",
+    2
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "groove-face-not-cylindrical",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 4 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN471) 4) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "DIN 471 is for shafts",
+    "DIN472",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "groove-outside-face",
+    "admissible=\\[0, 39\\.1\\]",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-no-record: DIN 471 has no row for d1=7\\.5",
+    "fix: .*\\b7 8 9\\b",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "keyway-side-not-radial",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "faces",
+    "14",
+    "-f"
+   ],
+   "must": [
+    "n14\\.c0\\.top plane loops=1 frame o=\\(20,33\\.8,"
+   ]
+  }
+ ]
+}

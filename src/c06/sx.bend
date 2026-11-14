@@ -231,6 +231,30 @@ def hls_of(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.Hl>:
     case []: []
     case x <> t: hl_of(x, ns) <> hls_of(t, ns)
 
+def hs_k(+s: String) -> U64:
+  Bool.pick(U64, String.eq(s, "hole"), 0u64, Bool.pick(U64, String.eq(s, "clearance"), 1u64, Bool.pick(U64, String.eq(s, "counterbore"), 2u64,
+    Bool.pick(U64, String.eq(s, "countersink"), 3u64, Bool.pick(U64, String.eq(s, "tapped"), 4u64, 9u64)))))
+
+def hs_of(+x: Sx, +ns: List<&2, NI>) -> M.Hs:
+  +xs = sx_xs(x)
+  +h = sx_s(sx_nth(xs, 0n))
+  +k = hs_k(h)
+  +five = Nat.is_eq(List.length(&2, Sx, xs), 5n)
+  Bool.pick(M.Hs, U64.is_eq(k, 0u64),
+    M.Hs{0u64, "", "", to_xp(sx_nth(xs, 1n), ns), to_xp(sx_nth(xs, 2n), ns), to_xp(sx_nth(xs, 3n), ns)},
+    M.Hs{k, Bool.pick(String, U64.is_eq(k, 9u64), h, sx_s(sx_nth(xs, 1n))), Bool.pick(String, five, sx_s(sx_nth(xs, 2n)), ""),
+      to_xp(sx_nth(xs, Bool.pick(Nat, five, 3n, 2n)), ns), to_xp(sx_nth(xs, Bool.pick(Nat, five, 4n, 3n)), ns), X.X_k{0.0f64}})
+
+def hss_of(xs: List<&2, Sx>, +ns: List<&2, NI>) -> List<&2, M.Hs>:
+  match xs:
+    case []: []
+    case x <> t: hs_of(x, ns) <> hss_of(t, ns)
+
+def hs_plain(xs: List<&2, Sx>) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> t: Bool.and(head_is(x, "hole"), hs_plain(t))
+
 def u64_m(m: Maybe<&2, U64>) -> U64:
   match m:
     case None{}: 0u64
@@ -907,13 +931,37 @@ def op_is_feat(+h: String) -> Bool:
       Bool.or(String.eq(h, "shell"), Bool.or(String.eq(h, "thicken"), Bool.or(String.eq(h, "pattern"),
         String.eq(h, "pattern-holes"))))))))))
 
+def side_of(+s: String) -> U64:
+  Bool.pick(U64, String.eq(s, "+x"), 0u64, Bool.pick(U64, String.eq(s, "-x"), 1u64, Bool.pick(U64, String.eq(s, "+y"), 2u64,
+    Bool.pick(U64, String.eq(s, "-y"), 3u64, Bool.pick(U64, String.eq(s, "+z"), 4u64, Bool.pick(U64, String.eq(s, "-z"), 5u64, 9u64))))))
+
+def side_s(+s: U64) -> String:
+  Bool.pick(String, U64.is_eq(s, 0u64), "+x", Bool.pick(String, U64.is_eq(s, 1u64), "-x", Bool.pick(String, U64.is_eq(s, 2u64), "+y",
+    Bool.pick(String, U64.is_eq(s, 3u64), "-y", Bool.pick(String, U64.is_eq(s, 4u64), "+z", Bool.pick(String, U64.is_eq(s, 5u64), "-z", "?"))))))
+
+def groove_op(+xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: List<&2, NI>) -> M.Op:
+  Bool.pick(M.Op, head_is(e3, "ring"), M.O_groove{u64_of(e1), sel_of(e2), sx_s(sx_nth(sx_xs(e3), 1n)), to_xp(sx_nth(xs, 4n), ns)},
+    M.O_groove{u64_of(e1), sel_of(e2), sx_s(sx_nth(sx_xs(e3), 0n)), to_xp(sx_nth(xs, 4n), ns)})
+
+def keyway_op(+xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: List<&2, NI>) -> M.Op:
+  +th = is_thru(sx_nth(xs, 4n))
+  M.O_keyway{u64_of(e1), sel_of(e2), side_of(sx_s(e3)), Bool.pick(X.Xp, th, X.X_k{0.0f64}, to_xp(sx_nth(xs, 4n), ns)),
+    Bool.pick(X.Xp, th, X.X_k{0.0f64}, to_xp(sx_nth(xs, 5n), ns)), th}
+
+def holes_op(+xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: List<&2, NI>) -> M.Op:
+  +es = sx_drop(xs, 4n)
+  Bool.pick(M.Op, hs_plain(es), M.O_holes{u64_of(e1), sel_of(e2), hls_of(es, ns), to_xp(e3, ns), is_thru(e3)},
+    M.O_sholes{u64_of(e1), sel_of(e2), hss_of(es, ns), to_xp(e3, ns), is_thru(e3)})
+
 def op_of_core(+h: String, +xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: List<&2, NI>) -> M.Op:
   Bool.pick(M.Op, String.eq(h, "prism"), M.O_prism{rgs_of(sx_drop(xs, 3n), ns), to_xp(e1, ns), to_xp(e2, ns)},
   Bool.pick(M.Op, String.eq(h, "box"), M.O_box{to_xp(e1, ns), to_xp(e2, ns), to_xp(e3, ns)},
   Bool.pick(M.Op, String.eq(h, "cylinder"), M.O_cyl{to_xp(e1, ns), to_xp(e2, ns)},
   Bool.pick(M.Op, String.eq(h, "pad"), M.O_pad{u64_of(e1), sel_of(e2), rgs_of(sx_drop(xs, 4n), ns), to_xp(e3, ns)},
   Bool.pick(M.Op, String.eq(h, "pocket"), M.O_pocket{u64_of(e1), sel_of(e2), rgs_of(sx_drop(xs, 4n), ns), to_xp(e3, ns), is_thru(e3)},
-  Bool.pick(M.Op, String.eq(h, "holes"), M.O_holes{u64_of(e1), sel_of(e2), hls_of(sx_drop(xs, 4n), ns), to_xp(e3, ns), is_thru(e3)},
+  Bool.pick(M.Op, String.eq(h, "holes"), holes_op(xs, e1, e2, e3, ns),
+  Bool.pick(M.Op, String.eq(h, "groove"), groove_op(xs, e1, e2, e3, ns),
+  Bool.pick(M.Op, String.eq(h, "keyway"), keyway_op(xs, e1, e2, e3, ns),
   Bool.pick(M.Op, String.eq(h, "revolve"), M.O_revolve{rgs_of(sx_drop(xs, 1n), ns)},
   Bool.pick(M.Op, String.eq(h, "cone"), M.O_cone{to_xp(e1, ns), to_xp(e2, ns)},
   Bool.pick(M.Op, String.eq(h, "sphere"), M.O_sph{to_xp(e1, ns)},
@@ -924,7 +972,7 @@ def op_of_core(+h: String, +xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: Li
   Bool.pick(M.Op, String.eq(h, "difference"), M.O_difference{u64_of(e1), u64_of(e2)},
   Bool.pick(M.Op, String.eq(h, "intersection"), M.O_intersection{u64_of(e1), u64_of(e2)},
   Bool.pick(M.Op, String.eq(h, "import"), M.O_blob{u64_of(e1), sx_s(e2)},
-  M.O_unk{h}))))))))))))))))
+  M.O_unk{h}))))))))))))))))))
 
 def op_of_feat(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   Bool.pick(M.Op, String.eq(h, "sweep"), sw_op(xs, ns),
@@ -1003,6 +1051,25 @@ def hls_sx(hs: List<&2, M.Hl>, +ns: List<&2, NI>) -> List<&2, Sx>:
       M.Hl{x, y, r} = h
       ls([at("hole"), xp_sx(x, ns), xp_sx(y, ns), xp_sx(r, ns)]) <> hls_sx(t, ns)
 
+def hs_word(+k: U64) -> String:
+  Bool.pick(String, U64.is_eq(k, 1u64), "clearance", Bool.pick(String, U64.is_eq(k, 2u64), "counterbore",
+    Bool.pick(String, U64.is_eq(k, 3u64), "countersink", "tapped")))
+
+def hs_cls_sx(+cls: String, +rest: List<&2, Sx>) -> List<&2, Sx>:
+  Bool.pick(List<&2, Sx>, String.is_empty(cls), rest, at(cls) <> rest)
+
+def hs_sx(k: U64, +sz: String, +cls: String, x: X.Xp, y: X.Xp, r: X.Xp, +ns: List<&2, NI>) -> Sx:
+  match k:
+    case 0u64: ls([at("hole"), xp_sx(x, ns), xp_sx(y, ns), xp_sx(r, ns)])
+    case _: ls(at(hs_word(k)) <> at(sz) <> hs_cls_sx(cls, [xp_sx(x, ns), xp_sx(y, ns)]))
+
+def hss_sx(hs: List<&2, M.Hs>, +ns: List<&2, NI>) -> List<&2, Sx>:
+  match hs:
+    case []: []
+    case h <> t:
+      M.Hs{k, +sz, +cls, x, y, r} = h
+      hs_sx(k, sz, cls, x, y, r, ns) <> hss_sx(t, ns)
+
 def sel_sx(s: M.Sel) -> Sx:
   M.Sel{+nd, +k, +side, +nm} = s
   Bool.pick(Sx, String.is_empty(nm),
@@ -1048,6 +1115,11 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
       ls(at("pocket") <> at(U64.show(base)) <> sel_sx(f) <> amt_sx(thru, d, ns) <> rgs_sx(rs, ns))
     case M.O_holes{base, f, hs, d, +thru}:
       ls(at("holes") <> at(U64.show(base)) <> sel_sx(f) <> amt_sx(thru, d, ns) <> hls_sx(hs, ns))
+    case M.O_sholes{base, f, hs, d, +thru}:
+      ls(at("holes") <> at(U64.show(base)) <> sel_sx(f) <> amt_sx(thru, d, ns) <> hss_sx(hs, ns))
+    case M.O_groove{base, f, +std, z}: ls([at("groove"), at(U64.show(base)), sel_sx(f), ls([at("ring"), at(std)]), xp_sx(z, ns)])
+    case M.O_keyway{base, f, +side, l, z, +thru}:
+      ls(at("keyway") <> at(U64.show(base)) <> sel_sx(f) <> at(side_s(side)) <> Bool.pick(List<&2, Sx>, thru, [at("through")], [xp_sx(l, ns), xp_sx(z, ns)]))
     case M.O_move{base, tx, ty, tz, q}:
       ls([at("move"), at(U64.show(base)), xp_sx(tx, ns), xp_sx(ty, ns), xp_sx(tz, ns), at(U64.show(q))])
     case M.O_rot{base, ax, deg}: ls([at("rotate"), at(U64.show(base)), at(axis_s(ax)), xp_sx(deg, ns)])

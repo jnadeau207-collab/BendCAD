@@ -34,6 +34,7 @@ import ../k3/solve.bend as K3S
 import ../k3/mach.bend as K3X
 import ../c07/sol.bend as SOL
 import ../k2/thr.bend as KT
+import ../k2/kstd.bend as KSD
 import ../k2/kasm.bend as KA
 import ../k2/fit.bend as KF
 import ../k2/kstep.bend as KX
@@ -346,7 +347,7 @@ def threads_out(+p: M.Part, +n: U64, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
   +r = node_res(M.ev_for(p, [n], old), n)
   Bool.pick(String, M.nr_ok(r), "threads node " ++ U64.show(n) ++ "
-" ++ KT.ths_of_node(ts, n, M.nr_body(r)), "error: node failed; nothing listed")
+" ++ KT.ths_of_node(ts, n, M.nr_body(r)) ++ KSD.taps_s(p, n, old), "error: node failed; nothing listed")
 
 def mass_out(+p: M.Part, +n: U64, +d: Nat, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
@@ -554,7 +555,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
-  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, 0u64)))))))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, 0u64))))))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
@@ -1367,7 +1368,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 32u64: IO.pure(String, spin_out(p, rest, old))
     case 33u64: IO.pure(String, mach_out(p, rest, old))
     case 35u64: scene_io(p, rest, old)
-    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene")
+    case 36u64: IO.pure(String, KSD.std_out(p, S.arg_at(rest, 0n), old))
+    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:

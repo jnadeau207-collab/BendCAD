@@ -1,0 +1,5 @@
+(bendcad 1)
+(param 1 DS 22 22 22.021)
+(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 16.5) (line (/ DS 2) 16.5) (line (/ DS 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))
+(node 103 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))
+(node 401 (revolve (region (path 4 0 (line 11 0) (line 11 7) (line 4 7)))) (intent create any 0 1 1))

@@ -1,0 +1,106 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-size-unknown: M7",
+    "fix: .*M1\\.6 M2 M2\\.5 M3 M4 M5 M6 M8 M10 M12 M16 M20",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (countersink M2 10 10)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-no-record: countersink M2",
+    "fix: .*M3 M4 M5 M6 M8 M10 M12 M16 M20",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (clearance M5 extra 10 10)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-series-unknown: extra",
+    "fine, medium or coarse",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (tapped M4 9Z 10 10)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-class-unknown: 9Z",
+    "5H, 6H, 7H or 6G",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (oops M5 10 10)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "std-kind-unknown: oops",
+    "clearance, counterbore, countersink, tapped",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "counterbore M12",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 2 (face 2 n2.c0.wall.0.0) through (clearance M3 0 0)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "feature-face-not-planar",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 3 (holes 1 (face 1 0 top) through (clearance M5 1 10)) (intent remove any any 1 any))"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "std",
+    "3"
+   ],
+   "must_not": [
+    "status=pass"
+   ],
+   "stop_on_fail": false
+  }
+ ]
+}

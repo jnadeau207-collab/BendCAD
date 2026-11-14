@@ -1,0 +1,26 @@
+{
+  "columns": ["d", "p", "clear_fine", "clear_medium", "clear_coarse", "tap_drill", "shcs_dk", "shcs_k", "cbore_d", "cbore_t", "csk_dk", "csk_k", "csk_d", "hex_af"],
+  "tables": {
+    "clear": {"columns": ["clear_fine", "clear_medium", "clear_coarse"], "standard": "ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14", "source": "engineersbible.com/counterbore-socket-iso (ISO 273 series columns)"},
+    "tap": {"columns": ["tap_drill"], "standard": "ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P", "source": "D and P from ISO 261 coarse pitches held in src/k2/thr.bend"},
+    "shcs": {"columns": ["shcs_dk", "shcs_k"], "standard": "ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max", "source": "westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html"},
+    "cbore": {"columns": ["cbore_d", "cbore_t"], "standard": "DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance", "source": "engineersbible.com/counterbore-socket-iso"},
+    "cskh": {"columns": ["csk_dk", "csk_k"], "standard": "ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head", "source": "westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html"},
+    "csk": {"columns": ["csk_d"], "standard": "DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642", "source": "engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes"},
+    "hex": {"columns": ["hex_af"], "standard": "ISO 4032 hexagon nut width across flats s (ISO 272)", "source": "ISO 4032 s nominal"}
+  },
+  "sizes": {
+    "M1.6": [1.6, 0.35, 1.7, 1.8, 2.0, 1.25, 3.14, 1.6, 3.5, 1.8, null, null, null, 3.2],
+    "M2": [2.0, 0.4, 2.2, 2.4, 2.6, 1.6, 3.98, 2.0, 4.4, 2.2, null, null, null, 4.0],
+    "M2.5": [2.5, 0.45, 2.7, 2.9, 3.1, 2.05, 4.68, 2.5, 5.5, 3.0, null, null, null, 5.0],
+    "M3": [3.0, 0.5, 3.2, 3.4, 3.6, 2.5, 5.68, 3.0, 6.5, 3.5, 6.72, 1.86, 6.94, 5.5],
+    "M4": [4.0, 0.7, 4.3, 4.5, 4.8, 3.3, 7.22, 4.0, 8.0, 4.8, 8.96, 2.48, 9.18, 7.0],
+    "M5": [5.0, 0.8, 5.3, 5.5, 5.8, 4.2, 8.72, 5.0, 10.0, 5.8, 11.2, 3.1, 11.47, 8.0],
+    "M6": [6.0, 1.0, 6.4, 6.6, 7.0, 5.0, 10.22, 6.0, 11.0, 6.8, 13.44, 3.72, 13.71, 10.0],
+    "M8": [8.0, 1.25, 8.4, 9.0, 10.0, 6.8, 13.27, 8.0, 15.0, 8.8, 17.92, 4.96, 18.25, 13.0],
+    "M10": [10.0, 1.5, 10.5, 11.0, 12.0, 8.5, 16.27, 10.0, 18.0, 10.8, 22.4, 6.2, 22.73, 16.0],
+    "M12": [12.0, 1.75, 13.0, 13.5, 14.5, 10.2, 18.27, 12.0, 20.0, 12.8, 26.88, 7.44, 27.21, 18.0],
+    "M16": [16.0, 2.0, 17.0, 17.5, 18.5, 14.0, 24.0, 16.0, 26.0, 16.8, 33.6, 8.8, 33.99, 24.0],
+    "M20": [20.0, 2.5, 21.0, 22.0, 24.0, 17.5, 30.33, 20.0, 33.0, 21.0, 40.32, 10.16, 40.71, 30.0]
+  }
+}

@@ -1,0 +1,78 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "102"
+   ],
+   "must": [
+    "^n101\\.c0\\.wall\\.9\\.0 cylinder",
+    "^n101\\.c0\\.wall\\.7\\.0 cylinder"
+   ],
+   "count": [
+    "^n\\S+ \\S+ loops",
+    24
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "102",
+    "-f"
+   ],
+   "must": [
+    "n101\\.c0\\.wall\\.7\\.0 cylinder loops=1 axis o=\\(0,0,0\\) d=\\(0,0,1\\) radius=\\[11\\.5, 11\\.5\\]"
+   ]
+  },
+  {
+   "args": [
+    "std",
+    "102"
+   ],
+   "must": [
+    "ring-groove \\d+ DIN 472 d1=22 .*groove-diameter=\\[23, 23\\] width=1\\.1 .*status=pass"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed",
+    "node 202: .*volume=\\[3678\\.198585357\\d*, 3678\\.198585358\\d*\\]"
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "202"
+   ],
+   "count": [
+    "^n\\S+ \\S+ loops",
+    30
+   ]
+  },
+  {
+   "args": [
+    "std",
+    "202"
+   ],
+   "must": [
+    "ring-groove \\d+ DIN 471 d1=8 face-d=8\\.004 .*groove-diameter=\\[7\\.6, 7\\.6\\] width=0\\.9 .*status=pass"
+   ]
+  }
+ ]
+}

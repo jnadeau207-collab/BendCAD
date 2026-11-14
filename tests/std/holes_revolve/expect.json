@@ -1,0 +1,50 @@
+{
+ "item": "S2",
+ "limit_s": 30,
+ "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "102",
+    "-f"
+   ],
+   "must": [
+    "diameter=\\[10, 10\\]",
+    "diameter=\\[5\\.5, 5\\.5\\]",
+    "diameter=\\[4\\.2, 4\\.2\\]"
+   ]
+  },
+  {
+   "args": [
+    "std",
+    "102"
+   ],
+   "must": [
+    "^std node 102: 4 features, 4 pass, 0 fail, 0 not-analyzed"
+   ],
+   "count": [
+    "status=pass",
+    4
+   ]
+  },
+  {
+   "args": [
+    "threads",
+    "102"
+   ],
+   "must": [
+    "M5x0\\.8 6H .*status=certified"
+   ]
+  }
+ ]
+}

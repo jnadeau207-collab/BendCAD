@@ -1,0 +1,155 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p4f",
+ "sha256": "486042a0a2d1a6d8cf14f26bf98cda1a35f919df73bfea83fc2d2a4fba1fbf20",
+ "passed": 0,
+ "total": 3,
+ "cases": [
+  {
+   "case": "holes_plate",
+   "item": "S2",
+   "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
+   "verdict": "fail",
+   "seconds": 0.012,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
+     "seconds": 0.012,
+     "limit_s": 5,
+     "verdict": "fail",
+     "missing": [
+      "^committed"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: error invalid-input | holes footprint @ loop 3 segment 0 | why: curves-cross-or-touch | fix: separate the crossing or touching curves\n\nrejected: the design was not changed\n"
+    }
+   ]
+  },
+  {
+   "case": "holes_refusals",
+   "item": "S2",
+   "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
+   "verdict": "fail",
+   "seconds": 0.09,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
+     "seconds": 0.011,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "std-size-unknown: M7",
+      "fix: .*M1\\.6 M2 M2\\.5 M3 M4 M5 M6 M8 M10 M12 M16 M20"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (countersink M2 10 10)) (intent remove any any 1 any))",
+     "seconds": 0.011,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "std-no-record: countersink M2",
+      "fix: .*M3 M4 M5 M6 M8 M10 M12 M16 M20"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M5 extra 10 10)) (intent remove any any 1 any))",
+     "seconds": 0.011,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "std-series-unknown: extra",
+      "fine, medium or coarse"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (tapped M4 9Z 10 10)) (intent remove any any 1 any))",
+     "seconds": 0.01,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "std-class-unknown: 9Z",
+      "5H, 6H, 7H or 6G"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (oops M5 10 10)) (intent remove any any 1 any))",
+     "seconds": 0.011,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "std-kind-unknown: oops",
+      "clearance, counterbore, countersink, tapped"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
+     "seconds": 0.01,
+     "limit_s": 10,
+     "verdict": "fail",
+     "missing": [
+      "counterbore M12"
+     ],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 2 n2.c0.wall.0.0) through (clearance M3 0 0)) (intent remove any any 1 any))",
+     "seconds": 0.012,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes @ node 3 | why: feature-face-not-planar: n2.c0.wall.0.0 | fix: features act on planar faces\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M5 1 10)) (intent remove any any 1 any))",
+     "seconds": 0.012,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[23999.99999997741, 24000.00000002259] area=[6799.999999994459, 6800.000000005541] bbox=[-1.0658141036401505e-13, 60.00000000000012]x[-1.0658141036401505e-13, 40.00000000000012]x[-1.0658141036401505e-13, 10.00000000000011] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 2: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[6283.185307179511, 6283.185307179661] area=[1884.9555921538247, 1884.9555921539272] bbox=[-10.00000000000004, 10.00000000000004]x[-10.00000000000004, 10.00000000000004]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 3: error invalid-input | holes footprint @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd std 3",
+     "seconds": 0.002,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error unknown command std | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene\n"
+    }
+   ]
+  },
+  {
+   "case": "holes_revolve",
+   "item": "S2",
+   "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
+   "verdict": "fail",
+   "seconds": 0.015,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
+     "seconds": 0.015,
+     "limit_s": 30,
+     "verdict": "fail",
+     "missing": [
+      "^committed"
+     ],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=12 faces_modified=0 solids=1 through_holes=1 | volume=[23068.322156227583, 23068.32215622873] area=[9113.760288059098, 9113.760288068881] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 16.500000000000064] vertices=12 edges=24 faces=12 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: error invalid-input | prism profile @ loop 0 segment 0 | why: unknown-parameter | fix: define the parameter\n\nrejected: the design was not changed\n"
+    }
+   ]
+  }
+ ]
+}

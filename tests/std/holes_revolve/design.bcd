@@ -1,0 +1,2 @@
+(bendcad 1)
+(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 16.5) (line 9.5 16.5)))) (intent create any 0 1 1))

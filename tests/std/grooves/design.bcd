@@ -1,0 +1,5 @@
+(bendcad 1)
+(node 1 (cylinder 4 40) (intent create any 0 1 0))
+(node 11 (box 40 40 10) (intent create any 0 1 0))
+(node 12 (holes 11 (face 11 0 top) through (hole 20 20 11)) (intent remove any any 1 1))
+(node 21 (cylinder 3.75 20) (intent create any 0 1 0))

@@ -6,8 +6,8 @@ import subprocess
 import sys
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+HERE = os.environ.get("REPRO_DIR", os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad-a15')
 WORK = os.environ.get('REPRO_WORK', '/var/tmp/repro')
 OUT = os.environ.get('REPRO_OUT', os.path.join(ROOT, 'docs', 'receipts', 'briefs', 'repro.json'))
