@@ -83,9 +83,9 @@ Refused, with the fix and what happened:
 | faces | `faces NODE [-f\|-v]` | names and surface kinds; `-f` adds every planar face's frame and every analytic curved face's defining parameters: `n2.c0.wall.0.0 cylinder loops=2 axis o=(10,10,0) d=(0,0,1) radius=[2.75, 2.75] diameter=[5.5, 5.5] concave`; cones print `apex= axis= tan-half-angle=`, spheres `center= radius= diameter=`, tori `center= axis= major-radius= minor-radius=`, each `convex` or `concave`; `-v` prints the same plus the faces deleted by the node |
 | check | `check NODE` | `ok: embedded, shells outward, cavities nested` on every committed part |
 | mass | `mass NODE [DEPTH]` | certified volume and divergence moments; the octree centroid can be `incomplete` (B1) |
-| wall | `wall NODE` | `min-wall [2.999999999971803, 3] certified ...` (B1, 16-19 s); B2 in 1.3 s; no answer in 600 s on B3, B4, B5, B7, B11, B12, B14 |
-| clearance | `clearance A B` | exact for coaxial cylinders: the gauge-pin method (B2 `clearance 91 4` gave `[0.09999999966998627, 0.10000000000003212]`) measures a bore; between non-coaxial curved parts it took over 600 s (B8, B9, B13) |
-| interf | `interf A B` | `relation disjoint status=certified` (B7 lid on body, B8 O-ring in its groove in 74 s, B6 gears in 440 s); found the real interference of B9's first leaf design |
+| wall | `wall NODE` | `min-wall [LO, HI] certified lo=branch-and-bound hi=witness normals=opposed faces=N`: the smallest distance between two points of the part's faces whose inward normals are opposed along the segment between them (a rod reads its diameter, a tube its wall, an O-ring its cord). LO is a certified lower bound; HI is the length of a found pair whose normals agree with the segment to within 1e-4 rad, inflated by the square of that misalignment. A part with no opposed faces reads `min-wall none status=certified reason=no-opposed-faces`. Measured on `p4f` (`docs/receipts/briefs/repro.json`): B1 4 in 0.6 s, B2 6 in 4.3 s, B3 1.5 in 3.7 s, B4 1.0 in 2.2 s, B5 1.0 in 3.0 s, B7 1.5 in 3.3 s, B11 6 in 21 s, B12 3.25 in 1.8 s, B14 1.2 in 1.7 s (none answered in 600 s on `p3t`). Not measured: a thin lip whose thinnest span runs between two edges of one face, such as the top of a tapered bore (`wall_everyday` node 10 reads 10 where the lip is 0.5) |
+| clearance | `clearance A B` | certified interval between the parts' faces, edges and vertices (`lo=branch-and-bound`); `clearance 0 ... state=interference` when they overlap. On `p4f`: a gauge pin in a bore 0.36 s (B2); the hinge leaves 0.4 at 0, 60, 90 and 120 degrees in 4-16 s (no answer in 600 s on `p3t`); tilted boxes 17 s; tilted cylinders 2.1 s; a seated O-ring `[0, 1.1e-13]` in 47 s, most of it the interference check that touching parts need |
+| interf | `interf A B` | `relation disjoint status=certified` (B7 lid on body in 1.8 s, B8 O-ring in its groove in 24 s, B6 gears in 100 s); found the real interference of B9's first leaf design |
 | dist | `dist NODE X Y Z` | inside a hole: `distance [0, 3.1250390622552344] estimated lo=certified`; read a hole size from `faces NODE -f` instead |
 | zone | `zone NODE` | refused on a revolve with holes (B3) and on a boolean (B4): `topology-not-certified-over-zone` |
 | section | `section NODE A B C D` | B1 at z = 22: `status=estimated` with over 1000 unresolved boxes |
@@ -127,7 +127,9 @@ Assembly form (B13): `(assembly (inst NAME NODE TX TY TZ Q)... (fix ID INST) (co
 - `modelled_thread_reason82`: a 10 mm internal M3 helix differenced from the standoff refuses with k1 reason 82 after about 200 s.
 - `tess_curved_boolean_not_closed`: fixed in P3. The cause was the ear clipper's point grid, which also indexed the padding entries of its power-of-two table: every face whose parameter domain contains (0, 0) saw phantom points there, so ears were blocked and the face was left partly open (the D-flat and the bore of the handwheel).
 - `tess_display_slow`: fixed in P3 (enclosure body 143 s on one core to 1.0 s with evaluation, 39,410 to 1,664 triangles).
-- `wall_stepped_revolve`, `clearance_oring_slow`, `asm_clear_slow`, `interf_gears_slow`: queries far over budget.
+- `wall_stepped_revolve`, `clearance_hinge_leaves_slow`, `clearance_oring_slow`, `clearance_general_position`: fixed in P4 (section 4).
+- `wall_everyday`: nine of ten pass; the tapered-bore lip reads 10 (see `wall` in section 4).
+- `asm_clear_slow`, `interf_gears_slow`: see `docs/receipts/briefs/repro.json` for the current times.
 - `dist_inside_hole`, `thread_span_frame`: fixed in P2 (`faces -f` hole size; the span message).
 
 ## 8. Not exercised in this baseline

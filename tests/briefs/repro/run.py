@@ -29,6 +29,17 @@ def step(design, st, env, default_limit):
     s = round(time.time() - t0, 3)
     miss = [r for r in st.get('must', []) if not re.search(fill(r, env), out, re.M)]
     bad = [r for r in st.get('must_not', []) if re.search(fill(r, env), out, re.M)]
+    if 'interval' in st:
+        key, lo, hi = st['interval']
+        m = re.search('^' + key + r' \[(\S+), (\S+)\]', out, re.M)
+        got = (float(m.group(1)), float(m.group(2))) if m else (0.0, 0.0) if re.search('^' + key + r' 0\b', out, re.M) else None
+        if got is None or not (lo <= got[0] <= got[1] <= hi):
+            miss.append(f'interval {key} within [{lo}, {hi}], got {got}')
+    if 'count' in st:
+        rx, n = st['count']
+        k = len(re.findall(rx, out, re.M))
+        if k != n:
+            miss.append(f'count {rx} == {n}, got {k}')
     for k, r in st.get('capture', {}).items():
         m = re.search(r, out, re.M)
         if m:

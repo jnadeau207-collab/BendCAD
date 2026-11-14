@@ -1,0 +1,48 @@
+== identity battery (ref vs new)
+g1-bracket-eval        IDENTICAL  ref       0.0 s  new       0.0 s  x1.00
+g1-strap-eval          IDENTICAL  ref       0.0 s  new       0.0 s  x1.00
+g1-bracket-mass        IDENTICAL  ref       4.6 s  new       4.7 s  x0.99
+g2-eval                IDENTICAL  ref      30.8 s  new      30.5 s  x1.01
+g2-mass-38             IDENTICAL  ref      10.4 s  new      10.5 s  x0.98
+g2-interf-11-38        IDENTICAL  ref       8.9 s  new       9.0 s  x0.98
+g2-step-38             IDENTICAL  ref       3.1 s  new       3.1 s  x0.99
+g2-asm-solve           IDENTICAL  ref      29.7 s  new      30.2 s  x0.98
+g2-asm-interf-pair     IDENTICAL  ref       8.7 s  new       9.1 s  x0.96
+g2-threads-38          IDENTICAL  ref       3.0 s  new       3.0 s  x1.01
+g3-eval                IDENTICAL  ref       1.0 s  new       1.0 s  x1.03
+g4-hub2-eval           IDENTICAL  ref       2.3 s  new       2.4 s  x0.96
+k4-blade-union-eval    IDENTICAL  ref      15.5 s  new      15.3 s  x1.01
+fz127-box-torus-eval   IDENTICAL  ref       0.2 s  new       0.2 s  x1.00
+fz103-revolve-sphere-eval IDENTICAL  ref       0.5 s  new       0.5 s  x0.98
+fz1-cyl-torus-refusal  IDENTICAL  ref       5.6 s  new       5.5 s  x1.00
+16/16 identical
+== fuzz gate (tests/eval/gate-baseline.json)
+73/126 committed, 0 regressions, 0 slowdowns, 0 gains, 23.5 s
+== law gate (--check-only and --verdict)
+base laws=13 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 0s
+c00 laws=8 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 2s
+c01 laws=10 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c02 laws=16 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 0s
+c03 laws=10 check=[ALL PROOFS CHECK] 27s verdict=[ALL PROOFS CHECK] 26s
+c04 laws=104 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 2s
+c05 laws=36 check=[ALL PROOFS CHECK] 148s verdict=[ALL PROOFS CHECK] 148s
+c06 laws=6 check=[ALL PROOFS CHECK] 5s verdict=[ALL PROOFS CHECK] 18s
+c07 laws=5 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c08 laws=4 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 10s
+c09 laws=2 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 4s
+c10 laws=18 check=[ALL PROOFS CHECK] 5s verdict=[ALL PROOFS CHECK] 27s
+c11 laws=65 check=[ALL PROOFS CHECK] 8s verdict=[ALL PROOFS CHECK] 32s
+c12 laws=64 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 33s
+c13 laws=4 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 4s
+c14 laws=153 check=[ALL PROOFS CHECK] 37s verdict=[ALL PROOFS CHECK] 63s
+c15 laws=20 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 32s
+c16.1 laws=11 check=[ALL PROOFS CHECK] 12s verdict=[ALL PROOFS CHECK] 69s
+c16.2 laws=13 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 27s
+c16.3 laws=15 check=[ALL PROOFS CHECK] 5s verdict=[ALL PROOFS CHECK] 26s
+k1 laws=3 check=[ALL PROOFS CHECK] 4s verdict=[ALL PROOFS CHECK] 10s
+k2 laws=6 check=[ALL PROOFS CHECK] 7s verdict=[ALL PROOFS CHECK] 20s
+k3 laws=7 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 3s
+== README ladder generated from receipts
+README ladder matches the receipts
+precommit: PASS (/var/tmp/pc-p4f)
+EXIT 0

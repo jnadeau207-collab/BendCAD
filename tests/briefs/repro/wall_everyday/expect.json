@@ -1,0 +1,157 @@
+{
+ "item": 2,
+ "limit_s": 20,
+ "claim": "wall certifies the smallest facing thickness of everyday solids to 1e-4: rod 8, tube 2, ball 10, O-ring cord 3.53, hole-to-edge web 1.5, shaft across a flat 7, lip of a tapered bore 0.5, tilted plate 3, bolt-circle web 6, stepped shaft 8",
+ "steps": [
+  {
+   "args": [
+    "wall",
+    "1"
+   ],
+   "interval": [
+    "min-wall",
+    7.9992,
+    8.0008
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "2"
+   ],
+   "interval": [
+    "min-wall",
+    1.9998,
+    2.0002
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "3"
+   ],
+   "interval": [
+    "min-wall",
+    9.999,
+    10.001
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "4"
+   ],
+   "interval": [
+    "min-wall",
+    3.5296469999999998,
+    3.530353
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "6"
+   ],
+   "interval": [
+    "min-wall",
+    1.49985,
+    1.50015
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "9"
+   ],
+   "interval": [
+    "min-wall",
+    6.9993,
+    7.0007
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "10"
+   ],
+   "interval": [
+    "min-wall",
+    0.4999,
+    0.5001
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "12"
+   ],
+   "interval": [
+    "min-wall",
+    2.9997,
+    3.0003
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "13"
+   ],
+   "interval": [
+    "min-wall",
+    5.9994,
+    6.0006
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "14"
+   ],
+   "interval": [
+    "min-wall",
+    7.9992,
+    8.0008
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ],
+   "stop_on_fail": false
+  }
+ ]
+}

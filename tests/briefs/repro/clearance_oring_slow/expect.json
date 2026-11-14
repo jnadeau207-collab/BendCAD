@@ -1,0 +1,25 @@
+{
+ "item": 4,
+ "limit_s": 30,
+ "claim": "a seated O-ring touches its groove: clearance certified within [0, 1e-6]",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "802",
+    "804"
+   ],
+   "interval": [
+    "clearance",
+    0.0,
+    1e-06
+   ],
+   "must": [
+    "^clearance (\\[\\S+, \\S+\\] certified|0 status=certified)"
+   ],
+   "must_not": [
+    "state=interference"
+   ]
+  }
+ ]
+}

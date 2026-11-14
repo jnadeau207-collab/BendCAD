@@ -1,0 +1,67 @@
+{
+ "item": 4,
+ "limit_s": 20,
+ "claim": "clearance converges in general position: tilted parallel boxes 0.4, tilted parallel cylinders 0.5, ball over a face 0.25, torus under a disc rim 1.5355339",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "4",
+    "6"
+   ],
+   "interval": [
+    "clearance",
+    0.39990000000000003,
+    0.4001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "9",
+    "10"
+   ],
+   "interval": [
+    "clearance",
+    0.4999,
+    0.5001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "1",
+    "12"
+   ],
+   "interval": [
+    "clearance",
+    0.2499,
+    0.2501
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "14",
+    "15"
+   ],
+   "interval": [
+    "clearance",
+    1.5353803525421446,
+    1.535687459323331
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  }
+ ]
+}

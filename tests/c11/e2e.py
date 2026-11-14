@@ -88,12 +88,10 @@ def mass_lines(out):
 
 
 def wall_line(out):
-    m = re.search(r'min-wall \[([^,]+), ([^\]]+)\] (\w+) (lo=[\w-]+) (?:hi=([\w-]+) (?:no-sampled-witness )?antipodal=30deg )?'
-                  r'(?:boxes-uncertain )?faces=(\d+) pairs=(\d+)', out)
+    m = re.search(r'min-wall \[([^,]+), ([^\]]+)\] (\w+) (lo=[\w-]+) hi=([\w-]+) normals=opposed faces=(\d+)', out)
     if m:
         g = m.groups()
-        return dict(lo=float(g[0]), hi=float(g[1]), st=g[2], locert=g[3], hicert=g[4], faces=int(g[5]),
-                    pairs=int(g[6]))
+        return dict(lo=float(g[0]), hi=float(g[1]), st=g[2], locert=g[3], hicert=g[4], faces=int(g[5]))
     m = re.search(r'min-wall none status=(\w+) reason=([\w-]+)', out)
     if m:
         return dict(none=True, st=m.group(1), reason=m.group(2))
@@ -395,7 +393,7 @@ def clearance_cases():
 
 def wall_ok(w, t, tol):
     return (w is not None and not w.get('none') and t - tol <= w['lo'] <= t <= w['hi'] <= t + tol
-            and w['st'] == 'certified' and w['locert'] == 'lo=branch-and-bound' and w['hicert'] in ('sampled', 'witness'))
+            and w['st'] == 'certified' and w['locert'] == 'lo=branch-and-bound' and w['hicert'] == 'witness')
 
 
 def wall_cases():
@@ -412,7 +410,7 @@ def wall_cases():
           '(node 11 (difference 8 10) (intent remove any any any any))')
     o, _ = cli('w.bcd', 'wall', '1')
     w = wall_line(o)
-    record('wall.box', wall_ok(w, 10.0, 1e-9) and w['faces'] == 6 and w['pairs'] == 3,
+    record('wall.box', wall_ok(w, 10.0, 1e-9) and w['faces'] == 6,
            **{k: v for k, v in (w or {}).items()})
     o, _ = cli('w.bcd', 'wall', '2')
     w = wall_line(o)
@@ -426,7 +424,7 @@ def wall_cases():
     o, _ = cli('w.bcd', 'wall', '3')
     w = wall_line(o)
     record('wall.cone_none', w is not None and w.get('none') and w['st'] == 'certified'
-           and w['reason'] == 'all-faces-adjacent', **{k: v for k, v in (w or {}).items()})
+           and w['reason'] == 'no-opposed-faces', **{k: v for k, v in (w or {}).items()})
 
 
 def carried_queries():

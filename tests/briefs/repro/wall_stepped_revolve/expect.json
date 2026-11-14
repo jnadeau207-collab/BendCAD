@@ -1,0 +1,21 @@
+{
+ "item": 2,
+ "limit_s": 20,
+ "claim": "wall on a stepped solid revolve answers the small diameter 8",
+ "steps": [
+  {
+   "args": [
+    "wall",
+    "1"
+   ],
+   "interval": [
+    "min-wall",
+    7.9992,
+    8.0008
+   ],
+   "must": [
+    "^min-wall \\[\\S+, \\S+\\] certified"
+   ]
+  }
+ ]
+}

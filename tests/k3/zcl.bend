@@ -14,6 +14,7 @@ import ../../src/c07/ivx.bend as X
 import ../../src/c01/types.bend as V
 import ../../src/c07/mem.bend as Mm
 import ../../src/c07/rb.bend as R
+import ../../src/base/par.bend as BP
 
 law read_go:
   for m: File & Result<&1, &1, (U32 & String), String>
@@ -57,6 +58,13 @@ def kind(s: Im.Im) -> String:
     case Im.M_cy{o, a, r}: "cy"
     case Im.M_co{o, a, k}: "co"
     case Im.M_to{o, a, b, r}: "to"
+    case Im.M_no{}: "no"
+
+def en_s(e: QL.En) -> String:
+  match e:
+    case QL.En_f{+f}: "f" ++ kind(SO.fd_im(f)) ++ Nat.show(SO.fd_fi(f))
+    case QL.En_e{c, +s}: "e" ++ kind(s)
+    case QL.En_v{}: "v"
 
 def iv_s(+x: I.I) -> String:
   "[" ++ F64.show(I.i_lo(x)) ++ "," ++ F64.show(I.i_hi(x)) ++ "]"
@@ -64,52 +72,32 @@ def iv_s(+x: I.I) -> String:
 def bx_s(+b: List<&2, I.I>) -> String:
   iv_s(X.vn(b, 0n)) ++ " " ++ iv_s(X.vn(b, 1n)) ++ " " ++ iv_s(X.vn(b, 2n))
 
-def cb_s(+x: QL.Cb) -> String:
-  QL.Cb{+a, +b, +fs, +fl, ra, rb} = x
-  +fa = QL.f0(fs)
-  +fb = QL.f1(fs)
-  kind(SO.fd_im(fa)) ++ Nat.show(SO.fd_fi(fa)) ++ " vs " ++ kind(SO.fd_im(fb)) ++ Nat.show(SO.fd_fi(fb)) ++
-    " boxgap " ++ F64.show(QL.box_gap(a, b)) ++ " mer " ++ F64.show(QL.mer(SO.fd_im(fa), SO.fd_im(fb), a, b)) ++
-    " m2 " ++ F64.show(QL.mer2(SO.fd_im(fa), SO.fd_im(fb), a, b, ra, rb)) ++ " sd " ++ F64.show(QL.sdist(SO.fd_im(fb), a)) ++ "/" ++ F64.show(QL.sdist(SO.fd_im(fa), b)) ++ " fl " ++ F64.show(fl) ++
-    "
-   A " ++ bx_s(a) ++ "
-   B " ++ bx_s(b)
+def tag(+x: QL.Cb) -> String:
+  QL.Cb{+a, +b, ra, rb} = x
+  en_s(QL.cl_e(a)) ++ ":" ++ en_s(QL.cl_e(b))
 
-def is_some(m: Maybe<&2, List<&2, I.I>>) -> Bool:
-  match m:
-    case None{}: False{}
-    case Some{v}: True{}
+type Ag is Data:
+  Ag{ s: String, n: Nat, lo: F64, w: F64 }
 
-def ft_s(+f: QL.Ft) -> String:
-  match f:
-    case QL.Ft_no{}: "no"
-    case QL.Ft_r{+p, +h, +e}: "rect " ++ iv_s(p) ++ " " ++ iv_s(h) ++ " e " ++ F64.show(e)
-    case QL.Ft_a{+x, +e}:
-      QL.Ar{+cr, +ch, +r, +a, +b, +sg} = x
-      "arc c " ++ F64.show(cr) ++ "," ++ F64.show(ch) ++ " r " ++ F64.show(r) ++ " s " ++ F64.show(sg) ++ " e " ++ F64.show(e)
+def ag_put(xs: List<&2, Ag>, +t: String, +k: F64, +w: F64) -> List<&2, Ag>:
+  match xs:
+    case []: [Ag{t, 1n, k, w}]
+    case Ag{+s, +n, +lo, +ww} <> +r:
+      Bool.pick(List<&2, Ag>, String.eq(s, t), Ag{s, Nat.add(n, 1n), F64.min(lo, k), F64.min(ww, w)} <> r, Ag{s, n, lo, ww} <> ag_put(r, t, k, w))
 
-def ew_s(es: List<&2, Mm.Er>, +o: List<&2, I.I>, +a: List<&2, I.I>) -> String:
-  match es:
+def ag_heap(hs: List<&2, QL.Ph>, +acc: List<&2, Ag>) -> List<&2, Ag>:
+  match hs:
+    case []: acc
+    case +h <> +t:
+      match h:
+        case QL.Ph_e{}: ag_heap(t, acc)
+        case QL.Ph_n{+k, q, +w, +x, +cs}: ag_heap(t, ag_heap(cs, ag_put(acc, tag(x), k, w)))
+
+def ag_s(xs: List<&2, Ag>) -> String:
+  match xs:
     case []: ""
-    case +e <> +t:
-      +c = Mm.er_c(e)
-      " [" ++ iv_s(QL.alg_rho(o, a, c)) ++ " " ++ iv_s(QL.ax_h(o, a, R.cv_hbox(c))) ++ "]" ++ ew_s(t, o, a)
-
-def ac_s(+st: QL.Ac) -> String:
-  QL.Ac{+ok, +n, +a, +b} = st
-  "ac ok " ++ Bool.pick(String, ok, "1", "0") ++ " n " ++ Nat.show(n)
-
-def dbg_t(s: Im.Im, +f: SO.Fd) -> String:
-  match s:
-    case Im.M_to{+o, +a, +bigr, +r}:
-      +cr = I.imid(bigr)
-      +ch = I.imid(QL.ax_h(o, a, o))
-      +z = {QL.U2{1.0f64, 0.0f64} : QL.U2}
-      "  edges" ++ ew_s(Mm.fc_es(SO.fd_fc(f)), o, a) ++ "
-  " ++ ac_s(QL.ac_go(Mm.fc_es(SO.fd_fc(f)), o, a, cr, ch, QL.wtol(cr, ch, I.imid(r)), QL.Ac{True{}, 0n, z, z})) ++
-        " interior " ++ Bool.pick(String, is_some(SO.interior(f)), "yes", "no") ++ "
-  ft " ++ ft_s(QL.ft_of(Im.M_to{o, a, bigr, r}, o, a, f, QL.rr_all()))
-    case _: ""
+    case Ag{+s, +n, +lo, +w} <> +t: "AG " ++ Nat.show(n) ++ " " ++ s ++ " lo " ++ F64.show(lo) ++ " minw " ++ F64.show(w) ++ "
+" ++ ag_s(t)
 
 def tops(n: Nat, h: QL.Ph) -> String:
   match n:
@@ -117,48 +105,66 @@ def tops(n: Nat, h: QL.Ph) -> String:
     case 1n+m:
       match h:
         case QL.Ph_e{}: ""
-        case QL.Ph_n{+k, q, +w, +x, +cs}: "lb " ++ F64.show(k) ++ " w " ++ F64.show(w) ++ " " ++ cb_s(x) ++ "
+        case QL.Ph_n{+k, q, +w, +x, +cs}:
+          QL.Cb{+a, +b, ra, rb} = x
+          "lb " ++ F64.show(k) ++ " w " ++ F64.show(w) ++ " " ++ tag(x) ++ " lbk " ++ F64.show(QL.lbk(False{}, x)) ++ " wit " ++ F64.show(QL.wit(False{}, x, V.dbl_max())) ++ "
+   A " ++ bx_s(QL.cl_bx(a)) ++ "
+   B " ++ bx_s(QL.cl_bx(b)) ++ "
 " ++ tops(m, QL.pairs(cs))
 
-def dbg_all(xs: List<&2, QL.Cb>) -> String:
-  match xs:
-    case []: ""
-    case +x <> +t:
-      QL.Cb{+a, +b, +fs, +fl, ra, rb} = x
-      +fa = QL.f0(fs)
-      +fb = QL.f1(fs)
-      Bool.pick(String, Bool.and(Nat.is_eq(SO.fd_fi(fa), 290n), Nat.is_eq(SO.fd_fi(fb), 15n)),
-        "pair 290/15 rr " ++ iv_s(QL.rr_pair(SO.fd_im(fa), SO.fd_im(fb), fa)) ++ "
-" ++ dbg_t(SO.fd_im(fb), fb) ++ "
-", "") ++ dbg_all(t)
+type St is Data:
+  St{ h: QL.Ph, hi: F64, left: Nat }
 
-def run_h(fuel: Nat, h: QL.Ph, +hi: F64, +eps: F64) -> QL.Ph:
+def run_h(fuel: Nat, stop: Bool, h: QL.Ph, +w: Bool, +hi: F64) -> St:
   match fuel:
-    case 0n: h
-    case 1n+f:
-      match h:
-        case QL.Ph_e{}: QL.Ph_e{}
-        case QL.Ph_n{k, q, bw, +x, +cs}:
-          run_h(f, QL.push_all(QL.kids(x, F64.mul(0.5f64, hi)), QL.pairs(cs), False{}, hi, eps), hi, eps)
+    case 0n: St{h, hi, 0n}
+    case 1n+(+f):
+      match stop:
+        case True{}: St{h, hi, Nat.add(f, 1n)}
+        case False{}:
+          match h:
+            case QL.Ph_e{}: St{QL.Ph_e{}, hi, Nat.add(f, 1n)}
+            case QL.Ph_n{+k, q, +bw, +x, +cs}:
+              +leaf = F64.is_le(bw, QL.eps_of(hi, 0.0f64))
+              +hw = F64.min(hi, QL.wit_if(Bool.or(leaf, Nat.is_eq(Nat.mod(f, 8n), 0n)), w, x, hi))
+              +eps = QL.eps_of(hw, 0.0f64)
+              +h2 = QL.step(leaf, k, x, cs, w, hw, eps)
+              run_h(f, QL.stop_of(h2, hw, eps), h2, w, hw)
 
-def go2(+a: M.Body, +b: M.Body, +fuel: Nat) -> String:
+def rep_st(+st: St, +h0: QL.Ph, +hi: F64, +fuel: Nat) -> String:
+  St{+h, +hw, +left} = st
+  "hi " ++ F64.show(hi) ++ "
+ROOTS
+" ++ ag_s(ag_heap([h0], [])) ++ "AFTER fuel " ++ Nat.show(fuel) ++ " left " ++ Nat.show(left) ++ " hi " ++ F64.show(hw) ++ " minlb " ++ F64.show(QL.ph_min(h, hw)) ++ "
+" ++ ag_s(ag_heap([h], [])) ++ "TOP
+" ++ tops(5n, h)
+
+def go_c(+a: M.Body, +b: M.Body, +fuel: Nat) -> String:
   +hi = QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max())
-  +cs = QL.cross(QL.world_fds(a), QL.world_fds(b), [])
-  +h0 = QL.root_all(cs, QL.Ph_e{}, False{}, hi, 0.001f64)
-  +r = QL.best_lo_t(cs, False{}, hi, 0.001f64)
-  "hi " ++ F64.show(hi) ++ " pairs " ++ Nat.show(List.length(&2, QL.Cb, cs)) ++ "
-roots
-" ++ tops(6n, h0) ++
-    "dbg
-" ++ dbg_all(cs) ++ "after " ++ Nat.show(fuel) ++ "
-" ++ tops(6n, run_h(fuel, h0, hi, 0.001f64)) ++ "certified [" ++ F64.show(I.i_lo(r)) ++ ", " ++ F64.show(I.i_hi(r)) ++ "]"
+  +ea = QL.ents(a)
+  +eb = QL.ents(b)
+  +h0 = QL.root_a(QL.cull(QL.el_cs(ea), QL.el_bb(eb), hi), QL.cull(QL.el_cs(eb), QL.el_bb(ea), hi), QL.Ph_e{}, hi, QL.eps_of(hi, 0.0f64))
+  +h1 = F64.min(hi, QL.wit_ph([h0], False{}, hi))
+  rep_st(run_h(fuel, QL.stop_of(h0, h1, QL.eps_of(h1, 0.0f64)), h0, False{}, h1), h0, h1, fuel)
+
+def go_w(+b: M.Body, +fuel: Nat) -> String:
+  +fs = SO.fds_of(M.bd_brep(b))
+  +cap = QL.diag(SO.bbox(fs, []))
+  +h0 = QL.wroot_a(QL.en_fs(fs), QL.Ph_e{}, cap, QL.eps_of(cap, 0.0f64))
+  +h1 = F64.min(cap, QL.wit_ph([h0], True{}, cap))
+  rep_st(run_h(fuel, QL.stop_of(h0, h1, QL.eps_of(h1, 0.0f64)), h0, True{}, h1), h0, h1, fuel)
+
+def pick(mode: U64, +a: M.Body, +b: M.Body, +fuel: Nat) -> String:
+  match mode:
+    case 0u64: go_c(a, b, fuel)
+    case _: go_w(a, fuel)
 
 def go(+args: List<&2, String>, +src: String) -> IO(Unit):
   +p = S.part_of(S.ps_xs(S.parse(src)))
-  +ia = S.u64_of(S.Sx_a{S.arg_at(args, 2n)})
-  +ib = S.u64_of(S.Sx_a{S.arg_at(args, 3n)})
+  +ia = S.u64_of(S.Sx_a{S.arg_at(args, 3n)})
+  +ib = S.u64_of(S.Sx_a{S.arg_at(args, 4n)})
   +cs = M.ev_for(p, [ia, ib], [])
-  IO.print(go2(body_of(cs, ia), body_of(cs, ib), U64.to_nat(S.u64_of(S.Sx_a{S.arg_at(args, 4n)}))))
+  IO.print(pick(S.u64_of(S.Sx_a{S.arg_at(args, 2n)}), body_of(cs, ia), body_of(cs, ib), U64.to_nat(S.u64_of(S.Sx_a{S.arg_at(args, 5n)}))))
 
 def run(+args: List<&2, String>) -> IO(Unit):
   do IO<Unit>:

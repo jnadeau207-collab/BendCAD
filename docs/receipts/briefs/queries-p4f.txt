@@ -1,0 +1,39 @@
+binary 486042a0a2d1a6d8cf14f26bf98cda1a35f919df73bfea83fc2d2a4fba1fbf20  /home/jesse/bc/bendcad-p4f
+one core per query, WSL2, wall-clock seconds; we = tests/briefs/repro/wall_everyday, cg = tests/briefs/repro/clearance_general_position, B* = the brief work designs after their edits
+   0.06s  we.bcd wall 1                -> min-wall [8, 8.0000000000002] certified lo=branch-and-bound hi=witness normals=opposed faces=3 
+   0.07s  we.bcd wall 2                -> min-wall [1.9999999999999996, 2.00000000000004] certified lo=branch-and-bound hi=witness normals=opposed faces=4 
+   0.33s  we.bcd wall 3                -> min-wall [10, 10.000000000000016] certified lo=branch-and-bound hi=witness normals=opposed faces=2 
+   0.20s  we.bcd wall 4                -> min-wall [3.53, 3.530000000004534] certified lo=branch-and-bound hi=witness normals=opposed faces=8 
+   0.08s  we.bcd wall 6                -> min-wall [1.4999999999975342, 1.5000000000000069] certified lo=branch-and-bound hi=witness normals=opposed faces=7 
+   0.12s  we.bcd wall 9                -> min-wall [6.999999999999995, 7.000000000000027] certified lo=branch-and-bound hi=witness normals=opposed faces=4 
+   0.31s  we.bcd wall 10               -> min-wall [9.999999999999979, 10.000000000000043] certified lo=branch-and-bound hi=witness normals=opposed faces=8 
+   0.02s  we.bcd wall 12               -> min-wall [2.9999999999999982, 3.0000000000000036] certified lo=branch-and-bound hi=witness normals=opposed faces=6 
+   1.16s  we.bcd wall 13               -> min-wall [5.99999999999997, 6.000000025076694] certified lo=branch-and-bound hi=witness normals=opposed faces=9 
+   0.54s  we.bcd wall 14               -> min-wall [8, 8.000000000000046] certified lo=branch-and-bound hi=witness normals=opposed faces=10 
+   0.57s  B1.bcd wall 3                -> min-wall [3.9999999999999907, 4.000000000000004] certified lo=branch-and-bound hi=witness normals=opposed faces=13 
+   4.07s  B2.bcd wall 4                -> min-wall [5.9999999999999885, 6.000000000000007] certified lo=branch-and-bound hi=witness normals=opposed faces=19 
+   3.68s  B3.bcd wall 102              -> min-wall [1.4999999999999971, 1.5000000000000018] certified lo=branch-and-bound hi=witness normals=opposed faces=28 
+   2.20s  B4.bcd wall 204              -> min-wall [0.9999999999999982, 1.0000000000000013] certified lo=branch-and-bound hi=witness normals=opposed faces=35 
+   2.93s  B5.bcd wall 313              -> min-wall [0.9999999999989003, 1.0000000290933029] certified lo=branch-and-bound hi=witness normals=opposed faces=10 
+   3.20s  B7.bcd wall 705              -> min-wall [1.499999997235602, 1.500000000000241] certified lo=branch-and-bound hi=witness normals=opposed faces=36 
+  20.68s  B11.bcd wall 1110            -> min-wall [5.999999999999993, 6.000000000000026] certified lo=branch-and-bound hi=witness normals=opposed faces=19 
+   1.79s  B12.bcd wall 1208            -> min-wall [3.2499999999999623, 3.2500000000061133] certified lo=branch-and-bound hi=witness normals=opposed faces=30 
+   1.66s  B14.bcd wall 1403            -> min-wall [1.2000000000000024, 1.200000000000078] certified lo=branch-and-bound hi=witness normals=opposed faces=52 
+   3.96s  B9.bcd clearance 906 915     -> clearance [0.3999999915999736, 0.3999999999999737] certified lo=branch-and-bound hi=sampled samples=112x106 
+  15.27s  B9.bcd clearance 906 931     -> clearance [0.39999996990626263, 0.40000000000001656] certified lo=branch-and-bound hi=witness samples=112x106 
+   5.67s  B9.bcd clearance 906 932     -> clearance [0.39999999038147943, 0.3999999999999999] certified lo=branch-and-bound hi=sampled samples=112x106 
+  15.78s  B9.bcd clearance 906 933     -> clearance [0.39999997474327825, 0.4000000000000109] certified lo=branch-and-bound hi=witness samples=112x106 
+   3.71s  B9.bcd clearance 921 906     -> clearance [0.14999999539835746, 0.14999999999999813] certified lo=branch-and-bound hi=sampled samples=7x112 
+  10.85s  B9.bcd clearance 921 915     -> clearance [0.1499999900062325, 0.14999999999999813] certified lo=branch-and-bound hi=sampled samples=7x106 
+   3.16s  B9.bcd interf 906 934        -> relation interference status=certified witness=subdiv 
+   0.36s  B2.bcd clearance 91 4        -> clearance [0.09999999967000048, 0.10000000000001497] certified lo=branch-and-bound hi=witness samples=7x127 
+   0.56s  B3.bcd clearance 191 102     -> clearance [0.09999999975983795, 0.10000000000002635] certified lo=branch-and-bound hi=witness samples=7x140 
+   0.66s  B3.bcd clearance 193 102     -> clearance [0.09999999988037264, 0.10000000000002635] certified lo=branch-and-bound hi=witness samples=7x140 
+  16.30s  cg.bcd clearance 4 6         -> clearance [0.3999999945425359, 0.3999999999999999] certified lo=branch-and-bound hi=sampled samples=30x30 
+   2.00s  cg.bcd clearance 9 10        -> clearance [0.4999999999999216, 0.5000000708814213] certified lo=branch-and-bound hi=witness samples=7x7 
+   0.35s  cg.bcd clearance 1 12        -> clearance [0.24999999999999595, 0.2500000000000002] certified lo=branch-and-bound hi=witness samples=30x10 
+   0.13s  cg.bcd clearance 14 15       -> clearance [1.5355339029078166, 1.5355339059327322] certified lo=branch-and-bound hi=sampled samples=40x7 
+  46.49s  B8.bcd clearance 802 804     -> clearance [0, 1.1077482002796643e-13] certified lo=branch-and-bound hi=witness samples=120x40 
+  42.29s  B8.bcd interf 802 804        -> relation disjoint status=certified method=exact-intersection 
+ 100.15s  B6.bcd interf 1 3            -> relation disjoint status=certified method=exact-intersection 
+   1.73s  B7.bcd interf 705 714        -> relation disjoint status=certified method=exact-intersection 

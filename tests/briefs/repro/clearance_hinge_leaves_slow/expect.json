@@ -1,0 +1,67 @@
+{
+ "item": 4,
+ "limit_s": 20,
+ "claim": "two hinge leaves 0.4 apart certify clearance 0.4 at 0, 60, 90 and 120 degrees",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "906",
+    "915"
+   ],
+   "interval": [
+    "clearance",
+    0.39990000000000003,
+    0.4001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "906",
+    "931"
+   ],
+   "interval": [
+    "clearance",
+    0.39990000000000003,
+    0.4001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "906",
+    "932"
+   ],
+   "interval": [
+    "clearance",
+    0.39990000000000003,
+    0.4001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "906",
+    "933"
+   ],
+   "interval": [
+    "clearance",
+    0.39990000000000003,
+    0.4001
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  }
+ ]
+}

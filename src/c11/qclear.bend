@@ -10,12 +10,11 @@ import ../c07/rb.bend as R
 import ../c07/ivx.bend as X
 import ../c08/bool.bend as BO
 import ./qaccel.bend as QA
+import ../c07/xs.bend as Q
+import ../c03/types.bend as G
 
 type Bd is Data:
   Bd{ p: I.I, h: I.I }
-
-type Cb is Data:
-  Cb{ a: List<&2, I.I>, b: List<&2, I.I>, fs: List<&2, SO.Fd>, fl: F64, ra: I.I, rb: I.I }
 
 def iabs(+a: I.I) -> I.I:
   I.I{+lo, +hi} = a
@@ -29,16 +28,16 @@ def pos(+a: I.I) -> I.I:
 def ax_h(+o: List<&2, I.I>, +a: List<&2, I.I>, +p: List<&2, I.I>) -> I.I:
   I.idiv(X.vdot(a, X.vsub(p, o)), I.isqrt(X.vdot(a, a)))
 
+def nsq(+v: List<&2, I.I>) -> I.I:
+  I.iadd(I.iadd(I.isq(X.vn(v, 0n)), I.isq(X.vn(v, 1n))), I.isq(X.vn(v, 2n)))
+
 def ax_rho(+o: List<&2, I.I>, +a: List<&2, I.I>, +p: List<&2, I.I>) -> I.I:
-  +m = X.vsub(p, o)
-  I.isqrt(pos(I.isub(X.vdot(m, m), I.idiv(I.isq(X.vdot(a, m)), X.vdot(a, a)))))
+  I.idiv(I.isqrt(nsq(Im.cross(a, X.vsub(p, o)))), I.isqrt(nsq(a)))
 
 def sdist(s: Im.Im, +p: List<&2, I.I>) -> F64:
   match s:
     case Im.M_pl{o, +n}: I.i_lo(iabs(I.idiv(X.vdot(n, X.vsub(p, o)), I.isqrt(X.vdot(n, n)))))
-    case Im.M_sp{o, r}:
-      +m = X.vsub(p, o)
-      I.i_lo(iabs(I.isub(I.isqrt(X.vdot(m, m)), r)))
+    case Im.M_sp{o, r}: I.i_lo(iabs(I.isub(I.isqrt(nsq(X.vsub(p, o))), r)))
     case Im.M_cy{+o, +a, r}: I.i_lo(iabs(I.isub(ax_rho(o, a, p), r)))
     case Im.M_co{+o, +a, +k}:
       I.i_lo(iabs(I.idiv(I.isub(ax_rho(o, a, p), I.imul(iabs(k), iabs(ax_h(o, a, p)))), I.isqrt(I.iadd(I.ipt(1.0f64), I.isq(k))))))
@@ -55,24 +54,8 @@ def box_gap(+a: List<&2, I.I>, +b: List<&2, I.I>) -> F64:
   +gz = gap1(X.vn(a, 2n), X.vn(b, 2n))
   I.i_lo(I.isqrt(I.iadd(I.iadd(I.isq(I.ipt(gx)), I.isq(I.ipt(gy))), I.isq(I.ipt(gz)))))
 
-def fd_none() -> SO.Fd:
-  SO.fd_mk(None{}, Ty.surf_zero(), True{}, SO.Ea{[], True{}}, 0n, 0n, 0.0f64)
-
-def f0(fs: List<&2, SO.Fd>) -> SO.Fd:
-  match fs:
-    case []: fd_none()
-    case +f <> t: f
-
-def f1(fs: List<&2, SO.Fd>) -> SO.Fd:
-  match fs:
-    case []: fd_none()
-    case f <> +t: f0(t)
-
 def rr_all() -> I.I:
   I.I{0.0f64, V.dbl_max()}
-
-def cb(+fa: SO.Fd, +fb: SO.Fd) -> Cb:
-  Cb{SO.fd_bx(fa), SO.fd_bx(fb), [fa, fb], F64.neg(1.0f64), rr_all(), rr_all()}
 
 def vlen_hi(+v: List<&2, I.I>) -> F64:
   I.i_hi(I.isqrt(pos(X.vdot(v, v))))
@@ -221,13 +204,6 @@ def m2_of(s: Im.Im, +sa: Im.Im, +sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.
 def mer2(+sa: Im.Im, +sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>, +ra: I.I, +rb: I.I) -> F64:
   F64.max(m2_of(sa, sa, sb, ca, cb, ra, rb), m2_of(sb, sa, sb, ca, cb, ra, rb))
 
-def pair_lb(+c: Cb) -> F64:
-  Cb{+a, +b, +fs, +fl, +ra, +rb} = c
-  +fa = f0(fs)
-  +fb = f1(fs)
-  F64.max(F64.max(F64.max(box_gap(a, b), fl), F64.max(mer(SO.fd_im(fa), SO.fd_im(fb), a, b), mer2(SO.fd_im(fa), SO.fd_im(fb), a, b, ra, rb))),
-    F64.max(sdist(SO.fd_im(fb), a), sdist(SO.fd_im(fa), b)))
-
 def diag(+a: List<&2, I.I>) -> F64:
   +dx = F64.sub(I.i_hi(X.vn(a, 0n)), I.i_lo(X.vn(a, 0n)))
   +dy = F64.sub(I.i_hi(X.vn(a, 1n)), I.i_lo(X.vn(a, 1n)))
@@ -254,64 +230,8 @@ def cut(+a: List<&2, I.I>, +k: Nat, +up: Bool) -> List<&2, I.I>:
     Bool.pick(I.I, Nat.is_eq(k, 1n), half(X.vn(a, 1n), up), X.vn(a, 1n)),
     Bool.pick(I.I, Nat.is_eq(k, 2n), half(X.vn(a, 2n), up), X.vn(a, 2n))]
 
-def mem_in(big: Bool, +b: List<&2, I.I>, +f: SO.Fd) -> Bool:
-  match big:
-    case True{}: True{}
-    case False{}: Bool.not(U64.is_eq(Mm.member(SO.fd_fc(f), b, SO.fd_im(f)), 0u64))
-
-def on_face_go(near: Bool, +b: List<&2, I.I>, +f: SO.Fd, +w0: F64) -> Bool:
-  match near:
-    case False{}: False{}
-    case True{}: mem_in(F64.is_lt(w0, wid(b)), b, f)
-
-def on_face(+b: List<&2, I.I>, +f: SO.Fd, +w0: F64) -> Bool:
-  on_face_go(F64.is_le(sdist(SO.fd_im(f), b), 0.0f64), b, f, w0)
-
-def kids(+c: Cb, +w0: F64) -> List<&2, Cb>:
-  Cb{+a, +b, +fs, +fl, +ra, +rb} = c
-  +sa = F64.is_le(wid(b), wid(a))
-  +x = Bool.pick(List<&2, I.I>, sa, a, b)
-  +f = Bool.pick(SO.Fd, sa, f0(fs), f1(fs))
-  +k = axis_of(x)
-  +lo = cut(x, k, False{})
-  +hi = cut(x, k, True{})
-  +cl = Bool.pick(Cb, sa, Cb{lo, b, fs, fl, ra, rb}, Cb{a, lo, fs, fl, ra, rb})
-  +ch = Bool.pick(Cb, sa, Cb{hi, b, fs, fl, ra, rb}, Cb{a, hi, fs, fl, ra, rb})
-  List.append(&2, Cb, Bool.pick(List<&2, Cb>, on_face(lo, f, w0), [cl], []), Bool.pick(List<&2, Cb>, on_face(hi, f, w0), [ch], []))
-
-def wid2(+c: Cb) -> F64:
-  Cb{+a, +b, fs, fl, ra, rb} = c
-  F64.max(wid(a), wid(b))
-
-def inw(+f: SO.Fd, +p: List<&2, I.I>) -> List<&2, I.I>:
-  Mm.neg_if(Bool.not(Mm.fc_same(SO.fd_fc(f))), Im.im_grad(SO.fd_im(f), p))
-
-def cmin() -> F64:
-  0.8660254037844386f64
-
-def nrm_lo(+v: List<&2, I.I>) -> F64:
-  I.i_lo(I.isqrt(pos(X.vdot(v, v))))
-
 def nrm_hi(+v: List<&2, I.I>) -> F64:
   I.i_hi(I.isqrt(pos(X.vdot(v, v))))
-
-def can_face(+g: List<&2, I.I>, +d: List<&2, I.I>, +dl: F64) -> Bool:
-  F64.is_le(F64.mul(cmin(), F64.mul(nrm_lo(g), dl)), I.i_hi(X.vdot(g, d)))
-
-def anti(+c: Cb) -> Bool:
-  Cb{+a, +b, +fs, fl, ra, rb} = c
-  +fa = f0(fs)
-  +fb = f1(fs)
-  +dl = box_gap(a, b)
-  Bool.and(can_face(inw(fa, a), X.vsub(b, a), dl), can_face(inw(fb, b), X.vsub(a, b), dl))
-
-def anti_pt(+fa: SO.Fd, +p: List<&2, I.I>, +fb: SO.Fd, +q: List<&2, I.I>) -> Bool:
-  +d = X.vsub(q, p)
-  +dn = nrm_hi(d)
-  +ga = inw(fa, p)
-  +gb = inw(fb, q)
-  Bool.and(F64.is_le(F64.mul(cmin(), F64.mul(nrm_hi(ga), dn)), I.i_lo(X.vdot(ga, d))),
-    F64.is_le(F64.mul(cmin(), F64.mul(nrm_hi(gb), dn)), I.i_lo(X.vdot(gb, X.vsub(p, q)))))
 
 type Ph is Data:
   Ph_e{}
@@ -355,23 +275,6 @@ def fold(xs: List<&2, Ph>, +h: Ph) -> Ph:
 def pairs(+hs: List<&2, Ph>) -> Ph:
   fold(pass1(hs, Ph_e{}, False{}, []), Ph_e{})
 
-def lbk(w: Bool, +h: Cb) -> F64:
-  match w:
-    case True{}: Bool.pick(F64, anti(h), pair_lb(h), V.dbl_max())
-    case False{}: pair_lb(h)
-
-def push_k(keep: Bool, +k: F64, +x: Cb, +h: Ph, +eps: F64) -> Ph:
-  match keep:
-    case True{}: meld(Ph_n{k, quant(k, eps), wid2(x), x, []}, h)
-    case False{}: h
-
-def push_all(xs: List<&2, Cb>, +h: Ph, +w: Bool, +hi: F64, +eps: F64) -> Ph:
-  match xs:
-    case []: h
-    case +x <> +t:
-      +k = lbk(w, x)
-      push_all(t, push_k(F64.is_lt(k, hi), k, x, h, eps), w, hi, eps)
-
 def ph_all(hs: List<&2, Ph>, +acc: F64) -> F64:
   match hs:
     case []: acc
@@ -383,11 +286,6 @@ def ph_all(hs: List<&2, Ph>, +acc: F64) -> F64:
 def ph_min(+h: Ph, +hi: F64) -> F64:
   ph_all([h], hi)
 
-def stop_of(h: Ph, +hi: F64, +eps: F64, +minw: F64) -> Bool:
-  match h:
-    case Ph_e{}: True{}
-    case Ph_n{k, +q, +w, x, cs}: Bool.or(F64.is_le(F64.sub(hi, F64.mul(2.0f64, eps)), q), F64.is_le(w, minw))
-
 def mid1(+a: I.I) -> I.I:
   I.ipt(F64.mul(0.5f64, F64.add(I.i_lo(a), I.i_hi(a))))
 
@@ -398,29 +296,6 @@ def on_pt(fin: Bool, +f: SO.Fd, +q: List<&2, I.I>) -> Bool:
   match fin:
     case False{}: False{}
     case True{}: U64.is_eq(Mm.member(SO.fd_fc(f), q, SO.fd_im(f)), 1u64)
-
-def wit_d(ok: Bool, +fa: SO.Fd, +p: List<&2, I.I>, +fb: SO.Fd, +q: List<&2, I.I>) -> F64:
-  match ok:
-    case False{}: V.dbl_max()
-    case True{}: F64.add(nrm_hi(X.vsub(q, p)), F64.add(SO.dist(SO.fd_im(fa), p), SO.dist(SO.fd_im(fb), q)))
-
-def wit_q(okp: Bool, +w: Bool, +fa: SO.Fd, +p: List<&2, I.I>, +fb: SO.Fd) -> F64:
-  match okp:
-    case False{}: V.dbl_max()
-    case True{}:
-      +q = SO.snap(SO.proj(SO.fd_im(fb), p))
-      +ok = on_pt(X.vfin(q), fb, q)
-      wit_d(Bool.and(ok, Bool.or(Bool.not(w), anti_pt(fa, p, fb, q))), fa, p, fb, q)
-
-def wit1(+w: Bool, +fa: SO.Fd, +c: List<&2, I.I>, +fb: SO.Fd) -> F64:
-  +p = SO.snap(SO.proj(SO.fd_im(fa), c))
-  wit_q(on_pt(X.vfin(p), fa, p), w, fa, p, fb)
-
-def wit(+w: Bool, +x: Cb) -> F64:
-  Cb{+a, +b, +fs, fl, ra, rb} = x
-  +fa = f0(fs)
-  +fb = f1(fs)
-  F64.min(wit1(w, fa, mid(a), fb), wit1(w, fb, mid(b), fa))
 
 def ladd(xs: List<&2, I.I>, ys: List<&2, I.I>) -> List<&2, I.I>:
   match xs:
@@ -503,7 +378,6 @@ def alg_rb(+o: List<&2, I.I>, +a: List<&2, I.I>, +rb: R.Rb, +rm: F64) -> I.I:
 
 def alg_rho(+o: List<&2, I.I>, +a: List<&2, I.I>, +c: R.Cv) -> I.I:
   alg_rb(o, a, R.cv_rb(c), I.imid(ax_rho(o, a, R.cv_box(c, I.ipt(0.5f64)))))
-
 type Pc is Data:
   Pc{ t: I.I, d: Nat }
 
@@ -574,36 +448,6 @@ def pl_rmin(ins: Bool, +es: List<&2, Mm.Er>, +o: List<&2, I.I>, +a: List<&2, I.I
     case True{}: 0.0f64
     case False{}: F64.max(0.0f64, es_ext(es, False{}, o, a, tol, V.dbl_max()))
 
-def fl_go(par: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +r: I.I, +cbx: List<&2, I.I>, +fp: SO.Fd, +op: List<&2, I.I>, +k: F64) -> F64:
-  match par:
-    case False{}: 0.0f64
-    case True{}:
-      +es = Mm.fc_es(SO.fd_fc(fp))
-      +tol = F64.mul(1.0e-9f64, F64.add(1.0f64, diag(SO.fd_bx(fp))))
-      +p0 = X.vadd(o, Mm.vs(I.idiv(X.vdot(a, X.vsub(op, o)), X.vdot(a, a)), a))
-      +ins = Bool.not(U64.is_eq(Mm.member(SO.fd_fc(fp), p0, SO.fd_im(fp)), 0u64))
-      +lo = pl_rmin(ins, es, o, a, tol)
-      +hi = F64.neg(es_ext(es, True{}, o, a, tol, V.dbl_max()))
-      +g = I.i_lo(I.isqrt(I.iadd(I.isq(I.ipt(gap1(I.I{I.i_lo(r), I.i_hi(r)}, I.I{lo, F64.max(lo, hi)}))), I.isq(I.ipt(gap1(ax_h(o, a, cbx), ax_h(o, a, op)))))))
-      F64.max(0.0f64, F64.sub(g, k))
-
-def fl_cp(+o: List<&2, I.I>, +a: List<&2, I.I>, +r: I.I, +cbx: List<&2, I.I>, +fp: SO.Fd, +op: List<&2, I.I>, +n: List<&2, I.I>) -> F64:
-  +sn = F64.div(I.i_hi(I.isqrt(pos(X.vdot(Im.cross(a, n), Im.cross(a, n))))), F64.mul(I.i_lo(I.isqrt(pos(X.vdot(a, a)))), I.i_lo(I.isqrt(pos(X.vdot(n, n))))))
-  +k = F64.mul(sn, I.i_hi(I.isqrt(pos(X.vdot(X.vsub(cbx, op), X.vsub(cbx, op))))))
-  fl_go(Bool.and(F64.is_le(sn, 1.0e-12f64), Nat.is_lt(0n, List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(fp))))), o, a, r, cbx, fp, op, k)
-
-def fl_of(sa: Im.Im, sb: Im.Im, +fa: SO.Fd, +fb: SO.Fd) -> F64:
-  match sa:
-    case Im.M_cy{+o, +a, +r}:
-      match sb:
-        case Im.M_pl{+op, +n}: fl_cp(o, a, r, SO.fd_bx(fa), fb, op, n)
-        case _: 0.0f64
-    case Im.M_pl{+op, +n}:
-      match sb:
-        case Im.M_cy{+o, +a, +r}: fl_cp(o, a, r, SO.fd_bx(fb), fa, op, n)
-        case _: 0.0f64
-    case _: 0.0f64
-
 def es_rho(es: List<&2, Mm.Er>, +o: List<&2, I.I>, +a: List<&2, I.I>, +acc: I.I) -> I.I:
   match es:
     case []: acc
@@ -620,491 +464,6 @@ def rr_go(par: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +fp: SO.Fd, +op: List
       +hi = F64.neg(es_ext(es, True{}, o, a, tol, V.dbl_max()))
       I.I{lo, F64.max(lo, hi)}
 
-def rr_ax(+o: List<&2, I.I>, +a: List<&2, I.I>, +fp: SO.Fd, +op: List<&2, I.I>, +n: List<&2, I.I>) -> I.I:
-  +sn = F64.div(vlen_hi(Im.cross(a, n)), F64.mul(vlen_lo(a), vlen_lo(n)))
-  rr_go(Bool.and(F64.is_le(sn, 1.0e-12f64), Nat.is_lt(0n, List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(fp))))), o, a, fp, op)
-
-def rr_oth(so: Im.Im, +fp: SO.Fd, +op: List<&2, I.I>, +n: List<&2, I.I>) -> I.I:
-  match so:
-    case Im.M_cy{+o, +a, r}: rr_ax(o, a, fp, op, n)
-    case Im.M_co{+o, +a, k}: rr_ax(o, a, fp, op, n)
-    case Im.M_to{+o, +a, bigr, r}: rr_ax(o, a, fp, op, n)
-    case _: rr_all()
-
-def rr_pair(ss: Im.Im, so: Im.Im, +fp: SO.Fd) -> I.I:
-  match ss:
-    case Im.M_pl{+op, +n}: rr_oth(so, fp, op, n)
-    case _: rr_all()
-
-type U2 is Data:
-  U2{ x: F64, y: F64 }
-
-type Ar is Data:
-  Ar{ cr: F64, ch: F64, r: F64, ua: U2, ub: U2, s: F64 }
-
-type Ft is Data:
-  Ft_no{}
-  Ft_r{ p: I.I, h: I.I, e: F64 }
-  Ft_a{ ar: Ar, e: F64 }
-
-def u2_x(+u: U2) -> F64:
-  U2{+x, y} = u
-  x
-
-def u2_y(+u: U2) -> F64:
-  U2{x, +y} = u
-  y
-
-def u2_len(+x: F64, +y: F64) -> F64:
-  F64.sqrt(F64.add(F64.mul(x, x), F64.mul(y, y)))
-
-def u2_unit(+x: F64, +y: F64) -> U2:
-  +l = u2_len(x, y)
-  U2{F64.div(x, l), F64.div(y, l)}
-
-def u2_cross(+a: U2, +b: U2) -> F64:
-  F64.sub(F64.mul(u2_x(a), u2_y(b)), F64.mul(u2_y(a), u2_x(b)))
-
-def u2_dot(+a: U2, +b: U2) -> F64:
-  F64.add(F64.mul(u2_x(a), u2_x(b)), F64.mul(u2_y(a), u2_y(b)))
-
-def ar_minor(+s: F64, +a: U2, +b: U2) -> Bool:
-  +c = F64.mul(s, u2_cross(a, b))
-  Bool.or(F64.is_lt(1.0e-12f64, c), Bool.and(F64.is_le(F64.abs(c), 1.0e-12f64), F64.is_lt(0.0f64, u2_dot(a, b))))
-
-def ar_mid(+s: F64, +a: U2, +b: U2) -> U2:
-  +sx = F64.add(u2_x(a), u2_x(b))
-  +sy = F64.add(u2_y(a), u2_y(b))
-  +l = u2_len(sx, sy)
-  +sm = Bool.pick(F64, ar_minor(s, a, b), 1.0f64, F64.neg(1.0f64))
-  Bool.pick(U2, F64.is_lt(1.0e-9f64, l), U2{F64.mul(sm, F64.div(sx, l)), F64.mul(sm, F64.div(sy, l))},
-    U2{F64.mul(F64.neg(s), u2_y(a)), F64.mul(s, u2_x(a))})
-
-def ar_pad(+cr: F64, +ch: F64, +r: F64) -> F64:
-  F64.mul(1.0e-12f64, F64.add(1.0f64, F64.add(F64.abs(cr), F64.add(F64.abs(ch), r))))
-
-def ar_rect(+cr: F64, +ch: F64, +r: F64, +s: F64, +a: U2, +b: U2) -> Bd:
-  +pd = ar_pad(cr, ch, r)
-  +x0 = F64.add(cr, F64.mul(r, u2_x(a)))
-  +y0 = F64.add(ch, F64.mul(r, u2_y(a)))
-  +x1 = F64.add(cr, F64.mul(r, u2_x(b)))
-  +y1 = F64.add(ch, F64.mul(r, u2_y(b)))
-  +hc = F64.mul(0.5f64, u2_len(F64.sub(x1, x0), F64.sub(y1, y0)))
-  +sg = F64.add(F64.sub(r, F64.sqrt(F64.max(0.0f64, F64.sub(F64.mul(r, r), F64.mul(hc, hc))))), pd)
-  +w = F64.add(r, pd)
-  Bool.pick(Bd, ar_minor(s, a, b),
-    Bd{I.I{F64.sub(F64.min(x0, x1), sg), F64.add(F64.max(x0, x1), sg)}, I.I{F64.sub(F64.min(y0, y1), sg), F64.add(F64.max(y0, y1), sg)}},
-    Bd{I.I{F64.sub(cr, w), F64.add(cr, w)}, I.I{F64.sub(ch, w), F64.add(ch, w)}})
-
-def ar_lb(+cr: F64, +ch: F64, +r: F64, +s: F64, +a: U2, +b: U2, +q: Bd) -> F64:
-  bd_d(ar_rect(cr, ch, r, s, a, b), q)
-
-def arc_rect_go(d: Nat, stop: Bool, +lb: F64, +cr: F64, +ch: F64, +r: F64, +s: F64, +a: U2, +b: U2, +q: Bd, +cut: F64) -> F64:
-  match d stop:
-    case 0n _: lb
-    case 1n++e True{}: lb
-    case 1n++e False{}:
-      +m = ar_mid(s, a, b)
-      +l1 = ar_lb(cr, ch, r, s, a, m, q)
-      +l2 = ar_lb(cr, ch, r, s, m, b, q)
-      F64.min(arc_rect_go(e, F64.is_le(cut, l1), l1, cr, ch, r, s, a, m, q, cut), arc_rect_go(e, F64.is_le(cut, l2), l2, cr, ch, r, s, m, b, q, cut))
-
-def arc_rect(+x: Ar, +q: Bd, +cut: F64) -> F64:
-  Ar{+cr, +ch, +r, +a, +b, +s} = x
-  +l = ar_lb(cr, ch, r, s, a, b, q)
-  arc_rect_go(28n, F64.is_le(cut, l), l, cr, ch, r, s, a, b, q, cut)
-
-def aa_lb(+x: Ar, +y: Ar) -> F64:
-  Ar{+cr, +ch, +r, +a, +b, +s} = x
-  Ar{+cr2, +ch2, +r2, +a2, +b2, +s2} = y
-  bd_d(ar_rect(cr, ch, r, s, a, b), ar_rect(cr2, ch2, r2, s2, a2, b2))
-
-def ar_lo(+x: Ar) -> Ar:
-  Ar{+cr, +ch, +r, +a, +b, +s} = x
-  Ar{cr, ch, r, a, ar_mid(s, a, b), s}
-
-def ar_hi(+x: Ar) -> Ar:
-  Ar{+cr, +ch, +r, +a, +b, +s} = x
-  Ar{cr, ch, r, ar_mid(s, a, b), b, s}
-
-def arc_arc_go(d: Nat, stop: Bool, +lb: F64, +x: Ar, +y: Ar, +cut: F64) -> F64:
-  match d stop:
-    case 0n _: lb
-    case 1n++e True{}: lb
-    case 1n++e False{}:
-      +l1 = aa_lb(ar_lo(x), ar_lo(y))
-      +l2 = aa_lb(ar_lo(x), ar_hi(y))
-      +l3 = aa_lb(ar_hi(x), ar_lo(y))
-      +l4 = aa_lb(ar_hi(x), ar_hi(y))
-      F64.min(F64.min(arc_arc_go(e, F64.is_le(cut, l1), l1, ar_lo(x), ar_lo(y), cut), arc_arc_go(e, F64.is_le(cut, l2), l2, ar_lo(x), ar_hi(y), cut)),
-        F64.min(arc_arc_go(e, F64.is_le(cut, l3), l3, ar_hi(x), ar_lo(y), cut), arc_arc_go(e, F64.is_le(cut, l4), l4, ar_hi(x), ar_hi(y), cut)))
-
-def arc_arc(+x: Ar, +y: Ar, +cut: F64) -> F64:
-  +l = aa_lb(x, y)
-  arc_arc_go(14n, F64.is_le(cut, l), l, x, y, cut)
-
-def ft_lb(+f: Ft, +g: Ft, +cut: F64) -> F64:
-  match f:
-    case Ft_no{}: 0.0f64
-    case Ft_r{+p, +h, +e}:
-      match g:
-        case Ft_no{}: 0.0f64
-        case Ft_r{+p2, +h2, +e2}: F64.max(0.0f64, F64.sub(bd_d(Bd{p, h}, Bd{p2, h2}), F64.add(e, e2)))
-        case Ft_a{+y, +e2}: F64.max(0.0f64, F64.sub(arc_rect(y, Bd{p, h}, cut), F64.add(e, e2)))
-    case Ft_a{+x, +e}:
-      match g:
-        case Ft_no{}: 0.0f64
-        case Ft_r{+p2, +h2, +e2}: F64.max(0.0f64, F64.sub(arc_rect(x, Bd{p2, h2}, cut), F64.add(e, e2)))
-        case Ft_a{+y, +e2}: F64.max(0.0f64, F64.sub(arc_arc(x, y, cut), F64.add(e, e2)))
-
-type Mp is Data:
-  Mp{ ok: Bool, x: F64, y: F64 }
-
-def wtol(+cr: F64, +ch: F64, +r: F64) -> F64:
-  F64.mul(1.0e-9f64, F64.add(1.0f64, F64.add(F64.abs(cr), F64.add(F64.abs(ch), r))))
-
-def ep_of(+o: List<&2, I.I>, +a: List<&2, I.I>, +c: R.Cv, +tl: F64) -> Mp:
-  +p = alg_rho(o, a, c)
-  +h = ax_h(o, a, R.cv_hbox(c))
-  Mp{Bool.and(F64.is_le(F64.sub(I.i_hi(p), I.i_lo(p)), tl), F64.is_le(F64.sub(I.i_hi(h), I.i_lo(h)), tl)),
-    I.imid(p), I.imid(h)}
-
-type Ac is Data:
-  Ac{ ok: Bool, n: Nat, a: U2, b: U2 }
-
-def ac_put(+st: Ac, +u: U2) -> Ac:
-  Ac{+ok, +n, +a, +b} = st
-  +same_a = F64.is_lt(u2_len(F64.sub(u2_x(u), u2_x(a)), F64.sub(u2_y(u), u2_y(a))), 1.0e-6f64)
-  +same_b = F64.is_lt(u2_len(F64.sub(u2_x(u), u2_x(b)), F64.sub(u2_y(u), u2_y(b))), 1.0e-6f64)
-  Bool.pick(Ac, Nat.is_eq(n, 0n), Ac{ok, 1n, u, u},
-    Bool.pick(Ac, Bool.or(same_a, Bool.and(Nat.is_eq(n, 2n), same_b)), Ac{ok, n, a, b},
-      Bool.pick(Ac, Nat.is_eq(n, 1n), Ac{ok, 2n, a, u}, Ac{False{}, n, a, b})))
-
-def ac_bad(+gen: Bool, +st: Ac) -> Ac:
-  Ac{+ok, +n, +a, +b} = st
-  Ac{Bool.and(ok, gen), n, a, b}
-
-def ac_edge(+m: Mp, +gen: Bool, +st: Ac, +cr: F64, +ch: F64) -> Ac:
-  Mp{+ok, +x, +y} = m
-  Bool.pick(Ac, ok, ac_put(st, u2_unit(F64.sub(x, cr), F64.sub(y, ch))), ac_bad(gen, st))
-
-def pl_go(xs: List<&2, I.I>, ys: List<&2, I.I>, zs: List<&2, I.I>, ws: List<&2, I.I>, +n: List<&2, I.I>, +no: I.I, +tl: F64) -> Bool:
-  match xs ys zs ws:
-    case +x <> +xt +y <> +yt +z <> +zt +w <> +wt:
-      +v = I.isub(X.vdot(n, [x, y, z]), I.imul(w, no))
-      Bool.and(F64.is_le(I.i_hi(iabs(v)), F64.mul(tl, I.i_lo(iabs(w)))), pl_go(xt, yt, zt, wt, n, no, tl))
-    case _ _ _ _: True{}
-
-def gen_rb(+rb: R.Rb, +n: List<&2, I.I>, +no: I.I, +tl: F64) -> Bool:
-  R.Rb{+xs, +ys, +zs, +ws} = rb
-  pl_go(xs, ys, zs, ws, n, no, tl)
-
-def is_gen(+o: List<&2, I.I>, +a: List<&2, I.I>, +c: R.Cv, +tl: F64) -> Bool:
-  +n = Im.cross(a, X.vsub(R.cv_box(c, I.ipt(0.5f64)), o))
-  +nl = I.i_lo(I.isqrt(pos(X.vdot(n, n))))
-  Bool.and(F64.is_lt(tl, nl), gen_rb(R.cv_rb(c), n, X.vdot(n, o), F64.mul(tl, nl)))
-
-def ac_go(es: List<&2, Mm.Er>, +o: List<&2, I.I>, +a: List<&2, I.I>, +cr: F64, +ch: F64, +tl: F64, +st: Ac) -> Ac:
-  match es:
-    case []: st
-    case +e <> +t:
-      +c = Mm.er_c(e)
-      ac_go(t, o, a, cr, ch, tl, ac_edge(ep_of(o, a, c, tl), is_gen(o, a, c, tl), st, cr, ch))
-
-def p3_of(+o: List<&2, I.I>, +a: List<&2, I.I>, +er: List<&2, I.I>, +rho: F64, +h: F64) -> List<&2, I.I>:
-  +au = Mm.vs(I.idiv(I.ipt(1.0f64), I.isqrt(X.vdot(a, a))), a)
-  X.vadd(o, X.vadd(Mm.vs(I.ipt(h), au), Mm.vs(I.ipt(rho), er)))
-
-def er_of(+o: List<&2, I.I>, +a: List<&2, I.I>, +q: List<&2, I.I>) -> List<&2, I.I>:
-  +m = X.vsub(q, o)
-  +rv = X.vsub(m, Mm.vs(I.idiv(X.vdot(a, m), X.vdot(a, a)), a))
-  Mm.vs(I.idiv(I.ipt(1.0f64), I.isqrt(X.vdot(rv, rv))), rv)
-
-def in_face(+f: SO.Fd, +p: List<&2, I.I>) -> Bool:
-  U64.is_eq(Mm.member(SO.fd_fc(f), SO.snap(SO.proj(SO.fd_im(f), p)), SO.fd_im(f)), 1u64)
-
-def ar_pick(sp: Bool, sn: Bool, +ok: Bool, +cr: F64, +ch: F64, +r: F64, +a: U2, +b: U2, +e: F64) -> Ft:
-  match sp:
-    case True{}: Bool.pick(Ft, Bool.and(ok, Bool.not(sn)), Ft_a{Ar{cr, ch, r, a, b, 1.0f64}, e}, Ft_no{})
-    case False{}: Bool.pick(Ft, Bool.and(ok, sn), Ft_a{Ar{cr, ch, r, a, b, F64.neg(1.0f64)}, e}, Ft_no{})
-
-def ar_fin(+st: Ac, +o: List<&2, I.I>, +a0: List<&2, I.I>, +f: SO.Fd, +er: List<&2, I.I>, +cr: F64, +ch: F64, +r: F64, +e: F64) -> Ft:
-  Ac{+ok, +n, +a, +b} = st
-  +mp = ar_mid(1.0f64, a, b)
-  +mn = ar_mid(F64.neg(1.0f64), a, b)
-  +qp = p3_of(o, a0, er, F64.add(cr, F64.mul(r, u2_x(mp))), F64.add(ch, F64.mul(r, u2_y(mp))))
-  +qn = p3_of(o, a0, er, F64.add(cr, F64.mul(r, u2_x(mn))), F64.add(ch, F64.mul(r, u2_y(mn))))
-  ar_pick(in_face(f, qp), in_face(f, qn), Bool.and(ok, Nat.is_eq(n, 2n)), cr, ch, r, a, b, e)
-
-def ar_of(m: Maybe<&2, List<&2, I.I>>, +o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd, +cr: F64, +ch: F64, +r: F64, +e: F64) -> Ft:
-  match m:
-    case None{}: Ft_no{}
-    case Some{+q}:
-      +z = {U2{1.0f64, 0.0f64} : U2}
-      ar_fin(ac_go(Mm.fc_es(SO.fd_fc(f)), o, a, cr, ch, wtol(cr, ch, r), Ac{True{}, 0n, z, z}), o, a, f, er_of(o, a, q), cr, ch, r, e)
-
-def iw(+x: I.I) -> F64:
-  F64.sub(I.i_hi(x), I.i_lo(x))
-
-def ft_of(s: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd, +rr: I.I) -> Ft:
-  match s:
-    case Im.M_cy{+so, +sa, +r}:
-      +bx = SO.fd_bx(f)
-      +e = slack(so, sa, o, a, bx)
-      Ft_r{r, ax_h(o, a, bx), e}
-    case Im.M_pl{+op, +n}:
-      +bx = SO.fd_bx(f)
-      Bool.pick(Ft, F64.is_lt(I.i_hi(rr), V.dbl_max()), Ft_r{rr, ax_h(o, a, op), tilt(n, a, bx, op)}, Ft_no{})
-    case Im.M_to{+so, +sa, +bigr, +r}:
-      +bx = SO.fd_bx(f)
-      +hc = ax_h(o, a, so)
-      +e = F64.add(F64.mul(2.0f64, slack(so, sa, o, a, bx)), F64.add(iw(bigr), F64.add(iw(hc), iw(r))))
-      ar_of(SO.interior(f), o, a, f, I.imid(bigr), I.imid(hc), I.imid(r), e)
-    case Im.M_sp{+so, +r}:
-      +hc = ax_h(o, a, so)
-      +e = F64.add(I.i_hi(ax_rho(o, a, so)), F64.add(iw(hc), iw(r)))
-      ar_of(SO.interior(f), o, a, f, 0.0f64, I.imid(hc), I.imid(r), e)
-    case _: Ft_no{}
-
-def fl2_ax(+o: List<&2, I.I>, +a: List<&2, I.I>, +fa: SO.Fd, +fb: SO.Fd, +ra: I.I, +rb: I.I, +cut: F64) -> F64:
-  ft_lb(ft_of(SO.fd_im(fa), o, a, fa, ra), ft_of(SO.fd_im(fb), o, a, fb, rb), cut)
-
-def fl2_s(s: Im.Im, +fa: SO.Fd, +fb: SO.Fd, +ra: I.I, +rb: I.I, +cut: F64) -> F64:
-  match s:
-    case Im.M_cy{+o, +a, r}: fl2_ax(o, a, fa, fb, ra, rb, cut)
-    case Im.M_co{+o, +a, k}: fl2_ax(o, a, fa, fb, ra, rb, cut)
-    case Im.M_to{+o, +a, bigr, r}: fl2_ax(o, a, fa, fb, ra, rb, cut)
-    case _: 0.0f64
-
-def fl2(+fa: SO.Fd, +fb: SO.Fd, +ra: I.I, +rb: I.I, +cut: F64) -> F64:
-  F64.max(fl2_s(SO.fd_im(fa), fa, fb, ra, rb, cut), fl2_s(SO.fd_im(fb), fa, fb, ra, rb, cut))
-
-def ax_k(+d: List<&2, I.I>) -> Nat:
-  +l = vlen_lo(d)
-  +t = F64.mul(1.0e-12f64, F64.add(1.0f64, l))
-  +ox = Bool.and(F64.is_le(I.i_hi(iabs(X.vn(d, 1n))), t), F64.is_le(I.i_hi(iabs(X.vn(d, 2n))), t))
-  +oy = Bool.and(F64.is_le(I.i_hi(iabs(X.vn(d, 0n))), t), F64.is_le(I.i_hi(iabs(X.vn(d, 2n))), t))
-  +oz = Bool.and(F64.is_le(I.i_hi(iabs(X.vn(d, 0n))), t), F64.is_le(I.i_hi(iabs(X.vn(d, 1n))), t))
-  Bool.pick(Nat, F64.is_le(l, 0.0f64), 3n, Bool.pick(Nat, ox, 0n, Bool.pick(Nat, oy, 1n, Bool.pick(Nat, oz, 2n, 3n))))
-
-type Pk is Data:
-  Pk{ k: Nat, reg: Bool }
-
-def pk_of(s: Im.Im) -> Pk:
-  match s:
-    case Im.M_pl{o, +n}: Pk{ax_k(n), True{}}
-    case Im.M_cy{o, +a, r}: Pk{ax_k(a), False{}}
-    case _: Pk{3n, False{}}
-
-def pk_vk(s: Im.Im, +k: Nat) -> Bool:
-  match s:
-    case Im.M_pl{o, +n}: Bool.and(Nat.is_lt(k, 3n), F64.is_le(I.i_hi(iabs(X.vn(n, k))), F64.mul(1.0e-12f64, F64.add(1.0f64, vlen_lo(n)))))
-    case _: False{}
-
-def p2gap(+a: List<&2, I.I>, +b: List<&2, I.I>, +k: Nat) -> F64:
-  +g0 = Bool.pick(F64, Nat.is_eq(k, 0n), 0.0f64, gap1(X.vn(a, 0n), X.vn(b, 0n)))
-  +g1 = Bool.pick(F64, Nat.is_eq(k, 1n), 0.0f64, gap1(X.vn(a, 1n), X.vn(b, 1n)))
-  +g2 = Bool.pick(F64, Nat.is_eq(k, 2n), 0.0f64, gap1(X.vn(a, 2n), X.vn(b, 2n)))
-  I.i_lo(I.isqrt(I.iadd(I.iadd(I.isq(I.ipt(g0)), I.isq(I.ipt(g1))), I.isq(I.ipt(g2)))))
-
-def p2wid(+a: List<&2, I.I>, +k: Nat) -> F64:
-  F64.max(Bool.pick(F64, Nat.is_eq(k, 0n), 0.0f64, iw(X.vn(a, 0n))),
-    F64.max(Bool.pick(F64, Nat.is_eq(k, 1n), 0.0f64, iw(X.vn(a, 1n))), Bool.pick(F64, Nat.is_eq(k, 2n), 0.0f64, iw(X.vn(a, 2n)))))
-
-def half_i(+t: I.I, +up: Bool) -> I.I:
-  +m = F64.mul(0.5f64, F64.add(I.i_lo(t), I.i_hi(t)))
-  Bool.pick(I.I, up, I.I{m, I.i_hi(t)}, I.I{I.i_lo(t), m})
-
-def cc_go(d: Nat, stop: Bool, +lb: F64, +c1: R.Cv, +s1: I.I, +c2: R.Cv, +s2: I.I, +k: Nat, +cut: F64) -> F64:
-  match d stop:
-    case 0n _: lb
-    case 1n++e True{}: lb
-    case 1n++e False{}:
-      +b1 = R.cv_box(c1, s1)
-      +b2 = R.cv_box(c2, s2)
-      +one = F64.is_le(p2wid(b2, k), p2wid(b1, k))
-      +sa = Bool.pick(I.I, one, half_i(s1, False{}), s1)
-      +sb = Bool.pick(I.I, one, half_i(s1, True{}), s1)
-      +ta = Bool.pick(I.I, one, s2, half_i(s2, False{}))
-      +tb = Bool.pick(I.I, one, s2, half_i(s2, True{}))
-      +l1 = p2gap(R.cv_box(c1, sa), R.cv_box(c2, ta), k)
-      +l2 = p2gap(R.cv_box(c1, sb), R.cv_box(c2, tb), k)
-      F64.min(cc_go(e, F64.is_le(cut, l1), l1, c1, sa, c2, ta, k, cut), cc_go(e, F64.is_le(cut, l2), l2, c1, sb, c2, tb, k, cut))
-
-def cc_lb(+c1: R.Cv, +c2: R.Cv, +k: Nat, +cut: F64) -> F64:
-  +u = {I.I{0.0f64, 1.0f64} : I.I}
-  +l = p2gap(R.cv_box(c1, u), R.cv_box(c2, u), k)
-  +m = {I.I{0.5f64, 0.5f64} : I.I}
-  +ub = F64.min(cut, I.i_hi(I.isqrt(I.iadd(I.iadd(I.isq(I.isub(X.vn(R.cv_box(c1, m), 0n), X.vn(R.cv_box(c2, m), 0n))),
-    I.isq(I.isub(X.vn(R.cv_box(c1, m), 1n), X.vn(R.cv_box(c2, m), 1n)))), I.isq(I.isub(X.vn(R.cv_box(c1, m), 2n), X.vn(R.cv_box(c2, m), 2n)))))))
-  cc_go(8n, F64.is_le(ub, l), l, c1, u, c2, u, k, ub)
-
-def ce_lb(es: List<&2, Mm.Er>, +c: R.Cv, +k: Nat, +cut: F64, +acc: F64) -> F64:
-  match es:
-    case []: acc
-    case +e <> +t: ce_lb(t, c, k, cut, F64.min(acc, cc_lb(Mm.er_c(e), c, k, cut)))
-
-def ee_lb(es: List<&2, Mm.Er>, +fs: List<&2, Mm.Er>, +k: Nat, +cut: F64, +acc: F64) -> F64:
-  match es:
-    case []: acc
-    case +e <> +t: ee_lb(t, fs, k, cut, ce_lb(fs, Mm.er_c(e), k, cut, acc))
-
-def lift(+p: List<&2, I.I>, +k: Nat, +h: I.I) -> List<&2, I.I>:
-  [Bool.pick(I.I, Nat.is_eq(k, 0n), h, X.vn(p, 0n)), Bool.pick(I.I, Nat.is_eq(k, 1n), h, X.vn(p, 1n)), Bool.pick(I.I, Nat.is_eq(k, 2n), h, X.vn(p, 2n))]
-
-def e0_pt(es: List<&2, Mm.Er>) -> Maybe<&2, List<&2, I.I>>:
-  match es:
-    case []: None{}
-    case +e <> t: Some{R.cv_box(Mm.er_c(e), I.ipt(0.0f64))}
-
-def out_of(m: Maybe<&2, List<&2, I.I>>, +f: SO.Fd, +k: Nat) -> Bool:
-  match m:
-    case None{}: False{}
-    case Some{+p}: U64.is_eq(Mm.member(SO.fd_fc(f), lift(p, k, X.vn(SO.fd_bx(f), k)), SO.fd_im(f)), 0u64)
-
-def reg_ok(+ra: Bool, +rb: Bool, +fa: SO.Fd, +fb: SO.Fd, +k: Nat) -> Bool:
-  +ea = Mm.fc_es(SO.fd_fc(fa))
-  +eb = Mm.fc_es(SO.fd_fc(fb))
-  Bool.and(Bool.or(Bool.not(ra), out_of(e0_pt(eb), fa, k)), Bool.or(Bool.not(rb), out_of(e0_pt(ea), fb, k)))
-
-def fl3_d(far: Bool, +dh: F64, +k: Nat, +ra: Bool, +rb: Bool, +fa: SO.Fd, +fb: SO.Fd, +cut: F64) -> F64:
-  match far:
-    case True{}: dh
-    case False{}:
-      +dx = Bool.pick(F64, reg_ok(ra, rb, fa, fb, k), ee_lb(Mm.fc_es(SO.fd_fc(fa)), Mm.fc_es(SO.fd_fc(fb)), k, cut, V.dbl_max()), 0.0f64)
-      I.i_lo(I.isqrt(I.iadd(I.isq(I.ipt(F64.min(dx, V.dbl_max()))), I.isq(I.ipt(dh)))))
-
-def fl3_k(ok: Bool, +k: Nat, +ra: Bool, +rb: Bool, +fa: SO.Fd, +fb: SO.Fd, +cut: F64) -> F64:
-  match ok:
-    case False{}: 0.0f64
-    case True{}:
-      +dh = gap1(X.vn(SO.fd_bx(fa), k), X.vn(SO.fd_bx(fb), k))
-      fl3_d(F64.is_le(cut, dh), dh, k, ra, rb, fa, fb, cut)
-
-def fl3_p(+pa: Pk, +pb: Pk, sa: Im.Im, sb: Im.Im, +fa: SO.Fd, +fb: SO.Fd, +cut: F64) -> F64:
-  Pk{+ka, +ra} = pa
-  Pk{+kb, +rb} = pb
-  +k = Bool.pick(Nat, Nat.is_lt(ka, 3n), ka, kb)
-  +oka = Bool.or(Bool.and(Nat.is_lt(ka, 3n), Nat.is_eq(ka, k)), pk_vk(sa, k))
-  +okb = Bool.or(Bool.and(Nat.is_lt(kb, 3n), Nat.is_eq(kb, k)), pk_vk(sb, k))
-  +ra2 = Bool.and(ra, Nat.is_eq(ka, k))
-  +rb2 = Bool.and(rb, Nat.is_eq(kb, k))
-  fl3_k(Bool.and(Nat.is_lt(k, 3n), Bool.and(oka, okb)), k, ra2, rb2, fa, fb, cut)
-
-def fl3(+fa: SO.Fd, +fb: SO.Fd, +cut: F64) -> F64:
-  fl3_p(pk_of(SO.fd_im(fa)), pk_of(SO.fd_im(fb)), SO.fd_im(fa), SO.fd_im(fb), fa, fb, cut)
-
-def fl_c2(done: Bool, +f: F64, +fa: SO.Fd, +fb: SO.Fd, +cut: F64) -> F64:
-  match done:
-    case True{}: f
-    case False{}: F64.max(f, fl3(fa, fb, cut))
-
-def fl_c1_go(done: Bool, +f: F64, +fa: SO.Fd, +fb: SO.Fd, +qa: I.I, +qb: I.I, +cut: F64) -> F64:
-  match done:
-    case True{}: f
-    case False{}:
-      +g2 = fl2(fa, fb, qa, qb, cut)
-      fl_c2(Bool.or(F64.is_le(cut, F64.max(f, g2)), F64.is_lt(0.0f64, g2)), F64.max(f, g2), fa, fb, cut)
-
-def fl_c1(+f: F64, +fa: SO.Fd, +fb: SO.Fd, +qa: I.I, +qb: I.I, +cut: F64) -> F64:
-  fl_c1_go(F64.is_le(cut, f), f, fa, fb, qa, qb, cut)
-
-def with_fl(+x: Cb, +cut: F64) -> Cb:
-  Cb{+a, +b, +fs, fl, ra, rb} = x
-  +fa = f0(fs)
-  +fb = f1(fs)
-  +qa = rr_pair(SO.fd_im(fa), SO.fd_im(fb), fa)
-  +qb = rr_pair(SO.fd_im(fb), SO.fd_im(fa), fb)
-  Cb{a, b, fs, fl_c1(fl_of(SO.fd_im(fa), SO.fd_im(fb), fa, fb), fa, fb, qa, qb, cut), qa, qb}
-
-def root_k(near: Bool, +w: Bool, +k: F64, +x: Cb, +h: Ph, +hi: F64, +eps: F64) -> Ph:
-  match near:
-    case False{}: h
-    case True{}:
-      +y = with_fl(x, hi)
-      +k2 = F64.max(k, lbk(w, y))
-      push_k(F64.is_lt(k2, hi), k2, y, h, eps)
-
-def root_all(xs: List<&2, Cb>, +h: Ph, +w: Bool, +hi: F64, +eps: F64) -> Ph:
-  match xs:
-    case []: h
-    case +x <> +t:
-      +k = lbk(w, x)
-      root_all(t, root_k(F64.is_lt(k, hi), w, k, x, h, hi, eps), w, hi, eps)
-
-def fl_unset(+x: Cb) -> Bool:
-  Cb{a, b, fs, +fl, ra, rb} = x
-  F64.is_lt(fl, 0.0f64)
-
-def step(unset: Bool, +k: F64, +x: Cb, +cs: List<&2, Ph>, +w: Bool, +hw: F64, +eps: F64) -> Ph:
-  match unset:
-    case True{}:
-      +y = with_fl(x, hw)
-      +k2 = F64.max(k, lbk(w, y))
-      push_k(F64.is_lt(k2, hw), k2, y, pairs(cs), eps)
-    case False{}: push_all(kids(x, F64.mul(0.5f64, hw)), pairs(cs), w, hw, eps)
-
-def wit_if(go: Bool, +w: Bool, +x: Cb) -> F64:
-  match go:
-    case True{}: wit(w, x)
-    case False{}: V.dbl_max()
-
-def search(fuel: Nat, stop: Bool, h: Ph, +w: Bool, +hi: F64, +eps: F64, +minw: F64) -> I.I:
-  match fuel:
-    case 0n: I.I{ph_min(h, hi), hi}
-    case 1n+(+f):
-      match stop:
-        case True{}: I.I{ph_min(h, hi), hi}
-        case False{}:
-          match h:
-            case Ph_e{}: I.I{hi, hi}
-            case Ph_n{+k, q, bw, +x, +cs}:
-              +hw = F64.min(hi, wit_if(Bool.or(Bool.or(Nat.is_lt(99776n, f), Nat.is_eq(Nat.mod(f, 256n), 0n)), fl_unset(x)), w, x))
-              +h2 = step(fl_unset(x), k, x, cs, w, hw, eps)
-              search(f, stop_of(h2, hw, eps, minw), h2, w, hw, eps, minw)
-
-def best_lo_t(+cs: List<&2, Cb>, +w: Bool, +hi: F64, +tol: F64) -> I.I:
-  +sc = F64.add(1.0f64, hi)
-  +eps = F64.max(F64.mul(1.0e-6f64, sc), tol)
-  +h = root_all(cs, Ph_e{}, w, hi, eps)
-  search(99841n, stop_of(h, hi, eps, eps), h, w, hi, eps, eps)
-
-def best_lo(+cs: List<&2, Cb>, +w: Bool, +hi: F64) -> I.I:
-  best_lo_t(cs, w, hi, 0.0f64)
-
-def cross_b(fbs: List<&2, SO.Fd>, +fa: SO.Fd, +acc: List<&2, Cb>) -> List<&2, Cb>:
-  match fbs:
-    case []: acc
-    case +fb <> +t: cross_b(t, fa, cb(fa, fb) <> acc)
-
-def cross(fas: List<&2, SO.Fd>, +fbs: List<&2, SO.Fd>, +acc: List<&2, Cb>) -> List<&2, Cb>:
-  match fas:
-    case []: acc
-    case +fa <> +t: cross(t, fbs, cross_b(fbs, fa, acc))
-
-type Ax is Data:
-  Ax_no{}
-  Ax_v{ o: List<&2, I.I>, a: List<&2, I.I>, w: F64 }
-
-def ax_new(s: Im.Im, +w: F64) -> Ax:
-  match s:
-    case Im.M_cy{+o, +a, r}: Ax_v{o, a, w}
-    case Im.M_co{+o, +a, k}: Ax_v{o, a, w}
-    case Im.M_to{+o, +a, bigr, r}: Ax_v{o, a, w}
-    case _: Ax_no{}
-
-def ax_w(+x: Ax) -> F64:
-  match x:
-    case Ax_no{}: F64.neg(1.0f64)
-    case Ax_v{o, a, +w}: w
-
-def ax_go(fs: List<&2, SO.Fd>, +acc: Ax) -> Ax:
-  match fs:
-    case []: acc
-    case +f <> +t:
-      +c = ax_new(SO.fd_im(f), diag(SO.fd_bx(f)))
-      ax_go(t, Bool.pick(Ax, F64.is_lt(ax_w(acc), ax_w(c)), c, acc))
-
 def par_ax(+u: List<&2, I.I>, +a: List<&2, I.I>) -> Bool:
   F64.is_le(vlen_hi(Im.cross(a, u)), F64.mul(1.0e-12f64, F64.mul(vlen_lo(a), vlen_lo(u))))
 
@@ -1116,58 +475,858 @@ def mr_ext(ok: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd) -> I.I:
     case False{}: rr_all()
     case True{}: es_rho(Mm.fc_es(SO.fd_fc(f)), o, a, I.I{V.dbl_max(), F64.neg(V.dbl_max())})
 
+def mr_pl(par: Bool, +perp: Bool, +o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd, +op: List<&2, I.I>) -> I.I:
+  match par:
+    case True{}: rr_go(True{}, o, a, f, op)
+    case False{}: mr_ext(perp, o, a, f)
+
+def f_ne(+f: SO.Fd) -> Bool:
+  Nat.is_lt(0n, List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(f))))
+
 def mr_rho(s: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd) -> I.I:
   match s:
-    case Im.M_pl{+op, +n}:
-      +ne = Nat.is_lt(0n, List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(f))))
-      Bool.pick(I.I, Bool.and(ne, par_ax(n, a)), rr_go(True{}, o, a, f, op), mr_ext(Bool.and(ne, perp_ax(n, a)), o, a, f))
-    case Im.M_cy{so, +sa, r}: mr_ext(Bool.and(par_ax(sa, a), Nat.is_lt(0n, List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(f))))), o, a, f)
+    case Im.M_pl{+op, +n}: mr_pl(Bool.and(f_ne(f), par_ax(n, a)), Bool.and(f_ne(f), perp_ax(n, a)), o, a, f, op)
+    case Im.M_cy{so, +sa, r}: mr_ext(Bool.and(par_ax(sa, a), f_ne(f)), o, a, f)
     case _: rr_all()
 
-def mr_of(+o: List<&2, I.I>, +a: List<&2, I.I>, +f: SO.Fd) -> Bd:
-  +bx = SO.fd_bx(f)
-  Bd{isect(ax_rho(o, a, bx), mr_rho(SO.fd_im(f), o, a, f)), ax_h(o, a, bx)}
+def rr_ax(so: Im.Im, +f: SO.Fd) -> I.I:
+  match so:
+    case Im.M_cy{+o, +a, r}: mr_rho(SO.fd_im(f), o, a, f)
+    case Im.M_co{+o, +a, k}: mr_rho(SO.fd_im(f), o, a, f)
+    case Im.M_to{+o, +a, bigr, r}: mr_rho(SO.fd_im(f), o, a, f)
+    case _: rr_all()
 
-def mrs_of(fs: List<&2, SO.Fd>, +o: List<&2, I.I>, +a: List<&2, I.I>) -> List<&2, Bd>:
+type En is Data:
+  En_f{ f: SO.Fd }
+  En_e{ c: R.Cv, s: Im.Im }
+  En_v{}
+
+type Cl is Data:
+  Cl{ e: En, bx: List<&2, I.I>, t: I.I, st: U64, es: List<&2, Mm.Er> }
+
+type Cb is Data:
+  Cb{ a: Cl, b: Cl, ra: I.I, rb: I.I }
+
+type El is Data:
+  El{ cs: List<&2, Cl>, ok: Bool, bb: List<&2, I.I> }
+
+type Wp is Data:
+  Wp{ ok: Bool, p: List<&2, I.I>, s: F64 }
+
+type Ei is Data:
+  Ei{ n: Nat, t: I.I }
+
+def cl_e(c: Cl) -> En:
+  Cl{e, bx, t, st, es} = c
+  e
+
+def cl_bx(c: Cl) -> List<&2, I.I>:
+  Cl{e, bx, t, st, es} = c
+  bx
+
+def cl_t(c: Cl) -> I.I:
+  Cl{e, bx, t, st, es} = c
+  t
+
+def cl_st(c: Cl) -> U64:
+  Cl{e, bx, t, st, es} = c
+  st
+
+def en_im(e: En) -> Im.Im:
+  match e:
+    case En_f{f}: SO.fd_im(f)
+    case En_e{c, s}: s
+    case En_v{}: Im.M_no{}
+
+def unit_t() -> I.I:
+  I.I{0.0f64, 1.0f64}
+
+def i_any() -> I.I:
+  I.I{F64.neg(V.dbl_max()), V.dbl_max()}
+
+def rp(+a: List<&2, I.I>, +m: List<&2, I.I>) -> List<&2, I.I>:
+  Im.cross(Im.cross(a, m), a)
+
+def tor_k(far: Bool, +a: List<&2, I.I>, +m: List<&2, I.I>, +c: List<&2, I.I>, +rho: I.I, +bigr: I.I, +g: List<&2, I.I>) -> List<&2, I.I>:
+  match far:
+    case False{}: g
+    case True{}: X.vadd(Mm.vs(I.isub(I.ipt(1.0f64), I.idiv(bigr, rho)), c), Mm.vs(X.vdot(a, m), a))
+
+def tor_n(+o: List<&2, I.I>, +a: List<&2, I.I>, +p: List<&2, I.I>, +bigr: I.I, +r: I.I) -> List<&2, I.I>:
+  +m = X.vsub(p, o)
+  +c = rp(a, m)
+  +rho = I.idiv(I.isqrt(nsq(c)), nsq(a))
+  tor_k(F64.is_lt(0.0f64, I.i_lo(rho)), a, m, c, rho, bigr, Im.im_grad(Im.M_to{o, a, bigr, r}, p))
+
+def tgrad(s: Im.Im, +p: List<&2, I.I>) -> List<&2, I.I>:
+  match s:
+    case Im.M_pl{o, +n}: n
+    case Im.M_sp{+o, r}: X.vsub(p, o)
+    case Im.M_cy{+o, +a, r}: rp(a, X.vsub(p, o))
+    case Im.M_co{+o, +a, +k}: X.vsub(rp(a, X.vsub(p, o)), Mm.vs(I.imul(I.isq(k), X.vdot(a, X.vsub(p, o))), a))
+    case Im.M_to{+o, +a, +bigr, +r}: tor_n(o, a, p, bigr, r)
+    case Im.M_no{}: [Im.i_all(), Im.i_all(), Im.i_all()]
+
+def inw(+f: SO.Fd, +p: List<&2, I.I>) -> List<&2, I.I>:
+  Mm.neg_if(Bool.not(Mm.fc_same(SO.fd_fc(f))), tgrad(SO.fd_im(f), p))
+
+def rad(+o: List<&2, I.I>, +a: List<&2, I.I>, +p: List<&2, I.I>) -> List<&2, I.I>:
+  +m = X.vsub(p, o)
+  X.vsub(m, Mm.vs(I.idiv(X.vdot(a, m), X.vdot(a, a)), a))
+
+def sd_iv(s: Im.Im, +p: List<&2, I.I>) -> I.I:
+  match s:
+    case Im.M_pl{+o, +n}: I.idiv(X.vdot(n, X.vsub(p, o)), I.isqrt(X.vdot(n, n)))
+    case Im.M_sp{+o, +r}: I.isub(I.isqrt(nsq(X.vsub(p, o))), r)
+    case Im.M_cy{+o, +a, +r}: I.isub(ax_rho(o, a, p), r)
+    case Im.M_co{+o, +a, +k}: I.idiv(I.isub(ax_rho(o, a, p), I.imul(iabs(k), iabs(ax_h(o, a, p)))), I.isqrt(I.iadd(I.ipt(1.0f64), I.isq(k))))
+    case Im.M_to{+o, +a, +bigr, +r}: I.isub(I.isqrt(I.iadd(I.isq(I.isub(ax_rho(o, a, p), bigr)), I.isq(ax_h(o, a, p)))), r)
+    case Im.M_no{}: Im.i_all()
+
+def sd_grad(s: Im.Im, +p: List<&2, I.I>) -> List<&2, I.I>:
+  match s:
+    case Im.M_pl{o, +n}: SO.unit(n)
+    case Im.M_sp{o, r}: SO.unit(X.vsub(p, o))
+    case Im.M_cy{+o, +a, r}: SO.unit(rad(o, a, p))
+    case Im.M_co{+o, +a, +k}: SO.unit(X.vsub(SO.unit(rad(o, a, p)), Mm.vs(iabs(k), SO.unit(a))))
+    case Im.M_to{+o, +a, +bigr, r}:
+      SO.unit(X.vadd(Mm.vs(I.isub(ax_rho(o, a, p), bigr), SO.unit(rad(o, a, p))), Mm.vs(ax_h(o, a, p), SO.unit(a))))
+    case Im.M_no{}: [Im.i_all(), Im.i_all(), Im.i_all()]
+
+def mv_w(+g: I.I, +d: F64) -> I.I:
+  Bool.pick(I.I, F64.is_lt(d, V.dbl_max()), I.iwiden(g, d), i_any())
+
+def mv_f(ok: Bool, +sa: Im.Im, +sb: Im.Im, +bx: List<&2, I.I>, +c: List<&2, I.I>) -> I.I:
+  match ok:
+    case False{}: i_any()
+    case True{}:
+      +g0 = Im.im_grad(sa, c)
+      +dd = diag(bx)
+      +eta = F64.div(F64.add(X.imag(Im.im_val(sa, c)), F64.mul(vlen_hi(X.vsub(Im.im_grad(sa, bx), g0)), dd)), vlen_lo(g0))
+      mv_w(sd_iv(sb, c), F64.add(F64.mul(vlen_hi(Im.cross(sd_grad(sb, bx), SO.unit(g0))), dd), F64.mul(1.0000001f64, eta)))
+
+def near_f(+f: SO.Fd, +bx: List<&2, I.I>, +sb: Im.Im) -> I.I:
+  +c = SO.snap(SO.proj(SO.fd_im(f), mid(bx)))
+  isect(sd_iv(sb, bx), mv_f(Bool.and(X.vfin(c), X.vsub_of(c, bx)), SO.fd_im(f), sb, bx, c))
+
+def near_e(+c: R.Cv, +bx: List<&2, I.I>, +t: I.I, +sb: Im.Im) -> I.I:
+  +hw = F64.mul(0.5f64, F64.sub(I.i_hi(t), I.i_lo(t)))
+  isect(sd_iv(sb, bx), I.iadd(sd_iv(sb, R.cv_box(c, I.ipt(I.imid(t)))), I.imul(X.vdot(sd_grad(sb, bx), R.cv_der(c, t)), I.I{F64.neg(hw), hw})))
+
+def near_iv(e: En, +bx: List<&2, I.I>, +t: I.I, +sb: Im.Im) -> I.I:
+  match e:
+    case En_f{+f}: iabs(near_f(f, bx, sb))
+    case En_e{+c, s}: iabs(near_e(c, bx, t, sb))
+    case En_v{}: iabs(sd_iv(sb, bx))
+
+def near_s(+sb: Im.Im, +e: En, +bx: List<&2, I.I>, +t: I.I) -> I.I:
+  match sb:
+    case Im.M_no{}: I.I{0.0f64, V.dbl_max()}
+    case _: near_iv(e, bx, t, sb)
+
+def bd_p(q: Bd) -> I.I:
+  Bd{p, h} = q
+  p
+
+def del_iv(sa: Im.Im, +c: List<&2, I.I>, +bx: List<&2, I.I>) -> I.I:
+  match sa:
+    case Im.M_sp{+ca, +ra}:
+      +dc = I.isqrt(pos(X.vdot(X.vsub(ca, c), X.vsub(ca, c))))
+      isect(I.isqrt(nsq(X.vsub(bx, c))), I.I{I.i_lo(iabs(I.isub(dc, ra))), I.i_hi(I.iadd(dc, ra))})
+    case _: I.isqrt(nsq(X.vsub(bx, c)))
+
+def tor_d(+k: Mc, +q: Bd, +bigr: I.I) -> I.I:
+  Mc{+ok, +rc, +hc, +r, +e} = k
+  Bd{+p, +h} = q
+  +z = I.ipt(0.0f64)
+  +box = {I.I{dlo2(p, h, bigr, z), dhi2(p, h, bigr, z)} : I.I}
+  +dc = {I.I{dlo2(rc, hc, bigr, z), dhi2(rc, hc, bigr, z)} : I.I}
+  Bool.pick(I.I, ok, isect(box, I.I{F64.max(0.0f64, F64.sub(I.i_lo(iabs(I.isub(dc, r))), e)), F64.add(I.i_hi(I.iadd(dc, r)), e)}), box)
+
+def tor_far(+sa: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +bigr: I.I, +r: I.I, +bx: List<&2, I.I>, +ra: I.I) -> F64:
+  +q = mrect(sa, o, a, bx, ra)
+  +z = I.ipt(0.0f64)
+  +dm = {I.I{dlo2(bd_p(q), ax_h(o, a, bx), I.ineg(bigr), z), dhi2(bd_p(q), ax_h(o, a, bx), I.ineg(bigr), z)} : I.I}
+  F64.min(F64.add(I.i_lo(tor_d(mcirc(sa, o, a, bx), q, bigr)), I.i_lo(r)), I.i_lo(iabs(I.isub(dm, r))))
+
+def far_lo(sb: Im.Im, +sa: Im.Im, +bx: List<&2, I.I>, +ra: I.I) -> F64:
+  match sb:
+    case Im.M_pl{o, n}: V.dbl_max()
+    case Im.M_sp{+c, +r}: F64.add(I.i_lo(del_iv(sa, c, bx)), I.i_lo(r))
+    case Im.M_cy{+o, +a, +r}: F64.add(I.i_lo(bd_p(mrect(sa, o, a, bx, ra))), I.i_lo(r))
+    case Im.M_co{o, a, k}: 0.0f64
+    case Im.M_to{+o, +a, +bigr, +r}: tor_far(sa, o, a, bigr, r, bx, ra)
+    case Im.M_no{}: 0.0f64
+
+def foot_m(nc: Bool, +tn: I.I, +sb: Im.Im, +sa: Im.Im, +bx: List<&2, I.I>, +ra: I.I) -> F64:
+  match nc:
+    case True{}: I.i_lo(tn)
+    case False{}: far_lo(sb, sa, bx, ra)
+
+def side_tn(+tn: I.I, +a: Cl, +sb: Im.Im, +gap: F64, +ra: I.I) -> F64:
+  foot_m(F64.is_le(gap, I.i_hi(tn)), tn, sb, en_im(cl_e(a)), cl_bx(a), ra)
+
+def side_lb(+a: Cl, +sb: Im.Im, +gap: F64, +ra: I.I) -> F64:
+  side_tn(near_s(sb, cl_e(a), cl_bx(a), cl_t(a)), a, sb, gap, ra)
+
+
+
+def off_r(+off: I.I, +g: F64) -> F64:
+  Bool.pick(F64, F64.is_lt(I.i_hi(off), g), V.dbl_max(), F64.max(g, I.i_lo(off)))
+
+def pl_off(+n: List<&2, I.I>, +o: List<&2, I.I>, +q: List<&2, I.I>) -> I.I:
+  iabs(I.idiv(X.vdot(n, X.vsub(q, o)), I.isqrt(nsq(n))))
+
+def ll_off(+oa: List<&2, I.I>, +aa: List<&2, I.I>, +ob: List<&2, I.I>, +ab: List<&2, I.I>) -> I.I:
+  +c = Im.cross(aa, ab)
+  Bool.pick(I.I, par_ax(ab, aa), I.idiv(I.isqrt(nsq(Im.cross(X.vsub(ob, oa), aa))), I.isqrt(nsq(aa))), pl_off(c, oa, ob))
+
+def is_ln(+r: I.I) -> Bool:
+  F64.is_le(I.i_hi(r), 0.0f64)
+
+def pc_lb(+n: List<&2, I.I>, +o: List<&2, I.I>, +lo: List<&2, I.I>, +la: List<&2, I.I>, +r: I.I, +g: F64) -> F64:
+  Bool.pick(F64, is_ln(r), off_r(Bool.pick(I.I, perp_ax(la, n), pl_off(n, o, lo), I.ipt(0.0f64)), g), 0.0f64)
+
+def pl_pl(sa: Im.Im, +sb: Im.Im, +g: F64) -> F64:
+  match sa:
+    case Im.M_pl{+oa, +na}:
+      match sb:
+        case Im.M_pl{+ob, +nb}: off_r(Bool.pick(I.I, par_ax(nb, na), pl_off(na, oa, ob), I.ipt(0.0f64)), g)
+        case Im.M_cy{+ob, +ab, +rb}: pc_lb(na, oa, ob, ab, rb, g)
+        case _: 0.0f64
+    case Im.M_cy{+oa, +aa, +ra}:
+      match sb:
+        case Im.M_pl{+ob, +nb}: pc_lb(nb, ob, oa, aa, ra, g)
+        case Im.M_cy{+ob, +ab, +rb}: Bool.pick(F64, Bool.and(is_ln(ra), is_ln(rb)), off_r(ll_off(oa, aa, ob, ab), g), 0.0f64)
+        case _: 0.0f64
+    case _: 0.0f64
+
+def pair_g(+a: Cl, +b: Cl, +ra: I.I, +rb: I.I, +sa: Im.Im, +sb: Im.Im, +g: F64) -> F64:
+  F64.max(F64.max(F64.max(g, pl_pl(sa, sb, g)), F64.max(mer(sa, sb, cl_bx(a), cl_bx(b)), mer2(sa, sb, cl_bx(a), cl_bx(b), ra, rb))), F64.max(side_lb(a, sb, g, ra), side_lb(b, sa, g, rb)))
+
+def pair_lb(+c: Cb) -> F64:
+  Cb{+a, +b, +ra, +rb} = c
+  pair_g(a, b, ra, rb, en_im(cl_e(a)), en_im(cl_e(b)), box_gap(cl_bx(a), cl_bx(b)))
+
+def crit(e: En, +bx: List<&2, I.I>, +t: I.I, +d: List<&2, I.I>) -> Bool:
+  match e:
+    case En_f{f}: Bool.not(X.vany0_not(Im.cross(d, tgrad(SO.fd_im(f), bx))))
+    case En_e{c, s}: X.has0(X.vdot(d, R.cv_der(c, t)))
+    case En_v{}: True{}
+
+def crit_pair(+x: Cb) -> Bool:
+  Cb{+a, +b, ra, rb} = x
+  +d = X.vsub(cl_bx(b), cl_bx(a))
+  Bool.and(crit(cl_e(a), cl_bx(a), cl_t(a), d), crit(cl_e(b), cl_bx(b), cl_t(b), d))
+
+def fac(e: En, +bx: List<&2, I.I>, +d: List<&2, I.I>) -> Bool:
+  match e:
+    case En_f{+f}: Bool.not(F64.is_le(I.i_hi(X.vdot(inw(f, bx), d)), 0.0f64))
+    case En_e{c, s}: True{}
+    case En_v{}: True{}
+
+def dir_ff(+fa: SO.Fd, +xa: List<&2, I.I>, +fb: SO.Fd, +xb: List<&2, I.I>) -> Bool:
+  +na = inw(fa, xa)
+  +nb = inw(fb, xb)
+  Bool.and(Bool.not(X.vany0_not(Im.cross(na, nb))), Bool.not(F64.is_le(0.0f64, I.i_lo(X.vdot(na, nb)))))
+
+def dir_ef(+c: R.Cv, +t: I.I, +f: SO.Fd, +xf: List<&2, I.I>) -> Bool:
+  X.has0(X.vdot(R.cv_der(c, t), tgrad(SO.fd_im(f), xf)))
+
+def dir_b(eb: En, +xb: List<&2, I.I>, +tb: I.I, +fa: SO.Fd, +xa: List<&2, I.I>) -> Bool:
+  match eb:
+    case En_f{+fb}: dir_ff(fa, xa, fb, xb)
+    case En_e{+c, s}: dir_ef(c, tb, fa, xa)
+    case En_v{}: True{}
+
+def dir_e(eb: En, +xb: List<&2, I.I>, +c: R.Cv, +ta: I.I) -> Bool:
+  match eb:
+    case En_f{+fb}: dir_ef(c, ta, fb, xb)
+    case En_e{c2, s}: True{}
+    case En_v{}: True{}
+
+def dir_ok(ea: En, +eb: En, +xa: List<&2, I.I>, +ta: I.I, +xb: List<&2, I.I>, +tb: I.I) -> Bool:
+  match ea:
+    case En_f{+fa}: dir_b(eb, xb, tb, fa, xa)
+    case En_e{+c, s}: dir_e(eb, xb, c, ta)
+    case En_v{}: True{}
+
+def wall_ok(+x: Cb) -> Bool:
+  Cb{+a, +b, ra, rb} = x
+  Bool.and(Bool.and(fac(cl_e(a), cl_bx(a), X.vsub(cl_bx(b), cl_bx(a))), fac(cl_e(b), cl_bx(b), X.vsub(cl_bx(a), cl_bx(b)))),
+    dir_ok(cl_e(a), cl_e(b), cl_bx(a), cl_t(a), cl_bx(b), cl_t(b)))
+
+def lb_c(ok: Bool, +x: Cb) -> F64:
+  match ok:
+    case True{}: pair_lb(x)
+    case False{}: V.dbl_max()
+
+def same_iv(+a: I.I, +b: I.I) -> Bool:
+  Bool.and(F64.is_eq(I.i_lo(a), I.i_lo(b)), F64.is_eq(I.i_hi(a), I.i_hi(b)))
+
+def same_v(xs: List<&2, I.I>, ys: List<&2, I.I>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case y <> u: False{}
+    case +x <> +t:
+      match ys:
+        case []: False{}
+        case +y <> +u: Bool.and(same_iv(x, y), same_v(t, u))
+
+def self_r(sa: Im.Im, +sb: Im.Im) -> F64:
+  match sa:
+    case Im.M_sp{+c, +r}:
+      match sb:
+        case Im.M_sp{+c2, +r2}: Bool.pick(F64, Bool.and(same_v(c, c2), same_iv(r, r2)), I.i_lo(r), 0.0f64)
+        case _: 0.0f64
+    case Im.M_cy{+o, +a, +r}:
+      match sb:
+        case Im.M_cy{+o2, +a2, +r2}: Bool.pick(F64, Bool.and(Bool.and(same_v(o, o2), same_v(a, a2)), same_iv(r, r2)), I.i_lo(r), 0.0f64)
+        case _: 0.0f64
+    case Im.M_to{+o, +a, +bigr, +r}:
+      match sb:
+        case Im.M_to{+o2, +a2, +bigr2, +r2}:
+          Bool.pick(F64, Bool.and(Bool.and(same_v(o, o2), same_v(a, a2)), Bool.and(same_iv(bigr, bigr2), same_iv(r, r2))),
+            F64.min(I.i_lo(r), I.i_lo(I.isub(bigr, r))), 0.0f64)
+        case _: 0.0f64
+    case _: 0.0f64
+
+def self_lb(+x: Cb) -> F64:
+  Cb{+a, +b, ra, rb} = x
+  F64.mul(2.0f64, self_r(en_im(cl_e(a)), en_im(cl_e(b))))
+
+def co_s(+k: I.I) -> I.I:
+  I.idiv(iabs(k), I.isqrt(I.iadd(I.ipt(1.0f64), I.isq(k))))
+
+def co_pl(+a: List<&2, I.I>, +k: I.I, +n: List<&2, I.I>) -> F64:
+  +c = iabs(I.idiv(X.vdot(a, n), I.isqrt(I.imul(nsq(a), nsq(n)))))
+  Bool.pick(F64, X.idisj(X.iinfl(c, 1.0e-9f64), co_s(k)), V.dbl_max(), 0.0f64)
+
+def co_same(+o: List<&2, I.I>, +a: List<&2, I.I>, +k: I.I, sb: Im.Im) -> F64:
+  match sb:
+    case Im.M_co{+o2, +a2, +k2}: Bool.pick(F64, Bool.and(Bool.and(same_v(o, o2), same_v(a, a2)), same_iv(k, k2)), V.dbl_max(), 0.0f64)
+    case Im.M_pl{o2, +n}: co_pl(a, k, n)
+    case _: 0.0f64
+
+def nset(sa: Im.Im, +sb: Im.Im) -> F64:
+  match sa:
+    case Im.M_co{+o, +a, +k}: co_same(o, a, k, sb)
+    case Im.M_pl{o, +n}:
+      match sb:
+        case Im.M_co{o2, +a2, +k2}: co_pl(a2, k2, n)
+        case _: 0.0f64
+    case _: 0.0f64
+
+def nset_lb(+x: Cb) -> F64:
+  Cb{+a, +b, ra, rb} = x
+  nset(en_im(cl_e(a)), en_im(cl_e(b)))
+
+def lb_w(ok: Bool, +x: Cb) -> F64:
+  match ok:
+    case True{}: F64.max(F64.max(lb_c(crit_pair(x), x), self_lb(x)), nset_lb(x))
+    case False{}: V.dbl_max()
+
+def lbk(w: Bool, +x: Cb) -> F64:
+  match w:
+    case True{}: lb_w(wall_ok(x), x)
+    case False{}: lb_c(crit_pair(x), x)
+
+def ed_scan(fuel: Nat, dis: Bool, n: Nat, +t: I.I, rest: List<&2, Ei>, +c: R.Cv, +bx: List<&2, I.I>) -> Bool:
+  match fuel:
+    case 0n: True{}
+    case 1n+(+f):
+      match dis:
+        case True{}:
+          match rest:
+            case []: False{}
+            case Ei{+n2, +t2} <> +r2: ed_scan(f, X.vdisj(R.cv_box(c, t2), bx), n2, t2, r2, c, bx)
+        case False{}:
+          match n:
+            case 0n: True{}
+            case 1n+(+m):
+              +lo = half(t, False{})
+              ed_scan(f, X.vdisj(R.cv_box(c, lo), bx), m, lo, Ei{m, half(t, True{})} <> rest, c, bx)
+
+def es_sub(es: List<&2, Mm.Er>, +bx: List<&2, I.I>) -> List<&2, Mm.Er>:
+  match es:
+    case []: []
+    case +e <> +t:
+      +r = es_sub(t, bx)
+      Bool.pick(List<&2, Mm.Er>, ed_scan(64n, X.vdisj(R.cv_box(Mm.er_c(e), unit_t()), bx), 10n, unit_t(), [], Mm.er_c(e), bx), e <> r, r)
+
+def rcurv(s: Im.Im, +bx: List<&2, I.I>) -> F64:
+  match s:
+    case Im.M_pl{o, n}: V.dbl_max()
+    case Im.M_sp{o, r}: I.i_lo(r)
+    case Im.M_cy{o, a, r}: I.i_lo(r)
+    case Im.M_co{+o, +a, k}: I.i_lo(ax_rho(o, a, bx))
+    case Im.M_to{o, a, +bigr, +r}: F64.min(I.i_lo(r), I.i_lo(I.isub(bigr, r)))
+    case Im.M_no{}: 0.0f64
+
+def st_mem(hit: Bool, +f: SO.Fd, +p: List<&2, I.I>) -> U64:
+  match hit:
+    case True{}: 2u64
+    case False{}: Mm.member(SO.fd_fc(f), p, SO.fd_im(f))
+
+def st_pt(fin: Bool, +f: SO.Fd, +p: List<&2, I.I>, +n: Nat) -> U64:
+  match fin:
+    case False{}: 2u64
+    case True{}: st_mem(Nat.is_lt(0n, n), f, p)
+
+def st_small(big: Bool, +f: SO.Fd, +bx: List<&2, I.I>, +n: Nat) -> U64:
+  match big:
+    case True{}: 2u64
+    case False{}:
+      +p = SO.snap(SO.proj(SO.fd_im(f), mid(bx)))
+      st_pt(X.vfin(p), f, p, n)
+
+def cl_rf(far: Bool, +f: SO.Fd, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List<&2, Mm.Er>) -> Cl:
+  match far:
+    case True{}: Cl{En_f{f}, bx, t, 0u64, []}
+    case False{}:
+      match st:
+        case 3u64:
+          +es2 = es_sub(es, SO.wide(mid(bx), F64.mul(0.5f64, diag(bx))))
+          Cl{En_f{f}, bx, t, st_small(F64.is_lt(F64.mul(0.5f64, rcurv(SO.fd_im(f), bx)), diag(bx)), f, bx, List.length(&2, Mm.Er, es2)), es2}
+        case _: Cl{En_f{f}, bx, t, st, es}
+
+def cl_rs(e: En, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List<&2, Mm.Er>) -> Cl:
+  match e:
+    case En_f{+f}: cl_rf(F64.is_lt(0.0f64, sdist(SO.fd_im(f), bx)), f, bx, t, st, es)
+    case En_e{+c, +s}: Cl{En_e{c, s}, bx, t, st, es}
+    case En_v{}: Cl{En_v{}, bx, t, st, es}
+
+def cl_res(+c: Cl) -> Cl:
+  Cl{+e, +bx, +t, +st, +es} = c
+  cl_rs(e, bx, t, st, es)
+
+def cl_cut(e: En, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List<&2, Mm.Er>, +up: Bool) -> Cl:
+  match e:
+    case En_f{+f}: Cl{En_f{f}, cut(bx, axis_of(bx), up), t, Bool.pick(U64, U64.is_eq(st, 1u64), 1u64, 3u64), es}
+    case En_e{+c, +s}: Cl{En_e{c, s}, R.cv_box(c, half(t, up)), half(t, up), 1u64, []}
+    case En_v{}: Cl{En_v{}, bx, t, 1u64, []}
+
+def cl_half(+c: Cl, +up: Bool) -> Cl:
+  Cl{+e, +bx, +t, +st, +es} = c
+  cl_cut(e, bx, t, st, es, up)
+
+def cb_w(+c: Cb) -> F64:
+  Cb{+a, +b, ra, rb} = c
+  F64.max(wid(cl_bx(a)), wid(cl_bx(b)))
+
+def kids_of(leaf: Bool, sa: Bool, +a: Cl, +b: Cl, +ra: I.I, +rb: I.I) -> List<&2, Cb>:
+  match leaf:
+    case True{}: []
+    case False{}:
+      match sa:
+        case True{}: [Cb{cl_half(a, False{}), b, ra, rb}, Cb{cl_half(a, True{}), b, ra, rb}]
+        case False{}: [Cb{a, cl_half(b, False{}), ra, rb}, Cb{a, cl_half(b, True{}), ra, rb}]
+
+def kids(+x: Cb) -> List<&2, Cb>:
+  Cb{+a, +b, +ra, +rb} = x
+  +wa = wid(cl_bx(a))
+  +wb = wid(cl_bx(b))
+  kids_of(F64.is_le(F64.max(wa, wb), 0.0f64), F64.is_le(wb, wa), a, b, ra, rb)
+
+def push_k(keep: Bool, +k: F64, +x: Cb, +h: Ph, +eps: F64) -> Ph:
+  match keep:
+    case True{}: meld(Ph_n{k, quant(k, eps), cb_w(x), x, []}, h)
+    case False{}: h
+
+def push_m(lt: Bool, +k: F64, +x: Cb, +h: Ph, +eps: F64) -> Ph:
+  match lt:
+    case False{}: h
+    case True{}:
+      Cb{+a, +b, +ra, +rb} = x
+      +a2 = cl_res(a)
+      +b2 = cl_res(b)
+      push_k(Bool.not(Bool.or(U64.is_eq(cl_st(a2), 0u64), U64.is_eq(cl_st(b2), 0u64))), k, Cb{a2, b2, ra, rb}, h, eps)
+
+def push_all(xs: List<&2, Cb>, +h: Ph, +w: Bool, +k0: F64, +hi: F64, +eps: F64) -> Ph:
+  match xs:
+    case []: h
+    case +x <> +t:
+      +k = F64.max(k0, lbk(w, x))
+      push_all(t, push_m(F64.is_lt(k, hi), k, x, h, eps), w, k0, hi, eps)
+
+def stop_of(h: Ph, +hi: F64, +eps: F64) -> Bool:
+  match h:
+    case Ph_e{}: True{}
+    case Ph_n{k, +q, w, x, cs}: F64.is_le(F64.sub(hi, F64.mul(2.0f64, eps)), q)
+
+def wp_f(+f: SO.Fd, +c: List<&2, I.I>) -> Wp:
+  +p = SO.snap(SO.proj(SO.fd_im(f), c))
+  Wp{X.vfin(p), p, SO.dist(SO.fd_im(f), p)}
+
+def wp_e(+q: List<&2, I.I>) -> Wp:
+  Wp{True{}, SO.snap(q), X.vwid(q)}
+
+def wp_of(e: En, +bx: List<&2, I.I>, +t: I.I, +c: List<&2, I.I>) -> Wp:
+  match e:
+    case En_f{+f}: wp_f(f, c)
+    case En_e{cv, s}: wp_e(R.cv_box(cv, I.ipt(I.imid(t))))
+    case En_v{}: Wp{True{}, bx, 0.0f64}
+
+def wp_c(+a: Cl, +c: List<&2, I.I>) -> Wp:
+  wp_of(cl_e(a), cl_bx(a), cl_t(a), c)
+
+def wp_p(w: Wp) -> List<&2, I.I>:
+  Wp{ok, p, s} = w
+  p
+
+def on_e(e: En, +p: List<&2, I.I>) -> Bool:
+  match e:
+    case En_f{+f}: on_pt(True{}, f, p)
+    case En_e{c, s}: True{}
+    case En_v{}: True{}
+
+def mem_gate(go: Bool, +a: Cl, +b: Cl, +p: List<&2, I.I>, +q: List<&2, I.I>, +d: F64) -> F64:
+  match go:
+    case False{}: V.dbl_max()
+    case True{}: Bool.pick(F64, Bool.and(on_e(cl_e(a), p), on_e(cl_e(b), q)), d, V.dbl_max())
+
+def on_tol(+sa: F64, +sb: F64, +d: F64) -> Bool:
+  +e = F64.mul(1.0e-9f64, F64.add(1.0f64, d))
+  Bool.and(F64.is_le(sa, e), F64.is_le(sb, e))
+
+def wit_d(+a: Cl, +b: Cl, +pa: Wp, +pb: Wp, +hw: F64) -> F64:
+  Wp{+oka, +p, +sa} = pa
+  Wp{+okb, +q, +sb} = pb
+  +d = F64.add(nrm_hi(X.vsub(q, p)), F64.add(sa, sb))
+  mem_gate(Bool.and(Bool.and(Bool.and(oka, okb), on_tol(sa, sb, d)), F64.is_lt(d, hw)), a, b, p, q, d)
+
+def wit1(+a: Cl, +b: Cl, +hw: F64) -> F64:
+  +pa = wp_c(a, mid(cl_bx(a)))
+  wit_d(a, b, pa, wp_c(b, wp_p(pa)), hw)
+
+def sig(e: En, +p: List<&2, I.I>, +t: I.I, +d: List<&2, I.I>) -> F64:
+  match e:
+    case En_f{+f}:
+      Bool.pick(F64, F64.is_lt(0.0f64, I.i_lo(X.vdot(inw(f, p), d))), F64.div(vlen_hi(Im.cross(d, inw(f, p))), F64.mul(vlen_lo(d), vlen_lo(inw(f, p)))), 2.0f64)
+    case En_e{+c, s}: F64.div(X.imag(X.vdot(d, R.cv_der(c, I.ipt(I.imid(t))))), F64.mul(vlen_lo(d), vlen_lo(R.cv_der(c, I.ipt(I.imid(t))))))
+    case En_v{}: 0.0f64
+
+def wv_s(+sa: F64, +sb: F64, +a: Cl, +b: Cl, +p: List<&2, I.I>, +q: List<&2, I.I>, +ea: F64, +eb: F64, +n: F64, +okd: Bool, +hw: F64) -> F64:
+  +l = F64.add(F64.mul(n, F64.add(1.0f64, F64.add(F64.add(F64.mul(sa, sa), F64.mul(sb, sb)), 4.5e-16f64))), F64.add(ea, eb))
+  mem_gate(Bool.and(Bool.and(okd, on_tol(ea, eb, l)), Bool.and(F64.is_lt(l, hw), Bool.and(F64.is_le(sa, 1.0e-4f64), F64.is_le(sb, 1.0e-4f64)))), a, b, p, q, l)
+
+def wv(+a: Cl, +b: Cl, +pa: Wp, +pb: Wp, +hw: F64) -> F64:
+  Wp{+oka, +p, +ea} = pa
+  Wp{+okb, +q, +eb} = pb
+  +d = X.vsub(q, p)
+  wv_s(sig(cl_e(a), p, cl_t(a), d), sig(cl_e(b), q, cl_t(b), X.vsub(p, q)), a, b, p, q, ea, eb, nrm_hi(d),
+    Bool.and(Bool.and(oka, okb), F64.is_lt(0.0f64, vlen_lo(d))), hw)
+
+def qroot(+a: F64, +b: F64, +c: F64, +far: Bool) -> F64:
+  +dd = F64.sub(F64.mul(b, b), F64.mul(a, c))
+  +s = F64.sqrt(F64.max(dd, 0.0f64))
+  Bool.pick(F64, Bool.or(F64.is_lt(dd, 0.0f64), F64.is_le(F64.abs(a), 1.0e-300f64)), F64.neg(1.0f64),
+    F64.div(F64.sub(Bool.pick(F64, far, s, F64.neg(s)), b), a))
+
+def ray_s(+m: List<&2, I.I>, +n: List<&2, I.I>, +r: I.I, +far: Bool) -> F64:
+  qroot(1.0f64, I.imid(X.vdot(n, m)), F64.sub(I.imid(X.vdot(m, m)), I.imid(I.isq(r))), far)
+
+def ray_t(s: Im.Im, +p: List<&2, I.I>, +n: List<&2, I.I>, +far: Bool) -> F64:
+  match s:
+    case Im.M_pl{+o, +nb}: F64.div(I.imid(X.vdot(nb, X.vsub(o, p))), I.imid(X.vdot(nb, n)))
+    case Im.M_sp{+c, +r}: ray_s(X.vsub(p, c), n, r, far)
+    case Im.M_cy{+o, +a, +r}:
+      +m = rad(o, a, p)
+      +u = X.vsub(n, Mm.vs(I.idiv(X.vdot(a, n), X.vdot(a, a)), a))
+      qroot(I.imid(X.vdot(u, u)), I.imid(X.vdot(u, m)), F64.sub(I.imid(X.vdot(m, m)), I.imid(I.isq(r))), far)
+    case Im.M_to{+o, +a, +bigr, +r}: ray_s(X.vsub(p, X.vadd(o, Mm.vs(bigr, SO.unit(rad(o, a, p))))), n, r, far)
+    case _: F64.neg(1.0f64)
+
+def en_n(e: En, +p: List<&2, I.I>) -> List<&2, I.I>:
+  match e:
+    case En_f{+f}: SO.unit(inw(f, p))
+    case En_e{c, s}: [Im.i_all(), Im.i_all(), Im.i_all()]
+    case En_v{}: [Im.i_all(), Im.i_all(), Im.i_all()]
+
+def wq_t(+b: Cl, +p: List<&2, I.I>, +n: List<&2, I.I>, +t: F64) -> Wp:
+  Bool.pick(Wp, F64.is_lt(0.0f64, t), wp_c(b, X.vadd(p, Mm.vs(I.ipt(t), n))), Wp{False{}, p, 0.0f64})
+
+def wray(+a: Cl, +b: Cl, +pa: Wp, +far: Bool, +hw: F64) -> F64:
+  +p = wp_p(pa)
+  +n = en_n(cl_e(a), p)
+  wv(a, b, pa, wq_t(b, p, n, ray_t(en_im(cl_e(b)), p, n, far)), hw)
+
+type Pp is Data:
+  Pp{ p: List<&2, I.I>, t: F64 }
+
+def pp_p(+x: Pp) -> List<&2, I.I>:
+  Pp{+p, t} = x
+  p
+
+def pull_e(+c: R.Cv, +x: Pp, +q: List<&2, I.I>) -> Pp:
+  Pp{+p, +t} = x
+  +d = R.cv_der(c, I.ipt(t))
+  +t2 = F64.max(0.0f64, F64.min(1.0f64, F64.add(t, F64.div(I.imid(X.vdot(X.vsub(q, p), d)), I.imid(X.vdot(d, d))))))
+  Pp{R.cv_box(c, I.ipt(t2)), t2}
+
+def pull(e: En, +bx: List<&2, I.I>, +x: Pp, +q: List<&2, I.I>) -> Pp:
+  match e:
+    case En_f{+f}: Pp{SO.snap(SO.proj(SO.fd_im(f), q)), 0.0f64}
+    case En_e{+c, s}: pull_e(c, x, q)
+    case En_v{}: Pp{bx, 0.0f64}
+
+def pp_wp(e: En, +x: Pp) -> Wp:
+  match e:
+    case En_f{+f}: Wp{X.vfin(pp_p(x)), pp_p(x), SO.dist(SO.fd_im(f), pp_p(x))}
+    case En_e{c, s}: Wp{X.vfin(pp_p(x)), pp_p(x), X.vwid(pp_p(x))}
+    case En_v{}: Wp{X.vfin(pp_p(x)), pp_p(x), X.vwid(pp_p(x))}
+
+type Pq is Data:
+  Pq{ a: Pp, b: Pp }
+
+def pp_go(n: Nat, +a: Cl, +b: Cl, +xa: Pp, +xb: Pp) -> Pq:
+  match n:
+    case 0n: Pq{xa, xb}
+    case 1n+(+m):
+      +ya = pull(cl_e(a), cl_bx(a), xa, pp_p(xb))
+      pp_go(m, a, b, ya, pull(cl_e(b), cl_bx(b), xb, pp_p(ya)))
+
+def pp_init(e: En, +bx: List<&2, I.I>, +t: I.I) -> Pp:
+  match e:
+    case En_f{+f}: Pp{SO.snap(SO.proj(SO.fd_im(f), mid(bx))), 0.0f64}
+    case En_e{+c, s}: Pp{R.cv_box(c, I.ipt(I.imid(t))), I.imid(t)}
+    case En_v{}: Pp{bx, 0.0f64}
+
+def pong_d(w: Bool, +a: Cl, +b: Cl, +xa: Pp, +xb: Pp, +hw: F64) -> F64:
+  match w:
+    case True{}: wv(a, b, pp_wp(cl_e(a), xa), pp_wp(cl_e(b), xb), hw)
+    case False{}: wit_d(a, b, pp_wp(cl_e(a), xa), pp_wp(cl_e(b), xb), hw)
+
+def pong_q(w: Bool, +a: Cl, +b: Cl, +q: Pq, +hw: F64) -> F64:
+  Pq{+ya, +yb} = q
+  pong_d(w, a, b, ya, yb, hw)
+
+def pong(w: Bool, +a: Cl, +b: Cl, +hw: F64) -> F64:
+  +xa = pp_init(cl_e(a), cl_bx(a), cl_t(a))
+  pong_q(w, a, b, pp_go(12n, a, b, xa, pull(cl_e(b), cl_bx(b), pp_init(cl_e(b), cl_bx(b), cl_t(b)), pp_p(xa))), hw)
+
+def wit_w(+a: Cl, +b: Cl, +hw: F64) -> F64:
+  +pa = wp_c(a, mid(cl_bx(a)))
+  +pb = wp_c(b, mid(cl_bx(b)))
+  +h1 = F64.min(hw, wv(a, b, pa, pb, hw))
+  +h2 = F64.min(h1, wray(a, b, pa, False{}, h1))
+  +h3 = F64.min(h2, wray(a, b, pa, True{}, h2))
+  +h4 = F64.min(h3, wray(b, a, pb, False{}, h3))
+  +h5 = F64.min(h4, wray(b, a, pb, True{}, h4))
+  F64.min(h5, pong(True{}, a, b, h5))
+
+def wit_ab(w: Bool, +a: Cl, +b: Cl, +hw: F64) -> F64:
+  match w:
+    case True{}: wit_w(a, b, hw)
+    case False{}:
+      +h1 = F64.min(hw, wit1(a, b, hw))
+      +h2 = F64.min(h1, wit1(b, a, h1))
+      F64.min(h2, pong(False{}, a, b, h2))
+
+def wit(+w: Bool, +x: Cb, +hw: F64) -> F64:
+  Cb{+a, +b, ra, rb} = x
+  wit_ab(w, a, b, hw)
+
+def wit_if(go: Bool, +w: Bool, +x: Cb, +hw: F64) -> F64:
+  match go:
+    case True{}: wit(w, x, hw)
+    case False{}: V.dbl_max()
+
+def step(leaf: Bool, +k: F64, +x: Cb, +cs: List<&2, Ph>, +w: Bool, +hw: F64, +eps: F64) -> Ph:
+  match leaf:
+    case True{}: pairs(cs)
+    case False{}: push_all(kids(x), pairs(cs), w, k, hw, eps)
+
+def lf_of(leaf: Bool, +lf: F64, +k: F64, +hw: F64, +eps: F64) -> F64:
+  match leaf:
+    case False{}: lf
+    case True{}: Bool.pick(F64, F64.is_lt(k, F64.sub(hw, F64.mul(2.0f64, eps))), F64.min(lf, k), lf)
+
+def eps_of(+hi: F64, +tol: F64) -> F64:
+  F64.max(F64.mul(1.0e-6f64, F64.add(1.0f64, hi)), tol)
+
+def search(fuel: Nat, stop: Bool, h: Ph, +w: Bool, +hi: F64, +tol: F64, +lf: F64) -> I.I:
+  match fuel:
+    case 0n: I.I{F64.min(lf, ph_min(h, hi)), hi}
+    case 1n+(+f):
+      match stop:
+        case True{}: I.I{F64.min(lf, ph_min(h, hi)), hi}
+        case False{}:
+          match h:
+            case Ph_e{}: I.I{F64.min(lf, hi), hi}
+            case Ph_n{+k, q, +bw, +x, +cs}:
+              +leaf = F64.is_le(bw, eps_of(hi, tol))
+              +hw = F64.min(hi, wit_if(Bool.or(leaf, Nat.is_eq(Nat.mod(f, 8n), 0n)), w, x, hi))
+              +eps = eps_of(hw, tol)
+              +h2 = step(leaf, k, x, cs, w, hw, eps)
+              search(f, stop_of(h2, hw, eps), h2, w, hw, tol, lf_of(leaf, lf, k, hw, eps))
+
+def wit_ph(hs: List<&2, Ph>, +w: Bool, +acc: F64) -> F64:
+  match hs:
+    case []: acc
+    case +h <> +t:
+      match h:
+        case Ph_e{}: wit_ph(t, w, acc)
+        case Ph_n{k, q, bw, +x, +cs}: wit_ph(t, w, wit_ph(cs, w, F64.min(acc, wit(w, x, acc))))
+
+def best_go(+h: Ph, +w: Bool, +hi: F64, +tol: F64) -> I.I:
+  search(99841n, stop_of(h, hi, eps_of(hi, tol)), h, w, hi, tol, V.dbl_max())
+
+def best_lo(+h: Ph, +w: Bool, +hi: F64, +tol: F64) -> I.I:
+  best_go(h, w, F64.min(hi, wit_ph([h], w, hi)), tol)
+
+def rr_f(e: En, +so: Im.Im) -> I.I:
+  match e:
+    case En_f{+f}: rr_ax(so, f)
+    case En_e{c, s}: rr_all()
+    case En_v{}: rr_all()
+
+def root_k(lt: Bool, +w: Bool, +k0: F64, +a: Cl, +b: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match lt:
+    case False{}: h
+    case True{}:
+      +x = {Cb{a, b, rr_f(cl_e(a), en_im(cl_e(b))), rr_f(cl_e(b), en_im(cl_e(a)))} : Cb}
+      +k = F64.max(k0, lbk(w, x))
+      push_m(F64.is_lt(k, hi), k, x, h, eps)
+
+def root_1(near: Bool, +w: Bool, +a: Cl, +b: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match near:
+    case False{}: h
+    case True{}:
+      +k = lbk(w, Cb{a, b, rr_all(), rr_all()})
+      root_k(F64.is_lt(k, hi), w, k, a, b, h, hi, eps)
+
+def root_b(bs: List<&2, Cl>, +a: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match bs:
+    case []: h
+    case +b <> +t: root_b(t, a, root_1(F64.is_lt(box_gap(cl_bx(a), cl_bx(b)), hi), False{}, a, b, h, hi, eps), hi, eps)
+
+def root_a(xs: List<&2, Cl>, +bs: List<&2, Cl>, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match xs:
+    case []: h
+    case +a <> +t: root_a(t, bs, root_b(bs, a, h, hi, eps), hi, eps)
+
+def pd(+a: V.Point, +b: V.Point) -> F64:
+  +x = F64.sub(V.pt_x(a), V.pt_x(b))
+  +y = F64.sub(V.pt_y(a), V.pt_y(b))
+  +z = F64.sub(V.pt_z(a), V.pt_z(b))
+  F64.sqrt(F64.add(F64.mul(x, x), F64.add(F64.mul(y, y), F64.mul(z, z))))
+
+def pl(+a: V.Point, +b: V.Point, +k: F64) -> V.Point:
+  V.Pt{F64.add(V.pt_x(a), F64.mul(k, F64.sub(V.pt_x(b), V.pt_x(a)))), F64.add(V.pt_y(a), F64.mul(k, F64.sub(V.pt_y(b), V.pt_y(a)))),
+    F64.add(V.pt_z(a), F64.mul(k, F64.sub(V.pt_z(b), V.pt_z(a))))}
+
+def rq_c(ok: Bool, +p0: V.Point, +p1: V.Point, +p2: V.Point, +c: V.Point, +w: F64) -> Im.Im:
+  match ok:
+    case False{}: Im.M_no{}
+    case True{}:
+      +r = pd(p0, c)
+      +e = F64.mul(1.0e-9f64, F64.add(1.0f64, r))
+      +n = Im.cross(X.vsub(Im.p3(p0), Im.p3(p1)), X.vsub(Im.p3(p2), Im.p3(p1)))
+      Bool.pick(Im.Im, Bool.and(F64.is_le(F64.abs(F64.sub(pd(p2, c), r)), e), F64.is_le(F64.abs(F64.sub(F64.mul(w, pd(p1, c)), r)), e)),
+        Im.M_to{Im.p3(c), n, I.I{F64.sub(r, e), F64.add(r, e)}, I.ipt(0.0f64)}, Im.M_no{})
+
+def rq_im(+p0: V.Point, +p1: V.Point, +p2: V.Point, +w0: F64, +w1: F64, +w2: F64) -> Im.Im:
+  +w = F64.div(w1, F64.sqrt(F64.mul(w0, w2)))
+  +m = pl(p0, p2, 0.5f64)
+  +k = F64.div(F64.mul(w, w), F64.sub(1.0f64, F64.mul(w, w)))
+  rq_c(Bool.and(F64.is_eq(w0, w2), Bool.and(F64.is_lt(0.0f64, w), F64.is_lt(w, 1.0f64))), p0, p1, p2, pl(m, p1, F64.neg(k)), w)
+
+def ed_im(g: G.GVal) -> Im.Im:
+  match g:
+    case G.GV_rq{q}:
+      G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = q
+      rq_im(p0, p1, p2, w0, w1, w2)
+    case G.GV_ln{l}:
+      G.Ln{p, d} = l
+      Im.M_cy{Im.p3(p), Im.d3(d), I.ipt(0.0f64)}
+    case G.GV_cc{c}:
+      G.Cc{o, u, v, +r} = c
+      Im.M_to{Im.p3(o), Im.cross(Im.d3(u), Im.d3(v)), I.ipt(r), I.ipt(0.0f64)}
+    case _: Im.M_no{}
+
+def cull(cs: List<&2, Cl>, +bb: List<&2, I.I>, +hi: F64) -> List<&2, Cl>:
+  match cs:
+    case []: []
+    case +c <> +t:
+      +r = cull(t, bb, hi)
+      Bool.pick(List<&2, Cl>, F64.is_lt(box_gap(cl_bx(c), bb), hi), c <> r, r)
+
+def en_fs(fs: List<&2, SO.Fd>) -> List<&2, Cl>:
   match fs:
     case []: []
-    case +f <> +t: mr_of(o, a, f) <> mrs_of(t, o, a)
+    case +f <> +t: Cl{En_f{f}, SO.fd_bx(f), unit_t(), 3u64, Mm.fc_es(SO.fd_fc(f))} <> en_fs(t)
 
-def cross_mb(fbs: List<&2, SO.Fd>, mbs: List<&2, Bd>, +fa: SO.Fd, +ma: Bd, +hi: F64, +acc: List<&2, Cb>) -> List<&2, Cb>:
-  match fbs mbs:
-    case +fb <> +t +mb <> +u:
-      cross_mb(t, u, fa, ma, hi, Bool.pick(List<&2, Cb>, F64.is_lt(bd_d(ma, mb), hi), cb(fa, fb) <> acc, acc))
-    case _ _: acc
+def en_vs(vs: List<&2, Ty.Vertex>, +acc: List<&2, Cl>) -> List<&2, Cl>:
+  match vs:
+    case []: acc
+    case v <> t: en_vs(t, Cl{En_v{}, Im.p3(Ty.vx_p(v)), unit_t(), 1u64, []} <> acc)
 
-def cross_m(fas: List<&2, SO.Fd>, mas: List<&2, Bd>, +fbs: List<&2, SO.Fd>, +mbs: List<&2, Bd>, +hi: F64, +acc: List<&2, Cb>) -> List<&2, Cb>:
-  match fas mas:
-    case +fa <> +t +ma <> +u: cross_m(t, u, fbs, mbs, hi, cross_mb(fbs, mbs, fa, ma, hi, acc))
-    case _ _: acc
-
-def cross_ax(m: Ax, +fas: List<&2, SO.Fd>, +fbs: List<&2, SO.Fd>, +hi: F64) -> List<&2, Cb>:
+def el_cv(m: Maybe<&2, R.Cv>, +s: Im.Im, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
   match m:
-    case Ax_no{}: cross(fas, fbs, [])
-    case Ax_v{+o, +a, w}: cross_m(fas, mrs_of(fas, o, a), fbs, mrs_of(fbs, o, a), hi, [])
+    case None{}: El{cs, False{}, bb}
+    case Some{+c}: El{Cl{En_e{c, s}, R.cv_box(c, unit_t()), unit_t(), 1u64, []} <> cs, ok, bb}
 
-def world_fds(+b: M.Body) -> List<&2, SO.Fd>:
+def el_k(k: Ty.EdgeKind, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
+  match k:
+    case Ty.EK_degenerate{}: El{cs, ok, bb}
+    case Ty.EK_curve{+g, +d}: el_cv(Q.gv_cv(g, d), ed_im(g), cs, ok, bb)
+
+def el_es(es: List<&2, Ty.Edge>, +acc: El) -> El:
+  match es:
+    case []: acc
+    case e <> t:
+      Ty.Ed{g, h0, h1, k} = e
+      El{+cs, +ok, +bb} = acc
+      el_es(t, el_k(k, cs, ok, bb))
+
+def el_cs(x: El) -> List<&2, Cl>:
+  El{cs, ok, bb} = x
+  cs
+
+def el_ok(x: El) -> Bool:
+  El{cs, ok, bb} = x
+  ok
+
+def el_bb(x: El) -> List<&2, I.I>:
+  El{cs, ok, bb} = x
+  bb
+
+def ents_w(+wb: Ty.Brep, +fs: List<&2, SO.Fd>) -> El:
+  el_es(Ty.brep_es(wb), El{en_vs(Ty.brep_vs(wb), en_fs(fs)), QA.fd_allok(fs), SO.bbox(fs, [])})
+
+def ents_b(+wb: Ty.Brep) -> El:
+  ents_w(wb, SO.fds_of(wb))
+
+def ents(+b: M.Body) -> El:
   +pl = M.bd_pl(b)
-  SO.fds_of(BO.xf_brep(M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), M.bd_brep(b)))
+  ents_b(BO.xf_brep(M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), M.bd_brep(b)))
 
-def cert_go(ok: Bool, +fas: List<&2, SO.Fd>, +fbs: List<&2, SO.Fd>, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
+def cert_go(ok: Bool, +ea: El, +eb: El, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
   match ok:
     case False{}: I.I{lo0, hi}
     case True{}:
-      +r = best_lo_t(cross_ax(ax_go(fas, Ax_no{}), fas, fbs, hi), False{}, hi, tol)
+      +r = best_lo(root_a(cull(el_cs(ea), el_bb(eb), hi), cull(el_cs(eb), el_bb(ea), hi), Ph_e{}, hi, eps_of(hi, tol)), False{}, hi, tol)
       I.I{F64.max(lo0, I.i_lo(r)), I.i_hi(r)}
 
+def cert_ee(+ea: El, +eb: El, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
+  cert_go(Bool.and(el_ok(ea), el_ok(eb)), ea, eb, lo0, hi, tol)
+
 def cert_lo_t(+a: M.Body, +b: M.Body, +lo0: F64, +hi: F64, +tol: F64) -> I.I:
-  +fas = world_fds(a)
-  +fbs = world_fds(b)
-  cert_go(Bool.and(QA.fd_allok(fas), QA.fd_allok(fbs)), fas, fbs, lo0, hi, tol)
+  cert_ee(ents(a), ents(b), lo0, hi, tol)
 
-def cert_lo(+a: M.Body, +b: M.Body, +lo0: F64, +hi: F64) -> I.I:
-  cert_lo_t(a, b, lo0, hi, 0.0f64)
+def wroot_b(bs: List<&2, Cl>, +a: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match bs:
+    case []: h
+    case +b <> +t: wroot_b(t, a, root_1(True{}, True{}, a, b, h, hi, eps), hi, eps)
 
-def wall_lo(+cs: List<&2, Cb>, +hi: F64) -> I.I:
-  best_lo(cs, True{}, hi)
+def wroot_a(xs: List<&2, Cl>, +h: Ph, +hi: F64, +eps: F64) -> Ph:
+  match xs:
+    case []: h
+    case +a <> +t: wroot_a(t, wroot_b(a <> t, a, h, hi, eps), hi, eps)
+
+def wall_iv(+fs: List<&2, SO.Fd>, +cap: F64) -> I.I:
+  best_lo(wroot_a(en_fs(fs), Ph_e{}, cap, eps_of(cap, 0.0f64)), True{}, cap, 0.0f64)
 

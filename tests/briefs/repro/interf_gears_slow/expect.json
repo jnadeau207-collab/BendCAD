@@ -1,0 +1,17 @@
+{
+ "item": 4,
+ "limit_s": 20,
+ "claim": "two meshing gears with backlash are certified disjoint",
+ "steps": [
+  {
+   "args": [
+    "interf",
+    "1",
+    "3"
+   ],
+   "must": [
+    "^relation disjoint status=certified"
+   ]
+  }
+ ]
+}

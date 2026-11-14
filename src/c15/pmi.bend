@@ -700,9 +700,8 @@ def clr_iv(+a: M.Body, +b: M.Body) -> CI:
   +sa = QI.sms_of(a)
   +sb = QI.sms_of(b)
   +hs = QD.pts_min(sa, sb, V.dbl_max())
-  +c = QI.rel_code(a, b)
   +r = QD.clear_lo(a, b, hs)
-  CI{QD.ck_hit(c, a, b), I.i_lo(r),
+  CI{QD.ck_hit(F64.is_lt(0.0f64, I.i_lo(r)), a, b), I.i_lo(r),
     I.i_hi(r), QD.hi_kind(I.i_hi(r), hs), List.length(&2, V.Point, sa),
     List.length(&2, V.Point, sb)}
 def clr_hit(+hit: Bool, +lo: F64, +hi: F64, +hk: String, +na: Nat, +nb: Nat, +s: State) -> String:

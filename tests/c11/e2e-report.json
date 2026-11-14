@@ -1,5 +1,5 @@
 {
- "binary_sha256": "c1fb8b1c8b0695552b5dd62d73b723cafb0d2dbc4ee12cd8b2e07199a622f96f",
+ "binary_sha256": "486042a0a2d1a6d8cf14f26bf98cda1a35f919df73bfea83fc2d2a4fba1fbf20",
  "passed": 36,
  "total": 36,
  "results": [
@@ -98,7 +98,7 @@
      41278.70354500577
     ]
    ],
-   "seconds": 0.7
+   "seconds": 0.08
   },
   {
    "name": "mass.depths",
@@ -109,9 +109,9 @@
     "4": 4.267919779522948
    },
    "seconds": {
-    "2": 0.03,
-    "3": 0.13,
-    "4": 0.77
+    "2": 0.02,
+    "3": 0.02,
+    "4": 0.08
    },
    "cells": {
     "2": [
@@ -141,7 +141,7 @@
    ],
    "cenwidth": 0.9617,
    "inewidth": 37070.54,
-   "seconds": 34.9
+   "seconds": 3.0
   },
   {
    "name": "mass.moved_invariance",
@@ -234,7 +234,7 @@
      54.89583333344031
     ]
    ],
-   "seconds": 1.7
+   "seconds": 0.4
   },
   {
    "name": "mass.sphere",
@@ -257,7 +257,7 @@
      6.397058823529622
     ]
    ],
-   "seconds": 0.5
+   "seconds": 0.2
   },
   {
    "name": "section.cyl_circle",
@@ -272,7 +272,7 @@
    },
    "samples": 24,
    "on_circle": 24,
-   "seconds": 0.1
+   "seconds": 0.0
   },
   {
    "name": "section.sphere_circle",
@@ -300,7 +300,7 @@
     "st": "estimated",
     "mapped": false
    },
-   "seconds": 190.6
+   "seconds": 61.9
   },
   {
    "name": "section.mapped",
@@ -313,7 +313,7 @@
     "st": "estimated",
     "mapped": true
    },
-   "seconds": 237.0
+   "seconds": 63.4
   },
   {
    "name": "section.coin",
@@ -350,7 +350,7 @@
    "name": "interf.aabb_trap",
    "ok": true,
    "line": "relation disjoint status=certified method=exact-intersection",
-   "seconds": 0.3
+   "seconds": 0.1
   },
   {
    "name": "interf.cavity",
@@ -359,12 +359,12 @@
    "cavities": [
     "cavity 1 inside 0 status=certified"
    ],
-   "seconds": 2.4
+   "seconds": 0.4
   },
   {
    "name": "clearance.disjoint",
    "ok": true,
-   "lo": 9.999999999999984,
+   "lo": 9.999999999999986,
    "hi": 10.0,
    "st": "certified",
    "locert": "lo=branch-and-bound"
@@ -380,16 +380,16 @@
    "name": "clearance.inside",
    "ok": true,
    "lo": 3.9999999999999933,
-   "hi": 4.0000000000000036,
+   "hi": 4.000000000000003,
    "st": "certified",
    "locert": "lo=branch-and-bound"
   },
   {
    "name": "clearance.coaxial_witness",
    "ok": true,
-   "seconds": 1.8,
-   "lo": 2.999999999171947,
-   "hi": 3.0000000000012967,
+   "seconds": 0.3,
+   "lo": 2.999999999171987,
+   "hi": 3.0000000000000178,
    "st": "certified",
    "locert": "lo=branch-and-bound"
   },
@@ -397,53 +397,49 @@
    "name": "wall.box",
    "ok": true,
    "lo": 9.999999999999993,
-   "hi": 10.0,
+   "hi": 10.00000000000001,
    "st": "certified",
    "locert": "lo=branch-and-bound",
-   "hicert": "sampled",
-   "faces": 6,
-   "pairs": 3
+   "hicert": "witness",
+   "faces": 6
   },
   {
    "name": "wall.slab",
    "ok": true,
    "lo": 9.999999999999993,
-   "hi": 10.0,
+   "hi": 10.000000000000012,
    "st": "certified",
    "locert": "lo=branch-and-bound",
-   "hicert": "sampled",
-   "faces": 6,
-   "pairs": 3
+   "hicert": "witness",
+   "faces": 6
   },
   {
    "name": "wall.tube",
    "ok": true,
-   "seconds": 1.2,
+   "seconds": 0.3,
    "lo": 1.9999999999999996,
-   "hi": 2.0,
+   "hi": 2.0000000000000706,
    "st": "certified",
    "locert": "lo=branch-and-bound",
-   "hicert": "sampled",
-   "faces": 4,
-   "pairs": 2
+   "hicert": "witness",
+   "faces": 4
   },
   {
    "name": "wall.slot_gap_excluded",
    "ok": true,
    "lo": 4.949999999999993,
-   "hi": 4.95,
+   "hi": 4.950000000000005,
    "st": "certified",
    "locert": "lo=branch-and-bound",
-   "hicert": "sampled",
-   "faces": 10,
-   "pairs": 21
+   "hicert": "witness",
+   "faces": 10
   },
   {
    "name": "wall.cone_none",
    "ok": true,
    "none": true,
    "st": "certified",
-   "reason": "all-faces-adjacent"
+   "reason": "no-opposed-faces"
   },
   {
    "name": "carried.classify",

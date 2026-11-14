@@ -1,0 +1,26 @@
+{
+ "item": 4,
+ "limit_s": 60,
+ "claim": "asm clear answers every pair of a four-part assembly",
+ "steps": [
+  {
+   "args": [
+    "asm",
+    "clear",
+    "(assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5))"
+   ],
+   "count": [
+    "^pair ",
+    6
+   ],
+   "must": [
+    "^pair housing bearing",
+    "^pair shaft collar"
+   ],
+   "must_not": [
+    "^error",
+    "nothing measured"
+   ]
+  }
+ ]
+}
