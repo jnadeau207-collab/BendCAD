@@ -1,0 +1,152 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed",
+    "node 1001: .*volume=\\[204\\.1394953\\d+, 204\\.1394953\\d+\\]",
+    "faces=12 solids=1 genus=1"
+   ],
+   "limit_s": 5,
+   "stop_on_fail": true
+  },
+  {
+   "args": [
+    "faces",
+    "1001"
+   ],
+   "count": [
+    "^\\S+ helicoid ",
+    4
+   ]
+  },
+  {
+   "args": [
+    "faces",
+    "1001",
+    "-f"
+   ],
+   "count": [
+    "helicoid .*pitch=\\[0\\.5, 0\\.5\\] .*hand=right",
+    4
+   ],
+   "must": [
+    "helicoid .*band r=\\[1\\.25, 1\\.25\\]",
+    "helicoid .*band r=\\[1\\.5, 1\\.5\\]",
+    "helicoid .*flank half-angle=30"
+   ]
+  },
+  {
+   "args": [
+    "threads",
+    "1001"
+   ],
+   "must": [
+    "M3x0\\.5 6H .*internal minor=\\[2\\.459, 2\\.599\\] model=2\\.5 .*modelled .*status=certified"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "std",
+    "1001"
+   ],
+   "must": [
+    "tapped M3 6H .*modelled .*status=pass",
+    "^std node 1001: 1 features, 1 pass"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "check",
+    "1001"
+   ],
+   "must": [
+    "^ok:"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "tess",
+    "1001",
+    "{work}/t.obj"
+   ],
+   "must": [
+    "faces direct=\\d+ .*chord-bound=certified"
+   ],
+   "must_not": [
+    "not-closed",
+    "error",
+    "refused"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "step",
+    "1001",
+    "{work}/t.stp"
+   ],
+   "must": [
+    "^wrote "
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "wall",
+    "1001"
+   ],
+   "interval": [
+    "min-wall",
+    1.2499,
+    1.2501
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param L 12)"
+   ],
+   "must": [
+    "^committed",
+    "node 1001: .*faces=12 solids=1 genus=1"
+   ],
+   "limit_s": 5,
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 1002 (holes 1000 (face 1000 0 top) 6 (tapped M3 3 0 modelled)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "thread-model-needs-a-through-hole",
+    "fix: ",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))"
+   ],
+   "must": [
+    "modelled-thread-faces",
+    "fix: ",
+    "^rejected"
+   ],
+   "stop_on_fail": false
+  }
+ ]
+}

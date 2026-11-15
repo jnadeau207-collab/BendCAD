@@ -777,7 +777,7 @@ def nd_go(+has: Bool, +ok: Bool, +id: U64, +hdr: String, +tail: String) -> Strin
     case True{}: Bool.pick(String, ok, "",
       "error: node " ++ U64.show(id) ++ tail)
 def nd_line(+cs: List<&2, M.CE>, +id: U64, +hdr: String, +tail: String) -> String:
-  nd_go(M.ce_has(cs, id), M.nr_ok(M.ce_r(M.ce_find(cs, id))), id, hdr, tail)
+  nd_go(M.ce_has(cs, id), M.nr_ok(M.hx_nr(M.ce_r(M.ce_find(cs, id)), "pmi", id)), id, hdr, tail)
 def nd_body(+cs: List<&2, M.CE>, +id: U64) -> M.Body:
   M.nr_body(M.ce_r(M.ce_find(cs, id)))
 def q_check_e_go(+c: Bool, +e: String, +m: PMI, +p: M.Part, +cs: List<&2, M.CE>, +id: U64) -> String:

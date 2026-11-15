@@ -95,6 +95,8 @@ def Laws.gok_ok(v):
     case G.GV_nb{w}: {==}
     case G.GV_ts{w}: {==}
     case G.GV_tb{w}: {==}
+    case G.GV_hx{w}: {==}
+    case G.GV_sh{w}: {==}
 
 def Laws.gok_kind_doc(v):
   match v:
@@ -117,6 +119,8 @@ def Laws.gok_kind_doc(v):
     case G.GV_nb{w}: {==}
     case G.GV_ts{w}: {==}
     case G.GV_tb{w}: {==}
+    case G.GV_hx{w}: {==}
+    case G.GV_sh{w}: {==}
 
 def Laws.gerr_show(k):
   {==}

@@ -87,6 +87,34 @@ def nr_s(r: M.NR) -> String:
       E.line(k, w, l, y, f)
     case M.NR_ok{+b, fx}: "ok " ++ M.fx_show(fx) ++ " | " ++ ms_s(M.body_ms(b)) ++ proof_s(M.xb_pr(M.bd_xb(b)))
 
+def hx_why(r: M.NR) -> Bool:
+  match r:
+    case M.NR_err{k, d}:
+      M.Dg{w, l, +y, f} = d
+      String.starts_with(y, "modelled-thread-not-supported")
+    case M.NR_ok{b, fx}: False{}
+
+def q_say(+r: M.NR, +s: String) -> String:
+  Bool.pick(String, hx_why(r), nr_s(r), s)
+
+def qv_classify_s(+r: M.NR, +x0: F64, +x1: F64, +x2: F64) -> String:
+  q_say(r, QI.classify_s(r, x0, x1, x2))
+
+def qv_check_s(+r: M.NR) -> String:
+  q_say(r, QI.check_s(r))
+
+def qv_dist_s(+r: M.NR, +x0: F64, +x1: F64, +x2: F64) -> String:
+  q_say(r, QD.dist_s(r, x0, x1, x2))
+
+def qv_extrema_s(+r: M.NR) -> String:
+  q_say(r, QD.extrema_s(r))
+
+def qv_sect_s(+r: M.NR, +x0: F64, +x1: F64, +x2: F64, +x3: F64) -> String:
+  q_say(r, QN.sect_s(r, x0, x1, x2, x3))
+
+def qv_wall_s(+r: M.NR) -> String:
+  q_say(r, QD.wall_s(r))
+
 def ces_s(cs: List<&2, M.CE>) -> String:
   match cs:
     case []: ""
@@ -252,6 +280,7 @@ def surf_s(s: G.GVal) -> String:
     case G.GV_sp{w}: "sphere"
     case G.GV_co{w}: "cone"
     case G.GV_to{w}: "torus"
+    case G.GV_hx{w}: "helicoid"
     case _: "other"
 
 def v3_s(+x: F64, +y: F64, +z: F64) -> String:
@@ -272,6 +301,10 @@ def pv_s(+x: F64) -> String:
 def sense_s(+same: Bool) -> String:
   Bool.pick(String, same, " convex", " concave")
 
+def hx_prof(+r0: F64, +dr: F64, +dz: F64) -> String:
+  Bool.pick(String, F64.is_eq(dr, 0.0f64), " band r=" ++ pv_s(r0) ++ " width=" ++ pv_s(M.r6m(F64.abs(dz))),
+    " flank half-angle=" ++ S.f_show(M.hx_deg(dr, dz)) ++ " r=[" ++ S.f_show(F64.min(r0, F64.add(r0, dr))) ++ ", " ++ S.f_show(F64.max(r0, F64.add(r0, dr))) ++ "]")
+
 def geo_s(s: G.GVal, +same: Bool, +pl: M.Pl) -> String:
   match s:
     case G.GV_cy{w}:
@@ -286,6 +319,10 @@ def geo_s(s: G.GVal, +same: Bool, +pl: M.Pl) -> String:
     case G.GV_to{w}:
       G.To{+o, +a, +rr, +r} = w
       " center=" ++ wpt_s(o, pl) ++ " axis=" ++ wdir_s(a, pl) ++ " major-radius=" ++ pv_s(rr) ++ " minor-radius=" ++ pv_s(r) ++ sense_s(same)
+    case G.GV_hx{w}:
+      G.Hx{+o, +u, +v, +a, +c, +r0, z0, +dr, +dz} = w
+      " axis o=" ++ wpt_s(o, pl) ++ " d=" ++ wdir_s(a, pl) ++ " pitch=" ++ pv_s(M.r6m(F64.mul(6.283185307179586f64, c))) ++ " hand=" ++ M.hx_hand(u, v, a, c, pl) ++
+        hx_prof(r0, dr, dz)
     case _: ""
 
 def face_geo(f: Ty.Face, +pl: M.Pl) -> String:
@@ -330,8 +367,11 @@ def node_faces_v(r: M.NR, +verbose: Bool) -> String:
 def node_faces(r: M.NR) -> String:
   node_faces_v(r, False{})
 
-def node_res(cs: List<&2, M.CE>, +id: U64) -> M.NR:
+def node_raw(cs: List<&2, M.CE>, +id: U64) -> M.NR:
   M.ce_r(M.ce_find(cs, id))
+
+def node_res(cs: List<&2, M.CE>, +id: U64) -> M.NR:
+  M.hx_nr(node_raw(cs, id), "query", id)
 
 def mom_or(+op: Bool, +b: M.Body) -> String:
   match op:
@@ -345,15 +385,45 @@ def mass_tail(r: M.NR, +m: Maybe<&2, M.Grade>) -> String:
 
 def threads_out(+p: M.Part, +n: U64, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
-  +r = node_res(M.ev_for(p, [n], old), n)
+  +r = node_raw(M.ev_for(p, [n], old), n)
   Bool.pick(String, M.nr_ok(r), "threads node " ++ U64.show(n) ++ "
 " ++ KT.ths_of_node(ts, n, M.nr_body(r)) ++ KSD.taps_s(p, n, old), "error: node failed; nothing listed")
+
+def nr_hx(r: M.NR) -> Bool:
+  match r:
+    case M.NR_err{k, d}: False{}
+    case M.NR_ok{+b, fx}: M.has_hx(b)
+
+def chk_ok_s(+ok: Bool, +s: String) -> String:
+  Bool.pick(String, ok, s ++ " | modelled thread: certified by construction over this bore body (checked above): at build each bore was proven one cylinder between flat ends square to it in a single solid, the major diameter was cut on a copy and met no other face, and the ISO 68-1 profile is a simple quadrilateral inside that ring, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else",
+    "error: the bore body under the modelled thread fails check: " ++ s)
+
+def chk_sem(+s: String) -> String:
+  chk_ok_s(String.starts_with(s, "ok"), s)
+
+def thr_chk(hx: Bool, +r: M.NR, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  match hx:
+    case False{}: qv_check_s(r)
+    case True{}: chk_sem(QI.check_s(node_raw(M.ev_for(M.part_semk(p, False{}), [id], old), id)))
+
+def thr_wall(hx: Bool, +r: M.NR, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  match hx:
+    case False{}: qv_wall_s(r)
+    case True{}: QD.wall_s(node_raw(M.ev_for(M.part_semk(p, True{}), [id], old), id)) ++ "\n" ++ M.part_teeth(p, id)
+
+def chk_q(+p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  +r = node_raw(M.ev_for(p, [id], old), id)
+  thr_chk(nr_hx(r), r, p, id, old)
+
+def wall_q(+p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  +r = node_raw(M.ev_for(p, [id], old), id)
+  thr_wall(nr_hx(r), r, p, id, old)
 
 def mass_out(+p: M.Part, +n: U64, +d: Nat, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
   +cs = M.ev_for(p, [n], old)
-  QM.mass_s(node_res(cs, n), d) ++ "
-" ++ mass_tail(node_res(cs, n), KM.mat_find(ms, n))
+  q_say(node_res(cs, n), QM.mass_s(node_res(cs, n), d) ++ "
+" ++ mass_tail(node_res(cs, n), KM.mat_find(ms, n)))
 
 def pm_nom(ps: List<&2, M.Param>, +name: String) -> F64:
   match ps:
@@ -433,7 +503,7 @@ def sens(+p: M.Part, +name: String, +id: U64) -> String:
   +c0 = M.ev_for(p, [id], [])
   +cp = M.ev_for(M.Pt{pm_bump(ps, name, h), ns, ms, ts}, [id], c0)
   +cm = M.ev_for(M.Pt{pm_bump(ps, name, F64.neg(h)), ns, ms, ts}, [id], c0)
-  Bool.pick(String, T.is_finite(nom), sens_rep(sens_go(node_res(c0, id), node_res(cp, id), node_res(cm, id), h), c0, cp), "error: unknown parameter " ++ name)
+  Bool.pick(String, T.is_finite(nom), sens_rep(sens_go(node_raw(c0, id), node_raw(cp, id), node_raw(cm, id), h), c0, cp), "error: unknown parameter " ++ name)
 
 def arg_drop(xs: List<&2, String>, +i: Nat) -> List<&2, String>:
   match xs:
@@ -900,7 +970,9 @@ def step_out(r: M.NR, +out: String) -> IO(String):
     case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
     case M.NR_ok{+b, fx}:
       +w = SW.sw_ms(b)
-      step_write_go(SW.ws_ok(w), w, out)
+      do IO<String>:
+        o : String <- step_write_go(SW.ws_ok(w), w, out)
+        IO.pure(String, o ++ SW.hx_note(b))
 
 def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
   match r:
@@ -909,7 +981,9 @@ def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
       +st = SW.sw_stage(M.bd_brep(b), M.bd_pl(b), 1n)
       +kb = KX.k2_block(KM.mat_find(KA.part_ms(p), n), KA.part_ts(p), n, SW.er2_n(st))
       +w = SW.sw_wrap42(st, 1n, KX.kb_s(kb), KX.kb_n(kb))
-      step_write_go(SW.ws_ok(w), w, out)
+      do IO<String>:
+        o : String <- step_write_go(SW.ws_ok(w), w, out)
+        IO.pure(String, o ++ SW.hx_note(b))
 
 def is_some_g(m: Maybe<&2, M.Grade>) -> Bool:
   match m:
@@ -928,9 +1002,14 @@ def asm_step_io(+w: KA.AW, +out: String) -> IO(String):
     u : String <- step_write_go(SW.ws_ok(ws), ws, out)
     IO.pure(String, u ++ "\ninstances " ++ names)
 
+def asm_c14(md: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> String:
+  match md:
+    case True{}: M.hx_asm_s()
+    case False{}: AS.asm_go(p, rest, old)
+
 def asm_k(c14: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match c14:
-    case True{}: AS.asm_go(p, rest, old)
+    case True{}: asm_c14(M.part_mod(p), p, rest, old)
     case False{}: KA.k2_asm(p, rest, old)
 
 def asm_io(+st: Bool, +p: M.Part, +rest: List<&2, String>, +old: List<&2, M.CE>) -> IO(String):
@@ -944,7 +1023,7 @@ def step_k(k2: Bool, +r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
     case False{}: step_out(r, out)
 
 def step_pick(+p: M.Part, +n: U64, +out: String, +old: List<&2, M.CE>) -> IO(String):
-  +r = node_res(M.ev_for(p, [n], old), n)
+  +r = node_raw(M.ev_for(p, [n], old), n)
   step_k(has_k2(p, n), r, p, n, out)
 
 def arc_write_go(+w: Bool, +e: BL.ES, +out: String) -> IO(String):
@@ -1323,7 +1402,7 @@ def pair_go(rel: Bool, +a: M.NR, +b: M.NR, +tol: F64) -> String:
 
 def pair_q(+rel: Bool, +p: M.Part, +a: U64, +b: U64, +old: List<&2, M.CE>, +tol: F64) -> String:
   +cs = M.ev_for(p, [a, b], old)
-  pair_go(rel, node_res(cs, a), node_res(cs, b), tol)
+  q_say(node_res(cs, a), q_say(node_res(cs, b), pair_go(rel, node_res(cs, a), node_res(cs, b), tol)))
 
 def tol_arg(+t: F64) -> F64:
   Bool.pick(F64, Bool.and(T.is_finite(t), F64.is_lt(0.0f64, t)), t, 0.0f64)
@@ -1332,28 +1411,28 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
   match code:
     case 1u64: IO.pure(String, S.part_show(p))
     case 2u64: IO.pure(String, ces_s(M.ev_part(p, old)))
-    case 3u64: IO.pure(String, node_faces_vf(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), Bool.or(String.eq(S.arg_at(rest, 1n), "-f"), String.eq(S.arg_at(rest, 1n), "-v"))))
-    case 4u64: IO.pure(String, nr_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 3u64: IO.pure(String, node_faces_vf(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), String.eq(S.arg_at(rest, 1n), "-v"), Bool.or(String.eq(S.arg_at(rest, 1n), "-f"), String.eq(S.arg_at(rest, 1n), "-v"))))
+    case 4u64: IO.pure(String, nr_s(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 5u64: IO.pure(String, sens(p, S.arg_at(rest, 0n), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)})))
     case 6u64: apply_parsed(edits_parse(rest), path, p)
-    case 7u64: tess_args(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+    case 7u64: tess_args(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 8u64: IO.pure(String, zone_line(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
-    case 9u64: IO.pure(String, QI.classify_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
-    case 10u64: IO.pure(String, QI.check_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 11u64: IO.pure(String, QD.dist_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
-    case 12u64: IO.pure(String, QD.extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 9u64: IO.pure(String, qv_classify_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 10u64: IO.pure(String, chk_q(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), old))
+    case 11u64: IO.pure(String, qv_dist_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
+    case 12u64: IO.pure(String, qv_extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
     case 13u64: IO.pure(String, mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n)), old))
-    case 14u64: IO.pure(String, QN.sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
+    case 14u64: IO.pure(String, qv_sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
     case 15u64: IO.pure(String, pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, 0.0f64))
     case 16u64: IO.pure(String, pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, tol_arg(tess_f(S.arg_at(rest, 2n), 0.0f64))))
-    case 17u64: IO.pure(String, QD.wall_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
+    case 17u64: IO.pure(String, wall_q(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), old))
     case 18u64: step_pick(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 1n), old)
     case 19u64: arc_out(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.arg_at(rest, 2n))
-    case 20u64: stl_args(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+    case 20u64: stl_args(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
-    case 21u64: mf3_args(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
+    case 21u64: mf3_args(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n),
       S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 2n), S.arg_at(rest, 3n), S.arg_at(rest, 4n), S.arg_at(rest, 5n), S.arg_at(rest, 6n))
     case 22u64: asm_io(String.eq(S.arg_at(rest, 0n), "step"), p, rest, old)
     case 23u64: pmi_run(p, rest)

@@ -190,7 +190,7 @@ def occt_volume(path):
     return g.Mass(), n
 
 
-def step_part(design, wd, n, cert):
+def step_part(design, wd, n, cert, area=None):
     sp = os.path.join(wd, f'n{n}.stp')
     r = kernel(design, 'step', str(n), sp)
     rec = dict(node=n, s=r['s'], out=clip(r['out'], 400), timeout=r['timeout'])
@@ -204,7 +204,10 @@ def step_part(design, wd, n, cert):
         if cert:
             lo, hi = cert
             rec['certified'] = cert
-            rec['agree'] = bool(abs(ov - 0.5 * (lo + hi)) <= 1e-7 * max(1.0, hi) + (hi - lo))
+            dv = re.search(r'deviation <= (\S+) mm', r['out'])
+            slack = float(dv.group(1)) * area[1] if dv and area else 0.0
+            rec['approx_slack'] = slack
+            rec['agree'] = bool(abs(ov - 0.5 * (lo + hi)) <= 1e-7 * max(1.0, hi) + (hi - lo) + slack)
             rec['rel_err'] = (ov - 0.5 * (lo + hi)) / (0.5 * (lo + hi))
         else:
             rec['agree'] = None
@@ -308,7 +311,7 @@ def brief(b):
     rec['mass'] = [dict(node=n, **{k: v for k, v in kernel(d, 'mass', str(n)).items() if k != 'code'}) for n in have]
     for x in rec['check'] + rec['mass']:
         x['out'] = clip(x['out'], 1500)
-    rec['step'] = [step_part(d, wd, n, certs[n]) for n in have]
+    rec['step'] = [step_part(d, wd, n, certs[n], ival(node_line(ev['out'], n) or '', 'area=')) for n in have]
     rec['tess'] = [tess_part(d, wd, n, certs[n]) for n in have]
     rec['stl_manufacturing'] = [stl_part(d, wd, n) for n in have[:1]]
     rec['checks'] = [run_check(d, c) for c in b['checks']] if built or b.get('check_partial') else \

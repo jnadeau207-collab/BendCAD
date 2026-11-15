@@ -12,6 +12,7 @@ import ../c08/bool.bend as BO
 import ./qaccel.bend as QA
 import ../c07/xs.bend as Q
 import ../c03/types.bend as G
+import ../k1/sf.bend as KS
 
 type Bd is Data:
   Bd{ p: I.I, h: I.I }
@@ -1183,12 +1184,179 @@ def rr_f(e: En, +so: Im.Im) -> I.I:
     case En_e{c, s}: rr_all()
     case En_v{}: rr_all()
 
+type Sk is Data:
+  Sk_pl{ o: V.Point, n: V.Dir }
+  Sk_cy{ c: V.Point, a: V.Dir, r: F64 }
+  Sk_sp{ c: V.Point, r: F64 }
+  Sk_no{}
+
+def gd(+a: V.Dir, +b: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(V.dr_x(a), V.dr_x(b)), F64.mul(V.dr_y(a), V.dr_y(b))), F64.mul(V.dr_z(a), V.dr_z(b)))
+
+def gx(+a: V.Dir, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.sub(F64.mul(V.dr_y(a), V.dr_z(b)), F64.mul(V.dr_z(a), V.dr_y(b))), F64.sub(F64.mul(V.dr_z(a), V.dr_x(b)), F64.mul(V.dr_x(a), V.dr_z(b))),
+    F64.sub(F64.mul(V.dr_x(a), V.dr_y(b)), F64.mul(V.dr_y(a), V.dr_x(b)))}
+
+def gl(+a: V.Dir) -> F64:
+  F64.sqrt(gd(a, a))
+
+def gu(+a: V.Dir) -> V.Dir:
+  +l = gl(a)
+  V.Dr{F64.div(V.dr_x(a), l), F64.div(V.dr_y(a), l), F64.div(V.dr_z(a), l)}
+
+def gs(+a: V.Point, +b: V.Point) -> V.Dir:
+  V.Dr{F64.sub(V.pt_x(a), V.pt_x(b)), F64.sub(V.pt_y(a), V.pt_y(b)), F64.sub(V.pt_z(a), V.pt_z(b))}
+
+def gpa(+p: V.Point, +k: F64, +d: V.Dir) -> V.Point:
+  V.Pt{F64.add(V.pt_x(p), F64.mul(k, V.dr_x(d))), F64.add(V.pt_y(p), F64.mul(k, V.dr_y(d))), F64.add(V.pt_z(p), F64.mul(k, V.dr_z(d)))}
+
+def gda(+a: V.Dir, +k: F64, +b: V.Dir) -> V.Dir:
+  V.Dr{F64.add(V.dr_x(a), F64.mul(k, V.dr_x(b))), F64.add(V.dr_y(a), F64.mul(k, V.dr_y(b))), F64.add(V.dr_z(a), F64.mul(k, V.dr_z(b)))}
+
+def bxc(+bx: List<&2, I.I>) -> V.Point:
+  V.Pt{I.imid(X.vn(bx, 0n)), I.imid(X.vn(bx, 1n)), I.imid(X.vn(bx, 2n))}
+
+def bxh(+bx: List<&2, I.I>) -> V.Dir:
+  V.Dr{F64.mul(0.5f64, F64.sub(I.i_hi(X.vn(bx, 0n)), I.i_lo(X.vn(bx, 0n)))), F64.mul(0.5f64, F64.sub(I.i_hi(X.vn(bx, 1n)), I.i_lo(X.vn(bx, 1n)))),
+    F64.mul(0.5f64, F64.sub(I.i_hi(X.vn(bx, 2n)), I.i_lo(X.vn(bx, 2n))))}
+
+def gdab(+n: V.Dir, +h: V.Dir) -> F64:
+  F64.add(F64.add(F64.mul(F64.abs(V.dr_x(n)), V.dr_x(h)), F64.mul(F64.abs(V.dr_y(n)), V.dr_y(h))), F64.mul(F64.abs(V.dr_z(n)), V.dr_z(h)))
+
+def sk_bp(+f: KS.SF) -> Sk:
+  Bool.pick(Sk, U64.is_eq(KS.sf_kind(f), KS.k_plane()), Sk_pl{KS.sf_o(f), gu(KS.sf_a(f))}, Sk_no{})
+
+def sk_of(g: G.GVal) -> Sk:
+  match g:
+    case G.GV_pl{w}:
+      G.Pl{+o, +u, +v} = w
+      Sk_pl{o, gu(gx(u, v))}
+    case G.GV_cy{w}:
+      G.Cy{+o, +a, +r} = w
+      Sk_cy{o, gu(a), F64.abs(r)}
+    case G.GV_sp{w}:
+      G.Sp{+c, +r} = w
+      Sk_sp{c, F64.abs(r)}
+    case G.GV_bp{w}: sk_bp(KS.sf_of(G.GV_bp{w}))
+    case _: Sk_no{}
+
+def sk_gs(gs: List<&2, G.GVal>) -> Sk:
+  match gs:
+    case []: Sk_no{}
+    case g <> t:
+      match t:
+        case []: sk_of(g)
+        case x <> y: Sk_no{}
+
+def fd_sk(+f: SO.Fd) -> Sk:
+  SO.Fd{fc, +g, bx, ok, sh, fi} = f
+  sk_gs(g)
+
+def pl_bx(+o: V.Point, +n: V.Dir, +bx: List<&2, I.I>) -> F64:
+  F64.sub(F64.abs(gd(gs(bxc(bx), o), n)), gdab(n, bxh(bx)))
+
+def pl_tilt(+o1: V.Point, +n1: V.Dir, +o2: V.Point, +n2: V.Dir, +bx2: List<&2, I.I>) -> F64:
+  +c = bxc(bx2)
+  +p0 = gpa(c, F64.neg(gd(gs(c, o2), n2)), n2)
+  F64.sub(F64.abs(gd(gs(p0, o1), n1)), F64.mul(gl(bxh(bx2)), gl(gx(n1, n2))))
+
+def lb_pp(+o1: V.Point, +n1: V.Dir, +o2: V.Point, +n2: V.Dir, +b1: List<&2, I.I>, +b2: List<&2, I.I>) -> F64:
+  F64.max(F64.max(pl_bx(o1, n1, b2), pl_bx(o2, n2, b1)), F64.max(pl_tilt(o1, n1, o2, n2, b2), pl_tilt(o2, n2, o1, n1, b1)))
+
+def t_lo(+c: V.Point, +a: V.Dir, +bx: List<&2, I.I>) -> F64:
+  F64.sub(gd(gs(bxc(bx), c), a), gdab(a, bxh(bx)))
+
+def t_hi(+c: V.Point, +a: V.Dir, +bx: List<&2, I.I>) -> F64:
+  F64.add(gd(gs(bxc(bx), c), a), gdab(a, bxh(bx)))
+
+def lb_pc(+o: V.Point, +n: V.Dir, +c: V.Point, +a: V.Dir, +r: F64, +bx: List<&2, I.I>) -> F64:
+  +f0 = gd(gs(gpa(c, t_lo(c, a, bx), a), o), n)
+  +f1 = gd(gs(gpa(c, t_hi(c, a, bx), a), o), n)
+  F64.sub(Bool.pick(F64, F64.is_le(F64.mul(f0, f1), 0.0f64), 0.0f64, F64.min(F64.abs(f0), F64.abs(f1))), r)
+
+def sl_at(+w: V.Dir, +m: V.Dir, +t: F64) -> F64:
+  gl(gda(w, t, m))
+
+def sl_min(+c1: V.Point, +a1: V.Dir, +bx1: List<&2, I.I>, +c2: V.Point, +a2: V.Dir) -> F64:
+  +w = gx(gs(c1, c2), a2)
+  +m = gx(a1, a2)
+  +mm = gd(m, m)
+  +t = F64.min(t_hi(c1, a1, bx1), F64.max(t_lo(c1, a1, bx1), F64.neg(F64.div(gd(w, m), mm))))
+  Bool.pick(F64, F64.is_lt(0.0f64, mm), sl_at(w, m, t), gl(w))
+
+def sl_max(+c1: V.Point, +a1: V.Dir, +bx1: List<&2, I.I>, +c2: V.Point, +a2: V.Dir) -> F64:
+  +w = gx(gs(c1, c2), a2)
+  +m = gx(a1, a2)
+  F64.max(sl_at(w, m, t_lo(c1, a1, bx1)), sl_at(w, m, t_hi(c1, a1, bx1)))
+
+def lb_cc(+c1: V.Point, +a1: V.Dir, +r1: F64, +b1: List<&2, I.I>, +c2: V.Point, +a2: V.Dir, +r2: F64, +b2: List<&2, I.I>) -> F64:
+  F64.max(F64.sub(F64.max(sl_min(c1, a1, b1, c2, a2), sl_min(c2, a2, b2, c1, a1)), F64.add(r1, r2)),
+    F64.max(F64.sub(F64.sub(r2, r1), sl_max(c1, a1, b1, c2, a2)), F64.sub(F64.sub(r1, r2), sl_max(c2, a2, b2, c1, a1))))
+
+def lb_cs(+c: V.Point, +a: V.Dir, +r: F64, +q: V.Point, +rs: F64) -> F64:
+  +dl = gl(gx(gs(q, c), a))
+  F64.max(F64.sub(dl, F64.add(r, rs)), F64.sub(F64.sub(r, rs), dl))
+
+def lb_ss(+c1: V.Point, +r1: F64, +c2: V.Point, +r2: F64) -> F64:
+  +d = gl(gs(c1, c2))
+  F64.max(F64.sub(d, F64.add(r1, r2)), F64.sub(F64.abs(F64.sub(r1, r2)), d))
+
+def lb_pl(a: Sk, +o: V.Point, +n: V.Dir, +ba: List<&2, I.I>, +bo: List<&2, I.I>) -> F64:
+  match a:
+    case Sk_pl{+o2, +n2}: lb_pp(o, n, o2, n2, bo, ba)
+    case Sk_cy{+c, +ax, +r}: lb_pc(o, n, c, ax, r, ba)
+    case Sk_sp{+c, +r}: F64.sub(F64.abs(gd(gs(c, o), n)), r)
+    case Sk_no{}: 0.0f64
+
+def lb_cy(a: Sk, +c: V.Point, +ax: V.Dir, +r: F64, +ba: List<&2, I.I>, +bo: List<&2, I.I>) -> F64:
+  match a:
+    case Sk_pl{+o, +n}: lb_pc(o, n, c, ax, r, bo)
+    case Sk_cy{+c2, +a2, +r2}: lb_cc(c, ax, r, bo, c2, a2, r2, ba)
+    case Sk_sp{+q, +rs}: lb_cs(c, ax, r, q, rs)
+    case Sk_no{}: 0.0f64
+
+def lb_sp(a: Sk, +c: V.Point, +r: F64) -> F64:
+  match a:
+    case Sk_pl{+o, +n}: F64.sub(F64.abs(gd(gs(c, o), n)), r)
+    case Sk_cy{+c2, +a2, +r2}: lb_cs(c2, a2, r2, c, r)
+    case Sk_sp{+c2, +r2}: lb_ss(c, r, c2, r2)
+    case Sk_no{}: 0.0f64
+
+def sk_lb(a: Sk, b: Sk, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
+  match a:
+    case Sk_pl{+o, +n}: lb_pl(b, o, n, bb, ba)
+    case Sk_cy{+c, +ax, +r}: lb_cy(b, c, ax, r, bb, ba)
+    case Sk_sp{+c, +r}: lb_sp(b, c, r)
+    case Sk_no{}: 0.0f64
+
+def lb_safe(+x: F64, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
+  +s = F64.add(F64.add(gl(gs(bxc(ba), V.Pt{0.0f64, 0.0f64, 0.0f64})), gl(gs(bxc(bb), V.Pt{0.0f64, 0.0f64, 0.0f64}))), F64.add(diag(ba), diag(bb)))
+  Bool.pick(F64, F64.is_eq(x, x), F64.max(0.0f64, F64.sub(x, F64.mul(1.0e-11f64, F64.add(1.0f64, s)))), 0.0f64)
+
+def slb_e(ea: En, eb: En, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
+  match ea:
+    case En_f{+fa}:
+      match eb:
+        case En_f{+fb}: lb_safe(sk_lb(fd_sk(fa), fd_sk(fb), ba, bb), ba, bb)
+        case _: 0.0f64
+    case _: 0.0f64
+
+def slb(+a: Cl, +b: Cl) -> F64:
+  slb_e(cl_e(a), cl_e(b), cl_bx(a), cl_bx(b))
+
+def slb_x(+x: Cb) -> F64:
+  Cb{+a, +b, ra, rb} = x
+  slb(a, b)
+
+def kx(w: Bool, +x: Cb) -> F64:
+  F64.max(lbk(w, x), slb_x(x))
+
 def root_k(lt: Bool, +w: Bool, +k0: F64, +a: Cl, +b: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:
   match lt:
     case False{}: h
     case True{}:
       +x = {Cb{a, b, rr_f(cl_e(a), en_im(cl_e(b))), rr_f(cl_e(b), en_im(cl_e(a)))} : Cb}
-      +k = F64.max(k0, lbk(w, x))
+      +k = F64.max(k0, kx(w, x))
       push_m(F64.is_lt(k, hi), k, x, h, eps)
 
 def root_1(near: Bool, +w: Bool, +a: Cl, +b: Cl, +h: Ph, +hi: F64, +eps: F64) -> Ph:

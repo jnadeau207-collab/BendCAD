@@ -210,13 +210,19 @@ def k2_sol(+code: U64, +p: M.Part, +a: A4.Asm, +s: A4.AS, +cs: List<&2, M.CE>, +
     case A4.AS_conf{+ids, +res}: A4.conf_rep(a, ids, res)
     case A4.AS_ok{+sx, +dof, +red, +res}: k2_solved(code, p, a, A4.place_all(A4.asm_insts(a), sx, cs, 0n), xs)
 
+def k2_ar_go(hx: Bool, +code: U64, +p: M.Part, +a: A4.Asm, +cs: List<&2, M.CE>, +xs: List<&2, String>) -> String:
+  match hx:
+    case True{}: M.hx_asm_s()
+    case False{}:
+      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
+      Bool.pick(String, String.eq(e, ""), k2_sol(code, p, a, A4.asm_solve(a, cs), cs, xs), e)
+
 def k2_ar(+code: U64, +p: M.Part, +ar: A4.AR, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
       +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
-      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
-      Bool.pick(String, String.eq(e, ""), k2_sol(code, p, a, A4.asm_solve(a, cs), cs, xs), e)
+      k2_ar_go(M.ces_hxw(cs), code, p, a, cs, xs)
 
 def k2_code(+v: String) -> U64:
   Bool.pick(U64, String.eq(v, "mass"), 1u64, Bool.pick(U64, String.eq(v, "engage"), 2u64,
@@ -477,13 +483,19 @@ def ip_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>, +c: PX) -> Str
     case False{}: e
     case True{}: ip_sol(A4.asm_solve(a, cs), a, cs, c)
 
+def ip_ar_go(hx: Bool, +a: A4.Asm, +cs: List<&2, M.CE>, +c: PX) -> String:
+  match hx:
+    case True{}: M.hx_asm_s()
+    case False{}:
+      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
+      ip_ok(String.eq(e, ""), e, a, cs, c)
+
 def ip_ar(+p: M.Part, +ar: A4.AR, +c: PX, +old: List<&2, M.CE>) -> String:
   match ar:
     case A4.AR_err{+why, +fix}: "error invalid-input | asm | why: " ++ why ++ " | fix: " ++ fix
     case A4.AR_ok{+a}:
       +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
-      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
-      ip_ok(String.eq(e, ""), e, a, cs, c)
+      ip_ar_go(M.ces_hxw(cs), a, cs, c)
 
 def top_items(+r: S.PS) -> List<&2, S.Sx>:
   S.PS{+ok, +xs} = r
@@ -536,13 +548,19 @@ def step_ok(+ok: Bool, +e: String, +a: A4.Asm, +cs: List<&2, M.CE>) -> AW:
     case False{}: aw_err(e)
     case True{}: step_sol(A4.asm_solve(a, cs), a, cs)
 
+def step_ar_go(hx: Bool, +a: A4.Asm, +cs: List<&2, M.CE>) -> AW:
+  match hx:
+    case True{}: aw_err("modelled-thread-not-supported: an instance has modelled thread (helicoid) faces, which assembly STEP does not take yet")
+    case False{}:
+      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
+      step_ok(String.eq(e, ""), e, a, cs)
+
 def step_ar(+p: M.Part, +ar: A4.AR, +old: List<&2, M.CE>) -> AW:
   match ar:
     case A4.AR_err{+why, +fix}: aw_err(why)
     case A4.AR_ok{+a}:
       +cs = M.ev_for(p, A4.inst_ids(A4.asm_insts(a)), old)
-      +e = A4.nodes_err(A4.asm_insts(a), A4.asm_mates(a), cs)
-      step_ok(String.eq(e, ""), e, a, cs)
+      step_ar_go(M.ces_hxw(cs), a, cs)
 
 def k2_step(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> AW:
   step_ar(p, A4.asm_parse(A4.cat(A4.sdrop(xs, k2_skip(xs, 0n)))), old)

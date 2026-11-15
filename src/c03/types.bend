@@ -54,6 +54,12 @@ type TBez is Data:
 type Nurb is Data:
   Nb{ ks: List<&2, F64>, ps: List<&2, V.Point>, ws: List<&2, F64> }
 
+type Helicoid is Data:
+  Hx{ o: V.Point, u: V.Dir, v: V.Dir, a: V.Dir, c: F64, r0: F64, z0: F64, dr: F64, dz: F64 }
+
+type SpiralHelix is Data:
+  Sh{ o: V.Point, u: V.Dir, v: V.Dir, a: V.Dir, r0: F64, kr: F64, z0: F64, kz: F64 }
+
 type K7 is Data:
   K7{ k0: F64, k1: F64, k2: F64, k3: F64, k4: F64, k5: F64, k6: F64 }
 
@@ -86,6 +92,8 @@ type GVal is Data:
   GV_nb{ v: Nurb }
   GV_ts{ v: TSeg }
   GV_tb{ v: TBez }
+  GV_hx{ v: Helicoid }
+  GV_sh{ v: SpiralHelix }
 
 type GRes is Data:
   Gok{ v: GVal }

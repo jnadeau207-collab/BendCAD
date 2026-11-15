@@ -235,11 +235,15 @@ def hs_k(+s: String) -> U64:
   Bool.pick(U64, String.eq(s, "hole"), 0u64, Bool.pick(U64, String.eq(s, "clearance"), 1u64, Bool.pick(U64, String.eq(s, "counterbore"), 2u64,
     Bool.pick(U64, String.eq(s, "countersink"), 3u64, Bool.pick(U64, String.eq(s, "tapped"), 4u64, 9u64)))))
 
+def hs_mod(+xs: List<&2, Sx>) -> Bool:
+  String.eq(sx_s(sx_nth(xs, Nat.sub(List.length(&2, Sx, xs), 1n))), "modelled")
+
 def hs_of(+x: Sx, +ns: List<&2, NI>) -> M.Hs:
   +xs = sx_xs(x)
   +h = sx_s(sx_nth(xs, 0n))
-  +k = hs_k(h)
-  +five = Nat.is_eq(List.length(&2, Sx, xs), 5n)
+  +m = Bool.and(String.eq(h, "tapped"), hs_mod(xs))
+  +k = Bool.pick(U64, m, 5u64, hs_k(h))
+  +five = Nat.is_eq(List.length(&2, Sx, xs), Bool.pick(Nat, m, 6n, 5n))
   Bool.pick(M.Hs, U64.is_eq(k, 0u64),
     M.Hs{0u64, "", "", to_xp(sx_nth(xs, 1n), ns), to_xp(sx_nth(xs, 2n), ns), to_xp(sx_nth(xs, 3n), ns)},
     M.Hs{k, Bool.pick(String, U64.is_eq(k, 9u64), h, sx_s(sx_nth(xs, 1n))), Bool.pick(String, five, sx_s(sx_nth(xs, 2n)), ""),
@@ -1055,13 +1059,19 @@ def hs_word(+k: U64) -> String:
   Bool.pick(String, U64.is_eq(k, 1u64), "clearance", Bool.pick(String, U64.is_eq(k, 2u64), "counterbore",
     Bool.pick(String, U64.is_eq(k, 3u64), "countersink", "tapped")))
 
+def hs_tail(+k: U64, +x: Sx, +y: Sx) -> List<&2, Sx>:
+  Bool.pick(List<&2, Sx>, U64.is_eq(k, 5u64), [x, y, at("modelled")], [x, y])
+
 def hs_cls_sx(+cls: String, +rest: List<&2, Sx>) -> List<&2, Sx>:
   Bool.pick(List<&2, Sx>, String.is_empty(cls), rest, at(cls) <> rest)
+
+def hs_sxk(+k: U64, +sz: String, +cls: String, +x: X.Xp, +y: X.Xp, +ns: List<&2, NI>) -> Sx:
+  ls(at(hs_word(k)) <> at(sz) <> hs_cls_sx(cls, hs_tail(k, xp_sx(x, ns), xp_sx(y, ns))))
 
 def hs_sx(k: U64, +sz: String, +cls: String, x: X.Xp, y: X.Xp, r: X.Xp, +ns: List<&2, NI>) -> Sx:
   match k:
     case 0u64: ls([at("hole"), xp_sx(x, ns), xp_sx(y, ns), xp_sx(r, ns)])
-    case _: ls(at(hs_word(k)) <> at(sz) <> hs_cls_sx(cls, [xp_sx(x, ns), xp_sx(y, ns)]))
+    case _: hs_sxk(k, sz, cls, x, y, ns)
 
 def hss_sx(hs: List<&2, M.Hs>, +ns: List<&2, NI>) -> List<&2, Sx>:
   match hs:

@@ -178,6 +178,81 @@ def cfs_go(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +tl: B.Tb<&2, Ty.Loop>, 
           Ty.Fa{g, +sf, +ls, same, slv, sla} = fa
           cfs_go(t, u, tl, tc, te, tv, pl, a, cf_of(sf, BD.fn_name(f), ls, tl, tc, te, tv, pl, a, acc))
 
+type Hf is Data:
+  Hf{ r0: F64, dr: F64, dz: F64, p: F64, rh: Bool, nm: String, lo: F64, hi: F64 }
+
+def hf_rh(+u: V.Dir, +v: V.Dir, +ha: V.Dir, +c: F64, +pl: M.Pl) -> Bool:
+  F64.is_lt(0.0f64, F64.mul(c, ddot(M.dcross(M.pl_dir(u, pl), M.pl_dir(v, pl)), M.pl_dir(ha, pl))))
+
+def hf_mk(+w: G.Helicoid, +nm: String, +x: V.Vec2, +pl: M.Pl, +a: Ax, +acc: List<&2, Hf>) -> List<&2, Hf>:
+  G.Hx{+o, +u, +v, +ha, +c, +r0, z0, +dr, +dz} = w
+  Bool.pick(List<&2, Hf>, coax(M.pl_dir(ha, pl), M.pl_pt(o, pl), a),
+    Hf{r0, dr, dz, F64.mul(6.283185307179586f64, c), hf_rh(u, v, ha, c, pl), nm, V.v2_x(x), V.v2_y(x)} <> acc, acc)
+
+def hf_of(s: G.GVal, +nm: String, +ls: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>,
+    +pl: M.Pl, +a: Ax, +acc: List<&2, Hf>) -> List<&2, Hf>:
+  match s:
+    case G.GV_hx{w}: hf_mk(w, nm, M.lps_ext(ls, tl, tc, te, tv, pl, ax_p(a), M.dneg(ax_n(a)), M.ext0()), pl, a, acc)
+    case _: acc
+
+def hfs_go(fs: List<&2, BD.Fn>, fas: List<&2, Ty.Face>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>,
+    +pl: M.Pl, +a: Ax, +acc: List<&2, Hf>) -> List<&2, Hf>:
+  match fs:
+    case []: acc
+    case f <> t:
+      match fas:
+        case []: acc
+        case +fa <> u:
+          Ty.Fa{g, +sf, +ls, same, slv, sla} = fa
+          hfs_go(t, u, tl, tc, te, tv, pl, a, hf_of(sf, BD.fn_name(f), ls, tl, tc, te, tv, pl, a, acc))
+
+def hfs(+b: M.Body, +a: Ax) -> List<&2, Hf>:
+  +br = M.bd_brep(b)
+  hfs_go(M.bd_fns(b), Ty.brep_fas(br), M.tl_of(br), M.tc_of(br), M.te_of(br), M.tv_of(br), M.bd_pl(b), a, [])
+
+def hf_band(xs: List<&2, Hf>, +r: F64) -> Maybe<&2, Hf>:
+  match xs:
+    case []: None{}
+    case +h <> +t:
+      Hf{+r0, +dr, +dz, +p, +rh, +nm, +lo, +hi} = h
+      Bool.pick(Maybe<&2, Hf>, Bool.and(F64.is_eq(dr, 0.0f64), near(r0, r)), Some{Hf{r0, dr, dz, p, rh, nm, lo, hi}}, hf_band(t, r))
+
+def hf_some(m: Maybe<&2, Hf>) -> Bool:
+  match m:
+    case None{}: False{}
+    case Some{c}: True{}
+
+def hf_get(m: Maybe<&2, Hf>) -> Hf:
+  match m:
+    case None{}: Hf{F64.nan(), F64.nan(), F64.nan(), F64.nan(), False{}, "", F64.nan(), F64.nan()}
+    case Some{c}: c
+
+def hf_r(+h: Hf) -> F64:
+  Hf{+r0, dr, dz, p, rh, nm, lo, hi} = h
+  r0
+
+def hf_nm(+h: Hf) -> String:
+  Hf{r0, dr, dz, p, rh, +nm, lo, hi} = h
+  nm
+
+def hf_lo(+h: Hf) -> F64:
+  Hf{r0, dr, dz, p, rh, nm, +lo, hi} = h
+  lo
+
+def hf_hi(+h: Hf) -> F64:
+  Hf{r0, dr, dz, p, rh, nm, lo, +hi} = h
+  hi
+
+def hf_is(+mode: U64, +h: Hf, +pp: F64) -> Bool:
+  Hf{r0, +dr, +dz, +p, +rh, nm, lo, hi} = h
+  Bool.pick(Bool, U64.is_eq(mode, 0u64), True{}, Bool.pick(Bool, U64.is_eq(mode, 1u64), Bool.and(near(p, pp), rh),
+    Bool.and(Bool.not(F64.is_eq(dr, 0.0f64)), near(M.hx_deg(dr, dz), 30.0f64))))
+
+def hf_n(xs: List<&2, Hf>, +pp: F64, +mode: U64) -> Nat:
+  match xs:
+    case []: 0n
+    case +h <> +t: Nat.add(Bool.pick(Nat, hf_is(mode, h, pp), 1n, 0n), hf_n(t, pp, mode))
+
 def cfs(+b: M.Body, +a: Ax) -> List<&2, Cf>:
   +br = M.bd_brep(b)
   cfs_go(M.bd_fns(b), Ty.brep_fas(br), M.tl_of(br), M.tc_of(br), M.te_of(br), M.tv_of(br), M.bd_pl(b), a, [])
@@ -381,14 +456,29 @@ def win_of(+sz: String, +cls: String) -> V.Vec2:
   +ds = KT.desig(sz)
   KT.win(KT.cls_code(cls), ds, KT.pr_or(KT.pr_find(KT.pitches(), KT.ds_p(ds))))
 
-def v_tap(+cs: List<&2, Cf>, +b: M.Body, +a: Ax, +rb: F64, +sz: String, +cls: String) -> Vr:
+def v_win(+sz: String, +cls: String, +rb: F64) -> Vr:
   +c = M.hs_cls(cls)
   +w = win_of(sz, c)
   +dm = F64.mul(2.0f64, rb)
   +inw = Bool.and(F64.is_le(F64.sub(V.v2_x(w), 1.0e-9f64), dm), F64.is_le(dm, F64.add(V.v2_y(w), 1.0e-9f64)))
-  vr_and(bore_vr(cs, b, a, rb, rb),
-    Vr{inw, " tap-drill=" ++ S.f_show(dm) ++ " (ISO 2306) minor-window=[" ++ S.f_show(KT.r3(V.v2_x(w))) ++ ", " ++ S.f_show(KT.r3(V.v2_y(w))) ++
-      "] (ISO 965-1 " ++ c ++ ") thread " ++ KT.ds_name(KT.desig(sz)) ++ " " ++ c})
+  Vr{inw, " tap-drill=" ++ S.f_show(dm) ++ " (ISO 2306) minor-window=[" ++ S.f_show(KT.r3(V.v2_x(w))) ++ ", " ++ S.f_show(KT.r3(V.v2_y(w))) ++
+    "] (ISO 965-1 " ++ c ++ ") thread " ++ KT.ds_name(KT.desig(sz)) ++ " " ++ c}
+
+def v_tap(+cs: List<&2, Cf>, +b: M.Body, +a: Ax, +rb: F64, +sz: String, +cls: String) -> Vr:
+  vr_and(bore_vr(cs, b, a, rb, rb), v_win(sz, cls, rb))
+
+def hf_d(+m: Maybe<&2, Hf>) -> String:
+  Bool.pick(String, hf_some(m), n_s(F64.mul(2.0f64, hf_r(hf_get(m)))), "missing")
+
+def vr_mod(+hs: List<&2, Hf>, +pp: F64, +cr: Maybe<&2, Hf>, +ro: Maybe<&2, Hf>, +w: Vr) -> Vr:
+  +n = hf_n(hs, pp, 0u64)
+  +ok = Bool.and(Bool.and(hf_some(cr), hf_some(ro)), Bool.and(Nat.is_eq(n, 4n), Bool.and(Nat.is_eq(hf_n(hs, pp, 1u64), 4n), Nat.is_eq(hf_n(hs, pp, 2u64), 2n))))
+  vr_and(Vr{ok, " modelled helicoids=" ++ Nat.show(n) ++ " crest-d=" ++ hf_d(cr) ++ " root-d=" ++ hf_d(ro) ++ " flanks-at-30deg=" ++ Nat.show(hf_n(hs, pp, 2u64)) ++
+    " pitch-and-right-hand=" ++ Nat.show(hf_n(hs, pp, 1u64)) ++ " want pitch=" ++ S.f_show(pp) ++ " (ISO 68-1)"}, w)
+
+def v_mod(+hs: List<&2, Hf>, +rb: F64, +sz: String, +cls: String) -> Vr:
+  +f = SD.fa(sz)
+  vr_mod(hs, SD.fv(f, 1n), hf_band(hs, rb), hf_band(hs, F64.mul(0.5f64, SD.fv(f, 0n))), v_win(sz, cls, rb))
 
 def v_ring(+b: M.Body, +a: Ax, +std: String, +g: List<&2, F64>) -> Vr:
   +z = SD.fv_go(g, 0n)
@@ -434,10 +524,11 @@ def v_kind(k: U64, +cs: List<&2, Cf>, +b: M.Body, +a: Ax, +rb: F64, +sz: String,
     case 1u64: v_clear(cs, b, a, rb, cls)
     case 2u64: v_cbore(cs, b, a, rb, sz)
     case 3u64: v_csk(cs, b, a, rb, sz)
+    case 5u64: v_mod(hfs(b, a), rb, sz, cls)
     case _: v_tap(cs, b, a, rb, sz, cls)
 
 def ent_tag(+k: U64, +cls: String) -> String:
-  Bool.pick(String, U64.is_eq(k, 1u64), M.hs_series(cls), Bool.pick(String, U64.is_eq(k, 4u64), M.hs_cls(cls), "medium"))
+  Bool.pick(String, U64.is_eq(k, 1u64), M.hs_series(cls), Bool.pick(String, U64.is_lt(3u64, k), M.hs_cls(cls), "medium"))
 
 def st_s(+v: Vr) -> String:
   vr_s(v) ++ Bool.pick(String, vr_ok(v), " status=pass\n", " status=fail\n")
@@ -510,14 +601,36 @@ def std_out(+p: M.Part, +arg: String, +old: List<&2, M.CE>) -> String:
       "\nstd ring-groove DIN 472 bore d1: " ++ SD.row_keys("ring_bore") ++ "\nstd keyway DIN 6885-1 shaft d1 over-to: " ++ SD.row_keys("key") ++ "\n" ++ cites(),
     Bool.pick(String, String.starts_with(arg, "M"), rec_s(arg), node_std(p, S.u64_of(S.Sx_a{arg}), old)))
 
-def tap_line(+en: Ent, +b: M.Body) -> String:
-  Ent{+nd, +i, +k, +h, +a, +rb, std, g} = en
-  M.Hs{kk, +sz, +cls, x, y, r} = h
+def tap_sem(+nd: U64, +i: Nat, +sz: String, +cls: String, +a: Ax, +rb: F64, +b: M.Body) -> String:
   +m = cf_find(cfs(b, a), False{}, rb)
   +nm = cf_nm(cf_get(m))
   +sp = KT.tg_span(KT.tg_named(b, nm))
-  Bool.pick(String, Bool.and(U64.is_eq(k, 4u64), cf_some(m)),
+  Bool.pick(String, cf_some(m),
     KT.th_line(M.Th{nd, "h" ++ U64.show(nd) ++ "-" ++ Nat.show(Nat.add(i, 1n)), nm, sz, M.hs_cls(cls), V.v2_x(sp), V.v2_y(sp)}, b), "")
+
+def tap_ml(+nd: U64, +i: Nat, +sz: String, +c: String, +rb: F64, +h: Hf, +ok: Bool) -> String:
+  +w = win_of(sz, c)
+  +lo = hf_lo(h)
+  +hi = hf_hi(h)
+  "thread h" ++ U64.show(nd) ++ "-" ++ Nat.show(Nat.add(i, 1n)) ++ " " ++ KT.ds_name(KT.desig(sz)) ++ " " ++ c ++ " z=[" ++ n_s(lo) ++ ", " ++ n_s(hi) ++
+    "] length=" ++ n_s(F64.sub(hi, lo)) ++ " internal minor=[" ++ S.f_show(KT.r3(V.v2_x(w))) ++ ", " ++ S.f_show(KT.r3(V.v2_y(w))) ++ "] model=" ++
+    S.f_show(F64.mul(2.0f64, rb)) ++ " modelled face=" ++ hf_nm(h) ++ Bool.pick(String, ok, " status=certified\n", " status=fail\n")
+
+def tap_mod(+nd: U64, +i: Nat, +sz: String, +cls: String, +rb: F64, +a: Ax, +b: M.Body) -> String:
+  +hs = hfs(b, a)
+  +cr = hf_band(hs, rb)
+  tap_ml(nd, i, sz, M.hs_cls(cls), rb, hf_get(cr), Bool.and(hf_some(cr), vr_ok(v_mod(hs, rb, sz, cls))))
+
+def tap_k(k: U64, +nd: U64, +i: Nat, +sz: String, +cls: String, +a: Ax, +rb: F64, +b: M.Body) -> String:
+  match k:
+    case 4u64: tap_sem(nd, i, sz, cls, a, rb, b)
+    case 5u64: tap_mod(nd, i, sz, cls, rb, a, b)
+    case _: ""
+
+def tap_line(+en: Ent, +b: M.Body) -> String:
+  Ent{+nd, +i, +k, +h, +a, +rb, std, g} = en
+  M.Hs{kk, +sz, +cls, x, y, r} = h
+  tap_k(k, nd, i, sz, cls, a, rb, b)
 
 def taps_go(es: List<&2, Ent>, +b: M.Body) -> String:
   match es:

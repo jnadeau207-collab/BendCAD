@@ -59,7 +59,7 @@ def case(name):
     os.makedirs(wd)
     design = os.path.join(wd, 'design.bcd')
     shutil.copy(os.path.join(d, 'design.bcd'), design)
-    env, rows = {}, []
+    env, rows = {'work': wd}, []
     for st in ex['steps']:
         rows.append(step(design, st, env, ex.get('limit_s', 120)))
         if rows[-1]['verdict'] != 'pass' and st.get('stop_on_fail', True):

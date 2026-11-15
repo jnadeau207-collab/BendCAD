@@ -29,6 +29,7 @@ import ../k3/div.bend as KD
 import ../k2/std.bend as SD
 import ../base/num.bend as NU
 import ../k1/sf.bend as KSF
+import ../c09/hx.bend as HX
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64, nm: String }
@@ -3834,7 +3835,7 @@ def hs_code(+h: Hs) -> U64:
   Bool.pick(U64, U64.is_eq(k, 9u64), 1u64,
   Bool.pick(U64, Bool.not(SD.fa_ok(sz)), 2u64,
   Bool.pick(U64, Bool.and(U64.is_lt(k, 4u64), Nat.is_eq(hs_ser(cls), 99n)), 3u64,
-  Bool.pick(U64, Bool.and(U64.is_eq(k, 4u64), Bool.not(hs_cls_ok(cls))), 4u64,
+  Bool.pick(U64, Bool.and(U64.is_lt(3u64, k), Bool.not(hs_cls_ok(cls))), 4u64,
   Bool.pick(U64, Bool.not(hs_has(k, sz)), 5u64, 0u64))))))
 
 type Hb is Data:
@@ -3850,7 +3851,7 @@ def hb_go(hs: List<&2, Hs>) -> Hb:
 def hs_bore(+h: Hs, +e: X.Env) -> F64:
   Hs{+k, +sz, +cls, x, y, +r} = h
   Bool.pick(F64, U64.is_eq(k, 0u64), X.xp_ev(r, e),
-    F64.mul(0.5f64, SD.fv(SD.fa(sz), Bool.pick(Nat, U64.is_eq(k, 4u64), 5n, hs_ser(cls)))))
+    F64.mul(0.5f64, SD.fv(SD.fa(sz), Bool.pick(Nat, U64.is_lt(3u64, k), 5n, hs_ser(cls)))))
 
 def hs_rgs(hs: List<&2, Hs>, +e: X.Env) -> List<&2, F.Region>:
   match hs:
@@ -3978,13 +3979,383 @@ def hs_post(r: NR, +hs: List<&2, Hs>, +b: Body, +fr: FR, +cell: Bool, +e: X.Env,
     case NR_err{k, d}: NR_err{k, d}
     case NR_ok{+rb, fx}: hs_gone(hs_miss(hs, rb, b, fr, cell, e), rb, fx, e, nd)
 
+def hx_sf(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_hx{w}: True{}
+    case _: False{}
+
+def hx_fa(+f: Ty.Face) -> Bool:
+  Ty.Fa{g, +sf, ls, same, slv, sla} = f
+  hx_sf(sf)
+
+def hx_fas(fs: List<&2, Ty.Face>) -> Bool:
+  match fs:
+    case []: False{}
+    case +f <> +t: Bool.or(hx_fa(f), hx_fas(t))
+
+def has_hx(+b: Body) -> Bool:
+  hx_fas(Ty.brep_fas(bd_brep(b)))
+
+def hs_isk5(+h: Hs) -> Bool:
+  Hs{+k, sz, cls, x, y, r} = h
+  U64.is_eq(k, 5u64)
+
+def hs_mods(hs: List<&2, Hs>) -> Bool:
+  match hs:
+    case []: False{}
+    case +h <> +t: Bool.or(hs_isk5(h), hs_mods(t))
+
+type Cc2 is Data:
+  Cc2{ ok: Bool, c: V.Point, u: V.Dir, r: F64, v: Nat }
+
+def cc_bad() -> Cc2:
+  Cc2{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, 0.0f64, 0n}
+
+def cc_g(g: G.GVal, +closed: Bool, +vi: Nat) -> Cc2:
+  match g:
+    case G.GV_cc{w}:
+      G.Cc{+c, +u, v, +r} = w
+      Cc2{closed, c, u, r, vi}
+    case _: cc_bad()
+
+def cc_k(k: Ty.EdgeKind, +closed: Bool, +vi: Nat) -> Cc2:
+  match k:
+    case Ty.EK_curve{cv, d}: cc_g(cv, closed, vi)
+    case _: cc_bad()
+
+def cc_of(+e: Ty.Edge) -> Cc2:
+  Ty.Ed{g, +v0, +v1, +k} = e
+  cc_k(k, Nat.is_eq(Ty.hv_idx(v0), Ty.hv_idx(v1)), Ty.hv_idx(v0))
+
+def cc_okv(+x: Cc2) -> Bool:
+  Cc2{+ok, c, u, r, v} = x
+  ok
+
+def cc_c(+x: Cc2) -> V.Point:
+  Cc2{ok, +c, u, r, v} = x
+  c
+
+def cc_u(+x: Cc2) -> V.Dir:
+  Cc2{ok, c, +u, r, v} = x
+  u
+
+def cc_r(+x: Cc2) -> F64:
+  Cc2{ok, c, u, +r, v} = x
+  r
+
+def cc_v(+x: Cc2) -> Nat:
+  Cc2{ok, c, u, r, +v} = x
+  v
+
+type Bf is Data:
+  Bf{ ok: Bool, fi: Nat, ea: Nat, eb: Nat, va: Nat, vb: Nat, o: V.Point, u: V.Dir, a: V.Dir, l: F64 }
+
+def bf_ok(+x: Bf) -> Bool:
+  Bf{+ok, fi, ea, eb, va, vb, o, u, a, l} = x
+  ok
+
+def r_eq(+a: F64, +b: F64) -> Bool:
+  F64.is_le(F64.abs(F64.sub(a, b)), F64.mul(1.0e-9f64, F64.add(1.0f64, F64.abs(b))))
+
+def bf_mk(+fi: Nat, +ea: Nat, +eb: Nat, +ca: Cc2, +cb: Cc2, +a: V.Dir, +rb: F64, +ok0: Bool) -> Bf:
+  +d = pdot(cc_c(ca), cc_c(cb), a)
+  +lo = F64.is_lt(0.0f64, d)
+  Bf{Bool.and(ok0, Bool.and(Bool.and(cc_okv(ca), cc_okv(cb)), Bool.and(r_eq(cc_r(ca), rb), r_eq(cc_r(cb), rb)))), fi,
+    Bool.pick(Nat, lo, ea, eb), Bool.pick(Nat, lo, eb, ea), Bool.pick(Nat, lo, cc_v(ca), cc_v(cb)), Bool.pick(Nat, lo, cc_v(cb), cc_v(ca)),
+    Bool.pick(V.Point, lo, cc_c(ca), cc_c(cb)), Bool.pick(V.Dir, lo, cc_u(ca), cc_u(cb)), a, F64.abs(d)}
+
+def hc_hd(xs: List<&2, Ty.HCoedge>) -> Ty.HCoedge:
+  match xs:
+    case []: Ty.HC{0n, 0u64}
+    case h <> t: h
+
+def hl_nth(xs: List<&2, Ty.HLoop>, +i: Nat) -> Ty.HLoop:
+  match xs:
+    case []: Ty.HL{0n, 0u64}
+    case h <> t:
+      match i:
+        case 0n: h
+        case 1n+j: hl_nth(t, j)
+
+def ce_ed(+tc: B.Tb<&2, Ty.Coedge>, +h: Ty.HCoedge) -> Nat:
+  Ty.he_idx(Ty.ce_edge(B.tb_get(Ty.Coedge, tc, U32.from_nat(Ty.hc_idx(h)))))
+
+def lp_edge(+lp: Ty.Loop, +tc: B.Tb<&2, Ty.Coedge>) -> Nat:
+  ce_ed(tc, hc_hd(Ty.lp_ces(lp)))
+
+def lp_n(+lp: Ty.Loop) -> Nat:
+  List.length(&2, Ty.HCoedge, Ty.lp_ces(lp))
+
+def cs_has(cs: List<&2, Ty.HCoedge>, +tc: B.Tb<&2, Ty.Coedge>, +e: Nat) -> Bool:
+  match cs:
+    case []: False{}
+    case +h <> +t: Bool.or(Nat.is_eq(ce_ed(tc, h), e), cs_has(t, tc, e))
+
+def lp_code(+lp: Ty.Loop, +tc: B.Tb<&2, Ty.Coedge>, +e: Nat) -> Nat:
+  Bool.pick(Nat, cs_has(Ty.lp_ces(lp), tc, e), Bool.pick(Nat, Nat.is_eq(lp_n(lp), 1n), 1n, 100n), 0n)
+
+def ls_code(ls: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +e: Nat) -> Nat:
+  match ls:
+    case []: 0n
+    case +h <> +t: Nat.add(lp_code(B.tb_get(Ty.Loop, tl, U32.from_nat(Ty.hlp_idx(h))), tc, e), ls_code(t, tl, tc, e))
+
+def pl_perp(s: G.GVal, +a: V.Dir) -> Bool:
+  match s:
+    case G.GV_pl{w}:
+      G.Pl{o, +u, +v} = w
+      +n = dcross(u, v)
+      F64.is_le(dlen3(dcross(n, a)), F64.mul(1.0e-9f64, dlen3(n)))
+    case _: False{}
+
+def fa_code(+f: Ty.Face, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +e: Nat, +a: V.Dir) -> Nat:
+  Ty.Fa{g, +sf, +ls, same, slv, sla} = f
+  +c = ls_code(ls, tl, tc, e)
+  Bool.pick(Nat, Bool.or(Nat.is_eq(c, 0n), pl_perp(sf, a)), c, 100n)
+
+def adj_go(fs: List<&2, Ty.Face>, +i: Nat, +fb: Nat, +e: Nat, +a: V.Dir, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>) -> Nat:
+  match fs:
+    case []: 0n
+    case +f <> +t:
+      +rest = adj_go(t, Nat.add(i, 1n), fb, e, a, tl, tc)
+      Bool.pick(Nat, Nat.is_eq(i, fb), rest, Nat.add(fa_code(f, tl, tc, e, a), rest))
+
+def bf_ed(+fi: Nat, +ea: Nat, +eb: Nat, +ok0: Bool, +a: V.Dir, +br: Ty.Brep, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +rb: F64) -> Bf:
+  +fs = Ty.brep_fas(br)
+  +te = te_of(br)
+  bf_mk(fi, ea, eb, cc_of(B.tb_get(Ty.Edge, te, U32.from_nat(ea))), cc_of(B.tb_get(Ty.Edge, te, U32.from_nat(eb))), a, rb,
+    Bool.and(Bool.and(ok0, Bool.not(Nat.is_eq(ea, eb))), Bool.and(Bool.and(Nat.is_eq(adj_go(fs, 0n, fi, ea, a, tl, tc), 1n), Nat.is_eq(adj_go(fs, 0n, fi, eb, a, tl, tc), 1n)),
+      Nat.is_eq(List.length(&2, Ty.Solid, Ty.brep_sos(br)), 1n))))
+
+def bf_lp(+fi: Nat, +la: Ty.Loop, +lb: Ty.Loop, +two: Bool, +a: V.Dir, +br: Ty.Brep, +tl: B.Tb<&2, Ty.Loop>, +rb: F64) -> Bf:
+  +tc = tc_of(br)
+  bf_ed(fi, lp_edge(la, tc), lp_edge(lb, tc), Bool.and(two, Bool.and(Nat.is_eq(lp_n(la), 1n), Nat.is_eq(lp_n(lb), 1n))), a, br, tl, tc, rb)
+
+def bf_face(+fi: Nat, +ls: List<&2, Ty.HLoop>, +a: V.Dir, +br: Ty.Brep, +rb: F64) -> Bf:
+  +tl = tl_of(br)
+  bf_lp(fi, B.tb_get(Ty.Loop, tl, U32.from_nat(Ty.hlp_idx(hl_nth(ls, 0n)))), B.tb_get(Ty.Loop, tl, U32.from_nat(Ty.hlp_idx(hl_nth(ls, 1n)))),
+    Nat.is_eq(List.length(&2, Ty.HLoop, ls), 2n), a, br, tl, rb)
+
+def cy_ax(s: G.GVal) -> V.Dir:
+  match s:
+    case G.GV_cy{w}:
+      G.Cy{o, +a, r} = w
+      a
+    case _: V.Dr{0.0f64, 0.0f64, 1.0f64}
+
+def bf_fa(+fi: Nat, +f: Ty.Face, +br: Ty.Brep, +rb: F64) -> Bf:
+  Ty.Fa{g, +sf, +ls, same, slv, sla} = f
+  bf_face(fi, ls, cy_ax(sf), br, rb)
+
+def cy_idx(fs: List<&2, Ty.Face>, +i: Nat, +pl: Pl, +p: V.Point, +n: V.Dir, +r: F64) -> Nat:
+  match fs:
+    case []: i
+    case +f <> +t:
+      Ty.Fa{g, +sf, ls, same, slv, sla} = f
+      Bool.pick(Nat, cyl_hit(sf, pl, p, n, r), i, cy_idx(t, Nat.add(i, 1n), pl, p, n, r))
+
+def bf_at(+fi: Nat, +br: Ty.Brep, +rb: F64) -> Bf:
+  bf_fa(fi, fa_nth(Ty.brep_fas(br), fi), br, rb)
+
+def bf_find(+b: Body, +p: V.Point, +n: V.Dir, +r: F64) -> Bf:
+  +br = bd_brep(b)
+  bf_at(cy_idx(Ty.brep_fas(br), 0n, bd_pl(b), p, n, r), br, r)
+
+type Fq is Data:
+  Fq{ k2: I.I, m2: I.I, rb: I.I, h: I.I }
+
+def fq_g(+q: Fq, +s: F64) -> I.I:
+  Fq{+k2, +m2, +rb, +h} = q
+  I.isqrt(I.iadd(I.imul(k2, I.isq(I.iadd(rb, I.iscale(h, s)))), m2))
+
+def fq_sum(n: Nat, +q: Fq, +i: F64, +off: F64, +acc: I.I) -> I.I:
+  match n:
+    case 0n: acc
+    case 1n+j: fq_sum(j, q, F64.add(i, 1.0f64), off, I.iadd(acc, fq_g(q, F64.div(F64.add(i, off), 256.0f64))))
+
+def fl_iv(+q: Fq) -> I.I:
+  +mid = fq_sum(256n, q, 0.0f64, 0.5f64, I.ipt(0.0f64))
+  +tr = I.iadd(fq_sum(255n, q, 1.0f64, 0.0f64, I.ipt(0.0f64)), I.iscale(I.iadd(fq_g(q, 0.0f64), fq_g(q, 1.0f64)), 0.5f64))
+  I.I{F64.div(I.i_lo(mid), 256.0f64), F64.div(I.i_hi(tr), 256.0f64)}
+
+type Tv is Data:
+  Tv{ dv: I.I, da: I.I }
+
+def tv_m1(+h: I.I, +rb: I.I, +w0: I.I, +w1: I.I) -> I.I:
+  I.imul(h, I.iadd(I.imul(rb, I.iscale(I.iadd(w0, w1), 0.5f64)), I.imul(h, I.idiv(I.iadd(w0, I.iscale(w1, 2.0f64)), I.ipt(6.0f64)))))
+
+def tv_mk(+dv: I.I, +pos: I.I, +neg: I.I) -> Tv:
+  Tv{I.iwiden(dv, F64.mul(1.0e-12f64, I.i_hi(dv))), I.iwiden(I.isub(pos, neg), F64.mul(1.0e-12f64, F64.add(I.i_hi(pos), I.i_hi(neg))))}
+
+def tv_go(+pp: F64, +rb: F64, +rr: F64, +c: F64, +l: F64, +h: F64, +dz: F64, +dzc: F64, +m1: I.I) -> Tv:
+  +th = I.idiv(I.ipt(l), I.ipt(c))
+  +fl = fl_iv(Fq{I.iadd(I.isq(I.ipt(h)), I.isq(I.ipt(dz))), I.imul(I.isq(I.ipt(c)), I.isq(I.ipt(h))), I.ipt(rb), I.ipt(h)})
+  tv_mk(I.imul(th, m1), I.imul(th, I.iadd(I.iadd(I.iscale(I.ipt(rb), dzc), I.iscale(I.ipt(rr), F64.mul(0.125f64, pp))), I.iscale(fl, 2.0f64))),
+    I.iadd(I.imul(I.iscale(I.pi_i(), 2.0f64), I.iscale(I.ipt(rb), l)), I.iscale(I.idiv(m1, I.ipt(c)), 2.0f64)))
+
+def thr_iv(+pp: F64, +rb: F64, +rr: F64, +c: F64, +l: F64) -> Tv:
+  +wb = HX.wb_of(pp, rb, rr)
+  +dz = HX.fl_dz(pp, wb)
+  +h = F64.sub(rr, rb)
+  +p16 = I.ipt(F64.mul(0.0625f64, pp))
+  +hw = I.ipt(F64.mul(0.5f64, wb))
+  tv_go(pp, rb, rr, c, l, h, dz, F64.sub(pp, wb), tv_m1(I.ipt(h), I.ipt(rb), I.iadd(I.iadd(p16, I.ipt(dz)), hw), I.isub(I.iadd(p16, hw), I.ipt(dz))))
+
+def thr_ms(+m: Ms, +g: Tv, +br: Ty.Brep) -> Ms:
+  Ms{+vol, +area, +x0, +x1, +y0, +y1, +z0, +z1, nv, ne, nf, ns, gn, +lin} = m
+  Tv{+dv, +da} = g
+  +c = br_counts(br)
+  Ms{I.isub(vol, dv), I.iadd(area, da), x0, x1, y0, y1, z0, z1, nth_n(c, 0n), nth_n(c, 1n), nth_n(c, 2n), nth_n(c, 5n), genus_of(br), lin}
+
+def xb_thr(+x: Xb, +m: Ms) -> Xb:
+  Xb{mx, +nc, +bo, +pr, +dl, fk} = x
+  Xb{[m], nc, bo, pr, dl, []}
+
+def bd_unpl(+b: Body) -> Body:
+  Bd{+cells, +brep, +fns, pl, +rv, +xb} = b
+  Bd{cells, brep, fns, pl_id(), rv, xb}
+
+def thr_body(+bi: Body, +bt: BD.Bt, +g: Tv) -> Body:
+  BD.Bt{+br, +fns} = bt
+  Bd{bd_cells(bi), br, fns, bd_pl(bi), bd_rv(bi), xb_thr(bd_xb(bi), thr_ms(body_ms(bd_unpl(bi)), g, br))}
+
+def fn_at(xs: List<&2, BD.Fn>, +i: Nat) -> BD.Fn:
+  match xs:
+    case []: BD.Fn{0u64, 0n, 0u64, 0n, 0n}
+    case f <> t:
+      match i:
+        case 0n: f
+        case 1n+j: fn_at(t, j)
+
+def thr_mk(+bi: Body, +x: Bf, +pp: F64, +rb: F64, +rr: F64) -> Body:
+  Bf{ok, +fi, +ea, +eb, +va, +vb, +o, +u, +a, +l} = x
+  +c = F64.div(pp, HX.two_pi())
+  thr_body(bi, HX.thread_bt(bd_brep(bi), bd_fns(bi), fi, ea, eb, va, vb, HX.Tq{o, u, dcross(a, u), a, c, l}, pp, rb, rr, fn_at(bd_fns(bi), fi)),
+    thr_iv(pp, rb, rr, c, l))
+
+def hs_wp(+cell: Bool, +fr: FR, +b: Body, +x: X.Xp, +y: X.Xp, +e: X.Env) -> V.Point:
+  +q = hs_loc_of(cell, fr, X.xp_ev(x, e), X.xp_ev(y, e))
+  pl_pt(fr_o(fr_at(fr, V.v2_x(q), V.v2_y(q))), bd_pl(b))
+
+def prof_ok(+pp: F64, +rb: F64, +rr: F64) -> Bool:
+  Bool.and(F64.is_lt(rb, rr), F64.is_lt(HX.wb_of(pp, rb, rr), pp))
+
+def bore_one(k5: Bool, +h: Hs, +bi: Body, +b: Body, +fr: FR, +cell: Bool, +e: X.Env) -> Bool:
+  match k5:
+    case False{}: True{}
+    case True{}:
+      Hs{k, +sz, cls, +x, +y, r} = h
+      +a = SD.fa(sz)
+      +rb = hs_bore(h, e)
+      Bool.and(prof_ok(SD.fv(a, 1n), rb, F64.mul(0.5f64, SD.fv(a, 0n))), bf_ok(bf_find(bi, hs_wp(cell, fr, b, x, y, e), pl_dir(fr_n(fr), bd_pl(b)), rb)))
+
+def bore_bad(hs: List<&2, Hs>, +bi: Body, +b: Body, +fr: FR, +cell: Bool, +e: X.Env) -> Hb:
+  match hs:
+    case []: Hb{0u64, Hs{0u64, "", "", xk(0.0f64), xk(0.0f64), xk(0.0f64)}}
+    case +h <> +t: Bool.pick(Hb, bore_one(hs_isk5(h), h, bi, b, fr, cell, e), bore_bad(t, bi, b, fr, cell, e), Hb{1u64, h})
+
+def ring_rgs(hs: List<&2, Hs>, +fr: FR, +cell: Bool, +e: X.Env) -> List<&2, F.Region>:
+  match hs:
+    case []: []
+    case +h <> +t:
+      Hs{+k, +sz, cls, +x, +y, r} = h
+      +q = hs_loc_of(cell, fr, X.xp_ev(x, e), X.xp_ev(y, e))
+      +rest = ring_rgs(t, fr, cell, e)
+      Bool.pick(List<&2, F.Region>, U64.is_eq(k, 5u64), F.Rg{F.L_circ{xk(V.v2_x(q)), xk(V.v2_y(q)), xk(F64.mul(0.5f64, SD.fv(SD.fa(sz), 0n)))}, []} <> rest, rest)
+
+def ring_one(k5: Bool, +h: Hs, +bc: Body, +b: Body, +fr: FR, +cell: Bool, +e: X.Env) -> Bool:
+  match k5:
+    case False{}: True{}
+    case True{}:
+      Hs{k, +sz, cls, +x, +y, r} = h
+      bf_ok(bf_find(bc, hs_wp(cell, fr, b, x, y, e), pl_dir(fr_n(fr), bd_pl(b)), F64.mul(0.5f64, SD.fv(SD.fa(sz), 0n))))
+
+def rings_ok(hs: List<&2, Hs>, +bc: Body, +b: Body, +fr: FR, +cell: Bool, +e: X.Env) -> Bool:
+  match hs:
+    case []: True{}
+    case +h <> +t: Bool.and(ring_one(hs_isk5(h), h, bc, b, fr, cell, e), rings_ok(t, bc, b, fr, cell, e))
+
+def cnt_eq(+a: List<&2, Nat>, +b: List<&2, Nat>) -> Bool:
+  Bool.and(Bool.and(Nat.is_eq(nth_n(a, 0n), nth_n(b, 0n)), Bool.and(Nat.is_eq(nth_n(a, 1n), nth_n(b, 1n)), Nat.is_eq(nth_n(a, 2n), nth_n(b, 2n)))),
+    Bool.and(Nat.is_eq(nth_n(a, 3n), nth_n(b, 3n)), Bool.and(Nat.is_eq(nth_n(a, 4n), nth_n(b, 4n)), Nat.is_eq(nth_n(a, 5n), nth_n(b, 5n)))))
+
+def ring_ok(rc: NR, +hs: List<&2, Hs>, +b: Body, +fr: FR, +cell: Bool, +e: X.Env, +cn: List<&2, Nat>) -> Bool:
+  match rc:
+    case NR_err{k, dg}: False{}
+    case NR_ok{+bc, fx}: Bool.and(cnt_eq(br_counts(bd_brep(bc)), cn), rings_ok(hs, bc, b, fr, cell, e))
+
+def thr_fin(ok: Bool, +x: Bf, +bi: Body, +fx: Fx, +a: SD.Fa, +rb: F64, +nd: U64) -> NR:
+  match ok:
+    case True{}: NR_ok{thr_mk(bi, x, SD.fv(a, 1n), rb, F64.mul(0.5f64, SD.fv(a, 0n))), fx}
+    case False{}: bad("holes", "node " ++ U64.show(nd), "thread-model-lost-bore: a bore that passed the checks was not found for its thread", "report this design; it is a kernel defect")
+
+def thr_one(k5: Bool, +h: Hs, +bi: Body, +fx: Fx, +b: Body, +fr: FR, +cell: Bool, +e: X.Env, +nd: U64) -> NR:
+  match k5:
+    case False{}: NR_ok{bi, fx}
+    case True{}:
+      Hs{k, +sz, cls, +x, +y, r} = h
+      +rb = hs_bore(h, e)
+      +bf = bf_find(bi, hs_wp(cell, fr, b, x, y, e), pl_dir(fr_n(fr), bd_pl(b)), rb)
+      thr_fin(bf_ok(bf), bf, bi, fx, SD.fa(sz), rb, nd)
+
+def thr_nr(r: NR, +h: Hs, +b: Body, +fr: FR, +cell: Bool, +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, dg}: NR_err{k, dg}
+    case NR_ok{+bi, +fx}: thr_one(hs_isk5(h), h, bi, fx, b, fr, cell, e, nd)
+
+def thr_all(hs: List<&2, Hs>, +r: NR, +b: Body, +fr: FR, +cell: Bool, +e: X.Env, +nd: U64) -> NR:
+  match hs:
+    case []: r
+    case +h <> +t: thr_all(t, thr_nr(r, h, b, fr, cell, e, nd), b, fr, cell, e, nd)
+
+def thr_ck(ok: Bool, +bi: Body, +fx: Fx, +hs: List<&2, Hs>, +b: Body, +fr: FR, +cell: Bool, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}:
+      bad("holes", "node " ++ U64.show(nd), "thread-model-breaks-out: the major diameter of a modelled thread meets other faces of the part",
+        "keep every modelled thread's major diameter inside solid material: move the hole, thicken the wall, or keep the thread semantic (tapped without modelled)")
+    case True{}: thr_all(hs, NR_ok{bi, fx}, b, fr, cell, e, nd)
+
+def thr_pb(+h: Hs, +e: X.Env, +nd: U64) -> NR:
+  Hs{k, +sz, cls, x, y, r} = h
+  bad("holes", "node " ++ U64.show(nd), "thread-model-needs-a-plain-bore: the " ++ NU.f_show(F64.mul(2.0f64, hs_bore(h, e))) ++ " bore of tapped " ++ sz ++
+      " is not one cylinder between two flat faces square to its axis in a single solid",
+    "model the thread on a through hole whose two ends are flat faces square to the hole")
+
+def thr_c(ok: Bool, +h: Hs, +bi: Body, +fx: Fx, +hs: List<&2, Hs>, +b: Body, +nm: String, +fr: FR, +cell: Bool, +d: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  match ok:
+    case False{}: thr_pb(h, e, nd)
+    case True{}:
+      thr_ck(ring_ok(op_feat_nm_k(900n, 2u64, bi, nm, ring_rgs(hs, fr, cell, e), d, True{}, e, nd), hs, b, fr, cell, e, br_counts(bd_brep(bi))),
+        bi, fx, hs, b, fr, cell, e, nd)
+
+def thr_b(+x: Hb, +bi: Body, +fx: Fx, +hs: List<&2, Hs>, +b: Body, +nm: String, +fr: FR, +cell: Bool, +d: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  Hb{+c, +h} = x
+  thr_c(U64.is_eq(c, 0u64), h, bi, fx, hs, b, nm, fr, cell, d, e, nd)
+
+def thr_r(r: NR, +hs: List<&2, Hs>, +b: Body, +nm: String, +fr: FR, +cell: Bool, +d: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, dg}: NR_err{k, dg}
+    case NR_ok{+bi, +fx}: thr_b(bore_bad(hs, bi, b, fr, cell, e), bi, fx, hs, b, nm, fr, cell, d, e, nd)
+
+def thr_th(thru: Bool, +r: NR, +hs: List<&2, Hs>, +b: Body, +nm: String, +fr: FR, +cell: Bool, +d: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  match thru:
+    case False{}:
+      bad("holes", "node " ++ U64.show(nd), "thread-model-needs-a-through-hole",
+        "model the thread on a through hole: write (holes BASE FACE through (tapped SIZE [CLASS] X Y modelled)); a blind tapped hole keeps the semantic thread (tapped SIZE [CLASS] X Y)")
+    case True{}: thr_r(r, hs, b, nm, fr, cell, d, e, nd)
+
+def thr_go(mods: Bool, +thru: Bool, +r: NR, +hs: List<&2, Hs>, +b: Body, +nm: String, +fr: FR, +cell: Bool, +d: X.Xp, +e: X.Env, +nd: U64) -> NR:
+  match mods:
+    case False{}: r
+    case True{}: thr_th(thru, r, hs, b, nm, fr, cell, d, e, nd)
+
 def hs_go(c: U64, +h: Hs, +b: Body, +f: Sel, +hs: List<&2, Hs>, +d: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
   match c:
     case 0u64:
       +nm = sel_name(b, f, base)
       +fr = frame_of(fa_nth(Ty.brep_fas(bd_brep(b)), name_idx(bd_fns(b), nm, 0n)))
       +cell = String.is_empty(sel_nm(f))
-      hs_post(hs_fold(hs, op_feat(2u64, b, f, hs_rgs(hs, e), d, thru, e, nd, base), nm, fr, cell, List.length(&2, Hs, hs), e, nd), hs, b, fr, cell, e, nd)
+      thr_go(hs_mods(hs), thru, hs_post(hs_fold(hs, op_feat(2u64, b, f, hs_rgs(hs, e), d, thru, e, nd, base), nm, fr, cell, List.length(&2, Hs, hs), e, nd), hs, b, fr, cell, e, nd),
+        hs, b, nm, fr, cell, d, e, nd)
     case _: hs_bad(c, h, nd)
 
 def hb_run(+x: Hb, +b: Body, +f: Sel, +hs: List<&2, Hs>, +d: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +base: U64) -> NR:
@@ -4409,11 +4780,112 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_blade{secs, z, tw, tp}: op_blade(secs, z, tw, tp, e, nd, ns)
     case O_skin{secs}: op_skin(secs, e, nd, ns)
 
+def hx_hand(+u: V.Dir, +v: V.Dir, +a: V.Dir, +c: F64, +pl: Pl) -> String:
+  +n = dcross(pl_dir(u, pl), pl_dir(v, pl))
+  +aw = pl_dir(a, pl)
+  +s = F64.add(F64.add(F64.mul(V.dr_x(n), V.dr_x(aw)), F64.mul(V.dr_y(n), V.dr_y(aw))), F64.mul(V.dr_z(n), V.dr_z(aw)))
+  Bool.pick(String, F64.is_lt(0.0f64, F64.mul(c, s)), "right", "left")
+
+def hx_deg(+dr: F64, +dz: F64) -> F64:
+  r6m(F64.div(F64.mul(KSF.fatan2(F64.abs(dz), F64.abs(dr)), 180.0f64), 3.141592653589793f64))
+
+def hx_nr(r: NR, +w: String, +id: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+b, +fx}:
+      Bool.pick(NR, has_hx(b),
+        bad(w, "node " ++ U64.show(id), "modelled-thread-not-supported: " ++ w ++ " does not take modelled thread (helicoid) faces yet",
+          "run it on the part before the modelled thread, or keep the thread semantic (tapped without modelled)"),
+        NR_ok{b, fx})
+
+def ce_hxb(+c: CE) -> Bool:
+  CE{id, key, +r} = c
+  Bool.and(nr_ok(r), has_hx(nr_body(r)))
+
+def ces_hxw(cs: List<&2, CE>) -> Bool:
+  match cs:
+    case []: False{}
+    case +c <> t: Bool.or(ce_hxb(c), ces_hxw(t))
+
+def hx_asm_s() -> String:
+  "error invalid-input | asm | why: modelled-thread-not-supported: an instance has modelled thread (helicoid) faces, which assemblies do not take yet | fix: place the part before its modelled thread, or keep the thread semantic (tapped without modelled)"
+
+def op_mod(o: Op) -> Bool:
+  match o:
+    case O_sholes{base, f, +hs, d, thru}: hs_mods(hs)
+    case _: False{}
+
+def nds_mod(ns: List<&2, Node>) -> Bool:
+  match ns:
+    case []: False{}
+    case +n <> t:
+      Nd{id, +o, it} = n
+      Bool.or(op_mod(o), nds_mod(t))
+
+def part_mod(+p: Part) -> Bool:
+  Pt{ps, +ns, ms, ts} = p
+  nds_mod(ns)
+
+def hs_sem1(+h: Hs, +root: Bool) -> Hs:
+  Hs{+k, +sz, +cls, +x, +y, +r} = h
+  Bool.pick(Hs, U64.is_eq(k, 5u64), Bool.pick(Hs, root, Hs{0u64, "", "", x, y, xk(F64.mul(0.5f64, SD.fv(SD.fa(sz), 0n)))}, Hs{4u64, sz, cls, x, y, r}), Hs{k, sz, cls, x, y, r})
+
+def hs_semk(hs: List<&2, Hs>, +root: Bool) -> List<&2, Hs>:
+  match hs:
+    case []: []
+    case +h <> t: hs_sem1(h, root) <> hs_semk(t, root)
+
+def op_semk(o: Op, +root: Bool) -> Op:
+  match o:
+    case O_sholes{+base, +f, +hs, +d, +thru}: O_sholes{base, f, hs_semk(hs, root), d, thru}
+    case _: o
+
+def nds_semk(ns: List<&2, Node>, +root: Bool) -> List<&2, Node>:
+  match ns:
+    case []: []
+    case +n <> t:
+      Nd{+id, +o, +it} = n
+      Nd{id, op_semk(o, root), it} <> nds_semk(t, root)
+
+def part_semk(+p: Part, +root: Bool) -> Part:
+  Pt{+ps, +ns, +ms, +ts} = p
+  Pt{ps, nds_semk(ns, root), ms, ts}
+
+def tooth_s(+h: Hs, +e: X.Env, +nd: U64, +i: Nat) -> String:
+  Hs{+k, +sz, +cls, x, y, r} = h
+  +a = SD.fa(sz)
+  +pp = SD.fv(a, 1n)
+  +rb = hs_bore(h, e)
+  Bool.pick(String, U64.is_eq(k, 5u64), "thread-teeth h" ++ U64.show(nd) ++ "-" ++ Nat.show(Nat.add(i, 1n)) ++ " " ++ sz ++ " " ++ hs_cls(cls) ++
+    " crest-land=" ++ NU.f_show(r6m(F64.sub(pp, HX.wb_of(pp, rb, F64.mul(0.5f64, SD.fv(a, 0n)))))) ++ " root-flat=" ++ NU.f_show(r6m(F64.mul(0.125f64, pp))) ++
+    " (ISO 68-1 internal profile at the " ++ NU.f_show(F64.mul(2.0f64, rb)) ++ " tap drill; min-wall above is measured to the thread root at the major diameter " ++ NU.f_show(SD.fv(a, 0n)) ++ ")\n", "")
+
+def teeth_go(hs: List<&2, Hs>, +e: X.Env, +nd: U64, +i: Nat) -> String:
+  match hs:
+    case []: ""
+    case +h <> t: tooth_s(h, e, nd, i) ++ teeth_go(t, e, nd, Nat.add(i, 1n))
+
+def op_teeth(o: Op, +e: X.Env, +nd: U64) -> String:
+  match o:
+    case O_sholes{base, f, +hs, d, thru}: teeth_go(hs, e, nd, 0n)
+    case _: ""
+
+def part_teeth(+p: Part, +nd: U64) -> String:
+  Pt{+ps, +ns, ms, ts} = p
+  op_teeth(nd_op(ns, nd), X.env_of(pvs_of(ps)), nd)
+
+def hx_guard(hx: Bool, +o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
+  match hx:
+    case False{}: op_build(o, b, b2, e, nd, ns)
+    case True{}:
+      bad(op_name(o), "node " ++ U64.show(nd), "modelled-thread-faces: the input has modelled thread (helicoid) faces, which " ++ op_name(o) ++ " does not take yet",
+        "apply every other feature first and model the thread last, or keep the thread semantic (tapped without modelled)")
+
 def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
     +ns: List<&2, Node>) -> NR:
   match hit:
     case True{}: ce_r(old)
-    case False{}: publish(op_build(o, b, b2, e, nd, ns), o, hasb, b, it, nd)
+    case False{}: publish(hx_guard(Bool.or(Bool.and(hasb, has_hx(b)), Bool.and(op_has_b2(o), has_hx(b2))), o, b, b2, e, nd, ns), o, hasb, b, it, nd)
 
 def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
     +key: List<&2, U64>, +old: List<&2, CE>, +ns: List<&2, Node>) -> NR:

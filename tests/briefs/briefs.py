@@ -313,16 +313,14 @@ B9 = dict(
 
 RB = THR.d1(3.0, 0.5) / 2
 B10 = dict(
-    id='B10', sentence='M3 x 10 hex standoff with a tapped through hole, thread modelled', process='lathe', parts=[1002],
-    notes='Hex AF 5.5 x 10 (ISO 4032 M3 record) with a tapped M3 6H through hole from the kernel record (ISO 2306 tap drill 2.5, callout bound by the feature); the modelled thread is the tools/g5/threads.py internal helix (skin of 12 sections per turn) differenced from the body.',
+    id='B10', sentence='M3 x 10 hex standoff with a tapped through hole, thread modelled', process='lathe', parts=[1001],
+    notes='Hex AF 5.5 x 10 (ISO 4032 M3 record) with a tapped M3 6H through hole from the kernel record (ISO 2306 tap drill 2.5, callout bound by the feature), its ISO 68-1 thread modelled as four exact helicoid faces by the hole feature itself.',
     edits=['(node 1000 (prism 0 10 (region (path 3.1754264805429417 0 (line 1.5877132402714709 2.75) (line -1.5877132402714709 2.75) (line -3.1754264805429417 0) (line -1.5877132402714709 -2.75) (line 1.5877132402714709 -2.75)))) (intent create any 0 1 0))',
-           '(node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0)) (intent remove any any 1 1))',
-           THR.int_helix(1010, 3.0, -0.3, 10.6, IC),
-           '(node 1002 (difference 1001 1010) (intent remove any any 1 any))'],
-    checks=[C('valid solid', ['check', '1002'], ('check_ok',)),
-            C('M3 6H callout certified', ['threads', '1001'], ('contains', 'M3x0.5 6H', 'status=certified')),
-            C('thread modelled (helical flank faces present)', ['faces', '1002'], ('contains', 'n1010')),
-            C('minimum wall >= 0.8 mm', ['wall', '1002'], ('wall_ge', 0.8)),
+           '(node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))'],
+    checks=[C('valid solid', ['check', '1001'], ('check_ok',)),
+            C('M3 6H callout certified', ['threads', '1001'], ('contains', 'M3x0.5 6H', 'modelled', 'status=certified')),
+            C('thread modelled (helical flank faces present)', ['faces', '1001', '-f'], ('contains', 'helicoid', 'flank half-angle=30')),
+            C('minimum wall >= 0.8 mm', ['wall', '1001'], ('wall_ge', 0.8)),
             C('hex across flats 5.5 to ISO 272 / standoff catalog', ['faces', '1001', '-f'], ('regex', r'(?s)(?=.*frame o=\([^,]+,2\.75,[^)]*\)[^\n]*n=\(0,1,0\))(?=.*frame o=\([^,]+,-2\.75,[^)]*\)[^\n]*n=\(0,-1,0\))')),
             C('tapped M3 6H through hole to ISO 2306 / ISO 965-1', ['std', '1001'], ('std', 1, 'tapped M3')),
             NA('makeable on the declared process with standard tools', 'no turning or tapping check'),

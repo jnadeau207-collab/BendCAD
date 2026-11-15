@@ -492,6 +492,8 @@ def gv_nm(g: G.GVal) -> String:
     case G.GV_nb{v}: "nurbs"
     case G.GV_ts{v}: "trim-seg"
     case G.GV_tb{v}: "trim-bezier"
+    case G.GV_hx{v}: "helicoid"
+    case G.GV_sh{v}: "spiral-helix"
 
 def f3(+x: F64, +y: F64, +z: F64) -> String:
   N.f_show(x) ++ "," ++ N.f_show(y) ++ "," ++ N.f_show(z)

@@ -9,6 +9,7 @@ import ../c06/model.bend as M
 import ../c06/tess.bend as TS
 import ./blob.bend as BL
 import ../k1/sf.bend as KS
+import ../c09/hx.bend as HX
 
 type WS is Data:
   WS{ ok: Bool, s: String, why: String, nent: Nat, nprod: Nat }
@@ -448,6 +449,90 @@ def sw_bz_t(+w: Bool, +bz: G.Bez3, +pl: M.Pl, +ctr: Nat) -> ER2:
 def sw_bz(+w: G.Bez3, +lo: F64, +hi: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
   sw_bz_t(F64.is_lt(lo, hi), sw_bz_d(sw_unit(lo, hi), w, lo, hi), pl, ctr)
 
+def nfl(+n: Nat) -> F64:
+  U64.to_f64(U64.from_nat(n))
+
+def hm_eps() -> F64:
+  1.0e-6f64
+
+def hm_n(+m4: F64, +sp: F64) -> Nat:
+  Nat.add(U64.to_nat(F64.to_u64(F64.min(F64.div(sp, F64.sqrt(F64.sqrt(F64.div(F64.mul(384.0f64, hm_eps()), F64.max(m4, 1.0e-300f64))))), 1.0e7f64))), 1n)
+
+def sh_dv(+w: G.SpiralHelix, +t: F64) -> V.Dir:
+  G.Sh{o, +u, +v, +a, +r0, +kr, z0, +kz} = w
+  +ct = KS.fcos(t)
+  +st = KS.fsin(t)
+  KS.dadd(KS.dadd(KS.dscale(kr, KS.dadd(KS.dscale(ct, u), st, v)), F64.add(r0, F64.mul(kr, t)), KS.dadd(KS.dscale(F64.neg(st), u), ct, v)), kz, a)
+
+def sh_m4(+w: G.SpiralHelix, +lo: F64, +hi: F64) -> F64:
+  G.Sh{o, u, v, a, +r0, +kr, z0, kz} = w
+  +rm = F64.max(F64.abs(F64.add(r0, F64.mul(kr, lo))), F64.abs(F64.add(r0, F64.mul(kr, hi))))
+  F64.sqrt(F64.add(F64.mul(rm, rm), F64.mul(16.0f64, F64.mul(kr, kr))))
+
+def hm_go(c: Nat, +w: G.SpiralHelix, +lo: F64, +h: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match c:
+    case 0n: acc
+    case 1n+(+i):
+      +ta = F64.add(lo, F64.mul(h, nfl(i)))
+      +tb = F64.add(lo, F64.mul(h, nfl(Nat.add(i, 1n))))
+      +h3 = F64.div(h, 3.0f64)
+      +pa = HX.sh_at(w, ta)
+      hm_go(i, w, lo, h, pa <> HX.pd(pa, h3, sh_dv(w, ta)) <> HX.pd(HX.sh_at(w, tb), F64.neg(h3), sh_dv(w, tb)) <> acc)
+
+def hm_pts(+w: G.SpiralHelix, +n: Nat, +lo: F64, +h: F64) -> List<&2, V.Point>:
+  hm_go(n, w, lo, h, [HX.sh_at(w, F64.add(lo, F64.mul(h, nfl(n))))])
+
+def hp_ok(ps: List<&2, V.Point>, +pl: M.Pl) -> Bool:
+  match ps:
+    case []: True{}
+    case +p <> t: Bool.and(BL.es_ok_of(sw_pt(TS.pl_pt(p, pl))), hp_ok(t, pl))
+
+def hp_s(ps: List<&2, V.Point>, +pl: M.Pl, +ctr: Nat) -> String:
+  match ps:
+    case []: ""
+    case +p <> t: sw_ent(ctr, "CARTESIAN_POINT(''," ++ BL.es_s(sw_pt(TS.pl_pt(p, pl))) ++ ")") ++ hp_s(t, pl, Nat.add(ctr, 1n))
+
+def hr_s(c: Nat, +ctr: Nat) -> String:
+  match c:
+    case 0n: ""
+    case 1n+(+d): Bool.pick(String, Nat.is_eq(d, 0n), sw_ref(ctr), sw_ref(ctr) ++ "," ++ hr_s(d, Nat.add(ctr, 1n)))
+
+def hr2_s(c: Nat, +ctr: Nat) -> String:
+  match c:
+    case 0n: ""
+    case 1n+(+d): "(" ++ sw_ref(ctr) ++ "," ++ sw_ref(Nat.add(ctr, 1n)) ++ ")" ++ Bool.pick(String, Nat.is_eq(d, 0n), "", "," ++ hr2_s(d, Nat.add(ctr, 2n)))
+
+def hk_mu(c: Nat) -> String:
+  match c:
+    case 0n: ""
+    case 1n+d: ",3" ++ hk_mu(d)
+
+def hk_mults(+n: Nat) -> String:
+  "4" ++ hk_mu(Nat.sub(n, 1n)) ++ ",4"
+
+def hk_ok(c: Nat, +lo: F64, +h: F64, +i: Nat) -> Bool:
+  match c:
+    case 0n: True{}
+    case 1n+d: Bool.and(BL.ns_ok(sw_f(F64.add(lo, F64.mul(h, nfl(i))))), hk_ok(d, lo, h, Nat.add(i, 1n)))
+
+def hk_s(c: Nat, +lo: F64, +h: F64, +i: Nat) -> String:
+  match c:
+    case 0n: ""
+    case 1n+(+d): BL.ns_s(sw_f(F64.add(lo, F64.mul(h, nfl(i))))) ++ Bool.pick(String, Nat.is_eq(d, 0n), "", "," ++ hk_s(d, lo, h, Nat.add(i, 1n)))
+
+def sw_bsc(+ps: List<&2, V.Point>, +n: Nat, +lo: F64, +h: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
+  +np = Nat.add(Nat.mul(3n, n), 1n)
+  +cid = Nat.add(ctr, np)
+  Bool.pick(ER2, Bool.and(hp_ok(ps, pl), hk_ok(Nat.add(n, 1n), lo, h, 0n)),
+    er2_ok(hp_s(ps, pl, ctr) ++ sw_ent(cid, "B_SPLINE_CURVE_WITH_KNOTS('',3,(" ++ hr_s(np, ctr) ++ "),.UNSPECIFIED.,.F.,.F.,(" ++ hk_mults(n) ++ "),(" ++
+      hk_s(Nat.add(n, 1n), lo, h, 0n) ++ "),.UNSPECIFIED.)"), Nat.add(cid, 1n), [cid]),
+    er2_fail("step-float-not-exact helix-control-point", Nat.add(cid, 1n)))
+
+def sw_sh(+w: G.SpiralHelix, +lo: F64, +hi: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
+  +n = hm_n(sh_m4(w, lo, hi), F64.sub(hi, lo))
+  +h = F64.div(F64.sub(hi, lo), nfl(n))
+  Bool.pick(ER2, F64.is_lt(lo, hi), sw_bsc(hm_pts(w, n, lo, h), n, lo, h, pl, ctr), er2_fail("step-bspline-dom-invalid", ctr))
+
 def sw_curve_cv(+curve: G.GVal, +lo: F64, +hi: F64, +i0: Nat, +i1: Nat, +pl: M.Pl, +vbase: Nat,
     +ctr: Nat) -> ER2:
   match curve:
@@ -455,6 +540,7 @@ def sw_curve_cv(+curve: G.GVal, +lo: F64, +hi: F64, +i0: Nat, +i1: Nat, +pl: M.P
     case G.GV_cc{w}: sw_circ(w, lo, hi, i0, i1, pl, vbase, ctr)
     case G.GV_rq{w}: sw_rq(w, lo, hi, pl, ctr)
     case G.GV_bz{w}: sw_bz(w, lo, hi, pl, ctr)
+    case G.GV_sh{w}: sw_sh(w, lo, hi, pl, ctr)
     case _: er2_fail("step-curve-not-in-profile " ++ BL.gv_nm(curve), ctr)
 
 def sw_curve_kind(+k: Ty.EdgeKind, +e: Ty.Edge, +i0: Nat, +i1: Nat, +pl: M.Pl, +vbase: Nat,
@@ -680,15 +766,73 @@ def sw_surf_kind(+g: G.GVal, +pl: M.Pl, +ctr: Nat) -> ER2:
     case G.GV_bp{w}: sw_bp(w, pl, ctr)
     case _: er2_fail("step-surface-not-in-profile " ++ BL.gv_nm(g), ctr)
 
-def sw_surf(+f: Ty.Face, +pl: M.Pl, +ctr: Nat) -> ER2:
-  sw_surf_kind(Ty.fa_surf(f), pl, ctr)
+def zip2(xs: List<&2, V.Point>, ys: List<&2, V.Point>) -> List<&2, V.Point>:
+  match xs:
+    case []: []
+    case +x <> t:
+      match ys:
+        case []: []
+        case +y <> u: x <> y <> zip2(t, u)
 
-def sw_surfs_go(fs: List<&2, Ty.Face>, +pl: M.Pl, +ctr: Nat, +acc: List<&2, Nat>) -> ER2:
+def sw_bss(+ps: List<&2, V.Point>, +n: Nat, +lo: F64, +h: F64, +pl: M.Pl, +ctr: Nat) -> ER2:
+  +np = Nat.add(Nat.mul(3n, n), 1n)
+  +sid = Nat.add(ctr, Nat.mul(2n, np))
+  Bool.pick(ER2, Bool.and(hp_ok(ps, pl), hk_ok(Nat.add(n, 1n), lo, h, 0n)),
+    er2_ok(hp_s(ps, pl, ctr) ++ sw_ent(sid, "B_SPLINE_SURFACE_WITH_KNOTS('',3,1,(" ++ hr2_s(np, ctr) ++ "),.UNSPECIFIED.,.F.,.F.,.F.,(" ++ hk_mults(n) ++ "),(2,2),(" ++
+      hk_s(Nat.add(n, 1n), lo, h, 0n) ++ "),(0.,1.),.UNSPECIFIED.)"), Nat.add(sid, 1n), [sid]),
+    er2_fail("step-float-not-exact helicoid-control-point", Nat.add(sid, 1n)))
+
+def sw_hx(+w: G.Helicoid, +th: V.Vec2, +pl: M.Pl, +ctr: Nat) -> ER2:
+  G.Hx{+o, +u, +v, +a, +c, +r0, +z0, +dr, +dz} = w
+  +lo = V.v2_x(th)
+  +hi = V.v2_y(th)
+  +n = hm_n(F64.max(F64.abs(r0), F64.abs(F64.add(r0, dr))), F64.sub(hi, lo))
+  +h = F64.div(F64.sub(hi, lo), nfl(n))
+  Bool.pick(ER2, F64.is_lt(lo, hi),
+    sw_bss(zip2(hm_pts(G.Sh{o, u, v, a, r0, 0.0f64, z0, c}, n, lo, h), hm_pts(G.Sh{o, u, v, a, F64.add(r0, dr), 0.0f64, F64.add(z0, dz), c}, n, lo, h)), n, lo, h, pl, ctr),
+    er2_fail("step-helicoid-domain-empty", ctr))
+
+def th_of(+w: G.Helicoid, +p: V.Point) -> F64:
+  F64.div(F64.sub(F64.sub(TS.hx_lz(w, p), TS.hx_z0(w)), F64.mul(TS.hx_dz(w), TS.hx_sig(w, p))), TS.hx_c(w))
+
+def th_add(+acc: V.Vec2, +t: F64) -> V.Vec2:
+  V.V2{F64.min(V.v2_x(acc), t), F64.max(V.v2_y(acc), t)}
+
+def ces_th(hs: List<&2, Ty.HCoedge>, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>, +w: G.Helicoid, +acc: V.Vec2) -> V.Vec2:
+  match hs:
+    case []: acc
+    case +h <> +t:
+      +ed = B.tb_get(Ty.Edge, te, U32.from_nat(Ty.he_idx(Ty.ce_edge(B.tb_get(Ty.Coedge, tc, U32.from_nat(Ty.hc_idx(h)))))))
+      ces_th(t, tc, te, tv, w, th_add(th_add(acc, th_of(w, M.vpt(tv, Ty.ed_v0(ed), M.pl_id()))), th_of(w, M.vpt(tv, Ty.ed_v1(ed), M.pl_id()))))
+
+def lps_th(ls: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>, +w: G.Helicoid, +acc: V.Vec2) -> V.Vec2:
+  match ls:
+    case []: acc
+    case +l <> t: lps_th(t, tl, tc, te, tv, w, ces_th(Ty.lp_ces(B.tb_get(Ty.Loop, tl, U32.from_nat(Ty.hlp_idx(l)))), tc, te, tv, w, acc))
+
+def fa_th(+f: Ty.Face, +br: Ty.Brep, +w: G.Helicoid) -> V.Vec2:
+  +r = lps_th(Ty.fa_loops(f), M.tl_of(br), M.tc_of(br), M.te_of(br), M.tv_of(br), w, V.V2{1.0e300f64, F64.neg(1.0e300f64)})
+  +e = F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.abs(V.v2_x(r)), F64.abs(V.v2_y(r)))))
+  V.V2{F64.sub(V.v2_x(r), e), F64.add(V.v2_y(r), e)}
+
+def sw_surf_hx(g: G.GVal, +f: Ty.Face, +br: Ty.Brep, +pl: M.Pl, +ctr: Nat) -> ER2:
+  match g:
+    case G.GV_hx{+w}: sw_hx(w, fa_th(f, br, w), pl, ctr)
+    case _: sw_surf_kind(g, pl, ctr)
+
+def hx_note(+b: M.Body) -> String:
+  Bool.pick(String, M.has_hx(b), " | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= " ++ BL.ns_s(sw_f(hm_eps())) ++
+    " mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)", "")
+
+def sw_surf(+f: Ty.Face, +br: Ty.Brep, +pl: M.Pl, +ctr: Nat) -> ER2:
+  sw_surf_hx(Ty.fa_surf(f), f, br, pl, ctr)
+
+def sw_surfs_go(fs: List<&2, Ty.Face>, +br: Ty.Brep, +pl: M.Pl, +ctr: Nat, +acc: List<&2, Nat>) -> ER2:
   match fs:
     case []: ER2{True{}, "", "", ctr, List.reverse(&2, Nat, acc)}
     case f <> t:
-      +r = sw_surf(f, pl, ctr)
-      +rr = sw_surfs_go(t, pl, er2_n(r), List.append(&2, Nat, er2_ids(r), acc))
+      +r = sw_surf(f, br, pl, ctr)
+      +rr = sw_surfs_go(t, br, pl, er2_n(r), List.append(&2, Nat, er2_ids(r), acc))
       er2_cat_s(r, rr)
 
 def sw_vx(+i: Nat, +vbase: Nat, +ctr: Nat) -> ER:
@@ -1016,7 +1160,7 @@ def sw_stage_go(+b: Ty.Brep, +pl: M.Pl, +ctr: Nat, +nv: Nat, +ne: Nat, +nce: Nat
   +vbase = ctr
   +r1 = sw_vpts_go(Ty.brep_vs(b), pl, ctr)
   +r2 = sw_curves_go(Ty.brep_es(b), nv, pl, vbase, er_n(r1), [])
-  +r3 = sw_surfs_go(Ty.brep_fas(b), pl, er2_n(r2), [])
+  +r3 = sw_surfs_go(Ty.brep_fas(b), b, pl, er2_n(r2), [])
   +r4 = sw_vxs_go(nv, nv, vbase, er2_n(r3))
   +r5 = sw_ecurves_go(Ty.brep_es(b), er2_ids(r2), nv, er2_n(r3), er_n(r4))
   +r6 = sw_oedges_go(Ty.brep_ces(b), ne, er_n(r4), er_n(r5))

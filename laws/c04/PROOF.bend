@@ -566,6 +566,8 @@ def Laws.l1_varying_nofail(s, hcs, x, same, kind):
     case G.GV_nb{w}: {==}
     case G.GV_ts{w}: {==}
     case G.GV_tb{w}: {==}
+    case G.GV_hx{w}: {==}
+    case G.GV_sh{w}: {==}
 
 def Laws.l1_plnorm_unsupported(s):
   match s:
@@ -588,6 +590,8 @@ def Laws.l1_plnorm_unsupported(s):
     case G.GV_nb{w}: {==}
     case G.GV_ts{w}: {==}
     case G.GV_tb{w}: {==}
+    case G.GV_hx{w}: {==}
+    case G.GV_sh{w}: {==}
 
 def Laws.l1_orient_c_spec(hcs, x, surf, same, kind):
   {==}
