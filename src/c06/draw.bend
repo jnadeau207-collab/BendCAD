@@ -215,11 +215,11 @@ def grid_of(+ts: List<&2, TS.Tri>, +pt: B.Tb<&2, V.Point>, +b: Bx, +pos: Bool) -
   grid_n(ts, pt, b, gn(List.length(&2, TS.Tri, ts)), pos)
 
 type Oc is Data:
-  Oc{ g: Gd, pt: B.Tb<&2, V.Point>, tt: B.Tb<&2, TS.Tri>, hx: B.Tb<&2, Bool>, sk: Bool, eps: F64 }
+  Oc{ g: Gd, pt: B.Tb<&2, V.Point>, tt: B.Tb<&2, TS.Tri>, hx: B.Tb<&2, Bool>, sk: Bool, eps: F64, mg: F64 }
 
 def oc_sk(+o: Oc) -> Oc:
-  Oc{+g, +pt, +tt, +hx, sk, +eps} = o
-  Oc{g, pt, tt, hx, True{}, eps}
+  Oc{+g, +pt, +tt, +hx, sk, +eps, +mg} = o
+  Oc{g, pt, tt, hx, True{}, eps, mg}
 
 def cr2(+ax: F64, +ay: F64, +bx: F64, +by: F64) -> F64:
   F64.sub(F64.mul(ax, by), F64.mul(ay, bx))
@@ -234,11 +234,23 @@ def cov4(+la: F64, +lb: F64, +za: F64, +zb: F64, +zc: F64, +qz: F64, +eps: F64) 
 def lam(+b: V.Point, +c: V.Point, +q: V.Point, +ar: F64) -> F64:
   F64.div(cr2(F64.sub(V.pt_x(b), V.pt_x(q)), F64.sub(V.pt_y(b), V.pt_y(q)), F64.sub(V.pt_x(c), V.pt_x(q)), F64.sub(V.pt_y(c), V.pt_y(q))), ar)
 
-def cov3(+ar: F64, +a: V.Point, +b: V.Point, +c: V.Point, +q: V.Point, +eps: F64) -> Bool:
-  Bool.and(F64.is_lt(1.0e-14f64, F64.abs(ar)), cov4(lam(b, c, q, ar), lam(c, a, q, ar), V.pt_z(a), V.pt_z(b), V.pt_z(c), V.pt_z(q), eps))
+def d2(+a: V.Point, +b: V.Point) -> F64:
+  F64.sqrt(F64.add(F64.mul(F64.sub(V.pt_x(b), V.pt_x(a)), F64.sub(V.pt_x(b), V.pt_x(a))), F64.mul(F64.sub(V.pt_y(b), V.pt_y(a)), F64.sub(V.pt_y(b), V.pt_y(a)))))
 
-def covers(+a: V.Point, +b: V.Point, +c: V.Point, +q: V.Point, +eps: F64) -> Bool:
-  cov3(cr2(F64.sub(V.pt_x(b), V.pt_x(a)), F64.sub(V.pt_y(b), V.pt_y(a)), F64.sub(V.pt_x(c), V.pt_x(a)), F64.sub(V.pt_y(c), V.pt_y(a))), a, b, c, q, eps)
+def cov_m2(+aa: F64, +la: F64, +lb: F64, +ha: F64, +hb: F64, +hc: F64, +m: F64) -> Bool:
+  Bool.and(F64.is_lt(m, F64.div(F64.mul(la, aa), ha)), Bool.and(F64.is_lt(m, F64.div(F64.mul(lb, aa), hb)), F64.is_lt(m, F64.div(F64.mul(F64.sub(F64.sub(1.0f64, la), lb), aa), hc))))
+
+def cov_mg(on: Bool, +ar: F64, +a: V.Point, +b: V.Point, +c: V.Point, +q: V.Point, +m: F64) -> Bool:
+  match on:
+    case False{}: True{}
+    case True{}: cov_m2(F64.abs(ar), lam(b, c, q, ar), lam(c, a, q, ar), d2(b, c), d2(c, a), d2(a, b), m)
+
+def cov3(+ar: F64, +a: V.Point, +b: V.Point, +c: V.Point, +q: V.Point, +eps: F64, +m: F64) -> Bool:
+  Bool.and(Bool.and(F64.is_lt(1.0e-14f64, F64.abs(ar)), cov4(lam(b, c, q, ar), lam(c, a, q, ar), V.pt_z(a), V.pt_z(b), V.pt_z(c), V.pt_z(q), eps)),
+    cov_mg(F64.is_lt(0.0f64, m), ar, a, b, c, q, m))
+
+def covers(+a: V.Point, +b: V.Point, +c: V.Point, +q: V.Point, +eps: F64, +m: F64) -> Bool:
+  cov3(cr2(F64.sub(V.pt_x(b), V.pt_x(a)), F64.sub(V.pt_y(b), V.pt_y(a)), F64.sub(V.pt_x(c), V.pt_x(a)), F64.sub(V.pt_y(c), V.pt_y(a))), a, b, c, q, eps, m)
 
 def cov_q(sk: Bool, +hx: B.Tb<&2, Bool>, +ti: Nat) -> Bool:
   match sk:
@@ -246,9 +258,9 @@ def cov_q(sk: Bool, +hx: B.Tb<&2, Bool>, +ti: Nat) -> Bool:
     case False{}: False{}
 
 def cov_t(+o: Oc, +ti: Nat, +q: V.Point) -> Bool:
-  Oc{g, +pt, +tt, +hx, +sk, +eps} = o
+  Oc{g, +pt, +tt, +hx, +sk, +eps, +mg} = o
   +t = B.tb_get(TS.Tri, tt, U32.from_nat(ti))
-  Bool.and(Bool.not(cov_q(sk, hx, ti)), covers(pt2(pt, TS.ta(t)), pt2(pt, TS.tb(t)), pt2(pt, TS.tc(t)), q, eps))
+  Bool.and(Bool.not(cov_q(sk, hx, ti)), covers(pt2(pt, TS.ta(t)), pt2(pt, TS.tb(t)), pt2(pt, TS.tc(t)), q, eps, mg))
 
 def cov_l(xs: List<&2, Nat>, +o: Oc, +q: V.Point) -> Bool:
   match xs:
@@ -256,7 +268,7 @@ def cov_l(xs: List<&2, Nat>, +o: Oc, +q: V.Point) -> Bool:
     case +i <> t: Bool.or(cov_t(o, i, q), cov_l(t, o, q))
 
 def hid(+o: Oc, +q: V.Point) -> Bool:
-  Oc{+g, pt, tt, hx, sk, eps} = o
+  Oc{+g, pt, tt, hx, sk, eps, mg} = o
   Gd{+x0, +y0, +cw, +ch, +n, +cells} = g
   cov_l(B.tb_get(List<&2, Nat>, cells, U32.from_nat(Nat.add(cl_i(V.pt_x(q), x0, cw, n), Nat.mul(cl_i(V.pt_y(q), y0, ch, n), n)))), o, q)
 
@@ -1126,7 +1138,7 @@ def view_g3(+o: Oc, +pt: B.Tb<&2, V.Point>, +b: Bx, +q: Vq, +m: TS.Mp, +x: Sx, +
   view_g4(ths_view(sx_th(x), vq_v(q), oc_sk(o), Tl{[], []}), o, pt, b, q, m, x, ks, tv, pl)
 
 def view_g2(+pt: B.Tb<&2, V.Point>, +b: Bx, +q: Vq, +m: TS.Mp, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl, +eps: F64) -> Vr:
-  view_g3(Oc{grid_of(TS.mp_ts(m), pt, b, sx_pos(x)), pt, sx_tt(x), sx_hx(x), False{}, eps}, pt, b, q, m, x, ks, tv, pl)
+  view_g3(Oc{grid_of(TS.mp_ts(m), pt, b, sx_pos(x)), pt, sx_tt(x), sx_hx(x), False{}, eps, 0.0f64}, pt, b, q, m, x, ks, tv, pl)
 
 def view_g1(+pp: List<&2, V.Point>, +q: Vq, +m: TS.Mp, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl, +eps: F64) -> Vr:
   view_g2(B.tb_of(V.Point, pp, V.Pt{0.0f64, 0.0f64, 0.0f64}), bx_ps(pp, bx0()), q, m, x, ks, tv, pl, eps)

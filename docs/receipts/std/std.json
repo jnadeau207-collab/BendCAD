@@ -1,6 +1,6 @@
 {
- "binary": "/home/jesse/bc/bendcad-p6h",
- "sha256": "48289b7f2795611542a9c94b7a7365ed5c142f6ee86abf9fd69c53188838a575",
+ "binary": "/home/jesse/bc/bendcad-p6o",
+ "sha256": "42792237514c2a3e9d3e5e142d74363b2815c59e26efaa3eccb7e99cc601f020",
  "passed": 7,
  "total": 7,
  "cases": [
@@ -9,11 +9,11 @@
    "item": "S2",
    "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
    "verdict": "pass",
-   "seconds": 7.795,
+   "seconds": 7.711,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))",
-     "seconds": 0.127,
+     "seconds": 0.129,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -22,7 +22,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.118,
+     "seconds": 0.121,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -31,7 +31,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (keyway 2 (face 1 n1.c0.wall.0.0.p0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.377,
+     "seconds": 0.367,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -40,7 +40,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.369,
+     "seconds": 0.364,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -49,7 +49,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.382,
+     "seconds": 0.372,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -58,16 +58,16 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.362,
+     "seconds": 0.352,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std ring-groove 2 DIN 471 d1=8 face-d=8 z=[30, 30.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=30,9.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 3 DIN 6885-1 shaft d1=8 face-d=8 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.8 width=2 length=10 want=2x1.2x10 status=pass\nstd node 3: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, no"
+     "output_head": "std ring-groove 2 DIN 471 d1=8 face-d=8 z=[30, 30.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=30,9.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 3 DIN 6885-1 shaft d1=8 face-d=8 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.8 width=2 length=10 want=2x1.2x10 status=pass\nstd node 3: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk"
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))",
-     "seconds": 0.653,
+     "seconds": 0.647,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -76,7 +76,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13 -f",
-     "seconds": 0.181,
+     "seconds": 0.17,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -85,7 +85,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.781,
+     "seconds": 0.776,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -94,16 +94,16 @@
     },
     {
      "cmd": "BIN design.bcd std 14",
-     "seconds": 0.297,
+     "seconds": 0.281,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std ring-groove 13 DIN 472 d1=22 face-d=22 z=[4, 5.1]: groove-diameter=[23, 23] width=1.1 want=23x1.1 margins=4,4.9 n-min=1.5 (DIN 472) status=pass\nstd keyway 14 DIN 6885-1 hub d1=22 face-d=22 side=(0,1,0): b=6 t2=2.8 bottom-from-axis=13.8 width=6 status=pass\nstd node 14: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groov"
+     "output_head": "std ring-groove 13 DIN 472 d1=22 face-d=22 z=[4, 5.1]: groove-diameter=[23, 23] width=1.1 want=23x1.1 margins=4,4.9 n-min=1.5 (DIN 472) status=pass\nstd keyway 14 DIN 6885-1 hub d1=22 face-d=22 side=(0,1,0): b=6 t2=2.8 bottom-from-axis=13.8 width=6 status=pass\nstd node 14: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15"
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))",
-     "seconds": 0.768,
+     "seconds": 0.756,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -121,7 +121,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))",
-     "seconds": 0.77,
+     "seconds": 0.765,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -130,7 +130,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))",
-     "seconds": 0.772,
+     "seconds": 0.762,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -139,7 +139,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))",
-     "seconds": 0.769,
+     "seconds": 0.772,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -148,7 +148,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 14 -f",
-     "seconds": 0.283,
+     "seconds": 0.291,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -162,11 +162,11 @@
    "item": "S2",
    "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
    "verdict": "pass",
-   "seconds": 0.292,
+   "seconds": 0.293,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
-     "seconds": 0.048,
+     "seconds": 0.047,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -175,7 +175,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102",
-     "seconds": 0.029,
+     "seconds": 0.03,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -198,11 +198,11 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std ring-groove 102 DIN 472 d1=22 face-d=22 z=[13.9, 15]: groove-diameter=[23, 23] width=1.1 want=23x1.1 margins=7,1.5 n-min=1.5 (DIN 472) status=pass\nstd node 102: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width"
+     "output_head": "std ring-groove 102 DIN 472 d1=22 face-d=22 z=[13.9, 15]: groove-diameter=[23, 23] width=1.1 want=23x1.1 margins=7,1.5 n-min=1.5 (DIN 472) status=pass\nstd node 102: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xo"
     },
     {
      "cmd": "BIN design.bcd apply (node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 0.065,
+     "seconds": 0.066,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -211,7 +211,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 202",
-     "seconds": 0.047,
+     "seconds": 0.046,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -220,12 +220,12 @@
     },
     {
      "cmd": "BIN design.bcd std 202",
-     "seconds": 0.045,
+     "seconds": 0.046,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std ring-groove 202 DIN 471 d1=8 face-d=8.004 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd node 202: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = "
+     "output_head": "std ring-groove 202 DIN 471 d1=8 face-d=8.004 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd node 202: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduce"
     }
    ]
   },
@@ -234,7 +234,7 @@
    "item": "S2",
    "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
    "verdict": "pass",
-   "seconds": 4.052,
+   "seconds": 3.972,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
@@ -247,7 +247,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.014,
+     "seconds": 0.013,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -256,7 +256,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 1 n1.c0.top) through (counterbore M4 10 30) (countersink M4 25 30) (tapped M4 40 30)) (intent remove any any 1 6))",
-     "seconds": 0.411,
+     "seconds": 0.402,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -265,7 +265,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 3 -f",
-     "seconds": 0.427,
+     "seconds": 0.4,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -274,16 +274,16 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.418,
+     "seconds": 0.416,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std hole 2#1 clearance M5 medium at=(10,10,10) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 3: 6 features, 6 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co"
+     "output_head": "std hole 2#1 clearance M5 medium at=(10,10,10) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 3: 6 features, 6 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever"
     },
     {
      "cmd": "BIN design.bcd threads 3",
-     "seconds": 0.867,
+     "seconds": 0.817,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -292,7 +292,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 12)",
-     "seconds": 0.428,
+     "seconds": 0.425,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -301,16 +301,16 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.425,
+     "seconds": 0.402,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std hole 2#1 clearance M5 medium at=(12,10,10) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 3: 6 features, 6 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co"
+     "output_head": "std hole 2#1 clearance M5 medium at=(12,10,10) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 3: 6 features, 6 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever"
     },
     {
      "cmd": "BIN design.bcd show",
-     "seconds": 0.003,
+     "seconds": 0.002,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -319,7 +319,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (holes 3 (face 1 n1.c0.top) through (hole 12 10 3.5)) (intent remove any any 1 any))",
-     "seconds": 0.518,
+     "seconds": 0.553,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -328,12 +328,12 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.527,
+     "seconds": 0.528,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std hole 2#1 clearance M5 medium at=(12,10,10) n=(0,0,1): bore=missing want=5.5 opens=not-a-full-circle (ISO 273 medium) status=fail\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 4: 6 features, 5 pass, 1 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners"
+     "output_head": "std hole 2#1 clearance M5 medium at=(12,10,10) n=(0,0,1): bore=missing want=5.5 opens=not-a-full-circle (ISO 273 medium) status=fail\nstd hole 2#2 clearance M5 fine at=(25,10,10) n=(0,0,1): bore=[5.3, 5.3] want=5.3 opens=full-circle (ISO 273 fine) status=pass\nstd hole 2#3 clearance M5 coarse at=(40,10,10) n=(0,0,1): bore=[5.8, 5.8] want=5.8 opens=full-circle (ISO 273 coarse) status=pass\nstd hole 3#1 counterbore M4 medium at=(10,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle counterbore=[8, 8] depth=4.8 want=8x4.8 (DIN 974-1) head ISO 4762 dk=7.22 k=4 radial-clearance=0.39 below-face=0.8 status=pass\nstd hole 3#2 countersink M4 medium at=(25,30,10) n=(0,0,1): bore=[4.5, 4.5] want=4.5 opens=full-circle cone=90deg face-diameter=9.18 want=9.18 (DIN 74 F) head ISO 10642 dk=8.96 below-face=0.11 status=pass\nstd hole 3#3 tapped M4 6H at=(40,30,10) n=(0,0,1): bore=[3.3, 3.3] want=3.3 opens=full-circle tap-drill=3.3 (ISO 2306) minor-window=[3.242, 3.422] (ISO 965-1 6H) thread M4x0.7 6H status=pass\nstd node 4: 6 features, 5 pass, 1 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Cle"
     }
    ]
   },
@@ -342,11 +342,11 @@
    "item": "S2",
    "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
    "verdict": "pass",
-   "seconds": 0.165,
+   "seconds": 0.162,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.01,
+     "seconds": 0.009,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -355,7 +355,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (countersink M2 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.008,
+     "seconds": 0.009,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -391,7 +391,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
-     "seconds": 0.099,
+     "seconds": 0.096,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -432,11 +432,11 @@
    "item": "S2",
    "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
    "verdict": "pass",
-   "seconds": 2.173,
+   "seconds": 2.149,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
-     "seconds": 0.445,
+     "seconds": 0.425,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -445,7 +445,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.44,
+     "seconds": 0.432,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -454,16 +454,16 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.43,
+     "seconds": 0.432,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std hole 102#1 counterbore M5 medium at=(17.67766952966369,17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle counterbore=[10, 10] depth=5.8 want=10x5.8 (DIN 974-1) head ISO 4762 dk=8.72 k=5 radial-clearance=0.64 below-face=0.8 status=pass\nstd hole 102#2 counterbore M5 medium at=(-17.67766952966369,17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle counterbore=[10, 10] depth=5.8 want=10x5.8 (DIN 974-1) head ISO 4762 dk=8.72 k=5 radial-clearance=0.64 below-face=0.8 status=pass\nstd hole 102#3 clearance M5 medium at=(17.67766952966369,-17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 102#4 tapped M5 6H at=(-17.67766952966369,-17.67766952966369,6) n=(0,0,1): bore=[4.2, 4.2] want=4.2 opens=full-circle tap-drill=4.2 (ISO 2306) minor-window=[4.134, 4.334] (ISO 965-1 6H) thread M5x0.8 6H status=pass\nstd node 102: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for IS"
+     "output_head": "std hole 102#1 counterbore M5 medium at=(17.67766952966369,17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle counterbore=[10, 10] depth=5.8 want=10x5.8 (DIN 974-1) head ISO 4762 dk=8.72 k=5 radial-clearance=0.64 below-face=0.8 status=pass\nstd hole 102#2 counterbore M5 medium at=(-17.67766952966369,17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle counterbore=[10, 10] depth=5.8 want=10x5.8 (DIN 974-1) head ISO 4762 dk=8.72 k=5 radial-clearance=0.64 below-face=0.8 status=pass\nstd hole 102#3 clearance M5 medium at=(17.67766952966369,-17.67766952966369,6) n=(0,0,1): bore=[5.5, 5.5] want=5.5 opens=full-circle (ISO 273 medium) status=pass\nstd hole 102#4 tapped M5 6H at=(-17.67766952966369,-17.67766952966369,6) n=(0,0,1): bore=[4.2, 4.2] want=4.2 opens=full-circle tap-drill=4.2 (ISO 2306) minor-window=[4.134, 4.334] (ISO 965-1 6H) thread M5x0.8 6H status=pass\nstd node 102: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffman"
     },
     {
      "cmd": "BIN design.bcd threads 102",
-     "seconds": 0.858,
+     "seconds": 0.86,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -477,11 +477,11 @@
    "item": "S2",
    "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
    "verdict": "pass",
-   "seconds": 3.864,
+   "seconds": 3.725,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))",
-     "seconds": 0.109,
+     "seconds": 0.103,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -490,7 +490,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001",
-     "seconds": 0.112,
+     "seconds": 0.103,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -499,7 +499,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001 -f",
-     "seconds": 0.107,
+     "seconds": 0.103,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -508,7 +508,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1001",
-     "seconds": 0.215,
+     "seconds": 0.203,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -522,11 +522,11 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std hole 1001#1 tapped M3 6H at=(0,0,10) n=(0,0,1): modelled helicoids=4 crest-d=2.5 root-d=3 flanks-at-30deg=2 pitch-and-right-hand=4 want pitch=0.5 (ISO 68-1) tap-drill=2.5 (ISO 2306) minor-window=[2.459, 2.599] (ISO 965-1 6H) thread M3x0.5 6H status=pass\nstd node 1001: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groov"
+     "output_head": "std hole 1001#1 tapped M3 6H at=(0,0,10) n=(0,0,1): modelled helicoids=4 crest-d=2.5 root-d=3 flanks-at-30deg=2 pitch-and-right-hand=4 want pitch=0.5 (ISO 68-1) tap-drill=2.5 (ISO 2306) minor-window=[2.459, 2.599] (ISO 965-1 6H) thread M3x0.5 6H status=pass\nstd node 1001: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15"
     },
     {
      "cmd": "BIN design.bcd check 1001",
-     "seconds": 0.136,
+     "seconds": 0.129,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -534,26 +534,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p6h/thread_modelled/t.obj",
-     "seconds": 0.201,
+     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p6o/thread_modelled/t.obj",
+     "seconds": 0.193,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p6h/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
+     "output_head": "wrote /var/tmp/repro-std-p6o/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
     },
     {
-     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p6h/thread_modelled/t.stp",
-     "seconds": 2.357,
+     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p6o/thread_modelled/t.stp",
+     "seconds": 2.265,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p6h/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p6o/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 1001",
-     "seconds": 0.198,
+     "seconds": 0.196,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -580,7 +580,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))",
-     "seconds": 0.106,
+     "seconds": 0.107,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -594,11 +594,11 @@
    "item": "S2",
    "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
    "verdict": "pass",
-   "seconds": 2.118,
+   "seconds": 2.006,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.007,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -630,7 +630,7 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "std external-thread 2 M8 6g at=(0,0,0) n=(0,0,1): modelled helicoids=4 crest-d=7.95 root-d=6.646835 flanks-at-30deg=2 pitch-and-right-hand=4 want pitch=1.25 (ISO 68-1) crest-d=7.95 major-window=[7.76, 7.972] (ISO 965-1 6g) thread M8x1.25 6g status=pass\nstd node 2: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: ISO 2306:1972 drills for tapping, class 6H, the drill size nearest D - P | source: D and P from ISO 261 coarse pitches held in src/k2/thr.bend\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diamet"
+     "output_head": "std external-thread 2 M8 6g at=(0,0,0) n=(0,0,1): modelled helicoids=4 crest-d=7.95 root-d=6.646835 flanks-at-30deg=2 pitch-and-right-hand=4 want pitch=1.25 (ISO 68-1) crest-d=7.95 major-window=[7.76, 7.972] (ISO 965-1 6g) thread M8x1.25 6g status=pass\nstd node 2: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw, dk max (knurled head) and k max | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 d"
     },
     {
      "cmd": "BIN design.bcd check 2",
@@ -642,26 +642,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p6h/xthread_modelled/t.obj",
+     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p6o/xthread_modelled/t.obj",
      "seconds": 0.066,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p6h/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
+     "output_head": "wrote /var/tmp/repro-std-p6o/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
     },
     {
-     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p6h/xthread_modelled/t.stp",
-     "seconds": 1.854,
+     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p6o/xthread_modelled/t.stp",
+     "seconds": 1.751,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p6h/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p6o/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 2",
-     "seconds": 0.007,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -688,7 +688,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (xthread 1 (face 1 n1.c0.wall.0.0) M6) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.005,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -706,7 +706,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6H) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.005,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -715,7 +715,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0)) (node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.098,
+     "seconds": 0.091,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],

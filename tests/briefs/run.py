@@ -194,9 +194,33 @@ def drawing_check(design, c, parts):
                 cmd='drawing ' + ' '.join(str(n) for n in parts), s=round(t, 3), info=c.get('info', False))
 
 
+def make_check(design, c, parts):
+    procs = c['cmd'][1].split('|')
+    rank = {'makeable': 0, 'not-analyzed': 1, 'not-makeable': 2}
+    rows, t = [], 0.0
+    for n in parts:
+        best = None
+        for pr in procs:
+            r = kernel(design, 'make', str(n), pr, timeout=c.get('timeout', TIMEOUT))
+            t += r['s']
+            m = re.search(r'^verdict (\S+) status=(\S+)', r['out'], re.M)
+            v = 'timeout' if r['timeout'] else (m.group(1) if m else 'refused')
+            bad = [ln.strip() for ln in r['out'].splitlines() if re.search(r'status=(fail|not-analyzed)$', ln)][:4]
+            row = dict(node=n, process=pr, verdict=v, s=r['s'], lines=bad, head=r['out'].strip()[:200] if not m else '')
+            if best is None or rank.get(v, 1) < rank.get(best['verdict'], 1):
+                best = row
+        rows.append(best)
+    vs = [rank.get(x['verdict'], 1) for x in rows]
+    v = 'fail' if 2 in vs else 'not-analyzed' if 1 in vs else 'pass'
+    det = ' | '.join(f"n{x['node']} {x['process']}: {x['verdict']}" + (': ' + '; '.join(x['lines']) if x['lines'] else '') + (x['head'] and ': ' + x['head']) for x in rows)
+    return dict(req=c['req'], verdict=v, detail=det[:1500], cmd='make ' + ' '.join(str(n) for n in parts) + ' ' + c['cmd'][1], s=round(t, 3), info=c.get('info', False))
+
+
 def run_check(design, c, parts=()):
     if c['judge'][0] == 'drawing_ok':
         return drawing_check(design, c, parts)
+    if c['judge'][0] == 'make_ok':
+        return make_check(design, c, parts)
     if c.get('cmd') is None:
         v, d = judge(c['judge'], '')
         return dict(req=c['req'], verdict=v, detail=d, cmd=None, s=0.0, info=c.get('info', False))

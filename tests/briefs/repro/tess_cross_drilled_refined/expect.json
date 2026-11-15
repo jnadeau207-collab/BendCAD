@@ -1,0 +1,31 @@
+{
+ "item": 3,
+ "claim": "a cross-drilled shaft meshes directly with a certified chord bound at the manufacturing and display presets, and draws within the edit budget",
+ "limit_s": 5,
+ "steps": [
+  {
+   "args": [
+    "tess",
+    "4",
+    "out.obj",
+    "2"
+   ],
+   "must": [
+    "refined=0",
+    "chord-bound=certified"
+   ],
+   "limit_s": 2
+  },
+  {
+   "args": [
+    "drawing",
+    "4",
+    "out.dxf"
+   ],
+   "must": [
+    "^wrote "
+   ],
+   "limit_s": 5
+  }
+ ]
+}

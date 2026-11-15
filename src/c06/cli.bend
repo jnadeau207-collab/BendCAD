@@ -42,6 +42,7 @@ import ../c13/err.bend as E
 import ../c13/req.bend as R
 import ./vsrv.bend as VS
 import ./draw.bend as DW
+import ./make.bend as MK
 
 
 def iv_s(+v: I.I) -> String:
@@ -636,7 +637,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
-  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, Bool.pick(U64, String.eq(c, "drawing"), 37u64, 0u64)))))))))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, Bool.pick(U64, String.eq(c, "drawing"), 37u64, Bool.pick(U64, String.eq(c, "make"), 38u64, 0u64))))))))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
@@ -975,6 +976,19 @@ def draw_write(+w: Bool, +d: DW.Dw, +out: String, +id: U64) -> IO(String):
         IO.pure(String, "wrote " ++ out ++ " drawing node " ++ U64.show(id) ++ " views FRONT TOP LEFT (ISO first-angle) segments visible=" ++ Nat.show(DW.dw_nv(d)) ++
           " hidden=" ++ Nat.show(DW.dw_nh(d)) ++ " threads=" ++ Nat.show(DW.dw_nt(d)) ++ " (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm")
     case False{}: IO.pure(String, "refused " ++ DW.dw_why(d) ++ " | drawing | fix: report the design; the mesh behind the views must close")
+
+def make_q(ok: Bool, +pr: String, +b: M.Body, +id: U64) -> String:
+  match ok:
+    case True{}: MK.make_body(b, id, pr)
+    case False{}: "error invalid-input | make @ node " ++ U64.show(id) ++ " | why: make-process-unknown: " ++ pr ++ " | fix: write make NODE mill, make NODE lathe, make NODE fdm or make NODE sla"
+
+def make_p(+pr: String, +b: M.Body, +id: U64) -> String:
+  make_q(Bool.or(Bool.or(String.eq(pr, "mill"), String.eq(pr, "lathe")), Bool.or(String.eq(pr, "fdm"), String.eq(pr, "sla"))), pr, b, id)
+
+def make_out(r: M.NR, +pr: String, +id: U64) -> String:
+  match r:
+    case M.NR_err{k, d}: "error: node failed; nothing to check"
+    case M.NR_ok{+b, fx}: make_p(pr, b, id)
 
 def draw_out(r: M.NR, +out: String, +id: U64) -> IO(String):
   match r:
@@ -1476,7 +1490,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 35u64: scene_io(p, rest, old)
     case 36u64: IO.pure(String, KSD.std_out(p, S.arg_at(rest, 0n), old))
     case 37u64: draw_out(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))
-    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std, drawing")
+    case 38u64: IO.pure(String, make_out(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
+    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std, drawing, make")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:

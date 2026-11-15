@@ -1,0 +1,1 @@
+BIN design.bcd tess 4 out.obj 2   # 12 x 40 shaft with a 4 mm cross hole: at preset 2 (chord 0.25, angle 0.05) the shaft face falls to the sampled refiner (bound 0.42 against 0.25, 21,320 sliver triangles, 5 s); a 10 mm long shaft meshes directly, so the direct grid fails on larger grids; drawing takes 72 s and make 13 s on the slivers

@@ -1,10 +1,10 @@
 {
- "binary": "/home/jesse/bc/bendcad-p6h",
+ "binary": "/home/jesse/bc/bendcad-p6o",
  "cases": [
   {
    "case": "plate",
    "node": 2,
-   "apply_s": 0.283,
+   "apply_s": 0.263,
    "committed": true,
    "bbox": [
     -1.0658141036401508e-13,
@@ -14,7 +14,7 @@
     -1.0658141036401508e-13,
     8.000000000000114
    ],
-   "drawing_s": 0.725,
+   "drawing_s": 0.743,
    "drawing_out": "wrote /var/tmp/draw-e2e/plate/part.dxf drawing node 2 views FRONT TOP LEFT (ISO first-angle) segments visible=768 hidden=18 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
    "dxf": {
     "audit_errors": [],
@@ -75,7 +75,7 @@
      "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)"
     ]
    },
-   "step_s": 0.274,
+   "step_s": 0.275,
    "occt": {
     "FRONT": {
      "w": 60.0000002,
@@ -90,7 +90,7 @@
      "h": 8.000000199999999
     }
    },
-   "occt_s": 0.38,
+   "occt_s": 0.35,
    "checks": [
     {
      "name": "ezdxf audit: no errors",
@@ -150,7 +150,7 @@
   {
    "case": "standoff_modelled_thread",
    "node": 1001,
-   "apply_s": 0.111,
+   "apply_s": 0.108,
    "committed": true,
    "bbox": [
     -3.175426480542961,
@@ -160,7 +160,7 @@
     -1.7763568394002514e-14,
     10.000000000000023
    ],
-   "drawing_s": 0.711,
+   "drawing_s": 0.699,
    "drawing_out": "wrote /var/tmp/draw-e2e/standoff_modelled_thread/part.dxf drawing node 1001 views FRONT TOP LEFT (ISO first-angle) segments visible=77 hidden=8 threads=1 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
    "dxf": {
     "audit_errors": [],
@@ -222,7 +222,7 @@
      "threads drawn conventionally (ISO 6410-1): crest solid (VISIBLE), root thin (THIN), end views crest circle and 3/4 root arc"
     ]
    },
-   "step_s": 2.366,
+   "step_s": 2.329,
    "occt": {
     "FRONT": {
      "w": 6.350853161085883,
@@ -237,7 +237,7 @@
      "h": 10.000000199999999
     }
    },
-   "occt_s": 31.8,
+   "occt_s": 33.51,
    "checks": [
     {
      "name": "ezdxf audit: no errors",
@@ -327,7 +327,7 @@
     -2.8421709430404026e-14,
     16.00000000000004
    ],
-   "drawing_s": 0.401,
+   "drawing_s": 0.395,
    "drawing_out": "wrote /var/tmp/draw-e2e/stud_external_thread/part.dxf drawing node 2 views FRONT TOP LEFT (ISO first-angle) segments visible=102 hidden=0 threads=1 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
    "dxf": {
     "audit_errors": [],
@@ -389,7 +389,7 @@
      "threads drawn conventionally (ISO 6410-1): crest solid (VISIBLE), root thin (THIN), end views crest circle and 3/4 root arc"
     ]
    },
-   "step_s": 1.82,
+   "step_s": 1.802,
    "occt": {
     "FRONT": {
      "w": 7.950000191465131,
@@ -404,7 +404,7 @@
      "h": 16.000000200000002
     }
    },
-   "occt_s": 18.25,
+   "occt_s": 17.96,
    "checks": [
     {
      "name": "ezdxf audit: no errors",
@@ -480,7 +480,7 @@
   {
    "case": "cylinder_seam",
    "node": 1,
-   "apply_s": 0.006,
+   "apply_s": 0.005,
    "committed": true,
    "bbox": [
     -5.000000000000038,
@@ -490,7 +490,7 @@
     -3.552713678800502e-14,
     20.000000000000043
    ],
-   "drawing_s": 0.05,
+   "drawing_s": 0.046,
    "drawing_out": "wrote /var/tmp/draw-e2e/cylinder_seam/part.dxf drawing node 1 views FRONT TOP LEFT (ISO first-angle) segments visible=134 hidden=0 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
    "dxf": {
     "audit_errors": [],
@@ -566,7 +566,7 @@
      "h": 20.000000200000002
     }
    },
-   "occt_s": 0.0,
+   "occt_s": 0.01,
    "checks": [
     {
      "name": "ezdxf audit: no errors",
@@ -630,7 +630,7 @@
   {
    "case": "torus_seam",
    "node": 1,
-   "apply_s": 0.008,
+   "apply_s": 0.009,
    "committed": true,
    "bbox": [
     -23.00000000000005,
@@ -640,7 +640,7 @@
     -3.0000000000000417,
     3.0000000000000417
    ],
-   "drawing_s": 1.38,
+   "drawing_s": 1.388,
    "drawing_out": "wrote /var/tmp/draw-e2e/torus_seam/part.dxf drawing node 1 views FRONT TOP LEFT (ISO first-angle) segments visible=624 hidden=368 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
    "dxf": {
     "audit_errors": [],
@@ -716,7 +716,7 @@
      "h": 6.0000002
     }
    },
-   "occt_s": 0.11,
+   "occt_s": 0.12,
    "checks": [
     {
      "name": "ezdxf audit: no errors",
