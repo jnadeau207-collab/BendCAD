@@ -6,17 +6,17 @@ Refusals are authoring refusals from `friction.json` plus refused probe steps. C
 
 | brief | binary | built | kernel build s | refusals (authoring+probes) | checks p/f/na | OCCT agrees | mesh conforming | triangles | tess s | edit s | edit 5 s | part 60 s | export 5 min | pass |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| B1 | bendcad-p5r | yes | 0.217 | 2+1 | 6/0/2 | yes | yes | 608 | 0.49 | 0.764 | pass | pass | pass | no |
-| B2 | bendcad-p5r | yes | 0.034 | 0+0 | 6/0/3 | yes | yes | 1176 | 0.15 | 0.166 | pass | pass | pass | no |
-| B3 | bendcad-p5r | yes | 0.251 | 4+1 | 6/1/4 | yes | yes | 1296 | 0.61 | 0.942 | pass | pass | pass | no |
-| B4 | bendcad-p5r | yes | 0.352 | 1+0 | 4/0/5 | yes | yes | 1188 | 0.65 | 1.311 | pass | pass | pass | no |
-| B5 | bendcad-p5r | yes | 1.258 | 4+2 | 2/0/5 | yes | yes | 892 | 3.79 | 4.259 | pass | pass | pass | no |
-| B6 | bendcad-p5r | yes | 0.381 | 0+0 | 5/0/4 | yes | yes | 3296 | 1.1 | 0.753 | pass | pass | pass | no |
-| B7 | bendcad-p5r | yes | 0.924 | 3+2 | 8/0/4 | yes | yes | 2956 | 3.24 | 1.948 | pass | pass | pass | no |
-| B8 | bendcad-p5r | yes | 0.334 | 0+0 | 5/0/4 | yes | yes | 5008 | 0.63 | 1.099 | pass | pass | pass | no |
-| B9 | bendcad-p5r | yes | 0.481 | 1+0 | 8/0/3 | yes | yes | 1518 | 2.06 | 1.169 | pass | pass | pass | no |
-| B10 | bendcad-p5r | yes | 0.106 | 1+1 | 6/0/2 | yes | yes | 5184 | 0.2 | 0.447 | pass | pass | pass | no |
-| B11 | bendcad-p5r | yes | 4.907 | 0+0 | 3/0/3 | yes | yes | 4484 | 7.15 | 15.393 | fail | pass | pass | no |
-| B12 | bendcad-p5r | yes | 1.006 | 1+0 | 5/0/2 | yes | yes | 1404 | 1.82 | 5.031 | fail | pass | pass | no |
-| B13 | bendcad-p5r | yes | 2.513 | 2+0 | 5/0/4 | yes | yes | 3632 | 2.59 | 3.05 | pass | pass | pass | no |
-| B14 | bendcad-p5r | yes | 0.447 | 2+2 | 4/0/3 | yes | yes | 900 | 0.63 | 1.423 | pass | pass | pass | no |
+| B1 | bendcad-p5t | yes | 0.215 | 2+1 | 6/0/2 | yes | yes | 608 | 0.46 | 0.716 | pass | pass | pass | no |
+| B2 | bendcad-p5t | yes | 0.034 | 0+0 | 6/0/3 | yes | yes | 1176 | 0.18 | 0.169 | pass | pass | pass | no |
+| B3 | bendcad-p5t | yes | 0.276 | 4+1 | 6/1/4 | yes | yes | 1296 | 0.61 | 0.878 | pass | pass | pass | no |
+| B4 | bendcad-p5t | yes | 0.415 | 1+0 | 4/0/5 | yes | yes | 1188 | 0.65 | 1.213 | pass | pass | pass | no |
+| B5 | bendcad-p5t | yes | 1.279 | 4+2 | 2/0/5 | yes | yes | 892 | 5.36 | 4.327 | pass | pass | pass | no |
+| B6 | bendcad-p5t | yes | 0.364 | 0+0 | 5/0/4 | yes | yes | 3296 | 1.36 | 0.759 | pass | pass | pass | no |
+| B7 | bendcad-p5t | yes | 1.038 | 3+2 | 8/0/4 | yes | yes | 2956 | 3.02 | 2.051 | pass | pass | pass | no |
+| B8 | bendcad-p5t | yes | 0.325 | 0+0 | 5/0/4 | yes | yes | 5008 | 0.68 | 1.133 | pass | pass | pass | no |
+| B9 | bendcad-p5t | yes | 0.499 | 1+0 | 8/0/3 | yes | yes | 1518 | 2.12 | 1.16 | pass | pass | pass | no |
+| B10 | bendcad-p5t | yes | 0.109 | 1+1 | 6/0/2 | yes | yes | 5184 | 0.2 | 0.456 | pass | pass | pass | no |
+| B11 | bendcad-p5t | yes | 4.871 | 0+0 | 3/0/3 | yes | yes | 4484 | 7.06 | 15.408 | fail | pass | pass | no |
+| B12 | bendcad-p5t | yes | 1.055 | 1+0 | 5/0/2 | yes | yes | 1404 | 1.36 | 5.247 | fail | pass | pass | no |
+| B13 | bendcad-p5t | yes | 2.474 | 2+0 | 5/0/4 | yes | yes | 3632 | 2.5 | 3.189 | pass | pass | pass | no |
+| B14 | bendcad-p5t | yes | 0.43 | 2+2 | 4/0/3 | yes | yes | 900 | 0.64 | 1.415 | pass | pass | pass | no |

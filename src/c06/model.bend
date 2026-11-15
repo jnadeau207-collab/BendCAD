@@ -53,6 +53,7 @@ type Op is Data:
   O_sholes{ base: U64, f: Sel, hs: List<&2, Hs>, d: X.Xp, thru: Bool }
   O_groove{ base: U64, f: Sel, std: String, z: X.Xp }
   O_keyway{ base: U64, f: Sel, side: U64, l: X.Xp, z: X.Xp, thru: Bool }
+  O_xthread{ base: U64, f: Sel, sz: String, cls: String }
   O_move{ base: U64, tx: X.Xp, ty: X.Xp, tz: X.Xp, q: U64 }
   O_rot{ base: U64, ax: U64, deg: X.Xp }
   O_unk{ name: String }
@@ -1266,6 +1267,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_sholes{base, f, hs, d, thru}:
       47u64 <> base <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, hss_w(hs, e, X.xp_w(d, e, [])))
     case O_groove{base, f, +std, z}: 48u64 <> base <> sel_w(f, str_w(std, X.xp_w(z, e, [])))
+    case O_xthread{base, f, +sz, +cls}: 50u64 <> base <> sel_w(f, str_w(sz, str_w(cls, [])))
     case O_keyway{base, f, side, l, z, thru}: 49u64 <> base <> side <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(l, e, X.xp_w(z, e, [])))
     case O_move{base, tx, ty, tz, q}: 7u64 <> base <> q <> X.xp_w(tx, e, X.xp_w(ty, e, X.xp_w(tz, e, [])))
     case O_rot{base, ax, deg}: 12u64 <> base <> ax <> X.xp_w(deg, e, [])
@@ -1317,6 +1319,7 @@ def op_base(o: Op) -> U64:
     case O_sholes{base, f, hs, d, thru}: base
     case O_groove{base, f, std, z}: base
     case O_keyway{base, f, side, l, z, thru}: base
+    case O_xthread{base, f, sz, cls}: base
     case O_move{base, tx, ty, tz, q}: base
     case O_rot{base, ax, deg}: base
     case O_union{a, b}: a
@@ -1348,6 +1351,7 @@ def op_has_base(o: Op) -> Bool:
     case O_sholes{base, f, hs, d, thru}: True{}
     case O_groove{base, f, std, z}: True{}
     case O_keyway{base, f, side, l, z, thru}: True{}
+    case O_xthread{base, f, sz, cls}: True{}
     case O_move{base, tx, ty, tz, q}: True{}
     case O_rot{base, ax, deg}: True{}
     case O_union{a, b}: True{}
@@ -1399,6 +1403,7 @@ def op_name(o: Op) -> String:
     case O_sholes{base, f, hs, d, thru}: "holes"
     case O_groove{base, f, std, z}: "groove"
     case O_keyway{base, f, side, l, z, thru}: "keyway"
+    case O_xthread{base, f, sz, cls}: "xthread"
     case O_move{base, tx, ty, tz, q}: "move"
     case O_rot{base, ax, deg}: "rotate"
     case O_unk{name}: "unknown"
@@ -4006,16 +4011,16 @@ def hs_mods(hs: List<&2, Hs>) -> Bool:
     case +h <> +t: Bool.or(hs_isk5(h), hs_mods(t))
 
 type Cc2 is Data:
-  Cc2{ ok: Bool, c: V.Point, u: V.Dir, r: F64, v: Nat }
+  Cc2{ ok: Bool, c: V.Point, u: V.Dir, r: F64, v: Nat, w: V.Dir }
 
 def cc_bad() -> Cc2:
-  Cc2{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, 0.0f64, 0n}
+  Cc2{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{1.0f64, 0.0f64, 0.0f64}, 0.0f64, 0n, V.Dr{0.0f64, 0.0f64, 1.0f64}}
 
 def cc_g(g: G.GVal, +closed: Bool, +vi: Nat) -> Cc2:
   match g:
-    case G.GV_cc{w}:
-      G.Cc{+c, +u, v, +r} = w
-      Cc2{closed, c, u, r, vi}
+    case G.GV_cc{cw}:
+      G.Cc{+c, +u, +v, +r} = cw
+      Cc2{closed, c, u, r, vi, dcross(u, v)}
     case _: cc_bad()
 
 def cc_k(k: Ty.EdgeKind, +closed: Bool, +vi: Nat) -> Cc2:
@@ -4028,31 +4033,43 @@ def cc_of(+e: Ty.Edge) -> Cc2:
   cc_k(k, Nat.is_eq(Ty.hv_idx(v0), Ty.hv_idx(v1)), Ty.hv_idx(v0))
 
 def cc_okv(+x: Cc2) -> Bool:
-  Cc2{+ok, c, u, r, v} = x
+  Cc2{+ok, c, u, r, v, w} = x
   ok
 
 def cc_c(+x: Cc2) -> V.Point:
-  Cc2{ok, +c, u, r, v} = x
+  Cc2{ok, +c, u, r, v, w} = x
   c
 
 def cc_u(+x: Cc2) -> V.Dir:
-  Cc2{ok, c, +u, r, v} = x
+  Cc2{ok, c, +u, r, v, w} = x
   u
 
 def cc_r(+x: Cc2) -> F64:
-  Cc2{ok, c, u, +r, v} = x
+  Cc2{ok, c, u, +r, v, w} = x
   r
 
+def cc_w(+x: Cc2) -> V.Dir:
+  Cc2{ok, c, u, r, v, +w} = x
+  w
+
+def cc_ccw(+x: Cc2, +a: V.Dir) -> Bool:
+  +w = cc_w(x)
+  F64.is_lt(0.0f64, F64.add(F64.add(F64.mul(V.dr_x(w), V.dr_x(a)), F64.mul(V.dr_y(w), V.dr_y(a))), F64.mul(V.dr_z(w), V.dr_z(a))))
+
 def cc_v(+x: Cc2) -> Nat:
-  Cc2{ok, c, u, r, +v} = x
+  Cc2{ok, c, u, r, +v, w} = x
   v
 
 type Bf is Data:
-  Bf{ ok: Bool, fi: Nat, ea: Nat, eb: Nat, va: Nat, vb: Nat, o: V.Point, u: V.Dir, a: V.Dir, l: F64 }
+  Bf{ ok: Bool, fi: Nat, ea: Nat, eb: Nat, va: Nat, vb: Nat, o: V.Point, u: V.Dir, a: V.Dir, l: F64, ca: Bool, cb: Bool }
 
 def bf_ok(+x: Bf) -> Bool:
-  Bf{+ok, fi, ea, eb, va, vb, o, u, a, l} = x
+  Bf{+ok, fi, ea, eb, va, vb, o, u, a, l, ca, cb} = x
   ok
+
+def bf_l(+x: Bf) -> F64:
+  Bf{ok, fi, ea, eb, va, vb, o, u, a, +l, ca, cb} = x
+  l
 
 def r_eq(+a: F64, +b: F64) -> Bool:
   F64.is_le(F64.abs(F64.sub(a, b)), F64.mul(1.0e-9f64, F64.add(1.0f64, F64.abs(b))))
@@ -4062,7 +4079,8 @@ def bf_mk(+fi: Nat, +ea: Nat, +eb: Nat, +ca: Cc2, +cb: Cc2, +a: V.Dir, +rb: F64,
   +lo = F64.is_lt(0.0f64, d)
   Bf{Bool.and(ok0, Bool.and(Bool.and(cc_okv(ca), cc_okv(cb)), Bool.and(r_eq(cc_r(ca), rb), r_eq(cc_r(cb), rb)))), fi,
     Bool.pick(Nat, lo, ea, eb), Bool.pick(Nat, lo, eb, ea), Bool.pick(Nat, lo, cc_v(ca), cc_v(cb)), Bool.pick(Nat, lo, cc_v(cb), cc_v(ca)),
-    Bool.pick(V.Point, lo, cc_c(ca), cc_c(cb)), Bool.pick(V.Dir, lo, cc_u(ca), cc_u(cb)), a, F64.abs(d)}
+    Bool.pick(V.Point, lo, cc_c(ca), cc_c(cb)), Bool.pick(V.Dir, lo, cc_u(ca), cc_u(cb)), a, F64.abs(d),
+    Bool.pick(Bool, lo, cc_ccw(ca, a), cc_ccw(cb, a)), Bool.pick(Bool, lo, cc_ccw(cb, a), cc_ccw(ca, a))}
 
 def hc_hd(xs: List<&2, Ty.HCoedge>) -> Ty.HCoedge:
   match xs:
@@ -4186,19 +4204,21 @@ def tv_m1(+h: I.I, +rb: I.I, +w0: I.I, +w1: I.I) -> I.I:
 def tv_mk(+dv: I.I, +pos: I.I, +neg: I.I) -> Tv:
   Tv{I.iwiden(dv, F64.mul(1.0e-12f64, I.i_hi(dv))), I.iwiden(I.isub(pos, neg), F64.mul(1.0e-12f64, F64.add(I.i_hi(pos), I.i_hi(neg))))}
 
-def tv_go(+pp: F64, +rb: F64, +rr: F64, +c: F64, +l: F64, +h: F64, +dz: F64, +dzc: F64, +m1: I.I) -> Tv:
-  +th = I.idiv(I.ipt(l), I.ipt(c))
-  +fl = fl_iv(Fq{I.iadd(I.isq(I.ipt(h)), I.isq(I.ipt(dz))), I.imul(I.isq(I.ipt(c)), I.isq(I.ipt(h))), I.ipt(rb), I.ipt(h)})
-  tv_mk(I.imul(th, m1), I.imul(th, I.iadd(I.iadd(I.iscale(I.ipt(rb), dzc), I.iscale(I.ipt(rr), F64.mul(0.125f64, pp))), I.iscale(fl, 2.0f64))),
-    I.iadd(I.imul(I.iscale(I.pi_i(), 2.0f64), I.iscale(I.ipt(rb), l)), I.iscale(I.idiv(m1, I.ipt(c)), 2.0f64)))
+def tv_band(+ext: Bool, +pp: F64, +rin: F64, +rout: F64, +win: F64, +wout: F64) -> I.I:
+  I.iadd(I.iscale(I.ipt(rin), Bool.pick(F64, ext, win, F64.sub(pp, win))), I.iscale(I.ipt(rout), Bool.pick(F64, ext, F64.sub(pp, wout), wout)))
 
-def thr_iv(+pp: F64, +rb: F64, +rr: F64, +c: F64, +l: F64) -> Tv:
-  +wb = HX.wb_of(pp, rb, rr)
-  +dz = HX.fl_dz(pp, wb)
-  +h = F64.sub(rr, rb)
-  +p16 = I.ipt(F64.mul(0.0625f64, pp))
-  +hw = I.ipt(F64.mul(0.5f64, wb))
-  tv_go(pp, rb, rr, c, l, h, dz, F64.sub(pp, wb), tv_m1(I.ipt(h), I.ipt(rb), I.iadd(I.iadd(p16, I.ipt(dz)), hw), I.isub(I.iadd(p16, hw), I.ipt(dz))))
+def tv_g2(+th: I.I, +fl: I.I, +bd: I.I, +cyl: I.I, +m1: I.I, +c: F64) -> Tv:
+  tv_mk(I.imul(th, m1), I.imul(th, I.iadd(bd, I.iscale(fl, 2.0f64))), I.iadd(cyl, I.iscale(I.idiv(m1, I.ipt(c)), 2.0f64)))
+
+def tv_fq(+rin: F64, +h: F64, +dz: F64, +c: F64) -> Fq:
+  Fq{I.iadd(I.isq(I.ipt(h)), I.isq(I.ipt(dz))), I.imul(I.isq(I.ipt(c)), I.isq(I.ipt(h))), I.ipt(rin), I.ipt(h)}
+
+def thr_ivh(+pp: F64, +rin: F64, +rout: F64, +win: F64, +wout: F64, +ext: Bool, +c: F64, +l: F64, +h: F64) -> Tv:
+  tv_g2(I.idiv(I.ipt(l), I.ipt(c)), fl_iv(tv_fq(rin, h, F64.mul(0.5f64, F64.abs(F64.sub(win, wout))), c)), tv_band(ext, pp, rin, rout, win, wout),
+    I.imul(I.iscale(I.pi_i(), 2.0f64), I.iscale(I.ipt(Bool.pick(F64, ext, rout, rin)), l)), tv_m1(I.ipt(h), I.ipt(rin), I.ipt(win), I.ipt(wout)), c)
+
+def thr_ivg(+pp: F64, +rin: F64, +rout: F64, +win: F64, +wout: F64, +ext: Bool, +c: F64, +l: F64) -> Tv:
+  thr_ivh(pp, rin, rout, win, wout, ext, c, l, F64.sub(rout, rin))
 
 def thr_ms(+m: Ms, +g: Tv, +br: Ty.Brep) -> Ms:
   Ms{+vol, +area, +x0, +x1, +y0, +y1, +z0, +z1, nv, ne, nf, ns, gn, +lin} = m
@@ -4226,11 +4246,12 @@ def fn_at(xs: List<&2, BD.Fn>, +i: Nat) -> BD.Fn:
         case 0n: f
         case 1n+j: fn_at(t, j)
 
+def thr_mkx(+bi: Body, +x: Bf, +pp: F64, +fs: List<&2, HX.Fp>, +ext: Bool, +g: Tv) -> Body:
+  Bf{ok, +fi, +ea, +eb, +va, +vb, +o, +u, +a, +l, +ca, +cb} = x
+  thr_body(bi, HX.thread_bt(bd_brep(bi), bd_fns(bi), fi, HX.Ce2{ea, eb, ca, cb}, va, vb, HX.Tq{o, u, dcross(a, u), a, F64.div(pp, HX.two_pi()), l}, fs, fn_at(bd_fns(bi), fi), ext), g)
+
 def thr_mk(+bi: Body, +x: Bf, +pp: F64, +rb: F64, +rr: F64) -> Body:
-  Bf{ok, +fi, +ea, +eb, +va, +vb, +o, +u, +a, +l} = x
-  +c = F64.div(pp, HX.two_pi())
-  thr_body(bi, HX.thread_bt(bd_brep(bi), bd_fns(bi), fi, ea, eb, va, vb, HX.Tq{o, u, dcross(a, u), a, c, l}, pp, rb, rr, fn_at(bd_fns(bi), fi)),
-    thr_iv(pp, rb, rr, c, l))
+  thr_mkx(bi, x, pp, HX.fps_of(pp, rb, rr), False{}, thr_ivg(pp, rb, rr, HX.wb_of(pp, rb, rr), F64.mul(0.125f64, pp), False{}, F64.div(pp, HX.two_pi()), bf_l(x)))
 
 def hs_wp(+cell: Bool, +fr: FR, +b: Body, +x: X.Xp, +y: X.Xp, +e: X.Env) -> V.Point:
   +q = hs_loc_of(cell, fr, X.xp_ev(x, e), X.xp_ev(y, e))
@@ -4730,6 +4751,210 @@ def op_keyway(+b: Body, +s: Sel, +side: U64, +ll: X.Xp, +zz: X.Xp, +thru: Bool, 
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
   kw_go(code, b, nm, np, c, sd, l, z, row, sp, e, nd)
 
+def xt_cls_ok(+c: String) -> Bool:
+  Bool.or(String.is_empty(c), Bool.or(String.eq(c, "4h"), Bool.or(String.eq(c, "6h"), Bool.or(String.eq(c, "6g"), Bool.or(String.eq(c, "6f"), String.eq(c, "6e"))))))
+
+def cy_rad(s: G.GVal) -> F64:
+  match s:
+    case G.GV_cy{w}:
+      G.Cy{o, a, +r} = w
+      F64.abs(r)
+    case _: F64.nan()
+
+type Xq is Data:
+  Xq{ fi: Nat, ea: Nat, eb: Nat, o: V.Point, a: V.Dir, l: F64, rr: F64, rc: F64, tol: F64 }
+
+def xq_of(+x: Bf, +rr: F64, +rc: F64) -> Xq:
+  Bf{ok, +fi, +ea, +eb, va, vb, +o, u, +a, +l, ca, cb} = x
+  Xq{fi, ea, eb, o, a, l, rr, rc, F64.mul(1.0e-9f64, F64.add(1.0f64, F64.add(rc, l)))}
+
+def xq_fi(+q: Xq) -> Nat:
+  Xq{+fi, ea, eb, o, a, l, rr, rc, tol} = q
+  fi
+
+def xq_ea(+q: Xq) -> Nat:
+  Xq{fi, +ea, eb, o, a, l, rr, rc, tol} = q
+  ea
+
+def xq_eb(+q: Xq) -> Nat:
+  Xq{fi, ea, +eb, o, a, l, rr, rc, tol} = q
+  eb
+
+def xq_rad(+q: Xq, +p: V.Point) -> F64:
+  Xq{fi, ea, eb, +o, +a, l, rr, rc, tol} = q
+  dlen3(dcross(psub3(p, o), a))
+
+def xq_ax(+q: Xq, +p: V.Point) -> F64:
+  Xq{fi, ea, eb, +o, +a, l, rr, rc, tol} = q
+  pdot(o, p, a)
+
+def xq_in(+q: Xq, +hi: F64) -> Bool:
+  Xq{fi, ea, eb, o, a, l, +rr, rc, +tol} = q
+  F64.is_lt(hi, F64.sub(rr, tol))
+
+def xq_out(+q: Xq, +lo: F64) -> Bool:
+  Xq{fi, ea, eb, o, a, l, rr, +rc, +tol} = q
+  F64.is_lt(F64.add(rc, tol), lo)
+
+def xq_slab(+q: Xq, +z: V.Vec2) -> Bool:
+  Xq{fi, ea, eb, o, a, +l, rr, rc, +tol} = q
+  Bool.or(F64.is_le(V.v2_y(z), tol), F64.is_le(F64.sub(l, tol), V.v2_x(z)))
+
+def bx8(+bx: List<&2, I.I>) -> List<&2, V.Point>:
+  +x = i_nth(bx, 0n)
+  +y = i_nth(bx, 1n)
+  +z = i_nth(bx, 2n)
+  [V.Pt{I.i_lo(x), I.i_lo(y), I.i_lo(z)}, V.Pt{I.i_hi(x), I.i_lo(y), I.i_lo(z)}, V.Pt{I.i_lo(x), I.i_hi(y), I.i_lo(z)}, V.Pt{I.i_hi(x), I.i_hi(y), I.i_lo(z)},
+   V.Pt{I.i_lo(x), I.i_lo(y), I.i_hi(z)}, V.Pt{I.i_hi(x), I.i_lo(y), I.i_hi(z)}, V.Pt{I.i_lo(x), I.i_hi(y), I.i_hi(z)}, V.Pt{I.i_hi(x), I.i_hi(y), I.i_hi(z)}]
+
+def ps_rmax(ps: List<&2, V.Point>, +q: Xq, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +p <> t: ps_rmax(t, q, F64.max(acc, xq_rad(q, p)))
+
+def ps_zr(ps: List<&2, V.Point>, +q: Xq, +acc: V.Vec2) -> V.Vec2:
+  match ps:
+    case []: acc
+    case +p <> t: ps_zr(t, q, v2_add(acc, xq_ax(q, p)))
+
+def fd_clr(+d: SO.Fd, +q: Xq) -> Bool:
+  +cs = bx8(SO.fd_bx(d))
+  Bool.and(Nat.is_eq(List.length(&2, I.I, SO.fd_bx(d)), 3n), Bool.or(xq_in(q, ps_rmax(cs, q, 0.0f64)), xq_slab(q, ps_zr(cs, q, ext0()))))
+
+def sg_min(+q: Xq, +p0: V.Point, +p1: V.Point) -> F64:
+  Xq{fi, ea, eb, +o, +a, l, rr, rc, tol} = q
+  +w = dcross(psub3(p0, o), a)
+  +m = dcross(psub3(p1, p0), a)
+  +mm = dlen3(m)
+  +t = F64.min(1.0f64, F64.max(0.0f64, F64.neg(F64.div(F64.add(F64.add(F64.mul(V.dr_x(w), V.dr_x(m)), F64.mul(V.dr_y(w), V.dr_y(m))), F64.mul(V.dr_z(w), V.dr_z(m))), F64.mul(mm, mm)))))
+  Bool.pick(F64, F64.is_lt(0.0f64, mm), dlen3(V.Dr{F64.add(V.dr_x(w), F64.mul(t, V.dr_x(m))), F64.add(V.dr_y(w), F64.mul(t, V.dr_y(m))), F64.add(V.dr_z(w), F64.mul(t, V.dr_z(m)))}), dlen3(w))
+
+def tri_in(+q: Xq, +p0: V.Point, +p1: V.Point, +p2: V.Point) -> Bool:
+  Xq{fi, ea, eb, +o, +a, l, rr, rc, tol} = q
+  +s0 = pdot(V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{V.dr_x(dcross(psub3(p1, p0), psub3(o, p0))), V.dr_y(dcross(psub3(p1, p0), psub3(o, p0))), V.dr_z(dcross(psub3(p1, p0), psub3(o, p0)))}, a)
+  +s1 = pdot(V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{V.dr_x(dcross(psub3(p2, p1), psub3(o, p1))), V.dr_y(dcross(psub3(p2, p1), psub3(o, p1))), V.dr_z(dcross(psub3(p2, p1), psub3(o, p1)))}, a)
+  +s2 = pdot(V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Pt{V.dr_x(dcross(psub3(p0, p2), psub3(o, p2))), V.dr_y(dcross(psub3(p0, p2), psub3(o, p2))), V.dr_z(dcross(psub3(p0, p2), psub3(o, p2)))}, a)
+  Bool.or(Bool.and(F64.is_le(0.0f64, s0), Bool.and(F64.is_le(0.0f64, s1), F64.is_le(0.0f64, s2))), Bool.and(F64.is_le(s0, 0.0f64), Bool.and(F64.is_le(s1, 0.0f64), F64.is_le(s2, 0.0f64))))
+
+def rq_rng(+q: Xq, +p0: V.Point, +p1: V.Point, +p2: V.Point) -> V.Vec2:
+  V.V2{Bool.pick(F64, tri_in(q, p0, p1, p2), 0.0f64, F64.min(sg_min(q, p0, p1), F64.min(sg_min(q, p1, p2), sg_min(q, p2, p0)))),
+    F64.max(xq_rad(q, p0), F64.max(xq_rad(q, p1), xq_rad(q, p2)))}
+
+def cv_rng(c: G.GVal, +q: Xq, +p0: V.Point, +p1: V.Point) -> V.Vec2:
+  match c:
+    case G.GV_ln{w}: V.V2{sg_min(q, p0, p1), F64.max(xq_rad(q, p0), xq_rad(q, p1))}
+    case G.GV_cc{w}:
+      G.Cc{+cc, u, v, +r} = w
+      +dc = xq_rad(q, cc)
+      V.V2{F64.abs(F64.sub(dc, r)), F64.add(dc, r)}
+    case G.GV_rq{w}:
+      G.Rq{+a0, +a1, +a2, w0, w1, w2} = w
+      rq_rng(q, a0, a1, a2)
+    case _: V.V2{0.0f64, 1.0e300f64}
+
+def ek_rng(k: Ty.EdgeKind, +q: Xq, +p0: V.Point, +p1: V.Point) -> V.Vec2:
+  match k:
+    case Ty.EK_curve{c, d}: cv_rng(c, q, p0, p1)
+    case _: V.V2{0.0f64, 1.0e300f64}
+
+def ed_rng(+e: Ty.Edge, +q: Xq, +tv: B.Tb<&2, Ty.Vertex>) -> V.Vec2:
+  Ty.Ed{g, +v0, +v1, +k} = e
+  ek_rng(k, q, vpt(tv, v0, pl_id()), vpt(tv, v1, pl_id()))
+
+def rg_join(+a: V.Vec2, +b: V.Vec2) -> V.Vec2:
+  V.V2{F64.min(V.v2_x(a), V.v2_x(b)), F64.max(V.v2_y(a), V.v2_y(b))}
+
+def cs_rng(cs: List<&2, Ty.HCoedge>, +q: Xq, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>, +acc: V.Vec2) -> V.Vec2:
+  match cs:
+    case []: acc
+    case +h <> t: cs_rng(t, q, tc, te, tv, rg_join(acc, ed_rng(B.tb_get(Ty.Edge, te, U32.from_nat(ce_ed(tc, h))), q, tv)))
+
+def lp_xok(+lp: Ty.Loop, +q: Xq, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>) -> Bool:
+  +cs = Ty.lp_ces(lp)
+  +rg = cs_rng(cs, q, tc, te, tv, V.V2{1.0e300f64, 0.0f64})
+  Bool.or(Bool.or(cs_has(cs, tc, xq_ea(q)), cs_has(cs, tc, xq_eb(q))), Bool.or(xq_in(q, V.v2_y(rg)), xq_out(q, V.v2_x(rg))))
+
+def ls_xok(ls: List<&2, Ty.HLoop>, +q: Xq, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +te: B.Tb<&2, Ty.Edge>, +tv: B.Tb<&2, Ty.Vertex>) -> Bool:
+  match ls:
+    case []: True{}
+    case +h <> t: Bool.and(lp_xok(B.tb_get(Ty.Loop, tl, U32.from_nat(Ty.hlp_idx(h))), q, tc, te, tv), ls_xok(t, q, tl, tc, te, tv))
+
+type Xt is Data:
+  Xt{ q: Xq, tf: B.Tb<&2, Ty.Face>, tl: B.Tb<&2, Ty.Loop>, tc: B.Tb<&2, Ty.Coedge>, te: B.Tb<&2, Ty.Edge>, tv: B.Tb<&2, Ty.Vertex> }
+
+def xt_end(+ls: List<&2, Ty.HLoop>, +x: Xt) -> Bool:
+  Xt{+q, tf, +tl, +tc, +te, +tv} = x
+  ls_xok(ls, q, tl, tc, te, tv)
+
+def xt_isend(+ls: List<&2, Ty.HLoop>, +x: Xt) -> Bool:
+  Xt{+q, tf, +tl, +tc, te, tv} = x
+  Bool.or(Nat.is_lt(0n, ls_code(ls, tl, tc, xq_ea(q))), Nat.is_lt(0n, ls_code(ls, tl, tc, xq_eb(q))))
+
+def xt_one(+d: SO.Fd, +x: Xt) -> Bool:
+  Xt{+q, +tf, tl, tc, te, tv} = x
+  +j = SO.fd_fi(d)
+  +ls = Ty.fa_loops(B.tb_get(Ty.Face, tf, U32.from_nat(j)))
+  Bool.or(Nat.is_eq(j, xq_fi(q)), Bool.pick(Bool, xt_isend(ls, x), xt_end(ls, x), fd_clr(d, q)))
+
+def xt_fds(fs: List<&2, SO.Fd>, +x: Xt) -> Bool:
+  match fs:
+    case []: True{}
+    case +d <> t: Bool.and(xt_one(d, x), xt_fds(t, x))
+
+def xt_ring(+br: Ty.Brep, +q: Xq) -> Bool:
+  +fs = SO.fds_of(br)
+  Bool.and(Nat.is_eq(List.length(&2, SO.Fd, fs), List.length(&2, Ty.Face, Ty.brep_fas(br))),
+    xt_fds(fs, Xt{q, B.tb_of(Ty.Face, Ty.brep_fas(br), Ty.Fa{0u64, Ty.surf_zero(), [], True{}, 0.0f64, 0.0f64}), tl_of(br), tc_of(br), te_of(br), tv_of(br)}))
+
+def xt_bad(+c: U64, +sz: String, +rc: F64, +big: F64, +rr: F64, +nd: U64) -> NR:
+  +l = "node " ++ U64.show(nd)
+  Bool.pick(NR, U64.is_eq(c, 1u64), bad("xthread", l, "xthread-needs-a-plain-cylinder: the face is not one cylinder between two flat ends square to it in a single solid",
+      "select the cylindrical face of a shaft or stud whose two ends are flat faces square to it"),
+  Bool.pick(NR, U64.is_eq(c, 2u64), bad("xthread", l, "xthread-diameter-above-major: the face diameter " ++ NU.f_show(F64.mul(2.0f64, rc)) ++ " exceeds the " ++ sz ++ " major diameter " ++ NU.f_show(F64.mul(2.0f64, big)),
+      "turn the shaft to the class's major window (std " ++ sz ++ ") before threading it"),
+  Bool.pick(NR, U64.is_eq(c, 3u64), bad("xthread", l, "xthread-diameter-below-minor: the face diameter " ++ NU.f_show(F64.mul(2.0f64, rc)) ++ " leaves no " ++ sz ++ " crest above the basic minor diameter " ++ NU.f_show(F64.mul(2.0f64, rr)),
+      "thread a shaft whose diameter is inside the class's major window"),
+    bad("xthread", l, "thread-model-breaks-out: another face of the part reaches the thread shell between the " ++ NU.f_show(F64.mul(2.0f64, rr)) ++ " minor and " ++ NU.f_show(F64.mul(2.0f64, rc)) ++ " crest diameters",
+      "keep the threaded length clear of other features (cross holes, flats, keyways), or keep the thread semantic with (thread ...)"))))
+
+def xt_code(+okb: Bool, +rc: F64, +big: F64, +rr: F64, +p: F64) -> U64:
+  Bool.pick(U64, Bool.not(Bool.and(okb, F64.is_eq(rc, rc))), 1u64, Bool.pick(U64, F64.is_lt(F64.mul(big, F64.add(1.0f64, 1.0e-9f64)), rc), 2u64,
+    Bool.pick(U64, Bool.or(F64.is_le(rc, rr), F64.is_le(p, HX.wx_of(p, rr, rc))), 3u64, 0u64)))
+
+def xt_build(+b: Body, +x: Bf, +p: F64, +rr: F64, +rc: F64) -> NR:
+  NR_ok{thr_mkx(b, x, p, HX.fps_x(p, rr, rc), True{}, thr_ivg(p, rr, rc, F64.mul(0.25f64, p), HX.wx_of(p, rr, rc), True{}, F64.div(p, HX.two_pi()), bf_l(x))),
+    Fx{M_remove{}, 4n, 2n, 1n, 0n}}
+
+def xt_rb(ok: Bool, +b: Body, +x: Bf, +p: F64, +rr: F64, +rc: F64, +big: F64, +sz: String, +nd: U64) -> NR:
+  match ok:
+    case True{}: xt_build(b, x, p, rr, rc)
+    case False{}: xt_bad(4u64, sz, rc, big, rr, nd)
+
+def xt_c(c: U64, +b: Body, +x: Bf, +p: F64, +rr: F64, +rc: F64, +big: F64, +sz: String, +nd: U64) -> NR:
+  match c:
+    case 0u64:
+      xt_rb(xt_ring(bd_brep(b), xq_of(x, rr, rc)), b, x, p, rr, rc, big, sz, nd)
+    case _: xt_bad(c, sz, rc, big, rr, nd)
+
+def xt_r(+b: Body, +x: Bf, +rc: F64, +big: F64, +p: F64, +sz: String, +nd: U64) -> NR:
+  +rr = F64.sub(big, F64.mul(0.5f64, F64.mul(1.0825317547305483f64, p)))
+  xt_c(xt_code(bf_ok(x), rc, big, rr, p), b, x, p, rr, rc, big, sz, nd)
+
+def xt_go(+b: Body, +fi: Nat, +sz: String, +nd: U64) -> NR:
+  +br = bd_brep(b)
+  +rc = cy_rad(Ty.fa_surf(fa_nth(Ty.brep_fas(br), fi)))
+  +a = SD.fa(sz)
+  xt_r(b, bf_at(fi, br, rc), rc, F64.mul(0.5f64, SD.fv(a, 0n)), SD.fv(a, 1n), sz, nd)
+
+def xt_pre(c: U64, +b: Body, +f: Sel, +sz: String, +cls: String, +nd: U64, +base: U64) -> NR:
+  match c:
+    case 0u64: xt_go(b, name_idx(bd_fns(b), sel_name(b, f, base), 0n), sz, nd)
+    case 1u64: bad("xthread", "node " ++ U64.show(nd), "std-size-unknown: " ++ sz, "sizes with records: " ++ SD.sizes())
+    case _: bad("xthread", "node " ++ U64.show(nd), "std-class-unknown: " ++ cls, "use an external class: 4h, 6h, 6g, 6f or 6e")
+
+def op_xthread(+b: Body, +f: Sel, +sz: String, +cls: String, +nd: U64, +base: U64) -> NR:
+  xt_pre(Bool.pick(U64, Bool.not(SD.fa_ok(sz)), 1u64, Bool.pick(U64, Bool.not(xt_cls_ok(cls)), 2u64, 0u64)), b, f, sz, cls, nd, base)
+
 def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
@@ -4741,6 +4966,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_sholes{base, f, hs, d, thru}: op_sholes(b, f, hs, d, thru, e, nd, base)
     case O_groove{+base, f, std, z}: op_groove(b, f, std, z, e, nd, rev_rs(nd_op(ns, base)), base)
     case O_keyway{base, f, side, l, z, thru}: op_keyway(b, f, side, l, z, thru, e, nd)
+    case O_xthread{+base, f, sz, cls}: op_xthread(b, f, sz, cls, nd, base)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
     case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import")
@@ -4838,6 +5064,7 @@ def hs_semk(hs: List<&2, Hs>, +root: Bool) -> List<&2, Hs>:
 def op_semk(o: Op, +root: Bool) -> Op:
   match o:
     case O_sholes{+base, +f, +hs, +d, +thru}: O_sholes{base, f, hs_semk(hs, root), d, thru}
+    case O_xthread{+base, f, sz, cls}: O_move{base, xk(0.0f64), xk(0.0f64), xk(0.0f64), 0u64}
     case _: o
 
 def nds_semk(ns: List<&2, Node>, +root: Bool) -> List<&2, Node>:
@@ -4869,6 +5096,19 @@ def op_teeth(o: Op, +e: X.Env, +nd: U64) -> String:
   match o:
     case O_sholes{base, f, +hs, d, thru}: teeth_go(hs, e, nd, 0n)
     case _: ""
+
+def op_isx(o: Op) -> Bool:
+  match o:
+    case O_xthread{base, f, sz, cls}: True{}
+    case _: False{}
+
+def part_op(+p: Part, +nd: U64) -> Op:
+  Pt{ps, +ns, ms, ts} = p
+  nd_op(ns, nd)
+
+def part_isx(+p: Part, +nd: U64) -> Bool:
+  Pt{ps, +ns, ms, ts} = p
+  op_isx(nd_op(ns, nd))
 
 def part_teeth(+p: Part, +nd: U64) -> String:
   Pt{+ps, +ns, ms, ts} = p

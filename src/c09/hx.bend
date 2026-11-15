@@ -73,6 +73,17 @@ def fps4(+p: F64, +rb: F64, +rr: F64, +wb: F64) -> List<&2, Fp>:
 def fps_of(+p: F64, +rb: F64, +rr: F64) -> List<&2, Fp>:
   fps4(p, rb, rr, wb_of(p, rb, rr))
 
+def wx_of(+p: F64, +rr: F64, +rc: F64) -> F64:
+  F64.add(F64.mul(0.25f64, p), F64.mul(2.0f64, F64.mul(F64.sub(rc, rr), t30())))
+
+def fpx4(+p: F64, +rr: F64, +rc: F64, +wo: F64) -> List<&2, Fp>:
+  +fz = F64.mul(0.5f64, F64.sub(wo, F64.mul(0.25f64, p)))
+  [Fp{rr, 0.0f64, F64.mul(F64.neg(0.125f64), p), F64.mul(0.25f64, p)}, Fp{rr, F64.sub(rc, rr), F64.mul(0.125f64, p), fz},
+   Fp{rc, 0.0f64, F64.mul(0.5f64, wo), F64.sub(p, wo)}, Fp{rc, F64.sub(rr, rc), F64.sub(p, F64.mul(0.5f64, wo)), fz}]
+
+def fps_x(+p: F64, +rr: F64, +rc: F64) -> List<&2, Fp>:
+  fpx4(p, rr, rc, wx_of(p, rr, rc))
+
 def fp_at(xs: List<&2, Fp>, +k: Nat) -> Fp:
   match xs:
     case []: Fp{0.0f64, 0.0f64, 0.0f64, 1.0f64}
@@ -166,16 +177,31 @@ def th_loop2(+k: Nat, +ne: Nat, +z0: F64, +z1: F64, +c: F64, +l: F64) -> List<&2
 def th_loop(+k: Nat, +ne: Nat, +q: Tq, +f: Fp) -> List<&2, BD.Use>:
   th_loop2(k, ne, fp_z0(f), F64.add(fp_z0(f), fp_dz(f)), q_c(q), q_l(q))
 
-def th_fs(+k: Nat, +ne: Nat, +q: Tq, +f: Fp, +nm: BD.Fn) -> BD.FS:
-  BD.FS{0n, G.GV_hx{hx_mk(q, f)}, False{}, [th_loop(k, ne, q, f)], nm}
+def th_loop4r(+k: Nat, +ne: Nat, +pa: V.Vec2, +pb: V.Vec2, +pc: V.Vec2, +pdd: V.Vec2) -> List<&2, BD.Use>:
+  [us(Nat.add(ne, prv(k)), True{}, pa, pb), us(Nat.add(ne, Nat.add(8n, k)), False{}, pb, pc),
+   us(Nat.add(ne, k), False{}, pc, pdd), us(Nat.add(ne, Nat.add(4n, k)), True{}, pdd, pa)]
 
-def lo_loop(+ne: Nat) -> List<&2, BD.Use>:
-  +z = {v2(0.0f64, 0.0f64) : V.Vec2}
-  [us(Nat.add(ne, 4n), True{}, z, z), us(Nat.add(ne, 7n), True{}, z, z), us(Nat.add(ne, 6n), True{}, z, z), us(Nat.add(ne, 5n), True{}, z, z)]
+def th_loop2x(+k: Nat, +ne: Nat, +z0: F64, +z1: F64, +c: F64, +l: F64) -> List<&2, BD.Use>:
+  th_loop4r(k, ne, v2(th_c(0.0f64, z0, c), 0.0f64), v2(th_c(l, z0, c), 0.0f64), v2(th_c(l, z1, c), 1.0f64), v2(th_c(0.0f64, z1, c), 1.0f64))
 
-def hi_loop(+ne: Nat) -> List<&2, BD.Use>:
-  +z = {v2(0.0f64, 0.0f64) : V.Vec2}
-  [us(Nat.add(ne, 8n), False{}, z, z), us(Nat.add(ne, 9n), False{}, z, z), us(Nat.add(ne, 10n), False{}, z, z), us(Nat.add(ne, 11n), False{}, z, z)]
+def th_loopx(+ext: Bool, +k: Nat, +ne: Nat, +q: Tq, +f: Fp) -> List<&2, BD.Use>:
+  Bool.pick(List<&2, BD.Use>, ext, th_loop2x(k, ne, fp_z0(f), F64.add(fp_z0(f), fp_dz(f)), q_c(q), q_l(q)),
+    th_loop2(k, ne, fp_z0(f), F64.add(fp_z0(f), fp_dz(f)), q_c(q), q_l(q)))
+
+def th_fs(+k: Nat, +ne: Nat, +q: Tq, +f: Fp, +nm: BD.Fn, +ext: Bool) -> BD.FS:
+  BD.FS{0n, G.GV_hx{hx_mk(q, f)}, ext, [th_loopx(ext, k, ne, q, f)], nm}
+
+def z2() -> V.Vec2:
+  v2(0.0f64, 0.0f64)
+
+def ccw4(+e0: Nat, +ne: Nat) -> List<&2, BD.Use>:
+  [us(Nat.add(ne, e0), True{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 3n)), True{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 2n)), True{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 1n)), True{}, z2(), z2())]
+
+def cw4(+e0: Nat, +ne: Nat) -> List<&2, BD.Use>:
+  [us(Nat.add(ne, e0), False{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 1n)), False{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 2n)), False{}, z2(), z2()), us(Nat.add(ne, Nat.add(e0, 3n)), False{}, z2(), z2())]
+
+def end_loop(+e0: Nat, +ne: Nat, +ccw: Bool) -> List<&2, BD.Use>:
+  Bool.pick(List<&2, BD.Use>, ccw, ccw4(e0, ne), cw4(e0, ne))
 
 def trim_a(t: G.GVal) -> V.Vec2:
   match t:
@@ -218,6 +244,13 @@ def us_has(xs: List<&2, BD.Use>, +e: Nat) -> Bool:
       BD.Us{+x, f, a, b} = h
       Bool.or(Nat.is_eq(x, e), us_has(t, e))
 
+def us_fwd(xs: List<&2, BD.Use>, +e: Nat) -> Bool:
+  match xs:
+    case []: True{}
+    case +h <> +t:
+      BD.Us{+x, +f, a, b} = h
+      Bool.pick(Bool, Nat.is_eq(x, e), f, us_fwd(t, e))
+
 def rm2(+x: Nat, +a: Nat, +b: Nat) -> Nat:
   Nat.sub(Nat.sub(x, Bool.pick(Nat, Nat.is_lt(a, x), 1n, 0n)), Bool.pick(Nat, Nat.is_lt(b, x), 1n, 0n))
 
@@ -228,19 +261,32 @@ def us_map(xs: List<&2, BD.Use>, +a: Nat, +b: Nat) -> List<&2, BD.Use>:
       BD.Us{+x, +f, +p, +q} = h
       BD.Us{rm2(x, a, b), f, p, q} <> us_map(t, a, b)
 
-def lp_new(+us0: List<&2, BD.Use>, +ea: Nat, +eb: Nat, +ne: Nat) -> List<&2, BD.Use>:
-  Bool.pick(List<&2, BD.Use>, us_has(us0, ea), lo_loop(ne), Bool.pick(List<&2, BD.Use>, us_has(us0, eb), hi_loop(ne), us_map(us0, ea, eb)))
+type Ce2 is Data:
+  Ce2{ ea: Nat, eb: Nat, ca: Bool, cb: Bool }
 
-def lps_new(ls: List<&2, List<&2, BD.Use>>, +ea: Nat, +eb: Nat, +ne: Nat) -> List<&2, List<&2, BD.Use>>:
+def ce2_ea(+x: Ce2) -> Nat:
+  Ce2{+ea, eb, ca, cb} = x
+  ea
+
+def ce2_eb(+x: Ce2) -> Nat:
+  Ce2{ea, +eb, ca, cb} = x
+  eb
+
+def lp_new(+us0: List<&2, BD.Use>, +x: Ce2, +ne: Nat) -> List<&2, BD.Use>:
+  Ce2{+ea, +eb, +ca, +cb} = x
+  Bool.pick(List<&2, BD.Use>, us_has(us0, ea), end_loop(4n, ne, Bool.not(Bool.xor(us_fwd(us0, ea), ca))),
+    Bool.pick(List<&2, BD.Use>, us_has(us0, eb), end_loop(8n, ne, Bool.not(Bool.xor(us_fwd(us0, eb), cb))), us_map(us0, ea, eb)))
+
+def lps_new(ls: List<&2, List<&2, BD.Use>>, +x: Ce2, +ne: Nat) -> List<&2, List<&2, BD.Use>>:
   match ls:
     case []: []
-    case +h <> +t: lp_new(h, ea, eb, ne) <> lps_new(t, ea, eb, ne)
+    case +h <> +t: lp_new(h, x, ne) <> lps_new(t, x, ne)
 
-def fa_fs(+f: Ty.Face, +n: BD.Fn, +ea: Nat, +eb: Nat, +ne: Nat, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>) -> BD.FS:
+def fa_fs(+f: Ty.Face, +n: BD.Fn, +x: Ce2, +ne: Nat, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>) -> BD.FS:
   Ty.Fa{g, +sf, +ls, +same, slv, sla} = f
-  BD.FS{0n, sf, same, lps_new(hls_uses(ls, tl, tc), ea, eb, ne), n}
+  BD.FS{0n, sf, same, lps_new(hls_uses(ls, tl, tc), x, ne), n}
 
-def fas_keep(fas: List<&2, Ty.Face>, fns: List<&2, BD.Fn>, +i: Nat, +fb: Nat, +ea: Nat, +eb: Nat, +ne: Nat,
+def fas_keep(fas: List<&2, Ty.Face>, fns: List<&2, BD.Fn>, +i: Nat, +fb: Nat, +x: Ce2, +ne: Nat,
     +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +acc: List<&2, BD.FS>) -> List<&2, BD.FS>:
   match fas:
     case []: acc
@@ -248,8 +294,8 @@ def fas_keep(fas: List<&2, Ty.Face>, fns: List<&2, BD.Fn>, +i: Nat, +fb: Nat, +e
       match fns:
         case []: acc
         case +n <> +u:
-          +rest = fas_keep(t, u, Nat.add(i, 1n), fb, ea, eb, ne, tl, tc, acc)
-          Bool.pick(List<&2, BD.FS>, Nat.is_eq(i, fb), rest, fa_fs(f, n, ea, eb, ne, tl, tc) <> rest)
+          +rest = fas_keep(t, u, Nat.add(i, 1n), fb, x, ne, tl, tc, acc)
+          Bool.pick(List<&2, BD.FS>, Nat.is_eq(i, fb), rest, fa_fs(f, n, x, ne, tl, tc) <> rest)
 
 def tol_keep(fas: List<&2, Ty.Face>, +i: Nat, +fb: Nat, +acc: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
   match fas:
@@ -318,17 +364,17 @@ def fn_j(+n: BD.Fn, +k: Nat) -> BD.Fn:
   BD.Fn{+nd, +c, +r, +i, +j} = n
   BD.Fn{nd, c, r, i, Nat.add(j, k)}
 
-def ths4(+ne: Nat, +q: Tq, +fs: List<&2, Fp>, +nm: BD.Fn) -> List<&2, BD.FS>:
-  [th_fs(0n, ne, q, fp_at(fs, 0n), fn_j(nm, 0n)), th_fs(1n, ne, q, fp_at(fs, 1n), fn_j(nm, 1n)),
-   th_fs(2n, ne, q, fp_at(fs, 2n), fn_j(nm, 2n)), th_fs(3n, ne, q, fp_at(fs, 3n), fn_j(nm, 3n))]
+def ths4(+ne: Nat, +q: Tq, +fs: List<&2, Fp>, +nm: BD.Fn, +ext: Bool) -> List<&2, BD.FS>:
+  [th_fs(0n, ne, q, fp_at(fs, 0n), fn_j(nm, 0n), ext), th_fs(1n, ne, q, fp_at(fs, 1n), fn_j(nm, 1n), ext),
+   th_fs(2n, ne, q, fp_at(fs, 2n), fn_j(nm, 2n), ext), th_fs(3n, ne, q, fp_at(fs, 3n), fn_j(nm, 3n), ext)]
 
-def thread_go(+br: Ty.Brep, +fns: List<&2, BD.Fn>, +fb: Nat, +ea: Nat, +eb: Nat, +va: Nat, +vb: Nat, +q: Tq, +fs: List<&2, Fp>,
-    +nm: BD.Fn, +vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>) -> BD.Bt:
+def thread_go(+br: Ty.Brep, +fns: List<&2, BD.Fn>, +fb: Nat, +x: Ce2, +q: Tq, +fs: List<&2, Fp>,
+    +nm: BD.Fn, +ext: Bool, +vs: List<&2, Ty.Vertex>, +es: List<&2, Ty.Edge>) -> BD.Bt:
   +nv = List.length(&2, Ty.Vertex, vs)
   +ne = List.length(&2, Ty.Edge, es)
-  bt_tol(F9.pack(cat_v(vs, new_vs(q, fs)), cat_e(es, new_es(nv, q, fs)), cat_f(fas_keep(Ty.brep_fas(br), fns, 0n, fb, ea, eb, ne, tl_of(br), tc_of(br), []), ths4(ne, q, fs, nm))),
+  bt_tol(F9.pack(cat_v(vs, new_vs(q, fs)), cat_e(es, new_es(nv, q, fs)), cat_f(fas_keep(Ty.brep_fas(br), fns, 0n, fb, x, ne, tl_of(br), tc_of(br), []), ths4(ne, q, fs, nm, ext))),
     tols_th(tol_keep(Ty.brep_fas(br), 0n, fb, [])))
 
-def thread_bt(+br: Ty.Brep, +fns: List<&2, BD.Fn>, +fb: Nat, +ea: Nat, +eb: Nat, +va: Nat, +vb: Nat, +q: Tq, +p: F64, +rb: F64, +rr: F64,
-    +nm: BD.Fn) -> BD.Bt:
-  thread_go(br, fns, fb, ea, eb, va, vb, q, fps_of(p, rb, rr), nm, vs_keep(Ty.brep_vs(br), 0n, va, vb), es_keep(Ty.brep_es(br), 0n, ea, eb, va, vb))
+def thread_bt(+br: Ty.Brep, +fns: List<&2, BD.Fn>, +fb: Nat, +x: Ce2, +va: Nat, +vb: Nat, +q: Tq, +fs: List<&2, Fp>,
+    +nm: BD.Fn, +ext: Bool) -> BD.Bt:
+  thread_go(br, fns, fb, x, q, fs, nm, ext, vs_keep(Ty.brep_vs(br), 0n, va, vb), es_keep(Ty.brep_es(br), 0n, ce2_ea(x), ce2_eb(x), va, vb))

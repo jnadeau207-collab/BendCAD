@@ -395,21 +395,31 @@ def nr_hx(r: M.NR) -> Bool:
     case M.NR_ok{+b, fx}: M.has_hx(b)
 
 def chk_ok_s(+ok: Bool, +s: String) -> String:
-  Bool.pick(String, ok, s ++ " | modelled thread: certified by construction over this bore body (checked above): at build each bore was proven one cylinder between flat ends square to it in a single solid, the major diameter was cut on a copy and met no other face, and the ISO 68-1 profile is a simple quadrilateral inside that ring, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else",
+  Bool.pick(String, ok, s ++ " | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else",
     "error: the bore body under the modelled thread fails check: " ++ s)
 
 def chk_sem(+s: String) -> String:
   chk_ok_s(String.starts_with(s, "ok"), s)
 
+def chk_x(isx: Bool, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  match isx:
+    case True{}: chk_sem(QI.check_s(node_raw(M.ev_for(p, [M.op_base(M.part_op(p, id))], old), M.op_base(M.part_op(p, id)))))
+    case False{}: chk_sem(QI.check_s(node_raw(M.ev_for(M.part_semk(p, False{}), [id], old), id)))
+
 def thr_chk(hx: Bool, +r: M.NR, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
   match hx:
     case False{}: qv_check_s(r)
-    case True{}: chk_sem(QI.check_s(node_raw(M.ev_for(M.part_semk(p, False{}), [id], old), id)))
+    case True{}: chk_x(M.part_isx(p, id), p, id, old)
+
+def wall_x(isx: Bool, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
+  match isx:
+    case True{}: "error invalid-input | wall @ node " ++ U64.show(id) ++ " | why: modelled-thread-not-supported: wall on an external modelled thread | fix: run wall on the shaft before its thread (node " ++ U64.show(M.op_base(M.part_op(p, id))) ++ ")"
+    case False{}: QD.wall_s(node_raw(M.ev_for(M.part_semk(p, True{}), [id], old), id)) ++ "\n" ++ M.part_teeth(p, id)
 
 def thr_wall(hx: Bool, +r: M.NR, +p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
   match hx:
     case False{}: qv_wall_s(r)
-    case True{}: QD.wall_s(node_raw(M.ev_for(M.part_semk(p, True{}), [id], old), id)) ++ "\n" ++ M.part_teeth(p, id)
+    case True{}: wall_x(M.part_isx(p, id), p, id, old)
 
 def chk_q(+p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
   +r = node_raw(M.ev_for(p, [id], old), id)

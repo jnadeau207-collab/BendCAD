@@ -100,6 +100,11 @@ def ent_gv(+bb: M.Body, +f: M.Sel, +std: String, +z: F64, +nd: U64) -> Ent:
   Ent{nd, 0n, 10u64, hs0(), Ax{M.pl_pt(M.ax_at(M.cyf_o(c), a, z), pl), M.pl_dir(a, pl)}, r, std,
     [z, F64.mul(2.0f64, r), SD.fv_go(row, 2n), SD.fv_go(row, 3n), SD.fv_go(row, 4n), SD.fv_go(row, 0n)]}
 
+def ent_xt(+bb: M.Body, +f: M.Sel, +sz: String, +cls: String, +nd: U64) -> Ent:
+  +c = cyl_at(bb, f)
+  +pl = M.bd_pl(bb)
+  Ent{nd, 0n, 12u64, M.Hs{12u64, sz, cls, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, Ax{M.pl_pt(M.cyf_o(c), pl), M.pl_dir(M.cyf_a(c), pl)}, M.cyf_r(c), "", []}
+
 def ent_kw(+bb: M.Body, +f: M.Sel, +side: U64, +l: F64, +z: F64, +thru: Bool, +nd: U64) -> Ent:
   +br = M.bd_brep(bb)
   +fa = M.fa_nth(Ty.brep_fas(br), M.name_idx(M.bd_fns(bb), M.sel_nm(f), 0n))
@@ -143,6 +148,7 @@ def step(o: M.Op, +n: U64, +cs: List<&2, M.CE>, +e: X.Env, +acc: List<&2, Ent>) 
     case M.O_groove{+base, +f, +std, +z}: St{True{}, base, ent_gv(bbody(cs, base), f, std, X.xp_ev(z, e), n) <> acc}
     case M.O_keyway{+base, +f, +side, +l, +z, +thru}:
       St{True{}, base, ent_kw(bbody(cs, base), f, side, X.xp_ev(l, e), X.xp_ev(z, e), thru, n) <> acc}
+    case M.O_xthread{+base, +f, +sz, +cls}: St{True{}, base, ent_xt(bbody(cs, base), f, sz, cls, n) <> acc}
     case M.O_move{base, tx, ty, tz, q}: St{False{}, 0u64, acc}
     case M.O_rot{base, ax, deg}: St{False{}, 0u64, acc}
     case _: step_d(o, acc)
@@ -476,6 +482,24 @@ def vr_mod(+hs: List<&2, Hf>, +pp: F64, +cr: Maybe<&2, Hf>, +ro: Maybe<&2, Hf>, 
   vr_and(Vr{ok, " modelled helicoids=" ++ Nat.show(n) ++ " crest-d=" ++ hf_d(cr) ++ " root-d=" ++ hf_d(ro) ++ " flanks-at-30deg=" ++ Nat.show(hf_n(hs, pp, 2u64)) ++
     " pitch-and-right-hand=" ++ Nat.show(hf_n(hs, pp, 1u64)) ++ " want pitch=" ++ S.f_show(pp) ++ " (ISO 68-1)"}, w)
 
+def xcls(+c: String) -> String:
+  Bool.pick(String, String.is_empty(c), "6g", c)
+
+def v_winx(+sz: String, +cls: String, +rc: F64) -> Vr:
+  +c = xcls(cls)
+  +w = win_of(sz, c)
+  +dm = F64.mul(2.0f64, rc)
+  Vr{Bool.and(F64.is_le(F64.sub(V.v2_x(w), 1.0e-9f64), dm), F64.is_le(dm, F64.add(V.v2_y(w), 1.0e-9f64))),
+    " crest-d=" ++ S.f_show(r6(dm)) ++ " major-window=[" ++ S.f_show(KT.r3(V.v2_x(w))) ++ ", " ++ S.f_show(KT.r3(V.v2_y(w))) ++ "] (ISO 965-1 " ++ c ++ ") thread " ++
+      KT.ds_name(KT.desig(sz)) ++ " " ++ c}
+
+def xroot(+sz: String) -> F64:
+  +f = SD.fa(sz)
+  F64.sub(F64.mul(0.5f64, SD.fv(f, 0n)), F64.mul(0.5f64, F64.mul(1.0825317547305483f64, SD.fv(f, 1n))))
+
+def v_modx(+hs: List<&2, Hf>, +rc: F64, +sz: String, +cls: String) -> Vr:
+  vr_mod(hs, SD.fv(SD.fa(sz), 1n), hf_band(hs, rc), hf_band(hs, xroot(sz)), v_winx(sz, cls, rc))
+
 def v_mod(+hs: List<&2, Hf>, +rb: F64, +sz: String, +cls: String) -> Vr:
   +f = SD.fa(sz)
   vr_mod(hs, SD.fv(f, 1n), hf_band(hs, rb), hf_band(hs, F64.mul(0.5f64, SD.fv(f, 0n))), v_win(sz, cls, rb))
@@ -544,6 +568,10 @@ def ent_go(k: U64, +nd: U64, +i: Nat, +h: M.Hs, +a: Ax, +rb: F64, +std: String, 
     case 10u64:
       +v = v_ring(b, a, std, g)
       Vr{vr_ok(v), "std ring-groove " ++ U64.show(nd) ++ " " ++ M.gv_name(std) ++ vr_s(v) ++ " (" ++ M.gv_name(std) ++ ")" ++ Bool.pick(String, vr_ok(v), " status=pass\n", " status=fail\n")}
+    case 12u64:
+      M.Hs{kk, +sz, +cls, x, y, r} = h
+      +v = v_modx(hfs(b, a), rb, sz, cls)
+      Vr{vr_ok(v), "std external-thread " ++ U64.show(nd) ++ " " ++ sz ++ " " ++ xcls(cls) ++ " at=" ++ pt_s(ax_p(a)) ++ " n=" ++ dir_s(ax_n(a)) ++ ":" ++ st_s(v)}
     case 11u64:
       +v = v_key(b, a, std, g)
       Vr{vr_ok(v), "std keyway " ++ U64.show(nd) ++ " DIN 6885-1" ++ st_s(v)}
@@ -621,10 +649,24 @@ def tap_mod(+nd: U64, +i: Nat, +sz: String, +cls: String, +rb: F64, +a: Ax, +b: 
   +cr = hf_band(hs, rb)
   tap_ml(nd, i, sz, M.hs_cls(cls), rb, hf_get(cr), Bool.and(hf_some(cr), vr_ok(v_mod(hs, rb, sz, cls))))
 
+def tap_mlx(+nd: U64, +sz: String, +c: String, +rc: F64, +h: Hf, +ok: Bool) -> String:
+  +w = win_of(sz, c)
+  +lo = hf_lo(h)
+  +hi = hf_hi(h)
+  "thread x" ++ U64.show(nd) ++ " " ++ KT.ds_name(KT.desig(sz)) ++ " " ++ c ++ " z=[" ++ n_s(F64.min(lo, hi)) ++ ", " ++ n_s(F64.max(lo, hi)) ++
+    "] length=" ++ n_s(F64.abs(F64.sub(hi, lo))) ++ " external major=[" ++ S.f_show(KT.r3(V.v2_x(w))) ++ ", " ++ S.f_show(KT.r3(V.v2_y(w))) ++ "] model=" ++
+    S.f_show(r6(F64.mul(2.0f64, rc))) ++ " modelled face=" ++ hf_nm(h) ++ Bool.pick(String, ok, " status=certified\n", " status=fail\n")
+
+def tap_x(+nd: U64, +sz: String, +cls: String, +rc: F64, +a: Ax, +b: M.Body) -> String:
+  +hs = hfs(b, a)
+  +cr = hf_band(hs, rc)
+  tap_mlx(nd, sz, xcls(cls), rc, hf_get(cr), Bool.and(hf_some(cr), vr_ok(v_modx(hs, rc, sz, cls))))
+
 def tap_k(k: U64, +nd: U64, +i: Nat, +sz: String, +cls: String, +a: Ax, +rb: F64, +b: M.Body) -> String:
   match k:
     case 4u64: tap_sem(nd, i, sz, cls, a, rb, b)
     case 5u64: tap_mod(nd, i, sz, cls, rb, a, b)
+    case 12u64: tap_x(nd, sz, cls, rb, a, b)
     case _: ""
 
 def tap_line(+en: Ent, +b: M.Body) -> String:

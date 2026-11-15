@@ -1,0 +1,85 @@
+{
+ "item": "S2",
+ "limit_s": 10,
+ "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
+ "steps": [
+  {
+   "args": ["apply", "(node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))"],
+   "must": ["^committed", "node 2: .*volume=\\[660\\.38620632\\d+, 660\\.38620632\\d+\\]", "faces=6 solids=1 genus=0"],
+   "limit_s": 5,
+   "stop_on_fail": true
+  },
+  {
+   "args": ["faces", "2", "-f"],
+   "count": ["helicoid .*pitch=\\[1\\.25, 1\\.25\\] .*hand=right", 4],
+   "must": ["helicoid .*band r=\\[3\\.975, 3\\.975\\]", "helicoid .*band r=\\[3\\.3234176532934\\d*, 3\\.3234176532934\\d*\\]", "helicoid .*flank half-angle=30"]
+  },
+  {
+   "args": ["threads", "2"],
+   "must": ["M8x1\\.25 6g .*external major=\\[7\\.76, 7\\.972\\] model=7\\.95 modelled .*status=certified"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["std", "2"],
+   "must": ["external-thread 2 M8 6g .*modelled helicoids=4 .*status=pass", "^std node 2: 1 features, 1 pass"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["check", "2"],
+   "must": ["^ok:", "certified by construction"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["tess", "2", "{work}/t.obj"],
+   "must": ["faces direct=\\d+ .*chord-bound=certified"],
+   "must_not": ["not-closed", "error", "refused"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["step", "2", "{work}/t.stp"],
+   "must": ["^wrote ", "deviation <= "],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["wall", "2"],
+   "must": ["modelled-thread-not-supported", "fix: "],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(param L 20)"],
+   "must": ["^committed", "node 2: .*volume=\\[825\\.48275791\\d+, 825\\.48275791\\d+\\]"],
+   "limit_s": 5,
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 3 (xthread 1 (face 1 n1.c0.top) M8 6g) (intent remove any any 1 0))"],
+   "must": ["xthread-needs-a-plain-cylinder", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 4 (xthread 1 (face 1 n1.c0.wall.0.0) M6) (intent remove any any 1 0))"],
+   "must": ["xthread-diameter-above-major", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 5 (xthread 1 (face 1 n1.c0.wall.0.0) M10) (intent remove any any 1 0))"],
+   "must": ["xthread-diameter-below-minor", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 6 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6H) (intent remove any any 1 0))"],
+   "must": ["std-class-unknown", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0))", "(node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))"],
+   "must": ["thread-model-breaks-out", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  },
+  {
+   "args": ["apply", "(node 9 (holes 2 (face 1 n1.c0.top) 3 (hole 0 0 1)) (intent remove any any 1 1))"],
+   "must": ["modelled-thread-faces", "fix: ", "^rejected"],
+   "stop_on_fail": false
+  }
+ ]
+}

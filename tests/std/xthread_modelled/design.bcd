@@ -1,0 +1,3 @@
+(bendcad 1)
+(param 1 L 16 8 30)
+(node 1 (cylinder 3.975 L) (intent create any 0 1 0))

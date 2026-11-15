@@ -3364,10 +3364,27 @@ def hx_ok(good: Bool, +s0: List<&2, TP>, +s1: List<&2, TP>, +s2: List<&2, TP>, +
     case False{}: TGO{[], [], False{}, FS{0.0f64, 1.0f64, 0n, 0n, 1n, [FW{0n, F64.neg(1.0f64), False{}}]}}
     case True{}: hx_mesh(k, tol, s0, s1, s2, s3, rs, same, base)
 
-def hx_sd(+d: Sd, +one: Bool, +k: Hk, +rs: List<&2, List<&2, TP>>, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+def sd_flip(+x: List<&2, TP>, +prv: List<&2, TP>) -> List<&2, TP>:
+  List.append(&2, TP, tl_hd1(prv), tp_rv(tl_tl(x), []))
+
+def sd_norm(rev: Bool, +d: Sd) -> Sd:
+  match rev:
+    case False{}: d
+    case True{}:
+      Sd{+a, +b, +c, +e, +ok} = d
+      Sd{sd_flip(a, e), sd_flip(b, a), sd_flip(c, b), sd_flip(e, c), ok}
+
+def sd_rev(+d: Sd, +k: Hk) -> Bool:
+  Sd{+a, b, c, e, ok} = d
+  Bool.and(Bool.not(tl_nil(a)), F64.is_lt(0.5f64, hx_sig(hk_w(k), tp_p(tp0(a)))))
+
+def hx_sd2(+d: Sd, +one: Bool, +k: Hk, +rs: List<&2, List<&2, TP>>, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   Sd{+a, +b, +c, +e, +ok} = d
   hx_ok(Bool.and(Bool.and(ok, one), Bool.and(Bool.and(Bool.not(tl_nil(a)), Bool.not(tl_nil(b))), Bool.and(Bool.not(tl_nil(c)), Bool.not(tl_nil(e))))),
     a, b, c, e, k, rs, same, base, tol)
+
+def hx_sd(+d: Sd, +one: Bool, +k: Hk, +rs: List<&2, List<&2, TP>>, +same: Bool, +base: Nat, +tol: TL) -> TGO:
+  hx_sd2(sd_norm(sd_rev(d, k), d), one, k, rs, same, base, tol)
 
 def hl_hd(xs: List<&2, Ty.HLoop>) -> Ty.HLoop:
   match xs:
