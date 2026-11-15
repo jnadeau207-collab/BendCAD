@@ -1,0 +1,783 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p6h",
+ "cases": [
+  {
+   "case": "plate",
+   "node": 2,
+   "apply_s": 0.283,
+   "committed": true,
+   "bbox": [
+    -1.0658141036401508e-13,
+    60.000000000000135,
+    -1.0658141036401508e-13,
+    40.000000000000135,
+    -1.0658141036401508e-13,
+    8.000000000000114
+   ],
+   "drawing_s": 0.725,
+   "drawing_out": "wrote /var/tmp/draw-e2e/plate/part.dxf drawing node 2 views FRONT TOP LEFT (ISO first-angle) segments visible=768 hidden=18 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
+   "dxf": {
+    "audit_errors": [],
+    "layers": [
+     "0",
+     "DIM",
+     "Defpoints",
+     "HIDDEN",
+     "TEXT",
+     "THIN",
+     "VISIBLE"
+    ],
+    "lines": 804,
+    "edge_lines": 786,
+    "placed": 786,
+    "zero_length": 0,
+    "views": {
+     "FRONT": {
+      "visible": 4,
+      "hidden": 9,
+      "thin": 0,
+      "w": 60.0,
+      "h": 8.0,
+      "want_w": 60.00000000000024,
+      "want_h": 8.00000000000022
+     },
+     "TOP": {
+      "visible": 760,
+      "hidden": 0,
+      "thin": 0,
+      "w": 60.0,
+      "h": 40.0,
+      "want_w": 60.00000000000024,
+      "want_h": 40.00000000000024
+     },
+     "LEFT": {
+      "visible": 4,
+      "hidden": 9,
+      "thin": 0,
+      "w": 40.0,
+      "h": 8.0,
+      "want_w": 40.00000000000024,
+      "want_h": 8.00000000000022
+     }
+    },
+    "texts": [
+     "60",
+     "8",
+     "FRONT",
+     "60",
+     "40",
+     "TOP",
+     "40",
+     "8",
+     "LEFT",
+     "BendCAD drawing  node 2  units mm",
+     "ISO first-angle projection: FRONT, TOP below it, LEFT to its right",
+     "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)"
+    ]
+   },
+   "step_s": 0.274,
+   "occt": {
+    "FRONT": {
+     "w": 60.0000002,
+     "h": 8.000000199999999
+    },
+    "TOP": {
+     "w": 60.0000002,
+     "h": 40.0000002
+    },
+    "LEFT": {
+     "w": 40.0000002,
+     "h": 8.000000199999999
+    }
+   },
+   "occt_s": 0.38,
+   "checks": [
+    {
+     "name": "ezdxf audit: no errors",
+     "ok": true
+    },
+    {
+     "name": "layers VISIBLE HIDDEN THIN DIM TEXT and the HIDDEN linetype",
+     "ok": true
+    },
+    {
+     "name": "every edge line sits inside its view box",
+     "ok": true
+    },
+    {
+     "name": "no zero-length edge lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT visible extents equal the certified box (60.0000 x 8.0000)",
+     "ok": true
+    },
+    {
+     "name": "TOP visible extents equal the certified box (60.0000 x 40.0000)",
+     "ok": true
+    },
+    {
+     "name": "LEFT visible extents equal the certified box (40.0000 x 8.0000)",
+     "ok": true
+    },
+    {
+     "name": "drawing within the 5 s edit budget",
+     "ok": true
+    },
+    {
+     "name": "hidden features are drawn dashed in FRONT",
+     "ok": true
+    },
+    {
+     "name": "no THIN lines and no thread note without a thread",
+     "ok": true
+    },
+    {
+     "name": "FRONT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "TOP extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "LEFT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  {
+   "case": "standoff_modelled_thread",
+   "node": 1001,
+   "apply_s": 0.111,
+   "committed": true,
+   "bbox": [
+    -3.175426480542961,
+    3.175426480542961,
+    -2.750000000000019,
+    2.750000000000019,
+    -1.7763568394002514e-14,
+    10.000000000000023
+   ],
+   "drawing_s": 0.711,
+   "drawing_out": "wrote /var/tmp/draw-e2e/standoff_modelled_thread/part.dxf drawing node 1001 views FRONT TOP LEFT (ISO first-angle) segments visible=77 hidden=8 threads=1 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
+   "dxf": {
+    "audit_errors": [],
+    "layers": [
+     "0",
+     "DIM",
+     "Defpoints",
+     "HIDDEN",
+     "TEXT",
+     "THIN",
+     "VISIBLE"
+    ],
+    "lines": 103,
+    "edge_lines": 85,
+    "placed": 85,
+    "zero_length": 0,
+    "views": {
+     "FRONT": {
+      "visible": 6,
+      "hidden": 4,
+      "thin": 0,
+      "w": 6.350853,
+      "h": 10.0,
+      "want_w": 6.350852961085922,
+      "want_h": 10.00000000000004
+     },
+     "TOP": {
+      "visible": 38,
+      "hidden": 0,
+      "thin": 28,
+      "w": 6.350853,
+      "h": 5.5,
+      "want_w": 6.350852961085922,
+      "want_h": 5.500000000000038
+     },
+     "LEFT": {
+      "visible": 5,
+      "hidden": 4,
+      "thin": 0,
+      "w": 5.5,
+      "h": 10.0,
+      "want_w": 5.500000000000038,
+      "want_h": 10.00000000000004
+     }
+    },
+    "texts": [
+     "6.351",
+     "10",
+     "FRONT",
+     "6.351",
+     "5.5",
+     "TOP",
+     "5.5",
+     "10",
+     "LEFT",
+     "BendCAD drawing  node 1001  units mm",
+     "ISO first-angle projection: FRONT, TOP below it, LEFT to its right",
+     "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)",
+     "threads drawn conventionally (ISO 6410-1): crest solid (VISIBLE), root thin (THIN), end views crest circle and 3/4 root arc"
+    ]
+   },
+   "step_s": 2.366,
+   "occt": {
+    "FRONT": {
+     "w": 6.350853161085883,
+     "h": 10.000000199999999
+    },
+    "TOP": {
+     "w": 6.350853161085884,
+     "h": 5.500000200000001
+    },
+    "LEFT": {
+     "w": 5.5000002,
+     "h": 10.000000199999999
+    }
+   },
+   "occt_s": 31.8,
+   "checks": [
+    {
+     "name": "ezdxf audit: no errors",
+     "ok": true
+    },
+    {
+     "name": "layers VISIBLE HIDDEN THIN DIM TEXT and the HIDDEN linetype",
+     "ok": true
+    },
+    {
+     "name": "every edge line sits inside its view box",
+     "ok": true
+    },
+    {
+     "name": "no zero-length edge lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT visible extents equal the certified box (6.3509 x 10.0000)",
+     "ok": true
+    },
+    {
+     "name": "TOP visible extents equal the certified box (6.3509 x 5.5000)",
+     "ok": true
+    },
+    {
+     "name": "LEFT visible extents equal the certified box (5.5000 x 10.0000)",
+     "ok": true
+    },
+    {
+     "name": "drawing within the 5 s edit budget",
+     "ok": true
+    },
+    {
+     "name": "hidden features are drawn dashed in FRONT",
+     "ok": true
+    },
+    {
+     "name": "drawing reports one conventional thread",
+     "ok": true
+    },
+    {
+     "name": "FRONT crest lines at +-1.2500 on HIDDEN over the thread length",
+     "ok": true
+    },
+    {
+     "name": "FRONT root lines at +-1.5000 on HIDDEN over the thread length",
+     "ok": true
+    },
+    {
+     "name": "TOP crest circle at r=1.2500 (visible, full turn)",
+     "ok": true
+    },
+    {
+     "name": "TOP root arc at r=1.5000 on THIN, three quarters from 90 to 360 degrees, open in the upper-right quadrant",
+     "ok": true
+    },
+    {
+     "name": "no helix edge drawn: FRONT has no non-axial lines inside the thread band",
+     "ok": true
+    },
+    {
+     "name": "FRONT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "TOP extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "LEFT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  {
+   "case": "stud_external_thread",
+   "node": 2,
+   "apply_s": 0.007,
+   "committed": true,
+   "bbox": [
+    -3.9750000000000303,
+    3.9750000000000303,
+    -3.9750000000000303,
+    3.9750000000000303,
+    -2.8421709430404026e-14,
+    16.00000000000004
+   ],
+   "drawing_s": 0.401,
+   "drawing_out": "wrote /var/tmp/draw-e2e/stud_external_thread/part.dxf drawing node 2 views FRONT TOP LEFT (ISO first-angle) segments visible=102 hidden=0 threads=1 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
+   "dxf": {
+    "audit_errors": [],
+    "layers": [
+     "0",
+     "DIM",
+     "Defpoints",
+     "HIDDEN",
+     "TEXT",
+     "THIN",
+     "VISIBLE"
+    ],
+    "lines": 120,
+    "edge_lines": 102,
+    "placed": 102,
+    "zero_length": 0,
+    "views": {
+     "FRONT": {
+      "visible": 4,
+      "hidden": 0,
+      "thin": 2,
+      "w": 7.95,
+      "h": 16.0,
+      "want_w": 7.950000000000061,
+      "want_h": 16.000000000000068
+     },
+     "TOP": {
+      "visible": 52,
+      "hidden": 0,
+      "thin": 38,
+      "w": 7.95,
+      "h": 7.95,
+      "want_w": 7.950000000000061,
+      "want_h": 7.950000000000061
+     },
+     "LEFT": {
+      "visible": 4,
+      "hidden": 0,
+      "thin": 2,
+      "w": 7.949999999999996,
+      "h": 16.0,
+      "want_w": 7.950000000000061,
+      "want_h": 16.000000000000068
+     }
+    },
+    "texts": [
+     "7.95",
+     "16",
+     "FRONT",
+     "7.95",
+     "7.95",
+     "TOP",
+     "7.95",
+     "16",
+     "LEFT",
+     "BendCAD drawing  node 2  units mm",
+     "ISO first-angle projection: FRONT, TOP below it, LEFT to its right",
+     "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)",
+     "threads drawn conventionally (ISO 6410-1): crest solid (VISIBLE), root thin (THIN), end views crest circle and 3/4 root arc"
+    ]
+   },
+   "step_s": 1.82,
+   "occt": {
+    "FRONT": {
+     "w": 7.950000191465131,
+     "h": 16.000000200000002
+    },
+    "TOP": {
+     "w": 7.949996945158218,
+     "h": 7.949997010087593
+    },
+    "LEFT": {
+     "w": 7.950000189568054,
+     "h": 16.000000200000002
+    }
+   },
+   "occt_s": 18.25,
+   "checks": [
+    {
+     "name": "ezdxf audit: no errors",
+     "ok": true
+    },
+    {
+     "name": "layers VISIBLE HIDDEN THIN DIM TEXT and the HIDDEN linetype",
+     "ok": true
+    },
+    {
+     "name": "every edge line sits inside its view box",
+     "ok": true
+    },
+    {
+     "name": "no zero-length edge lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT visible extents equal the certified box (7.9500 x 16.0000)",
+     "ok": true
+    },
+    {
+     "name": "TOP visible extents equal the certified box (7.9500 x 7.9500)",
+     "ok": true
+    },
+    {
+     "name": "LEFT visible extents equal the certified box (7.9500 x 16.0000)",
+     "ok": true
+    },
+    {
+     "name": "drawing within the 5 s edit budget",
+     "ok": true
+    },
+    {
+     "name": "drawing reports one conventional thread",
+     "ok": true
+    },
+    {
+     "name": "FRONT crest lines at +-3.9750 on VISIBLE over the thread length",
+     "ok": true
+    },
+    {
+     "name": "FRONT root lines at +-3.3234 on THIN over the thread length",
+     "ok": true
+    },
+    {
+     "name": "TOP crest circle at r=3.9750 (visible, full turn)",
+     "ok": true
+    },
+    {
+     "name": "TOP root arc at r=3.3234 on THIN, three quarters from 90 to 360 degrees, open in the upper-right quadrant",
+     "ok": true
+    },
+    {
+     "name": "no helix edge drawn: FRONT has no non-axial lines inside the thread band",
+     "ok": true
+    },
+    {
+     "name": "FRONT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "TOP extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "LEFT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  {
+   "case": "cylinder_seam",
+   "node": 1,
+   "apply_s": 0.006,
+   "committed": true,
+   "bbox": [
+    -5.000000000000038,
+    5.000000000000038,
+    -5.000000000000038,
+    5.000000000000038,
+    -3.552713678800502e-14,
+    20.000000000000043
+   ],
+   "drawing_s": 0.05,
+   "drawing_out": "wrote /var/tmp/draw-e2e/cylinder_seam/part.dxf drawing node 1 views FRONT TOP LEFT (ISO first-angle) segments visible=134 hidden=0 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
+   "dxf": {
+    "audit_errors": [],
+    "layers": [
+     "0",
+     "DIM",
+     "Defpoints",
+     "HIDDEN",
+     "TEXT",
+     "THIN",
+     "VISIBLE"
+    ],
+    "lines": 152,
+    "edge_lines": 134,
+    "placed": 134,
+    "zero_length": 0,
+    "views": {
+     "FRONT": {
+      "visible": 4,
+      "hidden": 0,
+      "thin": 0,
+      "w": 10.0,
+      "h": 20.0,
+      "want_w": 10.000000000000076,
+      "want_h": 20.000000000000078
+     },
+     "TOP": {
+      "visible": 126,
+      "hidden": 0,
+      "thin": 0,
+      "w": 10.0,
+      "h": 9.996891999999999,
+      "want_w": 10.000000000000076,
+      "want_h": 10.000000000000076
+     },
+     "LEFT": {
+      "visible": 4,
+      "hidden": 0,
+      "thin": 0,
+      "w": 9.996892000000003,
+      "h": 20.0,
+      "want_w": 10.000000000000076,
+      "want_h": 20.000000000000078
+     }
+    },
+    "texts": [
+     "10",
+     "20",
+     "FRONT",
+     "10",
+     "10",
+     "TOP",
+     "10",
+     "20",
+     "LEFT",
+     "BendCAD drawing  node 1  units mm",
+     "ISO first-angle projection: FRONT, TOP below it, LEFT to its right",
+     "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)"
+    ]
+   },
+   "step_s": 0.005,
+   "occt": {
+    "FRONT": {
+     "w": 10.0000002,
+     "h": 20.000000200000002
+    },
+    "TOP": {
+     "w": 10.0000002,
+     "h": 9.996892020008165
+    },
+    "LEFT": {
+     "w": 10.0000002,
+     "h": 20.000000200000002
+    }
+   },
+   "occt_s": 0.0,
+   "checks": [
+    {
+     "name": "ezdxf audit: no errors",
+     "ok": true
+    },
+    {
+     "name": "layers VISIBLE HIDDEN THIN DIM TEXT and the HIDDEN linetype",
+     "ok": true
+    },
+    {
+     "name": "every edge line sits inside its view box",
+     "ok": true
+    },
+    {
+     "name": "no zero-length edge lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT visible extents equal the certified box (10.0000 x 20.0000)",
+     "ok": true
+    },
+    {
+     "name": "TOP visible extents equal the certified box (10.0000 x 10.0000)",
+     "ok": true
+    },
+    {
+     "name": "LEFT visible extents equal the certified box (10.0000 x 20.0000)",
+     "ok": true
+    },
+    {
+     "name": "drawing within the 5 s edit budget",
+     "ok": true
+    },
+    {
+     "name": "no THIN lines and no thread note without a thread",
+     "ok": true
+    },
+    {
+     "name": "no line inside the cylinder outline (FRONT, LEFT)",
+     "ok": true
+    },
+    {
+     "name": "each side view outlines the cylinder with exactly two straight silhouette lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "TOP extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "LEFT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  {
+   "case": "torus_seam",
+   "node": 1,
+   "apply_s": 0.008,
+   "committed": true,
+   "bbox": [
+    -23.00000000000005,
+    23.00000000000005,
+    -23.00000000000005,
+    23.00000000000005,
+    -3.0000000000000417,
+    3.0000000000000417
+   ],
+   "drawing_s": 1.38,
+   "drawing_out": "wrote /var/tmp/draw-e2e/torus_seam/part.dxf drawing node 1 views FRONT TOP LEFT (ISO first-angle) segments visible=624 hidden=368 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm",
+   "dxf": {
+    "audit_errors": [],
+    "layers": [
+     "0",
+     "DIM",
+     "Defpoints",
+     "HIDDEN",
+     "TEXT",
+     "THIN",
+     "VISIBLE"
+    ],
+    "lines": 1010,
+    "edge_lines": 992,
+    "placed": 992,
+    "zero_length": 0,
+    "views": {
+     "FRONT": {
+      "visible": 230,
+      "hidden": 240,
+      "thin": 0,
+      "w": 46.0,
+      "h": 6.0,
+      "want_w": 46.0000000000001,
+      "want_h": 6.0000000000000835
+     },
+     "TOP": {
+      "visible": 268,
+      "hidden": 4,
+      "thin": 0,
+      "w": 46.0,
+      "h": 45.985702,
+      "want_w": 46.0000000000001,
+      "want_h": 46.0000000000001
+     },
+     "LEFT": {
+      "visible": 126,
+      "hidden": 124,
+      "thin": 0,
+      "w": 45.98570199999999,
+      "h": 6.0,
+      "want_w": 46.0000000000001,
+      "want_h": 6.0000000000000835
+     }
+    },
+    "texts": [
+     "46",
+     "6",
+     "FRONT",
+     "46",
+     "46",
+     "TOP",
+     "46",
+     "6",
+     "LEFT",
+     "BendCAD drawing  node 1  units mm",
+     "ISO first-angle projection: FRONT, TOP below it, LEFT to its right",
+     "visible edges and silhouettes solid (VISIBLE), tangent edges between different surfaces thin (THIN), hidden dashed (HIDDEN), seams not drawn, overall sizes from the certified box (DIM)"
+    ]
+   },
+   "step_s": 0.012,
+   "occt": {
+    "FRONT": {
+     "w": 46.0000002,
+     "h": 6.0000002
+    },
+    "TOP": {
+     "w": 46.0000002,
+     "h": 45.99504350455799
+    },
+    "LEFT": {
+     "w": 46.0000002,
+     "h": 6.0000002
+    }
+   },
+   "occt_s": 0.11,
+   "checks": [
+    {
+     "name": "ezdxf audit: no errors",
+     "ok": true
+    },
+    {
+     "name": "layers VISIBLE HIDDEN THIN DIM TEXT and the HIDDEN linetype",
+     "ok": true
+    },
+    {
+     "name": "every edge line sits inside its view box",
+     "ok": true
+    },
+    {
+     "name": "no zero-length edge lines",
+     "ok": true
+    },
+    {
+     "name": "FRONT visible extents equal the certified box (46.0000 x 6.0000)",
+     "ok": true
+    },
+    {
+     "name": "TOP visible extents equal the certified box (46.0000 x 46.0000)",
+     "ok": true
+    },
+    {
+     "name": "LEFT visible extents equal the certified box (46.0000 x 6.0000)",
+     "ok": true
+    },
+    {
+     "name": "drawing within the 5 s edit budget",
+     "ok": true
+    },
+    {
+     "name": "no THIN lines and no thread note without a thread",
+     "ok": true
+    },
+    {
+     "name": "no equator seam across the torus in FRONT",
+     "ok": true
+    },
+    {
+     "name": "no seam inside the ring in TOP (only the R+r and R-r outlines)",
+     "ok": true
+    },
+    {
+     "name": "FRONT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "TOP extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    },
+    {
+     "name": "LEFT extents agree with OCCT polygonal hidden-line projection",
+     "ok": true
+    }
+   ],
+   "pass": true
+  }
+ ],
+ "passed": 5,
+ "total": 5
+}

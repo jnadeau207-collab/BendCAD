@@ -1,6 +1,6 @@
 {
- "binary": "/home/jesse/bc/bendcad-p5t",
- "sha256": "31b13bf0a257f16133dcdfdf468483ee022a5ddcfd0e4cc21062eaaca77a9679",
+ "binary": "/home/jesse/bc/bendcad-p6h",
+ "sha256": "48289b7f2795611542a9c94b7a7365ed5c142f6ee86abf9fd69c53188838a575",
  "passed": 7,
  "total": 7,
  "cases": [
@@ -9,11 +9,11 @@
    "item": "S2",
    "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
    "verdict": "pass",
-   "seconds": 7.741,
+   "seconds": 7.795,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))",
-     "seconds": 0.13,
+     "seconds": 0.127,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -22,7 +22,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.128,
+     "seconds": 0.118,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -40,7 +40,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.373,
+     "seconds": 0.369,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -49,7 +49,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.388,
+     "seconds": 0.382,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -67,7 +67,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))",
-     "seconds": 0.669,
+     "seconds": 0.653,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -76,7 +76,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13 -f",
-     "seconds": 0.179,
+     "seconds": 0.181,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -85,7 +85,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.768,
+     "seconds": 0.781,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -94,7 +94,7 @@
     },
     {
      "cmd": "BIN design.bcd std 14",
-     "seconds": 0.299,
+     "seconds": 0.297,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -103,7 +103,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))",
-     "seconds": 0.734,
+     "seconds": 0.768,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -112,7 +112,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN471) 4) (intent remove any any 1 any))",
-     "seconds": 0.767,
+     "seconds": 0.786,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -121,7 +121,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))",
-     "seconds": 0.734,
+     "seconds": 0.77,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -130,7 +130,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))",
-     "seconds": 0.763,
+     "seconds": 0.772,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -139,7 +139,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))",
-     "seconds": 0.779,
+     "seconds": 0.769,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -148,7 +148,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 14 -f",
-     "seconds": 0.291,
+     "seconds": 0.283,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -162,11 +162,11 @@
    "item": "S2",
    "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
    "verdict": "pass",
-   "seconds": 0.289,
+   "seconds": 0.292,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
-     "seconds": 0.047,
+     "seconds": 0.048,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -175,7 +175,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102",
-     "seconds": 0.03,
+     "seconds": 0.029,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -193,7 +193,7 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.03,
+     "seconds": 0.029,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -202,7 +202,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 0.061,
+     "seconds": 0.065,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -211,7 +211,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 202",
-     "seconds": 0.046,
+     "seconds": 0.047,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -220,7 +220,7 @@
     },
     {
      "cmd": "BIN design.bcd std 202",
-     "seconds": 0.046,
+     "seconds": 0.045,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -234,7 +234,7 @@
    "item": "S2",
    "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
    "verdict": "pass",
-   "seconds": 3.986,
+   "seconds": 4.052,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
@@ -247,7 +247,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.013,
+     "seconds": 0.014,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -256,7 +256,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 1 n1.c0.top) through (counterbore M4 10 30) (countersink M4 25 30) (tapped M4 40 30)) (intent remove any any 1 6))",
-     "seconds": 0.413,
+     "seconds": 0.411,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -265,7 +265,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 3 -f",
-     "seconds": 0.403,
+     "seconds": 0.427,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -274,7 +274,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.409,
+     "seconds": 0.418,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -283,7 +283,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 3",
-     "seconds": 0.832,
+     "seconds": 0.867,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -292,7 +292,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 12)",
-     "seconds": 0.42,
+     "seconds": 0.428,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -301,7 +301,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.412,
+     "seconds": 0.425,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -310,7 +310,7 @@
     },
     {
      "cmd": "BIN design.bcd show",
-     "seconds": 0.002,
+     "seconds": 0.003,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -319,7 +319,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (holes 3 (face 1 n1.c0.top) through (hole 12 10 3.5)) (intent remove any any 1 any))",
-     "seconds": 0.545,
+     "seconds": 0.518,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -328,7 +328,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.523,
+     "seconds": 0.527,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -342,11 +342,11 @@
    "item": "S2",
    "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
    "verdict": "pass",
-   "seconds": 0.163,
+   "seconds": 0.165,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.009,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -391,7 +391,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
-     "seconds": 0.098,
+     "seconds": 0.099,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -432,11 +432,11 @@
    "item": "S2",
    "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
    "verdict": "pass",
-   "seconds": 2.146,
+   "seconds": 2.173,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
-     "seconds": 0.434,
+     "seconds": 0.445,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -445,7 +445,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.422,
+     "seconds": 0.44,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -463,7 +463,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 102",
-     "seconds": 0.86,
+     "seconds": 0.858,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -477,11 +477,11 @@
    "item": "S2",
    "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
    "verdict": "pass",
-   "seconds": 3.692,
+   "seconds": 3.864,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))",
-     "seconds": 0.107,
+     "seconds": 0.109,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -490,7 +490,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001",
-     "seconds": 0.108,
+     "seconds": 0.112,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -499,7 +499,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001 -f",
-     "seconds": 0.11,
+     "seconds": 0.107,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -508,7 +508,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1001",
-     "seconds": 0.203,
+     "seconds": 0.215,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -517,7 +517,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1001",
-     "seconds": 0.105,
+     "seconds": 0.109,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -526,7 +526,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1001",
-     "seconds": 0.131,
+     "seconds": 0.136,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -534,26 +534,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p5t/thread_modelled/t.obj",
-     "seconds": 0.189,
+     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p6h/thread_modelled/t.obj",
+     "seconds": 0.201,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p5t/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
+     "output_head": "wrote /var/tmp/repro-std-p6h/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
     },
     {
-     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p5t/thread_modelled/t.stp",
-     "seconds": 2.227,
+     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p6h/thread_modelled/t.stp",
+     "seconds": 2.357,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p5t/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p6h/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 1001",
-     "seconds": 0.194,
+     "seconds": 0.198,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -562,7 +562,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.106,
+     "seconds": 0.107,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -580,7 +580,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))",
-     "seconds": 0.105,
+     "seconds": 0.106,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -594,11 +594,11 @@
    "item": "S2",
    "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
    "verdict": "pass",
-   "seconds": 2.01,
+   "seconds": 2.118,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.007,
+     "seconds": 0.006,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -607,7 +607,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.005,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -634,7 +634,7 @@
     },
     {
      "cmd": "BIN design.bcd check 2",
-     "seconds": 0.03,
+     "seconds": 0.031,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -642,22 +642,22 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p5t/xthread_modelled/t.obj",
-     "seconds": 0.062,
+     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p6h/xthread_modelled/t.obj",
+     "seconds": 0.066,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p5t/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
+     "output_head": "wrote /var/tmp/repro-std-p6h/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
     },
     {
-     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p5t/xthread_modelled/t.stp",
-     "seconds": 1.758,
+     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p6h/xthread_modelled/t.stp",
+     "seconds": 1.854,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p5t/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p6h/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 2",
@@ -706,7 +706,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6H) (intent remove any any 1 0))",
-     "seconds": 0.005,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -715,7 +715,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0)) (node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.092,
+     "seconds": 0.098,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],

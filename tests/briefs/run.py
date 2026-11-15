@@ -12,7 +12,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'mesh'))
+sys.path.insert(0, os.path.join(ROOT, 'tests', 'draw'))
 from briefs import BRIEFS
+import dxfcheck as DX
 
 BIN = os.environ.get('BENDCAD_BIN', os.environ.get('BRIEF_BIN', '/home/jesse/bc/bendcad-a15'))
 WORK = os.environ.get('BRIEF_WORK', '/var/tmp/briefs')
@@ -167,7 +169,34 @@ def judge(spec, out):
     return 'not-analyzed', f'unknown judge {k}'
 
 
-def run_check(design, c):
+def drawing_check(design, c, parts):
+    wd = os.path.dirname(design)
+    ev = kernel(design, 'eval')
+    rows, t = [], 0.0
+    for n in parts:
+        dx = os.path.join(wd, f'n{n}.dxf')
+        r = kernel(design, 'drawing', str(n), dx, timeout=c.get('timeout', TIMEOUT))
+        t += r['s']
+        bb = DX.bbox(ev['out'], n)
+        if r['timeout'] or not r['out'].startswith('wrote ') or bb is None:
+            rows.append(dict(node=n, verdict='not-analyzed', detail=('timeout' if r['timeout'] else 'no certified box' if bb is None else r['out'].strip()[:400])))
+            continue
+        try:
+            rec, cks, segs = DX.check(dx, bb)
+            bad = [nm for nm, ok in cks if not ok]
+            rows.append(dict(node=n, verdict='fail' if bad else 'pass', detail=('failed: ' + '; '.join(bad)) if bad else
+                             f"ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; {r['out'].strip()[6:200]}", s=r['s']))
+        except Exception as ex:
+            rows.append(dict(node=n, verdict='fail', detail='DXF unreadable: ' + str(ex)[:300]))
+    vs = [x['verdict'] for x in rows]
+    v = 'fail' if 'fail' in vs else 'not-analyzed' if 'not-analyzed' in vs else 'pass'
+    return dict(req=c['req'], verdict=v, detail=' | '.join(f"n{x['node']}: {x['verdict']}: {x['detail']}" for x in rows)[:1500],
+                cmd='drawing ' + ' '.join(str(n) for n in parts), s=round(t, 3), info=c.get('info', False))
+
+
+def run_check(design, c, parts=()):
+    if c['judge'][0] == 'drawing_ok':
+        return drawing_check(design, c, parts)
     if c.get('cmd') is None:
         v, d = judge(c['judge'], '')
         return dict(req=c['req'], verdict=v, detail=d, cmd=None, s=0.0, info=c.get('info', False))
@@ -314,7 +343,7 @@ def brief(b):
     rec['step'] = [step_part(d, wd, n, certs[n], ival(node_line(ev['out'], n) or '', 'area=')) for n in have]
     rec['tess'] = [tess_part(d, wd, n, certs[n]) for n in have]
     rec['stl_manufacturing'] = [stl_part(d, wd, n) for n in have[:1]]
-    rec['checks'] = [run_check(d, c) for c in b['checks']] if built or b.get('check_partial') else \
+    rec['checks'] = [run_check(d, c, have) for c in b['checks']] if built or b.get('check_partial') else \
         [dict(req=c['req'], verdict='not-analyzed', detail='design not built', cmd=None, s=0.0) for c in b['checks']]
     ed = b.get('edit')
     if built and ed:
@@ -328,7 +357,7 @@ def brief(b):
             after['check'] = dict(s=ck['s'], out=clip(ck['out'], 600))
             after['tess'] = dict(s=ts['s'], out=clip(ts['out'], 400), timeout=ts['timeout'])
             after['visible_rechecked_s'] = round(ea['s'] + ck['s'] + ts['s'], 3)
-            after['checks'] = [run_check(d, c) for c in b['checks']]
+            after['checks'] = [run_check(d, c, b['parts']) for c in b['checks']]
         rec['timed_edit'] = after
     else:
         rec['timed_edit'] = None
@@ -341,7 +370,7 @@ def brief(b):
                        all(v['verdict'] == 'pass' for k, v in rec['budgets'].items() if k != 'scene'))
     if not KEEP:
         for f in os.listdir(wd):
-            if f.endswith(('.stp', '.obj', '.stl', '.3mf')):
+            if f.endswith(('.stp', '.obj', '.stl', '.3mf', '.dxf')):
                 os.remove(os.path.join(wd, f))
     json.dump(rec, open(os.path.join(OUT, f'{bid}.json'), 'w', encoding='utf-8', newline='\n'), indent=1)
     return rec

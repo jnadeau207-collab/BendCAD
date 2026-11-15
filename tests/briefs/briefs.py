@@ -27,7 +27,7 @@ def NA(req, reason):
     return dict(req=req, cmd=None, judge=('na', reason), info=False)
 
 
-DRAWING = NA('drawing output valid for another tool', 'no drawing export exists in the CLI (no command emits a 2D drawing)')
+DRAWING = C('drawing output valid for another tool', ['drawing'], ('drawing_ok',))
 NO_STD = 'the kernel holds no {} data; the size was supplied by the agent from memory and nothing checks it against the standard'
 
 

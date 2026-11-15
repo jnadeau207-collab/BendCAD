@@ -3890,3 +3890,56 @@ def body_go(+norev: Bool, +b: M.Body, +q: M10.Q) -> M10.Tres:
 
 def body_q(+b: M.Body, +q: M10.Q) -> M10.Tres:
   body_go(Nat.is_eq(List.length(&2, F.Lp, M.bd_rv(b)), 0n), b, q)
+
+type Mp is Data:
+  Mp{ ps: List<&2, V.Point>, ts: List<&2, Tri>, ns: List<&2, Nat>, es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, ok: Bool }
+
+def mp_ps(+m: Mp) -> List<&2, V.Point>:
+  Mp{+ps, ts, ns, es, ss, ok} = m
+  ps
+
+def mp_ts(+m: Mp) -> List<&2, Tri>:
+  Mp{ps, +ts, ns, es, ss, ok} = m
+  ts
+
+def mp_ns(+m: Mp) -> List<&2, Nat>:
+  Mp{ps, ts, +ns, es, ss, ok} = m
+  ns
+
+def mp_es(+m: Mp) -> List<&2, Ty.Edge>:
+  Mp{ps, ts, ns, +es, ss, ok} = m
+  es
+
+def mp_ss(+m: Mp) -> List<&2, List<&2, V.Point>>:
+  Mp{ps, ts, ns, es, +ss, ok} = m
+  ss
+
+def mp_ok(+m: Mp) -> Bool:
+  Mp{ps, ts, ns, es, ss, +ok} = m
+  ok
+
+def ta(+t: Tri) -> Nat:
+  Tri{+a, b, c} = t
+  a
+
+def tb(+t: Tri) -> Nat:
+  Tri{a, +b, c} = t
+  b
+
+def tc(+t: Tri) -> Nat:
+  Tri{a, b, +c} = t
+  c
+
+def mp_fin(+fg: FG, +all: List<&2, V.Point>, +br: Ty.Brep, +ss: List<&2, List<&2, V.Point>>) -> Mp:
+  FG{+gt, +ns, ks} = fg
+  TGO{+ts, +gp, +gok, st} = gt
+  Mp{List.append(&2, V.Point, all, gp), ts, ns, Ty.brep_es(br), ss, Bool.and(gok, closed(ts))}
+
+def mesh_of(+b: M.Body, +q: M10.Q) -> Mp:
+  +br = M.bd_brep(b)
+  +ps = all_pts(br, q)
+  +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
+  +tb = B.tb_of(V.Point, all, pz())
+  mp_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}),
+    all, br, smps(Ty.brep_es(br), q))
+

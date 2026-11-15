@@ -41,6 +41,7 @@ import ../k2/kstep.bend as KX
 import ../c13/err.bend as E
 import ../c13/req.bend as R
 import ./vsrv.bend as VS
+import ./draw.bend as DW
 
 
 def iv_s(+v: I.I) -> String:
@@ -635,7 +636,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
-  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, 0u64))))))))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, Bool.pick(U64, String.eq(c, "drawing"), 37u64, 0u64)))))))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
@@ -965,6 +966,22 @@ def mach_out(+p: M.Part, +xs: List<&2, String>, +old: List<&2, M.CE>) -> String:
     Bool.and(Bool.and(Bool.and(F64.is_lt(0.0f64, d), F64.is_lt(0.0f64, fl)), Bool.and(F64.is_lt(0.0f64, hd), F64.is_lt(0.0f64, hl))),
       Bool.and(Bool.or(U64.is_eq(ax, 3u64), U64.is_eq(ax, 5u64)), Bool.and(Nat.is_lt(0n, ns), Nat.is_le(ns, 8n)))))
   mach_args(ok, p, S.u64_of(S.Sx_a{S.arg_at(xs, 0n)}), K3X.TL{F64.mul(0.5f64, d), fl, F64.mul(0.5f64, hd), hl}, U64.is_eq(ax, 5u64), ns, old)
+
+def draw_write(+w: Bool, +d: DW.Dw, +out: String, +id: U64) -> IO(String):
+  match w:
+    case True{}:
+      do IO<String>:
+        u : Unit <- write_file(out, DW.dw_s(d))
+        IO.pure(String, "wrote " ++ out ++ " drawing node " ++ U64.show(id) ++ " views FRONT TOP LEFT (ISO first-angle) segments visible=" ++ Nat.show(DW.dw_nv(d)) ++
+          " hidden=" ++ Nat.show(DW.dw_nh(d)) ++ " threads=" ++ Nat.show(DW.dw_nt(d)) ++ " (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM TEXT sizes from the certified box; edges sampled and silhouettes taken from a closed mesh, both within chord 0.05 mm, hidden-line depth tolerance 0.1 mm")
+    case False{}: IO.pure(String, "refused " ++ DW.dw_why(d) ++ " | drawing | fix: report the design; the mesh behind the views must close")
+
+def draw_out(r: M.NR, +out: String, +id: U64) -> IO(String):
+  match r:
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing drawn")
+    case M.NR_ok{+b, fx}:
+      +d = DW.draw_body(b, id)
+      draw_write(DW.dw_ok(d), d, out, id)
 
 def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(String):
   match w:
@@ -1458,7 +1475,8 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 33u64: IO.pure(String, mach_out(p, rest, old))
     case 35u64: scene_io(p, rest, old)
     case 36u64: IO.pure(String, KSD.std_out(p, S.arg_at(rest, 0n), old))
-    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std")
+    case 37u64: draw_out(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))
+    case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std, drawing")
 
 def run_cancel_go(is_diag: Bool, +cmd: String, +path: String) -> IO(String):
   match is_diag:
