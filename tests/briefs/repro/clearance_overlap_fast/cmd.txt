@@ -1,0 +1,1 @@
+BIN design.bcd clearance 2 4   # plate with a 12 mm hole vs a 12.1 mm pin through it: p6o answers interference in 41 s

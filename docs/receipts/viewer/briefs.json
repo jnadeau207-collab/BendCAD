@@ -1,0 +1,943 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p7d",
+ "sha256": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf",
+ "source": "/var/tmp/briefs",
+ "briefs": [
+  {
+   "brief": "B1",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.294
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2166,
+   "open_to_neighbours_ms": 2179,
+   "params": [
+    "T=4",
+    "L=40",
+    "W=30",
+    "R=3"
+   ],
+   "nodes": 3,
+   "parts": [
+    3
+   ],
+   "unmeshed": [],
+   "selected": 3,
+   "check": "pass",
+   "make": "not-analyzed 13 faces, 10 pass, 0 fail, 3 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 873,
+   "eval_mesh_ms": 324,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B1-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B2",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 2,
+     "parts": 2,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 1
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.26425
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2961,
+   "open_to_neighbours_ms": 3395,
+   "params": [
+    "S=31.5",
+    "P=22.1"
+   ],
+   "nodes": 6,
+   "parts": [
+    4,
+    91
+   ],
+   "unmeshed": [],
+   "selected": 4,
+   "check": "pass",
+   "make": "makeable 19 faces, 19 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 2254,
+   "eval_mesh_ms": 152,
+   "neighbours": [
+    {
+     "node": 91,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.09999999967000048,
+     "hi": 0.10000000000001497,
+     "ms": 434
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B2-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B3",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 3,
+     "parts": 3,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 2
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.229875
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2259,
+   "open_to_neighbours_ms": 3721,
+   "params": [
+    "DS=22"
+   ],
+   "nodes": 7,
+   "parts": [
+    103,
+    191,
+    193
+   ],
+   "unmeshed": [],
+   "selected": 103,
+   "check": "pass",
+   "make": "not-makeable 28 faces, 22 pass, 6 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 1281,
+   "eval_mesh_ms": 385,
+   "neighbours": [
+    {
+     "node": 191,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.09999999975983795,
+     "hi": 0.10000000000002635,
+     "ms": 695
+    },
+    {
+     "node": 193,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.09999999988037264,
+     "hi": 0.10000000000002635,
+     "ms": 762
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B3-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B4",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.12575
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2494,
+   "open_to_neighbours_ms": 2506,
+   "params": [
+    "DK=8.006"
+   ],
+   "nodes": 3,
+   "parts": [
+    204
+   ],
+   "unmeshed": [],
+   "selected": 204,
+   "check": "pass",
+   "make": "not-analyzed 35 faces, 29 pass, 0 fail, 6 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 1426,
+   "eval_mesh_ms": 501,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B4-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B5",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.3601875
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 4858,
+   "open_to_neighbours_ms": 4866,
+   "params": [],
+   "nodes": 13,
+   "parts": [
+    313
+   ],
+   "unmeshed": [],
+   "selected": 313,
+   "check": "pass",
+   "make": "makeable 10 faces, 10 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 2610,
+   "eval_mesh_ms": 1635,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B5-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B6",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 2,
+     "parts": 2,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 1
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.2320625
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 4433,
+   "open_to_neighbours_ms": 24538,
+   "params": [],
+   "nodes": 3,
+   "parts": [
+    1,
+    3
+   ],
+   "unmeshed": [],
+   "selected": 1,
+   "check": "pass",
+   "make": "makeable 246 faces, 246 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 3252,
+   "eval_mesh_ms": 599,
+   "neighbours": [
+    {
+     "node": 3,
+     "kind": "timeout",
+     "status": "not-analyzed",
+     "ms": 20101,
+     "text": "no answer in 20 s"
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B6-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B7",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 2,
+     "parts": 2,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 1
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.40475
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 5132,
+   "open_to_neighbours_ms": 20367,
+   "params": [
+    "H=32"
+   ],
+   "nodes": 9,
+   "parts": [
+    705,
+    714
+   ],
+   "unmeshed": [],
+   "selected": 705,
+   "check": "pass",
+   "make": "not-analyzed 36 faces, 23 pass, 0 fail, 13 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 3484,
+   "eval_mesh_ms": 1061,
+   "neighbours": [
+    {
+     "node": 714,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0,
+     "hi": 0,
+     "ms": 15234
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B7-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B8",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 2,
+     "parts": 2,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 1
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.1933125
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2573,
+   "open_to_neighbours_ms": 22663,
+   "params": [
+    "GD=2.7"
+   ],
+   "nodes": 4,
+   "parts": [
+    802,
+    804
+   ],
+   "unmeshed": [],
+   "selected": 802,
+   "check": "pass",
+   "make": "makeable 24 faces, 24 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 1555,
+   "eval_mesh_ms": 441,
+   "neighbours": [
+    {
+     "node": 804,
+     "kind": "timeout",
+     "status": "not-analyzed",
+     "ms": 20085,
+     "text": "no answer in 20 s"
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B8-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B9",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 6,
+     "parts": 6,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 5
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.338375
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2407,
+   "open_to_neighbours_ms": 43314,
+   "params": [],
+   "nodes": 16,
+   "parts": [
+    906,
+    921,
+    931,
+    932,
+    933,
+    934
+   ],
+   "unmeshed": [],
+   "selected": 906,
+   "check": "pass",
+   "make": "not-analyzed 14 faces, 13 pass, 0 fail, 1 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 1061,
+   "eval_mesh_ms": 730,
+   "neighbours": [
+    {
+     "node": 921,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.14999999539835746,
+     "hi": 0.14999999999999813,
+     "ms": 3846
+    },
+    {
+     "node": 931,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.39999996990626263,
+     "hi": 0.40000000000001656,
+     "ms": 15076
+    },
+    {
+     "node": 932,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.39999999038147943,
+     "hi": 0.3999999999999999,
+     "ms": 5632
+    },
+    {
+     "node": 933,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 0.39999997474327825,
+     "hi": 0.4000000000000109,
+     "ms": 15700
+    },
+    {
+     "node": 934,
+     "kind": "interference",
+     "status": "certified",
+     "lo": 0,
+     "hi": 0,
+     "ms": 648
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B9-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B10",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.275125
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 1730,
+   "open_to_neighbours_ms": 1735,
+   "params": [],
+   "nodes": 2,
+   "parts": [
+    1001
+   ],
+   "unmeshed": [],
+   "selected": 1001,
+   "check": "pass",
+   "make": "not-analyzed 12 faces, 8 pass, 0 fail, 4 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "not-analyzed"
+   },
+   "checks_ms": 863,
+   "eval_mesh_ms": 282,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B10-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B11",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.2344375
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 24527,
+   "open_to_neighbours_ms": 24532,
+   "params": [],
+   "nodes": 12,
+   "parts": [
+    1110
+   ],
+   "unmeshed": [],
+   "selected": 1110,
+   "check": "pass",
+   "make": "not-analyzed 19 faces, 6 pass, 0 fail, 13 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 18424,
+   "eval_mesh_ms": 5236,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B11-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B12",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.2659375
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 7296,
+   "open_to_neighbours_ms": 7301,
+   "params": [],
+   "nodes": 4,
+   "parts": [
+    1208
+   ],
+   "unmeshed": [],
+   "selected": 1208,
+   "check": "pass",
+   "make": "makeable 30 faces, 30 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": null,
+    "centroid": "certified"
+   },
+   "checks_ms": 5352,
+   "eval_mesh_ms": 1376,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B12-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B13",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 4,
+     "parts": 4,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 3
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.2086875
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 6676,
+   "open_to_neighbours_ms": 19033,
+   "params": [
+    "DS=22.01",
+    "DK=8.004"
+   ],
+   "nodes": 20,
+   "parts": [
+    103,
+    204,
+    313,
+    401
+   ],
+   "unmeshed": [],
+   "selected": 103,
+   "check": "pass",
+   "make": "not-makeable 28 faces, 22 pass, 6 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": "6082-T6",
+    "centroid": "certified"
+   },
+   "checks_ms": 3372,
+   "eval_mesh_ms": 2662,
+   "neighbours": [
+    {
+     "node": 204,
+     "kind": "clearance",
+     "status": "certified",
+     "lo": 5.5249988672341335,
+     "hi": 5.525000000000018,
+     "ms": 9818
+    },
+    {
+     "node": 313,
+     "kind": "interference",
+     "status": "certified",
+     "lo": 0,
+     "hi": 0,
+     "ms": 1916
+    },
+    {
+     "node": 401,
+     "kind": "interference",
+     "status": "certified",
+     "lo": 0,
+     "hi": 0,
+     "ms": 615
+    }
+   ],
+   "render": "docs/receipts/viewer/briefs/B13-iso.png",
+   "ok": true
+  },
+  {
+   "brief": "B14",
+   "checks": [
+    {
+     "name": "every part the kernel evaluates is meshed and shown",
+     "ok": true,
+     "shown": 1,
+     "parts": 1,
+     "failed": []
+    },
+    {
+     "name": "every node status comes from the kernel",
+     "ok": true,
+     "bad": []
+    },
+    {
+     "name": "the first part is checked: check, std, make and mass answer",
+     "ok": true
+    },
+    {
+     "name": "every other part has a neighbour verdict",
+     "ok": true,
+     "rows": 0
+    },
+    {
+     "name": "the iso inspection render shows the parts",
+     "ok": true,
+     "coverage": 0.28025
+    },
+    {
+     "name": "no page errors",
+     "ok": true,
+     "errors": []
+    }
+   ],
+   "open_ms": 2446,
+   "open_to_neighbours_ms": 2452,
+   "params": [],
+   "nodes": 3,
+   "parts": [
+    1403
+   ],
+   "unmeshed": [],
+   "selected": 1403,
+   "check": "pass",
+   "make": "makeable 52 faces, 52 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
+   "mass": {
+    "material": "PLA",
+    "centroid": "certified"
+   },
+   "checks_ms": 1325,
+   "eval_mesh_ms": 534,
+   "neighbours": [],
+   "render": "docs/receipts/viewer/briefs/B14-iso.png",
+   "ok": true
+  }
+ ],
+ "passed": 14,
+ "total": 14
+}

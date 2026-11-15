@@ -546,6 +546,27 @@
   "verdict": "SOME PROOFS FAIL"
  },
  {
+  "pkt": "c11",
+  "law": "a crossing shell reports interference",
+  "file": "src/c11/qdist.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "a crossing found one way is kept",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
+  "pkt": "c11",
+  "law": "a sampled interference needs no witness",
+  "file": "src/c11/qinterf.bend",
+  "ok": true,
+  "verdict": "SOME PROOFS FAIL"
+ },
+ {
   "pkt": "c12",
   "law": "archive units gate",
   "file": "src/c12/blob.bend",

@@ -101,7 +101,7 @@ def Laws.classify_bd_false(b, x, y, z):
 def Laws.rel_pair_go_dis(a, b, wa, wb):
   {==}
 
-def Laws.rel_interf_go_dis(a, b, wa, wb):
+def Laws.rel_interf_go_dis(a, b, wa, wb, aa, bb):
   {==}
 
 def Laws.wit_go_dis(a, b, wa, wb):
@@ -214,4 +214,13 @@ def Laws.sect_with_none(b, mapped):
   {==}
 
 def Laws.sect_at_none(pl, f, at):
+  {==}
+
+def Laws.cl_hit_hit(a, b, aa, bb, sa, sb, hs, tol):
+  {==}
+
+def Laws.cx_mk_hit(ga, hb, gb):
+  {==}
+
+def Laws.ri_wit_hit(a, b, wa, wb):
   {==}

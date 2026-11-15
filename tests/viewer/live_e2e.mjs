@@ -9,10 +9,13 @@ const BIN = process.env.BENDCAD_BIN || '/home/jesse/bc/bendcad';
 const PORT = +(process.env.BCL_PORT || 8796);
 const OUT = path.resolve(process.env.LIVE_OUT || path.join(ROOT, 'docs', 'receipts', 'viewer'));
 const DESIGN = '/var/tmp/viewer-e2e/fit.bcd';
-const EDITS = ['(param D 10 10 10.015)', '(node 1 (box 40 30 8) (intent create any 0 1 0))',
+const EDITS = ['(param D 10 10 10.015)', '(param C 0.1)', '(node 1 (box 40 30 8) (intent create any 0 1 0))',
   '(node 2 (holes 1 (face 1 0 top) through (hole 20 15 (/ D 2))) (intent remove any any 1 1))',
-  '(node 3 (cylinder (- (/ D 2) 0.1) 20) (intent create any 0 1 0))', '(node 4 (move 3 20 15 -6 0) (intent same any any 1 0))',
+  '(node 3 (cylinder (- (/ D 2) C) 20) (intent create any 0 1 0))', '(node 4 (move 3 20 15 -6 0) (intent same any any 1 0))',
+  '(node 5 (box 10 10 8) (intent create any 0 1 0))', '(node 6 (move 5 60 0 0 0) (intent same any any 1 0))',
   '(material 2 6061-T6 2700 23.6e-6 68900 0.33)'];
+const nearOf = (L, id) => L.near && L.near.rows.find(r => r.node === id);
+const waitNear = (page, node) => page.waitForFunction(n => { const l = window.bcv.live(); return l.near && l.near.node === n && !l.nearing && !l.busy; }, node, { timeout: 120000 });
 const PLATE = d => 9600 - Math.PI * d * d / 4 * 8;
 
 const wsl = (...a) => spawnSync('wsl.exe', ['-e', ...a], { encoding: 'utf8' });
@@ -40,12 +43,19 @@ try {
   rep.timings.open_ms = Date.now() - t0;
   let L = await page.evaluate(() => window.bcv.live());
   let parts = await page.evaluate(() => window.bcv.parts());
-  chk('the viewer opens the design file itself: parameters, features and parts come from the kernel', L.doc.params.length === 1 && L.doc.params[0].name === 'D' && L.doc.nodes.length === 4 && L.doc.parts.join() === '2,4',
+  chk('the viewer opens the design file itself: parameters, features and parts come from the kernel', L.doc.params.map(p => p.name).join() === 'D,C' && L.doc.nodes.length === 6 && L.doc.parts.join() === '2,4,6',
     { params: L.doc.params, parts: L.doc.parts });
-  chk('both parts are shown', parts.length === 2 && parts.every(p => p.tris > 0), { parts: parts.map(p => p.node) });
+  chk('every part is shown', parts.length === 3 && parts.every(p => p.tris > 0), { parts: parts.map(p => p.node) });
+  const labels = await page.evaluate(() => window.bcv.st.parts.map(p => p.label));
+  chk('a placed part is named by the feature it places, not by the move', labels.join('|') === 'Holes · node 2|Cylinder · node 4|Box · node 6', { labels });
   const pin0 = parts.find(p => p.node === 4), plate0 = parts.find(p => p.node === 2);
   chk('pin diameter is D - 0.2 = 9.8 from its mesh box', near(size(pin0)[0], 9.8, 0.06), { size: size(pin0) });
-  chk('the feature tree lists every node with its op and status', await page.locator('#live .feat').count() === 4 && await page.locator('#live .feat.part').count() === 2);
+  chk('the feature tree lists every node with its op and status', await page.locator('#live .feat').count() === 6 && await page.locator('#live .feat.part').count() === 3);
+  await waitNear(page, 2);
+  L = await page.evaluate(() => window.bcv.live());
+  const n4 = nearOf(L, 4), n6 = nearOf(L, 6);
+  chk('neighbours: the pin in the hole has a certified 0.1 mm clearance', n4 && n4.kind === 'clearance' && n4.status === 'certified' && n4.lo <= 0.1 + 1e-9 && n4.hi >= 0.1 - 1e-9 && n4.hi - n4.lo < 1e-6, { pin: n4 });
+  chk('neighbours: the far block is bounded by its enclosing boxes without a kernel query', n6 && n6.kind === 'apart' && Math.abs(n6.lo - 20) < 1e-6 && n6.ms === 0, { block: n6 });
   chk('checks run for the selected part: check, std and make with the declared process', L.checks && L.checks.node === 2 && L.checks.check.status === 'pass' && L.checks.make.verdict === 'makeable',
     { check: L.checks && L.checks.check.text, make: L.checks && L.checks.make.summary });
   chk('the hole is checked as a drilled 10 mm hole', L.checks && L.checks.make.lines.some(l => /cylinder hole d=10 .* tool="drill 10 jobber/.test(l.text) && l.status === 'pass'));
@@ -79,6 +89,32 @@ try {
   chk('the checks re-run on the new design', L.checks && L.checks.make.lines.some(l => /cylinder hole d=12 .* tool="drill 12 jobber/.test(l.text) && l.status === 'pass'));
   chk('edit to re-checked view within the 5 s budget', rep.timings.edit_to_checked_ms <= 5000, { ms: rep.timings.edit_to_checked_ms });
   await shot('live-edited', 'after D 10 -> 12: hole, pin and checks updated');
+  await waitNear(page, 2);
+  L = await page.evaluate(() => window.bcv.live());
+  const n4b = nearOf(L, 4);
+  chk('the neighbour check re-runs: the pin follows D and keeps its certified 0.1 mm clearance', n4b && n4b.kind === 'clearance' && n4b.lo <= 0.1 + 1e-9 && n4b.hi >= 0.1 - 1e-9 && n4b.hi - n4b.lo < 1e-6, { pin: n4b });
+
+  const rc = L.doc.rev, t3 = Date.now();
+  await page.fill('#live input[data-p="C"]', '-0.05');
+  await page.press('#live input[data-p="C"]', 'Enter');
+  await page.waitForFunction(r => document.body.dataset.rev !== r, rc, { timeout: 120000 });
+  await waitNear(page, 2);
+  rep.timings.edit_to_neighbours_ms = Date.now() - t3;
+  L = await page.evaluate(() => window.bcv.live());
+  const n4c = nearOf(L, 4);
+  chk('making the pin 0.05 mm oversize shows a certified interference with the plate', n4c && n4c.kind === 'interference' && n4c.status === 'certified' && await page.locator('#checks .ck.nb[data-nb="4"] .st.fail').count() === 1, { pin: n4c });
+  const glow = await page.evaluate(() => window.bcv.st.parts.map(p => ({ node: p.node, e: p.mat.emissive.toArray() })));
+  const g4 = glow.find(x => x.node === 4).e, g6 = glow.find(x => x.node === 6).e;
+  chk('the clashing pin is marked red in the 3D view, the clear block is not', g4[0] > 0.2 && g4[1] < 0.1 && g6.every(v => v === 0), { glow });
+  chk('edit to neighbour verdict within the 5 s budget', rep.timings.edit_to_neighbours_ms <= 5000, { ms: rep.timings.edit_to_neighbours_ms, clearance_ms: n4c && n4c.ms });
+  await shot('live-interference', 'C = -0.05: the pin is 0.05 mm oversize and the neighbour check certifies the interference');
+  const rc2 = L.doc.rev;
+  await page.fill('#live input[data-p="C"]', '0.1');
+  await page.press('#live input[data-p="C"]', 'Enter');
+  await page.waitForFunction(r => document.body.dataset.rev !== r, rc2, { timeout: 120000 });
+  await waitNear(page, 2);
+  L = await page.evaluate(() => window.bcv.live());
+  chk('setting C back restores the design and its 0.1 mm clearance', L.doc.rev === rc && nearOf(L, 4).kind === 'clearance');
 
   const rev1 = L.doc.rev;
   await page.fill('#live input[data-p="D"]', '-4');
@@ -114,7 +150,7 @@ try {
   rep.timings.inspect_ms = Date.now() - t2;
   rep.inspect = files.map(f => ({ view: f.view, file: path.relative(ROOT, f.file).replace(/\\/g, '/'), mm_per_px: f.mm_per_px, mid_row: f.mid_row, coverage: f.coverage }));
   const fr = files.find(f => f.view === 'front'), wmm = fr && (fr.mid_row[1] - fr.mid_row[0] + 1) * fr.mm_per_px;
-  chk('the front inspection view is a true orthographic projection: the plate measures 40 mm in the image', fr && Math.abs(wmm - 40) <= 2 * fr.mm_per_px, { measured_mm: wmm, mm_per_px: fr && fr.mm_per_px });
+  chk('the front inspection view is a true orthographic projection: plate to far block measures 70 mm in the image', fr && Math.abs(wmm - 70) <= 2 * fr.mm_per_px, { measured_mm: wmm, mm_per_px: fr && fr.mm_per_px });
   const dims = f => { const b = fs.readFileSync(f); return [b.readUInt32BE(16), b.readUInt32BE(20)]; };
   chk('inspection views render to fixed-size image files for the agent, scene only', files.length === 4 && files.every(f => fs.statSync(f.file).size > 20000 && f.coverage > 0.01 && dims(f.file).join() === '1600,1000'), { views: rep.inspect });
   chk('inspection restores the person\'s camera and selection', await page.evaluate(() => !window.bcv.camera().ortho && [...window.bcv.st.sel].map(p => p.node).join() === '4'));

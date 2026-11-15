@@ -1,0 +1,184 @@
+{
+ "old": "/home/jesse/bc/bendcad-p6o",
+ "new": "/home/jesse/bc/bendcad-p7d",
+ "sha256": {
+  "/home/jesse/bc/bendcad-p6o": "42792237514c2a3e9d3e5e142d74363b2815c59e26efaa3eccb7e99cc601f020",
+  "/home/jesse/bc/bendcad-p7d": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf"
+ },
+ "design": [
+  "(node 1 (box 40 30 8) (intent create any 0 1 0))",
+  "(node 2 (holes 1 (face 1 0 top) through (hole 20 15 6)) (intent remove any any 1 1))",
+  "(node 3 (cylinder 6.05 20) (intent create any 0 1 0))",
+  "(node 4 (move 3 20 15 -6 0) (intent same any any 1 0))",
+  "(node 5 (cylinder 5.9 20) (intent create any 0 1 0))",
+  "(node 6 (move 5 20 15 -6 0) (intent same any any 1 0))",
+  "(node 7 (box 4 4 4) (intent create any 0 1 0))",
+  "(node 8 (move 7 5 5 2 0) (intent same any any 1 0))",
+  "(node 9 (box 10 10 8) (intent create any 0 1 0))",
+  "(node 10 (move 9 40 0 0 0) (intent same any any 1 0))",
+  "(node 11 (move 7 34 24 6 0) (intent same any any 1 0))",
+  "(node 12 (rotate 3 x 30) (intent same any any 1 0))",
+  "(node 13 (move 12 20 15 4 0) (intent same any any 1 0))",
+  "(node 14 (move 7 100 0 0 0) (intent same any any 1 0))",
+  "(node 15 (union 8 14) (intent add any any 2 0))"
+ ],
+ "committed": true,
+ "cases": [
+  {
+   "case": "oversize pin through the hole",
+   "pair": [
+    "2",
+    "4"
+   ],
+   "kind": "interference",
+   "old": "clearance 0 status=certified state=interference",
+   "old_s": 41.023,
+   "old_timeout": false,
+   "new": "clearance 0 status=certified state=interference",
+   "new_s": 0.041,
+   "new_timeout": false,
+   "identical": true,
+   "interference": true,
+   "ok": true
+  },
+  {
+   "case": "the same pair the other way round",
+   "pair": [
+    "4",
+    "2"
+   ],
+   "kind": "interference",
+   "old": "clearance 0 status=certified state=interference",
+   "old_s": 40.969,
+   "old_timeout": false,
+   "new": "clearance 0 status=certified state=interference",
+   "new_s": 0.036,
+   "new_timeout": false,
+   "identical": true,
+   "interference": true,
+   "ok": true
+  },
+  {
+   "case": "fit pin, 0.1 radial",
+   "pair": [
+    "2",
+    "6"
+   ],
+   "kind": "clearance",
+   "old": "clearance [0.09999999950653479, 0.10000000000002018] certified lo=branch-and-bound hi=witness samples=35x7",
+   "old_s": 0.072,
+   "old_timeout": false,
+   "new": "clearance [0.09999999950653479, 0.10000000000002018] certified lo=branch-and-bound hi=witness samples=35x7",
+   "new_s": 0.075,
+   "new_timeout": false,
+   "identical": true,
+   "interference": false,
+   "ok": true
+  },
+  {
+   "case": "cube buried in the plate material",
+   "pair": [
+    "2",
+    "8"
+   ],
+   "kind": "nested",
+   "old": "clearance [1.999999999999996, 2.0000000000000018] certified lo=branch-and-bound hi=witness samples=35x30 state=inside",
+   "old_s": 0.104,
+   "old_timeout": false,
+   "new": "clearance [1.999999999999996, 2.0000000000000018] certified lo=branch-and-bound hi=witness samples=35x30 state=inside",
+   "new_s": 0.075,
+   "new_timeout": false,
+   "identical": true,
+   "interference": false,
+   "ok": true
+  },
+  {
+   "case": "block touching the end face",
+   "pair": [
+    "2",
+    "10"
+   ],
+   "kind": "touching",
+   "old": "clearance [0, 0] certified lo=branch-and-bound hi=sampled samples=35x30",
+   "old_s": 0.951,
+   "old_timeout": false,
+   "new": "clearance [0, 0] certified lo=branch-and-bound hi=sampled samples=35x30",
+   "new_s": 0.773,
+   "new_timeout": false,
+   "identical": true,
+   "interference": false,
+   "ok": true
+  },
+  {
+   "case": "cube through the top corner",
+   "pair": [
+    "2",
+    "11"
+   ],
+   "kind": "interference",
+   "old": "clearance 0 status=certified state=interference",
+   "old_s": 0.126,
+   "old_timeout": false,
+   "new": "clearance 0 status=certified state=interference",
+   "new_s": 0.023,
+   "new_timeout": false,
+   "identical": true,
+   "interference": true,
+   "ok": true
+  },
+  {
+   "case": "oversize pin tilted 30 degrees through the hole",
+   "pair": [
+    "2",
+    "13"
+   ],
+   "kind": "interference",
+   "old": "clearance 0 status=certified state=interference",
+   "old_s": 3.758,
+   "old_timeout": false,
+   "new": "clearance 0 status=certified state=interference",
+   "new_s": 0.052,
+   "new_timeout": false,
+   "identical": true,
+   "interference": true,
+   "ok": true
+  },
+  {
+   "case": "two solids: one buried in the plate, one far away",
+   "pair": [
+    "2",
+    "15"
+   ],
+   "kind": "nested",
+   "old": "clearance [1.999999999999996, 2.0000000000000018] certified lo=branch-and-bound hi=witness samples=35x60 state=inside",
+   "old_s": 0.121,
+   "old_timeout": false,
+   "new": "clearance [1.999999999999996, 2.0000000000000018] certified lo=branch-and-bound hi=witness samples=35x60 state=inside",
+   "new_s": 0.08,
+   "new_timeout": false,
+   "identical": true,
+   "interference": false,
+   "ok": true
+  },
+  {
+   "case": "thinner pin inside the thicker one, end caps shared",
+   "pair": [
+    "4",
+    "6"
+   ],
+   "kind": "interference",
+   "old": "clearance 0 status=certified state=interference",
+   "old_s": 0.547,
+   "old_timeout": false,
+   "new": "clearance 0 status=certified state=interference",
+   "new_s": 0.552,
+   "new_timeout": false,
+   "identical": true,
+   "interference": true,
+   "ok": true
+  }
+ ],
+ "passed": 9,
+ "total": 9,
+ "ok": true
+}

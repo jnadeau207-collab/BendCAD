@@ -1,19 +1,22 @@
 {
- "binary": "/home/jesse/bc/bendcad-p6o",
- "sha256": "42792237514c2a3e9d3e5e142d74363b2815c59e26efaa3eccb7e99cc601f020",
+ "binary": "/home/jesse/bc/bendcad-p7d",
+ "sha256": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf",
  "design": [
   "(param D 10 10 10.015)",
+  "(param C 0.1)",
   "(node 1 (box 40 30 8) (intent create any 0 1 0))",
   "(node 2 (holes 1 (face 1 0 top) through (hole 20 15 (/ D 2))) (intent remove any any 1 1))",
-  "(node 3 (cylinder (- (/ D 2) 0.1) 20) (intent create any 0 1 0))",
+  "(node 3 (cylinder (- (/ D 2) C) 20) (intent create any 0 1 0))",
   "(node 4 (move 3 20 15 -6 0) (intent same any any 1 0))",
+  "(node 5 (box 10 10 8) (intent create any 0 1 0))",
+  "(node 6 (move 5 60 0 0 0) (intent same any any 1 0))",
   "(material 2 6061-T6 2700 23.6e-6 68900 0.33)"
  ],
  "checks": [
   {
    "name": "fixture design committed",
    "ok": true,
-   "out": "99996, 24.90000000000004]x[10.09999999999996, 19.90000000000004]x[-6.000000000000036, 14.00000000000004] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\n\ncommitted"
+   "out": "000000000003]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 8.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\n\ncommitted"
   },
   {
    "name": "the viewer opens the design file itself: parameters, features and parts come from the kernel",
@@ -25,19 +28,37 @@
      "value": "10",
      "lo": "10",
      "hi": "10.015"
+    },
+    {
+     "id": 2,
+     "name": "C",
+     "value": "0.1",
+     "lo": "0.1",
+     "hi": "0.1"
     }
    ],
    "parts": [
     2,
-    4
+    4,
+    6
    ]
   },
   {
-   "name": "both parts are shown",
+   "name": "every part is shown",
    "ok": true,
    "parts": [
     2,
-    4
+    4,
+    6
+   ]
+  },
+  {
+   "name": "a placed part is named by the feature it places, not by the move",
+   "ok": true,
+   "labels": [
+    "Holes · node 2",
+    "Cylinder · node 4",
+    "Box · node 6"
    ]
   },
   {
@@ -52,6 +73,33 @@
   {
    "name": "the feature tree lists every node with its op and status",
    "ok": true
+  },
+  {
+   "name": "neighbours: the pin in the hole has a certified 0.1 mm clearance",
+   "ok": true,
+   "pin": {
+    "node": 4,
+    "op": "move",
+    "ms": 140,
+    "kind": "clearance",
+    "lo": 0.09999999944968604,
+    "hi": 0.10000000000001966,
+    "status": "certified",
+    "text": "clearance [0.09999999944968604, 0.10000000000001966] certified lo=branch-and-bound hi=witness samples=35x7"
+   }
+  },
+  {
+   "name": "neighbours: the far block is bounded by its enclosing boxes without a kernel query",
+   "ok": true,
+   "block": {
+    "node": 6,
+    "op": "move",
+    "kind": "apart",
+    "lo": 19.999999999999886,
+    "status": "certified",
+    "text": "enclosing boxes 20.000 mm apart",
+    "ms": 0
+   }
   },
   {
    "name": "checks run for the selected part: check, std and make with the declared process",
@@ -108,7 +156,7 @@
   {
    "name": "the part is drawn (canvas coverage)",
    "ok": true,
-   "coverage": 0.5494444444444444
+   "coverage": 0.20201388888888888
   },
   {
    "name": "a person changes a dimension in the viewer and the kernel commits it",
@@ -161,7 +209,75 @@
   {
    "name": "edit to re-checked view within the 5 s budget",
    "ok": true,
-   "ms": 1360
+   "ms": 845
+  },
+  {
+   "name": "the neighbour check re-runs: the pin follows D and keeps its certified 0.1 mm clearance",
+   "ok": true,
+   "pin": {
+    "node": 4,
+    "op": "move",
+    "ms": 150,
+    "kind": "clearance",
+    "lo": 0.09999999950653479,
+    "hi": 0.10000000000002018,
+    "status": "certified",
+    "text": "clearance [0.09999999950653479, 0.10000000000002018] certified lo=branch-and-bound hi=witness samples=35x7"
+   }
+  },
+  {
+   "name": "making the pin 0.05 mm oversize shows a certified interference with the plate",
+   "ok": true,
+   "pin": {
+    "node": 4,
+    "op": "move",
+    "ms": 123,
+    "kind": "interference",
+    "lo": 0,
+    "hi": 0,
+    "status": "certified",
+    "text": "clearance 0 status=certified state=interference"
+   }
+  },
+  {
+   "name": "the clashing pin is marked red in the 3D view, the clear block is not",
+   "ok": true,
+   "glow": [
+    {
+     "node": 2,
+     "e": [
+      0.028066763465597618,
+      0.14383849284181585,
+      0.18
+     ]
+    },
+    {
+     "node": 4,
+     "e": [
+      0.38,
+      0.016619311115187635,
+      0.016619311115187635
+     ]
+    },
+    {
+     "node": 6,
+     "e": [
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "edit to neighbour verdict within the 5 s budget",
+   "ok": true,
+   "ms": 1169,
+   "clearance_ms": 123
+  },
+  {
+   "name": "setting C back restores the design and its 0.1 mm clearance",
+   "ok": true
   },
   {
    "name": "a refused edit shows the kernel reason and fix and leaves the design as it was",
@@ -196,10 +312,10 @@
    "ok": true
   },
   {
-   "name": "the front inspection view is a true orthographic projection: the plate measures 40 mm in the image",
+   "name": "the front inspection view is a true orthographic projection: plate to far block measures 70 mm in the image",
    "ok": true,
-   "measured_mm": 40.0400949241533,
-   "mm_per_px": 0.05994026186250494
+   "measured_mm": 70.11411695336149,
+   "mm_per_px": 0.08764264619170185
   },
   {
    "name": "inspection views render to fixed-size image files for the agent, scene only",
@@ -208,42 +324,42 @@
     {
      "view": "iso",
      "file": "docs/receipts/viewer/inspect/fit-iso.png",
-     "mm_per_px": 0.059940261862504944,
+     "mm_per_px": 0.08764264619170187,
      "mid_row": [
-      40,
-      1568
+      280,
+      1248
      ],
-     "coverage": 0.3694375
+     "coverage": 0.1646875
     },
     {
      "view": "front",
      "file": "docs/receipts/viewer/inspect/fit-front.png",
-     "mm_per_px": 0.05994026186250494,
+     "mm_per_px": 0.08764264619170185,
      "mid_row": [
-      466,
-      1133
+      400,
+      1199
      ],
-     "coverage": 0.1215625
+     "coverage": 0.0855625
     },
     {
      "view": "top",
      "file": "docs/receipts/viewer/inspect/fit-top.png",
-     "mm_per_px": 0.059940261862504944,
+     "mm_per_px": 0.08764264619170187,
      "mid_row": [
-      91,
-      1507
+      233,
+      1365
      ],
-     "coverage": 0.289875
+     "coverage": 0.112875
     },
     {
      "view": "right",
      "file": "docs/receipts/viewer/inspect/fit-right.png",
-     "mm_per_px": 0.05994026186250493,
+     "mm_per_px": 0.08764264619170187,
      "mid_row": [
-      549,
-      1050
+      628,
+      971
      ],
-     "coverage": 0.1075625
+     "coverage": 0.0705625
     }
    ]
   },
@@ -267,6 +383,10 @@
    "note": "after D 10 -> 12: hole, pin and checks updated"
   },
   {
+   "file": "docs/receipts/viewer/live-interference.png",
+   "note": "C = -0.05: the pin is 0.05 mm oversize and the neighbour check certifies the interference"
+  },
+  {
    "file": "docs/receipts/viewer/live-refused.png",
    "note": "D = -4 refused by the kernel; the design is unchanged"
   },
@@ -280,53 +400,54 @@
   }
  ],
  "timings": {
-  "open_ms": 1735,
-  "edit_to_checked_ms": 1360,
-  "inspect_ms": 3957
+  "open_ms": 1457,
+  "edit_to_checked_ms": 845,
+  "edit_to_neighbours_ms": 1169,
+  "inspect_ms": 3877
  },
- "coverage_open": 0.5494444444444444,
+ "coverage_open": 0.20201388888888888,
  "inspect": [
   {
    "view": "iso",
    "file": "docs/receipts/viewer/inspect/fit-iso.png",
-   "mm_per_px": 0.059940261862504944,
+   "mm_per_px": 0.08764264619170187,
    "mid_row": [
-    40,
-    1568
+    280,
+    1248
    ],
-   "coverage": 0.3694375
+   "coverage": 0.1646875
   },
   {
    "view": "front",
    "file": "docs/receipts/viewer/inspect/fit-front.png",
-   "mm_per_px": 0.05994026186250494,
+   "mm_per_px": 0.08764264619170185,
    "mid_row": [
-    466,
-    1133
+    400,
+    1199
    ],
-   "coverage": 0.1215625
+   "coverage": 0.0855625
   },
   {
    "view": "top",
    "file": "docs/receipts/viewer/inspect/fit-top.png",
-   "mm_per_px": 0.059940261862504944,
+   "mm_per_px": 0.08764264619170187,
    "mid_row": [
-    91,
-    1507
+    233,
+    1365
    ],
-   "coverage": 0.289875
+   "coverage": 0.112875
   },
   {
    "view": "right",
    "file": "docs/receipts/viewer/inspect/fit-right.png",
-   "mm_per_px": 0.05994026186250493,
+   "mm_per_px": 0.08764264619170187,
    "mid_row": [
-    549,
-    1050
+    628,
+    971
    ],
-   "coverage": 0.1075625
+   "coverage": 0.0705625
   }
  ],
- "passed": 29,
- "total": 29
+ "passed": 37,
+ "total": 37
 }

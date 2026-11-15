@@ -1,5 +1,5 @@
 {
- "binary_sha256": "42792237514c2a3e9d3e5e142d74363b2815c59e26efaa3eccb7e99cc601f020",
+ "binary_sha256": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf",
  "passed": 66,
  "total": 66,
  "results": [
@@ -11,7 +11,7 @@
     83301.23811436284
    ],
    "exact": 83301.23811428528,
-   "seconds": 0.10771059989929199
+   "seconds": 0.11394596099853516
   },
   {
    "name": "bracket.reopen",
@@ -76,7 +76,7 @@
     6000.000000005582
    ],
    "exact": 6000.0,
-   "seconds": 0.08489203453063965
+   "seconds": 0.0930330753326416
   },
   {
    "name": "primitive.box.mesh",
@@ -96,7 +96,7 @@
     942.4777960769503
    ],
    "exact": 942.4777960769379,
-   "seconds": 0.09975409507751465
+   "seconds": 0.09152936935424805
   },
   {
    "name": "primitive.cylinder.mesh",
@@ -116,7 +116,7 @@
     2094.395102393236
    ],
    "exact": 2094.3951023931954,
-   "seconds": 0.08919119834899902
+   "seconds": 0.09640002250671387
   },
   {
    "name": "primitive.cone.mesh",
@@ -136,7 +136,7 @@
     4188.790204793095
    ],
    "exact": 4188.790204786391,
-   "seconds": 0.10682439804077148
+   "seconds": 0.09609508514404297
   },
   {
    "name": "primitive.sphere.mesh",
@@ -156,7 +156,7 @@
     59217.62640661919
    ],
    "exact": 59217.62640653615,
-   "seconds": 0.08051323890686035
+   "seconds": 0.08969449996948242
   },
   {
    "name": "primitive.torus.mesh",
@@ -608,8 +608,8 @@
   {
    "name": "perf.holes100",
    "ok": true,
-   "build_s": 0.126,
-   "tess_s": 0.589,
+   "build_s": 0.111,
+   "tess_s": 0.65,
    "budget": [
     1.0,
     5.0
@@ -627,8 +627,8 @@
   {
    "name": "perf.holes400",
    "ok": true,
-   "build_s": 0.252,
-   "tess_s": 2.372,
+   "build_s": 0.253,
+   "tess_s": 2.447,
    "budget": [
     2.0,
     20.0
@@ -646,7 +646,7 @@
   {
    "name": "sweep.wall_fillet_over_cap_rotated",
    "ok": true,
-   "seconds": 0.49565768241882324,
+   "seconds": 0.5231113433837891,
    "out": "53246] area=[25675.061988726535, 25675.061988779853] bbox=[-115.40827724624339, -26.619591769786034]x[71.763223807191, 223.41368504936685]x[-1.0000000000003972, 55.00000000000041] vertices=64 edges=120 faces=58 solids=1 genus=0 linear_uncertainty=3.968624274530555e-13 | proof: wall-sweep\n\ncommitted\n",
    "check": "edge-face-uncertain 67 4\nedge-face-uncertain 67 53\nedge-face-uncertain 116 53\nedge-face-uncertain 88 18\nedge-face-uncert",
    "defects": []

@@ -209,7 +209,9 @@ law rel_interf_go_dis:
   for +b: M.Body
   for +wa: QA.Ab
   for +wb: QA.Ab
-  {QI.rel_interf_go(True{}, a, b, wa, wb) == False{} : Bool}
+  for +aa: QI.Ag
+  for +bb: QI.Ag
+  {QI.rel_interf_go(True{}, a, b, wa, wb, aa, bb) == False{} : Bool}
 
 law wit_go_dis:
   for +a: M.Body
@@ -414,3 +416,27 @@ law sect_at_none:
   for +f: Ty.Face
   for +at: Nat
   {QN.sect_at(None{}, pl, f, at) == QN.sect_miss(at) : QN.Sg}
+
+law cl_hit_hit:
+  for +a: M.Body
+  for +b: M.Body
+  for +aa: QI.Ag
+  for +bb: QI.Ag
+  for +sa: List<&2, V.Point>
+  for +sb: List<&2, V.Point>
+  for +hs: F64
+  for +tol: F64
+  {QD.cl_hit(True{}, a, b, aa, bb, sa, sb, hs, tol) == "clearance 0 status=certified state=interference" : String}
+
+law cx_mk_hit:
+  for +ga: QI.Ag
+  for +hb: Bool
+  for +gb: QI.Ag
+  {QI.cx_mk(QI.Cd{True{}, ga}, QI.Cd{hb, gb}) == QI.Cx{True{}, ga, gb} : QI.Cx}
+
+law ri_wit_hit:
+  for +a: M.Body
+  for +b: M.Body
+  for +wa: QA.Ab
+  for +wb: QA.Ab
+  {QI.ri_wit(True{}, a, b, wa, wb) == True{} : Bool}

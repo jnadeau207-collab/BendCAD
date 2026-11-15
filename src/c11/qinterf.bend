@@ -239,20 +239,81 @@ def wit_go(+ovl: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> Bool:
           SO.bbox(fa, []), M.bd_pl(a), fb, SO.bbox(fb, []), M.bd_pl(b)),
         Bool.not(in_either(shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), aa, bb)))
 
-def rel_interf_go(dis: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> Bool:
+def ri_wit(hit: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> Bool:
+  match hit:
+    case True{}: True{}
+    case False{}: wit_go(True{}, a, b, wa, wb)
+
+def rel_interf_go(dis: Bool, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab, +aa: Ag, +bb: Ag) -> Bool:
   match dis:
     case True{}: False{}
     case False{}:
-      +aa = ag_of(b, sms_of(a))
-      +bb = ag_of(a, sms_of(b))
-      Bool.or(wit_go(True{}, a, b, wa, wb),
-        Bool.and(Bool.or(Nat.is_lt(0n, ag_nin(aa)), Nat.is_lt(0n, ag_nin(bb))),
-          Bool.not(in_either(shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), aa, bb))))
+      ri_wit(Bool.and(Bool.or(Nat.is_lt(0n, ag_nin(aa)), Nat.is_lt(0n, ag_nin(bb))),
+          Bool.not(in_either(shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), aa, bb))), a, b, wa, wb)
 
-def rel_interf(+a: M.Body, +b: M.Body) -> Bool:
+def rel_interf_ag(+a: M.Body, +b: M.Body, +aa: Ag, +bb: Ag) -> Bool:
   +wa = wbox(a)
   +wb = wbox(b)
-  rel_interf_go(QA.ab_disjoint(wa, wb), a, b, wa, wb)
+  rel_interf_go(QA.ab_disjoint(wa, wb), a, b, wa, wb, aa, bb)
+
+def ri_lazy(dis: Bool, +a: M.Body, +b: M.Body) -> Bool:
+  match dis:
+    case True{}: False{}
+    case False{}: rel_interf_ag(a, b, ag_of(b, sms_of(a)), ag_of(a, sms_of(b)))
+
+def rel_interf(+a: M.Body, +b: M.Body) -> Bool:
+  ri_lazy(QA.ab_disjoint(wbox(a), wbox(b)), a, b)
+
+def loc_v(+p: M.Pl, v: V.Point) -> V.Point:
+  V.Pt{+x, +y, +z} = v
+  loc_pt(p, x, y, z)
+
+def sm_lw(xs: List<&2, BO.SM>, +ma: List<&2, I.I>, +ta: List<&2, I.I>, +pb: M.Pl) -> List<&2, BO.SM>:
+  match xs:
+    case []: []
+    case BO.SM{+q, +s} <> t: BO.SM{loc_v(pb, QA.ab_wpt(ma, ta, q)), s} <> sm_lw(t, ma, ta, pb)
+
+def cr_runs(xs: List<&2, BO.SM>, cs: List<&2, U64>, +s0: Nat, +hi: Bool, +ho: Bool) -> Bool:
+  match xs:
+    case []: False{}
+    case BO.SM{q, +s} <> t:
+      match cs:
+        case []: False{}
+        case +c <> ct:
+          +hi2 = Bool.or(Bool.and(Nat.is_eq(s, s0), hi), U64.is_eq(c, 1u64))
+          +ho2 = Bool.or(Bool.and(Nat.is_eq(s, s0), ho), U64.is_eq(c, 0u64))
+          Bool.pick(Bool, Bool.and(hi2, ho2), True{}, cr_runs(t, ct, s, hi2, ho2))
+
+type Cd is Data:
+  Cd{ hit: Bool, ag: Ag }
+
+type Cx is Data:
+  Cx{ hit: Bool, aa: Ag, bb: Ag }
+
+def ag_fold(cs: List<&2, U64>, +acc: Ag) -> Ag:
+  match cs:
+    case []: acc
+    case +c <> t: ag_fold(t, ag_add(acc, c))
+
+def cd_mk(+xs: List<&2, BO.SM>, +cs: List<&2, U64>) -> Cd:
+  Cd{cr_runs(xs, cs, 0n, False{}, False{}), ag_fold(cs, ag_zero())}
+
+def cd_cls(+xs: List<&2, BO.SM>, +fs: List<&2, SO.Fd>) -> Cd:
+  cd_mk(xs, BO.cj_run(fs, SO.bbox(fs, []), xs))
+
+def cr_pts(+br: Ty.Brep, +pa: M.Pl, +pb: M.Pl) -> List<&2, BO.SM>:
+  sm_lw(BO.sm_of(br, Ty.brep_sos(br), 0n), M.pl_mi(pa), M.pl_ti(pa), pb)
+
+def cd_one(+a: M.Body, +b: M.Body) -> Cd:
+  cd_cls(cr_pts(M.bd_brep(a), M.bd_pl(a), M.bd_pl(b)), SO.fds_of(M.bd_brep(b)))
+
+def cx_mk(da: Cd, db: Cd) -> Cx:
+  Cd{ha, ga} = da
+  Cd{hb, gb} = db
+  Cx{Bool.or(ha, hb), ga, gb}
+
+def cx_of(+a: M.Body, +b: M.Body) -> Cx:
+  cx_mk(cd_one(a, b), cd_one(b, a))
 
 def cav_boxes_go(fs: List<&2, SO.Fd>, +p: M.Pl, +wb: QA.Ab) -> List<&2, QA.Ab>:
   match fs:

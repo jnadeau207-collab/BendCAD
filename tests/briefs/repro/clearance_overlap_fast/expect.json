@@ -1,0 +1,27 @@
+{
+ "item": 4,
+ "limit_s": 5,
+ "claim": "a pin 0.05 mm oversize through a 12 mm hole is a certified interference within the 5 s edit budget, either way round (p6o: 41 s)",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "2",
+    "4"
+   ],
+   "must": [
+    "^clearance 0 status=certified state=interference$"
+   ]
+  },
+  {
+   "args": [
+    "clearance",
+    "4",
+    "2"
+   ],
+   "must": [
+    "^clearance 0 status=certified state=interference$"
+   ]
+  }
+ ]
+}

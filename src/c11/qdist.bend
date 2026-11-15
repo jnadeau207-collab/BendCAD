@@ -302,8 +302,8 @@ def pts_min(ps: List<&2, V.Point>, +qs: List<&2, V.Point>, +best: F64) -> F64:
     case []: best
     case p <> t: pts_min(t, qs, pts_min_one(qs, p, best))
 
-def nested(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>) -> Bool:
-  Bool.or(Nat.is_lt(0n, QI.ag_nin(QI.ag_of(b, sa))), Nat.is_lt(0n, QI.ag_nin(QI.ag_of(a, sb))))
+def nested(+aa: QI.Ag, +bb: QI.Ag) -> Bool:
+  Bool.or(Nat.is_lt(0n, QI.ag_nin(aa)), Nat.is_lt(0n, QI.ag_nin(bb)))
 
 def hi_kind(+w: F64, +hi: F64) -> String:
   Bool.pick(String, F64.is_lt(w, hi), "hi=witness", "hi=sampled")
@@ -326,14 +326,29 @@ def clear_line(+r: I.I, +hs: F64, +nest: Bool, +na: Nat, +nb: Nat, +tol: F64) ->
   "clearance " ++ QC.bv_show(QC.bv_mk(I.i_lo(r), I.i_hi(r), QC.st_certified())) ++ " lo=branch-and-bound " ++ hi_kind(I.i_hi(r), hs) ++ " samples=" ++
     Nat.show(na) ++ "x" ++ Nat.show(nb) ++ Bool.pick(String, nest, " state=inside", "") ++ tol_s(tol)
 
-def clear_hit(hit: Bool, +r: I.I, +hs: F64, +a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +tol: F64) -> String:
+def ck_ag(sep: Bool, +a: M.Body, +b: M.Body, +aa: QI.Ag, +bb: QI.Ag) -> Bool:
+  match sep:
+    case True{}: False{}
+    case False{}: QI.rel_interf_ag(a, b, aa, bb)
+
+def clear_hit(hit: Bool, +r: I.I, +hs: F64, +aa: QI.Ag, +bb: QI.Ag, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +tol: F64) -> String:
   match hit:
     case True{}: "clearance 0 status=certified state=interference"
-    case False{}: clear_line(r, hs, nested(a, b, sa, sb), List.length(&2, V.Point, sa), List.length(&2, V.Point, sb), tol)
+    case False{}: clear_line(r, hs, nested(aa, bb), List.length(&2, V.Point, sa), List.length(&2, V.Point, sb), tol)
+
+def cl_hit(hit: Bool, +a: M.Body, +b: M.Body, +aa: QI.Ag, +bb: QI.Ag, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +hs: F64, +tol: F64) -> String:
+  match hit:
+    case True{}: "clearance 0 status=certified state=interference"
+    case False{}:
+      +r = clear_lo_t(a, b, hs, tol)
+      clear_hit(ck_ag(F64.is_lt(0.0f64, I.i_lo(r)), a, b, aa, bb), r, hs, aa, bb, sa, sb, tol)
+
+def cl_cross(x: QI.Cx, +a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +hs: F64, +tol: F64) -> String:
+  QI.Cx{hit, aa, bb} = x
+  cl_hit(hit, a, b, aa, bb, sa, sb, hs, tol)
 
 def clear_pts(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +hs: F64, +tol: F64) -> String:
-  +r = clear_lo_t(a, b, hs, tol)
-  clear_hit(ck_hit(F64.is_lt(0.0f64, I.i_lo(r)), a, b), r, hs, a, b, sa, sb, tol)
+  cl_cross(QI.cx_of(a, b), a, b, sa, sb, hs, tol)
 
 def clear_sm(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +tol: F64) -> String:
   clear_pts(a, b, sa, sb, pts_min(sa, sb, V.dbl_max()), tol)

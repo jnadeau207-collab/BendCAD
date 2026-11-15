@@ -256,13 +256,15 @@ function setMode(m) {
   applyLook();
 }
 function applyLook() {
-  const S = SCHEMES[st.scheme], acc = new THREE.Color(st.scheme === 'night' ? '#6EE7FF' : '#0E7490');
+  const S = SCHEMES[st.scheme], acc = new THREE.Color(st.scheme === 'night' ? '#6EE7FF' : '#0E7490'), red = new THREE.Color('#FF3B3B');
+  const clash = live.on && live.near ? new Set(live.near.rows.filter(r => r.kind === 'interference' || r.kind === 'inside').map(r => r.node)) : new Set();
   for (const p of st.parts) {
     const m = p.mat, sel = st.sel.has(p), hov = st.hov === p, fm = st.selMode === 'face';
     const ghost = st.mode === 'xray' && !sel;
     if (m.transparent !== ghost) { m.transparent = ghost; m.depthWrite = !ghost; m.needsUpdate = true; }
     m.opacity = ghost ? 0.3 : 1;
-    m.emissive.copy(acc).multiplyScalar(fm ? 0 : sel ? 0.18 : hov ? 0.08 : 0);
+    if (clash.has(p.node) && !sel) m.emissive.copy(red).multiplyScalar(hov ? 0.5 : 0.38);
+    else m.emissive.copy(acc).multiplyScalar(fm ? 0 : sel ? 0.18 : hov ? 0.08 : 0);
     m.userData.u.facc.value.copy(acc);
     m.userData.u.sf.value = st.face && st.face.part === p ? st.face.face : -9;
     m.userData.u.hf.value = fm && st.hface && st.hface.part === p ? st.hface.face : -9;
@@ -905,13 +907,18 @@ async function loadParts(sc, base, first) {
   return failed;
 }
 
-const live = { on: false, doc: null, proc: 'mill', busy: '', last: null, checks: null, node: null, failed: [] };
+const live = { on: false, doc: null, proc: 'mill', busy: '', last: null, checks: null, node: null, failed: [], near: null, nearing: false };
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const chip = s => `<b class="st ${s || 'na'}">${s === 'pass' ? 'pass' : s === 'fail' ? 'fail' : s === 'ok' ? 'ok' : s === 'not-analyzed' ? 'n/a' : esc(s || '?')}</b>`;
+const PLACE = new Set(['move', 'rotate']);
+function featOp(d, id) {
+  const n = d.nodes.find(x => x.id === id);
+  return n && PLACE.has(n.op) && n.base && n.base.length ? featOp(d, n.base[0]) : n ? n.op : '?';
+}
 function liveScene(d) {
   return { name: d.name, parts: d.parts.map(id => {
-    const n = d.nodes.find(x => x.id === id);
-    return { name: `${n.op}_${id}`, label: `${n.op[0].toUpperCase() + n.op.slice(1)} · node ${id}`, node: id, mesh: `/api/mesh/${id}.obj?rev=${d.rev}`, finish: 'part' };
+    const op = featOp(d, id);
+    return { name: `${op}_${id}`, label: `${op[0].toUpperCase() + op.slice(1)} · node ${id}`, node: id, mesh: `/api/mesh/${id}.obj?rev=${d.rev}`, finish: 'part' };
   }) };
 }
 const whyHtml = ws => ws.map(l => {
@@ -940,7 +947,7 @@ function liveRender() {
     inp.onchange = go;
   });
   el.querySelectorAll('.feat.part').forEach(r => r.onclick = () => { const p = st.parts.find(q => q.node === +r.dataset.n); if (p) select(p, false); });
-  $('kstat').textContent = live.busy || (live.last ? `${live.last.ok ? 'updated' : 'refused'} · edit ${(live.last.ms / 1000).toFixed(2)} s · rebuild ${((live.last.rebuild || 0) / 1000).toFixed(2)} s` : `eval ${(d.eval_ms / 1000).toFixed(2)} s`);
+  $('kstat').textContent = live.busy || (live.last ? `${live.last.ok ? 'updated' : 'refused'} · edit ${(live.last.ms / 1000).toFixed(2)} s · rebuild ${((live.last.rebuild || 0) / 1000).toFixed(2)} s` : `evaluated and meshed in ${(d.eval_ms / 1000).toFixed(2)} s`);
   $('kstat').classList.toggle('busy', !!live.busy);
 }
 function checksRender() {
@@ -957,8 +964,27 @@ function checksRender() {
     <div class="seg procs">${procs}</div>
     <div class="ck">${chip(c.make.verdict === 'makeable' ? 'pass' : c.make.verdict === 'not-makeable' ? 'fail' : 'not-analyzed')}<span>${esc(c.make.verdict)} · ${esc(c.make.summary.replace(/^make node \d+: /, ''))}${esc(c.make.head || '')}</span></div>
     ${bad.slice(0, 12).map(l => `<div class="ck sub2">${chip(l.status)}<span>${esc(l.text.replace(/^make (face|corner) /, ''))}</span></div>`).join('')}
-    ${bad.length > 12 ? `<div class="sub">${bad.length - 12} more</div>` : ''}`;
+    ${bad.length > 12 ? `<div class="sub">${bad.length - 12} more</div>` : ''}
+    ${nearHtml(c.node)}`;
   el.querySelectorAll('[data-proc]').forEach(b => b.onclick = () => { live.proc = b.dataset.proc; liveChecks(c.node); });
+}
+const mm = x => x.toFixed(4);
+const nearSt = r => r.kind === 'clearance' || r.kind === 'apart' ? 'pass' : r.kind === 'interference' || r.kind === 'inside' ? 'fail' : 'not-analyzed';
+const nearTxt = r => r.kind === 'apart' ? `at least ${mm(r.lo)} mm (enclosing boxes)`
+  : r.kind === 'clearance' ? `${r.hi - r.lo > 1e-4 ? `${mm(r.lo)} to ${mm(r.hi)}` : mm((r.lo + r.hi) / 2)} mm, ${r.status}`
+  : r.kind === 'interference' ? `interference, ${r.status}` : r.kind === 'inside' ? `inside its material, ${r.status}` : r.text;
+function nearHtml(node) {
+  const r = live.near && live.near.node === node ? live.near : null;
+  const lb = x => (st.parts.find(p => p.node === x.node) || { label: `node ${x.node}` }).label;
+  return `<h4>Neighbours</h4>${r ? r.rows.length ? r.rows.map(x => `<div class="ck nb" data-nb="${x.node}">${chip(nearSt(x))}<span>${esc(lb(x))}: ${esc(nearTxt(x))}</span></div>`).join('')
+    : '<div class="sub">no other parts</div>' : `<div class="sub">${live.nearing ? 'measuring clearances' : ''}</div>`}`;
+}
+async function liveNear(node) {
+  const rev = live.doc.rev;
+  live.near = null; live.nearing = true; checksRender(); applyLook();
+  const r = await (await fetch(`/api/near/${node}`)).json();
+  if (live.node !== node || live.doc.rev !== rev || r.stale) return;
+  live.near = r; live.nearing = false; checksRender(); applyLook();
 }
 async function liveChecks(node) {
   live.node = node;
@@ -966,6 +992,7 @@ async function liveChecks(node) {
   const r = await (await fetch(`/api/checks/${node}?proc=${live.proc}`)).json();
   if (live.node !== node) return;
   live.checks = r; live.busy = ''; liveRender(); checksRender(); props();
+  liveNear(node);
 }
 async function liveApply(edit) {
   live.busy = `applying ${edit}`; liveRender();
@@ -1046,5 +1073,5 @@ function screenOf(pts) {
   const r = cv.getBoundingClientRect();
   return pts.map(a => { const v = new THREE.Vector3(...a).project(camera); return [r.left + (v.x * 0.5 + 0.5) * r.width, r.top + (-v.y * 0.5 + 0.5) * r.height]; });
 }
-window.bcv = { live: () => ({ doc: live.doc, checks: live.checks, last: live.last, busy: live.busy, failed: live.failed.map(p => p.node) }), liveApply, liveChecks, parts: () => st.parts.map(p => ({ node: p.node, lo: p.info.lo, hi: p.info.hi, volume: p.info.volume, tris: p.info.tris })), view, screenOf, setMeasure, measureClick, projectedBounds, bench, boxes, gpu, camera: () => ({ pos: persp.position.toArray(), tgt: st.target.toArray(), ortho: camera === ortho }), setSelMode, st, fit, view, select, setSection, setExplode, setMode, isolate, setScheme, snapshot, pick, useCamera, persp, ortho, toggleRun, updateSection };
+window.bcv = { live: () => ({ doc: live.doc, checks: live.checks, last: live.last, busy: live.busy, near: live.near, nearing: live.nearing, failed: live.failed.map(p => p.node) }), liveApply, liveChecks, parts: () => st.parts.map(p => ({ node: p.node, lo: p.info.lo, hi: p.info.hi, volume: p.info.volume, tris: p.info.tris })), view, screenOf, setMeasure, measureClick, projectedBounds, bench, boxes, gpu, camera: () => ({ pos: persp.position.toArray(), tgt: st.target.toArray(), ortho: camera === ortho }), setSelMode, st, fit, view, select, setSection, setExplode, setMode, isolate, setScheme, snapshot, pick, useCamera, persp, ortho, toggleRun, updateSection };
 main().catch(e => { $('load-t').textContent = 'Error: ' + e.message; console.error(e); });
