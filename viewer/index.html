@@ -15,7 +15,7 @@
 <body data-theme="night">
 <canvas id="gl"></canvas>
 <header id="bar">
-  <div class="brand"><span class="mark">BendCAD</span><span class="doc" id="name">Viewer</span></div>
+  <div class="brand"><span class="mark">BendCAD</span><span class="doc" id="name">Viewer</span><span class="kst" id="kstat"></span></div>
   <nav class="tools">
     <div class="grp">
       <button data-act="fit" title="Fit all (F)"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg><span>Fit</span></button>
@@ -55,8 +55,8 @@
     </div>
   </nav>
 </header>
-<aside id="tree"></aside>
-<aside id="props" hidden></aside>
+<aside id="lcol"><div id="live" hidden></div><div id="tree"></div></aside>
+<aside id="rcol"><div id="props" hidden></div><div id="checks" hidden></div></aside>
 <div id="dock">
   <div class="ctl" id="c-exp" hidden>
     <label>Explode</label><input id="s-exp" type="range" min="0" max="1" step="0.001" value="0"><output id="o-exp">0%</output>

@@ -1,0 +1,332 @@
+{
+ "binary": "/home/jesse/bc/bendcad-p6o",
+ "sha256": "42792237514c2a3e9d3e5e142d74363b2815c59e26efaa3eccb7e99cc601f020",
+ "design": [
+  "(param D 10 10 10.015)",
+  "(node 1 (box 40 30 8) (intent create any 0 1 0))",
+  "(node 2 (holes 1 (face 1 0 top) through (hole 20 15 (/ D 2))) (intent remove any any 1 1))",
+  "(node 3 (cylinder (- (/ D 2) 0.1) 20) (intent create any 0 1 0))",
+  "(node 4 (move 3 20 15 -6 0) (intent same any any 1 0))",
+  "(material 2 6061-T6 2700 23.6e-6 68900 0.33)"
+ ],
+ "checks": [
+  {
+   "name": "fixture design committed",
+   "ok": true,
+   "out": "99996, 24.90000000000004]x[10.09999999999996, 19.90000000000004]x[-6.000000000000036, 14.00000000000004] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\n\ncommitted"
+  },
+  {
+   "name": "the viewer opens the design file itself: parameters, features and parts come from the kernel",
+   "ok": true,
+   "params": [
+    {
+     "id": 1,
+     "name": "D",
+     "value": "10",
+     "lo": "10",
+     "hi": "10.015"
+    }
+   ],
+   "parts": [
+    2,
+    4
+   ]
+  },
+  {
+   "name": "both parts are shown",
+   "ok": true,
+   "parts": [
+    2,
+    4
+   ]
+  },
+  {
+   "name": "pin diameter is D - 0.2 = 9.8 from its mesh box",
+   "ok": true,
+   "size": [
+    9.799999999999999,
+    9.8,
+    20
+   ]
+  },
+  {
+   "name": "the feature tree lists every node with its op and status",
+   "ok": true
+  },
+  {
+   "name": "checks run for the selected part: check, std and make with the declared process",
+   "ok": true,
+   "check": "ok: embedded, shells outward, cavities nested",
+   "make": "make node 2: 7 faces, 7 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners"
+  },
+  {
+   "name": "the hole is checked as a drilled 10 mm hole",
+   "ok": true
+  },
+  {
+   "name": "the plate volume is the kernel certified interval and holds the exact 9600 - 200 pi",
+   "ok": true,
+   "volume": [
+    8971.681469273037,
+    8971.681469291048
+   ],
+   "exact": 8971.68146928204
+  },
+  {
+   "name": "the plate mass comes from its declared 6061-T6 (2700 kg/m3), certified",
+   "ok": true,
+   "material": {
+    "grade": "6061-T6",
+    "density": 2700,
+    "cte": 0.0000236,
+    "mass": [
+     0.024223539967037192,
+     0.024223539967085837
+    ],
+    "status": "certified"
+   },
+   "centroid": [
+    [
+     19.999999887413995,
+     20.000000112586005
+    ],
+    [
+     14.999999934551283,
+     15.000000065448717
+    ],
+    [
+     3.9999999946098566,
+     4.000000005390145
+    ]
+   ]
+  },
+  {
+   "name": "the properties panel shows kernel values with their provenance, not mesh guesses",
+   "ok": true,
+   "panel": "Holes · node 2 kernel node 2 · holes Material 6061-T6 DECLARED Density 2,700 kg/m³ DECLARED Volume 8.972 cm³ CERTIFIED Mass 24.22 g CERTIFIED Surface 36.14 cm² CERTIFIED Size 40.00 × 30.00 × 8.00 mm ENCLOSING Centroid 20.00, 15.00, 4.00 CERTIFIED Mesh 144 tris · 7 faces DISPLAY Isolate Hide Focus"
+  },
+  {
+   "name": "the part is drawn (canvas coverage)",
+   "ok": true,
+   "coverage": 0.5494444444444444
+  },
+  {
+   "name": "a person changes a dimension in the viewer and the kernel commits it",
+   "ok": true,
+   "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[9599.999999991003, 9600.000000008999] area=[3519.9999999972033, 3"
+  },
+  {
+   "name": "the edit keeps the tolerance zone (10 +0.015/0 becomes 12 +0.015/0)",
+   "ok": true,
+   "param": {
+    "id": 1,
+    "name": "D",
+    "value": "12",
+    "lo": "12",
+    "hi": "12.015"
+   }
+  },
+  {
+   "name": "the neighbour updates: the pin grows to 11.8",
+   "ok": true,
+   "size": [
+    11.799999999999999,
+    11.8,
+    20
+   ]
+  },
+  {
+   "name": "the part updates: the certified plate volume drops by exactly the 10-to-12 mm ring, 88 pi = 276.46 mm3",
+   "ok": true,
+   "dv": 276.46015351590177,
+   "exact": 276.46015351590177
+  },
+  {
+   "name": "the display mesh follows within 1%",
+   "ok": true,
+   "dv_mesh": 274.6871733987191
+  },
+  {
+   "name": "the mass follows the edit",
+   "ok": true,
+   "mass": [
+    0.023477097552544263,
+    0.023477097552592897
+   ]
+  },
+  {
+   "name": "the checks re-run on the new design",
+   "ok": true
+  },
+  {
+   "name": "edit to re-checked view within the 5 s budget",
+   "ok": true,
+   "ms": 1360
+  },
+  {
+   "name": "a refused edit shows the kernel reason and fix and leaves the design as it was",
+   "ok": true,
+   "why": [
+    "node 2: error invalid-input | holes footprint @ loop 0 segment 0 | why: nonpositive-radius | fix: use a positive radius",
+    "node 3: error invalid-input | prism profile @ loop 0 segment 0 | why: nonpositive-radius | fix: use a positive radius",
+    "node 4: error invalid-input | move @ node 4 | why: input-node-missing-or-failed | fix: fix the input node first",
+    "rejected: the design was not changed"
+   ],
+   "shown": "node 2 · holes footprint @ loop 0 segment 0\nnonpositive-radius\nfix: use a positive radius\nnode 3 · prism profile @ loop 0 segment 0\nnonpositive-radius\nfix: use a positive radius\nnode 4 · move @ node 4\ninput-node-missing-or-failed\nfix: fix the input node first\nrejected: the design was not changed"
+  },
+  {
+   "name": "the input shows the committed value again",
+   "ok": true
+  },
+  {
+   "name": "clicking the pin in the 3D view selects it and the checks follow",
+   "ok": true
+  },
+  {
+   "name": "a part with no declared material says so instead of guessing one",
+   "ok": true
+  },
+  {
+   "name": "the process can be switched in the viewer (the pin turns on a lathe)",
+   "ok": true,
+   "make": "make node 4: 3 faces, 3 pass, 0 fail, 0 not-analyzed"
+  },
+  {
+   "name": "the section view renders",
+   "ok": true
+  },
+  {
+   "name": "the front inspection view is a true orthographic projection: the plate measures 40 mm in the image",
+   "ok": true,
+   "measured_mm": 40.0400949241533,
+   "mm_per_px": 0.05994026186250494
+  },
+  {
+   "name": "inspection views render to fixed-size image files for the agent, scene only",
+   "ok": true,
+   "views": [
+    {
+     "view": "iso",
+     "file": "docs/receipts/viewer/inspect/fit-iso.png",
+     "mm_per_px": 0.059940261862504944,
+     "mid_row": [
+      40,
+      1568
+     ],
+     "coverage": 0.3694375
+    },
+    {
+     "view": "front",
+     "file": "docs/receipts/viewer/inspect/fit-front.png",
+     "mm_per_px": 0.05994026186250494,
+     "mid_row": [
+      466,
+      1133
+     ],
+     "coverage": 0.1215625
+    },
+    {
+     "view": "top",
+     "file": "docs/receipts/viewer/inspect/fit-top.png",
+     "mm_per_px": 0.059940261862504944,
+     "mid_row": [
+      91,
+      1507
+     ],
+     "coverage": 0.289875
+    },
+    {
+     "view": "right",
+     "file": "docs/receipts/viewer/inspect/fit-right.png",
+     "mm_per_px": 0.05994026186250493,
+     "mid_row": [
+      549,
+      1050
+     ],
+     "coverage": 0.1075625
+    }
+   ]
+  },
+  {
+   "name": "inspection restores the person's camera and selection",
+   "ok": true
+  },
+  {
+   "name": "no page errors",
+   "ok": true,
+   "errors": []
+  }
+ ],
+ "shots": [
+  {
+   "file": "docs/receipts/viewer/live-open.png",
+   "note": "design opened in the viewer: parameters, feature tree, parts and checks"
+  },
+  {
+   "file": "docs/receipts/viewer/live-edited.png",
+   "note": "after D 10 -> 12: hole, pin and checks updated"
+  },
+  {
+   "file": "docs/receipts/viewer/live-refused.png",
+   "note": "D = -4 refused by the kernel; the design is unchanged"
+  },
+  {
+   "file": "docs/receipts/viewer/live-pin-lathe.png",
+   "note": "pin selected, checked as lathe work"
+  },
+  {
+   "file": "docs/receipts/viewer/live-section.png",
+   "note": "section through the plate and pin"
+  }
+ ],
+ "timings": {
+  "open_ms": 1735,
+  "edit_to_checked_ms": 1360,
+  "inspect_ms": 3957
+ },
+ "coverage_open": 0.5494444444444444,
+ "inspect": [
+  {
+   "view": "iso",
+   "file": "docs/receipts/viewer/inspect/fit-iso.png",
+   "mm_per_px": 0.059940261862504944,
+   "mid_row": [
+    40,
+    1568
+   ],
+   "coverage": 0.3694375
+  },
+  {
+   "view": "front",
+   "file": "docs/receipts/viewer/inspect/fit-front.png",
+   "mm_per_px": 0.05994026186250494,
+   "mid_row": [
+    466,
+    1133
+   ],
+   "coverage": 0.1215625
+  },
+  {
+   "view": "top",
+   "file": "docs/receipts/viewer/inspect/fit-top.png",
+   "mm_per_px": 0.059940261862504944,
+   "mid_row": [
+    91,
+    1507
+   ],
+   "coverage": 0.289875
+  },
+  {
+   "view": "right",
+   "file": "docs/receipts/viewer/inspect/fit-right.png",
+   "mm_per_px": 0.05994026186250493,
+   "mid_row": [
+    549,
+    1050
+   ],
+   "coverage": 0.1075625
+  }
+ ],
+ "passed": 29,
+ "total": 29
+}

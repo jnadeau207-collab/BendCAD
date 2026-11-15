@@ -288,6 +288,8 @@ function select(p, add, face) {
   document.querySelectorAll('#tree .row').forEach(r => r.classList.toggle('sel', st.sel.has(st.parts[+r.dataset.i])));
   props();
   applyLook();
+  const one = st.sel.size === 1 ? [...st.sel][0] : null;
+  if (live.on && one && one.node !== live.node) liveChecks(one.node);
 }
 function hover(p, face) {
   const hf = p && face >= 0 ? { part: p, face } : null;
@@ -327,6 +329,7 @@ function props() {
       <div class="acts"><button data-pa="iso">Isolate</button><button data-pa="hide">Hide</button><button data-pa="focus">Focus</button></div>`;
     return;
   }
+  if (live.on && ps[0].node != null) return liveProps(el, ps[0]);
   const p = ps[0], i = p.info, f = FINISHES[p.finish] || FINISHES.part;
   const s = [i.hi[0] - i.lo[0], i.hi[1] - i.lo[1], i.hi[2] - i.lo[2]];
   el.innerHTML = `<h3>${p.label}</h3><div class="sub">${p.group ? p.group[0].toUpperCase() + p.group.slice(1) + ' · ' : ''}kernel node ${p.node}</div>
@@ -347,6 +350,25 @@ function props() {
       <dt>Surface</dt><dd>${i.kinds[st.face.face] || 'other'}</dd>
       <dt>Area</dt><dd>${fmt(i.farea[st.face.face] || 0, 2)} mm²</dd>
       <dt>Same-type faces</dt><dd>${i.kinds.filter(k => k === i.kinds[st.face.face]).length}</dd></dl></div>` : ''}
+    <div class="acts"><button data-pa="iso">Isolate</button><button data-pa="hide">Hide</button><button data-pa="focus">Focus</button></div>`;
+}
+const mid = v => (v[0] + v[1]) / 2;
+const pv = t => `<em class="pv ${t}">${t}</em>`;
+function liveProps(el, p) {
+  const n = live.doc.nodes.find(x => x.id === p.node) || {}, k = live.checks && live.checks.node === p.node ? live.checks.mass : null, i = p.info;
+  const b = n.bbox, mat = k && k.material, wait = '<dd class="dim">…</dd><dd></dd>';
+  const row = (t, v, tag) => `<dt>${t}</dt><dd>${v}</dd><dd>${tag ? pv(tag) : ''}</dd>`;
+  el.innerHTML = `<h3>${esc(p.label)}</h3><div class="sub">kernel node ${p.node} · ${esc(n.op || '')}</div>
+    <dl class="lv">
+      ${k ? row('Material', mat ? esc(mat.grade) : `none on node ${p.node}`, mat ? 'declared' : '') : `<dt>Material</dt>${wait}`}
+      ${mat ? row('Density', `${fmt(mat.density, 0)} kg/m³`, 'declared') : ''}
+      ${n.volume ? row('Volume', `${fmt(mid(n.volume) / 1000, 3)} cm³`, 'certified') : row('Volume', `${fmt(i.volume / 1000, 3)} cm³`, 'mesh')}
+      ${mat ? row('Mass', `${fmt(mid(mat.mass) * 1000, 2)} g`, mat.status) : ''}
+      ${n.area ? row('Surface', `${fmt(mid(n.area) / 100, 2)} cm²`, 'certified') : ''}
+      ${b ? row('Size', `${[b[1] - b[0], b[3] - b[2], b[5] - b[4]].map(x => fmt(x, 2)).join(' × ')} mm`, 'enclosing') : ''}
+      ${k ? k.centroid ? row('Centroid', k.centroid.map(c => fmt(mid(c), 2)).join(', '), k.cstatus) : row('Centroid', 'not analyzed', '') : `<dt>Centroid</dt>${wait}`}
+      ${row('Mesh', `${i.tris.toLocaleString()} tris · ${i.kinds.filter(x => x !== 'axis').length} faces`, 'display')}
+    </dl>
     <div class="acts"><button data-pa="iso">Isolate</button><button data-pa="hide">Hide</button><button data-pa="focus">Focus</button></div>`;
 }
 $('props').onclick = e => {
@@ -746,7 +768,7 @@ function frame(now) {
 }
 function status() {
   const tris = st.parts.reduce((s, p) => s + (p.root.visible ? p.info.tris : 0), 0);
-  $('status').textContent = `${st.parts.filter(p => p.root.visible).length}/${st.parts.length} parts · ${(tris / 1e6).toFixed(2)} M tris · ${camera === persp ? 'perspective' : 'orthographic'}${st.selMode === 'face' ? ' · face select' : ''}`;
+  $('status').textContent = `${st.parts.filter(p => p.root.visible).length}/${st.parts.length} parts · ${tris >= 1e5 ? `${(tris / 1e6).toFixed(2)} M` : tris.toLocaleString()} tris · ${camera === persp ? 'perspective' : 'orthographic'}${st.selMode === 'face' ? ' · face select' : ''}`;
 }
 
 function pool(n) {
@@ -812,42 +834,43 @@ function partObject(p, m, i) {
 
 const pretty = s => s.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
 
-async function main() {
-  ui();
-  setScheme('night');
-  resize();
-  controls();
-  useCamera(persp);
-  const q = new URLSearchParams(location.search), src = q.get('scene') || 'scene.json';
-  const sc = await (await fetch(src)).json();
+let fetchMesh = null;
+function clearParts() {
+  for (const p of st.parts) {
+    scene.remove(p.root); scene.remove(p.cap); if (p.leader) scene.remove(p.leader);
+    p.mesh.geometry.dispose(); p.edges.geometry.dispose(); p.mat.dispose(); p.cap.material.dispose();
+    if (p.labelEl) p.labelEl.remove();
+  }
+  st.parts = []; st.sel.clear(); st.hov = null; st.face = null; st.hface = null;
+}
+
+async function loadParts(sc, base, first) {
   st.scene = sc;
   document.title = `${sc.name} · BendCAD`;
   $('name').textContent = sc.name || 'BendCAD Viewer';
-  const base = src.slice(0, src.lastIndexOf('/') + 1);
-  st.parts = sc.parts.map(p => Object.assign({ label: pretty(p.name) }, p));
-  const fetchMesh = pool(Math.max(2, Math.min(8, (navigator.hardwareConcurrency || 4) - 2)));
-  const meshes = new Map();
-  const load = u => { if (!meshes.has(u)) meshes.set(u, fetchMesh(u)); return meshes.get(u); };
-  const totalTris = st.parts.reduce((s, p) => s + (p.tris || 1), 0);
+  const keep = new Set([...st.sel].map(p => p.node));
+  const ps = sc.parts.map(p => Object.assign({ label: p.label || pretty(p.name) }, p));
+  if (!fetchMesh) fetchMesh = pool(Math.max(2, Math.min(8, (navigator.hardwareConcurrency || 4) - 2)));
+  const totalTris = ps.reduce((s, p) => s + (p.tris || 1), 0);
   let doneTris = 0, done = 0;
   const t0 = performance.now();
-  const order = [...st.parts.keys()].sort((a, b) => (st.parts[b].tris || 0) - (st.parts[a].tris || 0));
-  await Promise.all(order.map(async i => {
-    const p = st.parts[i];
-    const m = await load(base + p.mesh);
-    partObject(p, m, i);
+  const failed = [], cache = new Map(), got = new Map();
+  const load = u => { if (!cache.has(u)) cache.set(u, fetchMesh(u)); return cache.get(u); };
+  await Promise.all(ps.map(async p => {
+    try { got.set(p, await load(base + p.mesh)); } catch (e) { failed.push(p); return; }
     doneTris += p.tris || 1; done++;
-    $('load-t').textContent = `Meshing ${done} / ${st.parts.length} parts`;
+    $('load-t').textContent = `Meshing ${done} / ${ps.length} parts`;
     $('load-b').style.width = `${(100 * doneTris / totalTris).toFixed(1)}%`;
-    dirty();
   }));
+  clearParts();
+  st.parts = ps.filter(p => got.has(p));
+  st.parts.forEach((p, i) => partObject(p, got.get(p), i));
   st.loadMs = Math.round(performance.now() - t0);
   st.parts.forEach((p, i) => { p.i = i; p.mesh.userData.pickMat.uniforms.pid.value = i + 1; });
   st.box = new THREE.Box3();
   for (const p of st.parts) st.box.union(new THREE.Box3(new THREE.Vector3(...p.info.lo), new THREE.Vector3(...p.info.hi)));
   st.radius = st.box.getSize(new THREE.Vector3()).length() / 2;
   const S = st.box.getSize(new THREE.Vector3());
-  hatch.repeat.set(1, 1);
   const capSize = Math.max(S.x, S.y, S.z) * 8;
   for (const p of st.parts) { p.cap.scale.set(capSize, capSize, 1); }
   hatch.repeat.set(capSize / 7, capSize / 7);
@@ -864,19 +887,126 @@ async function main() {
   buildTree();
   setScheme(st.scheme);
   applyExplode();
-  setSection(false);
-  setMode('edges');
-  const v = new THREE.Vector3(...VIEWS.iso).normalize();
-  const c = st.box.getCenter(new THREE.Vector3());
-  st.target.copy(c);
-  persp.position.copy(c).add(v.multiplyScalar(st.radius / Math.sin(THREE.MathUtils.degToRad(persp.fov / 2)) * 1.08));
-  syncCam();
+  setSection(st.sec);
+  setMode(st.mode);
+  for (const p of st.parts) if (keep.has(p.node)) st.sel.add(p);
+  document.querySelectorAll('#tree .row').forEach(r => r.classList.toggle('sel', st.sel.has(st.parts[+r.dataset.i])));
+  props(); applyLook();
+  if (first) {
+    const v = new THREE.Vector3(...VIEWS.iso).normalize();
+    const c = st.box.getCenter(new THREE.Vector3());
+    st.target.copy(c);
+    persp.position.copy(c).add(v.multiplyScalar(st.radius / Math.sin(THREE.MathUtils.degToRad(persp.fov / 2)) * 1.08));
+    syncCam();
+  }
+  st.shadowDirty = true;
+  status();
+  dirty();
+  return failed;
+}
+
+const live = { on: false, doc: null, proc: 'mill', busy: '', last: null, checks: null, node: null, failed: [] };
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const chip = s => `<b class="st ${s || 'na'}">${s === 'pass' ? 'pass' : s === 'fail' ? 'fail' : s === 'ok' ? 'ok' : s === 'not-analyzed' ? 'n/a' : esc(s || '?')}</b>`;
+function liveScene(d) {
+  return { name: d.name, parts: d.parts.map(id => {
+    const n = d.nodes.find(x => x.id === id);
+    return { name: `${n.op}_${id}`, label: `${n.op[0].toUpperCase() + n.op.slice(1)} · node ${id}`, node: id, mesh: `/api/mesh/${id}.obj?rev=${d.rev}`, finish: 'part' };
+  }) };
+}
+const whyHtml = ws => ws.map(l => {
+  const m = l.match(/^node (\d+): \S+ \S+ \| (.*?) \| why: (.*?) \| fix: (.*)$/);
+  return m ? `<li><b>node ${m[1]} · ${esc(m[2])}</b><span>${esc(m[3])}</span><i>fix: ${esc(m[4])}</i></li>` : `<li><span>${esc(l)}</span></li>`;
+}).join('');
+const decs = s => (String(s).split('.')[1] || '').length;
+function paramEdit(p, v) {
+  if (p.lo === p.hi || !/^-?\d+(\.\d+)?$/.test(v)) return `(param ${p.name} ${v})`;
+  const k = Math.max(decs(p.value), decs(p.lo), decs(p.hi), decs(v)), f = x => (+x).toFixed(k).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  return `(param ${p.name} ${v} ${f(+v + (+p.lo - +p.value))} ${f(+v + (+p.hi - +p.value))})`;
+}
+function liveRender() {
+  const d = live.doc, el = $('live');
+  if (!d) return;
+  el.hidden = false;
+  const prm = d.params.map(p => `<label class="prm"><span>${esc(p.name)}</span><input data-p="${esc(p.name)}" value="${esc(p.value)}" spellcheck="false"${live.busy ? ' disabled' : ''}>
+    ${p.lo !== p.hi ? `<i>zone ${esc(p.lo)} – ${esc(p.hi)}</i>` : ''}</label>`).join('');
+  const nodes = d.nodes.map(n => `<div class="feat${d.parts.includes(n.id) ? ' part' : ''}${n.status !== 'ok' ? ' bad' : ''}" data-n="${n.id}" title="${esc(n.text)}">
+    <span class="id">${n.id}</span><span class="op">${esc(n.op)}</span>${n.base && n.base.length ? `<span class="on">← ${n.base.join(', ')}</span>` : ''}${chip(n.status === 'ok' ? 'ok' : 'fail')}</div>`).join('');
+  const last = live.last ? `<div class="kmsg ${live.last.ok ? 'ok' : 'bad'}">${live.last.ok ? 'committed' : 'refused'} · ${(live.last.ms / 1000).toFixed(2)} s${live.last.ok ? '' : `<ul>${whyHtml(live.last.why && live.last.why.length ? live.last.why : [live.last.out])}</ul>`}</div>` : '';
+  el.innerHTML = `<h4>Parameters</h4>${prm || '<div class="none">No parameters in this design</div>'}${last}<h4>Features</h4>${nodes}`;
+  el.querySelectorAll('input[data-p]').forEach(inp => {
+    const go = () => { const p = d.params.find(x => x.name === inp.dataset.p), v = inp.value.trim(); if (p && v !== p.value) liveApply(paramEdit(p, v)); };
+    inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } if (e.key === 'Escape') { inp.value = d.params.find(x => x.name === inp.dataset.p).value; inp.blur(); } };
+    inp.onchange = go;
+  });
+  el.querySelectorAll('.feat.part').forEach(r => r.onclick = () => { const p = st.parts.find(q => q.node === +r.dataset.n); if (p) select(p, false); });
+  $('kstat').textContent = live.busy || (live.last ? `${live.last.ok ? 'updated' : 'refused'} · edit ${(live.last.ms / 1000).toFixed(2)} s · rebuild ${((live.last.rebuild || 0) / 1000).toFixed(2)} s` : `eval ${(d.eval_ms / 1000).toFixed(2)} s`);
+  $('kstat').classList.toggle('busy', !!live.busy);
+}
+function checksRender() {
+  const el = $('checks'), c = live.checks;
+  el.hidden = !live.on;
+  if (!live.on) return;
+  const procs = ['mill', 'lathe', 'fdm', 'sla'].map(x => `<button data-proc="${x}" class="${live.proc === x ? 'on' : ''}">${x}</button>`).join('');
+  if (!c) { el.innerHTML = `<h3>Checks</h3><div class="sub">${live.busy ? esc(live.busy) : 'Select a part'}</div>`; return; }
+  const bad = c.make.lines.filter(l => l.status !== 'pass');
+  el.innerHTML = `<h3>Checks · node ${c.node}</h3>
+    <div class="ck">${chip(c.check.status)}<span>${esc(c.check.text)}</span></div>
+    <div class="ck">${chip(/0 fail, 0 not-analyzed/.test(c.std.summary) ? 'pass' : c.std.summary ? 'fail' : 'na')}<span>${esc(c.std.summary || 'no standard features')}</span></div>
+    ${c.std.lines.filter(l => l.status && l.status !== 'pass').map(l => `<div class="ck sub2">${chip(l.status)}<span>${esc(l.text)}</span></div>`).join('')}
+    <div class="seg procs">${procs}</div>
+    <div class="ck">${chip(c.make.verdict === 'makeable' ? 'pass' : c.make.verdict === 'not-makeable' ? 'fail' : 'not-analyzed')}<span>${esc(c.make.verdict)} · ${esc(c.make.summary.replace(/^make node \d+: /, ''))}${esc(c.make.head || '')}</span></div>
+    ${bad.slice(0, 12).map(l => `<div class="ck sub2">${chip(l.status)}<span>${esc(l.text.replace(/^make (face|corner) /, ''))}</span></div>`).join('')}
+    ${bad.length > 12 ? `<div class="sub">${bad.length - 12} more</div>` : ''}`;
+  el.querySelectorAll('[data-proc]').forEach(b => b.onclick = () => { live.proc = b.dataset.proc; liveChecks(c.node); });
+}
+async function liveChecks(node) {
+  live.node = node;
+  live.checks = null; live.busy = `checking node ${node} (${live.proc})`; liveRender(); checksRender();
+  const r = await (await fetch(`/api/checks/${node}?proc=${live.proc}`)).json();
+  if (live.node !== node) return;
+  live.checks = r; live.busy = ''; liveRender(); checksRender(); props();
+}
+async function liveApply(edit) {
+  live.busy = `applying ${edit}`; liveRender();
+  const r = await (await fetch('/api/edit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ edit }) })).json();
+  live.last = r;
+  if (r.ok) {
+    live.doc = r.doc;
+    live.busy = 'rebuilding parts'; liveRender();
+    const t0 = performance.now();
+    live.failed = await loadParts(liveScene(r.doc), '', false);
+    r.rebuild = performance.now() - t0;
+  } else live.doc = r.doc;
+  live.busy = '';
+  liveRender();
+  if (live.node != null) await liveChecks(live.node);
+  document.body.dataset.rev = live.doc.rev;
+}
+
+async function main() {
+  ui();
+  setScheme('night');
+  resize();
+  controls();
+  useCamera(persp);
+  const q = new URLSearchParams(location.search), src = q.get('scene') || 'scene.json';
+  live.on = q.get('live') === '1';
+  if (live.on) live.proc = q.get('proc') || live.proc;
+  let sc, base = '';
+  if (live.on) { live.doc = await (await fetch('/api/doc')).json(); sc = liveScene(live.doc); document.body.classList.add('live'); }
+  else { sc = await (await fetch(src)).json(); base = src.slice(0, src.lastIndexOf('/') + 1); }
+  live.failed = await loadParts(sc, base, true);
   if (q.get('mode') === 'exploded') { st.exp = 1; setExplode(1); applyExplode(); $('b-exp').classList.add('on'); $('c-exp').hidden = false; fit(); }
   if (q.get('section') === '1') setSection(true);
   if (q.get('run') === '1') toggleRun();
   if (q.get('theme') === 'day') setScheme('day');
-  st.shadowDirty = true;
-  status();
+  if (q.get('view')) view(q.get('view'));
+  if (live.on) {
+    liveRender(); checksRender();
+    document.body.dataset.rev = live.doc.rev;
+    if (st.parts.length) select(st.parts[0], false);
+  }
   document.body.classList.add('ready');
   document.body.dataset.ready = '1';
   requestAnimationFrame(frame);
@@ -916,5 +1046,5 @@ function screenOf(pts) {
   const r = cv.getBoundingClientRect();
   return pts.map(a => { const v = new THREE.Vector3(...a).project(camera); return [r.left + (v.x * 0.5 + 0.5) * r.width, r.top + (-v.y * 0.5 + 0.5) * r.height]; });
 }
-window.bcv = { screenOf, setMeasure, measureClick, projectedBounds, bench, boxes, gpu, camera: () => ({ pos: persp.position.toArray(), tgt: st.target.toArray(), ortho: camera === ortho }), setSelMode, st, fit, view, select, setSection, setExplode, setMode, isolate, setScheme, snapshot, pick, useCamera, persp, ortho, toggleRun, updateSection };
+window.bcv = { live: () => ({ doc: live.doc, checks: live.checks, last: live.last, busy: live.busy, failed: live.failed.map(p => p.node) }), liveApply, liveChecks, parts: () => st.parts.map(p => ({ node: p.node, lo: p.info.lo, hi: p.info.hi, volume: p.info.volume, tris: p.info.tris })), view, screenOf, setMeasure, measureClick, projectedBounds, bench, boxes, gpu, camera: () => ({ pos: persp.position.toArray(), tgt: st.target.toArray(), ortho: camera === ortho }), setSelMode, st, fit, view, select, setSection, setExplode, setMode, isolate, setScheme, snapshot, pick, useCamera, persp, ortho, toggleRun, updateSection };
 main().catch(e => { $('load-t').textContent = 'Error: ' + e.message; console.error(e); });
