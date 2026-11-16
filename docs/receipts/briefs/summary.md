@@ -6,17 +6,17 @@ Refusals are authoring refusals from `friction.json` plus refused probe steps. C
 
 | brief | binary | built | kernel build s | refusals (authoring+probes) | checks p/f/na | OCCT agrees | mesh conforming | triangles | tess s | edit s | edit 5 s | part 60 s | export 5 min | pass |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| B1 | bendcad-p9h | yes | 0.214 | 2+1 | 8/0/0 | yes | yes | 608 | 0.46 | 0.722 | pass | pass | pass | yes |
-| B2 | bendcad-p9h | yes | 0.033 | 0+0 | 9/0/0 | yes | yes | 1176 | 0.2 | 0.17 | pass | pass | pass | yes |
-| B3 | bendcad-p9h | yes | 0.279 | 4+1 | 11/0/0 | yes | yes | 1296 | 1.17 | 0.926 | pass | pass | pass | yes |
-| B4 | bendcad-p9h | yes | 0.352 | 1+0 | 9/0/0 | yes | yes | 1188 | 0.82 | 1.375 | pass | pass | pass | yes |
-| B5 | bendcad-p9h | yes | 1.521 | 4+2 | 7/0/0 | yes | yes | 892 | 2.46 | 4.504 | pass | pass | pass | yes |
-| B6 | bendcad-p9h | yes | 0.694 | 0+0 | 9/0/1 | yes | yes | 3304 | 1.46 | 1.298 | pass | pass | pass | no |
-| B7 | bendcad-p9h | yes | 0.898 | 3+2 | 10/0/2 | yes | yes | 2956 | 3.5 | 2.055 | pass | pass | pass | no |
-| B8 | bendcad-p9h | yes | 0.319 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.55 | 1.127 | pass | pass | pass | no |
-| B9 | bendcad-p9h | yes | 0.451 | 1+0 | 10/0/1 | yes | yes | 1518 | 1.18 | 1.077 | pass | pass | pass | no |
-| B10 | bendcad-p9h | yes | 0.106 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.2 | 0.456 | pass | pass | pass | no |
-| B11 | bendcad-p9h | yes | 4.894 | 0+0 | 5/0/1 | yes | yes | 4484 | 7.23 | 15.291 | fail | pass | pass | no |
-| B12 | bendcad-p9h | yes | 1.049 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.35 | 4.736 | pass | pass | pass | yes |
-| B13 | bendcad-p9h | yes | 2.588 | 2+0 | 6/0/3 | yes | yes | 3632 | 2.61 | 3.216 | pass | pass | pass | no |
-| B14 | bendcad-p9h | yes | 0.429 | 2+2 | 6/0/1 | yes | yes | 900 | 0.6 | 1.442 | pass | pass | pass | no |
+| B1 | bendcad-p9n | yes | 0.215 | 2+1 | 8/0/0 | yes | yes | 608 | 0.45 | 0.722 | pass | pass | pass | yes |
+| B2 | bendcad-p9n | yes | 0.033 | 0+0 | 9/0/0 | yes | yes | 1176 | 0.16 | 0.173 | pass | pass | pass | yes |
+| B3 | bendcad-p9n | yes | 0.275 | 4+1 | 11/0/0 | yes | yes | 1296 | 0.9 | 0.916 | pass | pass | pass | yes |
+| B4 | bendcad-p9n | yes | 0.371 | 1+0 | 9/0/0 | yes | yes | 1188 | 0.7 | 1.228 | pass | pass | pass | yes |
+| B5 | bendcad-p9n | yes | 1.538 | 4+2 | 6/0/1 | yes | yes | 892 | 2.97 | 4.526 | pass | pass | pass | no |
+| B6 | bendcad-p9n | yes | 0.692 | 0+0 | 9/0/1 | yes | yes | 3304 | 1.34 | 1.307 | pass | pass | pass | no |
+| B7 | bendcad-p9n | yes | 0.922 | 3+2 | 10/0/2 | yes | yes | 2956 | 3.33 | 1.908 | pass | pass | pass | no |
+| B8 | bendcad-p9n | yes | 0.331 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.46 | 1.101 | pass | pass | pass | no |
+| B9 | bendcad-p9n | yes | 0.501 | 1+0 | 10/0/1 | yes | yes | 1518 | 1.66 | 1.146 | pass | pass | pass | no |
+| B10 | bendcad-p9n | yes | 0.106 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.2 | 0.449 | pass | pass | pass | no |
+| B11 | bendcad-p9n | yes | 4.789 | 0+0 | 5/0/1 | yes | yes | 4484 | 7.03 | 15.329 | fail | pass | pass | no |
+| B12 | bendcad-p9n | yes | 1.052 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.52 | 5.163 | fail | pass | pass | no |
+| B13 | bendcad-p9n | yes | 2.559 | 2+0 | 6/0/3 | yes | yes | 3632 | 2.52 | 3.225 | pass | pass | pass | no |
+| B14 | bendcad-p9n | yes | 0.41 | 2+2 | 6/0/1 | yes | yes | 900 | 0.55 | 1.422 | pass | pass | pass | no |

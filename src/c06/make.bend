@@ -135,6 +135,34 @@ def uq_sorted(+ks: List<&2, U64>) -> List<&2, U64>:
 def fv_tab(+ts: List<&2, TS.Tri>, +fid: List<&2, Nat>, +nf: Nat) -> B.Tb<&2, List<&2, Nat>>:
   B.tb_of(List<&2, Nat>, List.reverse(&2, List<&2, Nat>, DW.gr_run(uq_sorted(DW.so_u(B.msort(~U64, ~DW.u_lt, fv_keys(ts, fid, [])))), nf)), [])
 
+def ct_keys(ts: List<&2, TS.Tri>, fs: List<&2, Nat>, +i: Nat, +acc: List<&2, U64>) -> List<&2, U64>:
+  match ts:
+    case []: acc
+    case t <> r:
+      match fs:
+        case []: acc
+        case +f <> u: ct_keys(r, u, Nat.add(i, 1n), DW.fkey(f, i) <> acc)
+
+def ct_pt(+t: TS.Tri, +wt: B.Tb<&2, V.Point>) -> V.Point:
+  +a = DW.pt2(wt, TS.ta(t))
+  +b = DW.pt2(wt, TS.tb(t))
+  +c = DW.pt2(wt, TS.tc(t))
+  V.Pt{F64.div(F64.add(F64.add(V.pt_x(a), V.pt_x(b)), V.pt_x(c)), 3.0f64), F64.div(F64.add(F64.add(V.pt_y(a), V.pt_y(b)), V.pt_y(c)), 3.0f64),
+    F64.div(F64.add(F64.add(V.pt_z(a), V.pt_z(b)), V.pt_z(c)), 3.0f64)}
+
+def ct_ps(ix: List<&2, Nat>, +tt: B.Tb<&2, TS.Tri>, +wt: B.Tb<&2, V.Point>) -> List<&2, V.Point>:
+  match ix:
+    case []: []
+    case +i <> r: ct_pt(B.tb_get(TS.Tri, tt, U32.from_nat(i)), wt) <> ct_ps(r, tt, wt)
+
+def ct_ls(gs: List<&2, List<&2, Nat>>, +tt: B.Tb<&2, TS.Tri>, +wt: B.Tb<&2, V.Point>) -> List<&2, List<&2, V.Point>>:
+  match gs:
+    case []: []
+    case +g <> r: ct_ps(g, tt, wt) <> ct_ls(r, tt, wt)
+
+def ct_tab(+ts: List<&2, TS.Tri>, +fid: List<&2, Nat>, +nf: Nat, +tt: B.Tb<&2, TS.Tri>, +wt: B.Tb<&2, V.Point>) -> B.Tb<&2, List<&2, V.Point>>:
+  B.tb_of(List<&2, V.Point>, ct_ls(List.reverse(&2, List<&2, Nat>, DW.gr_run(DW.so_u(B.msort(~U64, ~DW.u_lt, ct_keys(ts, fid, 0n, []))), nf)), tt, wt), [])
+
 def fa_rg(vs: List<&2, Nat>, +wt: B.Tb<&2, V.Point>, +d: V.Dir, +m: V.Vec2) -> V.Vec2:
   match vs:
     case []: m
@@ -149,10 +177,16 @@ type Fx is Data:
 def fx_of2(+acc: Bool, +top: F64, +rg: V.Vec2) -> Fx:
   Fx{acc, F64.sub(top, V.v2_y(rg)), F64.sub(top, V.v2_x(rg))}
 
-def vis_pts(ps: List<&2, V.Point>, +u: Su) -> Bool:
+def vis_zz(ps: List<&2, V.Point>, +u: Su, zz: Bool) -> Bool:
   match ps:
-    case []: True{}
-    case +q <> t: Bool.and(Bool.not(DW.hid(su_oc(u), DW.prj(su_v(u), q))), vis_pts(t, u))
+    case []: zz
+    case +q <> t:
+      match zz:
+        case False{}: False{}
+        case True{}: vis_zz(t, u, Bool.not(DW.hid(su_oc(u), DW.prj(su_v(u), q))))
+
+def vis_pts(ps: List<&2, V.Point>, +u: Su) -> Bool:
+  vis_zz(ps, u, True{})
 
 def rg_pts(ps: List<&2, V.Point>, +d: V.Dir, +m: V.Vec2) -> V.Vec2:
   match ps:
@@ -456,18 +490,23 @@ def off_go(vs: List<&2, Nat>, +wt: B.Tb<&2, V.Point>, +f: Fi, +acc: List<&2, V.P
     case []: acc
     case +i <> t: off_go(t, wt, f, KS.padd(DW.pt2(wt, i), 0.1f64, off_dir(f, DW.pt2(wt, i))) <> acc)
 
-def fx_off(+vs: List<&2, Nat>, +u: Su, +wt: B.Tb<&2, V.Point>, +f: Fi) -> Fx:
-  fx_of2(vis_pts(off_go(vs, wt, f, []), u), su_top(u), fa_rg(vs, wt, su_d(u), rg0()))
+def off_ps(ps: List<&2, V.Point>, +f: Fi, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match ps:
+    case []: acc
+    case +q <> t: off_ps(t, f, KS.padd(q, 0.1f64, off_dir(f, q)) <> acc)
 
-def fx_one(hx: Bool, +vs: List<&2, Nat>, +s: Su, +wt: B.Tb<&2, V.Point>, +f: Fi) -> Fx:
+def fx_off(+vs: List<&2, Nat>, +u: Su, +wt: B.Tb<&2, V.Point>, +f: Fi, +cs: List<&2, V.Point>) -> Fx:
+  fx_of2(vis_pts(off_go(vs, wt, f, off_ps(cs, f, [])), u), su_top(u), fa_rg(vs, wt, su_d(u), rg0()))
+
+def fx_one(hx: Bool, +vs: List<&2, Nat>, +s: Su, +wt: B.Tb<&2, V.Point>, +f: Fi, +cs: List<&2, V.Point>) -> Fx:
   match hx:
-    case False{}: fx_off(vs, s, wt, f)
+    case False{}: fx_off(vs, s, wt, f, cs)
     case True{}: fx_ax2(ax_seg(fi_o(f), fi_n(f), ts_go(vs, wt, fi_o(f), fi_n(f), rg0())), s)
 
-def fxs_go(ss: List<&2, Su>, +vs: List<&2, Nat>, +wt: B.Tb<&2, V.Point>, +f: Fi) -> List<&2, Fx>:
+def fxs_go(ss: List<&2, Su>, +vs: List<&2, Nat>, +wt: B.Tb<&2, V.Point>, +f: Fi, +cs: List<&2, V.Point>) -> List<&2, Fx>:
   match ss:
     case []: []
-    case +s <> t: fx_one(Nat.is_eq(fi_k(f), 7n), vs, s, wt, f) <> fxs_go(t, vs, wt, f)
+    case +s <> t: fx_one(Nat.is_eq(fi_k(f), 7n), vs, s, wt, f, cs) <> fxs_go(t, vs, wt, f, cs)
 
 type Pr is Data:
   Pr{ e: Nat, a: Nat, b: Nat }
@@ -532,38 +571,38 @@ def cm_go(xa: List<&2, Fx>, xb: List<&2, Fx>, ss: List<&2, Su>, +t: V.Dir, +acc:
               cm_go(ra, rb, rs, t, V.V2{Bool.pick(F64, Bool.and(both, near0(KS.dot(t, su_d(s)))), 1.0f64, V.v2_x(acc)), Bool.pick(F64, both, 1.0f64, V.v2_y(acc))})
 
 type Ck is Data:
-  Ck{ ft: B.Tb<&2, Fi>, fv: B.Tb<&2, List<&2, Nat>>, fx: B.Tb<&2, List<&2, Fx>>, ss: List<&2, Su>, wt: B.Tb<&2, V.Point>, et: B.Tb<&2, Ty.Edge>, vt: B.Tb<&2, V.Point>, nm: B.Tb<&2, String> }
+  Ck{ ft: B.Tb<&2, Fi>, fv: B.Tb<&2, List<&2, Nat>>, fx: B.Tb<&2, List<&2, Fx>>, ss: List<&2, Su>, wt: B.Tb<&2, V.Point>, et: B.Tb<&2, Ty.Edge>, vt: B.Tb<&2, V.Point>, nm: B.Tb<&2, String>, cp: B.Tb<&2, List<&2, V.Point>> }
 
 def ck_fi(+c: Ck, +i: Nat) -> Fi:
-  Ck{+ft, fv, fx, ss, wt, et, vt, nm} = c
+  Ck{+ft, fv, fx, ss, wt, et, vt, nm, cp} = c
   B.tb_get(Fi, ft, U32.from_nat(i))
 
 def ck_fv(+c: Ck, +i: Nat) -> List<&2, Nat>:
-  Ck{ft, +fv, fx, ss, wt, et, vt, nm} = c
+  Ck{ft, +fv, fx, ss, wt, et, vt, nm, cp} = c
   B.tb_get(List<&2, Nat>, fv, U32.from_nat(i))
 
 def ck_fx(+c: Ck, +i: Nat) -> List<&2, Fx>:
-  Ck{ft, fv, +fx, ss, wt, et, vt, nm} = c
+  Ck{ft, fv, +fx, ss, wt, et, vt, nm, cp} = c
   B.tb_get(List<&2, Fx>, fx, U32.from_nat(i))
 
 def ck_ss(+c: Ck) -> List<&2, Su>:
-  Ck{ft, fv, fx, +ss, wt, et, vt, nm} = c
+  Ck{ft, fv, fx, +ss, wt, et, vt, nm, cp} = c
   ss
 
 def ck_wt(+c: Ck) -> B.Tb<&2, V.Point>:
-  Ck{ft, fv, fx, ss, +wt, et, vt, nm} = c
+  Ck{ft, fv, fx, ss, +wt, et, vt, nm, cp} = c
   wt
 
 def ck_ed(+c: Ck, +e: Nat) -> Ty.Edge:
-  Ck{ft, fv, fx, ss, wt, +et, vt, nm} = c
+  Ck{ft, fv, fx, ss, wt, +et, vt, nm, cp} = c
   B.tb_get(Ty.Edge, et, U32.from_nat(e))
 
 def ck_vp(+c: Ck, +v: Ty.HVertex) -> V.Point:
-  Ck{ft, fv, fx, ss, wt, et, +vt, nm} = c
+  Ck{ft, fv, fx, ss, wt, et, +vt, nm, cp} = c
   B.tb_get(V.Point, vt, U32.from_nat(Ty.hv_idx(v)))
 
 def ck_nm(+c: Ck, +i: Nat) -> String:
-  Ck{ft, fv, fx, ss, wt, et, vt, +nm} = c
+  Ck{ft, fv, fx, ss, wt, et, vt, +nm, cp} = c
   B.tb_get(String, nm, U32.from_nat(i))
 
 def cyr3(+ax: F64, +above: Bool, +g: Fi) -> F64:
@@ -606,9 +645,24 @@ def cn_cv(cv: Bool, +c: Ck, +e: Nat, +a: Nat, +b: Nat, +p0: V.Point, +p1: V.Poin
     case False{}: ""
     case True{}: cn_t(c, e, a, b, p0, p1)
 
+def ck_cp(+c: Ck, +i: Nat) -> List<&2, V.Point>:
+  Ck{ft, fv, fx, ss, wt, et, vt, nm, +cp} = c
+  B.tb_get(List<&2, V.Point>, cp, U32.from_nat(i))
+
+def nr_go(ps: List<&2, V.Point>, +m: V.Point, +best: V.Point, +bd: F64) -> V.Point:
+  match ps:
+    case []: best
+    case +q <> t:
+      +d = KS.dot(KS.psub(q, m), KS.psub(q, m))
+      nr_go(t, m, Bool.pick(V.Point, F64.is_lt(d, bd), q, best), F64.min(d, bd))
+
+def lc_rise(+c: Ck, +a: Nat, +b: Nat, +p0: V.Point, +p1: V.Point) -> F64:
+  +m = KS.padd(p0, 0.5f64, KS.psub(p1, p0))
+  KS.dot(KS.psub(nr_go(ck_cp(c, b), m, m, 1.0e300f64), p0), fi_n(ck_fi(c, a)))
+
 def cn_ed(+c: Ck, +e: Nat, +a: Nat, +b: Nat, +ed: Ty.Edge, +pl: M.Pl) -> String:
   Ty.Ed{g, +v0, +v1, +k} = ed
-  cn_cv(Bool.and(ek_ln(k), F64.is_lt(1.0e-6f64, rise_go(ck_fv(c, b), ck_wt(c), TS.pl_pt(ck_vp(c, v0), pl), fi_n(ck_fi(c, a)), F64.neg(1.0e300f64)))),
+  cn_cv(Bool.and(ek_ln(k), F64.is_lt(1.0e-6f64, lc_rise(c, a, b, TS.pl_pt(ck_vp(c, v0), pl), TS.pl_pt(ck_vp(c, v1), pl)))),
     c, e, a, b, TS.pl_pt(ck_vp(c, v0), pl), TS.pl_pt(ck_vp(c, v1), pl))
 
 def cn_pl(pp: Bool, +c: Ck, +e: Nat, +a: Nat, +b: Nat, +pl: M.Pl) -> String:
@@ -738,10 +792,10 @@ def fis_go(fs: List<&2, Ty.Face>, +i: Nat, +fv: B.Tb<&2, List<&2, Nat>>, +wt: B.
     case []: []
     case +f <> t: fi_of(f, B.tb_get(List<&2, Nat>, fv, U32.from_nat(i)), wt, pl, hs) <> fis_go(t, Nat.add(i, 1n), fv, wt, pl, hs)
 
-def fxt_go(c: Nat, +i: Nat, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +ft: B.Tb<&2, Fi>) -> List<&2, List<&2, Fx>>:
+def fxt_go(c: Nat, +i: Nat, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +ft: B.Tb<&2, Fi>, +cp: B.Tb<&2, List<&2, V.Point>>) -> List<&2, List<&2, Fx>>:
   match c:
     case 0n: []
-    case 1n+(+k): fxs_go(ss, B.tb_get(List<&2, Nat>, fv, U32.from_nat(i)), wt, B.tb_get(Fi, ft, U32.from_nat(i))) <> fxt_go(k, Nat.add(i, 1n), fv, ss, wt, ft)
+    case 1n+(+k): fxs_go(ss, B.tb_get(List<&2, Nat>, fv, U32.from_nat(i)), wt, B.tb_get(Fi, ft, U32.from_nat(i)), B.tb_get(List<&2, V.Point>, cp, U32.from_nat(i))) <> fxt_go(k, Nat.add(i, 1n), fv, ss, wt, ft, cp)
 
 def nms_go(xs: List<&2, BD.Fn>) -> List<&2, String>:
   match xs:
@@ -784,10 +838,207 @@ def fi_at(+c: Ck, +i: Nat, +nb: List<&2, Nat>) -> Fi:
 def face_rl(+c: Ck, +i: Nat, +dmax: F64, +nb: List<&2, Nat>) -> Rl:
   best_go(ck_fx(c, i), swp(ck_fx(c, i)), ck_ss(c), fi_at(c, i, nb), dmax, Rl{3n, ""})
 
-def fa_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +ft: B.Tb<&2, Fi>, +acc: Cn) -> Cn:
+type Gu is Data:
+  Gu{ i: Nat, g: F64 }
+
+type B2 is Data:
+  B2{ u0: F64, u1: F64, v0: F64, v1: F64 }
+
+def q8(+x: F64) -> U64:
+  F64.to_u64(F64.add(F64.mul(F64.add(x, 1.0f64), 800.0f64), 0.5f64))
+
+def nk_of(+n: V.Dir, +i: Nat) -> U64:
+  U64.add(U64.shln(U64.add(U64.mul(U64.add(U64.mul(q8(V.dr_x(n)), 1601u64), q8(V.dr_y(n))), 1601u64), q8(V.dr_z(n))), 32n), U64.from_nat(i))
+
+def nks(xs: List<&2, Nat>, +c: Ck, +neg: Bool, +acc: List<&2, U64>) -> List<&2, U64>:
+  match xs:
+    case []: acc
+    case +i <> t:
+      +f = ck_fi(c, i)
+      nks(t, c, neg, Bool.pick(List<&2, U64>, Nat.is_eq(fi_k(f), 1n), nk_of(Bool.pick(V.Dir, neg, KS.dscale(F64.neg(1.0f64), fi_n(f)), fi_n(f)), i) <> acc, acc))
+
+def kh(+k: U64) -> U64:
+  U64.shrn(k, 32n)
+
+def pb_u(+n: V.Dir) -> V.Dir:
+  KS.dunit(KS.cross(n, Bool.pick(V.Dir, F64.is_lt(F64.abs(V.dr_x(n)), 0.9f64), dr(1.0f64, 0.0f64, 0.0f64), dr(0.0f64, 1.0f64, 0.0f64))))
+
+def b2_go(vs: List<&2, Nat>, +wt: B.Tb<&2, V.Point>, +u: V.Dir, +v: V.Dir, +b: B2) -> B2:
+  match vs:
+    case []: b
+    case +i <> t:
+      B2{u0, u1, v0, v1} = b
+      +q = DW.pt2(wt, i)
+      +x = DW.dp(q, u)
+      +y = DW.dp(q, v)
+      b2_go(t, wt, u, v, B2{F64.min(u0, x), F64.max(u1, x), F64.min(v0, y), F64.max(v1, y)})
+
+def b2_of(+c: Ck, +i: Nat, +u: V.Dir, +v: V.Dir) -> B2:
+  b2_go(ck_fv(c, i), ck_wt(c), u, v, B2{1.0e300f64, F64.neg(1.0e300f64), 1.0e300f64, F64.neg(1.0e300f64)})
+
+def ov_1(+lo1: F64, +hi1: F64, +lo2: F64, +hi2: F64) -> Bool:
+  F64.is_lt(F64.add(F64.max(lo1, lo2), 1.0e-6f64), F64.min(hi1, hi2))
+
+def ov_b2(a: B2, b: B2) -> Bool:
+  B2{au0, au1, av0, av1} = a
+  B2{bu0, bu1, bv0, bv1} = b
+  Bool.and(ov_1(au0, au1, bu0, bu1), ov_1(av0, av1, bv0, bv1))
+
+def ov_pl(+c: Ck, +a: Nat, +b: Nat, +n: V.Dir) -> Bool:
+  +u = pb_u(n)
+  +v = KS.cross(n, u)
+  ov_b2(b2_of(c, a, u, v), b2_of(c, b, u, v))
+
+def gp_ov(ok: Bool, +c: Ck, +a: Nat, +b: Nat, +g: F64, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  match ok:
+    case False{}: acc
+    case True{}: Bool.pick(List<&2, Gu>, ov_pl(c, a, b, fi_n(ck_fi(c, a))), Gu{a, g} <> acc, acc)
+
+def gp_add(+a: Nat, +b: Nat, +c: Ck, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  +fa = ck_fi(c, a)
+  +fb = ck_fi(c, b)
+  +g = KS.dot(KS.psub(fi_o(fb), fi_o(fa)), fi_n(fa))
+  gp_ov(Bool.and(Bool.not(Nat.is_eq(a, b)), Bool.and(F64.is_lt(KS.dot(fi_n(fa), fi_n(fb)), F64.neg(0.999999f64)), F64.is_lt(1.0e-6f64, g))), c, a, b, g, acc)
+
+def pb_go(+a: Nat, bs: List<&2, U64>, +c: Ck, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  match bs:
+    case []: acc
+    case +b <> t: pb_go(a, t, c, gp_add(a, DW.k_lo(b), c, acc))
+
+def pa_go(xs: List<&2, U64>, +bs: List<&2, U64>, +c: Ck, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  match xs:
+    case []: acc
+    case +a <> t: pa_go(t, bs, c, pb_go(DW.k_lo(a), bs, c, acc))
+
+def kh_is(xs: List<&2, U64>, +k: U64) -> Bool:
+  match xs:
+    case []: False{}
+    case x <> t: U64.is_eq(kh(x), k)
+
+def tk_go(xs: List<&2, U64>, +k: U64, ok: Bool) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      match ok:
+        case False{}: []
+        case True{}: x <> tk_go(t, k, kh_is(t, k))
+
+def dk_go(xs: List<&2, U64>, +k: U64, ok: Bool) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      match ok:
+        case False{}: x <> t
+        case True{}: dk_go(t, k, kh_is(t, k))
+
+def take_k(+xs: List<&2, U64>, +k: U64) -> List<&2, U64>:
+  tk_go(xs, k, kh_is(xs, k))
+
+def drop_k(+xs: List<&2, U64>, +k: U64) -> List<&2, U64>:
+  dk_go(xs, k, kh_is(xs, k))
+
+def ls_tl(xs: List<&2, U64>) -> List<&2, U64>:
+  match xs:
+    case []: []
+    case x <> t: t
+
+def ls_kh(xs: List<&2, U64>) -> U64:
+  match xs:
+    case []: 0u64
+    case x <> t: kh(x)
+
+def pg_md(+xs: List<&2, U64>, +ys: List<&2, U64>) -> U64:
+  +ka = ls_kh(xs)
+  +kb = ls_kh(ys)
+  Bool.pick(U64, Bool.or(Nat.is_eq(List.length(&2, U64, xs), 0n), Nat.is_eq(List.length(&2, U64, ys), 0n)), 3u64,
+    Bool.pick(U64, U64.is_lt(ka, kb), 0u64, Bool.pick(U64, U64.is_lt(kb, ka), 1u64, 2u64)))
+
+def pg_go(fuel: Nat, md: U64, +xs: List<&2, U64>, +ys: List<&2, U64>, +c: Ck, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  match fuel:
+    case 0n: acc
+    case 1n+(+f):
+      match md:
+        case 0u64: pg_go(f, pg_md(ls_tl(xs), ys), ls_tl(xs), ys, c, acc)
+        case 1u64: pg_go(f, pg_md(xs, ls_tl(ys)), xs, ls_tl(ys), c, acc)
+        case 2u64:
+          +k = ls_kh(xs)
+          +x2 = drop_k(xs, k)
+          +y2 = drop_k(ys, k)
+          pg_go(f, pg_md(x2, y2), x2, y2, c, pa_go(take_k(xs, k), take_k(ys, k), c, acc))
+        case _: acc
+
+def gp_face(+xs: List<&2, Nat>, +c: Ck, +acc: List<&2, Gu>) -> List<&2, Gu>:
+  +a = DW.so_u(B.msort(~U64, ~DW.u_lt, nks(xs, c, False{}, [])))
+  +b = DW.so_u(B.msort(~U64, ~DW.u_lt, nks(xs, c, True{}, [])))
+  pg_go(Nat.add(Nat.add(List.length(&2, U64, a), List.length(&2, U64, b)), 1n), pg_md(a, b), a, b, c, acc)
+
+def gp_all(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +acc: List<&2, Gu>) -> List<&2, Gu>:
   match n:
     case 0n: acc
-    case 1n+(+k): fa_go(k, Nat.add(i, 1n), c, adj, ft, cn_add(face_rl(c, i, dm_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), 1.0e300f64), B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))), ck_nm(c, i), acc))
+    case 1n+(+k): gp_all(k, Nat.add(i, 1n), c, adj, gp_face(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, acc))
+
+def gu_cmp(a: Gu, b: Gu) -> B.Sgn:
+  Gu{+ia, ga} = a
+  Gu{+ib, gb} = b
+  B.sgn_pick(Nat.is_lt(ia, ib), Nat.is_lt(ib, ia))
+
+def so_g(s: B.So<&2, Gu>) -> List<&2, Gu>:
+  B.So{ok, xs} = s
+  xs
+
+def gu_i(+u: Gu) -> Nat:
+  Gu{i, g} = u
+  i
+
+def gu_g(+u: Gu) -> F64:
+  Gu{i, g} = u
+  g
+
+def gu_is(us: List<&2, Gu>, +i: Nat) -> Bool:
+  match us:
+    case []: False{}
+    case u <> t: Nat.is_eq(gu_i(u), i)
+
+def gu_min(us: List<&2, Gu>, +i: Nat, +m: F64, ok: Bool) -> F64:
+  match us:
+    case []: m
+    case +u <> +t:
+      match ok:
+        case False{}: m
+        case True{}: gu_min(t, i, F64.min(m, gu_g(u)), gu_is(t, i))
+
+def gu_drop(us: List<&2, Gu>, +i: Nat, ok: Bool) -> List<&2, Gu>:
+  match us:
+    case []: []
+    case +u <> +t:
+      match ok:
+        case False{}: u <> t
+        case True{}: gu_drop(t, i, gu_is(t, i))
+
+def gd_fill(n: Nat, +i: Nat, +us: List<&2, Gu>) -> List<&2, F64>:
+  match n:
+    case 0n: []
+    case 1n+(+k): gu_min(us, i, 1.0e300f64, gu_is(us, i)) <> gd_fill(k, Nat.add(i, 1n), gu_drop(us, i, gu_is(us, i)))
+
+def gap_tab(+c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +nfa: Nat) -> B.Tb<&2, F64>:
+  B.tb_of(F64, gd_fill(nfa, 0n, so_g(B.msort(~Gu, ~gu_cmp, gp_all(nfa, 0n, c, adj, [])))), 1.0e300f64)
+
+def cv_gap(+c: Ck, +f: Fi, +g: Nat, +gt: B.Tb<&2, F64>) -> F64:
+  Bool.pick(F64, Bool.and(Nat.is_eq(fi_k(f), 1n), F64.is_lt(1.0e-6f64, rise_go(ck_fv(c, g), ck_wt(c), fi_o(f), fi_n(f), F64.neg(1.0e300f64)))),
+    B.tb_get(F64, gt, U32.from_nat(g)), 1.0e300f64)
+
+def gl_go(xs: List<&2, Nat>, +c: Ck, +f: Fi, +gt: B.Tb<&2, F64>, +acc: F64) -> F64:
+  match xs:
+    case []: acc
+    case +g <> t: gl_go(t, c, f, gt, F64.min(acc, cv_gap(c, f, g, gt)))
+
+def gap_of(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +gt: B.Tb<&2, F64>) -> F64:
+  gl_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), gt, B.tb_get(F64, gt, U32.from_nat(i)))
+
+def fa_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +ft: B.Tb<&2, Fi>, +gt: B.Tb<&2, F64>, +acc: Cn) -> Cn:
+  match n:
+    case 0n: acc
+    case 1n+(+k): fa_go(k, Nat.add(i, 1n), c, adj, ft, gt, cn_add(face_rl(c, i, dm_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), gap_of(c, i, adj, gt)), B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))), ck_nm(c, i), acc))
 
 def str_cat(xs: List<&2, String>) -> String:
   match xs:
@@ -805,15 +1056,18 @@ def mill_fin(+r: Cn, +cs: List<&2, String>, +nd: U64, +nfa: Nat) -> String:
     Nat.show(List.length(&2, String, cs)) ++ " sharp inside corners\n" ++
     "verdict " ++ verdict(Nat.add(nf, List.length(&2, String, cs)), na) ++ " status=estimated (tool access from a closed mesh at chord 0.05 mm; sizes and depths against the held tool tables)"
 
+def mill_a(+c: Ck, +ps: List<&2, Pr>, +ft: B.Tb<&2, Fi>, +nfa: Nat, +pl: M.Pl, +nd: U64, +adj: B.Tb<&2, List<&2, Nat>>) -> String:
+  mill_fin(fa_go(nfa, 0n, c, adj, ft, gap_tab(c, adj, nfa), Cn{"", 0n, 0n, 0n}), cn_go(ps, c, pl, []), nd, nfa)
+
 def mill_c(+c: Ck, +ps: List<&2, Pr>, +ft: B.Tb<&2, Fi>, +nfa: Nat, +pl: M.Pl, +nd: U64) -> String:
-  mill_fin(fa_go(nfa, 0n, c, DW.fj_of(pr_keys(ps, []), nfa), ft, Cn{"", 0n, 0n, 0n}), cn_go(ps, c, pl, []), nd, nfa)
+  mill_a(c, ps, ft, nfa, pl, nd, DW.fj_of(pr_keys(ps, []), nfa))
 
-def ck_mk(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat) -> Ck:
-  Ck{ft, fv, B.tb_of(List<&2, Fx>, fxt_go(nfa, 0n, fv, ss, wt, ft), []), ss, wt, B.tb_of(Ty.Edge, Ty.brep_es(M.bd_brep(b)), Ty.ed_dflt()),
-    B.tb_of(V.Point, TS.vx_pts(Ty.brep_vs(M.bd_brep(b))), pz()), B.tb_of(String, nms_go(M.bd_fns(b)), "")}
+def ck_mk(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +cp: B.Tb<&2, List<&2, V.Point>>) -> Ck:
+  Ck{ft, fv, B.tb_of(List<&2, Fx>, fxt_go(nfa, 0n, fv, ss, wt, ft, cp), []), ss, wt, B.tb_of(Ty.Edge, Ty.brep_es(M.bd_brep(b)), Ty.ed_dflt()),
+    B.tb_of(V.Point, TS.vx_pts(Ty.brep_vs(M.bd_brep(b))), pz()), B.tb_of(String, nms_go(M.bd_fns(b)), ""), cp}
 
-def mill_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64) -> String:
-  mill_c(ck_mk(ft, fv, ss, wt, b, nfa), prs_of(M.bd_brep(b)), ft, nfa, M.bd_pl(b), nd)
+def mill_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64, +cp: B.Tb<&2, List<&2, V.Point>>) -> String:
+  mill_c(ck_mk(ft, fv, ss, wt, b, nfa, cp), prs_of(M.bd_brep(b)), ft, nfa, M.bd_pl(b), nd)
 
 type Ax is Data:
   Ax{ o: V.Point, a: V.Dir, r: F64, ok: Bool }
@@ -1375,19 +1629,19 @@ def la_ax(ok: Bool, +c: Ck, +ps: List<&2, Pr>, +nfa: Nat, +x: Ax, +wp: List<&2, 
 def la_x2(+c: Ck, +ps: List<&2, Pr>, +nfa: Nat, +x: Ax, +wp: List<&2, V.Point>, +wt: B.Tb<&2, V.Point>, +ts: List<&2, TS.Tri>, +nd: U64) -> String:
   la_ax(ax_ok(x), c, ps, nfa, x, wp, wt, ts, nd)
 
-def lathe_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64, +wp: List<&2, V.Point>, +ts: List<&2, TS.Tri>) -> String:
-  la_x2(ck_mk(ft, fv, ss, wt, b, nfa), prs_of(M.bd_brep(b)), nfa, ax_go(nfa, 0n, ft, Ax{pz(), dr(0.0f64, 0.0f64, 1.0f64), 0.0f64, False{}}), wp, wt, ts, nd)
+def lathe_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64, +wp: List<&2, V.Point>, +ts: List<&2, TS.Tri>, +cp: B.Tb<&2, List<&2, V.Point>>) -> String:
+  la_x2(ck_mk(ft, fv, ss, wt, b, nfa, cp), prs_of(M.bd_brep(b)), nfa, ax_go(nfa, 0n, ft, Ax{pz(), dr(0.0f64, 0.0f64, 1.0f64), 0.0f64, False{}}), wp, wt, ts, nd)
 
 
 def mk_l(lathe: Bool, +ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +c: Mc, +m: TS.Mp, +b: M.Body, +nd: U64, +pr: String, +nfa: Nat) -> String:
   match lathe:
-    case True{}: lathe_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd, mc_wp(c), mc_ts(c))
+    case True{}: lathe_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd, mc_wp(c), mc_ts(c), ct_tab(mc_ts(c), DW.fid_go(TS.mp_ns(m), 0n, []), nfa, mc_tt(c), mc_wt(c)))
     case False{}:
       pr_w(Pc{c, DW.fid_go(TS.mp_ns(m), 0n, []), ft, fv, nfa, 5.0f64}, SO.fds_of(M.bd_brep(b)), nfa, nd, Pp{pr, Bool.pick(F64, String.eq(pr, "sla"), 0.5f64, 0.8f64)})
 
 def mk_d(mill: Bool, +ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +c: Mc, +m: TS.Mp, +b: M.Body, +nd: U64, +pr: String, +nfa: Nat) -> String:
   match mill:
-    case True{}: mill_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd)
+    case True{}: mill_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd, ct_tab(mc_ts(c), DW.fid_go(TS.mp_ns(m), 0n, []), nfa, mc_tt(c), mc_wt(c)))
     case False{}: mk_l(String.eq(pr, "lathe"), ft, fv, c, m, b, nd, pr, nfa)
 
 def mill_f(+fv: B.Tb<&2, List<&2, Nat>>, +c: Mc, +m: TS.Mp, +b: M.Body, +nd: U64, +pr: String) -> String:
