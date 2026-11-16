@@ -212,7 +212,7 @@ def make_check(design, c, parts):
         rows.append(best)
     vs = [rank.get(x['verdict'], 1) for x in rows]
     v = 'fail' if 2 in vs else 'not-analyzed' if 1 in vs else 'pass'
-    det = ' | '.join(f"n{x['node']} {x['process']}: {x['verdict']}" + (': ' + '; '.join(x['lines']) if x['lines'] else '') + (x['head'] and ': ' + x['head']) for x in rows)
+    det = ''.join(f'n{n} bought, not made: {w} | ' for n, w in c.get('bought', {}).items()) + ' | '.join(f"n{x['node']} {x['process']}: {x['verdict']}" + (': ' + '; '.join(x['lines']) if x['lines'] else '') + (x['head'] and ': ' + x['head']) for x in rows)
     return dict(req=c['req'], verdict=v, detail=det[:1500], cmd='make ' + ' '.join(str(n) for n in parts) + ' ' + c['cmd'][1], s=round(t, 3), info=c.get('info', False))
 
 
@@ -220,7 +220,7 @@ def run_check(design, c, parts=()):
     if c['judge'][0] == 'drawing_ok':
         return drawing_check(design, c, parts)
     if c['judge'][0] == 'make_ok':
-        return make_check(design, c, parts)
+        return make_check(design, c, [n for n in parts if n not in c.get('bought', {})])
     if c.get('cmd') is None:
         v, d = judge(c['judge'], '')
         return dict(req=c['req'], verdict=v, detail=d, cmd=None, s=0.0, info=c.get('info', False))

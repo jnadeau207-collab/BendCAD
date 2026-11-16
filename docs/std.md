@@ -235,3 +235,65 @@ DIN 471 external partial-profile grooving insert, groove width m (H13), one inse
 | 2.5 |
 | 2.75 |
 | 3.0 |
+
+## endmill_reach
+
+solid carbide flat end mill with a neck: cutter diameter dc, cutting edge length lc, usable length l1 (reach under the neck), neck diameter d1, shank ds, machining group grp (1 = N non-ferrous and O other only, 2 = P steel, M stainless, K cast iron); the neck is narrower than the cutter, so a wall or floor down to l1 is cut in axial steps of at most lc; source: Hoffmann Group GARANT 202247 (solid carbide MTC end mill, long reach, uncoated, N/O), hoffmann-group.com/US/en/hus/p/202247-<dc>; GARANT Master Steel SlotMachine 205556 (TiAlN, long neck, P/M/K), hoffmann-group.com/US/en/hus/p/205556-<dc>; dc, lc, D1 and L1 read from each product page
+
+| dc | lc | l1 | d1 | ds | grp |
+|---|---|---|---|---|---|
+| 4.0 | 6.5 | 24.0 | 3.7 | 6.0 | 1.0 |
+| 5.0 | 8.0 | 30.0 | 4.7 | 6.0 | 1.0 |
+| 6.0 | 10.0 | 42.0 | 5.7 | 6.0 | 1.0 |
+| 6.0 | 13.0 | 42.0 | 5.4 | 6.0 | 2.0 |
+| 8.0 | 13.0 | 62.0 | 7.4 | 8.0 | 1.0 |
+| 8.0 | 21.0 | 62.0 | 7.2 | 8.0 | 2.0 |
+| 10.0 | 16.0 | 58.0 | 9.2 | 10.0 | 1.0 |
+| 10.0 | 22.0 | 58.0 | 9.0 | 10.0 | 2.0 |
+| 12.0 | 19.0 | 73.0 | 11.0 | 12.0 | 1.0 |
+| 12.0 | 26.0 | 73.0 | 10.8 | 12.0 | 2.0 |
+| 16.0 | 25.0 | 100.0 | 15.0 | 16.0 | 1.0 |
+| 16.0 | 36.0 | 100.0 | 14.4 | 16.0 | 2.0 |
+| 20.0 | 32.0 | 98.0 | 19.0 | 20.0 | 1.0 |
+| 20.0 | 41.0 | 98.0 | 18.0 | 20.0 | 2.0 |
+
+## bore_bar
+
+steel boring bar A..SCLCR 95 degree for CC.. inserts, helical flutes: shank diameter ds, minimum bore dmin, overall length l, head length l1; source: Hoffmann Group GARANT Master Turn 260030 (A08H, A10K, A12L SCLCR06; A16Q, A20R SCLCR09; A25R SCLCR12), hoffmann-group.com/GR/el/pangakis/p/260030-<ds>%402F<insert>; Hole diameter min. D1 from each product page
+
+| ds | dmin | l | l1 |
+|---|---|---|---|
+| 8.0 | 10.0 | 100.0 | 20.0 |
+| 10.0 | 12.0 | 125.0 | 20.0 |
+| 12.0 | 14.0 | 140.0 | 24.3 |
+| 16.0 | 18.0 | 180.0 | 31.0 |
+| 20.0 | 22.0 | 200.0 | 36.0 |
+| 25.0 | 27.0 | 200.0 | 43.0 |
+
+## bar_overhang
+
+maximum tool overhang of a steel boring bar as a multiple of the bar diameter BD, for turning, grooving and threading; source: Sandvik Coromant, General turning: tool set-up, sandvik.coromant.com/en-gb/knowledge/general-turning/tool-set-up (steel bars 4 x BD turning, 3 x BD grooving and threading; carbide 6 and 5 and damped 7 to 14 are not held)
+
+| turn | groove | thread |
+|---|---|---|
+| 4.0 | 3.0 | 3.0 |
+
+## igroove_insert
+
+solid carbide micro grooving insert, internal, square profile: minimum bore dmin, insert width w, maximum radial cutting depth ap, usable length l1 from the bore mouth; source: Hoffmann Group GARANT 270314 4,2/1 (micro grooving insert, internal, right-hand, L1 = 20 mm), hoffmann-group.com/US/en/hus/p/270314-4%2C2@2F1
+
+| dmin | w | ap | l1 |
+|---|---|---|---|
+| 4.2 | 1.0 | 0.8 | 20.0 |
+
+## fgroove_tool
+
+axial (face) grooving cutting head: smallest and largest groove diameter of the first plunge d1 and d2, insert width w, maximum groove depth tmax; a wider groove takes several plunges; source: Hoffmann Group GARANT 273823 (Schneidentraeger konkav fuer Planeinstich, links), hoffmann-group.com/p/273823-<d1>%402F<d2>, variants 26/41, 38/55, 52/72, 67/100 and 90/130 read from their product pages
+
+| d1 | d2 | w | tmax |
+|---|---|---|---|
+| 26.0 | 41.0 | 4.0 | 15.0 |
+| 38.0 | 55.0 | 4.0 | 15.0 |
+| 52.0 | 72.0 | 4.0 | 15.0 |
+| 67.0 | 100.0 | 4.0 | 15.0 |
+| 90.0 | 130.0 | 4.0 | 15.0 |

@@ -207,21 +207,27 @@ def rl_best(+a: Rl, +b: Rl) -> Rl:
 def st_s(+k: Nat) -> String:
   Bool.pick(String, Nat.is_eq(k, 0n), "pass", Bool.pick(String, Nat.is_eq(k, 1n), "not-analyzed", "fail"))
 
-def em_big(rs: List<&2, List<&2, F64>>, +dmax: F64, +depth: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+def em_big(rs: List<&2, List<&2, F64>>, +col: Nat, +dmax: F64, +depth: F64, +acc: List<&2, F64>) -> List<&2, F64>:
   match rs:
     case []: acc
     case +r <> t:
-      em_big(t, dmax, depth, Bool.pick(List<&2, F64>, Bool.and(F64.is_le(SD.fv_go(r, 0n), F64.add(dmax, 1.0e-9f64)), F64.is_le(depth, F64.add(SD.fv_go(r, 1n), 1.0e-9f64))), r, acc))
+      em_big(t, col, dmax, depth, Bool.pick(List<&2, F64>, Bool.and(F64.is_le(SD.fv_go(r, 0n), F64.add(dmax, 1.0e-9f64)), F64.is_le(depth, F64.add(SD.fv_go(r, col), 1.0e-9f64))), r, acc))
 
 def em_s(+r: List<&2, F64>) -> String:
   "end mill " ++ fs(SD.fv_go(r, 0n)) ++ " lc=" ++ fs(SD.fv_go(r, 1n)) ++ " (DIN 6527 L)"
 
-def em_rl(+r: List<&2, F64>, +what: String, +dmax: F64, +depth: F64) -> Rl:
+def er_s(+r: List<&2, F64>) -> String:
+  "long-reach end mill " ++ fs(SD.fv_go(r, 0n)) ++ " lc=" ++ fs(SD.fv_go(r, 1n)) ++ " reach=" ++ fs(SD.fv_go(r, 2n)) ++ " neck=" ++ fs(SD.fv_go(r, 3n)) ++
+    Bool.pick(String, F64.is_lt(1.5f64, SD.fv_go(r, 5n)), " (GARANT 205556, steel P M K)", " (GARANT 202247, non-ferrous N)")
+
+def em_rl(+r: List<&2, F64>, +q: List<&2, F64>, +what: String, +dmax: F64, +depth: F64) -> Rl:
   Bool.pick(Rl, SD.row_ok(r), Rl{0n, what ++ " tool=\"" ++ em_s(r) ++ "\""},
-    Rl{1n, what ++ " why=no-held-end-mill: none" ++ Bool.pick(String, F64.is_lt(dmax, 1.0e299f64), " of diameter <= " ++ fs(dmax), "") ++ " cuts " ++ fs(depth) ++ " deep (held: DIN 6527 L, 1 to 20 mm, lc up to 38)"})
+    Bool.pick(Rl, SD.row_ok(q), Rl{0n, what ++ " tool=\"" ++ er_s(q) ++ "\""},
+      Rl{1n, what ++ " why=no-held-end-mill: none" ++ Bool.pick(String, F64.is_lt(dmax, 1.0e299f64), " of diameter <= " ++ fs(dmax), "") ++ " cuts " ++ fs(depth) ++
+        " deep (held: DIN 6527 L, 1 to 20 mm, lc up to 38; long-reach 4 to 20 mm, reach up to 100)"}))
 
 def mill_side(+what: String, +dmax: F64, +depth: F64) -> Rl:
-  em_rl(em_big(SD.tab("endmill"), dmax, depth, []), what, dmax, depth)
+  em_rl(em_big(SD.tab("endmill"), 1n, dmax, depth, []), em_big(SD.tab("endmill_reach"), 2n, dmax, depth, []), what, dmax, depth)
 
 def fr(+x: F64, +k: F64) -> Bool:
   F64.is_lt(F64.abs(F64.sub(F64.mul(x, k), KS.f_round(F64.mul(x, k)))), 1.0e-6f64)
@@ -232,11 +238,11 @@ def dr_ser(+d: F64) -> Bool:
 
 def drill_rl2(+r: List<&2, F64>, +d: F64, +depth: F64, +what: String) -> Rl:
   Bool.pick(Rl, F64.is_le(depth, F64.add(SD.fv_go(r, 2n), 1.0e-9f64)), Rl{0n, what ++ " tool=\"drill " ++ fs(d) ++ " jobber l2=" ++ fs(SD.fv_go(r, 2n)) ++ " (ISO 235)\""},
-    em_rl(em_big(SD.tab("endmill"), F64.mul(0.8f64, d), depth, []), what ++ " drill-too-short(l2=" ++ fs(SD.fv_go(r, 2n)) ++ ")", F64.mul(0.8f64, d), depth))
+    mill_side(what ++ " drill-too-short(l2=" ++ fs(SD.fv_go(r, 2n)) ++ ")", F64.mul(0.8f64, d), depth))
 
 def hole_rl(+ser: Bool, +d: F64, +depth: F64, +what: String) -> Rl:
   Bool.pick(Rl, Bool.and(ser, SD.row_ok(SD.row("drill", d))), drill_rl2(SD.row("drill", d), d, depth, what),
-    em_rl(em_big(SD.tab("endmill"), F64.mul(0.8f64, d), depth, []), what ++ " not-a-drill-size interpolate", F64.mul(0.8f64, d), depth))
+    mill_side(what ++ " not-a-drill-size interpolate", F64.mul(0.8f64, d), depth))
 
 def cs_go(rs: List<&2, List<&2, F64>>, +d: F64) -> List<&2, F64>:
   match rs:
@@ -793,7 +799,7 @@ def verdict(+nf: Nat, +na: Nat) -> String:
 
 def mill_fin(+r: Cn, +cs: List<&2, String>, +nd: U64, +nfa: Nat) -> String:
   Cn{+s, +np, +na, +nf} = r
-  "make node " ++ U64.show(nd) ++ " process=mill (3-axis, setups +z -z +x -x +y -y; tools held: ISO 235 jobber drills 1-16, DIN 6527 L end mills 1-20, DIN 335 C 90 countersinks, DIN 371/376 taps; docs/std.md)\n" ++
+  "make node " ++ U64.show(nd) ++ " process=mill (3-axis, setups +z -z +x -x +y -y; tools held: ISO 235 jobber drills 1-16, DIN 6527 L end mills 1-20, long-reach end mills 4-20 (GARANT 202247, 205556), DIN 335 C 90 countersinks, DIN 371/376 taps; docs/std.md)\n" ++
     s ++ str_cat(cs) ++
     "make node " ++ U64.show(nd) ++ ": " ++ Nat.show(nfa) ++ " faces, " ++ Nat.show(np) ++ " pass, " ++ Nat.show(nf) ++ " fail, " ++ Nat.show(na) ++ " not-analyzed; " ++
     Nat.show(List.length(&2, String, cs)) ++ " sharp inside corners\n" ++
@@ -839,21 +845,303 @@ def ti_go(rs: List<&2, List<&2, F64>>, +p: F64) -> Bool:
     case []: False{}
     case +r <> t: Bool.or(F64.is_lt(F64.abs(F64.sub(SD.fv_go(r, 0n), p)), 1.0e-6f64), ti_go(t, p))
 
-def drill_l(+r: List<&2, F64>, +d: F64, +depth: F64) -> Rl:
-  Bool.pick(Rl, F64.is_le(depth, F64.add(SD.fv_go(r, 2n), 1.0e-9f64)), Rl{0n, "cylinder bore d=" ++ fs(d) ++ " depth=" ++ fs(depth) ++ " drilled on the turning axis tool=\"drill " ++ fs(d) ++ " jobber l2=" ++ fs(SD.fv_go(r, 2n)) ++ " (ISO 235)\""},
-    Rl{1n, "cylinder bore d=" ++ fs(d) ++ " depth=" ++ fs(depth) ++ " on the turning axis why=deeper than the jobber drill's flute (l2=" ++ fs(SD.fv_go(r, 2n)) ++ "); boring bars are not held"})
+def ax_o(+x: Ax) -> V.Point:
+  Ax{+o, a, r, ok} = x
+  o
 
-def la_bore(+d: F64, +depth: F64) -> Rl:
-  Bool.pick(Rl, Bool.and(dr_ser(d), SD.row_ok(SD.row("drill", d))), drill_l(SD.row("drill", d), d, depth),
-    Rl{1n, "cylinder bore d=" ++ fs(d) ++ " depth=" ++ fs(depth) ++ " on the turning axis why=not a held drill size; boring bars are not held (Sandvik: bar overhang up to 4xBD steel, 6xBD carbide, 14xBD dampened; the bar that fits this bore is not held)"})
+type Lq is Data:
+  Lq{ i: Nat, z: F64, rn: F64, rx: F64, q: Bool }
+
+def lq_i(+x: Lq) -> Nat:
+  Lq{+i, z, rn, rx, q} = x
+  i
+
+def lq_z(+x: Lq) -> F64:
+  Lq{i, +z, rn, rx, q} = x
+  z
+
+def lq_rn(+x: Lq) -> F64:
+  Lq{i, z, +rn, rx, q} = x
+  rn
+
+def lq_rx(+x: Lq) -> F64:
+  Lq{i, z, rn, +rx, q} = x
+  rx
+
+def lq_q(+x: Lq) -> Bool:
+  Lq{i, z, rn, rx, +q} = x
+  q
+
+def lq_dn(a: Lq, b: Lq) -> B.Sgn:
+  f_lt2(lq_z(b), lq_z(a))
+
+def lq_up(a: Lq, b: Lq) -> B.Sgn:
+  f_lt2(lq_z(a), lq_z(b))
+
+type Lw is Data:
+  Lw{ i: Nat, v: V.Vec2 }
+
+def lw_i(+w: Lw) -> Nat:
+  Lw{+i, v} = w
+  i
+
+def lw_v(+w: Lw) -> V.Vec2:
+  Lw{i, +v} = w
+  v
+
+def lw_lt2(+a: Lw, +b: Lw) -> B.Sgn:
+  B.sgn_pick(Nat.is_lt(lw_i(a), lw_i(b)), Nat.is_lt(lw_i(b), lw_i(a)))
+
+def lw_lt(a: Lw, b: Lw) -> B.Sgn:
+  lw_lt2(a, b)
+
+def rad_of(+p: V.Point, +o: V.Point, +a: V.Dir) -> F64:
+  KS.dlen(KS.cross(KS.psub(p, o), a))
+
+def sag_tol() -> F64:
+  0.06f64
+
+def lv_go(ps: List<&2, V.Point>, +i: Nat, +o: V.Point, +a: V.Dir, +dz: F64, +q: Bool, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  match ps:
+    case []: acc
+    case +p <> t: lv_go(t, Nat.add(i, 1n), o, a, dz, q, Lq{i, F64.add(DW.dp(p, a), dz), rad_of(p, o, a), rad_of(p, o, a), q} <> acc)
+
+def tx_ge(+l: F64) -> Bool:
+  F64.is_le(F64.neg(1.0e-9f64), l)
+
+def tx_l(+u0: F64, +v0: F64, +u1: F64, +v1: F64, +d: F64) -> F64:
+  F64.div(F64.sub(F64.mul(u0, v1), F64.mul(u1, v0)), d)
+
+def sg_d2(+px: F64, +py: F64, +dx: F64, +dy: F64, +t: F64) -> F64:
+  F64.sqrt(F64.add(F64.mul(F64.add(px, F64.mul(t, dx)), F64.add(px, F64.mul(t, dx))), F64.mul(F64.add(py, F64.mul(t, dy)), F64.add(py, F64.mul(t, dy)))))
+
+def sg_d(+px: F64, +py: F64, +qx: F64, +qy: F64) -> F64:
+  +dx = F64.sub(qx, px)
+  +dy = F64.sub(qy, py)
+  sg_d2(px, py, dx, dy, F64.max(0.0f64, F64.min(1.0f64, F64.div(F64.neg(F64.add(F64.mul(px, dx), F64.mul(py, dy))), F64.max(F64.add(F64.mul(dx, dx), F64.mul(dy, dy)), 1.0e-300f64)))))
+
+def tx_hyp(+u: F64, +v: F64) -> F64:
+  F64.sqrt(F64.add(F64.mul(u, u), F64.mul(v, v)))
+
+def tx_5(+hit: Bool, +u0: F64, +v0: F64, +u1: F64, +v1: F64, +u2: F64, +v2: F64, +z: F64, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  Lq{0n, z, F64.add(Bool.pick(F64, hit, 0.0f64, F64.min(sg_d(u0, v0, u1, v1), F64.min(sg_d(u1, v1, u2, v2), sg_d(u2, v2, u0, v0)))), sag_tol()),
+    F64.sub(F64.max(tx_hyp(u0, v0), F64.max(tx_hyp(u1, v1), tx_hyp(u2, v2))), sag_tol()), False{}} <> acc
+
+def tx_4(+u0: F64, +v0: F64, +u1: F64, +v1: F64, +u2: F64, +v2: F64, +z: F64, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  +d = F64.sub(F64.mul(F64.sub(u1, u0), F64.sub(v2, v0)), F64.mul(F64.sub(u2, u0), F64.sub(v1, v0)))
+  tx_5(Bool.and(F64.is_lt(1.0e-12f64, F64.abs(d)), Bool.and(tx_ge(tx_l(u1, v1, u2, v2, d)), Bool.and(tx_ge(tx_l(u2, v2, u0, v0, d)), tx_ge(tx_l(u0, v0, u1, v1, d))))),
+    u0, v0, u1, v1, u2, v2, z, acc)
+
+def tx_3(+p0: V.Dir, +p1: V.Dir, +p2: V.Dir, +e1: V.Dir, +e2: V.Dir, +z: F64, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  tx_4(KS.dot(p0, e1), KS.dot(p0, e2), KS.dot(p1, e1), KS.dot(p1, e2), KS.dot(p2, e1), KS.dot(p2, e2), z, acc)
+
+def tx_pt(+t: TS.Tri, +wt: B.Tb<&2, V.Point>, +o: V.Point, +a: V.Dir, +e1: V.Dir, +e2: V.Dir, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  tx_3(KS.psub(DW.pt2(wt, TS.ta(t)), o), KS.psub(DW.pt2(wt, TS.tb(t)), o), KS.psub(DW.pt2(wt, TS.tc(t)), o), e1, e2,
+    F64.div(F64.add(DW.dp(DW.pt2(wt, TS.ta(t)), a), F64.add(DW.dp(DW.pt2(wt, TS.tb(t)), a), DW.dp(DW.pt2(wt, TS.tc(t)), a))), 3.0f64), acc)
+
+def tx_go(ts: List<&2, TS.Tri>, +wt: B.Tb<&2, V.Point>, +o: V.Point, +a: V.Dir, +e1: V.Dir, +e2: V.Dir, +acc: List<&2, Lq>) -> List<&2, Lq>:
+  match ts:
+    case []: acc
+    case +t <> r: tx_go(r, wt, o, a, e1, e2, tx_pt(t, wt, o, a, e1, e2, acc))
+
+def sw_go(xs: List<&2, Lq>, +mn: F64, +mx: F64, +acc: List<&2, Lw>) -> List<&2, Lw>:
+  match xs:
+    case []: acc
+    case +x <> t:
+      sw_go(t, Bool.pick(F64, lq_q(x), mn, F64.min(mn, lq_rn(x))), Bool.pick(F64, lq_q(x), mx, F64.max(mx, lq_rx(x))),
+        Bool.pick(List<&2, Lw>, lq_q(x), Lw{lq_i(x), V.V2{mn, mx}} <> acc, acc))
+
+def so_q(s: B.So<&2, Lq>) -> List<&2, Lq>:
+  B.So{ok, xs} = s
+  xs
+
+def so_w(s: B.So<&2, Lw>) -> List<&2, Lw>:
+  B.So{ok, xs} = s
+  xs
+
+def lw_vs(xs: List<&2, Lw>) -> List<&2, V.Vec2>:
+  match xs:
+    case []: []
+    case +x <> t: lw_v(x) <> lw_vs(t)
+
+def lw_tb(+ws: List<&2, Lw>) -> B.Tb<&2, V.Vec2>:
+  B.tb_of(V.Vec2, lw_vs(so_w(B.msort(~Lw, ~lw_lt, ws))), V.V2{1.0e300f64, F64.neg(1.0e300f64)})
+
+def tb_top(+ss: List<&2, Lq>, +qs: List<&2, Lq>) -> B.Tb<&2, V.Vec2>:
+  lw_tb(sw_go(so_q(B.msort(~Lq, ~lq_dn, List.append(&2, Lq, ss, qs))), 1.0e300f64, F64.neg(1.0e300f64), []))
+
+def tb_bot(+ss: List<&2, Lq>, +qs: List<&2, Lq>) -> B.Tb<&2, V.Vec2>:
+  lw_tb(sw_go(so_q(B.msort(~Lq, ~lq_up, List.append(&2, Lq, ss, qs))), 1.0e300f64, F64.neg(1.0e300f64), []))
+
+type Lc is Data:
+  Lc{ o: V.Point, a: V.Dir, top: F64, bot: F64, ut: B.Tb<&2, V.Vec2>, dt: B.Tb<&2, V.Vec2>, wt: B.Tb<&2, V.Point>, ss: List<&2, Lq> }
+
+def lc_o(+lx: Lc) -> V.Point:
+  Lc{+o, a, top, bot, ut, dt, wt, ss} = lx
+  o
+
+def lc_a(+lx: Lc) -> V.Dir:
+  Lc{o, +a, top, bot, ut, dt, wt, ss} = lx
+  a
+
+def lc_top(+lx: Lc) -> F64:
+  Lc{o, a, +top, bot, ut, dt, wt, ss} = lx
+  top
+
+def lc_bot(+lx: Lc) -> F64:
+  Lc{o, a, top, +bot, ut, dt, wt, ss} = lx
+  bot
+
+def lc_ut(+lx: Lc) -> B.Tb<&2, V.Vec2>:
+  Lc{o, a, top, bot, +ut, dt, wt, ss} = lx
+  ut
+
+def lc_dt(+lx: Lc) -> B.Tb<&2, V.Vec2>:
+  Lc{o, a, top, bot, ut, +dt, wt, ss} = lx
+  dt
+
+def lc_wt(+lx: Lc) -> B.Tb<&2, V.Point>:
+  Lc{o, a, top, bot, ut, dt, +wt, ss} = lx
+  wt
+
+def lc_ss(+lx: Lc) -> List<&2, Lq>:
+  Lc{o, a, top, bot, ut, dt, wt, +ss} = lx
+  ss
+
+def lc_ax(+lx: Lc) -> Ax:
+  Ax{lc_o(lx), lc_a(lx), 0.0f64, True{}}
+
+def lc_m2(+o: V.Point, +a: V.Dir, +top: F64, +bot: F64, +wt: B.Tb<&2, V.Point>, +wp: List<&2, V.Point>, +ss: List<&2, Lq>) -> Lc:
+  Lc{o, a, top, bot, tb_top(ss, lv_go(wp, 0n, o, a, 1.0e-6f64, True{}, [])), tb_bot(ss, lv_go(wp, 0n, o, a, F64.neg(1.0e-6f64), True{}, [])), wt, ss}
+
+def lc_mk(+x: Ax, +top: F64, +bot: F64, +wt: B.Tb<&2, V.Point>, +wp: List<&2, V.Point>, +ts: List<&2, TS.Tri>) -> Lc:
+  lc_m2(ax_o(x), ax_a(x), top, bot, wt, wp,
+    lv_go(wp, 0n, ax_o(x), ax_a(x), 0.0f64, False{}, tx_go(ts, wt, ax_o(x), ax_a(x), KS.perp_of(ax_a(x)), KS.cross(ax_a(x), KS.perp_of(ax_a(x))), [])))
+
+def tv(+tb: B.Tb<&2, V.Vec2>, +i: Nat) -> V.Vec2:
+  B.tb_get(V.Vec2, tb, U32.from_nat(i))
+
+def vin_go(vs: List<&2, Nat>, +tb: B.Tb<&2, V.Vec2>, +lx: Lc) -> Bool:
+  match vs:
+    case []: True{}
+    case +i <> t: Bool.and(F64.is_le(F64.sub(rad_of(DW.pt2(lc_wt(lx), i), lc_o(lx), lc_a(lx)), 1.0e-6f64), V.v2_x(tv(tb, i))), vin_go(t, tb, lx))
+
+def vout_go(vs: List<&2, Nat>, +tb: B.Tb<&2, V.Vec2>, +lx: Lc) -> Bool:
+  match vs:
+    case []: True{}
+    case +i <> t: Bool.and(F64.is_le(V.v2_y(tv(tb, i)), F64.add(rad_of(DW.pt2(lc_wt(lx), i), lc_o(lx), lc_a(lx)), 1.0e-6f64)), vout_go(t, tb, lx))
+
+def cor_go(vs: List<&2, Nat>, +tb: B.Tb<&2, V.Vec2>, +acc: F64) -> F64:
+  match vs:
+    case []: acc
+    case +i <> t: cor_go(t, tb, F64.min(acc, V.v2_x(tv(tb, i))))
+
+def rr_go(vs: List<&2, Nat>, +lx: Lc, +m: V.Vec2) -> V.Vec2:
+  match vs:
+    case []: m
+    case +i <> t: rr_go(t, lx, DW.rg_add(rad_of(DW.pt2(lc_wt(lx), i), lc_o(lx), lc_a(lx)), m))
+
+def lv_tb(+lx: Lc, +up: Bool) -> B.Tb<&2, V.Vec2>:
+  Bool.pick(B.Tb<&2, V.Vec2>, up, lc_ut(lx), lc_dt(lx))
+
+def lv_in(+lx: Lc, +up: Bool, +vs: List<&2, Nat>) -> Bool:
+  vin_go(vs, lv_tb(lx, up), lx)
+
+def lv_out(+lx: Lc, +up: Bool, +vs: List<&2, Nat>) -> Bool:
+  vout_go(vs, lv_tb(lx, up), lx)
+
+def lv_cor(+lx: Lc, +up: Bool, +vs: List<&2, Nat>) -> F64:
+  F64.min(cor_go(vs, lv_tb(lx, up), 1.0e300f64), 1.0e9f64)
+
+def lv_dep(+lx: Lc, +up: Bool, +rg: V.Vec2) -> F64:
+  Bool.pick(F64, up, F64.sub(lc_top(lx), V.v2_x(rg)), F64.sub(V.v2_y(rg), lc_bot(lx)))
+
+def sd_s(+up: Bool) -> String:
+  Bool.pick(String, up, "+axis end", "-axis end")
+
+def uc_s() -> String:
+  " why=undercut: no straight path from either end of the turning axis reaches it"
+
+def bd_in(+s: Lq, +up: Bool, +z0: F64, +lo: F64, +hi: F64) -> Bool:
+  Bool.and(Bool.pick(Bool, up, F64.is_lt(F64.add(z0, 1.0e-6f64), lq_z(s)), F64.is_lt(lq_z(s), F64.sub(z0, 1.0e-6f64))),
+    Bool.and(F64.is_lt(lq_rn(s), F64.sub(hi, 1.0e-6f64)), F64.is_lt(F64.add(lo, 1.0e-6f64), lq_rx(s))))
+
+def bd_go(ss: List<&2, Lq>, +up: Bool, +z0: F64, +lo: F64, +hi: F64) -> Bool:
+  match ss:
+    case []: False{}
+    case +s <> t: Bool.or(bd_in(s, up, z0, lo, hi), bd_go(t, up, z0, lo, hi))
+
+def hd_r(rs: List<&2, List<&2, F64>>) -> List<&2, F64>:
+  match rs:
+    case []: []
+    case +r <> t: r
+
+def bar_go(rs: List<&2, List<&2, F64>>, +d: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match rs:
+    case []: acc
+    case +r <> t: bar_go(t, d, Bool.pick(List<&2, F64>, F64.is_le(SD.fv_go(r, 1n), F64.add(d, 1.0e-9f64)), r, acc))
+
+def bar_r2(+r: List<&2, F64>, +what: String, +d: F64, +depth: F64, +k: F64) -> Rl:
+  Bool.pick(Rl, SD.row_ok(r),
+    Bool.pick(Rl, F64.is_le(depth, F64.add(F64.mul(k, SD.fv_go(r, 0n)), 1.0e-9f64)),
+      Rl{0n, what ++ " tool=\"boring bar " ++ fs(SD.fv_go(r, 0n)) ++ " Dmin=" ++ fs(SD.fv_go(r, 1n)) ++ " overhang " ++ fs(depth) ++ " <= " ++ fs(k) ++ "xBD (GARANT 260030 SCLCR 95; Sandvik)\""},
+      Rl{1n, what ++ " why=deeper than " ++ fs(k) ++ " x the diameter of the largest held boring bar that fits (" ++ fs(SD.fv_go(r, 0n)) ++ " mm, " ++ fs(F64.mul(k, SD.fv_go(r, 0n))) ++ "); carbide and damped bars are not held"}),
+    Rl{1n, what ++ " why=the opening (d=" ++ fs(d) ++ ") is narrower than the smallest held boring bar's Dmin (" ++ fs(SD.fv_go(hd_r(SD.tab("bore_bar")), 1n)) ++ ")"})
+
+def bar_rl(+what: String, +d: F64, +depth: F64) -> Rl:
+  bar_r2(bar_go(SD.tab("bore_bar"), d, []), what, d, depth, SD.fv_go(hd_r(SD.tab("bar_overhang")), 0n))
+
+def ig_go(rs: List<&2, List<&2, F64>>, +dc: F64, +w: F64, +ap: F64, +dep: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match rs:
+    case []: acc
+    case +r <> t:
+      ig_go(t, dc, w, ap, dep, Bool.pick(List<&2, F64>, Bool.and(Bool.and(F64.is_le(SD.fv_go(r, 0n), F64.add(dc, 1.0e-9f64)), F64.is_le(SD.fv_go(r, 1n), F64.add(w, 1.0e-9f64))),
+        Bool.and(F64.is_le(ap, F64.add(SD.fv_go(r, 2n), 1.0e-9f64)), F64.is_le(dep, F64.add(SD.fv_go(r, 3n), 1.0e-9f64)))), r, acc))
+
+def ig_r2(+r: List<&2, F64>, +what: String, +dc: F64, +w: F64, +ap: F64, +dep: F64) -> Rl:
+  Bool.pick(Rl, SD.row_ok(r),
+    Rl{0n, what ++ " tool=\"internal grooving insert w=" ++ fs(SD.fv_go(r, 1n)) ++ " ap=" ++ fs(SD.fv_go(r, 2n)) ++ " reach=" ++ fs(SD.fv_go(r, 3n)) ++ " (GARANT 270314)" ++
+      Bool.pick(String, F64.is_lt(F64.add(SD.fv_go(r, 1n), 1.0e-9f64), w), ", several plunges", "") ++ "\""},
+    Rl{1n, what ++ " why=no held internal grooving insert fits: opening d=" ++ fs(dc) ++ ", width " ++ fs(w) ++ ", radial depth " ++ fs(ap) ++ ", " ++ fs(dep) ++
+      " from the end (held: GARANT 270314 Dmin 4.2, w 1, ap 0.8, reach 20)"})
+
+def fgw_go(rs: List<&2, List<&2, F64>>, +acc: F64) -> F64:
+  match rs:
+    case []: acc
+    case +r <> t: fgw_go(t, F64.min(acc, SD.fv_go(r, 2n)))
+
+def fg_w() -> F64:
+  fgw_go(SD.tab("fgroove_tool"), 1.0e300f64)
+
+def fg_go(rs: List<&2, List<&2, F64>>, +lo: F64, +hi: F64, +dep: F64, +acc: List<&2, F64>) -> List<&2, F64>:
+  match rs:
+    case []: acc
+    case +r <> t:
+      fg_go(t, lo, hi, dep, Bool.pick(List<&2, F64>, Bool.and(Bool.and(F64.is_le(SD.fv_go(r, 0n), F64.add(F64.mul(2.0f64, lo), 1.0e-9f64)), F64.is_le(F64.mul(2.0f64, hi), F64.add(SD.fv_go(r, 1n), 1.0e-9f64))),
+        Bool.and(F64.is_le(SD.fv_go(r, 2n), F64.add(F64.sub(hi, lo), 1.0e-9f64)), F64.is_le(dep, F64.add(SD.fv_go(r, 3n), 1.0e-9f64)))), r, acc))
+
+def fg_r2(+r: List<&2, F64>, +what: String, +lo: F64, +hi: F64, +dep: F64) -> Rl:
+  Bool.pick(Rl, SD.row_ok(r),
+    Rl{0n, what ++ " tool=\"face grooving tool w=" ++ fs(SD.fv_go(r, 2n)) ++ " D1/D2 " ++ fs(SD.fv_go(r, 0n)) ++ "/" ++ fs(SD.fv_go(r, 1n)) ++ " depth " ++ fs(SD.fv_go(r, 3n)) ++ " (GARANT 273823)" ++
+      Bool.pick(String, F64.is_lt(F64.add(SD.fv_go(r, 2n), 1.0e-9f64), F64.sub(hi, lo)), ", several plunges", "") ++ "\""},
+    Rl{1n, what ++ " why=no held face grooving tool for diameters " ++ fs(F64.mul(2.0f64, lo)) ++ " to " ++ fs(F64.mul(2.0f64, hi)) ++ " at depth " ++ fs(dep) ++
+      " (held: GARANT 273823 w 4, depth 15, D1/D2 26/41 to 90/130)"})
+
+def fg_rl(blk: Bool, +what: String, +side: String, +lo: F64, +hi: F64, +dep: F64) -> Rl:
+  match blk:
+    case True{}: Rl{1n, what ++ uc_s() ++ ", and no held grooving tool fits (held: GARANT 270314 internal, DIN 471 external, GARANT 273823 face grooving w 4)"}
+    case False{}: fg_r2(fg_go(SD.tab("fgroove_tool"), lo, hi, dep, []), what ++ " from the " ++ side, lo, hi, dep)
+
+def fg_one(+lx: Lc, +up: Bool, +rg: V.Vec2, +lo: F64, +hi: F64, +what: String) -> Rl:
+  fg_rl(Bool.or(F64.is_lt(F64.sub(hi, lo), 1.0e-6f64), bd_go(lc_ss(lx), up, Bool.pick(F64, up, V.v2_x(rg), V.v2_y(rg)), lo, hi)), what, sd_s(up), lo, hi, lv_dep(lx, up, rg))
+
+def fg_both(+lx: Lc, +rg: V.Vec2, +lo: F64, +hi: F64, +what: String) -> Rl:
+  rl_best(fg_one(lx, True{}, rg, lo, hi, what), fg_one(lx, False{}, rg, lo, hi, what))
 
 def la_thr(+f: Fi, +thr: Bool, +depth: F64) -> Rl:
   Bool.pick(Rl, fi_cc(f), tap_rl(SD.row("tap", fi_td(f)), thr, fi_td(f), fi_tl(f), "turning-axis"),
     Bool.pick(Rl, ti_go(SD.tab("thread_insert"), fi_pt(f)), Rl{0n, "helicoid external-thread d=" ++ fs(fi_td(f)) ++ " pitch=" ++ fs(fi_pt(f)) ++ " single-point threading tool=\"16ER " ++ fs(fi_pt(f)) ++ " ISO insert\""},
       Rl{1n, "helicoid external-thread d=" ++ fs(fi_td(f)) ++ " pitch=" ++ fs(fi_pt(f)) ++ " why=no held 16ER full-profile insert for this pitch (held 0.7 to 3.0)"}))
-
-def la_co(+f: Fi) -> Rl:
-  Bool.pick(Rl, fi_cc(f), co_cc(fi_r(f), F64.mul(2.0f64, fi_rmax(f)), "turning-axis"), Rl{0n, "cone outside turned tool=\"turning insert\""})
 
 def gi_go(rs: List<&2, List<&2, F64>>, +w: F64, +acc: F64) -> F64:
   match rs:
@@ -866,18 +1154,6 @@ def gr_r2(+m: F64, +w: F64) -> Rl:
 
 def gr_rl(+w: F64) -> Rl:
   gr_r2(gi_go(SD.tab("groove_insert"), w, 0.0f64), w)
-
-def la_cyo(+f: Fi, +gv: Bool, +w: F64) -> Rl:
-  Bool.pick(Rl, gv, gr_rl(w), Rl{0n, "cylinder outside d=" ++ fs(F64.mul(2.0f64, fi_r(f))) ++ " turned tool=\"turning insert\""})
-
-def la_rule(+f: Fi, +depth: F64, +thr: Bool, +gv: Bool, +w: F64) -> Rl:
-  Bool.pick(Rl, Nat.is_eq(fi_k(f), 1n), Rl{0n, "plane faced on the turning axis tool=\"turning insert\""},
-    Bool.pick(Rl, Nat.is_eq(fi_k(f), 2n), Bool.pick(Rl, fi_cc(f), la_bore(F64.mul(2.0f64, fi_r(f)), depth),
-        la_cyo(f, gv, w)),
-      Bool.pick(Rl, Nat.is_eq(fi_k(f), 3n), la_co(f),
-        Bool.pick(Rl, Nat.is_eq(fi_k(f), 7n), la_thr(f, thr, depth),
-          Bool.pick(Rl, fi_cc(f), Rl{1n, "surface inside on the turning axis why=internal profile needs a boring bar (not held)"},
-            Rl{0n, "surface outside turned tool=\"turning insert\""})))))
 
 def la_sec(+r: Rl) -> Rl:
   Rl{+st, +s} = r
@@ -895,55 +1171,217 @@ def gw_go(xs: List<&2, Nat>, +c: Ck, +a: V.Dir, +rg: V.Vec2, +acc: V.Vec2) -> V.
     case []: acc
     case +g <> t: gw_go(t, c, a, rg, gw_one(ck_fi(c, g), a, rg, acc))
 
-def la_dep(+f: Fi, +rg: V.Vec2, +top: F64, +bot: F64, +gw: V.Vec2) -> Rl:
-  la_rule(f, F64.min(F64.sub(top, V.v2_x(rg)), F64.sub(V.v2_y(rg), bot)),
-    Bool.and(F64.is_lt(F64.abs(F64.sub(V.v2_x(rg), bot)), 1.0e-6f64), F64.is_lt(F64.abs(F64.sub(V.v2_y(rg), top)), 1.0e-6f64)),
-    Bool.and(Bool.and(Nat.is_eq(fi_k(f), 2n), Bool.not(fi_cc(f))), Bool.and(F64.is_lt(0.5f64, V.v2_x(gw)), F64.is_lt(0.5f64, V.v2_y(gw)))), F64.sub(V.v2_y(rg), V.v2_x(rg)))
+def rgi(+c: Ck, +i: Nat, +lx: Lc) -> V.Vec2:
+  fa_rg(ck_fv(c, i), lc_wt(lx), lc_a(lx), rg0())
 
-def la_dp2(+f: Fi, +rg: V.Vec2, +top: F64, +bot: F64, +c: Ck, +a: V.Dir, +nb: List<&2, Nat>) -> Rl:
-  la_dep(f, rg, top, bot, gw_go(nb, c, a, rg, V.V2{0.0f64, 0.0f64}))
+def adj_of(+adj: B.Tb<&2, List<&2, Nat>>, +i: Nat) -> List<&2, Nat>:
+  B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))
 
-def la_one(co: Bool, +c: Ck, +i: Nat, +dmax: F64, +x: Ax, +top: F64, +bot: F64, +wt: B.Tb<&2, V.Point>, +nb: List<&2, Nat>) -> Rl:
+def gv_v(+g: V.Vec2) -> Bool:
+  Bool.and(F64.is_lt(0.5f64, V.v2_x(g)), F64.is_lt(0.5f64, V.v2_y(g)))
+
+def gv_of(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Bool:
+  gv_v(gw_go(adj_of(adj, i), c, lc_a(lx), rgi(c, i, lx), V.V2{0.0f64, 0.0f64}))
+
+def in_up(+ti: Bool, +bi: Bool, +lx: Lc, +rg: V.Vec2) -> Bool:
+  Bool.and(ti, Bool.or(Bool.not(bi), F64.is_le(lv_dep(lx, True{}, rg), lv_dep(lx, False{}, rg))))
+
+def bo_dr(+r: List<&2, F64>, +ok: Bool, +dd: F64, +dc: F64, +depth: F64, +what: String, +up: Bool) -> Rl:
+  Bool.pick(Rl, Bool.and(ok, F64.is_le(depth, F64.add(SD.fv_go(r, 2n), 1.0e-9f64))),
+    Rl{0n, what ++ " drilled on the turning axis tool=\"drill " ++ fs(dd) ++ " jobber l2=" ++ fs(SD.fv_go(r, 2n)) ++ " (ISO 235)\""},
+    bar_rl(what ++ " bored from the " ++ sd_s(up), dc, depth))
+
+def bo_one(+lx: Lc, +up: Bool, +vs: List<&2, Nat>, +rg: V.Vec2, +dd: F64) -> Rl:
+  bo_dr(SD.row("drill", dd), Bool.and(dr_ser(dd), SD.row_ok(SD.row("drill", dd))), dd, F64.mul(2.0f64, lv_cor(lx, up, vs)), lv_dep(lx, up, rg),
+    "cylinder bore d=" ++ fs(dd) ++ " depth=" ++ fs(lv_dep(lx, up, rg)), up)
+
+def in_bar(+what: String, +up: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  bar_rl(what ++ " depth=" ++ fs(lv_dep(lx, up, rgi(c, i, lx))) ++ " bored from the " ++ sd_s(up), F64.mul(2.0f64, lv_cor(lx, up, ck_fv(c, i))), lv_dep(lx, up, rgi(c, i, lx)))
+
+def ig_one(+lx: Lc, +up: Bool, +f: Fi, +vs: List<&2, Nat>, +rg: V.Vec2) -> Rl:
+  ig_r2(ig_go(SD.tab("igroove_insert"), F64.mul(2.0f64, lv_cor(lx, up, vs)), F64.sub(V.v2_y(rg), V.v2_x(rg)), F64.sub(fi_r(f), lv_cor(lx, up, vs)), lv_dep(lx, up, rg), []),
+    "cylinder internal groove d=" ++ fs(F64.mul(2.0f64, fi_r(f))) ++ " width=" ++ fs(F64.sub(V.v2_y(rg), V.v2_x(rg))) ++ " from the " ++ sd_s(up),
+    F64.mul(2.0f64, lv_cor(lx, up, vs)), F64.sub(V.v2_y(rg), V.v2_x(rg)), F64.sub(fi_r(f), lv_cor(lx, up, vs)), lv_dep(lx, up, rg))
+
+def cyg(gv: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match gv:
+    case True{}: rl_best(ig_one(lx, True{}, ck_fi(c, i), ck_fv(c, i), rgi(c, i, lx)), ig_one(lx, False{}, ck_fi(c, i), ck_fv(c, i), rgi(c, i, lx)))
+    case False{}: fg_both(lx, rgi(c, i, lx), F64.sub(fi_r(ck_fi(c, i)), fg_w()), fi_r(ck_fi(c, i)), "cylinder inside wall d=" ++ fs(F64.mul(2.0f64, fi_r(ck_fi(c, i)))) ++ " (face groove)")
+
+def cyi2(vis: Bool, +ti: Bool, +bi: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match vis:
+    case True{}: bo_one(lx, in_up(ti, bi, lx, rgi(c, i, lx)), ck_fv(c, i), rgi(c, i, lx), F64.mul(2.0f64, fi_r(ck_fi(c, i))))
+    case False{}: cyg(gv_of(c, i, adj, lx), c, i, lx)
+
+def cyi(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  +ti = lv_in(lx, True{}, ck_fv(c, i))
+  +bi = lv_in(lx, False{}, ck_fv(c, i))
+  cyi2(Bool.or(ti, bi), ti, bi, c, i, adj, lx)
+
+def cyx(gv: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match gv:
+    case True{}: gr_rl(F64.sub(V.v2_y(rgi(c, i, lx)), V.v2_x(rgi(c, i, lx))))
+    case False{}: fg_both(lx, rgi(c, i, lx), fi_r(ck_fi(c, i)), F64.add(fi_r(ck_fi(c, i)), fg_w()), "cylinder outside wall d=" ++ fs(F64.mul(2.0f64, fi_r(ck_fi(c, i)))) ++ " (face groove)")
+
+def cyo2(vis: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match vis:
+    case True{}: Rl{0n, "cylinder outside d=" ++ fs(F64.mul(2.0f64, fi_r(ck_fi(c, i)))) ++ " turned tool=\"turning insert\""}
+    case False{}: cyx(gv_of(c, i, adj, lx), c, i, lx)
+
+def cyo(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  cyo2(Bool.or(lv_out(lx, True{}, ck_fv(c, i)), lv_out(lx, False{}, ck_fv(c, i))), c, i, adj, lx)
+
+def cy_l(cc: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match cc:
+    case True{}: cyi(c, i, adj, lx)
+    case False{}: cyo(c, i, adj, lx)
+
+def gr_j2(yes: Bool, +c: Ck, +j: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match yes:
+    case False{}: Rl{3n, ""}
+    case True{}: cy_l(fi_cc(ck_fi(c, j)), c, j, adj, lx)
+
+def gr_j(+c: Ck, +j: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  gr_j2(Bool.and(Bool.and(Nat.is_eq(fi_k(ck_fi(c, j)), 2n), coax(ck_fi(c, j), lc_ax(lx))), gv_of(c, j, adj, lx)), c, j, adj, lx)
+
+def gr_nb(xs: List<&2, Nat>, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc, +acc: Rl) -> Rl:
+  match xs:
+    case []: acc
+    case +j <> t: gr_nb(t, c, adj, lx, Bool.pick(Rl, Nat.is_lt(rl_st(acc), 3n), acc, gr_j(c, j, adj, lx)))
+
+def rl_wall(+r: Rl) -> Rl:
+  Rl{+st, +s} = r
+  Rl{st, "plane groove wall cut with " ++ s}
+
+def pl_fg2(has: Bool, +g: Rl, +up: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match has:
+    case True{}: rl_wall(g)
+    case False{}:
+      fg_one(lx, up, rgi(c, i, lx), V.v2_x(rr_go(ck_fv(c, i), lx, rg0())), V.v2_y(rr_go(ck_fv(c, i), lx, rg0())),
+        "plane floor d=" ++ fs(F64.mul(2.0f64, V.v2_x(rr_go(ck_fv(c, i), lx, rg0())))) ++ " to " ++ fs(F64.mul(2.0f64, V.v2_y(rr_go(ck_fv(c, i), lx, rg0())))) ++ " (face groove)")
+
+def pl_in(inn: Bool, +up: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match inn:
+    case True{}: bar_rl("plane faced inside depth=" ++ fs(lv_dep(lx, up, rgi(c, i, lx))) ++ " from the " ++ sd_s(up), F64.mul(2.0f64, lv_cor(lx, up, ck_fv(c, i))), lv_dep(lx, up, rgi(c, i, lx)))
+    case False{}: pl_fg2(Nat.is_lt(rl_st(gr_nb(adj_of(adj, i), c, adj, lx, Rl{3n, ""})), 3n), gr_nb(adj_of(adj, i), c, adj, lx, Rl{3n, ""}), up, c, i, lx)
+
+def pl_out(out: Bool, +up: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match out:
+    case True{}: Rl{0n, "plane faced on the turning axis tool=\"turning insert\""}
+    case False{}: pl_in(lv_in(lx, up, ck_fv(c, i)), up, c, i, adj, lx)
+
+def pl_l(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  +up = F64.is_lt(0.0f64, KS.dot(fi_n(ck_fi(c, i)), lc_a(lx)))
+  pl_out(lv_out(lx, up, ck_fv(c, i)), up, c, i, adj, lx)
+
+def co_std(+k: F64) -> Bool:
+  Bool.or(F64.is_lt(F64.abs(F64.sub(k, 1.0f64)), 1.0e-6f64), F64.is_lt(F64.abs(F64.sub(k, 1.6642794823505182f64)), 0.01f64))
+
+def co_v2(sk: Bool, +up: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match sk:
+    case True{}: rl_best(co_cc(fi_r(ck_fi(c, i)), F64.mul(2.0f64, fi_rmax(ck_fi(c, i))), "turning-axis"), in_bar("cone inside", up, c, i, lx))
+    case False{}: in_bar("cone inside", up, c, i, lx)
+
+def co_vis(vis: Bool, +ti: Bool, +bi: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match vis:
+    case False{}: Rl{1n, "cone inside" ++ uc_s() ++ ", and no held tool forms it"}
+    case True{}: co_v2(co_std(fi_r(ck_fi(c, i))), in_up(ti, bi, lx, rgi(c, i, lx)), c, i, lx)
+
+def co_in(+c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  +ti = lv_in(lx, True{}, ck_fv(c, i))
+  +bi = lv_in(lx, False{}, ck_fv(c, i))
+  co_vis(Bool.or(ti, bi), ti, bi, c, i, lx)
+
+def go_vis(vis: Bool, +what: String) -> Rl:
+  match vis:
+    case True{}: Rl{0n, what ++ " turned tool=\"turning insert\""}
+    case False{}: Rl{1n, what ++ uc_s() ++ ", and no held tool forms it"}
+
+def co_l(cc: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match cc:
+    case True{}: co_in(c, i, lx)
+    case False{}: go_vis(Bool.or(lv_out(lx, True{}, ck_fv(c, i)), lv_out(lx, False{}, ck_fv(c, i))), "cone outside")
+
+def sf_vis(vis: Bool, +ti: Bool, +bi: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match vis:
+    case False{}: Rl{1n, "surface inside" ++ uc_s() ++ ", and no held tool forms it"}
+    case True{}: in_bar("surface inside", in_up(ti, bi, lx, rgi(c, i, lx)), c, i, lx)
+
+def sf_in(+c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  +ti = lv_in(lx, True{}, ck_fv(c, i))
+  +bi = lv_in(lx, False{}, ck_fv(c, i))
+  sf_vis(Bool.or(ti, bi), ti, bi, c, i, lx)
+
+def sf_l(cc: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match cc:
+    case True{}: sf_in(c, i, lx)
+    case False{}: go_vis(Bool.or(lv_out(lx, True{}, ck_fv(c, i)), lv_out(lx, False{}, ck_fv(c, i))), "surface outside")
+
+def th_l(+c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  la_thr(ck_fi(c, i), Bool.and(F64.is_lt(F64.abs(F64.sub(V.v2_x(rgi(c, i, lx)), lc_bot(lx))), 1.0e-6f64), F64.is_lt(F64.abs(F64.sub(V.v2_y(rgi(c, i, lx)), lc_top(lx))), 1.0e-6f64)), 0.0f64)
+
+def lk4(t: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match t:
+    case True{}: th_l(c, i, lx)
+    case False{}: sf_l(fi_cc(ck_fi(c, i)), c, i, lx)
+
+def lk3(yes: Bool, +c: Ck, +i: Nat, +lx: Lc) -> Rl:
+  match yes:
+    case True{}: co_l(fi_cc(ck_fi(c, i)), c, i, lx)
+    case False{}: lk4(Nat.is_eq(fi_k(ck_fi(c, i)), 7n), c, i, lx)
+
+def lk2(yes: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match yes:
+    case True{}: cy_l(fi_cc(ck_fi(c, i)), c, i, adj, lx)
+    case False{}: lk3(Nat.is_eq(fi_k(ck_fi(c, i)), 3n), c, i, lx)
+
+def lk1(yes: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
+  match yes:
+    case True{}: pl_l(c, i, adj, lx)
+    case False{}: lk2(Nat.is_eq(fi_k(ck_fi(c, i)), 2n), c, i, adj, lx)
+
+def la_one(co: Bool, +c: Ck, +i: Nat, +dmax: F64, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
   match co:
-    case False{}: la_sec(face_rl(c, i, dmax, nb))
-    case True{}: la_dp2(ck_fi(c, i), fa_rg(ck_fv(c, i), wt, ax_a(x), rg0()), top, bot, c, ax_a(x), nb)
+    case False{}: la_sec(face_rl(c, i, dmax, adj_of(adj, i)))
+    case True{}: lk1(Nat.is_eq(fi_k(ck_fi(c, i)), 1n), c, i, adj, lx)
 
-def la_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +ft: B.Tb<&2, Fi>, +x: Ax, +top: F64, +bot: F64, +wt: B.Tb<&2, V.Point>, +acc: Cn) -> Cn:
+def la_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc, +acc: Cn) -> Cn:
   match n:
     case 0n: acc
     case 1n+(+k):
-      la_go(k, Nat.add(i, 1n), c, adj, ft, x, top, bot, wt, cn_add(la_one(coax(ck_fi(c, i), x), c, i, dm_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), 1.0e300f64), x, top, bot, wt, B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))), ck_nm(c, i), acc))
+      la_go(k, Nat.add(i, 1n), c, adj, lx, cn_add(la_one(coax(ck_fi(c, i), lc_ax(lx)), c, i, dm_go(adj_of(adj, i), c, ck_fi(c, i), 1.0e300f64), adj, lx), ck_nm(c, i), acc))
 
 def la_fin(+r: Cn, +x: Ax, +nd: U64, +nfa: Nat) -> String:
   Cn{+s, +np, +na, +nf} = r
   Ax{+o, +a, rr, ok} = x
-  "make node " ++ U64.show(nd) ++ " process=lathe (turning axis through " ++ pt_s(o) ++ " along " ++ dr_s(a) ++ ", from the largest cylinder; faces off the axis are judged as live-tooling mill work; tools held: ISO 235 jobber drills, DIN 335 C countersinks, DIN 371/376 taps, 16ER ISO threading inserts 0.7-3.0; docs/std.md)\n" ++
+  "make node " ++ U64.show(nd) ++ " process=lathe (turning axis through " ++ pt_s(o) ++ " along " ++ dr_s(a) ++
+    ", from the largest cylinder; a face of revolution is reached from an end of the axis when no part of the profile between it and that end is nearer the axis (inside) or further from it (outside), else it is an undercut cut by a grooving tool; faces off the axis are judged as live-tooling mill work; tools held: ISO 235 jobber drills, DIN 335 C countersinks, DIN 371/376 taps, 16ER ISO threading inserts 0.7-3.0, DIN 471 grooving inserts, boring bars 8-25 (GARANT 260030, overhang 4xBD), internal grooving insert (GARANT 270314), face grooving tools (GARANT 273823); docs/std.md)\n" ++
     s ++ "make node " ++ U64.show(nd) ++ ": " ++ Nat.show(nfa) ++ " faces, " ++ Nat.show(np) ++ " pass, " ++ Nat.show(nf) ++ " fail, " ++ Nat.show(na) ++ " not-analyzed\n" ++
-    "verdict " ++ verdict(nf, na) ++ " status=estimated (tool access from a closed mesh at chord 0.05 mm; sizes and depths against the held tool tables)"
+    "verdict " ++ verdict(nf, na) ++ " status=estimated (tool access from the axial profile of a closed mesh at chord 0.05 mm; sizes and depths against the held tool tables)"
 
-def la_c(+c: Ck, +ps: List<&2, Pr>, +ft: B.Tb<&2, Fi>, +nfa: Nat, +x: Ax, +rg: V.Vec2, +wt: B.Tb<&2, V.Point>, +nd: U64) -> String:
-  la_fin(la_go(nfa, 0n, c, DW.fj_of(pr_keys(ps, []), nfa), ft, x, V.v2_y(rg), V.v2_x(rg), wt, Cn{"", 0n, 0n, 0n}), x, nd, nfa)
+def la_c(+c: Ck, +ps: List<&2, Pr>, +nfa: Nat, +x: Ax, +rg: V.Vec2, +wt: B.Tb<&2, V.Point>, +wp: List<&2, V.Point>, +ts: List<&2, TS.Tri>, +nd: U64) -> String:
+  la_fin(la_go(nfa, 0n, c, DW.fj_of(pr_keys(ps, []), nfa), lc_mk(x, V.v2_y(rg), V.v2_x(rg), wt, wp, ts), Cn{"", 0n, 0n, 0n}), x, nd, nfa)
 
 def rg_ps(ps: List<&2, V.Point>, +a: V.Dir, +m: V.Vec2) -> V.Vec2:
   match ps:
     case []: m
     case +p <> t: rg_ps(t, a, DW.rg_add(DW.dp(p, a), m))
 
-def la_ax(ok: Bool, +c: Ck, +ps: List<&2, Pr>, +ft: B.Tb<&2, Fi>, +nfa: Nat, +x: Ax, +wp: List<&2, V.Point>, +wt: B.Tb<&2, V.Point>, +nd: U64) -> String:
+def la_ax(ok: Bool, +c: Ck, +ps: List<&2, Pr>, +nfa: Nat, +x: Ax, +wp: List<&2, V.Point>, +wt: B.Tb<&2, V.Point>, +ts: List<&2, TS.Tri>, +nd: U64) -> String:
   match ok:
     case False{}: "refused make-no-turning-axis: the part has no cylinder face to turn about | make lathe | fix: check it as mill, fdm or sla"
-    case True{}: la_c(c, ps, ft, nfa, x, rg_ps(wp, ax_a(x), rg0()), wt, nd)
+    case True{}: la_c(c, ps, nfa, x, rg_ps(wp, ax_a(x), rg0()), wt, wp, ts, nd)
 
-def la_x2(+c: Ck, +ps: List<&2, Pr>, +ft: B.Tb<&2, Fi>, +nfa: Nat, +x: Ax, +wp: List<&2, V.Point>, +wt: B.Tb<&2, V.Point>, +nd: U64) -> String:
-  la_ax(ax_ok(x), c, ps, ft, nfa, x, wp, wt, nd)
+def la_x2(+c: Ck, +ps: List<&2, Pr>, +nfa: Nat, +x: Ax, +wp: List<&2, V.Point>, +wt: B.Tb<&2, V.Point>, +ts: List<&2, TS.Tri>, +nd: U64) -> String:
+  la_ax(ax_ok(x), c, ps, nfa, x, wp, wt, ts, nd)
 
-def lathe_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64, +wp: List<&2, V.Point>) -> String:
-  la_x2(ck_mk(ft, fv, ss, wt, b, nfa), prs_of(M.bd_brep(b)), ft, nfa, ax_go(nfa, 0n, ft, Ax{pz(), dr(0.0f64, 0.0f64, 1.0f64), 0.0f64, False{}}), wp, wt, nd)
+def lathe_t(+ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +ss: List<&2, Su>, +wt: B.Tb<&2, V.Point>, +b: M.Body, +nfa: Nat, +nd: U64, +wp: List<&2, V.Point>, +ts: List<&2, TS.Tri>) -> String:
+  la_x2(ck_mk(ft, fv, ss, wt, b, nfa), prs_of(M.bd_brep(b)), nfa, ax_go(nfa, 0n, ft, Ax{pz(), dr(0.0f64, 0.0f64, 1.0f64), 0.0f64, False{}}), wp, wt, ts, nd)
 
 
 def mk_l(lathe: Bool, +ft: B.Tb<&2, Fi>, +fv: B.Tb<&2, List<&2, Nat>>, +c: Mc, +m: TS.Mp, +b: M.Body, +nd: U64, +pr: String, +nfa: Nat) -> String:
   match lathe:
-    case True{}: lathe_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd, mc_wp(c))
+    case True{}: lathe_t(ft, fv, sus(c), mc_wt(c), b, nfa, nd, mc_wp(c), mc_ts(c))
     case False{}:
       pr_w(Pc{c, DW.fid_go(TS.mp_ns(m), 0n, []), ft, fv, nfa, 5.0f64}, SO.fds_of(M.bd_brep(b)), nfa, nd, Pp{pr, Bool.pick(F64, String.eq(pr, "sla"), 0.5f64, 0.8f64)})
 

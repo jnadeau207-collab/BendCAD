@@ -267,7 +267,7 @@ B8 = dict(
             C('five through openings (bore + 4 bolt holes)', ['measure', '802'], ('contains', 'through_holes=5')),
             NA('flange dimensions to EN 1092-1 / ASME B16.5', NO_STD.format('EN 1092-1 / ASME B16.5 flange')),
             NA('O-ring groove and squeeze to ISO 3601-2', NO_STD.format('ISO 3601 O-ring and gland') + '; no seal squeeze or gland-fill check'),
-            C('makeable on the declared process with standard tools', ['make', 'lathe'], ('make_ok',)),
+            dict(C('makeable on the declared process with standard tools', ['make', 'lathe'], ('make_ok',)), bought={803: 'O-ring 3.53 cord, moulded elastomer, a catalog part'}),
             DRAWING],
     edit=dict(label='groove depth 2.65 -> 2.7 mm', edit='(param GD 2.7)'),
     probes=[])
