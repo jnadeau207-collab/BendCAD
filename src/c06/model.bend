@@ -4546,17 +4546,33 @@ def sg_start(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat, +e: X.Env) -
 def v2_eq(+a: V.Vec2, +b: V.Vec2) -> Bool:
   Bool.and(F64.is_eq(V.v2_x(a), V.v2_x(b)), F64.is_eq(V.v2_y(a), V.v2_y(b)))
 
-def ln_k(+x: F64, +y: F64) -> F.Seg:
-  F.S_line{xk(x), xk(y)}
+def sg_x(s: F.Seg) -> X.Xp:
+  match s:
+    case F.S_line{x, y}: x
+    case F.S_arc{cx, cy, r, x, y, ccw}: x
 
-def nt_pts(+up: Bool, +r: F64, +r2: F64, +z: F64, +m: F64) -> List<&2, V.Vec2>:
-  Bool.pick(List<&2, V.Vec2>, up, [V.V2{r, z}, V.V2{r2, z}, V.V2{r2, F64.add(z, m)}, V.V2{r, F64.add(z, m)}],
-    [V.V2{r, F64.add(z, m)}, V.V2{r2, F64.add(z, m)}, V.V2{r2, z}, V.V2{r, z}])
+def sg_y(s: F.Seg) -> X.Xp:
+  match s:
+    case F.S_line{x, y}: y
+    case F.S_arc{cx, cy, r, x, y, ccw}: y
 
-def nt_segs(ps: List<&2, V.Vec2>, +p: V.Vec2, +q: V.Vec2) -> List<&2, F.Seg>:
+def sg_at(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat) -> F.Seg:
+  Bool.pick(F.Seg, Nat.is_eq(i, 0n), F.S_line{x0, y0}, sg_nth(segs, Nat.sub(i, 1n)))
+
+def sg_to(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat) -> F.Seg:
+  Bool.pick(F.Seg, Nat.is_lt(i, List.length(&2, F.Seg, segs)), sg_nth(segs, i), F.S_line{x0, y0})
+
+def nt_pts(+up: Bool, +px: X.Xp, +qx: X.Xp, +r2: X.Xp, +z: X.Xp, +zm: X.Xp) -> List<&2, F.Seg>:
+  Bool.pick(List<&2, F.Seg>, up, [F.S_line{px, z}, F.S_line{r2, z}, F.S_line{r2, zm}, F.S_line{qx, zm}],
+    [F.S_line{px, zm}, F.S_line{r2, zm}, F.S_line{r2, z}, F.S_line{qx, z}])
+
+def nt_segs(ps: List<&2, F.Seg>, +p: V.Vec2, +q: V.Vec2, +e: X.Env) -> List<&2, F.Seg>:
   match ps:
     case []: []
-    case +h <> +t: Bool.pick(List<&2, F.Seg>, Bool.or(v2_eq(h, p), v2_eq(h, q)), nt_segs(t, p, q), ln_k(V.v2_x(h), V.v2_y(h)) <> nt_segs(t, p, q))
+    case +h <> +t:
+      +v = sg_end(h, e)
+      +rest = nt_segs(t, p, q, e)
+      Bool.pick(List<&2, F.Seg>, Bool.or(v2_eq(v, p), v2_eq(v, q)), rest, h <> rest)
 
 def nt_horiz(+s: V.Vec2, +p: V.Vec2) -> Bool:
   F64.is_eq(V.v2_y(s), V.v2_y(p))
@@ -4583,21 +4599,24 @@ def nt_ok(+i: Nat, +segs: List<&2, F.Seg>, +p: V.Vec2, +q: V.Vec2, +r: F64, +z: 
   +hi = F64.max(V.v2_y(p), V.v2_y(q))
   Bool.and(Bool.and(Bool.not(Nat.is_lt(n, i)), line), Bool.and(vert, Bool.and(F64.is_le(lo, z), F64.is_le(F64.add(z, m), hi))))
 
-def nt_lp(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat, +r: F64, +r2: F64, +z: F64, +m: F64, +e: X.Env) -> Nv:
+def nt_lp2(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat, +r: F64, +z: F64, +m: F64, +e: X.Env, +p: V.Vec2, +q: V.Vec2, +ps: List<&2, F.Seg>) -> Nv:
   +n = List.length(&2, F.Seg, segs)
-  +p = sg_start(x0, y0, segs, i, e)
-  +q = Bool.pick(V.Vec2, Nat.is_lt(i, n), sg_end(sg_nth(segs, i), e), v2_of(x0, y0, e))
-  +up = F64.is_lt(V.v2_y(p), V.v2_y(q))
-  +ps = nt_pts(up, r, r2, z, m)
-  +ml = nt_left(v2_eq(V.V2{r, Bool.pick(F64, up, z, F64.add(z, m))}, p), i, segs, x0, y0, p, e)
-  +mr = nt_right(v2_eq(V.V2{r, Bool.pick(F64, up, F64.add(z, m), z)}, q), i, segs, q, e)
-  +mid = sg_cat(nt_segs(ps, p, q), Bool.pick(List<&2, F.Seg>, Bool.and(Nat.is_lt(i, n), Bool.not(mr)), [sg_nth(segs, i)], []))
+  +ml = nt_left(v2_eq(sg_end(sg_nth(ps, 0n), e), p), i, segs, x0, y0, p, e)
+  +mr = nt_right(v2_eq(sg_end(sg_nth(ps, 3n), e), q), i, segs, q, e)
+  +mid = sg_cat(nt_segs(ps, p, q, e), Bool.pick(List<&2, F.Seg>, Bool.and(Nat.is_lt(i, n), Bool.not(mr)), [sg_nth(segs, i)], []))
   Nv{nt_ok(i, segs, p, q, r, z, m), [F.Rg{F.L_path{x0, y0, nt_join(segs, i, ml, mr, mid)}, []}]}
 
-def nt_rg(rg: F.Region, +i: Nat, +r: F64, +r2: F64, +z: F64, +m: F64, +e: X.Env) -> Nv:
+def nt_lp(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat, +r: F64, +r2: F64, +zz: X.Xp, +m: F64, +e: X.Env) -> Nv:
+  +sp = sg_at(x0, y0, segs, i)
+  +sq = sg_to(x0, y0, segs, i)
+  +p = sg_end(sp, e)
+  +q = sg_end(sq, e)
+  nt_lp2(x0, y0, segs, i, r, X.xp_ev(zz, e), m, e, p, q, nt_pts(F64.is_lt(V.v2_y(p), V.v2_y(q)), sg_x(sp), sg_x(sq), xk(r2), zz, X.X_add{zz, xk(m)}))
+
+def nt_rg(rg: F.Region, +i: Nat, +r: F64, +r2: F64, +zz: X.Xp, +m: F64, +e: X.Env) -> Nv:
   F.Rg{o, +hs} = rg
   match o:
-    case F.L_path{+x0, +y0, +segs}: nv_and(nt_lp(x0, y0, segs, i, r, r2, z, m, e), Nat.is_eq(List.length(&2, F.Loop, hs), 0n))
+    case F.L_path{+x0, +y0, +segs}: nv_and(nt_lp(x0, y0, segs, i, r, r2, zz, m, e), Nat.is_eq(List.length(&2, F.Loop, hs), 0n))
     case F.L_circ{cx, cy, cr}: Nv{False{}, []}
 
 def rg_nth(xs: List<&2, F.Region>, +i: Nat) -> F.Region:
@@ -4624,11 +4643,51 @@ def fn_nth(xs: List<&2, BD.Fn>, +i: Nat) -> BD.Fn:
         case 0n: h
         case 1n+j: fn_nth(t, j)
 
-def nt_fn(+f: BD.Fn, +base: U64, +rs: List<&2, F.Region>, +r: F64, +r2: F64, +z: F64, +m: F64, +e: X.Env) -> Nv:
+def nt_fn(+f: BD.Fn, +base: U64, +rs: List<&2, F.Region>, +r: F64, +r2: F64, +zz: X.Xp, +m: F64, +e: X.Env) -> Nv:
   BD.Fn{+fnd, +k, +rl, +i, +j} = f
   +ok = Bool.and(U64.is_eq(fnd, base), Bool.and(U64.is_eq(rl, 3u64), Bool.and(Nat.is_eq(k, 0n), Nat.is_eq(List.length(&2, F.Region, rs), 1n))))
-  +v = nt_rg(rg_nth(rs, k), i, r, r2, z, m, e)
+  +v = nt_rg(rg_nth(rs, k), i, r, r2, zz, m, e)
   Nv{Bool.and(ok, nv_ok(v)), rg_set(rs, k, rg_nth(nv_rs(v), 0n))}
+
+type Gz is Data:
+  Gz{ ok: Bool, rs: List<&2, F.Region>, xs: List<&2, X.Xp>, ys: List<&2, X.Xp>, d: X.Xp, dn: F64 }
+
+def gz_rs(+g: Gz) -> List<&2, F.Region>:
+  Gz{ok, +rs, xs, ys, d, dn} = g
+  rs
+
+def gz_ys(+x0: X.Xp, +y0: X.Xp, +segs: List<&2, F.Seg>, +i: Nat, +zz: X.Xp, +m: F64) -> List<&2, X.Xp>:
+  +sp = sg_at(x0, y0, segs, i)
+  +sq = sg_to(x0, y0, segs, i)
+  +sy = Bool.pick(X.Xp, Nat.is_lt(0n, i), sg_y(sg_at(x0, y0, segs, Nat.sub(i, 1n))), sg_y(sp))
+  +ey = Bool.pick(X.Xp, Nat.is_lt(Nat.add(i, 1n), List.length(&2, F.Seg, segs)), sg_y(sg_nth(segs, Nat.add(i, 1n))), sg_y(sq))
+  [sg_y(sp), sg_y(sq), zz, X.X_add{zz, xk(m)}, sy, ey]
+
+def gz_of(o: F.Loop, +i: Nat, +zz: X.Xp, +m: F64, +r2: F64, +v: Nv, +dn: F64) -> Gz:
+  match o:
+    case F.L_path{+x0, +y0, +segs}:
+      +px = sg_x(sg_at(x0, y0, segs, i))
+      Gz{nv_ok(v), nv_rs(v), [px, sg_x(sg_to(x0, y0, segs, i)), xk(r2)], gz_ys(x0, y0, segs, i, zz, m), X.X_mul{xk(2.0f64), px}, dn}
+    case F.L_circ{cx, cy, cr}: Gz{False{}, [], [], [], xk(0.0f64), dn}
+
+def fn_kof(+f: BD.Fn) -> Nat:
+  BD.Fn{nd, +k, rl, i, j} = f
+  k
+
+def fn_iof(+f: BD.Fn) -> Nat:
+  BD.Fn{nd, k, rl, +i, j} = f
+  i
+
+def gv_zone(+b: Body, +s: Sel, +std: String, +zz: X.Xp, +e: X.Env, +rv: List<&2, F.Region>, +base: U64) -> Gz:
+  +fns = bd_fns(b)
+  +fi = name_idx(fns, sel_nm(s), 0n)
+  +c = cyf_of(fa_nth(Ty.brep_fas(bd_brep(b)), fi))
+  +dn = d_nom(F64.mul(2.0f64, cyf_r(c)))
+  +row = SD.row(gv_tab(std), dn)
+  +r2 = F64.mul(0.5f64, SD.fv_go(row, 2n))
+  +m = SD.fv_go(row, 3n)
+  +f = fn_nth(fns, fi)
+  gz_of(rg_out(rg_nth(rv, fn_kof(f))), fn_iof(f), zz, m, r2, nt_fn(f, base, rv, cyf_r(c), r2, zz, m, e), dn)
 
 def gv_mk2(ok: Bool, +rs: List<&2, F.Region>, +b: Body, +c: Cyf, +d2: F64, +m: F64, +z: F64, +base: U64, +e: X.Env, +nd: U64) -> NR:
   match ok:
@@ -4639,9 +4698,9 @@ def gv_mk(+v: Nv, +b: Body, +c: Cyf, +d2: F64, +m: F64, +z: F64, +base: U64, +e:
   gv_mk2(nv_ok(v), nv_rs(v), b, c, d2, m, z, base, e, nd)
 
 def gv_go(code: U64, +b: Body, +nm: String, +np: Nat, +c: Cyf, +std: String, +z: F64, +m: F64, +d2: F64, +sp: V.Vec2, +e: X.Env, +nd: U64,
-    +rv: List<&2, F.Region>, +base: U64, +fi: Nat) -> NR:
+    +rv: List<&2, F.Region>, +base: U64, +fi: Nat, +zz: X.Xp) -> NR:
   match code:
-    case 0u64: gv_mk(nt_fn(fn_nth(bd_fns(b), fi), base, rv, cyf_r(c), F64.mul(0.5f64, d2), z, m, e), b, c, d2, m, z, base, e, nd)
+    case 0u64: gv_mk(nt_fn(fn_nth(bd_fns(b), fi), base, rv, cyf_r(c), F64.mul(0.5f64, d2), zz, m, e), b, c, d2, m, z, base, e, nd)
     case 1u64: bad("groove", "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
     case 2u64: bad("groove", "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
       "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
@@ -4678,7 +4737,7 @@ def op_groove(+b: Body, +s: Sel, +std: String, +zz: X.Xp, +e: X.Env, +nd: U64, +
     Bool.pick(U64, Bool.not(cyf_ok(c)), 3u64, Bool.pick(U64, Bool.not(dir_ax(a)), 8u64, Bool.pick(U64, String.is_empty(t), 4u64,
       Bool.pick(U64, Bool.not(side), 5u64, Bool.pick(U64, Bool.not(SD.row_ok(row)), 6u64, Bool.pick(U64, Bool.not(inside), 7u64, 0u64)))))),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
-  gv_go(code, b, nm, np, c, std, z, m, d2, sp, e, nd, rv, base, fi)
+  gv_go(code, b, nm, np, c, std, z, m, d2, sp, e, nd, rv, base, fi, zz)
 
 def side_dir(+s: U64) -> V.Dir:
   Bool.pick(V.Dir, U64.is_eq(s, 0u64), V.Dr{1.0f64, 0.0f64, 0.0f64}, Bool.pick(V.Dir, U64.is_eq(s, 1u64), V.Dr{F64.neg(1.0f64), 0.0f64, 0.0f64},
@@ -4719,9 +4778,81 @@ def body_span(+b: Body, +a: V.Dir) -> V.Vec2:
 def kw_span(+b: Body, +fa: Ty.Face, +a: V.Dir, +thru: Bool) -> V.Vec2:
   Bool.pick(V.Vec2, thru, body_span(b, a), fa_ext(bd_brep(b), fa, V.Pt{0.0f64, 0.0f64, 0.0f64}, a))
 
-def kw_go(code: U64, +b: Body, +nm: String, +np: Nat, +c: Cyf, +sd: V.Dir, +l: F64, +z: F64, +row: List<&2, F64>, +sp: V.Vec2, +e: X.Env, +nd: U64) -> NR:
+type Pz is Data:
+  Pz{ ok: Bool, rs: List<&2, F.Region>, z0: X.Xp, z1: X.Xp }
+
+def pz_of(o: Op) -> Pz:
+  match o:
+    case O_prism{+rs, +z0, +z1}: Pz{True{}, rs, z0, z1}
+    case _: Pz{False{}, [], xk(0.0f64), xk(0.0f64)}
+
+def lp_nth(ls: List<&2, F.Loop>, +i: Nat) -> F.Loop:
+  match ls:
+    case []: F.L_circ{xk(0.0f64), xk(0.0f64), xk(0.0f64)}
+    case +h <> +t:
+      match i:
+        case 0n: h
+        case 1n+j: lp_nth(t, j)
+
+def ls_set(ls: List<&2, F.Loop>, +i: Nat, +l: F.Loop) -> List<&2, F.Loop>:
+  match ls:
+    case []: []
+    case +h <> +t:
+      match i:
+        case 0n: l <> t
+        case 1n+j: h <> ls_set(t, j, l)
+
+def rs_setl(rs: List<&2, F.Region>, +k: Nat, +l: F.Loop) -> List<&2, F.Region>:
+  match rs:
+    case []: []
+    case +r <> +t:
+      F.Rg{+o, +hs} = r
+      +n = Nat.add(1n, List.length(&2, F.Loop, hs))
+      Bool.pick(List<&2, F.Region>, Nat.is_lt(k, n),
+        Bool.pick(F.Region, Nat.is_eq(k, 0n), F.Rg{l, hs}, F.Rg{o, ls_set(hs, Nat.sub(k, 1n), l)}) <> t, r <> rs_setl(t, Nat.sub(k, n), l))
+
+def kw_pt(+cx: X.Xp, +cy: X.Xp, +sd: V.Dir, +u: F64, +w: F64) -> F.Seg:
+  F.S_line{X.X_add{cx, xk(F64.sub(F64.mul(u, V.dr_x(sd)), F64.mul(w, V.dr_y(sd))))}, X.X_add{cy, xk(F64.add(F64.mul(u, V.dr_y(sd)), F64.mul(w, V.dr_x(sd))))}}
+
+def kw_lp(+cx: X.Xp, +cy: X.Xp, +r: X.Xp, +rn: F64, +sd: V.Dir, +bw: F64, +t2: F64) -> F.Loop:
+  +h = F64.mul(0.5f64, bw)
+  +y0 = F64.sqrt(F64.sub(F64.mul(rn, rn), F64.mul(h, h)))
+  +a = kw_pt(cx, cy, sd, y0, F64.neg(h))
+  +t = F64.add(rn, t2)
+  F.L_path{sg_x(a), sg_y(a), [kw_pt(cx, cy, sd, t, F64.neg(h)), kw_pt(cx, cy, sd, t, h), kw_pt(cx, cy, sd, y0, h), F.S_arc{cx, cy, r, sg_x(a), sg_y(a), True{}}]}
+
+def kw_nt2(lp: F.Loop, +good: Bool, +rs: List<&2, F.Region>, +k: Nat, +rn: F64, +sd: V.Dir, +bw: F64, +t2: F64) -> Nv:
+  match lp:
+    case F.L_circ{+cx, +cy, +r}: Nv{good, rs_setl(rs, k, kw_lp(cx, cy, r, rn, sd, bw, t2))}
+    case F.L_path{x0, y0, segs}: Nv{False{}, []}
+
+def kw_nt(+pz: Pz, +f: BD.Fn, +base: U64, +sh: Bool, +thru: Bool, +a: V.Dir, +sd: V.Dir, +rn: F64, +bw: F64, +t2: F64) -> Nv:
+  Pz{+ok, +rs, z0, z1} = pz
+  BD.Fn{+fnd, +k, +rl, i, j} = f
+  +ax = Bool.and(Bool.and(F64.is_eq(V.dr_x(a), 0.0f64), F64.is_eq(V.dr_y(a), 0.0f64)), F64.is_eq(V.dr_z(sd), 0.0f64))
+  +wall = Bool.and(U64.is_lt(rl, 8u64), Bool.and(U64.is_lt(1u64, rl), Bool.not(U64.is_eq(rl, 4u64))))
+  +good = Bool.and(Bool.and(ok, Bool.and(U64.is_eq(fnd, base), wall)), Bool.and(Bool.and(thru, Bool.not(sh)), ax))
+  kw_nt2(lp_nth(F.rg_loops(rs), k), good, rs, k, rn, sd, bw, t2)
+
+def pz_z0(+p: Pz) -> X.Xp:
+  Pz{ok, rs, +z0, z1} = p
+  z0
+
+def pz_z1(+p: Pz) -> X.Xp:
+  Pz{ok, rs, z0, +z1} = p
+  z1
+
+def kw_mk(ok: Bool, +v: Nv, +pz: Pz, +b: Body, +c: Cyf, +sd: V.Dir, +l: F64, +z: F64, +sp: V.Vec2, +row: List<&2, F64>, +e: X.Env, +nd: U64, +base: U64) -> NR:
+  match ok:
+    case True{}: op_prism(nv_rs(v), pz_z0(pz), pz_z1(pz), e, base)
+    case False{}: kw_cut(b, cyf_sh(c), cyf_r(c), cyf_o(c), ax_canon(cyf_a(c)), sd, l, Bool.pick(F64, cyf_sh(c), z, V.v2_x(sp)), V.v2_y(sp), row, e, nd)
+
+def kw_go(code: U64, +b: Body, +nm: String, +np: Nat, +c: Cyf, +sd: V.Dir, +l: F64, +z: F64, +row: List<&2, F64>, +sp: V.Vec2, +e: X.Env, +nd: U64,
+    +fi: Nat, +pz: Pz, +base: U64, +thru: Bool) -> NR:
   match code:
-    case 0u64: kw_cut(b, cyf_sh(c), cyf_r(c), cyf_o(c), ax_canon(cyf_a(c)), sd, l, Bool.pick(F64, cyf_sh(c), z, V.v2_x(sp)), V.v2_y(sp), row, e, nd)
+    case 0u64:
+      +v = kw_nt(pz, fn_nth(bd_fns(b), fi), base, cyf_sh(c), thru, ax_canon(cyf_a(c)), sd, cyf_r(c), SD.fv_go(row, 2n), SD.fv_go(row, 5n))
+      kw_mk(nv_ok(v), v, pz, b, c, sd, l, z, sp, row, e, nd, base)
     case 1u64: bad("keyway", "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
     case 2u64: bad("keyway", "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
       "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
@@ -4737,7 +4868,7 @@ def kw_go(code: U64, +b: Body, +nm: String, +np: Nat, +c: Cyf, +sd: V.Dir, +l: F
       kw_fix(F64.is_le(V.v2_x(sp), F64.sub(V.v2_y(sp), l)), sp, l, SD.fv_go(row, 2n)))
     case _: nr_err(T.F_unsupported{}, "keyway", "node " ++ U64.show(nd), "keyway-axis-oblique: " ++ nm, "keyways act on cylinders whose axis is along x, y or z")
 
-def op_keyway(+b: Body, +s: Sel, +side: U64, +ll: X.Xp, +zz: X.Xp, +thru: Bool, +e: X.Env, +nd: U64) -> NR:
+def op_keyway(+b: Body, +s: Sel, +side: U64, +ll: X.Xp, +zz: X.Xp, +thru: Bool, +e: X.Env, +nd: U64, +po: Op, +base: U64) -> NR:
   +nm = sel_nm(s)
   +fns = bd_fns(b)
   +fi = name_idx(fns, nm, 0n)
@@ -4758,7 +4889,74 @@ def op_keyway(+b: Body, +s: Sel, +side: U64, +ll: X.Xp, +zz: X.Xp, +thru: Bool, 
     Bool.pick(U64, Bool.not(cyf_ok(c)), 3u64, Bool.pick(U64, Bool.not(dir_ax(a)), 8u64, Bool.pick(U64, Bool.not(radial), 4u64,
       Bool.pick(U64, Bool.not(SD.row_ok(row)), 5u64, Bool.pick(U64, Bool.xor(thru, Bool.not(cyf_sh(c))), 6u64, Bool.pick(U64, Bool.not(inside), 7u64, 0u64)))))),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
-  kw_go(code, b, nm, np, c, sd, l, z, row, sp, e, nd)
+  kw_go(code, b, nm, np, c, sd, l, z, row, sp, e, nd, fi, pz_of(po), base, thru)
+
+type Fp is Data:
+  Fp{ ok: Bool, r0: F64, r1: F64, z0: F64, z1: F64 }
+
+def fp_big() -> F64:
+  1.0e300f64
+
+def fp_eps() -> F64:
+  1.0e-6f64
+
+def fp_mk(+ok: Bool, +ra: F64, +rb: F64, +za: F64, +zb: F64) -> Fp:
+  Fp{ok, F64.sub(F64.max(0.0f64, ra), fp_eps()), F64.add(rb, fp_eps()), F64.sub(F64.min(za, zb), fp_eps()), F64.add(F64.max(za, zb), fp_eps())}
+
+def hs_fp(+h: Hs, +cell: Bool, +fr: FR, +dp: F64, +e: X.Env) -> Fp:
+  Hs{+k, +sz, cls, +x, +y, r} = h
+  +rb = hs_bore(h, e)
+  +a = SD.fa(sz)
+  +q = hs_loc_of(cell, fr, X.xp_ev(x, e), X.xp_ev(y, e))
+  +c = fr_o(fr_at(fr, V.v2_x(q), V.v2_y(q)))
+  +n = fr_n(fr)
+  +ck = Bool.pick(F64, U64.is_eq(k, 3u64), F64.sub(F64.mul(0.5f64, SD.fv(a, 12n)), rb), 0.0f64)
+  +rr = Bool.pick(F64, U64.is_eq(k, 2u64), F64.max(rb, F64.mul(0.5f64, SD.fv(a, 8n))),
+    Bool.pick(F64, U64.is_eq(k, 5u64), F64.max(rb, F64.mul(0.5f64, SD.fv(a, 0n))), F64.add(rb, F64.mul(1.25f64, ck))))
+  +dd = F64.max(dp, F64.max(Bool.pick(F64, U64.is_eq(k, 2u64), SD.fv(a, 9n), 0.0f64), F64.mul(1.25f64, ck)))
+  +rc = F64.sqrt(F64.add(F64.mul(V.pt_x(c), V.pt_x(c)), F64.mul(V.pt_y(c), V.pt_y(c))))
+  fp_mk(Bool.and(F64.is_eq(V.dr_x(n), 0.0f64), F64.is_eq(V.dr_y(n), 0.0f64)), F64.sub(rc, rr), F64.add(rc, rr),
+    F64.sub(V.pt_z(c), F64.mul(V.dr_z(n), dd)), F64.add(V.pt_z(c), F64.mul(V.dr_z(n), F64.mul(0.25f64, ck))))
+
+def hs_fps(hs: List<&2, Hs>, +cell: Bool, +fr: FR, +dp: F64, +e: X.Env) -> List<&2, Fp>:
+  match hs:
+    case []: []
+    case +h <> t: hs_fp(h, cell, fr, dp, e) <> hs_fps(t, cell, fr, dp, e)
+
+def hl_hs(hs: List<&2, Hl>) -> List<&2, Hs>:
+  match hs:
+    case []: []
+    case h <> t:
+      Hl{x, y, r} = h
+      Hs{0u64, "", "", x, y, r} <> hl_hs(t)
+
+def ft_fps(+b: Body, +f: Sel, +hs: List<&2, Hs>, +d: X.Xp, +thru: Bool, +e: X.Env, +base: U64) -> List<&2, Fp>:
+  +nm = sel_name(b, f, base)
+  +fr = frame_of(fa_nth(Ty.brep_fas(bd_brep(b)), name_idx(bd_fns(b), nm, 0n)))
+  hs_fps(hs, String.is_empty(sel_nm(f)), fr, Bool.pick(F64, thru, fp_big(), X.xp_ev(d, e)), e)
+
+def kw_fp(+b: Body, +s: Sel, +ll: X.Xp, +zz: X.Xp, +thru: Bool, +e: X.Env) -> Fp:
+  +c = cyf_of(fa_nth(Ty.brep_fas(bd_brep(b)), name_idx(bd_fns(b), sel_nm(s), 0n)))
+  +row = SD.row("key", d_nom(F64.mul(2.0f64, cyf_r(c))))
+  +a = ax_canon(cyf_a(c))
+  +o = cyf_o(c)
+  +bw = SD.fv_go(row, 2n)
+  +lo = kw_lo(cyf_sh(c), cyf_r(c), bw, SD.fv_go(row, 4n))
+  +hi = kw_hi(cyf_sh(c), cyf_r(c), SD.fv_go(row, 5n))
+  +t0 = Bool.pick(F64, thru, F64.neg(fp_big()), X.xp_ev(zz, e))
+  +t1 = Bool.pick(F64, thru, fp_big(), F64.add(X.xp_ev(zz, e), X.xp_ev(ll, e)))
+  +ok = Bool.and(Bool.and(F64.is_eq(V.dr_x(a), 0.0f64), F64.is_eq(V.dr_y(a), 0.0f64)), Bool.and(F64.is_eq(V.pt_x(o), 0.0f64), F64.is_eq(V.pt_y(o), 0.0f64)))
+  fp_mk(ok, lo, F64.sqrt(F64.add(F64.max(F64.mul(lo, lo), F64.mul(hi, hi)), F64.mul(0.25f64, F64.mul(bw, bw)))), F64.mul(V.dr_z(a), t0), F64.mul(V.dr_z(a), t1))
+
+def fp_no() -> List<&2, Fp>:
+  [Fp{False{}, 0.0f64, 0.0f64, 0.0f64, 0.0f64}]
+
+def op_fps(+o: Op, +b: Body, +e: X.Env, +base: U64) -> List<&2, Fp>:
+  match o:
+    case O_sholes{bs, +f, +hs, +d, +thru}: ft_fps(b, f, hs, d, thru, e, base)
+    case O_holes{bs, +f, hs, +d, +thru}: ft_fps(b, f, hl_hs(hs), d, thru, e, base)
+    case O_keyway{bs, +f, side, +l, +z, +thru}: [kw_fp(b, f, l, z, thru, e)]
+    case _: fp_no()
 
 def xt_cls_ok(+c: String) -> Bool:
   Bool.or(String.is_empty(c), Bool.or(String.eq(c, "4h"), Bool.or(String.eq(c, "6h"), Bool.or(String.eq(c, "6g"), Bool.or(String.eq(c, "6f"), String.eq(c, "6e"))))))
@@ -5057,7 +5255,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_holes{base, f, hs, d, thru}: op_feat(2u64, b, f, hls_rgs(hs), d, thru, e, nd, base)
     case O_sholes{base, f, hs, d, thru}: op_sholes(b, f, hs, d, thru, e, nd, base)
     case O_groove{+base, f, std, z}: op_groove(b, f, std, z, e, nd, rev_rs(nd_op(ns, base)), base)
-    case O_keyway{base, f, side, l, z, thru}: op_keyway(b, f, side, l, z, thru, e, nd)
+    case O_keyway{+base, f, side, l, z, thru}: op_keyway(b, f, side, l, z, thru, e, nd, nd_op(ns, base), base)
     case O_xthread{+base, f, sz, cls}: op_xthread(b, f, sz, cls, nd, base)
     case O_screw{std, sz, l, thr}: op_screw(std, sz, l, thr, e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)

@@ -1,19 +1,19 @@
 {
- "binary": "/home/jesse/bc/bendcad-p8k",
- "sha256": "16a0691535c3d8343a308c0cbbb1a5495ad0e7b832c55dacdf80ea6f63599c52",
- "passed": 11,
- "total": 11,
+ "binary": "/home/jesse/bc/bendcad-p9h",
+ "sha256": "55c1ca2c5d0f16b6eb6e9e195d7759d320c77e0486ec0697cc5bef7b9352382e",
+ "passed": 13,
+ "total": 13,
  "cases": [
   {
    "case": "fasten",
    "item": "S3",
    "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the counterbore and clearance diameters against DIN 974-1 and ISO 273, the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
    "verdict": "pass",
-   "seconds": 15.443,
+   "seconds": 15.408,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (thread 5 m4 n5.c0.wall.0.0 M4 6H 0 10)",
-     "seconds": 0.476,
+     "seconds": 0.47,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -22,7 +22,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.208,
+     "seconds": 1.179,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -31,7 +31,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (material 5 S355 7850 12e-6)",
-     "seconds": 0.476,
+     "seconds": 0.471,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -40,7 +40,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.167,
+     "seconds": 1.174,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -49,7 +49,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 5)",
-     "seconds": 0.473,
+     "seconds": 0.469,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -58,7 +58,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.181,
+     "seconds": 1.173,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -67,7 +67,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12) (material 5 6082-T6 2700 23.4e-6)",
-     "seconds": 0.476,
+     "seconds": 0.47,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -76,7 +76,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.163,
+     "seconds": 1.164,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -94,7 +94,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.161,
+     "seconds": 1.166,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -103,7 +103,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12) (param H 0.5)",
-     "seconds": 0.471,
+     "seconds": 0.469,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -112,7 +112,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.091,
+     "seconds": 1.097,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -130,7 +130,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.19,
+     "seconds": 1.183,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -139,7 +139,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param H 0) (param X 15.5)",
-     "seconds": 0.471,
+     "seconds": 0.486,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -148,7 +148,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 0.813,
+     "seconds": 0.816,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -157,7 +157,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 15) (node 8 (screw ISO4762 M3 L) (intent create any 0 1 0)) (node 9 (move 8 15 15 (- 11.2 L) 0) (intent same any any 1 0))",
-     "seconds": 0.481,
+     "seconds": 0.477,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -166,7 +166,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 9 3 5",
-     "seconds": 0.93,
+     "seconds": 0.921,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -184,7 +184,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.17,
+     "seconds": 1.178,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -198,11 +198,11 @@
    "item": "S2",
    "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
    "verdict": "pass",
-   "seconds": 7.664,
+   "seconds": 7.594,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))",
-     "seconds": 0.129,
+     "seconds": 0.12,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -211,7 +211,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.116,
+     "seconds": 0.115,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -220,7 +220,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (keyway 2 (face 1 n1.c0.wall.0.0.p0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.363,
+     "seconds": 0.364,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -229,7 +229,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.375,
+     "seconds": 0.37,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -238,7 +238,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.366,
+     "seconds": 0.371,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -247,7 +247,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.349,
+     "seconds": 0.359,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -256,7 +256,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))",
-     "seconds": 0.65,
+     "seconds": 0.62,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -265,7 +265,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13 -f",
-     "seconds": 0.17,
+     "seconds": 0.171,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -274,7 +274,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.76,
+     "seconds": 0.722,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -283,7 +283,7 @@
     },
     {
      "cmd": "BIN design.bcd std 14",
-     "seconds": 0.291,
+     "seconds": 0.286,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -292,7 +292,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))",
-     "seconds": 0.766,
+     "seconds": 0.761,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -301,7 +301,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN471) 4) (intent remove any any 1 any))",
-     "seconds": 0.748,
+     "seconds": 0.77,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -310,7 +310,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))",
-     "seconds": 0.778,
+     "seconds": 0.766,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -319,7 +319,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))",
-     "seconds": 0.759,
+     "seconds": 0.77,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -328,7 +328,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))",
-     "seconds": 0.763,
+     "seconds": 0.744,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -337,7 +337,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 14 -f",
-     "seconds": 0.281,
+     "seconds": 0.285,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -351,11 +351,11 @@
    "item": "S2",
    "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
    "verdict": "pass",
-   "seconds": 0.29,
+   "seconds": 0.296,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
-     "seconds": 0.046,
+     "seconds": 0.048,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -391,7 +391,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 0.063,
+     "seconds": 0.066,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -400,7 +400,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 202",
-     "seconds": 0.046,
+     "seconds": 0.047,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -423,7 +423,7 @@
    "item": "S2",
    "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
    "verdict": "pass",
-   "seconds": 3.999,
+   "seconds": 3.968,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
@@ -436,7 +436,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.013,
+     "seconds": 0.014,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -445,7 +445,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 1 n1.c0.top) through (counterbore M4 10 30) (countersink M4 25 30) (tapped M4 40 30)) (intent remove any any 1 6))",
-     "seconds": 0.408,
+     "seconds": 0.41,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -454,7 +454,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 3 -f",
-     "seconds": 0.413,
+     "seconds": 0.423,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -463,7 +463,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.42,
+     "seconds": 0.405,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -472,7 +472,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 3",
-     "seconds": 0.839,
+     "seconds": 0.819,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -481,7 +481,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 12)",
-     "seconds": 0.414,
+     "seconds": 0.401,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -508,7 +508,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (holes 3 (face 1 n1.c0.top) through (hole 12 10 3.5)) (intent remove any any 1 any))",
-     "seconds": 0.539,
+     "seconds": 0.533,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -517,7 +517,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.53,
+     "seconds": 0.54,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -531,7 +531,7 @@
    "item": "S2",
    "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
    "verdict": "pass",
-   "seconds": 0.159,
+   "seconds": 0.161,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
@@ -562,7 +562,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (tapped M4 9Z 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.008,
+     "seconds": 0.009,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -580,7 +580,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
-     "seconds": 0.094,
+     "seconds": 0.095,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -621,11 +621,11 @@
    "item": "S2",
    "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
    "verdict": "pass",
-   "seconds": 2.156,
+   "seconds": 2.148,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
-     "seconds": 0.435,
+     "seconds": 0.428,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -634,7 +634,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.422,
+     "seconds": 0.412,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -643,7 +643,7 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.439,
+     "seconds": 0.436,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -652,7 +652,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 102",
-     "seconds": 0.86,
+     "seconds": 0.872,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -662,11 +662,191 @@
    ]
   },
   {
+   "case": "keyway_hub",
+   "item": "K1",
+   "claim": "a through hub keyway in a bore that is a circle of a prism's own profile is notched into that profile from its DIN 6885-1 record, so the part stays a prism: the keyed bore's faces carry the prism's names (two walls, the bottom at d/2 + t2 and the remaining bore arc), it is the same solid as the keyway cut by a boolean into a drilled bore of the same size (their certified volumes meet), std checks both against the record (8 mm: 2 wide, t2 1.0, bottom 5 from the axis; 10 mm: 3 wide, t2 1.4, bottom 6.4), an edit to the prism carries the keyway with it, and a 6 mm bore (DIN 6885-1 starts over 6 mm) and a side along the axis are refused with the admissible choices",
+   "verdict": "pass",
+   "seconds": 0.927,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c1.wall.0.0) +y through) (intent remove any any 1 1))",
+     "seconds": 0.022,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6797.876140333796, 6797.876140347219] area=[2860.5309649127184, 2860.5309649170285] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.329"
+    },
+    {
+     "cmd": "BIN design.bcd faces 4",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2\nn1.c0.bottom plane loops=2\nn1.c0.wall.0.0 plane loops=1\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=1\nn1.c0.wall.3.0 plane loops=1\nn1.c1.wall.0.0 plane loops=1\nn1.c1.wall.1.0 plane loops=1\nn1.c1.wall.2.0 plane loops=1\nn1.c1.wall.3.0 cylinder loops=1\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd std 4",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass\nstd node 4: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table"
+    },
+    {
+     "cmd": "BIN design.bcd check 4",
+     "seconds": 0.023,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok: embedded, shells outward, cavities nested\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 4",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[6781.203079759975, 6781.203079776731] area=[2874.2234299008037, 2874.223429906043] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=22 edges=30 faces=10 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 13 (keyway 12 (face 12 n12.c0.wall.0.0) +y through) (intent remove any any 1 1))",
+     "seconds": 0.096,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6797.876140333796, 6797.876140347219] area=[2860.5309649127184, 2860.5309649170285] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.329"
+    },
+    {
+     "cmd": "BIN design.bcd faces 13",
+     "seconds": 0.089,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n11.c0.top plane loops=2\nn11.c0.bottom plane loops=2\nn11.c0.wall.0.0 plane loops=1\nn11.c0.wall.1.0 plane loops=1\nn11.c0.wall.2.0 plane loops=1\nn11.c0.wall.3.0 plane loops=1\nn12.c0.wall.0.0 cylinder loops=1\nn13.c0.top plane loops=1\nn13.c0.wall.0.0 plane loops=1\nn13.c0.wall.2.0 plane loops=1\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 13",
+     "seconds": 0.088,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[6781.203079761569, 6781.203079775133] area=[2874.223429900547, 2874.223429906298] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 8.000000000000059] vertices=18 edges=26 faces=10 solids=1 genus=1 linear_uncertainty=6.861178292183475e-14 | proof: k1-crossing-certified V18 E26 F10 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd std 13",
+     "seconds": 0.089,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "std keyway 13 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass\nstd node 13: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso tab"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 5 (keyway 2 (face 2 n2.c1.wall.0.0) -x through) (intent remove any any 1 1))",
+     "seconds": 0.099,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6797.876140333796, 6797.876140347219] area=[2860.5309649127184, 2860.5309649170285] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.329"
+    },
+    {
+     "cmd": "BIN design.bcd std 5",
+     "seconds": 0.017,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=(-1,0,0): b=3 t2=1.4 bottom-from-axis=6.4 width=3 status=pass\nstd node 5: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-is"
+    },
+    {
+     "cmd": "BIN design.bcd faces 5",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n2.c0.top plane loops=2\nn2.c0.bottom plane loops=2\nn2.c0.wall.0.0 plane loops=1\nn2.c0.wall.1.0 plane loops=1\nn2.c0.wall.2.0 plane loops=1\nn2.c0.wall.3.0 plane loops=1\nn2.c1.wall.0.0 plane loops=1\nn2.c1.wall.1.0 plane loops=1\nn2.c1.wall.2.0 plane loops=1\nn2.c1.wall.3.0 cylinder loops=1\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 1 (prism 0 10 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 4))) (intent create any 0 1 1))",
+     "seconds": 0.096,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[8497.345175417266, 8497.345175434] area=[3150.7964473700295, 3150.7964473745906] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 10.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.32907"
+    },
+    {
+     "cmd": "BIN design.bcd faces 4",
+     "seconds": 0.017,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "n1.c0.top plane loops=2\nn1.c0.bottom plane loops=2\nn1.c0.wall.0.0 plane loops=1\nn1.c0.wall.1.0 plane loops=1\nn1.c0.wall.2.0 plane loops=1\nn1.c0.wall.3.0 plane loops=1\nn1.c1.wall.0.0 plane loops=1\nn1.c1.wall.1.0 plane loops=1\nn1.c1.wall.2.0 plane loops=1\nn1.c1.wall.3.0 cylinder loops=1\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd std 4",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass\nstd node 4: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table"
+    },
+    {
+     "cmd": "BIN design.bcd measure 4",
+     "seconds": 0.016,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[8476.503849699988, 8476.503849720893] area=[3168.9540948910003, 3168.954094896513] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 10.000000000000057] vertices=22 edges=30 faces=10 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 6 (keyway 3 (face 3 n3.c1.wall.0.0) +y through) (intent remove any any 1 1))",
+     "seconds": 0.096,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[8497.345175417266, 8497.345175434] area=[3150.7964473700295, 3150.7964473745906] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 10.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.32907"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 7 (keyway 1 (face 1 n1.c1.wall.0.0) +z through) (intent remove any any 1 1))",
+     "seconds": 0.096,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[8497.345175417266, 8497.345175434] area=[3150.7964473700295, 3150.7964473745906] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 10.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6571.681469275331, 6571.681469288753] area=[2854.247779605536, 2854.2477796098524] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 3: ok material=create faces_created=7 faces_modified=0 solids=1 through_holes=1 | volume=[6973.805328934825, 6973.805328948246] area=[2854.2477796055423, 2854.247779609846] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 8.000000000000057] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=5.3290705182007514e-14\nnode 11: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[7199.999999993296, 7200.000000006706] area=[2759.999999997859, 2760.0000000021414] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.32907"
+    },
+    {
+     "cmd": "BIN design.bcd show",
+     "seconds": 0.003,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "(bendcad 1)\n(node 1 (prism 0 10 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 4))) (intent create any 0 1 1))\n(node 2 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 5))) (intent create any 0 1 1))\n(node 3 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 3))) (intent create any 0 1 1))\n(node 11 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)))) (intent create any 0 1 0))\n(node 12 (holes 11 (face 11 0 top) through (hole 15 15 4)) (intent remove any any 1 1))\n(node 4 (keyway 1 (face 1 n1.c1.wall.0.0) +y through) (intent remove any any 1 1))\n(node 13 (keyway 12 (face 12 n12.c0.wall.0.0) +y through) (intent remove any any 1 1))\n(node 5 (keyway 2 (face 2 n2.c1.wall.0.0) -x through) (intent remove any any 1 1))\n\n"
+    }
+   ]
+  },
+  {
    "case": "nema",
    "item": "S1",
    "claim": "iface NEMA17|NEMA23 NODE X Y Z checks a plate against the NEMA ICS 16 Table 4 motor flange whose axis passes through (X, Y, Z) along +z: a bore around the pilot that clears the pilot's maximum diameter, and at each of the four bolt positions on the bolt circle M a hole that clears the C flange's tapped screw (4-40 for frame 17, 8-32 for frame 23) at its offset from the position; an unknown frame is refused with the held ones",
    "verdict": "pass",
-   "seconds": 0.157,
+   "seconds": 0.156,
    "steps": [
     {
      "cmd": "BIN design.bcd iface NEMA17 3 30 30 6",
@@ -724,7 +904,7 @@
     },
     {
      "cmd": "BIN design.bcd iface NEMA23 3 30 30 6",
-     "seconds": 0.02,
+     "seconds": 0.019,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -751,7 +931,7 @@
    "steps": [
     {
      "cmd": "BIN design.bcd apply (param D 22 H7)",
-     "seconds": 0.009,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -769,7 +949,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param D 30 H7)",
-     "seconds": 0.01,
+     "seconds": 0.009,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -850,7 +1030,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param T 8 js6)",
-     "seconds": 0.011,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -868,7 +1048,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param U 40 f7)",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -886,7 +1066,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param R 11 H7)",
-     "seconds": 0.011,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -904,7 +1084,7 @@
     },
     {
      "cmd": "BIN design.bcd eval",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -981,11 +1161,11 @@
    "item": "S1",
    "claim": "(screw ISO4762 SIZE L) builds a hexagon socket head cap screw as a part from its cited record: head at dk max and k max, hexagon socket s x t, shank threaded to the head with the modelled ISO 68-1 thread at a 6g crest diameter; threads, std, check, tess and step certify it; an unknown standard or size, a length past the thread length b (a plain shank and thread runout are not modelled) and a nonpositive length are refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 18.513,
+   "seconds": 18.44,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))",
-     "seconds": 0.242,
+     "seconds": 0.264,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -994,7 +1174,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1 -f",
-     "seconds": 0.279,
+     "seconds": 0.272,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1003,7 +1183,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1",
-     "seconds": 0.483,
+     "seconds": 0.486,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1012,7 +1192,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.282,
+     "seconds": 0.272,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1021,7 +1201,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1",
-     "seconds": 0.626,
+     "seconds": 0.591,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1030,7 +1210,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 1",
-     "seconds": 10.057,
+     "seconds": 10.022,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1039,7 +1219,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 1",
-     "seconds": 0.275,
+     "seconds": 0.24,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1047,26 +1227,26 @@
      "output_head": "ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[-3.610000000000038, 3.610000000000038]x[-3.610000000000038, 3.610000000000038]x[-2.842170943040404e-14, 20.000000000000053] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-p8k/screw_iso4762/s.obj",
-     "seconds": 0.374,
+     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-p9h/screw_iso4762/s.obj",
+     "seconds": 0.379,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
     },
     {
-     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-p8k/screw_iso4762/s.stp",
-     "seconds": 2.986,
+     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-p9h/screw_iso4762/s.stp",
+     "seconds": 2.912,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (rotate 1 x 90) (intent same any any 1 0)) (node 4 (move 3 20 0 5 0) (intent same any any 1 0))",
-     "seconds": 0.262,
+     "seconds": 0.266,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1075,7 +1255,7 @@
     },
     {
      "cmd": "BIN design.bcd check 4",
-     "seconds": 0.53,
+     "seconds": 0.57,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1083,17 +1263,17 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 4 /var/tmp/repro-std-p8k/screw_iso4762/m.obj",
-     "seconds": 0.33,
+     "cmd": "BIN design.bcd tess 4 /var/tmp/repro-std-p9h/screw_iso4762/m.obj",
+     "seconds": 0.325,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/screw_iso4762/m.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/screw_iso4762/m.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
     },
     {
      "cmd": "BIN design.bcd measure 4",
-     "seconds": 0.267,
+     "seconds": 0.271,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1102,7 +1282,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.273,
+     "seconds": 0.276,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1111,7 +1291,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.254,
+     "seconds": 0.261,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1120,7 +1300,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M7 16) (intent create any 0 1 0))",
-     "seconds": 0.243,
+     "seconds": 0.266,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1129,7 +1309,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4017 M4 16) (intent create any 0 1 0))",
-     "seconds": 0.233,
+     "seconds": 0.266,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1138,7 +1318,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 30) (intent create any 0 1 0))",
-     "seconds": 0.278,
+     "seconds": 0.271,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1147,7 +1327,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 0) (intent create any 0 1 0))",
-     "seconds": 0.237,
+     "seconds": 0.228,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1170,11 +1350,11 @@
    "item": "S2",
    "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
    "verdict": "pass",
-   "seconds": 3.753,
+   "seconds": 3.626,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))",
-     "seconds": 0.107,
+     "seconds": 0.105,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1183,7 +1363,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001",
-     "seconds": 0.105,
+     "seconds": 0.104,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1192,7 +1372,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001 -f",
-     "seconds": 0.105,
+     "seconds": 0.104,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1201,7 +1381,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1001",
-     "seconds": 0.203,
+     "seconds": 0.202,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1210,7 +1390,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1001",
-     "seconds": 0.107,
+     "seconds": 0.105,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1219,7 +1399,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1001",
-     "seconds": 0.134,
+     "seconds": 0.13,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1227,26 +1407,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p8k/thread_modelled/t.obj",
-     "seconds": 0.196,
+     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p9h/thread_modelled/t.obj",
+     "seconds": 0.193,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
     },
     {
-     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p8k/thread_modelled/t.stp",
-     "seconds": 2.282,
+     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p9h/thread_modelled/t.stp",
+     "seconds": 2.169,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 1001",
-     "seconds": 0.199,
+     "seconds": 0.195,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1255,7 +1435,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.104,
+     "seconds": 0.109,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1273,7 +1453,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))",
-     "seconds": 0.107,
+     "seconds": 0.106,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1287,11 +1467,11 @@
    "item": "S2",
    "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
    "verdict": "pass",
-   "seconds": 2.772,
+   "seconds": 1.936,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.007,
+     "seconds": 0.006,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1300,7 +1480,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.005,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1327,7 +1507,7 @@
     },
     {
      "cmd": "BIN design.bcd check 2",
-     "seconds": 0.03,
+     "seconds": 0.031,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1335,22 +1515,22 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p8k/xthread_modelled/t.obj",
-     "seconds": 0.065,
+     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p9h/xthread_modelled/t.obj",
+     "seconds": 0.061,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
     },
     {
-     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p8k/xthread_modelled/t.stp",
-     "seconds": 2.52,
+     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p9h/xthread_modelled/t.stp",
+     "seconds": 1.688,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8k/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p9h/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 2",
@@ -1372,7 +1552,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (xthread 1 (face 1 n1.c0.top) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.005,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1381,7 +1561,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (xthread 1 (face 1 n1.c0.wall.0.0) M6) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.005,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1399,7 +1579,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6H) (intent remove any any 1 0))",
-     "seconds": 0.005,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1408,7 +1588,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0)) (node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.088,
+     "seconds": 0.089,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1417,12 +1597,660 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 9 (holes 2 (face 1 n1.c0.top) 3 (hole 0 0 1)) (intent remove any any 1 1))",
-     "seconds": 0.007,
+     "seconds": 0.006,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
      "output_head": "node 1: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[992.782548442522, 992.7825484425668] area=[598.7914867650112, 598.7914867650519] bbox=[-3.975000000000037, 3.975000000000037]x[-3.975000000000037, 3.975000000000037]x[-3.552713678800502e-14, 20.000000000000043] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 2: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=0 | volume=[825.482757910234, 825.482757910614] area=[813.5837944359445, 813.5837945142805] bbox=[-3.9750000000000374, 3.9750000000000374]x[-3.9750000000000374, 3.9750000000000374]x[-3.552713678800503e-14, 20.000000000000046] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=3.552713678800501e-14\nnode 9: error invalid-input | holes @ node 9 | why: modelled-thread-faces: the input has modelled thread (helicoid) faces, which holes does not take yet | fix: apply every other feature first and model the thread last, or keep the thread semantic (tapped without modelled)\n\nrejected: the design was not changed\n"
+    }
+   ]
+  },
+  {
+   "case": "zone_features",
+   "item": "Z1",
+   "claim": "zone certifies a revolve whose ring groove is notched into its profile, and holes and keyways cut into it, over the whole tolerance envelope: the groove as the revolve of its notched profile with every placement decision the op takes at the nominal (which face piece it notches, whether it merges with a neighbouring step, which groove-table row it reads) proved to hold for every parameter value, and a cut whose own position, size and depth are fixed and whose tool footprint in radius and axial position is kept clear of every profile segment that moves as the volume and area of the part below it shifted by the measured, certified volume and area it removes at the nominal; every certified interval meets the directly certified volume at both ends and the middle of the zone (both enclose the same true volume) and stays within 0.01 mm3 of them; a cut placed by a zoned parameter, a cut on a moving face, one whose band a zoned hub reaches, a keyway on a zoned seat or within reach of a shoulder that moves along the axis (one clear of the shoulder's whole travel certifies), a groove that merges with a moving step, crosses its face's end, changes table row or sits on another groove, and a cut on a placed body are each refused with the reason",
+   "verdict": "pass",
+   "seconds": 103.507,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd zone 201",
+     "seconds": 0.423,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 201: certified over the tolerance envelope | volume=[3682.088968295284, 3683.2205071372764] area=[1798.9427235920766, 1799.225466930911]\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 102",
+     "seconds": 0.04,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 102: certified over the tolerance envelope | volume=[22349.90870694247, 22356.51580074114] area=[9379.315594917332, 9380.167345088437]\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 103",
+     "seconds": 0.277,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 103: certified over the tolerance envelope | volume=[21779.709640293528, 21786.316734136977] area=[9603.93946963438, 9604.791219834728]\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 202",
+     "seconds": 0.85,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 202: certified over the tolerance envelope | volume=[3677.6668617692317, 3678.7305082807075] area=[1806.357981811977, 1806.6237605504823]\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 204",
+     "seconds": 1.199,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 204: certified over the tolerance envelope | volume=[3655.4699429276034, 3656.5336096351602] area=[1830.467793031442, 1830.733574302276]\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 102",
+     "seconds": 0.031,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 103",
+     "seconds": 0.269,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 204",
+     "seconds": 0.374,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.00166651652, 3656.00168671219] area=[1830.6006824040794, 1830.6006849296384] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DS 22.021 22 22.021)",
+     "seconds": 1.03,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22387.987256340228, 22387.987256341403] area=[9306.698687605105, 9306.698687615062] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22349.908706941973, 22349.908706943163] area=[9379.315594912354, 9379.31559492238] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21779.709640294233, 21779.709640337795] area=[9603.939469639432, 9603.93946965864] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 102",
+     "seconds": 0.03,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22349.908706941973, 22349.908706943163] area=[9379.315594912354, 9379.31559492238] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 103",
+     "seconds": 0.271,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21779.709640294233, 21779.709640337795] area=[9603.939469639432, 9603.93946965864] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 103",
+     "seconds": 0.254,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 103: certified over the tolerance envelope | volume=[21779.70964029354, 21786.316734136966] area=[9603.939469634382, 9604.791219834726]\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DS 22.0105 22 22.021)",
+     "seconds": 1.086,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22391.691016303936, 22391.691016305107] area=[9306.362223031907, 9306.362223041864] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22353.213041811552, 22353.21304181275] area=[9379.741643178168, 9379.741643188194] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21783.013975163813, 21783.01397520738] area=[9604.365517905246, 9604.365517924458] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 102",
+     "seconds": 0.031,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22353.213041811552, 22353.21304181275] area=[9379.741643178168, 9379.741643188194] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 103",
+     "seconds": 0.236,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21783.013975163813, 21783.01397520738] area=[9604.365517905246, 9604.365517924458] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DS 22 22 22.021)",
+     "seconds": 1.018,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 103",
+     "seconds": 0.27,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DK 8.001 8.001 8.007)",
+     "seconds": 1.034,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.0889682950915, 3682.088968295498] area=[1798.9427235887008, 1798.9427235954627] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.00000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 204",
+     "seconds": 0.418,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3655.4699429278207, 3655.46996312349] area=[1830.4677930348319, 1830.4677955603909] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DK 8.007 8.001 8.007)",
+     "seconds": 1.087,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 204",
+     "seconds": 0.347,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.533589439271, 3656.533609634942] area=[1830.733571773325, 1830.7335742988844] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 204",
+     "seconds": 1.202,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 204: certified over the tolerance envelope | volume=[3655.469942927602, 3656.533609635159] area=[1830.4677930314404, 1830.733574302275]\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 105 (move 103 10 0 0 0) (intent same any any 1 5))",
+     "seconds": 1.084,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 105",
+     "seconds": 0.286,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 105: certified over the tolerance envelope | volume=[21779.709640293528, 21786.316734136977] area=[9603.93946963438, 9604.791219834728]\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param HQ 16 16 20)",
+     "seconds": 1.014,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 130 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HQ 6) (line HQ 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+     "seconds": 1.08,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 131 (holes 130 (face 130 n130.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369) (clearance M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 3))",
+     "seconds": 1.17,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 131",
+     "seconds": 0.224,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 131: certified over the tolerance envelope | volume=[22110.293476493174, 27131.815174036674] area=[9418.337695815093, 9697.311123482714]\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 131",
+     "seconds": 0.177,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=2 faces_modified=4 solids=1 through_holes=3 | volume=[22110.293476493833, 22110.293476538056] area=[9418.337695820099, 9418.337695838936] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=20 edges=36 faces=18 solids=1 genus=3 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V20 E36 F18 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param HQ 20 16 20)",
+     "seconds": 1.222,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 131",
+     "seconds": 0.175,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=2 faces_modified=4 solids=1 through_holes=3 | volume=[27131.815173986743, 27131.815174041007] area=[9697.311123458592, 9697.31112347799] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=20 edges=36 faces=18 solids=1 genus=3 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V20 E36 F18 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param PC 17.67766952966369 17.6 17.7)",
+     "seconds": 1.16,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 106 (holes 102 (face 101 n101.c0.wall.2.0) through (clearance M5 PC 17.67766952966369)) (intent remove any any 1 2))",
+     "seconds": 1.439,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 106",
+     "seconds": 0.198,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 106 | why: feature-moves-over-zone | fix: a hole or keyway takes its position, size or depth from a zoned parameter; give the feature fixed values and zone the profile it is cut into\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param T 6 5.9 6.1)",
+     "seconds": 1.735,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 110 (revolve (region (path 9.5 0 (line 32 0) (line 32 T) (line 16 T) (line 16 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+     "seconds": 1.733,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 111 (holes 110 (face 110 n110.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
+     "seconds": 2.109,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 111",
+     "seconds": 0.158,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 111 | why: feature-meets-zoned-geometry | fix: a hole or keyway reaches profile segments that move over the zone (a zoned diameter or length and the steps beside it); keep each cut's radial band and axial span clear of them, or zone a different dimension\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param HR 21 21 23)",
+     "seconds": 2.133,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 120 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HR 6) (line HR 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+     "seconds": 2.099,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 121 (holes 120 (face 120 n120.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
+     "seconds": 2.187,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 121",
+     "seconds": 0.165,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 121 | why: feature-meets-zoned-geometry | fix: a hole or keyway reaches profile segments that move over the zone (a zoned diameter or length and the steps beside it); keep each cut's radial band and axial span clear of them, or zone a different dimension\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 205 (keyway 202 (face 201 n201.c0.wall.10.0) +y 5 41) (intent remove any any 1 0))",
+     "seconds": 2.328,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 205",
+     "seconds": 0.771,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 205 | why: feature-meets-zoned-geometry | fix: a hole or keyway reaches profile segments that move over the zone (a zoned diameter or length and the steps beside it); keep each cut's radial band and axial span clear of them, or zone a different dimension\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param JS 47 46.5 47.5)",
+     "seconds": 2.451,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 210 (revolve (region (path 0 0 (line 5 0) (line 5 40) (line 4 40) (line 4 JS) (line 3.995 JS) (line 3.995 59.5) (line 0 59.5)))) (intent create any 0 1 0))",
+     "seconds": 2.932,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 211 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.6) (intent remove any any 1 0))",
+     "seconds": 3.617,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 211",
+     "seconds": 0.465,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 211: certified over the tolerance envelope | volume=[4097.9400359448855, 4098.065640429372] area=[1926.781871405967, 1928.2469435894534]\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param JS 47.5 46.5 47.5)",
+     "seconds": 2.986,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd measure 211",
+     "seconds": 0.289,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[4098.0656211114365, 4098.065640429149] area=[1927.5379681797356, 1927.5379707054883] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0569323194431494e-13, 59.50000000000013] vertices=104 edges=120 faces=19 solids=1 genus=0 linear_uncertainty=1.2356782264078007e-13 | proof: k1-crossing-certified V104 E120 F19 S1\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param JS 47 46.5 47.5)",
+     "seconds": 3.358,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 212 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.2) (intent remove any any 1 0))",
+     "seconds": 3.015,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 212",
+     "seconds": 0.275,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 212 | why: feature-meets-zoned-geometry | fix: a hole or keyway reaches profile segments that move over the zone (a zoned diameter or length and the steps beside it); keep each cut's radial band and axial span clear of them, or zone a different dimension\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param SA 8 7.9 8.1)",
+     "seconds": 4.505,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 140 (revolve (region (path 0 0 (line 3.975 0) (line 3.975 SA) (line (/ DK 2) SA) (line (/ DK 2) 16) (line 5 16) (line 5 30) (line 0 30)))) (intent create any 0 1 0))",
+     "seconds": 3.016,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 141 (groove 140 (face 140 n140.c0.wall.3.0) (ring DIN471) 8) (intent remove any any 1 0))",
+     "seconds": 4.416,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 141",
+     "seconds": 0.029,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 141 | why: groove-not-certified-over-zone | fix: a groove certifies when it is notched straight into a revolve: keep it strictly inside its face or exactly at a fixed end of it over the whole zone, with the face diameter inside one groove-table row\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param DT 22 21.9 22.1)",
+     "seconds": 3.74,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 150 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 17.1) (line (/ DT 2) 17.1) (line (/ DT 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+     "seconds": 3.421,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 151 (groove 150 (face 150 n150.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
+     "seconds": 3.965,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 151",
+     "seconds": 0.035,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 151 | why: groove-not-certified-over-zone | fix: a groove certifies when it is notched straight into a revolve: keep it strictly inside its face or exactly at a fixed end of it over the whole zone, with the face diameter inside one groove-table row\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param HT 17 16.5 17.5)",
+     "seconds": 3.6,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 160 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 HT) (line 11 HT) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
+     "seconds": 4.419,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 161 (groove 160 (face 160 n160.c0.wall.5.0) (ring DIN472) 15.5) (intent remove any any 1 1))",
+     "seconds": 3.234,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 161",
+     "seconds": 0.036,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 161 | why: groove-not-certified-over-zone | fix: a groove certifies when it is notched straight into a revolve: keep it strictly inside its face or exactly at a fixed end of it over the whole zone, with the face diameter inside one groove-table row\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 170 (groove 102 (face 101 n101.c0.wall.9.0) (ring DIN472) 8) (intent remove any any 1 1))",
+     "seconds": 3.909,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 170",
+     "seconds": 0.292,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 170 | why: groove-not-certified-over-zone | fix: a groove certifies when it is notched straight into a revolve: keep it strictly inside its face or exactly at a fixed end of it over the whole zone, with the face diameter inside one groove-table row\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 180 (move 101 0 0 5 0) (intent same any any 1 1))",
+     "seconds": 3.991,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 181 (holes 180 (face 101 n101.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
+     "seconds": 4.632,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 101: ok material=create faces_created=16 faces_modified=0 solids=1 through_holes=1 | volume=[22395.393009828636, 22395.393009829808] area=[9306.025758458707, 9306.025758468664] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=16 edges=32 faces=16 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 102: ok material=remove faces_created=8 faces_modified=0 solids=1 through_holes=1 | volume=[22356.51580074045, 22356.515800741647] area=[9380.167345083391, 9380.167345093418] bbox=[-32.00000000000007, 32.00000000000007]x[-32.00000000000007, 32.00000000000007]x[-5.684341886080804e-14, 17.100000000000065] vertices=24 edges=48 faces=24 solids=1 genus=1 linear_uncertainty=5.684341886080802e-14\nnode 103: ok material=remove faces_created=4 faces_modified=4 solids=1 through_holes=5 | volume=[21786.316734092707, 21786.316734136282] area=[9604.791219810468, 9604.79121982968] bbox=[-32.00000000000008, 32.00000000000008]x[-32.00000000000008, 32.00000000000008]x[-5.684341886080805e-14, 17.10000000000007] vertices=32 edges=56 faces=28 solids=1 genus=5 linear_uncertainty=2.919664510159245e-13 | proof: k1-crossing-certified V32 E56 F28 S1\nnode 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.2205071370618, 3683.2205071374674] area=[1799.2254669275237, 1799.2254669342863] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.0000000"
+    },
+    {
+     "cmd": "BIN design.bcd zone 181",
+     "seconds": 0.167,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error numerical-uncertainty | zone @ node 181 | why: topology-not-certified-over-zone | fix: narrow the zones or keep profile segments, holes and feature footprints apart over the whole envelope; arcs must meet their endpoints for every parameter value\n"
+    },
+    {
+     "cmd": "BIN design.bcd zone 103",
+     "seconds": 0.288,
+     "limit_s": 60,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "zone node 103: certified over the tolerance envelope | volume=[21779.709640293528, 21786.316734136977] area=[9603.93946963438, 9604.791219834728]\n"
     }
    ]
   }

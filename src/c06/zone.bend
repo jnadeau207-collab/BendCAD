@@ -153,9 +153,6 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_naca4{m, p, t, c, n}: Z_err{"topology-not-certified-over-zone"}
             case M.O_blade{secs, z, tw, tp}: Z_err{"topology-not-certified-over-zone"}
             case M.O_skin{secs}: Z_err{"topology-not-certified-over-zone"}
-            case M.O_sholes{base, f, hs, d, thru}: Z_err{"topology-not-certified-over-zone"}
-            case M.O_groove{base, f, std, zg}: Z_err{"topology-not-certified-over-zone"}
-            case M.O_keyway{base, f, side, l, zg, thru}: Z_err{"topology-not-certified-over-zone"}
             case M.O_xthread{base, f, sz, cls}: Z_err{"topology-not-certified-over-zone"}
             case M.O_screw{std, sz, l, thr}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
@@ -559,6 +556,34 @@ def widest(ps: List<&2, M.Param>, +best: U64, +w: F64) -> U64:
       +more = F64.is_lt(w, d)
       widest(t, Bool.pick(U64, more, id, best), Bool.pick(F64, more, d, w))
 
+def gmag(+g: I.I) -> F64:
+  F64.max(F64.abs(I.i_lo(g)), F64.abs(I.i_hi(g)))
+
+type Ws is Data:
+  Ws{ id: U64, w: F64 }
+
+def ws_id(s: Ws) -> U64:
+  Ws{id, w} = s
+  id
+
+def ws_w(s: Ws) -> F64:
+  Ws{id, w} = s
+  w
+
+def ws_eps() -> F64:
+  1.0e-9f64
+
+def ws_one(p: M.Param, +g: I.I, +s: Ws) -> Ws:
+  M.Pm{+id, name, dim, cls} = p
+  M.Dm{nom, +lo, +hi} = dim
+  +d = Bool.pick(F64, F64.is_lt(ws_eps(), gmag(g)), F64.sub(hi, lo), 0.0f64)
+  Bool.pick(Ws, F64.is_lt(ws_w(s), d), Ws{id, d}, s)
+
+def wsens(ps: List<&2, M.Param>, gs: List<&2, I.I>, +s: Ws) -> Ws:
+  match ps gs:
+    case Con{p, t} Con{g, u}: wsens(t, u, ws_one(p, g, s))
+    case _ _: s
+
 def cut_dim(+left: Bool, +nom: F64, +lo: F64, +hi: F64) -> M.Dim:
   +m = F64.mul(0.5f64, F64.add(lo, hi))
   Bool.pick(M.Dim, left, M.Dm{nom, lo, m}, M.Dm{nom, m, hi})
@@ -723,7 +748,7 @@ def zsplit(d: Nat, ok: Bool, +m: Zm, +ps: List<&2, M.Param>, +ns: List<&2, M.Nod
       match ok:
         case True{}: m
         case False{}:
-          +w = widest(ps, 0u64, F64.neg(1.0f64))
+          +w = ws_id(wsens(ps, D.dgrad(dz_v(dz_at(ps, ns, b, id, False{}))), Ws{widest(ps, 0u64, F64.neg(1.0f64)), 0.0f64}))
           +l = cut_ps(ps, w, True{})
           +r = cut_ps(ps, w, False{})
           +ml = zm_box(l, ns, b, id)
@@ -741,9 +766,260 @@ def prof_zone(mb: Maybe<&2, M.Body>, +ps: List<&2, M.Param>, +ns: List<&2, M.Nod
       +m0 = zm_box(ps, ns, b, id)
       zm_res(zsplit(3n, zm_ok(m0), m0, ps, ns, b, id))
 
+def xp_fix(x: X.Xp, +z: ZT.Zb) -> Bool:
+  match x:
+    case X.X_k{v}: True{}
+    case X.X_p{+id}:
+      ZT.Zb{lo, hi} = z
+      F64.is_eq(X.env_get(lo, id), X.env_get(hi, id))
+    case X.X_add{a, b}: Bool.and(xp_fix(a, z), xp_fix(b, z))
+    case X.X_sub{a, b}: Bool.and(xp_fix(a, z), xp_fix(b, z))
+    case X.X_mul{a, b}: Bool.and(xp_fix(a, z), xp_fix(b, z))
+    case X.X_div{a, b}: Bool.and(xp_fix(a, z), xp_fix(b, z))
+    case X.X_neg{a}: xp_fix(a, z)
+
+def hs_fix(hs: List<&2, M.Hs>, +z: ZT.Zb) -> Bool:
+  match hs:
+    case []: True{}
+    case h <> t:
+      M.Hs{k, sz, cls, x, y, r} = h
+      Bool.and(Bool.and(xp_fix(x, z), Bool.and(xp_fix(y, z), xp_fix(r, z))), hs_fix(t, z))
+
+def hl_fix(hs: List<&2, M.Hl>, +z: ZT.Zb) -> Bool:
+  match hs:
+    case []: True{}
+    case h <> t:
+      M.Hl{x, y, r} = h
+      Bool.and(Bool.and(xp_fix(x, z), Bool.and(xp_fix(y, z), xp_fix(r, z))), hl_fix(t, z))
+
+def fps_ok(fs: List<&2, M.Fp>) -> Bool:
+  match fs:
+    case []: True{}
+    case f <> t:
+      M.Fp{ok, r0, r1, z0, z1} = f
+      Bool.and(ok, fps_ok(t))
+
+type Tw is Data:
+  Tw{ k: U64, root: U64, fps: List<&2, M.Fp> }
+
+def tw_add(w: Tw, +fs: List<&2, M.Fp>, +fix: Bool) -> Tw:
+  Tw{+k, root, ps} = w
+  +k2 = Bool.pick(U64, Bool.not(fix), 2u64, Bool.pick(U64, Bool.not(fps_ok(fs)), 3u64, 0u64))
+  Tw{Bool.pick(U64, U64.is_eq(k, 0u64), k2, k), root, List.append(&2, M.Fp, fs, ps)}
+
+def tw_feat(r: M.NR, +o: M.Op, +e: X.Env, +base: U64) -> List<&2, M.Fp>:
+  match r:
+    case M.NR_err{k, d}: M.fp_no()
+    case M.NR_ok{+b, fx}: M.op_fps(o, b, e, base)
+
+def tw_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +e: X.Env, +z: ZT.Zb, +id: U64, top: Bool) -> Tw:
+  match n:
+    case 0n: Tw{1u64, id, []}
+    case 1n+(+m):
+      match mo:
+        case None{}: Tw{1u64, id, []}
+        case Some{+o}:
+          match o:
+            case M.O_revolve{rs}: Tw{0u64, id, []}
+            case M.O_groove{base, f, std, zg}: Tw{0u64, id, []}
+            case M.O_move{+base, tx, ty, tz, q}:
+              match top:
+                case True{}: tw_go(m, nd_find(ns, base), ns, cs, e, z, base, True{})
+                case False{}: Tw{1u64, base, []}
+            case M.O_rot{+base, ax, deg}:
+              match top:
+                case True{}: tw_go(m, nd_find(ns, base), ns, cs, e, z, base, True{})
+                case False{}: Tw{1u64, base, []}
+            case M.O_sholes{+base, f, hs, d, +thru}:
+              tw_add(tw_go(m, nd_find(ns, base), ns, cs, e, z, base, False{}), tw_feat(M.ce_r(M.ce_find(cs, base)), o, e, base), Bool.and(hs_fix(hs, z), Bool.or(thru, xp_fix(d, z))))
+            case M.O_holes{+base, f, hs, d, +thru}:
+              tw_add(tw_go(m, nd_find(ns, base), ns, cs, e, z, base, False{}), tw_feat(M.ce_r(M.ce_find(cs, base)), o, e, base), Bool.and(hl_fix(hs, z), Bool.or(thru, xp_fix(d, z))))
+            case M.O_keyway{+base, f, side, l, zg, +thru}:
+              tw_add(tw_go(m, nd_find(ns, base), ns, cs, e, z, base, False{}), tw_feat(M.ce_r(M.ce_find(cs, base)), o, e, base), Bool.or(thru, Bool.and(xp_fix(l, z), xp_fix(zg, z))))
+            case _: Tw{1u64, id, []}
+
+type Lw is Data:
+  Lw{ ok: Bool, rs: List<&2, F.Region>, ns: List<&2, M.Node>, bs: U64 }
+
+def nd_set(ns: List<&2, M.Node>, +id: U64, +o: M.Op) -> List<&2, M.Node>:
+  match ns:
+    case []: []
+    case x <> t:
+      M.Nd{+nid, op, it} = x
+      M.Nd{nid, Bool.pick(M.Op, U64.is_eq(nid, id), o, op), it} <> nd_set(t, id, o)
+
+def rel_e(+a: X.Xp, +b: X.Xp, +e: X.Env, +z: ZT.Zb) -> Bool:
+  rel_ok(a, b, X.xp_ev(a, e), X.xp_ev(b, e), z)
+
+def rel_all(+a: X.Xp, ys: List<&2, X.Xp>, +e: X.Env, +z: ZT.Zb) -> Bool:
+  match ys:
+    case []: True{}
+    case +y <> t: Bool.and(rel_e(a, y, e, z), rel_all(a, t, e, z))
+
+def pairs_ok(ys: List<&2, X.Xp>, +e: X.Env, +z: ZT.Zb) -> Bool:
+  match ys:
+    case []: True{}
+    case +y <> +t: Bool.and(rel_all(y, t, e, z), pairs_ok(t, e, z))
+
+def xs_at(xs: List<&2, X.Xp>, +i: Nat) -> X.Xp:
+  match xs:
+    case []: xz()
+    case +h <> +t:
+      match i:
+        case 0n: h
+        case 1n+j: xs_at(t, j)
+
+def xk(+v: F64) -> X.Xp:
+  X.X_k{v}
+
+def gz_ok(+g: M.Gz, +e: X.Env, +z: ZT.Zb) -> Bool:
+  M.Gz{+ok, rs, +xs, +ys, +d, +dn} = g
+  +px = xs_at(xs, 0n)
+  +row = Bool.and(ipos(x_sub(d, xk(F64.sub(dn, 0.049f64))), z), ipos(x_sub(xk(F64.add(dn, 0.049f64)), d), z))
+  Bool.and(Bool.and(ok, Y.same(px, xs_at(xs, 1n))), Bool.and(rel_e(xs_at(xs, 2n), px, e, z), Bool.and(pairs_ok(ys, e, z), row)))
+
+def lw_gz(r: M.NR, +f: M.Sel, +std: String, +zg: X.Xp, +rs: List<&2, F.Region>, +ns: List<&2, M.Node>, +e: X.Env, +z: ZT.Zb, +root: U64, +base: U64) -> Lw:
+  match r:
+    case M.NR_err{k, d}: Lw{False{}, [], ns, root}
+    case M.NR_ok{+b, fx}:
+      +g = M.gv_zone(b, f, std, zg, e, rs, base)
+      Lw{gz_ok(g, e, z), M.gz_rs(g), nd_set(ns, root, M.O_revolve{M.gz_rs(g)}), base}
+
+def lw_gv(mo: Maybe<&2, M.Op>, +r: M.NR, +f: M.Sel, +std: String, +zg: X.Xp, +ns: List<&2, M.Node>, +e: X.Env, +z: ZT.Zb, +root: U64, +base: U64) -> Lw:
+  match mo:
+    case None{}: Lw{False{}, [], ns, root}
+    case Some{o}:
+      match o:
+        case M.O_revolve{+rs}: lw_gz(r, f, std, zg, rs, ns, e, z, root, base)
+        case _: Lw{False{}, [], ns, root}
+
+def lw_of(mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +e: X.Env, +z: ZT.Zb, +root: U64) -> Lw:
+  match mo:
+    case None{}: Lw{False{}, [], ns, root}
+    case Some{o}:
+      match o:
+        case M.O_revolve{+rs}: Lw{True{}, rs, ns, root}
+        case M.O_groove{+base, +f, +std, +zg}: lw_gv(nd_find(ns, base), M.ce_r(M.ce_find(cs, base)), f, std, zg, ns, e, z, root, base)
+        case _: Lw{False{}, [], ns, root}
+
+def iv_out(+a: I.I, +lo: F64, +hi: F64) -> Bool:
+  Bool.or(F64.is_lt(I.i_hi(a), lo), F64.is_lt(hi, I.i_lo(a)))
+
+def end_out(+x: X.Xp, +lo: F64, +hi: F64, +z: ZT.Zb) -> Bool:
+  Bool.or(xp_fix(x, z), iv_out(ZT.xi(x, z), lo, hi))
+
+def ln_clear(+sx: X.Xp, +sy: X.Xp, +ex: X.Xp, +ey: X.Xp, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  M.Fp{ok, +r0, +r1, +z0, +z1} = f
+  +fx = Bool.and(xp_fix(sx, z), xp_fix(ex, z))
+  +fy = Bool.and(xp_fix(sy, z), xp_fix(ey, z))
+  +box = Bool.or(iv_out(I.ihull(ZT.xi(sx, z), ZT.xi(ex, z)), r0, r1), iv_out(I.ihull(ZT.xi(sy, z), ZT.xi(ey, z)), z0, z1))
+  +hz = Bool.and(Bool.and(fy, Y.same(sy, ey)), Bool.and(end_out(sx, r0, r1, z), end_out(ex, r0, r1, z)))
+  +vt = Bool.and(Bool.and(fx, Y.same(sx, ex)), Bool.and(end_out(sy, z0, z1, z), end_out(ey, z0, z1, z)))
+  Bool.or(Bool.and(fx, fy), Bool.or(box, Bool.or(hz, vt)))
+
+def arc_clear(+sx: X.Xp, +sy: X.Xp, +cx: X.Xp, +cy: X.Xp, +r: X.Xp, +ex: X.Xp, +ey: X.Xp, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  M.Fp{ok, +r0, +r1, +z0, +z1} = f
+  +ri = ZT.xi(r, z)
+  +bx = I.ihull(I.ihull(ZT.xi(sx, z), ZT.xi(ex, z)), I.ihull(I.isub(ZT.xi(cx, z), ri), I.iadd(ZT.xi(cx, z), ri)))
+  +by = I.ihull(I.ihull(ZT.xi(sy, z), ZT.xi(ey, z)), I.ihull(I.isub(ZT.xi(cy, z), ri), I.iadd(ZT.xi(cy, z), ri)))
+  +fix = Bool.and(Bool.and(Bool.and(xp_fix(sx, z), xp_fix(sy, z)), Bool.and(xp_fix(cx, z), xp_fix(cy, z))), Bool.and(xp_fix(r, z), Bool.and(xp_fix(ex, z), xp_fix(ey, z))))
+  Bool.or(fix, Bool.or(iv_out(bx, r0, r1), iv_out(by, z0, z1)))
+
+def seg_clear(s: F.Seg, +sx: X.Xp, +sy: X.Xp, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  match s:
+    case F.S_line{+x, +y}: ln_clear(sx, sy, x, y, f, z)
+    case F.S_arc{+cx, +cy, +r, +x, +y, ccw}: arc_clear(sx, sy, cx, cy, r, x, y, f, z)
+
+def segs_clear(ss: List<&2, F.Seg>, +sx: X.Xp, +sy: X.Xp, +x0: X.Xp, +y0: X.Xp, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  match ss:
+    case []: ln_clear(sx, sy, x0, y0, f, z)
+    case +s <> t: Bool.and(seg_clear(s, sx, sy, f, z), segs_clear(t, M.sg_x(s), M.sg_y(s), x0, y0, f, z))
+
+def loop_clear(l: F.Loop, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  match l:
+    case F.L_path{+x0, +y0, segs}: segs_clear(segs, x0, y0, x0, y0, f, z)
+    case F.L_circ{+cx, +cy, +r}: arc_clear(cx, cy, cx, cy, r, cx, cy, f, z)
+
+def loops_clear(ls: List<&2, F.Loop>, +f: M.Fp, +z: ZT.Zb) -> Bool:
+  match ls:
+    case []: True{}
+    case +l <> t: Bool.and(loop_clear(l, f, z), loops_clear(t, f, z))
+
+def fps_clear(fs: List<&2, M.Fp>, +ls: List<&2, F.Loop>, +z: ZT.Zb) -> Bool:
+  match fs:
+    case []: True{}
+    case +f <> t: Bool.and(loops_clear(ls, f, z), fps_clear(t, ls, z))
+
+def nr_iv(r: M.NR, +vol: Bool) -> I.I:
+  match r:
+    case M.NR_err{k, d}: I.I{F64.neg(M.fp_big()), M.fp_big()}
+    case M.NR_ok{+b, fx}:
+      +m = M.body_ms(b)
+      Bool.pick(I.I, vol, M.ms_vol(m), M.ms_area(m))
+
+def zr_sh2(+v: I.I, +a: I.I, +b0: M.NR, +b1: M.NR) -> ZR:
+  +v2 = I.isub(v, I.isub(nr_iv(b0, True{}), nr_iv(b1, True{})))
+  +a2 = I.iadd(a, I.isub(nr_iv(b1, False{}), nr_iv(b0, False{})))
+  Bool.pick(ZR, Bool.and(pos(v2), pos(a2)), Z_ok{v2, a2}, Z_err{"topology-not-certified-over-zone"})
+
+def zr_sh(r: ZR, +b0: M.NR, +b1: M.NR, same: Bool) -> ZR:
+  match r:
+    case Z_err{+w}: Z_err{w}
+    case Z_ok{+v, +a}:
+      match same:
+        case True{}: Z_ok{v, a}
+        case False{}: zr_sh2(v, a, b0, b1)
+
+def zr_ok(r: ZR) -> Bool:
+  match r:
+    case Z_ok{v, a}: True{}
+    case Z_err{w}: False{}
+
+def bs_ok(same: Bool, +ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +bs: U64) -> Bool:
+  match same:
+    case True{}: True{}
+    case False{}: zr_ok(prof_zone(body_of(M.ce_r(M.ce_find(cs, bs))), ps, ns, bs))
+
+def rt_go(code: U64, +ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +root: U64, +id: U64) -> ZR:
+  match code:
+    case 0u64: zr_sh(prof_zone(body_of(M.ce_r(M.ce_find(cs, root))), ps, ns, root), M.ce_r(M.ce_find(cs, root)), M.ce_r(M.ce_find(cs, id)), U64.is_eq(root, id))
+    case 1u64: Z_err{"groove-not-certified-over-zone"}
+    case _: Z_err{"feature-meets-zoned-geometry"}
+
+def rt_ok(ok: Bool, +ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +root: U64, +bs: U64) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: bs_ok(U64.is_eq(root, bs), ps, ns, cs, bs)
+
+def rt_zone(w: Lw, +fs: List<&2, M.Fp>, +ps: List<&2, M.Param>, +ns0: List<&2, M.Node>, +cs: List<&2, M.CE>, +z: ZT.Zb, +root: U64, +id: U64) -> ZR:
+  Lw{+ok, +rs, +ns, +bs} = w
+  rt_go(Bool.pick(U64, Bool.not(rt_ok(ok, ps, ns0, cs, root, bs)), 1u64, Bool.pick(U64, fps_clear(fs, F.rg_loops(rs), z), 0u64, 2u64)), ps, ns, cs, root, id)
+
+def tw_zone(w: Tw, +ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +e: X.Env, +z: ZT.Zb, +id: U64) -> ZR:
+  Tw{+k, +root, +fs} = w
+  match k:
+    case 0u64: rt_zone(lw_of(nd_find(ns, root), ns, cs, e, z, root), fs, ps, ns, cs, z, root, id)
+    case 1u64: prof_zone(body_of(M.ce_r(M.ce_find(cs, id))), ps, ns, id)
+    case 2u64: Z_err{"feature-moves-over-zone"}
+    case _: Z_err{"topology-not-certified-over-zone"}
+
+def zone_nom(ok: Bool, +ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +cs: List<&2, M.CE>, +id: U64) -> ZR:
+  match ok:
+    case False{}: Z_err{"node-failed-at-nominal"}
+    case True{}:
+      +z = zb_of(ps)
+      +e = X.env_of(M.pvs_of(ps))
+      tw_zone(tw_go(zfuel(ns), nd_find(ns, id), ns, cs, e, z, id, True{}), ps, ns, cs, e, z, id)
+
+def nr_ok(r: M.NR) -> Bool:
+  match r:
+    case M.NR_err{k, d}: False{}
+    case M.NR_ok{b, fx}: True{}
+
 def zone_prof(+p: M.Part, +id: U64) -> ZR:
   M.Pt{+ps, +ns, +ms, +ts} = p
-  prof_zone(body_of(M.ce_r(M.ce_find(M.ev_for(M.Pt{ps, ns, ms, ts}, [id], []), id))), ps, ns, id)
+  +cs = M.ev_for(M.Pt{ps, ns, ms, ts}, [id], [])
+  zone_nom(nr_ok(M.ce_r(M.ce_find(cs, id))), ps, ns, cs, id)
 
 def zone_pick(prof: Bool, +w: String, +p: M.Part, +id: U64) -> ZR:
   match prof:

@@ -11,7 +11,7 @@ type Zb is Data:
   Zb{ lo: X.Env, hi: X.Env }
 
 type Pm is Data:
-  Pl{ a: List<&2, I.I>, b: List<&2, I.I>, xa: X.Xp, xb: X.Xp }
+  Pl{ a: List<&2, I.I>, b: List<&2, I.I>, xa: X.Xp, xb: X.Xp, d: List<&2, I.I> }
   Pa{ c: List<&2, I.I>, r: I.I, a: List<&2, I.I>, b: List<&2, I.I>, ccw: Bool, th: I.I, xa: X.Xp, xb: X.Xp }
   Pc{ c: List<&2, I.I>, r: I.I, xc: X.Xp, xr: X.Xp }
 
@@ -115,13 +115,19 @@ def pt_y(p: Pt) -> X.Xp:
   Pt{x, y} = p
   y
 
+def dco(+u: X.Xp, +v: X.Xp, +z: Zb) -> I.I:
+  Bool.pick(I.I, Y.same(u, v), I.ipt(0.0f64), I.isub(xi(v, z), xi(u, z)))
+
+def dl2(+ax: X.Xp, +ay: X.Xp, +bx: X.Xp, +by: X.Xp, +z: Zb) -> List<&2, I.I>:
+  [dco(ax, bx, z), dco(ay, by, z)]
+
 def seg_pm(s: F.Seg, +p: Pt, +z: Zb) -> Ac:
   match s:
     case F.S_line{+x, +y}:
       +px = pt_x(p)
-      +a = p2(px, pt_y(p), z)
-      +b = p2(x, y, z)
-      Ac{[Pl{a, b, px, x}], pos(d2(a, b)), Pt{x, y}}
+      +py = pt_y(p)
+      +d = dl2(px, py, x, y, z)
+      Ac{[Pl{p2(px, py, z), p2(x, y, z), px, x, d}], pos(V.vdot(d, d)), Pt{x, y}}
     case F.S_arc{+cx, +cy, +r, +x, +y, +ccw}:
       +px = pt_x(p)
       +py = pt_y(p)
@@ -153,7 +159,8 @@ def close(r: Ac, +x0: X.Xp, +y0: X.Xp, +z: Zb) -> Lz:
   +shut = Bool.and(Y.same(x, x0), Y.same(y, y0))
   +a = p2(x, y, z)
   +b = p2(x0, y0, z)
-  Bool.pick(Lz, shut, Lz{ps, ok}, Lz{List.append(&2, Pm, ps, [Pl{a, b, x, x0}]), Bool.and(ok, pos(d2(a, b)))})
+  +d = dl2(x, y, x0, y0, z)
+  Bool.pick(Lz, shut, Lz{ps, ok}, Lz{List.append(&2, Pm, ps, [Pl{a, b, x, x0, d}]), Bool.and(ok, pos(V.vdot(d, d)))})
 
 def loop_z(l: F.Loop, +z: Zb) -> Lz:
   match l:
@@ -196,15 +203,18 @@ def vsc(+s: I.I, xs: List<&2, I.I>) -> List<&2, I.I>:
     case []: []
     case x <> t: I.imul(s, x) <> vsc(s, t)
 
+def lerp(+a: List<&2, I.I>, +b: List<&2, I.I>, +t: F64) -> List<&2, I.I>:
+  V.vadd(vsc(I.isub(I.ipt(1.0f64), I.ipt(t)), a), vsc(I.ipt(t), b))
+
 def pbox(p: Pm, +s: I.I) -> List<&2, I.I>:
   match p:
-    case Pl{+a, +b, xa, xb}: V.vadd(a, vsc(s, V.vsub(b, a)))
+    case Pl{+a, +b, xa, xb, d}: V.vhull(lerp(a, b, I.i_lo(s)), lerp(a, b, I.i_hi(s)))
     case Pa{+c, r, +a, b, +ccw, +th, xa, xb}: V.vadd(c, rot(V.vsub(a, c), I.imul(th, s), ccw))
     case Pc{+c, +r, xc, xr}: V.vadd(c, rot([r, I.ipt(0.0f64)], I.imul(two_pi(), s), True{}))
 
 def pder(p: Pm, +s: I.I) -> List<&2, I.I>:
   match p:
-    case Pl{+a, +b, xa, xb}: V.vsub(b, a)
+    case Pl{a, b, xa, xb, +d}: d
     case Pa{+c, r, +a, b, +ccw, +th, xa, xb}: tan_of(rot(V.vsub(a, c), I.imul(th, s), ccw), ccw)
     case Pc{c, +r, xc, xr}: tan_of(rot([r, I.ipt(0.0f64)], I.imul(two_pi(), s), True{}), True{})
 
@@ -371,13 +381,13 @@ def xpos_go(d: Nat, +k: U64, +p: Pm, +s: I.I) -> Bool:
 
 def pm_xa(p: Pm) -> X.Xp:
   match p:
-    case Pl{a, b, xa, xb}: xa
+    case Pl{a, b, xa, xb, d}: xa
     case Pa{c, r, a, b, ccw, th, xa, xb}: xa
     case Pc{c, r, xc, xr}: X.X_sub{xc, xr}
 
 def pm_xb(p: Pm) -> X.Xp:
   match p:
-    case Pl{a, b, xa, xb}: xb
+    case Pl{a, b, xa, xb, d}: xb
     case Pa{c, r, a, b, ccw, th, xa, xb}: xb
     case Pc{c, r, xc, xr}: X.X_sub{xc, xr}
 
@@ -387,7 +397,7 @@ def ax_end(+p: Pm, +e: Bool, +dl: F64) -> Bool:
 
 def is_pl(p: Pm) -> Bool:
   match p:
-    case Pl{a, b, xa, xb}: True{}
+    case Pl{a, b, xa, xb, d}: True{}
     case _: False{}
 
 def pm_xok(+p: Pm, +hole: Bool) -> Bool:
@@ -502,18 +512,27 @@ def dm_add(+a: Dm, +b: Dm) -> Dm:
 def dm_zero(+n: Nat) -> Dm:
   Dm{D.dk(n, I.ipt(0.0f64)), D.dk(n, I.ipt(0.0f64)), D.dk(n, I.ipt(0.0f64)), D.dk(n, I.ipt(0.0f64))}
 
-def drline(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>) -> D.Dv:
+def drl(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>, +dy: D.Dv) -> D.Dv:
   +ra = dvn(a, 0n)
   +rb = dvn(b, 0n)
-  D.dsc(I.idiv(I.ipt(1.0f64), I.ipt(6.0f64)), D.dmul(D.dsub(dvn(b, 1n), dvn(a, 1n)), D.dadd(D.dadd(D.dsq(ra), D.dmul(ra, rb)), D.dsq(rb))))
+  D.dsc(I.idiv(I.ipt(1.0f64), I.ipt(6.0f64)), D.dmul(dy, D.dadd(D.dadd(D.dsq(ra), D.dmul(ra, rb)), D.dsq(rb))))
+
+def drline(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>) -> D.Dv:
+  drl(a, b, D.dsub(dvn(b, 1n), dvn(a, 1n)))
 
 def dlen(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>) -> D.Dv:
   +d = dsubv(b, a)
   D.dsqrt(ddot(d, d))
 
-def dline(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>, +axis: Bool, +n: Nat) -> Dm:
-  +l = dlen(a, b)
-  Dm{dhalf(dcr(a, b)), l, drline(a, b), Bool.pick(D.Dv, axis, D.dk(n, I.ipt(0.0f64)), dhalf(D.dmul(l, D.dadd(dvn(a, 0n), dvn(b, 0n)))))}
+def ddif(+u: X.Xp, +v: X.Xp, +z: Zd) -> D.Dv:
+  Bool.pick(D.Dv, Y.same(u, v), D.dk(zd_n(z), I.ipt(0.0f64)), D.dsub(xd(v, z), xd(u, z)))
+
+def dline2(+a: List<&2, D.Dv>, +b: List<&2, D.Dv>, +d: List<&2, D.Dv>, +axis: Bool, +n: Nat) -> Dm:
+  +l = D.dsqrt(ddot(d, d))
+  Dm{dhalf(dcr(a, b)), l, drl(a, b, dvn(d, 1n)), Bool.pick(D.Dv, axis, D.dk(n, I.ipt(0.0f64)), dhalf(D.dmul(l, D.dadd(dvn(a, 0n), dvn(b, 0n)))))}
+
+def dline(+ax: X.Xp, +ay: X.Xp, +bx: X.Xp, +by: X.Xp, +z: Zd) -> Dm:
+  dline2(dp(ax, ay, z), dp(bx, by, z), [ddif(ax, bx, z), ddif(ay, by, z)], Bool.and(Y.is_zero(ax), Y.is_zero(bx)), zd_n(z))
 
 def dpiece(+c: List<&2, D.Dv>, +r: D.Dv, +a: List<&2, D.Dv>, +b: List<&2, D.Dv>, +f: D.Dv, +ccw: Bool) -> Dm:
   +sg0 = dhalf(D.dmul(D.dsq(r), D.dsub(f, dsin(f))))
@@ -537,9 +556,7 @@ def darc(+c: List<&2, D.Dv>, +r: D.Dv, +a: List<&2, D.Dv>, +b: List<&2, D.Dv>, +
 
 def dseg(s: F.Seg, +p: Pt, +z: Zd) -> Dm:
   match s:
-    case F.S_line{+x, +y}:
-      +px = pt_x(p)
-      dline(dp(px, pt_y(p), z), dp(x, y, z), Bool.and(Y.is_zero(px), Y.is_zero(x)), zd_n(z))
+    case F.S_line{+x, +y}: dline(pt_x(p), pt_y(p), x, y, z)
     case F.S_arc{cx, cy, r, +x, +y, ccw}: darc(dp(cx, cy, z), xd(r, z), dp(pt_x(p), pt_y(p), z), dp(x, y, z), ccw, zd_n(z))
 
 def seg_end(s: F.Seg) -> Pt:
@@ -558,7 +575,7 @@ def dclose(+last: Pt, +x0: X.Xp, +y0: X.Xp, +z: Zd) -> Dm:
   +x = pt_x(last)
   +y = pt_y(last)
   +n = zd_n(z)
-  Bool.pick(Dm, Bool.and(Y.same(x, x0), Y.same(y, y0)), dm_zero(n), dline(dp(x, y, z), dp(x0, y0, z), Bool.and(Y.is_zero(x), Y.is_zero(x0)), n))
+  Bool.pick(Dm, Bool.and(Y.same(x, x0), Y.same(y, y0)), dm_zero(n), dline(x, y, x0, y0, z))
 
 def last_pt(ss: List<&2, F.Seg>, +p: Pt) -> Pt:
   match ss:

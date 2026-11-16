@@ -1,0 +1,743 @@
+{
+ "item": "Z1",
+ "limit_s": 60,
+ "claim": "zone certifies a revolve whose ring groove is notched into its profile, and holes and keyways cut into it, over the whole tolerance envelope: the groove as the revolve of its notched profile with every placement decision the op takes at the nominal (which face piece it notches, whether it merges with a neighbouring step, which groove-table row it reads) proved to hold for every parameter value, and a cut whose own position, size and depth are fixed and whose tool footprint in radius and axial position is kept clear of every profile segment that moves as the volume and area of the part below it shifted by the measured, certified volume and area it removes at the nominal; every certified interval meets the directly certified volume at both ends and the middle of the zone (both enclose the same true volume) and stays within 0.01 mm3 of them; a cut placed by a zoned parameter, a cut on a moving face, one whose band a zoned hub reaches, a keyway on a zoned seat or within reach of a shoulder that moves along the axis (one clear of the shoulder's whole travel certifies), a groove that merges with a moving step, crosses its face's end, changes table row or sits on another groove, and a cut on a placed body are each refused with the reason",
+ "steps": [
+  {
+   "args": [
+    "zone",
+    "201"
+   ],
+   "must": [
+    "^zone node 201: certified over the tolerance envelope"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "102"
+   ],
+   "must": [
+    "^zone node 102: certified over the tolerance envelope"
+   ],
+   "capture": {
+    "g_lo": "volume=\\[([^,\\]]+),",
+    "g_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "zone",
+    "103"
+   ],
+   "must": [
+    "^zone node 103: certified over the tolerance envelope"
+   ],
+   "capture": {
+    "h_lo": "volume=\\[([^,\\]]+),",
+    "h_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "zone",
+    "202"
+   ],
+   "must": [
+    "^zone node 202: certified over the tolerance envelope"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "204"
+   ],
+   "must": [
+    "^zone node 204: certified over the tolerance envelope"
+   ],
+   "capture": {
+    "k_lo": "volume=\\[([^,\\]]+),",
+    "k_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "measure",
+    "102"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "g_lo",
+    "g_hi"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "103"
+   ],
+   "capture": {
+    "va_lo": "volume=\\[([^,\\]]+),",
+    "va_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   },
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "h_lo",
+    "h_hi"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "204"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "k_lo",
+    "k_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param DS 22.021 22 22.021)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "102"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "g_lo",
+    "g_hi"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "103"
+   ],
+   "capture": {
+    "vb_lo": "volume=\\[([^,\\]]+),",
+    "vb_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   },
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "h_lo",
+    "h_hi"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "103"
+   ],
+   "must": [
+    "^zone node 103: certified"
+   ],
+   "inside": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "vb_lo",
+    "va_hi",
+    0.01
+   ],
+   "capture": {
+    "h2_lo": "volume=\\[([^,\\]]+),",
+    "h2_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "apply",
+    "(param DS 22.0105 22 22.021)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "102"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "g_lo",
+    "g_hi"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "103"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "h2_lo",
+    "h2_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param DS 22 22 22.021)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "103"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "h2_lo",
+    "h2_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param DK 8.001 8.001 8.007)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "204"
+   ],
+   "capture": {
+    "ka_lo": "volume=\\[([^,\\]]+),",
+    "ka_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   },
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "k_lo",
+    "k_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param DK 8.007 8.001 8.007)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "204"
+   ],
+   "capture": {
+    "kb_lo": "volume=\\[([^,\\]]+),",
+    "kb_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   },
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "k_lo",
+    "k_hi"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "204"
+   ],
+   "must": [
+    "^zone node 204: certified"
+   ],
+   "inside": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "ka_lo",
+    "kb_hi",
+    0.01
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 105 (move 103 10 0 0 0) (intent same any any 1 5))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "105"
+   ],
+   "must": [
+    "^zone node 105: certified"
+   ],
+   "inside": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "h_lo",
+    "h_hi",
+    1e-06
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param HQ 16 16 20)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 130 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HQ 6) (line HQ 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 131 (holes 130 (face 130 n130.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369) (clearance M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 3))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "131"
+   ],
+   "must": [
+    "^zone node 131: certified"
+   ],
+   "capture": {
+    "q_lo": "volume=\\[([^,\\]]+),",
+    "q_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "measure",
+    "131"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "q_lo",
+    "q_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param HQ 20 16 20)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "131"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "q_lo",
+    "q_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param PC 17.67766952966369 17.6 17.7)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 106 (holes 102 (face 101 n101.c0.wall.2.0) through (clearance M5 PC 17.67766952966369)) (intent remove any any 1 2))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "106"
+   ],
+   "must": [
+    "why: feature-moves-over-zone",
+    "fix: a hole or keyway takes its position"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param T 6 5.9 6.1)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 110 (revolve (region (path 9.5 0 (line 32 0) (line 32 T) (line 16 T) (line 16 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 111 (holes 110 (face 110 n110.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "111"
+   ],
+   "must": [
+    "why: feature-meets-zoned-geometry",
+    "fix: a hole or keyway reaches profile segments that move"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param HR 21 21 23)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 120 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HR 6) (line HR 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 121 (holes 120 (face 120 n120.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "121"
+   ],
+   "must": [
+    "why: feature-meets-zoned-geometry"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 205 (keyway 202 (face 201 n201.c0.wall.10.0) +y 5 41) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "205"
+   ],
+   "must": [
+    "why: feature-meets-zoned-geometry"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param JS 47 46.5 47.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 210 (revolve (region (path 0 0 (line 5 0) (line 5 40) (line 4 40) (line 4 JS) (line 3.995 JS) (line 3.995 59.5) (line 0 59.5)))) (intent create any 0 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 211 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.6) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "211"
+   ],
+   "must": [
+    "^zone node 211: certified"
+   ],
+   "capture": {
+    "j_lo": "volume=\\[([^,\\]]+),",
+    "j_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"
+   }
+  },
+  {
+   "args": [
+    "apply",
+    "(param JS 47.5 46.5 47.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "measure",
+    "211"
+   ],
+   "meets": [
+    "volume=\\[([^,\\]]+), ([^\\]]+)\\]",
+    "j_lo",
+    "j_hi"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param JS 47 46.5 47.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 212 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.2) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "212"
+   ],
+   "must": [
+    "why: feature-meets-zoned-geometry"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param SA 8 7.9 8.1)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 140 (revolve (region (path 0 0 (line 3.975 0) (line 3.975 SA) (line (/ DK 2) SA) (line (/ DK 2) 16) (line 5 16) (line 5 30) (line 0 30)))) (intent create any 0 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 141 (groove 140 (face 140 n140.c0.wall.3.0) (ring DIN471) 8) (intent remove any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "141"
+   ],
+   "must": [
+    "why: groove-not-certified-over-zone",
+    "fix: a groove certifies when it is notched straight into a revolve"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param DT 22 21.9 22.1)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 150 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 17.1) (line (/ DT 2) 17.1) (line (/ DT 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 151 (groove 150 (face 150 n150.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "151"
+   ],
+   "must": [
+    "why: groove-not-certified-over-zone"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(param HT 17 16.5 17.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 160 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 HT) (line 11 HT) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 161 (groove 160 (face 160 n160.c0.wall.5.0) (ring DIN472) 15.5) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "161"
+   ],
+   "must": [
+    "why: groove-not-certified-over-zone"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 170 (groove 102 (face 101 n101.c0.wall.9.0) (ring DIN472) 8) (intent remove any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "170"
+   ],
+   "must": [
+    "why: groove-not-certified-over-zone"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "apply",
+    "(node 180 (move 101 0 0 5 0) (intent same any any 1 1))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(node 181 (holes 180 (face 101 n101.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "zone",
+    "181"
+   ],
+   "must": [
+    "why: topology-not-certified-over-zone"
+   ],
+   "stop_on_fail": false
+  },
+  {
+   "args": [
+    "zone",
+    "103"
+   ],
+   "must": [
+    "^zone node 103: certified"
+   ]
+  }
+ ]
+}

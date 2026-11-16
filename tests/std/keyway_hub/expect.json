@@ -1,0 +1,26 @@
+{
+ "item": "K1",
+ "limit_s": 30,
+ "claim": "a through hub keyway in a bore that is a circle of a prism's own profile is notched into that profile from its DIN 6885-1 record, so the part stays a prism: the keyed bore's faces carry the prism's names (two walls, the bottom at d/2 + t2 and the remaining bore arc), it is the same solid as the keyway cut by a boolean into a drilled bore of the same size (their certified volumes meet), std checks both against the record (8 mm: 2 wide, t2 1.0, bottom 5 from the axis; 10 mm: 3 wide, t2 1.4, bottom 6.4), an edit to the prism carries the keyway with it, and a 6 mm bore (DIN 6885-1 starts over 6 mm) and a side along the axis are refused with the admissible choices",
+ "steps": [
+  {"args": ["apply", "(node 4 (keyway 1 (face 1 n1.c1.wall.0.0) +y through) (intent remove any any 1 1))"], "must": ["^committed"]},
+  {"args": ["faces", "4"], "must": ["^n1\\.c1\\.wall\\.0\\.0 plane", "^n1\\.c1\\.wall\\.1\\.0 plane", "^n1\\.c1\\.wall\\.2\\.0 plane", "^n1\\.c1\\.wall\\.3\\.0 cylinder"], "must_not": ["^n4\\."]},
+  {"args": ["std", "4"], "must": ["^std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=\\(0,1,0\\): b=2 t2=1 bottom-from-axis=5 width=2 status=pass$", "^std node 4: 1 features, 1 pass, 0 fail, 0 not-analyzed$"]},
+  {"args": ["check", "4"], "must": ["^ok"]},
+  {"args": ["measure", "4"], "must": ["through_holes=1"], "capture": {"a_lo": "volume=\\[([^,\\]]+),", "a_hi": "volume=\\[[^,\\]]+, ([^\\]]+)\\]"}},
+  {"args": ["apply", "(node 13 (keyway 12 (face 12 n12.c0.wall.0.0) +y through) (intent remove any any 1 1))"], "must": ["^committed"]},
+  {"args": ["faces", "13"], "must": ["^n13\\."]},
+  {"args": ["measure", "13"], "meets": ["volume=\\[([^,\\]]+), ([^\\]]+)\\]", "a_lo", "a_hi"]},
+  {"args": ["std", "13"], "must": ["^std keyway 13 DIN 6885-1 hub d1=8 face-d=8 side=\\(0,1,0\\): b=2 t2=1 bottom-from-axis=5 width=2 status=pass$"]},
+  {"args": ["apply", "(node 5 (keyway 2 (face 2 n2.c1.wall.0.0) -x through) (intent remove any any 1 1))"], "must": ["^committed"]},
+  {"args": ["std", "5"], "must": ["^std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=\\(-1,0,0\\): b=3 t2=1\\.4 bottom-from-axis=6\\.4 width=3 status=pass$"]},
+  {"args": ["faces", "5"], "must": ["^n2\\.c1\\.wall\\.3\\.0 cylinder"], "must_not": ["^n5\\."]},
+  {"args": ["apply", "(node 1 (prism 0 10 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 4))) (intent create any 0 1 1))"], "must": ["^committed"]},
+  {"args": ["faces", "4"], "must": ["^n1\\.c1\\.wall\\.1\\.0 plane"], "must_not": ["^n4\\."]},
+  {"args": ["std", "4"], "must": ["b=2 t2=1 bottom-from-axis=5 width=2 status=pass$"]},
+  {"args": ["measure", "4"], "must": ["bbox=\\[[^\\]]*\\]x\\[[^\\]]*\\]x\\[[^,]+, 10\\.0"]},
+  {"args": ["apply", "(node 6 (keyway 3 (face 3 n3.c1.wall.0.0) +y through) (intent remove any any 1 1))"], "must": ["std-no-record: DIN 6885-1 has no row for d1=6", "6-8", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(node 7 (keyway 1 (face 1 n1.c1.wall.0.0) +z through) (intent remove any any 1 1))"], "must": ["keyway-side-not-radial", "^rejected"], "stop_on_fail": false},
+  {"args": ["show"], "must_not": ["node 6 ", "node 7 "]}
+ ]
+}

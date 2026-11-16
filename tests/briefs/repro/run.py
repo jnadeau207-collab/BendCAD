@@ -35,6 +35,27 @@ def step(design, st, env, default_limit):
         got = (float(m.group(1)), float(m.group(2))) if m else (0.0, 0.0) if re.search('^' + key + r' 0\b', out, re.M) else None
         if got is None or not (lo <= got[0] <= got[1] <= hi):
             miss.append(f'interval {key} within [{lo}, {hi}], got {got}')
+    if 'inside' in st:
+        rx, klo, khi = st['inside'][:3]
+        sl = st['inside'][3] if len(st['inside']) > 3 else 0.0
+        m = re.search(rx, out, re.M)
+        try:
+            a, b = float(m.group(1)), float(m.group(2))
+            ok = float(env[klo]) - sl <= a <= b <= float(env[khi]) + sl
+        except (KeyError, AttributeError, ValueError, TypeError):
+            a, b, ok = None, None, False
+        if not ok:
+            miss.append(f'inside {rx}: got [{a}, {b}] against [{env.get(klo)}, {env.get(khi)}] slack {sl}')
+    if 'meets' in st:
+        rx, klo, khi = st['meets']
+        m = re.search(rx, out, re.M)
+        try:
+            a, b = float(m.group(1)), float(m.group(2))
+            ok = a <= b and a <= float(env[khi]) and float(env[klo]) <= b
+        except (KeyError, AttributeError, ValueError, TypeError):
+            a, b, ok = None, None, False
+        if not ok:
+            miss.append(f'meets {rx}: got [{a}, {b}] disjoint from [{env.get(klo)}, {env.get(khi)}]')
     if 'count' in st:
         rx, n = st['count']
         k = len(re.findall(rx, out, re.M))

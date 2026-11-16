@@ -1,0 +1,6 @@
+(bendcad 1)
+(node 1 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 4))) (intent create any 0 1 1))
+(node 2 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 5))) (intent create any 0 1 1))
+(node 3 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 3))) (intent create any 0 1 1))
+(node 11 (prism 0 8 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)))) (intent create any 0 1 0))
+(node 12 (holes 11 (face 11 0 top) through (hole 15 15 4)) (intent remove any any 1 1))
