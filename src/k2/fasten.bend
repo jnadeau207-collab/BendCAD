@@ -255,6 +255,23 @@ def sh_ck(+rmin: F64, +rc: F64, +lo: F64, +hi: F64, +hit: Nat, +m: Nat) -> Ck:
     Bool.pick(String, F64.is_lt(rmin, 1.0e299f64), " through d=" ++ KSD.n_s(F64.mul(2.0f64, rmin)) ++ " radial-clearance=" ++ KSD.n_s(room), " no bore along the clamp length") ++
     hit_s(hit, m) ++ " status=" ++ st_s(st) ++ "\n"}
 
+def ser_s(+d: F64, +sz: String) -> String:
+  +f = SD.fa(sz)
+  Bool.pick(String, KSD.near(d, SD.fv(f, 2n)), "fine", Bool.pick(String, KSD.near(d, SD.fv(f, 3n)), "medium", Bool.pick(String, KSD.near(d, SD.fv(f, 4n)), "coarse", "")))
+
+def hl_ck(+rh: F64, +rs: F64, +sz: String) -> Ck:
+  +cd = SD.fv(SD.fa(sz), 8n)
+  +hb = F64.is_lt(rh, 1.0e299f64)
+  +sb = F64.is_lt(rs, 1.0e299f64)
+  +cb = Bool.and(hb, KSD.near(F64.mul(2.0f64, rh), cd))
+  +cl = ser_s(F64.mul(2.0f64, rs), sz)
+  +st = Bool.pick(Nat, Bool.not(Bool.and(hb, sb)), 1n, Bool.pick(Nat, Bool.and(cb, Bool.not(String.is_empty(cl))), 0n, 2n))
+  Ck{st, "fasten holes" ++
+    Bool.pick(String, hb, " counterbore d=" ++ KSD.n_s(F64.mul(2.0f64, rh)) ++ Bool.pick(String, cb, " (DIN 974-1 for ISO 4762 " ++ sz ++ ")", " (DIN 974-1 wants " ++ KSD.n_s(cd) ++ " for ISO 4762 " ++ sz ++ ")"),
+      " no counterbore around the head") ++
+    Bool.pick(String, sb, " clearance d=" ++ KSD.n_s(F64.mul(2.0f64, rs)) ++ Bool.pick(String, String.is_empty(cl), " (not an ISO 273 size for " ++ sz ++ ")", " (ISO 273 " ++ cl ++ ")"),
+      " no clearance bore along the clamp length") ++ " status=" ++ st_s(st) ++ "\n"}
+
 def ck_add(+c: Ck, +acc: Ck) -> Ck:
   Ck{+st, +s} = c
   Ck{+ast, +ss} = acc
@@ -279,8 +296,8 @@ def lst_hd(cs: List<&2, Ck>, +i: Nat) -> Ck:
         case 1n+j: lst_hd(t, j)
 
 def fz_out(+cks: List<&2, Ck>, +head: String, +s: U64) -> String:
-  head ++ ck_s(ck_add(lst_hd(cks, 0n), ck_add(lst_hd(cks, 1n), lst_hd(cks, 2n)))) ++
-    "fasten node " ++ U64.show(s) ++ ": 3 checks, " ++ Nat.show(cnt_go(cks, 0n, 0n)) ++ " pass, " ++ Nat.show(cnt_go(cks, 2n, 0n)) ++ " fail, " ++ Nat.show(cnt_go(cks, 1n, 0n)) ++ " not-analyzed\n" ++
+  head ++ ck_s(ck_add(lst_hd(cks, 0n), ck_add(lst_hd(cks, 1n), ck_add(lst_hd(cks, 2n), lst_hd(cks, 3n))))) ++
+    "fasten node " ++ U64.show(s) ++ ": 4 checks, " ++ Nat.show(cnt_go(cks, 0n, 0n)) ++ " pass, " ++ Nat.show(cnt_go(cks, 2n, 0n)) ++ " fail, " ++ Nat.show(cnt_go(cks, 1n, 0n)) ++ " not-analyzed\n" ++
     "verdict " ++ Bool.pick(String, Nat.is_lt(0n, cnt_go(cks, 2n, 0n)), "fail", Bool.pick(String, Nat.is_lt(0n, cnt_go(cks, 1n, 0n)), "not-analyzed", "pass"))
 
 def fz_it(ns: List<&2, U64>, +p: M.Part, +cs: List<&2, M.CE>, +o: V.Point, +d: V.Dir, +sz: String, +l: F64, +acc: It) -> It:
@@ -305,9 +322,11 @@ def fz_go(+p: M.Part, +cs: List<&2, M.CE>, +s: U64, +ns: List<&2, U64>, +sz: Str
   +tb = Bool.pick(F64, it_ok(th), F64.max(0.0f64, F64.min(it_lo(th), l)), 0.0f64)
   +sp = List.append(&2, V.Point, rings(o, d, F64.mul(0.98f64, rc), te, l), Bool.pick(List<&2, V.Point>, F64.is_lt(0.1f64, tb), rings(o, d, F64.mul(0.98f64, rc), 0.0f64, tb), []))
   +p2 = pl_go(pts_pl(ns, cs, []), o, d, l, F64.add(l, k), Pl2{False{}, 0.0f64, F64.neg(1.0e300f64)})
-  fz_out([hd_ck(p2, pts_cy(ns, cs, o, d, F64.add(l, F64.max(pl2_cut(p2), 0.0f64)), F64.add(l, k), 1.0e300f64), dk, k, l,
+  +rh = pts_cy(ns, cs, o, d, F64.add(l, F64.max(pl2_cut(p2), 0.0f64)), F64.add(l, k), 1.0e300f64)
+  +rs = pts_cy(ns, cs, o, d, te, l, 1.0e300f64)
+  fz_out([hl_ck(rh, rs, sz), hd_ck(p2, rh, dk, k, l,
         pts_in(ns, cs, rings(o, d, F64.mul(0.49f64, dk), l, F64.add(l, k)), 0n)),
-      sh_ck(pts_cy(ns, cs, o, d, te, l, 1.0e300f64), rc, te, l, pts_in(ns, cs, sp, 0n), List.length(&2, V.Point, sp)),
+      sh_ck(rs, rc, te, l, pts_in(ns, cs, sp, 0n), List.length(&2, V.Point, sp)),
       th_ck(th, ms, SD.fv(f, 0n), l, sz)],
     "fasten screw " ++ U64.show(s) ++ " ISO 4762 " ++ sz ++ "x" ++ KSD.n_s(l) ++ " tip=(" ++ KSD.n_s(V.pt_x(o)) ++ "," ++ KSD.n_s(V.pt_y(o)) ++ "," ++ KSD.n_s(V.pt_z(o)) ++ ")" ++
       " along=" ++ KSD.dir_s(d) ++ " parts" ++ ids_s(ns) ++ "\n", s)

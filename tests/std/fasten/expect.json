@@ -1,7 +1,7 @@
 {
  "item": "S3",
  "limit_s": 30,
- "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
+ "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the counterbore and clearance diameters against DIN 974-1 and ISO 273, the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
  "steps": [
   {
    "args": [
@@ -21,10 +21,11 @@
    ],
    "must": [
     "^fasten screw 7 ISO 4762 M4x12 tip=\\(15,15,-0\\.8\\) along=\\(0,0,1\\) parts 3 5$",
+    "^fasten holes counterbore d=8 \\(DIN 974-1 for ISO 4762 M4\\) clearance d=4\\.5 \\(ISO 273 medium\\) status=pass$",
     "^fasten head dk=7\\.22 k=4: counterbore d=8 radial-clearance=0\\.39 seat-gap=0 interference-samples=0/36 status=pass$",
     "^fasten shank d=3\\.9546 clamp=\\[10\\.8, 12\\] through d=4\\.5 radial-clearance=0\\.2727 interference-samples=0/72 status=pass$",
     "^fasten thread into M4x0\\.7 6H \\(thread m4\\) node 5: engaged=10 required=unknown: no material is declared on node 5 .*status=not-analyzed$",
-    "^fasten node 7: 3 checks, 2 pass, 0 fail, 1 not-analyzed$",
+    "^fasten node 7: 4 checks, 3 pass, 0 fail, 1 not-analyzed$",
     "^verdict not-analyzed$"
    ]
   },
@@ -201,6 +202,7 @@
    ],
    "must": [
     "^fasten thread: no internal M3x0\\.5 thread in the listed parts is coaxial with the screw status=fail$",
+    "^fasten holes counterbore d=8 \\(DIN 974-1 wants 6\\.5 for ISO 4762 M3\\) clearance d=3\\.3 \\(not an ISO 273 size for M3\\) status=fail$",
     "^verdict fail$"
    ]
   },

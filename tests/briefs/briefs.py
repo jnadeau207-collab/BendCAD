@@ -146,12 +146,12 @@ B3 = dict(
 SHAFT = ['(param DK 8 k5)',
          '(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2) 40) (line (/ DK 2) 47) (line 3.995 47) (line 3.995 59.5) (line 3.5 60) (line 0 60)))) (intent create any 0 1 0))',
          '(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))',
-         '(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 49) (intent remove any any 1 0))',
+         '(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))',
          '(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)']
 
 B4 = dict(
     id='B4', sentence='8 mm shaft: two k5 bearing seats, shoulder, keyway, ring groove, M8x1 thread, chamfers', process='lathe', parts=[204],
-    notes='One revolve profile: M8x1 at 7.95 (6g major window), seat A 8 k5 (an ISO 286 class parameter: zone [8.001, 8.007], modelled at its middle 8.004), shoulder 10, seat B and journal 8, 0.5 chamfers at both ends; a DIN 471 groove built by the groove feature at the start of seat A (z 8) and a DIN 6885-1 keyseat built by the keyway feature on the journal (+y, z 49, L 10).',
+    notes='One revolve profile: M8x1 at 7.95 (6g major window), seat A 8 k5 (an ISO 286 class parameter: zone [8.001, 8.007], modelled at its middle 8.004), shoulder 10, seat B and journal 8, 0.5 chamfers at both ends; a DIN 471 groove built by the groove feature at the start of seat A (z 8) and a DIN 6885-1 keyseat built by the keyway feature on the journal (+y, z 48.9, L 10: at z 49 it ended exactly 1 mm from the shaft end, which an outward-rounded wall bound cannot decide against >= 1).',
     edits=SHAFT,
     checks=[C('valid solid', ['check', '204'], ('check_ok',)),
             C('M8x1 6g thread callout certified', ['threads', '204'], ('contains', 'M8x1 6g', 'status=certified')),
@@ -166,31 +166,31 @@ B4 = dict(
     probes=[dict(name='thread callout on the other half of the split cylinder', at='end',
                  edits=['(thread 204 m8b n201.c0.wall.2.1 M8x1 6g 0.5 8)'])])
 
-COLLAR = ['(node 301 (prism 0 10 (region (circle 0 0 12) (circle 0 0 4))) (intent create any 0 1 1))',
+COLLAR = ['(node 301 (prism 0 10.2 (region (circle 0 0 12) (circle 0 0 4))) (intent create any 0 1 1))',
           '(node 302 (box 10 1 12) (intent create any 0 1 0))', '(node 303 (move 302 3 -0.5 -1 0) (intent same any any 1 0))',
           '(node 304 (difference 301 303) (intent remove any any 1 0))',
-          '(node 305 (cylinder 4 8) (intent create any 0 1 0))', '(node 306 (move 305 8 -4.5 5 4) (intent same any any 1 0))',
+          '(node 305 (cylinder 4 8) (intent create any 0 1 0))', '(node 306 (move 305 8 -4.5 5.1 4) (intent same any any 1 0))',
           '(node 307 (difference 304 306) (intent remove any any 1 0))',
-          '(node 308 (cylinder 2.25 5) (intent create any 0 1 0))', '(node 309 (move 308 8 0 5 4) (intent same any any 1 0))',
+          '(node 308 (cylinder 2.25 5) (intent create any 0 1 0))', '(node 309 (move 308 8 0 5.1 4) (intent same any any 1 0))',
           '(node 310 (difference 307 309) (intent remove any any 1 any))',
-          '(node 311 (cylinder 1.65 13) (intent create any 0 1 0))', '(node 312 (move 311 8 13 5 4) (intent same any any 1 0))',
+          '(node 311 (cylinder 1.65 13) (intent create any 0 1 0))', '(node 312 (move 311 8 13 5.1 4) (intent same any any 1 0))',
           '(node 313 (difference 310 312) (intent remove any any 1 any))',
           '(thread 313 m4 n311.c0.wall.0.0 M4 6H 0.5 7)']
 
 B5 = dict(
     id='B5', sentence='Split shaft collar for 8 mm with an M4 cap screw: counterbore one side, tapped the other', process='mill', parts=[313],
-    notes='Ring 24 x 8 x 10 with a 1 mm split in C45 steel; screw axis along y at x = 8: counterbore 8 dia to y = -4.5 (DIN 974-1 for ISO 4762 M4), clearance 4.5, tap drill 3.3 with an M4 6H callout; an ISO 4762 M4 x 10 screw (a catalog part, bought) seated on the counterbore floor with its tip at y = 5.5, inside the 0.5-7 thread (an M4 x 12 reaches y = 7.5 and jams in the untapped drill past the thread, which fasten reports as interference).',
+    notes='Ring 24 x 8 x 10.2 with a 1 mm split in C45 steel (10 thick left exactly 1 mm above and below the 8 mm counterbore, which an outward-rounded wall bound cannot decide against >= 1); screw axis along y at x = 8, z = 5.1: counterbore 8 dia to y = -4.5 (DIN 974-1 for ISO 4762 M4), clearance 4.5, tap drill 3.3 with an M4 6H callout; an ISO 4762 M4 x 10 screw (a catalog part, bought) seated on the counterbore floor with its tip at y = 5.5, inside the 0.5-7 thread (an M4 x 12 reaches y = 7.5 and jams in the untapped drill past the thread, which fasten reports as interference).',
     edits=COLLAR + ['(material 313 C45 7850 11.5e-6)', '(node 314 (screw ISO4762 M4 10) (intent create any 0 1 0))',
-                    '(node 315 (rotate 314 x 90) (intent same any any 1 0))', '(node 316 (move 315 8 5.5 5 0) (intent same any any 1 0))'],
+                    '(node 315 (rotate 314 x 90) (intent same any any 1 0))', '(node 316 (move 315 8 5.5 5.1 0) (intent same any any 1 0))'],
     checks=[C('valid solid', ['check', '313'], ('check_ok',)),
             C('M4 6H tapped side certified', ['threads', '313'], ('contains', 'M4x0.7 6H', 'status=certified')),
             C('minimum wall >= 1 mm', ['wall', '313'], ('wall_ge', 1.0)),
-            NA('counterbore and clearance to DIN 974-1 / ISO 273', NO_STD.format('DIN 974-1 counterbore and ISO 273 clearance-hole')),
+            C('counterbore and clearance to DIN 974-1 / ISO 273', ['fasten', '316', '313'], ('regex', r'^fasten holes .*\(DIN 974-1 for ISO 4762 M4\) .*\(ISO 273 \w+\) status=pass$')),
             C('cap screw fits (head in counterbore, thread engagement)', ['fasten', '316', '313'], ('regex', r'^verdict pass$')),
             C('3-axis mill reach (ball end mill D6)', ['machine', '313', '6', '20', '10', '40', '3', '3'], ('machinable',), info=True),
             C('makeable on the declared process with standard tools', ['make', 'mill'], ('make_ok',)),
             DRAWING],
-    edit=dict(label='collar OD 24 -> 25 mm', edit='(node 301 (prism 0 10 (region (circle 0 0 12.5) (circle 0 0 4))) (intent create any 0 1 1))'),
+    edit=dict(label='collar OD 24 -> 25 mm', edit='(node 301 (prism 0 10.2 (region (circle 0 0 12.5) (circle 0 0 4))) (intent create any 0 1 1))'),
     probes=[dict(name='counterbore as a feature on the collar (holes on a curved face)', at='end',
                  edits=['(node 350 (holes 304 (face 301 n301.c0.wall.0.0) 4 (hole 0 0 4)) (intent remove any any 1 any))']),
             dict(name='thread span stated in the cylinder local frame', at='end', edits=['(thread 313 m4c n311.c0.wall.0.0 M4 6H 0 8)'])])
