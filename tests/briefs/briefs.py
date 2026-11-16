@@ -109,7 +109,7 @@ B2 = dict(
             C('minimum wall between features >= 3 mm', ['wall', '4'], ('wall_ge', 3.0)),
             C('31 mm bolt square measured', ['std', '4'], ('regex', r'(?s)(?=.*at=\(14\.5,14\.5,6\)[^\n]*status=pass)(?=.*at=\(45\.5,14\.5,6\)[^\n]*status=pass)(?=.*at=\(14\.5,45\.5,6\)[^\n]*status=pass)(?=.*at=\(45\.5,45\.5,6\)[^\n]*status=pass)')),
             C('M3 clearance to ISO 273', ['std', '4'], ('std', 4, 'clearance M3')),
-            NA('NEMA 17 interface to NEMA ICS 16', NO_STD.format('NEMA ICS 16 motor flange')),
+            C('NEMA 17 interface to NEMA ICS 16', ['iface', 'NEMA17', '4', '30', '30', '6'], ('regex', r'^verdict pass$')),
             C('3-axis mill reach (ball end mill D6)', ['machine', '4', '6', '20', '10', '40', '3', '3'], ('machinable',), info=True),
             C('makeable on the declared process with standard tools', ['make', 'mill'], ('make_ok',)),
             DRAWING],
@@ -117,13 +117,13 @@ B2 = dict(
     probes=[])
 
 HOUSING = ['(param DS 22 H7)',
-           '(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 16.5) (line (/ DS 2) 16.5) (line (/ DS 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))',
+           '(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 17.1) (line (/ DS 2) 17.1) (line (/ DS 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))',
            '(node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))',
            f'(node 103 (holes 102 (face 101 n101.c0.wall.2.0) through (clearance M5 {S45} {S45}) (clearance M5 -{S45} {S45}) (clearance M5 -{S45} -{S45}) (clearance M5 {S45} -{S45})) (intent remove any any 1 5))']
 
 B3 = dict(
     id='B3', sentence='Flanged housing for a 608 bearing: H7 seat, shoulder, retaining-ring groove, four-bolt flange', process='lathe and mill', parts=[103],
-    notes='One revolve profile (seat 22 H7 as an ISO 286 class parameter, zone [22, 22.021] from the tables, shoulder bore 19), flange 64 x 6 with four M5 clearance holes (ISO 273 record) on a 50 PCD at 45 deg, and a DIN 472 groove built by the groove feature from the 22 seat at the bearing end (z 13.9), notched into the revolve profile.',
+    notes='One revolve profile (seat 22 H7 as an ISO 286 class parameter, zone [22, 22.021] from the tables; hub to z = 17.1 so the land above the ring groove is 2.1 mm: the agent first had 1.5, which the wall check certified as a fail, then exactly 2, which an outward-rounded bound cannot decide against >= 2, shoulder bore 19), flange 64 x 6 with four M5 clearance holes (ISO 273 record) on a 50 PCD at 45 deg, and a DIN 472 groove built by the groove feature from the 22 seat at the bearing end (z 13.9), notched into the revolve profile.',
     edits=HOUSING + ['(node 190 (cylinder 10.9 4) (intent create any 0 1 0))', '(node 191 (move 190 0 0 8 0) (intent same any any 1 0))',
                      '(node 192 (cylinder 9.4 3) (intent create any 0 1 0))', '(node 193 (move 192 0 0 2 0) (intent same any any 1 0))'],
     checks=[C('valid solid', ['check', '103'], ('check_ok',)),

@@ -1,5 +1,6 @@
 import Base
 import ../c01/types.bend as V
+import ../c03/types.bend as G
 import ../c04/types.bend as Ty
 import ../c06/model.bend as M
 import ../c06/xp.bend as X
@@ -9,6 +10,7 @@ import ./std.bend as SD
 import ./thr.bend as KT
 import ./mat.bend as KM
 import ./kstd.bend as KSD
+import ../base/num.bend as NU
 import ../c07/sol.bend as SO
 import ../c11/qinterf.bend as QI
 
@@ -335,3 +337,118 @@ def fasten_out(+p: M.Part, +args: List<&2, String>, +old: List<&2, M.CE>) -> Str
   +s = S.u64_of(S.Sx_a{S.arg_at(args, 0n)})
   +rest = tl_u(ids)
   fz_sw(sw_go(Nat.add(List.length(&2, M.Node, ns), 1n), M.nd_op(ns, s), ns, X.env_of(M.pvs_of(ps))), p, M.ev_for(p, ids, old), s, rest)
+
+type Hc is Data:
+  Hc{ ok: Bool, r: F64, dist: F64 }
+
+def hc_ok(+h: Hc) -> Bool:
+  Hc{+ok, r, dist} = h
+  ok
+
+def hc_r(+h: Hc) -> F64:
+  Hc{ok, +r, dist} = h
+  r
+
+def hc_d(+h: Hc) -> F64:
+  Hc{ok, r, +dist} = h
+  dist
+
+def hc_m(+h: Hc, +need: F64) -> F64:
+  F64.sub(F64.sub(hc_r(h), hc_d(h)), need)
+
+def hc_cy(+ow: V.Point, +aw: V.Dir, +r: F64, +same: Bool, +q: V.Point, +d: V.Dir, +need: F64, +acc: Hc) -> Hc:
+  +dist = KS.dlen(KS.cross(KS.psub(q, ow), aw))
+  +ok = Bool.and(Bool.not(same), Bool.and(F64.is_lt(KS.dlen(KS.cross(aw, d)), 1.0e-6f64), F64.is_lt(dist, r)))
+  Bool.pick(Hc, Bool.and(ok, Bool.or(Bool.not(hc_ok(acc)), F64.is_lt(hc_m(acc, need), F64.sub(F64.sub(r, dist), need)))), Hc{True{}, r, dist}, acc)
+
+def hc_sf(s: G.GVal, +same: Bool, +pl: M.Pl, +q: V.Point, +d: V.Dir, +need: F64, +acc: Hc) -> Hc:
+  match s:
+    case G.GV_cy{w}:
+      G.Cy{+o, +a, +r} = w
+      hc_cy(M.pl_pt(o, pl), KS.dunit(M.pl_dir(a, pl)), r, same, q, d, need, acc)
+    case _: acc
+
+def hc_go(fas: List<&2, Ty.Face>, +pl: M.Pl, +q: V.Point, +d: V.Dir, +need: F64, +acc: Hc) -> Hc:
+  match fas:
+    case []: acc
+    case +fa <> u:
+      Ty.Fa{g, +sf, ls, +same, slv, sla} = fa
+      hc_go(u, pl, q, d, need, hc_sf(sf, same, pl, q, d, need, acc))
+
+def hc_of(+b: M.Body, +q: V.Point, +d: V.Dir, +need: F64) -> Hc:
+  hc_go(Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), q, d, need, Hc{False{}, 0.0f64, 0.0f64})
+
+def p3_s(+q: V.Point) -> String:
+  "(" ++ KSD.n_s(V.pt_x(q)) ++ "," ++ KSD.n_s(V.pt_y(q)) ++ "," ++ KSD.n_s(V.pt_z(q)) ++ ")"
+
+def bolt_ck(+i: Nat, +q: V.Point, +h: Hc, +need: F64) -> Ck:
+  +st = Bool.pick(Nat, Bool.and(hc_ok(h), F64.is_le(0.0f64, hc_m(h, need))), 0n, 2n)
+  Ck{st, "iface bolt " ++ Nat.show(i) ++ " at=" ++ p3_s(q) ++
+    Bool.pick(String, hc_ok(h), " hole d=" ++ KSD.n_s(F64.mul(2.0f64, hc_r(h))) ++ " offset=" ++ KSD.n_s(hc_d(h)) ++ " margin=" ++ KSD.n_s(hc_m(h, need)),
+      " no hole around the bolt position") ++ " status=" ++ st_s(st) ++ "\n"}
+
+def pil_ck(+h: Hc, +nmax: F64) -> Ck:
+  +st = Bool.pick(Nat, Bool.and(hc_ok(h), F64.is_le(0.0f64, hc_m(h, F64.mul(0.5f64, nmax)))), 0n, 2n)
+  Ck{st, "iface pilot" ++
+    Bool.pick(String, hc_ok(h), " bore d=" ++ KSD.n_s(F64.mul(2.0f64, hc_r(h))) ++ " offset=" ++ KSD.n_s(hc_d(h)) ++ " radial-clearance=" ++ KSD.n_s(hc_m(h, F64.mul(0.5f64, nmax))),
+      " no bore around the pilot") ++ " status=" ++ st_s(st) ++ "\n"}
+
+def nm_find(rs: List<&2, List<&2, F64>>, +nm: String) -> List<&2, F64>:
+  match rs:
+    case []: []
+    case +r <> t: Bool.pick(List<&2, F64>, String.eq(nm, "NEMA" ++ NU.f_show(SD.fv_go(r, 0n))), r, nm_find(t, nm))
+
+def nm_keys(rs: List<&2, List<&2, F64>>) -> String:
+  match rs:
+    case []: ""
+    case +r <> t: " NEMA" ++ NU.f_show(SD.fv_go(r, 0n)) ++ nm_keys(t)
+
+def ck4_s(+cs: List<&2, Ck>) -> String:
+  match cs:
+    case []: ""
+    case +c <> t: ck_s(c) ++ ck4_s(t)
+
+def inch_mm() -> F64:
+  25.4f64
+
+def z_dir() -> V.Dir:
+  V.Dr{0.0f64, 0.0f64, 1.0f64}
+
+def if_q(+c: V.Point, +h: F64, +sx: F64, +sy: F64) -> V.Point:
+  V.Pt{F64.add(V.pt_x(c), F64.mul(sx, h)), F64.add(V.pt_y(c), F64.mul(sy, h)), V.pt_z(c)}
+
+def bolt_at(+i: Nat, +b: M.Body, +q: V.Point, +need: F64) -> Ck:
+  bolt_ck(i, q, hc_of(b, q, z_dir(), need), need)
+
+def if_cks(+b: M.Body, +c: V.Point, +h: F64, +nmax: F64, +need: F64) -> List<&2, Ck>:
+  [pil_ck(hc_of(b, c, z_dir(), F64.mul(0.5f64, nmax)), nmax), bolt_at(1n, b, if_q(c, h, 1.0f64, 1.0f64), need),
+   bolt_at(2n, b, if_q(c, h, F64.neg(1.0f64), 1.0f64), need), bolt_at(3n, b, if_q(c, h, F64.neg(1.0f64), F64.neg(1.0f64)), need),
+   bolt_at(4n, b, if_q(c, h, 1.0f64, F64.neg(1.0f64)), need)]
+
+def if_head(+r: List<&2, F64>, +n: U64, +c: V.Point) -> String:
+  "iface NEMA " ++ NU.f_show(SD.fv_go(r, 0n)) ++ " on node " ++ U64.show(n) ++ " at=" ++ p3_s(c) ++ " along=(0,0,1): bolt circle " ++ KSD.n_s(F64.mul(inch_mm(), SD.fv_go(r, 1n))) ++
+    " (" ++ NU.f_show(SD.fv_go(r, 1n)) ++ " in) pilot " ++ KSD.n_s(F64.mul(inch_mm(), SD.fv_go(r, 2n))) ++ " max (" ++ NU.f_show(SD.fv_go(r, 2n)) ++ " in) screw " ++
+    KSD.n_s(F64.mul(inch_mm(), SD.fv_go(r, 7n))) ++ " (the C flange's tapped thread; NEMA ICS 16 Table 4)\n"
+
+def if_tail(+n: U64, +cks: List<&2, Ck>) -> String:
+  ck4_s(cks) ++ "iface node " ++ U64.show(n) ++ ": 5 checks, " ++ Nat.show(cnt_go(cks, 0n, 0n)) ++ " pass, " ++ Nat.show(cnt_go(cks, 2n, 0n)) ++ " fail\n" ++
+    "verdict " ++ Bool.pick(String, Nat.is_lt(0n, cnt_go(cks, 2n, 0n)), "fail", "pass")
+
+def if_go(+r: List<&2, F64>, +b: M.Body, +n: U64, +c: V.Point) -> String:
+  if_head(r, n, c) ++ if_tail(n, if_cks(b, c, F64.div(F64.mul(F64.mul(0.5f64, inch_mm()), SD.fv_go(r, 1n)), F64.sqrt(2.0f64)),
+    F64.mul(inch_mm(), SD.fv_go(r, 2n)), F64.mul(F64.mul(0.5f64, inch_mm()), SD.fv_go(r, 7n))))
+
+def if_row(ok: Bool, +r: List<&2, F64>, +nm: String, +b: M.Body, +n: U64, +c: V.Point) -> String:
+  match ok:
+    case True{}: if_go(r, b, n, c)
+    case False{}: "error invalid-input | iface | why: iface-frame-unknown: " ++ nm ++ " | fix: frames with records:" ++ nm_keys(SD.tab("nema_flange"))
+
+def f_at(+xs: List<&2, String>, +i: Nat) -> F64:
+  +m = S.num(S.arg_at(xs, i))
+  Bool.pick(F64, S.is_some(m), S.some_v(m), F64.nan())
+
+def iface_out(+p: M.Part, +args: List<&2, String>, +old: List<&2, M.CE>) -> String:
+  +nm = S.arg_at(args, 0n)
+  +n = S.u64_of(S.Sx_a{S.arg_at(args, 1n)})
+  +r = nm_find(SD.tab("nema_flange"), nm)
+  if_row(SD.row_ok(r), r, nm, M.nr_body(M.ce_r(M.ce_find(M.ev_for(p, [n], old), n))), n, V.Pt{f_at(args, 2n), f_at(args, 3n), f_at(args, 4n)})

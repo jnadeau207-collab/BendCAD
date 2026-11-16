@@ -297,3 +297,12 @@ axial (face) grooving cutting head: smallest and largest groove diameter of the 
 | 52.0 | 72.0 | 4.0 | 15.0 |
 | 67.0 | 100.0 | 4.0 | 15.0 |
 | 90.0 | 130.0 | 4.0 | 15.0 |
+
+## nema_flange
+
+NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame, bolt circle M of the C flange (tapped holes), pilot diameter N max and its lower deviation, maximum flange P, pilot depth T min and max, and the major diameter of the C flange's tapped thread (UNC 4-40 for frame 17, 8-32 for frame 23), in inches; four holes on M at 45 degrees to the flats; source: engineersedge.com/motors/stepper_motor_size_dimensions_table_14794.htm (NEMA ICS 16 Table 4); pilot depth T from aspina-group.com/en/learning-zone/columns/what-is/034 (NEMA ICS 16-2001 Tables 2 and 4); UNC #4 and #8 major diameters 0.112 and 0.164 in (ASME B1.1)
+
+| frame | m | n | n_dev | p | t_min | t_max | screw |
+|---|---|---|---|---|---|---|---|
+| 17.0 | 1.725 | 0.8661 | -0.002 | 2.36 | 0.03 | 0.09 | 0.112 |
+| 23.0 | 2.625 | 1.5 | -0.002 | 3.21 | 0.06 | 0.13 | 0.164 |

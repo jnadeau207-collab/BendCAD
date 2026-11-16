@@ -6,13 +6,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT / 'data' / 'std' / 'fasteners.json'
 GRV = ROOT / 'data' / 'std' / 'grooves.json'
 TLS = ROOT / 'data' / 'std' / 'tools.json'
+MOT = ROOT / 'data' / 'std' / 'motors.json'
 RANGE = ('key', 'drill', 'tap')
 OUT = ROOT / 'src' / 'k2' / 'std.bend'
 DOC = ROOT / 'docs' / 'std.md'
 
 
 def f(x):
-    return 'F64.nan()' if x is None else repr(float(x)) + 'f64'
+    if x is None:
+        return 'F64.nan()'
+    return 'F64.neg(%rf64)' % -float(x) if float(x) < 0 else repr(float(x)) + 'f64'
 
 
 def sane(name, r, cols):
@@ -47,6 +50,7 @@ def main():
     tabs = dict(s['tables'])
     g = json.loads(GRV.read_text(encoding='utf-8'))
     g.update(json.loads(TLS.read_text(encoding='utf-8')))
+    g.update(json.loads(MOT.read_text(encoding='utf-8')))
     for k in RANGE:
         if k in g and not all(r[0] < r[1] for r in g[k]['rows']):
             sys.exit(k + ': band lower bound not below upper bound')

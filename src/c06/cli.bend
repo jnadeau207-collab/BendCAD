@@ -669,7 +669,7 @@ def cmd_code(+c: String) -> U64:
   Bool.pick(U64, String.eq(c, "surf"), 25u64,
   Bool.pick(U64, String.eq(c, "blade"), 26u64, Bool.pick(U64, String.eq(c, "diag"), 27u64,
   Bool.pick(U64, String.eq(c, "threads"), 28u64, Bool.pick(U64, String.eq(c, "balance"), 29u64, Bool.pick(U64, String.eq(c, "rotor"), 30u64,
-  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, Bool.pick(U64, String.eq(c, "drawing"), 37u64, Bool.pick(U64, String.eq(c, "make"), 38u64, Bool.pick(U64, String.eq(c, "fasten"), 39u64, 0u64)))))))))))))))))))))))))))))))))))))))
+  Bool.pick(U64, String.eq(c, "modes"), 31u64, Bool.pick(U64, String.eq(c, "spin"), 32u64, Bool.pick(U64, String.eq(c, "machine"), 33u64, Bool.pick(U64, String.eq(c, "batch"), 34u64, Bool.pick(U64, String.eq(c, "scene"), 35u64, Bool.pick(U64, String.eq(c, "std"), 36u64, Bool.pick(U64, String.eq(c, "drawing"), 37u64, Bool.pick(U64, String.eq(c, "make"), 38u64, Bool.pick(U64, String.eq(c, "fasten"), 39u64, Bool.pick(U64, String.eq(c, "iface"), 40u64, 0u64))))))))))))))))))))))))))))))))))))))))
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
@@ -1522,6 +1522,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 35u64: scene_io(p, rest, old)
     case 36u64: IO.pure(String, KSD.std_out(p, S.arg_at(rest, 0n), old))
     case 39u64: IO.pure(String, FZ.fasten_out(p, rest, old))
+    case 40u64: IO.pure(String, FZ.iface_out(p, rest, old))
     case 37u64: draw_out(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))
     case 38u64: IO.pure(String, make_out(node_raw(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), S.arg_at(rest, 1n), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})))
     case _: IO.pure(String, "error unknown command " ++ cmd ++ " | use new, show, eval, apply, measure, faces, sens, tess, zone, classify, check, dist, extrema, mass, section, interf, clearance, wall, step, archive, stl, 3mf, asm, pmi, flat, surf, blade, diag, threads, balance, rotor, modes, spin, machine, scene, std, drawing, make")

@@ -1,0 +1,18 @@
+{
+ "item": "S1",
+ "limit_s": 10,
+ "claim": "iface NEMA17|NEMA23 NODE X Y Z checks a plate against the NEMA ICS 16 Table 4 motor flange whose axis passes through (X, Y, Z) along +z: a bore around the pilot that clears the pilot's maximum diameter, and at each of the four bolt positions on the bolt circle M a hole that clears the C flange's tapped screw (4-40 for frame 17, 8-32 for frame 23) at its offset from the position; an unknown frame is refused with the held ones",
+ "steps": [
+  {"args": ["iface", "NEMA17", "3", "30", "30", "6"], "must": ["^iface NEMA 17 on node 3 at=\\(30,30,6\\) along=\\(0,0,1\\): bolt circle 43\\.815 \\(1\\.725 in\\) pilot 21\\.9989\\d* max",
+    "^iface pilot bore d=22\\.1 offset=0 radial-clearance=0\\.0505\\d* status=pass$",
+    "^iface bolt 1 at=\\(45\\.4909\\d*,45\\.4909\\d*,6\\) hole d=3\\.4 offset=0\\.0128\\d* margin=0\\.2647\\d* status=pass$",
+    "^iface node 3: 5 checks, 5 pass, 0 fail$", "^verdict pass$"]},
+  {"args": ["apply", "(param P 21.9)"], "must": ["^committed"]},
+  {"args": ["iface", "NEMA17", "3", "30", "30", "6"], "must": ["^iface pilot .*status=fail$", "^verdict fail$"]},
+  {"args": ["apply", "(param P 22.1)", "(param S 30)"], "must": ["^committed"]},
+  {"args": ["iface", "NEMA17", "3", "30", "30", "6"], "must": ["^iface bolt 1 .*margin=-0\\.\\d+ status=fail$", "^iface node 3: 5 checks, 1 pass, 4 fail$", "^verdict fail$"]},
+  {"args": ["apply", "(param S 31)"], "must": ["^committed"]},
+  {"args": ["iface", "NEMA23", "3", "30", "30", "6"], "must": ["^iface bolt 1 .*no hole around the bolt position status=fail$", "^verdict fail$"]},
+  {"args": ["iface", "NEMA42", "3", "30", "30", "6"], "must": ["iface-frame-unknown: NEMA42", "NEMA17 NEMA23"]}
+ ]
+}

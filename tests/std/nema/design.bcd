@@ -1,0 +1,6 @@
+(bendcad 1)
+(param 1 S 31 31 31)
+(param 2 P 22.1 22.1 22.1)
+(node 1 (box 60 80 6) (intent create 6 0 1 0))
+(node 2 (holes 1 (face 1 0 top) through (hole 30 30 (/ P 2))) (intent remove any any 1 1))
+(node 3 (holes 2 (face 1 0 top) through (clearance M3 (- 30 (/ S 2)) (- 30 (/ S 2))) (clearance M3 (+ 30 (/ S 2)) (- 30 (/ S 2))) (clearance M3 (- 30 (/ S 2)) (+ 30 (/ S 2))) (clearance M3 (+ 30 (/ S 2)) (+ 30 (/ S 2)))) (intent remove any any 1 5))
