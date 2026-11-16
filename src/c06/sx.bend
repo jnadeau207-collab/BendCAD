@@ -966,6 +966,7 @@ def op_of_core(+h: String, +xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: Li
   Bool.pick(M.Op, String.eq(h, "holes"), holes_op(xs, e1, e2, e3, ns),
   Bool.pick(M.Op, String.eq(h, "groove"), groove_op(xs, e1, e2, e3, ns),
   Bool.pick(M.Op, String.eq(h, "keyway"), keyway_op(xs, e1, e2, e3, ns),
+  Bool.pick(M.Op, String.eq(h, "screw"), M.O_screw{sx_s(e1), sx_s(e2), to_xp(e3, ns), True{}},
   Bool.pick(M.Op, String.eq(h, "xthread"), M.O_xthread{u64_of(e1), sel_of(e2), sx_s(e3), Bool.pick(String, Nat.is_eq(List.length(&2, Sx, xs), 5n), sx_s(sx_nth(xs, 4n)), "")},
   Bool.pick(M.Op, String.eq(h, "revolve"), M.O_revolve{rgs_of(sx_drop(xs, 1n), ns)},
   Bool.pick(M.Op, String.eq(h, "cone"), M.O_cone{to_xp(e1, ns), to_xp(e2, ns)},
@@ -977,7 +978,7 @@ def op_of_core(+h: String, +xs: List<&2, Sx>, +e1: Sx, +e2: Sx, +e3: Sx, +ns: Li
   Bool.pick(M.Op, String.eq(h, "difference"), M.O_difference{u64_of(e1), u64_of(e2)},
   Bool.pick(M.Op, String.eq(h, "intersection"), M.O_intersection{u64_of(e1), u64_of(e2)},
   Bool.pick(M.Op, String.eq(h, "import"), M.O_blob{u64_of(e1), sx_s(e2)},
-  M.O_unk{h})))))))))))))))))))
+  M.O_unk{h}))))))))))))))))))))
 
 def op_of_feat(+h: String, +xs: List<&2, Sx>, +ns: List<&2, NI>) -> M.Op:
   Bool.pick(M.Op, String.eq(h, "sweep"), sw_op(xs, ns),
@@ -1130,6 +1131,7 @@ def op_sx(o: M.Op, +ns: List<&2, NI>) -> Sx:
       ls(at("holes") <> at(U64.show(base)) <> sel_sx(f) <> amt_sx(thru, d, ns) <> hss_sx(hs, ns))
     case M.O_groove{base, f, +std, z}: ls([at("groove"), at(U64.show(base)), sel_sx(f), ls([at("ring"), at(std)]), xp_sx(z, ns)])
     case M.O_xthread{base, f, +sz, +cls}: ls(at("xthread") <> at(U64.show(base)) <> sel_sx(f) <> at(sz) <> hs_cls_sx(cls, []))
+    case M.O_screw{+std, +sz, l, thr}: ls([at("screw"), at(std), at(sz), xp_sx(l, ns)])
     case M.O_keyway{base, f, +side, l, z, +thru}:
       ls(at("keyway") <> at(U64.show(base)) <> sel_sx(f) <> at(side_s(side)) <> Bool.pick(List<&2, Sx>, thru, [at("through")], [xp_sx(l, ns), xp_sx(z, ns)]))
     case M.O_move{base, tx, ty, tz, q}:

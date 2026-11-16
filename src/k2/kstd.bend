@@ -105,6 +105,14 @@ def ent_xt(+bb: M.Body, +f: M.Sel, +sz: String, +cls: String, +nd: U64) -> Ent:
   +pl = M.bd_pl(bb)
   Ent{nd, 0n, 12u64, M.Hs{12u64, sz, cls, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, Ax{M.pl_pt(M.cyf_o(c), pl), M.pl_dir(M.cyf_a(c), pl)}, M.cyf_r(c), "", []}
 
+def z_ax() -> Ax:
+  Ax{V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}}
+
+def ent_sc(+n: U64, +sz: String, +l: F64, +acc: List<&2, Ent>) -> List<&2, Ent>:
+  +a = z_ax()
+  Ent{n, 0n, 13u64, M.Hs{13u64, sz, "6g", X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, a, l, "ISO 4762", []} <>
+    Ent{n, 0n, 12u64, M.Hs{12u64, sz, "6g", X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, a, M.sc_rc(SD.fv(SD.fa(sz), 0n), SD.fv(SD.fa(sz), 1n)), "", []} <> acc
+
 def ent_kw(+bb: M.Body, +f: M.Sel, +side: U64, +l: F64, +z: F64, +thru: Bool, +nd: U64) -> Ent:
   +br = M.bd_brep(bb)
   +fa = M.fa_nth(Ty.brep_fas(br), M.name_idx(M.bd_fns(bb), M.sel_nm(f), 0n))
@@ -149,6 +157,7 @@ def step(o: M.Op, +n: U64, +cs: List<&2, M.CE>, +e: X.Env, +acc: List<&2, Ent>) 
     case M.O_keyway{+base, +f, +side, +l, +z, +thru}:
       St{True{}, base, ent_kw(bbody(cs, base), f, side, X.xp_ev(l, e), X.xp_ev(z, e), thru, n) <> acc}
     case M.O_xthread{+base, +f, +sz, +cls}: St{True{}, base, ent_xt(bbody(cs, base), f, sz, cls, n) <> acc}
+    case M.O_screw{std, +sz, +l, thr}: St{False{}, 0u64, ent_sc(n, sz, X.xp_ev(l, e), acc)}
     case M.O_move{base, tx, ty, tz, q}: St{False{}, 0u64, acc}
     case M.O_rot{base, ax, deg}: St{False{}, 0u64, acc}
     case _: step_d(o, acc)
@@ -543,6 +552,37 @@ def v_key(+b: M.Body, +a: Ax, +std: String, +g: List<&2, F64>) -> Vr:
     Bool.pick(String, Bool.and(pf_some(w0), pf_some(w1)), " width=" ++ S.f_show(bw), " walls=missing") ++
     Bool.pick(String, sh, " length=" ++ n_s(len) ++ " want=" ++ S.f_show(bw) ++ "x" ++ S.f_show(t) ++ "x" ++ S.f_show(l), "")}
 
+def sk_cnt(xs: List<&2, Pf>, +a: Ax, +h: F64, +acc: Nat) -> Nat:
+  match xs:
+    case []: acc
+    case +x <> t:
+      Pf{+o, +n, ls} = x
+      sk_cnt(t, a, h, Bool.pick(Nat, Bool.and(near(ddot(n, ax_n(a)), 0.0f64), near(F64.abs(ddot(dsub(o, ax_p(a)), n)), h)), Nat.add(acc, 1n), acc))
+
+def v_sc2(+hd: Maybe<&2, Cf>, +pf: List<&2, Pf>, +a: Ax, +l: F64, +dk: F64, +kk: F64, +s: F64, +t: F64, +bb: F64) -> Vr:
+  +hh = F64.abs(F64.sub(cf_hi(cf_get(hd)), cf_lo(cf_get(hd))))
+  +ns = sk_cnt(pf, a, F64.mul(0.5f64, s), 0n)
+  +fl = pf_find(pf, ax_p(a), ax_n(a), F64.sub(F64.add(l, kk), t))
+  Vr{Bool.and(Bool.and(Bool.and(cf_some(hd), near(hh, kk)), Nat.is_eq(ns, 6n)), Bool.and(pf_some(fl), F64.is_le(l, F64.add(bb, 1.0e-9f64)))),
+    ": dk=" ++ S.f_show(dk) ++ " k=" ++ S.f_show(kk) ++ " s=" ++ S.f_show(s) ++ " t=" ++ S.f_show(t) ++ " head=" ++ Bool.pick(String, cf_some(hd), "found height=" ++ n_s(hh), "missing") ++
+    " socket-planes=" ++ Nat.show(ns) ++ " socket-floor=" ++ Bool.pick(String, pf_some(fl), "found", "missing") ++ " thread-length=" ++ S.f_show(l) ++ " b=" ++ S.f_show(bb) ++
+    " (ISO 4762, modelled at dk max and k max)"}
+
+def pf_sf(+s: KS.SF, +ls: List<&2, Ty.HLoop>, +pl: M.Pl, +acc: List<&2, Pf>) -> List<&2, Pf>:
+  Bool.pick(List<&2, Pf>, U64.is_eq(KS.sf_kind(s), KS.k_plane()), Pf{M.pl_pt(KS.sf_o(s), pl), M.pl_dir(KS.sf_a(s), pl), ls} <> acc, acc)
+
+def pfa_go(fas: List<&2, Ty.Face>, +pl: M.Pl, +acc: List<&2, Pf>) -> List<&2, Pf>:
+  match fas:
+    case []: acc
+    case +fa <> u:
+      Ty.Fa{g, +sf, +ls, same, slv, sla} = fa
+      pfa_go(u, pl, pf_sf(KS.sf_of(sf), ls, pl, acc))
+
+def v_screw(+b: M.Body, +a: Ax, +sz: String, +l: F64) -> Vr:
+  +f = SD.fa(sz)
+  v_sc2(cf_find(cfs(b, a), False{}, F64.mul(0.5f64, SD.fv(f, 6n))), pfa_go(Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), []), a, l,
+    SD.fv(f, 6n), SD.fv(f, 7n), SD.fv(f, 14n), SD.fv(f, 15n), SD.fv(f, 16n))
+
 def v_kind(k: U64, +cs: List<&2, Cf>, +b: M.Body, +a: Ax, +rb: F64, +sz: String, +cls: String) -> Vr:
   match k:
     case 1u64: v_clear(cs, b, a, rb, cls)
@@ -572,6 +612,10 @@ def ent_go(k: U64, +nd: U64, +i: Nat, +h: M.Hs, +a: Ax, +rb: F64, +std: String, 
       M.Hs{kk, +sz, +cls, x, y, r} = h
       +v = v_modx(hfs(b, a), rb, sz, cls)
       Vr{vr_ok(v), "std external-thread " ++ U64.show(nd) ++ " " ++ sz ++ " " ++ xcls(cls) ++ " at=" ++ pt_s(ax_p(a)) ++ " n=" ++ dir_s(ax_n(a)) ++ ":" ++ st_s(v)}
+    case 13u64:
+      M.Hs{kk, +sz, cls, x, y, r} = h
+      +v = v_screw(b, a, sz, rb)
+      Vr{vr_ok(v), "std screw " ++ U64.show(nd) ++ " ISO 4762 " ++ sz ++ "x" ++ S.f_show(rb) ++ " at=" ++ pt_s(ax_p(a)) ++ " n=" ++ dir_s(ax_n(a)) ++ st_s(v)}
     case 11u64:
       +v = v_key(b, a, std, g)
       Vr{vr_ok(v), "std keyway " ++ U64.show(nd) ++ " DIN 6885-1" ++ st_s(v)}

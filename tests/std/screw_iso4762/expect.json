@@ -1,0 +1,23 @@
+{
+ "item": "S1",
+ "limit_s": 20,
+ "claim": "(screw ISO4762 SIZE L) builds a hexagon socket head cap screw as a part from its cited record: head at dk max and k max, hexagon socket s x t, shank threaded to the head with the modelled ISO 68-1 thread at a 6g crest diameter; threads, std, check, tess and step certify it; an unknown standard or size, a length past the thread length b (a plain shank and thread runout are not modelled) and a nonpositive length are refused with the admissible choices",
+ "steps": [
+  {"args": ["apply", "(node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))"], "must": ["^committed"]},
+  {"args": ["faces", "1", "-f"], "must": ["n1\\.c1\\.wall\\.0\\.0 cylinder .*diameter=\\[7\\.22, 7\\.22\\]", "helicoid", "n1\\.c2\\.wall\\.\\d\\.0 plane"]},
+  {"args": ["threads", "1"], "must": ["M4x0\\.7 6g .*external major=\\[3\\.838, 3\\.978\\] model=3\\.9546 modelled .*status=certified"]},
+  {"args": ["std", "1"], "must": ["^std screw 1 ISO 4762 M4x16 .*dk=7\\.22 k=4 s=3 t=2 .*thread-length=16 b=20 .*status=pass", "^std external-thread 1 M4 6g .*status=pass", "^std node 1: 2 features, 2 pass, 0 fail"]},
+  {"args": ["check", "1"], "must": ["^ok:"]},
+  {"args": ["wall", "1"], "must": ["min-wall \\["], "must_not": ["node 0", "modelled-thread-not-supported"]},
+  {"args": ["measure", "1"], "must": ["x\\[-3\\.61\\d*, 3\\.61\\d*\\]x\\[-?[0-9.e-]+, 20\\.0000"]},
+  {"args": ["tess", "1", "{work}/s.obj"], "must": ["chord-bound=certified"]},
+  {"args": ["step", "1", "{work}/s.stp"], "must": ["^wrote "]},
+  {"args": ["apply", "(param L 12)"], "must": ["^committed"]},
+  {"args": ["std", "1"], "must": ["^std screw 1 ISO 4762 M4x12 .*thread-length=12 .*status=pass"]},
+  {"args": ["apply", "(node 2 (screw ISO4762 M7 16) (intent create any 0 1 0))"], "must": ["std-size-unknown: M7", "fix: .*M3 M4 M5", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(node 2 (screw ISO4017 M4 16) (intent create any 0 1 0))"], "must": ["screw-standard-unknown: ISO4017", "ISO4762", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(node 2 (screw ISO4762 M4 30) (intent create any 0 1 0))"], "must": ["screw-partial-thread-not-modelled", "b = 20", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(node 2 (screw ISO4762 M4 0) (intent create any 0 1 0))"], "must": ["screw-length-not-positive", "^rejected"], "stop_on_fail": false},
+  {"args": ["show"], "must": ["^\\(node 1 \\(screw ISO4762 M4 L\\)"], "must_not": ["node 2"]}
+ ]
+}

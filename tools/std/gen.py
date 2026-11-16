@@ -28,6 +28,8 @@ def sane(name, r, cols):
         bad.append('ISO 10642 head does not fit the countersink')
     if not v['hex_af'] > v['d']:
         bad.append('hex width across flats not above d')
+    if not (v['shcs_s'] < v['shcs_dk'] and v['shcs_t'] < v['shcs_k'] and v['shcs_b'] > v['d']):
+        bad.append('ISO 4762 socket, socket depth or thread length out of proportion')
     if bad:
         sys.exit(name + ': ' + '; '.join(bad))
 

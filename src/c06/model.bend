@@ -54,6 +54,7 @@ type Op is Data:
   O_groove{ base: U64, f: Sel, std: String, z: X.Xp }
   O_keyway{ base: U64, f: Sel, side: U64, l: X.Xp, z: X.Xp, thru: Bool }
   O_xthread{ base: U64, f: Sel, sz: String, cls: String }
+  O_screw{ std: String, sz: String, l: X.Xp, thr: Bool }
   O_move{ base: U64, tx: X.Xp, ty: X.Xp, tz: X.Xp, q: U64 }
   O_rot{ base: U64, ax: U64, deg: X.Xp }
   O_unk{ name: String }
@@ -1268,6 +1269,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
       47u64 <> base <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, hss_w(hs, e, X.xp_w(d, e, [])))
     case O_groove{base, f, +std, z}: 48u64 <> base <> sel_w(f, str_w(std, X.xp_w(z, e, [])))
     case O_xthread{base, f, +sz, +cls}: 50u64 <> base <> sel_w(f, str_w(sz, str_w(cls, [])))
+    case O_screw{+std, +sz, l, thr}: 51u64 <> Bool.pick(U64, thr, 1u64, 0u64) <> str_w(std, str_w(sz, X.xp_w(l, e, [])))
     case O_keyway{base, f, side, l, z, thru}: 49u64 <> base <> side <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(l, e, X.xp_w(z, e, [])))
     case O_move{base, tx, ty, tz, q}: 7u64 <> base <> q <> X.xp_w(tx, e, X.xp_w(ty, e, X.xp_w(tz, e, [])))
     case O_rot{base, ax, deg}: 12u64 <> base <> ax <> X.xp_w(deg, e, [])
@@ -1404,6 +1406,7 @@ def op_name(o: Op) -> String:
     case O_groove{base, f, std, z}: "groove"
     case O_keyway{base, f, side, l, z, thru}: "keyway"
     case O_xthread{base, f, sz, cls}: "xthread"
+    case O_screw{std, sz, l, thr}: "screw"
     case O_move{base, tx, ty, tz, q}: "move"
     case O_rot{base, ax, deg}: "rotate"
     case O_unk{name}: "unknown"
@@ -4961,6 +4964,89 @@ def xt_pre(c: U64, +b: Body, +f: Sel, +sz: String, +cls: String, +nd: U64, +base
 def op_xthread(+b: Body, +f: Sel, +sz: String, +cls: String, +nd: U64, +base: U64) -> NR:
   xt_pre(Bool.pick(U64, Bool.not(SD.fa_ok(sz)), 1u64, Bool.pick(U64, Bool.not(xt_cls_ok(cls)), 2u64, 0u64)), b, f, sz, cls, nd, base)
 
+def sc_es(+p: F64) -> F64:
+  F64.div(F64.add(15.0f64, F64.mul(11.0f64, p)), 1000.0f64)
+
+def sc_rc(+d: F64, +p: F64) -> F64:
+  F64.mul(0.5f64, F64.sub(d, F64.mul(2.0f64, sc_es(p))))
+
+def fn_kk(+f: BD.Fn, +k: Nat) -> BD.Fn:
+  BD.Fn{+nd, kk, +rl, +i, +j} = f
+  BD.Fn{nd, k, rl, i, j}
+
+def fns_kk(fs: List<&2, BD.Fn>, +k: Nat) -> List<&2, BD.Fn>:
+  match fs:
+    case []: []
+    case +f <> t: fn_kk(f, k) <> fns_kk(t, k)
+
+def cl_kk(+c: BD.Cl, +k: Nat) -> BD.Cl:
+  BD.Cl{+id, +par, +nd, kk, +lp, +mat, +lo, +hi} = c
+  BD.Cl{id, par, nd, k, lp, mat, lo, hi}
+
+def cls_kk(cs: List<&2, BD.Cl>, +k: Nat) -> List<&2, BD.Cl>:
+  match cs:
+    case []: []
+    case +c <> t: cl_kk(c, k) <> cls_kk(t, k)
+
+def bd_kk(+b: Body, +k: Nat) -> Body:
+  Bd{+cells, +brep, +fns, +pl, +rv, +xb} = b
+  Bd{cls_kk(cells, k), brep, fns_kk(fns, k), pl, rv, xb}
+
+def nr_kk(r: NR, +k: Nat) -> NR:
+  match r:
+    case NR_ok{+b, +fx}: NR_ok{bd_kk(b, k), fx}
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def sc_b2(rb: NR, +a: Body, +tag: U64, +nd: U64) -> NR:
+  match rb:
+    case NR_ok{+b, fx}: bool_nr(B8.run(tag, bool_in(a), bool_in(b), nd, nd, nd, False{}), a, b)
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def sc_bool(ra: NR, +rb: NR, +tag: U64, +nd: U64) -> NR:
+  match ra:
+    case NR_ok{+a, fx}: sc_b2(rb, a, tag, nd)
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def hex_rg(+s: F64) -> F.Region:
+  +r = F64.div(s, F64.sqrt(3.0f64))
+  +h = F64.mul(0.5f64, r)
+  +y = F64.mul(0.5f64, s)
+  F.Rg{F.L_path{xk(r), xk(0.0f64), [F.S_line{xk(h), xk(y)}, F.S_line{xk(F64.neg(h)), xk(y)}, F.S_line{xk(F64.neg(r)), xk(0.0f64)},
+    F.S_line{xk(F64.neg(h)), xk(F64.neg(y))}, F.S_line{xk(h), xk(F64.neg(y))}]}, []}
+
+def sc_body(+sz: String, +l: F64, +e: X.Env, +nd: U64) -> NR:
+  +a = SD.fa(sz)
+  +hk = F64.add(l, SD.fv(a, 7n))
+  sc_bool(sc_bool(op_prism([circ_rg(xk(sc_rc(SD.fv(a, 0n), SD.fv(a, 1n))))], xk(0.0f64), xk(l), e, nd),
+      nr_kk(op_prism([circ_rg(xk(F64.mul(0.5f64, SD.fv(a, 6n))))], xk(l), xk(hk), e, nd), 1n), B8.tag_union(), nd),
+    nr_kk(op_prism([hex_rg(SD.fv(a, 14n))], xk(F64.sub(hk, SD.fv(a, 15n))), xk(F64.add(hk, 1.0f64)), e, nd), 2n), B8.tag_diff(), nd)
+
+def sc_thr(r: NR, +sz: String, +nd: U64) -> NR:
+  match r:
+    case NR_ok{+b, fx}: xt_go(b, name_idx(bd_fns(b), "n" ++ U64.show(nd) ++ ".c0.wall.0.0", 0n), sz, nd)
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def sc_go(thr: Bool, +sz: String, +l: F64, +e: X.Env, +nd: U64) -> NR:
+  match thr:
+    case True{}: sc_thr(sc_body(sz, l, e, nd), sz, nd)
+    case False{}: sc_body(sz, l, e, nd)
+
+def sc_code(+std: String, +sz: String, +l: F64) -> U64:
+  Bool.pick(U64, Bool.not(String.eq(std, "ISO4762")), 1u64, Bool.pick(U64, Bool.not(SD.fa_ok(sz)), 2u64,
+    Bool.pick(U64, Bool.not(F64.is_lt(0.0f64, l)), 3u64, Bool.pick(U64, F64.is_lt(F64.add(SD.fv(SD.fa(sz), 16n), 1.0e-9f64), l), 4u64, 0u64))))
+
+def sc_pre(c: U64, +std: String, +sz: String, +l: F64, +thr: Bool, +e: X.Env, +nd: U64) -> NR:
+  match c:
+    case 0u64: sc_go(thr, sz, l, e, nd)
+    case 1u64: bad("screw", "node " ++ U64.show(nd), "screw-standard-unknown: " ++ std, "held: ISO4762 (hexagon socket head cap screw)")
+    case 2u64: bad("screw", "node " ++ U64.show(nd), "std-size-unknown: " ++ sz, "sizes with records: " ++ SD.sizes())
+    case 3u64: bad("screw", "node " ++ U64.show(nd), "screw-length-not-positive: L=" ++ NU.f_show(l), "give a length above 0")
+    case _: bad("screw", "node " ++ U64.show(nd), "screw-partial-thread-not-modelled: ISO 4762 " ++ sz ++ " screws longer than b = " ++ NU.f_show(SD.fv(SD.fa(sz), 16n)) ++
+      " have a plain shank and a thread runout, which the kernel does not model yet", "use a length up to b = " ++ NU.f_show(SD.fv(SD.fa(sz), 16n)) ++ " (threaded to the head)")
+
+def op_screw(+std: String, +sz: String, +l: X.Xp, +thr: Bool, +e: X.Env, +nd: U64) -> NR:
+  sc_pre(sc_code(std, sz, X.xp_ev(l, e)), std, sz, X.xp_ev(l, e), thr, e, nd)
+
 def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
@@ -4973,6 +5059,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_groove{+base, f, std, z}: op_groove(b, f, std, z, e, nd, rev_rs(nd_op(ns, base)), base)
     case O_keyway{base, f, side, l, z, thru}: op_keyway(b, f, side, l, z, thru, e, nd)
     case O_xthread{+base, f, sz, cls}: op_xthread(b, f, sz, cls, nd, base)
+    case O_screw{std, sz, l, thr}: op_screw(std, sz, l, thr, e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
     case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import")
@@ -5071,6 +5158,7 @@ def op_semk(o: Op, +root: Bool) -> Op:
   match o:
     case O_sholes{+base, +f, +hs, +d, +thru}: O_sholes{base, f, hs_semk(hs, root), d, thru}
     case O_xthread{+base, f, sz, cls}: O_move{base, xk(0.0f64), xk(0.0f64), xk(0.0f64), 0u64}
+    case O_screw{std, sz, l, thr}: O_screw{std, sz, l, False{}}
     case _: o
 
 def nds_semk(ns: List<&2, Node>, +root: Bool) -> List<&2, Node>:

@@ -1,0 +1,27 @@
+ISO 4762 screws built by (screw ISO4762 SIZE L) on bendcad-p8g: certified volume, STEP export deviation, thread window, std verdict, and OCCT reading of the exported STEP (build123d import_step, BRepGProp volume, BRepCheck_Analyzer)
+
+committed
+volume=[126.08786496257781, 126.0878649628787]
+deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)
+major=[2.874, 2.98] model=2.959 modelled face=n1.c0.wall.0.2 status=certified
+status=pass
+occt M3x10 volume 126.0876615312807 solids 1 valid True
+committed
+volume=[309.0438425375035, 309.04384253826646]
+deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)
+major=[3.838, 3.978] model=3.9546 modelled face=n1.c0.wall.0.2 status=certified
+status=pass
+occt M4x16 volume 309.04373477140075 solids 1 valid True
+committed
+volume=[885.0274677234124, 885.0274677255768]
+deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)
+major=[5.794, 5.974] model=5.948 modelled face=n1.c0.wall.0.2 status=certified
+status=pass
+occt M6x20 volume 885.0266299856825 solids 1 valid True
+committed
+volume=[2013.2194643648752, 2013.2194643697333]
+deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)
+major=[7.76, 7.972] model=7.9425 modelled face=n1.c0.wall.0.2 status=certified
+status=pass
+occt M8x25 volume 2013.2189743423712 solids 1 valid True
+
