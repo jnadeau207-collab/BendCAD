@@ -2,7 +2,7 @@
  "id": "B6",
  "sentence": "Spur gear pair, module 1, 20 and 40 teeth, bores with keyways, centre distance certified",
  "process": "mill or print",
- "binary": "/home/jesse/bc/bendcad-p9n",
+ "binary": "/home/jesse/bc/bendcad-p9o",
  "parts": [
   4,
   5
@@ -12,49 +12,49 @@
   {
    "edit": "(node 1 (prism 0 8 (region (path 8.71384 -0.794665 (line 9.358093 -0.853418) (line 9.764132 -0.810275) (line 10.174679 -0.696107) (line 10.585942 -0.530606) (line 10.995348 -0.319895) (line 10.995348 0.319895) (line 10.585942 0.530606) (line 10.174679 0.696107) (line 9.764132 0.810275) (line 9.358093 0.853418) (line 8.71384 0.794665) (line 8.532919 1.936953) (line 9.163796 2.080161) (line 9.53663 2.246666) (line 9.891803 2.482112) (line 10.231795 2.7666) (line 10.55605 3.093511) (line 10.358344 3.701987) (line 9.903863 3.775872) (line 9.461586 3.806186) (line 9.035853 3.7879) (line 8.636354 3.703459) (line 8.041789 3.448496) (line 7.516737 4.478969) (line 8.072483 4.810119) (line 8.375616 5.083687) (line 8.640649 5.417364) (line 8.876089 5.792992) (line 9.083453 6.204103) (line 8.707394 6.721704) (line 8.252325 6.65153) (line 7.822327 6.543688) (line 7.423081 6.394739) (line 7.069229 6.190979) (line 6.582552 5.764764) (line 5.764764 6.582552) (line 6.190979 7.069229) (line 6.394739 7.423081) (line 6.543688 7.822327) (line 6.65153 8.252325) (line 6.721704 8.707394) (line 6.204103 9.083453) (line 5.792992 8.876089) (line 5.417364 8.640649) (line 5.083687 8.375616) (line 4.810119 8.072483) (line 4.478969 7.516737) (line 3.448496 8.041789) (line 3.703459 8.636354) (line 3.7879 9.035853) (line 3.806186 9.461586) (line 3.775872 9.903863) (line 3.701987 10.358344) (line 3.093511 10.55605) (line 2.7666 10.231795) (line 2.482112 9.891803) (line 2.246666 9.53663) (line 2.080161 9.163796) (line 1.936953 8.532919) (line 0.794665 8.71384) (line 0.853418 9.358093) (line 0.810275 9.764132) (line 0.696107 10.174679) (line 0.530606 10.585942) (line 0.319895 10.995348) (line -0.319895 10.995348) (line -0.530606 10.585942) (line -0.696107 10.174679) (line -0.810275 9.764132) (line -0.853418 9.358093) (line -0.794665 8.71384) (line -1.936953 8.532919) (line -2.080161 9.163796) (line -2.246666 9.53663) (line -2.482112 9.891803) (line -2.7666 10.231795) (line -3.093511 10.55605) (line -3.701987 10.358344) (line -3.775872 9.903863) (line -3.806186 9.461586) (line -3.7879 9.035853) (line -3.703459 8.636354) (line -3.448496 8.041789) (line -4.478969 7.516737) (line -4.810119 8.072483) (line -5.083687 8.375616) (line -5.417364 8.640649) (line -5.792992 8.876089) (line -6.204103 9.083453) (line -6.721704 8.707394) (line -6.65153 8.252325) (line -6.543688 7.822327) (line -6.394739 7.423081) (line -6.190979 7.069229) (line -5.764764 6.582552) (line -6.582552 5.764764) (line -7.069229 6.190979) (line -7.423081 6.394739) (line -7.822327 6.543688) (line -8.252325 6.65153) (line -8.707394 6.721704) (line -9.083453 6.204103) (line -8.876089 5.792992) (line -8.640649 5.417364) (line -8.375616 5.083687) (line -8.072483 4.810119) (line -7.516737 4.478969) (line -8.041789 3.448496) (line -8.636354 3.703459) (line -9.035853 3.7879) (line -9.461586 3.806186) (line -9.903863 3.775872) (line -10.358344 3.701987) (line -10.55605 3.093511) (line -10.231795 2.7666) (line -9.891803 2.482112) (line -9.53663 2.246666) (line -9.163796 2.080161) (line -8.532919 1.936953) (line -8.71384 0.794665) (line -9.358093 0.853418) (line -9.764132 0.810275) (line -10.174679 0.696107) (line -10.585942 0.530606) (line -10.995348 0.319895) (line -10.995348 -0.319895) (line -10.585942 -0.530606) (line -10.174679 -0.696107) (line -9.764132 -0.810275) (line -9.358093 -0.853418) (line -8.71384 -0.794665) (line -8.532919 -1.936953) (line -9.163796 -2.080161) (line -9.53663 -2.246666) (line -9.891803 -2.482112) (line -10.231795 -2.7666) (line -10.55605 -3.093511) (line -10.358344 -3.701987) (line -9.903863 -3.775872) (line -9.461586 -3.806186) (line -9.035853 -3.7879) (line -8.636354 -3.703459) (line -8.041789 -3.448496) (line -7.516737 -4.478969) (line -8.072483 -4.810119) (line -8.375616 -5.083687) (line -8.640649 -5.417364) (line -8.876089 -5.792992) (line -9.083453 -6.204103) (line -8.707394 -6.721704) (line -8.252325 -6.65153) (line -7.822327 -6.543688) (line -7.423081 -6.394739) (line -7.069229 -6.190979) (line -6.582552 -5.764764) (line -5.764764 -6.582552) (line -6.190979 -7.069229) (line -6.394739 -7.423081) (line -6.543688 -7.822327) (line -6.65153 -8.252325) (line -6.721704 -8.707394) (line -6.204103 -9.083453) (line -5.792992 -8.876089) (line -5.417364 -8.640649) (line -5.083687 -8.375616) (line -4.810119 -8.072483) (line -4.478969 -7.516737) (line -3.448496 -8.041789) (line -3.703459 -8.636354) (line -3.7879 -9.035853) (line -3.806186 -9.461586) (line -3.775872 -9.903863) (line -3.701987 -10.358344) (line -3.093511 -10.55605) (line -2.7666 -10.231795) (line -2.482112 -9.891803) (line -2.246666 -9.53663) (line -2.080161 -9.163796) (line -1.936953 -8.532919) (line -0.794665 -8.71384) (line -0.853418 -9.358093) (line -0.810275 -9.764132) (line -0.696107 -10.174679) (line -0.530606 -10.585942) (line -0.319895 -10.995348) (line 0.319895 -10.995348) (line 0.530606 -10.585942) (line 0.696107 -10.174679) (line 0.810275 -9.764132) (line 0.853418 -9.358093) (line 0.794665 -8.71384) (line 1.936953 -8.532919) (line 2.080161 -9.163796) (line 2.246666 -9.53663) (line 2.482112 -9.891803) (line 2.7666 -10.231795) (line 3.093511 -10.55605) (line 3.701987 -10.358344) (line 3.775872 -9.903863) (line 3.806186 -9.461586) (line 3.7879 -9.035853) (line 3.703459 -8.636354) (line 3.448496 -8.041789) (line 4.478969 -7.516737) (line 4.810119 -8.072483) (line 5.083687 -8.375616) (line 5.417364 -8.640649) (line 5.792992 -8.876089) (line 6.204103 -9.083453) (line 6.721704 -8.707394) (line 6.65153 -8.252325) (line 6.543688 -7.822327) (line 6.394739 -7.423081) (line 6.190979 -7.069229) (line 5.764764 -6.582552) (line 6.582552 -5.764764) (line 7.069229 -6.190979) (line 7.423081 -6.394739) (line 7.822327 -6.543688) (line 8.252325 -6.65153) (line 8.707394 -6.721704) (line 9.083453 -6.204103) (line 8.876089 -5.792992) (line 8.640649 -5.417364) (line 8.375616 -5.083687) (line 8.072483 -4.810119) (line 7.516737 -4.478969) (line 8.041789 -3.448496) (line 8.636354 -3.703459) (line 9.035853 -3.7879) (line 9.461586 -3.806186) (line 9.903863 -3.775872) (line 10.358344 -3.701987) (line 10.55605 -3.093511) (line 10.231795 -2.7666) (line 9.891803 -2.482112) (line 9.53663 -2.246666) (line 9.163796 -2.080161) (line 8.532919 -1.936953)) (circle 0 0 4))) (intent create any 0 1 1))",
    "status": "committed",
-   "s": 0.219,
+   "s": 0.263,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 2 (prism 0 8 (region (path 18.743849 0.480239 (line 18.787687 0.481362) (line 19.336513 0.585959) (line 19.882043 0.769447) (line 20.423594 1.008185) (line 20.960068 1.294433) (line 20.904509 2.000381) (line 20.329861 2.199182) (line 19.75763 2.350263) (line 19.190113 2.446152) (line 18.631681 2.463606) (line 18.588207 2.457858) (line 18.437955 3.40651) (line 18.481078 3.414477) (line 19.006784 3.603642) (line 19.516894 3.87021) (line 20.014431 4.190726) (line 20.499521 4.557373) (line 20.334211 5.245938) (line 19.735539 5.352397) (line 19.146718 5.412102) (line 18.571188 5.418031) (line 18.016901 5.347912) (line 17.974861 5.335434) (line 17.678058 6.248902) (line 17.719403 6.263517) (line 18.209045 6.532591) (line 18.671174 6.875677) (line 19.112446 7.270079) (line 19.534207 7.708096) (line 19.263217 8.362324) (line 18.655262 8.373819) (line 18.064351 8.340676) (line 17.494979 8.2565) (line 16.958485 8.100535) (line 16.918915 8.081634) (line 16.482868 8.937425) (line 16.521418 8.958328) (line 16.962939 9.300687) (line 17.365708 9.711841) (line 17.739849 10.170417) (line 18.087897 10.66902) (line 17.7179 11.272801) (line 17.115631 11.189049) (line 16.53718 11.063876) (line 15.987986 10.891666) (line 15.482495 10.653695) (line 15.446369 10.628837) (line 14.881815 11.405879) (line 14.916621 11.432555) (line 15.29915 11.839768) (line 15.632641 12.308867) (line 15.930439 12.820326) (line 16.196203 13.367237) (line 15.736308 13.905704) (line 15.154556 13.728768) (line 14.602808 13.514646) (line 14.087315 13.258644) (line 13.625275 12.944527) (line 13.593483 12.914323) (line 12.914323 13.593483) (line 12.944527 13.625275) (line 13.258644 14.087315) (line 13.514646 14.602808) (line 13.728768 15.154556) (line 13.905704 15.736308) (line 13.367237 16.196203) (line 12.820326 15.930439) (line 12.308867 15.632641) (line 11.839768 15.29915) (line 11.432555 14.916621) (line 11.405879 14.881815) (line 10.628837 15.446369) (line 10.653695 15.482495) (line 10.891666 15.987986) (line 11.063876 16.53718) (line 11.189049 17.115631) (line 11.272801 17.7179) (line 10.66902 18.087897) (line 10.170417 17.739849) (line 9.711841 17.365708) (line 9.300687 16.962939) (line 8.958328 16.521418) (line 8.937425 16.482868) (line 8.081634 16.918915) (line 8.100535 16.958485) (line 8.2565 17.494979) (line 8.340676 18.064351) (line 8.373819 18.655262) (line 8.362324 19.263217) (line 7.708096 19.534207) (line 7.270079 19.112446) (line 6.875677 18.671174) (line 6.532591 18.209045) (line 6.263517 17.719403) (line 6.248902 17.678058) (line 5.335434 17.974861) (line 5.347912 18.016901) (line 5.418031 18.571188) (line 5.412102 19.146718) (line 5.352397 19.735539) (line 5.245938 20.334211) (line 4.557373 20.499521) (line 4.190726 20.014431) (line 3.87021 19.516894) (line 3.603642 19.006784) (line 3.414477 18.481078) (line 3.40651 18.437955) (line 2.457858 18.588207) (line 2.463606 18.631681) (line 2.446152 19.190113) (line 2.350263 19.75763) (line 2.199182 20.329861) (line 2.000381 20.904509) (line 1.294433 20.960068) (line 1.008185 20.423594) (line 0.769447 19.882043) (line 0.585959 19.336513) (line 0.481362 18.787687) (line 0.480239 18.743849) (line -0.480239 18.743849) (line -0.481362 18.787687) (line -0.585959 19.336513) (line -0.769447 19.882043) (line -1.008185 20.423594) (line -1.294433 20.960068) (line -2.000381 20.904509) (line -2.199182 20.329861) (line -2.350263 19.75763) (line -2.446152 19.190113) (line -2.463606 18.631681) (line -2.457858 18.588207) (line -3.40651 18.437955) (line -3.414477 18.481078) (line -3.603642 19.006784) (line -3.87021 19.516894) (line -4.190726 20.014431) (line -4.557373 20.499521) (line -5.245938 20.334211) (line -5.352397 19.735539) (line -5.412102 19.146718) (line -5.418031 18.571188) (line -5.347912 18.016901) (line -5.335434 17.974861) (line -6.248902 17.678058) (line -6.263517 17.719403) (line -6.532591 18.209045) (line -6.875677 18.671174) (line -7.270079 19.112446) (line -7.708096 19.534207) (line -8.362324 19.263217) (line -8.373819 18.655262) (line -8.340676 18.064351) (line -8.2565 17.494979) (line -8.100535 16.958485) (line -8.081634 16.918915) (line -8.937425 16.482868) (line -8.958328 16.521418) (line -9.300687 16.962939) (line -9.711841 17.365708) (line -10.170417 17.739849) (line -10.66902 18.087897) (line -11.272801 17.7179) (line -11.189049 17.115631) (line -11.063876 16.53718) (line -10.891666 15.987986) (line -10.653695 15.482495) (line -10.628837 15.446369) (line -11.405879 14.881815) (line -11.432555 14.916621) (line -11.839768 15.29915) (line -12.308867 15.632641) (line -12.820326 15.930439) (line -13.367237 16.196203) (line -13.905704 15.736308) (line -13.728768 15.154556) (line -13.514646 14.602808) (line -13.258644 14.087315) (line -12.944527 13.625275) (line -12.914323 13.593483) (line -13.593483 12.914323) (line -13.625275 12.944527) (line -14.087315 13.258644) (line -14.602808 13.514646) (line -15.154556 13.728768) (line -15.736308 13.905704) (line -16.196203 13.367237) (line -15.930439 12.820326) (line -15.632641 12.308867) (line -15.29915 11.839768) (line -14.916621 11.432555) (line -14.881815 11.405879) (line -15.446369 10.628837) (line -15.482495 10.653695) (line -15.987986 10.891666) (line -16.53718 11.063876) (line -17.115631 11.189049) (line -17.7179 11.272801) (line -18.087897 10.66902) (line -17.739849 10.170417) (line -17.365708 9.711841) (line -16.962939 9.300687) (line -16.521418 8.958328) (line -16.482868 8.937425) (line -16.918915 8.081634) (line -16.958485 8.100535) (line -17.494979 8.2565) (line -18.064351 8.340676) (line -18.655262 8.373819) (line -19.263217 8.362324) (line -19.534207 7.708096) (line -19.112446 7.270079) (line -18.671174 6.875677) (line -18.209045 6.532591) (line -17.719403 6.263517) (line -17.678058 6.248902) (line -17.974861 5.335434) (line -18.016901 5.347912) (line -18.571188 5.418031) (line -19.146718 5.412102) (line -19.735539 5.352397) (line -20.334211 5.245938) (line -20.499521 4.557373) (line -20.014431 4.190726) (line -19.516894 3.87021) (line -19.006784 3.603642) (line -18.481078 3.414477) (line -18.437955 3.40651) (line -18.588207 2.457858) (line -18.631681 2.463606) (line -19.190113 2.446152) (line -19.75763 2.350263) (line -20.329861 2.199182) (line -20.904509 2.000381) (line -20.960068 1.294433) (line -20.423594 1.008185) (line -19.882043 0.769447) (line -19.336513 0.585959) (line -18.787687 0.481362) (line -18.743849 0.480239) (line -18.743849 -0.480239) (line -18.787687 -0.481362) (line -19.336513 -0.585959) (line -19.882043 -0.769447) (line -20.423594 -1.008185) (line -20.960068 -1.294433) (line -20.904509 -2.000381) (line -20.329861 -2.199182) (line -19.75763 -2.350263) (line -19.190113 -2.446152) (line -18.631681 -2.463606) (line -18.588207 -2.457858) (line -18.437955 -3.40651) (line -18.481078 -3.414477) (line -19.006784 -3.603642) (line -19.516894 -3.87021) (line -20.014431 -4.190726) (line -20.499521 -4.557373) (line -20.334211 -5.245938) (line -19.735539 -5.352397) (line -19.146718 -5.412102) (line -18.571188 -5.418031) (line -18.016901 -5.347912) (line -17.974861 -5.335434) (line -17.678058 -6.248902) (line -17.719403 -6.263517) (line -18.209045 -6.532591) (line -18.671174 -6.875677) (line -19.112446 -7.270079) (line -19.534207 -7.708096) (line -19.263217 -8.362324) (line -18.655262 -8.373819) (line -18.064351 -8.340676) (line -17.494979 -8.2565) (line -16.958485 -8.100535) (line -16.918915 -8.081634) (line -16.482868 -8.937425) (line -16.521418 -8.958328) (line -16.962939 -9.300687) (line -17.365708 -9.711841) (line -17.739849 -10.170417) (line -18.087897 -10.66902) (line -17.7179 -11.272801) (line -17.115631 -11.189049) (line -16.53718 -11.063876) (line -15.987986 -10.891666) (line -15.482495 -10.653695) (line -15.446369 -10.628837) (line -14.881815 -11.405879) (line -14.916621 -11.432555) (line -15.29915 -11.839768) (line -15.632641 -12.308867) (line -15.930439 -12.820326) (line -16.196203 -13.367237) (line -15.736308 -13.905704) (line -15.154556 -13.728768) (line -14.602808 -13.514646) (line -14.087315 -13.258644) (line -13.625275 -12.944527) (line -13.593483 -12.914323) (line -12.914323 -13.593483) (line -12.944527 -13.625275) (line -13.258644 -14.087315) (line -13.514646 -14.602808) (line -13.728768 -15.154556) (line -13.905704 -15.736308) (line -13.367237 -16.196203) (line -12.820326 -15.930439) (line -12.308867 -15.632641) (line -11.839768 -15.29915) (line -11.432555 -14.916621) (line -11.405879 -14.881815) (line -10.628837 -15.446369) (line -10.653695 -15.482495) (line -10.891666 -15.987986) (line -11.063876 -16.53718) (line -11.189049 -17.115631) (line -11.272801 -17.7179) (line -10.66902 -18.087897) (line -10.170417 -17.739849) (line -9.711841 -17.365708) (line -9.300687 -16.962939) (line -8.958328 -16.521418) (line -8.937425 -16.482868) (line -8.081634 -16.918915) (line -8.100535 -16.958485) (line -8.2565 -17.494979) (line -8.340676 -18.064351) (line -8.373819 -18.655262) (line -8.362324 -19.263217) (line -7.708096 -19.534207) (line -7.270079 -19.112446) (line -6.875677 -18.671174) (line -6.532591 -18.209045) (line -6.263517 -17.719403) (line -6.248902 -17.678058) (line -5.335434 -17.974861) (line -5.347912 -18.016901) (line -5.418031 -18.571188) (line -5.412102 -19.146718) (line -5.352397 -19.735539) (line -5.245938 -20.334211) (line -4.557373 -20.499521) (line -4.190726 -20.014431) (line -3.87021 -19.516894) (line -3.603642 -19.006784) (line -3.414477 -18.481078) (line -3.40651 -18.437955) (line -2.457858 -18.588207) (line -2.463606 -18.631681) (line -2.446152 -19.190113) (line -2.350263 -19.75763) (line -2.199182 -20.329861) (line -2.000381 -20.904509) (line -1.294433 -20.960068) (line -1.008185 -20.423594) (line -0.769447 -19.882043) (line -0.585959 -19.336513) (line -0.481362 -18.787687) (line -0.480239 -18.743849) (line 0.480239 -18.743849) (line 0.481362 -18.787687) (line 0.585959 -19.336513) (line 0.769447 -19.882043) (line 1.008185 -20.423594) (line 1.294433 -20.960068) (line 2.000381 -20.904509) (line 2.199182 -20.329861) (line 2.350263 -19.75763) (line 2.446152 -19.190113) (line 2.463606 -18.631681) (line 2.457858 -18.588207) (line 3.40651 -18.437955) (line 3.414477 -18.481078) (line 3.603642 -19.006784) (line 3.87021 -19.516894) (line 4.190726 -20.014431) (line 4.557373 -20.499521) (line 5.245938 -20.334211) (line 5.352397 -19.735539) (line 5.412102 -19.146718) (line 5.418031 -18.571188) (line 5.347912 -18.016901) (line 5.335434 -17.974861) (line 6.248902 -17.678058) (line 6.263517 -17.719403) (line 6.532591 -18.209045) (line 6.875677 -18.671174) (line 7.270079 -19.112446) (line 7.708096 -19.534207) (line 8.362324 -19.263217) (line 8.373819 -18.655262) (line 8.340676 -18.064351) (line 8.2565 -17.494979) (line 8.100535 -16.958485) (line 8.081634 -16.918915) (line 8.937425 -16.482868) (line 8.958328 -16.521418) (line 9.300687 -16.962939) (line 9.711841 -17.365708) (line 10.170417 -17.739849) (line 10.66902 -18.087897) (line 11.272801 -17.7179) (line 11.189049 -17.115631) (line 11.063876 -16.53718) (line 10.891666 -15.987986) (line 10.653695 -15.482495) (line 10.628837 -15.446369) (line 11.405879 -14.881815) (line 11.432555 -14.916621) (line 11.839768 -15.29915) (line 12.308867 -15.632641) (line 12.820326 -15.930439) (line 13.367237 -16.196203) (line 13.905704 -15.736308) (line 13.728768 -15.154556) (line 13.514646 -14.602808) (line 13.258644 -14.087315) (line 12.944527 -13.625275) (line 12.914323 -13.593483) (line 13.593483 -12.914323) (line 13.625275 -12.944527) (line 14.087315 -13.258644) (line 14.602808 -13.514646) (line 15.154556 -13.728768) (line 15.736308 -13.905704) (line 16.196203 -13.367237) (line 15.930439 -12.820326) (line 15.632641 -12.308867) (line 15.29915 -11.839768) (line 14.916621 -11.432555) (line 14.881815 -11.405879) (line 15.446369 -10.628837) (line 15.482495 -10.653695) (line 15.987986 -10.891666) (line 16.53718 -11.063876) (line 17.115631 -11.189049) (line 17.7179 -11.272801) (line 18.087897 -10.66902) (line 17.739849 -10.170417) (line 17.365708 -9.711841) (line 16.962939 -9.300687) (line 16.521418 -8.958328) (line 16.482868 -8.937425) (line 16.918915 -8.081634) (line 16.958485 -8.100535) (line 17.494979 -8.2565) (line 18.064351 -8.340676) (line 18.655262 -8.373819) (line 19.263217 -8.362324) (line 19.534207 -7.708096) (line 19.112446 -7.270079) (line 18.671174 -6.875677) (line 18.209045 -6.532591) (line 17.719403 -6.263517) (line 17.678058 -6.248902) (line 17.974861 -5.335434) (line 18.016901 -5.347912) (line 18.571188 -5.418031) (line 19.146718 -5.412102) (line 19.735539 -5.352397) (line 20.334211 -5.245938) (line 20.499521 -4.557373) (line 20.014431 -4.190726) (line 19.516894 -3.87021) (line 19.006784 -3.603642) (line 18.481078 -3.414477) (line 18.437955 -3.40651) (line 18.588207 -2.457858) (line 18.631681 -2.463606) (line 19.190113 -2.446152) (line 19.75763 -2.350263) (line 20.329861 -2.199182) (line 20.904509 -2.000381) (line 20.960068 -1.294433) (line 20.423594 -1.008185) (line 19.882043 -0.769447) (line 19.336513 -0.585959) (line 18.787687 -0.481362) (line 18.743849 -0.480239)) (circle 0 0 5))) (intent create any 0 1 1))",
    "status": "committed",
-   "s": 0.843,
+   "s": 1.14,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 4 (keyway 1 (face 1 n1.c1.wall.0.0) +y through) (intent remove any any 1 1))",
    "status": "committed",
-   "s": 1.357,
+   "s": 1.138,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 4: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[2010.2873389187325, 2010.2873389249164] area=[1772.1498212678796, 1772.1498212705608] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=494 edges=738 faces=246 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 5 (keyway 2 (face 2 n2.c1.wall.0.0) +y through) (intent remove any any 1 1))",
    "status": "committed",
-   "s": 1.478,
+   "s": 1.374,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 4: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[2010.2873389187325, 2010.2873389249164] area=[1772.1498212678796, 1772.1498212705608] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=494 edges=738 faces=246 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 5: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 3 (move 5 30 0 0 0) (intent same any any 1 1))",
    "status": "committed",
-   "s": 1.434,
+   "s": 1.468,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 4: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[2010.2873389187325, 2010.2873389249164] area=[1772.1498212678796, 1772.1498212705608] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=494 edges=738 faces=246 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 5: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[9.03993199999996, 50.96006800000004]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\n\ncommitted\n"
   }
  ],
  "built": true,
- "build_incremental_s": 5.331,
+ "build_incremental_s": 5.383,
  "build_oneshot": {
-  "s": 1.482,
+  "s": 1.751,
   "timeout": false,
   "committed": true
  },
  "probes": [],
  "eval": {
-  "s": 2.018,
+  "s": 1.628,
   "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2026.9603994916818, 2026.9603994962765] area=[1758.4573562795754, 1758.4573562817657] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 4: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[2010.2873389187325, 2010.2873389249164] area=[1772.1498212678796, 1772.1498212705608] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 8.000000000000023] vertices=494 edges=738 faces=246 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 5: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[9.03993199999996, 50.96006800000004]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\n\n"
  },
  "certified_volume": {
@@ -71,13 +71,13 @@
   {
    "node": 4,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 0.567,
+   "s": 0.672,
    "timeout": false
   },
   {
    "node": 5,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 1.026,
+   "s": 1.12,
    "timeout": false
   }
  ],
@@ -85,20 +85,20 @@
   {
    "node": 4,
    "out": "mass volume=[2010.2873389187325, 2010.2873389249164] certified octree=[978.5155784096025, 3033.776098313144] depth=4 cells=1036/884/2176\ncentroid [-6.349388939191528, 6.349388939190459]x[-6.460828277029019, 6.349388939190662]x[1.2901618929006629, 12.985521235525672] status=certified incomplete-cells=2176\ninertia-centroid [-596753.3931556356, 295818.50562909927] [-591822.9947388897, 295219.0110633956] [-204746.62090078706, 368151.51595557504] [-159094.73011972485, 159094.73011974568] [-276603.9758492809, 276603.9758492429] [-281025.9516627348, 277035.61281473236] status=certified\nmoments volume=[2010.2873389187998, 2010.2873389248575] centroid [-5.102243438628387e-12, 5.102540781234534e-12]x[-0.03714228569556228, -0.03714228568985187]x[3.9999999999985203, 4.000000000001482] inertia-centroid [69700.81017190307, 69700.81017215076] [70033.74479482291, 70033.74479516785] [118291.4900182673, 118291.49001877836] [-5.466163552765296e-8, 5.465570161051017e-8] [-3.062476368813745e-8, 3.0624897461931464e-8] [-1.5678771238513345e-8, 1.5679273292170683e-8] status=certified method=divergence\n\n",
-   "s": 5.828,
+   "s": 5.611,
    "timeout": false
   },
   {
    "node": 5,
    "out": "mass volume=[9256.385145670609, 9256.385145692368] certified octree=[6246.644531477427, 12328.54239399648] depth=4 cells=1820/504/1772\ncentroid [-6.1123934565966564, 6.112393456595575]x[-6.193009102749926, 6.112393456595539]x[2.0267260579053903, 8.137912087915167] status=certified incomplete-cells=1772\ninertia-centroid [-596740.7672507989, 2991411.8544116328] [-580552.6245298279, 2987453.7241087644] [204730.2781302066, 5219391.665268339] [-930211.3099910368, 930211.3099911188] [-775521.126471179, 775521.1264710985] [-783766.5488198278, 777503.9620315494] status=certified\nmoments volume=[9256.385145670733, 9256.385145692288] centroid [-2.0729095077220622e-12, 2.0722280491356444e-12]x[-0.021662884252854377, -0.021662884250534895]x[3.99999999999952, 4.000000000000483] inertia-centroid [1031769.677208845, 1031769.6772111815] [1032887.8883769796, 1032887.8883795685] [1965922.790698683, 1965922.7907033525] [-1.4204482428060954e-7, 1.4204745066843138e-7] [-5.724806660406816e-8, 5.72506946232438e-8] [-2.8915609985711134e-8, 2.891429277925916e-8] status=certified method=divergence\n\n",
-   "s": 13.291,
+   "s": 12.444,
    "timeout": false
   }
  ],
  "step": [
   {
    "node": 4,
-   "s": 0.485,
+   "s": 0.627,
    "out": "wrote /var/tmp/briefs/B6/n4.stp entities 8362 products 1\n",
    "timeout": false,
    "occt_volume": 2010.2873389218396,
@@ -113,7 +113,7 @@
   },
   {
    "node": 5,
-   "s": 0.959,
+   "s": 1.118,
    "out": "wrote /var/tmp/briefs/B6/n5.stp entities 16522 products 1\n",
    "timeout": false,
    "occt_volume": 9256.385145681514,
@@ -130,7 +130,7 @@
  "tess": [
   {
    "node": 4,
-   "s": 0.438,
+   "s": 0.434,
    "out": "wrote /var/tmp/briefs/B6/n4.obj nverts 586 ntris 1172 est 2256 chord 0.009329782886282 ang 0.1959591794226546 nsamp 830 profile display (sampled, not certified) faces direct=246 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.06829337109789187\n",
    "timeout": false,
    "judge_s": 0.01,
@@ -148,7 +148,7 @@
   },
   {
    "node": 5,
-   "s": 0.905,
+   "s": 0.948,
    "out": "wrote /var/tmp/briefs/B6/n5.obj nverts 1066 ntris 2132 est 4176 chord 0.01069944622623028 ang 0.18856180831641295 nsamp 1550 profile display (sampled, not certified) faces direct=486 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.0654141816108971\n",
    "timeout": false,
    "judge_s": 0.01,
@@ -169,7 +169,7 @@
   {
    "node": 4,
    "preset": 3,
-   "s": 1.099,
+   "s": 1.028,
    "ok": true,
    "timeout": false,
    "out": "wrote /var/tmp/briefs/B6/n4.stl nverts 2402 ntris 4804 (sampled, not certified)\n"
@@ -181,7 +181,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 4",
-   "s": 0.877,
+   "s": 0.866,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -190,7 +190,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 5",
-   "s": 1.987,
+   "s": 1.787,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -199,7 +199,7 @@
    "verdict": "pass",
    "detail": "asm solved ninst 2 nmates 2 dof 0 max-residual 0\ninst p node 4 t=0 0 0 q=0\ninst w node 5 t=30 0 0 q=0\nredundant []\nlineage asm(p=n4,w=n5) mates[1,2]",
    "cmd": "asm solve (assembly (inst p 4 0 0 0 0) (inst w 5 30 0 0 0) (fix 1 p) (fix 2 w))",
-   "s": 1.849,
+   "s": 1.83,
    "info": false,
    "out": "asm solved ninst 2 nmates 2 dof 0 max-residual 0\ninst p node 4 t=0 0 0 q=0\ninst w node 5 t=30 0 0 q=0\nredundant []\nlineage asm(p=n4,w=n5) mates[1,2]\n\n"
   },
@@ -208,7 +208,7 @@
    "verdict": "pass",
    "detail": "gap= [0.047135182072644936, 0.047235150165040055] within [1e-06, 0.2]",
    "cmd": "asm mesh p 20 w 40 (assembly (inst p 4 0 0 0 0) (inst w 5 30 0 0 0) (fix 1 p) (fix 2 w))",
-   "s": 2.585,
+   "s": 2.498,
    "info": false,
    "out": "mesh p w gap=[0.047135182072644936, 0.047235150165040055] over=pitch ratio=0.5 lipschitz=21.500000950233094 verdict=clearance status=certified\n"
   },
@@ -217,7 +217,7 @@
    "verdict": "pass",
    "detail": "relation disjoint status=certified",
    "cmd": "interf 4 3",
-   "s": 373.843,
+   "s": 465.307,
    "info": false,
    "out": "relation disjoint status=certified method=exact-intersection\n"
   },
@@ -234,7 +234,7 @@
    "verdict": "pass",
    "detail": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass",
    "cmd": "std 4",
-   "s": 0.267,
+   "s": 0.258,
    "info": false,
    "out": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass\nstd node 4: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -243,7 +243,7 @@
    "verdict": "pass",
    "detail": "std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=(0,1,0): b=3 t2=1.4 bottom-from-axis=6.4 width=3 status=pass",
    "cmd": "std 5",
-   "s": 0.517,
+   "s": 0.515,
    "info": false,
    "out": "std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=(0,1,0): b=3 t2=1.4 bottom-from-axis=6.4 width=3 status=pass\nstd node 5: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -252,7 +252,7 @@
    "verdict": "pass",
    "detail": "n4 fdm: makeable | n5 fdm: makeable",
    "cmd": "make 4 5 mill|fdm",
-   "s": 9.171,
+   "s": 8.43,
    "info": false
   },
   {
@@ -260,7 +260,7 @@
    "verdict": "pass",
    "detail": "n4: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B6/n4.dxf drawing node 4 views FRONT TOP LEFT (ISO first-angle) segments visible=573 hidden=115 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM  | n5: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B6/n5.dxf drawing node 5 views FRONT TOP LEFT (ISO first-angle) segments visible=915 hidden=247 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM ",
    "cmd": "drawing 4 5",
-   "s": 1.722,
+   "s": 1.519,
    "info": false
   }
  ],
@@ -269,27 +269,27 @@
   "apply": {
    "edit": "(node 1 (prism 0 10 (region (path 8.71384 -0.794665 (line 9.358093 -0.853418) (line 9.764132 -0.810275) (line 10.174679 -0.696107) (line 10.585942 -0.530606) (line 10.995348 -0.319895) (line 10.995348 0.319895) (line 10.585942 0.530606) (line 10.174679 0.696107) (line 9.764132 0.810275) (line 9.358093 0.853418) (line 8.71384 0.794665) (line 8.532919 1.936953) (line 9.163796 2.080161) (line 9.53663 2.246666) (line 9.891803 2.482112) (line 10.231795 2.7666) (line 10.55605 3.093511) (line 10.358344 3.701987) (line 9.903863 3.775872) (line 9.461586 3.806186) (line 9.035853 3.7879) (line 8.636354 3.703459) (line 8.041789 3.448496) (line 7.516737 4.478969) (line 8.072483 4.810119) (line 8.375616 5.083687) (line 8.640649 5.417364) (line 8.876089 5.792992) (line 9.083453 6.204103) (line 8.707394 6.721704) (line 8.252325 6.65153) (line 7.822327 6.543688) (line 7.423081 6.394739) (line 7.069229 6.190979) (line 6.582552 5.764764) (line 5.764764 6.582552) (line 6.190979 7.069229) (line 6.394739 7.423081) (line 6.543688 7.822327) (line 6.65153 8.252325) (line 6.721704 8.707394) (line 6.204103 9.083453) (line 5.792992 8.876089) (line 5.417364 8.640649) (line 5.083687 8.375616) (line 4.810119 8.072483) (line 4.478969 7.516737) (line 3.448496 8.041789) (line 3.703459 8.636354) (line 3.7879 9.035853) (line 3.806186 9.461586) (line 3.775872 9.903863) (line 3.701987 10.358344) (line 3.093511 10.55605) (line 2.7666 10.231795) (line 2.482112 9.891803) (line 2.246666 9.53663) (line 2.080161 9.163796) (line 1.936953 8.532919) (line 0.794665 8.71384) (line 0.853418 9.358093) (line 0.810275 9.764132) (line 0.696107 10.174679) (line 0.530606 10.585942) (line 0.319895 10.995348) (line -0.319895 10.995348) (line -0.530606 10.585942) (line -0.696107 10.174679) (line -0.810275 9.764132) (line -0.853418 9.358093) (line -0.794665 8.71384) (line -1.936953 8.532919) (line -2.080161 9.163796) (line -2.246666 9.53663) (line -2.482112 9.891803) (line -2.7666 10.231795) (line -3.093511 10.55605) (line -3.701987 10.358344) (line -3.775872 9.903863) (line -3.806186 9.461586) (line -3.7879 9.035853) (line -3.703459 8.636354) (line -3.448496 8.041789) (line -4.478969 7.516737) (line -4.810119 8.072483) (line -5.083687 8.375616) (line -5.417364 8.640649) (line -5.792992 8.876089) (line -6.204103 9.083453) (line -6.721704 8.707394) (line -6.65153 8.252325) (line -6.543688 7.822327) (line -6.394739 7.423081) (line -6.190979 7.069229) (line -5.764764 6.582552) (line -6.582552 5.764764) (line -7.069229 6.190979) (line -7.423081 6.394739) (line -7.822327 6.543688) (line -8.252325 6.65153) (line -8.707394 6.721704) (line -9.083453 6.204103) (line -8.876089 5.792992) (line -8.640649 5.417364) (line -8.375616 5.083687) (line -8.072483 4.810119) (line -7.516737 4.478969) (line -8.041789 3.448496) (line -8.636354 3.703459) (line -9.035853 3.7879) (line -9.461586 3.806186) (line -9.903863 3.775872) (line -10.358344 3.701987) (line -10.55605 3.093511) (line -10.231795 2.7666) (line -9.891803 2.482112) (line -9.53663 2.246666) (line -9.163796 2.080161) (line -8.532919 1.936953) (line -8.71384 0.794665) (line -9.358093 0.853418) (line -9.764132 0.810275) (line -10.174679 0.696107) (line -10.585942 0.530606) (line -10.995348 0.319895) (line -10.995348 -0.319895) (line -10.585942 -0.530606) (line -10.174679 -0.696107) (line -9.764132 -0.810275) (line -9.358093 -0.853418) (line -8.71384 -0.794665) (line -8.532919 -1.936953) (line -9.163796 -2.080161) (line -9.53663 -2.246666) (line -9.891803 -2.482112) (line -10.231795 -2.7666) (line -10.55605 -3.093511) (line -10.358344 -3.701987) (line -9.903863 -3.775872) (line -9.461586 -3.806186) (line -9.035853 -3.7879) (line -8.636354 -3.703459) (line -8.041789 -3.448496) (line -7.516737 -4.478969) (line -8.072483 -4.810119) (line -8.375616 -5.083687) (line -8.640649 -5.417364) (line -8.876089 -5.792992) (line -9.083453 -6.204103) (line -8.707394 -6.721704) (line -8.252325 -6.65153) (line -7.822327 -6.543688) (line -7.423081 -6.394739) (line -7.069229 -6.190979) (line -6.582552 -5.764764) (line -5.764764 -6.582552) (line -6.190979 -7.069229) (line -6.394739 -7.423081) (line -6.543688 -7.822327) (line -6.65153 -8.252325) (line -6.721704 -8.707394) (line -6.204103 -9.083453) (line -5.792992 -8.876089) (line -5.417364 -8.640649) (line -5.083687 -8.375616) (line -4.810119 -8.072483) (line -4.478969 -7.516737) (line -3.448496 -8.041789) (line -3.703459 -8.636354) (line -3.7879 -9.035853) (line -3.806186 -9.461586) (line -3.775872 -9.903863) (line -3.701987 -10.358344) (line -3.093511 -10.55605) (line -2.7666 -10.231795) (line -2.482112 -9.891803) (line -2.246666 -9.53663) (line -2.080161 -9.163796) (line -1.936953 -8.532919) (line -0.794665 -8.71384) (line -0.853418 -9.358093) (line -0.810275 -9.764132) (line -0.696107 -10.174679) (line -0.530606 -10.585942) (line -0.319895 -10.995348) (line 0.319895 -10.995348) (line 0.530606 -10.585942) (line 0.696107 -10.174679) (line 0.810275 -9.764132) (line 0.853418 -9.358093) (line 0.794665 -8.71384) (line 1.936953 -8.532919) (line 2.080161 -9.163796) (line 2.246666 -9.53663) (line 2.482112 -9.891803) (line 2.7666 -10.231795) (line 3.093511 -10.55605) (line 3.701987 -10.358344) (line 3.775872 -9.903863) (line 3.806186 -9.461586) (line 3.7879 -9.035853) (line 3.703459 -8.636354) (line 3.448496 -8.041789) (line 4.478969 -7.516737) (line 4.810119 -8.072483) (line 5.083687 -8.375616) (line 5.417364 -8.640649) (line 5.792992 -8.876089) (line 6.204103 -9.083453) (line 6.721704 -8.707394) (line 6.65153 -8.252325) (line 6.543688 -7.822327) (line 6.394739 -7.423081) (line 6.190979 -7.069229) (line 5.764764 -6.582552) (line 6.582552 -5.764764) (line 7.069229 -6.190979) (line 7.423081 -6.394739) (line 7.822327 -6.543688) (line 8.252325 -6.65153) (line 8.707394 -6.721704) (line 9.083453 -6.204103) (line 8.876089 -5.792992) (line 8.640649 -5.417364) (line 8.375616 -5.083687) (line 8.072483 -4.810119) (line 7.516737 -4.478969) (line 8.041789 -3.448496) (line 8.636354 -3.703459) (line 9.035853 -3.7879) (line 9.461586 -3.806186) (line 9.903863 -3.775872) (line 10.358344 -3.701987) (line 10.55605 -3.093511) (line 10.231795 -2.7666) (line 9.891803 -2.482112) (line 9.53663 -2.246666) (line 9.163796 -2.080161) (line 8.532919 -1.936953)) (circle 0 0 4))) (intent create any 0 1 1))",
    "status": "committed",
-   "s": 0.842,
+   "s": 0.709,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=243 faces_modified=0 solids=1 through_holes=1 | volume=[2533.700499364604, 2533.700499370343] area=[2071.3866703812378, 2071.386670383691] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 10.000000000000023] vertices=482 edges=722 faces=243 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 2: ok material=create faces_created=483 faces_modified=0 solids=1 through_holes=1 | volume=[9291.810262783787, 9291.810262803] area=[4630.168205327908, 4630.168205334868] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=962 edges=1442 faces=483 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 4: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[2512.8591736484177, 2512.8591736561434] area=[2089.5443179024273, 2089.544317905395] bbox=[-10.995348000000023, 10.995348000000023]x[-10.995348000000023, 10.995348000000023]x[-1.953166162138587e-14, 10.000000000000023] vertices=494 edges=738 faces=246 solids=1 genus=1 linear_uncertainty=1.9531661621385865e-14\nnode 5: ok material=remove faces_created=3 faces_modified=3 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[-20.960068000000042, 20.960068000000042]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[9256.385145670609, 9256.385145692368] area=[4647.021377614955, 4647.021377622695] bbox=[9.03993199999996, 50.96006800000004]x[-20.960068000000042, 20.960068000000042]x[-3.723256014609434e-14, 8.00000000000004] vertices=974 edges=1458 faces=486 solids=1 genus=1 linear_uncertainty=3.723256014609433e-14\n\ncommitted\n"
   },
   "check": {
-   "s": 0.337,
+   "s": 0.318,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
   "tess": {
-   "s": 0.325,
+   "s": 0.314,
    "out": "wrote /var/tmp/briefs/B6/edit.obj nverts 586 ntris 1172 est 2256 chord 0.009329782886282 ang 0.1959591794226546 nsamp 830 profile display (sampled, not certified) faces direct=246 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.06829337109789352\n",
    "timeout": false
   },
-  "visible_rechecked_s": 1.504,
+  "visible_rechecked_s": 1.341,
   "checks": [
    {
     "req": "gear 20 valid",
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 4",
-    "s": 0.32,
+    "s": 0.303,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -298,7 +298,7 @@
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 5",
-    "s": 0.662,
+    "s": 0.612,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -307,7 +307,7 @@
     "verdict": "pass",
     "detail": "asm solved ninst 2 nmates 2 dof 0 max-residual 0\ninst p node 4 t=0 0 0 q=0\ninst w node 5 t=30 0 0 q=0\nredundant []\nlineage asm(p=n4,w=n5) mates[1,2]",
     "cmd": "asm solve (assembly (inst p 4 0 0 0 0) (inst w 5 30 0 0 0) (fix 1 p) (fix 2 w))",
-    "s": 0.707,
+    "s": 0.689,
     "info": false,
     "out": "asm solved ninst 2 nmates 2 dof 0 max-residual 0\ninst p node 4 t=0 0 0 q=0\ninst w node 5 t=30 0 0 q=0\nredundant []\nlineage asm(p=n4,w=n5) mates[1,2]\n\n"
    },
@@ -316,7 +316,7 @@
     "verdict": "pass",
     "detail": "gap= [0.047135182072644936, 0.04723515016503947] within [1e-06, 0.2]",
     "cmd": "asm mesh p 20 w 40 (assembly (inst p 4 0 0 0 0) (inst w 5 30 0 0 0) (fix 1 p) (fix 2 w))",
-    "s": 1.119,
+    "s": 1.041,
     "info": false,
     "out": "mesh p w gap=[0.047135182072644936, 0.04723515016503947] over=pitch ratio=0.5 lipschitz=21.500000950233094 verdict=clearance status=certified\n"
    },
@@ -325,7 +325,7 @@
     "verdict": "pass",
     "detail": "relation disjoint status=certified",
     "cmd": "interf 4 3",
-    "s": 120.824,
+    "s": 127.257,
     "info": false,
     "out": "relation disjoint status=certified method=exact-intersection\n"
    },
@@ -342,7 +342,7 @@
     "verdict": "pass",
     "detail": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass",
     "cmd": "std 4",
-    "s": 0.266,
+    "s": 0.258,
     "info": false,
     "out": "std keyway 4 DIN 6885-1 hub d1=8 face-d=8 side=(0,1,0): b=2 t2=1 bottom-from-axis=5 width=2 status=pass\nstd node 4: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -351,7 +351,7 @@
     "verdict": "pass",
     "detail": "std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=(0,1,0): b=3 t2=1.4 bottom-from-axis=6.4 width=3 status=pass",
     "cmd": "std 5",
-    "s": 0.524,
+    "s": 0.519,
     "info": false,
     "out": "std keyway 5 DIN 6885-1 hub d1=10 face-d=10 side=(0,1,0): b=3 t2=1.4 bottom-from-axis=6.4 width=3 status=pass\nstd node 5: 1 features, 1 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -360,7 +360,7 @@
     "verdict": "pass",
     "detail": "n4 fdm: makeable | n5 fdm: makeable",
     "cmd": "make 4 5 mill|fdm",
-    "s": 9.383,
+    "s": 8.345,
     "info": false
    },
    {
@@ -368,7 +368,7 @@
     "verdict": "pass",
     "detail": "n4: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B6/n4.dxf drawing node 4 views FRONT TOP LEFT (ISO first-angle) segments visible=573 hidden=115 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM  | n5: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B6/n5.dxf drawing node 5 views FRONT TOP LEFT (ISO first-angle) segments visible=915 hidden=247 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM ",
     "cmd": "drawing 4 5",
-    "s": 1.526,
+    "s": 1.517,
     "info": false
    }
   ]
@@ -388,7 +388,7 @@
   },
   "export": {
    "verdict": "pass",
-   "measured_s": 1.584,
+   "measured_s": 1.655,
    "budget_s": 300.0
   },
   "scene": {
@@ -403,15 +403,15 @@
   "not-analyzed": 1
  },
  "authoring_refusals": 0,
- "wall_s": 568.6,
+ "wall_s": 663.1,
  "pass": false,
  "timed_edit_serial": {
   "label": "face width 8 -> 10 mm (gear 20)",
   "build_s": 0.692,
-  "apply_s": 0.702,
+  "apply_s": 0.701,
   "apply_status": "committed",
-  "check_s": 0.304,
-  "tess_s": 0.301,
+  "check_s": 0.303,
+  "tess_s": 0.303,
   "tess_out": "wrote /var/tmp/briefs/B6-retime/edit.obj nverts 586 ntris 1172 est 2256 chord 0.009329782886282 ang 0.1959591794226546 nsamp 830 profile display (sampled, not certified) faces direct=246 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.06829337109789352\n",
   "visible_rechecked_s": 1.307
  },

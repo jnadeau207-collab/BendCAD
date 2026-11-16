@@ -1813,17 +1813,28 @@ def fr_pt(+fr: FR) -> V.Point:
   FR{ok, o, u, w, n} = fr
   o
 
-def ech_nr(+t: NR, +b: Body, +fr: FR, +nd: U64, +off: Nat) -> NR:
+def ech_place(t: NR, +b: Body, +fr: FR, +off: Nat) -> NR:
   match t:
     case NR_err{k, d}: NR_err{k, d}
-    case NR_ok{+tb, fx}:
-      +tool = {Bd{bd_cells(tb), bd_brep(tb), fn_off(bd_fns(tb), off), pl_frame(bd_pl(b), fr), bd_rv(tb), bd_xb(tb)} : Body}
-      bool_nr(B8.run(B8.tag_diff(), bool_in(b), bool_in(tool), nd, 0u64, 0u64, False{}), b, tool)
+    case NR_ok{+tb, fx}: NR_ok{{Bd{bd_cells(tb), bd_brep(tb), fn_off(bd_fns(tb), off), pl_frame(bd_pl(b), fr), bd_rv(tb), bd_xb(tb)} : Body}, fx}
+
+def ech_df(t: NR, +b: Body, +nd: U64) -> NR:
+  match t:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+tool, fx}: bool_nr(B8.run(B8.tag_diff(), bool_in(b), bool_in(tool), nd, 0u64, 0u64, False{}), b, tool)
+
+def ech_nr(+t: NR, +b: Body, +fr: FR, +nd: U64, +off: Nat) -> NR:
+  ech_df(ech_place(t, b, fr, off), b, nd)
+
+def ech_mk(tl: Bool, +t: NR, +b: Body, +fr: FR, +nd: U64, +off: Nat) -> NR:
+  match tl:
+    case True{}: ech_place(t, b, fr, off)
+    case False{}: ech_nr(t, b, fr, nd, off)
 
 def ech_go2(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +fl: Bool, +e: X.Env, +nd: U64, +np: Nat,
-    +wh: String, +off: Nat) -> NR:
+    +wh: String, +off: Nat, +tl: Bool) -> NR:
   match code:
-    case 0u64: ech_nr(op_rev([Bool.pick(F.Region, fl, efil_rg(hole, r, c), ech_rg(hole, r, c))], e, nd), b, fr, nd, off)
+    case 0u64: ech_mk(tl, op_rev([Bool.pick(F.Region, fl, efil_rg(hole, r, c), ech_rg(hole, r, c))], e, nd), b, fr, nd, off)
     case 1u64: bad(wh, "node " ++ U64.show(nd), "face-not-found: " ++ nm, "select a face name from the faces verb")
     case 2u64: bad(wh, "node " ++ U64.show(nd), "ambiguous-face: " ++ nm ++ " was split into " ++ Nat.show(np) ++ " pieces",
       "select one of " ++ nm ++ ".p0 to " ++ nm ++ ".p" ++ Nat.show(Nat.sub(np, 1n)))
@@ -1832,10 +1843,10 @@ def ech_go2(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c
       "circular edge features on faces whose frame is not axis-aligned need general placements")
     case _: bad(wh, "node " ++ U64.show(nd), "bad-" ++ wh, "use a positive " ++ wh ++ " smaller than the circle radius, or on a hole edge smaller than four times the hole radius")
 
-def ech_go(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +fl: Bool, +e: X.Env, +nd: U64, +np: Nat, +off: Nat) -> NR:
-  ech_go2(code, b, nm, fr, hole, r, c, fl, e, nd, np, Bool.pick(String, fl, "fillet", "chamfer"), off)
+def ech_go(+code: U64, +b: Body, +nm: String, +fr: FR, +hole: Bool, +r: F64, +c: F64, +fl: Bool, +e: X.Env, +nd: U64, +np: Nat, +off: Nat, +tl: Bool) -> NR:
+  ech_go2(code, b, nm, fr, hole, r, c, fl, e, nd, np, Bool.pick(String, fl, "fillet", "chamfer"), off, tl)
 
-def op_echamf_k(+off: Nat, +b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +fl: Bool, +e: X.Env, +nd: U64) -> NR:
+def op_echamf_k(+off: Nat, +b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +fl: Bool, +e: X.Env, +nd: U64, +tl: Bool) -> NR:
   +nm = sel_nm(s)
   +fns = bd_fns(b)
   +fi = name_idx(fns, nm, 0n)
@@ -1853,10 +1864,10 @@ def op_echamf_k(+off: Nat, +b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +
   +code = Bool.pick(U64, Nat.is_lt(fi, nf),
     Bool.pick(U64, fi_planar(inf), Bool.pick(U64, fr_ok(fr), Bool.pick(U64, cok, 0u64, 5u64), 4u64), 3u64),
     Bool.pick(U64, Nat.is_lt(0n, np), 2u64, 1u64))
-  ech_go(code, b, nm, fr, hole, r, c, fl, e, nd, np, off)
+  ech_go(code, b, nm, fr, hole, r, c, fl, e, nd, np, off, tl)
 
 def op_echamf(+b: Body, +s: Sel, +xx: X.Xp, +yy: X.Xp, +rr: X.Xp, +cc: X.Xp, +fl: Bool, +e: X.Env, +nd: U64) -> NR:
-  op_echamf_k(0n, b, s, xx, yy, rr, cc, fl, e, nd)
+  op_echamf_k(0n, b, s, xx, yy, rr, cc, fl, e, nd, False{})
 
 def nat_has_zz(xs: List<&2, Nat>, zz: Bool, +x: Nat) -> Bool:
   match xs:
@@ -3913,12 +3924,11 @@ def hs_csk(+bi: Body, +h: Hs, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: 
   Hs{k, +sz, cls, +x, +y, r} = h
   +rb = hs_bore(h, e)
   +q = hs_loc_of(cell, fr, X.xp_ev(x, e), X.xp_ev(y, e))
-  op_echamf_k(off, bi, Sel{0u64, 0n, 0u64, nm}, xk(V.v2_x(q)), xk(V.v2_y(q)), xk(rb), xk(F64.sub(F64.mul(0.5f64, SD.fv(SD.fa(sz), 12n)), rb)), False{}, e, nd)
+  op_echamf_k(off, bi, Sel{0u64, 0n, 0u64, nm}, xk(V.v2_x(q)), xk(V.v2_y(q)), xk(rb), xk(F64.sub(F64.mul(0.5f64, SD.fv(SD.fa(sz), 12n)), rb)), False{}, e, nd, True{})
 
 def hs_step(k: U64, +bi: Body, +fx: Fx, +h: Hs, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: X.Env, +nd: U64) -> NR:
   match k:
     case 2u64: hs_cbo(bi, h, nm, fr, cell, off, e, nd)
-    case 3u64: hs_csk(bi, h, nm, fr, cell, off, e, nd)
     case _: NR_ok{bi, fx}
 
 def hs_next(r: NR, +h: Hs, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: X.Env, +nd: U64) -> NR:
@@ -3932,6 +3942,50 @@ def hs_fold(hs: List<&2, Hs>, +r: NR, +nm: String, +fr: FR, +cell: Bool, +off: N
   match hs:
     case []: r
     case +h <> +t: hs_fold(t, hs_next(r, h, nm, fr, cell, off, e, nd), nm, fr, cell, Nat.add(off, 1n), e, nd)
+
+type Tz is Data:
+  Tz_no{}
+  Tz_r{ r: NR }
+
+def tz_un(a: NR, t: NR, +nd: U64) -> NR:
+  match a:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+ab, fa}:
+      match t:
+        case NR_err{k2, d2}: NR_err{k2, d2}
+        case NR_ok{+tb, ft}: bool_nr(B8.run(B8.tag_union(), bool_in(ab), bool_in(tb), nd, 0u64, 0u64, False{}), ab, tb)
+
+def tz_add(acc: Tz, +t: NR, +nd: U64) -> Tz:
+  match acc:
+    case Tz_no{}: Tz_r{t}
+    case Tz_r{+a}: Tz_r{tz_un(a, t, nd)}
+
+def ck_one(is3: Bool, +h: Hs, +bi: Body, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: X.Env, +nd: U64, +acc: Tz) -> Tz:
+  match is3:
+    case False{}: acc
+    case True{}: tz_add(acc, hs_csk(bi, h, nm, fr, cell, off, e, nd), nd)
+
+def ck_tools(hs: List<&2, Hs>, +bi: Body, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: X.Env, +nd: U64, +acc: Tz) -> Tz:
+  match hs:
+    case []: acc
+    case +h <> t:
+      Hs{+k, sz, cls, x, y, r} = h
+      ck_tools(t, bi, nm, fr, cell, Nat.add(off, 1n), e, nd, ck_one(U64.is_eq(k, 3u64), h, bi, nm, fr, cell, off, e, nd, acc))
+
+def ck_fin2(r: NR, +bi: Body, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+t, ft}: bool_nr(B8.run(B8.tag_diff(), bool_in(bi), bool_in(t), nd, 0u64, 0u64, False{}), bi, t)
+
+def ck_fin(tz: Tz, +bi: Body, +fx: Fx, +nd: U64) -> NR:
+  match tz:
+    case Tz_no{}: NR_ok{bi, fx}
+    case Tz_r{+r}: ck_fin2(r, bi, nd)
+
+def hs_ck(r: NR, +hs: List<&2, Hs>, +nm: String, +fr: FR, +cell: Bool, +off: Nat, +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_err{k, d}: NR_err{k, d}
+    case NR_ok{+bi, +fx}: ck_fin(ck_tools(hs, bi, nm, fr, cell, off, e, nd, Tz_no{}), bi, fx, nd)
 
 def sel_name(+b: Body, +s: Sel, +base: U64) -> String:
   Sel{+snd, +sk, +side, +nm} = s
@@ -4384,7 +4438,7 @@ def hs_go(c: U64, +h: Hs, +b: Body, +f: Sel, +hs: List<&2, Hs>, +d: X.Xp, +thru:
       +nm = sel_name(b, f, base)
       +fr = frame_of(fa_nth(Ty.brep_fas(bd_brep(b)), name_idx(bd_fns(b), nm, 0n)))
       +cell = String.is_empty(sel_nm(f))
-      thr_go(hs_mods(hs), thru, hs_post(hs_fold(hs, op_feat(2u64, b, f, hs_rgs(hs, e), d, thru, e, nd, base), nm, fr, cell, List.length(&2, Hs, hs), e, nd), hs, b, fr, cell, e, nd),
+      thr_go(hs_mods(hs), thru, hs_post(hs_ck(hs_fold(hs, op_feat(2u64, b, f, hs_rgs(hs, e), d, thru, e, nd, base), nm, fr, cell, List.length(&2, Hs, hs), e, nd), hs, nm, fr, cell, List.length(&2, Hs, hs), e, nd), hs, b, fr, cell, e, nd),
         hs, b, nm, fr, cell, d, e, nd)
     case _: hs_bad(c, h, nd)
 
