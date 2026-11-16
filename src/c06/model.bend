@@ -114,7 +114,7 @@ type Dim is Data:
   Dm{ nom: F64, lo: F64, hi: F64 }
 
 type Param is Data:
-  Pm{ id: U64, name: String, dim: Dim }
+  Pm{ id: U64, name: String, dim: Dim, cls: String }
 
 type Node is Data:
   Nd{ id: U64, op: Op, it: It }
@@ -2278,13 +2278,19 @@ def it_w(i: It) -> List<&2, U64>:
   It{mat, fc, fm, sh, ho} = i
   [mat_tag(mat), cnt_w(fc), cnt_w(fm), cnt_w(sh), cnt_w(ho)]
 
+def dm_pt(+nom: F64, +lo: F64, +hi: F64) -> F64:
+  Bool.pick(F64, Bool.and(F64.is_le(lo, nom), F64.is_le(nom, hi)), nom, F64.mul(0.5f64, F64.add(lo, hi)))
+
+def pm_pt(+cls: String, +nom: F64, +lo: F64, +hi: F64) -> F64:
+  Bool.pick(F64, String.is_empty(cls), nom, dm_pt(nom, lo, hi))
+
 def pvs_of(ps: List<&2, Param>) -> List<&2, X.PV>:
   match ps:
     case []: []
     case p <> t:
-      Pm{id, name, dim} = p
-      Dm{nom, lo, hi} = dim
-      X.PV{id, nom} <> pvs_of(t)
+      Pm{id, name, dim, +cls} = p
+      Dm{+nom, +lo, +hi} = dim
+      X.PV{id, pm_pt(cls, nom, lo, hi)} <> pvs_of(t)
 
 def ce_id(c: CE) -> U64:
   CE{id, key, r} = c
@@ -2335,7 +2341,7 @@ def nd_id(n: Node) -> U64:
   id
 
 def pm_id(p: Param) -> U64:
-  Pm{id, name, dim} = p
+  Pm{id, name, dim, cls} = p
   id
 
 def nd_ids(ns: List<&2, Node>) -> List<&2, U64>:

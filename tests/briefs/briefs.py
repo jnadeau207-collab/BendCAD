@@ -116,14 +116,14 @@ B2 = dict(
     edit=dict(label='bolt square 31 -> 31.5 mm', edit='(param S 31.5)'),
     probes=[])
 
-HOUSING = ['(param DS 22 22 22.021)',
+HOUSING = ['(param DS 22 H7)',
            '(node 101 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 16.5) (line (/ DS 2) 16.5) (line (/ DS 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))',
            '(node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))',
            f'(node 103 (holes 102 (face 101 n101.c0.wall.2.0) through (clearance M5 {S45} {S45}) (clearance M5 -{S45} {S45}) (clearance M5 -{S45} -{S45}) (clearance M5 {S45} -{S45})) (intent remove any any 1 5))']
 
 B3 = dict(
     id='B3', sentence='Flanged housing for a 608 bearing: H7 seat, shoulder, retaining-ring groove, four-bolt flange', process='lathe and mill', parts=[103],
-    notes='One revolve profile (seat 22 H7 as parameter zone [22, 22.021], shoulder bore 19), flange 64 x 6 with four M5 clearance holes (ISO 273 record) on a 50 PCD at 45 deg, and a DIN 472 groove built by the groove feature from the 22 seat at the bearing end (z 13.9), notched into the revolve profile.',
+    notes='One revolve profile (seat 22 H7 as an ISO 286 class parameter, zone [22, 22.021] from the tables, shoulder bore 19), flange 64 x 6 with four M5 clearance holes (ISO 273 record) on a 50 PCD at 45 deg, and a DIN 472 groove built by the groove feature from the 22 seat at the bearing end (z 13.9), notched into the revolve profile.',
     edits=HOUSING + ['(node 190 (cylinder 10.9 4) (intent create any 0 1 0))', '(node 191 (move 190 0 0 8 0) (intent same any any 1 0))',
                      '(node 192 (cylinder 9.4 3) (intent create any 0 1 0))', '(node 193 (move 192 0 0 2 0) (intent same any any 1 0))'],
     checks=[C('valid solid', ['check', '103'], ('check_ok',)),
@@ -134,7 +134,7 @@ B3 = dict(
             C('minimum wall >= 2 mm', ['wall', '103'], ('wall_ge', 2.0)),
             C('retaining-ring groove to DIN 472', ['std', '103'], ('std', 1, 'ring-groove')),
             C('four M5 flange holes to ISO 273', ['std', '103'], ('std', 4, 'clearance M5')),
-            NA('H7 tolerance from ISO 286 applied to the seat', 'ISO 286 lives only inside pmi fits, which needs a mating shaft cylinder; a single bore cannot take a class, so the zone [22, 22.021] was typed by the agent'),
+            C('H7 tolerance from ISO 286 applied to the seat', ['show'], ('regex', r'^\(param \d+ DS 22 22 22\.021 H7\)$')),
             C('3-axis mill reach (ball end mill D6)', ['machine', '103', '6', '20', '10', '40', '3', '3'], ('machinable',), info=True),
             C('makeable on the declared process (lathe) with standard tools', ['make', 'lathe'], ('make_ok',)),
             DRAWING],
@@ -143,7 +143,7 @@ B3 = dict(
                  edits=[f'(node 150 (holes 103 (face 101 n101.c0.wall.2.1) through (hole 0 25 1)) (intent remove any any 1 any))']),
             dict(name='fillet on a revolve edge', at='end', edits=['(node 151 (fillet 103 1) (intent remove any any 1 any))'])])
 
-SHAFT = ['(param DK 8.004 8.001 8.007)',
+SHAFT = ['(param DK 8 k5)',
          '(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2) 40) (line (/ DK 2) 47) (line 3.995 47) (line 3.995 59.5) (line 3.5 60) (line 0 60)))) (intent create any 0 1 0))',
          '(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))',
          '(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 49) (intent remove any any 1 0))',
@@ -151,7 +151,7 @@ SHAFT = ['(param DK 8.004 8.001 8.007)',
 
 B4 = dict(
     id='B4', sentence='8 mm shaft: two k5 bearing seats, shoulder, keyway, ring groove, M8x1 thread, chamfers', process='lathe', parts=[204],
-    notes='One revolve profile: M8x1 at 7.95 (6g major window), seat A 8 k5 (zone [8.001, 8.007]), shoulder 10, seat B and journal 8, 0.5 chamfers at both ends; a DIN 471 groove built by the groove feature at the start of seat A (z 8) and a DIN 6885-1 keyseat built by the keyway feature on the journal (+y, z 49, L 10).',
+    notes='One revolve profile: M8x1 at 7.95 (6g major window), seat A 8 k5 (an ISO 286 class parameter: zone [8.001, 8.007], modelled at its middle 8.004), shoulder 10, seat B and journal 8, 0.5 chamfers at both ends; a DIN 471 groove built by the groove feature at the start of seat A (z 8) and a DIN 6885-1 keyseat built by the keyway feature on the journal (+y, z 49, L 10).',
     edits=SHAFT,
     checks=[C('valid solid', ['check', '204'], ('check_ok',)),
             C('M8x1 6g thread callout certified', ['threads', '204'], ('contains', 'M8x1 6g', 'status=certified')),
@@ -159,7 +159,7 @@ B4 = dict(
             C('minimum wall >= 1 mm', ['wall', '204'], ('wall_ge', 1.0)),
             C('ring groove to DIN 471', ['std', '204'], ('std', 1, 'ring-groove')),
             C('keyway to DIN 6885', ['std', '204'], ('std', 1, 'keyway')),
-            NA('k5 class from ISO 286 applied to the seats', 'ISO 286 lives only inside pmi fits with a mating hole; the zone was typed by the agent'),
+            C('k5 class from ISO 286 applied to the seats', ['show'], ('regex', r'^\(param \d+ DK 8 8\.001 8\.007 k5\)$')),
             C('makeable on the declared process (lathe) with standard tools', ['make', 'lathe'], ('make_ok',)),
             DRAWING],
     edit=dict(label='seat diameter 8.004 -> 8.006', edit='(param DK 8.006 8.001 8.007)'),

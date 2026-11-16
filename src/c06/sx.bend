@@ -1196,9 +1196,9 @@ def it_sx(i: M.It) -> Sx:
   ls([at("intent"), at(M.mat_show(mat)), cnt_sx(fc), cnt_sx(fm), cnt_sx(sh), cnt_sx(ho)])
 
 def pm_sx(p: M.Param) -> Sx:
-  M.Pm{id, name, dim} = p
+  M.Pm{id, name, dim, +cls} = p
   M.Dm{nom, lo, hi} = dim
-  ls([at("param"), at(U64.show(id)), at(name), at(f_show(nom)), at(f_show(lo)), at(f_show(hi))])
+  ls(List.append(&2, Sx, [at("param"), at(U64.show(id)), at(name), at(f_show(nom)), at(f_show(lo)), at(f_show(hi))], Bool.pick(List<&2, Sx>, String.is_empty(cls), [], [at(cls)])))
 
 def nd_sx(n: M.Node, +ns: List<&2, NI>) -> Sx:
   M.Nd{id, op, it} = n
@@ -1208,7 +1208,7 @@ def nis_of(ps: List<&2, M.Param>) -> List<&2, NI>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       NI{name, id} <> nis_of(t)
 
 def pms_sx(ps: List<&2, M.Param>) -> List<&2, Sx>:
@@ -1258,7 +1258,7 @@ def pm_of(+x: Sx) -> M.Param:
   +lo = num(sx_s(sx_nth(xs, 4n)))
   +hi = num(sx_s(sx_nth(xs, 5n)))
   M.Pm{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)),
-    M.Dm{nom, Bool.pick(F64, is_some(lo), some_v(lo), nom), Bool.pick(F64, is_some(hi), some_v(hi), nom)}}
+    M.Dm{nom, Bool.pick(F64, is_some(lo), some_v(lo), nom), Bool.pick(F64, is_some(hi), some_v(hi), nom)}, Bool.pick(String, Nat.is_lt(6n, List.length(&2, Sx, xs)), sx_s(sx_nth(xs, 6n)), "")}
 
 def pms_of(xs: List<&2, Sx>) -> List<&2, M.Param>:
   match xs:

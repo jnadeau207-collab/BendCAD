@@ -184,7 +184,7 @@ def pm_dim(ps: List<&2, M.Param>, +nm: String) -> Maybe<&2, M.Dim>:
   match ps:
     case []: None{}
     case p <> t:
-      M.Pm{+id, +n, +d} = p
+      M.Pm{+id, +n, +d, cls} = p
       Bool.pick(Maybe<&2, M.Dim>, String.eq(n, nm), Some{d}, pm_dim(t, nm))
 def dim_par_m(m: Maybe<&2, M.Dim>, +nm: String, +pnm: String) -> ER:
   match m:
@@ -730,7 +730,7 @@ def pwidth(+ps: List<&2, M.Param>, +acc: F64) -> F64:
   match ps:
     case []: acc
     case p <> t:
-      M.Pm{+id, +n, +d} = p
+      M.Pm{+id, +n, +d, cls} = p
       M.Dm{+nom, +lo, +hi} = d
       pwidth(t, F64.add(acc, F64.sub(hi, lo)))
 def pmi_w(+p: M.Part) -> F64:

@@ -42,8 +42,8 @@ const kernelIf = (g, ...a) => queue(async () => {
 function parseShow(txt) {
   const params = [], nodes = [];
   for (const ln of txt.split('\n')) {
-    let m = ln.match(/^\(param (\d+) (\S+) (\S+) (\S+) (\S+)\)$/);
-    if (m) { params.push({ id: +m[1], name: m[2], value: m[3], lo: m[4], hi: m[5] }); continue; }
+    let m = ln.match(/^\(param (\d+) (\S+) (\S+) (\S+) (\S+)(?: (\S+))?\)$/);
+    if (m) { params.push({ id: +m[1], name: m[2], value: m[3], lo: m[4], hi: m[5], cls: m[6] || null }); continue; }
     m = ln.match(/^\(node (\d+) \((\S+)(.*)\)$/);
     if (m) nodes.push({ id: +m[1], op: m[2], text: ln });
   }

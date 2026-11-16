@@ -146,11 +146,11 @@ def diag_s(cs: List<&2, M.CE>) -> String:
     case c <> t: diag_ce(c) ++ "\n" ++ diag_s(t)
 
 def pm_name(p: M.Param) -> String:
-  M.Pm{id, name, dim} = p
+  M.Pm{id, name, dim, cls} = p
   name
 
 def pm_idv(p: M.Param) -> U64:
-  M.Pm{id, name, dim} = p
+  M.Pm{id, name, dim, cls} = p
   id
 
 def max_id(ps: List<&2, M.Param>, +m: U64) -> U64:
@@ -158,10 +158,10 @@ def max_id(ps: List<&2, M.Param>, +m: U64) -> U64:
     case []: m
     case p <> t: max_id(t, U64.max(m, pm_idv(p)))
 
-def pm_set(ps: List<&2, M.Param>, +name: String, +d: M.Dim) -> List<&2, M.Param>:
+def pm_set(ps: List<&2, M.Param>, +name: String, +d: M.Dim, +c: String) -> List<&2, M.Param>:
   match ps:
     case []: []
-    case +p <> +t: Bool.pick(List<&2, M.Param>, String.eq(pm_name(p), name), M.Pm{pm_idv(p), name, d} <> t, p <> pm_set(t, name, d))
+    case +p <> +t: Bool.pick(List<&2, M.Param>, String.eq(pm_name(p), name), M.Pm{pm_idv(p), name, d, c} <> t, p <> pm_set(t, name, d, c))
 
 def pm_has_zz(ps: List<&2, M.Param>, zz: Bool, +name: String) -> Bool:
   match ps:
@@ -194,12 +194,27 @@ def dim_of(+xs: List<&2, S.Sx>) -> M.Dim:
   +hi = S.num(S.sx_s(S.sx_nth(xs, 4n)))
   M.Dm{nom, Bool.pick(F64, S.is_some(lo), S.some_v(lo), nom), Bool.pick(F64, S.is_some(hi), S.some_v(hi), nom)}
 
+def cls_valid(+c: String) -> Bool:
+  +l = KF.s_letters(c, "")
+  Bool.and(Bool.and(Bool.or(KF.hole_ok(l), KF.shaft_ok(l)), KF.grade_ok(KF.nat_of(KF.s_digits(c)))), String.eq(c, l ++ KF.s_digits(c)))
+
+def cls_in(+nom: F64) -> Bool:
+  Bool.and(F64.is_lt(0.0f64, nom), F64.is_le(nom, 500.0f64))
+
+def cls_dim(+c: String, +nom: F64) -> M.Dim:
+  +l = KF.s_letters(c, "")
+  +g = KF.nat_of(KF.s_digits(c))
+  +v = Bool.pick(V.Vec2, KF.hole_ok(l), KF.hole_lim(l, g, nom), KF.shaft_lim(l, g, nom))
+  M.Dm{nom, V.v2_x(v), V.v2_y(v)}
+
 def edit_param(+p: M.Part, +xs: List<&2, S.Sx>) -> M.Part:
   M.Pt{+ps, +ns, +ms, +ts} = p
   +name = S.sx_s(S.sx_nth(xs, 1n))
-  +d = dim_of(xs)
-  Bool.pick(M.Part, pm_has(ps, name), M.Pt{pm_set(ps, name, d), ns, ms, ts},
-    M.Pt{List.append(&2, M.Param, ps, [M.Pm{(max_id(ps, 0u64) + 1u64 : U64), name, d}]), ns, ms, ts})
+  +four = Nat.is_eq(List.length(&2, S.Sx, xs), 4n)
+  +c = Bool.pick(String, four, S.sx_s(S.sx_nth(xs, 3n)), "")
+  +d = Bool.pick(M.Dim, four, cls_dim(c, S.some_v(S.num(S.sx_s(S.sx_nth(xs, 2n))))), dim_of(xs))
+  Bool.pick(M.Part, pm_has(ps, name), M.Pt{pm_set(ps, name, d, c), ns, ms, ts},
+    M.Pt{List.append(&2, M.Param, ps, [M.Pm{(max_id(ps, 0u64) + 1u64 : U64), name, d, c}]), ns, ms, ts})
 
 def edit_node(+p: M.Part, +x: S.Sx) -> M.Part:
   M.Pt{+ps, ns, +ms, +ts} = p
@@ -233,9 +248,24 @@ def fin_of(m: Maybe<&2, F64>) -> F64:
 def pm_ok(+xs: List<&2, S.Sx>) -> Bool:
   +n = List.length(&2, S.Sx, xs)
   +nom = fin_of(S.num(S.sx_s(S.sx_nth(xs, 2n))))
-  +lo = Bool.pick(F64, Nat.is_eq(n, 3n), nom, fin_of(S.num(S.sx_s(S.sx_nth(xs, 3n)))))
-  +hi = Bool.pick(F64, Nat.is_eq(n, 3n), nom, fin_of(S.num(S.sx_s(S.sx_nth(xs, 4n)))))
-  Bool.and(Bool.or(Nat.is_eq(n, 3n), Nat.is_eq(n, 5n)), Bool.and(F64.is_le(lo, nom), F64.is_le(nom, hi)))
+  +bare = Bool.or(Nat.is_eq(n, 3n), Nat.is_eq(n, 4n))
+  +lo = Bool.pick(F64, bare, nom, fin_of(S.num(S.sx_s(S.sx_nth(xs, 3n)))))
+  +hi = Bool.pick(F64, bare, nom, fin_of(S.num(S.sx_s(S.sx_nth(xs, 4n)))))
+  Bool.and(Bool.or(Bool.or(Nat.is_eq(n, 3n), Nat.is_eq(n, 5n)), Bool.and(Nat.is_eq(n, 4n), Bool.and(cls_valid(S.sx_s(S.sx_nth(xs, 3n))), cls_in(nom)))), Bool.and(F64.is_le(lo, nom), F64.is_le(nom, hi)))
+
+def cls_why(+xs: List<&2, S.Sx>) -> String:
+  +c = S.sx_s(S.sx_nth(xs, 3n))
+  +nom = fin_of(S.num(S.sx_s(S.sx_nth(xs, 2n))))
+  Bool.pick(String, Bool.not(cls_valid(c)), "param-class-unknown: " ++ c ++ " | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)",
+    Bool.pick(String, Bool.and(F64.is_eq(nom, nom), Bool.not(cls_in(nom))), "param-class-out-of-range: " ++ S.f_show(nom) ++ " | fix: the ISO 286 tables cover nominal sizes above 0 up to 500 mm; give the zone as LO HI", ""))
+
+def cls_go(xs: List<&2, S.Sx>) -> String:
+  match xs:
+    case []: ""
+    case +x <> t:
+      +r = cls_go(t)
+      +m = Bool.pick(String, Bool.and(Bool.and(S.head_is(x, "param"), Nat.is_eq(List.length(&2, S.Sx, S.sx_xs(x)), 4n)), Bool.not(S.is_some(S.num(S.sx_s(S.sx_nth(S.sx_xs(x), 3n)))))), cls_why(S.sx_xs(x)), "")
+      Bool.pick(String, String.is_empty(m), r, m)
 
 def thr_ok(+xs: List<&2, S.Sx>) -> Bool:
   Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 8n), S.nat_ok(S.sx_nth(xs, 1n)))
@@ -441,7 +471,7 @@ def pm_nom(ps: List<&2, M.Param>, +name: String) -> F64:
   match ps:
     case []: F64.nan()
     case p <> t:
-      M.Pm{id, n, d} = p
+      M.Pm{id, n, d, cls} = p
       M.Dm{nom, lo, hi} = d
       Bool.pick(F64, String.eq(n, name), nom, pm_nom(t, name))
 
@@ -449,9 +479,9 @@ def pm_bump(ps: List<&2, M.Param>, +name: String, +dv: F64) -> List<&2, M.Param>
   match ps:
     case []: []
     case p <> t:
-      M.Pm{+id, +n, +d} = p
+      M.Pm{+id, +n, +d, +c} = p
       M.Dm{+nom, +lo, +hi} = d
-      Bool.pick(M.Param, String.eq(n, name), M.Pm{id, n, M.Dm{F64.add(nom, dv), lo, hi}}, M.Pm{id, n, d}) <> pm_bump(t, name, dv)
+      Bool.pick(M.Param, String.eq(n, name), M.Pm{id, n, M.Dm{F64.add(nom, dv), lo, hi}, c}, M.Pm{id, n, d, c}) <> pm_bump(t, name, dv)
 
 def ms_vec(m: M.Ms) -> List<&2, F64>:
   M.Ms{vol, area, x0, x1, y0, y1, z0, z1, nv, ne, nf, ns, genus, lin} = m
@@ -616,9 +646,10 @@ def commit_e(+path: String, +p: M.Part, +cs: List<&2, M.CE>, +errs: String) -> I
 def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(String):
   commit_e(path, p, cs, part_errs(p, cs))
 
-def apply_go(ok: Bool, +path: String, +p: M.Part) -> IO(String):
+def apply_go(ok: Bool, +path: String, +p: M.Part, +m: String) -> IO(String):
   match ok:
-    case False{}: IO.pure(String, "error invalid-input | apply | why: edits must be (param NAME NOM [LO HI]) with finite numbers LO <= NOM <= HI, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax")
+    case False{}: IO.pure(String, Bool.pick(String, String.is_empty(m), "error invalid-input | apply | why: edits must be (param NAME NOM [LO HI | CLASS]) with finite numbers LO <= NOM <= HI and CLASS an ISO 286 tolerance class, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax",
+      "error invalid-input | param | why: " ++ m ++ "\nrejected: the design was not changed"))
     case True{}: commit(path, p, M.ev_part(p, []))
 
 def cmd_code(+c: String) -> U64:
@@ -641,7 +672,7 @@ def cmd_code(+c: String) -> U64:
 
 def apply_parsed(r: S.PS, +path: String, +p: M.Part) -> IO(String):
   S.PS{+ok, +xs} = r
-  apply_go(Bool.and(ok, edits_ok(xs)), path, edits(xs, p))
+  apply_go(Bool.and(ok, edits_ok(xs)), path, edits(xs, p), cls_go(xs))
 
 def f_or_nan(m: Maybe<&2, F64>) -> F64:
   match m:

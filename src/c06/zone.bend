@@ -30,7 +30,7 @@ def pvs_lo(ps: List<&2, M.Param>) -> List<&2, X.PV>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       M.Dm{nom, lo, hi} = dim
       X.PV{id, lo} <> pvs_lo(t)
 
@@ -38,7 +38,7 @@ def pvs_hi(ps: List<&2, M.Param>) -> List<&2, X.PV>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       M.Dm{nom, lo, hi} = dim
       X.PV{id, hi} <> pvs_hi(t)
 
@@ -208,9 +208,9 @@ def zones_ok(ps: List<&2, M.Param>) -> Bool:
   match ps:
     case []: True{}
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, +cls} = p
       M.Dm{+nom, +lo, +hi} = dim
-      Bool.and(Bool.and(F64.is_le(lo, nom), F64.is_le(nom, hi)), zones_ok(t))
+      Bool.and(Bool.and(F64.is_le(lo, M.pm_pt(cls, nom, lo, hi)), F64.is_le(M.pm_pt(cls, nom, lo, hi), hi)), zones_ok(t))
 
 def body_of(r: M.NR) -> Maybe<&2, M.Body>:
   match r:
@@ -527,14 +527,14 @@ def p_ids(ps: List<&2, M.Param>) -> List<&2, U64>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       id <> p_ids(t)
 
 def p_ivs(ps: List<&2, M.Param>, +mid: Bool) -> List<&2, I.I>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       M.Dm{nom, +lo, +hi} = dim
       +m = F64.mul(0.5f64, F64.add(lo, hi))
       Bool.pick(I.I, mid, I.ipt(m), I.I{lo, hi}) <> p_ivs(t, mid)
@@ -543,7 +543,7 @@ def p_w(ps: List<&2, M.Param>) -> List<&2, I.I>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{id, name, dim} = p
+      M.Pm{id, name, dim, cls} = p
       M.Dm{nom, +lo, +hi} = dim
       +m = F64.mul(0.5f64, F64.add(lo, hi))
       I.isub(I.I{lo, hi}, I.ipt(m)) <> p_w(t)
@@ -552,7 +552,7 @@ def widest(ps: List<&2, M.Param>, +best: U64, +w: F64) -> U64:
   match ps:
     case []: best
     case p <> t:
-      M.Pm{+id, name, dim} = p
+      M.Pm{+id, name, dim, cls} = p
       M.Dm{nom, +lo, +hi} = dim
       +d = F64.sub(hi, lo)
       +more = F64.is_lt(w, d)
@@ -566,9 +566,9 @@ def cut_ps(ps: List<&2, M.Param>, +id: U64, +left: Bool) -> List<&2, M.Param>:
   match ps:
     case []: []
     case p <> t:
-      M.Pm{+pid, name, dim} = p
+      M.Pm{+pid, name, dim, cls} = p
       M.Dm{+nom, +lo, +hi} = dim
-      M.Pm{pid, name, Bool.pick(M.Dim, U64.is_eq(pid, id), cut_dim(left, nom, lo, hi), M.Dm{nom, lo, hi})} <> cut_ps(t, id, left)
+      M.Pm{pid, name, Bool.pick(M.Dim, U64.is_eq(pid, id), cut_dim(left, nom, lo, hi), M.Dm{nom, lo, hi}), cls} <> cut_ps(t, id, left)
 
 def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id: U64, +z: ZT.Zb) -> Bool:
   match n:
@@ -683,12 +683,12 @@ def mv_of(+ps: List<&2, M.Param>, +ns: List<&2, M.Node>, +b: M.Body, +id: U64, +
   Bool.pick(I.I, vol, D.mvf(dz_v(m), dz_v(x), p_w(ps)), D.mvf(dz_a(m), dz_a(x), p_w(ps)))
 
 def cdim(p: M.Param, +g: I.I, +up: Bool) -> M.Param:
-  M.Pm{id, name, dim} = p
+  M.Pm{id, name, dim, cls} = p
   M.Dm{+nom, +lo, +hi} = dim
   +inc = ZT.pos(g)
   +dec = ZT.neg(g)
   +at = Bool.pick(F64, Bool.and(inc, up), hi, Bool.pick(F64, inc, lo, Bool.pick(F64, up, lo, hi)))
-  M.Pm{id, name, Bool.pick(M.Dim, Bool.or(inc, dec), M.Dm{nom, at, at}, M.Dm{nom, lo, hi})}
+  M.Pm{id, name, Bool.pick(M.Dim, Bool.or(inc, dec), M.Dm{nom, at, at}, M.Dm{nom, lo, hi}), cls}
 
 def corner(ps: List<&2, M.Param>, gs: List<&2, I.I>, +up: Bool) -> List<&2, M.Param>:
   match ps:

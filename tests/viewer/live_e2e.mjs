@@ -94,6 +94,20 @@ try {
   const n4b = nearOf(L, 4);
   chk('the neighbour check re-runs: the pin follows D and keeps its certified 0.1 mm clearance', n4b && n4b.kind === 'clearance' && n4b.lo <= 0.1 + 1e-9 && n4b.hi >= 0.1 - 1e-9 && n4b.hi - n4b.lo < 1e-6, { pin: n4b });
 
+  const commit = async (fn, arg) => { const r = (await page.evaluate(() => window.bcv.live())).doc.rev; await page.evaluate(fn, arg); await page.waitForFunction(x => document.body.dataset.rev !== x && !window.bcv.live().busy, r, { timeout: 120000 }); return page.evaluate(() => window.bcv.live()); };
+  L = await commit(e => window.bcv.liveApply(e), '(param D 12 H7)');
+  const liveText = async () => (await page.locator('#live').innerText()).replace(/\s+/g, ' ');
+  chk('an agent gives D the ISO 286 class H7: the kernel sets the zone for 12 mm (10 to 18 band, IT7 = 18 um) and the viewer shows the class', L.doc.params[0].cls === 'H7' && L.doc.params[0].lo === '12' && L.doc.params[0].hi === '12.018' && /H7 \(ISO 286\) zone 12 – 12\.018/.test(await liveText()), { param: L.doc.params[0] });
+  const r20 = L.doc.rev;
+  await page.fill('#live input[data-p="D"]', '20');
+  await page.press('#live input[data-p="D"]', 'Enter');
+  await page.waitForFunction(x => document.body.dataset.rev !== x && !window.bcv.live().busy, r20, { timeout: 120000 });
+  L = await page.evaluate(() => window.bcv.live());
+  chk('a person changes the classed dimension and the kernel recomputes the zone for the new size band (18 to 30, IT7 = 21 um) instead of shifting the old one', L.last && L.last.ok && L.doc.params[0].cls === 'H7' && L.doc.params[0].value === '20' && L.doc.params[0].lo === '20' && L.doc.params[0].hi === '20.021', { param: L.doc.params[0] });
+  L = await commit(e => window.bcv.liveApply(e), '(param D 12 12 12.015)');
+  chk('the typed zone replaces the class', L.doc.params[0].cls === null && L.doc.params[0].hi === '12.015', { param: L.doc.params[0] });
+  await waitNear(page, 2);
+
   const rc = L.doc.rev, t3 = Date.now();
   await page.fill('#live input[data-p="C"]', '-0.05');
   await page.press('#live input[data-p="C"]', 'Enter');

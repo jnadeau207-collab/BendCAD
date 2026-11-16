@@ -9,8 +9,8 @@
    "ok": true,
    "parts": 24,
    "tris": 4776652,
-   "load_ms": 7042,
-   "wall_ms": 8705
+   "load_ms": 14531,
+   "wall_ms": 16221
   },
   {
    "name": "hardware WebGL renderer",
@@ -20,7 +20,7 @@
   {
    "name": "full studio frame (MSAA + GTAO + outlines) under 50 ms at 1080p",
    "ok": true,
-   "frame_ms": 15.55
+   "frame_ms": 22.64
   },
   {
    "name": "casing",
@@ -114,7 +114,7 @@
   {
    "name": "4K snapshot renders 3840x2160",
    "ok": true,
-   "bytes": 6076649,
+   "bytes": 6077204,
    "w": 3840,
    "h": 2160
   },

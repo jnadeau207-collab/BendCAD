@@ -1,0 +1,32 @@
+{
+ "item": "S1",
+ "limit_s": 10,
+ "claim": "a parameter takes an ISO 286 tolerance class: (param NAME NOM CLASS) sets the zone from the tabulated deviations for the size band of NOM, the class is kept in the design file and printed by show, the part is evaluated at the nominal when the zone holds it and at the middle of the zone when it does not (an 8 k5 shaft is modelled at 8.004 and certifies over its zone), a new nominal with the class recomputes the zone for its band, the bare form resets it, and an unknown class, a grade outside the tables or a nominal outside them is refused with the admissible choices",
+ "steps": [
+  {"args": ["apply", "(param D 22 H7)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 2 D 22 22 22\\.021 H7\\)$"]},
+  {"args": ["apply", "(param D 30 H7)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 2 D 30 30 30\\.021 H7\\)$"]},
+  {"args": ["apply", "(param D 30.5 H7)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 2 D 30\\.5 30\\.5 30\\.525 H7\\)$"]},
+  {"args": ["apply", "(param S 8 k5)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 3 S 8 8\\.001 8\\.007 k5\\)$"]},
+  {"args": ["apply", "(node 2 (cylinder (/ S 2) 10) (intent create any 0 1 0))"], "must": ["^committed"]},
+  {"args": ["measure", "2"], "must": ["volume=\\[503\\.157"]},
+  {"args": ["zone", "2"], "must": ["volume=\\["], "must_not": ["zone-not-ordered"]},
+  {"args": ["apply", "(param T 8 js6)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 4 T 8 7\\.9955 8\\.0045 js6\\)$"]},
+  {"args": ["apply", "(param U 40 f7)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 5 U 40 39\\.95 39\\.975 f7\\)$"]},
+  {"args": ["apply", "(param R 11 H7)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 1 R 11 11 11\\.018 H7\\)$"]},
+  {"args": ["eval"], "must": ["node 1: ok"]},
+  {"args": ["apply", "(param D 22)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(param 2 D 22 22 22\\)$"]},
+  {"args": ["apply", "(param D 22 Q7)"], "must": ["param-class-unknown: Q7", "fix: .*H7", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(param D 22 H4)"], "must": ["param-class-unknown: H4", "grades 5 to 11", "^rejected"], "stop_on_fail": false},
+  {"args": ["apply", "(param D 22 9)"], "must": ["finite numbers LO <= NOM <= HI"], "must_not": ["param-class"], "stop_on_fail": false},
+  {"args": ["apply", "(param D 600 H7)"], "must": ["param-class-out-of-range: 600", "500", "^rejected"], "stop_on_fail": false},
+  {"args": ["show"], "must": ["^\\(param 2 D 22 22 22\\)$"], "must_not": ["Q7", "H4", "600"]}
+ ]
+}

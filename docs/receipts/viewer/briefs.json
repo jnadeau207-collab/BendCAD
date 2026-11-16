@@ -1,6 +1,6 @@
 {
- "binary": "/home/jesse/bc/bendcad-p7d",
- "sha256": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf",
+ "binary": "/home/jesse/bc/bendcad-p8d",
+ "sha256": "fae0ad551d5dd77689404e6705ae632eba876c49b1b45596ce25a843f8c72f9e",
  "source": "/var/tmp/briefs",
  "briefs": [
   {
@@ -38,8 +38,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2166,
-   "open_to_neighbours_ms": 2179,
+   "open_ms": 2131,
+   "open_to_neighbours_ms": 2135,
    "params": [
     "T=4",
     "L=40",
@@ -53,13 +53,13 @@
    "unmeshed": [],
    "selected": 3,
    "check": "pass",
-   "make": "not-analyzed 13 faces, 10 pass, 0 fail, 3 not-analyzed; 0 sharp inside corners",
+   "make": "makeable 13 faces, 13 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
    "mass": {
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 873,
-   "eval_mesh_ms": 324,
+   "checks_ms": 857,
+   "eval_mesh_ms": 341,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B1-iso.png",
    "ok": true
@@ -99,8 +99,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2961,
-   "open_to_neighbours_ms": 3395,
+   "open_ms": 2927,
+   "open_to_neighbours_ms": 3349,
    "params": [
     "S=31.5",
     "P=22.1"
@@ -118,8 +118,8 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 2254,
-   "eval_mesh_ms": 152,
+   "checks_ms": 2197,
+   "eval_mesh_ms": 156,
    "neighbours": [
     {
      "node": 91,
@@ -127,7 +127,7 @@
      "status": "certified",
      "lo": 0.09999999967000048,
      "hi": 0.10000000000001497,
-     "ms": 434
+     "ms": 418
     }
    ],
    "render": "docs/receipts/viewer/briefs/B2-iso.png",
@@ -168,8 +168,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2259,
-   "open_to_neighbours_ms": 3721,
+   "open_ms": 2254,
+   "open_to_neighbours_ms": 3687,
    "params": [
     "DS=22"
    ],
@@ -187,8 +187,8 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 1281,
-   "eval_mesh_ms": 385,
+   "checks_ms": 1315,
+   "eval_mesh_ms": 378,
    "neighbours": [
     {
      "node": 191,
@@ -196,7 +196,7 @@
      "status": "certified",
      "lo": 0.09999999975983795,
      "hi": 0.10000000000002635,
-     "ms": 695
+     "ms": 666
     },
     {
      "node": 193,
@@ -204,7 +204,7 @@
      "status": "certified",
      "lo": 0.09999999988037264,
      "hi": 0.10000000000002635,
-     "ms": 762
+     "ms": 745
     }
    ],
    "render": "docs/receipts/viewer/briefs/B3-iso.png",
@@ -245,8 +245,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2494,
-   "open_to_neighbours_ms": 2506,
+   "open_ms": 2570,
+   "open_to_neighbours_ms": 2579,
    "params": [
     "DK=8.006"
    ],
@@ -257,13 +257,13 @@
    "unmeshed": [],
    "selected": 204,
    "check": "pass",
-   "make": "not-analyzed 35 faces, 29 pass, 0 fail, 6 not-analyzed; 0 sharp inside corners",
+   "make": "not-analyzed 35 faces, 31 pass, 0 fail, 4 not-analyzed; 0 sharp inside corners",
    "mass": {
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 1426,
-   "eval_mesh_ms": 501,
+   "checks_ms": 1482,
+   "eval_mesh_ms": 512,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B4-iso.png",
    "ok": true
@@ -318,8 +318,8 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 2610,
-   "eval_mesh_ms": 1635,
+   "checks_ms": 2586,
+   "eval_mesh_ms": 1669,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B5-iso.png",
    "ok": true
@@ -359,8 +359,8 @@
      "errors": []
     }
    ],
-   "open_ms": 4433,
-   "open_to_neighbours_ms": 24538,
+   "open_ms": 4532,
+   "open_to_neighbours_ms": 24619,
    "params": [],
    "nodes": 3,
    "parts": [
@@ -375,14 +375,14 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 3252,
-   "eval_mesh_ms": 599,
+   "checks_ms": 3324,
+   "eval_mesh_ms": 593,
    "neighbours": [
     {
      "node": 3,
      "kind": "timeout",
      "status": "not-analyzed",
-     "ms": 20101,
+     "ms": 20075,
      "text": "no answer in 20 s"
     }
    ],
@@ -424,8 +424,8 @@
      "errors": []
     }
    ],
-   "open_ms": 5132,
-   "open_to_neighbours_ms": 20367,
+   "open_ms": 5241,
+   "open_to_neighbours_ms": 20649,
    "params": [
     "H=32"
    ],
@@ -437,13 +437,13 @@
    "unmeshed": [],
    "selected": 705,
    "check": "pass",
-   "make": "not-analyzed 36 faces, 23 pass, 0 fail, 13 not-analyzed; 0 sharp inside corners",
+   "make": "makeable 36 faces, 36 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
    "mass": {
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 3484,
-   "eval_mesh_ms": 1061,
+   "checks_ms": 3594,
+   "eval_mesh_ms": 1093,
    "neighbours": [
     {
      "node": 714,
@@ -451,7 +451,7 @@
      "status": "certified",
      "lo": 0,
      "hi": 0,
-     "ms": 15234
+     "ms": 15407
     }
    ],
    "render": "docs/receipts/viewer/briefs/B7-iso.png",
@@ -492,8 +492,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2573,
-   "open_to_neighbours_ms": 22663,
+   "open_ms": 2614,
+   "open_to_neighbours_ms": 22699,
    "params": [
     "GD=2.7"
    ],
@@ -510,14 +510,14 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 1555,
-   "eval_mesh_ms": 441,
+   "checks_ms": 1560,
+   "eval_mesh_ms": 448,
    "neighbours": [
     {
      "node": 804,
      "kind": "timeout",
      "status": "not-analyzed",
-     "ms": 20085,
+     "ms": 20079,
      "text": "no answer in 20 s"
     }
    ],
@@ -559,8 +559,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2407,
-   "open_to_neighbours_ms": 43314,
+   "open_ms": 2419,
+   "open_to_neighbours_ms": 43717,
    "params": [],
    "nodes": 16,
    "parts": [
@@ -574,13 +574,13 @@
    "unmeshed": [],
    "selected": 906,
    "check": "pass",
-   "make": "not-analyzed 14 faces, 13 pass, 0 fail, 1 not-analyzed; 0 sharp inside corners",
+   "make": "makeable 14 faces, 14 pass, 0 fail, 0 not-analyzed; 0 sharp inside corners",
    "mass": {
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 1061,
-   "eval_mesh_ms": 730,
+   "checks_ms": 1106,
+   "eval_mesh_ms": 685,
    "neighbours": [
     {
      "node": 921,
@@ -588,7 +588,7 @@
      "status": "certified",
      "lo": 0.14999999539835746,
      "hi": 0.14999999999999813,
-     "ms": 3846
+     "ms": 3871
     },
     {
      "node": 931,
@@ -596,7 +596,7 @@
      "status": "certified",
      "lo": 0.39999996990626263,
      "hi": 0.40000000000001656,
-     "ms": 15076
+     "ms": 15297
     },
     {
      "node": 932,
@@ -604,7 +604,7 @@
      "status": "certified",
      "lo": 0.39999999038147943,
      "hi": 0.3999999999999999,
-     "ms": 5632
+     "ms": 5714
     },
     {
      "node": 933,
@@ -612,7 +612,7 @@
      "status": "certified",
      "lo": 0.39999997474327825,
      "hi": 0.4000000000000109,
-     "ms": 15700
+     "ms": 15788
     },
     {
      "node": 934,
@@ -620,7 +620,7 @@
      "status": "certified",
      "lo": 0,
      "hi": 0,
-     "ms": 648
+     "ms": 627
     }
    ],
    "render": "docs/receipts/viewer/briefs/B9-iso.png",
@@ -661,8 +661,8 @@
      "errors": []
     }
    ],
-   "open_ms": 1730,
-   "open_to_neighbours_ms": 1735,
+   "open_ms": 1739,
+   "open_to_neighbours_ms": 1744,
    "params": [],
    "nodes": 2,
    "parts": [
@@ -676,8 +676,8 @@
     "material": null,
     "centroid": "not-analyzed"
    },
-   "checks_ms": 863,
-   "eval_mesh_ms": 282,
+   "checks_ms": 842,
+   "eval_mesh_ms": 286,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B10-iso.png",
    "ok": true
@@ -717,8 +717,8 @@
      "errors": []
     }
    ],
-   "open_ms": 24527,
-   "open_to_neighbours_ms": 24532,
+   "open_ms": 24207,
+   "open_to_neighbours_ms": 24213,
    "params": [],
    "nodes": 12,
    "parts": [
@@ -732,8 +732,8 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 18424,
-   "eval_mesh_ms": 5236,
+   "checks_ms": 18313,
+   "eval_mesh_ms": 5243,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B11-iso.png",
    "ok": true
@@ -773,8 +773,8 @@
      "errors": []
     }
    ],
-   "open_ms": 7296,
-   "open_to_neighbours_ms": 7301,
+   "open_ms": 7412,
+   "open_to_neighbours_ms": 7420,
    "params": [],
    "nodes": 4,
    "parts": [
@@ -788,8 +788,8 @@
     "material": null,
     "centroid": "certified"
    },
-   "checks_ms": 5352,
-   "eval_mesh_ms": 1376,
+   "checks_ms": 5479,
+   "eval_mesh_ms": 1314,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B12-iso.png",
    "ok": true
@@ -829,11 +829,11 @@
      "errors": []
     }
    ],
-   "open_ms": 6676,
-   "open_to_neighbours_ms": 19033,
+   "open_ms": 6780,
+   "open_to_neighbours_ms": 19057,
    "params": [
     "DS=22.01",
-    "DK=8.004"
+    "DK=8"
    ],
    "nodes": 20,
    "parts": [
@@ -850,8 +850,8 @@
     "material": "6082-T6",
     "centroid": "certified"
    },
-   "checks_ms": 3372,
-   "eval_mesh_ms": 2662,
+   "checks_ms": 3618,
+   "eval_mesh_ms": 2573,
    "neighbours": [
     {
      "node": 204,
@@ -859,7 +859,7 @@
      "status": "certified",
      "lo": 5.5249988672341335,
      "hi": 5.525000000000018,
-     "ms": 9818
+     "ms": 9714
     },
     {
      "node": 313,
@@ -867,7 +867,7 @@
      "status": "certified",
      "lo": 0,
      "hi": 0,
-     "ms": 1916
+     "ms": 1971
     },
     {
      "node": 401,
@@ -875,7 +875,7 @@
      "status": "certified",
      "lo": 0,
      "hi": 0,
-     "ms": 615
+     "ms": 584
     }
    ],
    "render": "docs/receipts/viewer/briefs/B13-iso.png",
@@ -916,8 +916,8 @@
      "errors": []
     }
    ],
-   "open_ms": 2446,
-   "open_to_neighbours_ms": 2452,
+   "open_ms": 2471,
+   "open_to_neighbours_ms": 2475,
    "params": [],
    "nodes": 3,
    "parts": [
@@ -931,8 +931,8 @@
     "material": "PLA",
     "centroid": "certified"
    },
-   "checks_ms": 1325,
-   "eval_mesh_ms": 534,
+   "checks_ms": 1327,
+   "eval_mesh_ms": 554,
    "neighbours": [],
    "render": "docs/receipts/viewer/briefs/B14-iso.png",
    "ok": true

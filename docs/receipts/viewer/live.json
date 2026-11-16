@@ -1,6 +1,6 @@
 {
- "binary": "/home/jesse/bc/bendcad-p7d",
- "sha256": "69644457f92028734a2c90cf23aa1dbaf9ed97a5934f43d18abe05d7016007cf",
+ "binary": "/home/jesse/bc/bendcad-p8d",
+ "sha256": "fae0ad551d5dd77689404e6705ae632eba876c49b1b45596ce25a843f8c72f9e",
  "design": [
   "(param D 10 10 10.015)",
   "(param C 0.1)",
@@ -27,14 +27,16 @@
      "name": "D",
      "value": "10",
      "lo": "10",
-     "hi": "10.015"
+     "hi": "10.015",
+     "cls": null
     },
     {
      "id": 2,
      "name": "C",
      "value": "0.1",
      "lo": "0.1",
-     "hi": "0.1"
+     "hi": "0.1",
+     "cls": null
     }
    ],
    "parts": [
@@ -80,7 +82,7 @@
    "pin": {
     "node": 4,
     "op": "move",
-    "ms": 140,
+    "ms": 147,
     "kind": "clearance",
     "lo": 0.09999999944968604,
     "hi": 0.10000000000001966,
@@ -171,7 +173,8 @@
     "name": "D",
     "value": "12",
     "lo": "12",
-    "hi": "12.015"
+    "hi": "12.015",
+    "cls": null
    }
   },
   {
@@ -209,7 +212,7 @@
   {
    "name": "edit to re-checked view within the 5 s budget",
    "ok": true,
-   "ms": 845
+   "ms": 910
   },
   {
    "name": "the neighbour check re-runs: the pin follows D and keeps its certified 0.1 mm clearance",
@@ -217,7 +220,7 @@
    "pin": {
     "node": 4,
     "op": "move",
-    "ms": 150,
+    "ms": 160,
     "kind": "clearance",
     "lo": 0.09999999950653479,
     "hi": 0.10000000000002018,
@@ -226,12 +229,48 @@
    }
   },
   {
+   "name": "an agent gives D the ISO 286 class H7: the kernel sets the zone for 12 mm (10 to 18 band, IT7 = 18 um) and the viewer shows the class",
+   "ok": true,
+   "param": {
+    "id": 1,
+    "name": "D",
+    "value": "12",
+    "lo": "12",
+    "hi": "12.018",
+    "cls": "H7"
+   }
+  },
+  {
+   "name": "a person changes the classed dimension and the kernel recomputes the zone for the new size band (18 to 30, IT7 = 21 um) instead of shifting the old one",
+   "ok": true,
+   "param": {
+    "id": 1,
+    "name": "D",
+    "value": "20",
+    "lo": "20",
+    "hi": "20.021",
+    "cls": "H7"
+   }
+  },
+  {
+   "name": "the typed zone replaces the class",
+   "ok": true,
+   "param": {
+    "id": 1,
+    "name": "D",
+    "value": "12",
+    "lo": "12",
+    "hi": "12.015",
+    "cls": null
+   }
+  },
+  {
    "name": "making the pin 0.05 mm oversize shows a certified interference with the plate",
    "ok": true,
    "pin": {
     "node": 4,
     "op": "move",
-    "ms": 123,
+    "ms": 122,
     "kind": "interference",
     "lo": 0,
     "hi": 0,
@@ -272,8 +311,8 @@
   {
    "name": "edit to neighbour verdict within the 5 s budget",
    "ok": true,
-   "ms": 1169,
-   "clearance_ms": 123
+   "ms": 1268,
+   "clearance_ms": 122
   },
   {
    "name": "setting C back restores the design and its 0.1 mm clearance",
@@ -400,10 +439,10 @@
   }
  ],
  "timings": {
-  "open_ms": 1457,
-  "edit_to_checked_ms": 845,
-  "edit_to_neighbours_ms": 1169,
-  "inspect_ms": 3877
+  "open_ms": 1509,
+  "edit_to_checked_ms": 910,
+  "edit_to_neighbours_ms": 1268,
+  "inspect_ms": 3873
  },
  "coverage_open": 0.20201388888888888,
  "inspect": [
@@ -448,6 +487,6 @@
    "coverage": 0.0705625
   }
  ],
- "passed": 37,
- "total": 37
+ "passed": 40,
+ "total": 40
 }

@@ -6,17 +6,17 @@ Refusals are authoring refusals from `friction.json` plus refused probe steps. C
 
 | brief | binary | built | kernel build s | refusals (authoring+probes) | checks p/f/na | OCCT agrees | mesh conforming | triangles | tess s | edit s | edit 5 s | part 60 s | export 5 min | pass |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| B1 | bendcad-p8a | yes | 0.231 | 2+1 | 8/0/0 | yes | yes | 608 | 0.49 | 0.722 | pass | pass | pass | yes |
-| B2 | bendcad-p8a | yes | 0.032 | 0+0 | 8/0/1 | yes | yes | 1176 | 0.09 | 0.166 | pass | pass | pass | no |
-| B3 | bendcad-p8a | yes | 0.276 | 4+1 | 8/1/2 | yes | yes | 1296 | 0.64 | 0.94 | pass | pass | pass | no |
-| B4 | bendcad-p8a | yes | 0.437 | 1+0 | 6/0/3 | yes | yes | 1188 | 0.81 | 1.328 | pass | pass | pass | no |
-| B5 | bendcad-p8a | yes | 1.225 | 4+2 | 4/0/3 | yes | yes | 892 | 4.2 | 4.319 | pass | pass | pass | no |
-| B6 | bendcad-p8a | yes | 0.362 | 0+0 | 7/0/2 | yes | yes | 3296 | 0.85 | 0.755 | pass | pass | pass | no |
-| B7 | bendcad-p8a | yes | 0.9 | 3+2 | 10/0/2 | yes | yes | 2956 | 2.99 | 1.922 | pass | pass | pass | no |
-| B8 | bendcad-p8a | yes | 0.319 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.39 | 1.175 | pass | pass | pass | no |
-| B9 | bendcad-p8a | yes | 0.492 | 1+0 | 10/0/1 | yes | yes | 1518 | 1.02 | 1.124 | pass | pass | pass | no |
-| B10 | bendcad-p8a | yes | 0.11 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.2 | 0.451 | pass | pass | pass | no |
-| B11 | bendcad-p8a | yes | 4.821 | 0+0 | 5/0/1 | yes | yes | 4484 | 8.27 | 15.382 | fail | pass | pass | no |
-| B12 | bendcad-p8a | yes | 1.059 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.35 | 4.7 | pass | pass | pass | yes |
-| B13 | bendcad-p8a | yes | 2.367 | 2+0 | 6/0/3 | yes | yes | 3632 | 2.61 | 3.209 | pass | pass | pass | no |
-| B14 | bendcad-p8a | yes | 0.432 | 2+2 | 6/0/1 | yes | yes | 900 | 0.67 | 1.399 | pass | pass | pass | no |
+| B1 | bendcad-p8d | yes | 0.216 | 2+1 | 8/0/0 | yes | yes | 608 | 0.53 | 0.74 | pass | pass | pass | yes |
+| B2 | bendcad-p8d | yes | 0.032 | 0+0 | 8/0/1 | yes | yes | 1176 | 0.13 | 0.168 | pass | pass | pass | no |
+| B3 | bendcad-p8d | yes | 0.271 | 4+1 | 9/1/1 | yes | yes | 1296 | 0.67 | 0.888 | pass | pass | pass | no |
+| B4 | bendcad-p8d | yes | 0.428 | 1+0 | 7/0/2 | yes | yes | 1188 | 0.67 | 1.326 | pass | pass | pass | no |
+| B5 | bendcad-p8d | yes | 1.282 | 4+2 | 4/0/3 | yes | yes | 892 | 3.29 | 4.318 | pass | pass | pass | no |
+| B6 | bendcad-p8d | yes | 0.361 | 0+0 | 7/0/2 | yes | yes | 3296 | 0.81 | 0.757 | pass | pass | pass | no |
+| B7 | bendcad-p8d | yes | 0.933 | 3+2 | 10/0/2 | yes | yes | 2956 | 2.69 | 1.902 | pass | pass | pass | no |
+| B8 | bendcad-p8d | yes | 0.306 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.6 | 1.148 | pass | pass | pass | no |
+| B9 | bendcad-p8d | yes | 0.478 | 1+0 | 10/0/1 | yes | yes | 1518 | 1.13 | 1.149 | pass | pass | pass | no |
+| B10 | bendcad-p8d | yes | 0.106 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.21 | 0.446 | pass | pass | pass | no |
+| B11 | bendcad-p8d | yes | 4.916 | 0+0 | 5/0/1 | yes | yes | 4484 | 8.72 | 15.324 | fail | pass | pass | no |
+| B12 | bendcad-p8d | yes | 1.053 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.44 | 4.646 | pass | pass | pass | yes |
+| B13 | bendcad-p8d | yes | 2.526 | 2+0 | 6/0/3 | yes | yes | 3632 | 3.49 | 3.189 | pass | pass | pass | no |
+| B14 | bendcad-p8d | yes | 0.437 | 2+2 | 6/0/1 | yes | yes | 900 | 0.64 | 1.441 | pass | pass | pass | no |

@@ -927,6 +927,7 @@ const whyHtml = ws => ws.map(l => {
 }).join('');
 const decs = s => (String(s).split('.')[1] || '').length;
 function paramEdit(p, v) {
+  if (p.cls && /^-?\d+(\.\d+)?$/.test(v)) return `(param ${p.name} ${v} ${p.cls})`;
   if (p.lo === p.hi || !/^-?\d+(\.\d+)?$/.test(v)) return `(param ${p.name} ${v})`;
   const k = Math.max(decs(p.value), decs(p.lo), decs(p.hi), decs(v)), f = x => (+x).toFixed(k).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
   return `(param ${p.name} ${v} ${f(+v + (+p.lo - +p.value))} ${f(+v + (+p.hi - +p.value))})`;
@@ -936,7 +937,7 @@ function liveRender() {
   if (!d) return;
   el.hidden = false;
   const prm = d.params.map(p => `<label class="prm"><span>${esc(p.name)}</span><input data-p="${esc(p.name)}" value="${esc(p.value)}" spellcheck="false"${live.busy ? ' disabled' : ''}>
-    ${p.lo !== p.hi ? `<i>zone ${esc(p.lo)} – ${esc(p.hi)}</i>` : ''}</label>`).join('');
+    ${p.lo !== p.hi ? `<i>${p.cls ? `${esc(p.cls)} (ISO 286) ` : ''}zone ${esc(p.lo)} – ${esc(p.hi)}</i>` : ''}</label>`).join('');
   const nodes = d.nodes.map(n => `<div class="feat${d.parts.includes(n.id) ? ' part' : ''}${n.status !== 'ok' ? ' bad' : ''}" data-n="${n.id}" title="${esc(n.text)}">
     <span class="id">${n.id}</span><span class="op">${esc(n.op)}</span>${n.base && n.base.length ? `<span class="on">← ${n.base.join(', ')}</span>` : ''}${chip(n.status === 'ok' ? 'ok' : 'fail')}</div>`).join('');
   const last = live.last ? `<div class="kmsg ${live.last.ok ? 'ok' : 'bad'}">${live.last.ok ? 'committed' : 'refused'} · ${(live.last.ms / 1000).toFixed(2)} s${live.last.ok ? '' : `<ul>${whyHtml(live.last.why && live.last.why.length ? live.last.why : [live.last.out])}</ul>`}</div>` : '';
