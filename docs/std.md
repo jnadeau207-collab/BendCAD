@@ -298,6 +298,19 @@ axial (face) grooving cutting head: smallest and largest groove diameter of the 
 | 67.0 | 100.0 | 4.0 | 15.0 |
 | 90.0 | 130.0 | 4.0 | 15.0 |
 
+## slitting_saw
+
+HSS metal slitting saw, fine teeth (DIN 1837, tooth form A): diameter d, thickness t (the kerf), arbor bore, maximum cutting depth cut (radial reach past the arbor collar); a slot whose walls stand t or more apart and that opens to a setup in its own plane is sawn on a spindle square to its walls, in passes of t; source: Hoffmann Group (Re-Bo) metal circular saw blade fine, uncoated, family 175000 (DIN 1837), hoffmann-group.com/US/en/hus/p/175000-<d>X<t>: Diameter of mounting hole D3 and Maximum cutting depth read from the 40X1, 50X1, 63X1, 63X2,5, 80X1 and 100X1 product pages; only those six are held
+
+| d | t | bore | cut |
+|---|---|---|---|
+| 40.0 | 1.0 | 10.0 | 10.25 |
+| 50.0 | 1.0 | 13.0 | 12.75 |
+| 63.0 | 1.0 | 16.0 | 19.25 |
+| 63.0 | 2.5 | 16.0 | 19.25 |
+| 80.0 | 1.0 | 22.0 | 23.0 |
+| 100.0 | 1.0 | 22.0 | 30.25 |
+
 ## nema_flange
 
 NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame, bolt circle M of the C flange (tapped holes), pilot diameter N max and its lower deviation, maximum flange P, pilot depth T min and max, and the major diameter of the C flange's tapped thread (UNC 4-40 for frame 17, 8-32 for frame 23), in inches; four holes on M at 45 degrees to the flats; source: engineersedge.com/motors/stepper_motor_size_dimensions_table_14794.htm (NEMA ICS 16 Table 4); pilot depth T from aspina-group.com/en/learning-zone/columns/what-is/034 (NEMA ICS 16-2001 Tables 2 and 4); UNC #4 and #8 major diameters 0.112 and 0.164 in (ASME B1.1)

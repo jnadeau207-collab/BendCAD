@@ -106,7 +106,7 @@
    0.09359613204786021
   ],
   "oracle": 0.09359613199289163,
-  "seconds": 0.2743959426879883,
+  "seconds": 0.288607120513916,
   "out": "mesh A B gap=[0.09349622487848899, 0.09359613204786021] over=pitch ratio=1 lipschitz=42.00000003734563 verdict=clearance status=certified\n"
  },
  {

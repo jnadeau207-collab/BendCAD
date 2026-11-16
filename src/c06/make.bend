@@ -401,9 +401,35 @@ def near0(+c: F64) -> Bool:
 def dep_s(+nm: String, +x: Fx) -> String:
   " setup=" ++ nm ++ " depth=" ++ fs(fx_dhi(x))
 
-def pl_rule(+c: F64, +dmax: F64, +x: Fx, +nm: String) -> Rl:
-  Bool.pick(Rl, near1(c), mill_side("plane floor" ++ dep_s(nm, x), dmax, fx_dhi(x)),
-    Bool.pick(Rl, near0(c), mill_side("plane wall" ++ dep_s(nm, x), dmax, fx_dhi(x)),
+def sw_better(+r: List<&2, F64>, +b: List<&2, F64>) -> Bool:
+  +tr = SD.fv_go(r, 1n)
+  +tb = SD.fv_go(b, 1n)
+  Bool.or(Bool.not(SD.row_ok(b)), Bool.or(F64.is_lt(tb, tr), Bool.and(F64.is_eq(tr, tb), F64.is_lt(SD.fv_go(r, 0n), SD.fv_go(b, 0n)))))
+
+def saw_go(rs: List<&2, List<&2, F64>>, +sw: F64, +depth: F64, +best: List<&2, F64>) -> List<&2, F64>:
+  match rs:
+    case []: best
+    case +r <> t:
+      +ok = Bool.and(F64.is_le(SD.fv_go(r, 1n), F64.add(sw, 1.0e-9f64)), F64.is_le(depth, SD.fv_go(r, 3n)))
+      saw_go(t, sw, depth, Bool.pick(List<&2, F64>, Bool.and(ok, sw_better(r, best)), r, best))
+
+def sw_tool(+r: List<&2, F64>, +sw: F64) -> String:
+  +n = KS.f_round(F64.add(F64.div(sw, SD.fv_go(r, 1n)), 0.4999f64))
+  "slitting saw " ++ fs(SD.fv_go(r, 0n)) ++ " x " ++ fs(SD.fv_go(r, 1n)) ++ " (DIN 1837, GARANT 175000), " ++ fs(n) ++ Bool.pick(String, F64.is_lt(n, 1.5f64), " pass", " passes") ++ ", cut <= " ++ fs(SD.fv_go(r, 3n))
+
+def saw_rl(+sw: F64, +depth: F64, +what: String) -> Rl:
+  +r = saw_go(SD.tab("slitting_saw"), sw, depth, [])
+  Bool.pick(Rl, F64.is_le(sw, 0.0f64), Rl{3n, ""},
+    Bool.pick(Rl, SD.row_ok(r), Rl{0n, what ++ " tool=\"" ++ sw_tool(r, sw) ++ "\""},
+      Rl{1n, what ++ " why=no-held-tool: no end mill of diameter <= " ++ fs(sw) ++ " cuts " ++ fs(depth) ++ " deep, and no held slitting saw is " ++ fs(sw) ++
+        " or thinner with that reach (held: DIN 1837 40 to 100 x 1, 63 x 2.5, cutting up to 30.25)"}))
+
+def wall_rl(+m: Rl, +w: Rl) -> Rl:
+  Bool.pick(Rl, Nat.is_eq(rl_st(m), 0n), m, Bool.pick(Rl, Nat.is_lt(rl_st(w), 2n), w, m))
+
+def pl_rule(+c: F64, +dmax: F64, +sw: F64, +sf: F64, +x: Fx, +nm: String) -> Rl:
+  Bool.pick(Rl, near1(c), wall_rl(mill_side("plane floor" ++ dep_s(nm, x), dmax, fx_dhi(x)), saw_rl(sf, fx_dhi(x), "plane floor" ++ dep_s(nm, x))),
+    Bool.pick(Rl, near0(c), wall_rl(mill_side("plane wall" ++ dep_s(nm, x), dmax, fx_dhi(x)), saw_rl(sw, fx_dhi(x), "plane wall" ++ dep_s(nm, x))),
       Bool.pick(Rl, F64.is_lt(c, 0.0f64), Rl{2n, "plane faces away from " ++ nm},
         Rl{1n, "plane inclined to " ++ nm ++ " why=needs 3D surfacing with a ball end mill (not held)"})))
 
@@ -439,19 +465,19 @@ def hx_rule(+ax: F64, +fi: Fi, +xo: Fx, +nm: String) -> Rl:
   Bool.pick(Rl, Bool.and(near1(ax), fi_cc(fi)), tap_rl(SD.row("tap", fi_td(fi)), fx_acc(xo), fi_td(fi), fi_tl(fi), nm),
     Rl{1n, "helicoid external-thread setup=" ++ nm ++ " why=thread milling cutters and dies are not held; cut it on the lathe"})
 
-def rule3(+k: Nat, +fi: Fi, +dmax: F64, +x: Fx, +xo: Fx, +nm: String, +d: V.Dir) -> Rl:
-  Bool.pick(Rl, Nat.is_eq(k, 1n), pl_rule(DW.dd(fi_n(fi), d), dmax, x, nm),
+def rule3(+k: Nat, +fi: Fi, +dmax: F64, +sw: F64, +sf: F64, +x: Fx, +xo: Fx, +nm: String, +d: V.Dir) -> Rl:
+  Bool.pick(Rl, Nat.is_eq(k, 1n), pl_rule(DW.dd(fi_n(fi), d), dmax, sw, sf, x, nm),
     Bool.pick(Rl, Nat.is_eq(k, 2n), cy_rule(F64.abs(DW.dd(fi_n(fi), d)), fi, dmax, x, nm),
       Bool.pick(Rl, Nat.is_eq(k, 3n), co_rule(F64.abs(DW.dd(fi_n(fi), d)), fi, nm),
         Bool.pick(Rl, Nat.is_eq(k, 7n), hx_rule(F64.abs(DW.dd(fi_n(fi), d)), fi, xo, nm),
           Rl{1n, "surface setup=" ++ nm ++ " why=sphere, torus or freeform needs 3D surfacing with a ball end mill (not held)"}))))
 
-def rule2(acc: Bool, +fi: Fi, +dmax: F64, +x: Fx, +xo: Fx, +nm: String, +d: V.Dir) -> Rl:
+def rule2(acc: Bool, +fi: Fi, +dmax: F64, +sw: F64, +sf: F64, +x: Fx, +xo: Fx, +nm: String, +d: V.Dir) -> Rl:
   match acc:
     case False{}: Rl{2n, "unreachable from every setup (material covers part of the face from all six directions)"}
-    case True{}: rule3(fi_k(fi), fi, dmax, x, xo, nm, d)
+    case True{}: rule3(fi_k(fi), fi, dmax, sw, sf, x, xo, nm, d)
 
-def best_go(xs: List<&2, Fx>, os: List<&2, Fx>, ss: List<&2, Su>, +fi: Fi, +dmax: F64, +acc: Rl) -> Rl:
+def best_go(xs: List<&2, Fx>, os: List<&2, Fx>, ss: List<&2, Su>, +fi: Fi, +dmax: F64, +sw: F64, +sf: F64, +acc: Rl) -> Rl:
   match xs:
     case []: acc
     case +x <> t:
@@ -460,7 +486,7 @@ def best_go(xs: List<&2, Fx>, os: List<&2, Fx>, ss: List<&2, Su>, +fi: Fi, +dmax
         case +o <> u:
           match ss:
             case []: acc
-            case +s <> w: best_go(t, u, w, fi, dmax, rl_best(acc, rule2(fx_acc(x), fi, dmax, x, o, su_nm(s), su_d(s))))
+            case +s <> w: best_go(t, u, w, fi, dmax, sw, sf, rl_best(acc, rule2(fx_acc(x), fi, dmax, sw, sf, x, o, su_nm(s), su_d(s))))
 
 def swp(xs: List<&2, Fx>) -> List<&2, Fx>:
   match xs:
@@ -835,8 +861,8 @@ def fi_fix(go: Bool, +f: Fi, +c: Ck, +i: Nat, +nb: List<&2, Nat>) -> Fi:
 def fi_at(+c: Ck, +i: Nat, +nb: List<&2, Nat>) -> Fi:
   fi_fix(Bool.and(Bool.and(Nat.is_eq(fi_k(ck_fi(c, i)), 2n), fi_cc(ck_fi(c, i))), Bool.not(fi_full(ck_fi(c, i)))), ck_fi(c, i), c, i, nb)
 
-def face_rl(+c: Ck, +i: Nat, +dmax: F64, +nb: List<&2, Nat>) -> Rl:
-  best_go(ck_fx(c, i), swp(ck_fx(c, i)), ck_ss(c), fi_at(c, i, nb), dmax, Rl{3n, ""})
+def face_rl(+c: Ck, +i: Nat, +dmax: F64, +sw: F64, +sf: F64, +nb: List<&2, Nat>) -> Rl:
+  best_go(ck_fx(c, i), swp(ck_fx(c, i)), ck_ss(c), fi_at(c, i, nb), dmax, sw, sf, Rl{3n, ""})
 
 type Gu is Data:
   Gu{ i: Nat, g: F64 }
@@ -1032,13 +1058,16 @@ def gl_go(xs: List<&2, Nat>, +c: Ck, +f: Fi, +gt: B.Tb<&2, F64>, +acc: F64) -> F
     case []: acc
     case +g <> t: gl_go(t, c, f, gt, F64.min(acc, cv_gap(c, f, g, gt)))
 
-def gap_of(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +gt: B.Tb<&2, F64>) -> F64:
-  gl_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), gt, B.tb_get(F64, gt, U32.from_nat(i)))
+def gn_of(+c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +gt: B.Tb<&2, F64>) -> F64:
+  gl_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), gt, 1.0e300f64)
+
+def fa_rl(+c: Ck, +i: Nat, +ir: F64, +g: F64, +gn: F64, +nb: List<&2, Nat>) -> Rl:
+  face_rl(c, i, F64.min(ir, F64.min(g, gn)), Bool.pick(F64, F64.is_lt(g, ir), g, 0.0f64), Bool.pick(F64, F64.is_lt(gn, ir), gn, 0.0f64), nb)
 
 def fa_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +ft: B.Tb<&2, Fi>, +gt: B.Tb<&2, F64>, +acc: Cn) -> Cn:
   match n:
     case 0n: acc
-    case 1n+(+k): fa_go(k, Nat.add(i, 1n), c, adj, ft, gt, cn_add(face_rl(c, i, dm_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), gap_of(c, i, adj, gt)), B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))), ck_nm(c, i), acc))
+    case 1n+(+k): fa_go(k, Nat.add(i, 1n), c, adj, ft, gt, cn_add(fa_rl(c, i, dm_go(B.tb_get(List<&2, Nat>, adj, U32.from_nat(i)), c, ck_fi(c, i), 1.0e300f64), B.tb_get(F64, gt, U32.from_nat(i)), gn_of(c, i, adj, gt), B.tb_get(List<&2, Nat>, adj, U32.from_nat(i))), ck_nm(c, i), acc))
 
 def str_cat(xs: List<&2, String>) -> String:
   match xs:
@@ -1596,7 +1625,7 @@ def lk1(yes: Bool, +c: Ck, +i: Nat, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> R
 
 def la_one(co: Bool, +c: Ck, +i: Nat, +dmax: F64, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc) -> Rl:
   match co:
-    case False{}: la_sec(face_rl(c, i, dmax, adj_of(adj, i)))
+    case False{}: la_sec(face_rl(c, i, dmax, 0.0f64, 0.0f64, adj_of(adj, i)))
     case True{}: lk1(Nat.is_eq(fi_k(ck_fi(c, i)), 1n), c, i, adj, lx)
 
 def la_go(n: Nat, +i: Nat, +c: Ck, +adj: B.Tb<&2, List<&2, Nat>>, +lx: Lc, +acc: Cn) -> Cn:

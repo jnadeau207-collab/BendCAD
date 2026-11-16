@@ -1,6 +1,6 @@
 {
- "binary": "/home/jesse/bc/bendcad-p9o",
- "sha256": "72483f888efb986c83979f20f5a235064290522b2c7ed57a53ff6fa6d9f13265",
+ "binary": "/home/jesse/bc/bendcad-p9q",
+ "sha256": "7dbb66f2dbf46b6c5d7e77336bb3b83a6849c8d12c8a017a631350dce5353f22",
  "passed": 11,
  "total": 17,
  "cases": [
@@ -31,11 +31,11 @@
    "item": 2,
    "claim": "asm gap between a lid lip arc R3.8 and the concentric R4 inner corner of the body certifies the true gap 0.2, never interference",
    "verdict": "pass",
-   "seconds": 1.818,
+   "seconds": 1.827,
    "steps": [
     {
      "cmd": "BIN design.bcd asm gap lid body n702.c0.wall.1.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
-     "seconds": 0.892,
+     "seconds": 0.913,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -44,7 +44,7 @@
     },
     {
      "cmd": "BIN design.bcd asm gap lid body n702.c0.wall.0.0 n702.c0.wall.1.0 n702.c0.wall.3.0 n702.c0.wall.7.0 (assembly (inst body 705 0 0 0 0) (inst lid 713 0 0 30 0) (fix 1 body) (fix 2 lid))",
-     "seconds": 0.926,
+     "seconds": 0.914,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -58,11 +58,11 @@
    "item": 4,
    "claim": "one assembly grammar: (press ...) is accepted by asm solve, mass and clear; asm clear reports a declared press pair as declared without timing out",
    "verdict": "pass",
-   "seconds": 30.313,
+   "seconds": 30.811,
    "steps": [
     {
      "cmd": "BIN design.bcd asm solve (assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
-     "seconds": 1.652,
+     "seconds": 1.689,
      "limit_s": 120,
      "verdict": "pass",
      "missing": [],
@@ -71,7 +71,7 @@
     },
     {
      "cmd": "BIN design.bcd asm mass (assembly (inst housing 102 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
-     "seconds": 1.69,
+     "seconds": 1.748,
      "limit_s": 120,
      "verdict": "pass",
      "missing": [],
@@ -80,7 +80,7 @@
     },
     {
      "cmd": "BIN design.bcd asm clear (assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
-     "seconds": 0.299,
+     "seconds": 0.284,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -89,7 +89,7 @@
     },
     {
      "cmd": "BIN design.bcd asm interf (assembly (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (fix 1 bearing) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))",
-     "seconds": 26.672,
+     "seconds": 27.09,
      "limit_s": 300,
      "verdict": "pass",
      "missing": [],
@@ -103,11 +103,11 @@
    "item": 4,
    "claim": "clearance converges in general position: tilted parallel boxes 0.4, tilted parallel cylinders 0.5, ball over a face 0.25, torus under a disc rim 1.5355339",
    "verdict": "pass",
-   "seconds": 18.834,
+   "seconds": 19.053,
    "steps": [
     {
      "cmd": "BIN design.bcd clearance 4 6",
-     "seconds": 16.436,
+     "seconds": 16.603,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -116,7 +116,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 9 10",
-     "seconds": 1.934,
+     "seconds": 1.977,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -125,7 +125,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 1 12",
-     "seconds": 0.343,
+     "seconds": 0.349,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -134,7 +134,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 14 15",
-     "seconds": 0.121,
+     "seconds": 0.124,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -148,11 +148,11 @@
    "item": 4,
    "claim": "two hinge leaves 0.4 apart certify clearance 0.4 at 0, 60, 90 and 120 degrees",
    "verdict": "pass",
-   "seconds": 40.234,
+   "seconds": 40.655,
    "steps": [
     {
      "cmd": "BIN design.bcd clearance 906 915",
-     "seconds": 3.893,
+     "seconds": 3.972,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -161,7 +161,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 906 931",
-     "seconds": 15.108,
+     "seconds": 15.241,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -170,7 +170,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 906 932",
-     "seconds": 5.55,
+     "seconds": 5.596,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -179,7 +179,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 906 933",
-     "seconds": 15.683,
+     "seconds": 15.846,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -193,11 +193,11 @@
    "item": 4,
    "claim": "a seated O-ring touches its groove: clearance certified within [0, 1e-6]",
    "verdict": "fail",
-   "seconds": 30.009,
+   "seconds": 30.006,
    "steps": [
     {
      "cmd": "BIN design.bcd clearance 802 804",
-     "seconds": 30.009,
+     "seconds": 30.006,
      "limit_s": 30,
      "verdict": "timeout",
      "missing": [
@@ -214,11 +214,11 @@
    "item": 4,
    "claim": "a pin 0.05 mm oversize through a 12 mm hole is a certified interference within the 5 s edit budget, either way round (p6o: 41 s)",
    "verdict": "pass",
-   "seconds": 0.068,
+   "seconds": 0.069,
    "steps": [
     {
      "cmd": "BIN design.bcd clearance 2 4",
-     "seconds": 0.038,
+     "seconds": 0.035,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -227,7 +227,7 @@
     },
     {
      "cmd": "BIN design.bcd clearance 4 2",
-     "seconds": 0.03,
+     "seconds": 0.034,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -241,11 +241,11 @@
    "item": 7,
    "claim": "the countersink edit (param CS 2.6) commits like 2.45 to 2.7",
    "verdict": "fail",
-   "seconds": 0.446,
+   "seconds": 0.447,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (param CS 2.6)",
-     "seconds": 0.446,
+     "seconds": 0.447,
      "limit_s": 60,
      "verdict": "fail",
      "missing": [
@@ -261,7 +261,7 @@
    "item": 6,
    "claim": "faces NODE -f prints the certified defining parameters of every analytic face; a 5.5 mm hole reads diameter [5.5, 5.5] concave",
    "verdict": "pass",
-   "seconds": 0.026,
+   "seconds": 0.025,
    "steps": [
     {
      "cmd": "BIN design.bcd faces 2 -f",
@@ -274,7 +274,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -v",
-     "seconds": 0.013,
+     "seconds": 0.012,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -288,7 +288,7 @@
    "item": 3,
    "claim": "H7/h5 at the reference temperature has minimum clearance exactly 0 and is a clearance fit (ISO 286-1); other kinds still classify",
    "verdict": "pass",
-   "seconds": 0.012,
+   "seconds": 0.013,
    "steps": [
     {
      "cmd": "BIN design.bcd pmi fits (pmi (node 1) (temp cold 20) (fit seat 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/h5 clearance))",
@@ -301,7 +301,7 @@
     },
     {
      "cmd": "BIN design.bcd pmi fits (pmi (node 1) (fit run 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/g6 clearance) (fit loc 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/k6 transition) (fit prs 1 n1.c1.wall.0.0 2 n2.c0.wall.0.0 H7/s6 press))",
-     "seconds": 0.006,
+     "seconds": 0.007,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -315,11 +315,11 @@
    "item": 4,
    "claim": "two meshing gears with backlash are certified disjoint",
    "verdict": "fail",
-   "seconds": 20.027,
+   "seconds": 20.028,
    "steps": [
     {
      "cmd": "BIN design.bcd interf 1 3",
-     "seconds": 20.027,
+     "seconds": 20.028,
      "limit_s": 20,
      "verdict": "timeout",
      "missing": [
@@ -335,11 +335,11 @@
    "item": "S2",
    "claim": "a 608 ring seated in a housing whose DIN 472 groove was built by the groove feature certifies disjoint as fast as the same housing with the groove drawn in its profile (1.4 s); on p5e the pair ran past 300 s because a rational arc coincident with an exact circle was only separated by subdivision",
    "verdict": "pass",
-   "seconds": 0.957,
+   "seconds": 0.941,
    "steps": [
     {
      "cmd": "BIN design.bcd asm interf (assembly (inst housing 103 0 0 0 0) (inst bearing 401 0 0 0 0) (fix 1 housing) (coinc 2 bearing 0 0 0 housing 0 0 6.9))",
-     "seconds": 0.957,
+     "seconds": 0.941,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -353,11 +353,11 @@
    "item": 1,
    "claim": "(face N CELL top|bottom) on a boolean body resolves to the face its name nN.cK.top|bottom implies, or is refused naming the faces to use; a holes or pocket cut that leaves a sealed cavity is refused with the face it opens through, and following that fix commits",
    "verdict": "pass",
-   "seconds": 1.654,
+   "seconds": 1.634,
    "steps": [
     {
      "cmd": "BIN design.bcd faces 4 -f",
-     "seconds": 0.163,
+     "seconds": 0.161,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -366,7 +366,7 @@
     },
     {
      "cmd": "BIN design.bcd check 4",
-     "seconds": 0.186,
+     "seconds": 0.197,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -375,7 +375,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 5 (holes 3 (face 2 n2.c0.top) 1 (hole 10 10 2)) (intent remove any any 1 any))",
-     "seconds": 0.264,
+     "seconds": 0.265,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -384,7 +384,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 5 (holes 3 (face 3 n3.c0.top) 1 (hole 10 10 2)) (intent remove any any 1 any))",
-     "seconds": 0.222,
+     "seconds": 0.219,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -393,7 +393,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 5 -f",
-     "seconds": 0.153,
+     "seconds": 0.171,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -402,7 +402,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (holes 3 (face 3 0 bottom) 2 (hole 10 10 1)) (intent remove any any 1 any))",
-     "seconds": 0.272,
+     "seconds": 0.219,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -411,7 +411,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (holes 3 (face 3 n1.c0.bottom) 2 (hole 10 -10 1)) (intent remove any any 1 any))",
-     "seconds": 0.239,
+     "seconds": 0.24,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -420,7 +420,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 6 -f",
-     "seconds": 0.155,
+     "seconds": 0.162,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -434,11 +434,11 @@
    "item": 3,
    "claim": "a cross-drilled shaft meshes directly with a certified chord bound at the manufacturing and display presets, and draws within the edit budget",
    "verdict": "fail",
-   "seconds": 2.007,
+   "seconds": 2.006,
    "steps": [
     {
      "cmd": "BIN design.bcd tess 4 out.obj 2",
-     "seconds": 2.007,
+     "seconds": 2.006,
      "limit_s": 2,
      "verdict": "timeout",
      "missing": [
@@ -455,11 +455,11 @@
    "item": 5,
    "claim": "thread-span-outside-face prints the admissible span and the axis it is measured along; a retry built from the message alone commits",
    "verdict": "pass",
-   "seconds": 0.534,
+   "seconds": 0.551,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (thread 4 t n2.c0.wall.0.0 M4 6H 0 12)",
-     "seconds": 0.135,
+     "seconds": 0.14,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -468,7 +468,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (thread 4 t n2.c0.wall.0.0 M4 6H 0 10)",
-     "seconds": 0.136,
+     "seconds": 0.141,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -477,7 +477,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 4",
-     "seconds": 0.263,
+     "seconds": 0.27,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -491,11 +491,11 @@
    "item": 2,
    "claim": "wall certifies the smallest facing thickness of everyday solids to 1e-4: rod 8, tube 2, ball 10, O-ring cord 3.53, hole-to-edge web 1.5, shaft across a flat 7, lip of a tapered bore 0.5, tilted plate 3, bolt-circle web 6, stepped shaft 8",
    "verdict": "fail",
-   "seconds": 2.812,
+   "seconds": 2.852,
    "steps": [
     {
      "cmd": "BIN design.bcd wall 1",
-     "seconds": 0.051,
+     "seconds": 0.05,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -513,7 +513,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 3",
-     "seconds": 0.325,
+     "seconds": 0.327,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -522,7 +522,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 4",
-     "seconds": 0.193,
+     "seconds": 0.195,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -531,7 +531,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 6",
-     "seconds": 0.072,
+     "seconds": 0.076,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -549,7 +549,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 10",
-     "seconds": 0.293,
+     "seconds": 0.303,
      "limit_s": 20,
      "verdict": "fail",
      "missing": [
@@ -560,7 +560,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 12",
-     "seconds": 0.013,
+     "seconds": 0.014,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -569,7 +569,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 13",
-     "seconds": 1.154,
+     "seconds": 1.165,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -578,7 +578,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 14",
-     "seconds": 0.528,
+     "seconds": 0.539,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -592,11 +592,11 @@
    "item": 2,
    "claim": "wall on a stepped solid revolve answers the small diameter 8",
    "verdict": "pass",
-   "seconds": 0.527,
+   "seconds": 0.537,
    "steps": [
     {
      "cmd": "BIN design.bcd wall 1",
-     "seconds": 0.527,
+     "seconds": 0.537,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
