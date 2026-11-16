@@ -1,19 +1,208 @@
 {
- "binary": "/home/jesse/bc/bendcad-p8g",
- "sha256": "472e8ae0966688dae83b3b6b76c45401886b42a6bc4b72cbd3e92380a2b91457",
- "passed": 9,
- "total": 9,
+ "binary": "/home/jesse/bc/bendcad-p8i",
+ "sha256": "163573bcc7af03e12562ef800ce7948fb8d9637a1594ccdb206aba120822ce8c",
+ "passed": 10,
+ "total": 10,
  "cases": [
+  {
+   "case": "fasten",
+   "item": "S3",
+   "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
+   "verdict": "pass",
+   "seconds": 15.606,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (thread 5 m4 n5.c0.wall.0.0 M4 6H 0 10)",
+     "seconds": 0.469,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.181,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=unknown: no material is declared on node 5 (the Nord-Lock rule covers steel, 1 x d, and aluminium, 2 x d) status=not-analyzed\nfasten shank d=3.9546 clamp=[10.8, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 2 pass, 0 fail, 1 not-analyzed\nverdict not-analyzed\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (material 5 S355 7850 12e-6)",
+     "seconds": 0.478,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.195,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=4 (1 x d in steel, S355 by designation; Nord-Lock 2015) status=pass\nfasten shank d=3.9546 clamp=[10.8, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 3 pass, 0 fail, 0 not-analyzed\nverdict pass\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param L 5)",
+     "seconds": 0.486,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.195,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x5 tip=(15,15,6.2) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=3.8 required=4 (1 x d in steel, S355 by designation; Nord-Lock 2015) status=fail\nfasten shank d=3.9546 clamp=[3.8, 5] through d=4.5 radial-clearance=0.2727 interference-samples=0/36 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 2 pass, 1 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param L 12) (material 5 6082-T6 2700 23.4e-6)",
+     "seconds": 0.477,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.196,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=8 (2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015) status=pass\nfasten shank d=3.9546 clamp=[10.8, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 3 pass, 0 fail, 0 not-analyzed\nverdict pass\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param L 8)",
+     "seconds": 0.475,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.176,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x8 tip=(15,15,3.2) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=6.8 required=8 (2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015) status=fail\nfasten shank d=3.9546 clamp=[6.8, 8] through d=4.5 radial-clearance=0.2727 interference-samples=0/36 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 2 pass, 1 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param L 12) (param H 0.5)",
+     "seconds": 0.476,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.116,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-0.3) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=8 (2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015) status=pass\nfasten shank d=3.9546 clamp=[10.3, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0.5 (the head is clear of its seat, not tightened) interference-samples=0/36 status=fail\nfasten node 7: 3 checks, 2 pass, 1 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param H -0.3)",
+     "seconds": 0.474,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.178,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-1.1) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=8 (2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015) status=pass\nfasten shank d=3.9546 clamp=[11.1, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=-0.3 (the head cuts into the seat) interference-samples=0/36 status=fail\nfasten node 7: 3 checks, 2 pass, 1 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param H 0) (param X 15.5)",
+     "seconds": 0.474,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 0.829,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15.5,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread: no internal M4x0.7 thread in the listed parts is coaxial with the screw status=fail\nfasten shank d=3.9546 clamp=[0, 12] no bore along the clamp length interference-samples=27/36 status=fail\nfasten head dk=7.22 k=4: no bore around the head (seated proud) seat-gap=0 interference-samples=3/36 status=fail\nfasten node 7: 3 checks, 0 pass, 3 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (param X 15) (node 8 (screw ISO4762 M3 L) (intent create any 0 1 0)) (node 9 (move 8 15 15 (- 11.2 L) 0) (intent same any any 1 0))",
+     "seconds": 0.496,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[5399.999999994947, 5400.000000005053] area=[2519.999999997981, 2520.000000002019] bbox=[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 30.00000000000006]x[-5.3290705182007527e-14, 6.000000000000055] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=5.3290705182007514e-14\nnode 2: ok material=remove faces_created=3 faces_modified=2 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 6.000000000000056] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=1 | volume=[5139.640508828606, 5139.6405088388865] area=[2625.793132607009, 2625.793132612262] bbox=[-5.329070518200753e-14, 30.000000000000064]x[-5.329070518200753e-14, 30.000000000000064]x[9.999999999999945, 16.00000000000006] vertices=12 edges=16 faces=9 solids=1 genus=1 linear_uncertainty=6.816769371198469e-14 | proof: k1-crossing-certified V12 E16 F9 S1\nnode 4: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[8999.999999991642, 9000.000000008358] area=[2999.9999999977363, 3000.0000000022637] bbox=[-5.3290705182007527e"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 9 3 5",
+     "seconds": 0.933,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 9 ISO 4762 M3x12 tip=(15,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread: no internal M3x0.5 thread in the listed parts is coaxial with the screw status=fail\nfasten shank d=2.959 clamp=[0, 12] through d=3.3 radial-clearance=0.1705 interference-samples=0/36 status=pass\nfasten head dk=5.68 k=3: counterbore d=8 radial-clearance=1.16 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 9: 3 checks, 2 pass, 1 fail, 0 not-analyzed\nverdict fail\n"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 3 5",
+     "seconds": 0.109,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error invalid-input | fasten @ node 3 | why: fasten-not-a-screw: node 3 is not a (screw ...) part or a move or rotation of one | fix: give a screw node first, then the parts it passes through\n"
+    },
+    {
+     "cmd": "BIN design.bcd fasten 7 3 5",
+     "seconds": 1.193,
+     "limit_s": 30,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "fasten screw 7 ISO 4762 M4x12 tip=(15,15,-0.8) along=(0,0,1) parts 3 5\nfasten thread into M4x0.7 6H (thread m4) node 5: engaged=10 required=8 (2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015) status=pass\nfasten shank d=3.9546 clamp=[10.8, 12] through d=4.5 radial-clearance=0.2727 interference-samples=0/72 status=pass\nfasten head dk=7.22 k=4: counterbore d=8 radial-clearance=0.39 seat-gap=0 interference-samples=0/36 status=pass\nfasten node 7: 3 checks, 3 pass, 0 fail, 0 not-analyzed\nverdict pass\n"
+    }
+   ]
+  },
   {
    "case": "grooves",
    "item": "S2",
    "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
    "verdict": "pass",
-   "seconds": 7.649,
+   "seconds": 7.754,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))",
-     "seconds": 0.142,
+     "seconds": 0.133,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -22,7 +211,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.127,
+     "seconds": 0.128,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -31,7 +220,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (keyway 2 (face 1 n1.c0.wall.0.0.p0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.366,
+     "seconds": 0.357,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -40,7 +229,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.355,
+     "seconds": 0.365,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -49,7 +238,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.376,
+     "seconds": 0.377,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -58,7 +247,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.347,
+     "seconds": 0.365,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -67,7 +256,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))",
-     "seconds": 0.631,
+     "seconds": 0.648,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -76,7 +265,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13 -f",
-     "seconds": 0.167,
+     "seconds": 0.178,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -85,7 +274,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.723,
+     "seconds": 0.774,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -94,7 +283,7 @@
     },
     {
      "cmd": "BIN design.bcd std 14",
-     "seconds": 0.291,
+     "seconds": 0.285,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -103,7 +292,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))",
-     "seconds": 0.769,
+     "seconds": 0.771,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -112,7 +301,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN471) 4) (intent remove any any 1 any))",
-     "seconds": 0.757,
+     "seconds": 0.768,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -121,7 +310,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))",
-     "seconds": 0.765,
+     "seconds": 0.775,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -130,7 +319,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))",
-     "seconds": 0.762,
+     "seconds": 0.765,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -139,7 +328,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))",
-     "seconds": 0.772,
+     "seconds": 0.774,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -148,7 +337,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 14 -f",
-     "seconds": 0.299,
+     "seconds": 0.291,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -162,7 +351,7 @@
    "item": "S2",
    "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
    "verdict": "pass",
-   "seconds": 0.295,
+   "seconds": 0.287,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
@@ -184,7 +373,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.028,
+     "seconds": 0.029,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -202,7 +391,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 0.065,
+     "seconds": 0.06,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -220,7 +409,7 @@
     },
     {
      "cmd": "BIN design.bcd std 202",
-     "seconds": 0.05,
+     "seconds": 0.046,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -234,7 +423,7 @@
    "item": "S2",
    "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
    "verdict": "pass",
-   "seconds": 3.984,
+   "seconds": 4.02,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
@@ -247,7 +436,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.014,
+     "seconds": 0.013,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -256,7 +445,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 1 n1.c0.top) through (counterbore M4 10 30) (countersink M4 25 30) (tapped M4 40 30)) (intent remove any any 1 6))",
-     "seconds": 0.418,
+     "seconds": 0.417,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -274,7 +463,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.41,
+     "seconds": 0.418,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -283,7 +472,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 3",
-     "seconds": 0.82,
+     "seconds": 0.83,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -292,7 +481,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 12)",
-     "seconds": 0.408,
+     "seconds": 0.42,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -301,7 +490,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.411,
+     "seconds": 0.416,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -319,7 +508,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (holes 3 (face 1 n1.c0.top) through (hole 12 10 3.5)) (intent remove any any 1 any))",
-     "seconds": 0.533,
+     "seconds": 0.535,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -328,7 +517,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.543,
+     "seconds": 0.544,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -342,11 +531,11 @@
    "item": "S2",
    "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
    "verdict": "pass",
-   "seconds": 0.161,
+   "seconds": 0.163,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.01,
+     "seconds": 0.009,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -391,7 +580,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
-     "seconds": 0.095,
+     "seconds": 0.098,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -432,11 +621,11 @@
    "item": "S2",
    "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
    "verdict": "pass",
-   "seconds": 2.148,
+   "seconds": 2.158,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
-     "seconds": 0.44,
+     "seconds": 0.446,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -445,7 +634,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.426,
+     "seconds": 0.422,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -454,7 +643,7 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.423,
+     "seconds": 0.426,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -463,7 +652,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 102",
-     "seconds": 0.859,
+     "seconds": 0.864,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -477,7 +666,7 @@
    "item": "S1",
    "claim": "a parameter takes an ISO 286 tolerance class: (param NAME NOM CLASS) sets the zone from the tabulated deviations for the size band of NOM, the class is kept in the design file and printed by show, the part is evaluated at the nominal when the zone holds it and at the middle of the zone when it does not (an 8 k5 shaft is modelled at 8.004 and certifies over its zone), a new nominal with the class recomputes the zone for its band, the bare form resets it, and an unknown class, a grade outside the tables or a nominal outside them is refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 0.135,
+   "seconds": 0.136,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (param D 22 H7)",
@@ -553,7 +742,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (cylinder (/ S 2) 10) (intent create any 0 1 0))",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -580,7 +769,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param T 8 js6)",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -616,7 +805,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param R 11 H7)",
-     "seconds": 0.011,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -711,11 +900,11 @@
    "item": "S1",
    "claim": "(screw ISO4762 SIZE L) builds a hexagon socket head cap screw as a part from its cited record: head at dk max and k max, hexagon socket s x t, shank threaded to the head with the modelled ISO 68-1 thread at a 6g crest diameter; threads, std, check, tess and step certify it; an unknown standard or size, a length past the thread length b (a plain shank and thread runout are not modelled) and a nonpositive length are refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 17.036,
+   "seconds": 18.622,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))",
-     "seconds": 0.267,
+     "seconds": 0.282,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -724,7 +913,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1 -f",
-     "seconds": 0.272,
+     "seconds": 0.278,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -733,7 +922,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1",
-     "seconds": 0.527,
+     "seconds": 0.492,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -742,7 +931,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.259,
+     "seconds": 0.235,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -751,7 +940,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1",
-     "seconds": 0.569,
+     "seconds": 0.619,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -760,7 +949,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 1",
-     "seconds": 10.011,
+     "seconds": 10.156,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -769,7 +958,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 1",
-     "seconds": 0.231,
+     "seconds": 0.266,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -777,35 +966,71 @@
      "output_head": "ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[-3.610000000000038, 3.610000000000038]x[-3.610000000000038, 3.610000000000038]x[-2.842170943040404e-14, 20.000000000000053] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-p8g/screw_iso4762/s.obj",
-     "seconds": 0.369,
+     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-p8i/screw_iso4762/s.obj",
+     "seconds": 0.332,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
     },
     {
-     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-p8g/screw_iso4762/s.stp",
-     "seconds": 2.934,
+     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-p8i/screw_iso4762/s.stp",
+     "seconds": 2.98,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 3 (rotate 1 x 90) (intent same any any 1 0)) (node 4 (move 3 20 0 5 0) (intent same any any 1 0))",
+     "seconds": 0.275,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[-3.610000000000038, 3.610000000000038]x[-3.610000000000038, 3.610000000000038]x[-2.842170943040404e-14, 20.000000000000053] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[-3.610000000000038, 3.610000000000038]x[-20.000000000000053, 2.842170943040404e-14]x[-3.610000000000038, 3.610000000000038] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[16.389999999999958, 23.610000000000042]x[-20.000000000000053, 2.842170943040404e-14]x[1.3899999999999622, 8.61000000000004] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n\ncommitted\n"
+    },
+    {
+     "cmd": "BIN design.bcd check 4",
+     "seconds": 0.611,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
+    },
+    {
+     "cmd": "BIN design.bcd tess 4 /var/tmp/repro-std-p8i/screw_iso4762/m.obj",
+     "seconds": 0.383,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "wrote /var/tmp/repro-std-p8i/screw_iso4762/m.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+    },
+    {
+     "cmd": "BIN design.bcd measure 4",
+     "seconds": 0.226,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[16.389999999999958, 23.610000000000042]x[-20.000000000000053, 2.842170943040404e-14]x[1.3899999999999622, 8.61000000000004] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n"
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.268,
+     "seconds": 0.229,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n\ncommitted\n"
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-16.000000000000046, 2.131628207280302e-14]x[-3.610000000000031, 3.610000000000031] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[16.389999999999965, 23.610000000000035]x[-16.000000000000046, 2.131628207280302e-14]x[1.3899999999999693, 8.610000000000033] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n\ncommitted\n"
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.266,
+     "seconds": 0.27,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -814,39 +1039,39 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M7 16) (intent create any 0 1 0))",
+     "seconds": 0.261,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-16.000000000000046, 2.131628207280302e-14]x[-3.610000000000031, 3.610000000000031] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[16.389999999999965, 23.610000000000035]x[-16.000000000000046, 2.131628207280302e-14]x[1.3899999999999693, 8.610000000000033] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: std-size-unknown: M7 | fix: sizes with records: M1.6 M2 M2.5 M3 M4 M5 M6 M8 M10 M12 M16 M20\n\nrejected: the design was not"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 2 (screw ISO4017 M4 16) (intent create any 0 1 0))",
+     "seconds": 0.231,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-16.000000000000046, 2.131628207280302e-14]x[-3.610000000000031, 3.610000000000031] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[16.389999999999965, 23.610000000000035]x[-16.000000000000046, 2.131628207280302e-14]x[1.3899999999999693, 8.610000000000033] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-standard-unknown: ISO4017 | fix: held: ISO4762 (hexagon socket head cap screw)\n\nrejected: the design was not change"
+    },
+    {
+     "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 30) (intent create any 0 1 0))",
      "seconds": 0.271,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: std-size-unknown: M7 | fix: sizes with records: M1.6 M2 M2.5 M3 M4 M5 M6 M8 M10 M12 M16 M20\n\nrejected: the design was not changed\n"
-    },
-    {
-     "cmd": "BIN design.bcd apply (node 2 (screw ISO4017 M4 16) (intent create any 0 1 0))",
-     "seconds": 0.264,
-     "limit_s": 20,
-     "verdict": "pass",
-     "missing": [],
-     "forbidden": [],
-     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-standard-unknown: ISO4017 | fix: held: ISO4762 (hexagon socket head cap screw)\n\nrejected: the design was not changed\n"
-    },
-    {
-     "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 30) (intent create any 0 1 0))",
-     "seconds": 0.26,
-     "limit_s": 20,
-     "verdict": "pass",
-     "missing": [],
-     "forbidden": [],
-     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-partial-thread-not-modelled: ISO 4762 M4 screws longer than b = 20 have a plain shank and a thread runout, which the kernel does not model yet | fix: use a length up to b = 20 (threaded to the head)\n\nrejected: the design was not changed\n"
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-16.000000000000046, 2.131628207280302e-14]x[-3.610000000000031, 3.610000000000031] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[16.389999999999965, 23.610000000000035]x[-16.000000000000046, 2.131628207280302e-14]x[1.3899999999999693, 8.610000000000033] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-partial-thread-not-modelled: ISO 4762 M4 screws longer than b = 20 have a plain shank and a thread runout, which th"
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 0) (intent create any 0 1 0))",
-     "seconds": 0.266,
+     "seconds": 0.223,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-length-not-positive: L=0 | fix: give a length above 0\n\nrejected: the design was not changed\n"
+     "output_head": "node 1: ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-3.610000000000031, 3.610000000000031]x[-2.131628207280302e-14, 16.000000000000046] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[-3.610000000000031, 3.610000000000031]x[-16.000000000000046, 2.131628207280302e-14]x[-3.610000000000031, 3.610000000000031] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[268.8273172069079, 268.82731720755464] area=[403.35673841877195, 403.3567384549962] bbox=[16.389999999999965, 23.610000000000035]x[-16.000000000000046, 2.131628207280302e-14]x[1.3899999999999693, 8.610000000000033] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=4.238387418809005e-14 | proof: k1-crossing-certified V16 E22 F12 S1\nnode 2: error invalid-input | screw @ node 2 | why: screw-length-not-positive: L=0 | fix: give a length above 0\n\nrejected: the design was not changed\n"
     },
     {
      "cmd": "BIN design.bcd show",
@@ -855,7 +1080,7 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "(bendcad 1)\n(param 1 L 12 12 12)\n(node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))\n\n"
+     "output_head": "(bendcad 1)\n(param 1 L 12 12 12)\n(node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))\n(node 3 (rotate 1 x 90) (intent same any any 1 0))\n(node 4 (move 3 20 0 5 0) (intent same any any 1 0))\n\n"
     }
    ]
   },
@@ -864,7 +1089,7 @@
    "item": "S2",
    "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
    "verdict": "pass",
-   "seconds": 3.658,
+   "seconds": 3.764,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))",
@@ -877,7 +1102,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001",
-     "seconds": 0.104,
+     "seconds": 0.108,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -886,7 +1111,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001 -f",
-     "seconds": 0.105,
+     "seconds": 0.106,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -895,7 +1120,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1001",
-     "seconds": 0.2,
+     "seconds": 0.208,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -904,7 +1129,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1001",
-     "seconds": 0.104,
+     "seconds": 0.113,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -913,7 +1138,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1001",
-     "seconds": 0.131,
+     "seconds": 0.137,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -921,26 +1146,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p8g/thread_modelled/t.obj",
-     "seconds": 0.193,
+     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p8i/thread_modelled/t.obj",
+     "seconds": 0.198,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
     },
     {
-     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p8g/thread_modelled/t.stp",
-     "seconds": 2.194,
+     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p8i/thread_modelled/t.stp",
+     "seconds": 2.269,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 1001",
-     "seconds": 0.2,
+     "seconds": 0.195,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -958,7 +1183,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1002 (holes 1000 (face 1000 0 top) 6 (tapped M3 3 0 modelled)) (intent remove any any 1 any))",
-     "seconds": 0.106,
+     "seconds": 0.108,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -967,7 +1192,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))",
-     "seconds": 0.106,
+     "seconds": 0.107,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -981,7 +1206,7 @@
    "item": "S2",
    "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
    "verdict": "pass",
-   "seconds": 1.989,
+   "seconds": 2.026,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
@@ -1029,22 +1254,22 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p8g/xthread_modelled/t.obj",
-     "seconds": 0.064,
+     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p8i/xthread_modelled/t.obj",
+     "seconds": 0.066,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
     },
     {
-     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p8g/xthread_modelled/t.stp",
-     "seconds": 1.727,
+     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p8i/xthread_modelled/t.stp",
+     "seconds": 1.768,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p8g/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-p8i/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 2",
@@ -1102,7 +1327,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0)) (node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.097,
+     "seconds": 0.091,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],

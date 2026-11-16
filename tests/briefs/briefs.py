@@ -179,13 +179,14 @@ COLLAR = ['(node 301 (prism 0 10 (region (circle 0 0 12) (circle 0 0 4))) (inten
 
 B5 = dict(
     id='B5', sentence='Split shaft collar for 8 mm with an M4 cap screw: counterbore one side, tapped the other', process='mill', parts=[313],
-    notes='Ring 24 x 8 x 10 with a 1 mm split; screw axis along y at x = 8: counterbore 8 dia to y = -4.5 (DIN 974-1 for ISO 4762 M4), clearance 4.5, tap drill 3.3 with an M4 6H callout.',
-    edits=COLLAR,
+    notes='Ring 24 x 8 x 10 with a 1 mm split in C45 steel; screw axis along y at x = 8: counterbore 8 dia to y = -4.5 (DIN 974-1 for ISO 4762 M4), clearance 4.5, tap drill 3.3 with an M4 6H callout; an ISO 4762 M4 x 10 screw (a catalog part, bought) seated on the counterbore floor with its tip at y = 5.5, inside the 0.5-7 thread (an M4 x 12 reaches y = 7.5 and jams in the untapped drill past the thread, which fasten reports as interference).',
+    edits=COLLAR + ['(material 313 C45 7850 11.5e-6)', '(node 314 (screw ISO4762 M4 10) (intent create any 0 1 0))',
+                    '(node 315 (rotate 314 x 90) (intent same any any 1 0))', '(node 316 (move 315 8 5.5 5 0) (intent same any any 1 0))'],
     checks=[C('valid solid', ['check', '313'], ('check_ok',)),
             C('M4 6H tapped side certified', ['threads', '313'], ('contains', 'M4x0.7 6H', 'status=certified')),
             C('minimum wall >= 1 mm', ['wall', '313'], ('wall_ge', 1.0)),
             NA('counterbore and clearance to DIN 974-1 / ISO 273', NO_STD.format('DIN 974-1 counterbore and ISO 273 clearance-hole')),
-            NA('cap screw fits (head in counterbore, thread engagement)', 'no fastener catalog: an ISO 4762 screw is not available as a part to place and check'),
+            C('cap screw fits (head in counterbore, thread engagement)', ['fasten', '316', '313'], ('regex', r'^verdict pass$')),
             C('3-axis mill reach (ball end mill D6)', ['machine', '313', '6', '20', '10', '40', '3', '3'], ('machinable',), info=True),
             C('makeable on the declared process with standard tools', ['make', 'mill'], ('make_ok',)),
             DRAWING],

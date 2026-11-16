@@ -5208,6 +5208,12 @@ def part_teeth(+p: Part, +nd: U64) -> String:
   Pt{+ps, +ns, ms, ts} = p
   op_teeth(nd_op(ns, nd), X.env_of(pvs_of(ps)), nd)
 
+def op_place(o: Op) -> Bool:
+  match o:
+    case O_move{base, tx, ty, tz, q}: True{}
+    case O_rot{base, ax, deg}: True{}
+    case _: False{}
+
 def hx_guard(hx: Bool, +o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match hx:
     case False{}: op_build(o, b, b2, e, nd, ns)
@@ -5219,7 +5225,7 @@ def hit_go(hit: Bool, +old: CE, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.
     +ns: List<&2, Node>) -> NR:
   match hit:
     case True{}: ce_r(old)
-    case False{}: publish(hx_guard(Bool.or(Bool.and(hasb, has_hx(b)), Bool.and(op_has_b2(o), has_hx(b2))), o, b, b2, e, nd, ns), o, hasb, b, it, nd)
+    case False{}: publish(hx_guard(Bool.and(Bool.not(op_place(o)), Bool.or(Bool.and(hasb, has_hx(b)), Bool.and(op_has_b2(o), has_hx(b2)))), o, b, b2, e, nd, ns), o, hasb, b, it, nd)
 
 def node_go(okb: Bool, +o: Op, +hasb: Bool, +b: Body, +b2: Body, +e: X.Env, +it: It, +nd: U64,
     +key: List<&2, U64>, +old: List<&2, CE>, +ns: List<&2, Node>) -> NR:

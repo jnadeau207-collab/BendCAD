@@ -1,0 +1,229 @@
+{
+ "item": "S3",
+ "limit_s": 30,
+ "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
+ "steps": [
+  {
+   "args": [
+    "apply",
+    "(thread 5 m4 n5.c0.wall.0.0 M4 6H 0 10)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^fasten screw 7 ISO 4762 M4x12 tip=\\(15,15,-0\\.8\\) along=\\(0,0,1\\) parts 3 5$",
+    "^fasten head dk=7\\.22 k=4: counterbore d=8 radial-clearance=0\\.39 seat-gap=0 interference-samples=0/36 status=pass$",
+    "^fasten shank d=3\\.9546 clamp=\\[10\\.8, 12\\] through d=4\\.5 radial-clearance=0\\.2727 interference-samples=0/72 status=pass$",
+    "^fasten thread into M4x0\\.7 6H \\(thread m4\\) node 5: engaged=10 required=unknown: no material is declared on node 5 .*status=not-analyzed$",
+    "^fasten node 7: 3 checks, 2 pass, 0 fail, 1 not-analyzed$",
+    "^verdict not-analyzed$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(material 5 S355 7850 12e-6)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "engaged=10 required=4 \\(1 x d in steel, S355 by designation; Nord-Lock 2015\\) status=pass$",
+    "^verdict pass$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param L 5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "engaged=3\\.8 required=4 .*status=fail$",
+    "^fasten head .*seat-gap=0 interference-samples=0/36 status=pass$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param L 12)",
+    "(material 5 6082-T6 2700 23.4e-6)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "engaged=10 required=8 \\(2 x d in aluminium, 6082-T6 by designation; Nord-Lock 2015\\) status=pass$",
+    "^verdict pass$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param L 8)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "engaged=6\\.8 required=8 .*status=fail$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param L 12)",
+    "(param H 0.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^fasten head .*seat-gap=0\\.5 \\(the head is clear of its seat, not tightened\\) interference-samples=0/36 status=fail$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param H -0.3)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^fasten head dk=7\\.22 k=4: counterbore d=8 radial-clearance=0\\.39 seat-gap=-0\\.3 \\(the head cuts into the seat\\) interference-samples=0/36 status=fail$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param H 0)",
+    "(param X 15.5)"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^fasten thread: no internal M4x0\\.7 thread in the listed parts is coaxial with the screw status=fail$",
+    "^fasten head .*interference-samples=[1-9]\\d*/36 status=fail$",
+    "^fasten shank .*interference-samples=[1-9]\\d*/\\d+ status=fail$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "apply",
+    "(param X 15)",
+    "(node 8 (screw ISO4762 M3 L) (intent create any 0 1 0))",
+    "(node 9 (move 8 15 15 (- 11.2 L) 0) (intent same any any 1 0))"
+   ],
+   "must": [
+    "^committed"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "9",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^fasten thread: no internal M3x0\\.5 thread in the listed parts is coaxial with the screw status=fail$",
+    "^verdict fail$"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "3",
+    "5"
+   ],
+   "must": [
+    "fasten-not-a-screw: node 3"
+   ]
+  },
+  {
+   "args": [
+    "fasten",
+    "7",
+    "3",
+    "5"
+   ],
+   "must": [
+    "^verdict pass$"
+   ]
+  }
+ ]
+}
