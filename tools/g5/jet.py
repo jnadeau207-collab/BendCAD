@@ -19,7 +19,7 @@ RPM = CYC['shaft_rpm']
 
 B_D, B_DO, B_W = 8.0, 22.0, 7.0
 BALL_D = 3.969
-BALL_N = 7
+BALL_N = 8
 PITCH_R = 7.5
 GROOVE_R = 0.52 * BALL_D
 IR_LAND = 6.1
@@ -39,23 +39,50 @@ Z_SPR_SEAT = Z_SPRING + SPR_T + SPR_H
 SHAFT_TH_F = (-8.6, -1.4)
 SHAFT_TH_R = (172.4, 179.6)
 
-A2, A286 = ('X5CrNi18-10', 7900, 1.6e-5, 200000, 0.29), ('X6NiCrTiMoVB25-15-2', 7940, 1.65e-5, 201000, 0.31)
+STD = json.load(open(os.path.join(ROOT, 'data/std/materials.json'), encoding='utf-8'))['grades']
+BRG = json.load(open(os.path.join(ROOT, 'data/std/bearings.json'), encoding='utf-8'))
+BEARING = BRG['bearings']['708 CE/HCP4A']
+KSI, LBIN3 = 6.894757293168361, 27679.904710203125
+
+
+def lit(key):
+    m = BRG['materials'][key]
+    return (key, m['rho'], m['cte'], m['E_MPa'], m['nu'])
+
+
+STEEL, SIN = lit('BEARING-STEEL'), lit('SI3N4')
+PEEK = lit('PEEK-GF30')
+SPRING = '17-4PH-H1075'
 GRADES = {
-    10: ('42CrMo4-QT', 7850, 1.15e-5, 210000, 0.29), 11: ('100Cr6', 7810, 1.15e-5, 208000, 0.30),
-    12: ('100Cr6', 7810, 1.15e-5, 208000, 0.30), 13: ('Si3N4', 3200, 3.2e-6, 310000, 0.27),
-    14: ('PEEK-CF30', 1410, 1.5e-5, 13000, 0.40), 15: A2, 16: ('51CrV4', 7850, 1.2e-5, 206000, 0.30),
-    17: A2, 18: A2, 20: A2, 22: ('NiCr22Mo9Nb', 8440, 1.28e-5, 205000, 0.31),
-    19: ('AlZn5.5MgCu-T6', 2810, 2.36e-5, 71700, 0.33), 23: ('AlSi7Mg-T6', 2680, 2.15e-5, 72000, 0.33),
-    24: ('AlSi7Mg-T6', 2680, 2.15e-5, 72000, 0.33), 26: ('IN713C', 7910, 1.06e-5, 206000, 0.30),
-    27: ('IN713C', 7910, 1.06e-5, 206000, 0.30), 28: ('X15CrNiSi25-21', 7900, 1.7e-5, 196000, 0.30),
-    29: ('AlMg3-H22', 2670, 2.4e-5, 70000, 0.33), 30: A2, 31: A2, 32: ('42CrMo4-QT', 7850, 1.15e-5, 210000, 0.29),
-    33: A2, 34: A2, 35: A2, 36: A2, 50: A2, 51: A2, 52: A2, 53: A286,
+    10: '17-4PH-H1075', 11: STEEL, 12: STEEL, 13: SIN, 14: PEEK, 15: '17-4PH-H1075', 16: SPRING,
+    17: 'A286-AMS5732', 18: 'A286-AMS5732', 19: 'AL2618-T61', 20: 'AISI304-ANN', 22: 'HASTELLOY-X',
+    23: 'AL-A356.0-T6', 24: 'AL-A356.0-T6', 26: 'IN718-AMS5383', 27: 'IN718-AMS5663', 28: 'INCONEL-625',
+    29: 'AL-A356.0-T6', 30: 'AISI304-ANN', 31: 'AISI304-ANN', 32: '17-4PH-H1075', 33: 'AISI304-ANN',
+    34: 'AISI304-ANN', 35: 'AISI304-ANN', 36: 'AISI304-ANN', 50: 'A286-AMS5732', 51: 'A286-AMS5732',
+    52: 'A286-AMS5732', 53: 'A286-AMS5732',
 }
+
+
+def grade_props(g):
+    if isinstance(g, tuple):
+        return g
+    m = STD[g]
+    return (g, m['rho'] * LBIN3, m['alpha'][0][1] * 1.8e-6, m['e'] * 1000.0 * KSI, m['nu'])
+
+
+def grade_name(n):
+    return grade_props(GRADES[n])[0]
+
+
+def density(n):
+    return grade_props(GRADES[n])[1]
+
 
 R_CASE_O, T_CASE, Z_CASE0, Z_CASE1 = 54.0, 0.8, 14.0, 175.0
 R_CASE_I = R_CASE_O - T_CASE
 R_SPIGOT = 53.15
 R_LIN_I, R_LIN_O, T_LIN, Z_LIN0 = 22.0, 46.0, 0.5, 60.0
+LINER_ROWS = [(72.0, 18, 2.15, 12, 1.6), (95.0, 18, 2.65, 12, 1.85), (125.0, 12, 4.25, 12, 2.35)]
 R_SHROUD = 33.28
 
 
@@ -126,6 +153,7 @@ DIF_N = 18
 DIF_R0, DIF_R1, DIF_A0, DIF_A1, DIF_T0, DIF_T1 = 35.5, 46.5, 65.0, 53.0, 0.6, 2.4
 DIF_BOSS_R, DIF_BOSS_D = 43.5, 6.2
 TUN_BOLT_R, NGV_BOLT_R, INTAKE_BOLT_R = 19.0, 17.5, 35.0
+TUN_BOSS_R = 3.4
 
 
 def dif_alpha(r):
@@ -183,6 +211,9 @@ class Fitting:
         self.d, self.p, self.nid = 5.0, T.PITCH[5.0], nid
         self.L, self.z0, self.z1 = length_in, z0, z1
 
+    def size(self):
+        return 'M5'
+
 
 GLOW = Fitting(31, 6.2, 0.3, 5.8)
 ADAPTER = Fitting(36, 6.0, 0.3, 5.5)
@@ -197,11 +228,11 @@ PORTS = [J_GLOW, J_FUEL, J_LUBE]
 
 
 def tapped_into(part):
-    return [j for j in JOINTS + PORTS if j.tapped == part]
+    return [j for j in (JOINTS if JOINTS_ON else []) + (PORTS if PORTS_ON else []) if j.tapped == part]
 
 
 def clamped_by(part):
-    return [j for j in JOINTS if j.clamp == part]
+    return [j for j in (JOINTS if JOINTS_ON else []) if j.clamp == part]
 
 
 def joint_cuts(part, ids):
@@ -217,11 +248,13 @@ def joint_cuts(part, ids):
     return e, cs
 
 
-JOINTS_ON = os.environ.get('G5_JOINTS', '1') != '0'
+JOINTS_MODE = os.environ.get('G5_JOINTS', '1')
+JOINTS_ON = JOINTS_MODE == '1'
+PORTS_ON = JOINTS_MODE in ('1', 'ports')
 
 
 def finish(part, nid, base, ids, extra_cuts=()):
-    e, cs = joint_cuts(part, ids) if JOINTS_ON else ([], [])
+    e, cs = joint_cuts(part, ids)
     cs = list(extra_cuts) + cs
     if not cs:
         return e + [done(nid, base)]
@@ -234,16 +267,11 @@ def shaft_edits():
     p = [(0.0, Z_NOSE), (rc - 0.25, Z_NOSE), (rc, Z_NOSE + 0.25), (rc, -1.0), (R_JOURNAL, -1.0), (R_JOURNAL, Z_SPRING),
          (R_SPACER, Z_SPRING), (R_SPACER, Z_REAR_BRG), (R_JOURNAL, Z_REAR_BRG), (R_JOURNAL, Z_NUT_R), (rc, Z_NUT_R),
          (rc, Z_TAIL - 0.25), (rc - 0.25, Z_TAIL), (0.0, Z_TAIL)]
-    hw = max(z for _, z in T.ext_tooth(8.0, 1.0, T.ES_6G[8.0])[1]) + 0.1
-    a, b = Z_NOSE + 0.25 + hw, -1.0 - hw
-    c, d = Z_NUT_R + hw, Z_TAIL - 0.25 - hw
-    if not JOINTS_ON:
+    if not PORTS_ON:
         q = [(0.0, Z_NOSE), (R_JOURNAL, Z_NOSE), (R_JOURNAL, Z_SPRING), (R_SPACER, Z_SPRING), (R_SPACER, Z_REAR_BRG),
              (R_JOURNAL, Z_REAR_BRG), (R_JOURNAL, Z_TAIL), (0.0, Z_TAIL)]
         return [rev(1001, q), done(10, 1001)]
-    return [rev(1001, p), T.ext_helix(1002, 8.0, a, b - a, IC, datum=SHAFT_TH_F[0]),
-            T.ext_helix(1003, 8.0, c, d - c, IC, datum=SHAFT_TH_R[0]),
-            f'(node 1004 (union 1001 1002) {IA})', f'(node 1005 (union 1004 1003) {IA})', done(10, 1005)]
+    return [rev(1001, p), done(10, 1001)]
 
 
 def groove_z():
@@ -312,14 +340,13 @@ def nut_edits(nid, z_nut, z_th0, width_af=13.0, h=6.5):
     ch = [(0.0, -0.1), (dw - e0, -0.1), (r + 0.1, c), (r + 0.1, h - c), (dw - e0, h + 0.1), (0.0, h + 0.1)]
     rb, pts = T.int_tooth(8.0, 1.0)
     phase = T.SEAM_OFF + 2.0 * math.pi * (z_nut - 0.3 - z_th0) / 1.0
-    if not JOINTS_ON:
+    if not PORTS_ON:
         return [f'(node {nid}1 (prism 0.0 {f(h)} (region (path {f(r)} 0.0 {hx}) (circle 0.0 0.0 {f(R_JOURNAL)}))) {IC})',
                 rev(int(f'{nid}2'), ch), f'(node {nid}3 (intersection {nid}1 {nid}2) {IS})', done(nid, int(f'{nid}3'))]
     return [f'(node {nid}1 (prism 0.0 {f(h)} (region (path {f(r)} 0.0 {hx}))) {IC})', rev(int(f'{nid}2'), ch),
             f'(node {nid}3 (intersection {nid}1 {nid}2) {IS})',
             f'(node {nid}4 (cylinder {f(rb)} {f(h + 0.6)}) {IC})', f'(node {nid}5 (move {nid}4 0.0 0.0 -0.3 0) {IS})',
-            f'(node {nid}6 (skin {T.helix_secs(rb, -0.3, h + 0.6, 1.0, pts, phase=phase)}) {IC})',
-            f'(node {nid}7 (union {nid}5 {nid}6) {IA})', f'(node {nid}8 (difference {nid}3 {nid}7) {IR})', done(nid, int(f'{nid}8'))]
+            f'(node {nid}8 (difference {nid}3 {nid}5) {IR})', done(nid, int(f'{nid}8'))]
 
 
 def spacer_edits():
@@ -353,7 +380,7 @@ def liner_edits():
     ue, n = union_all(2201, sticks, ids)
     e += ue
     holes = []
-    rows = [(72.0, 18, 2.0, 12, 1.5), (95.0, 18, 2.5, 12, 1.75), (125.0, 12, 4.5, 12, 2.5)]
+    rows = LINER_ROWS
     for z, no, ro, ni, ri in rows:
         for k in range(no):
             h = ids()
@@ -427,7 +454,7 @@ def ring_of(base, srcs):
     for k, (src, ang) in enumerate(srcs):
         e.append(f'(node {base + 10 + k} (rotate {src} z {f(ang)}) {IS})')
         ids.append(base + 10 + k)
-    nxt = [base + 50]
+    nxt = [base + max(50, 11 + len(srcs))]
 
     def nid():
         nxt[0] += 1
@@ -469,26 +496,29 @@ def diffuser_edits():
     ids = J.Ids(240000)
     p = [(15.5, 28.0), (34.5, 28.0), (34.5, 24.635), (47.0, 24.635), (47.0, 40.0), (45.5, 40.0), (45.5, 30.5), (15.5, 30.5)]
     e = [rev(2401, p), f'(node 2402 (prism 20.0 24.9 {dif_vane()}) {IC})']
-    adds = []
+    vanes, bosses, tun, strs = [], [], [], []
     for k in range(DIF_N):
         n = ids()
         e.append(f'(node {n} (rotate 2402 z {f(360.0 / DIF_N * k)}) {IS})')
-        adds.append(n)
+        vanes.append(n)
     for k in range(6):
         n = ids()
-        e += axial_cyl(n, DIF_BOSS_D / 2, *dif_boss_xy(k), 20.0, 24.9, ids)
-        adds.append(n)
+        e += axial_cyl(n, DIF_BOSS_D / 2, *dif_boss_xy(k), 20.05, 24.9, ids)
+        bosses.append(n)
         n = ids()
-        e += axial_cyl(n, 3.5, *polar(TUN_BOLT_R, 60.0 * k), 30.3, 35.5, ids)
-        adds.append(n)
+        e += axial_cyl(n, TUN_BOSS_R, *polar(TUN_BOLT_R, 60.0 * k), 30.3, 35.5, ids)
+        tun.append(n)
     vane = airfoil(10.0, 0.08, math.tan(math.radians(50.0)), 0.0, 0.3)
-    e.append(f'(node 2403 (skin {foil_sec(46.8, 28.5, vane)} {foil_sec(52.9, 28.5, vane)}) {IC})')
+    e.append(f'(node 2403 (skin {foil_sec(46.0, 28.5, vane)} {foil_sec(52.9, 28.5, vane)}) {IC})')
     for k in range(STR_N):
         n = ids()
-        e.append(f'(node {n} (rotate 2403 z {f(360.0 / STR_N * k)}) {IS})')
-        adds.append(n)
-    ue, top = union_all(2401, adds, ids)
-    return e + ue + finish('diffuser', 24, top, ids)
+        e.append(f'(node {n} (rotate 2403 z {f(360.0 / STR_N * (k + 0.5))}) {IS})')
+        strs.append(n)
+    top = 2401
+    for group in (vanes, bosses, tun, strs):
+        ue, top = union_all(top, group, ids)
+        e += ue
+    return e + finish('diffuser', 24, top, ids)
 
 
 STR_N = 30
@@ -599,21 +629,37 @@ def hexprism(nid, af, z0, z1):
 
 
 def m5_body(nid, fit, ids):
-    rc = T.ext_tooth(5.0, 0.8, T.ES_6G[5.0])[0]
     c = ids()
-    return J.cyl(c, rc, 0.0, fit.L) + [T.ext_helix(nid, 5.0, fit.z0, fit.z1 - fit.z0, IC)], c
+    fit.core_prim = c * 10 + 1
+    return J.cyl(c, (5.0 + 2.0 * T.ES_6G[5.0]) / 2.0, 0.0, fit.L), c
+
+
+def port_threads():
+    out = []
+    for fit, name in ((GLOW, 'glow'), (ADAPTER, 'fitting')):
+        out.append(f'(thread {fit.body} {name} n{fit.core_prim}.c0.wall.0.0 M5 6g {f(fit.z0)} {f(fit.z1)})')
+    for j in PORTS:
+        a, b = j.tap_span
+        out.append(f'(thread 20 {j.name} n{j.tap_prim}.c0.wall.0.0 M5 6H 0.3 {f(b - a + 0.3)})')
+    return out
+
+
+def shaft_threads():
+    return [f'(thread 10 front n1001.c0.wall.2.0 M8x1 6g {f(SHAFT_TH_F[0])} {f(SHAFT_TH_F[1])})',
+            f'(thread 10 rear n1001.c0.wall.10.0 M8x1 6g {f(SHAFT_TH_R[0])} {f(SHAFT_TH_R[1])})',
+            '(thread 17 m8 n174.c0.wall.0.0 M8x1 6H 0.0 6.5)', '(thread 18 m8 n184.c0.wall.0.0 M8x1 6H 0.0 6.5)']
 
 
 def glow_edits():
     ids = J.Ids(310000)
     hx = ids()
     e = [hexprism(hx, 8.0, -4.0, 0.0)]
-    th = ids()
-    be, core = m5_body(th, GLOW, ids)
+    be, core = m5_body(None, GLOW, ids)
     e += be
     el, term = ids(), ids()
     e += J.cyl(el, 1.1, GLOW.L - 0.1, 15.5) + J.cyl(term, 1.5, -6.0, -3.9)
-    ue, n = union_all(hx, [core, th, el, term], ids)
+    ue, n = union_all(hx, [core, el, term], ids)
+    GLOW.body = n
     pe, placed = J.place(n, J_GLOW.frames[0], ids)
     return e + ue + pe + [done(31, placed)]
 
@@ -622,14 +668,14 @@ def adapter_edits():
     ids = J.Ids(360000)
     hx = ids()
     e = [hexprism(hx, 7.0, -3.0, 0.0)]
-    th = ids()
-    be, core = m5_body(th, ADAPTER, ids)
+    be, core = m5_body(None, ADAPTER, ids)
     e += be
     barb, bore, sock = ids(), ids(), ids()
     e += J.cyl(barb, 1.5, -9.0, -2.9) + J.cyl(bore, 0.6, -9.3, ADAPTER.L + 0.3) + J.cyl(sock, 1.05, 3.0, ADAPTER.L + 0.3)
-    ue, n = union_all(hx, [core, th, barb], ids)
-    ce, n2 = cut_all(n, [bore, sock], ids)
-    e += ue + ce + [done(36, n2)]
+    ue, n = union_all(hx, [core, barb], ids)
+    d1, d2 = ids(), ids()
+    ADAPTER.body = d2
+    e += ue + [f'(node {d1} (difference {n} {bore}) {IR})', f'(node {d2} (difference {d1} {sock}) {IR})', done(36, d2)]
     for nid, jt in ((33, J_FUEL), (35, J_LUBE)):
         pe, placed = J.place(36, jt.frames[0], ids)
         e += pe + [done(nid, placed)]
@@ -663,11 +709,19 @@ def placement_edits():
                 mv(4221, 16, Z_SPRING), mv(4222, 17, Z_NUT_F), mv(4223, 18, Z_NUT_R), mv(4224, 32, Z_REAR_BRG + B_W)]
 
 
+def mat_edit(n, g):
+    if isinstance(g, tuple):
+        return f'(material {n} {g[0]} {g[1]!r} {g[2]!r} {g[3]!r} {g[4]!r})'
+    return f'(material {n} {g})'
+
+
+BLADE_NODES = {2702: 27, 1903: 19, 1904: 19}
+
+
 def materials():
-    ms = [f'(material {n} {g} {rho} {cte!r} {e} {nu})' for n, (g, rho, cte, e, nu) in GRADES.items()]
+    ms = [mat_edit(n, g) for n, g in GRADES.items()] + [mat_edit(b, GRADES[p]) for b, p in BLADE_NODES.items()]
     for j, k, n in (screw_instances()[1] if JOINTS_ON else []):
-        g, rho, cte, e, nu = A286 if j in (J_EXH_CASE, J_NGV_TUNNEL) else A2
-        ms.append(f'(material {n} {g} {rho} {cte!r} {e} {nu})')
+        ms.append(mat_edit(n, 'A286-AMS5732'))
     return ms
 
 
@@ -679,7 +733,7 @@ def parts():
             ('impeller', impeller_edits()), ('front_cover', front_cover_edits()), ('diffuser', diffuser_edits()),
             ('ngv', ngv_edits()), ('turbine', turbine_edits()), ('exhaust', exhaust_edits()), ('intake', intake_edits()),
             ('fuel_ring', fuel_ring_edits()), ('lube_tube', lube_tube_edits())] + (
-            [('glow_plug', glow_edits()), ('adapters', adapter_edits())] if JOINTS_ON else []) + [('placement', placement_edits())] + (
+            [('glow_plug', glow_edits()), ('adapters', adapter_edits())] if PORTS_ON else []) + [('placement', placement_edits())] + (
             [('screw_instances', screw_instances()[0])] if JOINTS_ON else [])
 
 

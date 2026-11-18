@@ -1,0 +1,85 @@
+{
+ "source": "tools/g6/running.py",
+ "rpm": 43842.0797841919,
+ "cycle": "docs/receipts/g6/cycle.json humphrey_measured_rdc",
+ "ok": false,
+ "rows": [
+  {
+   "pair": "turbine blade tip to CMC shroud (radial)",
+   "cold_mm": 0.15,
+   "cold_basis": "design value of tools/g6/humphrey.py (G_TT); the kernel clearance certificate of the built design replaces it",
+   "closure_mm": 0.5199406767890113,
+   "running_mm": -0.3699406767890113,
+   "ok": false,
+   "rotor": {
+    "material": "WASPALOY-AMS5704",
+    "disc_T_K": 811.8839,
+    "blade_T_K": 1150.0,
+    "thermal_disc_mm": 0.45995460367335095,
+    "thermal_blade_mm": 0.35196123463328866,
+    "spin_disc_mm": 0.05246444591991039,
+    "spin_blade_stretch_mm": 0.02123467385287698,
+    "blade_pull_N": 17123.337172947664,
+    "blade_volume_mm3": 1342.742403886604,
+    "disc_bore_hoop_MPa": 683.1094690802124,
+    "basis": "COMPUTED: MIL-HDBK-5J Waspaloy mean expansion (Figure 6.3.8.0) at the stated temperatures; rotating annular disc (Timoshenko) r 10-62.3 mm, 30 mm thick, 41 blades as rim pull; blade self-stretch"
+   },
+   "stator": {
+    "material": "SIC-SIC-N24A",
+    "T_K": 991.3289,
+    "thermal_mm": 0.3656742812904156,
+    "basis": "COMPUTED: measured N24A expansion 6.0e-6/K (NASA TM-2009-215806, Table IV) at the turbine exit gas temperature, the coldest gas washing the shroud (closes the gap most)"
+   },
+   "cold_needed_mm": 0.5699406767890114,
+   "needed_basis": "closure plus 0.05 mm running margin"
+  },
+  {
+   "pair": "impeller inducer tip (radial)",
+   "cold_mm": 0.4,
+   "closure_mm": 0.1731542588463845,
+   "running_mm": 0.22684574115361553,
+   "ok": true,
+   "rotor": {
+    "material": "TI-6AL-4V-ANN",
+    "T_K": 473.7678,
+    "thermal_mm": 0.11822321622683049,
+    "spin_mm": 0.047402542619554004,
+    "basis": "COMPUTED: MIL-HDBK-5J Ti-6Al-4V mean expansion (Figure 5.4.1.0); solid rotating disc hoop growth (1-nu)/4 rho w^2 r^2 / E"
+   },
+   "stator": {
+    "material": "AL-A356.0-T6",
+    "T_K": 288.15,
+    "thermal_mm": -0.007528499999999998,
+    "basis": "ISA intake air, the coldest state of the shroud (closes the gap most)"
+   }
+  },
+  {
+   "pair": "impeller exducer tip at the shroud contour (contour normal)",
+   "cold_mm": 0.4,
+   "closure_mm": 0.23947979915046627,
+   "running_mm": 0.16052020084953375,
+   "ok": true,
+   "rotor": {
+    "material": "TI-6AL-4V-ANN",
+    "T_K": 473.7678,
+    "thermal_mm": 0.16889030889547216,
+    "spin_mm": 0.13819983271007005,
+    "basis": "COMPUTED: MIL-HDBK-5J Ti-6Al-4V mean expansion (Figure 5.4.1.0); solid rotating disc hoop growth (1-nu)/4 rho w^2 r^2 / E"
+   },
+   "stator": {
+    "material": "AL-A356.0-T6",
+    "T_K": 288.15,
+    "thermal_mm": -0.010754999999999999,
+    "basis": "ISA intake air, the coldest state of the shroud (closes the gap most)"
+   }
+  }
+ ],
+ "refusals": [
+  {
+   "code": "g6-turbine-tip-clearance",
+   "target": "cold turbine tip clearance <= 0.15 mm that stays positive at temperature (brief section 4.4)",
+   "computed": "cold 0.15 mm closes 0.520 mm at 43842 r/min: running -0.370 mm (rub); a positive running gap needs 0.57 mm cold",
+   "physics": "the Waspaloy rotor grows 0.812 mm thermally and 0.074 mm by spin, while the monolithic SiC/SiC shroud (6.0e-6/K) grows only 0.366 mm; the brief fixes the shroud as part of the CMC monolith, so no carrier ring can match the rotor"
+  }
+ ]
+}

@@ -1,0 +1,91 @@
+{
+ "source": "tools/g5/stress.py: closed-form rotating-disc (Lame, Timoshenko) and 1-D blade pull integrated over the design sections; strengths from MIL-HDBK-5J (data/std/materials.json), rupture from the IN718 Larson-type equation of Figure 6.3.5.1.7(e)",
+ "basis": "COMPUTED",
+ "factor_design": 1.5,
+ "life_required_h": 25.0,
+ "rpm": 118486,
+ "converged": true,
+ "ok": true,
+ "rows": [
+  {
+   "item": "turbine blade root (r = 21.5, disc rim)",
+   "state": "design",
+   "stress_MPa": 314.6,
+   "pull_N": 2934.3,
+   "root_area_mm2": 9.328,
+   "T_K": 973.0,
+   "Fty_T_MPa": 754.0,
+   "allowable_MPa": 502.7,
+   "rupture_life_h": 2856.1,
+   "ok": true
+  },
+  {
+   "item": "turbine disc (variable-thickness rotating disc, profile of jet.py: 10 mm hub, 6 mm web, 9 mm rim; 23 blades as rim load)",
+   "state": "design",
+   "stress_MPa": 543.9,
+   "at_r_mm": 4.0,
+   "T_K": 685.9,
+   "Fty_T_MPa": 953.4,
+   "allowable_MPa": 635.6,
+   "ok": true
+  },
+  {
+   "item": "turbine blade root (r = 21.5, disc rim)",
+   "state": "overspeed 120%",
+   "stress_MPa": 453.0,
+   "pull_N": 4225.4,
+   "root_area_mm2": 9.328,
+   "T_K": 973.0,
+   "Fty_T_MPa": 754.0,
+   "allowable_MPa": 754.0,
+   "rupture_life_h": null,
+   "ok": true
+  },
+  {
+   "item": "turbine disc (variable-thickness rotating disc, profile of jet.py: 10 mm hub, 6 mm web, 9 mm rim; 23 blades as rim load)",
+   "state": "overspeed 120%",
+   "stress_MPa": 783.3,
+   "at_r_mm": 4.0,
+   "T_K": 685.9,
+   "Fty_T_MPa": 953.4,
+   "allowable_MPa": 953.4,
+   "ok": true
+  },
+  {
+   "item": "impeller hub (variable-thickness rotating disc on the hub profile of jet.py; 12 blades smeared as dead mass over r 9-33)",
+   "state": "design",
+   "stress_MPa": 148.5,
+   "at_r_mm": 4.0,
+   "T_K": 398.8,
+   "Fty_T_MPa": 273.7,
+   "allowable_MPa": 182.5,
+   "ok": true
+  },
+  {
+   "item": "impeller hub (variable-thickness rotating disc on the hub profile of jet.py; 12 blades smeared as dead mass over r 9-33)",
+   "state": "overspeed 120%",
+   "stress_MPa": 213.9,
+   "at_r_mm": 4.0,
+   "T_K": 398.8,
+   "Fty_T_MPa": 273.7,
+   "allowable_MPa": 273.7,
+   "ok": true
+  }
+ ],
+ "parts": [
+  {
+   "name": "turbine",
+   "item": "turbine disc (variable-thickness rotating disc, profile of jet.py: 10 mm hub, 6 mm web, 9 mm rim; 23 blades as rim load)",
+   "max_von_mises_MPa": 543.9,
+   "allowable_MPa": 635.6,
+   "utilisation": 0.856
+  },
+  {
+   "name": "impeller",
+   "item": "impeller hub (variable-thickness rotating disc on the hub profile of jet.py; 12 blades smeared as dead mass over r 9-33)",
+   "max_von_mises_MPa": 148.5,
+   "allowable_MPa": 182.5,
+   "utilisation": 0.814
+  }
+ ]
+}

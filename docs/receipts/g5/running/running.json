@@ -1,0 +1,209 @@
+{
+ "source": "tools/g5/running.py + bendcad clearance",
+ "design": "/home/jesse/g5/g5p.bcd",
+ "rpm": 118486,
+ "ok": false,
+ "rows": [
+  {
+   "pair": "turbine blade tip to shroud",
+   "rotor": "turbine",
+   "stator": "ngv",
+   "cold_certified_mm": [
+    0.3017896483240747,
+    0.3017896485122255
+   ],
+   "closure_mm": 0.0898,
+   "running_mm": 0.2119,
+   "status": "pass",
+   "rotor_growth": {
+    "dr_thermal": 0.34238069940128396,
+    "dr_spin": 0.029711444219668995,
+    "dz": 0.052393222887439535,
+    "T_K": 973.0,
+    "T_basis": "turbine inlet total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 1.5270228e-05,
+    "bore_hoop_MPa": 608.1238197766146,
+    "rim_pull_MPa": 59.53050855732472,
+    "blade_pull_N": 72376.97543073623
+   },
+   "stator_growth": {
+    "dr_thermal": 0.28224511508407496,
+    "dr_spin": 0.0,
+    "dz": 0.03955953648501452,
+    "T_K": 874.9,
+    "T_basis": "turbine exit total temperature, the coldest gas washing the shroud (closes the gap most)",
+    "alpha_mean_per_K": 1.4710904999999999e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  },
+  {
+   "pair": "compressor blade tip to shroud contour",
+   "rotor": "impeller",
+   "stator": "front_cover",
+   "cold_certified_mm": [
+    0.0,
+    0.2727461234457915
+   ],
+   "closure_mm": 0.1024,
+   "running_mm": -0.1024,
+   "status": "fail",
+   "rotor_growth": {
+    "dr_thermal": 0.05294370276801902,
+    "dr_spin": 0.03575410360813922,
+    "dz": -0.23307874833127507,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 2.1470589e-05,
+    "bore_hoop_MPa": 387.4805965395595,
+    "rim_pull_MPa": 0.0,
+    "note": "hub as a rotating annular disc a=4 b=33 t=26 mm; blades as distributed mass in the disc (pull not applied as rim load)",
+    "blade_pull_N": 23655.039737138708
+   },
+   "stator_growth": {
+    "dr_thermal": -0.002510217,
+    "dr_spin": 0.0,
+    "dz": -0.1528519349007,
+    "T_K": 288.15,
+    "T_basis": "ISA intake air, the coldest state of the shroud contour (closes the gap most)",
+    "alpha_mean_per_K": 2.151e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  },
+  {
+   "pair": "impeller rim to diffuser step (radial)",
+   "rotor": "impeller",
+   "stator": "diffuser",
+   "cold_certified_mm": [
+    0.49999999982358634,
+    0.5000000000000004
+   ],
+   "closure_mm": 0.0361,
+   "running_mm": 0.4639,
+   "status": "pass",
+   "rotor_growth": {
+    "dr_thermal": 0.07712450274690004,
+    "dr_spin": 0.03730945726094592,
+    "dz": -0.20615320335030304,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 2.1470589e-05,
+    "bore_hoop_MPa": 387.4805965395595,
+    "rim_pull_MPa": 0.0,
+    "note": "hub as a rotating annular disc a=4 b=33 t=26 mm; blades as distributed mass in the disc (pull not applied as rim load)",
+    "blade_pull_N": 23655.039737138708
+   },
+   "stator_growth": {
+    "dr_thermal": 0.07830038566215002,
+    "dr_spin": 0.0,
+    "dz": -0.134703800407728,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature",
+    "alpha_mean_per_K": 2.1797941499999997e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  },
+  {
+   "pair": "impeller back face to diffuser disc (axial)",
+   "rotor": "impeller",
+   "stator": "diffuser",
+   "cold_certified_mm": [
+    0.49999999982358634,
+    0.5000000000000004
+   ],
+   "closure_mm": -0.0711,
+   "running_mm": 0.5711,
+   "status": "pass",
+   "rotor_growth": {
+    "dr_thermal": 0.045367354557000014,
+    "dr_spin": 0.03324067741987659,
+    "dz": -0.20518129196730006,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 2.1470589e-05,
+    "bore_hoop_MPa": 387.4805965395595,
+    "rim_pull_MPa": 0.0,
+    "note": "hub as a rotating annular disc a=4 b=33 t=26 mm; blades as distributed mass in the disc (pull not applied as rim load)",
+    "blade_pull_N": 23655.039737138708
+   },
+   "stator_growth": {
+    "dr_thermal": 0.04605905038950001,
+    "dr_spin": 0.0,
+    "dz": -0.13404872068672502,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature",
+    "alpha_mean_per_K": 2.1797941499999997e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  },
+  {
+   "pair": "impeller hub to tunnel front face (axial)",
+   "rotor": "impeller",
+   "stator": "tunnel",
+   "cold_certified_mm": [
+    0.49999868837633626,
+    0.5000000000000004
+   ],
+   "closure_mm": -0.0708,
+   "running_mm": 0.5708,
+   "status": "pass",
+   "rotor_growth": {
+    "dr_thermal": 0.02381786114242501,
+    "dr_spin": 0.02325283758148528,
+    "dz": -0.20426337566113054,
+    "T_K": 398.8,
+    "T_basis": "compressor delivery total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 2.1470589e-05,
+    "bore_hoop_MPa": 387.4805965395595,
+    "rim_pull_MPa": 0.0,
+    "note": "hub as a rotating annular disc a=4 b=33 t=26 mm; blades as distributed mass in the disc (pull not applied as rim load)",
+    "blade_pull_N": 23655.039737138708
+   },
+   "stator_growth": {
+    "dr_thermal": 0.012737661241725004,
+    "dr_spin": 0.0,
+    "dz": -0.13343003428355552,
+    "T_K": 398.8,
+    "T_basis": "immersed in compressor delivery air, fuel-oil fed",
+    "alpha_mean_per_K": 1.1482352999999998e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  },
+  {
+   "pair": "turbine disc rim to exhaust cone (axial)",
+   "rotor": "turbine",
+   "stator": "exhaust",
+   "cold_certified_mm": [
+    1.9999999999992033,
+    2.000000000000428
+   ],
+   "closure_mm": -0.0919,
+   "running_mm": 2.0919,
+   "status": "pass",
+   "rotor_growth": {
+    "dr_thermal": 0.2232014868747,
+    "dr_spin": 0.017716771729790727,
+    "dz": 0.053995076833500015,
+    "T_K": 973.0,
+    "T_basis": "turbine inlet total temperature, the whole wheel (hottest uniform state)",
+    "alpha_mean_per_K": 1.5270228e-05,
+    "bore_hoop_MPa": 608.1238197766146,
+    "rim_pull_MPa": 59.53050855732472,
+    "blade_pull_N": 72376.97543073623
+   },
+   "stator_growth": {
+    "dr_thermal": 0.178008481477125,
+    "dr_spin": 0.0,
+    "dz": 0.14592160810012508,
+    "T_K": 874.9,
+    "T_basis": "turbine exit total temperature",
+    "alpha_mean_per_K": 1.4231997e-05
+   },
+   "basis": "COMPUTED: cold gap certified by the kernel; growth from MIL-HDBK-5J mean expansion at the stated temperature and rotating-disc theory (Timoshenko) at 118486 r/min"
+  }
+ ],
+ "datums": {
+  "rotor_axial_z": 141.5,
+  "stator_axial_z": 138.0,
+  "why": "the rear bearing outer ring seats on the tunnel shoulder at z=138; the front bearing floats on the preload spring"
+ }
+}

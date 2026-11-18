@@ -1,0 +1,16 @@
+{
+ "item": "S1",
+ "limit_s": 10,
+ "claim": "(material NODE GRADE) takes the density, mean expansion (70 to 200 F), modulus and Poisson's ratio of a held grade from its cited MIL-HDBK-5J record (data/std/materials.json, generated into src/k2/std.bend), the design file keeps the short form, mass prints the record's table and page, a literal (material NODE GRADE DENSITY CTE [E NU]) still works and carries no citation, and an unknown grade is refused with the held grades",
+ "steps": [
+  {"args": ["apply", "(material 1 IN718-AMS5663)"], "must": ["^committed"]},
+  {"args": ["show"], "must": ["^\\(material 1 IN718-AMS5663\\)$"]},
+  {"args": ["mass", "1"], "must": ["^material IN718-AMS5663 density=8220\\.93169893", "cte=0\\.00001278", "mass=\\[0\\.0082209316", "source=\"Inconel 718 forging, solution treated and aged AMS 5663, MIL-HDBK-5J Table 6\\.3\\.5\\.0\\(c\\) p1093; expansion Figure 6\\.3\\.5\\.0 p1091\""]},
+  {"args": ["apply", "(material 1 NOPE-GRADE)"], "must": ["material-grade-unknown: NOPE-GRADE", "AL2618-T61", "HASTELLOY-X", "^rejected"], "stop_on_fail": false},
+  {"args": ["show"], "must": ["^\\(material 1 IN718-AMS5663\\)$"]},
+  {"args": ["apply", "(material 1 Custom 7850 1.2e-05 210000 0.3)"], "must": ["^committed"]},
+  {"args": ["mass", "1"], "must": ["^material Custom density=7850 cte=0\\.000012 mass="], "must_not": ["source="]},
+  {"args": ["apply", "(material 1 AL2618-T61)"], "must": ["^committed"]},
+  {"args": ["mass", "1"], "must": ["^material AL2618-T61 density=2767\\.99047102", "cte=0\\.00002079", "Table 3\\.2\\.13\\.0\\(b\\) p512"]}
+ ]
+}

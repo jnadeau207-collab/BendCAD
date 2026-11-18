@@ -11,7 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 VIEW = os.path.join(ROOT, 'viewer', 'g5')
 REC = os.path.join(ROOT, 'docs', 'receipts', 'g5')
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
-DESIGN = os.environ.get('G5_DESIGN', '/home/jesse/g5/g5.bcd')
+DESIGN = os.environ.get('G5_DESIGN', '/home/jesse/g5/g5p.bcd')
 sys.path.insert(0, os.path.dirname(__file__))
 import jet
 
@@ -48,33 +48,47 @@ chk('combustor liner admits air (perforated walls)', 'pass' if perforated else '
     f'{len(perforated)} liner cylinder faces with holes; kernel lists {len(faces.splitlines())} faces, all loops=1' if not perforated else f'{len(perforated)} perforated faces',
     'kernel: faces 22 (certified B-rep topology)')
 
-inside = []
-for p in sc['parts']:
-    if p['name'] == 'liner':
-        continue
-    v = verts(p['name'])
-    r = np.hypot(v[:, 0], v[:, 1])
-    if np.any((r > 22.6) & (r < 45.4) & (v[:, 2] > 60.6) & (v[:, 2] < 149.9)):
-        inside.append(p['name'])
-chk('fuel reaches the primary zone (injector inside the liner)', 'pass' if inside else 'fail',
-    f'parts reaching into the liner gas volume: {inside or "none"}', 'measured: kernel tessellation vertices vs liner interior')
+def receipt(sub, name):
+    f = os.path.join(REC, sub, name)
+    return json.load(open(f, encoding='utf-8')) if os.path.exists(f) else None
 
-sw = json.load(open(os.path.join(REC, 'review', 'swept_clearance.json'), encoding='utf-8'))
-gap = next(r['gap_mm'] for r in sw['rows'] if r['rotor'] == 'turbine' and r['stator'] == 'ngv')
-alpha = next(m[3] for m in jet.MATERIALS if m[0] == 27)
-growth = alpha * 33.0 * (cyc['inputs']['TIT_K'] - 293.0)
-chk('turbine tip clearance survives thermal growth', 'pass' if gap > growth else 'fail',
-    f'cold swept gap {gap:.3f} mm vs free thermal growth of a 33 mm IN713C rim at TIT {growth:.3f} mm (shroud growth and spin not yet subtracted)',
-    'estimated: swept_clearance.json + alpha*r*dT')
 
-ndm = cyc['bearing_ndm_mm_per_min']
-chk('bearing speed within catalog limit', 'not-analyzed', f'n*dm={ndm:.0f} mm/min; no catalog limit or lubrication path is in the repo', 'none')
+fp = receipt('fuel', 'paths.json')
+if not fp:
+    chk('fuel reaches the primary zone (injector inside the liner)', 'not-analyzed', 'no docs/receipts/g5/fuel/paths.json', 'none')
+else:
+    r = fp['paths'][0]
+    e = r['end']
+    lo_r, hi_r, lo_z, hi_z = e['liner_gas']
+    inl = lo_r < e['r'] < hi_r and lo_z < e['z'] < hi_z
+    chk('fuel reaches the primary zone (injector inside the liner)', 'pass' if r['connected'] and inl else 'fail',
+        f"{r['route']}: {r['samples']} samples, {r['n_blocked']} blocked, narrowest bore {r['min_section_mm2']} mm2, ends at r={e['r']} z={e['z']} {'inside' if inl else 'outside'} the liner gas volume",
+        'measured: ' + fp['source'])
+
+rn = receipt('running', 'running.json')
+if not rn:
+    chk('rotor running clearances survive thermal and centrifugal growth', 'not-analyzed', 'no docs/receipts/g5/running/running.json', 'none')
+else:
+    bad = [f"{x['pair']} {x['running_mm']}" for x in rn['rows'] if x['status'] != 'pass']
+    tt = next(x for x in rn['rows'] if x['rotor'] == 'turbine' and x['stator'] == 'ngv')
+    chk('rotor running clearances survive thermal and centrifugal growth', 'pass' if rn['ok'] else 'fail',
+        f"turbine tip cold {tt['cold_certified_mm'][0]:.3f} running {tt['running_mm']:.3f} mm; {len(rn['rows'])} pairs, failing: {bad or 'none'}",
+        'computed: ' + rn['source'])
+
+brg = jet.BEARING
+lim = brg['n_oil_air_rpm']
+chk('bearing speed within catalog limit', 'pass' if rpm <= lim else 'fail',
+    f"708 CE/HCP4A (SKF, hybrid, 8 x {brg['ball_d']} Si3N4 balls) at {rpm:.0f} r/min against the catalog attainable speed {lim} r/min with oil-air lubrication (oil-in-fuel feed), margin {lim / rpm:.2f}",
+    'catalog: data/std/bearings.json')
 
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'mesh'))
 import check as meshcheck
 
 bad = {}
 for p in sc['parts']:
+    if not os.path.exists(os.path.join(VIEW, p['mesh'])):
+        bad[p['name']] = 'no mesh: the part did not evaluate'
+        continue
     r = meshcheck.check(os.path.join(VIEW, p['mesh']))
     if not r['conforming']:
         bad[p['name']] = {k: r[k] for k in ('zero_area', 'same_direction_pairs', 't_junctions') if r[k]} | (

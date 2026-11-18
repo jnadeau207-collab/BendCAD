@@ -4064,6 +4064,23 @@ def hx_fas(fs: List<&2, Ty.Face>) -> Bool:
 def has_hx(+b: Body) -> Bool:
   hx_fas(Ty.brep_fas(bd_brep(b)))
 
+def bp_sf(s: G.GVal) -> Bool:
+  match s:
+    case G.GV_bp{w}: True{}
+    case _: False{}
+
+def bp_fa(+f: Ty.Face) -> Bool:
+  Ty.Fa{g, +sf, ls, same, slv, sla} = f
+  bp_sf(sf)
+
+def bp_fas(fs: List<&2, Ty.Face>) -> Bool:
+  match fs:
+    case []: False{}
+    case +f <> +t: Bool.or(bp_fa(f), bp_fas(t))
+
+def has_bp(+b: Body) -> Bool:
+  bp_fas(Ty.brep_fas(bd_brep(b)))
+
 def hs_isk5(+h: Hs) -> Bool:
   Hs{+k, sz, cls, x, y, r} = h
   U64.is_eq(k, 5u64)

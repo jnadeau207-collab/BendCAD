@@ -1,19 +1,19 @@
 {
- "binary": "/home/jesse/bc/bendcad-p9q",
- "sha256": "7dbb66f2dbf46b6c5d7e77336bb3b83a6849c8d12c8a017a631350dce5353f22",
- "passed": 13,
- "total": 13,
+ "binary": "/home/jesse/bc/bendcad-r1k",
+ "sha256": "460aa6272f1b32142d44dc1d74bc4a99db2b21512c856459c5bcb56ddd243c54",
+ "passed": 15,
+ "total": 15,
  "cases": [
   {
    "case": "fasten",
    "item": "S3",
    "claim": "fasten SCREW PARTS checks a placed ISO 4762 screw against the parts it passes through: the counterbore and clearance diameters against DIN 974-1 and ISO 273, the head seated on a plane square to the axis with room in a coaxial counterbore, the shank clear along the clamp length, and the thread engaged in a coaxial internal thread of the same size for at least 1 x d in steel and 2 x d in aluminium (Nord-Lock); interference is also sampled inside the head and shank; a head clear of its seat, a head cut into it, a short or off-axis screw, a size mismatch and a missing material are each reported, and a node that is not a screw is refused",
    "verdict": "pass",
-   "seconds": 15.767,
+   "seconds": 33.192,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (thread 5 m4 n5.c0.wall.0.0 M4 6H 0 10)",
-     "seconds": 0.482,
+     "seconds": 1.017,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -22,7 +22,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.221,
+     "seconds": 2.749,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -31,7 +31,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (material 5 S355 7850 12e-6)",
-     "seconds": 0.475,
+     "seconds": 1.059,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -40,7 +40,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.196,
+     "seconds": 2.519,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -49,7 +49,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 5)",
-     "seconds": 0.474,
+     "seconds": 0.937,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -58,7 +58,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.208,
+     "seconds": 2.542,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -67,7 +67,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12) (material 5 6082-T6 2700 23.4e-6)",
-     "seconds": 0.475,
+     "seconds": 0.804,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -76,7 +76,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.189,
+     "seconds": 2.518,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -85,7 +85,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 8)",
-     "seconds": 0.482,
+     "seconds": 0.905,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -94,7 +94,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.206,
+     "seconds": 2.524,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -103,7 +103,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12) (param H 0.5)",
-     "seconds": 0.484,
+     "seconds": 0.82,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -112,7 +112,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.127,
+     "seconds": 2.46,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -121,7 +121,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param H -0.3)",
-     "seconds": 0.486,
+     "seconds": 0.93,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -130,7 +130,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.203,
+     "seconds": 2.699,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -139,7 +139,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param H 0) (param X 15.5)",
-     "seconds": 0.483,
+     "seconds": 0.808,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -148,7 +148,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 0.826,
+     "seconds": 1.821,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -157,7 +157,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 15) (node 8 (screw ISO4762 M3 L) (intent create any 0 1 0)) (node 9 (move 8 15 15 (- 11.2 L) 0) (intent same any any 1 0))",
-     "seconds": 0.481,
+     "seconds": 1.061,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -166,7 +166,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 9 3 5",
-     "seconds": 0.96,
+     "seconds": 1.886,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -175,7 +175,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 3 5",
-     "seconds": 0.111,
+     "seconds": 0.379,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -184,7 +184,7 @@
     },
     {
      "cmd": "BIN design.bcd fasten 7 3 5",
-     "seconds": 1.198,
+     "seconds": 2.754,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -198,11 +198,11 @@
    "item": "S2",
    "claim": "retaining-ring grooves (DIN 471 shaft, DIN 472 bore) and DIN 6885-1 keyways (shaft keyseat, hub keyway) are built from the diameter of the face they act on, certify as built, and refuse with the admissible choices printed",
    "verdict": "pass",
-   "seconds": 7.759,
+   "seconds": 14.034,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 30) (intent remove any any 1 0))",
-     "seconds": 0.139,
+     "seconds": 0.344,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -211,7 +211,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.123,
+     "seconds": 0.228,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -220,7 +220,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (keyway 2 (face 1 n1.c0.wall.0.0.p0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.38,
+     "seconds": 0.827,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -229,7 +229,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.373,
+     "seconds": 0.771,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -238,7 +238,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 30 (keyway 2 (face 1 n1.c0.wall.0.0.p1) +y 10 5) (intent remove any any 1 0))",
-     "seconds": 0.366,
+     "seconds": 0.724,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -247,7 +247,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.361,
+     "seconds": 0.547,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -256,7 +256,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN472) 4) (intent remove any any 1 1))",
-     "seconds": 0.667,
+     "seconds": 1.209,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -265,7 +265,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13 -f",
-     "seconds": 0.171,
+     "seconds": 0.27,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -274,7 +274,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 14 (keyway 13 (face 12 n12.c0.wall.0.0.p0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.76,
+     "seconds": 1.469,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -283,7 +283,7 @@
     },
     {
      "cmd": "BIN design.bcd std 14",
-     "seconds": 0.302,
+     "seconds": 0.623,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -292,7 +292,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 11 (face 11 n11.c0.top) (ring DIN471) 3) (intent remove any any 1 any))",
-     "seconds": 0.781,
+     "seconds": 1.183,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -301,7 +301,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 12 (face 12 n12.c0.wall.0.0) (ring DIN471) 4) (intent remove any any 1 any))",
-     "seconds": 0.733,
+     "seconds": 1.38,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -310,7 +310,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 1 (face 1 n1.c0.wall.0.0) (ring DIN471) 39.5) (intent remove any any 1 any))",
-     "seconds": 0.772,
+     "seconds": 1.153,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -319,7 +319,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (groove 21 (face 21 n21.c0.wall.0.0) (ring DIN471) 5) (intent remove any any 1 any))",
-     "seconds": 0.783,
+     "seconds": 1.424,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -328,7 +328,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c0.wall.0.0) +z 10 5) (intent remove any any 1 any))",
-     "seconds": 0.759,
+     "seconds": 1.389,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -337,7 +337,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 14 -f",
-     "seconds": 0.289,
+     "seconds": 0.493,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -351,11 +351,11 @@
    "item": "S2",
    "claim": "a ring groove on a revolved face is built in the revolve profile: the B3 housing and B4 shaft grooves give the same faces, names and volume as the grooves drawn into the profile by hand (24 faces with the lower seat n101.c0.wall.9.0; 30 faces and volume 3678.198585358), with exact circle edges",
    "verdict": "pass",
-   "seconds": 0.288,
+   "seconds": 0.544,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (groove 101 (face 101 n101.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
-     "seconds": 0.048,
+     "seconds": 0.073,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -364,7 +364,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102",
-     "seconds": 0.029,
+     "seconds": 0.042,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -373,7 +373,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.029,
+     "seconds": 0.044,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -382,7 +382,7 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.029,
+     "seconds": 0.044,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -391,7 +391,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 0.06,
+     "seconds": 0.164,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -400,7 +400,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 202",
-     "seconds": 0.047,
+     "seconds": 0.097,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -409,7 +409,7 @@
     },
     {
      "cmd": "BIN design.bcd std 202",
-     "seconds": 0.046,
+     "seconds": 0.08,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -423,11 +423,11 @@
    "item": "S2",
    "claim": "standard holes from one holes op: ISO 273 clearance in three series, DIN 974-1 counterbore for ISO 4762, DIN 74 F countersink for ISO 10642, ISO 2306 tapped M4 6H; std certifies each as built, threads binds the tapped bore, edits re-check, and a later op that changes a hole fails its check",
    "verdict": "pass",
-   "seconds": 4.069,
+   "seconds": 6.817,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (holes 1 (face 1 0 top) through (clearance M5 X 10) (clearance M5 fine 25 10) (clearance M5 coarse 40 10)) (intent remove any any 1 3))",
-     "seconds": 0.014,
+     "seconds": 0.019,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -436,7 +436,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.014,
+     "seconds": 0.022,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -445,7 +445,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 2 (face 1 n1.c0.top) through (counterbore M4 10 30) (countersink M4 25 30) (tapped M4 40 30)) (intent remove any any 1 6))",
-     "seconds": 0.427,
+     "seconds": 0.844,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -454,7 +454,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 3 -f",
-     "seconds": 0.403,
+     "seconds": 0.893,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -463,7 +463,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.414,
+     "seconds": 0.673,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -472,7 +472,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 3",
-     "seconds": 0.868,
+     "seconds": 1.294,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -481,7 +481,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param X 12)",
-     "seconds": 0.421,
+     "seconds": 0.656,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -490,7 +490,7 @@
     },
     {
      "cmd": "BIN design.bcd std 3",
-     "seconds": 0.412,
+     "seconds": 0.783,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -508,7 +508,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 4 (holes 3 (face 1 n1.c0.top) through (hole 12 10 3.5)) (intent remove any any 1 any))",
-     "seconds": 0.546,
+     "seconds": 0.62,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -517,7 +517,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.547,
+     "seconds": 1.01,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -531,7 +531,7 @@
    "item": "S2",
    "claim": "a standard hole the data cannot back is refused with the admissible choices printed; a hole that breaks out of its face never certifies",
    "verdict": "pass",
-   "seconds": 0.168,
+   "seconds": 0.18,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M7 10 10)) (intent remove any any 1 any))",
@@ -553,7 +553,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (clearance M5 extra 10 10)) (intent remove any any 1 any))",
-     "seconds": 0.009,
+     "seconds": 0.01,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -580,7 +580,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (holes 1 (face 1 0 top) through (counterbore M12 20 20)) (intent remove any any 1 any))",
-     "seconds": 0.101,
+     "seconds": 0.112,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -621,11 +621,11 @@
    "item": "S2",
    "claim": "standard holes on a named planar face of a revolve (a flange): counterbore, clearance and tapped M5 commit in one op and certify",
    "verdict": "pass",
-   "seconds": 2.226,
+   "seconds": 3.604,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 102 (holes 101 (face 101 n101.c0.wall.2.0) through (counterbore M5 17.67766952966369 17.67766952966369) (counterbore M5 -17.67766952966369 17.67766952966369) (clearance M5 17.67766952966369 -17.67766952966369) (tapped M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 5))",
-     "seconds": 0.472,
+     "seconds": 0.709,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -634,7 +634,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 102 -f",
-     "seconds": 0.424,
+     "seconds": 0.733,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -643,7 +643,7 @@
     },
     {
      "cmd": "BIN design.bcd std 102",
-     "seconds": 0.438,
+     "seconds": 0.727,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -652,7 +652,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 102",
-     "seconds": 0.892,
+     "seconds": 1.435,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -666,11 +666,11 @@
    "item": "K1",
    "claim": "a through hub keyway in a bore that is a circle of a prism's own profile is notched into that profile from its DIN 6885-1 record, so the part stays a prism: the keyed bore's faces carry the prism's names (two walls, the bottom at d/2 + t2 and the remaining bore arc), it is the same solid as the keyway cut by a boolean into a drilled bore of the same size (their certified volumes meet), std checks both against the record (8 mm: 2 wide, t2 1.0, bottom 5 from the axis; 10 mm: 3 wide, t2 1.4, bottom 6.4), an edit to the prism carries the keyway with it, and a 6 mm bore (DIN 6885-1 starts over 6 mm) and a side along the axis are refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 0.957,
+   "seconds": 1.443,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 4 (keyway 1 (face 1 n1.c1.wall.0.0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.023,
+     "seconds": 0.026,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -688,7 +688,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.017,
+     "seconds": 0.02,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -697,7 +697,7 @@
     },
     {
      "cmd": "BIN design.bcd check 4",
-     "seconds": 0.025,
+     "seconds": 0.027,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -715,7 +715,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 13 (keyway 12 (face 12 n12.c0.wall.0.0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.1,
+     "seconds": 0.106,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -724,7 +724,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 13",
-     "seconds": 0.089,
+     "seconds": 0.14,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -733,7 +733,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 13",
-     "seconds": 0.089,
+     "seconds": 0.239,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -742,7 +742,7 @@
     },
     {
      "cmd": "BIN design.bcd std 13",
-     "seconds": 0.09,
+     "seconds": 0.099,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -751,7 +751,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 5 (keyway 2 (face 2 n2.c1.wall.0.0) -x through) (intent remove any any 1 1))",
-     "seconds": 0.098,
+     "seconds": 0.105,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -760,7 +760,7 @@
     },
     {
      "cmd": "BIN design.bcd std 5",
-     "seconds": 0.018,
+     "seconds": 0.019,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -769,7 +769,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 5",
-     "seconds": 0.017,
+     "seconds": 0.02,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -778,7 +778,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1 (prism 0 10 (region (path 0 0 (line 30 0) (line 30 30) (line 0 30)) (circle 15 15 4))) (intent create any 0 1 1))",
-     "seconds": 0.101,
+     "seconds": 0.152,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -787,7 +787,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 4",
-     "seconds": 0.017,
+     "seconds": 0.021,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -796,7 +796,7 @@
     },
     {
      "cmd": "BIN design.bcd std 4",
-     "seconds": 0.017,
+     "seconds": 0.018,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -805,7 +805,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 4",
-     "seconds": 0.016,
+     "seconds": 0.019,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -814,7 +814,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 6 (keyway 3 (face 3 n3.c1.wall.0.0) +y through) (intent remove any any 1 1))",
-     "seconds": 0.101,
+     "seconds": 0.264,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -823,7 +823,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (keyway 1 (face 1 n1.c1.wall.0.0) +z through) (intent remove any any 1 1))",
-     "seconds": 0.101,
+     "seconds": 0.131,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -832,7 +832,7 @@
     },
     {
      "cmd": "BIN design.bcd show",
-     "seconds": 0.004,
+     "seconds": 0.003,
      "limit_s": 30,
      "verdict": "pass",
      "missing": [],
@@ -842,15 +842,132 @@
    ]
   },
   {
+   "case": "material_grade",
+   "item": "S1",
+   "claim": "(material NODE GRADE) takes the density, mean expansion (70 to 200 F), modulus and Poisson's ratio of a held grade from its cited MIL-HDBK-5J record (data/std/materials.json, generated into src/k2/std.bend), the design file keeps the short form, mass prints the record's table and page, a literal (material NODE GRADE DENSITY CTE [E NU]) still works and carries no citation, and an unknown grade is refused with the held grades",
+   "verdict": "pass",
+   "seconds": 0.383,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd apply (material 1 IN718-AMS5663)",
+     "seconds": 0.009,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\n\ncommitted\n"
+    },
+    {
+     "cmd": "BIN design.bcd show",
+     "seconds": 0.002,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "(bendcad 1)\n(node 1 (box 10 10 10) (intent create any any any any))\n(material 1 IN718-AMS5663)\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd mass 1",
+     "seconds": 0.108,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "mass volume=[999.9999999990786, 1000.0000000009214] certified octree=[669.9218749998471, 1000.0000000001907] depth=4 cells=2744/0/1352\ncentroid [3.349609374998792, 7.6175291545217405]x[3.3496093749987184, 7.617529154521882]x[3.3496093749986726, 7.6175291545219785] status=certified incomplete-cells=1352\ninertia-centroid [-74008.92483089834, 76341.82510279483] [-74008.92483089583, 76341.82510279247] [-74008.9248308942, 76341.82510279173] [-18547.283299277446, 41278.70354500312] [-18547.28329927787, 41278.7035450041] [-18547.28329927883, 41278.70354500577] status=certified\nmoments volume=[999.9999999989983, 1000.0000000010019] centroid [4.999999999999993, 5.000000000000007]x[4.999999999999993, 5.000000000000006]x[4.999999999999995, 5.000000000000005] inertia-centroid [16666.666666649966, 16666.666666683384] [16666.666666649966, 16666.666666683384] [16666.666666649973, 16666.666666683377] [-3.0286961760871234e-12, 3.017184466960134e-12] [-2.188910792419382e-12, 2.171078634148326e-12] [-1.1793010936301346e-12, 1.1677893845031451e-12] status=certified method=divergence\nmaterial IN718-AMS5663 density=8220.931698930328 cte=0.00001278 mass=[0.00822093169892275, 0.008220931698937907] kg status=certified source=\"Inconel 718 forging, solution treated and aged AMS 5663, MIL-HDBK-5J Table 6.3.5.0(c) p1093; expansion Figure 6.3.5.0 p1091\"\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (material 1 NOPE-GRADE)",
+     "seconds": 0.002,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "error invalid-input | edit | why: material-grade-unknown: NOPE-GRADE | fix: a held grade (AL2618-T61 AL-A356.0-T6 IN718-AMS5663 IN718-AMS5383 HASTELLOY-X INCONEL-625 A286-AMS5732 17-4PH-H1075 AISI304-ANN TI-6AL-4V-ANN WASPALOY-AMS5704; docs/std.md) or (material NODE GRADE DENSITY CTE [E NU])\nrejected: the design was not changed\n"
+    },
+    {
+     "cmd": "BIN design.bcd show",
+     "seconds": 0.002,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "(bendcad 1)\n(node 1 (box 10 10 10) (intent create any any any any))\n(material 1 IN718-AMS5663)\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (material 1 Custom 7850 1.2e-05 210000 0.3)",
+     "seconds": 0.009,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\n\ncommitted\n"
+    },
+    {
+     "cmd": "BIN design.bcd mass 1",
+     "seconds": 0.119,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "mass volume=[999.9999999990786, 1000.0000000009214] certified octree=[669.9218749998471, 1000.0000000001907] depth=4 cells=2744/0/1352\ncentroid [3.349609374998792, 7.6175291545217405]x[3.3496093749987184, 7.617529154521882]x[3.3496093749986726, 7.6175291545219785] status=certified incomplete-cells=1352\ninertia-centroid [-74008.92483089834, 76341.82510279483] [-74008.92483089583, 76341.82510279247] [-74008.9248308942, 76341.82510279173] [-18547.283299277446, 41278.70354500312] [-18547.28329927787, 41278.7035450041] [-18547.28329927883, 41278.70354500577] status=certified\nmoments volume=[999.9999999989983, 1000.0000000010019] centroid [4.999999999999993, 5.000000000000007]x[4.999999999999993, 5.000000000000006]x[4.999999999999995, 5.000000000000005] inertia-centroid [16666.666666649966, 16666.666666683384] [16666.666666649966, 16666.666666683384] [16666.666666649973, 16666.666666683377] [-3.0286961760871234e-12, 3.017184466960134e-12] [-2.188910792419382e-12, 2.171078634148326e-12] [-1.1793010936301346e-12, 1.1677893845031451e-12] status=certified method=divergence\nmaterial Custom density=7850 cte=0.000012 mass=[0.007849999999992764, 0.007850000000007238] kg status=certified\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd apply (material 1 AL2618-T61)",
+     "seconds": 0.009,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[999.9999999990786, 1000.0000000009214] area=[599.9999999996268, 600.0000000003733] bbox=[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021]x[-1.776356839400251e-14, 10.000000000000021] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.7763568394002505e-14\n\ncommitted\n"
+    },
+    {
+     "cmd": "BIN design.bcd mass 1",
+     "seconds": 0.123,
+     "limit_s": 10,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "mass volume=[999.9999999990786, 1000.0000000009214] certified octree=[669.9218749998471, 1000.0000000001907] depth=4 cells=2744/0/1352\ncentroid [3.349609374998792, 7.6175291545217405]x[3.3496093749987184, 7.617529154521882]x[3.3496093749986726, 7.6175291545219785] status=certified incomplete-cells=1352\ninertia-centroid [-74008.92483089834, 76341.82510279483] [-74008.92483089583, 76341.82510279247] [-74008.9248308942, 76341.82510279173] [-18547.283299277446, 41278.70354500312] [-18547.28329927787, 41278.7035450041] [-18547.28329927883, 41278.70354500577] status=certified\nmoments volume=[999.9999999989983, 1000.0000000010019] centroid [4.999999999999993, 5.000000000000007]x[4.999999999999993, 5.000000000000006]x[4.999999999999995, 5.000000000000005] inertia-centroid [16666.666666649966, 16666.666666683384] [16666.666666649966, 16666.666666683384] [16666.666666649973, 16666.666666683377] [-3.0286961760871234e-12, 3.017184466960134e-12] [-2.188910792419382e-12, 2.171078634148326e-12] [-1.1793010936301346e-12, 1.1677893845031451e-12] status=certified method=divergence\nmaterial AL2618-T61 density=2767.9904710203127 cte=0.00002079 mass=[0.002767990471017762, 0.0027679904710228645] kg status=certified source=\"2618-T61 aluminium alloy die forging AMS-A-22771, MIL-HDBK-5J Table 3.2.13.0(b) p512; expansion Figure 3.2.13.0 p511\"\n\n"
+    }
+   ]
+  },
+  {
+   "case": "moments_patch",
+   "item": "S3",
+   "claim": "mass moments (volume, centroid and inertia by the divergence theorem) are right on Bezier-patch faces: a skinned turbine blade (two airfoil sections, 19 bicubic faces and 2 planar caps) reads the same volume from its moments as from the certified octree and as OCCT reads the exported STEP (94.57149877616622 mm3, centroid 26.26413136870304 -1.178713875591552 167.26477162312025); before the fix the moments line said 31.64 mm3 with a wrong centroid and status=certified, because a patch face fell through to the torus formula",
+   "verdict": "pass",
+   "seconds": 0.537,
+   "steps": [
+    {
+     "cmd": "BIN design.bcd mass 1",
+     "seconds": 0.414,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "mass volume=[94.57149874969646, 94.57149880263513] certified octree=[0, 759.9178772223878] depth=0 cells=0/0/1\ncentroid incomplete status=incomplete incomplete-cells=1\nmoments volume=[94.57149877519606, 94.5714987771367] centroid [26.264060746341855, 26.264201991064233]x[-1.1787232485808907, -1.178704502602163]x[167.26477090015592, 167.26477234608456] inertia-centroid [683.4476322361984, 683.4712208837765] [1375.7060876870034, 1376.245942683368] [1307.2432026058298, 1307.8054211189276] [155.71815309947053, 155.83493105589596] [-19.440794407826857, -19.410692935908138] [294.3741571090376, 294.3783669993585] status=certified method=divergence\n\n"
+    },
+    {
+     "cmd": "BIN design.bcd mass 2",
+     "seconds": 0.123,
+     "limit_s": 20,
+     "verdict": "pass",
+     "missing": [],
+     "forbidden": [],
+     "output_head": "mass volume=[63.999999999941046, 64.00000000005902] certified octree=[42.874999999990216, 64.00000000001224] depth=4 cells=2744/0/1352\ncentroid [1.3398437499995097, 3.0470116618087077]x[1.3398437499994782, 3.0470116618087717]x[1.3398437499994476, 3.047011661808832] status=certified incomplete-cells=1352\ninertia-centroid [-757.8513902684148, 781.7402890526243] [-757.8513902683825, 781.7402890526096] [-757.8513902683571, 781.7402890525908] [-189.9241809846047, 422.69392430084065] [-189.92418098460757, 422.6939243008529] [-189.9241809846151, 422.69392430086964] status=certified\nmoments volume=[63.99999999993495, 64.00000000006509] centroid [1.9999999999999827, 2.000000000000018]x[1.9999999999999827, 2.000000000000018]x[1.9999999999999831, 2.0000000000000178] inertia-centroid [170.66666666649365, 170.66666666683983] [170.66666666649365, 170.66666666683983] [170.6666666664937, 170.66666666683977] [-1.0063812974582104e-12, 1.00650639781244e-12] [-1.0048501827119492e-12, 1.0049752830661788e-12] [-1.0033190679656883e-12, 1.0034441683199178e-12] status=certified method=divergence\n\n"
+    }
+   ]
+  },
+  {
    "case": "nema",
    "item": "S1",
    "claim": "iface NEMA17|NEMA23 NODE X Y Z checks a plate against the NEMA ICS 16 Table 4 motor flange whose axis passes through (X, Y, Z) along +z: a bore around the pilot that clears the pilot's maximum diameter, and at each of the four bolt positions on the bolt circle M a hole that clears the C flange's tapped screw (4-40 for frame 17, 8-32 for frame 23) at its offset from the position; an unknown frame is refused with the held ones",
    "verdict": "pass",
-   "seconds": 0.16,
+   "seconds": 0.322,
    "steps": [
     {
      "cmd": "BIN design.bcd iface NEMA17 3 30 30 6",
-     "seconds": 0.021,
+     "seconds": 0.031,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -859,7 +976,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param P 21.9)",
-     "seconds": 0.02,
+     "seconds": 0.025,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -877,7 +994,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param P 22.1) (param S 30)",
-     "seconds": 0.02,
+     "seconds": 0.04,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -886,7 +1003,7 @@
     },
     {
      "cmd": "BIN design.bcd iface NEMA17 3 30 30 6",
-     "seconds": 0.02,
+     "seconds": 0.082,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -895,7 +1012,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param S 31)",
-     "seconds": 0.02,
+     "seconds": 0.063,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -904,7 +1021,7 @@
     },
     {
      "cmd": "BIN design.bcd iface NEMA23 3 30 30 6",
-     "seconds": 0.019,
+     "seconds": 0.041,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -927,11 +1044,11 @@
    "item": "S1",
    "claim": "a parameter takes an ISO 286 tolerance class: (param NAME NOM CLASS) sets the zone from the tabulated deviations for the size band of NOM, the class is kept in the design file and printed by show, the part is evaluated at the nominal when the zone holds it and at the middle of the zone when it does not (an 8 k5 shaft is modelled at 8.004 and certifies over its zone), a new nominal with the class recomputes the zone for its band, the bare form resets it, and an unknown class, a grade outside the tables or a nominal outside them is refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 0.137,
+   "seconds": 0.151,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (param D 22 H7)",
-     "seconds": 0.01,
+     "seconds": 0.016,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -949,7 +1066,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param D 30 H7)",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1003,7 +1120,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (cylinder (/ S 2) 10) (intent create any 0 1 0))",
-     "seconds": 0.01,
+     "seconds": 0.011,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1012,7 +1129,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 2",
-     "seconds": 0.004,
+     "seconds": 0.005,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1030,7 +1147,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param T 8 js6)",
-     "seconds": 0.011,
+     "seconds": 0.012,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1048,7 +1165,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param U 40 f7)",
-     "seconds": 0.01,
+     "seconds": 0.012,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1066,7 +1183,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param R 11 H7)",
-     "seconds": 0.011,
+     "seconds": 0.012,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1093,7 +1210,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param D 22)",
-     "seconds": 0.011,
+     "seconds": 0.012,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1116,7 +1233,7 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "error invalid-input | param | why: param-class-unknown: Q7 | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)\nrejected: the design was not changed\n"
+     "output_head": "error invalid-input | edit | why: param-class-unknown: Q7 | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)\nrejected: the design was not changed\n"
     },
     {
      "cmd": "BIN design.bcd apply (param D 22 H4)",
@@ -1125,7 +1242,7 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "error invalid-input | param | why: param-class-unknown: H4 | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)\nrejected: the design was not changed\n"
+     "output_head": "error invalid-input | edit | why: param-class-unknown: H4 | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)\nrejected: the design was not changed\n"
     },
     {
      "cmd": "BIN design.bcd apply (param D 22 9)",
@@ -1143,7 +1260,7 @@
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "error invalid-input | param | why: param-class-out-of-range: 600 | fix: the ISO 286 tables cover nominal sizes above 0 up to 500 mm; give the zone as LO HI\nrejected: the design was not changed\n"
+     "output_head": "error invalid-input | edit | why: param-class-out-of-range: 600 | fix: the ISO 286 tables cover nominal sizes above 0 up to 500 mm; give the zone as LO HI\nrejected: the design was not changed\n"
     },
     {
      "cmd": "BIN design.bcd show",
@@ -1161,11 +1278,11 @@
    "item": "S1",
    "claim": "(screw ISO4762 SIZE L) builds a hexagon socket head cap screw as a part from its cited record: head at dk max and k max, hexagon socket s x t, shank threaded to the head with the modelled ISO 68-1 thread at a 6g crest diameter; threads, std, check, tess and step certify it; an unknown standard or size, a length past the thread length b (a plain shank and thread runout are not modelled) and a nonpositive length are refused with the admissible choices",
    "verdict": "pass",
-   "seconds": 18.894,
+   "seconds": 27.327,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1 (screw ISO4762 M4 L) (intent create any 0 1 0))",
-     "seconds": 0.294,
+     "seconds": 0.424,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1174,7 +1291,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1 -f",
-     "seconds": 0.288,
+     "seconds": 0.306,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1183,7 +1300,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1",
-     "seconds": 0.534,
+     "seconds": 0.822,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1192,7 +1309,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.285,
+     "seconds": 0.474,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1201,7 +1318,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1",
-     "seconds": 0.584,
+     "seconds": 0.872,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1210,7 +1327,7 @@
     },
     {
      "cmd": "BIN design.bcd wall 1",
-     "seconds": 10.253,
+     "seconds": 14.35,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1219,7 +1336,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 1",
-     "seconds": 0.24,
+     "seconds": 0.479,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1227,26 +1344,26 @@
      "output_head": "ok material=create faces_created=15 faces_modified=0 solids=1 through_holes=0 | volume=[309.0438425375035, 309.04384253826646] area=[474.8290839690496, 474.8290840172159] bbox=[-3.610000000000038, 3.610000000000038]x[-3.610000000000038, 3.610000000000038]x[-2.842170943040404e-14, 20.000000000000053] vertices=22 edges=32 faces=15 solids=1 genus=0 linear_uncertainty=5.126565838509133e-14 | proof: k1-crossing-certified V16 E22 F12 S1\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-p9q/screw_iso4762/s.obj",
-     "seconds": 0.326,
+     "cmd": "BIN design.bcd tess 1 /var/tmp/repro-std-r1k/screw_iso4762/s.obj",
+     "seconds": 0.405,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/screw_iso4762/s.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
     },
     {
-     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-p9q/screw_iso4762/s.stp",
-     "seconds": 3.006,
+     "cmd": "BIN design.bcd step 1 /var/tmp/repro-std-r1k/screw_iso4762/s.stp",
+     "seconds": 4.42,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/screw_iso4762/s.stp entities 44120 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd apply (node 3 (rotate 1 x 90) (intent same any any 1 0)) (node 4 (move 3 20 0 5 0) (intent same any any 1 0))",
-     "seconds": 0.278,
+     "seconds": 0.365,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1255,7 +1372,7 @@
     },
     {
      "cmd": "BIN design.bcd check 4",
-     "seconds": 0.549,
+     "seconds": 0.896,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1263,17 +1380,17 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 4 /var/tmp/repro-std-p9q/screw_iso4762/m.obj",
-     "seconds": 0.378,
+     "cmd": "BIN design.bcd tess 4 /var/tmp/repro-std-r1k/screw_iso4762/m.obj",
+     "seconds": 0.592,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/screw_iso4762/m.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/screw_iso4762/m.obj nverts 3016 ntris 6028 est 23524 chord 0.027752349385088127 ang 0.19998360279489927 nsamp 3026 profile display (sampled, not certified) faces direct=11 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.2850730888875519\n"
     },
     {
      "cmd": "BIN design.bcd measure 4",
-     "seconds": 0.234,
+     "seconds": 0.439,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1282,7 +1399,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.266,
+     "seconds": 0.453,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1291,7 +1408,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1",
-     "seconds": 0.278,
+     "seconds": 0.349,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1300,7 +1417,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M7 16) (intent create any 0 1 0))",
-     "seconds": 0.281,
+     "seconds": 0.44,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1309,7 +1426,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4017 M4 16) (intent create any 0 1 0))",
-     "seconds": 0.263,
+     "seconds": 0.379,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1318,7 +1435,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 30) (intent create any 0 1 0))",
-     "seconds": 0.279,
+     "seconds": 0.427,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1327,7 +1444,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 2 (screw ISO4762 M4 0) (intent create any 0 1 0))",
-     "seconds": 0.276,
+     "seconds": 0.432,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1336,7 +1453,7 @@
     },
     {
      "cmd": "BIN design.bcd show",
-     "seconds": 0.002,
+     "seconds": 0.003,
      "limit_s": 20,
      "verdict": "pass",
      "missing": [],
@@ -1350,11 +1467,11 @@
    "item": "S2",
    "claim": "a tapped M3 6H through hole with its thread modelled is built directly as four exact helicoid faces (crest at the 2.5 tap drill, flanks at 30 degrees, root at 3.0 with a P/8 flat, pitch 0.5): the certified volume holds the closed form 204.13949536499274 (hex 5.5 AF x 10 minus bore minus helical groove by Pappus), the callout stays bound and certified, std certifies the profile, and the part meshes, exports, checks and answers wall like any other part; edits rebuild inside the budget; misuse is refused with a fix",
    "verdict": "pass",
-   "seconds": 3.77,
+   "seconds": 5.58,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))",
-     "seconds": 0.107,
+     "seconds": 0.126,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1363,7 +1480,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001",
-     "seconds": 0.107,
+     "seconds": 0.152,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1372,7 +1489,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 1001 -f",
-     "seconds": 0.104,
+     "seconds": 0.184,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1381,7 +1498,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 1001",
-     "seconds": 0.21,
+     "seconds": 0.341,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1390,7 +1507,7 @@
     },
     {
      "cmd": "BIN design.bcd std 1001",
-     "seconds": 0.107,
+     "seconds": 0.162,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1399,7 +1516,7 @@
     },
     {
      "cmd": "BIN design.bcd check 1001",
-     "seconds": 0.133,
+     "seconds": 0.291,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1407,26 +1524,26 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-p9q/thread_modelled/t.obj",
-     "seconds": 0.194,
+     "cmd": "BIN design.bcd tess 1001 /var/tmp/repro-std-r1k/thread_modelled/t.obj",
+     "seconds": 0.239,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/thread_modelled/t.obj nverts 2592 ntris 5184 est 20456 chord 0.020013950329781306 ang 0.19997065970287506 nsamp 2602 profile display (sampled, not certified) faces direct=8 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.14755114923447119\n"
     },
     {
-     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-p9q/thread_modelled/t.stp",
-     "seconds": 2.287,
+     "cmd": "BIN design.bcd step 1001 /var/tmp/repro-std-r1k/thread_modelled/t.stp",
+     "seconds": 3.296,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/thread_modelled/t.stp entities 36194 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 1001",
-     "seconds": 0.198,
+     "seconds": 0.323,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1435,7 +1552,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 12)",
-     "seconds": 0.109,
+     "seconds": 0.121,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1444,7 +1561,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1002 (holes 1000 (face 1000 0 top) 6 (tapped M3 3 0 modelled)) (intent remove any any 1 any))",
-     "seconds": 0.106,
+     "seconds": 0.13,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1453,7 +1570,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 1003 (holes 1001 (face 1000 0 top) through (hole 2.5 0 0.3)) (intent remove any any 1 any))",
-     "seconds": 0.108,
+     "seconds": 0.215,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1467,11 +1584,11 @@
    "item": "S2",
    "claim": "an M8x1.25 6g external thread modelled on a 7.95 x 16 stud is built directly as four exact helicoid faces (crest at the shaft diameter, 30 degree flanks, root at the basic minor diameter 6.6468 with a P/4 flat, pitch 1.25): the certified volume holds the closed form 660.3862063283392 (cylinder minus the helical groove by screw-motion Pappus), the callout is bound and certified in the 6g major window, std certifies the profile, the part checks, meshes closed and exports to STEP; edits rebuild inside the budget; a wrong face, a size the shaft cannot carry, a cross-drilled shaft and a later feature are refused with a fix",
    "verdict": "pass",
-   "seconds": 2.024,
+   "seconds": 2.913,
    "steps": [
     {
      "cmd": "BIN design.bcd apply (node 2 (xthread 1 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.023,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1480,7 +1597,7 @@
     },
     {
      "cmd": "BIN design.bcd faces 2 -f",
-     "seconds": 0.006,
+     "seconds": 0.015,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1489,7 +1606,7 @@
     },
     {
      "cmd": "BIN design.bcd threads 2",
-     "seconds": 0.008,
+     "seconds": 0.016,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1498,7 +1615,7 @@
     },
     {
      "cmd": "BIN design.bcd std 2",
-     "seconds": 0.006,
+     "seconds": 0.016,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1507,7 +1624,7 @@
     },
     {
      "cmd": "BIN design.bcd check 2",
-     "seconds": 0.03,
+     "seconds": 0.06,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1515,22 +1632,22 @@
      "output_head": "ok: embedded, shells outward, cavities nested | modelled thread: certified by construction over the body it was cut from (checked above): at build the threaded cylinder was proven one face between flat ends square to it in a single solid, no other face reaches the thread shell (for a hole the major diameter is cut on a copy and re-checked; for a shaft every other face is bounded outside the shell between the minor and crest diameters), and the ISO 68-1 profile is a simple quadrilateral inside that shell, so the four helicoid faces and the end-plane profiles bound the groove and touch nothing else\n"
     },
     {
-     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-p9q/xthread_modelled/t.obj",
-     "seconds": 0.063,
+     "cmd": "BIN design.bcd tess 2 /var/tmp/repro-std-r1k/xthread_modelled/t.obj",
+     "seconds": 0.073,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/xthread_modelled/t.obj nverts 1678 ntris 3352 est 13180 chord 0.05247640444658658 ang 0.19981152680834152 nsamp 1682 profile display (sampled, not certified) faces direct=2 grid=4 refined=0 freeform=0 chord-bound=certified normal-dev=0.17469901927972104\n"
     },
     {
-     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-p9q/xthread_modelled/t.stp",
-     "seconds": 1.77,
+     "cmd": "BIN design.bcd step 2 /var/tmp/repro-std-r1k/xthread_modelled/t.stp",
+     "seconds": 2.545,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
      "forbidden": [],
-     "output_head": "wrote /var/tmp/repro-std-p9q/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
+     "output_head": "wrote /var/tmp/repro-std-r1k/xthread_modelled/t.stp entities 29706 products 1 | helicoid faces and helix edges written as C1 cubic B-splines, deviation <= 0.000001 mm (cubic Hermite bound h^4/384 times the fourth-derivative bound)\n"
     },
     {
      "cmd": "BIN design.bcd wall 2",
@@ -1543,7 +1660,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param L 20)",
-     "seconds": 0.006,
+     "seconds": 0.008,
      "limit_s": 5,
      "verdict": "pass",
      "missing": [],
@@ -1570,7 +1687,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 5 (xthread 1 (face 1 n1.c0.wall.0.0) M10) (intent remove any any 1 0))",
-     "seconds": 0.006,
+     "seconds": 0.007,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1588,7 +1705,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 7 (holes 1 (face 1 n1.c0.top) 5 (hole 3.2 0 0.5)) (intent remove any any 1 0)) (node 8 (xthread 7 (face 1 n1.c0.wall.0.0) M8 6g) (intent remove any any 1 0))",
-     "seconds": 0.092,
+     "seconds": 0.118,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1597,7 +1714,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 9 (holes 2 (face 1 n1.c0.top) 3 (hole 0 0 1)) (intent remove any any 1 1))",
-     "seconds": 0.006,
+     "seconds": 0.007,
      "limit_s": 10,
      "verdict": "pass",
      "missing": [],
@@ -1611,11 +1728,11 @@
    "item": "Z1",
    "claim": "zone certifies a revolve whose ring groove is notched into its profile, and holes and keyways cut into it, over the whole tolerance envelope: the groove as the revolve of its notched profile with every placement decision the op takes at the nominal (which face piece it notches, whether it merges with a neighbouring step, which groove-table row it reads) proved to hold for every parameter value, and a cut whose own position, size and depth are fixed and whose tool footprint in radius and axial position is kept clear of every profile segment that moves as the volume and area of the part below it shifted by the measured, certified volume and area it removes at the nominal; every certified interval meets the directly certified volume at both ends and the middle of the zone (both enclose the same true volume) and stays within 0.01 mm3 of them; a cut placed by a zoned parameter, a cut on a moving face, one whose band a zoned hub reaches, a keyway on a zoned seat or within reach of a shoulder that moves along the axis (one clear of the shoulder's whole travel certifies), a groove that merges with a moving step, crosses its face's end, changes table row or sits on another groove, and a cut on a placed body are each refused with the reason",
    "verdict": "pass",
-   "seconds": 101.915,
+   "seconds": 151.571,
    "steps": [
     {
      "cmd": "BIN design.bcd zone 201",
-     "seconds": 0.431,
+     "seconds": 0.62,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1624,7 +1741,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 102",
-     "seconds": 0.04,
+     "seconds": 0.053,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1633,7 +1750,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 103",
-     "seconds": 0.284,
+     "seconds": 0.489,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1642,7 +1759,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 202",
-     "seconds": 0.854,
+     "seconds": 1.21,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1651,7 +1768,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 204",
-     "seconds": 1.189,
+     "seconds": 1.701,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1660,7 +1777,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 102",
-     "seconds": 0.032,
+     "seconds": 0.034,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1669,7 +1786,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 103",
-     "seconds": 0.284,
+     "seconds": 0.481,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1678,7 +1795,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 204",
-     "seconds": 0.364,
+     "seconds": 0.495,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1687,7 +1804,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DS 22.021 22 22.021)",
-     "seconds": 1.058,
+     "seconds": 1.616,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1696,7 +1813,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 102",
-     "seconds": 0.032,
+     "seconds": 0.076,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1705,7 +1822,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 103",
-     "seconds": 0.273,
+     "seconds": 0.539,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1714,7 +1831,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 103",
-     "seconds": 0.299,
+     "seconds": 0.362,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1723,7 +1840,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DS 22.0105 22 22.021)",
-     "seconds": 1.039,
+     "seconds": 1.456,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1732,7 +1849,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 102",
-     "seconds": 0.032,
+     "seconds": 0.034,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1741,7 +1858,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 103",
-     "seconds": 0.239,
+     "seconds": 0.413,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1750,7 +1867,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DS 22 22 22.021)",
-     "seconds": 1.038,
+     "seconds": 1.478,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1759,7 +1876,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 103",
-     "seconds": 0.267,
+     "seconds": 0.519,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1768,7 +1885,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DK 8.001 8.001 8.007)",
-     "seconds": 1.11,
+     "seconds": 1.44,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1777,7 +1894,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 204",
-     "seconds": 0.352,
+     "seconds": 0.577,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1786,7 +1903,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DK 8.007 8.001 8.007)",
-     "seconds": 1.024,
+     "seconds": 1.624,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1795,7 +1912,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 204",
-     "seconds": 0.408,
+     "seconds": 0.622,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1804,7 +1921,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 204",
-     "seconds": 1.162,
+     "seconds": 1.762,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1813,7 +1930,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 105 (move 103 10 0 0 0) (intent same any any 1 5))",
-     "seconds": 1.048,
+     "seconds": 1.518,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1822,7 +1939,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 105",
-     "seconds": 0.301,
+     "seconds": 0.353,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1831,7 +1948,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param HQ 16 16 20)",
-     "seconds": 1.039,
+     "seconds": 1.494,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1840,7 +1957,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 130 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HQ 6) (line HQ 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
-     "seconds": 1.105,
+     "seconds": 1.438,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1849,7 +1966,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 131 (holes 130 (face 130 n130.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369) (clearance M5 -17.67766952966369 -17.67766952966369)) (intent remove any any 1 3))",
-     "seconds": 1.25,
+     "seconds": 1.799,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1858,7 +1975,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 131",
-     "seconds": 0.225,
+     "seconds": 0.281,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1867,7 +1984,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 131",
-     "seconds": 0.178,
+     "seconds": 0.317,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1876,7 +1993,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param HQ 20 16 20)",
-     "seconds": 1.224,
+     "seconds": 1.775,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1885,7 +2002,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 131",
-     "seconds": 0.181,
+     "seconds": 0.286,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1894,7 +2011,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param PC 17.67766952966369 17.6 17.7)",
-     "seconds": 1.279,
+     "seconds": 1.796,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1903,7 +2020,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 106 (holes 102 (face 101 n101.c0.wall.2.0) through (clearance M5 PC 17.67766952966369)) (intent remove any any 1 2))",
-     "seconds": 1.836,
+     "seconds": 2.341,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1912,7 +2029,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 106",
-     "seconds": 0.182,
+     "seconds": 0.352,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1921,7 +2038,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param T 6 5.9 6.1)",
-     "seconds": 1.397,
+     "seconds": 2.267,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1930,7 +2047,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 110 (revolve (region (path 9.5 0 (line 32 0) (line 32 T) (line 16 T) (line 16 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
-     "seconds": 1.811,
+     "seconds": 2.783,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1939,7 +2056,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 111 (holes 110 (face 110 n110.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
-     "seconds": 2.162,
+     "seconds": 2.43,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1948,7 +2065,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 111",
-     "seconds": 0.17,
+     "seconds": 0.299,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1957,7 +2074,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param HR 21 21 23)",
-     "seconds": 2.099,
+     "seconds": 2.841,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1966,7 +2083,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 120 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line HR 6) (line HR 17.1) (line 11 17.1) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
-     "seconds": 2.142,
+     "seconds": 2.959,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1975,7 +2092,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 121 (holes 120 (face 120 n120.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
-     "seconds": 2.068,
+     "seconds": 3.135,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1984,7 +2101,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 121",
-     "seconds": 0.169,
+     "seconds": 0.211,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -1993,7 +2110,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 205 (keyway 202 (face 201 n201.c0.wall.10.0) +y 5 41) (intent remove any any 1 0))",
-     "seconds": 3.056,
+     "seconds": 3.672,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2002,7 +2119,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 205",
-     "seconds": 0.79,
+     "seconds": 1.143,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2011,7 +2128,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param JS 47 46.5 47.5)",
-     "seconds": 2.925,
+     "seconds": 3.714,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2020,7 +2137,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 210 (revolve (region (path 0 0 (line 5 0) (line 5 40) (line 4 40) (line 4 JS) (line 3.995 JS) (line 3.995 59.5) (line 0 59.5)))) (intent create any 0 1 0))",
-     "seconds": 2.343,
+     "seconds": 3.245,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2029,7 +2146,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 211 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.6) (intent remove any any 1 0))",
-     "seconds": 3.056,
+     "seconds": 4.241,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2038,7 +2155,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 211",
-     "seconds": 0.455,
+     "seconds": 0.689,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2047,7 +2164,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param JS 47.5 46.5 47.5)",
-     "seconds": 3.026,
+     "seconds": 5.041,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2056,7 +2173,7 @@
     },
     {
      "cmd": "BIN design.bcd measure 211",
-     "seconds": 0.282,
+     "seconds": 0.452,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2065,7 +2182,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param JS 47 46.5 47.5)",
-     "seconds": 2.957,
+     "seconds": 4.915,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2074,7 +2191,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 212 (keyway 210 (face 210 n210.c0.wall.5.0) +y 10 47.2) (intent remove any any 1 0))",
-     "seconds": 3.755,
+     "seconds": 4.708,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2083,7 +2200,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 212",
-     "seconds": 0.287,
+     "seconds": 0.392,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2092,7 +2209,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param SA 8 7.9 8.1)",
-     "seconds": 3.089,
+     "seconds": 4.417,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2101,7 +2218,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 140 (revolve (region (path 0 0 (line 3.975 0) (line 3.975 SA) (line (/ DK 2) SA) (line (/ DK 2) 16) (line 5 16) (line 5 30) (line 0 30)))) (intent create any 0 1 0))",
-     "seconds": 3.105,
+     "seconds": 5.567,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2110,7 +2227,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 141 (groove 140 (face 140 n140.c0.wall.3.0) (ring DIN471) 8) (intent remove any any 1 0))",
-     "seconds": 3.07,
+     "seconds": 6.498,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2119,7 +2236,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 141",
-     "seconds": 0.03,
+     "seconds": 0.033,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2128,7 +2245,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param DT 22 21.9 22.1)",
-     "seconds": 4.081,
+     "seconds": 5.888,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2137,7 +2254,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 150 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 17.1) (line (/ DT 2) 17.1) (line (/ DT 2) 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
-     "seconds": 4.468,
+     "seconds": 5.227,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2146,7 +2263,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 151 (groove 150 (face 150 n150.c0.wall.5.0) (ring DIN472) 13.9) (intent remove any any 1 1))",
-     "seconds": 3.65,
+     "seconds": 4.784,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2155,7 +2272,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 151",
-     "seconds": 0.035,
+     "seconds": 0.039,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2164,7 +2281,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (param HT 17 16.5 17.5)",
-     "seconds": 3.402,
+     "seconds": 6.275,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2173,7 +2290,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 160 (revolve (region (path 9.5 0 (line 32 0) (line 32 6) (line 16 6) (line 16 HT) (line 11 HT) (line 11 6.9) (line 9.5 6.9)))) (intent create any 0 1 1))",
-     "seconds": 3.545,
+     "seconds": 5.552,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2182,7 +2299,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 161 (groove 160 (face 160 n160.c0.wall.5.0) (ring DIN472) 15.5) (intent remove any any 1 1))",
-     "seconds": 3.228,
+     "seconds": 6.12,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2191,7 +2308,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 161",
-     "seconds": 0.035,
+     "seconds": 0.037,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2200,7 +2317,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 170 (groove 102 (face 101 n101.c0.wall.9.0) (ring DIN472) 8) (intent remove any any 1 1))",
-     "seconds": 3.962,
+     "seconds": 6.723,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2209,7 +2326,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 170",
-     "seconds": 0.294,
+     "seconds": 0.374,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2218,7 +2335,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 180 (move 101 0 0 5 0) (intent same any any 1 1))",
-     "seconds": 4.658,
+     "seconds": 6.428,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2227,7 +2344,7 @@
     },
     {
      "cmd": "BIN design.bcd apply (node 181 (holes 180 (face 101 n101.c0.wall.2.0) through (clearance M5 17.67766952966369 17.67766952966369)) (intent remove any any 1 2))",
-     "seconds": 4.183,
+     "seconds": 6.437,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2236,7 +2353,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 181",
-     "seconds": 0.172,
+     "seconds": 0.278,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],
@@ -2245,7 +2362,7 @@
     },
     {
      "cmd": "BIN design.bcd zone 103",
-     "seconds": 0.299,
+     "seconds": 0.406,
      "limit_s": 60,
      "verdict": "pass",
      "missing": [],

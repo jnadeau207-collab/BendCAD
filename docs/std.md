@@ -319,3 +319,21 @@ NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame,
 |---|---|---|---|---|---|---|---|
 | 17.0 | 1.725 | 0.8661 | -0.002 | 2.36 | 0.03 | 0.09 | 0.112 |
 | 23.0 | 2.625 | 1.5 | -0.002 | 3.21 | 0.06 | 0.13 | 0.164 |
+
+## materials
+
+MIL-HDBK-5J, Metallic Materials and Elements for Aerospace Vehicle Structures, 31 January 2003 (DLA, Distribution Statement A: approved for public release, distribution unlimited; canceled, equivalent to MMPDS-01); source: DLA ASSIST copy in the engineering library (snapshots/dla/mil-hdbk-5j/MIL-HDBK-5J.pdf, sha256 2468aa910254f88bca53695bb231cca046726674a18eb2a9a1ce19ef9bef70a6); page is the PDF page; table values are typed from the page text, curve points are read from the figure image at the stated temperatures to the nearest minor gridline. Kernel record: density kg/m3, mean expansion 1/K from 70 to 200 F, E and Ftu, Fty in MPa (converted from the handbook units below); temperature curves are read by the analysis tools.
+
+| grade | name | spec | table (page) | Ftu ksi | Fty ksi | E 1e3 ksi | nu | rho lb/in3 | alpha 1e-6/F (F: value), figure (page) |
+|---|---|---|---|---|---|---|---|---|---|
+| AL2618-T61 | 2618-T61 aluminium alloy die forging | AMS-A-22771 | 3.2.13.0(b) (512) | 55 | 42 | 10.7 | 0.33 | 0.1 | 200: 11.55 300: 12.2 400: 12.7 500: 13.1 600: 13.5 700: 13.8, 3.2.13.0 (511) |
+| AL-A356.0-T6 | A356.0-T6 aluminium alloy casting, strength class 1 | AMS-A-21180 | 3.9.5.0(b) (809) | 38 | 28 | 10.4 | 0.33 | 0.097 | 200: 11.95 400: 12.5 600: 13.05, 3.9.4.0 (807) |
+| IN718-AMS5663 | Inconel 718 forging, solution treated and aged | AMS 5663 | 6.3.5.0(c) (1093) | 180 | 150 | 29.4 | 0.29 | 0.297 | 200: 7.1 400: 7.4 600: 7.7 800: 7.9 1000: 8.0 1200: 8.3 1400: 8.7, 6.3.5.0 (1091) |
+| IN718-AMS5383 | Inconel 718 investment casting | AMS 5383 | 6.3.5.0(d) (1094) | 120 | 105 | 29.4 | 0.29 | 0.297 | 200: 7.1 400: 7.4 600: 7.7 800: 7.9 1000: 8.0 1200: 8.3 1400: 8.7, 6.3.5.0 (1091) |
+| HASTELLOY-X | Hastelloy X sheet, solution treated | AMS 5536 | 6.3.1.0(b) (1062) | 102 | 44 | 29.8 | 0.32 | 0.297 | 200: 7.6 400: 7.8 600: 8.0 800: 8.2 1000: 8.35 1200: 8.55 1400: 8.75 1600: 9.0, 6.3.1.0 (1063) |
+| INCONEL-625 | Inconel 625 sheet, annealed | AMS 5599 | 6.3.3.0(b) (1075) | 119 | 55 | 29.8 | 0.28 | 0.305 | 200: 7.14 400: 7.26 600: 7.4 800: 7.58 1000: 7.78 1200: 8.0 1400: 8.26 1600: 8.6, 6.3.3.0 (1074) |
+| A286-AMS5732 | A-286 bar, solution treated and aged | AMS 5732 | 6.2.1.0(b) (1046) | 130 | 85 | 29.1 | 0.31 | 0.287 | 200: 9.2 400: 9.4 600: 9.5 800: 9.65 1000: 9.85 1200: 10.05, 6.2.1.0 (1045) |
+| 17-4PH-H1075 | 17-4PH stainless steel forging, H1075 | AMS 5643 | 2.6.9.0(d) (252) | 145 | 125 | 28.5 | 0.27 | 0.283 | 200: 6.35 400: 6.45 600: 6.6 800: 6.8, 2.6.9.0 (H1075 curve) (255) |
+| AISI304-ANN | AISI 304 stainless steel sheet, annealed (properties of AISI 301 annealed per footnote b) | AMS 5513 | 2.7.1.0(b) (277) | 73 | 26 | 29.0 | 0.27 | 0.286 | 200: 8.9 400: 9.3 600: 9.65 800: 9.95 1000: 10.25 1200: 10.5 1400: 10.7 1600: 10.9, 2.7.1.0 (annealed) (278) |
+| TI-6AL-4V-ANN | Ti-6Al-4V bar, annealed | AMS 4928 | 5.4.1.0(c1) (946) | 125 | 114 | 16.9 | 0.31 | 0.16 | 200: 5.05 400: 5.2 600: 5.35 800: 5.55 1000: 5.7, 5.4.1.0 (952) |
+| WASPALOY-AMS5704 | Waspaloy forging, solution, stabilization and precipitation heat treated | AMS 5704 | 6.3.8.0(b) (1131) | 175 | 120 | 30.6 | 0.3 | 0.298 | 200: 6.75 400: 7.15 600: 7.5 800: 7.75 1000: 7.9 1200: 8.15 1400: 8.55 1600: 9.2, 6.3.8.0 (1132) |

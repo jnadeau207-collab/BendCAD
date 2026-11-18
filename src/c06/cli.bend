@@ -44,6 +44,7 @@ import ./vsrv.bend as VS
 import ./draw.bend as DW
 import ./make.bend as MK
 import ../k2/fasten.bend as FZ
+import ../k2/std.bend as SD
 
 
 def iv_s(+v: I.I) -> String:
@@ -264,19 +265,27 @@ def cls_why(+xs: List<&2, S.Sx>) -> String:
   Bool.pick(String, Bool.not(cls_valid(c)), "param-class-unknown: " ++ c ++ " | fix: an ISO 286 class: hole D E F G H JS or shaft d e f g h js k m n p r s, grades 5 to 11 (H7, k5, js6)",
     Bool.pick(String, Bool.and(F64.is_eq(nom, nom), Bool.not(cls_in(nom))), "param-class-out-of-range: " ++ S.f_show(nom) ++ " | fix: the ISO 286 tables cover nominal sizes above 0 up to 500 mm; give the zone as LO HI", ""))
 
+def mat_why(+x: S.Sx) -> String:
+  +xs = S.sx_xs(x)
+  +g = S.sx_s(S.sx_nth(xs, 2n))
+  Bool.pick(String, Bool.and(Bool.and(S.head_is(x, "material"), Nat.is_eq(List.length(&2, S.Sx, xs), 3n)), Bool.not(SD.mat_ok(g))),
+    "material-grade-unknown: " ++ g ++ " | fix: a held grade (" ++ SD.mat_grades() ++ "; docs/std.md) or (material NODE GRADE DENSITY CTE [E NU])", "")
+
 def cls_go(xs: List<&2, S.Sx>) -> String:
   match xs:
     case []: ""
     case +x <> t:
       +r = cls_go(t)
-      +m = Bool.pick(String, Bool.and(Bool.and(S.head_is(x, "param"), Nat.is_eq(List.length(&2, S.Sx, S.sx_xs(x)), 4n)), Bool.not(S.is_some(S.num(S.sx_s(S.sx_nth(S.sx_xs(x), 3n)))))), cls_why(S.sx_xs(x)), "")
+      +m = Bool.pick(String, Bool.and(Bool.and(S.head_is(x, "param"), Nat.is_eq(List.length(&2, S.Sx, S.sx_xs(x)), 4n)), Bool.not(S.is_some(S.num(S.sx_s(S.sx_nth(S.sx_xs(x), 3n)))))), cls_why(S.sx_xs(x)), mat_why(x))
       Bool.pick(String, String.is_empty(m), r, m)
 
 def thr_ok(+xs: List<&2, S.Sx>) -> Bool:
   Bool.and(Nat.is_eq(List.length(&2, S.Sx, xs), 8n), S.nat_ok(S.sx_nth(xs, 1n)))
 
 def mat_ok(+xs: List<&2, S.Sx>) -> Bool:
-  Bool.and(Bool.or(Nat.is_eq(List.length(&2, S.Sx, xs), 5n), Nat.is_eq(List.length(&2, S.Sx, xs), 7n)), S.nat_ok(S.sx_nth(xs, 1n)))
+  +k = List.length(&2, S.Sx, xs)
+  +tab = Bool.and(Nat.is_eq(k, 3n), SD.mat_ok(S.sx_s(S.sx_nth(xs, 2n))))
+  Bool.and(Bool.or(tab, Bool.or(Nat.is_eq(k, 5n), Nat.is_eq(k, 7n))), S.nat_ok(S.sx_nth(xs, 1n)))
 
 def edit_ok(+x: S.Sx) -> Bool:
   Bool.or(Bool.and(S.head_is(x, "param"), pm_ok(S.sx_xs(x))), Bool.or(S.head_is(x, "node"), Bool.or(S.head_is(x, "delete"),
@@ -415,10 +424,20 @@ def mom_or(+op: Bool, +b: M.Body) -> String:
     case True{}: ""
     case False{}: K3M.mom_s(b)
 
-def mass_tail(r: M.NR, +m: Maybe<&2, M.Grade>) -> String:
+def mom_r(r: M.NR) -> String:
   match r:
     case M.NR_err{k, dg}: ""
-    case M.NR_ok{+b, fx}: mom_or(M.bd_open(b), b) ++ KM.mass_line(m, M.ms_vol(M.body_ms(b)))
+    case M.NR_ok{+b, fx}: mom_or(M.bd_open(b), b)
+
+def bp_r(r: M.NR) -> Bool:
+  match r:
+    case M.NR_err{k, dg}: False{}
+    case M.NR_ok{+b, fx}: M.has_bp(b)
+
+def mat_r(r: M.NR, +m: Maybe<&2, M.Grade>) -> String:
+  match r:
+    case M.NR_err{k, dg}: ""
+    case M.NR_ok{+b, fx}: KM.mass_line(m, M.ms_vol(M.body_ms(b)))
 
 def threads_out(+p: M.Part, +n: U64, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
@@ -466,11 +485,13 @@ def wall_q(+p: M.Part, +id: U64, +old: List<&2, M.CE>) -> String:
   +r = node_raw(M.ev_for(p, [id], old), id)
   thr_wall(nr_hx(r), r, p, id, old)
 
-def mass_out(+p: M.Part, +n: U64, +d: Nat, +old: List<&2, M.CE>) -> String:
+def mass_out(+p: M.Part, +n: U64, +arg: String, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
   +cs = M.ev_for(p, [n], old)
-  q_say(node_res(cs, n), QM.mass_s(node_res(cs, n), d) ++ "
-" ++ mass_tail(node_res(cs, n), KM.mat_find(ms, n)))
+  +mo = mom_r(node_res(cs, n))
+  +lean = Bool.and(Bool.and(String.eq(arg, ""), bp_r(node_res(cs, n))), String.starts_with(mo, "moments volume="))
+  q_say(node_res(cs, n), QM.mass_s(node_res(cs, n), Bool.pick(Nat, lean, 0n, QM.mass_depth(arg))) ++ "
+" ++ mo ++ mat_r(node_res(cs, n), KM.mat_find(ms, n)))
 
 def pm_nom(ps: List<&2, M.Param>, +name: String) -> F64:
   match ps:
@@ -654,7 +675,7 @@ def commit(+path: String, +p: M.Part, +cs: List<&2, M.CE>) -> IO(String):
 def apply_go(ok: Bool, +path: String, +p: M.Part, +m: String) -> IO(String):
   match ok:
     case False{}: IO.pure(String, Bool.pick(String, String.is_empty(m), "error invalid-input | apply | why: edits must be (param NAME NOM [LO HI | CLASS]) with finite numbers LO <= NOM <= HI and CLASS an ISO 286 tolerance class, (node ID OP INTENT) or (delete ID) | fix: correct the edit syntax",
-      "error invalid-input | param | why: " ++ m ++ "\nrejected: the design was not changed"))
+      "error invalid-input | edit | why: " ++ m ++ "\nrejected: the design was not changed"))
     case True{}: commit(path, p, M.ev_part(p, []))
 
 def cmd_code(+c: String) -> U64:
@@ -1499,7 +1520,7 @@ def run_go(code: U64, +cmd: String, +path: String, +rest: List<&2, String>, +p: 
     case 10u64: IO.pure(String, chk_q(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), old))
     case 11u64: IO.pure(String, qv_dist_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n)))
     case 12u64: IO.pure(String, qv_extrema_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}))))
-    case 13u64: IO.pure(String, mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), QM.mass_depth(S.arg_at(rest, 1n)), old))
+    case 13u64: IO.pure(String, mass_out(p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.arg_at(rest, 1n), old))
     case 14u64: IO.pure(String, qv_sect_s(node_res(M.ev_for(p, [S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})], old), S.u64_of(S.Sx_a{S.arg_at(rest, 0n)})), f_arg(rest, 1n), f_arg(rest, 2n), f_arg(rest, 3n), f_arg(rest, 4n)))
     case 15u64: IO.pure(String, pair_q(True{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, 0.0f64))
     case 16u64: IO.pure(String, pair_q(False{}, p, S.u64_of(S.Sx_a{S.arg_at(rest, 0n)}), S.u64_of(S.Sx_a{S.arg_at(rest, 1n)}), old, tol_arg(tess_f(S.arg_at(rest, 2n), 0.0f64))))

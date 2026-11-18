@@ -265,15 +265,16 @@ def bz_pts(+w: G.Bez3, +j: Nat, +k: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Po
     case 0n: acc
     case 1n+i: bz_pts(w, i, k, lo, hi, G.gres_p(GO.bez3_eval(w, dm_at(lo, hi, F64.div(nf(j), nf(Nat.add(k, 1n)))))) <> acc)
 
-def rq_go(+w: G.RQBez, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
+def rq_go(+w: G.RQBez, +d: G.Dom, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
-  +s = M10.segs_edge(G.GV_rq{w}, G.Dom{lo, hi}, q)
+  +s = M10.nat_max(n, M10.segs_edge(G.GV_rq{w}, G.Dom{lo, hi}, q))
   +m = Nat.sub(s, 1n)
   rq_pts(w, m, m, lo, hi, [])
 
-def cc_go2(+w: G.Circle3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
+def cc_go2(+w: G.Circle3, +d: G.Dom, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
-  +s = M10.segs_edge(G.GV_cc{w}, d, q)
+  +s0 = M10.nat_max(n, M10.segs_edge(G.GV_cc{w}, d, q))
+  +s = Bool.pick(Nat, M10.edge_closed(G.GV_cc{w}, d), M10.even_up(s0), s0)
   cc_pts(w, Nat.sub(s, 1n), s, lo, hi, [])
 
 def pt_eq(+a: V.Point, +b: V.Point) -> Bool:
@@ -290,10 +291,19 @@ def bz_pick(+line: Bool, +w: G.Bez3, +m: Nat, +lo: F64, +hi: F64) -> List<&2, V.
     case True{}: []
     case False{}: bz_pts(w, m, m, lo, hi, [])
 
-def bz_go(+w: G.Bez3, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
+def bz_go(+w: G.Bez3, +d: G.Dom, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
-  +s = M10.segs_edge(G.GV_bz{w}, G.Dom{lo, hi}, q)
-  bz_pick(bz_line(w), w, Nat.sub(s, 1n), lo, hi)
+  +s = M10.nat_max(n, M10.segs_edge(G.GV_bz{w}, G.Dom{lo, hi}, q))
+  bz_pick(Bool.and(bz_line(w), Nat.is_le(n, 1n)), w, Nat.sub(s, 1n), lo, hi)
+
+def ln_pts(+w: G.Line3, +j: Nat, +n: Nat, +lo: F64, +hi: F64, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match j:
+    case 0n: acc
+    case 1n+i: ln_pts(w, i, n, lo, hi, G.gres_p(GO.line_eval(w, dm_at(lo, hi, F64.div(nf(j), nf(n))))) <> acc)
+
+def ln_go(+w: G.Line3, +d: G.Dom, +n: Nat) -> List<&2, V.Point>:
+  G.Dom{+lo, +hi} = d
+  ln_pts(w, Nat.sub(M10.nat_max(n, 1n), 1n), M10.nat_max(n, 1n), lo, hi, [])
 
 type SH2 is Data:
   SH2{ p2: F64, p1: F64 }
@@ -324,32 +334,33 @@ def sh_pts(+w: G.SpiralHelix, +j: Nat, +n: Nat, +lo: F64, +hi: F64, +acc: List<&
     case 0n: acc
     case 1n+i: sh_pts(w, i, n, lo, hi, HX.sh_at(w, dm_at(lo, hi, F64.div(nf(j), nf(n)))) <> acc)
 
-def sh_go(+w: G.SpiralHelix, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
+def sh_go(+w: G.SpiralHelix, +d: G.Dom, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   G.Dom{+lo, +hi} = d
-  +s = sh_segs(w, lo, hi, q)
+  +s = M10.nat_max(n, sh_segs(w, lo, hi, q))
   sh_pts(w, Nat.sub(s, 1n), s, lo, hi, [])
 
-def cv_pts(+c: G.GVal, +d: G.Dom, +q: M10.Q) -> List<&2, V.Point>:
+def cv_pts(+c: G.GVal, +d: G.Dom, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   match c:
-    case G.GV_rq{+w}: rq_go(w, d, q)
-    case G.GV_cc{+w}: cc_go2(w, d, q)
-    case G.GV_bz{+w}: bz_go(w, d, q)
-    case G.GV_sh{+w}: sh_go(w, d, q)
+    case G.GV_rq{+w}: rq_go(w, d, q, n)
+    case G.GV_cc{+w}: cc_go2(w, d, q, n)
+    case G.GV_bz{+w}: bz_go(w, d, q, n)
+    case G.GV_sh{+w}: sh_go(w, d, q, n)
+    case G.GV_ln{+w}: ln_go(w, d, n)
     case _: []
 
-def ek_pts(k: Ty.EdgeKind, +q: M10.Q) -> List<&2, V.Point>:
+def ek_pts(k: Ty.EdgeKind, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   match k:
-    case Ty.EK_curve{c, d}: cv_pts(c, d, q)
+    case Ty.EK_curve{c, d}: cv_pts(c, d, q, n)
     case Ty.EK_degenerate{}: []
 
-def ed_pts(e: Ty.Edge, +q: M10.Q) -> List<&2, V.Point>:
+def ed_pts(e: Ty.Edge, +q: M10.Q, +n: Nat) -> List<&2, V.Point>:
   Ty.Ed{g, v0, v1, k} = e
-  ek_pts(k, q)
+  ek_pts(k, q, n)
 
-def smps(es: List<&2, Ty.Edge>, +q: M10.Q) -> List<&2, List<&2, V.Point>>:
+def smps(es: List<&2, Ty.Edge>, +q: M10.Q, +tb: B.Tb<&2, Nat>, +i: Nat) -> List<&2, List<&2, V.Point>>:
   match es:
     case []: []
-    case e <> t: ed_pts(e, q) <> smps(t, q)
+    case e <> t: ed_pts(e, q, B.tb_get(Nat, tb, U32.from_nat(i))) <> smps(t, q, tb, Nat.add(i, 1n))
 
 def bases(ss: List<&2, List<&2, V.Point>>, +b: Nat) -> List<&2, Nat>:
   match ss:
@@ -366,9 +377,8 @@ def vx_pts(vs: List<&2, Ty.Vertex>) -> List<&2, V.Point>:
 def pz() -> V.Point:
   V.Pt{0.0f64, 0.0f64, 0.0f64}
 
-def ctx_of(+b: Ty.Brep, +q: M10.Q) -> Ctx:
+def ctx_of(+b: Ty.Brep, +ss: List<&2, List<&2, V.Point>>) -> Ctx:
   +es = Ty.brep_es(b)
-  +ss = smps(es, q)
   +nv = List.length(&2, Ty.Vertex, Ty.brep_vs(b))
   Ctx{B.tb_of(V.Point, vx_pts(Ty.brep_vs(b)), pz()), B.tb_of(Ty.Edge, es, Ty.Ed{0u64, Ty.HV{0n, 0u64}, Ty.HV{0n, 0u64}, Ty.EK_degenerate{}}),
     B.tb_of(Ty.Coedge, Ty.brep_ces(b), Ty.Ce{0u64, Ty.HE{0n, 0u64}, True{}, G.GV_f{0.0f64}}),
@@ -380,8 +390,8 @@ def cat_pts(ss: List<&2, List<&2, V.Point>>) -> List<&2, V.Point>:
     case []: []
     case s <> t: List.append(&2, V.Point, s, cat_pts(t))
 
-def all_pts(+b: Ty.Brep, +q: M10.Q) -> List<&2, V.Point>:
-  List.append(&2, V.Point, vx_pts(Ty.brep_vs(b)), cat_pts(smps(Ty.brep_es(b), q)))
+def all_pts(+b: Ty.Brep, +ss: List<&2, List<&2, V.Point>>) -> List<&2, V.Point>:
+  List.append(&2, V.Point, vx_pts(Ty.brep_vs(b)), cat_pts(ss))
 
 def ux(+i: Nat) -> U32:
   U32.from_nat(i)
@@ -921,6 +931,84 @@ def ev_at(+c: G.GVal, +t: F64) -> V.Point:
     case G.GV_sh{+w}: HX.sh_at(w, t)
     case _: pz()
 
+def nt_at(+c: G.GVal, +t: F64) -> V.Point:
+  match c:
+    case G.GV_ln{+w}: G.gres_p(GO.line_eval(w, t))
+    case _: ev_at(c, t)
+
+def nt_go(n: Nat, +c: G.GVal, +lo: F64, +hi: F64, +k: Nat, +j: Nat) -> List<&2, V.Point>:
+  match n:
+    case 0n: []
+    case 1n+m: nt_at(c, dm_at(lo, hi, F64.div(nf(j), nf(k)))) <> nt_go(m, c, lo, hi, k, Nat.add(j, 1n))
+
+def nt_nrm(+w: G.BezP, +p: V.Point) -> V.Point:
+  +q = KS.bp_uv(w, p)
+  +u = F64.add(V.v2_x(q), F64.mul(1.0e-3f64, F64.sub(0.5f64, V.v2_x(q))))
+  +v = F64.add(V.v2_y(q), F64.mul(1.0e-3f64, F64.sub(0.5f64, V.v2_y(q))))
+  +n = KS.bp_nrm(w, u, v)
+  V.Pt{V.dr_x(n), V.dr_y(n), V.dr_z(n)}
+
+def nt_sum(ps: List<&2, V.Point>, +w: G.BezP, +prev: V.Point, +acc: F64) -> F64:
+  match ps:
+    case []: acc
+    case +p <> t:
+      +n = nt_nrm(w, p)
+      nt_sum(t, w, n, F64.add(acc, M10.turn(prev, n)))
+
+def nt_turn(ps: List<&2, V.Point>, +w: G.BezP) -> F64:
+  match ps:
+    case []: 0.0f64
+    case +p <> t: nt_sum(t, w, nt_nrm(w, p), 0.0f64)
+
+def nt_k(k: Ty.EdgeKind, +w: G.BezP, +q: M10.Q) -> Nat:
+  match k:
+    case Ty.EK_degenerate{}: 0n
+    case Ty.EK_curve{+c, +d}:
+      G.Dom{+lo, +hi} = d
+      M10.segs_ang(nt_turn(nt_go(7n, c, lo, hi, 6n, 0n), w), M10.q_angle(q))
+
+def nt_ed(e: Ty.Edge, +w: G.BezP, +q: M10.Q) -> Nat:
+  Ty.Ed{g, v0, v1, +k} = e
+  nt_k(k, w, q)
+
+def nt_ces(cs: List<&2, Ty.HCoedge>, +w: G.BezP, +ces: B.Tb<&2, Ty.Coedge>, +es: B.Tb<&2, Ty.Edge>, +q: M10.Q, +tb: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match cs:
+    case []: tb
+    case +h <> t:
+      +ei = he_i(Ty.ce_edge(B.tb_get(Ty.Coedge, ces, ux(hc_i(h)))))
+      +n = nt_ed(B.tb_get(Ty.Edge, es, ux(ei)), w, q)
+      nt_ces(t, w, ces, es, q, B.tb_set(Nat, tb, ux(ei), M10.nat_max(n, B.tb_get(Nat, tb, ux(ei)))))
+
+def nt_lps(ls: List<&2, Ty.HLoop>, +w: G.BezP, +lps: B.Tb<&2, Ty.Loop>, +ces: B.Tb<&2, Ty.Coedge>, +es: B.Tb<&2, Ty.Edge>, +q: M10.Q, +tb: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match ls:
+    case []: tb
+    case +h <> t: nt_lps(t, w, lps, ces, es, q, nt_ces(Ty.lp_ces(B.tb_get(Ty.Loop, lps, ux(hl_i(h)))), w, ces, es, q, tb))
+
+def nt_fa(s: G.GVal, +ls: List<&2, Ty.HLoop>, +lps: B.Tb<&2, Ty.Loop>, +ces: B.Tb<&2, Ty.Coedge>, +es: B.Tb<&2, Ty.Edge>, +q: M10.Q, +tb: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match s:
+    case G.GV_bp{+w}: nt_lps(ls, w, lps, ces, es, q, tb)
+    case _: tb
+
+def nt_fas(fs: List<&2, Ty.Face>, +lps: B.Tb<&2, Ty.Loop>, +ces: B.Tb<&2, Ty.Coedge>, +es: B.Tb<&2, Ty.Edge>, +q: M10.Q, +tb: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match fs:
+    case []: tb
+    case f <> t:
+      Ty.Fa{g, +s, +ls, same, slv, sla} = f
+      nt_fas(t, lps, ces, es, q, nt_fa(s, ls, lps, ces, es, q, tb))
+
+def nt_zero(n: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: 0n <> nt_zero(m)
+
+def smps_b(+br: Ty.Brep, +q: M10.Q) -> List<&2, List<&2, V.Point>>:
+  +es = Ty.brep_es(br)
+  +tb = nt_fas(Ty.brep_fas(br), B.tb_of(Ty.Loop, Ty.brep_lps(br), Ty.Lp{0u64, [], Ty.LK_outer{}}),
+    B.tb_of(Ty.Coedge, Ty.brep_ces(br), Ty.Ce{0u64, Ty.HE{0n, 0u64}, True{}, G.GV_f{0.0f64}}),
+    B.tb_of(Ty.Edge, es, Ty.Ed{0u64, Ty.HV{0n, 0u64}, Ty.HV{0n, 0u64}, Ty.EK_degenerate{}}), q,
+    B.tb_of(Nat, nt_zero(List.length(&2, Ty.Edge, es)), 0n))
+  smps(es, q, tb, 0n)
+
 def seg_tm(c: G.GVal, +lo: F64, +hi: F64, +f: F64) -> F64:
   match c:
     case G.GV_cc{w}: M10.cc_par(lo, hi, f)
@@ -1355,15 +1443,25 @@ def er_b(+e: ER2) -> Nat:
   ER2{k, t, a, +b} = e
   b
 
+def bp_nrm_r(+w: G.BezP, +u: F64, +v: F64) -> V.Dir:
+  +su = KS.bp_su(w, u, v)
+  +sv = KS.bp_sv(w, u, v)
+  +n = KS.cross(su, sv)
+  +deg = F64.is_le(KS.dlen(n), F64.mul(1.0e-6f64, F64.mul(KS.dlen(su), KS.dlen(sv))))
+  +u2 = F64.add(u, F64.mul(1.0e-3f64, F64.sub(0.5f64, u)))
+  +v2 = F64.add(v, F64.mul(1.0e-3f64, F64.sub(0.5f64, v)))
+  Bool.pick(V.Dir, deg, KS.bp_nrm(w, u2, v2), KS.dunit(n))
+
 def sf_nrm(+sf: KS.SF, +w: VX) -> V.Dir:
   match sf:
-    case KS.SF_bp{gw}: KS.bp_nrm(KS.gbp(gw), vx_u(w), vx_v(w))
+    case KS.SF_bp{gw}: bp_nrm_r(KS.gbp(gw), vx_u(w), vx_v(w))
     case _: KS.sf_normal(sf, vx_p(w))
 
 def e_bad(+g: GS, +va: VX, +vb: VX, +tol: TL) -> Bool:
   TL{+ch, +ca} = tol
   +sf = gs_sf(g)
-  Bool.or(F64.is_lt(ch, e_dev(g, va, vb)), F64.is_lt(KS.dot(sf_nrm(sf, va), sf_nrm(sf, vb)), ca))
+  +long = F64.is_lt(ch, p_dist(vx_p(va), vx_p(vb)))
+  Bool.or(F64.is_lt(ch, e_dev(g, va, vb)), Bool.and(long, F64.is_lt(KS.dot(sf_nrm(sf, va), sf_nrm(sf, vb)), ca)))
 
 def vxl(+vt: B.Tb<&2, VX>, +a: Nat, +b: Nat) -> F64:
   p_dist(vx_p(B.tb_get(VX, vt, U32.from_nat(a))), vx_p(B.tb_get(VX, vt, U32.from_nat(b))))
@@ -1573,7 +1671,7 @@ def uv_fat(+vt: B.Tb<&2, VX>, +s: F64, +a: Nat, +b: Nat, +c: Nat) -> Bool:
   F64.is_lt(F64.mul(1.0e-9f64, F64.max(uvl2(vt, a, b), F64.max(uvl2(vt, b, c), uvl2(vt, c, a)))), F64.mul(s, uvo(vt, a, b, c)))
 
 def fl_ok(+vt: B.Tb<&2, VX>, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
-  +o = uvo(vt, a, b, c)
+  +o = F64.sub(uvo(vt, a, b, c), uvo(vt, a, b, d))
   +s = Bool.pick(F64, F64.is_lt(0.0f64, o), 1.0f64, F64.neg(1.0f64))
   Bool.and(Bool.and(uv_fat(vt, s, a, d, c), uv_fat(vt, s, d, b, c)),
     F64.is_lt(F64.add(opq(vt, a, b, c), opq(vt, a, b, d)), F64.neg(1.0e-9f64)))
@@ -1593,7 +1691,7 @@ type FM is Data:
   FM_nrm{ k: U64, sf: KS.SF }
 
 def fn_ok(+vt: B.Tb<&2, VX>, +k: U64, +sf: KS.SF, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
-  +o = uvo(vt, a, b, c)
+  +o = F64.sub(uvo(vt, a, b, c), uvo(vt, a, b, d))
   +s = Bool.pick(F64, F64.is_lt(0.0f64, o), 1.0f64, F64.neg(1.0f64))
   +va = B.tb_get(VX, vt, U32.from_nat(a))
   +vb = B.tb_get(VX, vt, U32.from_nat(b))
@@ -3584,9 +3682,137 @@ def fs_note(+s: FS) -> String:
     Bool.pick(String, Nat.is_eq(pr, 0n), " chord-bound=certified", Bool.pick(String, Nat.is_eq(pr, fw_nf(rl)), " chord-bound=certified-on-analytic-faces,sampled-on-freeform", " chord-bound=sampled-on-refined-faces")) ++
     " normal-dev=" ++ F64.show(KS.fatan2(F64.sqrt(F64.max(0.0f64, F64.sub(1.0f64, F64.mul(cs, cs)))), cs))
 
-def pri_fin(+gt: TGO, +ns: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
-  TGO{+ts, +gp, +gok, +st} = gt
+type WP is Data:
+  WP{ k: F64, x: F64, y: F64, z: F64, i: Nat }
+
+def wp_of(ps: List<&2, V.Point>, +i: Nat) -> List<&2, WP>:
+  match ps:
+    case []: []
+    case +p <> t:
+      +x = V.pt_x(p)
+      +y = V.pt_y(p)
+      +z = V.pt_z(p)
+      WP{F64.add(F64.mul(0.8017f64, x), F64.add(F64.mul(0.4561f64, y), F64.mul(0.3863f64, z))), x, y, z, i} <> wp_of(t, Nat.add(i, 1n))
+
+def wp_k(+a: WP) -> F64:
+  WP{+k, x, y, z, i} = a
+  k
+
+def wp_cmp_go(+a: WP, +b: WP) -> B.Sgn:
+  +ka = wp_k(a)
+  +kb = wp_k(b)
+  B.sgn_pick(F64.is_lt(ka, kb), F64.is_lt(kb, ka))
+
+def wp_cmp(a: WP, b: WP) -> B.Sgn:
+  wp_cmp_go(a, b)
+
+def so_wp(s: B.So<&2, WP>) -> List<&2, WP>:
+  B.So{ok, xs} = s
+  xs
+
+def wp_d(+a: WP, +b: WP) -> F64:
+  WP{ak, +ax, +ay, +az, ai} = a
+  WP{bk, +bx, +by, +bz, bi} = b
+  +dx = F64.sub(ax, bx)
+  +dy = F64.sub(ay, by)
+  +dz = F64.sub(az, bz)
+  F64.sqrt(F64.add(F64.mul(dx, dx), F64.add(F64.mul(dy, dy), F64.mul(dz, dz))))
+
+def wp_i(+a: WP) -> Nat:
+  WP{k, x, y, z, +i} = a
+  i
+
+def win_cut(ws: List<&2, WP>, +kmin: F64) -> List<&2, WP>:
+  match ws:
+    case []: []
+    case +w <> t: Bool.pick(List<&2, WP>, F64.is_lt(wp_k(w), kmin), [], w <> win_cut(t, kmin))
+
+def win_rep(ws: List<&2, WP>, +x: WP, +eps: F64, +own: Nat) -> Nat:
+  match ws:
+    case []: own
+    case +w <> t:
+      +r = win_rep(t, x, eps, own)
+      Bool.pick(Nat, F64.is_lt(wp_d(w, x), eps), wp_i(w), r)
+
+def wd_go(xs: List<&2, WP>, +win: List<&2, WP>, +eps: F64, +m: B.Tb<&2, Nat>) -> B.Tb<&2, Nat>:
+  match xs:
+    case []: m
+    case +x <> t:
+      +w2 = win_cut(win, F64.sub(wp_k(x), F64.mul(2.0f64, eps)))
+      +r = win_rep(w2, x, eps, wp_i(x))
+      wd_go(t, Bool.pick(List<&2, WP>, Nat.is_eq(r, wp_i(x)), x <> w2, w2), eps, B.tb_set(Nat, m, U32.from_nat(wp_i(x)), r))
+
+def wd_ids(n: Nat, +i: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: i <> wd_ids(m, Nat.add(i, 1n))
+
+def weld_map(+ps: List<&2, V.Point>, +eps: F64) -> B.Tb<&2, Nat>:
+  wd_go(so_wp(B.msort(~WP, ~wp_cmp, wp_of(ps, 0n))), [], eps, B.tb_of(Nat, wd_ids(List.length(&2, V.Point, ps), 0n), 0n))
+
+def wm(+m: B.Tb<&2, Nat>, +i: Nat) -> Nat:
+  B.tb_get(Nat, m, U32.from_nat(i))
+
+type WT is Data:
+  WT{ ts: List<&2, Tri>, ns: List<&2, Nat> }
+
+def wt_tri(+t: Tri, +m: B.Tb<&2, Nat>) -> Tri:
+  Tri{+a, +b, +c} = t
+  Tri{wm(m, a), wm(m, b), wm(m, c)}
+
+def wt_deg(+t: Tri) -> Bool:
+  Tri{+a, +b, +c} = t
+  Bool.or(Nat.is_eq(a, b), Bool.or(Nat.is_eq(b, c), Nat.is_eq(c, a)))
+
+def wt_grp(n: Nat, ts: List<&2, Tri>, +m: B.Tb<&2, Nat>, +keep: List<&2, Tri>, +k: Nat) -> WT:
+  match n:
+    case 0n: WT{keep, [k]}
+    case 1n+r:
+      match ts:
+        case []: WT{keep, [k]}
+        case +t <> u:
+          +w = wt_tri(t, m)
+          +d = wt_deg(w)
+          wt_grp(r, u, m, Bool.pick(List<&2, Tri>, d, keep, w <> keep), Bool.pick(Nat, d, k, Nat.add(k, 1n)))
+
+def wt_rest(+t: WT) -> List<&2, Tri>:
+  WT{+ts, ns} = t
+  ts
+
+def wt_n(+t: WT) -> Nat:
+  WT{ts, +ns} = t
+  match ns:
+    case []: 0n
+    case +h <> r: h
+
+def drop_n(n: Nat, xs: List<&2, Tri>) -> List<&2, Tri>:
+  match n:
+    case 0n: xs
+    case 1n+r:
+      match xs:
+        case []: []
+        case +x <> t: drop_n(r, t)
+
+def wt_ns(+t: WT) -> List<&2, Nat>:
+  WT{ts, +ns} = t
+  ns
+
+def wt_go(ns: List<&2, Nat>, +ts: List<&2, Tri>, +m: B.Tb<&2, Nat>, +acc: WT) -> WT:
+  match ns:
+    case []: WT{List.reverse(&2, Tri, wt_rest(acc)), List.reverse(&2, Nat, wt_ns(acc))}
+    case +n <> rest:
+      +g = wt_grp(n, ts, m, wt_rest(acc), 0n)
+      wt_go(rest, drop_n(n, ts), m, WT{wt_rest(g), wt_n(g) <> wt_ns(acc)})
+
+def weld(+ps: List<&2, V.Point>, +ts: List<&2, Tri>, +ns: List<&2, Nat>, +eps: F64) -> WT:
+  wt_go(ns, ts, weld_map(ps, eps), WT{[], []})
+
+def pri_fin(+gt: TGO, +ns0: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
+  TGO{+ts0, +gp, +gok, +st} = gt
   +all2 = List.append(&2, V.Point, all, gp)
+  +wt = weld(all2, ts0, ns0, 1.0e-6f64)
+  +ts = wt_rest(wt)
+  +ns = wt_ns(wt)
   +nt = List.length(&2, Tri, ts)
   pri_out(Bool.and(gok, closed(ts)), ts, ns, M10.Tres{True{}, fs_note(st), obj_vs(all2, M.bd_pl(b)) ++ obj_fg(Nat.add(Nat.add(nt, List.length(&2, Nat, ns)), 1n), ts, ns, ks, 0n, 0n) ++ es,
     List.length(&2, V.Point, all2), List.length(&2, Tri, ts), est,
@@ -3624,12 +3850,12 @@ def fg_fin(+fg: FG, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es
 
 def pri_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   +br = M.bd_brep(b)
-  +ps = all_pts(br, q)
+  +ss = smps_b(br, q)
+  +ps = all_pts(br, ss)
   +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
   +tb = B.tb_of(V.Point, all, pz())
-  +ss = smps(Ty.brep_es(br), q)
   +mq = meas_go(Ty.brep_es(br), ss, vx_pts(Ty.brep_vs(br)))
-  fg_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}), all, b, est, mq,
+  fg_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, ss), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}), all, b, est, mq,
     obj_es(Ty.brep_es(br), ss, tb, M.bd_pl(b)))
 
 def pri_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
@@ -3669,7 +3895,7 @@ def est_all(fs: List<&2, Ty.Face>, +x: Ctx, +tol: TL) -> Nat:
 
 def pri_q(+b: M.Body, +q: M10.Q) -> M10.Tres:
   +br = M.bd_brep(b)
-  +est = est_all(Ty.brep_fas(br), ctx_of(br, q), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))})
+  +est = est_all(Ty.brep_fas(br), ctx_of(br, smps_b(br, q)), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))})
   pri_go(M10.budget_ok(est, M10.q_max(q)), b, q, est)
 
 def rq2(j: Nat, +w: G.RQBez, +k: Nat) -> List<&2, V.Vec2>:
@@ -3937,9 +4163,10 @@ def mp_fin(+fg: FG, +all: List<&2, V.Point>, +br: Ty.Brep, +ss: List<&2, List<&2
 
 def mesh_of(+b: M.Body, +q: M10.Q) -> Mp:
   +br = M.bd_brep(b)
-  +ps = all_pts(br, q)
+  +ss = smps_b(br, q)
+  +ps = all_pts(br, ss)
   +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
   +tb = B.tb_of(V.Point, all, pz())
-  mp_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, q), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}),
-    all, br, smps(Ty.brep_es(br), q))
+  mp_fin(faces_tg(Ty.brep_fas(br), ctx_of(br, ss), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}),
+    all, br, ss)
 

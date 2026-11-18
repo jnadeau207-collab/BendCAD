@@ -1,0 +1,6 @@
+(bendcad 1)
+(node 1 (cylinder 0.6 15.6) (intent create any any any any))
+(node 2 (move 1 0 0 -9.3 0) (intent same any any any any))
+(node 3 (cylinder 1.05 3.3) (intent create any any any any))
+(node 4 (move 3 0 0 3 0) (intent same any any any any))
+(node 5 (union 2 4) (intent add any any any any))

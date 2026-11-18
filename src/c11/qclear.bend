@@ -188,12 +188,28 @@ def circ_circ(+c: Mc, +d: Mc) -> F64:
   +nest = F64.sub(I.i_lo(iabs(I.isub(r1, r2))), hi)
   Bool.pick(F64, Bool.and(ok1, ok2), F64.max(0.0f64, F64.sub(F64.max(sep, nest), F64.add(e1, e2))), 0.0f64)
 
+type Ml is Data:
+  Ml{ ok: Bool, k: I.I, ho: I.I, e: F64 }
+
+def mline(s: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +bx: List<&2, I.I>) -> Ml:
+  match s:
+    case Im.M_co{+so, +sa, +k}: Ml{True{}, k, ax_h(o, a, so), F64.mul(2.0f64, slack(so, sa, o, a, bx))}
+    case _: Ml{False{}, I.ipt(0.0f64), I.ipt(0.0f64), 0.0f64}
+
+def line_rect(+c: Ml, +q: Bd) -> F64:
+  Ml{+ok, +k, +ho, +e} = c
+  Bd{+p, +h} = q
+  +dh = I.isub(h, ho)
+  +g = F64.min(gap1(I.isub(p, I.imul(k, dh)), I.ipt(0.0f64)), gap1(I.iadd(p, I.imul(k, dh)), I.ipt(0.0f64)))
+  Bool.pick(F64, ok, F64.max(0.0f64, F64.sub(I.i_lo(I.idiv(I.ipt(g), I.isqrt(I.iadd(I.ipt(1.0f64), I.isq(k))))), e)), 0.0f64)
+
 def m2(+sa: Im.Im, +sb: Im.Im, +o: List<&2, I.I>, +a: List<&2, I.I>, +ca: List<&2, I.I>, +cb: List<&2, I.I>, +ra: I.I, +rb: I.I) -> F64:
   +qa = mrect(sa, o, a, ca, ra)
   +qb = mrect(sb, o, a, cb, rb)
   +ka = mcirc(sa, o, a, ca)
   +kb = mcirc(sb, o, a, cb)
-  F64.max(F64.max(bd_d(qa, qb), circ_circ(ka, kb)), F64.max(circ_rect(ka, qb), circ_rect(kb, qa)))
+  F64.max(F64.max(F64.max(bd_d(qa, qb), circ_circ(ka, kb)), F64.max(circ_rect(ka, qb), circ_rect(kb, qa))),
+    F64.max(line_rect(mline(sa, o, a, ca), qb), line_rect(mline(sb, o, a, cb), qa)))
 
 def m2_of(s: Im.Im, +sa: Im.Im, +sb: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>, +ra: I.I, +rb: I.I) -> F64:
   match s:

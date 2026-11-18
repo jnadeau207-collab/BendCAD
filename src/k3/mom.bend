@@ -32,12 +32,18 @@ def cen_s(+mi: List<&2, I.I>, +ti: List<&2, I.I>, +cl: List<&2, I.I>) -> String:
 def ine_s(+mi: List<&2, I.I>, +il: List<&2, I.I>, +v: I.I, +cr: List<&2, I.I>) -> String:
   QM.iv6_s(QM.pk6(QM.rot_i(mi, QM.sh9(il, v, cr))))
 
+def mom_ok(+v: I.I) -> Bool:
+  F64.is_lt(F64.sub(I.i_hi(v), I.i_lo(v)), 1.0e300f64)
+
 def mom_line(+ivs: List<&2, I.I>, +c: V.Point, +pl: M.Pl) -> String:
   +cr = cr_of(ivs)
   +mi = M.pl_mi(pl)
-  "moments volume=" ++ QM.iv_s(M.i_nth(ivs, 0n)) ++ " centroid " ++ cen_s(mi, M.pl_ti(pl), cl_of(cr, c)) ++ " inertia-centroid " ++
-    ine_s(mi, il_of(ivs), M.i_nth(ivs, 0n), cr) ++ " status=certified method=divergence
-"
+  Bool.pick(String, mom_ok(M.i_nth(ivs, 0n)),
+    "moments volume=" ++ QM.iv_s(M.i_nth(ivs, 0n)) ++ " centroid " ++ cen_s(mi, M.pl_ti(pl), cl_of(cr, c)) ++ " inertia-centroid " ++
+      ine_s(mi, il_of(ivs), M.i_nth(ivs, 0n), cr) ++ " status=certified method=divergence
+",
+    "moments none status=refused reason=moments-surface-not-supported method=divergence
+")
 
 def mom_of(+r: D.MR, +pl: M.Pl) -> String:
   D.MR{+c, +m, +e, +slv, +rad, ar, sla} = r

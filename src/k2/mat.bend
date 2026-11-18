@@ -3,6 +3,7 @@ import ../c00/types.bend as T
 import ../c06/iv.bend as I
 import ../c06/model.bend as M
 import ../c06/sx.bend as S
+import ./std.bend as SD
 
 def mat_find(ms: List<&2, M.Grade>, +n: U64) -> Maybe<&2, M.Grade>:
   match ms:
@@ -39,7 +40,7 @@ def mat_err1(+m: M.Grade, +cs: List<&2, M.CE>) -> String:
     err_line("material", "unknown-node " ++ U64.show(n), "bind materials to evaluated design nodes"),
     Bool.pick(String, num, "",
       err_line("material", "bad-material: " ++ g ++ " needs a finite density > 0 kg/m3, a finite expansion >= 0 1/K and, if given, a modulus E > 0 MPa with 0 <= nu < 0.5",
-        "write (material NODE GRADE DENSITY CTE [E NU])")))
+        "write (material NODE GRADE) with a held grade (" ++ SD.mat_grades() ++ ") or (material NODE GRADE DENSITY CTE [E NU])")))
 
 def mats_err(ms: List<&2, M.Grade>, +cs: List<&2, M.CE>) -> String:
   match ms:
@@ -53,7 +54,8 @@ def mass_line(m: Maybe<&2, M.Grade>, +v: I.I) -> String:
   match m:
     case None{}: ""
     case Some{+x}:
-      M.Gr{+n, +g, +rho, +cte, e, nu} = x
+      M.Gr{+n, +g, +rho, +cte, +e, +nu} = x
       +k = mass_iv(v, rho)
+      +src = Bool.pick(String, S.mt_same(g, rho, cte, e, nu), " source=\"" ++ SD.mat_cite(g) ++ "\"", "")
       "material " ++ g ++ " density=" ++ S.f_show(rho) ++ " cte=" ++ S.f_show(cte) ++ " mass=[" ++ S.f_show(I.i_lo(k)) ++
-        ", " ++ S.f_show(I.i_hi(k)) ++ "] kg status=certified\n"
+        ", " ++ S.f_show(I.i_hi(k)) ++ "] kg status=certified" ++ src ++ "\n"

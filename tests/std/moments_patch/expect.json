@@ -1,0 +1,9 @@
+{
+ "item": "S3",
+ "limit_s": 20,
+ "claim": "mass moments (volume, centroid and inertia by the divergence theorem) are right on Bezier-patch faces: a skinned turbine blade (two airfoil sections, 19 bicubic faces and 2 planar caps) reads the same volume from its moments as from the certified octree and as OCCT reads the exported STEP (94.57149877616622 mm3, centroid 26.26413136870304 -1.178713875591552 167.26477162312025); before the fix the moments line said 31.64 mm3 with a wrong centroid and status=certified, because a patch face fell through to the torus formula",
+ "steps": [
+  {"args": ["mass", "1"], "must": ["^mass volume=\\[94\\.571498", "^moments volume=\\[94\\.57149", "centroid \\[26\\.264\\d*, 26\\.264\\d*\\]", "x\\[-1\\.1787\\d*, -1\\.1787\\d*\\]", "x\\[167\\.2647\\d*, 167\\.2647\\d*\\]", "status=certified method=divergence"]},
+  {"args": ["mass", "2"], "must": ["^moments volume=\\[(63\\.9999|64[,.])", "centroid \\[(1\\.9999|2[,.])"]}
+ ]
+}

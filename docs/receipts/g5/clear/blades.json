@@ -1,0 +1,29 @@
+{
+ "source": "bendcad mass NODE 0 (certified divergence-theorem moments, Bezier patches by Green's theorem) on bendcad-r1i sha256 0bd72aa709b057404c182ed5e037251c14c97bd67d5f575234c6ce0eeda7ac4e, design /home/jesse/g5/g5p.bcd",
+ "note": "replaces the receipt of 2026-11-16, whose turbine blade volume 31.64 mm3 came from the torus-formula defect fixed in tests/std/moments_patch",
+ "turbine": {
+  "node": 2702,
+  "volume_mm3": 94.571499,
+  "volume_iv": [
+   94.571499,
+   94.571499
+  ],
+  "centroid_r_mm": 26.290568
+ },
+ "impeller": {
+  "node": 1903,
+  "volume_mm3": 331.846581,
+  "volume_iv": [
+   331.833021,
+   331.860141
+  ],
+  "centroid_r_mm": 18.513567,
+  "splitter_node": 1904,
+  "splitter_mm3": 167.873068,
+  "splitter_iv": [
+   167.865426,
+   167.88071
+  ],
+  "splitter_r_mm": 23.062192
+ }
+}

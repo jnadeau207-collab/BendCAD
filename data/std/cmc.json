@@ -1,0 +1,17 @@
+{
+  "standard": "Ceramic matrix composite records for stationary hot parts; values are measured where the source measured them and projected where it gives only constituents",
+  "grades": {
+    "SIC-SIC-N24A": {
+      "name": "N24A melt-infiltrated SiC/SiC, 2-D five-harness iBN-Sylramic fibre, CVI BN and SiC, MI SiC matrix",
+      "sources": [
+        "NASA/TM-2009-215806, Mital, Bednarcyk, Arnold and Lang, Modeling of Melt-Infiltrated SiC/SiC Composite Properties, Oct 2009 (ntrs.nasa.gov/citations/20090041359): Table III (room temperature) and Table IV (1204 C) experiment columns; Table I constituent properties",
+        "Morscher and Pujar, Design Guidelines for In-Plane Mechanical Properties of SiC Fiber-Reinforced Melt-Infiltrated SiC Composites (ntrs.nasa.gov/citations/20080047739): design stress limit at the onset of matrix cracking (about 95 MPa minimatrix stress) and a design total strain limit of about 0.3% for creep up to 1200-1315 C"
+      ],
+      "E_MPa_RT": 252000, "E_MPa_1204C": 230000, "nu": 0.13,
+      "cte_per_K_1204C": 6.0e-06, "cte_basis": "MEASURED at 1204 C (models give 8.7e-6)",
+      "rho_kg_m3": 2800, "rho_basis": "PROJECTED from Table I constituent densities (fibre 3.2, BN 1.4, CVI SiC 3.2, MI SiC 2.9 g/cm3); the report gives no composite density",
+      "k_W_mK_1204C": 20,
+      "design_strain_limit": 0.003, "design_strain_basis": "MEASURED guideline, Morscher and Pujar"
+    }
+  }
+}

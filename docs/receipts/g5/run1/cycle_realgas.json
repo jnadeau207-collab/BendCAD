@@ -1,0 +1,21 @@
+{
+ "source": "tools/g5/cycle_ng.py: the cycle.json inputs (PR, efficiencies, TIT, mass flow, losses) evaluated with NASA 7-coefficient polynomials (data/thermo/nasa7.json, McBride et al. NASA TM-4513) for air and complete Jet-A combustion products, LHV from the species formation enthalpies",
+ "basis": "COMPUTED",
+ "result": {
+  "T2_K": 398.38996,
+  "compressor_work_J_kg": 111162.38094,
+  "fuel_air": 0.0156,
+  "T5_K": 875.2483,
+  "p5_kPa": 134.67398,
+  "thrust_N": 99.95969,
+  "nozzle_exit_area_mm2": 1671.92146,
+  "jet_velocity_m_s": 371.41211,
+  "tsfc_g_per_kN_s": 41.35834,
+  "LHV_J_kg": 43351236.89096
+ },
+ "constant_cp_deck": {
+  "thrust_N": 99.3,
+  "nozzle_exit_area_mm2": 1690,
+  "tsfc_g_per_kN_s": 44.4
+ }
+}

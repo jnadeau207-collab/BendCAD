@@ -1079,7 +1079,7 @@ def verdict(+nf: Nat, +na: Nat) -> String:
 
 def mill_fin(+r: Cn, +cs: List<&2, String>, +nd: U64, +nfa: Nat) -> String:
   Cn{+s, +np, +na, +nf} = r
-  "make node " ++ U64.show(nd) ++ " process=mill (3-axis, setups +z -z +x -x +y -y; tools held: ISO 235 jobber drills 1-16, DIN 6527 L end mills 1-20, long-reach end mills 4-20 (GARANT 202247, 205556), DIN 335 C 90 countersinks, DIN 371/376 taps; docs/std.md)\n" ++
+  "make node " ++ U64.show(nd) ++ " process=mill (3-axis, setups +z -z +x -x +y -y; tools held: ISO 235 jobber drills 1-16, DIN 6527 L end mills 1-20, long-reach end mills 4-20 (GARANT 202247, 205556), DIN 335 C 90 countersinks, DIN 371/376 taps, DIN 1837 slitting saws 40-100 x 1 and 63 x 2.5 (GARANT 175000); docs/std.md)\n" ++
     s ++ str_cat(cs) ++
     "make node " ++ U64.show(nd) ++ ": " ++ Nat.show(nfa) ++ " faces, " ++ Nat.show(np) ++ " pass, " ++ Nat.show(nf) ++ " fail, " ++ Nat.show(na) ++ " not-analyzed; " ++
     Nat.show(List.length(&2, String, cs)) ++ " sharp inside corners\n" ++

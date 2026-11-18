@@ -3,6 +3,7 @@ import ./xp.bend as X
 import ./prof.bend as F
 import ./model.bend as M
 import ../base/num.bend as N
+import ../k2/std.bend as SD
 
 type Sx is Data:
   Sx_a{ s: String }
@@ -1228,12 +1229,17 @@ def part_lines(xs: List<&2, Sx>) -> String:
     case []: ""
     case +x <> t: sx_show(x) ++ "\n" ++ part_lines(t)
 
+def mt_same(+g: String, +rho: F64, +cte: F64, +e: F64, +nu: F64) -> Bool:
+  +a = SD.mat(g)
+  Bool.and(Bool.and(F64.is_eq(rho, SD.fv(a, 0n)), F64.is_eq(cte, SD.fv(a, 1n))), Bool.and(F64.is_eq(e, SD.fv(a, 2n)), F64.is_eq(nu, SD.fv(a, 3n))))
+
 def mt_el(+e: F64, +nu: F64) -> List<&2, Sx>:
   Bool.pick(List<&2, Sx>, F64.is_eq(e, e), [at(f_show(e)), at(f_show(nu))], [])
 
 def mt_sx(m: M.Grade) -> Sx:
-  M.Gr{n, g, rho, cte, +e, +nu} = m
-  ls(List.append(&2, Sx, [at("material"), at(U64.show(n)), at(g), at(f_show(rho)), at(f_show(cte))], mt_el(e, nu)))
+  M.Gr{+n, +g, +rho, +cte, +e, +nu} = m
+  Bool.pick(Sx, mt_same(g, rho, cte, e, nu), ls([at("material"), at(U64.show(n)), at(g)]),
+    ls(List.append(&2, Sx, [at("material"), at(U64.show(n)), at(g), at(f_show(rho)), at(f_show(cte))], mt_el(e, nu))))
 
 def mts_sx(xs: List<&2, M.Grade>) -> List<&2, Sx>:
   match xs:
@@ -1285,9 +1291,18 @@ def fnum_or(+x: Sx) -> F64:
   +n = num(sx_s(x))
   Bool.pick(F64, is_some(n), some_v(n), F64.nan())
 
+def mt_tab(+n: U64, +g: String) -> M.Grade:
+  +a = SD.mat(g)
+  M.Gr{n, g, SD.fv(a, 0n), SD.fv(a, 1n), SD.fv(a, 2n), SD.fv(a, 3n)}
+
+def mt_lit(+n: U64, +g: String, +xs: List<&2, Sx>) -> M.Grade:
+  M.Gr{n, g, fnum_or(sx_nth(xs, 3n)), fnum_or(sx_nth(xs, 4n)), fnum_or(sx_nth(xs, 5n)), fnum_or(sx_nth(xs, 6n))}
+
 def mt_of(+x: Sx) -> M.Grade:
   +xs = sx_xs(x)
-  M.Gr{u64_of(sx_nth(xs, 1n)), sx_s(sx_nth(xs, 2n)), fnum_or(sx_nth(xs, 3n)), fnum_or(sx_nth(xs, 4n)), fnum_or(sx_nth(xs, 5n)), fnum_or(sx_nth(xs, 6n))}
+  +n = u64_of(sx_nth(xs, 1n))
+  +g = sx_s(sx_nth(xs, 2n))
+  Bool.pick(M.Grade, Nat.is_eq(List.length(&2, Sx, xs), 3n), mt_tab(n, g), mt_lit(n, g, xs))
 
 def mts_of(xs: List<&2, Sx>) -> List<&2, M.Grade>:
   match xs:

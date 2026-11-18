@@ -29,5 +29,5 @@ design document in which every number is labelled MEASURED, COMPUTED or
 PROJECTED. A clean, named refusal is a valid outcome. A decorated miss is
 not.
 
-Briefs: G6 is `g6-humphrey-1.md`. The G2, G4 and G5 briefs are in
+Briefs: G6 is `g6-humphrey-1.md`. The gates proposed after G5 are `g6a-robustness.md` (with a runnable judge, `tests/gates/g6a.py`), `g6b-maglev.md` and `g6c-raised-jet.md`. The G2, G4 and G5 briefs are in
 MASTER_PLAN §18 and are held to this doctrine.

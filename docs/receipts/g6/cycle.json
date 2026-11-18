@@ -1,0 +1,151 @@
+{
+ "source": "tools/g6/deck.py over tools/g6/brayton.py and tools/thermo/nasa.py (NASA TM-4513 polynomials, complete Jet-A combustion)",
+ "inputs": {
+  "PR": 4.2,
+  "eta_c": 0.78,
+  "eta_t_brayton": 0.84,
+  "eta_t_rdc": 0.82,
+  "TIT_K": 1150.0,
+  "thrust_N": 1500.0,
+  "guide_vane_loss": 0.05,
+  "brayton_dp": 0.04,
+  "basis": {
+   "PR": "brief section 1",
+   "eta_c": "COMPUTED: the top of the brief band 0.70-0.78, needed for PR 4.2 inside the 460 m/s tip-speed limit with 12+12 radial blades (Wiesner slip 0.892, tip 457 m/s)",
+   "eta_t": "COMPUTED choice for an uncooled single axial stage of this size",
+   "eta_t_rdc": "eta_t minus 2 points for unsteady inflow (brief section 1.4)",
+   "guide_vane_loss": "MEASURED: Welsh et al. rigs, as charged by the brief",
+   "TIT_K": "COMPUTED choice for uncooled cast nickel blades"
+  }
+ },
+ "brayton": {
+  "PR": 4.2,
+  "eta_c": 0.78,
+  "eta_t": 0.84,
+  "TIT_K": 1150.0,
+  "T2_K": 473.7678,
+  "p2_kPa": 425.565,
+  "p4_kPa": 408.5424,
+  "comb_pt_ratio": 0.96,
+  "far": 0.01826,
+  "T5_K": 991.3289,
+  "p5_kPa": 194.51099,
+  "choked": true,
+  "V9_m_s": 557.82088,
+  "specific_thrust_N_s_kg": 585.02413,
+  "mdot_kg_s": 2.564,
+  "thrust_N": 1500.0,
+  "fuel_kg_s": 0.04683,
+  "tsfc_lb_lbf_h": 1.10217,
+  "tsfc_g_kN_s": 31.21958,
+  "thermal_eff": 0.21207,
+  "A9_mm2": 10932.61048
+ },
+ "humphrey_measured_rdc": {
+  "PR": 4.2,
+  "eta_c": 0.78,
+  "eta_t": 0.82,
+  "TIT_K": 1150.0,
+  "T2_K": 473.7678,
+  "p2_kPa": 425.565,
+  "p4_kPa": 376.63354,
+  "comb_pt_ratio": 0.88502,
+  "far": 0.01826,
+  "T5_K": 991.3289,
+  "p5_kPa": 175.7879,
+  "choked": false,
+  "V9_m_s": 530.617,
+  "specific_thrust_N_s_kg": 540.3083,
+  "mdot_kg_s": 2.77619,
+  "thrust_N": 1500.0,
+  "fuel_kg_s": 0.0507,
+  "tsfc_lb_lbf_h": 1.19339,
+  "tsfc_g_kN_s": 33.80331,
+  "thermal_eff": 0.18105,
+  "A9_mm2": 13129.52711,
+  "rdc_eap_gain": -0.0684,
+  "rdc_source": "MEASURED: best equivalent-available-pressure gain -6.84% (Tesla-valve inlet RDE, Experimental Thermal and Fluid Science 2023, sciencedirect.com/science/article/abs/pii/S0894177723000651), which surveys -8% as the best earlier result; a Michigan axial-inlet RDC measured at best a 20% total-pressure loss (deepblue.lib.umich.edu)"
+ },
+ "humphrey_simulated_rdc": [
+  {
+   "PR": 4.2,
+   "eta_c": 0.78,
+   "eta_t": 0.82,
+   "TIT_K": 1150.0,
+   "T2_K": 473.7678,
+   "p2_kPa": 425.565,
+   "p4_kPa": 448.75829,
+   "comb_pt_ratio": 1.0545,
+   "far": 0.01826,
+   "T5_K": 991.3289,
+   "p5_kPa": 209.45102,
+   "choked": true,
+   "V9_m_s": 557.82088,
+   "specific_thrust_N_s_kg": 615.84124,
+   "mdot_kg_s": 2.43569,
+   "thrust_N": 1500.0,
+   "fuel_kg_s": 0.04449,
+   "tsfc_lb_lbf_h": 1.04702,
+   "tsfc_g_kN_s": 29.65733,
+   "thermal_eff": 0.23379,
+   "A9_mm2": 9644.74107,
+   "rdc_eap_gain": 0.11,
+   "basis": "PROJECTED: Frolov et al. H2-air simulations, +11 to +14%"
+  },
+  {
+   "PR": 4.2,
+   "eta_c": 0.78,
+   "eta_t": 0.82,
+   "TIT_K": 1150.0,
+   "T2_K": 473.7678,
+   "p2_kPa": 425.565,
+   "p4_kPa": 460.88689,
+   "comb_pt_ratio": 1.083,
+   "far": 0.01826,
+   "T5_K": 991.3289,
+   "p5_kPa": 215.11185,
+   "choked": true,
+   "V9_m_s": 557.82088,
+   "specific_thrust_N_s_kg": 626.39971,
+   "mdot_kg_s": 2.39464,
+   "thrust_N": 1500.0,
+   "fuel_kg_s": 0.04374,
+   "tsfc_lb_lbf_h": 1.02937,
+   "tsfc_g_kN_s": 29.15743,
+   "thermal_eff": 0.24122,
+   "A9_mm2": 9232.64036,
+   "rdc_eap_gain": 0.14,
+   "basis": "PROJECTED: Frolov et al. H2-air simulations, +11 to +14%"
+  }
+ ],
+ "tsfc_sweep": [
+  {
+   "TIT_K": 1100.0,
+   "brayton_tsfc": 1.0733,
+   "rdc_gain_needed": 0.0619
+  },
+  {
+   "TIT_K": 1150.0,
+   "brayton_tsfc": 1.1022,
+   "rdc_gain_needed": 0.1052
+  },
+  {
+   "TIT_K": 1200.0,
+   "brayton_tsfc": 1.1321,
+   "rdc_gain_needed": 0.1602
+  },
+  {
+   "TIT_K": 1250.0,
+   "brayton_tsfc": 1.1628,
+   "rdc_gain_needed": 0.2292
+  }
+ ],
+ "target_tsfc_lb_lbf_h": 1.05,
+ "tj150_tsfc_lb_lbf_h": 1.167,
+ "refusal": {
+  "code": "g6-tsfc-not-closed",
+  "target": "TSFC <= 1.05 lb/lbf/h at 1500 N",
+  "computed": "1.193 lb/lbf/h with the best measured RDC pressure gain (-6.84%) and the 5% guide-vane loss; the Brayton baseline gives 1.102",
+  "physics": "the deck closes 1.05 only with a net RDC equivalent-available-pressure gain of 10.5% at TIT 1150 K; every measured RDC pressure gain found is negative"
+ }
+}

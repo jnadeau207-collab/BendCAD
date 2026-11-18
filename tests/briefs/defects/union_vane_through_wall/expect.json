@@ -1,0 +1,20 @@
+{
+ "item": "K1",
+ "limit_s": 60,
+ "claim": "the union of a revolved diffuser plate with one skinned straightener vane whose root is embedded 1 mm inside the plate wall and whose ruled side faces cross the r = 47 cylinder transversally commits with a positive certified volume; on r1k (and p7d) it is refused with K1 reason 72 (the patch-cylinder intersection curve is not certified)",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 2499: ok",
+    "volume=\\[\\d+\\.\\d+, \\d+\\.\\d+\\]"
+   ],
+   "must_not": [
+    "reason 72",
+    "^node 2499: error"
+   ]
+  }
+ ]
+}

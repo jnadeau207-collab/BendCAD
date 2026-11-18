@@ -1,0 +1,2 @@
+(bendcad 1)
+(node 1 (box 10 10 10) (intent create any any any any))

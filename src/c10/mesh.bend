@@ -121,10 +121,43 @@ def rq_len(+w: G.RQBez) -> F64:
   G.Rq{+p0, +p1, +p2, +w0, +w1, +w2} = w
   widen(F64.add(pt_dist(p0, p1), pt_dist(p1, p2)))
 
+def leg(+p: V.Point, +q: V.Point) -> V.Point:
+  V.Pt{+px, +py, +pz} = p
+  V.Pt{+qx, +qy, +qz} = q
+  V.Pt{F64.sub(qx, px), F64.sub(qy, py), F64.sub(qz, pz)}
+
+def vlen(+a: V.Point) -> F64:
+  V.Pt{+x, +y, +z} = a
+  F64.sqrt(F64.add(F64.mul(x, x), F64.add(F64.mul(y, y), F64.mul(z, z))))
+
+def m_pi() -> F64:
+  3.141592653589793f64
+
+def turn(+a: V.Point, +b: V.Point) -> F64:
+  V.Pt{+ax, +ay, +az} = a
+  V.Pt{+bx, +by, +bz} = b
+  +la = F64.sqrt(F64.add(F64.mul(ax, ax), F64.add(F64.mul(ay, ay), F64.mul(az, az))))
+  +lb = F64.sqrt(F64.add(F64.mul(bx, bx), F64.add(F64.mul(by, by), F64.mul(bz, bz))))
+  +dx = F64.sub(F64.div(ax, la), F64.div(bx, lb))
+  +dy = F64.sub(F64.div(ay, la), F64.div(by, lb))
+  +dz = F64.sub(F64.div(az, la), F64.div(bz, lb))
+  +d2 = F64.add(F64.mul(dx, dx), F64.add(F64.mul(dy, dy), F64.mul(dz, dz)))
+  +h = F64.sub(1.0f64, F64.mul(0.25f64, d2))
+  Bool.pick(F64, Bool.and(F64.is_lt(1.0e-300f64, la), F64.is_lt(1.0e-300f64, lb)),
+    Bool.pick(F64, F64.is_lt(1.0e-12f64, h), F64.min(m_pi(), F64.div(F64.sqrt(d2), F64.sqrt(h))), m_pi()), 0.0f64)
+
+def bz_turn(+w: G.Bez3) -> F64:
+  G.Bz{+p0, +p1, +p2, +p3} = w
+  +a = leg(p0, p1)
+  +b = leg(p1, p2)
+  +c = leg(p2, p3)
+  Bool.pick(F64, F64.is_lt(1.0e-300f64, vlen(b)), F64.add(turn(a, b), turn(b, c)), turn(a, c))
+
 def edge_ang(g: G.GVal, +d: G.Dom) -> F64:
   match g:
     case G.GV_ln{l}: 0.0f64
     case G.GV_cc{c}: cc_span(d)
+    case G.GV_bz{+w}: bz_turn(w)
     case _: 0.0f64
 
 def edge_closed(g: G.GVal, +d: G.Dom) -> Bool:

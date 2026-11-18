@@ -1,0 +1,91 @@
+{
+ "source": "bendcad batch classify (certified point classification on one evaluation) along each stated route, every 0.25 mm, against every part the route passes",
+ "binary": "/home/jesse/bc/bendcad-r1j",
+ "design": "/home/jesse/g5/g5p.bcd",
+ "queries": 10892,
+ "seconds": 6384.4,
+ "paths": [
+  {
+   "name": "lube_front",
+   "to": "bearing_front",
+   "route": "lube fitting bore (phi 210) -> casing port -> lube tube -> tunnel cross hole -> shaft annulus -> between inner-ring land and cage of the front bearing",
+   "samples": 272,
+   "step_mm": 0.25,
+   "parts": [
+    20,
+    35,
+    34,
+    15,
+    10,
+    4221,
+    4201,
+    4202,
+    4203,
+    4204,
+    4211,
+    4212,
+    4213,
+    4214
+   ],
+   "connected": true,
+   "end": {
+    "r": 6.27,
+    "z": 33.5
+   },
+   "blocked": [],
+   "n_blocked": 0,
+   "min_section_mm2": 0.7854,
+   "bores_mm": {
+    "fitting_bore": 0.6,
+    "tube_bore": 0.5,
+    "tunnel_hole": 0.5,
+    "annulus": [
+     5.0,
+     9.5
+    ],
+    "bearing_land_to_cage_mm2": 13.799
+   }
+  },
+  {
+   "name": "lube_rear",
+   "to": "bearing_rear",
+   "route": "lube fitting bore (phi 210) -> casing port -> lube tube -> tunnel cross hole -> shaft annulus to the rear -> between inner-ring land and cage of the rear bearing",
+   "samples": 635,
+   "step_mm": 0.25,
+   "parts": [
+    20,
+    35,
+    34,
+    15,
+    10,
+    4221,
+    4201,
+    4202,
+    4203,
+    4204,
+    4211,
+    4212,
+    4213,
+    4214
+   ],
+   "connected": true,
+   "end": {
+    "r": 6.27,
+    "z": 141.5
+   },
+   "blocked": [],
+   "n_blocked": 0,
+   "min_section_mm2": 0.7854,
+   "bores_mm": {
+    "fitting_bore": 0.6,
+    "tube_bore": 0.5,
+    "tunnel_hole": 0.5,
+    "annulus": [
+     5.0,
+     9.5
+    ],
+    "bearing_land_to_cage_mm2": 13.799
+   }
+  }
+ ]
+}

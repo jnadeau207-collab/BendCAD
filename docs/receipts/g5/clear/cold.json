@@ -1,0 +1,46 @@
+{
+ "design": "/home/jesse/g5/g5r.bcd",
+ "source": "bendcad clearance between one rotor blade (or the rotor revolve) and the stator surface of revolution facing it: the stator wall is axisymmetric, so the certified gap of one blade is the gap of every blade at every rotor angle",
+ "pairs": {
+  "turbine/ngv": {
+   "rotor_node": 2702,
+   "stator_node": 2602,
+   "line": "clearance [0.3017896483240747, 0.3017896485122255] certified lo=branch-and-bound hi=witness samples=135x80",
+   "lo": 0.3017896483240747,
+   "hi": 0.3017896485122255,
+   "seconds": 0.4
+  },
+  "impeller/front_cover": {
+   "rotor_node": 1903,
+   "stator_node": 2301,
+   "line": "clearance [0, 0.2727461234457915] certified lo=branch-and-bound hi=witness samples=170x140",
+   "lo": 0.0,
+   "hi": 0.2727461234457915,
+   "seconds": 79.2
+  },
+  "impeller/diffuser": {
+   "rotor_node": 1901,
+   "stator_node": 2401,
+   "line": "clearance [0.49999999982358634, 0.5000000000000004] certified lo=branch-and-bound hi=witness samples=90x80",
+   "lo": 0.49999999982358634,
+   "hi": 0.5000000000000004,
+   "seconds": 48.5
+  },
+  "impeller/tunnel": {
+   "rotor_node": 1901,
+   "stator_node": 1501,
+   "line": "clearance [0.49999868837633626, 0.5000000000000004] certified lo=branch-and-bound hi=witness samples=90x140",
+   "lo": 0.49999868837633626,
+   "hi": 0.5000000000000004,
+   "seconds": 1.6
+  },
+  "turbine/exhaust": {
+   "rotor_node": 2701,
+   "stator_node": 2801,
+   "line": "clearance [1.9999999999992033, 2.000000000000428] certified lo=branch-and-bound hi=witness samples=120x46",
+   "lo": 1.9999999999992033,
+   "hi": 2.000000000000428,
+   "seconds": 1.7
+  }
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "source": "bendcad batch classify (certified point classification on one evaluation) along each stated route, every 0.25 mm, against every part the route passes",
+ "binary": "/home/jesse/bc/bendcad-r1j",
+ "design": "/home/jesse/g5/g5p.bcd",
+ "queries": 10892,
+ "seconds": 6384.4,
+ "paths": [
+  {
+   "name": "fuel",
+   "to": "primary_zone",
+   "route": "fuel fitting bore (phi 60) -> casing port -> fuel ring stub -> ring channel to the needle at phi 30 -> needle bore -> vaporiser stick -> stick exit inside the liner",
+   "samples": 371,
+   "step_mm": 0.25,
+   "parts": [
+    20,
+    33,
+    30,
+    22
+   ],
+   "connected": true,
+   "end": {
+    "r": 34.0,
+    "z": 88.0,
+    "liner_gas": [
+     22.5,
+     45.5,
+     60.5,
+     149.5
+    ]
+   },
+   "blocked": [],
+   "n_blocked": 0,
+   "min_section_mm2": 0.1257,
+   "bores_mm": {
+    "fitting_bore": 0.6,
+    "ring_stub_bore": 0.6,
+    "needle_bore": 0.2,
+    "vaporiser_stick_bore": 1.75
+   }
+  }
+ ]
+}

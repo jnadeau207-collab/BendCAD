@@ -1,0 +1,42 @@
+{
+ "source": "tools/g6/sizing.py",
+ "basis": "COMPUTED (methods: Wiesner slip; inducer from inlet Mach and hub/tip ratio; turbine from loading psi = dh/U^2 and flow coefficient phi = cx/U)",
+ "compressor": {
+  "work_J_kg": 187997.68079652463,
+  "slip": 0.8918934194183139,
+  "blades": "12 main + 12 splitter, radial exit",
+  "tip_speed_m_s": 459.11318589371615,
+  "tip_limit_m_s": 460.0,
+  "D2_mm": 200.0,
+  "inducer_tip_mm": 139.99999999999997,
+  "inducer_hub_tip": 0.3,
+  "inlet_mach": 0.5116786368025352,
+  "diffuser_outer_mm": 260.0,
+  "inducer_tip_rel_mach": 1.0955932855288177,
+  "shaft_rpm": 43842.0797841919,
+  "diffuser": "vaned radial diffuser then axial straightener into the RDC air plenum"
+ },
+ "turbine": {
+  "work_J_kg": 188394.28845257498,
+  "loading_psi": 1.6,
+  "flow_coeff_phi": 0.55,
+  "mean_speed_m_s": 343.14199725894724,
+  "mean_radius_mm": 74.74017471116238,
+  "blade_height_mm": 24.80445555646389,
+  "tip_radius_mm": 87.14240248939433,
+  "hub_radius_mm": 62.33794693293044,
+  "inlet_T_K": 1150.0,
+  "annulus_mm2": 11648.330274196676
+ },
+ "nozzle": {
+  "exit_area_mm2": 10932.61048,
+  "exit_dia_mm": 117.98233762017969,
+  "choked": true
+ },
+ "envelope": {
+  "diameter_max_mm": 272.0,
+  "length_max_mm": 560.0,
+  "mass_max_kg": 19.6,
+  "tj150_rpm": 55300
+ }
+}

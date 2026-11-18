@@ -158,7 +158,9 @@ addLayersControls
 }}
 meshQualityControls
 {{
-    #includeEtc "caseDicts/mesh/generation/meshQualityDict"
+    #includeEtc "caseDicts/meshQualityDict"
+    nSmoothScale 4;
+    errorReduction 0.75;
 }}
 mergeTolerance 1e-6;
 ''')
@@ -250,7 +252,7 @@ def fields():
         'p': ('volScalarField', '[1 -1 -2 0 0 0 0]', 101325,
               f'"({amb})" {{ type totalPressure; p0 uniform 101325; value uniform 101325; }}\n    outlet {{ type fixedValue; value uniform 101325; }}\n    {walls} {{ type zeroGradient; }}'),
         'T': ('volScalarField', '[0 0 0 1 0 0 0]', 288.15,
-              f'"({amb})" {{ type totalTemperature; T0 uniform 288.15; value uniform 288.15; }}\n    outlet {{ type inletOutlet; inletValue uniform 288.15; value uniform 288.15; }}\n    {walls} {{ type zeroGradient; }}'),
+              f'"({amb})" {{ type totalTemperature; gamma 1.4; T0 uniform 288.15; value uniform 288.15; }}\n    outlet {{ type inletOutlet; inletValue uniform 288.15; value uniform 288.15; }}\n    {walls} {{ type zeroGradient; }}'),
         'U': ('volVectorField', '[0 1 -1 0 0 0 0]', '(0 0 0)',
               f'"({amb})" {{ type pressureInletOutletVelocity; value uniform (0 0 0); }}\n    outlet {{ type inletOutlet; inletValue uniform (0 0 0); value uniform (0 0 0); }}\n'
               f'    {rot} {{ type rotatingWallVelocity; origin (0 0 0); axis (0 0 1); omega {OMEGA}; value uniform (0 0 0); }}\n'
@@ -357,6 +359,7 @@ rm -rf processor*
 runApplication topoSet
 runApplication checkMesh -constant
 rm -rf 0 && cp -r 0.orig 0
+rm -f log.decomposePar
 runApplication decomposePar -force
 runParallel rhoSimpleFoam
 runApplication reconstructPar -latestTime

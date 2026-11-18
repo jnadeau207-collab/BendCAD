@@ -361,3 +361,28 @@ def rk_go(rs: List<&2, List<&2, F64>>, +key: Bool) -> String:
 
 def row_keys(+t: String) -> String:
   rk_go(tab(t), Bool.or(String.eq(t, "key"), Bool.or(String.eq(t, "drill"), String.eq(t, "tap"))))
+
+def mats() -> List<&2, Fa>:
+  [Fa{"AL2618-T61", [2767.9904710203127f64, 2.079e-05f64, 73773.90303690147f64, 0.33f64, 379.21165112425984f64, 289.5798063130712f64]},
+   Fa{"AL-A356.0-T6", [2684.9507568897034f64, 2.151e-05f64, 71705.47584895095f64, 0.33f64, 262.0007771403977f64, 193.0532042087141f64]},
+   Fa{"IN718-AMS5663", [8220.931698930328f64, 1.278e-05f64, 202705.86441914982f64, 0.29f64, 1241.0563127703049f64, 1034.213593975254f64]},
+   Fa{"IN718-AMS5383", [8220.931698930328f64, 1.278e-05f64, 202705.86441914982f64, 0.29f64, 827.3708751802033f64, 723.9495157826778f64]},
+   Fa{"HASTELLOY-X", [8220.931698930328f64, 1.368e-05f64, 205463.76733641716f64, 0.32f64, 703.2652439031729f64, 303.36932089940785f64]},
+   Fa{"INCONEL-625", [8442.370936611953f64, 1.2851999999999998e-05f64, 205463.76733641716f64, 0.28f64, 820.476117887035f64, 379.21165112425984f64]},
+   Fa{"A286-AMS5732", [7944.132651828297f64, 1.6559999999999997e-05f64, 200637.4372311993f64, 0.31f64, 896.3184481118869f64, 586.0543699193107f64]},
+   Fa{"17-4PH-H1075", [7833.413032987483f64, 1.1429999999999999e-05f64, 196500.5828552983f64, 0.27f64, 999.7398075094123f64, 861.8446616460451f64]},
+   Fa{"AISI304-ANN", [7916.452747118094f64, 1.602e-05f64, 199947.96150188247f64, 0.27f64, 503.31728240129036f64, 179.2636896223774f64]},
+   Fa{"TI-6AL-4V-ANN", [4428.7847536325f64, 9.09e-06f64, 116521.3982545453f64, 0.31f64, 861.8446616460451f64, 786.0023314211932f64]},
+   Fa{"WASPALOY-AMS5704", [8248.611603640531f64, 1.2149999999999999e-05f64, 210979.57317095186f64, 0.3f64, 1206.5825263044633f64, 827.3708751802033f64]}]
+
+def mat(+g: String) -> Fa:
+  fa_go(mats(), g)
+
+def mat_ok(+g: String) -> Bool:
+  Bool.not(String.is_empty(fa_m(mat(g))))
+
+def mat_cite(+g: String) -> String:
+  Bool.pick(String, String.eq(g, "AL2618-T61"), "2618-T61 aluminium alloy die forging AMS-A-22771, MIL-HDBK-5J Table 3.2.13.0(b) p512; expansion Figure 3.2.13.0 p511", Bool.pick(String, String.eq(g, "AL-A356.0-T6"), "A356.0-T6 aluminium alloy casting, strength class 1 AMS-A-21180, MIL-HDBK-5J Table 3.9.5.0(b) p809; expansion Figure 3.9.4.0 p807", Bool.pick(String, String.eq(g, "IN718-AMS5663"), "Inconel 718 forging, solution treated and aged AMS 5663, MIL-HDBK-5J Table 6.3.5.0(c) p1093; expansion Figure 6.3.5.0 p1091", Bool.pick(String, String.eq(g, "IN718-AMS5383"), "Inconel 718 investment casting AMS 5383, MIL-HDBK-5J Table 6.3.5.0(d) p1094; expansion Figure 6.3.5.0 p1091", Bool.pick(String, String.eq(g, "HASTELLOY-X"), "Hastelloy X sheet, solution treated AMS 5536, MIL-HDBK-5J Table 6.3.1.0(b) p1062; expansion Figure 6.3.1.0 p1063", Bool.pick(String, String.eq(g, "INCONEL-625"), "Inconel 625 sheet, annealed AMS 5599, MIL-HDBK-5J Table 6.3.3.0(b) p1075; expansion Figure 6.3.3.0 p1074", Bool.pick(String, String.eq(g, "A286-AMS5732"), "A-286 bar, solution treated and aged AMS 5732, MIL-HDBK-5J Table 6.2.1.0(b) p1046; expansion Figure 6.2.1.0 p1045", Bool.pick(String, String.eq(g, "17-4PH-H1075"), "17-4PH stainless steel forging, H1075 AMS 5643, MIL-HDBK-5J Table 2.6.9.0(d) p252; expansion Figure 2.6.9.0 (H1075 curve) p255", Bool.pick(String, String.eq(g, "AISI304-ANN"), "AISI 304 stainless steel sheet, annealed (properties of AISI 301 annealed per footnote b) AMS 5513, MIL-HDBK-5J Table 2.7.1.0(b) p277; expansion Figure 2.7.1.0 (annealed) p278", Bool.pick(String, String.eq(g, "TI-6AL-4V-ANN"), "Ti-6Al-4V bar, annealed AMS 4928, MIL-HDBK-5J Table 5.4.1.0(c1) p946; expansion Figure 5.4.1.0 p952", Bool.pick(String, String.eq(g, "WASPALOY-AMS5704"), "Waspaloy forging, solution, stabilization and precipitation heat treated AMS 5704, MIL-HDBK-5J Table 6.3.8.0(b) p1131; expansion Figure 6.3.8.0 p1132", "")))))))))))
+
+def mat_grades() -> String:
+  "AL2618-T61 AL-A356.0-T6 IN718-AMS5663 IN718-AMS5383 HASTELLOY-X INCONEL-625 A286-AMS5732 17-4PH-H1075 AISI304-ANN TI-6AL-4V-ANN WASPALOY-AMS5704"

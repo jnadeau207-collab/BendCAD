@@ -1,0 +1,371 @@
+{
+ "source": "bendcad mass NODE 0 per part (certified divergence volume and moments; density from MIL-HDBK-5J, NASA TM-2009-215806 or the bearing catalog)",
+ "binary": "/home/jesse/bc/bendcad-r1k",
+ "design": "/home/jesse/g6/g6.bcd",
+ "parts": [
+  {
+   "name": "shaft",
+   "node": 10,
+   "seconds": 0.2,
+   "material": "17-4PH-H1075",
+   "mass_kg": [
+    0.7387247541799683,
+    0.7387247541802436
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    94304.32827544087,
+    94304.32827547594
+   ],
+   "error": null
+  },
+  {
+   "name": "impeller",
+   "node": 19,
+   "seconds": 14399.8,
+   "material": null,
+   "mass_kg": null,
+   "status": "none",
+   "volume_mm3": null,
+   "error": "timeout after 14400 s"
+  },
+  {
+   "name": "casing",
+   "node": 20,
+   "seconds": 0.2,
+   "material": "TI-6AL-4V-ANN",
+   "mass_kg": [
+    1.2141143958936096,
+    1.2141143958966414
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    274141.65813721035,
+    274141.6581378947
+   ],
+   "error": null
+  },
+  {
+   "name": "shroud",
+   "node": 23,
+   "seconds": 1.0,
+   "material": "AL-A356.0-T6",
+   "mass_kg": [
+    0.5379647434092186,
+    0.5379647434094434
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    200362.98320510247,
+    200362.98320518606
+   ],
+   "error": null
+  },
+  {
+   "name": "diffuser",
+   "node": 24,
+   "seconds": 35.4,
+   "material": "AL-A356.0-T6",
+   "mass_kg": [
+    0.5533442520133779,
+    0.5533442520144849
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    206091.02442324947,
+    206091.02442366164
+   ],
+   "error": null
+  },
+  {
+   "name": "rdc",
+   "node": 40,
+   "seconds": 14.8,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    2.082751504406857,
+    2.0827515044110245
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    246702.20250268895,
+    246702.20250318237
+   ],
+   "error": null
+  },
+  {
+   "name": "stator",
+   "node": 42,
+   "seconds": 269.6,
+   "material": null,
+   "mass_kg": null,
+   "status": "none",
+   "volume_mm3": null,
+   "error": "error: node failed; nothing measured"
+  },
+  {
+   "name": "turbine",
+   "node": 27,
+   "seconds": 3925.1,
+   "material": "WASPALOY-AMS5704",
+   "mass_kg": [
+    1.8198662003040216,
+    1.819867115903217
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    220626.97187740332,
+    220627.08287780412
+   ],
+   "error": null
+  },
+  {
+   "name": "nozzle",
+   "node": 28,
+   "seconds": 13.5,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    0.9138366110997453,
+    0.9138366424712923
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    108244.07242481122,
+    108244.0761407752
+   ],
+   "error": null
+  },
+  {
+   "name": "reservoir",
+   "node": 43,
+   "seconds": 5.3,
+   "material": "AISI304-ANN",
+   "mass_kg": [
+    0.15396355019696495,
+    0.15396355019807997
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    19448.552920752783,
+    19448.552920893617
+   ],
+   "error": null
+  },
+  {
+   "name": "tunnel",
+   "node": 44,
+   "seconds": 0.3,
+   "material": "A286-AMS5732",
+   "mass_kg": [
+    1.8845975813627058,
+    1.8845975813634985
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    237231.38370920543,
+    237231.38370930505
+   ],
+   "error": null
+  },
+  {
+   "name": "vaporiser_1",
+   "node": 461,
+   "seconds": 15.1,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    0.040051416830125364,
+    0.040051416830846356
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4744.095838816412,
+    4744.09583890181
+   ],
+   "error": null
+  },
+  {
+   "name": "vaporiser_2",
+   "node": 462,
+   "seconds": 13.4,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    0.03692977904968216,
+    0.03692977905036083
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4374.337413857183,
+    4374.337413937567
+   ],
+   "error": null
+  },
+  {
+   "name": "vaporiser_3",
+   "node": 463,
+   "seconds": 9.2,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    0.03380814126924029,
+    0.03380814126987363
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4004.578988898112,
+    4004.578988973128
+   ],
+   "error": null
+  },
+  {
+   "name": "vaporiser_4",
+   "node": 464,
+   "seconds": 8.4,
+   "material": "INCONEL-625",
+   "mass_kg": [
+    0.03068650348879925,
+    0.030686503489385748
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    3634.8205639391394,
+    3634.8205640086076
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front_inner",
+   "node": 51,
+   "seconds": 0.2,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.02031568648868352,
+    0.020315686488745956
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    2571.6058846434844,
+    2571.6058846513856
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front_outer",
+   "node": 52,
+   "seconds": 0.2,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.03440082703050875,
+    0.03440082703057602
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4354.535067153008,
+    4354.53506716152
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front_balls",
+   "node": 53,
+   "seconds": 0.6,
+   "material": "SI3N4",
+   "mass_kg": [
+    0.005148147987622332,
+    0.005148147987638822
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    1608.796246131979,
+    1608.7962461371312
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front_cage",
+   "node": 54,
+   "seconds": 13.8,
+   "material": "PEEK-GF30",
+   "mass_kg": [
+    0.0013593458305441674,
+    0.001359364166518203
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    900.2290268504422,
+    900.2411698796042
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_rear_inner",
+   "node": 61,
+   "seconds": 0.2,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.020315686488678406,
+    0.020315686488751036
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    2571.605884642837,
+    2571.6058846520286
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_rear_outer",
+   "node": 62,
+   "seconds": 0.2,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.034400827030500125,
+    0.03440082703058461
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4354.535067151916,
+    4354.535067162607
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_rear_balls",
+   "node": 63,
+   "seconds": 0.5,
+   "material": "SI3N4",
+   "mass_kg": [
+    0.005148147987622332,
+    0.005148147987638822
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    1608.796246131979,
+    1608.7962461371312
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_rear_cage",
+   "node": 64,
+   "seconds": 13.7,
+   "material": "PEEK-GF30",
+   "mass_kg": [
+    0.0013593478208394276,
+    0.0013593621756837519
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    900.2303449267733,
+    900.2398514461929
+   ],
+   "error": null
+  }
+ ],
+ "complete": false,
+ "total_kg": null,
+ "partial_total_kg": [
+  10.163087450169316,
+  10.16308842984453
+ ],
+ "limit_kg": 19.6,
+ "refusal": null
+}

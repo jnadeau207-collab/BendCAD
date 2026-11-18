@@ -14,7 +14,7 @@ EXPORT = f'{jet.WORK}/export'
 
 AL, AL2, SS, SH, RG = (0.80, 0.82, 0.85), (0.86, 0.87, 0.89), (0.64, 0.66, 0.69), (0.45, 0.47, 0.50), (0.72, 0.74, 0.77)
 CER, PEEK, SPR, INC, NIA, HRS = (0.20, 0.22, 0.25), (0.55, 0.42, 0.28), (0.30, 0.34, 0.45), (0.58, 0.52, 0.42), (0.62, 0.56, 0.48), (0.52, 0.47, 0.43)
-CAGE_SPEED = 0.5 * (1.0 - jet.BALL_D / (2.0 * jet.PITCH_R))
+CAGE_SPEED = 0.5 * (1.0 - jet.BALL_D * math.cos(math.radians(jet.BEARING['contact_deg'])) / (2.0 * jet.PITCH_R))
 
 DM = 2.0 * jet.PITCH_R
 BALL_SELF = -(DM / (2.0 * jet.BALL_D)) * (1.0 - (jet.BALL_D / DM) ** 2)
@@ -50,34 +50,20 @@ PARTS = [
 ]
 
 LOOK = {
-    'shaft': ('ground-steel', '42CrMo4-QT', 7850, 'rotor cartridge'),
-    'impeller': ('aluminum-machined', 'AlZn5.5MgCu-T6', 2810, 'rotor cartridge'),
-    'turbine': ('inconel-cast', 'IN713C', 7910, 'rotor cartridge'),
-    'nut_front': ('stainless-bright', 'X5CrNi18-10', 7900, 'rotor cartridge'),
-    'nut_rear': ('stainless-bright', 'X5CrNi18-10', 7900, 'rotor cartridge'),
-    'spacer': ('ground-steel', '42CrMo4-QT', 7850, 'rotor cartridge'),
-    'bearing_front_inner': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
-    'bearing_front_cage': ('peek-cf', 'PEEK-CF30', 1410, 'rotor cartridge'),
-    'bearing_front_outer': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
-    'bearing_rear_inner': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
-    'bearing_rear_cage': ('peek-cf', 'PEEK-CF30', 1410, 'rotor cartridge'),
-    'bearing_rear_outer': ('bearing-steel', '100Cr6', 7810, 'rotor cartridge'),
-    'spring': ('spring-blued', '51CrV4', 7850, 'rotor cartridge'),
-    'tunnel': ('stainless-brushed', 'X5CrNi18-10', 7900, 'rotor cartridge'),
-    'front_cover': ('aluminum-cast-blue', 'AlSi7Mg-T6', 2680, 'flow path'),
-    'intake': ('aluminum-spun', 'AlMg3-H22', 2670, 'flow path'),
-    'diffuser': ('aluminum-cast-satin', 'AlSi7Mg-T6', 2680, 'flow path'),
-    'liner': ('inconel-heat', 'NiCr22Mo9Nb', 8440, 'flow path'),
-    'fuel_ring': ('stainless-bright', 'X5CrNi18-10', 7900, 'fuel and lube'),
-    'lube_tube': ('stainless-bright', 'X5CrNi18-10', 7900, 'fuel and lube'),
-    'ngv': ('inconel-cast', 'IN713C', 7910, 'flow path'),
-    'casing': ('stainless-brushed', 'X5CrNi18-10', 7900, 'flow path'),
-    'exhaust': ('stainless-heat', 'X15CrNiSi25-21', 7900, 'flow path'),
-    'glow_plug': ('stainless-bright', 'X5CrNi18-10', 7900, 'fuel and lube'),
-    'fuel_adapter': ('stainless-bright', 'X5CrNi18-10', 7900, 'fuel and lube'),
-    'lube_adapter': ('stainless-bright', 'X5CrNi18-10', 7900, 'fuel and lube'),
-    'ball': ('ceramic', 'Si3N4', 3200, 'rotor cartridge'),
-    'screw': ('stainless-bright', 'X5CrNi18-10', 7900, TH),
+    'shaft': ('ground-steel', 10, 'rotor cartridge'), 'impeller': ('aluminum-machined', 19, 'rotor cartridge'),
+    'turbine': ('inconel-cast', 27, 'rotor cartridge'), 'nut_front': ('stainless-bright', 17, 'rotor cartridge'),
+    'nut_rear': ('stainless-bright', 18, 'rotor cartridge'), 'spacer': ('ground-steel', 32, 'rotor cartridge'),
+    'bearing_front_inner': ('bearing-steel', 11, 'rotor cartridge'), 'bearing_front_cage': ('peek-cf', 14, 'rotor cartridge'),
+    'bearing_front_outer': ('bearing-steel', 12, 'rotor cartridge'), 'bearing_rear_inner': ('bearing-steel', 11, 'rotor cartridge'),
+    'bearing_rear_cage': ('peek-cf', 14, 'rotor cartridge'), 'bearing_rear_outer': ('bearing-steel', 12, 'rotor cartridge'),
+    'spring': ('spring-blued', 16, 'rotor cartridge'), 'tunnel': ('stainless-brushed', 15, 'rotor cartridge'),
+    'front_cover': ('aluminum-cast-blue', 23, 'flow path'), 'intake': ('aluminum-spun', 29, 'flow path'),
+    'diffuser': ('aluminum-cast-satin', 24, 'flow path'), 'liner': ('inconel-heat', 22, 'flow path'),
+    'fuel_ring': ('stainless-bright', 30, 'fuel and lube'), 'lube_tube': ('stainless-bright', 34, 'fuel and lube'),
+    'ngv': ('inconel-cast', 26, 'flow path'), 'casing': ('stainless-brushed', 20, 'flow path'),
+    'exhaust': ('stainless-heat', 28, 'flow path'), 'glow_plug': ('stainless-bright', 31, 'fuel and lube'),
+    'fuel_adapter': ('stainless-bright', 33, 'fuel and lube'), 'lube_adapter': ('stainless-bright', 35, 'fuel and lube'),
+    'ball': ('ceramic', 13, 'rotor cartridge'), 'screw': ('stainless-bright', 50, TH),
 }
 
 
@@ -100,7 +86,7 @@ def frame_xf(fr):
 def instances():
     out = []
     ex = {n: e for n, _, _, _, e in PARTS}
-    for j in jet.JOINTS:
+    for j in (jet.JOINTS if jet.JOINTS_ON else []):
         mesh = 'screw_m3x%d' % int(j.screw.L)
         for k, fr in enumerate(j.frames):
             _, ax = jet.J.axis_of(fr)
@@ -118,13 +104,13 @@ def instances():
 
 def scene_parts():
     ps = [dict(name=n, look=n, node=node, mesh=n, color=col, rotor=spin, explode=list(e)) for n, node, col, spin, e in PARTS]
-    return ps + (instances() if jet.JOINTS_ON else [])
+    return ps + instances()
 
 
 def decorate(sc):
     for p in sc['parts']:
-        finish, grade, rho, group = LOOK[p.get('look', p['name'])]
-        p.update(finish=finish, grade=grade, density=rho, group=group)
+        finish, node, group = LOOK[p.get('look', p['name'])]
+        p.update(finish=finish, grade=jet.grade_name(node), density=round(jet.density(node), 1), group=group)
     sc['subtitle'] = '%d N class, %s r/min design point, BendCAD kernel geometry' % (round(jet.CYC['thrust_N']), format(round(jet.RPM), ','))
     return sc
 
@@ -175,7 +161,10 @@ def scene():
     ps = scene_parts()
     for p in ps:
         p['mesh'] = p['mesh'] + '.obj'
-        p['tris'] = tris(os.path.join(VIEW, p['mesh']))
+        f = os.path.join(VIEW, p['mesh'])
+        p['tris'] = tris(f) if os.path.exists(f) else None
+        if p['tris'] is None:
+            p['missing'] = 'the kernel produced no mesh for this part (see docs/receipts/g5/review)'
     sc = dict(name='G5 micro turbojet', parts=ps, view=dict(tgt=[0, 0, 100], dist=760, yaw=-1.0, pitch=0.3, rps=3.0))
     json.dump(decorate(sc), open(os.path.join(VIEW, 'scene.json'), 'w'), indent=1)
     return sc

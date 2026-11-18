@@ -1,6 +1,15 @@
+import json
 import math
+import os
 
 import threads as T
+
+FAST = json.load(open(os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'std', 'fasteners.json'), encoding='utf-8'))
+FCOL = FAST['columns']
+
+
+def fz(size, col):
+    return FAST['sizes'][size][FCOL.index(col)]
 
 IC, IA, IR, IS = ('(intent %s any any any any)' % k for k in ('create', 'add', 'remove', 'same'))
 f = T.f
@@ -65,19 +74,13 @@ class Screw:
         self.p = T.PITCH[d]
         self.z0, self.z1 = 0.4, length - 0.5
 
+    def size(self):
+        return 'M%d' % int(self.d)
+
     def edits(self):
-        d, L, n = self.d, self.L, self.nid
-        dk, k, s, t = T.HEAD[d]
-        rc, _ = T.ext_tooth(d, self.p, T.ES_6G[d])
-        prof = [(0.0, -k), (dk / 2 - 0.3, -k), (dk / 2, -k + 0.3), (dk / 2, 0.0), (rc, 0.0), (rc, L - 0.25), (rc - 0.25, L), (0.0, L)]
-        head = f'{f(prof[0][0])} {f(prof[0][1])} ' + ' '.join(f'(line {f(r)} {f(z)})' for r, z in prof[1:] + [prof[0]])
-        rh = s / math.sqrt(3.0)
-        hx = ' '.join(f'(line {f(rh * math.cos(math.pi / 3 * j))} {f(rh * math.sin(math.pi / 3 * j))})' for j in range(1, 6)) + f' (line {f(rh)} 0.0)'
-        return [f'(node {n}1 (revolve (region (path {head}))) {IC})',
-                f'(node {n}2 (prism {f(-k - 0.1)} {f(-k + t)} (region (path {f(rh)} 0.0 {hx}))) {IC})',
-                f'(node {n}3 (difference {n}1 {n}2) {IR})',
-                T.ext_helix(int(f'{n}4'), d, self.z0, self.z1 - self.z0, IC),
-                f'(node {n} (union {n}3 {n}4) {IA})']
+        n = self.nid
+        return [f'(node {n}1 (screw ISO4762 {self.size()} {f(self.L)}) {IC})', f'(node {n}2 (rotate {n}1 x 180.0) {IS})',
+                f'(node {n} (move {n}2 0.0 0.0 {f(self.L)} 0) {IS})']
 
 
 class Joint:
@@ -101,17 +104,14 @@ class Joint:
         return e + u, top
 
     def tap_cutter(self, ids):
-        d, p = self.screw.d, self.screw.p
-        zg0 = self.t_clamp - 0.3
-        zg1 = self.drill_to + 0.3 if self.through else self.thread_to
-        b, g, c = ids(), ids(), ids()
-        r, pts = T.int_tooth(d, p)
-        e = cyl(b, T.d1(d, p) / 2.0, self.t_clamp - 0.3, self.drill_to + (0.3 if self.through else 0.0))
-        e.append(f'(node {g} (skin {T.helix_secs(r, zg0, zg1 - zg0, p, pts, phase=self.phase(zg0))}) {IC})')
-        e.append(f'(node {c} (union {b} {g}) {IA})')
+        b = ids()
+        z0, z1 = self.t_clamp - 0.3, self.drill_to + (0.3 if self.through else 0.0)
+        e = cyl(b, fz(self.screw.size(), 'tap_drill') / 2.0, z0, z1)
+        self.tap_prim = b * 10 + 1
+        self.tap_span = (self.t_clamp, self.thread_to if not self.through else self.drill_to)
         out = []
         for fr in self.frames:
-            pe, n = place(c, fr, ids)
+            pe, n = place(b, fr, ids)
             e += pe
             out.append(n)
         u, top = tree_union(out, ids)
