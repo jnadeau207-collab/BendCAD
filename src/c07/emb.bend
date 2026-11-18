@@ -1439,9 +1439,38 @@ def circ_one(+p: G.GVal, +q: G.GVal) -> Bool:
   +ax = rev_ax(q)
   Bool.and(is_pl(p), Bool.or(is_sp(q), Bool.and(Nat.is_eq(List.length(&2, E.Ex, ax), 3n), P.pzero_all(S.ecr(pl_n(p), ax)))))
 
+def rv_o(g: G.GVal) -> V.Point:
+  match g:
+    case G.GV_cy{w}:
+      G.Cy{+o, a, r} = w
+      o
+    case G.GV_co{w}:
+      G.Co{+o, a, k} = w
+      o
+    case _: V.Pt{0.0f64, 0.0f64, 0.0f64}
+
+def rv_a(g: G.GVal) -> V.Dir:
+  match g:
+    case G.GV_cy{w}:
+      G.Cy{o, +a, r} = w
+      a
+    case G.GV_co{w}:
+      G.Co{o, +a, k} = w
+      a
+    case _: V.Dr{0.0f64, 0.0f64, 1.0f64}
+
+def is_cc(g: G.GVal) -> Bool:
+  match g:
+    case G.GV_cy{w}: True{}
+    case G.GV_co{w}: True{}
+    case _: False{}
+
+def coax_pair(+a: G.GVal, +b: G.GVal) -> Bool:
+  Bool.and(Bool.and(is_cc(a), is_cc(b)), Bool.and(S.par_dirs(rv_a(a), rv_a(b)), S.on_axis(rv_o(a), rv_a(a), rv_o(b))))
+
 def ff_code(+a: G.GVal, +b: G.GVal) -> U64:
   Bool.pick(U64, S.coincide(a, b), 1u64, Bool.pick(U64, ruled_pair(a, b), 0u64,
-    Bool.pick(U64, circ_one(a, b), 3u64, Bool.pick(U64, circ_one(b, a), 4u64, 2u64))))
+    Bool.pick(U64, circ_one(a, b), 3u64, Bool.pick(U64, circ_one(b, a), 4u64, Bool.pick(U64, coax_pair(a, b), 5u64, 2u64)))))
 
 def ov_mem(out: Bool, +q: List<&2, I.I>, +g: SO.Fd) -> U64:
   match out:
@@ -2089,9 +2118,115 @@ def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, 
   +r = cp_go(ps, fa, fb, csa, csb, tol, shc, 0u64)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
+type RL is Data:
+  RL{ al: I.I, be: I.I }
+
+type XC is Data:
+  XC{ ps: List<&2, List<&2, I.I>>, bad: Bool }
+
+def i_pos(+x: I.I) -> Bool:
+  F64.is_lt(0.0f64, I.i_lo(x))
+
+def i_neg(+x: I.I) -> Bool:
+  F64.is_lt(I.i_hi(x), 0.0f64)
+
+def cone_rl(+k: I.I, +d: I.I) -> List<&2, RL>:
+  [RL{I.ineg(I.imul(k, d)), k}, RL{I.imul(k, d), I.ineg(k)}]
+
+def prof_co(ok: Bool, +sg: I.I, +k: I.I, +d: I.I) -> Maybe<&2, List<&2, RL>>:
+  match ok:
+    case False{}: None{}
+    case True{}: Some{cone_rl(Bool.pick(I.I, i_pos(sg), k, I.ineg(k)), d)}
+
+def prof(s: M.Im, +o0: List<&2, I.I>, +u: List<&2, I.I>) -> Maybe<&2, List<&2, RL>>:
+  match s:
+    case M.M_cy{o, a, +r}: Some{[RL{r, I.ipt(0.0f64)}]}
+    case M.M_co{+o, +a, +k}:
+      +sg = X.vdot(u, SO.unit(a))
+      prof_co(Bool.or(i_pos(sg), i_neg(sg)), sg, k, X.vdot(u, X.vsub(o, o0)))
+    case _: None{}
+
+def rl_c(gone: Bool, +sure: Bool, +rho: I.I, +c: List<&2, I.I>, +u: List<&2, I.I>, +acc: XC) -> XC:
+  match gone:
+    case True{}: acc
+    case False{}:
+      XC{+ps, +bad} = acc
+      XC{List.append(&2, List<&2, I.I>, circ_pts(c, rho, u), ps), Bool.or(bad, Bool.not(sure))}
+
+def rl_go(nz: Bool, +par: Bool, +a1: I.I, +b1: I.I, +db: I.I, +da: I.I, +o0: List<&2, I.I>, +u: List<&2, I.I>,
+    +acc: XC) -> XC:
+  match nz:
+    case False{}:
+      XC{+ps, +bad} = acc
+      XC{ps, Bool.or(bad, Bool.not(par))}
+    case True{}:
+      +t = I.idiv(da, db)
+      +rho = I.iadd(a1, I.imul(b1, t))
+      rl_c(i_neg(rho), i_pos(rho), rho, X.vadd(o0, Mm.vs(t, u)), u, acc)
+
+def rl_pt(+p: RL, +q: RL, +o0: List<&2, I.I>, +u: List<&2, I.I>, +acc: XC) -> XC:
+  RL{+a1, +b1} = p
+  RL{+a2, +b2} = q
+  +db = I.isub(b1, b2)
+  +da = I.isub(a2, a1)
+  rl_go(Bool.or(i_pos(db), i_neg(db)), Bool.or(i_pos(da), i_neg(da)), a1, b1, db, da, o0, u, acc)
+
+def rl_in(qs: List<&2, RL>, +p: RL, +o0: List<&2, I.I>, +u: List<&2, I.I>, +acc: XC) -> XC:
+  match qs:
+    case []: acc
+    case +q <> +t: rl_in(t, p, o0, u, rl_pt(p, q, o0, u, acc))
+
+def rl_out(ps: List<&2, RL>, +qs: List<&2, RL>, +o0: List<&2, I.I>, +u: List<&2, I.I>, +acc: XC) -> XC:
+  match ps:
+    case []: acc
+    case +p <> +t: rl_out(t, qs, o0, u, rl_in(qs, p, o0, u, acc))
+
+def coax_xc(m1: Maybe<&2, List<&2, RL>>, +m2: Maybe<&2, List<&2, RL>>, +o0: List<&2, I.I>, +u: List<&2, I.I>) -> XC:
+  match m1:
+    case None{}: XC{[], True{}}
+    case Some{+l1}:
+      match m2:
+        case None{}: XC{[], True{}}
+        case Some{+l2}: rl_out(l1, l2, o0, u, XC{[], False{}})
+
+def im_o(s: M.Im) -> List<&2, I.I>:
+  match s:
+    case M.M_cy{+o, a, r}: o
+    case M.M_co{+o, a, k}: o
+    case _: []
+
+def im_a(s: M.Im) -> List<&2, I.I>:
+  match s:
+    case M.M_cy{o, +a, r}: a
+    case M.M_co{o, +a, k}: a
+    case _: []
+
+def coax_fin(+x: XC, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
+    +shc: List<&2, R.Cv>) -> Maybe<&2, List<&2, SO.Fi>>:
+  XC{+ps, +bad} = x
+  +r = cp_go(ps, fa, fb, csa, csb, tol, shc, 0u64)
+  Bool.pick(Maybe<&2, List<&2, SO.Fi>>, bad, None{},
+    Some{Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))})
+
+def coax_m(+fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
+    +shc: List<&2, R.Cv>) -> Maybe<&2, List<&2, SO.Fi>>:
+  +o0 = im_o(SO.fd_im(fa))
+  +u = SO.unit(im_a(SO.fd_im(fa)))
+  coax_fin(coax_xc(prof(SO.fd_im(fa), o0, u), prof(SO.fd_im(fb), o0, u), o0, u), fa, fb, csa, csb, tol, ia, ib, shc)
+
+def coax_or(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64,
+    +ia: Nat, +ib: Nat, +cross: Bool) -> List<&2, SO.Fi>:
+  match m:
+    case Some{+v}: v
+    case None{}: ff_or_tr(ff_sph(cross, fa, fb, ia, ib), fa, fb, x, y, te, tol, ia, ib)
+
 def ff_go3(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
   match k:
     case 0u64: []
+    case 5u64:
+      +fa = fg_fd(x)
+      +fb = fg_fd(y)
+      coax_or(coax_m(fa, fb, all_cvs(fg_es(x), te), all_cvs(fg_es(y), te), tol, ia, ib, sh_cvs(fg_es(x), fg_es(y), te)), fa, fb, x, y, te, tol, ia, ib, cross)
     case 1u64: ff_ov_x(fg_fd(x), fg_fd(y), ia, ib, cross)
     case 3u64:
       +fa = fg_fd(x)

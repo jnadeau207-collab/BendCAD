@@ -64,6 +64,29 @@ def rg_dbg(rs: List<&2, W.RG>, +s: SF.SF, +fdo: List<&2, SO.Fd>, +bbo: List<&2, 
         ") oc=" ++ U64.show(oc) ++ " c=" ++ U64.show(c) ++ "
 " ++ rg_dbg(t, s, fdo, bbo, sd, pcp, ob)
 
+def v2_s(+q: V.Vec2) -> String:
+  "(" ++ F64.show(V.v2_x(q)) ++ "," ++ F64.show(V.v2_y(q)) ++ ")"
+
+def first_v2(ps: List<&2, V.Vec2>, +d: V.Vec2) -> V.Vec2:
+  match ps:
+    case []: d
+    case +h <> +t: h
+
+def last_v2(ps: List<&2, V.Vec2>, +d: V.Vec2) -> V.Vec2:
+  match ps:
+    case []: d
+    case +h <> +t: last_v2(t, h)
+
+def pc_s(pcs: List<&2, W.PC>) -> String:
+  match pcs:
+    case []: ""
+    case +p <> +t:
+      W.PC{+va, +vb, +poly, +bnd, ers, dv} = p
+      +z = {V.V2{0.0f64, 0.0f64} : V.Vec2}
+      "      pc " ++ Nat.show(va) ++ "->" ++ Nat.show(vb) ++ Bool.pick(String, bnd, " bnd", " cut") ++ " n=" ++ Nat.show(List.length(&2, V.Vec2, poly)) ++
+        " a=" ++ v2_s(first_v2(poly, z)) ++ " b=" ++ v2_s(last_v2(poly, z)) ++ "
+" ++ pc_s(t)
+
 def faces_dbg(fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs: List<&2, PX.HX>, +chs: List<&2, PX.CH>, +fdo: List<&2, SO.Fd>,
     +bbo: List<&2, I.I>, +cps: List<&2, CO.CP>, +ob: FB.KB, +vmo: List<&2, Nat>, +gv: PX.GV) -> String:
   match fs:
@@ -75,8 +98,21 @@ def faces_dbg(fs: List<&2, Nat>, +b: FB.KB, +sd: U64, +vmap: List<&2, Nat>, +hs:
       +rs = W.regions(s, W.cs_cys(cs))
       "side " ++ U64.show(sd) ++ " face " ++ Nat.show(fi) ++ " cs_ok=" ++ Bool.pick(String, W.cs_ok(cs), "1", "0") ++ " rs_ok=" ++ Bool.pick(String, W.rs_ok(rs), "1", "0") ++
         " nrg=" ++ Nat.show(List.length(&2, W.RG, W.rs_rgs(rs))) ++ "
-" ++ rg_dbg(W.rs_rgs(rs), s, fdo, bbo, sd, CO.partner_of(cps, sd, fi), ob) ++
+" ++ Bool.pick(String, W.cs_ok(cs), "", pc_s(pcs)) ++ rg_dbg(W.rs_rgs(rs), s, fdo, bbo, sd, CO.partner_of(cps, sd, fi), ob) ++
         faces_dbg(t, b, sd, vmap, hs, chs, fdo, bbo, cps, ob, vmo, gv)
+
+def segs_s(ss: List<&2, PX.SEG>) -> String:
+  match ss:
+    case []: ""
+    case +h <> +t: " " ++ Nat.show(PX.seg_va(h)) ++ "-" ++ Nat.show(PX.seg_vb(h)) ++ segs_s(t)
+
+def chs_s(cs: List<&2, PX.CH>, +fa: Nat) -> String:
+  match cs:
+    case []: ""
+    case +c <> +t:
+      PX.CH{+a, +b, +sg, +ps, +cl, dv} = c
+      Bool.pick(String, Nat.is_eq(a, fa), "  ch " ++ Nat.show(a) ++ " " ++ Nat.show(b) ++ " closed " ++ Bool.pick(String, cl, "1", "0") ++ " pts " ++ Nat.show(List.length(&2, V.Point, ps)) ++ " segs" ++ segs_s(sg) ++ "
+", "") ++ chs_s(t, fa)
 
 def dbg(+ba: FB.KB, +bb: FB.KB) -> String:
   +va = PX.add_vs(Ty.brep_vs(FB.kb_br(ba)), PX.GV{[], 0n}, [])
@@ -93,7 +129,7 @@ def dbg(+ba: FB.KB, +bb: FB.KB) -> String:
   +fdb = SO.fds_of(FB.kb_br(bb))
   +gv = PX.cr_g(cr)
   "hs_ok=" ++ Bool.pick(String, PX.hs_ok(hs), "1", "0") ++ " hs_why=" ++ U64.show(PX.hs_why(hs)) ++ " cr_why=" ++ U64.show(PX.cr_why(cr)) ++ " cx_ok=" ++ Bool.pick(String, CO.cx_ok(cx), "1", "0") ++ " cr_ok=" ++ Bool.pick(String, PX.cr_ok(cr), "1", "0") ++ "
-" ++
+" ++ chs_s(PX.cr_chs(cr), 18n) ++
     faces_dbg(L.nat_range(FB.nfaces(ba)), ba, 0u64, PX.vm_mp(va), hs3, PX.cr_chs(cr), fdb, SO.bbox(fdb, []), cps, bb, PX.vm_mp(vb), gv) ++
     faces_dbg(L.nat_range(FB.nfaces(bb)), bb, 1u64, PX.vm_mp(vb), hs3, PX.cr_chs(cr), fda, SO.bbox(fda, []), cps, ba, PX.vm_mp(va), gv)
 

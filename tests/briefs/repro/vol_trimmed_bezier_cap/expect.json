@@ -1,0 +1,19 @@
+{
+ "item": "K1",
+ "limit_s": 60,
+ "claim": "the G6 stator's inner and outer CMC rings united with one skinned NGV commit with a certified volume that contains OCCT's fuse of the same operands, 459581.0774 mm3; r1p certified [459629.2165, 459629.2217], 48 mm3 too high, because the planar end caps' trimmed Bezier edges were integrated over their whole curve instead of their edge domain",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 4290: ok",
+    "volume=\\[459581\\.0\\d+, 459581\\.\\d+\\]"
+   ],
+   "must_not": [
+    "^node 4290: error"
+   ]
+  }
+ ]
+}

@@ -26,6 +26,7 @@ B2 = 0.06 * C['D2_mm']
 Z_IMP0, L_IMP = 0.0, 0.33 * C['D2_mm']
 Z_EXIT = Z_IMP0 + L_IMP
 G_TIP = 0.40
+HUB_RIM = 0.5
 R_DIF0, R_DIF1, DIF_N = R2 * 1.04, R2 * 1.28, 23
 DIF_ALPHA = 68.0
 R_CASE_O = 136.0
@@ -151,10 +152,10 @@ def imp_sec(m, m0, th_scale=1.0):
 
 def impeller_edits():
     hub = [(R_SHAFT, Z_IMP0 - 6.0), (R1H - 0.5, Z_IMP0 - 6.0), (R1H, Z_IMP0)]
-    for i in range(1, 9):
+    for i in range(1, 8):
         z = Z_IMP0 + L_IMP * i / 8
         hub.append((hub_r(z), z))
-    hub += [(R2, Z_EXIT + 5.0)] + [(r, min(Z_EXIT + 5.0, hub_z(r) + back_t(r))) for r in (90.0, 80.0, 70.0, 60.0, 50.0, 40.0, 30.0)] + [
+    hub += [(R2 + HUB_RIM, Z_EXIT), (R2 + HUB_RIM, Z_EXIT + 5.0)] + [(r, min(Z_EXIT + 5.0, hub_z(r) + back_t(r))) for r in (90.0, 80.0, 70.0, 60.0, 50.0, 40.0, 30.0)] + [
         (R_SHAFT + 8.0, Z_EXIT + 14.0), (R_SHAFT, Z_EXIT + 14.0)]
     main = ' '.join(imp_sec(0.02 + 0.98 * i / 10, 0.02) for i in range(11))
     spl = ' '.join(imp_sec(0.40 + 0.60 * i / 7, 0.40, 0.85) for i in range(8))

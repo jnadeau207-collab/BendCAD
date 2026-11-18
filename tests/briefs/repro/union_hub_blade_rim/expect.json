@@ -1,0 +1,19 @@
+{
+ "item": "K1",
+ "limit_s": 60,
+ "claim": "the G6 impeller hub (a 23-segment revolve with a 0.5 mm rim beyond the blade tip radius) united with one skinned blade commits in seconds with a certified volume that contains OCCT's fuse 445434.0324 mm3; r1o refused it after validation (face-face-uncertain on two coaxial back-face cones meeting at under 1 degree), and before the rim fix the flush blade trailing face was tangent to the hub's rim circle (K1 reason 81) and the refusal took over 30 minutes",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 1980: ok",
+    "volume=\\[44543[34]\\.\\d+, 44543[34]\\.\\d+\\]"
+   ],
+   "must_not": [
+    "^node 1980: error"
+   ]
+  }
+ ]
+}

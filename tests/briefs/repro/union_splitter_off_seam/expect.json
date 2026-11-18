@@ -1,0 +1,19 @@
+{
+ "item": "K1",
+ "limit_s": 60,
+ "claim": "the G6 impeller hub united with one blade and one splitter 15 degrees off the hub's seam commits with a certified volume that contains OCCT's fuse of the same operands, 447471.2819 mm3; on r1p it was refused with K1 reason 93 because the plane-cone tracer seeded a 30-degree theta grid over the full circle and never seeded the splitter trailing face's 1.6-degree cut through the last hub cone",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 1981: ok",
+    "volume=\\[44747[01]\\.\\d+, 44747[12]\\.\\d+\\]"
+   ],
+   "must_not": [
+    "^node 1981: error"
+   ]
+  }
+ ]
+}

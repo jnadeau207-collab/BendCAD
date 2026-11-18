@@ -202,22 +202,24 @@ def bern(+a: F64, +b: F64, +c: F64, +d: F64, +t: F64) -> F64:
 def gl_term(+u0: F64, +u1: F64, +u2: F64, +u3: F64, +v0: F64, +v1: F64, +v2: F64, +v3: F64, +t: F64) -> F64:
   F64.mul(bern(u0, u1, u2, u3, t), bern_d(v0, v1, v2, v3, t))
 
-def gl3(+u0: F64, +u1: F64, +u2: F64, +u3: F64, +v0: F64, +v1: F64, +v2: F64, +v3: F64) -> F64:
+def gl3(+lo: F64, +hi: F64, +u0: F64, +u1: F64, +u2: F64, +u3: F64, +v0: F64, +v1: F64, +v2: F64, +v3: F64) -> F64:
   +r = {0.7745966692414834f64 : F64}
-  +a = F64.mul(0.5f64, F64.sub(1.0f64, r))
-  +b = F64.mul(0.5f64, F64.add(1.0f64, r))
+  +m = F64.mul(0.5f64, F64.add(lo, hi))
+  +hw = F64.mul(0.5f64, F64.sub(hi, lo))
+  +a = F64.sub(m, F64.mul(hw, r))
+  +b = F64.add(m, F64.mul(hw, r))
   +w = F64.div(5.0f64, 9.0f64)
   +w2 = F64.div(8.0f64, 9.0f64)
-  F64.mul(0.5f64, F64.add(F64.add(F64.mul(w, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, a)),
-    F64.mul(w2, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, 0.5f64))), F64.mul(w, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, b))))
+  F64.mul(hw, F64.add(F64.add(F64.mul(w, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, a)),
+    F64.mul(w2, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, m))), F64.mul(w, gl_term(u0, u1, u2, u3, v0, v1, v2, v3, b))))
 
-def pl_bz(+s: S.SF, +g: G.GVal, +fw: Bool) -> VA:
-  +bz = bz_of(g)
+def pl_bz(+s: S.SF, +k: Ty.EdgeKind, +fw: Bool) -> VA:
+  +bz = bz_of(EF.ek_curve(k))
   +q0 = uv_pl(s, G.bz_p0(bz))
   +q1 = uv_pl(s, G.bz_p1(bz))
   +q2 = uv_pl(s, G.bz_p2(bz))
   +q3 = uv_pl(s, G.bz_p3(bz))
-  +i = gl3(V.v2_x(q0), V.v2_x(q1), V.v2_x(q2), V.v2_x(q3), V.v2_y(q0), V.v2_y(q1), V.v2_y(q2), V.v2_y(q3))
+  +i = gl3(EF.ek_lo(k), EF.ek_hi(k), V.v2_x(q0), V.v2_x(q1), V.v2_x(q2), V.v2_x(q3), V.v2_y(q0), V.v2_y(q1), V.v2_y(q2), V.v2_y(q3))
   +si = Bool.pick(F64, fw, i, F64.neg(i))
   VA{si, si, 0.0f64, 0.0f64, True{}}
 
@@ -298,7 +300,7 @@ def coedge_disp(+code: U64, +s: S.SF, +c: V.Point, +ks: List<&2, Ty.EdgeKind>, +
     case 0u64: va_bad()
     case 1u64: pl_line(s, L.nth_p(pp, 0n), L.nth_p(pp, 1n))
     case 2u64: pl_curve(s, ek1(ks), fw, L.nth_p(pp, 0n), L.nth_p(pp, 1n))
-    case 4u64: pl_bz(s, EF.ek_curve(ek1(ks)), fw)
+    case 4u64: pl_bz(s, ek1(ks), fw)
     case 5u64: cyl_bz(s, c, ek1(ks), fw)
     case _: cyl_curve(s, c, ek1(ks), fw)
 
@@ -410,18 +412,18 @@ def arc_j(+c: V.Point, +a: V.Point, +m: V.Point, +b: V.Point, +q3: V.Point, +q4:
   +rr = S.dist(a, c)
   S.dadd(S.cross(pv(c), S.psub(b, a)), F64.mul(F64.mul(rr, rr), dphi), nm)
 
-def bz_j(+g: G.GVal) -> V.Dir:
+def bz_j(+g: G.GVal, +lo: F64, +hi: F64) -> V.Dir:
   +bz = bz_of(g)
   +p0 = G.bz_p0(bz)
   +p1 = G.bz_p1(bz)
   +p2 = G.bz_p2(bz)
   +p3 = G.bz_p3(bz)
-  +x = F64.sub(gl3(S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)),
-    gl3(S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)))
-  +y = F64.sub(gl3(S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)),
-    gl3(S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)))
-  +z = F64.sub(gl3(S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)),
-    gl3(S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)))
+  +x = F64.sub(gl3(lo, hi, S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)),
+    gl3(lo, hi, S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)))
+  +y = F64.sub(gl3(lo, hi, S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)),
+    gl3(lo, hi, S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.pz(p0), S.pz(p1), S.pz(p2), S.pz(p3)))
+  +z = F64.sub(gl3(lo, hi, S.px(p0), S.px(p1), S.px(p2), S.px(p3), S.py(p0), S.py(p1), S.py(p2), S.py(p3)),
+    gl3(lo, hi, S.py(p0), S.py(p1), S.py(p2), S.py(p3), S.px(p0), S.px(p1), S.px(p2), S.px(p3)))
   S.dr(x, y, z)
 
 def edge_j(+k: Ty.EdgeKind) -> V.Dir:
@@ -438,7 +440,7 @@ def edge_j(+k: Ty.EdgeKind) -> V.Dir:
     arc_center(G.rq_p0(rq_of(g)), G.rq_p1(rq_of(g)), G.rq_p2(rq_of(g)), G.rq_w1(rq_of(g))))
   +full = Bool.and(U64.is_eq(tag, 2u64), F64.is_eq(F64.sub(hi, lo), 2.0f64))
   Bool.pick(V.Dir, U64.is_eq(tag, 1u64), S.cross(pv(q0), pv(q1)),
-    Bool.pick(V.Dir, U64.is_eq(tag, 4u64), bz_j(g), arc_j(ctr, q0, m, q1, q3, q4, full)))
+    Bool.pick(V.Dir, U64.is_eq(tag, 4u64), bz_j(g, lo, hi), arc_j(ctr, q0, m, q1, q3, q4, full)))
 
 def ces_j(cs: List<&2, FB.CE>, +b: FB.KB, +acc: V.Dir) -> V.Dir:
   match cs:
