@@ -685,11 +685,21 @@ def plane_n(+g: G.GVal) -> V.Dir:
 def is_plane(+g: G.GVal) -> Bool:
   U64.is_eq(S.sf_kind(S.sf_of(g)), S.k_plane())
 
+def cop_eps() -> F64:
+  9.094947017729282e-13f64
+
+def cop_mag(+p: V.Point) -> F64:
+  F64.max(F64.abs(V.pt_x(p)), F64.max(F64.abs(V.pt_y(p)), F64.abs(V.pt_z(p))))
+
+def cop_par(+na: V.Dir, +nb: V.Dir) -> Bool:
+  F64.is_le(S.dlen(S.cross(na, nb)), cop_eps())
+
+def cop_on(+oa: V.Point, +ob: V.Point, +na: V.Dir) -> Bool:
+  F64.is_le(F64.abs(S.dot(S.psub(ob, oa), na)), F64.mul(cop_eps(), F64.add(1.0f64, F64.add(cop_mag(oa), cop_mag(ob)))))
+
+def cop_sf(+sa: S.SF, +sb: S.SF) -> Bool:
+  +na = S.dunit(S.sf_a(sa))
+  Bool.and(cop_par(na, S.dunit(S.sf_a(sb))), cop_on(S.sf_o(sa), S.sf_o(sb), na))
+
 def coplanar(+ga: G.GVal, +gb: G.GVal) -> Bool:
-  +sa = S.sf_of(ga)
-  +sb = S.sf_of(gb)
-  +na = S.sf_a(sa)
-  +nb = S.sf_a(sb)
-  +par = F64.is_eq(S.dlen(S.cross(na, nb)), 0.0f64)
-  +on = F64.is_eq(S.dot(S.psub(S.sf_o(sb), S.sf_o(sa)), na), 0.0f64)
-  Bool.and(Bool.and(is_plane(ga), is_plane(gb)), Bool.and(par, on))
+  Bool.and(Bool.and(is_plane(ga), is_plane(gb)), cop_sf(S.sf_of(ga), S.sf_of(gb)))

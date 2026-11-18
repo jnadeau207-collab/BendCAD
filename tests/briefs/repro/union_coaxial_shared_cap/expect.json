@@ -1,0 +1,20 @@
+{
+ "item": "K1",
+ "limit_s": 30,
+ "claim": "a union of two coaxial cylinders whose top caps are coplanar (a 0.6 bore and a 1.05 socket ending together at z = 6.3, the stepped bore of a pipe fitting) commits with the stepped solid's exact volume pi*(0.36*15.6 + 1.1025*3.3 - 0.36*3.3) = 25.3408717; OCCT's fuse of the same operands gives 25.3408715 and reads the export back valid. On r1n and earlier it was refused with K1 reason 92: the caps sit at -9.3 + 15.6 = 6.299999999999999 and 3 + 3.3 = 6.3, one ulp apart, so the exact coplanar test found no pair while the classifier, within its tolerance band, placed each cap on the other solid",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 5: ok material=add",
+    "volume=\\[25\\.34087174\\d*, 25\\.34087174\\d*\\]"
+   ],
+   "must_not": [
+    "reason 92",
+    "^node 5: error"
+   ]
+  }
+ ]
+}

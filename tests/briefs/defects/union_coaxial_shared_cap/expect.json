@@ -1,8 +1,0 @@
-{
- "item": "K1",
- "limit_s": 30,
- "claim": "a union of two coaxial cylinders whose top caps are coplanar (a 0.6 bore and a 1.05 socket ending together at z = 6.3, the stepped bore of a pipe fitting) commits with the stepped solid's exact volume; on r1e it is refused with K1 reason 92 (a region sample point the classifier cannot place) and then face-penetration",
- "steps": [
-  {"args": ["eval"], "must": ["^node 5: ok material=add", "volume=\\[2\\d\\.\\d+, 2\\d\\.\\d+\\]"], "must_not": ["reason 92", "^node 5: error"]}
- ]
-}

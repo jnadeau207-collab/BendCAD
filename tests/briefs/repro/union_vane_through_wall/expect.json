@@ -1,0 +1,20 @@
+{
+ "item": "K1",
+ "limit_s": 60,
+ "claim": "the union of a revolved diffuser plate with one skinned straightener vane whose root is embedded 1 mm inside the plate wall and whose ruled side faces cross the r = 47 cylinder transversally commits with a certified volume that contains OCCT's fuse of the same operands (30424.53243 mm3); r1k and p7d refused it with K1 reason 72: the patch-cylinder tracer reached the patch edge and its fixed step landed on the extrapolated patch, where Newton cannot converge, so the trace was abandoned instead of retried with a shorter step",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 2499: ok",
+    "volume=\\[30424\\.53\\d+, 30424\\.53\\d+\\]"
+   ],
+   "must_not": [
+    "reason 72",
+    "^node 2499: error"
+   ]
+  }
+ ]
+}

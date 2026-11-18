@@ -829,8 +829,11 @@ def fr_code(+s1: S.SF, +s2: S.SF, +h: F64, +p: V.Point, +q0: V.Point, +q: V.Poin
   +inq = Bool.and(Bool.and(fr_in(s1, q), fr_in(s2, q)), bx_in(tb, q))
   Bool.pick(U64, Bool.not(good), 3u64, Bool.pick(U64, cl, 1u64, Bool.pick(U64, inq, 0u64, 2u64)))
 
-def fr_go(n: Nat, +mode: U64, +s1: S.SF, +s2: S.SF, +h: F64, +p: V.Point, +d: V.Dir, +st: V.Point, +cc: Bool,
-    +k: Nat, +tb: BX, +acc: List<&2, V.Point>) -> TR:
+def fr_halve(+h0: F64, +h: F64) -> U64:
+  Bool.pick(U64, F64.is_lt(F64.div(h0, 64.0f64), h), 9u64, 7u64)
+
+def fr_go(n: Nat, +mode: U64, +s1: S.SF, +s2: S.SF, +h0: F64, +h: F64, +p: V.Point, +q: V.Point, +d: V.Dir, +st: V.Point,
+    +cc: Bool, +k: Nat, +tb: BX, +acc: List<&2, V.Point>) -> TR:
   match n:
     case 0n: TR{acc, False{}, False{}}
     case 1n+(+m):
@@ -838,11 +841,12 @@ def fr_go(n: Nat, +mode: U64, +s1: S.SF, +s2: S.SF, +h: F64, +p: V.Point, +d: V.
         case 9u64:
           +t = fr_dir(s1, s2, p, d)
           +q0 = S.padd(p, h, t)
-          +q = S.newton2(8n, s1, s2, q0, t, q0)
-          fr_go(m, fr_code(s1, s2, h, p, q0, q, st, cc, k, tb), s1, s2, h, q, t, st, cc, k, tb, acc)
-        case 0u64: fr_go(m, 9u64, s1, s2, h, p, d, st, cc, Nat.add(k, 1n), tb, p <> acc)
+          +r = S.newton2(8n, s1, s2, q0, t, q0)
+          fr_go(m, fr_code(s1, s2, h, p, q0, r, st, cc, k, tb), s1, s2, h0, h, p, r, t, st, cc, k, tb, acc)
+        case 0u64: fr_go(m, 9u64, s1, s2, h0, F64.min(h0, F64.mul(2.0f64, h)), q, q, d, st, cc, Nat.add(k, 1n), tb, q <> acc)
         case 1u64: TR{acc, True{}, True{}}
-        case 2u64: TR{p <> acc, False{}, True{}}
+        case 2u64: TR{q <> acc, False{}, True{}}
+        case 3u64: fr_go(m, fr_halve(h0, h), s1, s2, h0, F64.mul(0.5f64, h), p, q, d, st, cc, k, tb, acc)
         case _: TR{acc, False{}, False{}}
 
 def tr_closed(+r: TR) -> Bool:
@@ -857,12 +861,12 @@ def fr_back(cl: Bool, +f: TR, +s1: S.SF, +s2: S.SF, +h: F64, +p0: V.Point, +t0: 
   match cl:
     case True{}: TR{List.reverse(&2, V.Point, tr_pts(f)), True{}, tr_ok(f)}
     case False{}:
-      +b = fr_go(1200n, 9u64, s1, s2, h, p0, S.dscale(F64.neg(1.0f64), t0), p0, False{}, 0n, tb, [])
+      +b = fr_go(1200n, 9u64, s1, s2, h, h, p0, p0, S.dscale(F64.neg(1.0f64), t0), p0, False{}, 0n, tb, [])
       TR{List.append(&2, V.Point, tr_pts(b), List.reverse(&2, V.Point, tr_pts(f))), False{}, Bool.and(tr_ok(f), tr_ok(b))}
 
 def fr_seed(+s1: S.SF, +s2: S.SF, +h: F64, +p0: V.Point, +tb: BX) -> TR:
   +t0 = S.dunit(fr_tan(s1, s2, p0))
-  +f = fr_go(1200n, 9u64, s1, s2, h, p0, t0, p0, True{}, 0n, tb, [p0])
+  +f = fr_go(1200n, 9u64, s1, s2, h, h, p0, p0, t0, p0, True{}, 0n, tb, [p0])
   fr_back(tr_closed(f), f, s1, s2, h, p0, t0, tb)
 
 def fr_cert(ps: List<&2, V.Point>, +s1: S.SF, +s2: S.SF, +gs: List<&2, G.GVal>, +bx: BX, +acc: List<&2, V.Point>, +ok: Bool) -> PL:
