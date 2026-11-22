@@ -120,9 +120,14 @@ def fem(r):
     return r.get('converged') is True and ps and not over and not need, f'over allowable: {over or "none"}; missing: {sorted(need) or "none"}'
 
 
-def modes(r):
-    crit = [c for c in r.get('critical_speeds_rpm', []) if abs(c / rpm - 1.0) < 0.15]
-    return bool(r.get('critical_speeds_rpm')) and not crit, f'critical speeds within 15% of {rpm:.0f} r/min: {crit or "none"}'
+def modes(rs):
+    ro = [r for r in rs if r.get('critical_speeds_rpm')]
+    bl = [r for r in rs if 'campbell' in r]
+    crit = [c for r in ro for c in r['critical_speeds_rpm'] if abs(c / rpm - 1.0) < 0.15]
+    cross = [(r['case'], x['mode'], x['eo'], round(x['crossing_rpm'])) for r in bl for x in r['campbell'] if x['in_range_50_110']]
+    dead = [(r['case'], r.get('raw', '')[:60]) for r in bl if not r.get('modes')]
+    ok = bool(ro) and not crit and bool(bl) and not cross and not dead
+    return ok, f'critical speeds within 15% of {rpm:.0f} r/min: {crit or "none"}; blade crossings: {cross or "none"}; blade modes not computed: {dead or "none"}'
 
 
 def lube(r):
@@ -139,7 +144,7 @@ for name, pat, judge in (('airflow simulated through the running machine (CFD)',
     if not rs:
         chk(name, 'not-analyzed', f'no receipt with a named kernel or solver source in docs/receipts/g5/{pat}', 'none')
         continue
-    ok, ev = judge(rs[-1])
+    ok, ev = judge(rs) if judge is modes else judge(rs[-1])
     chk(name, 'pass' if ok else 'fail', ev, f'measured: {rs[-1]["source"]}')
 
 rep = dict(binary=BIN, ready=all(c['status'] == 'pass' for c in checks), checks=checks)
