@@ -719,7 +719,8 @@ BLADE_NODES = {2702: 27, 1903: 19, 1904: 19}
 
 
 def materials():
-    ms = [mat_edit(n, g) for n, g in GRADES.items()] + [mat_edit(b, GRADES[p]) for b, p in BLADE_NODES.items()]
+    have = {int(x.split()[1]) for _, e in parts() for x in e if x.startswith('(node ')}
+    ms = [mat_edit(n, g) for n, g in GRADES.items() if n in have] + [mat_edit(b, GRADES[p]) for b, p in BLADE_NODES.items() if b in have]
     for j, k, n in (screw_instances()[1] if JOINTS_ON else []):
         ms.append(mat_edit(n, 'A286-AMS5732'))
     return ms
@@ -772,7 +773,7 @@ def ask(design, *args, timeout=600):
     return out.decode(), time.time() - t0
 
 
-def cli(design, *args, timeout=600):
+def cli(design, *args, timeout=int(os.environ.get('G5_APPLY_TIMEOUT', '600'))):
     if PORT and args and args[0] != 'new':
         return ask(design, *args, timeout=timeout)
     if sum(len(a) for a in args) < 24000:

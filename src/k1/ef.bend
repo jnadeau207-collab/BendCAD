@@ -76,8 +76,19 @@ def ek_is_curve(+k: Ty.EdgeKind) -> Bool:
     case Ty.EK_curve{+c, +d}: True{}
     case Ty.EK_degenerate{}: False{}
 
+def ev_u(+t: F64) -> F64:
+  +lo = Bool.and(F64.is_lt(t, 0.0f64), F64.is_le(F64.neg(1.0e-12f64), t))
+  +hi = Bool.and(F64.is_lt(1.0f64, t), F64.is_le(t, F64.add(1.0f64, 1.0e-12f64)))
+  Bool.pick(F64, lo, 0.0f64, Bool.pick(F64, hi, 1.0f64, t))
+
+def ev_t(c: G.GVal, +t: F64) -> F64:
+  match c:
+    case G.GV_bz{w}: ev_u(t)
+    case G.GV_rq{w}: ev_u(t)
+    case _: t
+
 def ev(+c: G.GVal, +t: F64) -> V.Point:
-  G.gres_p(B4.curve_at(c, t, 64n))
+  G.gres_p(B4.curve_at(c, ev_t(c, t), 64n))
 
 def fval(+s: S.SF, +c: G.GVal, +t: F64) -> F64:
   S.sf_f(s, ev(c, t))

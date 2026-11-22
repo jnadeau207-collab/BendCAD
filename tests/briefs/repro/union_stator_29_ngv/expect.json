@@ -1,0 +1,19 @@
+{
+ "item": "K1",
+ "limit_s": 1500,
+ "claim": "the G6 CMC stator monolith, inner and outer rings united with 29 skinned NGVs, commits with a certified volume containing 458671.40 + 29 x 909.676 = 485051.99 mm3 (each single-NGV union is OCCT-checked at 459581.0774); r1k ran 59 min and rejected it (edge-face-uncertain), r1t committed it 1500 mm3 high because six NGV angles sampled a trimmed Bezier edge one ulp past its domain and evaluated the origin",
+ "steps": [
+  {
+   "args": [
+    "eval"
+   ],
+   "must": [
+    "^node 4299: ok",
+    "volume=\\[48505[12]\\.\\d+, 48505[12]\\.\\d+\\]"
+   ],
+   "must_not": [
+    "^node 4299: error"
+   ]
+  }
+ ]
+}

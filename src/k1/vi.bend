@@ -667,16 +667,29 @@ def bg_at(+w: G.BezP, +c: V.Point, +q: V.Vec2) -> V.Vec2:
   +r = bg_go(gl5(), w, c, u, V.v2_y(q), V.V2{0.0f64, 0.0f64})
   V.V2{F64.mul(u, V.v2_x(r)), F64.mul(u, V.v2_y(r))}
 
-def bw_go(n: Nat, +w: G.BezP, +c: V.Point, +g: G.GVal, +t0: F64, +dt: F64, +k: F64, +q: V.Vec2, +gq: V.Vec2,
+def bw_fix(ok: Bool, +a: V.Vec2, +w: G.BezP, +p: V.Point) -> V.Vec2:
+  match ok:
+    case True{}: a
+    case False{}: S.bp_uv(w, p)
+
+def bw_proj(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
+  +a = S.bp_newton(6n, w, p, q)
+  +m = F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p))))
+  bw_fix(F64.is_le(S.dist(S.bp_at(w, V.v2_x(a), V.v2_y(a)), p), F64.mul(1.0e-4f64, F64.add(1.0f64, m))), a, w, p)
+
+def t_in(+t: F64, +a: F64, +b: F64) -> F64:
+  F64.max(F64.min(a, b), F64.min(F64.max(a, b), t))
+
+def bw_go(n: Nat, +w: G.BezP, +c: V.Point, +g: G.GVal, +t0: F64, +dt: F64, +te: F64, +k: F64, +q: V.Vec2, +gq: V.Vec2,
     +acc: V.Vec2) -> V.Vec2:
   match n:
     case 0n: acc
     case 1n+m:
-      +p = EF.ev(g, F64.add(t0, F64.mul(k, dt)))
-      +q1 = S.bp_newton(6n, w, p, q)
+      +p = EF.ev(g, t_in(F64.add(t0, F64.mul(k, dt)), t0, te))
+      +q1 = bw_proj(w, p, q)
       +g1 = bg_at(w, c, q1)
       +dv = F64.sub(V.v2_y(q1), V.v2_y(q))
-      bw_go(m, w, c, g, t0, dt, F64.add(k, 1.0f64), q1, g1,
+      bw_go(m, w, c, g, t0, dt, te, F64.add(k, 1.0f64), q1, g1,
         V.V2{F64.add(V.v2_x(acc), F64.mul(F64.mul(0.5f64, F64.add(V.v2_x(gq), V.v2_x(g1))), dv)),
           F64.add(V.v2_y(acc), F64.mul(F64.mul(0.5f64, F64.add(V.v2_y(gq), V.v2_y(g1))), dv))})
 
@@ -687,7 +700,7 @@ def bw_k(+n: Nat, +w: G.BezP, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2
   +t0 = Bool.pick(F64, fw, lo, hi)
   +dt = F64.div(Bool.pick(F64, fw, F64.sub(hi, lo), F64.sub(lo, hi)), L.f64_of(n))
   +q0 = S.bp_uv(w, EF.ev(g, t0))
-  bw_go(n, w, c, g, t0, dt, 1.0f64, q0, bg_at(w, c, q0), V.V2{0.0f64, 0.0f64})
+  bw_go(n, w, c, g, t0, dt, Bool.pick(F64, fw, hi, lo), 1.0f64, q0, bg_at(w, c, q0), V.V2{0.0f64, 0.0f64})
 
 def bw_ce(cur: Bool, +n: Nat, +w: G.BezP, +c: V.Point, +k: Ty.EdgeKind, +fw: Bool) -> V.Vec2:
   match cur:

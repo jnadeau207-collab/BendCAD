@@ -1709,14 +1709,19 @@ def sh_cvs(xs: List<&2, Nat>, +ys: List<&2, Nat>, +te: B.Tb<&2, Eg>) -> List<&2,
       List.append(&2, R.Cv, Bool.pick(List<&2, R.Cv>, has(ys, h),
         [eg_c_of(B.tb_get(Eg, te, U32.from_nat(h)))], []), sh_cvs(t, ys, te))
 
-def un_one_a(+u: List<&2, I.I>, +cvs: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat, +adj: Bool) -> List<&2, SO.Fi>:
-  Bool.pick(List<&2, SO.Fi>, Bool.and(adj, un_near(u, cvs, tol)), [], fi1("face-face-uncertain", ia, ib))
+def un_off(+u: List<&2, I.I>, +f: SO.Fd) -> Bool:
+  Bool.or(X.vdisj(u, SO.fd_bx(f)), U64.is_eq(Mm.member(SO.fd_fc(f), u, SO.fd_im(f)), 0u64))
+
+def un_one_a(+u: List<&2, I.I>, +cvs: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat, +adj: Bool, +fa: SO.Fd,
+    +fb: SO.Fd) -> List<&2, SO.Fi>:
+  +near = Bool.and(adj, un_near(u, cvs, tol))
+  Bool.pick(List<&2, SO.Fi>, Bool.or(near, Bool.or(un_off(u, fa), un_off(u, fb))), [], fi1("face-face-uncertain", ia, ib))
 
 def un_fi_a(us: List<&2, List<&2, I.I>>, +cvs: List<&2, R.Cv>, +tol: F64, +ia: Nat, +ib: Nat,
-    +adj: Bool) -> List<&2, SO.Fi>:
+    +adj: Bool, +fa: SO.Fd, +fb: SO.Fd) -> List<&2, SO.Fi>:
   match us:
     case []: []
-    case u <> t: List.append(&2, SO.Fi, un_one_a(u, cvs, tol, ia, ib, adj), un_fi_a(t, cvs, tol, ia, ib, adj))
+    case u <> t: List.append(&2, SO.Fi, un_one_a(u, cvs, tol, ia, ib, adj, fa, fb), un_fi_a(t, cvs, tol, ia, ib, adj, fa, fb))
 
 def uv3(g: G.GVal, +b: List<&2, I.I>) -> List<&2, I.I>:
   match g:
@@ -1741,7 +1746,7 @@ def ss_fk(skip: Bool, +ok: Bool, +brs: List<&2, SS.Br>, +un: List<&2, List<&2, I
     case True{}: []
     case False{}:
       Bool.pick(List<&2, SO.Fi>, ok,
-        first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib, adj), un_fi_a(un, shc, tol, ia, ib, adj))),
+        first(List.append(&2, SO.Fi, brs_fi(brs, fa, fb, csa, csb, tol, ia, ib, adj), un_fi_a(un, shc, tol, ia, ib, adj, fa, fb))),
         fi1("face-face-uncertain", ia, ib))
 
 def ss_fi(r: Y.Sr, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,

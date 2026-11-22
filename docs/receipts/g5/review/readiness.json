@@ -1,66 +1,66 @@
 {
- "binary": "/home/jesse/bc/bendcad",
+ "binary": "/home/jesse/bc/bendcad-r1u",
  "ready": false,
  "checks": [
   {
    "check": "design point is one number everywhere",
-   "status": "fail",
-   "evidence": "cycle.json shaft_rpm=118486, scene/plan states 99700 r/min",
+   "status": "pass",
+   "evidence": "cycle.json shaft_rpm=118486, scene/plan states 118486 r/min",
    "basis": "computed: cycle.json vs scene subtitle"
   },
   {
    "check": "combustor liner admits air (perforated walls)",
-   "status": "fail",
-   "evidence": "0 liner cylinder faces with holes; kernel lists 17 faces, all loops=1",
+   "status": "pass",
+   "evidence": "111 perforated faces",
    "basis": "kernel: faces 22 (certified B-rep topology)"
   },
   {
    "check": "fuel reaches the primary zone (injector inside the liner)",
-   "status": "fail",
-   "evidence": "parts reaching into the liner gas volume: none",
-   "basis": "measured: kernel tessellation vertices vs liner interior"
+   "status": "pass",
+   "evidence": "fuel fitting bore (phi 60) -> casing port -> fuel ring stub -> ring channel to the needle at phi 30 -> needle bore -> vaporiser stick -> stick exit inside the liner: 371 samples, 0 blocked, narrowest bore 0.1257 mm2, ends at r=34.0 z=88.0 inside the liner gas volume",
+   "basis": "measured: bendcad batch classify (certified point classification on one evaluation) along each stated route, every 0.25 mm, against every part the route passes"
   },
   {
-   "check": "turbine tip clearance survives thermal growth",
+   "check": "rotor running clearances survive thermal and centrifugal growth",
    "status": "fail",
-   "evidence": "cold swept gap 0.122 mm vs free thermal growth of a 33 mm IN713C rim at TIT 0.238 mm (shroud growth and spin not yet subtracted)",
-   "basis": "estimated: swept_clearance.json + alpha*r*dT"
+   "evidence": "turbine tip cold 0.302 running 0.212 mm; 6 pairs, failing: ['compressor blade tip to shroud contour -0.1024']",
+   "basis": "computed: tools/g5/running.py + bendcad clearance"
   },
   {
    "check": "bearing speed within catalog limit",
-   "status": "not-analyzed",
-   "evidence": "n*dm=1777296 mm/min; no catalog limit or lubrication path is in the repo",
-   "basis": "none"
+   "status": "pass",
+   "evidence": "708 CE/HCP4A (SKF, hybrid, 8 x 3.969 Si3N4 balls) at 118486 r/min against the catalog attainable speed 200000 r/min with oil-air lubrication (oil-in-fuel feed), margin 1.69",
+   "basis": "catalog: data/std/bearings.json"
   },
   {
    "check": "kernel meshes are conforming (no zero-area T-junction fillers)",
    "status": "fail",
-   "evidence": "zero-area triangles: {'impeller': 116024, 'turbine': 179072, 'ngv': 5298}",
-   "basis": "measured: tessellation of every part"
+   "evidence": "non-conforming parts: {'impeller': {'same_direction_pairs': 516, 'edge_uses': {'2': 369807, '4': 228, '14': 6, '16': 12, '18': 6, '30': 6}}, 'turbine': {'same_direction_pairs': 114, 'edge_uses': {'2': 786884, '4': 54, '6': 2, '8': 1}}, 'diffuser': 'no mesh: the part did not evaluate'}",
+   "basis": "measured: tools/mesh/check.py on the tessellation of every part"
   },
   {
    "check": "airflow simulated through the running machine (CFD)",
    "status": "not-analyzed",
-   "evidence": "0 receipts in docs/receipts/g5/cfd",
-   "basis": "receipt presence"
+   "evidence": "no receipt with a named kernel or solver source in docs/receipts/g5/cfd",
+   "basis": "none"
   },
   {
    "check": "stress and creep at speed (FEM)",
-   "status": "not-analyzed",
-   "evidence": "0 receipts in docs/receipts/g5/fem",
-   "basis": "receipt presence"
+   "status": "pass",
+   "evidence": "over allowable: none; missing: none",
+   "basis": "measured: tools/g5/stress.py: closed-form rotating-disc (Lame, Timoshenko) and 1-D blade pull integrated over the design sections; strengths from MIL-HDBK-5J (data/std/materials.json), rupture from the IN718 Larson-type equation of Figure 6.3.5.1.7(e)"
   },
   {
    "check": "rotor dynamics: critical speeds and blade modes",
-   "status": "not-analyzed",
-   "evidence": "0 receipts in docs/receipts/g5/modes",
-   "basis": "receipt presence"
+   "status": "fail",
+   "evidence": "critical speeds within 15% of 118486 r/min: none",
+   "basis": "measured: bendcad modes (curved T10 tetrahedra at three element sizes, LOBPCG, extrapolated estimate and bound)"
   },
   {
    "check": "lubrication path to both bearings",
-   "status": "not-analyzed",
-   "evidence": "0 receipts in docs/receipts/g5/lube",
-   "basis": "receipt presence"
+   "status": "pass",
+   "evidence": "bearings without a connected lube path: none",
+   "basis": "measured: bendcad batch classify (certified point classification on one evaluation) along each stated route, every 0.25 mm, against every part the route passes"
   }
  ]
 }
