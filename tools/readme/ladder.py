@@ -50,12 +50,21 @@ def g5():
             f'design point {c["thrust_N"]} N at {c["shaft_rpm"]:,} r/min (`cycle.json`)')
 
 
+def g6():
+    g = load('g6', 'grading.json')
+    m = load('g6', 'mass.json')
+    ok = sum(c['status'] == 'pass' for c in g['checks'])
+    kg = m.get('total_kg') or m.get('partial_total_kg')
+    return (f'{"✅ graded" if g.get("ready") else "in progress"}: OCCT grading of the STEP exports {ok}/{len(g["checks"])} pass (`docs/receipts/g6/grading.json`); '
+            f'dry mass {kg[0]:.3f} kg certified{"" if m.get("complete") else " (partial)"} against {m["limit_kg"]} kg (`mass.json`)')
+
+
 ROWS = [('G1', 'Parameterized mounting bracket with curved edges and holes', g1),
         ('G2', 'Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances', g2),
         ('G3', 'Two-stage gearbox: gears, shafts, bearings, housing, seals', g3),
         ('G4', 'Centrifugal blower with modal analysis and machining checks', g4),
         ('G5', 'A ~100 N micro turbojet, with drawings a shop can build from', g5),
-        ('G6', 'A bespoke jet engine from a performance brief', lambda: 'not started')]
+        ('G6', 'A bespoke jet engine from a performance brief', g6)]
 
 
 def table():

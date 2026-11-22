@@ -263,6 +263,11 @@ def placed(+cs: List<&2, M.CE>, +id: U64) -> Ty.Brep:
   +pl = M.bd_pl(b)
   B8.xf_brep(M.pl_m(pl), M.pl_tx(pl), M.pl_ty(pl), M.pl_tz(pl), M.bd_brep(b))
 
+def zv_out(+head: String, +bc: Ty.Brep) -> IO(Unit):
+  do IO<Unit>:
+    u : Unit <- IO.print(head)
+    IO.print(B8.vcode(B8.vcore(bc)))
+
 def go(+args: List<&2, String>, +src: String) -> IO(Unit):
   +p = S.part_of(S.ps_xs(S.parse(src)))
   +ia = S.u64_of(S.Sx_a{S.arg_at(args, 2n)})
@@ -274,10 +279,10 @@ def go(+args: List<&2, String>, +src: String) -> IO(Unit):
   +bc = B8.restamp(K1.kr_brep(kr))
   +fs = SO.fds_of(bc)
   +kc = FB.kb_of(bc)
-  IO.print(kr_s(kr) ++ "
+  zv_out(kr_s(kr) ++ "
 pos A " ++ fd_pos(fs, ka) ++ "
 pos B " ++ fd_pos(fs, kb) ++ "
-" ++ face_es(kc, fi_pos(fs, ka)) ++ face_es(kc, fi_pos(fs, kb)) ++ B8.vcode(B8.vcore(bc)))
+" ++ face_es(kc, fi_pos(fs, ka)) ++ face_es(kc, fi_pos(fs, kb)), bc)
 
 def run(+args: List<&2, String>) -> IO(Unit):
   do IO<Unit>:

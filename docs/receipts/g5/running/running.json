@@ -1,15 +1,15 @@
 {
  "source": "tools/g5/running.py + bendcad clearance",
- "design": "/home/jesse/g5/g5p.bcd",
+ "design": "/home/jesse/g5/g5s.bcd",
  "rpm": 118486,
- "ok": false,
+ "ok": true,
  "rows": [
   {
    "pair": "turbine blade tip to shroud",
    "rotor": "turbine",
    "stator": "ngv",
    "cold_certified_mm": [
-    0.3017896483240747,
+    0.3017896485105353,
     0.3017896485122255
    ],
    "closure_mm": 0.0898,
@@ -41,12 +41,12 @@
    "rotor": "impeller",
    "stator": "front_cover",
    "cold_certified_mm": [
-    0.0,
-    0.2727461234457915
+    0.22399962565239612,
+    0.27274612344578764
    ],
    "closure_mm": 0.1024,
-   "running_mm": -0.1024,
-   "status": "fail",
+   "running_mm": 0.1216,
+   "status": "pass",
    "rotor_growth": {
     "dr_thermal": 0.05294370276801902,
     "dr_spin": 0.03575410360813922,

@@ -65,6 +65,7 @@ def en_s(e: QL.En) -> String:
     case QL.En_f{+f}: "f" ++ kind(SO.fd_im(f)) ++ Nat.show(SO.fd_fi(f))
     case QL.En_e{c, +s}: "e" ++ kind(s)
     case QL.En_v{}: "v"
+    case QL.En_p{+f, q, v}: "p" ++ Nat.show(SO.fd_fi(f))
 
 def iv_s(+x: I.I) -> String:
   "[" ++ F64.show(I.i_lo(x)) ++ "," ++ F64.show(I.i_hi(x)) ++ "]"
@@ -99,6 +100,35 @@ def ag_s(xs: List<&2, Ag>) -> String:
     case Ag{+s, +n, +lo, +w} <> +t: "AG " ++ Nat.show(n) ++ " " ++ s ++ " lo " ++ F64.show(lo) ++ " minw " ++ F64.show(w) ++ "
 " ++ ag_s(t)
 
+def ml_s(+m: QL.Ml) -> String:
+  QL.Ml{+ok, +k, +ho, +e} = m
+  "ml k " ++ iv_s(k) ++ " ho " ++ iv_s(ho) ++ " e " ++ F64.show(e)
+
+def bd_s(+q: QL.Bd) -> String:
+  QL.Bd{+p, +h} = q
+  "rho " ++ iv_s(p) ++ " h " ++ iv_s(h)
+
+def im_s(s: Im.Im) -> String:
+  match s:
+    case Im.M_co{+o, +a, +k}: "co o " ++ bx_s(o) ++ " a " ++ bx_s(a) ++ " k " ++ iv_s(k)
+    case _: kind(s)
+
+def brk_m(+sb: Im.Im, +sa: Im.Im, +ca: List<&2, I.I>, +cb: List<&2, I.I>, +ra: I.I) -> String:
+  match sb:
+    case Im.M_co{+o, +a, k}:
+      "   " ++ im_s(sb) ++ "
+   " ++ ml_s(QL.mline(sb, o, a, cb)) ++ " | " ++ bd_s(QL.mrect(sa, o, a, ca, ra)) ++ " line_rect " ++ F64.show(QL.line_rect(QL.mline(sb, o, a, cb), QL.mrect(sa, o, a, ca, ra))) ++ " sd " ++ iv_s(QL.sd_iv(sb, ca))
+    case _: "   b not cone"
+
+def brk(+x: QL.Cb) -> String:
+  QL.Cb{+a, +b, +ra, +rb} = x
+  +sa = QL.en_im(QL.cl_e(a))
+  +sb = QL.en_im(QL.cl_e(b))
+  +g = QL.box_gap(QL.cl_bx(a), QL.cl_bx(b))
+  "   gap " ++ F64.show(g) ++ " mer " ++ F64.show(QL.mer(sa, sb, QL.cl_bx(a), QL.cl_bx(b))) ++ " mer2 " ++ F64.show(QL.mer2(sa, sb, QL.cl_bx(a), QL.cl_bx(b), ra, rb)) ++ " sideA " ++ F64.show(QL.side_lb(a, sb, g, ra)) ++ " sideB " ++ F64.show(QL.side_lb(b, sa, g, rb)) ++ " crit " ++ Bool.pick(String, QL.crit_pair(x), "T", "F") ++ " ra " ++ iv_s(ra) ++ " rb " ++ iv_s(rb) ++ "
+" ++ brk_m(sb, sa, QL.cl_bx(a), QL.cl_bx(b), ra) ++ "
+"
+
 def tops(n: Nat, h: QL.Ph) -> String:
   match n:
     case 0n: ""
@@ -110,7 +140,7 @@ def tops(n: Nat, h: QL.Ph) -> String:
           "lb " ++ F64.show(k) ++ " w " ++ F64.show(w) ++ " " ++ tag(x) ++ " lbk " ++ F64.show(QL.lbk(False{}, x)) ++ " wit " ++ F64.show(QL.wit(False{}, x, V.dbl_max())) ++ "
    A " ++ bx_s(QL.cl_bx(a)) ++ "
    B " ++ bx_s(QL.cl_bx(b)) ++ "
-" ++ tops(m, QL.pairs(cs))
+" ++ brk(x) ++ tops(m, QL.pairs(cs))
 
 type St is Data:
   St{ h: QL.Ph, hi: F64, left: Nat }
@@ -139,13 +169,35 @@ ROOTS
 " ++ ag_s(ag_heap([h], [])) ++ "TOP
 " ++ tops(5n, h)
 
+def es_s(es: List<&2, Mm.Er>, +o: List<&2, I.I>, +a: List<&2, I.I>) -> String:
+  match es:
+    case []: ""
+    case +e <> +t: iv_s(QL.ax_h(o, a, R.cv_box(Mm.er_c(e), QL.unit_t()))) ++ " " ++ es_s(t, o, a)
+
+def hf_s(s: Im.Im, +f: SO.Fd) -> String:
+  match s:
+    case Im.M_cy{+o, +a, r}: "cy hf " ++ iv_s(QL.h_face(f, o, a, False{})) ++ " fbx-h " ++ iv_s(QL.ax_h(o, a, SO.fd_bx(f))) ++ " nes " ++ Nat.show(List.length(&2, Mm.Er, Mm.fc_es(SO.fd_fc(f)))) ++ " es " ++ es_s(Mm.fc_es(SO.fd_fc(f)), o, a)
+    case Im.M_co{+o, +a, k}: "co hf " ++ iv_s(QL.h_face(f, o, a, True{})) ++ " fbx-h " ++ iv_s(QL.ax_h(o, a, SO.fd_bx(f)))
+    case _: ""
+
+def en_hs(e: QL.En) -> String:
+  match e:
+    case QL.En_f{+f}: hf_s(SO.fd_im(f), f) ++ "
+"
+    case _: ""
+
+def ents_s(cs: List<&2, QL.Cl>) -> String:
+  match cs:
+    case []: ""
+    case +c <> +t: en_hs(QL.cl_e(c)) ++ ents_s(t)
+
 def go_c(+a: M.Body, +b: M.Body, +fuel: Nat) -> String:
   +hi = QD.pts_min(QI.sms_of(a), QI.sms_of(b), V.dbl_max())
   +ea = QL.ents(a)
   +eb = QL.ents(b)
   +h0 = QL.root_a(QL.cull(QL.el_cs(ea), QL.el_bb(eb), hi), QL.cull(QL.el_cs(eb), QL.el_bb(ea), hi), QL.Ph_e{}, hi, QL.eps_of(hi, 0.0f64))
   +h1 = F64.min(hi, QL.wit_ph([h0], False{}, hi))
-  rep_st(run_h(fuel, QL.stop_of(h0, h1, QL.eps_of(h1, 0.0f64)), h0, False{}, h1), h0, h1, fuel)
+  ents_s(QL.el_cs(ea)) ++ rep_st(run_h(fuel, QL.stop_of(h0, h1, QL.eps_of(h1, 0.0f64)), h0, False{}, h1), h0, h1, fuel)
 
 def go_w(+b: M.Body, +fuel: Nat) -> String:
   +fs = SO.fds_of(M.bd_brep(b))

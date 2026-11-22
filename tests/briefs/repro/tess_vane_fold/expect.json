@@ -1,0 +1,21 @@
+{
+ "item": "C06",
+ "limit_s": 30,
+ "claim": "the G5 diffuser plate united with one straightener vane at 66 degrees meshes as a closed 2-manifold, with every directed edge used once; r1w wrote 12 same-direction edge pairs where the vane's ruled face meets its planar end section, because inverted boundary parameters on the patch's iso-line were noisy and the uv ear clipper took near-zero ears that the end plane also took, and the closed-mesh test only compared forward and reverse edge multisets",
+ "steps": [
+  {
+   "args": [
+    "tess",
+    "2499",
+    "out.obj",
+    "2"
+   ],
+   "must": [
+    "^wrote "
+   ],
+   "must_not": [
+    "not-closed"
+   ]
+  }
+ ]
+}

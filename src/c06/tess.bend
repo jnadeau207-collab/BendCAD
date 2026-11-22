@@ -1198,9 +1198,17 @@ def es_tl(xs: List<&2, List<&2, U64>>) -> List<&2, U64>:
     case []: []
     case x <> +t: es_hd(t)
 
+def u_uniq(xs: List<&2, U64>, +prev: U64, +first: Bool) -> Bool:
+  match xs:
+    case []: True{}
+    case +x <> +t: Bool.and(Bool.or(first, Bool.not(U64.is_eq(x, prev))), u_uniq(t, x, False{}))
+
+def closed_go(+fw: List<&2, U64>, +bk: List<&2, U64>) -> Bool:
+  Bool.and(u_same(fw, bk), u_uniq(fw, 0u64, True{}))
+
 def closed(+ts: List<&2, Tri>) -> Bool:
   +es = dir_es(ts, [], [])
-  u_same(so_u(B.msort(~U64, ~u_cmp, es_hd(es))), so_u(B.msort(~U64, ~u_cmp, es_tl(es))))
+  closed_go(so_u(B.msort(~U64, ~u_cmp, es_hd(es))), so_u(B.msort(~U64, ~u_cmp, es_tl(es))))
 
 def use_gen(f: Ty.Face, +x: Ctx) -> Bool:
   Ty.Fa{g, +s, +ls, same, slv, sla} = f
@@ -1317,10 +1325,18 @@ def eq_at(+sf: KS.SF, +c: V.Dir, +e1: V.Dir, +e2: V.Dir, +x: F64, +y: F64) -> V.
   +r = KS.sf_r(sf)
   KS.padd(KS.padd(KS.padd(KS.sf_o(sf), F64.mul(r, KS.fcos(t)), c), F64.mul(r, F64.mul(k, x)), e1), F64.mul(r, F64.mul(k, y)), e2)
 
+def snap01(+x: F64) -> F64:
+  Bool.pick(F64, F64.is_lt(F64.abs(x), 1.0e-9f64), 0.0f64, Bool.pick(F64, F64.is_lt(F64.abs(F64.sub(x, 1.0f64)), 1.0e-9f64), 1.0f64, x))
+
+def uv_snap(bp: Bool, +w: V.Vec2) -> V.Vec2:
+  match bp:
+    case True{}: V.V2{snap01(V.v2_x(w)), snap01(V.v2_y(w))}
+    case False{}: w
+
 def g_uvw(+g: GS, +p: V.Point) -> V.Vec2:
   match g:
     case GS{+sf, +ur, +vr, +pu, +pv}:
-      +w = KS.sf_uv(sf, p)
+      +w = uv_snap(U64.is_eq(KS.sf_kind(sf), 6u64), KS.sf_uv(sf, p))
       V.V2{Bool.pick(F64, pu, KS.ang_diff(ur, V.v2_x(w)), V.v2_x(w)), Bool.pick(F64, pv, KS.ang_diff(vr, V.v2_y(w)), V.v2_y(w))}
     case GS_st{+sf, +c, +e1, +e2}: st_uv(sf, c, e1, e2, p)
     case GS_eq{+sf, +c, +e1, +e2}: eq_uv(sf, c, e1, e2, p)

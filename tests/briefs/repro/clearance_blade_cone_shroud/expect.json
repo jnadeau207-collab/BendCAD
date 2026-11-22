@@ -1,0 +1,22 @@
+{
+ "item": "C11",
+ "limit_s": 120,
+ "claim": "the G5 compressor blade (a 24-patch skin) against the front cover revolve certifies a positive running-clearance lower bound: the blade sits 0.2727 mm under the 0.04-slope shroud cone, whose apex is 577 mm away; r1v certified [0, 0.2727] because patch faces were refined as 3D cubes of their bounding box that need not contain any surface, and the cone was bounded by its infinite surface, which crosses those empty cubes",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "1903",
+    "2301"
+   ],
+   "interval": [
+    "clearance",
+    0.2,
+    0.27275
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  }
+ ]
+}

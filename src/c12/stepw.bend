@@ -1071,23 +1071,64 @@ def sw_solid_t2(+w: Bool, +i: Nat, +shbase: Nat, +ctr: Nat) -> ER:
     case True{}: er_ok(sw_ent(ctr, "MANIFOLD_SOLID_BREP(''," ++ sw_ref(Nat.add(shbase, i)) ++ ")"),
       Nat.add(ctr, 1n))
 
-def sw_solid_cav(hs: List<&2, Ty.HShell>, +so: Ty.Solid, +nsh: Nat, +shbase: Nat, +ctr: Nat) -> ER:
+def sw_vtail(n: Nat, +k: Nat) -> String:
+  match n:
+    case 0n: ""
+    case 1n+m: "," ++ sw_ref(k) ++ sw_vtail(m, Nat.add(k, 1n))
+
+def sw_vrefs(n: Nat, +k: Nat) -> String:
+  match n:
+    case 0n: ""
+    case 1n+m: sw_ref(k) ++ sw_vtail(m, Nat.add(k, 1n))
+
+def sw_cav_ok(hs: List<&2, Ty.HShell>, +nsh: Nat) -> Bool:
+  match hs:
+    case []: True{}
+    case +h <> +t: Bool.and(Nat.is_lt(Ty.hsh_idx(h), nsh), sw_cav_ok(t, nsh))
+
+def sw_solid_v(+w: Bool, +i: Nat, +nc: Nat, +shbase: Nat, +ob: Nat, +ctr: Nat) -> ER:
+  match w:
+    case False{}: er_fail("step-index-out-of-range", Nat.add(ctr, 1n))
+    case True{}: er_ok(sw_ent(ctr, "BREP_WITH_VOIDS(''," ++ sw_ref(Nat.add(shbase, i)) ++ ",(" ++ sw_vrefs(nc, ob) ++ "))"),
+      Nat.add(ctr, 1n))
+
+def sw_solid_cav(hs: List<&2, Ty.HShell>, +so: Ty.Solid, +nsh: Nat, +shbase: Nat, +ob: Nat, +ctr: Nat) -> ER:
   match hs:
     case []:
       +i = Ty.hsh_idx(Ty.so_outer(so))
       sw_solid_t2(Nat.is_lt(i, nsh), i, shbase, ctr)
-    case _ <> _: er_fail("step-cavities-not-in-profile", Nat.add(ctr, 1n))
+    case +h <> +t:
+      +i = Ty.hsh_idx(Ty.so_outer(so))
+      sw_solid_v(Bool.and(Nat.is_lt(i, nsh), sw_cav_ok(h <> t, nsh)), i, List.length(&2, Ty.HShell, h <> t), shbase, ob, ctr)
 
-def sw_solid(+so: Ty.Solid, +nsh: Nat, +shbase: Nat, +ctr: Nat) -> ER:
-  sw_solid_cav(Ty.so_cavities(so), so, nsh, shbase, ctr)
+def sw_solid(+so: Ty.Solid, +nsh: Nat, +shbase: Nat, +ob: Nat, +ctr: Nat) -> ER:
+  sw_solid_cav(Ty.so_cavities(so), so, nsh, shbase, ob, ctr)
 
-def sw_solids_go(ss: List<&2, Ty.Solid>, +nsh: Nat, +shbase: Nat, +ctr: Nat) -> ER:
+def sw_solids_v(ss: List<&2, Ty.Solid>, +nsh: Nat, +shbase: Nat, +ob: Nat, +ctr: Nat) -> ER:
+  match ss:
+    case []: ER{True{}, "", "", ctr}
+    case +s <> t:
+      +r = sw_solid(s, nsh, shbase, ob, ctr)
+      +rr = sw_solids_v(t, nsh, shbase, Nat.add(ob, List.length(&2, Ty.HShell, Ty.so_cavities(s))), er_n(r))
+      er_cat(r, rr)
+
+def sw_ocs(hs: List<&2, Ty.HShell>, +shbase: Nat, +ctr: Nat) -> ER:
+  match hs:
+    case []: ER{True{}, "", "", ctr}
+    case +h <> +t:
+      +r = er_ok(sw_ent(ctr, "ORIENTED_CLOSED_SHELL('',*," ++ sw_ref(Nat.add(shbase, Ty.hsh_idx(h))) ++ ",.F.)"), Nat.add(ctr, 1n))
+      er_cat(r, sw_ocs(t, shbase, er_n(r)))
+
+def sw_ocs_go(ss: List<&2, Ty.Solid>, +shbase: Nat, +ctr: Nat) -> ER:
   match ss:
     case []: ER{True{}, "", "", ctr}
     case s <> t:
-      +r = sw_solid(s, nsh, shbase, ctr)
-      +rr = sw_solids_go(t, nsh, shbase, er_n(r))
-      er_cat(r, rr)
+      +r = sw_ocs(Ty.so_cavities(s), shbase, ctr)
+      er_cat(r, sw_ocs_go(t, shbase, er_n(r)))
+
+def sw_solids_go(+ss: List<&2, Ty.Solid>, +nsh: Nat, +shbase: Nat, +ctr: Nat) -> ER:
+  +r = sw_solids_v(ss, nsh, shbase, Nat.add(ctr, List.length(&2, Ty.Solid, ss)), ctr)
+  er_cat(r, sw_ocs_go(ss, shbase, er_n(r)))
 
 def sw_head() -> String:
   "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('BendCAD export'),'2;1');\nFILE_NAME('bendcad.step','',('BendCAD'),('BendCAD'),'BendCAD','BendCAD','');\nFILE_SCHEMA(('AUTOMOTIVE_DESIGN'));\nENDSEC;\nDATA;\n"
