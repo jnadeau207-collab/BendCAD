@@ -58,9 +58,14 @@ def g6():
     ok = sum(x['status'] == 'pass' for x in g['checks'])
     cok = sum(r['verdict'] == 'pass' for r in c['rows'])
     kg = m.get('total_kg') or m.get('partial_total_kg')
-    done = g.get('ready') and c.get('green') and a.get('dof') == 0 and a.get('interference') == 'none'
+    cur = a.get('design') == m.get('design')
+    itf = a.get('interference', 'not run')
+    itf = itf if itf in ('none', 'not run') else f'{len(itf)} non-disjoint pairs' if isinstance(itf, list) else 'output not parsed'
+    done = cur and c.get("design") == m.get("design") and g.get('ready') and c.get('green') and a.get('dof') == 0 and itf == 'none'
+    asm = (f'mates dof {a.get("dof")}, interference {itf}' if cur else
+           f'mates and interference not yet re-run on {os.path.basename(m.get("design", "?"))} (last: {os.path.basename(a.get("design", "?"))})')
     return (f'{"✅ passed" if done else "in progress"}: OCCT grading of the STEP exports {ok}/{len(g["checks"])} pass (`docs/receipts/g6/grading.json`); '
-            f'certified clearance and wall queries {cok}/{len(c["rows"])} (`certs.json`); mates dof {a.get("dof")}, interference {a.get("interference", "not run")} (`asm.json`); '
+            f'certified clearance and wall queries {cok}/{len(c["rows"])}{"" if c.get("design") == m.get("design") else " on " + os.path.basename(c.get("design", "?"))} (`certs.json`); {asm} (`asm.json`); '
             f'dry mass {kg[0]:.3f} kg certified{"" if m.get("complete") else " (partial)"} against {m["limit_kg"]} kg (`mass.json`)')
 
 

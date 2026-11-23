@@ -177,9 +177,14 @@ def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +
   lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-6f64, x0_of(ws_on(ws), ws, ps, kk, n3, mask), Bool.pick(List<&2, List<&2, F64>>, free, rigid(ps, hd_p(ps)), [])), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
     n_held(ps, c, 0n), ps, hl)
 
+def lv_ok_go(+tm: K.TM, ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
+  match ok:
+    case True{}: lv_go(tm, True{}, e, nu, rho, c, k, w, ws, hl)
+    case False{}: LV{False{}, 0n, 0n, 0n, 0n, 0n, 0n, [], ws_none(), F64.nan()}
+
 def lv_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
   K.TR{+ok, +tm} = t
-  lv_go(tm, ok, e, nu, rho, c, k, w, ws, hl)
+  lv_ok_go(tm, ok, e, nu, rho, c, k, w, ws, hl)
 
 def lv_modes(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS) -> LV:
   lv_tr(K.tm_of(fs, h), e, nu, rho, c, k, w, ws, h)
@@ -228,6 +233,9 @@ def lv_s(+l: LV, +h: F64) -> String:
 def cbrt2() -> F64:
   1.2599210498948732f64
 
+def mesh_ref(+h: F64) -> String:
+  "refused mesh-uncertified | modes | why: the level h=" ++ F64.show(h) ++ " mesh: a lattice ray or edge cut did not certify against the faces | fix: change H slightly\n"
+
 def modes3(+a: LV, +b: LV, +c: LV, +h: F64, +w: F64) -> String:
   +h1 = F64.div(h, cbrt2())
   +h2 = F64.div(h1, cbrt2())
@@ -236,14 +244,30 @@ def modes3(+a: LV, +b: LV, +c: LV, +h: F64, +w: F64) -> String:
       "method=T10 isosurface-stuffing mesh, block LOBPCG; bound from three levels h, h/2^(1/3), h/2^(2/3)" ++
         Bool.pick(String, F64.is_lt(0.0f64, w), "; prestressed at rpm=" ++ F64.show(F64.div(F64.mul(w, 60.0f64), 6.283185307179586f64)) ++
           " (stress stiffening from the linear centrifugal state and spin softening)", "") ++ "\n",
-    "refused mesh-uncertified | modes | why: a lattice ray or edge cut did not certify against the faces | fix: change H slightly\n")
+    mesh_ref(F64.div(F64.div(h, cbrt2()), cbrt2())))
+
+def tr_ok(+t: K.TR) -> Bool:
+  K.TR{+ok, tm} = t
+  ok
+
+def bad_h(+oa: Bool, +ob: Bool, +h: F64) -> F64:
+  Bool.pick(F64, Bool.not(oa), h, Bool.pick(F64, Bool.not(ob), F64.div(h, cbrt2()), F64.div(F64.div(h, cbrt2()), cbrt2())))
+
+def modes_t(+ta: K.TR, +tb: K.TR, +tc: K.TR, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +oa: Bool, +ob: Bool, ok: Bool) -> String:
+  match ok:
+    case True{}:
+      +a = lv_tr(ta, e, nu, rho, c, k, w, ws_none(), h)
+      +b = lv_tr(tb, e, nu, rho, c, k, w, lv_w(a), F64.div(h, cbrt2()))
+      modes3(a, b, lv_tr(tc, e, nu, rho, c, k, w, lv_w(b), F64.div(F64.div(h, cbrt2()), cbrt2())), h, w)
+    case False{}: mesh_ref(bad_h(oa, ob, h))
 
 def modes_s(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> String:
-  +h1 = F64.div(h, cbrt2())
-  +h2 = F64.div(h1, cbrt2())
-  +a = lv_modes(fs, h, e, nu, rho, c, k, w, ws_none())
-  +b = lv_modes(fs, h1, e, nu, rho, c, k, w, lv_w(a))
-  modes3(a, b, lv_modes(fs, h2, e, nu, rho, c, k, w, lv_w(b)), h, w)
+  +ta = K.tm_of(fs, h)
+  +tb = K.tm_of(fs, F64.div(h, cbrt2()))
+  +tc = K.tm_of(fs, F64.div(F64.div(h, cbrt2()), cbrt2()))
+  +oa = tr_ok(ta)
+  +ob = tr_ok(tb)
+  modes_t(ta, tb, tc, h, e, nu, rho, c, k, w, oa, ob, Bool.and(oa, Bool.and(ob, tr_ok(tc))))
 
 type VC is Data:
   VC{ u: B.Tb<&2, F64>, lam: F64, mu: F64 }

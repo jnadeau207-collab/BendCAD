@@ -4125,6 +4125,61 @@ def rev_q(+b: M.Body, +q: M10.Q) -> M10.Tres:
   +est = rev_est_go(M.bd_rv(b), q)
   rev_go(M10.budget_ok(est, M10.q_max(q)), b, q, est)
 
+type TPM is Data:
+  TPM{ t: M10.Tres, ps: List<&2, V.Point>, ts: List<&2, Tri> }
+
+def tp_t(+p: TPM) -> M10.Tres:
+  TPM{+t, ps, ts} = p
+  t
+
+def tp_ps(+p: TPM) -> List<&2, V.Point>:
+  TPM{t, +ps, ts} = p
+  ps
+
+def tp_ts(+p: TPM) -> List<&2, Tri>:
+  TPM{t, ps, +ts} = p
+  ts
+
+def pl_pts(ps: List<&2, V.Point>, +pl: M.Pl, +acc: List<&2, V.Point>) -> List<&2, V.Point>:
+  match ps:
+    case []: List.reverse(&2, V.Point, acc)
+    case +p <> t: pl_pts(t, pl, pl_pt(p, pl) <> acc)
+
+def pm_fin(+gt: TGO, +ns0: List<&2, Nat>, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ) -> TPM:
+  TGO{+ts0, +gp, +gok, +st} = gt
+  +all2 = List.append(&2, V.Point, all, gp)
+  +wt = weld(all2, ts0, ns0, 1.0e-6f64)
+  +ts = wt_rest(wt)
+  +ns = wt_ns(wt)
+  TPM{pri_out(Bool.and(gok, closed(ts)), ts, ns, M10.Tres{True{}, fs_note(st), "", List.length(&2, V.Point, all2), List.length(&2, Tri, ts), est,
+    F64.max(mq_chord(mq), fs_ch(st)), mq_ang(mq), mq_n(mq)}), pl_pts(all2, M.bd_pl(b), []), ts}
+
+def pm_fg(+fg: FG, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ) -> TPM:
+  FG{+gt, +ns, ks} = fg
+  pm_fin(gt, ns, all, b, est, mq)
+
+def pm_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> TPM:
+  +br = M.bd_brep(b)
+  +ss = smps_b(br, q)
+  +ps = all_pts(br, ss)
+  +all = List.append(&2, V.Point, ps, bp_ps_of(Ty.brep_fas(br)))
+  +tb = B.tb_of(V.Point, all, pz())
+  +mq = meas_go(Ty.brep_es(br), ss, vx_pts(Ty.brep_vs(br)))
+  pm_fg(faces_tg(Ty.brep_fas(br), ctx_of(br, ss), tb, List.length(&2, V.Point, ps), List.length(&2, V.Point, all), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))}), all, b, est, mq)
+
+def pm_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> TPM:
+  match ok:
+    case False{}: TPM{M10.tres_fail_est("tess-budget-exceeded", est), [], []}
+    case True{}: pm_emit(b, q, est)
+
+def pri_mesh(+b: M.Body, +q: M10.Q) -> TPM:
+  +br = M.bd_brep(b)
+  +est = est_all(Ty.brep_fas(br), ctx_of(br, smps_b(br, q)), TL{M10.q_chord(q), KS.fcos(M10.q_angle(q))})
+  pm_go(M10.budget_ok(est, M10.q_max(q)), b, q, est)
+
+def body_norev(+b: M.Body) -> Bool:
+  Nat.is_eq(List.length(&2, F.Lp, M.bd_rv(b)), 0n)
+
 def body_go(+norev: Bool, +b: M.Body, +q: M10.Q) -> M10.Tres:
   match norev:
     case False{}: rev_q(b, q)

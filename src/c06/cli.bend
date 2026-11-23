@@ -1193,12 +1193,31 @@ def stl_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO
       +g = MO.mo_mesh(M10.tres_obj(t))
       stl_g_go(MO.mo_g_ok(g), g, out)
 
+def stl_tp_fs(ts: List<&2, TS.Tri>, +acc: List<&2, MO.MO_F>) -> List<&2, MO.MO_F>:
+  match ts:
+    case []: List.reverse(&2, MO.MO_F, acc)
+    case +t <> r:
+      TS.Tri{+a, +b, +c} = t
+      stl_tp_fs(r, MO.MO_F{True{}, a, b, c} <> acc)
+
+def stl_tp_go(+w: Bool, +m: TS.TPM, +out: String, +id: U64, +q: M10.Q) -> IO(String):
+  match w:
+    case False{}: stl_tres_go(False{}, TS.tp_t(m), out, id, q)
+    case True{}: stl_g_go(True{}, MO.MO_G{True{}, TS.tp_ps(m), stl_tp_fs(TS.tp_ts(m), []), ""}, out)
+
+def stl_body(+norev: Bool, +b: M.Body, +out: String, +id: U64, +q: M10.Q) -> IO(String):
+  match norev:
+    case True{}:
+      +m = TS.pri_mesh(b, q)
+      stl_tp_go(M10.tres_ok_of(TS.tp_t(m)), m, out, id, q)
+    case False{}:
+      +t = TS.body_q(b, q)
+      stl_tres_go(M10.tres_ok_of(t), t, out, id, q)
+
 def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
     case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
-    case M.NR_ok{+b, fx}:
-      +t = TS.body_q(b, q)
-      stl_tres_go(M10.tres_ok_of(t), t, out, id, q)
+    case M.NR_ok{+b, fx}: stl_body(TS.body_norev(b), b, out, id, q)
 
 def stl_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
     IO(String):

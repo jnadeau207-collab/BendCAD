@@ -32,17 +32,31 @@ def check(name, ok, deferred=None, **kw):
 
 
 def stl_mesh(path):
-    data = open(path, 'rb').read()
-    vs = [tuple(map(float, m)) for m in re.findall(rb'vertex\s+(\S+)\s+(\S+)\s+(\S+)', data)]
-    ts = [vs[i:i + 3] for i in range(0, len(vs), 3)]
-    key = lambda v: (round(v[0], 6), round(v[1], 6), round(v[2], 6))
-    es = {}
-    vol = 0.0
-    for a, b, c in ts:
-        for u, v in ((a, b), (b, c), (c, a)):
-            es[(key(u), key(v))] = es.get((key(u), key(v)), 0) + 1
-        vol += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0
-    return len(ts), sum(1 for (u, v), n in es.items() if es.get((v, u), 0) != n), vol
+    import numpy as np
+    rows, parts = [], []
+    with open(path, 'rb') as f:
+        for ln in f:
+            s = ln.lstrip()
+            if s.startswith(b'vertex'):
+                rows.append(s[6:])
+                if len(rows) == 300000:
+                    parts.append(np.array(b' '.join(rows).split(), dtype=np.float64))
+                    rows = []
+    parts.append(np.array(b' '.join(rows).split(), dtype=np.float64))
+    v = np.concatenate(parts).reshape(-1, 3, 3)
+    del rows, parts
+    a, b, c = v[:, 0], v[:, 1], v[:, 2]
+    vol = float(np.sum(a[:, 0] * (b[:, 1] * c[:, 2] - b[:, 2] * c[:, 1]) - a[:, 1] * (b[:, 0] * c[:, 2] - b[:, 2] * c[:, 0]) + a[:, 2] * (b[:, 0] * c[:, 1] - b[:, 1] * c[:, 0])) / 6.0)
+    _, ids = np.unique(np.round(v.reshape(-1, 3), 6), axis=0, return_inverse=True)
+    t = ids.reshape(-1, 3).astype(np.int64)
+    u = np.concatenate([t[:, 0], t[:, 1], t[:, 2]])
+    w = np.concatenate([t[:, 1], t[:, 2], t[:, 0]])
+    n = int(u.max()) + 1 if len(u) else 1
+    fw, cf = np.unique(u * n + w, return_counts=True)
+    bk = (fw % n) * n + fw // n
+    j = np.clip(np.searchsorted(fw, bk), 0, len(fw) - 1)
+    cb = np.where(fw[j] == bk, cf[j], 0)
+    return len(t), int(np.sum(cb != cf)), vol
 
 
 def parts():

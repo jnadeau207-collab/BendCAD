@@ -21,6 +21,8 @@ CELL = 0.004 * 2.0 ** ((2 - LEVEL) / 2.0)
 MRF = (0.03425, -0.0095, 0.02775)
 RAMP = int(os.environ.get('G5_CFD_RAMP', '500'))
 R_OUT = jet.R_CASE_I * 1e-3
+T_MIN = 200.0
+U_MAX = 2.0 * OMEGA * MRF[0]
 
 
 def w(rel, cls, obj, body):
@@ -121,6 +123,8 @@ addLayersControls
 meshQualityControls
 {{
     #includeEtc "caseDicts/meshQualityDict"
+    maxBoundarySkewness 4;
+    maxInternalSkewness 4;
     nSmoothScale 4;
     errorReduction 0.75;
 }}
@@ -154,7 +158,9 @@ def physics():
     omega table ((0 0) ({RAMP} {OMEGA}) (1e9 {OMEGA}));
 }}
 ''')
-    w('constant/fvOptions', 'dictionary', 'fvOptions', '')
+    w('constant/fvOptions', 'dictionary', 'fvOptions', f'''limitT {{ type limitTemperature; selectionMode all; min {T_MIN}; max 3500; }}
+limitU {{ type limitVelocity; selectionMode all; max {U_MAX!r}; }}
+''')
     w('constant/thermophysicalProperties', 'dictionary', 'thermophysicalProperties', '''thermoType
 {
     type            hePsiThermo;
@@ -249,7 +255,7 @@ wallDist { method meshWave; }
 ''')
     w('system/fvSolution', 'dictionary', 'fvSolution', '''solvers
 {
-    p { solver GAMG; tolerance 1e-8; relTol 0.05; smoother GaussSeidel; }
+    p { solver GAMG; tolerance 1e-8; relTol 0.05; smoother GaussSeidel; maxIter 50; }
     "(U|h|k|omega)" { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-9; relTol 0.1; }
 }
 SIMPLE

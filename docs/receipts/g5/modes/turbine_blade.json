@@ -1,0 +1,23 @@
+{
+ "source": "bendcad modes (curved T10 tetrahedra at three element sizes, LOBPCG, extrapolated estimate and bound)",
+ "binary": "/home/jesse/bc/bendcad-r1z",
+ "design": "/home/jesse/g5/g5u.bcd",
+ "case": "turbine_blade",
+ "node": 2702,
+ "clamp": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  21.5
+ ],
+ "why": "one turbine blade cantilevered where it enters the disc rim (r <= 21.5); excitation: 1x, 2x, NGV passing (19) and its harmonic",
+ "H": 0.58,
+ "seconds": 446.6,
+ "modes": [],
+ "campbell": [],
+ "raw": "refused mesh-uncertified | modes | why: the level h=0.58 mesh: a lattice ray or edge cut did not certify against the faces | fix: change H slightly",
+ "note": "spin is linear in the kernel: no centrifugal stiffening, so the rotating frequencies are lower bounds of the running ones"
+}

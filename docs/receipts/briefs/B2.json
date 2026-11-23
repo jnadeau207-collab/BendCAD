@@ -2,7 +2,7 @@
  "id": "B2",
  "sentence": "NEMA 17 motor mount plate: 31 mm bolt square, 22 mm pilot, M3 clearance, two adjustment slots",
  "process": "mill",
- "binary": "/home/jesse/bc/bendcad-p9q",
+ "binary": "/home/jesse/bc/bendcad-r1k",
  "parts": [
   4
  ],
@@ -11,62 +11,62 @@
   {
    "edit": "(param S 31)",
    "status": "committed",
-   "s": 0.002,
+   "s": 0.006,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(param P 22.1)",
    "status": "committed",
-   "s": 0.004,
+   "s": 0.011,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(node 1 (box 60 80 6) (intent create 6 0 1 0))",
    "status": "committed",
-   "s": 0.012,
+   "s": 0.019,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 2 (holes 1 (face 1 0 top) through (hole 30 30 (/ P 2))) (intent remove any any 1 1))",
    "status": "committed",
-   "s": 0.014,
+   "s": 0.06,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 3 (holes 2 (face 1 0 top) through (clearance M3 (- 30 (/ S 2)) (- 30 (/ S 2))) (clearance M3 (+ 30 (/ S 2)) (- 30 (/ S 2))) (clearance M3 (- 30 (/ S 2)) (+ 30 (/ S 2))) (clearance M3 (+ 30 (/ S 2)) (+ 30 (/ S 2)))) (intent remove any any 1 5))",
    "status": "committed",
-   "s": 0.034,
+   "s": 0.045,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 4 (pocket 3 (face 1 0 top) through (region (path 14.75 63 (line 14.75 71) (arc 12 71 2.75 9.25 71 ccw) (line 9.25 63) (arc 12 63 2.75 14.75 63 ccw))) (region (path 50.75 63 (line 50.75 71) (arc 48 71 2.75 45.25 71 ccw) (line 45.25 63) (arc 48 63 2.75 50.75 63 ccw)))) (intent remove any any 1 7))",
    "status": "committed",
-   "s": 0.055,
+   "s": 0.122,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 90 (cylinder 10.95 4) (intent create any 0 1 0))",
    "status": "committed",
-   "s": 0.063,
+   "s": 0.108,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   },
   {
    "edit": "(node 91 (move 90 30 30 1 0) (intent same any any 1 0))",
    "status": "committed",
-   "s": 0.049,
+   "s": 0.089,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   }
  ],
  "built": true,
- "build_incremental_s": 0.233,
+ "build_incremental_s": 0.46,
  "build_oneshot": {
   "s": 0.056,
   "timeout": false,
@@ -74,7 +74,7 @@
  },
  "probes": [],
  "eval": {
-  "s": 0.053,
+  "s": 0.05,
   "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\n"
  },
  "certified_volume": {
@@ -87,7 +87,7 @@
   {
    "node": 4,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 0.134,
+   "s": 0.191,
    "timeout": false
   }
  ],
@@ -95,14 +95,14 @@
   {
    "node": 4,
    "out": "mass volume=[25467.42169828922, 25467.421698358892] certified octree=[13387.500000301781, 27618.750000631313] depth=4 cells=1904/168/2024\ncentroid [14.541751527490566, 63.88392857144452]x[19.92362525457615, 86.06092436977156]x[1.4541751527445785, 6.388392857149156] status=certified incomplete-cells=2024\ninertia-centroid [-177013096.61777133, 87464108.59891436] [-98109092.34911838, 49098641.88565144] [-273170334.06733996, 135591486.96175718] [-31814048.863908004, 135337431.55294627] [-2367696.7643238334, 10066768.638392027] [-3181404.886394659, 13533743.155311054] status=certified\nmoments volume=[25467.42158164292, 25467.42181500521] centroid [29.999999586002204, 30.0000004139978]x[40.127264322985845, 40.12726480230693]x[2.9999999926390752, 3.0000000073609248] inertia-centroid [14457948.350223688, 14457948.693659646] [8328322.450703915, 8328323.1083220625] [22633466.27175766, 22633467.270771764] [-0.25427577843046495, 0.25427578085530916] [-0.01988816245888754, 0.019888162459718306] [-0.01287200284437502, 0.012872002858112899] status=certified method=divergence\n\n",
-   "s": 3.735,
+   "s": 5.872,
    "timeout": false
   }
  ],
  "step": [
   {
    "node": 4,
-   "s": 0.053,
+   "s": 0.108,
    "out": "wrote /var/tmp/briefs/B2/n4.stp entities 656 products 1\n",
    "timeout": false,
    "occt_volume": 25467.421646808594,
@@ -119,10 +119,10 @@
  "tess": [
   {
    "node": 4,
-   "s": 0.179,
+   "s": 0.26,
    "out": "wrote /var/tmp/briefs/B2/n4.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
    "timeout": false,
-   "judge_s": 0.01,
+   "judge_s": 0.02,
    "triangles": 1176,
    "vertices": 576,
    "zero_area": 0,
@@ -140,7 +140,7 @@
   {
    "node": 4,
    "preset": 3,
-   "s": 4.312,
+   "s": 5.675,
    "ok": true,
    "timeout": false,
    "out": "wrote /var/tmp/briefs/B2/n4.stl nverts 10844 ntris 21712 (sampled, not certified)\n"
@@ -152,7 +152,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 4",
-   "s": 0.22,
+   "s": 0.173,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -161,7 +161,7 @@
    "verdict": "pass",
    "detail": "clearance [0.09999999967000048, 0.10000000000001497] within [0.0999, 0.1001]",
    "cmd": "clearance 91 4",
-   "s": 0.713,
+   "s": 0.97,
    "info": false,
    "out": "clearance [0.09999999967000048, 0.10000000000001497] certified lo=branch-and-bound hi=witness samples=7x127\n"
   },
@@ -170,7 +170,7 @@
    "verdict": "pass",
    "detail": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13",
    "cmd": "measure 4",
-   "s": 0.047,
+   "s": 0.09,
    "info": false,
    "out": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\n"
   },
@@ -179,7 +179,7 @@
    "verdict": "pass",
    "detail": "min-wall [5.9999999999999885, 6.000000000000007] >= 3.0",
    "cmd": "wall 4",
-   "s": 7.68,
+   "s": 10.27,
    "info": false,
    "out": "min-wall [5.9999999999999885, 6.000000000000007] certified lo=branch-and-bound hi=witness normals=opposed faces=19\n"
   },
@@ -188,7 +188,7 @@
    "verdict": "pass",
    "detail": "std hole 3#1 clearance M3 medium at=(14.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.5,14.5,6) n=(0,0,1): bore=[\n...[2306 chars clipped]...\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)",
    "cmd": "std 4",
-   "s": 0.045,
+   "s": 0.104,
    "info": false,
    "out": "std hole 3#1 clearance M3 medium at=(14.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#3 clearance M3 medium at=(14.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#4 clearance M3 medium at=(45.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd node 4: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\n\n...[208 chars clipped]...\n-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -197,7 +197,7 @@
    "verdict": "pass",
    "detail": "std hole 3#1 clearance M3 medium at=(14.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#2 clearance M3 medium at=(45.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#3 clearance M3 medium at=(14.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#4 clearance M3 medium at=(45.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass",
    "cmd": "std 4",
-   "s": 0.039,
+   "s": 0.071,
    "info": false,
    "out": "std hole 3#1 clearance M3 medium at=(14.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.5,14.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#3 clearance M3 medium at=(14.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#4 clearance M3 medium at=(45.5,45.5,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd node 4: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\n\n...[208 chars clipped]...\n-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -206,7 +206,7 @@
    "verdict": "pass",
    "detail": "iface NEMA 17 on node 4 at=(30,30,6) along=(0,0,1): bolt circle 43.815 (1.725 in) pilot 21.99894 max (0.8661 in) screw 2.8448 (the C flange's tapped thread; NEMA ICS 16 Table 4)\niface pilot bore d=22.\n...[271 chars clipped]...\n6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface bolt 4 at=(45.490942,14.509058,6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface node 4: 5 checks, 5 pass, 0 fail\nverdict pass",
    "cmd": "iface NEMA17 4 30 30 6",
-   "s": 0.05,
+   "s": 0.06,
    "info": false,
    "out": "iface NEMA 17 on node 4 at=(30,30,6) along=(0,0,1): bolt circle 43.815 (1.725 in) pilot 21.99894 max (0.8661 in) screw 2.8448 (the C flange's tapped thread; NEMA ICS 16 Table 4)\niface pilot bore d=22.1 offset=0 radial-clearance=0.05053 status=pass\niface bolt 1 at=(45.490942,45.490942,6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface bolt 2 at=(14.509058,45.490942,6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface bolt 3 at=(14.509058,14.509058,6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface bolt 4 at=(45.490942,14.509058,6) hole d=3.4 offset=0.01281 margin=0.26479 status=pass\niface node 4: 5 checks, 5 pass, 0 fail\nverdict pass\n"
   },
@@ -215,7 +215,7 @@
    "verdict": "fail",
    "detail": "verdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified",
    "cmd": "machine 4 6 20 10 40 3 3",
-   "s": 11.711,
+   "s": 16.521,
    "info": true,
    "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=6/6\nface 1 reach=0/6 blocked=(50,40,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nface 6 reach=6/6\nface 7 reach=0/6 concave-radius=1.7 below-tool-radius blocked=(15.35,15.972243186433547,5)\nface 8 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.35,15.972243186433547,5)\nface 9 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(15.35,46.972243186433545,5)\nface 10 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.35,46.972243186433545,5)\nface 11 reach=0/9 blocked=(14.75,69.66666666666667,5)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(9.618430139592792,72.375,5.000000000000001)\nface 13 reach=0/9 blocked=(9.25,69.66666666666667,5)\nface 14 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(14.381569860407208,61.625,5.000000000000001)\nface 15 reach=0/9 blocked=(50.75,69.66666666666667,5)\nface 16 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(45.618430139592796,72.375,5.000000000000001)\nface 17 reach=0/9 blocked=(45.25,69.66666666666667,5)\nface 18 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(50.381569860407204,61.625,5.000000000000001)\nverdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified\n\n"
   },
@@ -224,7 +224,7 @@
    "verdict": "pass",
    "detail": "n4 mill: makeable",
    "cmd": "make 4 mill",
-   "s": 4.044,
+   "s": 7.904,
    "info": false
   },
   {
@@ -232,7 +232,7 @@
    "verdict": "pass",
    "detail": "n4: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B2/n4.dxf drawing node 4 views FRONT TOP LEFT (ISO first-angle) segments visible=1102 hidden=18 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM ",
    "cmd": "drawing 4",
-   "s": 4.396,
+   "s": 6.391,
    "info": false
   }
  ],
@@ -241,27 +241,27 @@
   "apply": {
    "edit": "(param S 31.5)",
    "status": "committed",
-   "s": 0.113,
+   "s": 0.135,
    "refusals": [],
    "out": "node 1: ok material=create faces_created=6 faces_modified=0 solids=1 through_holes=0 | volume=[28799.999999972162, 28800.000000027838] area=[11279.99999999017, 11280.00000000983] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=8 edges=12 faces=6 solids=1 genus=0 linear_uncertainty=1.4210854715202004e-13\nnode 2: ok material=remove faces_created=1 faces_modified=2 solids=1 through_holes=1 | volume=[26498.42209806252, 26498.422098118106] area=[10929.3825518862, 10929.382551906021] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=10 edges=14 faces=7 solids=1 genus=1 linear_uncertainty=1.4210854715202004e-13\nnode 3: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=5 | volume=[26280.5212316095, 26280.521231665163] area=[11113.102890268072, 11113.102890288006] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=18 edges=22 faces=11 solids=1 genus=5 linear_uncertainty=1.4210854715202004e-13\nnode 4: ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\nnode 90: ok material=create faces_created=3 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[-10.950000000000024, 10.950000000000024]x[-10.950000000000024, 10.950000000000024]x[-1.945110739143275e-14, 4.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\nnode 91: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=0 | volume=[1506.739252588179, 1506.7392525882226] area=[1028.5731427485568, 1028.5731427485755] bbox=[19.049999999999972, 40.95000000000003]x[19.049999999999972, 40.95000000000003]x[0.9999999999999805, 5.000000000000021] vertices=2 edges=2 faces=3 solids=1 genus=0 linear_uncertainty=1.9451107391432744e-14\n\ncommitted\n"
   },
   "check": {
-   "s": 0.238,
+   "s": 0.324,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
   "tess": {
-   "s": 0.202,
+   "s": 0.227,
    "out": "wrote /var/tmp/briefs/B2/edit.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
    "timeout": false
   },
-  "visible_rechecked_s": 0.553,
+  "visible_rechecked_s": 0.686,
   "checks": [
    {
     "req": "valid solid",
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 4",
-    "s": 0.213,
+    "s": 0.314,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -270,7 +270,7 @@
     "verdict": "pass",
     "detail": "clearance [0.09999999967000048, 0.10000000000001497] within [0.0999, 0.1001]",
     "cmd": "clearance 91 4",
-    "s": 0.989,
+    "s": 1.36,
     "info": false,
     "out": "clearance [0.09999999967000048, 0.10000000000001497] certified lo=branch-and-bound hi=witness samples=7x127\n"
    },
@@ -279,7 +279,7 @@
     "verdict": "pass",
     "detail": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13",
     "cmd": "measure 4",
-    "s": 0.143,
+    "s": 0.138,
     "info": false,
     "out": "ok material=remove faces_created=8 faces_modified=2 solids=1 through_holes=7 | volume=[25467.42169828922, 25467.421698358892] area=[11241.414827631414, 11241.414827656336] bbox=[-1.421085471520201e-13, 60.000000000000156]x[-1.421085471520201e-13, 80.00000000000017]x[-1.421085471520201e-13, 6.000000000000144] vertices=42 edges=54 faces=19 solids=1 genus=7 linear_uncertainty=1.4210854715202004e-13\n"
    },
@@ -288,7 +288,7 @@
     "verdict": "pass",
     "detail": "min-wall [5.9999999999999885, 6.000000000000007] >= 3.0",
     "cmd": "wall 4",
-    "s": 9.662,
+    "s": 12.59,
     "info": false,
     "out": "min-wall [5.9999999999999885, 6.000000000000007] certified lo=branch-and-bound hi=witness normals=opposed faces=19\n"
    },
@@ -297,7 +297,7 @@
     "verdict": "fail",
     "detail": "std hole 3#1 clearance M3 medium at=(14.25,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.75,14.25,6) n=(0,0,1): bo\n...[2314 chars clipped]...\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)",
     "cmd": "std 4",
-    "s": 0.073,
+    "s": 0.053,
     "info": false,
     "out": "std hole 3#1 clearance M3 medium at=(14.25,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.75,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#3 clearance M3 medium at=(14.25,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#4 clearance M3 medium at=(45.75,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd node 4: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/13\n...[216 chars clipped]...\n-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -306,7 +306,7 @@
     "verdict": "pass",
     "detail": "std hole 3#1 clearance M3 medium at=(14.25,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#2 clearance M3 medium at=(45.75,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#3 clearance M3 medium at=(14.25,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass; std hole 3#4 clearance M3 medium at=(45.75,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass",
     "cmd": "std 4",
-    "s": 0.071,
+    "s": 0.081,
     "info": false,
     "out": "std hole 3#1 clearance M3 medium at=(14.25,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#2 clearance M3 medium at=(45.75,14.25,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#3 clearance M3 medium at=(14.25,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd hole 3#4 clearance M3 medium at=(45.75,45.75,6) n=(0,0,1): bore=[3.4, 3.4] want=3.4 opens=full-circle (ISO 273 medium) status=pass\nstd node 4: 4 features, 4 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/13\n...[216 chars clipped]...\n-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -315,7 +315,7 @@
     "verdict": "fail",
     "detail": "iface NEMA 17 on node 4 at=(30,30,6) along=(0,0,1): bolt circle 43.815 (1.725 in) pilot 21.99894 max (0.8661 in) screw 2.8448 (the C flange's tapped thread; NEMA ICS 16 Table 4)\niface pilot bore d=22.\n...[283 chars clipped]...\ne d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface bolt 4 at=(45.490942,14.509058,6) hole d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface node 4: 5 checks, 1 pass, 4 fail\nverdict fail",
     "cmd": "iface NEMA17 4 30 30 6",
-    "s": 0.058,
+    "s": 0.086,
     "info": false,
     "out": "iface NEMA 17 on node 4 at=(30,30,6) along=(0,0,1): bolt circle 43.815 (1.725 in) pilot 21.99894 max (0.8661 in) screw 2.8448 (the C flange's tapped thread; NEMA ICS 16 Table 4)\niface pilot bore d=22.1 offset=0 radial-clearance=0.05053 status=pass\niface bolt 1 at=(45.490942,45.490942,6) hole d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface bolt 2 at=(14.509058,45.490942,6) hole d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface bolt 3 at=(14.509058,14.509058,6) hole d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface bolt 4 at=(45.490942,14.509058,6) hole d=3.4 offset=0.366364 margin=-0.088764 status=fail\niface node 4: 5 checks, 1 pass, 4 fail\nverdict fail\n"
    },
@@ -324,7 +324,7 @@
     "verdict": "fail",
     "detail": "verdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified",
     "cmd": "machine 4 6 20 10 40 3 3",
-    "s": 10.846,
+    "s": 13.924,
     "info": true,
     "out": "machine tool=ball r=3 flute=20 holder-r=5 holder-l=40 axes=3 samples-per-side=3 gap=0.03\nface 0 reach=6/6\nface 1 reach=0/6 blocked=(50,40,0)\nface 2 reach=9/9\nface 3 reach=9/9\nface 4 reach=9/9\nface 5 reach=9/9\nface 6 reach=6/6\nface 7 reach=0/6 concave-radius=1.7 below-tool-radius blocked=(15.1,15.722243186433547,5)\nface 8 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.6,15.722243186433547,5)\nface 9 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(15.1,47.222243186433545,5)\nface 10 reach=0/9 concave-radius=1.7 below-tool-radius blocked=(46.6,47.222243186433545,5)\nface 11 reach=0/9 blocked=(14.75,69.66666666666667,5)\nface 12 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(9.618430139592792,72.375,5.000000000000001)\nface 13 reach=0/9 blocked=(9.25,69.66666666666667,5)\nface 14 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(14.381569860407208,61.625,5.000000000000001)\nface 15 reach=0/9 blocked=(50.75,69.66666666666667,5)\nface 16 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(45.618430139592796,72.375,5.000000000000001)\nface 17 reach=0/9 blocked=(45.25,69.66666666666667,5)\nface 18 reach=0/9 concave-radius=2.75 below-tool-radius blocked=(50.381569860407204,61.625,5.000000000000001)\nverdict not-machinable samples=159 reachable=48 blocked=111 uncertain=0 tight-faces=8 sharp-concave-edges=0 status=certified\n\n"
    },
@@ -333,7 +333,7 @@
     "verdict": "pass",
     "detail": "n4 mill: makeable",
     "cmd": "make 4 mill",
-    "s": 4.297,
+    "s": 7.179,
     "info": false
    },
    {
@@ -341,7 +341,7 @@
     "verdict": "pass",
     "detail": "n4: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B2/n4.dxf drawing node 4 views FRONT TOP LEFT (ISO first-angle) segments visible=1102 hidden=18 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN DIM ",
     "cmd": "drawing 4",
-    "s": 4.019,
+    "s": 10.728,
     "info": false
    }
   ]
@@ -349,19 +349,19 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 0.17,
+   "measured_s": 0.621,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 0.034,
+   "measured_s": 0.134,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
   "export": {
    "verdict": "pass",
-   "measured_s": 4.365,
+   "measured_s": 5.783,
    "budget_s": 300.0
   },
   "scene": {
@@ -376,17 +376,17 @@
   "not-analyzed": 0
  },
  "authoring_refusals": 0,
- "wall_s": 72.3,
+ "wall_s": 108.6,
  "pass": true,
  "timed_edit_serial": {
   "label": "bolt square 31 -> 31.5 mm",
-  "build_s": 0.034,
-  "apply_s": 0.034,
+  "build_s": 0.134,
+  "apply_s": 0.133,
   "apply_status": "committed",
-  "check_s": 0.071,
-  "tess_s": 0.065,
+  "check_s": 0.254,
+  "tess_s": 0.234,
   "tess_out": "wrote /var/tmp/briefs/B2-retime/edit.obj nverts 576 ntris 1176 est 1792 chord 0.05325152765237865 ang 0.1963495408493621 nsamp 588 profile display (sampled, not certified) faces direct=19 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042470102\n",
-  "visible_rechecked_s": 0.17
+  "visible_rechecked_s": 0.621
  },
- "build_oneshot_serial_s": 0.034
+ "build_oneshot_serial_s": 0.134
 }

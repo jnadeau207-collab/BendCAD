@@ -1,39 +1,39 @@
 # G4 grade
 
-Verdict: **FAIL** (49 pass, 1 fail, 0 deferred of 50)
+Verdict: **PASS** (50 pass, 0 fail, 0 deferred of 50)
 
 Graded from the exported STEP files with OCCT (build123d) as a reader only; no BendCAD call.
 
 | Check | Result | Numbers |
 |---|---|---|
 | part.impeller | PASS | solids=1, step_volume=2530977.8864984103, certified=[2530977.886533938, 2530977.8865404823], mass_kg=6.833640293545709, evidence="impeller.stp" |
-| stl.impeller | FAIL | rule="STL at manufacturing tolerance exported", evidence="missing impeller.stl" |
+| stl.impeller | PASS | triangles=5639248, unpaired_edges=0, mesh_volume=2530939.393206518, step_volume=2530977.8864984103, rule="closed, consistently oriented, volume within 1% of STEP", evidence="impeller.stl" |
 | part.casing | PASS | solids=1, step_volume=5964252.019567476, certified=[5964252.021506769, 5964252.021518697], mass_kg=46.819378353604684, evidence="casing.stp" |
-| stl.casing | PASS | triangles=119620, unpaired_edges=0, mesh_volume=5964193.720051447, step_volume=5964252.019567476, rule="closed, consistently oriented, volume within 1% of STEP", evidence="casing.stl" |
+| stl.casing | PASS | triangles=119620, unpaired_edges=0, mesh_volume=5964193.720051631, step_volume=5964252.019567476, rule="closed, consistently oriented, volume within 1% of STEP", evidence="casing.stl" |
 | part.cone | PASS | solids=1, step_volume=270838.3625174395, certified=[270838.3625117472, 270838.3625183767], mass_kg=2.1260811457619004, evidence="cone.stp" |
-| stl.cone | PASS | triangles=424412, unpaired_edges=0, mesh_volume=270832.70252535155, step_volume=270838.3625174395, rule="closed, consistently oriented, volume within 1% of STEP", evidence="cone.stl" |
+| stl.cone | PASS | triangles=424412, unpaired_edges=0, mesh_volume=270832.70252556185, step_volume=270838.3625174395, rule="closed, consistently oriented, volume within 1% of STEP", evidence="cone.stl" |
 | part.pedestal | PASS | solids=1, step_volume=5574745.861736633, certified=[5574745.854806222, 5574745.854817372], mass_kg=43.76175501463257, evidence="pedestal.stp" |
-| stl.pedestal | PASS | triangles=30336, unpaired_edges=0, mesh_volume=5574748.589709591, step_volume=5574745.861736633, rule="closed, consistently oriented, volume within 1% of STEP", evidence="pedestal.stl" |
+| stl.pedestal | PASS | triangles=30336, unpaired_edges=0, mesh_volume=5574748.589709674, step_volume=5574745.861736633, rule="closed, consistently oriented, volume within 1% of STEP", evidence="pedestal.stl" |
 | part.motor | PASS | solids=1, step_volume=18143292.663860224, certified=[18143292.647502676, 18143292.64753896], mass_kg=42.00000003782417, evidence="motor.stp" |
-| stl.motor | PASS | triangles=28480, unpaired_edges=0, mesh_volume=18143056.34850588, step_volume=18143292.663860224, rule="closed, consistently oriented, volume within 1% of STEP", evidence="motor.stl" |
+| stl.motor | PASS | triangles=28480, unpaired_edges=0, mesh_volume=18143056.348507192, step_volume=18143292.663860224, rule="closed, consistently oriented, volume within 1% of STEP", evidence="motor.stl" |
 | part.key | PASS | solids=1, step_volume=2799.9999999999995, certified=[2799.9999999973065, 2800.0000000026935], mass_kg=0.021979999999999996, evidence="key.stp" |
 | stl.key | PASS | triangles=12, unpaired_edges=0, mesh_volume=2800.0, step_volume=2799.9999999999995, rule="closed, consistently oriented, volume within 1% of STEP", evidence="key.stl" |
 | part.washer | PASS | solids=1, step_volume=8552.985968504052, certified=[8552.985999398044, 8552.98599939838], mass_kg=0.06714093985275682, evidence="washer.stp" |
-| stl.washer | PASS | triangles=5040, unpaired_edges=0, mesh_volume=8552.844210250565, step_volume=8552.985968504052, rule="closed, consistently oriented, volume within 1% of STEP", evidence="washer.stl" |
+| stl.washer | PASS | triangles=5040, unpaired_edges=0, mesh_volume=8552.844210251591, step_volume=8552.985968504052, rule="closed, consistently oriented, volume within 1% of STEP", evidence="washer.stl" |
 | part.screw_m10x25 | PASS | solids=1, step_volume=3669.273757098549, certified=[3669.273764655297, 3669.2737646626374], mass_kg=0.028803798993223613, evidence="screw_m10x25.stp" |
-| stl.screw_m10x25 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=3669.2078828334165, step_volume=3669.273757098549, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m10x25.stl" |
+| stl.screw_m10x25 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=3669.2078828332637, step_volume=3669.273757098549, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m10x25.stl" |
 | part.screw_m6x12 | PASS | solids=1, step_volume=734.7536802971296, certified=[734.7536817942928, 734.7536817957644], mass_kg=0.005767816390332467, evidence="screw_m6x12.stp" |
-| stl.screw_m6x12 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=734.7402450274553, step_volume=734.7536802971296, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m6x12.stl" |
+| stl.screw_m6x12 | PASS | triangles=5060, unpaired_edges=0, mesh_volume=734.7402450274149, step_volume=734.7536802971296, rule="closed, consistently oriented, volume within 1% of STEP", evidence="screw_m6x12.stl" |
 | part.bolt_m10x16 | PASS | solids=1, step_volume=2675.5330816994597, certified=[2675.53308299501, 2675.5330829976733], mass_kg=0.02100293469134076, evidence="bolt_m10x16.stp" |
-| stl.bolt_m10x16 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=2675.5122507983606, step_volume=2675.5330816994597, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m10x16.stl" |
+| stl.bolt_m10x16 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=2675.5122507984916, step_volume=2675.5330816994597, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m10x16.stl" |
 | part.bolt_m12x25 | PASS | solids=1, step_volume=4931.875116509015, certified=[4931.875119424991, 4931.875119429009], mass_kg=0.03871521966459577, evidence="bolt_m12x25.stp" |
-| stl.bolt_m12x25 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=4931.82824698169, step_volume=4931.875116509015, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m12x25.stl" |
+| stl.bolt_m12x25 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=4931.828246981837, step_volume=4931.875116509015, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m12x25.stl" |
 | part.gasket | PASS | solids=1, step_volume=141450.4113032516, certified=[141450.41128737945, 141450.4112887946], mass_kg=0.16266797299873934, evidence="gasket.stp" |
-| stl.gasket | PASS | triangles=35368, unpaired_edges=0, mesh_volume=141450.4659726232, step_volume=141450.4113032516, rule="closed, consistently oriented, volume within 1% of STEP", evidence="gasket.stl" |
+| stl.gasket | PASS | triangles=35368, unpaired_edges=0, mesh_volume=141450.4659726407, step_volume=141450.4113032516, rule="closed, consistently oriented, volume within 1% of STEP", evidence="gasket.stl" |
 | part.front_plate | PASS | solids=1, step_volume=959618.3255119082, certified=[959618.3255948024, 959618.3255950464], mass_kg=7.53300385526848, evidence="front_plate.stp" |
-| stl.front_plate | PASS | triangles=55520, unpaired_edges=0, mesh_volume=959602.4172955273, step_volume=959618.3255119082, rule="closed, consistently oriented, volume within 1% of STEP", evidence="front_plate.stl" |
+| stl.front_plate | PASS | triangles=55520, unpaired_edges=0, mesh_volume=959602.417295409, step_volume=959618.3255119082, rule="closed, consistently oriented, volume within 1% of STEP", evidence="front_plate.stl" |
 | part.bolt_m8x20 | PASS | solids=1, step_volume=1781.00860228095, certified=[1781.0086033177108, 1781.0086033192006], mass_kg=0.01398091752790546, evidence="bolt_m8x20.stp" |
-| stl.bolt_m8x20 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=1780.9919375601246, step_volume=1781.00860228095, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m8x20.stl" |
+| stl.bolt_m8x20 | PASS | triangles=2540, unpaired_edges=0, mesh_volume=1780.991937560175, step_volume=1781.00860228095, rule="closed, consistently oriented, volume within 1% of STEP", evidence="bolt_m8x20.stl" |
 | mass.total | PASS | step_mass_kg=149.8492434407462, certified=[149.84924336502954, 149.84924336536852] |
 | balance.static | PASS | com_offset_um=0.6889378727098621, permissible_um=8.232152228891138, grade="G2.5", rpm=2900.0, impeller_mass_kg=6.833640293545709, residual_gmm=4.707953606699777, permissible_gmm=56.25556717395259, claimed_um=null |
 | impeller.blades | PASS | blades=10, beta1_deg=[30.13326609960911, 30.136976474737615], beta2_deg=[29.999234691272456, 30.001988981312373], claimed=[30.133721067245446, 29.999999999999996], camber_radii=[203.368, 203.369, 203.372, 203.373] |

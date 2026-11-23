@@ -14,10 +14,14 @@
  },
  {
   "check": "stl.impeller",
-  "status": "FAIL",
-  "pass_": false,
-  "rule": "STL at manufacturing tolerance exported",
-  "evidence": "missing impeller.stl"
+  "status": "PASS",
+  "pass_": true,
+  "triangles": 5639248,
+  "unpaired_edges": 0,
+  "mesh_volume": 2530939.393206518,
+  "step_volume": 2530977.8864984103,
+  "rule": "closed, consistently oriented, volume within 1% of STEP",
+  "evidence": "impeller.stl"
  },
  {
   "check": "part.casing",
@@ -38,7 +42,7 @@
   "pass_": true,
   "triangles": 119620,
   "unpaired_edges": 0,
-  "mesh_volume": 5964193.720051447,
+  "mesh_volume": 5964193.720051631,
   "step_volume": 5964252.019567476,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "casing.stl"
@@ -62,7 +66,7 @@
   "pass_": true,
   "triangles": 424412,
   "unpaired_edges": 0,
-  "mesh_volume": 270832.70252535155,
+  "mesh_volume": 270832.70252556185,
   "step_volume": 270838.3625174395,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "cone.stl"
@@ -86,7 +90,7 @@
   "pass_": true,
   "triangles": 30336,
   "unpaired_edges": 0,
-  "mesh_volume": 5574748.589709591,
+  "mesh_volume": 5574748.589709674,
   "step_volume": 5574745.861736633,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "pedestal.stl"
@@ -110,7 +114,7 @@
   "pass_": true,
   "triangles": 28480,
   "unpaired_edges": 0,
-  "mesh_volume": 18143056.34850588,
+  "mesh_volume": 18143056.348507192,
   "step_volume": 18143292.663860224,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "motor.stl"
@@ -158,7 +162,7 @@
   "pass_": true,
   "triangles": 5040,
   "unpaired_edges": 0,
-  "mesh_volume": 8552.844210250565,
+  "mesh_volume": 8552.844210251591,
   "step_volume": 8552.985968504052,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "washer.stl"
@@ -182,7 +186,7 @@
   "pass_": true,
   "triangles": 5060,
   "unpaired_edges": 0,
-  "mesh_volume": 3669.2078828334165,
+  "mesh_volume": 3669.2078828332637,
   "step_volume": 3669.273757098549,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "screw_m10x25.stl"
@@ -206,7 +210,7 @@
   "pass_": true,
   "triangles": 5060,
   "unpaired_edges": 0,
-  "mesh_volume": 734.7402450274553,
+  "mesh_volume": 734.7402450274149,
   "step_volume": 734.7536802971296,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "screw_m6x12.stl"
@@ -230,7 +234,7 @@
   "pass_": true,
   "triangles": 2540,
   "unpaired_edges": 0,
-  "mesh_volume": 2675.5122507983606,
+  "mesh_volume": 2675.5122507984916,
   "step_volume": 2675.5330816994597,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "bolt_m10x16.stl"
@@ -254,7 +258,7 @@
   "pass_": true,
   "triangles": 2540,
   "unpaired_edges": 0,
-  "mesh_volume": 4931.82824698169,
+  "mesh_volume": 4931.828246981837,
   "step_volume": 4931.875116509015,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "bolt_m12x25.stl"
@@ -278,7 +282,7 @@
   "pass_": true,
   "triangles": 35368,
   "unpaired_edges": 0,
-  "mesh_volume": 141450.4659726232,
+  "mesh_volume": 141450.4659726407,
   "step_volume": 141450.4113032516,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "gasket.stl"
@@ -302,7 +306,7 @@
   "pass_": true,
   "triangles": 55520,
   "unpaired_edges": 0,
-  "mesh_volume": 959602.4172955273,
+  "mesh_volume": 959602.417295409,
   "step_volume": 959618.3255119082,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "front_plate.stl"
@@ -326,7 +330,7 @@
   "pass_": true,
   "triangles": 2540,
   "unpaired_edges": 0,
-  "mesh_volume": 1780.9919375601246,
+  "mesh_volume": 1780.991937560175,
   "step_volume": 1781.00860228095,
   "rule": "closed, consistently oriented, volume within 1% of STEP",
   "evidence": "bolt_m8x20.stl"

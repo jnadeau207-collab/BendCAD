@@ -76,8 +76,12 @@
   },
   {
    "job": "stl_impeller",
-   "seconds": 274.4,
-   "tail": "bend: memory fault (machine stack overflow?)"
+   "seconds": 2465.0,
+   "tail": "wrote /home/jesse/g4rg/export/impeller.stl nverts 2819604 ntris 5639248 (sampled, not certified)",
+   "binary": "/home/jesse/bc/bendcad-r1z",
+   "sha256": "796b298ecc400d3ef6c468e8101323794bbcbca168fb9ec2ab10768e770413dd",
+   "peak_rss_kb": 5150204,
+   "note": "rerun on r1z: r1y faulted at 11.4 GB building the mesh as OBJ text; r1z writes STL from the welded mesh. Other jobs are r1y; the r1y/r1z STL path is byte-identical on a 5,736-triangle part"
   },
   {
    "job": "stl_casing",

@@ -39,4 +39,14 @@
 
 24. **A trimmed patch was bounded as its whole patch.** The G6 turbine blade is a skin intersected with a revolve at the tip radius. Against the shroud cylinder at TT + 0.15 it certified [0, 0.15]. The (u, v) refinement of defect 22 used the untrimmed patch, whose section runs out to TT + 2 and through the shroud. Fixed in r1y. A patch piece that no boundary edge of the face reaches, and whose centre point classifies outside the trimmed face (`Mm.member`), is dropped. If no trim curve crosses the piece, the whole piece lies on one side of the trim. The query now certifies [0.1499979, 0.1499997] in 22 s, and the defect-22 cases are unchanged. Reproducer `tests/briefs/repro/clearance_trimmed_blade`.
 
+## Found and fixed 2026-11-23 (STL at manufacturing tolerance, modal mesh levels)
+
+25. **The G4 impeller STL at preset 3 faulted the kernel.** `stl 1 impeller.stl 3` ended with `bend: memory fault (machine stack overflow?)` after 278 s at 11.4 GB RSS. It failed the same way with an unlimited C stack and with the display profile. The trigger is the 0.01 rad angle tolerance alone:
+    - chord 0.1 with angle 0.01 faults;
+    - chord 0.05 with angle 0.02 writes 1,648,344 triangles at 3.5 GB;
+    - chord 0.1 with angle 0.02 writes 1,497,116 triangles at 3.1 GB.
+
+    That is about 2 KB per triangle. Most of it is the OBJ text: `body_q` renders every vertex and face as a Bend `String` (one heap cell per character), and `stl` parses that string back into the same lists before writing facets. Fixed in r1z. `TS.pri_mesh` returns the welded triangles and placed points directly, with the same closure, budget and refusal semantics. The CLI writes STL from them for every non-revolved body. On a 5,736-triangle part the r1y and r1z files are byte-identical. The impeller at preset 3 now writes 5,639,248 triangles in 2,465 s at 5.2 GB. The file is closed, with 0 unpaired edges, and its mesh volume is 2,530,939.39 against the STEP volume of 2,530,977.89 (−0.0015%). G4 run 2 grades 50/50. `tools/grade/g4.py` now checks STL with numpy: the same rounding and edge pairing, identical counts on all 14 G4 parts and on a mesh with one facet removed (3 unpaired edges in both), and about 4× faster.
+26. **A modal mesh refusal arrived after hours of solving.** G5 turbine blade modes at H 0.65 ran for 28,341 s and then printed `refused mesh-uncertified`. `modes_s` solved all three mesh levels before looking at any level's certification flag. In r1z, all three meshes are built first, and the eigen solves run only when every mesh certifies. A refusal now names the level that failed (`the level h=... mesh`).
+
 Open-defect reproducers live in `tests/briefs/defects/`, run with `REPRO_DIR=tests/briefs/defects python3 tests/briefs/repro/run.py`. Each moves into `tests/briefs/repro` when its fix lands.

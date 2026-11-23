@@ -83,7 +83,7 @@ def main():
     if ro:
         L += [f"Critical speeds (COMPUTED, kernel `rotor`, `tools/g6/rotor.py`): {', '.join(f'{c:.0f}' for c in ro['critical_speeds_rpm'])} r/min against the {H.RPM:.0f} r/min design point; "
               f"within 15%: {ro['within_15pct'] or 'none'}. The front support is a back-to-back pair of 7004 ACE/HCP4A at z {H.Z_BRG_F2:.0f} and {H.Z_BRG_F:.0f} mm: with one front bearing the third critical sat at 43 690 r/min, 0.35% from the design point. "
-              f"Bearing radial stiffness {ro['bearing']['k_radial_N_per_mm']:.0f} N/mm each ({ro['bearing']['method']}; preload {ro['bearing']['preload_N']} N, PROJECTED)."]
+              f"Bearing radial stiffness {ro['bearing']['k_radial_N_per_mm']:.0f} N/mm each ({ro['bearing']['method']}; preload {ro['bearing']['preload_N']} N, PROJECTED).", '']
         L += table(['disc', 'mass kg', 'residual unbalance g mm', 'force N', 'front bearing N', 'rear bearing N'],
                    [(k, next(round(d['m_kg'], 3) for d in ro['discs'] if d['name'] == k), round(v['residual_unbalance_g_mm'], 2), round(v['force_N'], 1), round(v['front_N'], 1), round(v['rear_N'], 1))
                     for k, v in ro['balance']['discs'].items()])
