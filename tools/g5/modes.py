@@ -20,7 +20,7 @@ CASES = {
 def run(name, h, k=4):
     c = CASES[name]
     t = time.time()
-    out = kq('modes', str(c['node']), str(k), repr(h), *(repr(float(x)) for x in c['clamp']))
+    out = kq('modes', str(c['node']), str(k), repr(h), *(repr(float(x)) for x in c['clamp']), timeout=int(os.environ.get('G5_MODES_TIMEOUT', '14400')))
     fs = [dict(lo=float(m.group(1)), mid=float(m.group(2)), hi=float(m.group(3)), est=float(m.group(4)), bound=float(m.group(5)), status=m.group(6))
           for m in re.finditer(r'\[' + NUM + ', ' + NUM + ', ' + NUM + r'\] est=' + NUM + ' bound=' + NUM + r' status=(\S+)', out)]
     camp = []

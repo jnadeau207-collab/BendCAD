@@ -91,7 +91,9 @@ def main():
         L += ['not-analyzed: the per-part kernel mass run on the built design has not completed']
     L += ['', '## Assembly', '']
     L += [f"dof {asm['dof']}; interference: {asm.get('interference', 'not run')}"] if asm else ['not-analyzed: `asm solve` and `asm interf` on the built design have not completed']
-    ce, gr = load('certs.json'), load('grading.json')
+    ce, gr, pm = load('certs.json'), load('grading.json'), load('pmi.json')
+    L += ['', '## Semantic PMI and tolerance stacks (COMPUTED by the kernel `pmi`, `tools/g6/pmi.py`)', '']
+    L += table(['item', 'verb', 'result', 'kernel output'], [(r['name'], r['verb'], r['verdict'], r['out'].replace('\n', '; ')[:220]) for r in pm['rows']]) + ['', pm['notes']] if pm else ['not-analyzed']
     L += ['', '## Certified queries (COMPUTED by the kernel, `tools/g6/certs.py`)', '']
     L += table(['query', 'design mm', 'certified interval mm', 'status', 's', 'result'],
                [(r['query'], r['design_mm'], r['certified_mm'], r['status'], r['seconds'], r['verdict']) for r in ce['rows']]) if ce else ['not-analyzed']

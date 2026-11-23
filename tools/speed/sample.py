@@ -192,7 +192,11 @@ def main(period, argv):
     except OSError:
         MEM = None
     t0 = time.time()
+    tmax = float(os.environ.get('SAMPLE_MAX', '0'))
     while True:
+        if tmax and time.time() - t0 > tmax:
+            p.kill()
+            break
         try:
             tids = [int(t) for t in os.listdir('/proc/%d/task' % p.pid)]
             ps = open('/proc/%d/stat' % p.pid).read().rsplit(')', 1)[1].split()
