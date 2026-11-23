@@ -68,7 +68,7 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 | G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed: v3 gearbox, every part valid=True, interference pairs 0 (`docs/receipts/g3/v3`) |
 | G4 | Centrifugal blower with modal analysis and machining checks | ❌ not passed: run 1 graded 44 pass, 4 fail, 2 deferred of 50 (`docs/receipts/g4/run1`) |
 | G5 | A ~100 N micro turbojet, with drawings a shop can build from | in progress: readiness 8/10 pass, 1 fail (`docs/receipts/g5/review/readiness.json`); design point 99.3 N at 118,486 r/min (`cycle.json`) |
-| G6 | A bespoke jet engine from a performance brief | in progress: OCCT grading of the STEP exports 9/9 pass (`docs/receipts/g6/grading.json`); certified clearance and wall queries 4/6 (`certs.json`); mates dof None, interference not run (`asm.json`); dry mass 13.671 kg certified against 19.6 kg (`mass.json`) |
+| G6 | A bespoke jet engine from a performance brief | in progress: OCCT grading of the STEP exports 9/9 pass (`docs/receipts/g6/grading.json`); certified clearance and wall queries 4/6 (`certs.json`); mates dof 0, interference  (`asm.json`); dry mass 13.671 kg certified against 19.6 kg (`mass.json`) |
 <!-- ladder:end -->
 
 And the kernel milestones that carry it there:

@@ -52,6 +52,11 @@ if __name__ == '__main__':
             for r in ex.map(job, jobs):
                 log['jobs'].append(r)
                 print(r['job'], r['seconds'], r['tail'][:120], flush=True)
+        for tag, other in (('cone', 3), ('casing', 2)):
+            out, dt = cli('clearance', '1', str(other))
+            open(os.path.join(RUN, 'q', 'clear_impeller_%s.txt' % tag), 'w').write(out)
+            log['jobs'].append(dict(job='clearance_%s' % tag, seconds=dt, tail=out.strip().splitlines()[-1][:300] if out.strip() else ''))
+            print('clearance', tag, dt, out.strip()[-160:], flush=True)
     json.dump(log, open(os.path.join(RUN, 'export_log.json'), 'w'), indent=1)
     if log['master_committed']:
         g = subprocess.run([sys.executable, os.path.join(ROOT, 'tools', 'grade', 'g4.py'), RUN, EXP], capture_output=True, text=True, cwd=RUN)

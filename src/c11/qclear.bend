@@ -976,8 +976,16 @@ def bx_cap(+a: List<&2, I.I>, +b: List<&2, I.I>) -> List<&2, I.I>:
 def iw(+x: I.I) -> F64:
   F64.sub(I.i_hi(x), I.i_lo(x))
 
+def p_st(near: Bool, +f: SO.Fd, +c: List<&2, I.I>) -> U64:
+  match near:
+    case True{}: 1u64
+    case False{}: Mm.member(SO.fd_fc(f), c, SO.fd_im(f))
+
 def p_cl(+f: SO.Fd, +q: BP.Bq, +u: I.I, +v: I.I) -> Cl:
-  Cl{En_p{f, q, v}, bx_cap(BP.bq_box(q, u, v), SO.fd_bx(f)), u, 1u64, []}
+  +bx = bx_cap(BP.bq_box(q, u, v), SO.fd_bx(f))
+  +es = es_sub(Mm.fc_es(SO.fd_fc(f)), SO.wide(mid(bx), F64.mul(0.5f64, diag(bx))))
+  +c = BP.bq_box(q, I.ipt(I.imid(u)), I.ipt(I.imid(v)))
+  Cl{En_p{f, q, v}, bx, u, p_st(Nat.is_lt(0n, List.length(&2, Mm.Er, es)), f, c), []}
 
 def p_cut(+f: SO.Fd, +q: BP.Bq, +u: I.I, +v: I.I, +up: Bool) -> Cl:
   +eu = F64.mul(iw(u), vlen_hi(BP.bq_du(q, u, v)))

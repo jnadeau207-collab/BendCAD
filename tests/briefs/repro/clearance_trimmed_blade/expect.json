@@ -1,0 +1,22 @@
+{
+ "item": "C11",
+ "limit_s": 60,
+ "claim": "a skinned turbine blade trimmed by a revolve at its tip radius certifies its 0.15 mm gap to the shroud cylinder: r1x certified [0, 0.15] because clearance refined the untrimmed patch, whose section runs out 2 mm beyond the trim and through the shroud",
+ "steps": [
+  {
+   "args": [
+    "clearance",
+    "2702",
+    "4202"
+   ],
+   "interval": [
+    "clearance",
+    0.1499,
+    0.1501
+   ],
+   "must": [
+    "^clearance \\[\\S+, \\S+\\] certified"
+   ]
+  }
+ ]
+}

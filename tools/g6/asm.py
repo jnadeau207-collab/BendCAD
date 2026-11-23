@@ -53,12 +53,9 @@ PORT = int(os.environ.get('G6_PORT', '0'))
 
 def served(args, timeout):
     fn = '/var/tmp/g6q-%d-%d.req' % (os.getpid(), int(time.time() * 1e6))
-    open(fn, 'w').write('
-'.join([DESIGN] + list(args) + ['<<end>>']) + '
-')
+    open(fn, 'w').write('\n'.join([DESIGN] + list(args) + ['<<end>>']) + '\n')
     s = socket.create_connection(('127.0.0.1', PORT), timeout=timeout)
-    s.sendall((fn + '
-').encode())
+    s.sendall((fn + '\n').encode())
     out = b''
     while True:
         d = s.recv(65536)
@@ -90,8 +87,11 @@ def main(what):
         print('solve', s, 's dof', rep['dof'])
     if 'interf' in what:
         out, s = kernel('asm', 'interf', form())
-        rep.update(interf_seconds=s, interf_raw=out.strip()[-4000:],
-                   interference='none' if re.search(r'interference none|no interference|0 interfering', out) else out.strip()[-600:])
+        rel = re.findall(r'^pair (\S+) (\S+)\s*\n\s*relation (\S+)', out, re.M)
+        bad = [f'{x} {y} {r}' for x, y, r in rel if r not in ('disjoint',)]
+        rep.update(interf_seconds=s, interf_raw=out.strip()[-4000:], pairs=len(rel),
+                   relations={r: sum(1 for *_, q in rel if q == r) for r in sorted({q for *_, q in rel})},
+                   interference='none' if rel and not bad else (bad or out.strip()[-600:]))
         print('interf', s, 's', rep['interference'][:300])
     json.dump(rep, open(f, 'w', encoding='utf-8'), indent=1)
 

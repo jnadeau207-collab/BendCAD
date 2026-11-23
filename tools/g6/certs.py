@@ -7,6 +7,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 import humphrey as H
+import asm as ASM
 
 REC = os.path.join(H.ROOT, 'docs', 'receipts', 'g6')
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
@@ -23,8 +24,10 @@ QUERIES = [
 
 
 def kernel(*a, timeout=14400):
-    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
     t = time.time()
+    if ASM.PORT:
+        return ASM.served(a, timeout), round(time.time() - t, 1)
+    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
     p = subprocess.run([*pre, BIN, DESIGN, *a], capture_output=True, text=True, timeout=timeout, env=dict(os.environ, MSYS_NO_PATHCONV='1'))
     return p.stdout + p.stderr, round(time.time() - t, 1)
 
