@@ -56,14 +56,20 @@ Sources: lambda_1atm: MEASURED: stoichiometric JP-10/air at 353 K, mean cell wid
 
 ## 5. Rotordynamics
 
-not-analyzed: the kernel `rotor` run on the built design has not completed
+Critical speeds (COMPUTED, kernel `rotor`, `tools/g6/rotor.py`): 14582, 25766, 51551 r/min against the 43842 r/min design point; within 15%: none. The front support is a back-to-back pair of 7004 ACE/HCP4A at z 79 and 91 mm: with one front bearing the third critical sat at 43 690 r/min, 0.35% from the design point. Bearing radial stiffness 78168 N/mm each (Hertz elliptical point contact (Hamrock-Brewe), inner and outer contacts in series, radial stiffness 0.5 Z k_n cos^2(alpha) under axial preload (Harris and Kotzalas); preload 60.0 N, PROJECTED).
+| disc | mass kg | residual unbalance g mm | force N | front bearing N | rear bearing N |
+|---|---|---|---|---|---|
+| impeller | 2.311 | 1.26 | 26.5 | 35.4 | -8.9 |
+| turbine | 1.825 | 0.99 | 20.9 | -3.0 | 23.9 |
+
+Balance: ISO 21940-11 G2.5 (COMPUTED: permissible residual unbalance U = 9549 G m / n per disc; bearing loads from the static split of the disc force between the bearings). Provisions: the impeller and turbine are balanced as AM parts in two correction planes each before assembly; the hollow shaft carries no correction.
 
 ## Mass properties certificate
 
 | part | material | mass kg (certified interval) |
 |---|---|---|
 | shaft | 17-4PH-H1075 | [0.7387247541799683, 0.7387247541802436] |
-| impeller | TI-6AL-4V-ANN | [2.3245729251214104, 2.3245937698842876] |
+| impeller | TI-6AL-4V-ANN | [2.31099368901295, 2.311013975702379] |
 | casing | TI-6AL-4V-ANN | [1.2141143958936096, 1.2141143958966414] |
 | shroud | AL-A356.0-T6 | [0.5378383546511404, 0.5378383546513762] |
 | diffuser | AL-A356.0-T6 | [0.553344252013378, 0.5533442520144851] |
@@ -85,8 +91,12 @@ not-analyzed: the kernel `rotor` run on the built design has not completed
 | bearing_rear_outer | BEARING-STEEL | [0.034400827030500125, 0.03440082703058461] |
 | bearing_rear_balls | SI3N4 | [0.005148147987622332, 0.005148147987638822] |
 | bearing_rear_cage | PEEK-GF30 | [0.0013593478208394276, 0.0013593621756837519] |
+| bearing_front2_inner | BEARING-STEEL | [0.020315686488683902, 0.020315686488745575] |
+| bearing_front2_outer | BEARING-STEEL | [0.03440082703050939, 0.034400827030575384] |
+| bearing_front2_balls | SI3N4 | [0.005148147987622332, 0.005148147987638822] |
+| bearing_front2_cage | PEEK-GF30 | [0.001359347820839554, 0.0013593621756837555] |
 
-Total [13.671086386913421, 13.67110983835535] kg against 19.6 kg.
+Total [13.718731160132617, 13.718754067856086] kg against 19.6 kg.
 
 ## Assembly
 
@@ -171,6 +181,10 @@ OCCT reads every exported part back and measures it; it shares no code with the 
 | 62 | BEARING-STEEL | data/std/bearings.json |
 | 63 | SI3N4 | data/std/bearings.json |
 | 64 | PEEK-GF30 | data/std/bearings.json |
+| 71 | BEARING-STEEL | data/std/bearings.json |
+| 72 | BEARING-STEEL | data/std/bearings.json |
+| 73 | SI3N4 | data/std/bearings.json |
+| 74 | PEEK-GF30 | data/std/bearings.json |
 | 461 | INCONEL-625 | MIL-HDBK-5J (data/std/materials.json) |
 | 462 | INCONEL-625 | MIL-HDBK-5J (data/std/materials.json) |
 | 463 | INCONEL-625 | MIL-HDBK-5J (data/std/materials.json) |

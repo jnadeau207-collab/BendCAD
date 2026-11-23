@@ -66,7 +66,7 @@ The goal is a kernel an agent can take from a written brief all the way to a par
 | G1 | Parameterized mounting bracket with curved edges and holes | ✅ passed: 5/5 runs re-graded PASS (`docs/receipts/g1/rerun-2026-10-27`) |
 | G2 | Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances | ✅ passed: run 1 graded 25/25 by OCCT reading the exported STEP (`docs/receipts/g2/run1`) |
 | G3 | Two-stage gearbox: gears, shafts, bearings, housing, seals | ✅ passed: v3 gearbox, every part valid=True, interference pairs 0 (`docs/receipts/g3/v3`) |
-| G4 | Centrifugal blower with modal analysis and machining checks | ❌ not passed: run 1 graded 49 pass, 1 fail, 0 deferred of 50 (`docs/receipts/g4/run2`) |
+| G4 | Centrifugal blower with modal analysis and machining checks | ❌ not passed: run 2 graded 49 pass, 1 fail, 0 deferred of 50 (`docs/receipts/g4/run2`) |
 | G5 | A ~100 N micro turbojet, with drawings a shop can build from | in progress: readiness 8/10 pass, 1 fail (`docs/receipts/g5/review/readiness.json`); design point 99.3 N at 118,486 r/min (`cycle.json`) |
 | G6 | A bespoke jet engine from a performance brief | in progress: OCCT grading of the STEP exports 9/9 pass (`docs/receipts/g6/grading.json`); certified clearance and wall queries 6/6 (`certs.json`); mates dof 0, interference ser_4
 cavity 1 nesting-uncertain 0 status=estimated
@@ -83,7 +83,7 @@ relation disjoint status=certified
 pair vaporiser_3 vaporiser_4
 cavity 1 nesting-uncertain 0 status=estimated
 cavity 1 nesting-uncertain 0 status=estimated
-relation disjoint status=certified (`asm.json`); dry mass 13.671 kg certified against 19.6 kg (`mass.json`) |
+relation disjoint status=certified (`asm.json`); dry mass 13.719 kg certified against 19.6 kg (`mass.json`) |
 <!-- ladder:end -->
 
 And the kernel milestones that carry it there:

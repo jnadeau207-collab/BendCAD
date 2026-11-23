@@ -80,7 +80,16 @@ def main():
         L += ['', '## 4b. Running tip clearances (COMPUTED, `tools/g6/running.py`)', '']
         L += table(['pair', 'cold mm', 'closure mm', 'running mm', 'result'], [(r['pair'], n(r['cold_mm']), n(r['closure_mm']), n(r['running_mm']), 'pass' if r['ok'] else 'fail') for r in rn['rows']])
     L += ['', '## 5. Rotordynamics', '']
-    L += [f"Critical speeds {ro['critical_speeds_rpm']} r/min against {H.RPM:.0f} r/min (kernel `rotor`)."] if ro else ['not-analyzed: the kernel `rotor` run on the built design has not completed']
+    if ro:
+        L += [f"Critical speeds (COMPUTED, kernel `rotor`, `tools/g6/rotor.py`): {', '.join(f'{c:.0f}' for c in ro['critical_speeds_rpm'])} r/min against the {H.RPM:.0f} r/min design point; "
+              f"within 15%: {ro['within_15pct'] or 'none'}. The front support is a back-to-back pair of 7004 ACE/HCP4A at z {H.Z_BRG_F2:.0f} and {H.Z_BRG_F:.0f} mm: with one front bearing the third critical sat at 43 690 r/min, 0.35% from the design point. "
+              f"Bearing radial stiffness {ro['bearing']['k_radial_N_per_mm']:.0f} N/mm each ({ro['bearing']['method']}; preload {ro['bearing']['preload_N']} N, PROJECTED)."]
+        L += table(['disc', 'mass kg', 'residual unbalance g mm', 'force N', 'front bearing N', 'rear bearing N'],
+                   [(k, next(round(d['m_kg'], 3) for d in ro['discs'] if d['name'] == k), round(v['residual_unbalance_g_mm'], 2), round(v['force_N'], 1), round(v['front_N'], 1), round(v['rear_N'], 1))
+                    for k, v in ro['balance']['discs'].items()])
+        L += ['', f"Balance: {ro['balance']['grade']} ({ro['balance']['basis']}). Provisions: {ro['provisions']}."]
+    else:
+        L += ['not-analyzed: the kernel `rotor` run on the built design has not completed']
     L += ['', '## Mass properties certificate', '']
     if ms:
         L += table(['part', 'material', 'mass kg (certified interval)'], [(p['name'], p['material'], p['mass_kg']) for p in ms['parts']])

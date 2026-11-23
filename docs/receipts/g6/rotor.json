@@ -1,0 +1,63 @@
+{
+ "source": "bendcad rotor (Timoshenko beam elements, Sturm-count bisection, N/2N/4N refinement with an extrapolated bound) on the HUMPHREY-1 shaft",
+ "binary": "/home/jesse/bc/bendcad-r1y",
+ "design": "/home/jesse/g6/g6s.bcd",
+ "shaft": "17-4PH-H1075 (MIL-HDBK-5J), hollow 10 mm bore as tools/g6/humphrey.py shaft_edits",
+ "discs": [
+  {
+   "name": "impeller",
+   "node": 19,
+   "z": 42.9302691425919,
+   "m_kg": 2.3110038323576645,
+   "jd_kg_mm2": 4297.316435136338,
+   "jp_kg_mm2": 7301.66135816707,
+   "raw": "material TI-6AL-4V-ANN density=4428.7847536325 cte=0.00000909 mass=[2.31099368901295, 2.311013975702379] kg status=certified source=\"Ti-6Al-4V bar, annealed AMS 4928, MIL-HDBK-5J Table 5.4.1.0(c1) p946; expansion Figure 5.4.1.0 p952\""
+  },
+  {
+   "name": "turbine",
+   "node": 27,
+   "z": 280.9805136188803,
+   "m_kg": 1.8252099350289797,
+   "jd_kg_mm2": 2799.372229781162,
+   "jp_kg_mm2": 5480.805289637612,
+   "raw": "material WASPALOY-AMS5704 density=8248.611603640531 cte=0.000012149999999999999 mass=[1.8252088767419632, 1.825210993315996] kg status=certified source=\"Waspaloy forging, solution, stabilization and precipitation heat treated AMS 5704, MIL-HDBK-5J Table 6.3.8.0(b) p1131; expansion Figure 6.3.8.0 p11"
+  }
+ ],
+ "bearing": {
+  "method": "Hertz elliptical point contact (Hamrock-Brewe), inner and outer contacts in series, radial stiffness 0.5 Z k_n cos^2(alpha) under axial preload (Harris and Kotzalas)",
+  "preload_N": 60.0,
+  "preload_basis": "PROJECTED: design spring preload",
+  "ball_load_N": 11.831007915762493,
+  "k_n_N_per_mm": 15860.875341756295,
+  "k_radial_N_per_mm": 78168.14847065997
+ },
+ "spec": "(rotor (seg 54.9302691425919 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 42.0697308574081 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 12.0 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 7.0 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 147.0 24.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 7.0 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 22.98051361888031 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (seg 21.01948638111969 20.0 10.0 196500.5828552983 0.27 7833.413032987483) (disc 54.9302691425919 2.3110038323576645 4297.316435136338) (disc 292.9805136188803 1.8252099350289797 2799.372229781162) (brg 109.0 78168.14847065997 0) (brg 270.0 78168.14847065997 0) (brg 97.0 78168.14847065997 0) (n 8) (modes 3))",
+ "seconds": 1.5,
+ "raw": "rotor elements 64/256\ncritical 1 rpm=[14581.856877664013, 14581.857237625663] extrapolated=14581.857057644838 ratio=4.053518792996205 n64=14581.858026123426 n128=14581.857296567769 n256=14581.857116586943 status=estimated method=timoshenko-fe-sturm bound=refinement\ncritical 2 rpm=[25765.5437102417, 25765.544670383515] extrapolated=25765.54419031261 ratio=4.095347412262752 n64=25765.546791535013 n128=25765.544825477868 n256=25765.54434540696 status=estimated method=timoshenko-fe-sturm bound=refinement\ncritical 3 rpm=[51551.01751572178, 51551.02314250261] extrapolated=51551.020329112194 ratio=4.0355184811427325 n64=51551.035422815294 n128=51551.02406932629 n256=51551.02125593588 status=estimated method=timoshenko-fe-sturm bound=refinement",
+ "critical_speeds_rpm": [
+  14581.857057644838,
+  25765.54419031261,
+  51551.020329112194
+ ],
+ "design_rpm": 43842.0797841919,
+ "within_15pct": [],
+ "balance": {
+  "grade": "ISO 21940-11 G2.5",
+  "basis": "COMPUTED: permissible residual unbalance U = 9549 G m / n per disc; bearing loads from the static split of the disc force between the bearings",
+  "discs": {
+   "impeller": {
+    "residual_unbalance_g_mm": 1.258406370892524,
+    "force_N": 26.525308302157878,
+    "front_N": 35.43348395934701,
+    "rear_N": -8.908175657189124
+   },
+   "turbine": {
+    "residual_unbalance_g_mm": 0.9938779755780702,
+    "force_N": 20.949448704900444,
+    "front_N": -2.9902428029254606,
+    "rear_N": 23.939691507825902
+   }
+  }
+ },
+ "provisions": "the impeller and turbine are balanced as AM parts in two correction planes each before assembly; the hollow shaft carries no correction"
+}

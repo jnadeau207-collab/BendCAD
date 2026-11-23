@@ -12,7 +12,7 @@ import humphrey as H
 REC = os.path.join(H.ROOT, 'docs', 'receipts', 'g6')
 BIN = os.environ.get('BENDCAD_BIN', '/home/jesse/bc/bendcad')
 DESIGN = os.environ.get('G6_DESIGN', '/home/jesse/g6/g6.bcd')
-ZBF, ZBR = H.Z_BRG_F + H.B_W / 2, H.Z_BRG_R + H.B_W / 2
+ZBF, ZBR, ZBF2 = H.Z_BRG_F + H.B_W / 2, H.Z_BRG_R + H.B_W / 2, H.Z_BRG_F2 + H.B_W / 2
 MATES = [
     ('casing', 20, None, None, 'fixed: the engine datum'),
     ('shroud', 23, 'casing', H.Z_EXIT - H.B2 - 4.0, 'shroud flange seats on the casing bore'),
@@ -29,6 +29,10 @@ MATES = [
     ('bearing_rear_inner', 61, 'bearing_rear_balls', ZBR, 'inner ring on the balls'),
     ('bearing_front_cage', 54, 'bearing_front_balls', ZBF, 'cage on the balls'),
     ('bearing_rear_cage', 64, 'bearing_rear_balls', ZBR, 'cage on the balls'),
+    ('bearing_front2_outer', 72, 'tunnel', ZBF2, 'second front outer ring in the tunnel bore, back-to-back with the first'),
+    ('bearing_front2_balls', 73, 'bearing_front2_outer', ZBF2, 'balls on the outer raceway'),
+    ('bearing_front2_inner', 71, 'bearing_front2_balls', ZBF2, 'inner ring on the balls'),
+    ('bearing_front2_cage', 74, 'bearing_front2_balls', ZBF2, 'cage on the balls'),
     ('shaft', 10, 'bearing_front_inner', ZBF, 'shaft journal in the front inner ring'),
     ('impeller', 19, 'shaft', H.Z_IMP0, 'impeller hub on the shaft'),
     ('turbine', 27, 'shaft', H.Z_TUR, 'turbine disc on the shaft'),

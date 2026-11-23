@@ -15,7 +15,8 @@ DESIGN = os.environ.get('G6_DESIGN', '/home/jesse/g6/g6.bcd')
 PARTS = {'shaft': 10, 'impeller': 19, 'casing': 20, 'shroud': 23, 'diffuser': 24, 'rdc': 40, 'stator': 42, 'turbine': 27, 'nozzle': 28,
          'reservoir': 43, 'tunnel': 44, 'vaporiser_1': 461, 'vaporiser_2': 462, 'vaporiser_3': 463, 'vaporiser_4': 464,
          'bearing_front_inner': 51, 'bearing_front_outer': 52, 'bearing_front_balls': 53, 'bearing_front_cage': 54,
-         'bearing_rear_inner': 61, 'bearing_rear_outer': 62, 'bearing_rear_balls': 63, 'bearing_rear_cage': 64}
+         'bearing_rear_inner': 61, 'bearing_rear_outer': 62, 'bearing_rear_balls': 63, 'bearing_rear_cage': 64,
+         'bearing_front2_inner': 71, 'bearing_front2_outer': 72, 'bearing_front2_balls': 73, 'bearing_front2_cage': 74}
 NUM = r'(-?\d+(?:\.\d+)?(?:e[-+]?\d+)?)'
 
 

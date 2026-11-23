@@ -1,7 +1,7 @@
 {
  "source": "bendcad mass NODE 0 per part (certified divergence volume and moments; density from MIL-HDBK-5J, NASA TM-2009-215806 or the bearing catalog)",
- "binary": "/home/jesse/bc/bendcad-r1v",
- "design": "/home/jesse/g6/g6r.bcd",
+ "binary": "/home/jesse/bc/bendcad-r1y",
+ "design": "/home/jesse/g6/g6s.bcd",
  "parts": [
   {
    "name": "shaft",
@@ -22,16 +22,16 @@
   {
    "name": "impeller",
    "node": 19,
-   "seconds": 530.0,
+   "seconds": 862.3,
    "material": "TI-6AL-4V-ANN",
    "mass_kg": [
-    2.3245729251214104,
-    2.3245937698842876
+    2.31099368901295,
+    2.311013975702379
    ],
    "status": "certified",
    "volume_mm3": [
-    524878.2802584368,
-    524882.986913656
+    521812.1488332591,
+    521816.7294779632
    ],
    "error": null
   },
@@ -370,16 +370,80 @@
     900.2398514461929
    ],
    "error": null
+  },
+  {
+   "name": "bearing_front2_inner",
+   "node": 71,
+   "seconds": 0.3,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.020315686488683902,
+    0.020315686488745575
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    2571.6058846435326,
+    2571.6058846513374
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front2_outer",
+   "node": 72,
+   "seconds": 0.3,
+   "material": "BEARING-STEEL",
+   "mass_kg": [
+    0.03440082703050939,
+    0.034400827030575384
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    4354.535067153089,
+    4354.535067161439
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front2_balls",
+   "node": 73,
+   "seconds": 1.0,
+   "material": "SI3N4",
+   "mass_kg": [
+    0.005148147987622332,
+    0.005148147987638822
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    1608.796246131979,
+    1608.7962461371312
+   ],
+   "error": null
+  },
+  {
+   "name": "bearing_front2_cage",
+   "node": 74,
+   "seconds": 25.3,
+   "material": "PEEK-GF30",
+   "mass_kg": [
+    0.001359347820839554,
+    0.0013593621756837555
+   ],
+   "status": "certified",
+   "volume_mm3": [
+    900.2303449268571,
+    900.2398514461953
+   ],
+   "error": null
   }
  ],
  "complete": true,
  "total_kg": [
-  13.671086386913421,
-  13.67110983835535
+  13.718731160132617,
+  13.718754067856086
  ],
  "partial_total_kg": [
-  13.671086386913421,
-  13.67110983835535
+  13.718731160132617,
+  13.718754067856086
  ],
  "limit_kg": 19.6,
  "refusal": null

@@ -58,6 +58,8 @@ B_IL, B_OL = B_PITCH - 0.3527 * B_BALL, B_PITCH + 0.3527 * B_BALL
 B_CI, B_CO = B_PITCH - 0.2646 * B_BALL, B_PITCH + 0.2646 * B_BALL
 Z_FLANGE = Z_EXIT + 4.0
 Z_BRG_F = Z_EXIT + 25.0
+Z_BRG_F2 = Z_BRG_F - 12.0
+HUB_BOSS = 12.0
 Z_BRG_R = Z_TUR - 4.0 - 2.0 - B_W
 Z_TUN1 = Z_TUR - 4.0 - 1.5
 R_TUN_O = B_DO / 2 + 5.0
@@ -72,6 +74,7 @@ GRADES = {
     43: 'AISI304-ANN', 44: 'A286-AMS5732', 461: 'INCONEL-625', 462: 'INCONEL-625', 463: 'INCONEL-625', 464: 'INCONEL-625',
     51: J5.lit('BEARING-STEEL'), 52: J5.lit('BEARING-STEEL'), 53: J5.lit('SI3N4'), 54: J5.PEEK,
     61: J5.lit('BEARING-STEEL'), 62: J5.lit('BEARING-STEEL'), 63: J5.lit('SI3N4'), 64: J5.PEEK,
+    71: J5.lit('BEARING-STEEL'), 72: J5.lit('BEARING-STEEL'), 73: J5.lit('SI3N4'), 74: J5.PEEK,
 }
 
 
@@ -156,7 +159,7 @@ def impeller_edits():
         z = Z_IMP0 + L_IMP * i / 8
         hub.append((hub_r(z), z))
     hub += [(R2 + HUB_RIM, Z_EXIT), (R2 + HUB_RIM, Z_EXIT + 5.0)] + [(r, min(Z_EXIT + 5.0, hub_z(r) + back_t(r))) for r in (90.0, 80.0, 70.0, 60.0, 50.0, 40.0, 30.0)] + [
-        (R_SHAFT + 8.0, Z_EXIT + 14.0), (R_SHAFT, Z_EXIT + 14.0)]
+        (R_SHAFT + 8.0, Z_EXIT + HUB_BOSS), (R_SHAFT, Z_EXIT + HUB_BOSS)]
     main = ' '.join(imp_sec(0.02 + 0.98 * i / 10, 0.02) for i in range(11))
     spl = ' '.join(imp_sec(0.40 + 0.60 * i / 7, 0.40, 0.85) for i in range(8))
     e = [rev(1901, hub), f'(node 1903 (skin {main}) {IC})', f'(node 1904 (skin {spl}) {IC})', f'(node 1905 (rotate 1904 z 15.0) {IS})']
@@ -341,10 +344,10 @@ def parts():
     return [('shaft', shaft_edits()), ('casing', casing_edits()), ('shroud', shroud_edits()), ('diffuser', diffuser_edits()), ('rdc', rdc_edits()),
             ('stator', stator_edits()), ('turbine', turbine_edits()), ('nozzle', nozzle_edits()), ('reservoir', reservoir_edits()), ('impeller', impeller_edits()),
             ('tunnel', tunnel_edits()), ('vaporiser', vaporiser_edits()), ('bearing_front', bearing_edits(5000, Z_BRG_F)[0]),
-            ('bearing_rear', bearing_edits(6000, Z_BRG_R)[0])]
+            ('bearing_rear', bearing_edits(6000, Z_BRG_R)[0]), ('bearing_front2', bearing_edits(7000, Z_BRG_F2)[0])]
 
 
-USED = {10, 19, 20, 23, 24, 40, 42, 27, 28, 43, 44, 461, 462, 463, 464, 51, 52, 53, 54, 61, 62, 63, 64}
+USED = {10, 19, 20, 23, 24, 40, 42, 27, 28, 43, 44, 461, 462, 463, 464, 51, 52, 53, 54, 61, 62, 63, 64, 71, 72, 73, 74}
 
 
 def write(path):

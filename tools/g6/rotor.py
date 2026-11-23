@@ -14,6 +14,7 @@ J5 = H.J5
 PRELOAD_N = 60.0
 NUM = r'(-?\d+(?:\.\d+)?(?:e-?\d+)?)'
 G_BAL = 2.5
+PAIR = float(os.environ.get('G6_FRONT_PAIR', repr(H.Z_BRG_F2 - H.Z_BRG_F)))
 
 
 def stiffness():
@@ -54,14 +55,15 @@ def main():
     E, nu, rho = st['e'] * 1000.0 * J5.KSI, st['nu'], st['rho'] * J5.LBIN3
     z0, z1 = -12.0, H.Z_TUR + H.B_TUR + 10.0
     zf, zr = H.Z_BRG_F + H.B_W / 2, H.Z_BRG_R + H.B_W / 2
+    brgs = [zf, zr] + ([zf + PAIR] if PAIR else [])
     prof = [(z0, H.Z_BRG_F + H.B_W + 1.0, 2 * H.R_SHAFT), (H.Z_BRG_F + H.B_W + 1.0, H.Z_BRG_R - 1.0, 2 * H.R_SPAN), (H.Z_BRG_R - 1.0, z1, 2 * H.R_SHAFT)]
     mass = json.load(open(os.path.join(REC, 'mass.json'), encoding='utf-8'))
     discs = [disc('impeller', 19, mass), disc('turbine', 27, mass)]
     bs = stiffness()
-    zs = sorted({z for a, b, _ in prof for z in (a, b)} | {d['z'] for d in discs} | {zf, zr})
+    zs = sorted({z for a, b, _ in prof for z in (a, b)} | {d['z'] for d in discs} | set(brgs))
     segs = [f'(seg {b - a!r} {next(d for p, q, d in prof if p - 1e-9 <= a and b <= q + 1e-9)!r} 10.0 {E!r} {nu!r} {rho!r})' for a, b in zip(zs, zs[1:])]
     spec = ('(rotor ' + ' '.join(segs) + ' ' + ' '.join(f"(disc {d['z'] - zs[0]!r} {d['m_kg']!r} {d['jd_kg_mm2']!r})" for d in discs) + ' ' +
-            ' '.join(f"(brg {z - zs[0]!r} {bs['k_radial_N_per_mm']!r} 0)" for z in (zf, zr)) + ' (n 8) (modes 3))')
+            ' '.join(f"(brg {z - zs[0]!r} {bs['k_radial_N_per_mm']!r} 0)" for z in brgs) + ' (n 8) (modes 3))')
     out, s = ASM.kernel('rotor', spec)
     crit = [float(m.group(3)) for m in re.finditer(r'critical \d+ rpm=\[' + NUM + ', ' + NUM + r'\] extrapolated=' + NUM, out)]
     w = H.RPM * math.pi / 30.0
