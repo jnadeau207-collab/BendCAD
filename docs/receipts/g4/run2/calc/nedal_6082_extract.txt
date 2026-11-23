@@ -1,0 +1,39 @@
+Source: Nedal Aluminium, Alloy data sheet EN AW-6082 [AlSi1MgMn], rev.00 jun-2005
+URL: https://xometry.asia/wp-content/uploads/2020/09/Datasheet-EN-AW-6082.pdf
+Supplementary: Metallservice EN 755-2 sheet, T6 bars 150-200 mm Rp0.2 >= 240 MPa: https://www.metallservice.ch/msm/msm-home/services/infoservice/produktinfos-datenbl%C3%A4tter/aluminium-pressprodukte/datenblatt-zu-aluminium-rechteckstangen-en-aw-6082.pdf
+Text extracted with pypdf 5.1.0:
+
+0.50 
+max. 
+0.10 
+0.40 – 
+1.0 
+0.6 – 
+1.2 
+max 
+0.25 
+max 
+0.20 
+max 
+0.10 
+ max 
+0.05 
+max 
+0.15 
+ 
+Mechanical properties according to EN755-2 
+Temper* Wallthickness
+ Yield stress Tensile strength Elongation Hardness**  
+ e*** Rp 0.2 
+[MPa] 
+Rm 
+[MPa] 
+A 
+[%] 
+A50mm 
+[%] 
+HB 
+T4 e  25 110 205 14 12 65 
+T5 e  5 230 270 8 6 80 
+e  5 250 290 8 6 95 T6 5 < e  25 260 310 10 8 95 
+*Temper designation according to EN515: T4-Naturally aged to a stable condition, T5-cooled from an elevated temperature 

@@ -1,0 +1,7 @@
+$ modes 1 6 8 0 0 0 0 0 1 14.5
+binary bendcad-g4z9 (batch fin3, design blower.bcd evaluated in the same process)
+started 2026-10-31 12:32 EDT, stopped by the operator 2026-11-01 00:11 EDT
+wall 11:39:34, cpu 2-20:05:33 (68 cpu-hours), no output: the solve never finished
+the design evaluation that precedes it took about 3 h wall in the parallel batches of the same run
+element size H=8 mm is coarser than the 4 mm blade thickness; a mesh that resolves the blades needs H<=2.4 mm
+refused: impeller-modes-not-computable | modes @ node 1 | the kernel's impeller FE does not finish at H=8 within 8+ h; a blade-resolving mesh is out of reach until the speed packet

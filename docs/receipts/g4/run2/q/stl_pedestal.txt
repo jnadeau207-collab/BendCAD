@@ -1,0 +1,2 @@
+$ stl 4 /home/jesse/g4/export/pedestal.stl 3
+wrote /home/jesse/g4/export/pedestal.stl nverts 15148 ntris 30336 (sampled, not certified)

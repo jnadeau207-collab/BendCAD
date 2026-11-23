@@ -1,0 +1,2 @@
+$ step 7 /home/jesse/g4/export/washer.stp
+wrote /home/jesse/g4/export/washer.stp entities 108 products 1

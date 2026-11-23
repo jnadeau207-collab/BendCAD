@@ -1,0 +1,1 @@
+clearance [1.4999997691353122, 1.5000000000002283] certified lo=branch-and-bound hi=witness samples=1740x130

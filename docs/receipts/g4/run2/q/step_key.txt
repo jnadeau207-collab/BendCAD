@@ -1,0 +1,2 @@
+$ step 6 /home/jesse/g4/export/key.stp
+wrote /home/jesse/g4/export/key.stp entities 164 products 1

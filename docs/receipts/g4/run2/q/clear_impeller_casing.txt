@@ -1,0 +1,1 @@
+clearance [9.999998807702045, 10] certified lo=branch-and-bound hi=sampled samples=1740x841

@@ -1,0 +1,2 @@
+$ step 11 /home/jesse/g4/export/bolt_m12x25.stp
+wrote /home/jesse/g4/export/bolt_m12x25.stp entities 344 products 1

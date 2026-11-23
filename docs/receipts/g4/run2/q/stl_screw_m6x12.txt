@@ -1,0 +1,2 @@
+$ stl 9 /home/jesse/g4/export/screw_m6x12.stl 3
+wrote /home/jesse/g4/export/screw_m6x12.stl nverts 2532 ntris 5060 (sampled, not certified)

@@ -63,16 +63,16 @@ not-analyzed: the kernel `rotor` run on the built design has not completed
 | part | material | mass kg (certified interval) |
 |---|---|---|
 | shaft | 17-4PH-H1075 | [0.7387247541799683, 0.7387247541802436] |
-| impeller | None | None |
+| impeller | TI-6AL-4V-ANN | [2.3245729251214104, 2.3245937698842876] |
 | casing | TI-6AL-4V-ANN | [1.2141143958936096, 1.2141143958966414] |
-| shroud | AL-A356.0-T6 | [0.5379647434092186, 0.5379647434094434] |
-| diffuser | AL-A356.0-T6 | [0.5533442520133779, 0.5533442520144849] |
+| shroud | AL-A356.0-T6 | [0.5378383546511404, 0.5378383546513762] |
+| diffuser | AL-A356.0-T6 | [0.553344252013378, 0.5533442520144851] |
 | rdc | INCONEL-625 | [2.082751504406857, 2.0827515044110245] |
-| stator | None | None |
-| turbine | WASPALOY-AMS5704 | [1.8198662003040216, 1.819867115903217] |
-| nozzle | INCONEL-625 | [0.9138366110997453, 0.9138366424712923] |
+| stator | SIC-SIC-N24A | [1.3581453723832135, 1.3581457982177525] |
+| turbine | WASPALOY-AMS5704 | [1.8252088767419632, 1.825210993315996] |
+| nozzle | INCONEL-625 | [0.9138366110024786, 0.913836642568561] |
 | reservoir | AISI304-ANN | [0.15396355019696495, 0.15396355019807997] |
-| tunnel | A286-AMS5732 | [1.8845975813627058, 1.8845975813634985] |
+| tunnel | A286-AMS5732 | [1.7046619330195913, 1.7046619330203] |
 | vaporiser_1 | INCONEL-625 | [0.040051416830125364, 0.040051416830846356] |
 | vaporiser_2 | INCONEL-625 | [0.03692977904968216, 0.03692977905036083] |
 | vaporiser_3 | INCONEL-625 | [0.03380814126924029, 0.03380814126987363] |
@@ -86,11 +86,67 @@ not-analyzed: the kernel `rotor` run on the built design has not completed
 | bearing_rear_balls | SI3N4 | [0.005148147987622332, 0.005148147987638822] |
 | bearing_rear_cage | PEEK-GF30 | [0.0013593478208394276, 0.0013593621756837519] |
 
-Incomplete: 10.163 kg certified over the parts that evaluated, against 19.6 kg. Not evaluated: impeller (timeout after 14400 s); stator (error: node failed; nothing measured).
+Total [13.671086386913421, 13.67110983835535] kg against 19.6 kg.
 
 ## Assembly
 
-not-analyzed: `asm solve` and `asm interf` on the built design have not completed
+dof 0; interference: ser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_2 vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_2 vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_3 vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+
+## Semantic PMI and tolerance stacks (COMPUTED by the kernel `pmi`, `tools/g6/pmi.py`)
+
+| item | verb | result | kernel output |
+|---|---|---|---|
+| stator | check | pass | pmi node 4202 items 5; datum A ok n4202.c0.wall.0.0 plane; tol fl flatness conforms actual 0 certified; dim shroud nominal 87.29240248939433 zone [87.28740248939434, 87.29740248939433]; dim rdc_ro nominal 119 zone [118.9 |
+| turbine tip clearance stack | stack | pass | pmi node 4202 stacks 1 states 1; stack gtt nominal 0.15000000000000568 envelope [0.14000000000000054, 0.16000000000001083] certified; state cold grow 1 [0.1400000000000005, 0.16000000000001086] |
+| RDC channel height stack | stack | pass | pmi node 4202 stacks 1 states 1; stack chan nominal 10 envelope [9.989999999999993, 10.010000000000007] certified; state cold grow 1 [9.989999999999991, 10.010000000000009] |
+| compressor tip clearance stack | stack | pass | pmi node 23 stacks 1 states 1; stack gtip nominal 0.4 envelope [0.3899999999999999, 0.41000000000000014] certified; state cold grow 1 [0.38999999999999985, 0.4100000000000002] |
+| RDC injector face and orifices | check | pass | pmi node 40 items 5; datum A ok n4005.c0.wall.2.0 plane; tol fl flatness conforms actual 0 certified; dim orifice nominal 1.2 zone [1.19, 1.21]; dim pcd nominal 228 zone [227.99, 228.01]; state cold grow 1; pmi ok 5 item |
+| front bearing outer ring in the tunnel bore | fits | pass | fits 1; fit housing hole 44.n4401.c0.wall.9.0 H7=[42, 42.025] shaft 52.n5002.c0.wall.1.0 h6=[41.984, 42] nominal=42;   temp cold T=20 clearance=[0, 0.04100000000000001];   temp hot T=150 clearance=[0.02489759999999992, 0 |
+| front bearing inner ring on the shaft journal | fits | pass | fits 1; fit journal hole 51.n5001.c0.wall.5.0 H6=[20, 20.013] shaft 10.n1001.c0.wall.1.0 k5=[20.002, 20.011] nominal=20;   temp cold T=20 clearance=[-0.011000000000000001, 0.011000000000000001];   temp hot T=150 clearanc |
+
+A bearing bore is modelled as ISO 286 H6: the ISO 492 bore deviation (0 to -10 um at 20 mm) has no ISO 286 class.
+
+## Certified queries (COMPUTED by the kernel, `tools/g6/certs.py`)
+
+| query | design mm | certified interval mm | status | s | result |
+|---|---|---|---|---|---|
+| turbine tip clearance | 0.15 | [0.1499979238008677, 0.1499996809833626] | certified | 28.5 | pass |
+| compressor tip clearance | 0.4 | [0.30266874247052367, 0.3977169496008284] | certified | 95.0 | pass |
+| compressor splitter tip clearance | 0.4 | [0.3545351623129851, 0.4003952823149073] | certified | 96.4 | pass |
+| RDC channel height | 10.0 | [9.999992906032642, 10.0] | certified | 10.6 | pass |
+| RDC outer body minimum wall | None | [1.199999982122629, 2.5000000000012372] | certified | 531.0 | pass |
+| vaporiser loop minimum wall | None | [0.49999999999999994, 0.5000000000114665] | certified | 1.6 | pass |
+
+## Independent grading of the STEP AP242 export (`tools/g6/grade.py`)
+
+OCCT reads every exported part back and measures it; it shares no code with the kernel. The gate asks for a fresh agent session as the grader; the owner forbids subagents, so the grader is this independent code path.
+
+| check | result | evidence |
+|---|---|---|
+| every part read back from STEP with the kernel-certified volume (1e-6) | pass | disagree or missing: none |
+| envelope diameter <= 272 mm | pass | D 272.000 mm from the STEP bounding boxes |
+| envelope length <= 560 mm | pass | L 525.000 mm |
+| RDC channel height measured from the export equals the model (0.01 mm) | pass | 10.000000035965428 mm vs 10.0 |
+| turbine tip clearance from the export equals the design (0.005 mm) | pass | 0.1500 mm vs 0.15 |
+| compressor tip clearance from the export equals the design (0.005 mm) | pass | 0.3982 mm vs 0.4 |
+| injector orifices counted from the export | pass | 120 distinct r 0.6 bores (cylinder faces grouped by axis) vs 120 |
+| nozzle exit area from the geometry matches the deck (0.5%) | pass | 10932.6 vs 10932.6 mm2 |
+| turbine annulus from the geometry matches the deck (0.5%) | pass | 11648.3 vs 11648.3 mm2 |
 
 ## Materials
 

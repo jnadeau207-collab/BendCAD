@@ -1,0 +1,2 @@
+$ stl 1 /home/jesse/g4/export/impeller.stl 3
+wrote /home/jesse/g4/export/impeller.stl nverts 109884 ntris 219808 (sampled, not certified)

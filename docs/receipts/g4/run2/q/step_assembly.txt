@@ -1,0 +1,3 @@
+$ asm step /home/jesse/g4/export/blower_assembly.stp (assembly (inst pedestal 4 0.0 0.0 0.0 0) (inst motor 5 0.0 0.0 0.0 0) (inst casing 2 0.0 0.0 0.0 0) (inst impeller 1 0.0 0.0 0.0 0) (inst key 6 0.0 0.0 0.0 0) (inst washer 7 0.0 0.0 30.0 0) (inst scr
+wrote /home/jesse/g4/export/blower_assembly.stp entities 27050 products 40
+instances pedestal,motor,casing,impeller,key,washer,screw_m10,front_plate,cone,gasket,screw_m6_0,screw_m6_1,screw_m6_2,screw_m6_3,screw_m6_4,screw_m6_5,screw_m6_6,screw_m6_7,bolt_m8_0,bolt_m8_1,bolt_m8_2,bolt_m8_3,bolt_m8_4,bolt_m8_5,bolt_m8_6,bolt_m8_7,bolt_m8_8,bolt_m8_9,bolt_m8_10,bolt_m8_11,bolt_m10_0,bolt_m10_1,bolt_m10_2,bolt_m10_3,bolt_m10_4,bolt_m10_5,bolt_m12_0,bolt_m12_1,bolt_m12_2,bolt_m12_3

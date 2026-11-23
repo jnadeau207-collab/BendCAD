@@ -1,0 +1,12 @@
+$ threads 4
+threads node 4
+thread motor_tap0 M12x1.75 6H z=[-38, -23] length=15 internal minor=[10.106, 10.441] model=10.2 face=n4001.c2.wall.0.0 status=certified
+thread motor_tap1 M12x1.75 6H z=[-38, -23] length=15 internal minor=[10.106, 10.441] model=10.2 face=n4001.c3.wall.0.0 status=certified
+thread motor_tap2 M12x1.75 6H z=[-38, -23] length=15 internal minor=[10.106, 10.441] model=10.2 face=n4001.c4.wall.0.0 status=certified
+thread motor_tap3 M12x1.75 6H z=[-38, -23] length=15 internal minor=[10.106, 10.441] model=10.2 face=n4001.c5.wall.0.0 status=certified
+thread casing_tap0 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c6.wall.0.0 status=certified
+thread casing_tap1 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c7.wall.0.0 status=certified
+thread casing_tap2 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c8.wall.0.0 status=certified
+thread casing_tap3 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c9.wall.0.0 status=certified
+thread casing_tap4 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c10.wall.0.0 status=certified
+thread casing_tap5 M10x1.5 6H z=[-38, -23] length=15 internal minor=[8.376, 8.676] model=8.5 face=n4001.c11.wall.0.0 status=certified

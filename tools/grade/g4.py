@@ -302,7 +302,6 @@ def main():
         cp =os.path.join(RUN, 'q', 'clear_impeller_%s.txt' % tag)
         iv = kernel_iv(cp, 'clearance') if os.path.exists(cp) else None
         check('kernel_clearance.' + tag, iv is not None and iv[2] == 'certified' and iv[0] <= occt + 1e-9 and iv[0] > 0,
-              deferred='certified clearance moved after G6 by the owner (2026-10-31)',
               kernel=iv, occt_mm=occt, rule='certified lo <= OCCT distance, lo > 0', evidence='q/clear_impeller_%s.txt' % tag)
 
     worst = None

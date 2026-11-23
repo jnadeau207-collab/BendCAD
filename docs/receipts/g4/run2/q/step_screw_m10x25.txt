@@ -1,0 +1,2 @@
+$ step 8 /home/jesse/g4/export/screw_m10x25.stp
+wrote /home/jesse/g4/export/screw_m10x25.stp entities 372 products 1

@@ -37,8 +37,8 @@ def g3():
 
 
 def g4():
-    ok, bad, d = graded(load('g4', 'run1', 'grade.json'))
-    return f'{"✅ passed" if not bad else "❌ not passed"}: run 1 graded {ok} pass, {bad} fail, {d} deferred of {ok + bad + d} (`docs/receipts/g4/run1`)'
+    ok, bad, d = graded(load('g4', 'run2', 'grade.json'))
+    return f'{"✅ passed" if not bad else "❌ not passed"}: run 1 graded {ok} pass, {bad} fail, {d} deferred of {ok + bad + d} (`docs/receipts/g4/run2`)'
 
 
 def g5():

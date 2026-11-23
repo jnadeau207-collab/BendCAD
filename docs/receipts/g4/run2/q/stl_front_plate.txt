@@ -1,0 +1,2 @@
+$ stl 13 /home/jesse/g4/export/front_plate.stl 3
+wrote /home/jesse/g4/export/front_plate.stl nverts 27720 ntris 55520 (sampled, not certified)

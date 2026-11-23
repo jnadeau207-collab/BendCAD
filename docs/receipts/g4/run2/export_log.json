@@ -1,0 +1,163 @@
+{
+ "binary": "/home/jesse/bc/bendcad-r1y",
+ "sha256": "ac45e327a8c346a7a7c5d73ce3d91768f2e624dfb5f406728d94c8c513dad491",
+ "master_committed": true,
+ "master_seconds": 83.5,
+ "jobs": [
+  {
+   "job": "step_impeller",
+   "seconds": 52.8,
+   "tail": "wrote /home/jesse/g4rg/export/impeller.stp entities 8266 products 1"
+  },
+  {
+   "job": "step_casing",
+   "seconds": 11.3,
+   "tail": "wrote /home/jesse/g4rg/export/casing.stp entities 4476 products 1"
+  },
+  {
+   "job": "step_cone",
+   "seconds": 10.5,
+   "tail": "wrote /home/jesse/g4rg/export/cone.stp entities 754 products 1"
+  },
+  {
+   "job": "step_pedestal",
+   "seconds": 1.2,
+   "tail": "wrote /home/jesse/g4rg/export/pedestal.stp entities 952 products 1"
+  },
+  {
+   "job": "step_motor",
+   "seconds": 2.5,
+   "tail": "wrote /home/jesse/g4rg/export/motor.stp entities 768 products 1"
+  },
+  {
+   "job": "step_key",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/key.stp entities 164 products 1"
+  },
+  {
+   "job": "step_washer",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/washer.stp entities 108 products 1"
+  },
+  {
+   "job": "step_screw_m10x25",
+   "seconds": 0.6,
+   "tail": "wrote /home/jesse/g4rg/export/screw_m10x25.stp entities 312 products 1"
+  },
+  {
+   "job": "step_screw_m6x12",
+   "seconds": 0.6,
+   "tail": "wrote /home/jesse/g4rg/export/screw_m6x12.stp entities 312 products 1"
+  },
+  {
+   "job": "step_bolt_m10x16",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m10x16.stp entities 288 products 1"
+  },
+  {
+   "job": "step_bolt_m12x25",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m12x25.stp entities 284 products 1"
+  },
+  {
+   "job": "step_gasket",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/gasket.stp entities 764 products 1"
+  },
+  {
+   "job": "step_front_plate",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/front_plate.stp entities 836 products 1"
+  },
+  {
+   "job": "step_bolt_m8x20",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m8x20.stp entities 288 products 1"
+  },
+  {
+   "job": "stl_impeller",
+   "seconds": 274.4,
+   "tail": "bend: memory fault (machine stack overflow?)"
+  },
+  {
+   "job": "stl_casing",
+   "seconds": 54.0,
+   "tail": "wrote /home/jesse/g4rg/export/casing.stl nverts 59744 ntris 119620 (sampled, not certified)"
+  },
+  {
+   "job": "stl_cone",
+   "seconds": 160.5,
+   "tail": "wrote /home/jesse/g4rg/export/cone.stl nverts 212190 ntris 424412 (sampled, not certified)"
+  },
+  {
+   "job": "stl_pedestal",
+   "seconds": 8.9,
+   "tail": "wrote /home/jesse/g4rg/export/pedestal.stl nverts 15148 ntris 30336 (sampled, not certified)"
+  },
+  {
+   "job": "stl_motor",
+   "seconds": 7.6,
+   "tail": "wrote /home/jesse/g4rg/export/motor.stl nverts 14234 ntris 28480 (sampled, not certified)"
+  },
+  {
+   "job": "stl_key",
+   "seconds": 0.1,
+   "tail": "wrote /home/jesse/g4rg/export/key.stl nverts 8 ntris 12 (sampled, not certified)"
+  },
+  {
+   "job": "stl_washer",
+   "seconds": 0.8,
+   "tail": "wrote /home/jesse/g4rg/export/washer.stl nverts 2520 ntris 5040 (sampled, not certified)"
+  },
+  {
+   "job": "stl_screw_m10x25",
+   "seconds": 1.4,
+   "tail": "wrote /home/jesse/g4rg/export/screw_m10x25.stl nverts 2532 ntris 5060 (sampled, not certified)"
+  },
+  {
+   "job": "stl_screw_m6x12",
+   "seconds": 1.5,
+   "tail": "wrote /home/jesse/g4rg/export/screw_m6x12.stl nverts 2532 ntris 5060 (sampled, not certified)"
+  },
+  {
+   "job": "stl_bolt_m10x16",
+   "seconds": 0.4,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m10x16.stl nverts 1272 ntris 2540 (sampled, not certified)"
+  },
+  {
+   "job": "stl_bolt_m12x25",
+   "seconds": 0.5,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m12x25.stl nverts 1272 ntris 2540 (sampled, not certified)"
+  },
+  {
+   "job": "stl_gasket",
+   "seconds": 8.5,
+   "tail": "wrote /home/jesse/g4rg/export/gasket.stl nverts 17656 ntris 35368 (sampled, not certified)"
+  },
+  {
+   "job": "stl_front_plate",
+   "seconds": 14.8,
+   "tail": "wrote /home/jesse/g4rg/export/front_plate.stl nverts 27720 ntris 55520 (sampled, not certified)"
+  },
+  {
+   "job": "stl_bolt_m8x20",
+   "seconds": 0.8,
+   "tail": "wrote /home/jesse/g4rg/export/bolt_m8x20.stl nverts 1272 ntris 2540 (sampled, not certified)"
+  },
+  {
+   "job": "step_assembly",
+   "seconds": 97.7,
+   "tail": "instances pedestal,motor,casing,impeller,key,washer,screw_m10,front_plate,cone,gasket,screw_m6_0,screw_m6_1,screw_m6_2,screw_m6_3,screw_m6_4,screw_m6_5,screw_m6_6,screw_m6_7,bolt_m8_0,bolt_m8_1,bolt_m8_2,bolt_m8_3,bolt_m8_4,bolt_m8_5,bolt_m8_6,bolt_m8_7,bolt_m8_8,bolt_m8_9,bolt_m8_10,bolt_m8_11,bolt"
+  },
+  {
+   "job": "clearance_cone",
+   "seconds": 68.5,
+   "tail": "clearance [1.4999997691353122, 1.5000000000002283] certified lo=branch-and-bound hi=witness samples=1740x130"
+  },
+  {
+   "job": "clearance_casing",
+   "seconds": 117.4,
+   "tail": "clearance [9.999998807702045, 10] certified lo=branch-and-bound hi=sampled samples=1740x841"
+  }
+ ]
+}

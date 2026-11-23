@@ -87,9 +87,10 @@ def main(what):
         print('solve', s, 's dof', rep['dof'])
     if 'interf' in what:
         out, s = kernel('asm', 'interf', form())
-        rel = re.findall(r'^pair (\S+) (\S+)\s*\n\s*relation (\S+)', out, re.M)
+        open(os.path.join(REC, 'asm_interf.txt'), 'w', encoding='utf-8', newline='\n').write(out)
+        rel = re.findall(r'^pair (\S+) (\S+)\s*\n(?:(?!pair |relation ).*\n)*?\s*relation (\S+)', out, re.M)
         bad = [f'{x} {y} {r}' for x, y, r in rel if r not in ('disjoint',)]
-        rep.update(interf_seconds=s, interf_raw=out.strip()[-4000:], pairs=len(rel),
+        rep.update(interf_seconds=s, interf_raw='docs/receipts/g6/asm_interf.txt', pairs=len(rel),
                    relations={r: sum(1 for *_, q in rel if q == r) for r in sorted({q for *_, q in rel})},
                    interference='none' if rel and not bad else (bad or out.strip()[-600:]))
         print('interf', s, 's', rep['interference'][:300])
