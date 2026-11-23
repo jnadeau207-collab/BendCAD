@@ -15,10 +15,11 @@ P0, T0 = 101325.0, 288.15
 P_OUT = float(os.environ.get('G5_POUT', '239000'))
 ROT = ['impeller', 'shaft', 'nut_front']
 STA = ['intake', 'front_cover', 'diffuser', 'tunnel', 'casing']
-LVL = {'impeller': (4, 5), 'front_cover': (4, 5), 'diffuser': (3, 4), 'shaft': (3, 3), 'nut_front': (3, 3), 'intake': (2, 3), 'tunnel': (2, 3), 'casing': (2, 2)}
+LVL = {'impeller': (3, 4), 'front_cover': (3, 4), 'diffuser': (3, 3), 'shaft': (2, 2), 'nut_front': (2, 2), 'intake': (2, 2), 'tunnel': (2, 2), 'casing': (2, 2)}
 BOX = (-0.060, 0.060, -0.060, 0.060, -0.040, 0.045)
 CELL = 0.004 * 2.0 ** ((2 - LEVEL) / 2.0)
 MRF = (0.03425, -0.0095, 0.02775)
+RAMP = int(os.environ.get('G5_CFD_RAMP', '500'))
 R_OUT = jet.R_CASE_I * 1e-3
 
 
@@ -68,8 +69,8 @@ geometry
 }}
 castellatedMeshControls
 {{
-    maxLocalCells 6000000;
-    maxGlobalCells 16000000;
+    maxLocalCells 3000000;
+    maxGlobalCells 8000000;
     minRefinementCells 10;
     maxLoadUnbalance 0.10;
     nCellsBetweenLevels 3;
@@ -81,8 +82,8 @@ castellatedMeshControls
     resolveFeatureAngle 25;
     refinementRegions
     {{
-        wheel {{ mode inside; levels ((1e15 4)); }}
-        passage {{ mode inside; levels ((1e15 3)); }}
+        wheel {{ mode inside; levels ((1e15 3)); }}
+        passage {{ mode inside; levels ((1e15 2)); }}
     }}
     locationInMesh (0.0 0.0 -0.035);
     allowFreeStandingZoneFaces true;
@@ -150,7 +151,7 @@ def physics():
     nonRotatingPatches (front_cover diffuser tunnel intake casing);
     origin (0 0 0);
     axis (0 0 1);
-    omega constant {OMEGA};
+    omega table ((0 0) ({RAMP} {OMEGA}) (1e9 {OMEGA}));
 }}
 ''')
     w('constant/fvOptions', 'dictionary', 'fvOptions', '')
@@ -192,7 +193,7 @@ def fields(ramp=1500):
               f'"({amb})" {{ type totalTemperature; gamma 1.4; T0 uniform {T0}; value uniform {T0}; }}\n    plenum {{ type inletOutlet; inletValue uniform {CYC["T2_K"]}; value uniform {T0}; }}\n    {walls} {{ type zeroGradient; }}'),
         'U': ('volVectorField', '[0 1 -1 0 0 0 0]', '(0 0 0)',
               f'"({amb})" {{ type pressureInletOutletVelocity; value uniform (0 0 0); }}\n    plenum {{ type inletOutlet; inletValue uniform (0 0 0); value uniform (0 0 0); }}\n'
-              f'    {rot} {{ type rotatingWallVelocity; origin (0 0 0); axis (0 0 1); omega {OMEGA}; value uniform (0 0 0); }}\n'
+              f'    {rot} {{ type rotatingWallVelocity; origin (0 0 0); axis (0 0 1); omega table ((0 0) ({RAMP} {OMEGA}) (1e9 {OMEGA})); value uniform (0 0 0); }}\n'
               f'    "(' + '|'.join(STA) + ')" { type noSlip; }'),
         'k': ('volScalarField', '[0 2 -2 0 0 0 0]', k0,
               f'"({amb}|plenum)" {{ type inletOutlet; inletValue uniform {k0}; value uniform {k0}; }}\n    {walls} {{ type kqRWallFunction; value uniform {k0}; }}'),
@@ -238,7 +239,7 @@ divSchemes
     div(phi,K) bounded Gauss upwind;
     div(phi,k) bounded Gauss upwind;
     div(phi,omega) bounded Gauss upwind;
-    div(phid,p) Gauss upwind;
+    div(phid,p) Gauss upwind; div(phiMRF,p) Gauss upwind;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
 }
 laplacianSchemes { default Gauss linear limited corrected 0.5; }
@@ -257,13 +258,13 @@ SIMPLE
     pMinFactor 0.3;
     pMaxFactor 4.0;
     transonic yes;
-    consistent yes;
+    consistent no;
     residualControl { p 1e-5; U 1e-5; h 1e-5; }
 }
 relaxationFactors
 {
-    fields { p 0.7; rho 0.3; }
-    equations { U 0.5; h 0.5; k 0.5; omega 0.5; }
+    fields { p 0.3; rho 0.05; }
+    equations { U 0.3; h 0.3; k 0.3; omega 0.3; }
 }
 ''')
     w('system/flowReport', 'dictionary', 'flowReport', '''massIn { type surfaceFieldValue; libs (fieldFunctionObjects); writeControl timeStep; writeInterval 10;
