@@ -135,7 +135,7 @@ def imp_sec(m, m0, th_scale=1.0):
     dr, dz = rs - rh, zs - zh
     ln = math.hypot(dr, dz)
     rh, zh = rh - 0.8 * dr / ln, zh - 0.8 * dz / ln
-    ln += 0.8 - G_TIP
+    ln += 0.8
     th = -0.55 * (1 - m) ** 2
     c, s = math.cos(th), math.sin(th)
     k = min(1.0, (m - m0) / 0.2)
@@ -169,19 +169,28 @@ def casing_edits():
     return [rev(20, p)]
 
 
-def contour(m):
-    return R1T + G_TIP + (R2 - R1T) * (1 - math.cos(math.pi / 2 * m)), Z_IMP0 + (L_IMP - B2) * m
-
-
 def contour_n(m):
     dr, dz = (R2 - R1T) * math.pi / 2 * math.sin(math.pi / 2 * m), L_IMP - B2
     ln = math.hypot(dr, dz)
     return dz / ln, -dr / ln
 
 
+def tip_bulge(m):
+    rs = R1T + (R2 - R1T) * (1 - math.cos(math.pi / 2 * m))
+    k = max(0.0, min(1.0, (m - 0.02) / 0.2))
+    k = k * k * (3 - 2 * k)
+    return math.hypot(rs, (0.8 + 0.8 * k) / 2) - rs
+
+
+def contour(m):
+    nr, nz = contour_n(m)
+    g = G_TIP + tip_bulge(m) * nr
+    return R1T + (R2 - R1T) * (1 - math.cos(math.pi / 2 * m)) + g * nr, Z_IMP0 + (L_IMP - B2) * m + g * nz
+
+
 def shroud_edits():
     t = 3.0
-    ms = [i / 8 for i in range(9)]
+    ms = [i / 16 for i in range(17)]
     outer = [(contour(m)[0] + t * contour_n(m)[0], contour(m)[1] + t * contour_n(m)[1]) for m in ms]
     prof = [(R1T + G_TIP, Z_IMP0 - 30.0), (R1T + G_TIP + t, Z_IMP0 - 30.0)] + outer + [(R_CASE_I, Z_EXIT - B2 - t), (R_CASE_I, Z_EXIT - B2)]
     prof += [contour(m) for m in reversed(ms)]
@@ -250,8 +259,9 @@ def turbine_edits():
             (TH - 10.0, Z_TUR + B_TUR), (TH - 10.0, Z_TUR + 15.0), (20.0, Z_TUR + 15.0), (20.0, Z_TUR + B_TUR + 4.0), (R_SHAFT, Z_TUR + B_TUR + 4.0)]
     b_hub = J5.airfoil(B_TUR - 2.0, 0.18, math.tan(math.radians(42.0)), -math.tan(math.radians(60.0)), 0.6)
     b_tip = J5.airfoil(B_TUR - 2.0, 0.10, math.tan(math.radians(25.0)), -math.tan(math.radians(64.0)), 0.4)
-    secs = J5.foil_sec(TH - 0.8, Z_TUR + 1.0, b_hub) + ' ' + J5.foil_sec(TT, Z_TUR + 1.0, b_tip)
-    e = [rev(2701, disc), f'(node 2702 (skin {secs}) {IC})']
+    secs = J5.foil_sec(TH - 0.8, Z_TUR + 1.0, b_hub) + ' ' + J5.foil_sec(TT + 2.0, Z_TUR + 1.0, b_tip)
+    trim = [(0.0, Z_TUR - 5.0), (TT, Z_TUR - 5.0), (TT, Z_TUR + B_TUR + 5.0), (0.0, Z_TUR + B_TUR + 5.0)]
+    e = [rev(2701, disc), f'(node 2703 (skin {secs}) {IC})', rev(2704, trim), f'(node 2702 (intersection 2703 2704) {IS})']
     r, prev = J5.ring_union(2700, 2702, TUR_N, 2701, 360.0 / TUR_N)
     return e + r + [done(27, prev)]
 
@@ -316,6 +326,13 @@ def nozzle_r(z):
     return TT + 4.0 + (R_NOZ - (TT + 4.0)) * (z - z0) / (z1 - z0)
 
 
+def analysis_edits():
+    z0, z1 = Z_INJ + 1.0, Z_RDC1 - 1.0
+    ro = RDC_RO + T_RDC + 5.0
+    slab = [(0.0, z0), (ro, z0), (ro, z1), (0.0, z1)]
+    return [rev(9400, slab), f'(node 9401 (intersection 4099 9400) {IS})', f'(node 9402 (intersection 4203 9400) {IS})']
+
+
 def materials():
     return [J5.mat_edit(n, g) for n, g in GRADES.items() if n in USED]
 
@@ -334,6 +351,7 @@ def write(path):
     lines = ['(bendcad 1)']
     for tag, edits in parts():
         lines += edits
+    lines += analysis_edits()
     lines += materials()
     open(path, 'w', newline='\n').write('\n'.join(lines) + '\n')
     return len(lines)

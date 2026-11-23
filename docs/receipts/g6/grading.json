@@ -1,0 +1,261 @@
+{
+ "source": "tools/g6/grade.py: OCCT (OCP 7.x via build123d) reading the STEP AP242 exports, an independent code path from the kernel",
+ "export": "/home/jesse/g6/export",
+ "ready": true,
+ "checks": [
+  {
+   "check": "every part read back from STEP with the kernel-certified volume (1e-6)",
+   "status": "pass",
+   "evidence": "disagree or missing: none"
+  },
+  {
+   "check": "envelope diameter <= 272 mm",
+   "status": "pass",
+   "evidence": "D 272.000 mm from the STEP bounding boxes"
+  },
+  {
+   "check": "envelope length <= 560 mm",
+   "status": "pass",
+   "evidence": "L 525.000 mm"
+  },
+  {
+   "check": "RDC channel height measured from the export equals the model (0.01 mm)",
+   "status": "pass",
+   "evidence": "10.000000035965428 mm vs 10.0"
+  },
+  {
+   "check": "turbine tip clearance from the export equals the design (0.005 mm)",
+   "status": "pass",
+   "evidence": "0.1500 mm vs 0.15"
+  },
+  {
+   "check": "compressor tip clearance from the export equals the design (0.005 mm)",
+   "status": "pass",
+   "evidence": "0.3982 mm vs 0.4"
+  },
+  {
+   "check": "injector orifices counted from the export",
+   "status": "pass",
+   "evidence": "120 distinct r 0.6 bores (cylinder faces grouped by axis) vs 120"
+  },
+  {
+   "check": "nozzle exit area from the geometry matches the deck (0.5%)",
+   "status": "pass",
+   "evidence": "10932.6 vs 10932.6 mm2"
+  },
+  {
+   "check": "turbine annulus from the geometry matches the deck (0.5%)",
+   "status": "pass",
+   "evidence": "11648.3 vs 11648.3 mm2"
+  }
+ ],
+ "parts": [
+  {
+   "part": "shaft",
+   "step_volume_mm3": 94304.32827545839,
+   "kernel_volume_mm3": [
+    94304.32827544087,
+    94304.32827547594
+   ],
+   "rel_diff": 1.1102230246251565e-16
+  },
+  {
+   "part": "impeller",
+   "step_volume_mm3": 524880.6343497146,
+   "kernel_volume_mm3": [
+    524878.2802584368,
+    524882.986913656
+   ],
+   "rel_diff": 1.4549368376748362e-09
+  },
+  {
+   "part": "casing",
+   "step_volume_mm3": 274141.6581375515,
+   "kernel_volume_mm3": [
+    274141.65813721035,
+    274141.6581378947
+   ],
+   "rel_diff": 3.774758283725532e-15
+  },
+  {
+   "part": "shroud",
+   "step_volume_mm3": 200315.91018118386,
+   "kernel_volume_mm3": [
+    200315.91017862182,
+    200315.9101787095
+   ],
+   "rel_diff": 1.2571277352435573e-11
+  },
+  {
+   "part": "diffuser",
+   "step_volume_mm3": 206091.024423455,
+   "kernel_volume_mm3": [
+    206091.02442324953,
+    206091.0244236617
+   ],
+   "rel_diff": 2.9976021664879227e-15
+  },
+  {
+   "part": "rdc",
+   "step_volume_mm3": 246702.20250722588,
+   "kernel_volume_mm3": [
+    246702.20250268895,
+    246702.20250318237
+   ],
+   "rel_diff": 1.7390311413123527e-11
+  },
+  {
+   "part": "stator",
+   "step_volume_mm3": 485051.9975617484,
+   "kernel_volume_mm3": [
+    485051.9187082907,
+    485052.0707920543
+   ],
+   "rel_diff": 5.796442215100228e-09
+  },
+  {
+   "part": "turbine",
+   "step_volume_mm3": 221274.80638481007,
+   "kernel_volume_mm3": [
+    221274.67802416667,
+    221274.93462177768
+   ],
+   "rel_diff": 2.7946200908957053e-10
+  },
+  {
+   "part": "nozzle",
+   "step_volume_mm3": 108244.07428279497,
+   "kernel_volume_mm3": [
+    108244.07241328996,
+    108244.0761522967
+   ],
+   "rel_diff": 1.509903313490213e-14
+  },
+  {
+   "part": "reservoir",
+   "step_volume_mm3": 19448.552920823196,
+   "kernel_volume_mm3": [
+    19448.552920752783,
+    19448.552920893617
+   ],
+   "rel_diff": 2.220446049250313e-16
+  },
+  {
+   "part": "tunnel",
+   "step_volume_mm3": 214581.2523192985,
+   "kernel_volume_mm3": [
+    214581.25231925395,
+    214581.252319343
+   ],
+   "rel_diff": 2.220446049250313e-16
+  },
+  {
+   "part": "vaporiser_1",
+   "step_volume_mm3": 4744.095838859084,
+   "kernel_volume_mm3": [
+    4744.095838816412,
+    4744.09583890181
+   ],
+   "rel_diff": 5.551115123125783e-15
+  },
+  {
+   "part": "vaporiser_2",
+   "step_volume_mm3": 4374.33741389738,
+   "kernel_volume_mm3": [
+    4374.337413857183,
+    4374.337413937567
+   ],
+   "rel_diff": 1.3322676295501878e-15
+  },
+  {
+   "part": "vaporiser_3",
+   "step_volume_mm3": 4004.5789889356456,
+   "kernel_volume_mm3": [
+    4004.578988898112,
+    4004.578988973128
+   ],
+   "rel_diff": 6.439293542825908e-15
+  },
+  {
+   "part": "vaporiser_4",
+   "step_volume_mm3": 3634.820563973857,
+   "kernel_volume_mm3": [
+    3634.8205639391394,
+    3634.8205640086076
+   ],
+   "rel_diff": 4.551914400963142e-15
+  },
+  {
+   "part": "bearing_front_inner",
+   "step_volume_mm3": 2571.605884647435,
+   "kernel_volume_mm3": [
+    2571.6058846434844,
+    2571.6058846513856
+   ],
+   "rel_diff": 2.220446049250313e-16
+  },
+  {
+   "part": "bearing_front_outer",
+   "step_volume_mm3": 4354.535067157265,
+   "kernel_volume_mm3": [
+    4354.535067153008,
+    4354.53506716152
+   ],
+   "rel_diff": 4.440892098500626e-16
+  },
+  {
+   "part": "bearing_front_balls",
+   "step_volume_mm3": 1608.796246134557,
+   "kernel_volume_mm3": [
+    1608.796246131979,
+    1608.7962461371312
+   ],
+   "rel_diff": 1.1102230246251565e-15
+  },
+  {
+   "part": "bearing_front_cage",
+   "step_volume_mm3": 900.2350862102879,
+   "kernel_volume_mm3": [
+    900.2290268504422,
+    900.2411698796042
+   ],
+   "rel_diff": 1.3501734508203356e-08
+  },
+  {
+   "part": "bearing_rear_inner",
+   "step_volume_mm3": 2571.6058846474275,
+   "kernel_volume_mm3": [
+    2571.605884642837,
+    2571.6058846520286
+   ],
+   "rel_diff": 1.9984014443252818e-15
+  },
+  {
+   "part": "bearing_rear_outer",
+   "step_volume_mm3": 4354.535067157271,
+   "kernel_volume_mm3": [
+    4354.535067151916,
+    4354.535067162607
+   ],
+   "rel_diff": 2.220446049250313e-15
+  },
+  {
+   "part": "bearing_rear_balls",
+   "step_volume_mm3": 1608.7962461345567,
+   "kernel_volume_mm3": [
+    1608.796246131979,
+    1608.7962461371312
+   ],
+   "rel_diff": 8.881784197001252e-16
+  },
+  {
+   "part": "bearing_rear_cage",
+   "step_volume_mm3": 900.2350862102982,
+   "kernel_volume_mm3": [
+    900.2303449267733,
+    900.2398514461929
+   ],
+   "rel_diff": 1.3303397050634658e-08
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 {
  "source": "bendcad mass NODE 0 per part (certified divergence volume and moments; density from MIL-HDBK-5J, NASA TM-2009-215806 or the bearing catalog)",
- "binary": "/home/jesse/bc/bendcad-r1u",
+ "binary": "/home/jesse/bc/bendcad-r1v",
  "design": "/home/jesse/g6/g6r.bcd",
  "parts": [
   {
@@ -22,16 +22,16 @@
   {
    "name": "impeller",
    "node": 19,
-   "seconds": 1052.8,
+   "seconds": 530.0,
    "material": "TI-6AL-4V-ANN",
    "mass_kg": [
-    2.319911876382812,
-    2.3199323652047035
+    2.3245729251214104,
+    2.3245937698842876
    ],
    "status": "certified",
    "volume_mm3": [
-    523825.8360783995,
-    523830.4623637192
+    524878.2802584368,
+    524882.986913656
    ],
    "error": null
   },
@@ -54,16 +54,16 @@
   {
    "name": "shroud",
    "node": 23,
-   "seconds": 0.6,
+   "seconds": 0.9,
    "material": "AL-A356.0-T6",
    "mass_kg": [
-    0.5379647434092186,
-    0.5379647434094438
+    0.5378383546511404,
+    0.5378383546513762
    ],
    "status": "certified",
    "volume_mm3": [
-    200362.98320510247,
-    200362.98320518614
+    200315.91017862182,
+    200315.9101787095
    ],
    "error": null
   },
@@ -118,16 +118,16 @@
   {
    "name": "turbine",
    "node": 27,
-   "seconds": 2720.4,
+   "seconds": 3016.8,
    "material": "WASPALOY-AMS5704",
    "mass_kg": [
-    1.8198662003040216,
-    1.819867115903217
+    1.8252088767419632,
+    1.825210993315996
    ],
    "status": "certified",
    "volume_mm3": [
-    220626.97187740332,
-    220627.08287780412
+    221274.67802416667,
+    221274.93462177768
    ],
    "error": null
   },
@@ -374,12 +374,12 @@
  ],
  "complete": true,
  "total_kg": [
-  13.66120905049496,
-  13.661230945021057
+  13.671086386913421,
+  13.67110983835535
  ],
  "partial_total_kg": [
-  13.66120905049496,
-  13.661230945021057
+  13.671086386913421,
+  13.67110983835535
  ],
  "limit_kg": 19.6,
  "refusal": null

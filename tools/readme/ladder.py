@@ -53,9 +53,14 @@ def g5():
 def g6():
     g = load('g6', 'grading.json')
     m = load('g6', 'mass.json')
-    ok = sum(c['status'] == 'pass' for c in g['checks'])
+    c = load('g6', 'certs.json') if os.path.exists(os.path.join(R, 'g6', 'certs.json')) else {'rows': []}
+    a = load('g6', 'asm.json')
+    ok = sum(x['status'] == 'pass' for x in g['checks'])
+    cok = sum(r['verdict'] == 'pass' for r in c['rows'])
     kg = m.get('total_kg') or m.get('partial_total_kg')
-    return (f'{"✅ graded" if g.get("ready") else "in progress"}: OCCT grading of the STEP exports {ok}/{len(g["checks"])} pass (`docs/receipts/g6/grading.json`); '
+    done = g.get('ready') and c.get('green') and a.get('dof') == 0 and a.get('interference') == 'none'
+    return (f'{"✅ passed" if done else "in progress"}: OCCT grading of the STEP exports {ok}/{len(g["checks"])} pass (`docs/receipts/g6/grading.json`); '
+            f'certified clearance and wall queries {cok}/{len(c["rows"])} (`certs.json`); mates dof {a.get("dof")}, interference {a.get("interference", "not run")} (`asm.json`); '
             f'dry mass {kg[0]:.3f} kg certified{"" if m.get("complete") else " (partial)"} against {m["limit_kg"]} kg (`mass.json`)')
 
 

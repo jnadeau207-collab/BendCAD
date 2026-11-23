@@ -1,5 +1,5 @@
 {
- "binary": "/home/jesse/bc/bendcad-r1u",
+ "binary": "/home/jesse/bc/bendcad-r1x",
  "ready": false,
  "checks": [
   {
@@ -22,8 +22,8 @@
   },
   {
    "check": "rotor running clearances survive thermal and centrifugal growth",
-   "status": "fail",
-   "evidence": "turbine tip cold 0.302 running 0.212 mm; 6 pairs, failing: ['compressor blade tip to shroud contour -0.1024']",
+   "status": "pass",
+   "evidence": "turbine tip cold 0.302 running 0.212 mm; 6 pairs, failing: none",
    "basis": "computed: tools/g5/running.py + bendcad clearance"
   },
   {
@@ -34,8 +34,8 @@
   },
   {
    "check": "kernel meshes are conforming (no zero-area T-junction fillers)",
-   "status": "fail",
-   "evidence": "non-conforming parts: {'impeller': {'same_direction_pairs': 516, 'edge_uses': {'2': 369807, '4': 228, '14': 6, '16': 12, '18': 6, '30': 6}}, 'turbine': {'same_direction_pairs': 114, 'edge_uses': {'2': 786884, '4': 54, '6': 2, '8': 1}}, 'diffuser': 'no mesh: the part did not evaluate'}",
+   "status": "pass",
+   "evidence": "every part: no zero-area triangle, every edge used twice in opposite directions, no T-junction",
    "basis": "measured: tools/mesh/check.py on the tessellation of every part"
   },
   {
@@ -53,7 +53,7 @@
   {
    "check": "rotor dynamics: critical speeds and blade modes",
    "status": "fail",
-   "evidence": "critical speeds within 15% of 118486 r/min: none",
+   "evidence": "critical speeds within 15% of 118486 r/min: none; blade crossings: none; blade modes not computed: [('turbine_blade', 'refused mesh-uncertified | modes | why: a lattice ray or edg')]",
    "basis": "measured: bendcad modes (curved T10 tetrahedra at three element sizes, LOBPCG, extrapolated estimate and bound)"
   },
   {

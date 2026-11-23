@@ -1,0 +1,114 @@
+{
+ "source": "bendcad clearance / wall on the built design (certified branch-and-bound lower bound, witness upper bound)",
+ "binary": "/home/jesse/bc/bendcad-r1x",
+ "design": "/home/jesse/g6/g6r.bcd",
+ "green": false,
+ "rows": [
+  {
+   "query": "turbine tip clearance",
+   "args": [
+    "clearance",
+    "2702",
+    "4202"
+   ],
+   "why": "one turbine blade against the CMC shroud revolve: the shroud is axisymmetric, so the gap of one blade is the gap of every blade at every angle",
+   "design_mm": 0.15,
+   "certified_mm": [
+    0.0,
+    0.1499996809833626
+   ],
+   "status": "certified",
+   "seconds": 93.3,
+   "verdict": "fail",
+   "raw": "clearance [0, 0.1499996809833626] certified lo=branch-and-bound hi=witness samples=416x80"
+  },
+  {
+   "query": "compressor tip clearance",
+   "args": [
+    "clearance",
+    "1903",
+    "23"
+   ],
+   "why": "one main blade against the shroud revolve",
+   "design_mm": 0.4,
+   "certified_mm": [
+    0.30266874247052367,
+    0.3977169496008284
+   ],
+   "status": "certified",
+   "seconds": 64.7,
+   "verdict": "pass",
+   "raw": "clearance [0.30266874247052367, 0.3977169496008284] certified lo=branch-and-bound hi=witness samples=170x380"
+  },
+  {
+   "query": "compressor splitter tip clearance",
+   "args": [
+    "clearance",
+    "1904",
+    "23"
+   ],
+   "why": "one splitter blade against the shroud revolve",
+   "design_mm": 0.4,
+   "certified_mm": [
+    0.3545351623129851,
+    0.4003952823149073
+   ],
+   "status": "certified",
+   "seconds": 60.8,
+   "verdict": "pass",
+   "raw": "clearance [0.3545351623129851, 0.4003952823149073] certified lo=branch-and-bound hi=witness samples=110x380"
+  },
+  {
+   "query": "RDC channel height",
+   "args": [
+    "clearance",
+    "4099",
+    "4203"
+   ],
+   "why": "RDC outer body with its injector orifices against the stator rings: both are surfaces of revolution about the engine axis, so the certified gap holds around the full circumference",
+   "design_mm": 10.0,
+   "certified_mm": [
+    0.0,
+    0.0
+   ],
+   "status": "certified",
+   "seconds": 126.9,
+   "verdict": "fail",
+   "raw": "clearance [0, 0] certified lo=branch-and-bound hi=sampled samples=692x140"
+  },
+  {
+   "query": "RDC outer body minimum wall",
+   "args": [
+    "wall",
+    "40"
+   ],
+   "why": "minimum material thickness of the finished RDC body",
+   "design_mm": null,
+   "certified_mm": [
+    1.199999982122629,
+    2.5000000000012372
+   ],
+   "status": "certified",
+   "seconds": 525.8,
+   "verdict": "pass",
+   "raw": "min-wall [1.199999982122629, 2.5000000000012372] certified lo=branch-and-bound hi=witness normals=opposed faces=132"
+  },
+  {
+   "query": "vaporiser loop minimum wall",
+   "args": [
+    "wall",
+    "461"
+   ],
+   "why": "minimum material thickness of vaporiser coil 1 (the four coils are the same part moved)",
+   "design_mm": null,
+   "certified_mm": [
+    0.49999999999999994,
+    0.5000000000114665
+   ],
+   "status": "certified",
+   "seconds": 13.0,
+   "verdict": "pass",
+   "raw": "min-wall [0.49999999999999994, 0.5000000000114665] certified lo=branch-and-bound hi=witness normals=opposed faces=8"
+  }
+ ]
+}

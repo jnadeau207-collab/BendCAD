@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import socket
 import subprocess
 import sys
 import time
@@ -47,9 +48,33 @@ def form(names=None):
     return f'(assembly {ins} {" ".join(cons)})'
 
 
+PORT = int(os.environ.get('G6_PORT', '0'))
+
+
+def served(args, timeout):
+    fn = '/var/tmp/g6q-%d-%d.req' % (os.getpid(), int(time.time() * 1e6))
+    open(fn, 'w').write('
+'.join([DESIGN] + list(args) + ['<<end>>']) + '
+')
+    s = socket.create_connection(('127.0.0.1', PORT), timeout=timeout)
+    s.sendall((fn + '
+').encode())
+    out = b''
+    while True:
+        d = s.recv(65536)
+        if not d:
+            break
+        out += d
+    s.close()
+    os.remove(fn)
+    return out.decode()
+
+
 def kernel(*a, timeout=86400):
-    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
     t = time.time()
+    if PORT:
+        return served(a, timeout), round(time.time() - t, 1)
+    pre = ['wsl.exe', '-e'] if os.name == 'nt' else []
     p = subprocess.run([*pre, BIN, DESIGN, *a], capture_output=True, text=True, timeout=timeout, env=dict(os.environ, MSYS_NO_PATHCONV='1'))
     return p.stdout + p.stderr, round(time.time() - t, 1)
 
