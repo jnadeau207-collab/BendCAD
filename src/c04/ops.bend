@@ -938,8 +938,18 @@ def pt_on(+surf: G.GVal, +p: V.Point) -> Bool:
 def vx_surf_on(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal) -> Bool:
   pt_on(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))))
 
+def to_ulp(+p: V.Point) -> F64:
+  V.Pt{+px, +py, +pz} = p
+  F64.mul(16.0f64, F64.max(F64.mul(F64.max(F64.abs(px), F64.max(F64.abs(py), F64.abs(pz))), 2.220446049250313e-16f64), 4.9e-324f64))
+
+def to_tol(s: G.GVal, +p: V.Point, +tol: F64) -> F64:
+  match s:
+    case G.GV_to{w}: F64.max(tol, to_ulp(p))
+    case _: tol
+
 def vx_surf_tol(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal, +tol: F64) -> Bool:
-  GO.q_on_h(surf, Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv))), tol)
+  +p = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv)))
+  GO.q_on_h(surf, p, to_tol(surf, p, tol))
 
 def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:

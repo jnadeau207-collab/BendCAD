@@ -83,6 +83,7 @@ def kernel(*a, timeout=86400):
 def main(what):
     f = os.path.join(REC, 'asm.json')
     rep = json.load(open(f, encoding='utf-8')) if os.path.exists(f) else dict(source='bendcad asm solve / asm interf on tools/g6/asm.py MATES', binary=BIN, design=DESIGN)
+    rep.update(binary=BIN, design=DESIGN)
     rep['mates'] = [dict(part=m[0], node=m[1], to=m[2], z=m[3], why=m[4]) for m in MATES]
     if 'solve' in what:
         out, s = kernel('asm', 'solve', form())

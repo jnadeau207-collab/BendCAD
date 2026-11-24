@@ -1,6 +1,6 @@
 {
  "source": "bendcad modes (curved T10 tetrahedra at three element sizes, LOBPCG, extrapolated estimate and bound)",
- "binary": "/home/jesse/bc/bendcad-r1z",
+ "binary": "/home/jesse/bc/bendcad-r28",
  "design": "/home/jesse/g5/g5u.bcd",
  "case": "turbine_blade",
  "node": 2702,
@@ -14,10 +14,172 @@
   21.5
  ],
  "why": "one turbine blade cantilevered where it enters the disc rim (r <= 21.5); excitation: 1x, 2x, NGV passing (19) and its harmonic",
- "H": 0.58,
- "seconds": 446.6,
- "modes": [],
- "campbell": [],
- "raw": "refused mesh-uncertified | modes | why: the level h=0.58 mesh: a lattice ray or edge cut did not certify against the faces | fix: change H slightly",
+ "H": 0.6,
+ "seconds": 3991.7,
+ "modes": [
+  {
+   "lo": 11511.57421334891,
+   "mid": 11158.668988654428,
+   "hi": 11048.241723021403,
+   "est": 10997.95186969871,
+   "bound": 110.42726563302494,
+   "status": "estimated"
+  },
+  {
+   "lo": 19910.66664304298,
+   "mid": 19729.268440182506,
+   "hi": 19572.5143389597,
+   "est": 18575.446212418065,
+   "bound": 997.0681265416351,
+   "status": "estimated"
+  },
+  {
+   "lo": 38358.210711638516,
+   "mid": 37555.90741461971,
+   "hi": 37223.37704083543,
+   "est": 36987.99427605674,
+   "bound": 332.5303737842769,
+   "status": "estimated"
+  },
+  {
+   "lo": 42929.09959489521,
+   "mid": 42095.82704353721,
+   "hi": 41448.20405835941,
+   "est": 39189.02543726051,
+   "bound": 2259.178621098901,
+   "status": "estimated"
+  }
+ ],
+ "campbell": [
+  {
+   "mode": 1,
+   "eo": 1,
+   "f_hz": 10997.95186969871,
+   "crossing_rpm": 659877.1121819227,
+   "margin_at_design": 4.569241194587738,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 1,
+   "eo": 2,
+   "f_hz": 10997.95186969871,
+   "crossing_rpm": 329938.5560909613,
+   "margin_at_design": 1.784620597293869,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 1,
+   "eo": 19,
+   "f_hz": 10997.95186969871,
+   "crossing_rpm": 34730.37432536435,
+   "margin_at_design": -0.7068820423901191,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 1,
+   "eo": 38,
+   "f_hz": 10997.95186969871,
+   "crossing_rpm": 17365.187162682174,
+   "margin_at_design": -0.8534410211950596,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 2,
+   "eo": 1,
+   "f_hz": 18575.446212418065,
+   "crossing_rpm": 1114526.7727450838,
+   "margin_at_design": 8.406400526181015,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 2,
+   "eo": 2,
+   "f_hz": 18575.446212418065,
+   "crossing_rpm": 557263.3863725419,
+   "margin_at_design": 3.7032002630905074,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 2,
+   "eo": 19,
+   "f_hz": 18575.446212418065,
+   "crossing_rpm": 58659.30382868862,
+   "margin_at_design": -0.504926288095736,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 2,
+   "eo": 38,
+   "f_hz": 18575.446212418065,
+   "crossing_rpm": 29329.65191434431,
+   "margin_at_design": -0.752463144047868,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 3,
+   "eo": 1,
+   "f_hz": 36987.99427605674,
+   "crossing_rpm": 2219279.6565634045,
+   "margin_at_design": 17.73031123139784,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 3,
+   "eo": 2,
+   "f_hz": 36987.99427605674,
+   "crossing_rpm": 1109639.8282817022,
+   "margin_at_design": 8.36515561569892,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 3,
+   "eo": 19,
+   "f_hz": 36987.99427605674,
+   "crossing_rpm": 116804.1924507055,
+   "margin_at_design": -0.014194145715903161,
+   "in_range_50_110": true
+  },
+  {
+   "mode": 3,
+   "eo": 38,
+   "f_hz": 36987.99427605674,
+   "crossing_rpm": 58402.09622535275,
+   "margin_at_design": -0.5070970728579516,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 4,
+   "eo": 1,
+   "f_hz": 39189.02543726051,
+   "crossing_rpm": 2351341.5262356307,
+   "margin_at_design": 18.844889069051455,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 4,
+   "eo": 2,
+   "f_hz": 39189.02543726051,
+   "crossing_rpm": 1175670.7631178154,
+   "margin_at_design": 8.922444534525727,
+   "in_range_50_110": false
+  },
+  {
+   "mode": 4,
+   "eo": 19,
+   "f_hz": 39189.02543726051,
+   "crossing_rpm": 123754.81717029636,
+   "margin_at_design": 0.04446784573955043,
+   "in_range_50_110": true
+  },
+  {
+   "mode": 4,
+   "eo": 38,
+   "f_hz": 39189.02543726051,
+   "crossing_rpm": 61877.40858514818,
+   "margin_at_design": -0.4777660771302248,
+   "in_range_50_110": true
+  }
+ ],
+ "raw": "level h=0.6 nodes=11677 tets=6471 curved=4330 held=772 rigid=0 iters=86 residual=6.593270969053931e-7\nlevel h=0.4762203155904598 nodes=21968 tets=12732 curved=7313 held=1394 rigid=0 iters=90 residual=9.87324623816294e-7\nlevel h=0.3779763149684619 nodes=40284 tets=24392 curved=11650 held=2466 rigid=0 iters=92 residual=7.197998774133425e-7\nmode 1 hz=[11511.57421334891, 11158.668988654428, 11048.241723021403] est=10997.95186969871 bound=110.42726563302494 status=estimated\nmode 2 hz=[19910.66664304298, 19729.268440182506, 19572.5143389597] est=18575.446212418065 bound=997.0681265416351 status=estimated\nmode 3 hz=[38358.210711638516, 37555.90741461971, 37223.37704083543] est=36987.99427605674 bound=332.5303737842769 status=estimated\nmode 4 hz=[42929.09959489521, 42095.82704353721, 41448.20405835941] est=39189.02543726051 bound=2259.178621098901 status=estimated\nmethod=T10 isosurface-stuffing mesh, block LOBPCG; bound from three levels h, h/2^(1/3), h/2^(2/3)",
  "note": "spin is linear in the kernel: no centrifugal stiffening, so the rotating frequencies are lower bounds of the running ones"
 }

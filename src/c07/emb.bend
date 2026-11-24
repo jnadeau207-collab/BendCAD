@@ -2064,9 +2064,20 @@ def cpts(ts: List<&2, List<&2, F64>>, +c: List<&2, I.I>, +r: I.I, +u: List<&2, I
       +sn = I.iwiden(I.ipt(X.fn_(t, 1n)), 2.220446049250313e-16f64)
       X.vadd(c, Mm.vs(r, X.vadd(Mm.vs(cs, u), Mm.vs(sn, v)))) <> cpts(rest, c, r, u, v)
 
-def circ_pts(+c: List<&2, I.I>, +r: I.I, +n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
+def circ_pts_t(+ts: List<&2, List<&2, F64>>, +c: List<&2, I.I>, +r: I.I, +n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
   +f = frame(n)
-  cpts(trig(), c, r, hd(f), hd(drop_n(1n, f)))
+  cpts(ts, c, r, hd(f), hd(drop_n(1n, f)))
+
+def circ_pts(+c: List<&2, I.I>, +r: I.I, +n: List<&2, I.I>) -> List<&2, List<&2, I.I>>:
+  circ_pts_t(trig(), c, r, n)
+
+def trig_r(ts: List<&2, List<&2, F64>>, +cd: F64, +sd: F64) -> List<&2, List<&2, F64>>:
+  match ts:
+    case []: []
+    case +t <> rest:
+      +c = X.fn_(t, 0n)
+      +sn = X.fn_(t, 1n)
+      [F64.sub(F64.mul(c, cd), F64.mul(sn, sd)), F64.add(F64.mul(sn, cd), F64.mul(c, sd))] <> trig_r(rest, cd, sd)
 
 def axial(+o: List<&2, I.I>, +a: List<&2, I.I>, +op: List<&2, I.I>) -> List<&2, I.I>:
   +u = SO.unit(a)
@@ -2078,24 +2089,27 @@ def hgt(+o: List<&2, I.I>, +a: List<&2, I.I>, +op: List<&2, I.I>) -> I.I:
 def root0(+w: I.I) -> I.I:
   I.isqrt(X.iof(F64.max(I.i_lo(w), 0.0f64), F64.max(I.i_hi(w), 0.0f64)))
 
-def circs(+op: List<&2, I.I>, +n: List<&2, I.I>, s: M.Im) -> List<&2, List<&2, I.I>>:
+def circs_t(+ts: List<&2, List<&2, F64>>, +op: List<&2, I.I>, +n: List<&2, I.I>, s: M.Im) -> List<&2, List<&2, I.I>>:
   match s:
-    case M.M_cy{+o, +a, r}: circ_pts(axial(o, a, op), r, n)
+    case M.M_cy{+o, +a, r}: circ_pts_t(ts, axial(o, a, op), r, n)
     case M.M_co{+o, +a, +k}:
       +h = hgt(o, a, op)
-      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(h), [], circ_pts(axial(o, a, op), I.imul(k, h), n))
+      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(h), [], circ_pts_t(ts, axial(o, a, op), I.imul(k, h), n))
     case M.M_sp{+c, +r}:
       +nu = SO.unit(n)
       +d = X.vdot(nu, X.vsub(c, op))
       +w = I.isub(I.isq(r), I.isq(d))
-      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(w), [], circ_pts(X.vsub(c, Mm.vs(d, nu)), root0(w), n))
+      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(w), [], circ_pts_t(ts, X.vsub(c, Mm.vs(d, nu)), root0(w), n))
     case M.M_to{+o, +a, +bigr, +r}:
       +h = hgt(o, a, op)
       +w = I.isub(I.isq(r), I.isq(h))
       +c = axial(o, a, op)
       +q = root0(w)
-      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(w), [], List.append(&2, List<&2, I.I>, circ_pts(c, I.iadd(bigr, q), n), circ_pts(c, I.isub(bigr, q), n)))
+      Bool.pick(List<&2, List<&2, I.I>>, X.ineg_c(w), [], List.append(&2, List<&2, I.I>, circ_pts_t(ts, c, I.iadd(bigr, q), n), circ_pts_t(ts, c, I.isub(bigr, q), n)))
     case _: []
+
+def circs(+op: List<&2, I.I>, +n: List<&2, I.I>, +s: M.Im) -> List<&2, List<&2, I.I>>:
+  circs_t(trig(), op, n, s)
 
 def pl_on(s: M.Im) -> List<&2, I.I>:
   match s:
@@ -2116,11 +2130,44 @@ def cp_go(ps: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg
       +ok = Bool.or(U64.is_eq(r, 0u64), Bool.and(U64.is_eq(r, 2u64), un_near(p, shc, tol)))
       cp_go(t, fa, fb, csa, csb, tol, shc, Bool.pick(U64, Bool.or(U64.is_eq(r, 1u64), U64.is_eq(st, 1u64)), 1u64, Bool.pick(U64, ok, st, 2u64)))
 
+def cp_ok(+r: U64, +p: List<&2, I.I>, +shc: List<&2, R.Cv>, +tol: F64) -> Bool:
+  Bool.or(U64.is_eq(r, 0u64), Bool.and(U64.is_eq(r, 2u64), un_near(p, shc, tol)))
+
+def cp_side(+p: List<&2, I.I>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +shc: List<&2, R.Cv>) -> U64:
+  +r = smp_go([p], False{}, 0u64, fa, fb, csa, csb, tol)
+  Bool.pick(U64, U64.is_eq(r, 1u64), 1u64, Bool.pick(U64, cp_ok(r, p, shc, tol), 0u64, 2u64))
+
+def cp_two(un: Bool, +r: U64, +pp: List<&2, I.I>, +pm: List<&2, I.I>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64,
+    +shc: List<&2, R.Cv>) -> U64:
+  match un:
+    case False{}: r
+    case True{}:
+      +a = cp_side(pp, fa, fb, csa, csb, tol, shc)
+      +b = cp_side(pm, fa, fb, csa, csb, tol, shc)
+      Bool.pick(U64, Bool.or(U64.is_eq(a, 1u64), U64.is_eq(b, 1u64)), 1u64, Bool.pick(U64, Bool.and(U64.is_eq(a, 0u64), U64.is_eq(b, 0u64)), 0u64, 2u64))
+
+def cp3_go(ps: List<&2, List<&2, I.I>>, qs: List<&2, List<&2, I.I>>, ms: List<&2, List<&2, I.I>>, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>,
+    +csb: List<&2, Eg>, +tol: F64, +shc: List<&2, R.Cv>, +st: U64) -> U64:
+  match ps:
+    case []: st
+    case +p <> t:
+      match qs:
+        case []: st
+        case +q <> qt:
+          match ms:
+            case []: st
+            case +m <> mt:
+              +r0 = cp_side(p, fa, fb, csa, csb, tol, shc)
+              +r = cp_two(U64.is_eq(r0, 2u64), r0, q, m, fa, fb, csa, csb, tol, shc)
+              cp3_go(t, qt, mt, fa, fb, csa, csb, tol, shc, Bool.pick(U64, Bool.or(U64.is_eq(r, 1u64), U64.is_eq(st, 1u64)), 1u64, Bool.pick(U64, U64.is_eq(r, 0u64), st, 2u64)))
+
 def circ_fi(+pl: SO.Fd, +ot: SO.Fd, +fa: SO.Fd, +fb: SO.Fd, +csa: List<&2, Eg>, +csb: List<&2, Eg>, +tol: F64, +ia: Nat, +ib: Nat,
     +shc: List<&2, R.Cv>) -> List<&2, SO.Fi>:
   +pi = SO.fd_im(pl)
   +ps = circs(pl_on(pi), pl_nv(pi), SO.fd_im(ot))
-  +r = cp_go(ps, fa, fb, csa, csb, tol, shc, 0u64)
+  +qs = circs_t(trig_r(trig(), 0.9999995000000417f64, 0.0009999998333333417f64), pl_on(pi), pl_nv(pi), SO.fd_im(ot))
+  +ms = circs_t(trig_r(trig(), 0.9999995000000417f64, F64.neg(0.0009999998333333417f64)), pl_on(pi), pl_nv(pi), SO.fd_im(ot))
+  +r = cp3_go(ps, qs, ms, fa, fb, csa, csb, tol, shc, 0u64)
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(r, 0u64), [], fi1(Bool.pick(String, U64.is_eq(r, 1u64), "face-penetration", "face-face-uncertain"), ia, ib))
 
 type RL is Data:

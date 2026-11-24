@@ -104,13 +104,13 @@ type WS is Data:
   WS{ on: Bool, ps: List<&2, V.Point>, x: List<&2, List<&2, F64>>, h: F64 }
 
 type LV is Data:
-  LV{ ok: Bool, nn: Nat, ne: Nat, nc: Nat, held: Nat, rig: Nat, it: Nat, hz: List<&2, F64>, w: WS, res: F64 }
+  LV{ ok: Bool, nn: Nat, ne: Nat, nc: Nat, held: Nat, rig: Nat, it: Nat, hz: List<&2, F64>, w: WS, res: F64, orph: Nat }
 
 def ws_none() -> WS:
   WS{False{}, [], [], 1.0f64}
 
 def lv_w(+l: LV) -> WS:
-  LV{ok, nn, ne, nc, nh, rig, it, hz, +w, res} = l
+  LV{ok, nn, ne, nc, nh, rig, it, hz, +w, res, orph} = l
   w
 
 def x0_of(on: Bool, +ws: WS, +ps: List<&2, V.Point>, +kk: Nat, +n3: Nat, +mask: List<&2, F64>) -> List<&2, List<&2, F64>>:
@@ -124,11 +124,11 @@ def ws_on(+ws: WS) -> Bool:
   WS{+on, ps, x, h} = ws
   on
 
-def lv_si(+si: F.SI, +sg: F64, +k: Nat, +free: Bool, +ok: Bool, +nn: Nat, +ne: Nat, +nc: Nat, +nh: Nat, +ps: List<&2, V.Point>, +hl: F64) -> LV:
+def lv_si(+si: F.SI, +sg: F64, +k: Nat, +free: Bool, +ok: Bool, +nn: Nat, +ne: Nat, +nc: Nat, +nh: Nat, +ps: List<&2, V.Point>, +hl: F64, +orph: Nat) -> LV:
   F.SI{+x, +lam, +it, +res} = si
   +h = hzs(lam, sg)
   +nb = Bool.pick(Nat, free, n_below(h, F64.mul(1.0e-4f64, last_f(h, 0.0f64)), 0n), 0n)
-  LV{ok, nn, ne, nc, nh, Bool.pick(Nat, free, Nat.add(6n, nb), 0n), it, take_f(k, drop_f(nb, h)), WS{True{}, ps, x, hl}, res}
+  LV{Bool.and(ok, Nat.is_eq(orph, 0n)), nn, ne, nc, nh, Bool.pick(Nat, free, Nat.add(6n, nb), 0n), it, take_f(k, drop_f(nb, h)), WS{True{}, ps, x, hl}, res, orph}
 
 def guard(+k: Nat) -> Nat:
   Nat.add(k, Nat.max(3n, Nat.div(k, 4n)))
@@ -164,6 +164,230 @@ def rb_col(ps: List<&2, V.Point>, +c0: V.Point, +j: Nat) -> List<&2, F64>:
 def rigid(+ps: List<&2, V.Point>, +c0: V.Point) -> List<&2, List<&2, F64>>:
   [rb_col(ps, c0, 0n), rb_col(ps, c0, 1n), rb_col(ps, c0, 2n), rb_col(ps, c0, 3n), rb_col(ps, c0, 4n), rb_col(ps, c0, 5n)]
 
+type UF is Data:
+  UF{ p: B.Tb<&2, Nat>, r: Nat }
+
+def uf_get(+p: B.Tb<&2, Nat>, +x: Nat) -> Nat:
+  B.tb_get(Nat, p, U32.from_nat(x))
+
+def uf_h(fuel: Nat, stop: Bool, +p: B.Tb<&2, Nat>, +x: Nat) -> UF:
+  match fuel stop:
+    case 0n _: UF{p, x}
+    case 1n++j True{}: UF{p, x}
+    case 1n++j False{}:
+      +g = uf_get(p, uf_get(p, x))
+      uf_h(j, Nat.is_eq(uf_get(p, g), g), B.tb_set(Nat, p, U32.from_nat(x), g), g)
+
+def uf_find(+p: B.Tb<&2, Nat>, +n: Nat, +x: Nat) -> UF:
+  uf_h(n, Nat.is_eq(uf_get(p, x), x), p, x)
+
+def uf_link(+u: UF, +rb: Nat) -> B.Tb<&2, Nat>:
+  UF{+p, +ra} = u
+  Bool.pick(B.Tb<&2, Nat>, Nat.is_eq(ra, rb), p, B.tb_set(Nat, p, U32.from_nat(Nat.max(ra, rb)), Nat.min(ra, rb)))
+
+def uf_u2(+u: UF, +a: Nat, +n: Nat) -> B.Tb<&2, Nat>:
+  UF{+p, +rb} = u
+  uf_link(uf_find(p, n, a), rb)
+
+def uf_u(+p: B.Tb<&2, Nat>, +a: Nat, +b: Nat, +n: Nat) -> B.Tb<&2, Nat>:
+  uf_u2(uf_find(p, n, b), a, n)
+
+def uf_r(+u: UF) -> Nat:
+  UF{p, +r} = u
+  r
+
+type TF is Data:
+  TF{ a: Nat, b: Nat, c: Nat, t: Nat }
+
+def tf_of(+x: Nat, +y: Nat, +z: Nat, +t: Nat) -> TF:
+  +lo = Nat.min(Nat.min(x, y), z)
+  +hi = Nat.max(Nat.max(x, y), z)
+  TF{lo, Nat.sub(Nat.sub(Nat.add(Nat.add(x, y), z), lo), hi), hi, t}
+
+def tf_cmp2(+x: TF, +y: TF) -> B.Sgn:
+  TF{+a, +b, +c, t} = x
+  TF{+d, +e, +f, u} = y
+  K.lex(K.ncmp2(a, d), K.lex(K.ncmp2(b, e), K.ncmp2(c, f)))
+
+def tf_cmp(x: TF, y: TF) -> B.Sgn:
+  tf_cmp2(x, y)
+
+def tf_t(+x: TF) -> Nat:
+  TF{a, b, c, +t} = x
+  t
+
+def tf_eq(+x: TF, +y: TF) -> Bool:
+  B.sgn_is(tf_cmp2(x, y), B.Sz{})
+
+def tet_fs(+t: K.T10, +i: Nat, +acc: List<&2, TF>) -> List<&2, TF>:
+  K.T10{+a, +b, +c, +d, e0, e1, e2, e3, e4, e5} = t
+  tf_of(a, b, c, i) <> tf_of(a, b, d, i) <> tf_of(a, c, d, i) <> tf_of(b, c, d, i) <> acc
+
+def tfs_go(ts: List<&2, K.T10>, +i: Nat, +acc: List<&2, TF>) -> List<&2, TF>:
+  match ts:
+    case []: acc
+    case +t <> +r: tfs_go(r, Nat.add(i, 1n), tet_fs(t, i, acc))
+
+def so_tf(s: B.So<&2, TF>) -> List<&2, TF>:
+  B.So{ok, xs} = s
+  xs
+
+def adj_go(xs: List<&2, TF>, +pv: TF, +p: B.Tb<&2, Nat>, +n: Nat) -> B.Tb<&2, Nat>:
+  match xs:
+    case []: p
+    case +x <> +r: adj_go(r, x, Bool.pick(B.Tb<&2, Nat>, tf_eq(x, pv), uf_u(p, tf_t(x), tf_t(pv), n), p), n)
+
+def adj_uf(+xs: List<&2, TF>, +p: B.Tb<&2, Nat>, +n: Nat) -> B.Tb<&2, Nat>:
+  match xs:
+    case []: p
+    case +x <> +r: adj_go(r, x, p, n)
+
+def hb(+h: B.Tb<&2, Bool>, +i: Nat) -> Nat:
+  Bool.pick(Nat, B.tb_get(Bool, h, U32.from_nat(i)), 1n, 0n)
+
+def tet_hc(+t: K.T10, +h: B.Tb<&2, Bool>) -> Nat:
+  K.T10{+a, +b, +c, +d, e0, e1, e2, e3, e4, e5} = t
+  Nat.add(Nat.add(hb(h, a), hb(h, b)), Nat.add(hb(h, c), hb(h, d)))
+
+def hn_go(ps: List<&2, V.Point>, +c: CL) -> List<&2, Bool>:
+  match ps:
+    case []: []
+    case +x <> +t: held(c, x) <> hn_go(t, c)
+
+def an_go(ts: List<&2, K.T10>, +i: Nat, +p: B.Tb<&2, Nat>, +ne: Nat, +h: B.Tb<&2, Bool>, +an: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match ts:
+    case []: an
+    case +t <> +r:
+      an_go(r, Nat.add(i, 1n), p, ne, h, Bool.pick(B.Tb<&2, Bool>, Nat.is_le(3n, tet_hc(t, h)), B.tb_set(Bool, an, U32.from_nat(uf_r(uf_find(p, ne, i))), True{}), an))
+
+def nrange(n: Nat, +acc: List<&2, Nat>) -> List<&2, Nat>:
+  match n:
+    case 0n: acc
+    case 1n++j: nrange(j, j <> acc)
+
+type LQ is Data:
+  LQ{ r: Nat, cs: List<&2, Nat> }
+
+def lt_cmp2(+x: LQ, +y: LQ) -> B.Sgn:
+  LQ{+a, cs} = x
+  LQ{+b, ds} = y
+  K.ncmp2(a, b)
+
+def lt_cmp(x: LQ, y: LQ) -> B.Sgn:
+  lt_cmp2(x, y)
+
+def so_lt(s: B.So<&2, LQ>) -> List<&2, LQ>:
+  B.So{ok, xs} = s
+  xs
+
+def tet_cs(+t: K.T10) -> List<&2, Nat>:
+  K.T10{+a, +b, +c, +d, e0, e1, e2, e3, e4, e5} = t
+  [a, b, c, d]
+
+def loose_go(ts: List<&2, K.T10>, +i: Nat, +p: B.Tb<&2, Nat>, +ne: Nat, +an: B.Tb<&2, Bool>, +acc: List<&2, LQ>) -> List<&2, LQ>:
+  match ts:
+    case []: acc
+    case +t <> +r:
+      +rt = uf_r(uf_find(p, ne, i))
+      loose_go(r, Nat.add(i, 1n), p, ne, an, Bool.pick(List<&2, LQ>, B.tb_get(Bool, an, U32.from_nat(rt)), acc, LQ{rt, tet_cs(t)} <> acc))
+
+type GP is Data:
+  GP{ cs: List<&2, Nat>, n: Nat }
+
+def gp_go(xs: List<&2, LQ>, +r: Nat, +cs: List<&2, Nat>, +n: Nat, +acc: List<&2, GP>) -> List<&2, GP>:
+  match xs:
+    case []: GP{cs, n} <> acc
+    case +x <> +t:
+      LQ{+r2, +c2} = x
+      Bool.pick(List<&2, GP>, Nat.is_eq(r2, r), gp_go(t, r, List.append(&2, Nat, c2, cs), Nat.add(n, 1n), acc), gp_go(t, r2, c2, 1n, GP{cs, n} <> acc))
+
+def groups(+xs: List<&2, LQ>) -> List<&2, GP>:
+  match xs:
+    case []: []
+    case +x <> +t:
+      LQ{+r, +cs} = x
+      gp_go(t, r, cs, 1n, [])
+
+def set_all(cs: List<&2, Nat>, +a: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match cs:
+    case []: a
+    case +c <> +t: set_all(t, B.tb_set(Bool, a, U32.from_nat(c), True{}))
+
+def na_go(ts: List<&2, K.T10>, +i: Nat, +p: B.Tb<&2, Nat>, +ne: Nat, +an: B.Tb<&2, Bool>, +a: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match ts:
+    case []: a
+    case +t <> +r:
+      na_go(r, Nat.add(i, 1n), p, ne, an, Bool.pick(B.Tb<&2, Bool>, B.tb_get(Bool, an, U32.from_nat(uf_r(uf_find(p, ne, i)))), set_all(tet_cs(t), a), a))
+
+def a_pts(cs: List<&2, Nat>, +a: B.Tb<&2, Bool>, +pt: B.Tb<&2, V.Point>) -> List<&2, V.Point>:
+  match cs:
+    case []: []
+    case +c <> +t:
+      Bool.pick(List<&2, V.Point>, B.tb_get(Bool, a, U32.from_nat(c)), B.tb_get(V.Point, pt, U32.from_nat(c)) <> a_pts(t, a, pt), a_pts(t, a, pt))
+
+def far_go(ps: List<&2, V.Point>, +p0: V.Point, +best: V.Point, +bd: F64) -> V.Point:
+  match ps:
+    case []: best
+    case +q <> +t:
+      +d = K.dlen(S.psub(q, p0))
+      Bool.pick(V.Point, F64.is_lt(bd, d), far_go(t, p0, q, d), far_go(t, p0, best, bd))
+
+def off_go(ps: List<&2, V.Point>, +p0: V.Point, +u: V.Dir, +tol: F64) -> Bool:
+  match ps:
+    case []: False{}
+    case +q <> +t: Bool.or(F64.is_lt(tol, K.dlen(K.cross(u, S.psub(q, p0)))), off_go(t, p0, u, tol))
+
+def ncol(+ps: List<&2, V.Point>) -> Bool:
+  match ps:
+    case []: False{}
+    case +p0 <> +t:
+      +p1 = far_go(t, p0, p0, 0.0f64)
+      +u = S.psub(p1, p0)
+      +l = K.dlen(u)
+      Bool.and(F64.is_lt(0.0f64, l), off_go(t, p0, u, F64.mul(1.0e-6f64, F64.mul(l, l))))
+
+type RD is Data:
+  RD{ gs: List<&2, GP>, a: B.Tb<&2, Bool> }
+
+def rd_go(gs: List<&2, GP>, +pt: B.Tb<&2, V.Point>, +acc: RD) -> RD:
+  match gs:
+    case []: acc
+    case +g <> +t:
+      GP{+cs, +n} = g
+      RD{+left, +a} = acc
+      Bool.pick(RD, ncol(a_pts(cs, a, pt)), rd_go(t, pt, RD{left, set_all(cs, a)}), rd_go(t, pt, RD{GP{cs, n} <> left, a}))
+
+def rd_n(k: Nat, +r: RD, +pt: B.Tb<&2, V.Point>) -> RD:
+  match k:
+    case 0n: r
+    case 1n+m:
+      RD{+gs, +a} = r
+      rd_n(m, rd_go(gs, pt, RD{[], a}), pt)
+
+def gp_sum(gs: List<&2, GP>, +acc: Nat) -> Nat:
+  match gs:
+    case []: acc
+    case +g <> +t:
+      GP{cs, +n} = g
+      gp_sum(t, Nat.add(acc, n))
+
+def rd_left(+r: RD) -> Nat:
+  RD{+gs, a} = r
+  gp_sum(gs, 0n)
+
+def n_orph(+ts: List<&2, K.T10>, +ps: List<&2, V.Point>, +n: Nat, +c: CL) -> Nat:
+  +ne = List.length(&2, K.T10, ts)
+  +p = adj_uf(so_tf(B.msort(~TF, ~tf_cmp, tfs_go(ts, 0n, []))), B.tb_of(Nat, nrange(ne, []), 0n), ne)
+  +h = B.tb_of(Bool, hn_go(ps, c), False{})
+  +an = an_go(ts, 0n, p, ne, h, B.tb_of(Bool, B.rep_n(Bool, ne, False{}), False{}))
+  +gs = groups(so_lt(B.msort(~LQ, ~lt_cmp, loose_go(ts, 0n, p, ne, an, []))))
+  rd_left(rd_n(8n, RD{gs, na_go(ts, 0n, p, ne, an, h)}, B.tb_of(V.Point, ps, org())))
+
+def orph_of(free: Bool, +ts: List<&2, K.T10>, +ps: List<&2, V.Point>, +n: Nat, +c: CL) -> Nat:
+  match free:
+    case True{}: 0n
+    case False{}: n_orph(ts, ps, n, c)
+
 def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
   K.TM{+ts, +ps, +nn, +nb, +nf, +dv, nl} = tm
   +es = K.fe_els(ts, B.tb_of(V.Point, ps, org()), 1.0e-12f64)
@@ -174,16 +398,17 @@ def lv_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +
   +mask = cl_mask(ps, c)
   +n3 = Nat.mul(nn, 3n)
   +fm = F.fm_sig(pre_if(F64.is_lt(0.0f64, w), F.fm_of(U32.from_nat(nn), es, e, nu, rho), es, ps, mask, e, nu, c, w), sg)
+  +orph = orph_of(free, ts, ps, nn, c)
   lv_si(F.lobpcg(100n, fm, mask, kk, kw, 1.0e-6f64, x0_of(ws_on(ws), ws, ps, kk, n3, mask), Bool.pick(List<&2, List<&2, F64>>, free, rigid(ps, hd_p(ps)), [])), sg, k, free, ok, nn, List.length(&2, K.T10, ts), K.n_ec(es, 0n),
-    n_held(ps, c, 0n), ps, hl)
+    n_held(ps, c, 0n), ps, hl, orph)
 
 def lv_ok_go(+tm: K.TM, ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
   match ok:
     case True{}: lv_go(tm, True{}, e, nu, rho, c, k, w, ws, hl)
-    case False{}: LV{False{}, 0n, 0n, 0n, 0n, 0n, 0n, [], ws_none(), F64.nan()}
+    case False{}: LV{False{}, 0n, 0n, 0n, 0n, 0n, 0n, [], ws_none(), F64.nan(), 0n}
 
 def lv_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS, +hl: F64) -> LV:
-  K.TR{+ok, +tm} = t
+  K.TR{+ok, +tm, tw} = t
   lv_ok_go(tm, ok, e, nu, rho, c, k, w, ws, hl)
 
 def lv_modes(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64, +ws: WS) -> LV:
@@ -218,23 +443,58 @@ def mode_lines(as: List<&2, F64>, bs: List<&2, F64>, cs: List<&2, F64>, +i: Nat)
                 mode_lines(at, bt, ct, Nat.add(i, 1n))
 
 def lv_hz(+l: LV) -> List<&2, F64>:
-  LV{ok, nn, ne, nc, nh, rig, it, +hz, w, res} = l
+  LV{ok, nn, ne, nc, nh, rig, it, +hz, w, res, orph} = l
   hz
 
 def lv_ok(+l: LV) -> Bool:
-  LV{+ok, nn, ne, nc, nh, rig, it, hz, w, res} = l
+  LV{+ok, nn, ne, nc, nh, rig, it, hz, w, res, orph} = l
   ok
 
+def lv_orph(+l: LV) -> Nat:
+  LV{ok, nn, ne, nc, nh, rig, it, hz, w, res, +orph} = l
+  orph
+
 def lv_s(+l: LV, +h: F64) -> String:
-  LV{ok, +nn, +ne, +nc, +nh, +rig, +it, hz, w, +res} = l
+  LV{ok, +nn, +ne, +nc, +nh, +rig, +it, hz, w, +res, orph} = l
   "level h=" ++ F64.show(h) ++ " nodes=" ++ Nat.show(nn) ++ " tets=" ++ Nat.show(ne) ++ " curved=" ++ Nat.show(nc) ++ " held=" ++ Nat.show(nh) ++
     " rigid=" ++ Nat.show(rig) ++ " iters=" ++ Nat.show(it) ++ " residual=" ++ F64.show(res) ++ "\n"
 
 def cbrt2() -> F64:
   1.2599210498948732f64
 
-def mesh_ref(+h: F64) -> String:
-  "refused mesh-uncertified | modes | why: the level h=" ++ F64.show(h) ++ " mesh: a lattice ray or edge cut did not certify against the faces | fix: change H slightly\n"
+def tr_w(+t: K.TR) -> U64:
+  K.TR{ok, tm, +w} = t
+  w
+
+def w_kind(+k: U64) -> String:
+  Bool.pick(String, U64.is_eq(k, 1u64), "met it where membership in the face is uncertain",
+    Bool.pick(String, U64.is_eq(k, 2u64), "overlaps it",
+      Bool.pick(String, U64.is_eq(k, 3u64), "meets it at an uncertain point", "cannot be intersected with its surface kind")))
+
+def w_face(+c: U64) -> String:
+  Bool.pick(String, U64.is_eq(U64.mod(c, 8u64), 5u64), " found no crossing although its ends differ in sign",
+    " to face position " ++ U64.show(U64.sub(U64.div(c, 8u64), 1u64)) ++ " (SO.fds_of order) " ++ w_kind(U64.mod(c, 8u64)))
+
+def w_s(+w: U64) -> String:
+  +wh = U64.mod(w, 4u64)
+  Bool.pick(String, U64.is_eq(wh, 3u64), "an edge cut between lattice points", "a lattice-" ++ Bool.pick(String, U64.is_eq(wh, 1u64), "A", "B") ++ " ray") ++
+    w_face(U64.div(w, 4u64))
+
+
+def mesh_ref(+h: F64, +w: U64) -> String:
+  "refused mesh-uncertified | modes | why: the level h=" ++ F64.show(h) ++ " mesh: " ++ w_s(w) ++ " | fix: change H slightly; if every H fails on the same face, that face's geometry is outside the certified mesher\n"
+
+def isl_ref(+h: F64, +n: Nat) -> String:
+  "refused mesh-island | modes | why: the level h=" ++ F64.show(h) ++ " mesh has " ++ Nat.show(n) ++
+    " tetrahedra in pieces that share fewer than three non-collinear corners with the clamped body, so they move without strain and the lattice cut a feature thinner than h | fix: lower H\n"
+
+def bad_lv(+a: LV, +b: LV, +c: LV, +h: F64) -> String:
+  +h1 = F64.div(h, cbrt2())
+  +h2 = F64.div(h1, cbrt2())
+  +na = lv_orph(a)
+  +nb = lv_orph(b)
+  Bool.pick(String, Nat.is_lt(0n, na), isl_ref(h, na), Bool.pick(String, Nat.is_lt(0n, nb), isl_ref(h1, nb),
+    Bool.pick(String, Nat.is_lt(0n, lv_orph(c)), isl_ref(h2, lv_orph(c)), mesh_ref(h2, 0u64))))
 
 def modes3(+a: LV, +b: LV, +c: LV, +h: F64, +w: F64) -> String:
   +h1 = F64.div(h, cbrt2())
@@ -244,11 +504,14 @@ def modes3(+a: LV, +b: LV, +c: LV, +h: F64, +w: F64) -> String:
       "method=T10 isosurface-stuffing mesh, block LOBPCG; bound from three levels h, h/2^(1/3), h/2^(2/3)" ++
         Bool.pick(String, F64.is_lt(0.0f64, w), "; prestressed at rpm=" ++ F64.show(F64.div(F64.mul(w, 60.0f64), 6.283185307179586f64)) ++
           " (stress stiffening from the linear centrifugal state and spin softening)", "") ++ "\n",
-    mesh_ref(F64.div(F64.div(h, cbrt2()), cbrt2())))
+    bad_lv(a, b, c, h))
 
 def tr_ok(+t: K.TR) -> Bool:
-  K.TR{+ok, tm} = t
+  K.TR{+ok, tm, w} = t
   ok
+
+def bad_w(+oa: Bool, +ob: Bool, +ta: K.TR, +tb: K.TR, +tc: K.TR) -> U64:
+  Bool.pick(U64, Bool.not(oa), tr_w(ta), Bool.pick(U64, Bool.not(ob), tr_w(tb), tr_w(tc)))
 
 def bad_h(+oa: Bool, +ob: Bool, +h: F64) -> F64:
   Bool.pick(F64, Bool.not(oa), h, Bool.pick(F64, Bool.not(ob), F64.div(h, cbrt2()), F64.div(F64.div(h, cbrt2()), cbrt2())))
@@ -259,7 +522,7 @@ def modes_t(+ta: K.TR, +tb: K.TR, +tc: K.TR, +h: F64, +e: F64, +nu: F64, +rho: F
       +a = lv_tr(ta, e, nu, rho, c, k, w, ws_none(), h)
       +b = lv_tr(tb, e, nu, rho, c, k, w, lv_w(a), F64.div(h, cbrt2()))
       modes3(a, b, lv_tr(tc, e, nu, rho, c, k, w, lv_w(b), F64.div(F64.div(h, cbrt2()), cbrt2())), h, w)
-    case False{}: mesh_ref(bad_h(oa, ob, h))
+    case False{}: mesh_ref(bad_h(oa, ob, h), bad_w(oa, ob, ta, tb, tc))
 
 def modes_s(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +k: Nat, +w: F64) -> String:
   +ta = K.tm_of(fs, h)
@@ -441,7 +704,7 @@ def sp_go(+tm: K.TM, +ok: Bool, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +
   sp_ok2(ok, sp_rel(bal, sp_free(cl_on(c), f, fm, ps, c), fm, mask, ps, es, lame(e, nu), shear(e, nu), c, nn, List.length(&2, K.T10, ts)))
 
 def sp_tr(+t: K.TR, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> SP:
-  K.TR{+ok, +tm} = t
+  K.TR{+ok, +tm, tw} = t
   sp_go(tm, ok, e, nu, rho, c, w, bal)
 
 def sp_lv(+fs: List<&2, SO.Fd>, +h: F64, +e: F64, +nu: F64, +rho: F64, +c: CL, +w: F64, +bal: Bool) -> SP:

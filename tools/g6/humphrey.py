@@ -27,6 +27,7 @@ Z_IMP0, L_IMP = 0.0, 0.33 * C['D2_mm']
 Z_EXIT = Z_IMP0 + L_IMP
 G_TIP = 0.40
 HUB_RIM = 0.5
+HUB_RIM_H = 5.0
 R_DIF0, R_DIF1, DIF_N = R2 * 1.04, R2 * 1.28, 23
 DIF_ALPHA = 68.0
 R_CASE_O = 136.0
@@ -46,6 +47,8 @@ TT = T['tip_radius_mm']
 B_TUR = 22.0
 G_TT = 0.15
 Z_NOZ1 = Z_TUR + B_TUR + 120.0
+Z_CONE0 = Z_TUR + B_TUR + 13.0
+Z_CONE1 = Z_NOZ1 - 30.0
 R_NOZ = SZ['nozzle']['exit_dia_mm'] / 2
 R_SHAFT = BEARING['d'] / 2
 R_SPAN = R_SHAFT + 2.0
@@ -56,7 +59,10 @@ B_PITCH = (BEARING['d'] + BEARING['D']) / 4
 B_GROOVE = 0.52 * B_BALL
 B_IL, B_OL = B_PITCH - 0.3527 * B_BALL, B_PITCH + 0.3527 * B_BALL
 B_CI, B_CO = B_PITCH - 0.2646 * B_BALL, B_PITCH + 0.2646 * B_BALL
-Z_FLANGE = Z_EXIT + 4.0
+DIF_GAP = 0.5
+DIF_T = 3.5
+DIF_RI = 21.5
+Z_FLANGE = Z_EXIT + HUB_RIM_H + DIF_GAP + DIF_T
 Z_BRG_F = Z_EXIT + 25.0
 Z_BRG_F2 = Z_BRG_F - 12.0
 HUB_BOSS = 12.0
@@ -158,7 +164,7 @@ def impeller_edits():
     for i in range(1, 8):
         z = Z_IMP0 + L_IMP * i / 8
         hub.append((hub_r(z), z))
-    hub += [(R2 + HUB_RIM, Z_EXIT), (R2 + HUB_RIM, Z_EXIT + 5.0)] + [(r, min(Z_EXIT + 5.0, hub_z(r) + back_t(r))) for r in (90.0, 80.0, 70.0, 60.0, 50.0, 40.0, 30.0)] + [
+    hub += [(R2 + HUB_RIM, Z_EXIT), (R2 + HUB_RIM, Z_EXIT + HUB_RIM_H)] + [(r, min(Z_EXIT + HUB_RIM_H, hub_z(r) + back_t(r))) for r in (90.0, 80.0, 70.0, 60.0, 50.0, 40.0, 30.0)] + [
         (R_SHAFT + 8.0, Z_EXIT + HUB_BOSS), (R_SHAFT, Z_EXIT + HUB_BOSS)]
     main = ' '.join(imp_sec(0.02 + 0.98 * i / 10, 0.02) for i in range(11))
     spl = ' '.join(imp_sec(0.40 + 0.60 * i / 7, 0.40, 0.85) for i in range(8))
@@ -215,8 +221,8 @@ def spiral_vane(t=2.0, n=10):
 
 
 def diffuser_edits():
-    p = [(R_SHAFT + 7.0, Z_EXIT + 0.5), (R2 + 2.0, Z_EXIT + 0.5), (R2 + 2.0, Z_EXIT), (R_DIF1 + 2.0, Z_EXIT), (R_DIF1 + 2.0, Z_EXIT + 4.0),
-         (R_SHAFT + 7.0, Z_EXIT + 4.0)]
+    zf = Z_EXIT + HUB_RIM_H + DIF_GAP
+    p = [(DIF_RI, zf), (R2 + 2.0, zf), (R2 + 2.0, Z_EXIT), (R_DIF1 + 2.0, Z_EXIT), (R_DIF1 + 2.0, Z_FLANGE), (DIF_RI, Z_FLANGE)]
     e = [rev(2401, p), f'(node 2402 (prism {f(Z_EXIT - B2)} {f(Z_EXIT + 0.2)} {spiral_vane()}) {IC})']
     r, top = J5.ring_of(2400, [(2402, 360.0 / DIF_N * k) for k in range(DIF_N)])
     return e + r + [f'(node 2499 (union 2401 {top}) {IA})', done(24, 2499)]
@@ -270,22 +276,24 @@ def turbine_edits():
 
 
 def nozzle_edits():
-    z0, zc0, zc1 = Z_TUR + B_TUR + 2.0, Z_TUR + B_TUR + 8.0, Z_NOZ1 - 30.0
+    z0, zc0, zc1 = Z_TUR + B_TUR + 2.0, Z_CONE0, Z_CONE1
     shell = [(TT + 4.0, z0), (TT + 4.0 + T_NOZ, z0), (R_NOZ + T_NOZ, Z_NOZ1), (R_NOZ, Z_NOZ1)]
     cone = [(0.0, zc0), (TH - 2.0, zc0), (8.0, zc1), (0.0, zc1)]
     cin = [(0.0, zc0 + 1.0), (TH - 3.6, zc0 + 1.0), (6.4, zc1 - 1.0), (0.0, zc1 - 1.0)]
     e = [rev(2801, shell), rev(2802, cone), rev(2804, cin), f'(node 2805 (difference 2802 2804) {IR})']
     zs = 0.5 * (zc0 + zc1)
     r0 = cone_r(zs) - 1.0
-    r1 = nozzle_r(zs) + 0.5
+    r1 = nozzle_r(zs - 10.0) + 0.5 * T_NOZ
     e += [f'(node 2810 (box {f(r1 - r0)} 2.0 20.0) {IC})', f'(node 2811 (move 2810 {f(r0)} -1.0 {f(zs - 10.0)} 0) {IS})']
     e += [f'(node {2812 + k} (rotate 2811 z {f(120.0 * k)}) {IS})' for k in range(3)]
-    e += ['(node 2820 (union 2812 2813) ' + IA + ')', '(node 2821 (union 2820 2814) ' + IA + ')', f'(node 2822 (union 2805 2821) {IA})', f'(node 2823 (union 2822 2801) {IA})']
+    env = [(0.0, z0), (TT + 4.0 + 0.5 * T_NOZ, z0), (R_NOZ + 0.5 * T_NOZ, Z_NOZ1), (0.0, Z_NOZ1)]
+    e += ['(node 2820 (union 2812 2813) ' + IA + ')', '(node 2821 (union 2820 2814) ' + IA + ')', rev(2824, env),
+          f'(node 2825 (intersection 2821 2824) (intent same any any any any))', f'(node 2822 (union 2805 2825) {IA})', f'(node 2823 (union 2822 2801) {IA})']
     return e + [done(28, 2823)]
 
 
 def cone_r(z):
-    zc0, zc1 = Z_TUR + B_TUR + 8.0, Z_NOZ1 - 30.0
+    zc0, zc1 = Z_CONE0, Z_CONE1
     return (TH - 2.0) + (8.0 - (TH - 2.0)) * (z - zc0) / (zc1 - zc0)
 
 

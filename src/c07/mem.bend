@@ -34,7 +34,7 @@ type Sg is Data:
 type Uv is Data:
   Uv_no{}
   Uv_cy{ sf: KS.SF, r: F64, segs: List<&2, B.Tb<&2, List<&2, Sg>>>, tol: F64, xs: List<&2, B.Tb<&2, List<&2, Sg>>>, xtol: F64 }
-  Uv_bp{ sf: KS.SF, segs: List<&2, Sg>, s3: List<&2, S3>, tol: F64 }
+  Uv_bp{ sf: KS.SF, segs: List<&2, Sg>, s3: List<&2, S3>, cr: List<&2, Cr>, tol: F64, slv: F64 }
   Uv_to{ sf: KS.SF, ur: F64, vr: F64, segs: List<&2, Sg>, s3: List<&2, S3>, tol: F64 }
 
 
@@ -44,6 +44,15 @@ type Uv is Data:
 
 type S3 is Data:
   S3{ a: V.Point, b: V.Point }
+
+type Cr is Data:
+  Cr{ g: Sg, s: S3, e: Er, t0: F64, t1: F64 }
+
+type Sc is Data:
+  Sc{ gs: List<&2, Sg>, g3: List<&2, S3>, cr: List<&2, Cr>, dev: F64 }
+
+type Fr is Data:
+  Fr{ sub: Nat, add: Nat, d: F64, dev: F64 }
 
 
 
@@ -464,7 +473,7 @@ def uv_has(u: Uv) -> Bool:
   match u:
     case Uv_no{}: False{}
     case Uv_cy{sf, r, segs, tol, xs, xtol}: True{}
-    case Uv_bp{sf, segs, s3, tol}: True{}
+    case Uv_bp{sf, segs, s3, cr, tol, slv}: True{}
     case Uv_to{sf, ur, vr, segs, s3, tol}: True{}
 
 def two_pi() -> F64:
@@ -603,6 +612,66 @@ def q_rad(+q: List<&2, I.I>) -> F64:
 def bp_mem(+w: V.Vec2, +segs: List<&2, Sg>, +s3: List<&2, S3>, +p: V.Point, +tol: F64) -> U64:
   uv_fin(np_scan(segs, V.v2_x(w), V.v2_y(w), 0n), s3_scan(s3, p, F64.div(1.0f64, 0.0f64)), tol)
 
+def er_p3(+e: Er, +t: F64) -> V.Point:
+  q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t)))))
+
+def sf_mid(+sf: KS.SF, +a: V.Vec2, +b: V.Vec2) -> V.Point:
+  KS.sf_at(sf, F64.mul(0.5f64, F64.add(V.v2_x(a), V.v2_x(b))), F64.mul(0.5f64, F64.add(V.v2_y(a), V.v2_y(b))))
+
+def sg_uv(+a: V.Vec2, +b: V.Vec2) -> Sg:
+  Sg{V.v2_x(a), V.v2_y(a), V.v2_x(b), V.v2_y(b)}
+
+def fine_go(n: Nat, +k: Nat, +nn: F64, +e: Er, +t0: F64, +t1: F64, +sf: KS.SF, +w: V.Vec2, +p: V.Point, +pp: V.Point, +pq: V.Vec2, +acc: Fr) -> Fr:
+  match n:
+    case 0n: acc
+    case 1n+(+m):
+      Fr{+sub, +add, +d, +dev} = acc
+      +t = Bool.pick(F64, Nat.is_eq(m, 0n), t1, F64.add(t0, F64.mul(F64.sub(t1, t0), F64.div(U64.to_f64(U64.from_nat(Nat.add(k, 1n))), nn))))
+      +tm = F64.add(t0, F64.mul(F64.sub(t1, t0), F64.div(F64.add(U64.to_f64(U64.from_nat(k)), 0.5f64), nn)))
+      +cp = er_p3(e, t)
+      +cq = KS.sf_uv(sf, cp)
+      +mp = er_p3(e, tm)
+      +dv = F64.max(p3d(mp, p3lerp(pp, cp, 0.5f64)), p3d(mp, sf_mid(sf, pq, cq)))
+      fine_go(m, Nat.add(k, 1n), nn, e, t0, t1, sf, w, p, cp, cq,
+        Fr{sub, Nat.add(add, np_cross(sg_uv(pq, cq), V.v2_x(w), V.v2_y(w))), F64.min(d, s3_dist(S3{pp, cp}, p)), F64.max(dev, dv)})
+
+def fr_merge(+r: Fr, +sub: Nat, +add: Nat, +d: F64, +dev: F64) -> Fr:
+  Fr{rs, +ra, +rd, +rv} = r
+  Fr{sub, Nat.add(add, ra), F64.min(d, rd), F64.max(dev, rv)}
+
+def cand_one(near: Bool, +c: Cr, +sf: KS.SF, +w: V.Vec2, +p: V.Point, +acc: Fr) -> Fr:
+  match near:
+    case False{}: acc
+    case True{}:
+      Cr{+g, +s3, +e, +t0, +t1} = c
+      Fr{+sub, +add, +d, +dev} = acc
+      +p0 = er_p3(e, t0)
+      fr_merge(fine_go(64n, 0n, 64.0f64, e, t0, t1, sf, w, p, p0, KS.sf_uv(sf, p0), Fr{0n, 0n, F64.div(1.0f64, 0.0f64), 0.0f64}),
+        Nat.add(sub, np_cross(g, V.v2_x(w), V.v2_y(w))), add, d, dev)
+
+def cr_s3(+c: Cr) -> S3:
+  Cr{g, +s3, e, t0, t1} = c
+  s3
+
+def cand_go(cs: List<&2, Cr>, +sf: KS.SF, +w: V.Vec2, +p: V.Point, +tol: F64, +acc: Fr) -> Fr:
+  match cs:
+    case []: acc
+    case +c <> +t: cand_go(t, sf, w, p, tol, cand_one(F64.is_lt(s3_dist(cr_s3(c), p), tol), c, sf, w, p, acc))
+
+def fine_mem(+n: Nat, +r: Fr, +slv: F64, +qr: F64) -> U64:
+  Fr{+sub, +add, +d, +dev} = r
+  uv_fin(Nat.add(Nat.sub(n, sub), add), d, F64.add(F64.add(F64.mul(4.0f64, F64.add(slv, dev)), qr), 1.0e-9f64))
+
+def bp_near(near: Bool, +n: Nat, +d: F64, +tol: F64, +w: V.Vec2, +cr: List<&2, Cr>, +sf: KS.SF, +p: V.Point, +slv: F64, +qr: F64) -> U64:
+  match near:
+    case False{}: uv_fin(n, d, tol)
+    case True{}: fine_mem(n, cand_go(cr, sf, w, p, tol, Fr{0n, 0n, F64.div(1.0f64, 0.0f64), 0.0f64}), slv, qr)
+
+def bp_mem_f(+w: V.Vec2, +segs: List<&2, Sg>, +s3: List<&2, S3>, +cr: List<&2, Cr>, +sf: KS.SF, +p: V.Point, +tol: F64, +slv: F64, +qr: F64) -> U64:
+  +n = np_scan(segs, V.v2_x(w), V.v2_y(w), 0n)
+  +d = s3_scan(s3, p, F64.div(1.0f64, 0.0f64))
+  bp_near(F64.is_lt(d, tol), n, d, tol, w, cr, sf, p, slv, qr)
+
 def tor_w(+sf: KS.SF, +ur: F64, +vr: F64, +p: V.Point) -> V.Vec2:
   +w = KS.sf_uv(sf, p)
   V.V2{KS.ang_diff(ur, V.v2_x(w)), KS.ang_diff(vr, V.v2_y(w))}
@@ -617,7 +686,7 @@ def uv_member(u: Uv, +q: List<&2, I.I>) -> U64:
   match u:
     case Uv_no{}: 2u64
     case Uv_cy{+sf, +r, +segs, +tol, +xs, +xtol}: uv_mem_b(KS.sf_uv(sf, q_mid(q)), r, segs, tol, xs, xtol)
-    case Uv_bp{+sf, +segs, +s3, +tol}: bp_mem(KS.sf_uv(sf, q_mid(q)), segs, s3, q_mid(q), F64.add(tol, q_rad(q)))
+    case Uv_bp{+sf, +segs, +s3, +cr, +tol, +slv}: bp_mem_f(KS.sf_uv(sf, q_mid(q)), segs, s3, cr, sf, q_mid(q), F64.add(tol, q_rad(q)), slv, q_rad(q))
     case Uv_to{+sf, +ur, +vr, +segs, +s3, +tol}: bp_mem(tor_jit(tor_w(sf, ur, vr, q_mid(q))), segs, s3, q_mid(q), F64.add(F64.add(tol, q_rad(q)), tor_jd(sf)))
 
 def is_sph_im(s: M.Im) -> Bool:
@@ -708,9 +777,6 @@ def er_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +r: F64, +prev: V.Vec2, +acc: 
       +dv = sg_dev(g, er_uv(e, sf, tm), r)
       er_samp(m, Nat.add(k, 1n), e, sf, r, cur, Sa{g <> sa_gs(acc), F64.max(dv, sa_dev(acc))})
 
-def er_p3(+e: Er, +t: F64) -> V.Point:
-  q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t)))))
-
 def er_sdev(n: Nat, +e: Er, +sf: KS.SF, +k: F64, +best: F64) -> F64:
   match n:
     case 0n: best
@@ -788,16 +854,11 @@ def sb_dev(+b: Sb) -> F64:
   Sb{gs, g3, dev} = b
   dev
 
-def sf_mid(+sf: KS.SF, +a: V.Vec2, +b: V.Vec2) -> V.Point:
-  KS.sf_at(sf, F64.mul(0.5f64, F64.add(V.v2_x(a), V.v2_x(b))), F64.mul(0.5f64, F64.add(V.v2_y(a), V.v2_y(b))))
-
-def sg_uv(+a: V.Vec2, +b: V.Vec2) -> Sg:
-  Sg{V.v2_x(a), V.v2_y(a), V.v2_x(b), V.v2_y(b)}
-
-def bp_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +pp: V.Point, +pq: V.Vec2, +acc: Sb) -> Sb:
+def bp_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +pt: F64, +pp: V.Point, +pq: V.Vec2, +acc: Sc) -> Sc:
   match n:
     case 0n: acc
     case 1n+m:
+      Sc{+gs, +g3, +cr, +dev} = acc
       +nf = U64.to_f64(U64.from_nat(Nat.add(k, Nat.add(m, 1n))))
       +t = F64.div(U64.to_f64(U64.from_nat(Nat.add(k, 1n))), nf)
       +tm = F64.div(F64.add(U64.to_f64(U64.from_nat(k)), 0.5f64), nf)
@@ -805,23 +866,23 @@ def bp_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +pp: V.Point, +pq: V.Vec2, +ac
       +cq = KS.sf_uv(sf, cp)
       +mp = er_p3(e, tm)
       +dv = F64.max(p3d(mp, p3lerp(pp, cp, 0.5f64)), p3d(mp, sf_mid(sf, pq, cq)))
-      bp_samp(m, Nat.add(k, 1n), e, sf, cp, cq,
-        Sb{sg_uv(pq, cq) <> sb_gs(acc), S3{pp, cp} <> sb_g3(acc), F64.max(sb_dev(acc), dv)})
+      bp_samp(m, Nat.add(k, 1n), e, sf, t, cp, cq,
+        Sc{sg_uv(pq, cq) <> gs, S3{pp, cp} <> g3, Cr{sg_uv(pq, cq), S3{pp, cp}, e, pt, t} <> cr, F64.max(dev, dv)})
 
-def bp_ers(es: List<&2, Er>, +sf: KS.SF, +acc: Sb) -> Sb:
+def bp_ers(es: List<&2, Er>, +sf: KS.SF, +acc: Sc) -> Sc:
   match es:
     case []: acc
     case +e <> +t:
       +p0 = er_p3(e, 0.0f64)
-      bp_ers(t, sf, bp_samp(32n, 0n, e, sf, p0, KS.sf_uv(sf, p0), acc))
+      bp_ers(t, sf, bp_samp(32n, 0n, e, sf, 0.0f64, p0, KS.sf_uv(sf, p0), acc))
 
-def sb_fin(+sf: KS.SF, +b: Sb, +slv: F64) -> Uv:
-  Sb{+gs, +g3, +dev} = b
-  Uv_bp{sf, gs, g3, F64.add(F64.mul(4.0f64, F64.add(slv, dev)), 1.0e-9f64)}
+def sb_fin(+sf: KS.SF, +b: Sc, +slv: F64) -> Uv:
+  Sc{+gs, +g3, +cr, +dev} = b
+  Uv_bp{sf, gs, g3, cr, F64.add(F64.mul(4.0f64, F64.add(slv, dev)), 1.0e-9f64), slv}
 
 def uv_bp_of(+g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
   +sf = KS.sf_of(g)
-  sb_fin(sf, bp_ers(es, sf, Sb{[], [], 0.0f64}), slv)
+  sb_fin(sf, bp_ers(es, sf, Sc{[], [], [], 0.0f64}), slv)
 
 def tor_samp(+n: Nat, +k: Nat, +e: Er, +sf: KS.SF, +ur: F64, +vr: F64, +pp: V.Point, +pq: V.Vec2, +acc: Sb) -> Sb:
   match n:

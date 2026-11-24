@@ -959,25 +959,28 @@ def mids_go(bs: List<&2, PX.BP>, +side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List
   match bs:
     case []: PX.HXG{acc, g}
     case +h <> +t:
-      +big = Bool.and(F64.is_le(2.9f64, cc_ang(prev, PX.bp_s(h))), Bool.not(Bool.and(PX.peq(EF.ev(EF.ek_curve(k), prev), pp), PX.peq(EF.ev(EF.ek_curve(k), PX.bp_s(h)), PX.bp_p(h)))))
+      +q = PX.gv_pt(g, PX.bp_v(h))
+      +big = Bool.and(F64.is_le(2.9f64, cc_ang(prev, PX.bp_s(h))), Bool.not(Bool.and(PX.peq(EF.ev(EF.ek_curve(k), prev), pp), PX.peq(EF.ev(EF.ek_curve(k), PX.bp_s(h)), q))))
       +m = mid_hx(side, e, k, gs, prev, PX.bp_s(h), g)
-      mids_go(t, side, e, k, gs, PX.bp_s(h), PX.bp_p(h), Bool.pick(PX.GV, big, PX.hxg_g(m), g),
+      mids_go(t, side, e, k, gs, PX.bp_s(h), q, Bool.pick(PX.GV, big, PX.hxg_g(m), g),
         Bool.pick(List<&2, PX.HX>, big, List.append(&2, PX.HX, PX.hxg_hs(m), acc), acc))
 
-def edge_mids(+side: U64, +b: FB.KB, +e: Nat, +hs: List<&2, PX.HX>, +g: PX.GV, +acc: List<&2, PX.HX>) -> PX.HXG:
+def edge_mids(+side: U64, +b: FB.KB, +e: Nat, +hs: List<&2, PX.HX>, +g: PX.GV, +vmap: List<&2, Nat>, +acc: List<&2, PX.HX>) -> PX.HXG:
   +ed = FB.edge_at(b, e)
   +k = Ty.ed_kind(ed)
   +mid = PX.dedup_bp(PX.bp_sort(edge_bks(hs, side, e)))
   +go = Bool.and(is_cc(k), Nat.is_lt(0n, List.length(&2, PX.BP, mid)))
-  +bs = List.append(&2, PX.BP, mid, [PX.BP{EF.ek_hi(k), 0n, FB.vpt(b, Ty.ed_v1(ed))}])
-  mids_go(Bool.pick(List<&2, PX.BP>, go, bs, []), side, e, k, PX.surfs_of(FB.edge_faces(b, e), b), EF.ek_lo(k), FB.vpt(b, Ty.ed_v0(ed)), g, acc)
+  +i0 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v0(ed)))
+  +i1 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v1(ed)))
+  +bs = List.append(&2, PX.BP, mid, [PX.BP{EF.ek_hi(k), i1, PX.gv_pt(g, i1)}])
+  mids_go(Bool.pick(List<&2, PX.BP>, go, bs, []), side, e, k, PX.surfs_of(FB.edge_faces(b, e), b), EF.ek_lo(k), PX.gv_pt(g, i0), g, acc)
 
-def arc_mids(es: List<&2, Nat>, +side: U64, +b: FB.KB, +hs: List<&2, PX.HX>, +g: PX.GV, +acc: List<&2, PX.HX>) -> PX.HXG:
+def arc_mids(es: List<&2, Nat>, +side: U64, +b: FB.KB, +hs: List<&2, PX.HX>, +g: PX.GV, +vmap: List<&2, Nat>, +acc: List<&2, PX.HX>) -> PX.HXG:
   match es:
     case []: PX.HXG{acc, g}
     case +e <> +t:
-      +r = edge_mids(side, b, e, hs, g, acc)
-      arc_mids(t, side, b, hs, PX.hxg_g(r), PX.hxg_hs(r))
+      +r = edge_mids(side, b, e, hs, g, vmap, acc)
+      arc_mids(t, side, b, hs, PX.hxg_g(r), vmap, PX.hxg_hs(r))
 
 def gbrun_fin(ok: Bool, +why: U64, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +ba: FB.KB, +bb: FB.KB, +va: PX.VM, +vb: PX.VM,
     +hs2: List<&2, PX.HX>, +cr: PX.CR, +cps: List<&2, CO.CP>, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
@@ -985,8 +988,8 @@ def gbrun_fin(ok: Bool, +why: U64, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +ba: FB
     case False{}: K1.KR{False{}, why, ra, 0n, 0n, 0n, 0n, []}
     case True{}:
       +hs3 = PX.chain_hits(PX.cr_chs(cr), ba, bb, PX.cr_g(cr), hs2)
-      +m0 = arc_mids(L.nat_range(FB.nedges(ba)), 0u64, ba, hs3, PX.cr_g(cr), [])
-      +m1 = arc_mids(L.nat_range(FB.nedges(bb)), 1u64, bb, hs3, PX.hxg_g(m0), PX.hxg_hs(m0))
+      +m0 = arc_mids(L.nat_range(FB.nedges(ba)), 0u64, ba, hs3, PX.cr_g(cr), PX.vm_mp(va), [])
+      +m1 = arc_mids(L.nat_range(FB.nedges(bb)), 1u64, bb, hs3, PX.hxg_g(m0), PX.vm_mp(vb), PX.hxg_hs(m0))
       +cr2 = {PX.CR{PX.cr_chs(cr), PX.hxg_g(m1), PX.cr_ok(cr), PX.cr_why(cr)} : PX.CR}
       finish_p(run_emit_f(op, ba, bb, PX.vm_mp(va), PX.vm_mp(vb), List.append(&2, PX.HX, hs3, PX.hxg_hs(m1)), PX.cr_chs(cr2), PX.cr_g(cr2), cps, fda, fdb), ra,
         SO.pool_kf(List.append(&2, SO.KF, SO.kfs_of(ra, fda), SO.kfs_of(rb, fdb))),

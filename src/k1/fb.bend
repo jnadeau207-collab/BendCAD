@@ -629,9 +629,14 @@ def pip_go(pl: Bool, +b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
 def pip_face(+b: KB, +fi: Nat, +s: S.SF, +q: V.Vec2) -> Bool:
   pip_go(U64.is_eq(S.sf_kind(s), S.k_plane()), b, fi, s, q)
 
+def nappe_ok(+s: S.SF, +q: V.Vec2) -> Bool:
+  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_cone())),
+    F64.is_le(F64.neg(1.0e-9f64), F64.mul(S.sf_r(s), V.v2_y(q))))
+
 def pt_in_face(+b: KB, +fi: Nat, +p: V.Point) -> Bool:
   +s = face_sf(b, fi)
-  pip_face(b, fi, s, uv_raw(s, p))
+  +q = uv_raw(s, p)
+  Bool.and(nappe_ok(s, q), pip_face(b, fi, s, q))
 
 def tor_bb(+s: S.SF) -> BB:
   +o = S.sf_o(s)

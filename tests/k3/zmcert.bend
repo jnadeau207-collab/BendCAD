@@ -67,7 +67,7 @@ def hits_d(hs: List<&2, XS.Hit>, +fc: Mm.Fc, +im: MI.Im, +fi: Nat) -> String:
 
 def face_d(+f: SO.Fd, +p: V.Point, +len: F64, +sb: List<&2, I.I>, +fi: Nat) -> String:
   Bool.pick(String, X.vdisj(SO.fd_bx(f), sb), "",
-    hits_d(XS.inter_cs(G.GV_ln{G.Ln{p, K.xdir()}}, G.Dom{0.0f64, len}, SO.fd_g(f), 40n), SO.fd_fc(f), SO.fd_im(f), fi))
+    hits_d(K.ln_hits(XS.gv_xs_is(SO.fd_g(f)), G.GV_ln{G.Ln{p, K.xdir()}}, G.Dom{0.0f64, len}, SO.fd_g(f)), SO.fd_fc(f), SO.fd_im(f), fi))
 
 def faces_d(fs: List<&2, SO.Fd>, +p: V.Point, +len: F64, +sb: List<&2, I.I>, +fi: Nat) -> String:
   match fs:
@@ -99,12 +99,30 @@ def run_gr(+fs: List<&2, SO.Fd>, +gr: K.GR, +h: F64) -> String:
 def run_fs(+fs: List<&2, SO.Fd>, +h: F64) -> String:
   run_gr(fs, K.grid_of(SO.bbox(fs, []), h), h)
 
-def run(+src: String) -> String:
-  +cs = M.ev_part(S.part_of(S.ps_xs(S.parse(src))), [])
-  run_fs(SO.fds_of(M.bd_brep(M.nr_body(M.ce_r(M.ce_find(cs, 2702u64))))), 0.65f64)
+def f_or_nan(m: Maybe<&2, F64>) -> F64:
+  match m:
+    case None{}: F64.nan()
+    case Some{v}: v
+
+def run(+src: String, +h: F64) -> String:
+  +cs = M.ev_for(S.part_of(S.ps_xs(S.parse(src))), [2702u64], [])
+  run_fs(SO.fds_of(M.bd_brep(M.nr_body(M.ce_r(M.ce_find(cs, 2702u64))))), h)
+
+law go2:
+  for a: String
+  for h: String
+  IO(String)
+
+def go2(a, h):
+  do IO<String>:
+    src : String <- read_file(a)
+    return run(src, f_or_nan(S.dec(h)))
+
+def go(+xs: List<&2, String>) -> IO(String):
+  go2(S.arg_at(xs, 1n), S.arg_at(xs, 2n))
 
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    src : String <- read_file(S.arg_at(S.args_l(args), 1n))
-    IO.print(run(src))
+    r : String <- go(S.args_l(args))
+    IO.print(r)
