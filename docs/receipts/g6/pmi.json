@@ -1,7 +1,7 @@
 {
  "source": "bendcad pmi check / stack / fits on the built HUMPHREY-1 parts (ISO GPS semantics; fits per ISO 286 with each part grown by its own material)",
- "binary": "/home/jesse/bc/bendcad-r1y",
- "design": "/home/jesse/g6/g6s.bcd",
+ "binary": "/home/jesse/bc/bendcad-r28",
+ "design": "/home/jesse/g6/g6u.bcd",
  "green": true,
  "rows": [
   {
@@ -40,7 +40,7 @@
    "name": "RDC injector face and orifices",
    "verb": "check",
    "form": "(pmi (node 40) (datum A n4005.c0.wall.2.0) (tol fl flatness 0.01 n4005.c0.wall.2.0 rfs) (dim orifice 1.2 1.19 1.21) (dim pcd 228.0 227.99 228.01) (state cold 1))",
-   "seconds": 14.0,
+   "seconds": 8.8,
    "verdict": "pass",
    "out": "pmi node 40 items 5\ndatum A ok n4005.c0.wall.2.0 plane\ntol fl flatness conforms actual 0 certified\ndim orifice nominal 1.2 zone [1.19, 1.21]\ndim pcd nominal 228 zone [227.99, 228.01]\nstate cold grow 1\npmi ok 5 items"
   },
@@ -56,7 +56,7 @@
    "name": "front bearing inner ring on the shaft journal",
    "verb": "fits",
    "form": "(pmi (node 10) (temp cold 20) (temp hot 150) (fit journal 51 n5001.c0.wall.5.0 10 n1001.c0.wall.1.0 H6/k5 transition))",
-   "seconds": 0.1,
+   "seconds": 0.0,
    "verdict": "pass",
    "out": "fits 1\nfit journal hole 51.n5001.c0.wall.5.0 H6=[20, 20.013] shaft 10.n1001.c0.wall.1.0 k5=[20.002, 20.011] nominal=20\n  temp cold T=20 clearance=[-0.011000000000000001, 0.011000000000000001]\n  temp hot T=150 clearance=[-0.009534344900000017, 0.012499308200000031]\n  verdict=transition-certified status=certified"
   }

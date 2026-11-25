@@ -91,11 +91,6 @@ def ex_wit(ps: List<&2, V.Point>, +k: Nat, +want_max: Bool, +best: V.Point) -> V
     case []: best
     case p <> t: ex_wit(t, k, want_max, ex_better(want_max, k, p, best))
 
-def pts_min_one(qs: List<&2, V.Point>, +p: V.Point, +best: F64) -> F64:
-  match qs:
-    case []: best
-    case q <> t: pts_min_one(t, p, F64.min(best, M10.pt_dist(p, q)))
-
 def vx_dflt() -> Ty.Vertex:
   Ty.Vx{0u64, V.Pt{0.0f64, 0.0f64, 0.0f64}}
 
@@ -297,11 +292,6 @@ def extrema_s(r: M.NR) -> String:
         " ymax=" ++ pt_s(ex_wit(ps, 1n, True{}, z)) ++ " zmin=" ++ pt_s(ex_wit(ps, 2n, False{}, z)) ++
         " zmax=" ++ pt_s(ex_wit(ps, 2n, True{}, z)) ++ " status=sampled"
 
-def pts_min(ps: List<&2, V.Point>, +qs: List<&2, V.Point>, +best: F64) -> F64:
-  match ps:
-    case []: best
-    case p <> t: pts_min(t, qs, pts_min_one(qs, p, best))
-
 def nested(+aa: QI.Ag, +bb: QI.Ag) -> Bool:
   Bool.or(Nat.is_lt(0n, QI.ag_nin(aa)), Nat.is_lt(0n, QI.ag_nin(bb)))
 
@@ -351,7 +341,7 @@ def clear_pts(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Po
   cl_cross(QI.cx_of(a, b), a, b, sa, sb, hs, tol)
 
 def clear_sm(+a: M.Body, +b: M.Body, +sa: List<&2, V.Point>, +sb: List<&2, V.Point>, +tol: F64) -> String:
-  clear_pts(a, b, sa, sb, pts_min(sa, sb, V.dbl_max()), tol)
+  clear_pts(a, b, sa, sb, QI.pts_min(sa, sb, V.dbl_max()), tol)
 
 def eb_of(+k: Ty.EdgeKind, +pa: V.Point, +pb: V.Point) -> QA.Ab:
   match k:
@@ -362,7 +352,7 @@ def wall_step(skip: Bool, +x: Wx, +lo: F64, +i: Nat, +j: Nat, +hi: F64, +pr: Nat
   match skip:
     case True{}: Wr{hi, Nat.add(pr, 1n), Nat.add(np, 1n)}
     case False{}:
-      Wr{F64.min(hi, pts_min(face_smps(x, face_eset(x, i), face_vset(x, face_eset(x, i))),
+      Wr{F64.min(hi, QI.pts_min(face_smps(x, face_eset(x, i), face_vset(x, face_eset(x, i))),
         face_smps(x, face_eset(x, j), face_vset(x, face_eset(x, j))), hi)), pr, Nat.add(np, 1n)}
 
 def dist_out(+k: U64, +c: V.Point, +fs: List<&2, SO.Fd>, +ps: List<&2, V.Point>, +cert: Bool) -> String:

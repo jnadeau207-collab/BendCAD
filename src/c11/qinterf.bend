@@ -12,6 +12,8 @@ import ../c08/bool.bend as BO
 import ../base/par.bend as B
 import ./qaccel.bend as QA
 import ./qmass.bend as QM
+import ./qclear.bend as QL
+import ../c10/mesh.bend as M10
 
 type Ag is Data:
   Ag{ nin: Nat, nout: Nat, nunc: Nat }
@@ -356,6 +358,39 @@ def rel_verdict(+box_dis: Bool, +ov: Bool, +ainb: Bool, +bina: Bool, +aa: Ag, +b
   Ag{+ai, +ao, +au} = aa
   rel_vb(box_dis, ov, ainb, bina, ai, ao, au, bb)
 
+def pts_min_one(qs: List<&2, V.Point>, +p: V.Point, +best: F64) -> F64:
+  match qs:
+    case []: best
+    case q <> t: pts_min_one(t, p, F64.min(best, M10.pt_dist(p, q)))
+
+def pts_min(ps: List<&2, V.Point>, +qs: List<&2, V.Point>, +best: F64) -> F64:
+  match ps:
+    case []: best
+    case p <> t: pts_min(t, qs, pts_min_one(qs, p, best))
+
+def cav_nil(cs: List<&2, Ty.HShell>) -> Bool:
+  match cs:
+    case []: True{}
+    case +h <> t: False{}
+
+def so_one(+s: Ty.Solid, rest: List<&2, Ty.Solid>) -> Bool:
+  Ty.So{g, o, +cs} = s
+  match rest:
+    case []: cav_nil(cs)
+    case +h <> r: False{}
+
+def one_go(ss: List<&2, Ty.Solid>) -> Bool:
+  match ss:
+    case []: False{}
+    case +s <> t: so_one(s, t)
+
+def one_shell(+b: M.Body) -> Bool:
+  one_go(Ty.brep_sos(M.bd_brep(b)))
+
+def ag_clean(+a: Ag) -> Bool:
+  Ag{+i, +o, u} = a
+  Bool.and(Nat.is_eq(i, 0n), Nat.is_lt(0n, o))
+
 def rel_sample(+a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
   wit_line(wit_go(True{}, a, b, wa, wb),
     rel_verdict(False{}, shells_overlap(a, b), box_in_box(wa, wb), box_in_box(wb, wa), ag_of(b, sms_of(a)), ag_of(a, sms_of(b))))
@@ -380,9 +415,21 @@ def ex_some(empty: Bool, +vol: I.I, +proof: String, +a: M.Body, +b: M.Body, +wa:
     case True{}: "relation disjoint status=certified method=exact-intersection"
     case False{}: ex_hit(rel_sample(a, b, wa, wb), vol, proof)
 
+def cl_pick(ok: Bool, +lo: F64, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  match ok:
+    case True{}: "relation disjoint status=certified method=certified-clearance lo=" ++ F64.show(lo)
+    case False{}: rel_sample(a, b, wa, wb)
+
+def cl_go(+a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
+  +sa = sms_of(a)
+  +sb = sms_of(b)
+  +hi = pts_min(sa, sb, V.dbl_max())
+  +lo = I.i_lo(QL.cert_lo_t(a, b, QA.ab_ab_lo(wa, wb), hi, 0.0f64))
+  cl_pick(Bool.and(F64.is_lt(0.0f64, lo), Bool.and(Bool.and(one_shell(a), one_shell(b)), Bool.and(ag_clean(ag_of(b, sa)), ag_clean(ag_of(a, sb))))), lo, a, b, wa, wb)
+
 def ex_sel(ok: Bool, +vol: I.I, +proof: String, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:
   match ok:
-    case False{}: rel_sample(a, b, wa, wb)
+    case False{}: cl_go(a, b, wa, wb)
     case True{}: ex_some(F64.is_le(I.i_hi(vol), 0.0f64), vol, proof, a, b, wa, wb)
 
 def ex_go(r: BO.Out, +a: M.Body, +b: M.Body, +wa: QA.Ab, +wb: QA.Ab) -> String:

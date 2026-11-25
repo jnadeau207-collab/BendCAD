@@ -699,7 +699,7 @@ def stks_rep(ss: List<&2, Stack>, +dms: List<&2, Dim>, +ts: List<&2, State>) -> 
 def clr_iv(+a: M.Body, +b: M.Body) -> CI:
   +sa = QI.sms_of(a)
   +sb = QI.sms_of(b)
-  +hs = QD.pts_min(sa, sb, V.dbl_max())
+  +hs = QI.pts_min(sa, sb, V.dbl_max())
   +r = QD.clear_lo(a, b, hs)
   CI{QD.ck_hit(F64.is_lt(0.0f64, I.i_lo(r)), a, b), I.i_lo(r),
     I.i_hi(r), QD.hi_kind(I.i_hi(r), hs), List.length(&2, V.Point, sa),
