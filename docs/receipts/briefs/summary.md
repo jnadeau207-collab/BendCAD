@@ -6,17 +6,17 @@ Refusals are authoring refusals from `friction.json` plus refused probe steps. C
 
 | brief | binary | built | kernel build s | refusals (authoring+probes) | checks p/f/na | OCCT agrees | mesh conforming | triangles | tess s | edit s | edit 5 s | part 60 s | export 5 min | pass |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| B1 | bendcad-r34 | yes | 0.235 | 2+1 | 8/0/0 | yes | yes | 608 | 0.52 | 0.731 | pass | pass | pass | yes |
-| B2 | bendcad-r34 | yes | 0.034 | 0+0 | 9/0/0 | yes | yes | 1176 | 0.26 | 0.167 | pass | pass | pass | yes |
-| B3 | bendcad-r34 | yes | 0.275 | 4+1 | 11/0/0 | yes | yes | 1296 | 0.51 | 0.887 | pass | pass | pass | yes |
-| B4 | bendcad-r34 | yes | 0.38 | 1+0 | 9/0/0 | yes | yes | 1184 | 0.83 | 1.303 | pass | pass | pass | yes |
-| B5 | bendcad-r34 | yes | 2.099 | 4+2 | 7/0/0 | yes | yes | 892 | 5.29 | 5.613 | fail | pass | pass | no |
-| B6 | bendcad-r34 | yes | 0.696 | 0+0 | 9/0/1 | yes | yes | 3304 | 1.7 | 1.352 | pass | pass | pass | no |
-| B7 | bendcad-r34 | yes | 1.046 | 3+2 | 10/0/2 | yes | yes | 2956 | 3.49 | 1.945 | pass | pass | pass | no |
-| B8 | bendcad-r34 | yes | 0.311 | 0+0 | 7/0/2 | yes | yes | 5008 | 1.08 | 1.154 | pass | pass | pass | no |
-| B9 | bendcad-r34 | yes | 0.49 | 1+0 | 10/0/1 | yes | yes | 1518 | 1.06 | 1.155 | pass | pass | pass | no |
-| B10 | bendcad-r34 | yes | 0.107 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.2 | 0.453 | pass | pass | pass | no |
-| B11 | bendcad-r34 | yes | 5.065 | 0+0 | 5/0/1 | yes | yes | 4490 | 7.58 | 15.7 | fail | pass | pass | no |
-| B12 | bendcad-r34 | yes | 0.781 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.1 | 2.572 | pass | pass | pass | yes |
-| B13 | bendcad-r34 | yes | 3.054 | 2+0 | 6/0/3 | yes | yes | 3628 | 2.89 | 3.806 | pass | pass | pass | no |
-| B14 | bendcad-r34 | yes | 0.424 | 2+2 | 6/0/1 | yes | yes | 900 | 0.67 | 1.421 | pass | pass | pass | no |
+| B1 | bendcad-r35 | yes | 0.219 | 2+1 | 8/0/0 | yes | yes | 608 | 0.54 | 0.743 | pass | pass | pass | yes |
+| B2 | bendcad-r35 | yes | 0.033 | 0+0 | 9/0/0 | yes | yes | 1176 | 0.15 | 0.164 | pass | pass | pass | yes |
+| B3 | bendcad-r35 | yes | 0.273 | 4+1 | 11/0/0 | yes | yes | 1296 | 0.47 | 0.907 | pass | pass | pass | yes |
+| B4 | bendcad-r35 | yes | 0.391 | 1+0 | 9/0/0 | yes | yes | 1184 | 0.7 | 1.327 | pass | pass | pass | yes |
+| B5 | bendcad-r35 | yes | 2.112 | 4+2 | 7/0/0 | yes | yes | 892 | 4.96 | 5.64 | fail | pass | pass | no |
+| B6 | bendcad-r35 | yes | 0.691 | 0+0 | 9/0/1 | yes | yes | 3304 | 2.45 | 1.355 | pass | pass | pass | no |
+| B7 | bendcad-r35 | yes | 1.029 | 3+2 | 10/0/2 | yes | yes | 2956 | 3.15 | 1.946 | pass | pass | pass | no |
+| B8 | bendcad-r35 | yes | 0.32 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.56 | 1.149 | pass | pass | pass | no |
+| B9 | bendcad-r35 | yes | 0.511 | 1+0 | 10/0/1 | yes | yes | 1518 | 0.95 | 1.151 | pass | pass | pass | no |
+| B10 | bendcad-r35 | yes | 0.108 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.2 | 0.448 | pass | pass | pass | no |
+| B11 | bendcad-r35 | yes | 5.023 | 0+0 | 5/0/1 | yes | yes | 4490 | 7.52 | 15.656 | fail | pass | pass | no |
+| B12 | bendcad-r35 | yes | 0.888 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.29 | 2.725 | pass | pass | pass | yes |
+| B13 | bendcad-r35 | yes | 3.128 | 2+0 | 6/0/3 | yes | yes | 3628 | 2.78 | 3.681 | pass | pass | pass | no |
+| B14 | bendcad-r35 | yes | 0.428 | 2+2 | 6/0/1 | yes | yes | 900 | 0.61 | 1.435 | pass | pass | pass | no |

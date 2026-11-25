@@ -1,0 +1,45 @@
+{
+ "a": "/home/jesse/bc/bendcad-r34",
+ "b": "/home/jesse/bc/bendcad-r35",
+ "preset": 3,
+ "rows": [
+  {
+   "design": "g6u.bcd",
+   "node": 4271,
+   "exact": [
+    7659.186350080226,
+    7659.186354323671
+   ],
+   "a": {
+    "seconds": 110.9,
+    "head": "wrote /var/tmp/ab_bendcad-r34_4271.obj nverts 502683 ntris 982006 est 26496 chord 0.04199375096100104 ang 0 nsamp 8136 profile manufacturing (sampled, not certified) faces direct=24 grid=0 refined=0 f",
+    "ntris": 982006,
+    "nverts": 502683,
+    "chord": 0.04199375096100104,
+    "normal-dev": 0.0,
+    "tris": 982006,
+    "volume": 7659.1078585566065,
+    "area": 11289.59456696023,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -1.024830076361626e-05
+   },
+   "b": {
+    "seconds": 98.7,
+    "head": "wrote /var/tmp/ab_bendcad-r35_4271.obj nverts 529122 ntris 1034884 est 26496 chord 0.04199375096100104 ang 0 nsamp 8136 profile manufacturing (sampled, not certified) faces direct=24 grid=0 refined=0 ",
+    "ntris": 1034884,
+    "nverts": 529122,
+    "chord": 0.04199375096100104,
+    "normal-dev": 0.0,
+    "tris": 1034884,
+    "volume": 7659.118595117801,
+    "area": 11289.580123721133,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -8.846512022478872e-06
+   }
+  }
+ ]
+}

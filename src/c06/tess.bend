@@ -1774,6 +1774,76 @@ def flips_m(n: Nat, go: Bool, +md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) ->
 def flips(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
   flips_m(n, go, FM_cot{}, ts, vt)
 
+def lw_ids(n: Nat, +i: Nat) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+m: i <> lw_ids(m, Nat.add(i, 1n))
+
+def lw_nin(+x: Nat, +t: Nat, +u: Nat) -> Bool:
+  +q = Nat.div(x, 3n)
+  Bool.not(Bool.or(Nat.is_eq(q, t), Nat.is_eq(q, u)))
+
+def lw_back(on: Bool, +tw: B.Tb<&2, Nat>, +x: Nat, +i: Nat) -> B.Tb<&2, Nat>:
+  match on:
+    case True{}: B.tb_set(Nat, tw, U32.from_nat(x), i)
+    case False{}: tw
+
+def lw_link(+tw: B.Tb<&2, Nat>, +i: Nat, +x: Nat, +ne: Nat) -> B.Tb<&2, Nat>:
+  lw_back(Nat.is_lt(x, ne), B.tb_set(Nat, tw, U32.from_nat(i), x), x, i)
+
+def lw_tw(ok: Bool, +tw: B.Tb<&2, Nat>, +t0: Nat, +u0: Nat, +xad: Nat, +xca: Nat, +xdb: Nat, +xbc: Nat, +ne: Nat) -> B.Tb<&2, Nat>:
+  match ok:
+    case False{}: tw
+    case True{}:
+      +w = lw_link(tw, Nat.add(t0, 1n), Nat.add(u0, 2n), ne)
+      lw_link(lw_link(lw_link(lw_link(w, t0, xad, ne), Nat.add(t0, 2n), xca, ne), u0, xdb, ne), Nat.add(u0, 1n), xbc, ne)
+
+def lw_tt(ok: Bool, +tt: B.Tb<&2, Tri>, +t: Nat, +u: Nat, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> B.Tb<&2, Tri>:
+  match ok:
+    case False{}: tt
+    case True{}: B.tb_set(Tri, B.tb_set(Tri, tt, U32.from_nat(t), Tri{a, d, c}), U32.from_nat(u), Tri{d, b, c})
+
+def lw_st(ok: Bool, +t0: Nat, +u0: Nat, +r: List<&2, Nat>) -> List<&2, Nat>:
+  match ok:
+    case False{}: r
+    case True{}: t0 <> Nat.add(t0, 2n) <> u0 <> Nat.add(u0, 1n) <> r
+
+def lw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, +ne: Nat, +vt: B.Tb<&2, VX>) -> B.Tb<&2, Tri>:
+  match fuel:
+    case 0n: tt
+    case 1n+(+f):
+      match st:
+        case []: tt
+        case +e <> +r:
+          +o = B.tb_get(Nat, tw, U32.from_nat(e))
+          +t = Nat.div(e, 3n)
+          +l = Nat.sub(e, Nat.mul(3n, t))
+          +u = Nat.div(o, 3n)
+          +m = Nat.sub(o, Nat.mul(3n, u))
+          +t0 = Nat.mul(3n, t)
+          +u0 = Nat.mul(3n, u)
+          +p = B.tb_get(Tri, tt, U32.from_nat(t))
+          +q = B.tb_get(Tri, tt, U32.from_nat(u))
+          +a = ed_a(p, l)
+          +b = ed_b(p, l)
+          +c = ed_b(p, l_nx(l))
+          +d = ed_b(q, l_nx(m))
+          +xbc = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l))))
+          +xca = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l_nx(l)))))
+          +xad = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(m))))
+          +xdb = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(l_nx(m)))))
+          +sane = Bool.and(Bool.and(Nat.is_lt(o, ne), Bool.not(Nat.is_eq(t, u))), Bool.and(Bool.and(Nat.is_eq(ed_a(q, m), b), Nat.is_eq(ed_b(q, m), a)), Bool.not(Nat.is_eq(c, d))))
+          +own = Bool.and(Bool.and(lw_nin(xbc, t, u), lw_nin(xca, t, u)), Bool.and(lw_nin(xad, t, u), lw_nin(xdb, t, u)))
+          +ok = Bool.and(Bool.and(sane, own), fl_ok(vt, a, b, c, d))
+          lw_go(f, lw_st(ok, t0, u0, r), lw_tt(ok, tt, t, u, a, b, c, d), lw_tw(ok, tw, t0, u0, xad, xca, xdb, xbc, ne), ne, vt)
+
+def lawson(+ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
+  +nt = List.length(&2, Tri, ts)
+  +ne = Nat.mul(3n, nt)
+  +tt = B.tb_of(Tri, ts, Tri{0n, 0n, 0n})
+  +tw = tw_go(ne, so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n))), tt, B.tb_of(Nat, rep_nn(ne, ne), ne))
+  tb_tris(nt, lw_go(Nat.add(Nat.mul(64n, ne), 64n), lw_ids(ne, 0n), tt, tw, ne, vt), 0n)
+
 def rf_sub(+ts: List<&2, Tri>, +mk: B.Tb<&2, Bool>, +d: MD, +vt0: B.Tb<&2, VX>) -> RF:
   MD{+md, +vt, +nv} = d
   RF{sub_go(ts, 0n, mk, md, vt0), vt, nv}
@@ -1793,7 +1863,7 @@ def ref_go(n: Nat, done: Bool, +r: RF, +g: GS, +nx: B.Tb<&2, Nat>, +nb: Nat, +ca
         case True{}: r
         case False{}:
           RF{+ts0, +vt, +nv} = r
-          +ts = flips(3n, True{}, ts0, vt)
+          +ts = lawson(ts0, vt)
           +nt = List.length(&2, Tri, ts)
           +ne = Nat.mul(3n, nt)
           +es = so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n)))
@@ -2688,7 +2758,7 @@ def gen_ref(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +v
   +cap = Nat.add(Nat.mul(6n, nb), 8192n)
   +vt = B.tb_of(VX, List.append(&2, VX, vxs, rep_vx(cap)), vx0())
   +nx = B.tb_of(Nat, g_nx(rs, 0n), 0n)
-  +td = flips(Nat.add(List.length(&2, Tri, t0), 8n), True{}, t0, vt)
+  +td = lawson(t0, vt)
   +r = ref_go(48n, False{}, RF{td, vt, nb}, g, nx, nb, Nat.add(nb, cap), tol)
   gen_fin(r, sf, same, B.tb_of(Nat, g_ids(rs), 0n), nb, base, Bool.not(Nat.is_eq(List.length(&2, Tri, t0), 0n)), nx)
 
