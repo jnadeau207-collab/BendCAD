@@ -57,6 +57,7 @@ Sources: lambda_1atm: MEASURED: stoichiometric JP-10/air at 353 K, mean cell wid
 ## 5. Rotordynamics
 
 Critical speeds (COMPUTED, kernel `rotor`, `tools/g6/rotor.py`): 14582, 25766, 51551 r/min against the 43842 r/min design point; within 15%: none. The front support is a back-to-back pair of 7004 ACE/HCP4A at z 79 and 91 mm: with one front bearing the third critical sat at 43 690 r/min, 0.35% from the design point. Bearing radial stiffness 78168 N/mm each (Hertz elliptical point contact (Hamrock-Brewe), inner and outer contacts in series, radial stiffness 0.5 Z k_n cos^2(alpha) under axial preload (Harris and Kotzalas); preload 60.0 N, PROJECTED).
+
 | disc | mass kg | residual unbalance g mm | force N | front bearing N | rear bearing N |
 |---|---|---|---|---|---|
 | impeller | 2.311 | 1.26 | 26.5 | 35.4 | -8.9 |
@@ -72,13 +73,13 @@ Balance: ISO 21940-11 G2.5 (COMPUTED: permissible residual unbalance U = 9549 G 
 | impeller | TI-6AL-4V-ANN | [2.31099368901295, 2.311013975702379] |
 | casing | TI-6AL-4V-ANN | [1.2141143958936096, 1.2141143958966414] |
 | shroud | AL-A356.0-T6 | [0.5378383546511404, 0.5378383546513762] |
-| diffuser | AL-A356.0-T6 | [0.553344252013378, 0.5533442520144851] |
+| diffuser | AL-A356.0-T6 | [0.8221989665008486, 0.8221989665024935] |
 | rdc | INCONEL-625 | [2.082751504406857, 2.0827515044110245] |
 | stator | SIC-SIC-N24A | [1.3581453723832135, 1.3581457982177525] |
 | turbine | WASPALOY-AMS5704 | [1.8252088767419632, 1.825210993315996] |
-| nozzle | INCONEL-625 | [0.9138366110024786, 0.913836642568561] |
+| nozzle | INCONEL-625 | [0.8990704012452034, 0.8990704152697541] |
 | reservoir | AISI304-ANN | [0.15396355019696495, 0.15396355019807997] |
-| tunnel | A286-AMS5732 | [1.7046619330195913, 1.7046619330203] |
+| tunnel | A286-AMS5732 | [1.6753371892052982, 1.6753371892059956] |
 | vaporiser_1 | INCONEL-625 | [0.040051416830125364, 0.040051416830846356] |
 | vaporiser_2 | INCONEL-625 | [0.03692977904968216, 0.03692977905036083] |
 | vaporiser_3 | INCONEL-625 | [0.03380814126924029, 0.03380814126987363] |
@@ -96,26 +97,11 @@ Balance: ISO 21940-11 G2.5 (COMPUTED: permissible residual unbalance U = 9549 G 
 | bearing_front2_balls | SI3N4 | [0.005148147987622332, 0.005148147987638822] |
 | bearing_front2_cage | PEEK-GF30 | [0.001359347820839554, 0.0013593621756837555] |
 
-Total [13.718731160132617, 13.718754067856086] kg against 19.6 kg.
+Total [13.943494921048519, 13.943517811230983] kg against 19.6 kg.
 
 ## Assembly
 
-dof 0; interference: ser_4
-cavity 1 nesting-uncertain 0 status=estimated
-cavity 1 nesting-uncertain 0 status=estimated
-relation disjoint status=certified
-pair vaporiser_2 vaporiser_3
-cavity 1 nesting-uncertain 0 status=estimated
-cavity 1 nesting-uncertain 0 status=estimated
-relation disjoint status=certified
-pair vaporiser_2 vaporiser_4
-cavity 1 nesting-uncertain 0 status=estimated
-cavity 1 nesting-uncertain 0 status=estimated
-relation disjoint status=certified
-pair vaporiser_3 vaporiser_4
-cavity 1 nesting-uncertain 0 status=estimated
-cavity 1 nesting-uncertain 0 status=estimated
-relation disjoint status=certified
+dof 0; interference: none
 
 ## Semantic PMI and tolerance stacks (COMPUTED by the kernel `pmi`, `tools/g6/pmi.py`)
 
@@ -135,12 +121,12 @@ A bearing bore is modelled as ISO 286 H6: the ISO 492 bore deviation (0 to -10 u
 
 | query | design mm | certified interval mm | status | s | result |
 |---|---|---|---|---|---|
-| turbine tip clearance | 0.15 | [0.1499979238008677, 0.1499996809833626] | certified | 28.5 | pass |
-| compressor tip clearance | 0.4 | [0.30266874247052367, 0.3977169496008284] | certified | 95.0 | pass |
-| compressor splitter tip clearance | 0.4 | [0.3545351623129851, 0.4003952823149073] | certified | 96.4 | pass |
-| RDC channel height | 10.0 | [9.999992906032642, 10.0] | certified | 10.6 | pass |
-| RDC outer body minimum wall | None | [1.199999982122629, 2.5000000000012372] | certified | 531.0 | pass |
-| vaporiser loop minimum wall | None | [0.49999999999999994, 0.5000000000114665] | certified | 1.6 | pass |
+| turbine tip clearance | 0.15 | [0.1499979238008677, 0.1499996809833626] | certified | 18.3 | pass |
+| compressor tip clearance | 0.4 | [0.30266874247052367, 0.3977169496008284] | certified | 62.7 | pass |
+| compressor splitter tip clearance | 0.4 | [0.3545351623129851, 0.4003952823149073] | certified | 58.5 | pass |
+| RDC channel height | 10.0 | [9.999992906032642, 10.0] | certified | 13.6 | pass |
+| RDC outer body minimum wall | None | [1.199999982122629, 2.5000000000012372] | certified | 344.5 | pass |
+| vaporiser loop minimum wall | None | [0.49999999999999994, 0.5000000000114665] | certified | 8.1 | pass |
 
 ## Independent grading of the STEP AP242 export (`tools/g6/grade.py`)
 

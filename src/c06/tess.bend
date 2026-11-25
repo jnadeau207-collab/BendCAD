@@ -95,8 +95,11 @@ type Ctx is Data:
 
 
 
+type LXT is Data:
+  LXT{ bl: List<&2, List<&2, Tri>>, tg: List<&2, String> }
+
 type LA is Data:
-  LA{ b: Nat, ps: List<&2, V.Point>, ts: List<&2, Tri>, s: String, np: Nat }
+  LA{ b: Nat, ps: List<&2, V.Point>, ts: List<&2, Tri>, s: List<&2, LXT>, np: Nat }
 
 
 
@@ -1093,21 +1096,21 @@ def pl_pt(+p: V.Point, +pl: M.Pl) -> V.Point:
   +v = M.m3_ap(m, V.pt_x(p), V.pt_y(p), V.pt_z(p))
   V.Pt{F64.add(M.f_nth(v, 0n), tx), F64.add(M.f_nth(v, 1n), ty), F64.add(M.f_nth(v, 2n), tz)}
 
-def obj_vs(ps: List<&2, V.Point>, +pl: M.Pl) -> String:
+def obj_vs(ps: List<&2, V.Point>, +pl: M.Pl, +rest: String) -> String:
   match ps:
-    case []: ""
+    case []: rest
     case p <> t:
       +q = pl_pt(p, pl)
-      "v " ++ F64.show(V.pt_x(q)) ++ " " ++ F64.show(V.pt_y(q)) ++ " " ++ F64.show(V.pt_z(q)) ++ "\n" ++ obj_vs(t, pl)
+      "v " ++ F64.show(V.pt_x(q)) ++ " " ++ F64.show(V.pt_y(q)) ++ " " ++ F64.show(V.pt_z(q)) ++ "\n" ++ obj_vs(t, pl, rest)
 
 def tri_s(+t: Tri) -> String:
   Tri{a, b, c} = t
   "f " ++ Nat.show(Nat.add(a, 1n)) ++ " " ++ Nat.show(Nat.add(b, 1n)) ++ " " ++ Nat.show(Nat.add(c, 1n)) ++ "\n"
 
-def obj_fs(ts: List<&2, Tri>) -> String:
+def obj_fs(ts: List<&2, Tri>, +rest: String) -> String:
   match ts:
-    case []: ""
-    case +t <> r: tri_s(t) ++ obj_fs(r)
+    case []: rest
+    case +t <> r: tri_s(t) ++ obj_fs(r, rest)
 
 def s_hd(xs: List<&2, String>) -> String:
   match xs:
@@ -1144,18 +1147,18 @@ def nf_fi(+x: NF) -> Nat:
   NF{h, n, ns, ks, +fi} = x
   fi
 
-def obj_fg(fuel: Nat, ts: List<&2, Tri>, +ns: List<&2, Nat>, +ks: List<&2, String>, +k: Nat, +fi: Nat) -> String:
+def obj_fg(fuel: Nat, ts: List<&2, Tri>, +ns: List<&2, Nat>, +ks: List<&2, String>, +k: Nat, +fi: Nat, +left: Nat, +rest: String) -> String:
   match fuel:
-    case 0n: ""
+    case 0n: rest
     case 1n+f:
       match ts:
-        case []: ""
+        case []: rest
         case +t <> +r:
           match k:
             case 0n:
-              +x = nx_face(ns, ks, fi, Nat.add(List.length(&2, Tri, r), 1n))
-              nf_hdr(x) ++ obj_fg(f, t <> r, nf_ns(x), nf_ks(x), nf_n(x), nf_fi(x))
-            case 1n+j: tri_s(t) ++ obj_fg(f, r, ns, ks, j, fi)
+              +x = nx_face(ns, ks, fi, left)
+              nf_hdr(x) ++ obj_fg(f, t <> r, nf_ns(x), nf_ks(x), nf_n(x), nf_fi(x), left, rest)
+            case 1n+j: tri_s(t) ++ obj_fg(f, r, ns, ks, j, fi, Nat.sub(left, 1n), rest)
 
 def ek(+a: Nat, +b: Nat) -> U64:
   U64.add(U64.mul(U64.from_nat(a), 4294967296u64), U64.from_nat(b))
@@ -3830,7 +3833,7 @@ def pri_fin(+gt: TGO, +ns0: List<&2, Nat>, +ks: List<&2, String>, +all: List<&2,
   +ts = wt_rest(wt)
   +ns = wt_ns(wt)
   +nt = List.length(&2, Tri, ts)
-  pri_out(Bool.and(gok, closed(ts)), ts, ns, M10.Tres{True{}, fs_note(st), obj_vs(all2, M.bd_pl(b)) ++ obj_fg(Nat.add(Nat.add(nt, List.length(&2, Nat, ns)), 1n), ts, ns, ks, 0n, 0n) ++ es,
+  pri_out(Bool.and(gok, closed(ts)), ts, ns, M10.Tres{True{}, fs_note(st), obj_vs(all2, M.bd_pl(b), obj_fg(Nat.add(Nat.add(nt, List.length(&2, Nat, ns)), 1n), ts, ns, ks, 0n, 0n, nt, es)),
     List.length(&2, V.Point, all2), List.length(&2, Tri, ts), est,
     F64.max(mq_chord(mq), fs_ch(st)), mq_ang(mq), mq_n(mq)})
 
@@ -3838,19 +3841,19 @@ def e_pt(+p: V.Point, +pl: M.Pl) -> String:
   +q = pl_pt(p, pl)
   " " ++ F64.show(V.pt_x(q)) ++ " " ++ F64.show(V.pt_y(q)) ++ " " ++ F64.show(V.pt_z(q))
 
-def e_pts(ps: List<&2, V.Point>, +pl: M.Pl) -> String:
+def e_pts(ps: List<&2, V.Point>, +pl: M.Pl, +rest: String) -> String:
   match ps:
-    case []: ""
-    case +p <> t: e_pt(p, pl) ++ e_pts(t, pl)
+    case []: rest
+    case +p <> t: e_pt(p, pl) ++ e_pts(t, pl, rest)
 
-def e_kind(k: Ty.EdgeKind, +a: V.Point, +b: V.Point, +s: List<&2, V.Point>, +pl: M.Pl) -> String:
+def e_kind(k: Ty.EdgeKind, +a: V.Point, +b: V.Point, +s: List<&2, V.Point>, +pl: M.Pl, +rest: String) -> String:
   match k:
-    case Ty.EK_degenerate{}: ""
-    case _: "e" ++ e_pt(a, pl) ++ e_pts(s, pl) ++ e_pt(b, pl) ++ "\n"
+    case Ty.EK_degenerate{}: rest
+    case _: "e" ++ e_pt(a, pl) ++ e_pts(s, pl, e_pt(b, pl) ++ "\n" ++ rest)
 
-def e_line(e: Ty.Edge, +s: List<&2, V.Point>, +vt: B.Tb<&2, V.Point>, +pl: M.Pl) -> String:
+def e_line(e: Ty.Edge, +s: List<&2, V.Point>, +vt: B.Tb<&2, V.Point>, +pl: M.Pl, +rest: String) -> String:
   Ty.Ed{g, v0, v1, k} = e
-  e_kind(k, B.tb_get(V.Point, vt, ux(hv_i(v0))), B.tb_get(V.Point, vt, ux(hv_i(v1))), s, pl)
+  e_kind(k, B.tb_get(V.Point, vt, ux(hv_i(v0))), B.tb_get(V.Point, vt, ux(hv_i(v1))), s, pl, rest)
 
 def obj_es(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +vt: B.Tb<&2, V.Point>, +pl: M.Pl) -> String:
   match es:
@@ -3858,7 +3861,7 @@ def obj_es(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +vt: B.Tb<&2,
     case e <> t:
       match ss:
         case []: ""
-        case +s <> u: e_line(e, s, vt, pl) ++ obj_es(t, u, vt, pl)
+        case +s <> u: e_line(e, s, vt, pl, obj_es(t, u, vt, pl))
 
 def fg_fin(+fg: FG, +all: List<&2, V.Point>, +b: M.Body, +est: Nat, +mq: MQ, +es: String) -> M10.Tres:
   FG{+gt, +ns, +ks} = fg
@@ -4036,13 +4039,20 @@ def tl_cat(xs: List<&2, List<&2, Tri>>) -> List<&2, Tri>:
     case []: []
     case x <> t: List.append(&2, Tri, x, tl_cat(t))
 
-def obj_tag(bl: List<&2, List<&2, Tri>>, +tags: List<&2, String>) -> String:
+def obj_tag(bl: List<&2, List<&2, Tri>>, +tags: List<&2, String>, +rest: String) -> String:
   match bl:
-    case []: ""
+    case []: rest
     case x <> t:
       match tags:
-        case []: obj_fs(x) ++ obj_tag(t, [])
-        case g <> u: g ++ obj_fs(x) ++ obj_tag(t, u)
+        case []: obj_fs(x, obj_tag(t, [], rest))
+        case g <> u: g ++ obj_fs(x, obj_tag(t, u, rest))
+
+def lt_cat(xs: List<&2, LXT>, +acc: String) -> String:
+  match xs:
+    case []: acc
+    case x <> t:
+      LXT{+bl, +tg} = x
+      lt_cat(t, obj_tag(bl, tg, acc))
 
 def lath_rmax(qs: List<&2, V.Vec2>) -> F64:
   match qs:
@@ -4073,7 +4083,7 @@ def la_add(a: LA, +l: F.Lp, +q: M10.Q) -> LA:
   +p = lath_pts(pcs, n)
   +bl = lath_lp(pcs, n, b)
   LA{Nat.add(b, List.length(&2, V.Point, p)), List.append(&2, V.Point, ps, p),
-    List.append(&2, Tri, ts, tl_cat(bl)), s ++ obj_tag(bl, lath_tags(F.lp_pcs(l), q, np)),
+    List.append(&2, Tri, ts, tl_cat(bl)), LXT{bl, lath_tags(F.lp_pcs(l), q, np)} <> s,
     Nat.add(np, List.length(&2, F.Pc, F.lp_pcs(l)))}
 
 def lath_go(ls: List<&2, F.Lp>, +a: LA, +q: M10.Q) -> LA:
@@ -4083,7 +4093,7 @@ def lath_go(ls: List<&2, F.Lp>, +a: LA, +q: M10.Q) -> LA:
 
 def la_obj(a: LA, +pl: M.Pl) -> String:
   LA{b, +ps, ts, +s, np} = a
-  obj_vs(ps, pl) ++ s
+  obj_vs(ps, pl, lt_cat(s, ""))
 
 def rev_est_go(ls: List<&2, F.Lp>, +q: M10.Q) -> Nat:
   match ls:
@@ -4114,7 +4124,7 @@ def rev_emit2(+a: LA, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
     mq_chord(mq), mq_ang(mq), mq_n(mq))
 
 def rev_emit(+b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
-  rev_emit2(lath_go(M.bd_rv(b), LA{0n, [], [], "", 0n}, q), b, q, est)
+  rev_emit2(lath_go(M.bd_rv(b), LA{0n, [], [], [], 0n}, q), b, q, est)
 
 def rev_go(+ok: Bool, +b: M.Body, +q: M10.Q, +est: Nat) -> M10.Tres:
   match ok:

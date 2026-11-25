@@ -55,17 +55,21 @@ def g6():
     m = load('g6', 'mass.json')
     c = load('g6', 'certs.json') if os.path.exists(os.path.join(R, 'g6', 'certs.json')) else {'rows': []}
     a = load('g6', 'asm.json')
+    t = load('g6', 'tess.json') if os.path.exists(os.path.join(R, 'g6', 'tess.json')) else {'rows': []}
+    tok = sum(r['verdict'] == 'pass' for r in t['rows'])
+    tcur = t.get('design') == m.get('design')
     ok = sum(x['status'] == 'pass' for x in g['checks'])
     cok = sum(r['verdict'] == 'pass' for r in c['rows'])
     kg = m.get('total_kg') or m.get('partial_total_kg')
     cur = a.get('design') == m.get('design')
     itf = a.get('interference', 'not run')
     itf = itf if itf in ('none', 'not run') else f'{len(itf)} non-disjoint pairs' if isinstance(itf, list) else 'output not parsed'
-    done = cur and c.get("design") == m.get("design") and g.get('ready') and c.get('green') and a.get('dof') == 0 and itf == 'none'
+    done = cur and c.get("design") == m.get("design") and g.get('ready') and c.get('green') and a.get('dof') == 0 and itf == 'none' and tcur and t.get('green')
     asm = (f'mates dof {a.get("dof")}, interference {itf}' if cur else
            f'mates and interference not yet re-run on {os.path.basename(m.get("design", "?"))} (last: {os.path.basename(a.get("design", "?"))})')
     return (f'{"✅ passed" if done else "in progress"}: OCCT grading of the STEP exports {ok}/{len(g["checks"])} pass (`docs/receipts/g6/grading.json`); '
             f'certified clearance and wall queries {cok}/{len(c["rows"])}{"" if c.get("design") == m.get("design") else " on " + os.path.basename(c.get("design", "?"))} (`certs.json`); {asm} (`asm.json`); '
+            f'flow-path meshes closed at the manufacturing preset {tok}/{len(t["rows"])}{"" if tcur else " on " + os.path.basename(t.get("design", "?"))} (`tess.json`); '
             f'dry mass {kg[0]:.3f} kg certified{"" if m.get("complete") else " (partial)"} against {m["limit_kg"]} kg (`mass.json`)')
 
 

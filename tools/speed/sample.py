@@ -304,18 +304,6 @@ def main(period, argv):
             for k, v in ctr.most_common(int(os.environ.get(lim, '60'))):
                 print('  %5.1f%%  %s' % (100.0 * v / max(kn, 1), k))
         return
-    if FP:
-        print('inclusive by definition:')
-        for k, v in incl.most_common(int(os.environ.get('SAMPLE_INCL', '90'))):
-            print('  %5.1f%%  %s' % (100.0 * v / max(n, 1), k))
-        want = os.environ.get('SAMPLE_EDGE', '')
-        if want:
-            print('callers of ' + want + ':')
-            for (a, b), v in sorted(edges.items(), key=lambda kv: -kv[1]):
-                if want in b:
-                    print('  %5.1f%%  %s -> %s' % (100.0 * v / max(n, 1), a, b))
-        return
-
     if BUCKET:
         print('timeline:')
         for b in sorted(line):
@@ -328,6 +316,18 @@ def main(period, argv):
             skip = os.environ.get('SAMPLE_TLSKIP', '')
             rows = [(k, v) for k, v in line[b].most_common() if not (skip and re.search(skip, k))]
             print('                    %s' % '  '.join('%s %d' % (k.replace('WL_FID____', ''), 100 * v // tot) for k, v in rows[:int(os.environ.get('SAMPLE_TLTOP', '6'))]))
+    if FP:
+        print('inclusive by definition:')
+        for k, v in incl.most_common(int(os.environ.get('SAMPLE_INCL', '90'))):
+            print('  %5.1f%%  %s' % (100.0 * v / max(n, 1), k))
+        want = os.environ.get('SAMPLE_EDGE', '')
+        if want:
+            print('callers of ' + want + ':')
+            for (a, b), v in sorted(edges.items(), key=lambda kv: -kv[1]):
+                if want in b:
+                    print('  %5.1f%%  %s -> %s' % (100.0 * v / max(n, 1), a, b))
+        return
+
     print('modules present on the stack:')
     for k, v in onstack.most_common(14):
         print('  %5.1f%%  %s' % (100.0 * v / max(n, 1), k))
