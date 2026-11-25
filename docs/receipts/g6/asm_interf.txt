@@ -1,0 +1,860 @@
+assembly pairs ninst 27
+pair casing shroud
+relation disjoint status=certified method=exact-intersection
+pair casing diffuser
+relation disjoint status=certified method=exact-intersection
+pair casing rdc
+relation disjoint status=certified method=exact-intersection
+pair casing stator
+relation disjoint status=certified method=exact-intersection
+pair casing nozzle
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair casing tunnel
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front_outer
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_rear_outer
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front_balls
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_rear_balls
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front_inner
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_rear_inner
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front2_outer
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front2_balls
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front2_inner
+relation disjoint status=certified method=exact-intersection
+pair casing bearing_front2_cage
+relation disjoint status=certified method=exact-intersection
+pair casing shaft
+relation disjoint status=certified method=exact-intersection
+pair casing impeller
+relation disjoint status=certified method=exact-intersection
+pair casing turbine
+relation disjoint status=certified method=exact-intersection
+pair casing reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair casing vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair casing vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair casing vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair casing vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shroud diffuser
+relation disjoint status=certified method=exact-intersection
+pair shroud rdc
+relation disjoint status=certified
+pair shroud stator
+relation disjoint status=certified
+pair shroud nozzle
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shroud tunnel
+relation disjoint status=certified
+pair shroud bearing_front_outer
+relation disjoint status=certified
+pair shroud bearing_rear_outer
+relation disjoint status=certified
+pair shroud bearing_front_balls
+relation disjoint status=certified
+pair shroud bearing_rear_balls
+relation disjoint status=certified
+pair shroud bearing_front_inner
+relation disjoint status=certified
+pair shroud bearing_rear_inner
+relation disjoint status=certified
+pair shroud bearing_front_cage
+relation disjoint status=certified
+pair shroud bearing_rear_cage
+relation disjoint status=certified
+pair shroud bearing_front2_outer
+relation disjoint status=certified
+pair shroud bearing_front2_balls
+relation disjoint status=certified
+pair shroud bearing_front2_inner
+relation disjoint status=certified
+pair shroud bearing_front2_cage
+relation disjoint status=certified
+pair shroud shaft
+relation disjoint status=certified method=exact-intersection
+pair shroud impeller
+relation disjoint status=certified method=exact-intersection
+pair shroud turbine
+relation disjoint status=certified
+pair shroud reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair shroud vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shroud vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shroud vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shroud vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser rdc
+relation disjoint status=certified
+pair diffuser stator
+relation disjoint status=certified
+pair diffuser nozzle
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser tunnel
+relation disjoint status=certified method=exact-intersection
+pair diffuser bearing_front_outer
+relation disjoint status=certified
+pair diffuser bearing_rear_outer
+relation disjoint status=certified
+pair diffuser bearing_front_balls
+relation disjoint status=certified
+pair diffuser bearing_rear_balls
+relation disjoint status=certified
+pair diffuser bearing_front_inner
+relation disjoint status=certified
+pair diffuser bearing_rear_inner
+relation disjoint status=certified
+pair diffuser bearing_front_cage
+relation disjoint status=certified
+pair diffuser bearing_rear_cage
+relation disjoint status=certified
+pair diffuser bearing_front2_outer
+relation disjoint status=certified
+pair diffuser bearing_front2_balls
+relation disjoint status=certified
+pair diffuser bearing_front2_inner
+relation disjoint status=certified
+pair diffuser bearing_front2_cage
+relation disjoint status=certified
+pair diffuser shaft
+relation disjoint status=certified method=exact-intersection
+pair diffuser impeller
+relation disjoint status=certified method=exact-intersection
+pair diffuser turbine
+relation disjoint status=certified
+pair diffuser reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair diffuser vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc stator
+relation disjoint status=certified method=exact-intersection
+pair rdc nozzle
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc tunnel
+relation disjoint status=certified method=exact-intersection
+pair rdc bearing_front_outer
+relation disjoint status=certified method=exact-intersection
+pair rdc bearing_rear_outer
+relation disjoint status=certified
+pair rdc bearing_front_balls
+relation disjoint status=certified method=exact-intersection
+pair rdc bearing_rear_balls
+relation disjoint status=certified
+pair rdc bearing_front_inner
+relation disjoint status=certified method=exact-intersection
+pair rdc bearing_rear_inner
+relation disjoint status=certified
+pair rdc bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair rdc bearing_rear_cage
+relation disjoint status=certified
+pair rdc bearing_front2_outer
+relation disjoint status=certified
+pair rdc bearing_front2_balls
+relation disjoint status=certified
+pair rdc bearing_front2_inner
+relation disjoint status=certified
+pair rdc bearing_front2_cage
+relation disjoint status=certified
+pair rdc shaft
+relation disjoint status=certified method=exact-intersection
+pair rdc impeller
+relation disjoint status=certified
+pair rdc turbine
+relation disjoint status=certified
+pair rdc reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair rdc vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair stator nozzle
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair stator tunnel
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_front_outer
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_rear_outer
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_front_balls
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_rear_balls
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_front_inner
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_rear_inner
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair stator bearing_front2_outer
+relation disjoint status=certified
+pair stator bearing_front2_balls
+relation disjoint status=certified
+pair stator bearing_front2_inner
+relation disjoint status=certified
+pair stator bearing_front2_cage
+relation disjoint status=certified
+pair stator shaft
+relation disjoint status=certified method=exact-intersection
+pair stator impeller
+relation disjoint status=certified
+pair stator turbine
+relation disjoint status=certified method=exact-intersection
+pair stator reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair stator vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair stator vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair stator vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair stator vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle tunnel
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front_outer
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_rear_outer
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front_balls
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_rear_balls
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front_inner
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_rear_inner
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front_cage
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_rear_cage
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front2_outer
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front2_balls
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front2_inner
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle bearing_front2_cage
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle shaft
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair nozzle impeller
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle turbine
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair nozzle reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair nozzle vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair nozzle vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair nozzle vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair nozzle vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front_outer
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_rear_outer
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front_balls
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_rear_balls
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front_inner
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_rear_inner
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front2_outer
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front2_balls
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front2_inner
+relation disjoint status=certified method=exact-intersection
+pair tunnel bearing_front2_cage
+relation disjoint status=certified method=exact-intersection
+pair tunnel shaft
+relation disjoint status=certified method=exact-intersection
+pair tunnel impeller
+relation disjoint status=certified method=exact-intersection
+pair tunnel turbine
+relation disjoint status=certified
+pair tunnel reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair tunnel vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair tunnel vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair tunnel vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair tunnel vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_outer bearing_rear_outer
+relation disjoint status=certified
+pair bearing_front_outer bearing_front_balls
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_outer bearing_rear_balls
+relation disjoint status=certified
+pair bearing_front_outer bearing_front_inner
+relation disjoint status=certified method=certified-clearance lo=2.4427937312779333
+pair bearing_front_outer bearing_rear_inner
+relation disjoint status=certified
+pair bearing_front_outer bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_outer bearing_rear_cage
+relation disjoint status=certified
+pair bearing_front_outer bearing_front2_outer
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_outer bearing_front2_balls
+relation disjoint status=certified
+pair bearing_front_outer bearing_front2_inner
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_outer bearing_front2_cage
+relation disjoint status=certified
+pair bearing_front_outer shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_outer impeller
+relation disjoint status=certified
+pair bearing_front_outer turbine
+relation disjoint status=certified
+pair bearing_front_outer reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_outer vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_outer vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_outer vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_outer vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_outer bearing_front_balls
+relation disjoint status=certified
+pair bearing_rear_outer bearing_rear_balls
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_outer bearing_front_inner
+relation disjoint status=certified
+pair bearing_rear_outer bearing_rear_inner
+relation disjoint status=certified method=certified-clearance lo=2.4427937313078365
+pair bearing_rear_outer bearing_front_cage
+relation disjoint status=certified
+pair bearing_rear_outer bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_outer bearing_front2_outer
+relation disjoint status=certified
+pair bearing_rear_outer bearing_front2_balls
+relation disjoint status=certified
+pair bearing_rear_outer bearing_front2_inner
+relation disjoint status=certified
+pair bearing_rear_outer bearing_front2_cage
+relation disjoint status=certified
+pair bearing_rear_outer shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_outer impeller
+relation disjoint status=certified
+pair bearing_rear_outer turbine
+relation disjoint status=certified
+pair bearing_rear_outer reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_outer vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_outer vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_outer vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_outer vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_balls bearing_rear_balls
+relation disjoint status=certified
+pair bearing_front_balls bearing_front_inner
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_balls bearing_rear_inner
+relation disjoint status=certified
+pair bearing_front_balls bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_balls bearing_rear_cage
+relation disjoint status=certified
+pair bearing_front_balls bearing_front2_outer
+relation disjoint status=certified
+pair bearing_front_balls bearing_front2_balls
+relation disjoint status=certified
+pair bearing_front_balls bearing_front2_inner
+relation disjoint status=certified
+pair bearing_front_balls bearing_front2_cage
+relation disjoint status=certified
+pair bearing_front_balls shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_balls impeller
+relation disjoint status=certified
+pair bearing_front_balls turbine
+relation disjoint status=certified
+pair bearing_front_balls reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_balls vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_balls vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_balls vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_balls vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_balls bearing_front_inner
+relation disjoint status=certified
+pair bearing_rear_balls bearing_rear_inner
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_balls bearing_front_cage
+relation disjoint status=certified
+pair bearing_rear_balls bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_balls bearing_front2_outer
+relation disjoint status=certified
+pair bearing_rear_balls bearing_front2_balls
+relation disjoint status=certified
+pair bearing_rear_balls bearing_front2_inner
+relation disjoint status=certified
+pair bearing_rear_balls bearing_front2_cage
+relation disjoint status=certified
+pair bearing_rear_balls shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_balls impeller
+relation disjoint status=certified
+pair bearing_rear_balls turbine
+relation disjoint status=certified
+pair bearing_rear_balls reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_balls vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_balls vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_balls vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_balls vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_inner bearing_rear_inner
+relation disjoint status=certified
+pair bearing_front_inner bearing_front_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_inner bearing_rear_cage
+relation disjoint status=certified
+pair bearing_front_inner bearing_front2_outer
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_inner bearing_front2_balls
+relation disjoint status=certified
+pair bearing_front_inner bearing_front2_inner
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_inner bearing_front2_cage
+relation disjoint status=certified
+pair bearing_front_inner shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_inner impeller
+relation disjoint status=certified
+pair bearing_front_inner turbine
+relation disjoint status=certified
+pair bearing_front_inner reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_inner vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_inner vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_inner vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_inner vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_inner bearing_front_cage
+relation disjoint status=certified
+pair bearing_rear_inner bearing_rear_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_inner bearing_front2_outer
+relation disjoint status=certified
+pair bearing_rear_inner bearing_front2_balls
+relation disjoint status=certified
+pair bearing_rear_inner bearing_front2_inner
+relation disjoint status=certified
+pair bearing_rear_inner bearing_front2_cage
+relation disjoint status=certified
+pair bearing_rear_inner shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_inner impeller
+relation disjoint status=certified
+pair bearing_rear_inner turbine
+relation disjoint status=certified
+pair bearing_rear_inner reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_inner vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_inner vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_inner vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_inner vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_cage bearing_rear_cage
+relation disjoint status=certified
+pair bearing_front_cage bearing_front2_outer
+relation disjoint status=certified
+pair bearing_front_cage bearing_front2_balls
+relation disjoint status=certified
+pair bearing_front_cage bearing_front2_inner
+relation disjoint status=certified
+pair bearing_front_cage bearing_front2_cage
+relation disjoint status=certified
+pair bearing_front_cage shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front_cage impeller
+relation disjoint status=certified
+pair bearing_front_cage turbine
+relation disjoint status=certified
+pair bearing_front_cage reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_cage vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_cage vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_cage vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front_cage vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_cage bearing_front2_outer
+relation disjoint status=certified
+pair bearing_rear_cage bearing_front2_balls
+relation disjoint status=certified
+pair bearing_rear_cage bearing_front2_inner
+relation disjoint status=certified
+pair bearing_rear_cage bearing_front2_cage
+relation disjoint status=certified
+pair bearing_rear_cage shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_rear_cage impeller
+relation disjoint status=certified
+pair bearing_rear_cage turbine
+relation disjoint status=certified
+pair bearing_rear_cage reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_cage vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_cage vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_cage vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_rear_cage vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_outer bearing_front2_balls
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_outer bearing_front2_inner
+relation disjoint status=certified method=certified-clearance lo=2.442793731275713
+pair bearing_front2_outer bearing_front2_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_outer shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_outer impeller
+relation disjoint status=certified
+pair bearing_front2_outer turbine
+relation disjoint status=certified
+pair bearing_front2_outer reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_outer vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_outer vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_outer vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_outer vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_balls bearing_front2_inner
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_balls bearing_front2_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_balls shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_balls impeller
+relation disjoint status=certified
+pair bearing_front2_balls turbine
+relation disjoint status=certified
+pair bearing_front2_balls reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_balls vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_balls vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_balls vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_balls vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_inner bearing_front2_cage
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_inner shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_inner impeller
+relation disjoint status=certified
+pair bearing_front2_inner turbine
+relation disjoint status=certified
+pair bearing_front2_inner reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_inner vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_inner vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_inner vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_inner vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_cage shaft
+relation disjoint status=certified method=exact-intersection
+pair bearing_front2_cage impeller
+relation disjoint status=certified
+pair bearing_front2_cage turbine
+relation disjoint status=certified
+pair bearing_front2_cage reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_cage vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_cage vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_cage vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair bearing_front2_cage vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shaft impeller
+relation disjoint status=certified method=exact-intersection
+pair shaft turbine
+relation disjoint status=certified method=exact-intersection
+pair shaft reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shaft vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shaft vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shaft vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair shaft vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair impeller turbine
+relation disjoint status=certified
+pair impeller reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair impeller vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair impeller vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair impeller vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair impeller vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair turbine reservoir
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair turbine vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair turbine vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair turbine vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair turbine vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair reservoir vaporiser_1
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair reservoir vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair reservoir vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair reservoir vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_1 vaporiser_2
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_1 vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_1 vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_2 vaporiser_3
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_2 vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+pair vaporiser_3 vaporiser_4
+cavity 1 nesting-uncertain 0 status=estimated
+cavity 1 nesting-uncertain 0 status=estimated
+relation disjoint status=certified
+

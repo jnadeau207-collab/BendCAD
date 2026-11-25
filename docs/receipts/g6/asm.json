@@ -1,6 +1,6 @@
 {
  "source": "bendcad asm solve / asm interf on tools/g6/asm.py MATES",
- "binary": "/home/jesse/bc/bendcad-r27",
+ "binary": "/home/jesse/bc/bendcad-r31",
  "design": "/home/jesse/g6/g6u.bcd",
  "mates": [
   {
@@ -194,18 +194,13 @@
   }
  ],
  "dof": 0,
- "solve_seconds": 6821.5,
+ "solve_seconds": 5811.3,
  "solve_raw": " 28 t=0 -0 -0 q=0\ninst tunnel node 44 t=0 0 0 q=0\ninst bearing_front_outer node 52 t=0 -0 -0 q=0\ninst bearing_rear_outer node 62 t=-0 -0 -0 q=0\ninst bearing_front_balls node 53 t=0 -0 -0 q=0\ninst bearing_rear_balls node 63 t=0 -0 -0 q=0\ninst bearing_front_inner node 51 t=0 -0 -0 q=0\ninst bearing_rear_inner node 61 t=0 -0 -0 q=0\ninst bearing_front_cage node 54 t=0 -0 -0 q=0\ninst bearing_rear_cage node 64 t=-0 -0 -0 q=0\ninst bearing_front2_outer node 72 t=-0 -0 -0 q=0\ninst bearing_front2_balls node 73 t=0 -0 -0 q=0\ninst bearing_front2_inner node 71 t=0 -0 -0 q=0\ninst bearing_front2_cage node 74 t=-0 -0 -0 q=0\ninst shaft node 10 t=0 -0 -0 q=0\ninst impeller node 19 t=0 -0 -0 q=0\ninst turbine node 27 t=-0 -0 -0 q=0\ninst reservoir node 43 t=0 -0 -0 q=0\ninst vaporiser_1 node 461 t=0 -0 -0 q=0\ninst vaporiser_2 node 462 t=0 -0 -0 q=0\ninst vaporiser_3 node 463 t=0 -0 -0 q=0\ninst vaporiser_4 node 464 t=-0 -0 -0 q=0\nredundant []\nlineage asm(casing=n20,shroud=n23,diffuser=n24,rdc=n40,stator=n42,nozzle=n28,tunnel=n44,bearing_front_outer=n52,bearing_rear_outer=n62,bearing_front_balls=n53,bearing_rear_balls=n63,bearing_front_inner=n51,bearing_rear_inner=n61,bearing_front_cage=n54,bearing_rear_cage=n64,bearing_front2_outer=n72,bearing_front2_balls=n73,bearing_front2_inner=n71,bearing_front2_cage=n74,shaft=n10,impeller=n19,turbine=n27,reservoir=n43,vaporiser_1=n461,vaporiser_2=n462,vaporiser_3=n463,vaporiser_4=n464) mates[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]",
- "interf_seconds": 10591.1,
+ "interf_seconds": 9587.1,
  "interf_raw": "docs/receipts/g6/asm_interf.txt",
- "interference": [
-  "bearing_front_outer bearing_front_inner uncertain",
-  "bearing_rear_outer bearing_rear_inner uncertain",
-  "bearing_front2_outer bearing_front2_inner uncertain"
- ],
+ "interference": "none",
  "pairs": 351,
  "relations": {
-  "disjoint": 348,
-  "uncertain": 3
+  "disjoint": 351
  }
 }
