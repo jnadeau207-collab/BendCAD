@@ -1,6 +1,6 @@
 {
  "source": "tools/g6/grade.py: OCCT (OCP 7.x via build123d) reading the STEP AP242 exports, an independent code path from the kernel",
- "export": "/home/jesse/g6/export",
+ "export": "/home/jesse/g6/export_u",
  "ready": true,
  "checks": [
   {
@@ -88,12 +88,12 @@
   },
   {
    "part": "diffuser",
-   "step_volume_mm3": 206091.024423455,
+   "step_volume_mm3": 306224.9705667309,
    "kernel_volume_mm3": [
-    206091.02442324953,
-    206091.0244236617
+    306224.97056642454,
+    306224.970567037
    ],
-   "rel_diff": 2.9976021664879227e-15
+   "rel_diff": 4.440892098500626e-16
   },
   {
    "part": "rdc",
@@ -124,12 +124,12 @@
   },
   {
    "part": "nozzle",
-   "step_volume_mm3": 108244.07428279497,
+   "step_volume_mm3": 106495.01366476157,
    "kernel_volume_mm3": [
-    108244.07241328996,
-    108244.0761522967
+    106495.01283415697,
+    106495.01449536685
    ],
-   "rel_diff": 1.509903313490213e-14
+   "rel_diff": 3.1086244689504383e-15
   },
   {
    "part": "reservoir",
@@ -142,12 +142,12 @@
   },
   {
    "part": "tunnel",
-   "step_volume_mm3": 214581.2523192985,
+   "step_volume_mm3": 210889.88095133056,
    "kernel_volume_mm3": [
-    214581.25231925395,
-    214581.252319343
+    210889.88095128664,
+    210889.8809513743
    ],
-   "rel_diff": 2.220446049250313e-16
+   "rel_diff": 4.440892098500626e-16
   },
   {
    "part": "vaporiser_1",

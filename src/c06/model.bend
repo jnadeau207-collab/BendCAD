@@ -164,6 +164,15 @@ type NS is Data:
 def nr_err(+k: T.FailKind, +w: String, +l: String, +y: String, +f: String) -> NR:
   NR_err{k, Dg{w, l, y, f}}
 
+def nr_why(+k: T.FailKind, +d: Dg) -> String:
+  Dg{+w, +l, +y, +f} = d
+  " | " ++ T.FailKind.show(k) ++ " " ++ w ++ " @ " ++ l ++ " | why: " ++ y ++ " | fix: " ++ f
+
+def nr_err_why(r: NR) -> String:
+  match r:
+    case NR_err{k, d}: nr_why(k, d)
+    case NR_ok{b, fx}: ""
+
 def bad(+w: String, +l: String, +y: String, +f: String) -> NR:
   nr_err(T.F_invalid{}, w, l, y, f)
 
@@ -2326,7 +2335,7 @@ def keq(a: List<&2, U64>, b: List<&2, U64>) -> Bool:
 
 def ce_find(cs: List<&2, CE>, +id: U64) -> CE:
   match cs:
-    case []: CE{0u64, [], bad("node", "-", "missing-input-node", "reference an earlier node id")}
+    case []: CE{0u64, [], bad("node", "id " ++ U64.show(id), "missing-input-node: no node with this id in the design", "reference a node id that the design defines")}
     case +c <> t: Bool.pick(CE, U64.is_eq(ce_id(c), id), c, ce_find(t, id))
 
 def ce_has_zz(cs: List<&2, CE>, zz: Bool, +id: U64) -> Bool:

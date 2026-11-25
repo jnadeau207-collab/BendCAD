@@ -653,7 +653,7 @@ def ents_of(+p: M.Part, +n: U64, +cs: List<&2, M.CE>) -> List<&2, Ent>:
 def node_std(+p: M.Part, +n: U64, +old: List<&2, M.CE>) -> String:
   +cs = M.ev_for(p, [n], old)
   +r = M.ce_r(M.ce_find(cs, n))
-  Bool.pick(String, M.nr_ok(r), tl_out(tl_go(ents_of(p, n, cs), M.nr_body(r), Tl{"", 0n, 0n}), n), "error: node failed; nothing checked\n")
+  Bool.pick(String, M.nr_ok(r), tl_out(tl_go(ents_of(p, n, cs), M.nr_body(r), Tl{"", 0n, 0n}), n), "error: node failed; nothing checked" ++ M.nr_err_why(r) ++ "\n")
 
 def col_s(+a: SD.Fa, +i: Nat, +nm: String) -> String:
   +v = SD.fv(a, i)

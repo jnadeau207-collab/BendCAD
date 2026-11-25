@@ -280,7 +280,7 @@ def ex_zero() -> V.Point:
 
 def extrema_s(r: M.NR) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing measured"
+    case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}:
       +m = M.body_ms(b)
       +ps = wverts(b)
@@ -368,7 +368,7 @@ def dist_fin(ok: Bool, +b: M.Body, +x: F64, +y: F64, +z: F64) -> String:
 
 def dist_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing measured"
+    case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}:
       Bool.pick(String, M.bd_open(b), "refused dist-needs-solid | dist | fix: thicken-open the shell to a solid first",
         dist_fin(QI.fin3(x, y, z), b, x, y, z))
@@ -404,10 +404,10 @@ def wall_rep(ps: List<&2, Wp>, +x: Wx) -> String:
 
 def clear_s_t(ra: M.NR, rb: M.NR, +tol: F64) -> String:
   match ra:
-    case M.NR_err{k, d}: "error: node failed; nothing measured"
+    case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
     case M.NR_ok{+a, fa}:
       match rb:
-        case M.NR_err{k, d}: "error: node failed; nothing measured"
+        case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
         case M.NR_ok{+b, fb}:
           Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
             "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_go(a, b, tol))
@@ -451,7 +451,7 @@ def wall_body(has: Bool, +b: M.Body) -> String:
 
 def wall_s(r: M.NR) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing measured"
+    case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}:
       Bool.pick(String, M.bd_open(b), "refused wall-needs-solid | wall | fix: thicken-open the shell to a solid first",
         wall_body(Bool.not(Nat.is_eq(List.length(&2, Ty.Face, Ty.brep_fas(M.bd_brep(b))), 0n)), b))

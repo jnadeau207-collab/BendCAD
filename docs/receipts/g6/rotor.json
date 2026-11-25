@@ -1,7 +1,7 @@
 {
  "source": "bendcad rotor (Timoshenko beam elements, Sturm-count bisection, N/2N/4N refinement with an extrapolated bound) on the HUMPHREY-1 shaft",
- "binary": "/home/jesse/bc/bendcad-r1y",
- "design": "/home/jesse/g6/g6s.bcd",
+ "binary": "/home/jesse/bc/bendcad-r31",
+ "design": "/home/jesse/g6/g6u.bcd",
  "shaft": "17-4PH-H1075 (MIL-HDBK-5J), hollow 10 mm bore as tools/g6/humphrey.py shaft_edits",
  "discs": [
   {

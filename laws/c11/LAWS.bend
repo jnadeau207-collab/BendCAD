@@ -129,7 +129,7 @@ law mass_s_err:
   for +k: T.FailKind
   for +dg: M.Dg
   for +d: Nat
-  {QM.mass_s(M.NR_err{k, dg}, d) == "error: node failed; nothing measured" : String}
+  {QM.mass_s(M.NR_err{k, dg}, d) == "error: node failed; nothing measured" ++ M.nr_why(k, dg) : String}
 
 law dist_s_err:
   for +k: T.FailKind
@@ -137,23 +137,23 @@ law dist_s_err:
   for +x: F64
   for +y: F64
   for +z: F64
-  {QD.dist_s(M.NR_err{k, dg}, x, y, z) == "error: node failed; nothing measured" : String}
+  {QD.dist_s(M.NR_err{k, dg}, x, y, z) == "error: node failed; nothing measured" ++ M.nr_why(k, dg) : String}
 
 law extrema_s_err:
   for +k: T.FailKind
   for +dg: M.Dg
-  {QD.extrema_s(M.NR_err{k, dg}) == "error: node failed; nothing measured" : String}
+  {QD.extrema_s(M.NR_err{k, dg}) == "error: node failed; nothing measured" ++ M.nr_why(k, dg) : String}
 
 law clear_s_err_a:
   for +k: T.FailKind
   for +dg: M.Dg
   for +rb: M.NR
-  {QD.clear_s(M.NR_err{k, dg}, rb) == "error: node failed; nothing measured" : String}
+  {QD.clear_s(M.NR_err{k, dg}, rb) == "error: node failed; nothing measured" ++ M.nr_why(k, dg) : String}
 
 law wall_s_err:
   for +k: T.FailKind
   for +dg: M.Dg
-  {QD.wall_s(M.NR_err{k, dg}) == "error: node failed; nothing measured" : String}
+  {QD.wall_s(M.NR_err{k, dg}) == "error: node failed; nothing measured" ++ M.nr_why(k, dg) : String}
 
 law sect_s_err:
   for +k: T.FailKind
@@ -162,13 +162,13 @@ law sect_s_err:
   for +b: F64
   for +c: F64
   for +d: F64
-  {QN.sect_s(M.NR_err{k, dg}, a, b, c, d) == "error: node failed; nothing sectioned" : String}
+  {QN.sect_s(M.NR_err{k, dg}, a, b, c, d) == "error: node failed; nothing sectioned" ++ M.nr_why(k, dg) : String}
 
 law rel_s_err_a:
   for +k: T.FailKind
   for +dg: M.Dg
   for +rb: M.NR
-  {QI.rel_s(M.NR_err{k, dg}, rb) == "error: node failed; nothing compared" : String}
+  {QI.rel_s(M.NR_err{k, dg}, rb) == "error: node failed; nothing compared" ++ M.nr_why(k, dg) : String}
 
 law classify_s_err:
   for +k: T.FailKind
@@ -176,7 +176,7 @@ law classify_s_err:
   for +x: F64
   for +y: F64
   for +z: F64
-  {QI.classify_s(M.NR_err{k, dg}, x, y, z) == "error: node failed; nothing classified" : String}
+  {QI.classify_s(M.NR_err{k, dg}, x, y, z) == "error: node failed; nothing classified" ++ M.nr_why(k, dg) : String}
 
 law mass_dep_false:
   for +b: M.Body

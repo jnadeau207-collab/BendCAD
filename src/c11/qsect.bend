@@ -340,5 +340,5 @@ def sect_plane(+a: F64, +b: F64, +c: F64, +dd: F64, +p: M.Pl) -> Maybe<&2, G.GVa
 
 def sect_s(r: M.NR, +a: F64, +b: F64, +c: F64, +d: F64) -> String:
   match r:
-    case M.NR_err{k, dg}: "error: node failed; nothing sectioned"
+    case M.NR_err{k, dg}: "error: node failed; nothing sectioned" ++ M.nr_why(k, dg)
     case M.NR_ok{+bd, fx}: sect_with(sect_plane(a, b, c, d, M.bd_pl(bd)), bd, Bool.not(pl_ident(M.bd_pl(bd))))

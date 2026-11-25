@@ -369,5 +369,5 @@ def mass_dep(ok: Bool, +b: M.Body, +d: Nat) -> String:
 
 def mass_s(r: M.NR, +d: Nat) -> String:
   match r:
-    case M.NR_err{k, dg}: "error: node failed; nothing measured"
+    case M.NR_err{k, dg}: "error: node failed; nothing measured" ++ M.nr_why(k, dg)
     case M.NR_ok{+b, fx}: mass_dep(QC.depth_ok(d), b, d)

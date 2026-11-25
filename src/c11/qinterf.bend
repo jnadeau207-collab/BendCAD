@@ -43,7 +43,7 @@ def classify_bd(ok: Bool, +b: M.Body, +x: F64, +y: F64, +z: F64) -> String:
 
 def classify_s(r: M.NR, +x: F64, +y: F64, +z: F64) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing classified"
+    case M.NR_err{k, d}: "error: node failed; nothing classified" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}:
       Bool.pick(String, M.bd_open(b), "refused classify-needs-solid | classify | fix: thicken-open the shell to a solid first",
         classify_bd(fin3(x, y, z), b, x, y, z))
@@ -78,7 +78,7 @@ def check_bd(+b: M.Body) -> String:
 
 def check_s(r: M.NR) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing checked"
+    case M.NR_err{k, d}: "error: node failed; nothing checked" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}:
       Bool.pick(String, M.bd_open(b), "refused check-needs-solid | check | fix: thicken-open the shell to a solid first",
         check_bd(b))
@@ -487,10 +487,10 @@ def rel_pair(+a: M.Body, +b: M.Body) -> String:
 
 def rel_s(ra: M.NR, rb: M.NR) -> String:
   match ra:
-    case M.NR_err{k, d}: "error: node failed; nothing compared"
+    case M.NR_err{k, d}: "error: node failed; nothing compared" ++ M.nr_why(k, d)
     case M.NR_ok{+a, fa}:
       match rb:
-        case M.NR_err{k, d}: "error: node failed; nothing compared"
+        case M.NR_err{k, d}: "error: node failed; nothing compared" ++ M.nr_why(k, d)
         case M.NR_ok{+b, fb}:
           Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
             "refused interf-needs-solid | interf | fix: thicken-open the shell to a solid first",

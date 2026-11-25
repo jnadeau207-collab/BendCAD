@@ -402,7 +402,7 @@ def dels_v(ds: List<&2, BO.Del>) -> String:
 
 def node_faces_vf(r: M.NR, +verbose: Bool, +frames: Bool) -> String:
   match r:
-    case M.NR_err{k, d}: "node failed\n"
+    case M.NR_err{k, d}: "node failed" ++ M.nr_why(k, d) ++ "\n"
     case M.NR_ok{+b, fx}:
       +s = faces_s(M.bd_fns(b), Ty.brep_fas(M.bd_brep(b)), M.bd_pl(b), frames)
       Bool.pick(String, verbose, s ++ dels_v(M.xb_dl(M.bd_xb(b))), s)
@@ -443,7 +443,7 @@ def threads_out(+p: M.Part, +n: U64, +old: List<&2, M.CE>) -> String:
   M.Pt{+ps, +ns, +ms, +ts} = p
   +r = node_raw(M.ev_for(p, [n], old), n)
   Bool.pick(String, M.nr_ok(r), "threads node " ++ U64.show(n) ++ "
-" ++ KT.ths_of_node(ts, n, M.nr_body(r)) ++ KSD.taps_s(p, n, old), "error: node failed; nothing listed")
+" ++ KT.ths_of_node(ts, n, M.nr_body(r)) ++ KSD.taps_s(p, n, old), "error: node failed; nothing listed" ++ M.nr_err_why(r))
 
 def nr_hx(r: M.NR) -> Bool:
   match r:
@@ -773,7 +773,7 @@ def tess_write(+t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO(String):
 
 def tess_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing tessellated")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing tessellated" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}: tess_write(TS.body_q(b, q), out, id, q)
 
 def tess_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) -> IO(String):
@@ -800,7 +800,7 @@ def bal_grade(m: Maybe<&2, M.Grade>, +b: M.Body, +p: List<&2, I.I>, +d: List<&2,
 
 def bal_node(r: M.NR, +m: Maybe<&2, M.Grade>, +p: List<&2, I.I>, +d: List<&2, I.I>, +rpm: F64, +g: F64) -> String:
   match r:
-    case M.NR_err{k, dg}: "error: node failed; nothing balanced"
+    case M.NR_err{k, dg}: "error: node failed; nothing balanced" ++ M.nr_why(k, dg)
     case M.NR_ok{+b, fx}: Bool.pick(String, M.bd_open(b), "refused balance-needs-solid | balance | fix: thicken-open the shell to a solid first",
       bal_grade(m, b, p, d, rpm, g))
 
@@ -859,7 +859,7 @@ def fe_open(op: Bool, +m: Maybe<&2, M.Grade>, +b: M.Body, +kind: Bool, +c: K3S.C
 
 def fe_node(r: M.NR, +m: Maybe<&2, M.Grade>, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String) -> String:
   match r:
-    case M.NR_err{kd, dg}: "error: node failed; nothing analysed"
+    case M.NR_err{kd, dg}: "error: node failed; nothing analysed" ++ M.nr_why(kd, dg)
     case M.NR_ok{+b, fx}: fe_open(M.bd_open(b), m, b, kind, c, k, h, w, verb)
 
 def fe_args(ok: Bool, +p: M.Part, +n: U64, +kind: Bool, +c: K3S.CL, +k: Nat, +h: F64, +w: F64, +verb: String, +use: String, +old: List<&2, M.CE>) -> String:
@@ -917,7 +917,7 @@ def mach_open(op: Bool, +b: M.Body, +t: K3X.TL, +five: Bool, +ns: Nat) -> String
 
 def mach_node(r: M.NR, +t: K3X.TL, +five: Bool, +ns: Nat) -> String:
   match r:
-    case M.NR_err{kd, dg}: "error: node failed; nothing analysed"
+    case M.NR_err{kd, dg}: "error: node failed; nothing analysed" ++ M.nr_why(kd, dg)
     case M.NR_ok{+b, fx}: mach_open(M.bd_open(b), b, t, five, ns)
 
 def mach_args(ok: Bool, +p: M.Part, +n: U64, +t: K3X.TL, +five: Bool, +ns: Nat, +old: List<&2, M.CE>) -> String:
@@ -969,7 +969,7 @@ def sc_tw(ok: Bool, +t: M10.Tres, +out: String, +sp: List<&2, String>) -> IO(Str
 
 def sc_one(r: M.NR, +dir: String, +sp: List<&2, String>, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " node failed")
+    case M.NR_err{k, d}: IO.pure(String, "!" ++ S.arg_at(sp, 0n) ++ " node failed" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}:
       +t = TS.body_q(b, q)
       sc_tw(M10.tres_ok_of(t), t, dir ++ "/" ++ S.arg_at(sp, 0n) ++ ".obj", sp)
@@ -1044,12 +1044,12 @@ def make_p(+pr: String, +b: M.Body, +id: U64) -> String:
 
 def make_out(r: M.NR, +pr: String, +id: U64) -> String:
   match r:
-    case M.NR_err{k, d}: "error: node failed; nothing to check"
+    case M.NR_err{k, d}: "error: node failed; nothing to check" ++ M.nr_why(k, d)
     case M.NR_ok{+b, fx}: make_p(pr, b, id)
 
 def draw_out(r: M.NR, +out: String, +id: U64) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing drawn")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing drawn" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}:
       +d = DW.draw_body(b, id)
       draw_write(DW.dw_ok(d), d, out, id)
@@ -1065,7 +1065,7 @@ def step_write_go(+w: Bool, +r: SW.WS, +out: String) -> IO(String):
 
 def step_out(r: M.NR, +out: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}:
       +w = SW.sw_ms(b)
       do IO<String>:
@@ -1074,7 +1074,7 @@ def step_out(r: M.NR, +out: String) -> IO(String):
 
 def step_k2(r: M.NR, +p: M.Part, +n: U64, +out: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}:
       +st = SW.sw_stage(M.bd_brep(b), M.bd_pl(b), 1n)
       +kb = KX.k2_block(KM.mat_find(KA.part_ms(p), n), KA.part_ts(p), n, SW.er2_n(st))
@@ -1141,7 +1141,7 @@ def arc_out_open(+open: Bool, +b: M.Body, +out: String, +lin: String) -> IO(Stri
 
 def arc_out(r: M.NR, +out: String, +lin: String) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing archived")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing archived" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}: arc_out_open(M.bd_open(b), b, out, lin)
 
 law stl_end:
@@ -1216,7 +1216,7 @@ def stl_body(+norev: Bool, +b: M.Body, +out: String, +id: U64, +q: M10.Q) -> IO(
 
 def stl_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}: stl_body(TS.body_norev(b), b, out, id, q)
 
 def stl_with(+bad: Bool, r: M.NR, +out: String, +id: U64, +a2: String, +p: U64, +q: M10.Q) ->
@@ -1252,7 +1252,7 @@ def mf3_tres_go(+w: Bool, +t: M10.Tres, +out: String, +id: U64, +q: M10.Q) -> IO
 
 def mf3_out(r: M.NR, +out: String, +id: U64, +q: M10.Q) -> IO(String):
   match r:
-    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported")
+    case M.NR_err{k, d}: IO.pure(String, "error: node failed; nothing exported" ++ M.nr_why(k, d))
     case M.NR_ok{+b, fx}:
       +t = TS.body_q(b, q)
       mf3_tres_go(M10.tres_ok_of(t), t, out, id, q)
@@ -1625,8 +1625,17 @@ def run_part(+cmd: String, +path: String, +rest: List<&2, String>, +p: M.Part, +
   M.Pt{+ps, +ns, +ms, +ts} = p
   run_dec(R.dec_of(cancel, R.over_ids(M.nd_ids(ns), U64.to_nat(cap))), cmd_code(cmd), cmd, path, rest, p)
 
+def run_ok(ok: Bool, +xs: List<&2, S.Sx>, +cmd: String, +path: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(String):
+  match ok:
+    case True{}: run_part(cmd, path, rest, S.part_of(xs), cap, cancel)
+    case False{}: IO.pure(String, "error invalid-input | design @ " ++ path ++ " | why: the design file is not one complete balanced s-expression (truncated or unbalanced parentheses); nothing was evaluated | fix: restore the complete design file")
+
+def run_ps(r: S.PS, +cmd: String, +path: String, +rest: List<&2, String>, +cap: U64, +cancel: Bool) -> IO(String):
+  S.PS{+ok, +xs} = r
+  run_ok(ok, xs, cmd, path, rest, cap, cancel)
+
 def run(+cmd: String, +path: String, +rest: List<&2, String>, +src: String, +cap: U64, +cancel: Bool) -> IO(String):
-  run_part(cmd, path, rest, load(src), cap, cancel)
+  run_ps(S.parse(src), cmd, path, rest, cap, cancel)
 
 type SE is Data:
   SE{ path: String, cs: List<&2, M.CE> }
