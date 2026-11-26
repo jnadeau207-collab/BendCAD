@@ -74,7 +74,7 @@ type Pr is Data:
 
 type Cx is Data:
   Cx{ te: B.Tb<&2, Eg>, tf: B.Tb<&2, Fg>, tef: B.Tb<&2, List<&2, Nat>>, tol: F64, ns: Nat,
-    sfs: B.Tb<&2, List<&2, SO.Fd>> }
+    sfs: B.Tb<&2, List<&2, SO.Fd>>, sbx: B.Tb<&2, List<&2, I.I>> }
 
 
 
@@ -769,7 +769,7 @@ def ln_apart(+la: Bool, +lb: Bool, +e00: Bool, +e01: Bool, +e10: Bool, +e11: Boo
   ln_k(Bool.and(la, lb), n, e00, e01, e10, e11, x, y, tol)
 
 def ee_fin(apart: Bool, +x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool, +sfs: B.Tb<&2, List<&2, SO.Fd>>,
-    +e00: Bool, +e01: Bool, +e10: Bool, +e11: Bool) -> List<&2, SO.Fi>:
+    +sbx: B.Tb<&2, List<&2, I.I>>, +e00: Bool, +e01: Bool, +e10: Bool, +e11: Bool) -> List<&2, SO.Fi>:
   match apart:
     case True{}: []
     case False{}:
@@ -778,15 +778,15 @@ def ee_fin(apart: Bool, +x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: B
       +fda = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(x)))
       +fdb = B.tb_get(List<&2, SO.Fd>, sfs, U32.from_nat(eg_so(y)))
       first(ee_hits(ee_same(g_same(eg_g(x), eg_g(y)), S.cc_exact(eg_g(x), eg_g(y)), x, y, crs(e00, e01, e10, e11), tol), sv, sx, tol, ia, ib,
-        cross, x, y, fda, SO.bbox(fda, []), fdb, SO.bbox(fdb, [])))
+        cross, x, y, fda, B.tb_get(List<&2, I.I>, sbx, U32.from_nat(eg_so(x))), fdb, B.tb_get(List<&2, I.I>, sbx, U32.from_nat(eg_so(y)))))
 
 def ee(+x: Eg, +y: Eg, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool,
-    +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> List<&2, SO.Fi>:
+    +sfs: B.Tb<&2, List<&2, SO.Fd>>, +sbx: B.Tb<&2, List<&2, I.I>>) -> List<&2, SO.Fi>:
   +e00 = vq(eg_a(x), eg_a(y), eg_pa(x), eg_pa(y))
   +e01 = vq(eg_a(x), eg_b(y), eg_pa(x), eg_pb(y))
   +e10 = vq(eg_b(x), eg_a(y), eg_pb(x), eg_pa(y))
   +e11 = vq(eg_b(x), eg_b(y), eg_pb(x), eg_pb(y))
-  ee_fin(ln_apart(is_ln(eg_g(x)), is_ln(eg_g(y)), e00, e01, e10, e11, x, y, tol), x, y, ia, ib, tol, cross, sfs, e00, e01, e10, e11)
+  ee_fin(ln_apart(is_ln(eg_g(x)), is_ln(eg_g(y)), e00, e01, e10, e11, x, y, tol), x, y, ia, ib, tol, cross, sfs, sbx, e00, e01, e10, e11)
 
 def m_code(+m: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, SO.Fi>:
   Bool.pick(List<&2, SO.Fi>, U64.is_eq(m, 0u64), [], fi1(Bool.pick(String, U64.is_eq(m, 1u64), bad, "edge-face-uncertain"), a, b))
@@ -1836,17 +1836,24 @@ def is_none(m: Maybe<&2, List<&2, SO.Fi>>) -> Bool:
     case None{}: True{}
     case Some{v}: False{}
 
+def ff_tr_go(skip: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
+    +tol: F64, +ia: Nat, +ib: Nat, +adj: Bool) -> List<&2, SO.Fi>:
+  match skip:
+    case True{}: []
+    case False{}:
+      +r = Y.inter_ss(SO.fd_g(fa), SO.fd_g(fb), pad_ss(X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb))))
+      +csa = all_cvs(fg_es(x), te)
+      +csb = all_cvs(fg_es(y), te)
+      ss_fi(r, fa, fb, csa, csb, F64.max(tol, F64.add(fg_dv(x), fg_dv(y))), ia, ib, adj, sh_cvs(fg_es(x), fg_es(y), te))
+
 def ff_tr(m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
     +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
   match m:
     case Some{+v}: v
     case None{}:
-      +r = Y.inter_ss(SO.fd_g(fa), SO.fd_g(fb), pad_ss(X.vmeet(SO.fd_bx(fa), SO.fd_bx(fb))))
-      +csa = all_cvs(fg_es(x), te)
-      +csb = all_cvs(fg_es(y), te)
-      +exa = fg_es(x)
-      +exb = fg_es(y)
-      ss_fi(r, fa, fb, csa, csb, F64.max(tol, F64.add(fg_dv(x), fg_dv(y))), ia, ib, es_share(exa, exb), sh_cvs(exa, exb, te))
+      +adj = es_share(fg_es(x), fg_es(y))
+      +k = Y.ss_kind(Y.flat_pl(SO.fd_g(fa)), Y.flat_pl(SO.fd_g(fb)))
+      ff_tr_go(Bool.and(adj, Bool.not(U64.is_eq(k, 0u64))), fa, fb, x, y, te, tol, ia, ib, adj)
 
 def ff_go_sep(t: Bool, m: Maybe<&2, List<&2, SO.Fi>>, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>,
     +tol: F64, +ia: Nat, +ib: Nat) -> List<&2, SO.Fi>:
@@ -1910,11 +1917,14 @@ def opp(+a: SD, +b: SD) -> Bool:
 def sd0() -> SD:
   SD{False{}, False{}}
 
+def sep_pl_g2(c: Bool, +o: V.Point, +n: V.Dir, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
+  match c:
+    case False{}: False{}
+    case True{}: opp(es_side(fg_es(x), te, o, n, tol, sd0()), es_side(fg_es(y), te, o, n, tol, sd0()))
+
 def sep_pl_go(+sp: SP, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
   SP{+ok, +o, +n} = sp
-  +z = sd0()
-  Bool.and(ok, Bool.and(Bool.and(surf_sep(SO.fd_im(fa), o, n, tol), surf_sep(SO.fd_im(fb), o, n, tol)),
-    opp(es_side(fg_es(x), te, o, n, tol, z), es_side(fg_es(y), te, o, n, tol, z))))
+  sep_pl_g2(Bool.and(ok, Bool.and(surf_sep(SO.fd_im(fa), o, n, tol), surf_sep(SO.fd_im(fb), o, n, tol))), o, n, x, y, te, tol)
 
 def sep_pl_any(es: List<&2, Nat>, done: Bool, +fa: SO.Fd, +fb: SO.Fd, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +tol: F64) -> Bool:
   match es:
@@ -2304,10 +2314,10 @@ def ff_go(k: U64, +x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F
 def ff(+x: Fg, +y: Fg, +te: B.Tb<&2, Eg>, +ia: Nat, +ib: Nat, +tol: F64, +cross: Bool) -> List<&2, SO.Fi>:
   ff_go(ff_code(Y.flat_pl(SO.fd_g(fg_fd(x))), Y.flat_pl(SO.fd_g(fg_fd(y)))), x, y, te, ia, ib, tol, cross)
 
-def chk_ee(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tol: F64, +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
+def chk_ee(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tol: F64, +sfs: B.Tb<&2, List<&2, SO.Fd>>, +sbx: B.Tb<&2, List<&2, I.I>>) -> Fs:
   +x = B.tb_get(Eg, te, U32.from_nat(a))
   +y = B.tb_get(Eg, te, U32.from_nat(b))
-  Fs{ee(x, y, a, b, tol, Bool.not(Nat.is_eq(eg_so(x), eg_so(y))), sfs)}
+  Fs{ee(x, y, a, b, tol, Bool.not(Nat.is_eq(eg_so(x), eg_so(y))), sfs, sbx)}
 
 def chk_ef(+a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>, +tef: B.Tb<&2, List<&2, Nat>>, +tol: F64,
     +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
@@ -2322,16 +2332,16 @@ def chk_ff(+a: Nat, +b: Nat, +tf: B.Tb<&2, Fg>, +te: B.Tb<&2, Eg>, +tol: F64) ->
   Fs{ff(x, y, te, a, b, tol, Bool.not(Nat.is_eq(fg_so(x), fg_so(y))))}
 
 def chk_k(k: U64, +a: Nat, +b: Nat, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>, +tef: B.Tb<&2, List<&2, Nat>>, +tol: F64,
-    +sfs: B.Tb<&2, List<&2, SO.Fd>>) -> Fs:
+    +sfs: B.Tb<&2, List<&2, SO.Fd>>, +sbx: B.Tb<&2, List<&2, I.I>>) -> Fs:
   match k:
-    case 0u64: chk_ee(a, b, te, tol, sfs)
+    case 0u64: chk_ee(a, b, te, tol, sfs, sbx)
     case 1u64: chk_ef(a, b, te, tf, tef, tol, sfs)
     case _: chk_ff(a, b, tf, te, tol)
 
 def chk(c: Cx, p: Pr) -> Fs:
-  Cx{te, tf, tef, tol, ns, sfs} = c
+  Cx{te, tf, tef, tol, ns, sfs, sbx} = c
   Pr{k, a, b} = p
-  chk_k(k, a, b, te, tf, tef, tol, sfs)
+  chk_k(k, a, b, te, tf, tef, tol, sfs, sbx)
 
 def fs_cat(xs: List<&2, Fs>) -> List<&2, SO.Fi>:
   match xs:
@@ -2419,10 +2429,17 @@ def sfs_go(+fgs: List<&2, Fg>, rem: Nat, +at: Nat) -> List<&2, List<&2, SO.Fd>>:
 def sfs_of(+fgs: List<&2, Fg>, +nso: Nat) -> B.Tb<&2, List<&2, SO.Fd>>:
   B.tb_of(List<&2, SO.Fd>, sfs_go(fgs, Nat.add(nso, 1n), 0n), [])
 
+def sbx_go(ls: List<&2, List<&2, SO.Fd>>) -> List<&2, List<&2, I.I>>:
+  match ls:
+    case []: []
+    case +h <> t: SO.bbox(h, []) <> sbx_go(t)
+
 def mk_cx(+egs: List<&2, Eg>, +fgs: List<&2, Fg>, +tol: F64, +nso: Nat) -> Cx:
   +tf = B.tb_of(Fg, fgs, fg_dflt(nso))
   +tef = tef_of(List.length(&2, Eg, egs), fgs)
-  Cx{B.tb_of(Eg, egs_tag(egs, tef, tf, nso, 0n), eg_dflt(nso)), tf, tef, tol, nso, sfs_of(fgs, nso)}
+  +sl = sfs_go(fgs, Nat.add(nso, 1n), 0n)
+  Cx{B.tb_of(Eg, egs_tag(egs, tef, tf, nso, 0n), eg_dflt(nso)), tf, tef, tol, nso, B.tb_of(List<&2, SO.Fd>, sl, []),
+    B.tb_of(List<&2, I.I>, sbx_go(sl), [])}
 
 def its_of(+egs: List<&2, Eg>, +fgs: List<&2, Fg>) -> List<&2, It>:
   it_so(B.msort(~It, ~it_cmp, List.append(&2, It, ed_its(egs, 0n), fa_its(fgs, 0n))))
@@ -2485,7 +2502,7 @@ def keep_cross(ps: List<&2, Pr>, +te: B.Tb<&2, Eg>, +tf: B.Tb<&2, Fg>) -> List<&
       Bool.pick(List<&2, Pr>, pr_so(k, a, b, te, tf), p <> rest, rest)
 
 def cross_go(+cx: Cx, +its: List<&2, It>) -> List<&2, SO.Fi>:
-  Cx{+te, +tf, tef, tol, ns, sfs} = cx
+  Cx{+te, +tf, tef, tol, ns, sfs, sbx} = cx
   run_prs(cx, keep_cross(sweep(its), te, tf))
 
 def emb_cross(+b: Ty.Brep, +fds: List<&2, SO.Fd>) -> List<&2, SO.Fi>:

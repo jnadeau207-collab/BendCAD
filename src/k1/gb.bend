@@ -1007,9 +1007,9 @@ def gbrun_ch(none: Bool, +hok: Bool, +hwhy: U64, +cok: Bool, +op: U64, +ra: Ty.B
       gbrun_fin(ok, why, op, ra, rb, ba, bb, va, vb, hs2, cr, cps, fda, fdb)
 
 def gbrun_go(+strict: Bool, +op: U64, +ra: Ty.Brep, +rb: Ty.Brep, +fda: List<&2, SO.Fd>, +fdb: List<&2, SO.Fd>) -> K1.KR:
-  +ba = FB.kb_of(ra)
-  +bb = FB.kb_of(rb)
-  +va = PX.add_vs(Ty.brep_vs(ra), PX.GV{[], 0n}, [])
+  +ba = FB.kb_poly(FB.kb_of(ra))
+  +bb = FB.kb_poly(FB.kb_of(rb))
+  +va = PX.add_vs(Ty.brep_vs(ra), PX.gv_empty(), [])
   +vb = PX.add_vs(Ty.brep_vs(rb), PX.vm_g(va), [])
   +hs = PX.all_hits(ba, bb, PX.vm_g(vb))
   +cps = CO.coin_pairs(ba, bb)

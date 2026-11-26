@@ -17,7 +17,7 @@ import ../c03/ops.bend as GO
 
 
 type GV is Data:
-  GV{ ps: List<&2, V.Point>, n: Nat }
+  GV{ ps: List<&2, V.Point>, n: Nat, pt: B.Tr<&2, V.Point>, hb: B.Tr<&2, List<&2, Nat>> }
 
 
 
@@ -204,11 +204,11 @@ type PC is Data:
   PC{ bxs: List<&2, FB.BB>, wds: List<&2, WD>, rhs: List<&2, V.Vec2>, hs: List<&2, HX>, ba: FB.KB, bb: FB.KB }
 
 def gv_ps(+g: GV) -> List<&2, V.Point>:
-  GV{ps, n} = g
+  GV{ps, n, pt, hb} = g
   ps
 
 def gv_n(+g: GV) -> Nat:
-  GV{ps, n} = g
+  GV{ps, n, pt, hb} = g
   n
 
 def vi_g(+r: VI) -> GV:
@@ -229,17 +229,98 @@ def psame(+a: V.Point, +b: V.Point, +e: F64) -> Bool:
   Bool.and(F64.is_le(F64.abs(F64.sub(S.px(a), S.px(b))), e),
     Bool.and(F64.is_le(F64.abs(F64.sub(S.py(a), S.py(b))), e), F64.is_le(F64.abs(F64.sub(S.pz(a), S.pz(b))), e)))
 
-def find_go(ps: List<&2, V.Point>, +p: V.Point, +e: F64, +i: Nat, +n: Nat) -> Nat:
-  match ps:
-    case []: n
-    case +h <> +t: Bool.pick(Nat, psame(h, p, e), i, find_go(t, p, e, Nat.add(i, 1n), n))
+def lo_bit(+k: Nat) -> Bool:
+  Nat.is_eq(Nat.mod(k, 2n), 0n)
+
+def pt_put(d: Nat, t: B.Tr<&2, V.Point>, lo: Bool, +k: Nat, +x: V.Point) -> B.Tr<&2, V.Point>:
+  match d t lo:
+    case 0n _ _: B.TL{x}
+    case 1n+e B.TL{+v} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{pt_put(e, B.TL{v}, lo_bit(h), h, x), B.TL{v}}
+    case 1n+e B.TL{+v} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{B.TL{v}, pt_put(e, B.TL{v}, lo_bit(h), h, x)}
+    case 1n+e B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{pt_put(e, l, lo_bit(h), h, x), r}
+    case 1n+e B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{l, pt_put(e, r, lo_bit(h), h, x)}
+
+def pt_get(t: B.Tr<&2, V.Point>, lo: Bool, +k: Nat) -> V.Point:
+  match t lo:
+    case B.TL{v} _: v
+    case B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      pt_get(l, lo_bit(h), h)
+    case B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      pt_get(r, lo_bit(h), h)
+
+def hb_put(d: Nat, t: B.Tr<&2, List<&2, Nat>>, lo: Bool, +k: Nat, +i: Nat) -> B.Tr<&2, List<&2, Nat>>:
+  match d t lo:
+    case 0n B.TL{v} _: B.TL{i <> v}
+    case 0n B.TN{l, r} _: B.TN{l, r}
+    case 1n+e B.TL{+v} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{hb_put(e, B.TL{v}, lo_bit(h), h, i), B.TL{v}}
+    case 1n+e B.TL{+v} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{B.TL{v}, hb_put(e, B.TL{v}, lo_bit(h), h, i)}
+    case 1n+e B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{hb_put(e, l, lo_bit(h), h, i), r}
+    case 1n+e B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{l, hb_put(e, r, lo_bit(h), h, i)}
+
+def hb_get(t: B.Tr<&2, List<&2, Nat>>, lo: Bool, +k: Nat) -> List<&2, Nat>:
+  match t lo:
+    case B.TL{v} _: v
+    case B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      hb_get(l, lo_bit(h), h)
+    case B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      hb_get(r, lo_bit(h), h)
+
+def pt_at(+t: B.Tr<&2, V.Point>, +k: Nat) -> V.Point:
+  pt_get(t, lo_bit(k), k)
+
+def hb_at(+t: B.Tr<&2, List<&2, Nat>>, +k: Nat) -> List<&2, Nat>:
+  hb_get(t, lo_bit(k), k)
+
+def cell_go(ok: Bool, +x: F64) -> Nat:
+  match ok:
+    case False{}: 0n
+    case True{}: Nat.add(U64.to_nat(U64.and(F64.to_u64(F64.add(F64.mul(x, 1048576.0f64), 4503599627370496.0f64)), 65535u64)), 1n)
+
+def cell(+x: F64) -> Nat:
+  cell_go(F64.is_lt(F64.abs(x), 1.0e9f64), x)
+
+def cand_min(js: List<&2, Nat>, +pt: B.Tr<&2, V.Point>, +p: V.Point, +e: F64, +best: Nat) -> Nat:
+  match js:
+    case []: best
+    case +j <> t: cand_min(t, pt, p, e, Bool.pick(Nat, Bool.and(Nat.is_lt(j, best), psame(pt_at(pt, j), p, e)), j, best))
+
+def gv_empty() -> GV:
+  GV{[], 0n, B.TL{V.Pt{0.0f64, 0.0f64, 0.0f64}}, B.TL{[]}}
 
 def gv_add(+g: GV, +p: V.Point) -> VI:
-  +f = find_go(List.reverse(&2, V.Point, gv_ps(g)), p, same_tol(p), 0n, gv_n(g))
-  Bool.pick(VI, Nat.is_lt(f, gv_n(g)), VI{g, f}, VI{GV{p <> gv_ps(g), Nat.add(gv_n(g), 1n)}, gv_n(g)})
+  GV{+ps, +n, +pt, +hb} = g
+  +e = same_tol(p)
+  +x = S.px(p)
+  +ka = cell(F64.sub(x, F64.mul(2.0f64, e)))
+  +kb = cell(F64.add(x, F64.mul(2.0f64, e)))
+  +cs = List.append(&2, Nat, hb_at(hb, ka), Bool.pick(List<&2, Nat>, Nat.is_eq(ka, kb), [], hb_at(hb, kb)))
+  +f = cand_min(cs, pt, p, e, n)
+  Bool.pick(VI, Nat.is_lt(f, n), VI{GV{ps, n, pt, hb}, f},
+    VI{GV{p <> ps, Nat.add(n, 1n), pt_put(32n, pt, lo_bit(n), n, p), hb_put(17n, hb, lo_bit(cell(x)), cell(x), n)}, n})
 
 def gv_pt(+g: GV, +i: Nat) -> V.Point:
-  L.nth_p(gv_ps(g), Nat.sub(Nat.sub(gv_n(g), 1n), i))
+  GV{ps, +n, pt, hb} = g
+  pt_at(pt, Nat.min(i, Nat.sub(n, 1n)))
 
 def vm_g(+r: VM) -> GV:
   VM{g, mp} = r
@@ -1728,19 +1809,21 @@ def pj_fold(js: List<&2, PJ>, +ba: FB.KB, +bb: FB.KB, +r: CR) -> CR:
       PJ{+fa, +fb, +x, +ph} = j
       pj_fold(t, ba, bb, pj_apply(x, ph, ba, fa, bb, fb, r))
 
-def segs_same(xs: List<&2, SEG>, ys: List<&2, SEG>) -> Bool:
-  match xs:
-    case []:
-      match ys:
-        case []: True{}
-        case +h <> +t: False{}
-    case +x <> +xt:
-      match ys:
-        case []: False{}
-        case +y <> +yt: Bool.and(Bool.and(Nat.is_eq(seg_va(x), seg_va(y)), Nat.is_eq(seg_vb(x), seg_vb(y))), segs_same(xt, yt))
+def segs_same(xs: List<&2, SEG>, ys: List<&2, SEG>, ok: Bool) -> Bool:
+  match xs ys ok:
+    case _ _ False{}: False{}
+    case Nil{} Nil{} True{}: True{}
+    case Nil{} _ True{}: False{}
+    case _ Nil{} True{}: False{}
+    case +x <> +xt +y <> +yt True{}: segs_same(xt, yt, Bool.and(Nat.is_eq(seg_va(x), seg_va(y)), Nat.is_eq(seg_vb(x), seg_vb(y))))
+
+def ch_same_k(c: Bool, +a: CH, +b: CH) -> Bool:
+  match c:
+    case False{}: False{}
+    case True{}: segs_same(ch_segs(a), ch_segs(b), True{})
 
 def ch_same(+a: CH, +b: CH) -> Bool:
-  Bool.and(Bool.and(Nat.is_eq(ch_fa(a), ch_fa(b)), Nat.is_eq(ch_fb(a), ch_fb(b))), segs_same(ch_segs(a), ch_segs(b)))
+  ch_same_k(Bool.and(Nat.is_eq(ch_fa(a), ch_fa(b)), Nat.is_eq(ch_fb(a), ch_fb(b))), a, b)
 
 def ch_in_zz(cs: List<&2, CH>, zz: Bool, +c: CH) -> Bool:
   match cs:
@@ -1808,11 +1891,16 @@ def all_vs(ss: List<&2, SEG>) -> List<&2, Nat>:
     case []: []
     case +h <> +t: seg_va(h) <> seg_vbs(h <> t)
 
+def pv_if(c: Bool, +vs: List<&2, Nat>, +side: U64, +b: FB.KB, +g: GV, +fo: Nat, +acc: List<&2, HX>) -> List<&2, HX>:
+  match c:
+    case True{}: pv_hits(vs, side, b, g, fo, acc)
+    case False{}: acc
+
 def chain_hits(cs: List<&2, CH>, +ba: FB.KB, +bb: FB.KB, +g: GV, +acc: List<&2, HX>) -> List<&2, HX>:
   match cs:
     case []: acc
     case +h <> +t:
       +vs = all_vs(ch_segs(h))
-      +a1 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fa(h), no_face()), pv_hits(vs, 0u64, ba, g, ch_fb(h), acc), acc)
-      +a2 = Bool.pick(List<&2, HX>, Nat.is_eq(ch_fb(h), no_face()), pv_hits(vs, 1u64, bb, g, ch_fa(h), a1), a1)
+      +a1 = pv_if(Nat.is_eq(ch_fa(h), no_face()), vs, 0u64, ba, g, ch_fb(h), acc)
+      +a2 = pv_if(Nat.is_eq(ch_fb(h), no_face()), vs, 1u64, bb, g, ch_fa(h), a1)
       chain_hits(t, ba, bb, g, a2)

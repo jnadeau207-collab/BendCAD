@@ -17,7 +17,7 @@ type CE is Data:
 
 
 type KB is Data:
-  KB{ b: Ty.Brep, x: Ty.Ix, ef: B.Tb<&2, List<&2, Nat>>, box: List<&2, KB> }
+  KB{ b: Ty.Brep, x: Ty.Ix, ef: B.Tb<&2, List<&2, Nat>>, box: List<&2, KB>, pl: B.Tb<&2, List<&2, List<&2, V.Vec2>>>, np: Bool }
 
 
 
@@ -34,16 +34,24 @@ def ce_fw(+c: CE) -> Bool:
   fwd
 
 def kb_br(+k: KB) -> Ty.Brep:
-  KB{+b, x, ef, box} = k
+  KB{+b, x, ef, box, pl, np} = k
   b
 
 def kb_x(+k: KB) -> Ty.Ix:
-  KB{b, +x, ef, box} = k
+  KB{b, +x, ef, box, pl, np} = k
   x
 
 def kb_ef(+k: KB) -> B.Tb<&2, List<&2, Nat>>:
-  KB{b, x, +ef, box} = k
+  KB{b, x, +ef, box, pl, np} = k
   ef
+
+def kb_np(+k: KB) -> Bool:
+  KB{b, x, ef, box, pl, +np} = k
+  np
+
+def kb_pl(+k: KB) -> B.Tb<&2, List<&2, List<&2, V.Vec2>>>:
+  KB{b, x, ef, box, +pl, np} = k
+  pl
 
 def kb_v(+k: KB, +i: Nat) -> Ty.Vertex:
   +x = kb_x(k)
@@ -161,8 +169,9 @@ def ef_go(n: Nat, +k: KB, +t: B.Tb<&2, List<&2, Nat>>) -> B.Tb<&2, List<&2, Nat>
 def kb_of(+b: Ty.Brep) -> KB:
   +x = Ty.ix_of(b)
   +z = {[] : List<&2, Nat>}
-  +k0 = {KB{b, x, B.tb_of(List<&2, Nat>, [], z), []} : KB}
-  {KB{b, x, ef_go(Ty.ix_nf(x), k0, B.tb_of(List<&2, Nat>, B.rep_n(List<&2, Nat>, Ty.ix_ne(x), z), z)), []} : KB}
+  +zp = {[] : List<&2, List<&2, V.Vec2>>}
+  +k0 = {KB{b, x, B.tb_of(List<&2, Nat>, [], z), [], B.tb_of(List<&2, List<&2, V.Vec2>>, [], zp), False{}} : KB}
+  {KB{b, x, ef_go(Ty.ix_nf(x), k0, B.tb_of(List<&2, Nat>, B.rep_n(List<&2, Nat>, Ty.ix_ne(x), z), z)), [], B.tb_of(List<&2, List<&2, V.Vec2>>, [], zp), False{}} : KB}
 
 def face_surf(+b: KB, +fi: Nat) -> G.GVal:
   Ty.fa_surf(kb_f(b, fi))
@@ -400,8 +409,26 @@ def face_sf(+b: KB, +fi: Nat) -> S.SF:
   +s = S.sf_of(face_surf(b, fi))
   sf_pick(S.sf_kind(s), s, b, fi)
 
-def face_polys(+b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
+def face_polys_c(+b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
   face_polys_go(face_ce(b, fi), face_sf(b, fi), b)
+
+def face_polys_k(c: Bool, +b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
+  match c:
+    case True{}: B.tb_get(List<&2, List<&2, V.Vec2>>, kb_pl(b), U32.from_nat(fi))
+    case False{}: face_polys_c(b, fi)
+
+def face_polys(+b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
+  face_polys_k(kb_np(b), b, fi)
+
+def kb_pls_go(n: Nat, +b: KB, +at: Nat) -> List<&2, List<&2, List<&2, V.Vec2>>>:
+  match n:
+    case 0n: []
+    case 1n+m: face_polys_c(b, at) <> kb_pls_go(m, b, Nat.add(at, 1n))
+
+def kb_poly(+k: KB) -> KB:
+  KB{+b, +x, +ef, +box, pl, np} = k
+  +zp = {[] : List<&2, List<&2, V.Vec2>>}
+  KB{b, x, ef, box, B.tb_of(List<&2, List<&2, V.Vec2>>, kb_pls_go(Ty.ix_nf(x), KB{b, x, ef, box, B.tb_of(List<&2, List<&2, V.Vec2>>, [], zp), False{}}, 0n), zp), True{}}
 
 def bnd_near(+b: KB, +fi: Nat, +p: V.Point) -> Bool:
   F64.is_lt(lps_dist(face_ce(b, fi), b, p, F64.div(1.0f64, 0.0f64)), 1.0e-7f64)
@@ -498,10 +525,18 @@ def lps_turn(ls: List<&2, List<&2, CE>>, +s: S.SF, +b: KB, +acc: F64) -> F64:
     case []: acc
     case +h <> +t: lps_turn(t, s, b, F64.add(acc, lp_turn(h, s, b, 0.0f64)))
 
-def north(+b: KB, +fi: Nat, +s: S.SF) -> Bool:
+def north_x(+b: KB, +fi: Nat, +s: S.SF) -> Bool:
   +w = S.f_round(F64.div(lps_turn(face_ce(b, fi), s, b, 0.0f64), S.two_pi()))
   +sg = Bool.pick(F64, face_same(b, fi), w, F64.neg(w))
   Bool.and(S.is_sph(s), F64.is_lt(0.0f64, sg))
+
+def north_k(sp: Bool, +b: KB, +fi: Nat, +s: S.SF) -> Bool:
+  match sp:
+    case False{}: False{}
+    case True{}: north_x(b, fi, s)
+
+def north(+b: KB, +fi: Nat, +s: S.SF) -> Bool:
+  north_k(S.is_sph(s), b, fi, s)
 
 def xr_up(+a: V.Vec2, +bb: V.Vec2, +q: V.Vec2) -> Bool:
   +ax = V.v2_x(a)
