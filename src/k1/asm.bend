@@ -69,9 +69,12 @@ def hso(+i: Nat) -> Ty.HSolid:
 type EK is Data:
   EK{ va: Nat, vb: Nat, kind: U64, side: U64, id: Nat, idx: Nat }
 
+type EKX is Data:
+  EKX{ ls: List<&2, EK>, km: B.Tr<&2, List<&2, EK>>, vm: B.Tr<&2, List<&2, Nat>> }
+
 type AS is Data:
   AS{ vs: List<&2, Ty.Vertex>, es: List<&2, Ty.Edge>, ces: List<&2, Ty.Coedge>,
-    lps: List<&2, Ty.Loop>, fas: List<&2, Ty.Face>, eks: List<&2, EK>, nv: Nat, ne: Nat,
+    lps: List<&2, Ty.Loop>, fas: List<&2, Ty.Face>, eks: EKX, nv: Nat, ne: Nat,
     nc: Nat, nl: Nat, nf: Nat, ms: List<&2, V.Point>, nm: Nat }
 
 def as_vs(+a: AS) -> List<&2, Ty.Vertex>:
@@ -94,7 +97,88 @@ def as_fas(+a: AS) -> List<&2, Ty.Face>:
   AS{vs, es, ces, lps, fas, eks, nv, ne, nc, nl, nf, ms, nm} = a
   fas
 
-def as_eks(+a: AS) -> List<&2, EK>:
+def kb_lo(+k: Nat) -> Bool:
+  Nat.is_eq(Nat.mod(k, 2n), 0n)
+
+def ek_put(d: Nat, t: B.Tr<&2, List<&2, EK>>, lo: Bool, +k: Nat, +e: EK) -> B.Tr<&2, List<&2, EK>>:
+  match d t lo:
+    case 0n B.TL{v} _: B.TL{e <> v}
+    case 0n B.TN{l, r} _: B.TN{l, r}
+    case 1n+n B.TL{+v} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{ek_put(n, B.TL{v}, kb_lo(h), h, e), B.TL{v}}
+    case 1n+n B.TL{+v} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{B.TL{v}, ek_put(n, B.TL{v}, kb_lo(h), h, e)}
+    case 1n+n B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{ek_put(n, l, kb_lo(h), h, e), r}
+    case 1n+n B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{l, ek_put(n, r, kb_lo(h), h, e)}
+
+def ek_get(t: B.Tr<&2, List<&2, EK>>, lo: Bool, +k: Nat) -> List<&2, EK>:
+  match t lo:
+    case B.TL{v} _: v
+    case B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      ek_get(l, kb_lo(h), h)
+    case B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      ek_get(r, kb_lo(h), h)
+
+def nn_put(d: Nat, t: B.Tr<&2, List<&2, Nat>>, lo: Bool, +k: Nat, +e: Nat) -> B.Tr<&2, List<&2, Nat>>:
+  match d t lo:
+    case 0n B.TL{v} _: B.TL{e <> v}
+    case 0n B.TN{l, r} _: B.TN{l, r}
+    case 1n+n B.TL{+v} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{nn_put(n, B.TL{v}, kb_lo(h), h, e), B.TL{v}}
+    case 1n+n B.TL{+v} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{B.TL{v}, nn_put(n, B.TL{v}, kb_lo(h), h, e)}
+    case 1n+n B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      B.TN{nn_put(n, l, kb_lo(h), h, e), r}
+    case 1n+n B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      B.TN{l, nn_put(n, r, kb_lo(h), h, e)}
+
+def nn_get(t: B.Tr<&2, List<&2, Nat>>, lo: Bool, +k: Nat) -> List<&2, Nat>:
+  match t lo:
+    case B.TL{v} _: v
+    case B.TN{l, r} True{}:
+      +h = Nat.div(k, 2n)
+      nn_get(l, kb_lo(h), h)
+    case B.TN{l, r} False{}:
+      +h = Nat.div(k, 2n)
+      nn_get(r, kb_lo(h), h)
+
+def ek_hash(+va: Nat, +vb: Nat, +kind: U64, +side: U64, +id: Nat) -> Nat:
+  +a = U64.from_nat(va)
+  +b = U64.from_nat(vb)
+  +h = U64.add(U64.add(U64.mul(U64.add(a, b), 1000003u64), U64.mul(U64.mul(a, b), 31u64)),
+    U64.add(U64.mul(U64.from_nat(id), 7919u64), U64.add(kind, U64.mul(side, 3u64))))
+  U64.to_nat(U64.and(U64.xor(h, U64.div(h, 65536u64)), 65535u64))
+
+def ekx_empty() -> EKX:
+  EKX{[], B.TL{[]}, B.TL{[]}}
+
+def ekx_add(+x: EKX, +e: EK) -> EKX:
+  EKX{+ls, +km, +vm} = x
+  EK{+a, +b, +k, +s, +i, +n} = e
+  +h = ek_hash(a, b, k, s, i)
+  EKX{EK{a, b, k, s, i, n} <> ls, ek_put(17n, km, kb_lo(h), h, EK{a, b, k, s, i, n}), nn_put(32n, vm, kb_lo(n), n, a)}
+
+def ekx_rev(+x: EKX) -> EKX:
+  EKX{+ls, +km, +vm} = x
+  EKX{List.reverse(&2, EK, ls), km, vm}
+
+def ekx_ls(+x: EKX) -> List<&2, EK>:
+  EKX{+ls, km, vm} = x
+  ls
+
+def as_eks(+a: AS) -> EKX:
   AS{vs, es, ces, lps, fas, eks, nv, ne, nc, nl, nf, ms, nm} = a
   eks
 
@@ -119,7 +203,7 @@ def as_nf(+a: AS) -> Nat:
   nf
 
 def as_empty() -> AS:
-  AS{[], [], [], [], [], [], 0n, 0n, 0n, 0n, 0n, [], 0n}
+  AS{[], [], [], [], [], ekx_empty(), 0n, 0n, 0n, 0n, 0n, [], 0n}
 
 def gen1(+i: Nat) -> U64:
   U64.from_nat(Nat.add(i, 1n))
@@ -131,7 +215,7 @@ def as_add_v(+a: AS, +p: V.Point) -> AS:
 def as_add_e(+a: AS, +ed: Ty.Edge, +ek: EK) -> AS:
   AS{+vs, +es, +ces, +lps, +fas, +eks, +nv, +ne, +nc, +nl, +nf, +ms, +nm} = a
   Ty.Ed{+g, +v0, +v1, +k} = ed
-  AS{vs, Ty.Ed{gen1(ne), v0, v1, k} <> es, ces, lps, fas, ek <> eks, nv, Nat.add(ne, 1n), nc, nl,
+  AS{vs, Ty.Ed{gen1(ne), v0, v1, k} <> es, ces, lps, fas, ekx_add(eks, ek), nv, Nat.add(ne, 1n), nc, nl,
     nf, ms, nm}
 
 def as_add_ce(+a: AS, +ce: Ty.Coedge) -> AS:
@@ -161,12 +245,24 @@ def ek_idx(+e: EK) -> Nat:
   EK{+a, +b, +k, +s, +i, +x} = e
   x
 
-def efind_go(es: List<&2, EK>, +va: Nat, +vb: Nat, +kind: U64, +side: U64, +id: Nat,
-    +dflt: Nat) -> Nat:
+def ek_first(es: List<&2, EK>, +va: Nat, +vb: Nat, +kind: U64, +side: U64, +id: Nat, +dflt: Nat) -> Nat:
   match es:
     case []: dflt
-    case +h <> +t: Bool.pick(Nat, ek_match(h, va, vb, kind, side, id), ek_idx(h),
-      efind_go(t, va, vb, kind, side, id, dflt))
+    case +h <> +t: Bool.pick(Nat, ek_match(h, va, vb, kind, side, id), ek_idx(h), ek_first(t, va, vb, kind, side, id, dflt))
+
+def ekx_find(+x: EKX, +va: Nat, +vb: Nat, +kind: U64, +side: U64, +id: Nat, +dflt: Nat) -> Nat:
+  EKX{ls, +km, vm} = x
+  +h = ek_hash(va, vb, kind, side, id)
+  ek_first(ek_get(km, kb_lo(h), h), va, vb, kind, side, id, dflt)
+
+def hd_or(xs: List<&2, Nat>, +d: Nat) -> Nat:
+  match xs:
+    case []: d
+    case +a <> +t: a
+
+def ekx_v0(+x: EKX, +i: Nat, +d: Nat) -> Nat:
+  EKX{ls, km, +vm} = x
+  hd_or(nn_get(vm, kb_lo(i), i), d)
 
 type ER is Data:
   ER{ idx: Nat, st: AS }
@@ -179,7 +275,7 @@ def eemit_go(+found: Bool, +f: Nat, +st: AS, +va: Nat, +vb: Nat, +kind: U64, +si
 
 def eemit(+st: AS, +va: Nat, +vb: Nat, +kind: U64, +side: U64, +id: Nat, +ed: Ty.Edge) -> ER:
   +n = as_ne(st)
-  +f = efind_go(as_eks(st), va, vb, kind, side, id, n)
+  +f = ekx_find(as_eks(st), va, vb, kind, side, id, n)
   eemit_go(Nat.is_lt(f, n), f, st, va, vb, kind, side, id, ed)
 
 def er_idx(+r: ER) -> Nat:
@@ -561,7 +657,7 @@ def as_rev(+a: AS) -> AS:
   AS{vs, es, ces, lps, fas, eks, nv, ne, nc, nl, nf, ms, nm} = a
   AS{List.reverse(&2, Ty.Vertex, vs), List.reverse(&2, Ty.Edge, es),
     List.reverse(&2, Ty.Coedge, ces), List.reverse(&2, Ty.Loop, lps),
-    List.reverse(&2, Ty.Face, fas), List.reverse(&2, EK, eks), nv, ne, nc, nl, nf, ms, nm}
+    List.reverse(&2, Ty.Face, fas), ekx_rev(eks), nv, ne, nc, nl, nf, ms, nm}
 
 type VS2 is Data:
   VS2{ vs: List<&2, Ty.Vertex>, mp: List<&2, Nat> }

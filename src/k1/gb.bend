@@ -729,13 +729,6 @@ def mixq(+h: Nat, +q: Nat) -> Nat:
 def arc_id(+m: V.Point) -> Nat:
   mixq(mixq(mixq(7n, qn(S.px(m))), qn(S.py(m))), qn(S.pz(m)))
 
-def e_v0(eks: List<&2, K1.EK>, +i: Nat, +d: Nat) -> Nat:
-  match eks:
-    case []: d
-    case +h <> +t:
-      K1.EK{+a, +b, +k, +sd, +id, +x} = h
-      Bool.pick(Nat, Nat.is_eq(x, i), a, e_v0(t, i, d))
-
 def er_cid(+e: W.ER) -> Nat:
   arc_id(arc_mid(W.er_k(e), Nat.is_eq(W.er_va(e), W.er_vb(e))))
 
@@ -743,7 +736,7 @@ def ce_add(+r: K1.ER, +fw: Bool, +straight: Bool, +v0: Nat, +gl: List<&2, G.GVal
     +pb: V.Point) -> K1.AS:
   +st = K1.er_st(r)
   +i = K1.er_idx(r)
-  +rv = Bool.and(Bool.not(straight), Bool.not(Nat.is_eq(e_v0(K1.as_eks(st), i, v0), v0)))
+  +rv = Bool.and(Bool.not(straight), Bool.not(Nat.is_eq(K1.ekx_v0(K1.as_eks(st), i, v0), v0)))
   K1.as_add_ce(st, mk_ce(i, Bool.xor(fw, rv), gl, s, Bool.pick(V.Point, rv, pb, pa), Bool.pick(V.Point, rv, pa, pb)))
 
 def emit_er2(+m: EM, +e: W.ER, +gl: List<&2, G.GVal>, +s: S.SF, +gv: PX.GV, +cid: Nat) -> EM:
