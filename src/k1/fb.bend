@@ -417,13 +417,21 @@ def face_polys_k(c: Bool, +b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
     case True{}: B.tb_get(List<&2, List<&2, V.Vec2>>, kb_pl(b), U32.from_nat(fi))
     case False{}: face_polys_c(b, fi)
 
+def face_an(+b: KB, +fi: Nat) -> Bool:
+  Bool.not(U64.is_eq(S.sf_kind(face_sf(b, fi)), 6u64))
+
 def face_polys(+b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
-  face_polys_k(kb_np(b), b, fi)
+  face_polys_k(Bool.and(kb_np(b), face_an(b, fi)), b, fi)
+
+def pl_one(c: Bool, +b: KB, +fi: Nat) -> List<&2, List<&2, V.Vec2>>:
+  match c:
+    case True{}: face_polys_c(b, fi)
+    case False{}: []
 
 def kb_pls_go(n: Nat, +b: KB, +at: Nat) -> List<&2, List<&2, List<&2, V.Vec2>>>:
   match n:
     case 0n: []
-    case 1n+m: face_polys_c(b, at) <> kb_pls_go(m, b, Nat.add(at, 1n))
+    case 1n+m: pl_one(face_an(b, at), b, at) <> kb_pls_go(m, b, Nat.add(at, 1n))
 
 def kb_poly(+k: KB) -> KB:
   KB{+b, +x, +ef, +box, pl, np} = k

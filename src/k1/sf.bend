@@ -219,6 +219,24 @@ def bp_sum(+w: G.BezP, +wu: BW, +wv: BW) -> V.Dir:
   cmb(wv, cmbp(wu, p00, p01, p02, p03), cmbp(wu, p10, p11, p12, p13), cmbp(wu, p20, p21, p22, p23),
     cmbp(wu, p30, p31, p32, p33))
 
+type R4 is Data:
+  R4{ a: V.Dir, b: V.Dir, c: V.Dir, d: V.Dir }
+
+type SR is Data:
+  SR{ best: V.Vec2, bdv: F64, bdm: F64 }
+
+def rows_of(+w: G.BezP, +wu: BW) -> R4:
+  G.Bp{+p00, +p01, +p02, +p03, +p10, +p11, +p12, +p13, +p20, +p21, +p22, +p23, +p30, +p31, +p32, +p33} = w
+  R4{cmbp(wu, p00, p01, p02, p03), cmbp(wu, p10, p11, p12, p13), cmbp(wu, p20, p21, p22, p23), cmbp(wu, p30, p31, p32, p33)}
+
+def r4_cmb(+wv: BW, +r: R4) -> V.Dir:
+  R4{+a, +b, +c, +d} = r
+  cmb(wv, a, b, c, d)
+
+def r4_pt(+wv: BW, +r: R4) -> V.Point:
+  +d = r4_cmb(wv, r)
+  pt(dx(d), dy(d), dz(d))
+
 def bp_c00(+w: G.BezP) -> V.Point:
   G.Bp{+p00, p01, p02, p03, p10, p11, p12, p13, p20, p21, p22, p23, p30, p31, p32, p33} = w
   p00
@@ -242,9 +260,10 @@ def bp_clamp(+x: F64) -> F64:
 def bp_step(+w: G.BezP, +p: V.Point, +q: V.Vec2) -> V.Vec2:
   +u = V.v2_x(q)
   +v = V.v2_y(q)
-  +su = bp_su(w, u, v)
-  +sv = bp_sv(w, u, v)
-  +r = psub(p, bp_at(w, u, v))
+  +ru = rows_of(w, bw(u))
+  +su = r4_cmb(bw(v), rows_of(w, bwd(u)))
+  +sv = r4_cmb(bwd(v), ru)
+  +r = psub(p, r4_pt(bw(v), ru))
   +a11 = dot(su, su)
   +a12 = dot(su, sv)
   +a22 = dot(sv, sv)
@@ -294,8 +313,32 @@ def seed_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +best: V.Vec2, +bd: F64) 
       +b = seed_v(bp_grid(), w, p, h, best, bd)
       seed_u(t, w, p, b, seed_d(bp_grid(), w, p, h, bd))
 
+def seed_row(vs: List<&2, F64>, +r: R4, +p: V.Point, +u: F64, +acc: SR) -> SR:
+  match vs:
+    case []: acc
+    case +h <> +t:
+      SR{+best, +bdv, +bdm} = acc
+      +d = dist(p, r4_pt(bw(h), r))
+      +b = F64.is_lt(d, bdv)
+      seed_row(t, r, p, u, SR{Bool.pick(V.Vec2, b, V.V2{u, h}, best), Bool.pick(F64, b, d, bdv), F64.min(bdm, d)})
+
+def sr_best(+x: SR) -> V.Vec2:
+  SR{+best, bdv, bdm} = x
+  best
+
+def sr_bdm(+x: SR) -> F64:
+  SR{best, bdv, +bdm} = x
+  bdm
+
+def seed_u2(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +best: V.Vec2, +bd: F64) -> V.Vec2:
+  match us:
+    case []: best
+    case +h <> +t:
+      +sr = seed_row(bp_grid(), rows_of(w, bw(h)), p, h, SR{best, bd, bd})
+      seed_u2(t, w, p, sr_best(sr), sr_bdm(sr))
+
 def bp_uv(+w: G.BezP, +p: V.Point) -> V.Vec2:
-  bp_newton(24n, w, p, seed_u(bp_grid(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))
+  bp_newton(24n, w, p, seed_u2(bp_grid(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))
 
 def bp_f(+w: G.BezP, +p: V.Point) -> F64:
   +q = bp_uv(w, p)
@@ -609,8 +652,8 @@ def seed5_u(us: List<&2, F64>, +w: G.BezP, +p: V.Point, +best: V.Vec2, +bd: F64)
   match us:
     case []: best
     case +h <> +t:
-      +b = seed_v(bp_grid5(), w, p, h, best, bd)
-      seed5_u(t, w, p, b, seed_d(bp_grid5(), w, p, h, bd))
+      +sr = seed_row(bp_grid5(), rows_of(w, bw(h)), p, h, SR{best, bd, bd})
+      seed5_u(t, w, p, sr_best(sr), sr_bdm(sr))
 
 def bp_uv_fine(+w: G.BezP, +p: V.Point) -> V.Vec2:
   bp_newton(40n, w, p, seed5_u(bp_grid5(), w, p, V.V2{0.5f64, 0.5f64}, F64.div(1.0f64, 0.0f64)))
