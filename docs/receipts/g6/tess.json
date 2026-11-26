@@ -1,13 +1,13 @@
 {
  "source": "bendcad tess NODE OUT 3 (manufacturing preset: chord 0.05 mm, angle 0.01 rad) on the flow-path parts; closure counted from the OBJ",
- "binary": "/home/jesse/bc/bendcad-r39",
+ "binary": "/home/jesse/bc/bendcad-r45",
  "design": "/home/jesse/g6/g6u.bcd",
  "green": true,
  "rows": [
   {
    "part": "impeller",
    "node": 19,
-   "seconds": 584.3,
+   "seconds": 716.7,
    "kernel": "wrote /home/jesse/g6/tess_u/impeller.obj nverts 959132 ntris 1842448 est 98916 chord 0.001249553089513993 ang 0.009977171034395469 nsamp 28498 profile manufacturing (sampled, not certified) faces direct=200 grid=0 refined=0 freeform=468 chord-bound=certified-on-analytic-faces,sampled-on-freeform normal-dev=0.008551041739967674",
    "chord_bound": "certified-on-analytic-faces,sampled-on-freeform",
    "mesh": {
@@ -23,7 +23,7 @@
   {
    "part": "shroud",
    "node": 23,
-   "seconds": 1.8,
+   "seconds": 2.1,
    "kernel": "wrote /home/jesse/g6/tess_u/shroud.obj nverts 23940 ntris 47880 est 47880 chord 0.0016785041498451289 ang 0.009973310011396168 nsamp 630 profile manufacturing (sampled, not certified)",
    "chord_bound": null,
    "mesh": {
@@ -39,7 +39,7 @@
   {
    "part": "diffuser",
    "node": 24,
-   "seconds": 69.8,
+   "seconds": 78.2,
    "kernel": "wrote /home/jesse/g6/tess_u/diffuser.obj nverts 4798 ntris 9596 est 15540 chord 0.0016163373296797197 ang 0.00997331001139617 nsamp 5320 profile manufacturing (sampled, not certified) faces direct=541 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.004986655005776747",
    "chord_bound": "certified",
    "mesh": {
@@ -55,7 +55,7 @@
   {
    "part": "rdc",
    "node": 40,
-   "seconds": 91.8,
+   "seconds": 212.5,
    "kernel": "wrote /home/jesse/g6/tess_u/rdc.obj nverts 156988 ntris 314456 est 471492 chord 0.0014795703248631584 ang 0.009994442136912692 nsamp 157004 profile manufacturing (sampled, not certified) faces direct=132 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.0049866550080699635",
    "chord_bound": "certified",
    "mesh": {
@@ -71,7 +71,7 @@
   {
    "part": "stator",
    "node": 42,
-   "seconds": 1493.2,
+   "seconds": 1044.2,
    "kernel": "wrote /home/jesse/g6/tess_u/stator.obj nverts 2443406 ntris 4792968 est 161701 chord 0.041993750960998215 ang 0.00997331001139617 nsamp 40962 profile manufacturing (sampled, not certified) faces direct=144 grid=0 refined=0 freeform=580 chord-bound=certified-on-analytic-faces,sampled-on-freeform normal-dev=0.008763729491593993",
    "chord_bound": "certified-on-analytic-faces,sampled-on-freeform",
    "mesh": {
@@ -87,7 +87,7 @@
   {
    "part": "turbine",
    "node": 27,
-   "seconds": 3218.4,
+   "seconds": 1428.3,
    "kernel": "wrote /home/jesse/g6/tess_u/turbine.obj nverts 3822493 ntris 7518788 est 231168 chord 0.0038239701992322066 ang 0.00997331001139617 nsamp 63046 profile manufacturing (sampled, not certified) faces direct=105 grid=2 refined=0 freeform=779 chord-bound=certified-on-analytic-faces,sampled-on-freeform normal-dev=0.014579866159707012",
    "chord_bound": "certified-on-analytic-faces,sampled-on-freeform",
    "mesh": {
@@ -103,7 +103,7 @@
   {
    "part": "nozzle",
    "node": 28,
-   "seconds": 3.1,
+   "seconds": 10.1,
    "kernel": "wrote /home/jesse/g6/tess_u/nozzle.obj nverts 5421 ntris 10846 est 11034 chord 0.0011481267107275065 ang 0.00997331001139617 nsamp 5464 profile manufacturing (sampled, not certified) faces direct=47 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.004811347936016853",
    "chord_bound": "certified",
    "mesh": {
