@@ -21,7 +21,12 @@ def pct(xs, q):
 def judge(recs):
     by = collections.defaultdict(lambda: [0, 0])
     secs, wrong, ident = [], [], []
+    bad_in = [c['seed'] for c in recs if c.get('input_valid') is False and c.get('ok_base')]
+    bad_out = [c['seed'] for c in recs if c.get('input_valid') is not False and not c.get('ok_base')]
+    skipped = [c['seed'] for c in recs if c.get('input_valid') is False and not c.get('ok_base')]
     for c in recs:
+        if c.get('input_valid') is False:
+            continue
         key = '%s x %s / %s' % (*sorted((c['a'], c['b'])), c['mode'])
         for op, r in c['ops'].items():
             by[key][1] += 1
@@ -37,6 +42,8 @@ def judge(recs):
     weak = {k: f'{v[0]}/{v[1]}' for k, v in sorted(by.items()) if v[0] < RATE * v[1]}
     p95 = pct(secs, 0.95)
     checks = [
+        dict(check='every invalid input refused and every valid input accepted', status='pass' if not bad_in and not bad_out else 'fail',
+             evidence=f'invalid inputs refused (excluded from the rates below): {skipped}; invalid committed: {bad_in}; valid refused: {bad_out}'),
         dict(check=f'commit rate >= {RATE:.0%} overall', status='pass' if com >= RATE * ops else 'fail', evidence=f'{com}/{ops} = {com / max(ops, 1):.3f}'),
         dict(check=f'commit rate >= {RATE:.0%} in every pair and mode', status='pass' if not weak else 'fail', evidence=f'{len(weak)} groups below: {weak}'),
         dict(check='0 wrong answers against OCCT', status='pass' if not wrong else 'fail', evidence=f'{len(wrong)} mismatches {wrong[:5]}'),

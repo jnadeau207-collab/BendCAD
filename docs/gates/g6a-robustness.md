@@ -24,15 +24,18 @@ G5 passed only by steering around refusals. A kernel an agent can trust must ans
 
 ## Measured state
 
-Judged on the 150-seed k5w corpus (`docs/receipts/eval-fuzz-k5w-150.json`):
+Judged on r50 (`docs/receipts/gates/g6a.json`, 2026-11-26, 150 seeds, 8 jobs). Seven seeds draw a revolve profile that `fuzz.py` itself marks invalid (28, 42, 68, 108, 118, 135, 142); the kernel refuses each of them, and the judge now checks that and leaves them out of the rates:
 
 | check | status | evidence |
 |---|---|---|
-| commit rate overall | fail | 250/450 = 55.6% |
-| every pair and mode | fail | 47 groups below 99%; cone/torus/revolve pairs and the seam and axis modes are the worst |
-| OCCT | fail on k5w, cleared since | 11 volume disagreements of about 2.4e-5 relative, every one involving a prism. Seed 2 rerun on r1j: OCCT 10305.760592611 inside the kernel's certified [10305.76059260, 10305.76059262]. The 42-seed gate baseline on p9q records 0 mismatches. |
+| invalid inputs refused, valid inputs accepted | pass | 7 invalid refused, 0 invalid committed, 0 valid refused |
+| commit rate overall | fail | 327/429 = 76.2% (k5w: 55.6%) |
+| every pair and mode | fail | 26 groups below 99% |
+| OCCT | pass | 0 mismatches |
 | identity | pass | 0 violations |
-| p95 | fail | 338.8 s |
+| p95 | fail | 13.4 s (k5w: 338.8 s); the tail is the validator's near-curve bisection on sphere circles (`near_go` under `circ_fi`) |
+
+Refusals on r50: c04 embedding on the combined boundary 19, edge-face penetration with K1 reasons 7x/8x 39, face penetration 82/93 6, c04 embedding 6, validator uncertain (edge-face, face-face, edge-crossing) 13, timeouts 6.
 
 ## What closes it
 
