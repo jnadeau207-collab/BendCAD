@@ -241,8 +241,6 @@ type GS is Data:
 type TL is Data:
   TL{ ch: F64, ca: F64 }
 
-type FL is Data:
-  FL{ te: Nat, tf: Nat, a: Nat, b: Nat, c: Nat, d: Nat }
 
 type RF is Data:
   RF{ ts: List<&2, Tri>, vt: B.Tb<&2, VX>, nv: Nat }
@@ -1574,38 +1572,6 @@ def t_ll(+t: Tri, +vt: B.Tb<&2, VX>, +w0: F64, +w1: F64, +w2: F64) -> Nat:
 def t_len(+t: Tri, +vt: B.Tb<&2, VX>, +l: Nat) -> F64:
   vxl(vt, ed_a(t, l), ed_b(t, l))
 
-type MK is Data:
-  MK{ mk: B.Tb<&2, Bool>, ch: Bool }
-
-def cl_go(ts: List<&2, Tri>, +i: Nat, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat, +mk: B.Tb<&2, Bool>, +ch: Bool) -> MK:
-  match ts:
-    case []: MK{mk, ch}
-    case +t <> r:
-      +e0 = Nat.mul(3n, i)
-      +any = Bool.or(B.tb_get(Bool, mk, U32.from_nat(e0)), Bool.or(B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 1n))), B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 2n)))))
-      +el = Nat.add(e0, t_ll(t, vt, t_len(t, vt, 0n), t_len(t, vt, 1n), t_len(t, vt, 2n)))
-      +o = B.tb_get(Nat, tw, U32.from_nat(el))
-      +need = Bool.and(Bool.and(any, Bool.not(B.tb_get(Bool, mk, U32.from_nat(el)))), Nat.is_lt(o, sent))
-      cl_go(r, Nat.add(i, 1n), vt, tw, sent, Bool.pick(B.Tb<&2, Bool>, need, B.tb_set(Bool, B.tb_set(Bool, mk, U32.from_nat(el), True{}), U32.from_nat(o), True{}), mk), Bool.or(ch, need))
-
-def mk_mk(+r: MK) -> B.Tb<&2, Bool>:
-  MK{+mk, ch} = r
-  mk
-
-def mk_ch(+r: MK) -> Bool:
-  MK{mk, +ch} = r
-  ch
-
-def closure(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat, +mk: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
-  match n:
-    case 0n: mk
-    case 1n+(+m):
-      match go:
-        case False{}: mk
-        case True{}:
-          +r = cl_go(ts, 0n, vt, tw, sent, mk, False{})
-          closure(m, mk_ch(r), ts, vt, tw, sent, mk_mk(r))
-
 def own(+mk: B.Tb<&2, Bool>, +tw: B.Tb<&2, Nat>, +e: Nat) -> Bool:
   Bool.and(B.tb_get(Bool, mk, U32.from_nat(e)), Nat.is_lt(e, B.tb_get(Nat, tw, U32.from_nat(e))))
 
@@ -1725,54 +1691,10 @@ def fl_pick(md: FM, +vt: B.Tb<&2, VX>, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bo
     case FM_cot{}: fl_ok(vt, a, b, c, d)
     case FM_nrm{+k, +sf}: fn_ok(vt, k, sf, a, b, c, d)
 
-def fl_go(n: Nat, +md: FM, es: List<&2, ER2>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +used: B.Tb<&2, Bool>, +acc: List<&2, FL>) -> List<&2, FL>:
-  match n:
-    case 0n: acc
-    case 1n+(+m):
-      match es:
-        case []: acc
-        case +e <> +t:
-          match t:
-            case []: acc
-            case +f <> +t2:
-              +pair = U64.is_eq(er_k(e), er_k(f))
-              +te = er_t(e)
-              +tf = er_t(f)
-              +a = er_a(e)
-              +b = er_b(e)
-              +c = opp(B.tb_get(Tri, tt, U32.from_nat(te)), a)
-              +d = opp(B.tb_get(Tri, tt, U32.from_nat(tf)), b)
-              +ok = Bool.and(Bool.and(pair, Bool.not(Bool.or(B.tb_get(Bool, used, U32.from_nat(te)), B.tb_get(Bool, used, U32.from_nat(tf))))), fl_pick(md, vt, a, b, c, d))
-              fl_go(m, md, Bool.pick(List<&2, ER2>, pair, t2, f <> t2), tt, vt,
-                Bool.pick(B.Tb<&2, Bool>, ok, B.tb_set(Bool, B.tb_set(Bool, used, U32.from_nat(te), True{}), U32.from_nat(tf), True{}), used),
-                Bool.pick(List<&2, FL>, ok, FL{te, tf, a, b, c, d} <> acc, acc))
-
-def fl_apply(fs: List<&2, FL>, +tt: B.Tb<&2, Tri>) -> B.Tb<&2, Tri>:
-  match fs:
-    case []: tt
-    case +x <> r:
-      FL{+te, +tf, +a, +b, +c, +d} = x
-      fl_apply(r, B.tb_set(Tri, B.tb_set(Tri, tt, U32.from_nat(te), Tri{a, d, c}), U32.from_nat(tf), Tri{d, b, c}))
-
 def tb_tris(n: Nat, +tt: B.Tb<&2, Tri>, +i: Nat) -> List<&2, Tri>:
   match n:
     case 0n: []
     case 1n+(+m): B.tb_get(Tri, tt, U32.from_nat(i)) <> tb_tris(m, tt, Nat.add(i, 1n))
-
-def flips_m(n: Nat, go: Bool, +md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
-  match n:
-    case 0n: ts
-    case 1n+(+m):
-      match go:
-        case False{}: ts
-        case True{}:
-          +nt = List.length(&2, Tri, ts)
-          +tt = B.tb_of(Tri, ts, Tri{0n, 0n, 0n})
-          +fs = fl_go(Nat.mul(3n, nt), md, so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n))), tt, vt, B.tb_of(Bool, rep_bl(nt), False{}), [])
-          flips_m(m, Bool.not(Nat.is_eq(List.length(&2, FL, fs), 0n)), md, tb_tris(nt, fl_apply(fs, tt), 0n), vt)
-
-def flips(n: Nat, go: Bool, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
-  flips_m(n, go, FM_cot{}, ts, vt)
 
 def lw_ids(n: Nat, +i: Nat) -> List<&2, Nat>:
   match n:
@@ -1808,12 +1730,23 @@ def lw_st(ok: Bool, +t0: Nat, +u0: Nat, +r: List<&2, Nat>) -> List<&2, Nat>:
     case False{}: r
     case True{}: t0 <> Nat.add(t0, 2n) <> u0 <> Nat.add(u0, 1n) <> r
 
-def lw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, +ne: Nat, +vt: B.Tb<&2, VX>) -> B.Tb<&2, Tri>:
+type LWR is Data:
+  LWR{ tt: B.Tb<&2, Tri>, tw: B.Tb<&2, Nat> }
+
+def lr_tt(+r: LWR) -> B.Tb<&2, Tri>:
+  LWR{+tt, tw} = r
+  tt
+
+def lr_tw(+r: LWR) -> B.Tb<&2, Nat>:
+  LWR{tt, +tw} = r
+  tw
+
+def lw_go(fuel: Nat, st: List<&2, Nat>, +md: FM, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, +ne: Nat, +vt: B.Tb<&2, VX>) -> LWR:
   match fuel:
-    case 0n: tt
+    case 0n: LWR{tt, tw}
     case 1n+(+f):
       match st:
-        case []: tt
+        case []: LWR{tt, tw}
         case +e <> +r:
           +o = B.tb_get(Nat, tw, U32.from_nat(e))
           +t = Nat.div(e, 3n)
@@ -1834,15 +1767,17 @@ def lw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, 
           +xdb = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(l_nx(m)))))
           +sane = Bool.and(Bool.and(Nat.is_lt(o, ne), Bool.not(Nat.is_eq(t, u))), Bool.and(Bool.and(Nat.is_eq(ed_a(q, m), b), Nat.is_eq(ed_b(q, m), a)), Bool.not(Nat.is_eq(c, d))))
           +own = Bool.and(Bool.and(lw_nin(xbc, t, u), lw_nin(xca, t, u)), Bool.and(lw_nin(xad, t, u), lw_nin(xdb, t, u)))
-          +ok = Bool.and(Bool.and(sane, own), fl_ok(vt, a, b, c, d))
-          lw_go(f, lw_st(ok, t0, u0, r), lw_tt(ok, tt, t, u, a, b, c, d), lw_tw(ok, tw, t0, u0, xad, xca, xdb, xbc, ne), ne, vt)
+          +ok = Bool.and(Bool.and(sane, own), fl_pick(md, vt, a, b, c, d))
+          lw_go(f, lw_st(ok, t0, u0, r), md, lw_tt(ok, tt, t, u, a, b, c, d), lw_tw(ok, tw, t0, u0, xad, xca, xdb, xbc, ne), ne, vt)
 
-def lawson(+ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
-  +nt = List.length(&2, Tri, ts)
-  +ne = Nat.mul(3n, nt)
+def lawson_r(+md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> LWR:
+  +ne = Nat.mul(3n, List.length(&2, Tri, ts))
   +tt = B.tb_of(Tri, ts, Tri{0n, 0n, 0n})
   +tw = tw_go(ne, so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n))), tt, B.tb_of(Nat, rep_nn(ne, ne), ne))
-  tb_tris(nt, lw_go(Nat.add(Nat.mul(64n, ne), 64n), lw_ids(ne, 0n), tt, tw, ne, vt), 0n)
+  lw_go(Nat.add(Nat.mul(64n, ne), 64n), lw_ids(ne, 0n), md, tt, tw, ne, vt)
+
+def lawson(+md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> List<&2, Tri>:
+  tb_tris(List.length(&2, Tri, ts), lr_tt(lawson_r(md, ts, vt)), 0n)
 
 def rf_sub(+ts: List<&2, Tri>, +mk: B.Tb<&2, Bool>, +d: MD, +vt0: B.Tb<&2, VX>) -> RF:
   MD{+md, +vt, +nv} = d
@@ -1855,6 +1790,31 @@ def rf_step(go: Bool, +r: RF, +g: GS, +mk: B.Tb<&2, Bool>, +tw: B.Tb<&2, Nat>, +
       RF{+ts, +vt, +nv} = r
       rf_sub(ts, mk, md_go(ts, 0n, g, mk, tw, MD{B.tb_of(Nat, rep_nn(ne, 0n), 0n), vt, nv}), vt)
 
+def cw_mk(need: Bool, +mk: B.Tb<&2, Bool>, +el: Nat, +o: Nat) -> B.Tb<&2, Bool>:
+  match need:
+    case False{}: mk
+    case True{}: B.tb_set(Bool, B.tb_set(Bool, mk, U32.from_nat(el), True{}), U32.from_nat(o), True{})
+
+def cw_st(need: Bool, +j: Nat, +r: List<&2, Nat>) -> List<&2, Nat>:
+  match need:
+    case False{}: r
+    case True{}: j <> r
+
+def cw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat, +mk: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match fuel:
+    case 0n: mk
+    case 1n+(+f):
+      match st:
+        case []: mk
+        case +i <> +r:
+          +t = B.tb_get(Tri, tt, U32.from_nat(i))
+          +e0 = Nat.mul(3n, i)
+          +any = Bool.or(B.tb_get(Bool, mk, U32.from_nat(e0)), Bool.or(B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 1n))), B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 2n)))))
+          +el = Nat.add(e0, t_ll(t, vt, t_len(t, vt, 0n), t_len(t, vt, 1n), t_len(t, vt, 2n)))
+          +o = B.tb_get(Nat, tw, U32.from_nat(el))
+          +need = Bool.and(Bool.and(any, Bool.not(B.tb_get(Bool, mk, U32.from_nat(el)))), Nat.is_lt(o, sent))
+          cw_go(f, cw_st(need, Nat.div(o, 3n), r), tt, vt, tw, sent, cw_mk(need, mk, el, o))
+
 def ref_go(n: Nat, done: Bool, +r: RF, +g: GS, +nx: B.Tb<&2, Nat>, +nb: Nat, +cap: Nat, +tol: TL) -> RF:
   match n:
     case 0n: r
@@ -1863,14 +1823,14 @@ def ref_go(n: Nat, done: Bool, +r: RF, +g: GS, +nx: B.Tb<&2, Nat>, +nb: Nat, +ca
         case True{}: r
         case False{}:
           RF{+ts0, +vt, +nv} = r
-          +ts = lawson(ts0, vt)
-          +nt = List.length(&2, Tri, ts)
+          +lr = lawson_r(FM_cot{}, ts0, vt)
+          +nt = List.length(&2, Tri, ts0)
           +ne = Nat.mul(3n, nt)
-          +es = so_er(B.msort(~ER2, ~er_cmp, tri_ers(ts, 0n)))
-          +tt = B.tb_of(Tri, ts, Tri{0n, 0n, 0n})
-          +tw = tw_go(ne, es, tt, B.tb_of(Nat, rep_nn(ne, ne), ne))
+          +tt = lr_tt(lr)
+          +tw = lr_tw(lr)
+          +ts = tb_tris(nt, tt, 0n)
           +mk0 = mk_go(ts, 0n, g, vt, tw, ne, tol, B.tb_of(Bool, List.append(&2, Bool, fats(ts, vt), [False{}]), False{}), B.tb_of(Bool, rep_bl(ne), False{}))
-          +mk = closure(64n, True{}, ts, vt, tw, ne, mk0)
+          +mk = cw_go(Nat.add(Nat.add(nt, ne), 64n), lw_ids(nt, 0n), tt, vt, tw, ne, mk0)
           +k = cnt_go(ne, 0n, mk, tw, 0n)
           +fits = Nat.is_le(Nat.add(nv, k), cap)
           +go = Bool.and(Nat.is_lt(0n, k), fits)
@@ -2758,7 +2718,7 @@ def gen_ref(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +v
   +cap = Nat.add(Nat.mul(6n, nb), 8192n)
   +vt = B.tb_of(VX, List.append(&2, VX, vxs, rep_vx(cap)), vx0())
   +nx = B.tb_of(Nat, g_nx(rs, 0n), 0n)
-  +td = lawson(t0, vt)
+  +td = lawson(FM_cot{}, t0, vt)
   +r = ref_go(48n, False{}, RF{td, vt, nb}, g, nx, nb, Nat.add(nb, cap), tol)
   gen_fin(r, sf, same, B.tb_of(Nat, g_ids(rs), 0n), nb, base, Bool.not(Nat.is_eq(List.length(&2, Tri, t0), 0n)), nx)
 
@@ -2789,7 +2749,7 @@ def fq_go(bad: Bool, +st: List<&2, Tri>, +gt: List<&2, Tri>, +ts: List<&2, Tri>,
   match bad:
     case False{}: FQ{ts, ct}
     case True{}:
-      +t2 = List.append(&2, Tri, flips_m(64n, True{}, FM_nrm{k, sf}, st, vt), gt)
+      +t2 = List.append(&2, Tri, lawson(FM_nrm{k, sf}, st, vt), gt)
       FQ{t2, ct_go(t2, k, sf, vt, CT{0.0f64, 1.0f64})}
 
 def dr_vs(+d: DR) -> List<&2, VX>:

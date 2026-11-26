@@ -1,0 +1,65 @@
+== identity battery (ref vs new)
+g1-bracket-eval        IDENTICAL  ref       0.1 s  new       0.1 s  x1.00
+g1-strap-eval          IDENTICAL  ref       0.0 s  new       0.0 s  x1.33
+g1-bracket-mass        IDENTICAL  ref       2.9 s  new       5.5 s  x0.53
+g2-eval                IDENTICAL  ref      34.3 s  new      39.2 s  x0.87
+g2-mass-38             IDENTICAL  ref      13.5 s  new      13.2 s  x1.03
+g2-interf-11-38        IDENTICAL  ref      11.5 s  new      13.0 s  x0.89
+g2-step-38             IDENTICAL  ref       3.9 s  new       3.9 s  x1.00
+g2-asm-solve           IDENTICAL  ref      37.2 s  new      38.7 s  x0.96
+g2-asm-interf-pair     IDENTICAL  ref      11.1 s  new      12.1 s  x0.91
+g2-threads-38          IDENTICAL  ref       3.6 s  new       7.6 s  x0.48
+g3-eval                IDENTICAL  ref       1.1 s  new       1.2 s  x0.95
+g4-hub2-eval           IDENTICAL  ref       3.0 s  new       2.9 s  x1.02
+k4-blade-union-eval    IDENTICAL  ref      18.2 s  new      18.2 s  x1.00
+fz127-box-torus-eval   IDENTICAL  ref       0.3 s  new       0.3 s  x0.96
+fz103-revolve-sphere-eval IDENTICAL  ref       0.6 s  new       0.5 s  x1.17
+fz1-cyl-torus-refusal  IDENTICAL  ref       6.2 s  new       4.1 s  x1.51
+16/16 identical
+== fuzz gate (tests/eval/gate-baseline.json)
+GAIN seed 5 union: refused before, now commits
+GAIN seed 5 intersection: refused before, now commits
+GAIN seed 5 difference: refused before, now commits
+GAIN seed 19 union: refused before, now commits
+GAIN seed 19 difference: refused before, now commits
+GAIN seed 38 union: refused before, now commits
+GAIN seed 38 intersection: refused before, now commits
+GAIN seed 38 difference: refused before, now commits
+GAIN seed 41 union: refused before, now commits
+GAIN seed 41 intersection: refused before, now commits
+GAIN seed 41 difference: refused before, now commits
+GAIN seed 58 union: refused before, now commits
+GAIN seed 58 intersection: refused before, now commits
+GAIN seed 58 difference: refused before, now commits
+GAIN seed 81 union: refused before, now commits
+GAIN seed 81 intersection: refused before, now commits
+GAIN seed 81 difference: refused before, now commits
+GAIN seed 116 union: refused before, now commits
+91/126 committed, 0 regressions, 0 slowdowns, 18 gains, 29.7 s
+== law gate (--check-only and --verdict)
+base laws=13 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 0s
+c00 laws=8 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 2s
+c01 laws=10 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 0s
+c02 laws=16 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 0s
+c03 laws=10 check=[ALL PROOFS CHECK] 35s verdict=[ALL PROOFS CHECK] 34s
+c04 laws=104 check=[ALL PROOFS CHECK] 2s verdict=[ALL PROOFS CHECK] 2s
+c05 laws=36 check=[ALL PROOFS CHECK] 156s verdict=[ALL PROOFS CHECK] 145s
+c06 laws=6 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 26s
+c07 laws=5 check=[ALL PROOFS CHECK] 0s verdict=[ALL PROOFS CHECK] 1s
+c08 laws=4 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 10s
+c09 laws=2 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 4s
+c10 laws=18 check=[ALL PROOFS CHECK] 5s verdict=[ALL PROOFS CHECK] 35s
+c11 laws=68 check=[ALL PROOFS CHECK] 9s verdict=[ALL PROOFS CHECK] 39s
+c12 laws=64 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 40s
+c13 laws=4 check=[ALL PROOFS CHECK] 3s verdict=[ALL PROOFS CHECK] 4s
+c14 laws=153 check=[ALL PROOFS CHECK] 39s verdict=[ALL PROOFS CHECK] 67s
+c15 laws=20 check=[ALL PROOFS CHECK] 7s verdict=[ALL PROOFS CHECK] 39s
+c16.1 laws=11 check=[ALL PROOFS CHECK] 13s verdict=[ALL PROOFS CHECK] 84s
+c16.2 laws=13 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 32s
+c16.3 laws=15 check=[ALL PROOFS CHECK] 6s verdict=[ALL PROOFS CHECK] 31s
+k1 laws=3 check=[ALL PROOFS CHECK] 4s verdict=[ALL PROOFS CHECK] 10s
+k2 laws=6 check=[ALL PROOFS CHECK] 7s verdict=[ALL PROOFS CHECK] 27s
+k3 laws=7 check=[ALL PROOFS CHECK] 1s verdict=[ALL PROOFS CHECK] 3s
+== README ladder generated from receipts
+README ladder matches the receipts
+precommit: PASS (/var/tmp/pc-r36)
