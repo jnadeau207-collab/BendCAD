@@ -2,7 +2,7 @@
  "id": "B4",
  "sentence": "8 mm shaft: two k5 bearing seats, shoulder, keyway, ring groove, M8x1 thread, chamfers",
  "process": "lathe",
- "binary": "/home/jesse/bc/bendcad-r36",
+ "binary": "/home/jesse/bc/bendcad-r39",
  "parts": [
   204
  ],
@@ -11,43 +11,43 @@
   {
    "edit": "(param DK 8 k5)",
    "status": "committed",
-   "s": 0.002,
+   "s": 0.003,
    "refusals": [],
    "out": "\ncommitted\n"
   },
   {
    "edit": "(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2) 40) (line (/ DK 2) 47) (line 3.995 47) (line 3.995 59.5) (line 3.5 60) (line 0 60)))) (intent create any 0 1 0))",
    "status": "committed",
-   "s": 0.047,
+   "s": 0.04,
    "refusals": [],
    "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))",
    "status": "committed",
-   "s": 0.083,
+   "s": 0.103,
    "refusals": [],
    "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.1985853577376, 3678.1985853581477] area=[1806.4908711778448, 1806.4908711846142] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\n\ncommitted\n"
   },
   {
    "edit": "(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))",
    "status": "committed",
-   "s": 0.934,
+   "s": 0.757,
    "refusals": [],
    "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.1985853577376, 3678.1985853581477] area=[1806.4908711778448, 1806.4908711846142] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 204: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.00166651652, 3656.00168671219] area=[1830.6006824040794, 1830.6006849296384] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n\ncommitted\n"
   },
   {
    "edit": "(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)",
    "status": "committed",
-   "s": 1.207,
+   "s": 1.164,
    "refusals": [],
    "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.1985853577376, 3678.1985853581477] area=[1806.4908711778448, 1806.4908711846142] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 204: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.00166651652, 3656.00168671219] area=[1830.6006824040794, 1830.6006849296384] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n\ncommitted\n"
   }
  ],
  "built": true,
- "build_incremental_s": 2.273,
+ "build_incremental_s": 2.067,
  "build_oneshot": {
-  "s": 0.783,
+  "s": 0.801,
   "timeout": false,
   "committed": true
  },
@@ -59,7 +59,7 @@
     {
      "edit": "(thread 204 m8b n201.c0.wall.2.1 M8x1 6g 0.5 8)",
      "status": "committed",
-     "s": 0.842,
+     "s": 0.918,
      "refusals": [],
      "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.1985853577376, 3678.1985853581477] area=[1806.4908711778448, 1806.4908711846142] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 204: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.00166651652, 3656.00168671219] area=[1830.6006824040794, 1830.6006849296384] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n\ncommitted\n"
     }
@@ -68,7 +68,7 @@
   }
  ],
  "eval": {
-  "s": 0.779,
+  "s": 0.742,
   "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3682.6546316873246, 3682.6546316877307] area=[1799.0840952581123, 1799.0840952648748] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.1985853577376, 3678.1985853581477] area=[1806.4908711778448, 1806.4908711846142] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 204: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.00166651652, 3656.00168671219] area=[1830.6006824040794, 1830.6006849296384] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n\n"
  },
  "certified_volume": {
@@ -81,7 +81,7 @@
   {
    "node": 204,
    "out": "ok: embedded, shells outward, cavities nested\n",
-   "s": 1.109,
+   "s": 1.034,
    "timeout": false
   }
  ],
@@ -89,14 +89,14 @@
   {
    "node": 204,
    "out": "mass volume=[3656.00166651652, 3656.00168671219] certified octree=[0, 7813.476562608836] depth=4 cells=0/540/3556\ncentroid incomplete status=incomplete incomplete-cells=3556\nmoments volume=[3656.0016626465026, 3656.001690582207] centroid [-1.0430686133124426e-7, 1.0430686202167148e-7]x[-0.020493388259773333, -0.020493180742952238]x[29.53451053062065, 29.534510737579996] inertia-centroid [933538.2245025996, 933538.2704817803] [933788.2726297502, 933788.3162216265] [37525.70288899837, 37525.74765584661] [-0.011079317689741765, 0.011079317685804703] [-0.010982763954718198, 0.010982763961103384] [1825.5360220156174, 1825.5586004877225] status=certified method=divergence\n\n",
-   "s": 4.064,
+   "s": 4.529,
    "timeout": false
   }
  ],
  "step": [
   {
    "node": 204,
-   "s": 0.786,
+   "s": 0.699,
    "out": "wrote /var/tmp/briefs/B4/n204.stp entities 1710 products 1\n",
    "timeout": false,
    "occt_volume": 3656.0016766168033,
@@ -113,10 +113,10 @@
  "tess": [
   {
    "node": 204,
-   "s": 0.658,
+   "s": 0.724,
    "out": "wrote /var/tmp/briefs/B4/n204.obj nverts 596 ntris 1184 est 1936 chord 0.024095713870143903 ang 0.1963495408493621 nsamp 628 profile display (sampled, not certified) faces direct=35 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.10218115358823639\n",
    "timeout": false,
-   "judge_s": 0.01,
+   "judge_s": 0.02,
    "triangles": 1184,
    "vertices": 596,
    "zero_area": 0,
@@ -134,7 +134,7 @@
   {
    "node": 204,
    "preset": 3,
-   "s": 2.915,
+   "s": 2.504,
    "ok": true,
    "timeout": false,
    "out": "wrote /var/tmp/briefs/B4/n204.stl nverts 10628 ntris 21248 (sampled, not certified)\n"
@@ -146,7 +146,7 @@
    "verdict": "pass",
    "detail": "ok: embedded, shells outward, cavities nested",
    "cmd": "check 204",
-   "s": 1.059,
+   "s": 1.027,
    "info": false,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
@@ -155,7 +155,7 @@
    "verdict": "pass",
    "detail": "threads node 204\nthread m8 M8x1 6g z=[0.5, 8] length=7.5 external major=[7.794, 7.974] model=7.95 face=n201.c0.wall.2.0 status=certified",
    "cmd": "threads 204",
-   "s": 1.296,
+   "s": 1.248,
    "info": false,
    "out": "threads node 204\nthread m8 M8x1 6g z=[0.5, 8] length=7.5 external major=[7.794, 7.974] model=7.95 face=n201.c0.wall.2.0 status=certified\n\n"
   },
@@ -164,7 +164,7 @@
    "verdict": "pass",
    "detail": "zone node 204: certified over the tolerance envelope | volume=[3655.4699429276034, 3656.5336096351602] area=[1830.467793031442, 1830.733574302276]",
    "cmd": "zone 204",
-   "s": 3.005,
+   "s": 2.851,
    "info": false,
    "out": "zone node 204: certified over the tolerance envelope | volume=[3655.4699429276034, 3656.5336096351602] area=[1830.467793031442, 1830.733574302276]\n"
   },
@@ -173,7 +173,7 @@
    "verdict": "pass",
    "detail": "min-wall [1.0999999999996866, 1.1000000000000192] >= 1.0",
    "cmd": "wall 204",
-   "s": 7.974,
+   "s": 9.401,
    "info": false,
    "out": "min-wall [1.0999999999996866, 1.1000000000000192] certified lo=branch-and-bound hi=witness normals=opposed faces=35\n"
   },
@@ -182,7 +182,7 @@
    "verdict": "pass",
    "detail": "std ring-groove 202 DIN 471 d1=8 face-d=8.004 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass",
    "cmd": "std 204",
-   "s": 1.261,
+   "s": 0.613,
    "info": false,
    "out": "std ring-groove 202 DIN 471 d1=8 face-d=8.004 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass\nstd node 204: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -191,7 +191,7 @@
    "verdict": "pass",
    "detail": "std keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass",
    "cmd": "std 204",
-   "s": 0.61,
+   "s": 0.536,
    "info": false,
    "out": "std ring-groove 202 DIN 471 d1=8 face-d=8.004 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass\nstd node 204: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
   },
@@ -200,7 +200,7 @@
    "verdict": "pass",
    "detail": "(bendcad 1)\n(param 1 DK 8 8.001 8.007 k5)\n(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2\n...[149 chars clipped]...\n01.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))\n(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))\n(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)",
    "cmd": "show",
-   "s": 0.005,
+   "s": 0.004,
    "info": false,
    "out": "(bendcad 1)\n(param 1 DK 8 8.001 8.007 k5)\n(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2) 40) (line (/ DK 2) 47) (line 3.995 47) (line 3.995 59.5) (line 3.5 60) (line 0 60)))) (intent create any 0 1 0))\n(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))\n(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))\n(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)\n\n"
   },
@@ -209,7 +209,7 @@
    "verdict": "pass",
    "detail": "n204 lathe: makeable",
    "cmd": "make 204 lathe",
-   "s": 2.093,
+   "s": 1.832,
    "info": false
   },
   {
@@ -217,7 +217,7 @@
    "verdict": "pass",
    "detail": "n204: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B4/n204.dxf drawing node 204 views FRONT TOP LEFT (ISO first-angle) segments visible=738 hidden=1098 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN",
    "cmd": "drawing 204",
-   "s": 2.641,
+   "s": 2.31,
    "info": false
   }
  ],
@@ -226,27 +226,27 @@
   "apply": {
    "edit": "(param DK 8.006 8.001 8.007)",
    "status": "committed",
-   "s": 1.155,
+   "s": 1.115,
    "refusals": [],
    "out": "node 201: ok material=create faces_created=26 faces_modified=0 solids=1 through_holes=0 | volume=[3683.0318584252045, 3683.0318584256106] area=[1799.17834303772, 1799.1783430444827] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=26 edges=50 faces=26 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 202: ok material=remove faces_created=4 faces_modified=2 solids=1 through_holes=0 | volume=[3678.553178491345, 3678.5531784917544] area=[1806.5794640906763, 1806.5794640974457] bbox=[-5.000000000000108, 5.000000000000108]x[-5.000000000000108, 5.000000000000108]x[-1.0658141036401505e-13, 60.00000000000012] vertices=30 edges=58 faces=30 solids=1 genus=0 linear_uncertainty=1.0658141036401503e-13\nnode 204: ok material=remove faces_created=5 faces_modified=1 solids=1 through_holes=0 | volume=[3656.356259650126, 3656.356279845797] area=[1830.6892753169107, 1830.6892778424697] bbox=[-5.000000000000109, 5.000000000000109]x[-5.000000000000109, 5.000000000000109]x[-1.0658141036401507e-13, 60.00000000000013] vertices=120 edges=152 faces=35 solids=1 genus=0 linear_uncertainty=1.2456702336294272e-13 | proof: k1-crossing-certified V120 E152 F35 S1\n\ncommitted\n"
   },
   "check": {
-   "s": 1.679,
+   "s": 1.919,
    "out": "ok: embedded, shells outward, cavities nested\n"
   },
   "tess": {
-   "s": 1.303,
+   "s": 1.288,
    "out": "wrote /var/tmp/briefs/B4/edit.obj nverts 596 ntris 1184 est 1936 chord 0.024095713870143903 ang 0.1963495408493621 nsamp 628 profile display (sampled, not certified) faces direct=35 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.10218115358823639\n",
    "timeout": false
   },
-  "visible_rechecked_s": 4.137,
+  "visible_rechecked_s": 4.322,
   "checks": [
    {
     "req": "valid solid",
     "verdict": "pass",
     "detail": "ok: embedded, shells outward, cavities nested",
     "cmd": "check 204",
-    "s": 1.835,
+    "s": 1.552,
     "info": false,
     "out": "ok: embedded, shells outward, cavities nested\n"
    },
@@ -255,7 +255,7 @@
     "verdict": "pass",
     "detail": "threads node 204\nthread m8 M8x1 6g z=[0.5, 8] length=7.5 external major=[7.794, 7.974] model=7.95 face=n201.c0.wall.2.0 status=certified",
     "cmd": "threads 204",
-    "s": 2.115,
+    "s": 1.8,
     "info": false,
     "out": "threads node 204\nthread m8 M8x1 6g z=[0.5, 8] length=7.5 external major=[7.794, 7.974] model=7.95 face=n201.c0.wall.2.0 status=certified\n\n"
    },
@@ -264,7 +264,7 @@
     "verdict": "pass",
     "detail": "zone node 204: certified over the tolerance envelope | volume=[3655.469942927603, 3656.53360963516] area=[1830.4677930314417, 1830.7335743022759]",
     "cmd": "zone 204",
-    "s": 2.181,
+    "s": 2.067,
     "info": false,
     "out": "zone node 204: certified over the tolerance envelope | volume=[3655.469942927603, 3656.53360963516] area=[1830.4677930314417, 1830.7335743022759]\n"
    },
@@ -273,7 +273,7 @@
     "verdict": "pass",
     "detail": "min-wall [1.0999999999996866, 1.1000000000000192] >= 1.0",
     "cmd": "wall 204",
-    "s": 5.979,
+    "s": 6.705,
     "info": false,
     "out": "min-wall [1.0999999999996866, 1.1000000000000192] certified lo=branch-and-bound hi=witness normals=opposed faces=35\n"
    },
@@ -282,7 +282,7 @@
     "verdict": "pass",
     "detail": "std ring-groove 202 DIN 471 d1=8 face-d=8.006 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass",
     "cmd": "std 204",
-    "s": 0.977,
+    "s": 0.782,
     "info": false,
     "out": "std ring-groove 202 DIN 471 d1=8 face-d=8.006 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass\nstd node 204: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -291,7 +291,7 @@
     "verdict": "pass",
     "detail": "std keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass",
     "cmd": "std 204",
-    "s": 0.924,
+    "s": 0.833,
     "info": false,
     "out": "std ring-groove 202 DIN 471 d1=8 face-d=8.006 z=[8, 8.9]: groove-diameter=[7.6, 7.6] width=0.9 want=7.6x0.9 margins=-0.9,38.1 n-min=0.6 (DIN 471) status=pass\nstd keyway 204 DIN 6885-1 shaft d1=8 face-d=7.99 side=(0,1,0): b=2 t1=1.2 bottom-from-axis=2.795 width=2 length=10 want=2x1.2x10 status=pass\nstd node 204: 2 features, 2 pass, 0 fail, 0 not-analyzed\nstd data clear: ISO 273:1979 clearance holes, fine H12 / medium H13 / coarse H14 | source: engineersbible.com/counterbore-socket-iso (ISO 273 series columns)\nstd data tap: HSS machine taps, DIN 371 / DIN 376 shank, metric coarse thread: nominal band [d_lo, d_hi], rated thread depth as a multiple of the nominal diameter for through holes (kt, 0 = no through-hole tap held) and blind holes (kb) | source: Hoffmann Group: HOLEX Clever Tap Form B 131265 (spiral point, M3 to M24, through holes to 3xD, blind holes to 2xD), hoffmann-group.com/US/en/hus/p/131265-M3; GARANT machine tap 134200 (M2 to M10, blind holes to 3xD), hoffmann-group.com/US/en/hus/p/134200-M3\nstd data shcs: ISO 4762 hexagon socket head cap screw: dk max (knurled head), k max, socket s nominal, socket depth t min and thread length b (reference) | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCap-M.html\nstd data cbore: DIN 974-1:2008 counterbore diameter for ISO 4762 without washer; depth k + allowance | source: engineersbible.com/counterbore-socket-iso\nstd data cskh: ISO 10642 hexagon socket countersunk head screw, dk theoretical max and k max, 90 degree head | source: westfieldfasteners.co.uk/Standards/ScrewBolt-SHCsk-M.html\nstd data csk: DIN 74 form F / ISO 15065 90 degree countersink for ISO 10642 | source: engineersbible.com countersunk-iso table, reproduced at xometry.com/resources/machining/what-are-countersink-holes\nstd data hex: ISO 4032 hexagon nut width across flats s (ISO 272) | source: ISO 4032 s nominal\nstd data ring_shaft: DIN 471:2011 retaining rings for shafts, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 471 (the d1 = 3 width is printed 05 there; read as 0.5)\nstd data ring_bore: DIN 472:2011 retaining rings for bores, normal type: ring s, groove diameter d2, groove width m, edge margin n min | source: fasten.it/en/Norms/Norm/DIN 472\nstd data key: DIN 6885-1 parallel keys and keyways: shaft diameter over d_lo up to d_hi, key b x h, shaft keyway depth t1, hub keyway depth t2 | source: fasten.it/en/norms/norm/din_6885-1 (1968 table)\n\n"
    },
@@ -300,7 +300,7 @@
     "verdict": "fail",
     "detail": "(bendcad 1)\n(param 1 DK 8.006 8.001 8.007)\n(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK \n...[150 chars clipped]...\n01.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))\n(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))\n(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)",
     "cmd": "show",
-    "s": 0.01,
+    "s": 0.008,
     "info": false,
     "out": "(bendcad 1)\n(param 1 DK 8.006 8.001 8.007)\n(node 201 (revolve (region (path 0 0 (line 3.475 0) (line 3.975 0.5) (line 3.975 8) (line (/ DK 2) 8) (line (/ DK 2) 16) (line 5 16) (line 5 40) (line (/ DK 2) 40) (line (/ DK 2) 47) (line 3.995 47) (line 3.995 59.5) (line 3.5 60) (line 0 60)))) (intent create any 0 1 0))\n(node 202 (groove 201 (face 201 n201.c0.wall.4.0) (ring DIN471) 8) (intent remove any any 1 0))\n(node 204 (keyway 202 (face 201 n201.c0.wall.12.0) +y 10 48.9) (intent remove any any 1 0))\n(thread 204 m8 n201.c0.wall.2.0 M8x1 6g 0.5 8)\n\n"
    },
@@ -309,7 +309,7 @@
     "verdict": "pass",
     "detail": "n204 lathe: makeable",
     "cmd": "make 204 lathe",
-    "s": 2.554,
+    "s": 2.565,
     "info": false
    },
    {
@@ -317,7 +317,7 @@
     "verdict": "pass",
     "detail": "n204: pass: ezdxf audit clean, 3 views inside their boxes, extents equal the certified box; /var/tmp/briefs/B4/n204.dxf drawing node 204 views FRONT TOP LEFT (ISO first-angle) segments visible=738 hidden=1098 threads=0 (ISO 6410-1 conventional) format DXF R12 layers VISIBLE HIDDEN THIN",
     "cmd": "drawing 204",
-    "s": 2.356,
+    "s": 1.892,
     "info": false
    }
   ]
@@ -325,19 +325,19 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 1.29,
+   "measured_s": 1.363,
    "budget_s": 5.0,
    "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 0.388,
+   "measured_s": 0.396,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
   "export": {
    "verdict": "pass",
-   "measured_s": 3.701,
+   "measured_s": 3.203,
    "budget_s": 300.0
   },
   "scene": {
@@ -352,17 +352,17 @@
   "not-analyzed": 0
  },
  "authoring_refusals": 1,
- "wall_s": 62.3,
+ "wall_s": 61.1,
  "pass": true,
  "timed_edit_serial": {
   "label": "seat diameter 8.004 -> 8.006",
-  "build_s": 0.388,
-  "apply_s": 0.372,
+  "build_s": 0.396,
+  "apply_s": 0.41,
   "apply_status": "committed",
-  "check_s": 0.524,
-  "tess_s": 0.394,
+  "check_s": 0.563,
+  "tess_s": 0.39,
   "tess_out": "wrote /var/tmp/briefs/B4-retime/edit.obj nverts 596 ntris 1184 est 1936 chord 0.024095713870143903 ang 0.1963495408493621 nsamp 628 profile display (sampled, not certified) faces direct=35 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.10218115358823639\n",
-  "visible_rechecked_s": 1.29
+  "visible_rechecked_s": 1.363
  },
- "build_oneshot_serial_s": 0.388
+ "build_oneshot_serial_s": 0.396
 }

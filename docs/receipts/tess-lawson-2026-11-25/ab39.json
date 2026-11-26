@@ -1,0 +1,349 @@
+{
+ "a": "/home/jesse/bc/bendcad-r36",
+ "b": "/home/jesse/bc/bendcad-r39",
+ "preset": 3,
+ "rows": [
+  {
+   "design": "sv1.bcd",
+   "node": 9001,
+   "exact": [
+    459581.074797547,
+    459581.0799694197
+   ],
+   "a": {
+    "seconds": 14.3,
+    "head": "wrote /var/tmp/ab_bendcad-r36_9001.obj nverts 93164 ntris 183092 est 30030 chord 0.041993750960992476 ang 0.00997331001139617 nsamp 9961 profile manufacturing (sampled, not certified) faces direct=32 ",
+    "ntris": 183092,
+    "nverts": 93164,
+    "chord": 0.041993750960992476,
+    "normal-dev": 0.0069844538024519615,
+    "tris": 183092,
+    "volume": 459573.1855749896,
+    "area": 375366.72451882524,
+    "unmatched": 0,
+    "folds": 760,
+    "fold_area": 19385.05544711974,
+    "rel_err": -1.7171743751269087e-05
+   },
+   "b": {
+    "seconds": 14.6,
+    "head": "wrote /var/tmp/ab_bendcad-r39_9001.obj nverts 93164 ntris 183092 est 30030 chord 0.041993750960992476 ang 0.00997331001139617 nsamp 9961 profile manufacturing (sampled, not certified) faces direct=32 ",
+    "ntris": 183092,
+    "nverts": 93164,
+    "chord": 0.041993750960992476,
+    "normal-dev": 0.0069844538024519615,
+    "tris": 183092,
+    "volume": 459573.1855749896,
+    "area": 375366.72451882524,
+    "unmatched": 0,
+    "folds": 760,
+    "fold_area": 19385.05544711974,
+    "rel_err": -1.7171743751269087e-05
+   }
+  },
+  {
+   "design": "sv1.bcd",
+   "node": 4204,
+   "exact": [
+    957.3982937600285,
+    957.3982942904586
+   ],
+   "a": {
+    "seconds": 11.8,
+    "head": "wrote /var/tmp/ab_bendcad-r36_4204.obj nverts 66146 ntris 129372 est 3312 chord 0.041993750960992476 ang 0 nsamp 1017 profile manufacturing (sampled, not certified) faces direct=3 grid=0 refined=0 fre",
+    "ntris": 129372,
+    "nverts": 66146,
+    "chord": 0.041993750960992476,
+    "normal-dev": 0.0,
+    "tris": 129372,
+    "volume": 957.3894930190331,
+    "area": 1411.197516242539,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -9.192627838755123e-06
+   },
+   "b": {
+    "seconds": 11.5,
+    "head": "wrote /var/tmp/ab_bendcad-r39_4204.obj nverts 66146 ntris 129372 est 3312 chord 0.041993750960992476 ang 0 nsamp 1017 profile manufacturing (sampled, not certified) faces direct=3 grid=0 refined=0 fre",
+    "ntris": 129372,
+    "nverts": 66146,
+    "chord": 0.041993750960992476,
+    "normal-dev": 0.0,
+    "tris": 129372,
+    "volume": 957.3894930190331,
+    "area": 1411.197516242539,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -9.192627838755123e-06
+   }
+  },
+  {
+   "design": "stator3.bcd",
+   "node": 9103,
+   "exact": [
+    461400.4209837481,
+    461400.43611453107
+   ],
+   "a": {
+    "seconds": 80.7,
+    "head": "wrote /var/tmp/ab_bendcad-r36_9103.obj nverts 300440 ntris 591172 est 39434 chord 0.04199375096099803 ang 0.00997331001139617 nsamp 12175 profile manufacturing (sampled, not certified) faces direct=37",
+    "ntris": 591172,
+    "nverts": 300440,
+    "chord": 0.04199375096099803,
+    "normal-dev": 0.006246601405585538,
+    "tris": 591172,
+    "volume": 461715.19593387056,
+    "area": 377799.7676962234,
+    "unmatched": 0,
+    "folds": 1025,
+    "fold_area": 19385.273205806698,
+    "rel_err": 0.00068220002681999
+   },
+   "b": {
+    "seconds": 57.3,
+    "head": "wrote /var/tmp/ab_bendcad-r39_9103.obj nverts 261009 ntris 512310 est 39434 chord 0.04199375096099803 ang 0.00997331001139617 nsamp 12175 profile manufacturing (sampled, not certified) faces direct=40",
+    "ntris": 512310,
+    "nverts": 261009,
+    "chord": 0.04199375096099803,
+    "normal-dev": 0.006851104671709587,
+    "tris": 512310,
+    "volume": 461392.0020239349,
+    "area": 377800.49629696313,
+    "unmatched": 0,
+    "folds": 1023,
+    "fold_area": 19390.363315228493,
+    "rel_err": -1.8262933199200182e-05
+   }
+  },
+  {
+   "design": "d_balls.bcd",
+   "node": 13,
+   "exact": [
+    32.737229202697534,
+    32.737229202802325
+   ],
+   "a": {
+    "seconds": 6.7,
+    "head": "wrote /var/tmp/ab_bendcad-r36_13.obj nverts 355952 ntris 711900 est 714420 chord 0.000024674011002723395 ang 0.009973310011396168 nsamp 630 profile manufacturing (sampled, not certified)",
+    "ntris": 711900,
+    "nverts": 355952,
+    "chord": 2.4674011002723395e-05,
+    "normal-dev": null,
+    "tris": 711900,
+    "volume": 32.73643043465076,
+    "area": 49.48878279214738,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -2.439938011327281e-05
+   },
+   "b": {
+    "seconds": 6.8,
+    "head": "wrote /var/tmp/ab_bendcad-r39_13.obj nverts 355952 ntris 711900 est 714420 chord 0.000024674011002723395 ang 0.009973310011396168 nsamp 630 profile manufacturing (sampled, not certified)",
+    "ntris": 711900,
+    "nverts": 355952,
+    "chord": 2.4674011002723395e-05,
+    "normal-dev": null,
+    "tris": 711900,
+    "volume": 32.73643043465076,
+    "area": 49.48878279214738,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -2.439938011327281e-05
+   }
+  },
+  {
+   "design": "d_balls.bcd",
+   "node": 4150,
+   "exact": [
+    65.47445840539505,
+    65.47445840560466
+   ],
+   "a": {
+    "seconds": 10.5,
+    "head": "wrote /var/tmp/ab_bendcad-r36_4150.obj nverts 308348 ntris 616688 est 504424 chord 0.00013729838416507134 ang 0.009994442136912349 nsamp 2264 profile manufacturing (sampled, not certified) faces direc",
+    "ntris": 616688,
+    "nverts": 308348,
+    "chord": 0.00013729838416507134,
+    "normal-dev": 0.011763177848809193,
+    "tris": 616688,
+    "volume": 65.47163433748939,
+    "area": 98.97668939780752,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -4.3132361523001585e-05
+   },
+   "b": {
+    "seconds": 10.3,
+    "head": "wrote /var/tmp/ab_bendcad-r39_4150.obj nverts 308348 ntris 616688 est 504424 chord 0.00013729838416507134 ang 0.009994442136912349 nsamp 2264 profile manufacturing (sampled, not certified) faces direc",
+    "ntris": 616688,
+    "nverts": 308348,
+    "chord": 0.00013729838416507134,
+    "normal-dev": 0.011763177848809193,
+    "tris": 616688,
+    "volume": 65.47163433748939,
+    "area": 98.97668939780752,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -4.3132361523001585e-05
+   }
+  },
+  {
+   "design": "d_balls.bcd",
+   "node": 4155,
+   "exact": [
+    229.16060441888263,
+    229.1606044196164
+   ],
+   "a": {
+    "seconds": 40.3,
+    "head": "wrote /var/tmp/ab_bendcad-r36_4155.obj nverts 1079218 ntris 2158408 est 2264576 chord 0.00013729838416507643 ang 0.009994442136912349 nsamp 7924 profile manufacturing (sampled, not certified) faces di",
+    "ntris": 2158408,
+    "nverts": 1079218,
+    "chord": 0.00013729838416507643,
+    "normal-dev": 0.01176317784882807,
+    "tris": 2158408,
+    "volume": 229.15072018120495,
+    "area": 346.41841289238096,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -4.3132361557635644e-05
+   },
+   "b": {
+    "seconds": 40.3,
+    "head": "wrote /var/tmp/ab_bendcad-r39_4155.obj nverts 1079218 ntris 2158408 est 2264576 chord 0.00013729838416507643 ang 0.009994442136912349 nsamp 7924 profile manufacturing (sampled, not certified) faces di",
+    "ntris": 2158408,
+    "nverts": 1079218,
+    "chord": 0.00013729838416507643,
+    "normal-dev": 0.01176317784882807,
+    "tris": 2158408,
+    "volume": 229.15072018120495,
+    "area": 346.41841289238096,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -4.3132361557635644e-05
+   }
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 20,
+   "exact": [
+    41970.95182488003,
+    41970.95227930599
+   ],
+   "a": {
+    "seconds": 3.5,
+    "head": "wrote /var/tmp/ab_bendcad-r36_20.obj nverts 7600 ntris 15208 est 25416 chord 0.0006714763365869102 ang 0.00997331001139617 nsamp 7612 profile manufacturing (sampled, not certified) faces direct=14 gri",
+    "ntris": 15208,
+    "nverts": 7600,
+    "chord": 0.0006714763365869102,
+    "normal-dev": 0.06917238167098891,
+    "tris": 15208,
+    "volume": 41970.26058441353,
+    "area": 105156.11158955093,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -1.647491051950752e-05
+   },
+   "b": {
+    "seconds": 3.6,
+    "head": "wrote /var/tmp/ab_bendcad-r39_20.obj nverts 7600 ntris 15208 est 25416 chord 0.0006714763365869102 ang 0.00997331001139617 nsamp 7612 profile manufacturing (sampled, not certified) faces direct=14 gri",
+    "ntris": 15208,
+    "nverts": 7600,
+    "chord": 0.0006714763365869102,
+    "normal-dev": 0.06917238167098891,
+    "tris": 15208,
+    "volume": 41970.26058441353,
+    "area": 105156.11158955093,
+    "unmatched": 0,
+    "folds": 0,
+    "fold_area": 0.0,
+    "rel_err": -1.647491051950752e-05
+   }
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 30,
+   "exact": [
+    2061.912623579343,
+    2061.912631675903
+   ],
+   "a": {
+    "seconds": 1.5,
+    "head": "wrote /var/tmp/ab_bendcad-r36_30.obj nverts 9118 ntris 18240 est 28350 chord 0.0006154595033637996 ang 0.009995393228476389 nsamp 9138 profile manufacturing (sampled, not certified) faces direct=22 gr",
+    "ntris": 18240,
+    "nverts": 9118,
+    "chord": 0.0006154595033637996,
+    "normal-dev": 0.00533634784048961,
+    "tris": 18240,
+    "volume": 2061.791434093204,
+    "area": 5537.395849922792,
+    "unmatched": 0,
+    "folds": 4,
+    "fold_area": 0.09133427455586109,
+    "rel_err": -5.877724050726481e-05
+   },
+   "b": {
+    "seconds": 1.4,
+    "head": "wrote /var/tmp/ab_bendcad-r39_30.obj nverts 9118 ntris 18240 est 28350 chord 0.0006154595033637996 ang 0.009995393228476389 nsamp 9138 profile manufacturing (sampled, not certified) faces direct=22 gr",
+    "ntris": 18240,
+    "nverts": 9118,
+    "chord": 0.0006154595033637996,
+    "normal-dev": 0.00533634784048961,
+    "tris": 18240,
+    "volume": 2061.791434093204,
+    "area": 5537.395849922792,
+    "unmatched": 0,
+    "folds": 4,
+    "fold_area": 0.09133427455586109,
+    "rel_err": -5.877724050726481e-05
+   }
+  },
+  {
+   "design": "d_tess3.bcd",
+   "node": 14,
+   "exact": [
+    216.50906281171544,
+    216.5098295666714
+   ],
+   "a": {
+    "seconds": 20.5,
+    "head": "wrote /var/tmp/ab_bendcad-r36_14.obj nverts 345173 ntris 690346 est 1341418 chord 0.0002981850935232306 ang 0.00999936945110591 nsamp 18713 profile manufacturing (sampled, not certified) faces direct=",
+    "ntris": 690346,
+    "nverts": 345173,
+    "chord": 0.0002981850935232306,
+    "normal-dev": 0.030380040570480014,
+    "tris": 690346,
+    "volume": 216.51099052759815,
+    "area": 504.6511532211954,
+    "unmatched": 0,
+    "folds": 3062,
+    "fold_area": 16.698547820574653,
+    "rel_err": 7.132891575445835e-06
+   },
+   "b": {
+    "seconds": 20.2,
+    "head": "wrote /var/tmp/ab_bendcad-r39_14.obj nverts 345173 ntris 690346 est 1341418 chord 0.0002981850935232306 ang 0.00999936945110591 nsamp 18713 profile manufacturing (sampled, not certified) faces direct=",
+    "ntris": 690346,
+    "nverts": 345173,
+    "chord": 0.0002981850935232306,
+    "normal-dev": 0.030380040570480014,
+    "tris": 690346,
+    "volume": 216.51099052759815,
+    "area": 504.6511532211954,
+    "unmatched": 0,
+    "folds": 3062,
+    "fold_area": 16.698547820574653,
+    "rel_err": 7.132891575445835e-06
+   }
+  }
+ ]
+}

@@ -8,7 +8,9 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'tests', 'eval'))
 import tess_acc as TA
 
-CASES = [('/var/tmp/sv1.bcd', 9001), ('/var/tmp/sv1.bcd', 4204), ('/home/jesse/g6/g6u.bcd', 4271)] + TA.CASES
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+CASES = [('/var/tmp/sv1.bcd', 9001), ('/var/tmp/sv1.bcd', 4204), ('/home/jesse/g6/g6u.bcd', 4271),
+         (os.path.join(ROOT, 'tests', 'speed', 'stator3.bcd'), 9103)] + TA.CASES
 
 
 def run(binp, design, node, preset, work):
