@@ -804,15 +804,20 @@ def nest_one(m: Maybe<&2, List<&2, I.I>>, +fs: List<&2, Fd>, +bb: List<&2, I.I>,
 def nest_fi(+r: U64, +bad: String, +a: Nat, +b: Nat) -> List<&2, Fi>:
   Bool.pick(List<&2, Fi>, U64.is_eq(r, 1u64), [], [Fi{Bool.pick(String, U64.is_eq(r, 0u64), bad, "nesting-uncertain"), a, b}])
 
+def cav_if(same: Bool, +fs: List<&2, Fd>, +c: Nat, +d: Nat, +rest: List<&2, Fi>) -> List<&2, Fi>:
+  match same:
+    case True{}: rest
+    case False{}:
+      +sub = of_sh(fs, d)
+      +q = ip_q(ip_find(fs, None{}, c, 0n))
+      List.append(&2, Fi, nest_fi(nest_one(q, sub, bbox(sub, []), d, 0u64), "cavities-nested", c, d), rest)
+
 def cav_vs(cs: List<&2, Ty.HShell>, +fs: List<&2, Fd>, +c: Nat) -> List<&2, Fi>:
   match cs:
     case []: []
     case h <> t:
       +d = hs_idx(h)
-      +rest = cav_vs(t, fs, c)
-      +sub = of_sh(fs, d)
-      +q = ip_q(ip_find(fs, None{}, c, 0n))
-      Bool.pick(List<&2, Fi>, Nat.is_eq(d, c), rest, List.append(&2, Fi, nest_fi(nest_one(q, sub, bbox(sub, []), d, 0u64), "cavities-nested", c, d), rest))
+      cav_if(Nat.is_eq(d, c), fs, c, d, cav_vs(t, fs, c))
 
 def cav_go(cs: List<&2, Ty.HShell>, +all: List<&2, Ty.HShell>, +fs: List<&2, Fd>, +o: Nat) -> List<&2, Fi>:
   match cs:

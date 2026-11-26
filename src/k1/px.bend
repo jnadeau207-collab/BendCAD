@@ -388,10 +388,26 @@ def surfs_of(fs: List<&2, Nat>, +b: FB.KB) -> List<&2, G.GVal>:
     case []: []
     case +h <> +t: FB.face_surf(b, h) <> surfs_of(t, b)
 
+def or_bn(c: Bool, +b: FB.KB, +h: Nat, +p: V.Point) -> Bool:
+  match c:
+    case True{}: True{}
+    case False{}: FB.bnd_near(b, h, p)
+
+def or_pf(c: Bool, +b: FB.KB, +h: Nat, +p: V.Point) -> Bool:
+  match c:
+    case True{}: True{}
+    case False{}: FB.pt_in_face(b, h, p)
+
+def in_lz(flush: Bool, bn: Bool, +b: FB.KB, +h: Nat, +p: V.Point) -> Bool:
+  match flush bn:
+    case True{} _: False{}
+    case False{} True{}: True{}
+    case False{} False{}: FB.pt_in_face(b, h, p)
+
 def cop_in(cop: Bool, +h: Nat, +b: FB.KB, +p: V.Point) -> Bool:
   match cop:
     case False{}: False{}
-    case True{}: Bool.or(FB.pt_in_face(b, h, p), FB.bnd_near(b, h, p))
+    case True{}: or_bn(FB.pt_in_face(b, h, p), b, h, p)
 
 def on_cop(+h: Nat, +b: FB.KB, +g: G.GVal, +p: V.Point) -> Bool:
   cop_in(FB.coplanar(FB.face_surf(b, h), g), h, b, p)
@@ -435,7 +451,7 @@ def eh_keep(hs: List<&2, EF.EH>, +side: U64, +e: Nat, +fo: Nat, +ob: FB.KB, +b: 
       +p = Bool.pick(V.Point, atend, FB.vpt(b, Bool.pick(Ty.HVertex, F64.is_eq(tt, lo), Ty.ed_v0(ed), Ty.ed_v1(ed))), EF.eh_p(h))
       +flush = flush_of(atend, b, FB.face_surf(ob, fo), p)
       +bn = FB.bnd_near(ob, fo, p)
-      +inside = Bool.and(Bool.not(flush), Bool.or(FB.pt_in_face(ob, fo, p), bn))
+      +inside = in_lz(flush, bn, ob, fo, p)
       +r = gv_add(hs_g(st), p)
       +ok = Bool.and(hs_ok(st), Bool.or(Bool.not(inside), Bool.or(atend, EF.eh_ok(h))))
       +why = Bool.pick(U64, hs_ok(st), Bool.pick(U64, Bool.or(Bool.not(inside), Bool.or(atend, EF.eh_ok(h))), 0u64, why_hcert()), hs_why(st))
@@ -894,8 +910,8 @@ def run_side(+ba: FB.KB, +fa: Nat, +bb: FB.KB, +fb: Nat, +p: V.Point) -> U64:
   +nb = FB.bnd_near(bb, fb, p)
   +ca = cop_bnd(na, ba, FB.face_surf(bb, fb), p)
   +cb = cop_bnd(nb, bb, FB.face_surf(ba, fa), p)
-  +ia = Bool.or(FB.pt_in_face(ba, fa, p), Bool.and(na, Bool.not(ca)))
-  +ib = Bool.or(FB.pt_in_face(bb, fb, p), Bool.and(nb, Bool.not(cb)))
+  +ia = or_pf(Bool.and(na, Bool.not(ca)), ba, fa, p)
+  +ib = or_pf(Bool.and(nb, Bool.not(cb)), bb, fb, p)
   Bool.pick(U64, Bool.not(Bool.and(ia, ib)), 0u64,
     Bool.pick(U64, Bool.and(na, nb), 0u64, Bool.pick(U64, na, Bool.pick(U64, ca, 0u64, 2u64), Bool.pick(U64, nb, Bool.pick(U64, cb, 0u64, 3u64), 1u64))))
 

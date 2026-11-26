@@ -205,6 +205,12 @@ def sub_er(+ks: List<&2, Ty.EdgeKind>, +sd: U64, +e: Nat, +j: Nat, +fw: Bool, +g
   mk_er(key_sub(sd, e, j), PX.bp_v(h), PX.bp_v(h2),
     sub_kind_x(ek1(ks), PX.bp_s(h), PX.bp_s(h2), PX.gv_pt(gv, PX.bp_v(h)), PX.gv_pt(gv, PX.bp_v(h2))), fw)
 
+def sub_if(last: Bool, +s: S.SF, +ks: List<&2, Ty.EdgeKind>, +sd: U64, +e: Nat, +j: Nat, +fw: Bool, +gv: PX.GV,
+    +h: PX.BP, +h2: PX.BP, +rest: List<&2, W.PC>) -> List<&2, W.PC>:
+  match last:
+    case True{}: []
+    case False{}: sub_pc(s, ks, sub_er(ks, sd, e, j, fw, gv, h, h2), fw, h, h2) <> rest
+
 def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +ks: List<&2, Ty.EdgeKind>, +sd: U64, +e: Nat, +j: Nat,
     +fw: Bool, +gv: PX.GV) -> List<&2, W.PC>:
   match bs:
@@ -212,8 +218,7 @@ def sub_pcs(bs: List<&2, PX.BP>, +s: S.SF, +ks: List<&2, Ty.EdgeKind>, +sd: U64,
     case +h <> +t:
       +h2 = PX.L_bp0(t, h)
       +last = Nat.is_eq(List.length(&2, PX.BP, t), 0n)
-      +rest = sub_pcs(t, s, ks, sd, e, Nat.add(j, 1n), fw, gv)
-      Bool.pick(List<&2, W.PC>, last, [], sub_pc(s, ks, sub_er(ks, sd, e, j, fw, gv, h, h2), fw, h, h2) <> rest)
+      sub_if(last, s, ks, sd, e, j, fw, gv, h, h2, sub_pcs(t, s, ks, sd, e, Nat.add(j, 1n), fw, gv))
 
 def not_ends(xs: List<&2, PX.BP>, +v0: Nat, +lo: F64, +v1: Nat, +hi: F64) -> List<&2, PX.BP>:
   match xs:
@@ -293,10 +298,13 @@ def L_v2last(xs: List<&2, V.Vec2>, +d: V.Vec2) -> V.Vec2:
     case []: d
     case +h <> +t: L_v2last(t, h)
 
+def seg_pts(arc: Bool, +k: Ty.EdgeKind, +s: S.SF, +prev: V.Vec2) -> List<&2, V.Vec2>:
+  match arc:
+    case True{}: FB.poly_of(s, k, EF.ek_lo(k), EF.ek_hi(k), prev)
+    case False{}: [prev, FB.unwrap(s, prev, FB.uv_raw(s, EF.ev(EF.ek_curve(k), EF.ek_hi(k))))]
+
 def seg_poly(+k: Ty.EdgeKind, +s: S.SF, +prev: V.Vec2) -> List<&2, V.Vec2>:
-  +pts = Bool.pick(List<&2, V.Vec2>, arc_k(k), FB.poly_of(s, k, EF.ek_lo(k), EF.ek_hi(k), prev),
-    [prev, FB.unwrap(s, prev, FB.uv_raw(s, EF.ev(EF.ek_curve(k), EF.ek_hi(k))))])
-  L_v2tail(pts)
+  L_v2tail(seg_pts(arc_k(k), k, s, prev))
 
 def segs_poly(ss: List<&2, PX.SEG>, +s: S.SF, +prev: V.Vec2, +acc: List<&2, V.Vec2>) -> List<&2, V.Vec2>:
   match ss:
@@ -313,13 +321,17 @@ def ch_pc(+c: PX.CH, +ci: Nat, +s: S.SF) -> W.PC:
   +poly = segs_poly(ss, s, p0, [p0])
   mk_pc(va, vb, poly, False{}, seg_ers(ss, ci, 0n), PX.ch_dv(c))
 
+def ch_if(mine: Bool, +h: PX.CH, +ci: Nat, +s: S.SF, +rest: List<&2, W.PC>) -> List<&2, W.PC>:
+  match mine:
+    case True{}: ch_pc(h, ci, s) <> rest
+    case False{}: rest
+
 def chain_pcs(cs: List<&2, PX.CH>, +sd: U64, +fi: Nat, +s: S.SF, +ci: Nat) -> List<&2, W.PC>:
   match cs:
     case []: []
     case +h <> +t:
       +mine = Bool.pick(Bool, U64.is_eq(sd, 0u64), Nat.is_eq(PX.ch_fa(h), fi), Nat.is_eq(PX.ch_fb(h), fi))
-      +rest = chain_pcs(t, sd, fi, s, Nat.add(ci, 1n))
-      Bool.pick(List<&2, W.PC>, mine, ch_pc(h, ci, s) <> rest, rest)
+      ch_if(mine, h, ci, s, chain_pcs(t, sd, fi, s, Nat.add(ci, 1n)))
 
 def cut_of(+p: W.PC) -> W.PC:
   mk_pc(W.pc_va(p), W.pc_vb(p), W.pc_poly(p), False{}, W.pc_ers(p), W.pc_dv(p))

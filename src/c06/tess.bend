@@ -1207,9 +1207,31 @@ def u_uniq(xs: List<&2, U64>, +prev: U64, +first: Bool) -> Bool:
 def closed_go(+fw: List<&2, U64>, +bk: List<&2, U64>) -> Bool:
   Bool.and(u_same(fw, bk), u_uniq(fw, 0u64, True{}))
 
+def uk(+a: Nat, +b: Nat) -> U64:
+  Bool.pick(U64, Nat.is_lt(b, a), U64.add(U64.mul(ek(b, a), 2u64), 1u64), U64.mul(ek(a, b), 2u64))
+
+def und_es(ts: List<&2, Tri>, +acc: List<&2, U64>) -> List<&2, U64>:
+  match ts:
+    case []: acc
+    case t <> +r:
+      Tri{+a, +b, +c} = t
+      und_es(r, uk(a, b) <> uk(b, c) <> uk(c, a) <> acc)
+
+def uk_self(+x: U64) -> Bool:
+  +k = U64.div(x, 2u64)
+  U64.is_eq(U64.div(k, 4294967296u64), U64.mod(k, 4294967296u64))
+
+def cs_go(xs: List<&2, U64>, +prev: U64, +need: Bool, +ok: Bool, +first: Bool) -> Bool:
+  match xs:
+    case []: Bool.and(ok, Bool.not(need))
+    case +x <> +t:
+      +inc = Bool.or(first, U64.is_lt(prev, x))
+      +odd = U64.is_eq(U64.mod(x, 2u64), 1u64)
+      +pair = Bool.pick(Bool, need, U64.is_eq(x, U64.add(prev, 1u64)), Bool.not(odd))
+      cs_go(t, x, Bool.and(Bool.not(need), Bool.and(Bool.not(odd), Bool.not(uk_self(x)))), Bool.and(ok, Bool.and(inc, pair)), False{})
+
 def closed(+ts: List<&2, Tri>) -> Bool:
-  +es = dir_es(ts, [], [])
-  closed_go(so_u(B.msort(~U64, ~u_cmp, es_hd(es))), so_u(B.msort(~U64, ~u_cmp, es_tl(es))))
+  cs_go(so_u(B.msort(~U64, ~u_cmp, und_es(ts, []))), 0u64, False{}, True{}, True{})
 
 def use_gen(f: Ty.Face, +x: Ctx) -> Bool:
   Ty.Fa{g, +s, +ls, same, slv, sla} = f
