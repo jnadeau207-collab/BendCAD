@@ -1496,11 +1496,16 @@ def sf_nrm(+sf: KS.SF, +w: VX) -> V.Dir:
     case KS.SF_bp{gw}: bp_nrm_r(KS.gbp(gw), vx_u(w), vx_v(w))
     case _: KS.sf_normal(sf, vx_p(w))
 
+def eb_k(dev: Bool, long: Bool, +sf: KS.SF, +va: VX, +vb: VX, +ca: F64) -> Bool:
+  match dev long:
+    case True{} _: True{}
+    case False{} False{}: False{}
+    case False{} True{}: F64.is_lt(KS.dot(sf_nrm(sf, va), sf_nrm(sf, vb)), ca)
+
 def e_bad(+g: GS, +va: VX, +vb: VX, +tol: TL) -> Bool:
   TL{+ch, +ca} = tol
   +sf = gs_sf(g)
-  +long = F64.is_lt(ch, p_dist(vx_p(va), vx_p(vb)))
-  Bool.or(F64.is_lt(ch, e_dev(g, va, vb)), Bool.and(long, F64.is_lt(KS.dot(sf_nrm(sf, va), sf_nrm(sf, vb)), ca)))
+  eb_k(F64.is_lt(ch, e_dev(g, va, vb)), F64.is_lt(ch, p_dist(vx_p(va), vx_p(vb))), sf, va, vb, ca)
 
 def vxl(+vt: B.Tb<&2, VX>, +a: Nat, +b: Nat) -> F64:
   p_dist(vx_p(B.tb_get(VX, vt, U32.from_nat(a))), vx_p(B.tb_get(VX, vt, U32.from_nat(b))))
@@ -1560,12 +1565,24 @@ def tw_go(n: Nat, es: List<&2, ER2>, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>) -> 
               tw_go(m, Bool.pick(List<&2, ER2>, pair, t2, f <> t2), tt,
                 Bool.pick(B.Tb<&2, Nat>, pair, B.tb_set(Nat, B.tb_set(Nat, tw, U32.from_nat(ie), jf), U32.from_nat(jf), ie), tw))
 
+def mk_hit(c: Bool, +t: Tri, +l: Nat, +g: GS, +vt: B.Tb<&2, VX>, +tol: TL) -> Bool:
+  match c:
+    case False{}: False{}
+    case True{}: e_bad(g, B.tb_get(VX, vt, U32.from_nat(ed_a(t, l))), B.tb_get(VX, vt, U32.from_nat(ed_b(t, l))), tol)
+
+def mk_k(first: Bool, +t: Tri, +i: Nat, +l: Nat, +e: Nat, +o: Nat, +g: GS, +vt: B.Tb<&2, VX>, +tol: TL, +fat: B.Tb<&2, Bool>,
+    +mk: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
+  match first:
+    case False{}: mk
+    case True{}:
+      +both = Bool.and(B.tb_get(Bool, fat, U32.from_nat(i)), B.tb_get(Bool, fat, U32.from_nat(Nat.div(o, 3n))))
+      Bool.pick(B.Tb<&2, Bool>, mk_hit(both, t, l, g, vt, tol), B.tb_set(Bool, B.tb_set(Bool, mk, U32.from_nat(e), True{}), U32.from_nat(o), True{}), mk)
+
 def mk_l(+t: Tri, +i: Nat, +l: Nat, +g: GS, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat, +tol: TL, +fat: B.Tb<&2, Bool>, +mk: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
   +e = Nat.add(Nat.mul(3n, i), l)
   +o = B.tb_get(Nat, tw, U32.from_nat(e))
-  +both = Bool.and(B.tb_get(Bool, fat, U32.from_nat(i)), B.tb_get(Bool, fat, U32.from_nat(Nat.div(o, 3n))))
-  +hit = Bool.and(Bool.and(Nat.is_lt(o, sent), both), e_bad(g, B.tb_get(VX, vt, U32.from_nat(ed_a(t, l))), B.tb_get(VX, vt, U32.from_nat(ed_b(t, l))), tol))
-  Bool.pick(B.Tb<&2, Bool>, hit, B.tb_set(Bool, B.tb_set(Bool, mk, U32.from_nat(e), True{}), U32.from_nat(o), True{}), mk)
+  +first = Bool.and(Nat.is_lt(o, sent), Nat.is_lt(e, o))
+  mk_k(first, t, i, l, e, o, g, vt, tol, fat, mk)
 
 def p3(+vt: B.Tb<&2, VX>, +i: Nat) -> V.Point:
   vx_p(B.tb_get(VX, vt, U32.from_nat(i)))
@@ -1752,6 +1769,9 @@ def lw_st(ok: Bool, +t0: Nat, +u0: Nat, +r: List<&2, Nat>) -> List<&2, Nat>:
     case False{}: r
     case True{}: t0 <> Nat.add(t0, 2n) <> u0 <> Nat.add(u0, 1n) <> r
 
+type LWS is Data:
+  LWS{ st: List<&2, Nat>, tt: B.Tb<&2, Tri>, tw: B.Tb<&2, Nat> }
+
 type LWR is Data:
   LWR{ tt: B.Tb<&2, Tri>, tw: B.Tb<&2, Nat> }
 
@@ -1761,6 +1781,37 @@ def lr_tt(+r: LWR) -> B.Tb<&2, Tri>:
 
 def lr_tw(+r: LWR) -> B.Tb<&2, Nat>:
   LWR{tt, +tw} = r
+  tw
+
+def lw_cand(sane: Bool, +md: FM, +vt: B.Tb<&2, VX>, +a: Nat, +b: Nat, +c: Nat, +d: Nat) -> Bool:
+  match sane:
+    case False{}: False{}
+    case True{}: fl_pick(md, vt, a, b, c, d)
+
+def lw_next(cand: Bool, +r: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, +t: Nat, +u: Nat, +l: Nat, +m: Nat,
+    +a: Nat, +b: Nat, +c: Nat, +d: Nat, +ne: Nat) -> LWS:
+  match cand:
+    case False{}: LWS{r, tt, tw}
+    case True{}:
+      +t0 = Nat.mul(3n, t)
+      +u0 = Nat.mul(3n, u)
+      +xbc = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l))))
+      +xca = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l_nx(l)))))
+      +xad = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(m))))
+      +xdb = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(l_nx(m)))))
+      +ok = Bool.and(Bool.and(lw_nin(xbc, t, u), lw_nin(xca, t, u)), Bool.and(lw_nin(xad, t, u), lw_nin(xdb, t, u)))
+      LWS{lw_st(ok, t0, u0, r), lw_tt(ok, tt, t, u, a, b, c, d), lw_tw(ok, tw, t0, u0, xad, xca, xdb, xbc, ne)}
+
+def lws_st(+x: LWS) -> List<&2, Nat>:
+  LWS{+st, tt, tw} = x
+  st
+
+def lws_tt(+x: LWS) -> B.Tb<&2, Tri>:
+  LWS{st, +tt, tw} = x
+  tt
+
+def lws_tw(+x: LWS) -> B.Tb<&2, Nat>:
+  LWS{st, tt, +tw} = x
   tw
 
 def lw_go(fuel: Nat, st: List<&2, Nat>, +md: FM, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&2, Nat>, +ne: Nat, +vt: B.Tb<&2, VX>) -> LWR:
@@ -1775,22 +1826,15 @@ def lw_go(fuel: Nat, st: List<&2, Nat>, +md: FM, +tt: B.Tb<&2, Tri>, +tw: B.Tb<&
           +l = Nat.sub(e, Nat.mul(3n, t))
           +u = Nat.div(o, 3n)
           +m = Nat.sub(o, Nat.mul(3n, u))
-          +t0 = Nat.mul(3n, t)
-          +u0 = Nat.mul(3n, u)
           +p = B.tb_get(Tri, tt, U32.from_nat(t))
           +q = B.tb_get(Tri, tt, U32.from_nat(u))
           +a = ed_a(p, l)
           +b = ed_b(p, l)
           +c = ed_b(p, l_nx(l))
           +d = ed_b(q, l_nx(m))
-          +xbc = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l))))
-          +xca = B.tb_get(Nat, tw, U32.from_nat(Nat.add(t0, l_nx(l_nx(l)))))
-          +xad = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(m))))
-          +xdb = B.tb_get(Nat, tw, U32.from_nat(Nat.add(u0, l_nx(l_nx(m)))))
           +sane = Bool.and(Bool.and(Nat.is_lt(o, ne), Bool.not(Nat.is_eq(t, u))), Bool.and(Bool.and(Nat.is_eq(ed_a(q, m), b), Nat.is_eq(ed_b(q, m), a)), Bool.not(Nat.is_eq(c, d))))
-          +own = Bool.and(Bool.and(lw_nin(xbc, t, u), lw_nin(xca, t, u)), Bool.and(lw_nin(xad, t, u), lw_nin(xdb, t, u)))
-          +ok = Bool.and(Bool.and(sane, own), fl_pick(md, vt, a, b, c, d))
-          lw_go(f, lw_st(ok, t0, u0, r), md, lw_tt(ok, tt, t, u, a, b, c, d), lw_tw(ok, tw, t0, u0, xad, xca, xdb, xbc, ne), ne, vt)
+          +nx = lw_next(lw_cand(sane, md, vt, a, b, c, d), r, tt, tw, t, u, l, m, a, b, c, d, ne)
+          lw_go(f, lws_st(nx), md, lws_tt(nx), lws_tw(nx), ne, vt)
 
 def lawson_r(+md: FM, +ts: List<&2, Tri>, +vt: B.Tb<&2, VX>) -> LWR:
   +ne = Nat.mul(3n, List.length(&2, Tri, ts))
@@ -1822,6 +1866,28 @@ def cw_st(need: Bool, +j: Nat, +r: List<&2, Nat>) -> List<&2, Nat>:
     case False{}: r
     case True{}: j <> r
 
+type CWS is Data:
+  CWS{ st: List<&2, Nat>, mk: B.Tb<&2, Bool> }
+
+def cws_st(+x: CWS) -> List<&2, Nat>:
+  CWS{+st, mk} = x
+  st
+
+def cws_mk(+x: CWS) -> B.Tb<&2, Bool>:
+  CWS{st, +mk} = x
+  mk
+
+def cw_next(any: Bool, +i: Nat, +e0: Nat, +r: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat,
+    +mk: B.Tb<&2, Bool>) -> CWS:
+  match any:
+    case False{}: CWS{r, mk}
+    case True{}:
+      +t = B.tb_get(Tri, tt, U32.from_nat(i))
+      +el = Nat.add(e0, t_ll(t, vt, t_len(t, vt, 0n), t_len(t, vt, 1n), t_len(t, vt, 2n)))
+      +o = B.tb_get(Nat, tw, U32.from_nat(el))
+      +need = Bool.and(Bool.not(B.tb_get(Bool, mk, U32.from_nat(el))), Nat.is_lt(o, sent))
+      CWS{cw_st(need, Nat.div(o, 3n), r), cw_mk(need, mk, el, o)}
+
 def cw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +tw: B.Tb<&2, Nat>, +sent: Nat, +mk: B.Tb<&2, Bool>) -> B.Tb<&2, Bool>:
   match fuel:
     case 0n: mk
@@ -1829,13 +1895,10 @@ def cw_go(fuel: Nat, st: List<&2, Nat>, +tt: B.Tb<&2, Tri>, +vt: B.Tb<&2, VX>, +
       match st:
         case []: mk
         case +i <> +r:
-          +t = B.tb_get(Tri, tt, U32.from_nat(i))
           +e0 = Nat.mul(3n, i)
           +any = Bool.or(B.tb_get(Bool, mk, U32.from_nat(e0)), Bool.or(B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 1n))), B.tb_get(Bool, mk, U32.from_nat(Nat.add(e0, 2n)))))
-          +el = Nat.add(e0, t_ll(t, vt, t_len(t, vt, 0n), t_len(t, vt, 1n), t_len(t, vt, 2n)))
-          +o = B.tb_get(Nat, tw, U32.from_nat(el))
-          +need = Bool.and(Bool.and(any, Bool.not(B.tb_get(Bool, mk, U32.from_nat(el)))), Nat.is_lt(o, sent))
-          cw_go(f, cw_st(need, Nat.div(o, 3n), r), tt, vt, tw, sent, cw_mk(need, mk, el, o))
+          +nx = cw_next(any, i, e0, r, tt, vt, tw, sent, mk)
+          cw_go(f, cws_st(nx), tt, vt, tw, sent, cws_mk(nx))
 
 def ref_go(n: Nat, done: Bool, +r: RF, +g: GS, +nx: B.Tb<&2, Nat>, +nb: Nat, +cap: Nat, +tol: TL) -> RF:
   match n:
