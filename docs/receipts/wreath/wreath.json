@@ -1,0 +1,97 @@
+{
+ "bin": "/home/jesse/bc/bendcad-r39",
+ "ring": {
+  "sections": 8,
+  "outer_d": 356.0,
+  "inner_d": 276.0,
+  "thickness": 8.0,
+  "joint": "dovetail",
+  "clearance": 0.15,
+  "end_gap": 0.1,
+  "wire_hole_d": 5.0
+ },
+ "steps": [
+  {
+   "cmd": "eval",
+   "seconds": 0.03,
+   "out": "node 1: ok material=create faces_created=14 faces_modified=0 solids=1 through_holes=0 | volume=[39641.31911905896, 39641.31912074969] area=[12965.381434657258, 12965.381435091895] bbox=[97.58073580374322, 177.99997191011053]x[0.09999999999968379, 125.8650070512058]x[-3.1619146751557675e-13, 8.00000000000032] vertices=24 edges=36 faces=14 solids=1 genus=0 linear_uncertainty=3.1619146751557665e-13\nnode 2: ok material=remove faces_created=2 faces_modified=2 solids=1 through_holes=2 | volume=[39327.15985369991, 39327.15985539079] area=[13138.169030604593, 13138.169031039437] bbox=[97.58073580374322, 177.99997191011053]x[0.09999999999968379, 125.8650070512058]x[-3.1619146751557675e-13, 8.00000000000032] vertices=28 edges=40 faces=16 solids=1 genus=2 linear_uncertainty=3.1619146751557665e-13\nnode 3: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=2 | volume=[39327.15985369991, 39327.15985539079] area=[13138.169030604593, 13138.169031039437] bbox=[-178.00000000000148, 178.00000000000148]x[-178.00000000000148, 178.00000000000148]x[-6.323829350311534e-13, 8.000000000000638] vertices=28 edges=40 faces=16 solids=1 genus=2 linear_uncertainty=3.1619146751557665e-13\nnode 4: ok material=same faces_created=0 faces_modified=0 solids=1 through_holes=2 | volume=[39327.15985369991, 39327.15985539079] area=[13138.169030604593, 13138.169031039437] bbox=[-178.00000000000148, 178.00000000000148]x[-178.00000000000148, 178.00000000000148]x[-6.323829350311534e-13, 8.000000000000638] vertices=28 edges=40 faces=16 solids=1 genus=2 linear_uncertainty=3.1619146751557665e-13"
+  },
+  {
+   "cmd": "check 2",
+   "seconds": 0.05,
+   "out": "ok: embedded, shells outward, cavities nested"
+  },
+  {
+   "cmd": "wall 2",
+   "seconds": 1.15,
+   "out": "min-wall [7.999999999999986, 8.00000000000001] certified lo=branch-and-bound hi=witness normals=opposed faces=16"
+  },
+  {
+   "cmd": "mass 2 0",
+   "seconds": 0.11,
+   "out": "mass volume=[39327.15985369991, 39327.15985539079] certified octree=[0, 80911.40637155189] depth=0 cells=0/0/1\ncentroid incomplete status=incomplete incomplete-cells=1\nmoments volume=[39327.15977933742, 39327.15992975323] centroid [141.6454873462657, 141.64548748186277]x[62.23848696597834, 62.23848706213451]x[3.9999999956903185, 4.000000004309683] inertia-centroid [43476885.305106536, 43476885.42410097] [13203061.122009898, 13203061.241922671] [56260456.72320596, 56260456.95970382] [16744140.823049113, 16744140.96016723] [-0.006304114839506589, 0.006304114544004533] [-0.004560273241730442, 0.00456027365971173] status=certified method=divergence\nmaterial PLA density=1240 cte=0.000068 mass=[0.04876567821858787, 0.048765678220684595] kg status=certified"
+  },
+  {
+   "cmd": "make 2 fdm",
+   "seconds": 1.2,
+   "out": "make node 2 process=fdm (rules: overhangs steeper than 45 degrees from vertical need support, horizontal spans up to 5 mm bridge, walls at least 0.8 mm; Hubs design guidelines, docs/std.md)\nmake orientation up=+z support-area=0\nmake orientation up=-z support-area=0\nmake orientation up=+x support-area=1013.974\nmake orientation up=-x support-area=1348.813\nmake orientation up=+y support-area=276.576\nmake orientation up=-y support-area=61.828\nmake wall min-wall [7.999999999999986, 8.00000000000001] certified limit=0.8 status=pass\nmake node 2: best orientation up=+z support-area=0 (no support)\nverdict makeable status=estimated (overhang area from a closed mesh at chord 0.05 mm; the wall is certified)"
+  },
+  {
+   "cmd": "interf 2 3",
+   "seconds": 0.4,
+   "out": "relation disjoint status=certified method=exact-intersection"
+  },
+  {
+   "cmd": "clearance 2 3",
+   "seconds": 198.41,
+   "out": "clearance [0, 0.10000000000019137] certified lo=branch-and-bound hi=witness samples=96x96"
+  },
+  {
+   "cmd": "interf 2 4",
+   "seconds": 0.38,
+   "out": "relation disjoint status=certified method=exact-intersection"
+  },
+  {
+   "cmd": "clearance 2 4",
+   "seconds": 122.69,
+   "out": "clearance [0.09999999967441506, 0.10000000000001427] certified lo=branch-and-bound hi=witness samples=96x96"
+  },
+  {
+   "cmd": "stl 2 /mnt/c/dev/BendCAD-k3/tests/wreath/out/wreath_section.stl 3",
+   "seconds": 0.46,
+   "out": "wrote /mnt/c/dev/BendCAD-k3/tests/wreath/out/wreath_section.stl nverts 2900 ntris 5804 (sampled, not certified)"
+  },
+  {
+   "cmd": "3mf 2 /mnt/c/dev/BendCAD-k3/tests/wreath/out/wreath_section.3mf 3",
+   "seconds": 0.41,
+   "out": "wrote /mnt/c/dev/BendCAD-k3/tests/wreath/out/wreath_section.3mf nverts 2900 ntris 5804 (sampled, not certified)"
+  }
+ ],
+ "checks": {
+  "all_nodes_ok": true,
+  "check": true,
+  "min_wall": 7.999999999999986,
+  "wall_ok_fdm": true,
+  "neighbour_disjoint": true,
+  "joint_clearance": [
+   0.0,
+   0.10000000000019137
+  ],
+  "joint_clearance_other_side": [
+   0.09999999967441506,
+   0.10000000000001427
+  ],
+  "joint_snug": false,
+  "fdm_makeable": true,
+  "stl_written": true,
+  "3mf_written": true,
+  "stl_bbox": [
+   80.419,
+   125.765,
+   8.0
+  ],
+  "fits_a1_mini": true,
+  "bed_rotation_deg": 0.0
+ },
+ "pass": false
+}
