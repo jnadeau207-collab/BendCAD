@@ -702,40 +702,6 @@ def mem_ax(n: Nat, +st: U64, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +k: Nat) -> U
         case 2u64: mem_ax(m, mem_go(Nat.mul(6n, List.length(&2, Er, fc_es(f))), 2u64, f, q, nf, 0n, k), f, q, nf, Nat.add(k, 1n))
         case _: st
 
-def member_k(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  match k:
-    case True{}: uv_member(fc_uv(f), q)
-    case False{}: mem_ax(Bool.pick(Nat, is_sph_im(fc_s(f)), 5n, 1n), 2u64, f, q, nf, 0n)
-
-def nappe_neg(s: M.Im, +q: List<&2, I.I>) -> Bool:
-  match s:
-    case M.M_co{+o, +a, k}: X.ineg_c(X.vdot(a, X.vsub(q, o)))
-    case _: False{}
-
-def member_n(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  match neg:
-    case True{}: 0u64
-    case False{}: member_k(uv_has(fc_uv(f)), f, q, nf)
-
-def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
-  member_n(nappe_neg(fc_s(f), q), f, q, nf)
-
-def lim_of(+a: Nat, +b: Nat) -> Nat:
-  Bool.pick(Nat, Nat.is_lt(a, b), a, b)
-
-def member_lk(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
-  match k:
-    case True{}: uv_member(fc_uv(f), q)
-    case False{}: mem_go(lim_of(lim, Nat.mul(6n, List.length(&2, Er, fc_es(f)))), 2u64, f, q, nf, 0n, 0n)
-
-def member_ln(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
-  match neg:
-    case True{}: 0u64
-    case False{}: member_lk(uv_has(fc_uv(f)), f, q, nf, lim)
-
-def member_lim(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
-  member_ln(nappe_neg(fc_s(f), q), f, q, nf, lim)
-
 def er_uv(+e: Er, +sf: KS.SF, +t: F64) -> V.Vec2:
   KS.sf_uv(sf, q_mid(R.cv_box(er_c(e), I.ipt(Bool.pick(F64, er_fwd(e), t, F64.sub(1.0f64, t))))))
 
@@ -838,10 +804,6 @@ def uv_mk(+k: Bool, +sf: KS.SF, +es: List<&2, Er>, +slv: F64) -> Uv:
       +r = KS.sf_r(sf)
       uv_cy_of(sf, r, ers_uv(es, sf, r, F64.max(slv, F64.mul(1.0e-6f64, F64.add(1.0f64, r))), Sa{[], 0.0f64}, Sa{[], 0.0f64}), slv)
 
-def uv_of(+tolerant: Bool, +g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
-  +sf = KS.sf_of(g)
-  uv_mk(Bool.and(tolerant, U64.is_eq(KS.sf_kind(sf), KS.k_cyl())), sf, es, slv)
-
 def sb_gs(+b: Sb) -> List<&2, Sg>:
   Sb{gs, g3, dev} = b
   gs
@@ -923,6 +885,68 @@ def uv_tor_of(+g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
   +sf = KS.sf_of(g)
   uv_tor_go(sf, cm_go(es, sf, Cm{0.0f64, 0.0f64, 0.0f64, 0.0f64}), es, slv)
 
+def sg_ulo(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{+t0, h0, +t1, h1} = g
+      sg_ulo(t, F64.min(m, F64.min(t0, t1)))
+
+def sg_uhi(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{+t0, h0, +t1, h1} = g
+      sg_uhi(t, F64.max(m, F64.max(t0, t1)))
+
+def sg_hlo(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{t0, +h0, t1, +h1} = g
+      sg_hlo(t, F64.min(m, F64.min(h0, h1)))
+
+def sg_hhi(gs: List<&2, Sg>, +m: F64) -> F64:
+  match gs:
+    case []: m
+    case +g <> t:
+      Sg{t0, +h0, t1, +h1} = g
+      sg_hhi(t, F64.max(m, F64.max(h0, h1)))
+
+def to_keep(+u: Uv) -> Uv:
+  match u:
+    case Uv_to{+sf, +ur, +vr, +segs, +s3, +tol}:
+      +inf = F64.div(1.0f64, 0.0f64)
+      +du = F64.sub(sg_uhi(segs, F64.neg(inf)), sg_ulo(segs, inf))
+      +dv = F64.sub(sg_hhi(segs, F64.neg(inf)), sg_hlo(segs, inf))
+      +ok = Bool.and(Nat.is_lt(2n, List.length(&2, Sg, segs)), Bool.and(F64.is_lt(du, 6.0f64), F64.is_lt(dv, 6.0f64)))
+      Bool.pick(Uv, ok, Uv_to{sf, ur, vr, segs, s3, tol}, Uv_no{})
+    case _: Uv_no{}
+
+def uv_of(+tolerant: Bool, +g: G.GVal, +es: List<&2, Er>, +slv: F64) -> Uv:
+  +sf = KS.sf_of(g)
+  uv_mk(Bool.and(tolerant, U64.is_eq(KS.sf_kind(sf), KS.k_cyl())), sf, es, slv)
+
+def pt_dr(+p: V.Point) -> V.Dir:
+  V.Pt{+x, +y, +z} = p
+  V.Dr{x, y, z}
+
+def to_gv(+o: List<&2, I.I>, +a: List<&2, I.I>, +bigr: I.I, +r: I.I) -> G.GVal:
+  G.GV_to{G.To{q_mid(o), pt_dr(q_mid(a)), I.imid(bigr), I.imid(r)}}
+
+def tor_uv(+g: G.GVal, +f: Fc, +q: List<&2, I.I>) -> U64:
+  uv_member(to_keep(uv_tor_of(g, fc_es(f), 0.0f64)), q)
+
+def tor_fb(s: M.Im, +f: Fc, +q: List<&2, I.I>) -> U64:
+  match s:
+    case M.M_to{+o, +a, +bigr, +r}: tor_uv(to_gv(o, a, bigr, r), f, q)
+    case _: 2u64
+
+def to_fb2(st: U64, +f: Fc, +q: List<&2, I.I>) -> U64:
+  match st:
+    case 2u64: tor_fb(fc_s(f), f, q)
+    case _: st
+
 def sg_vlo(gs: List<&2, Sg>, +m: F64) -> F64:
   match gs:
     case []: m
@@ -959,3 +983,37 @@ def tor_h(u: Uv) -> List<&2, I.I>:
       Bool.pick(List<&2, I.I>, Bool.and(Nat.is_lt(0n, List.length(&2, Sg, segs)), F64.is_lt(F64.sub(b, a), 6.0f64)),
         [I.iscale(isin_rng(a, b), r2)], [])
     case _: []
+
+def member_k(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
+  match k:
+    case True{}: uv_member(fc_uv(f), q)
+    case False{}: to_fb2(mem_ax(Bool.pick(Nat, is_sph_im(fc_s(f)), 5n, 1n), 2u64, f, q, nf, 0n), f, q)
+
+def nappe_neg(s: M.Im, +q: List<&2, I.I>) -> Bool:
+  match s:
+    case M.M_co{+o, +a, k}: X.ineg_c(X.vdot(a, X.vsub(q, o)))
+    case _: False{}
+
+def member_n(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
+  match neg:
+    case True{}: 0u64
+    case False{}: member_k(uv_has(fc_uv(f)), f, q, nf)
+
+def member(+f: Fc, +q: List<&2, I.I>, +nf: M.Im) -> U64:
+  member_n(nappe_neg(fc_s(f), q), f, q, nf)
+
+def lim_of(+a: Nat, +b: Nat) -> Nat:
+  Bool.pick(Nat, Nat.is_lt(a, b), a, b)
+
+def member_lk(+k: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  match k:
+    case True{}: uv_member(fc_uv(f), q)
+    case False{}: to_fb2(mem_go(lim_of(lim, Nat.mul(6n, List.length(&2, Er, fc_es(f)))), 2u64, f, q, nf, 0n, 0n), f, q)
+
+def member_ln(neg: Bool, +f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  match neg:
+    case True{}: 0u64
+    case False{}: member_lk(uv_has(fc_uv(f)), f, q, nf, lim)
+
+def member_lim(+f: Fc, +q: List<&2, I.I>, +nf: M.Im, +lim: Nat) -> U64:
+  member_ln(nappe_neg(fc_s(f), q), f, q, nf, lim)
