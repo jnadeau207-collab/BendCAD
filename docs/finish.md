@@ -14,7 +14,7 @@ All of these, measured on one binary:
 | G6a robustness | every check of `tests/gates/g6a.py` passes (99% commit, p95 under 10 s) | `docs/receipts/gates/g6a.json` |
 | Speed budgets | edit 5 s, part 60 s, 25-part scene 60 s, manufacturing export 5 min | the brief ladder and the G6 tess receipt |
 
-Then G6b (maglev) and G6c (raised jet) run on that kernel.
+Then G6b (maglev) and G6c (raised jet) run on that kernel. After that, BendCAD is finished as a product by `docs/workbench.md`: the Three.js workbench with an AI side panel that a person can model in.
 
 ## Steps
 
