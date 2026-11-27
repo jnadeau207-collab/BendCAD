@@ -1517,30 +1517,48 @@ def nr_code(+b: List<&2, I.I>, +tb: List<&2, I.I>) -> U64:
   +fin = X.vfin(b)
   Bool.pick(U64, Bool.and(fin, X.vdisj(b, tb)), 0u64, Bool.pick(U64, Bool.and(fin, X.vsub_of(b, tb)), 1u64, 2u64))
 
-def near_go(fuel: Nat, k: U64, d: Nat, +lo: F64, +hi: F64, rest: List<&2, NI>, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
-  match fuel:
-    case 0n: False{}
-    case 1n+f:
-      match k:
-        case 1u64: True{}
-        case 0u64:
-          match rest:
+def nb_kids(k: U64, +d: Nat, +lo: F64, +hi: F64, +nxt: List<&2, NI>) -> List<&2, NI>:
+  match k:
+    case 2u64:
+      match d:
+        case 0n: nxt
+        case 1n+(+e):
+          +m = F64.mul(0.5f64, F64.add(lo, hi))
+          NI{e, m, hi} <> NI{e, lo, m} <> nxt
+    case _: nxt
+
+type NBS is Data:
+  NBS{ hit: Bool, nxt: List<&2, NI> }
+
+def nbs_hit(+x: NBS) -> Bool:
+  NBS{+hit, nxt} = x
+  hit
+
+def nbs_nxt(+x: NBS) -> List<&2, NI>:
+  NBS{hit, +nxt} = x
+  nxt
+
+def nb_step(+k: U64, +d: Nat, +lo: F64, +hi: F64, +nxt: List<&2, NI>) -> NBS:
+  NBS{U64.is_eq(k, 1u64), nb_kids(k, d, lo, hi, nxt)}
+
+def near_bfs(fuel: Nat, hit: Bool, cur: List<&2, NI>, +nxt: List<&2, NI>, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
+  match fuel hit:
+    case _ True{}: True{}
+    case 0n False{}: False{}
+    case 1n+f False{}:
+      match cur:
+        case []:
+          match nxt:
             case []: False{}
-            case NI{+d2, +lo2, +hi2} <> r2: near_go(f, nr_code(R.cv_box(c, I.I{lo2, hi2}), tb), d2, lo2, hi2, r2, c, tb)
-        case _:
-          match d:
-            case 0n:
-              match rest:
-                case []: False{}
-                case NI{+d2, +lo2, +hi2} <> r2: near_go(f, nr_code(R.cv_box(c, I.I{lo2, hi2}), tb), d2, lo2, hi2, r2, c, tb)
-            case 1n+(+e):
-              +m = F64.mul(0.5f64, F64.add(lo, hi))
-              near_go(f, nr_code(R.cv_box(c, I.I{lo, m}), tb), e, lo, m, NI{e, m, hi} <> rest, c, tb)
+            case +h <> +t: near_bfs(f, False{}, List.reverse(&2, NI, h <> t), [], c, tb)
+        case NI{+d, +lo, +hi} <> +r:
+          +x = nb_step(nr_code(R.cv_box(c, I.I{lo, hi}), tb), d, lo, hi, nxt)
+          near_bfs(f, nbs_hit(x), r, nbs_nxt(x), c, tb)
 
 def near_one(far: Bool, +c: R.Cv, +tb: List<&2, I.I>) -> Bool:
   match far:
     case True{}: False{}
-    case False{}: near_go(4294967295n, nr_code(R.cv_box(c, I.I{0.0f64, 1.0f64}), tb), 30n, 0.0f64, 1.0f64, [], c, tb)
+    case False{}: near_bfs(4096n, False{}, [NI{30n, 0.0f64, 1.0f64}], [], c, tb)
 
 def near_cv(cs: List<&2, Eg>, hit: Bool, +p: List<&2, I.I>, +tol: F64) -> Bool:
   match cs:
