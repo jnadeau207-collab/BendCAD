@@ -1,66 +1,152 @@
 {
-  "standard": "Rolling bearing catalog records: boundary dimensions, load ratings and attainable speeds as published by the maker for the exact designation; ISO 15 boundary dimensions",
-  "bearings": {
-    "708 CE/HCP4A": {
-      "maker": "SKF",
-      "type": "super-precision angular contact ball bearing, single row, hybrid (silicon nitride balls), 15 degree contact angle, ISO tolerance class 4 (P4A), single bearing for universal matching",
-      "d": 8.0,
-      "D": 22.0,
-      "B": 7.0,
-      "contact_deg": 15.0,
-      "balls": 8,
-      "ball_d": 3.969,
-      "C_kN": 2.34,
-      "n_grease_rpm": 130000,
-      "n_oil_air_rpm": 200000,
-      "mass_kg": 0.011,
-      "sources": [
-        "SKF general catalogue, super-precision angular contact ball bearings, designation 708 CE/HC (skfgeneralcatalogue.net product table, read 2026-11-16 via search index): attainable speeds 130 000 r/min grease, 200 000 r/min oil-air; C 2.34 kN",
-        "SKDIN distributor listing of 708 CE/HCP4A (skdin.com/products/productid-708 CE/HCP4A, read 2026-11-16): 8 x 22 x 7 mm, 15 degree, ceramic balls 8 x 3.969 mm, 0.011 kg"
-      ],
-      "note": "Attainable speed applies to light spring preload and good cooling; oil-in-fuel mist feed is treated as the oil-air case"
-    },
-    "7004 ACE/HCP4A": {
-      "maker": "SKF",
-      "type": "super-precision angular contact ball bearing, single row, hybrid (HC), 25 degree contact angle (ACE), ISO tolerance class 4 (P4A)",
-      "d": 20.0,
-      "D": 42.0,
-      "B": 12.0,
-      "contact_deg": 25.0,
-      "ball_d": 6.35,
-      "C_kN": 7.15,
-      "n_grease_rpm": 58000,
-      "n_oil_air_rpm": 88000,
-      "sources": [
-        "SKF 7004 ACE/HCP4A datasheet as distributed by Loyal (loyal.sg/product/m96832/7004-ace-hcp4a.pdf, read 2026-11-16 via search index): 20 x 42 x 12 mm, ball 6.35 mm, C 7.15 kN, attainable speeds 58 000 r/min grease and 88 000 r/min oil-air"
-      ],
-      "note": "for G6: shaft speed about 44 000 r/min; ball count not given in the source"
-    }
+ "standard": "Rolling bearing catalog records: boundary dimensions, load ratings and attainable speeds as published by the maker for the exact designation; ISO 15 boundary dimensions",
+ "bearings": {
+  "708 CE/HCP4A": {
+   "maker": "SKF",
+   "type": "super-precision angular contact ball bearing, single row, hybrid (silicon nitride balls), 15 degree contact angle, ISO tolerance class 4 (P4A), single bearing for universal matching",
+   "d": 8.0,
+   "D": 22.0,
+   "B": 7.0,
+   "contact_deg": 15.0,
+   "balls": 8,
+   "ball_d": 3.969,
+   "C_kN": 2.34,
+   "n_grease_rpm": 130000,
+   "n_oil_air_rpm": 200000,
+   "mass_kg": 0.011,
+   "sources": [
+    "SKF general catalogue, super-precision angular contact ball bearings, designation 708 CE/HC (skfgeneralcatalogue.net product table, read 2026-11-16 via search index): attainable speeds 130 000 r/min grease, 200 000 r/min oil-air; C 2.34 kN",
+    "SKDIN distributor listing of 708 CE/HCP4A (skdin.com/products/productid-708 CE/HCP4A, read 2026-11-16): 8 x 22 x 7 mm, 15 degree, ceramic balls 8 x 3.969 mm, 0.011 kg"
+   ],
+   "note": "Attainable speed applies to light spring preload and good cooling; oil-in-fuel mist feed is treated as the oil-air case"
   },
-  "materials": {
-    "standard": "SKF hybrid bearing material comparison (bearing steel against bearing-grade silicon nitride)",
-    "source": "SKF Engineering Competence, 'Evaluating hybrid bearings for general applications' (evolution.skf.com) and SKF hybrid bearings catalogue PDF; Poisson's ratios are not given there and are PROJECTED typical values",
-    "BEARING-STEEL": {
-      "rho": 7900,
-      "E_MPa": 210000,
-      "cte": 1.2e-05,
-      "nu": 0.3,
-      "nu_basis": "projected"
-    },
-    "SI3N4": {
-      "rho": 3200,
-      "E_MPa": 310000,
-      "cte": 3e-06,
-      "nu": 0.27,
-      "nu_basis": "projected"
-    },
-    "PEEK-GF30": {
-      "rho": 1510,
-      "E_MPa": 11800,
-      "cte": 1.8e-05,
-      "nu": 0.4,
-      "nu_basis": "projected",
-      "source": "Victrex PEEK properties guide (VPE_EN_09_16, victrex.com technical guides, read 2026-11-16): VICTREX PEEK 450GL30 density 1.51 g/cm3 (ISO 1183), tensile modulus 11.8 GPa at 23 C (ISO 527), CLTE 18 ppm/C along flow below Tg (ISO 11359); Poisson ratio not given"
-    }
+  "7004 ACE/HCP4A": {
+   "maker": "SKF",
+   "type": "super-precision angular contact ball bearing, single row, hybrid (HC), 25 degree contact angle (ACE), ISO tolerance class 4 (P4A)",
+   "d": 20.0,
+   "D": 42.0,
+   "B": 12.0,
+   "contact_deg": 25.0,
+   "ball_d": 6.35,
+   "C_kN": 7.15,
+   "n_grease_rpm": 58000,
+   "n_oil_air_rpm": 88000,
+   "sources": [
+    "SKF 7004 ACE/HCP4A datasheet as distributed by Loyal (loyal.sg/product/m96832/7004-ace-hcp4a.pdf, read 2026-11-16 via search index): 20 x 42 x 12 mm, ball 6.35 mm, C 7.15 kN, attainable speeds 58 000 r/min grease and 88 000 r/min oil-air"
+   ],
+   "note": "for G6: shaft speed about 44 000 r/min; ball count not given in the source"
+  },
+  "608": {
+   "maker": "SKF",
+   "type": "deep groove ball bearing, single row, open, pressed steel cage",
+   "d": 8.0,
+   "D": 22.0,
+   "B": 7.0,
+   "balls": 7,
+   "ball_d": 3.969,
+   "pitch_d": 14.7,
+   "inner_land_d": 11.8,
+   "outer_land_d": 17.6,
+   "groove_conformity": 0.52,
+   "d1_min": 10.0,
+   "D2_max": 20.0,
+   "r_max": 0.3,
+   "C_kN": 3.45,
+   "C0_kN": 1.37,
+   "mass_kg": 0.012,
+   "sources": [
+    "SKF 608 product listing via RS Components 286-7530 (read 2026-11-27): 8 x 22 x 7 mm, C 3.45 kN, C0 1.37 kN",
+    "Schaeffler 608 data sheet via RS Components (docs.rs-online.com/4e0c/A700000009419801.pdf, read 2026-11-27): d1 min 10, D2 max 20, r max 0.3, 0.012 kg",
+    "NSK 608 product pages (oss.nsk.com/608mc5-apn.html, read 2026-11-27): 7 balls of 3.969 mm",
+    "GMN 608 data sheet (gmnbt.com/assets/pdf/Radial/608.pdf, read 2026-11-27): pitch circle 14.7, inner ring outside diameter 11.8, outer ring inside diameter 17.6"
+   ],
+   "note": "groove_conformity (groove radius / ball diameter) is not published by the makers; 0.52 is assumed, as for the G6 bearings, and labelled so; r_max is the abutment fillet limit of the data sheet and is used as the ring corner radius (the ring chamfer r_s min equals it); the kernel puts the balls at the mean CN clearance of radial_clearance"
   }
+ },
+ "materials": {
+  "standard": "SKF hybrid bearing material comparison (bearing steel against bearing-grade silicon nitride)",
+  "source": "SKF Engineering Competence, 'Evaluating hybrid bearings for general applications' (evolution.skf.com) and SKF hybrid bearings catalogue PDF; Poisson's ratios are not given there and are PROJECTED typical values",
+  "BEARING-STEEL": {
+   "rho": 7900,
+   "E_MPa": 210000,
+   "cte": 1.2e-05,
+   "nu": 0.3,
+   "nu_basis": "projected"
+  },
+  "SI3N4": {
+   "rho": 3200,
+   "E_MPa": 310000,
+   "cte": 3e-06,
+   "nu": 0.27,
+   "nu_basis": "projected"
+  },
+  "PEEK-GF30": {
+   "rho": 1510,
+   "E_MPa": 11800,
+   "cte": 1.8e-05,
+   "nu": 0.4,
+   "nu_basis": "projected",
+   "source": "Victrex PEEK properties guide (VPE_EN_09_16, victrex.com technical guides, read 2026-11-16): VICTREX PEEK 450GL30 density 1.51 g/cm3 (ISO 1183), tensile modulus 11.8 GPa at 23 C (ISO 527), CLTE 18 ppm/C along flow below Tg (ISO 11359); Poisson ratio not given"
+  }
+ },
+ "iso492_bore": {
+  "standard": "ISO 492 tolerance class Normal, radial bearings: mean bore diameter deviation (upper, lower) in micrometres, held for the bands read",
+  "source": "SKF rolling bearings catalogue, table 'Normal tolerances for radial bearings, except tapered roller bearings', inner ring (scribd.com/document/456880483/SKF-Tolerances, read 2026-11-27)",
+  "columns": [
+   "d_lo",
+   "d_hi",
+   "dmp_hi_um",
+   "dmp_lo_um"
+  ],
+  "rows": [
+   [
+    2.5,
+    10.0,
+    0.0,
+    -8.0
+   ]
+  ]
+ },
+ "radial_clearance": {
+  "standard": "Radial internal clearance of deep groove ball bearings with a cylindrical bore before mounting, clearance class CN (Normal): nominal bore band (d_lo, d_hi] and clearance min and max in micrometres",
+  "source": "JTEKT (Koyo) Basic Bearing Knowledge, Table 10-2 'Radial internal clearance of deep groove ball bearings (cylindrical bore)', jtekt.co.jp/products/bearing/en/support/bearing-knowledge/10-2000.html (read 2026-11-27)",
+  "columns": [
+   "d_lo",
+   "d_hi",
+   "cn_lo_um",
+   "cn_hi_um"
+  ],
+  "rows": [
+   [
+    2.5,
+    6.0,
+    2.0,
+    13.0
+   ],
+   [
+    6.0,
+    10.0,
+    2.0,
+    13.0
+   ],
+   [
+    10.0,
+    18.0,
+    3.0,
+    18.0
+   ],
+   [
+    18.0,
+    24.0,
+    5.0,
+    20.0
+   ],
+   [
+    24.0,
+    30.0,
+    5.0,
+    20.0
+   ]
+  ]
+ }
 }

@@ -55,6 +55,7 @@ type Op is Data:
   O_keyway{ base: U64, f: Sel, side: U64, l: X.Xp, z: X.Xp, thru: Bool }
   O_xthread{ base: U64, f: Sel, sz: String, cls: String }
   O_screw{ std: String, sz: String, l: X.Xp, thr: Bool }
+  O_bearing{ g: String, part: String }
   O_move{ base: U64, tx: X.Xp, ty: X.Xp, tz: X.Xp, q: U64 }
   O_rot{ base: U64, ax: U64, deg: X.Xp }
   O_unk{ name: String }
@@ -1279,6 +1280,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_groove{base, f, +std, z}: 48u64 <> base <> sel_w(f, str_w(std, X.xp_w(z, e, [])))
     case O_xthread{base, f, +sz, +cls}: 50u64 <> base <> sel_w(f, str_w(sz, str_w(cls, [])))
     case O_screw{+std, +sz, l, thr}: 51u64 <> Bool.pick(U64, thr, 1u64, 0u64) <> str_w(std, str_w(sz, X.xp_w(l, e, [])))
+    case O_bearing{+g, +part}: 53u64 <> str_w(g, str_w(part, []))
     case O_keyway{base, f, side, l, z, thru}: 49u64 <> base <> side <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(l, e, X.xp_w(z, e, [])))
     case O_move{base, tx, ty, tz, q}: 7u64 <> base <> q <> X.xp_w(tx, e, X.xp_w(ty, e, X.xp_w(tz, e, [])))
     case O_rot{base, ax, deg}: 12u64 <> base <> ax <> X.xp_w(deg, e, [])
@@ -1416,6 +1418,7 @@ def op_name(o: Op) -> String:
     case O_keyway{base, f, side, l, z, thru}: "keyway"
     case O_xthread{base, f, sz, cls}: "xthread"
     case O_screw{std, sz, l, thr}: "screw"
+    case O_bearing{g, part}: "bearing"
     case O_move{base, tx, ty, tz, q}: "move"
     case O_rot{base, ax, deg}: "rotate"
     case O_unk{name}: "unknown"
@@ -5325,6 +5328,109 @@ def sc_pre(c: U64, +std: String, +sz: String, +l: F64, +thr: Bool, +e: X.Env, +n
 def op_screw(+std: String, +sz: String, +l: X.Xp, +thr: Bool, +e: X.Env, +nd: U64) -> NR:
   sc_pre(sc_code(std, sz, X.xp_ev(l, e)), std, sz, X.xp_ev(l, e), thr, e, nd)
 
+def bg_v(+g: String, +i: Nat) -> F64:
+  SD.fv(SD.brg(g), i)
+
+def bg_h(+g: String, +i: Nat) -> F64:
+  F64.mul(0.5f64, bg_v(g, i))
+
+def bg_cl2(+r: List<&2, F64>) -> F64:
+  F64.mul(0.0005f64, F64.add(SD.fv_go(r, 2n), SD.fv_go(r, 3n)))
+
+def bg_cl(+g: String) -> F64:
+  bg_cl2(SD.row("radial_clearance", bg_v(g, 0n)))
+
+def bg_rg(+g: String) -> F64:
+  F64.mul(bg_v(g, 8n), bg_v(g, 4n))
+
+def bg_ci(+g: String) -> F64:
+  F64.add(F64.sub(F64.sub(bg_h(g, 5n), bg_h(g, 4n)), F64.mul(0.5f64, bg_cl(g))), bg_rg(g))
+
+def bg_co(+g: String) -> F64:
+  F64.sub(F64.add(F64.add(bg_h(g, 5n), bg_h(g, 4n)), F64.mul(0.5f64, bg_cl(g))), bg_rg(g))
+
+def bg_dz(+rg: F64, +u: F64) -> F64:
+  F64.sqrt(F64.sub(F64.mul(rg, rg), F64.mul(u, u)))
+
+def bg_in_rg(+a: F64, +rs: F64, +ri: F64, +ci: F64, +rg: F64, +zc: F64, +dz: F64, +bw: F64) -> F.Region:
+  path_rg(xk(a), xk(rs), [F.S_arc{xk(F64.add(a, rs)), xk(rs), xk(rs), xk(F64.add(a, rs)), xk(0.0f64), True{}},
+    F.S_line{xk(ri), xk(0.0f64)}, F.S_line{xk(ri), xk(F64.sub(zc, dz))},
+    F.S_arc{xk(ci), xk(zc), xk(rg), xk(ri), xk(F64.add(zc, dz)), False{}},
+    F.S_line{xk(ri), xk(bw)}, F.S_line{xk(F64.add(a, rs)), xk(bw)},
+    F.S_arc{xk(F64.add(a, rs)), xk(F64.sub(bw, rs)), xk(rs), xk(a), xk(F64.sub(bw, rs)), True{}}])
+
+def bg_out_rg(+ro: F64, +rs: F64, +rd: F64, +co: F64, +rg: F64, +zc: F64, +dz: F64, +bw: F64) -> F.Region:
+  path_rg(xk(ro), xk(0.0f64), [F.S_line{xk(F64.sub(rd, rs)), xk(0.0f64)},
+    F.S_arc{xk(F64.sub(rd, rs)), xk(rs), xk(rs), xk(rd), xk(rs), True{}},
+    F.S_line{xk(rd), xk(F64.sub(bw, rs))},
+    F.S_arc{xk(F64.sub(rd, rs)), xk(F64.sub(bw, rs)), xk(rs), xk(F64.sub(rd, rs)), xk(bw), True{}},
+    F.S_line{xk(ro), xk(bw)}, F.S_line{xk(ro), xk(F64.add(zc, dz))},
+    F.S_arc{xk(co), xk(zc), xk(rg), xk(ro), xk(F64.sub(zc, dz)), False{}}])
+
+def bg_inner(+g: String, +e: X.Env, +nd: U64) -> NR:
+  op_rev([bg_in_rg(bg_h(g, 0n), bg_v(g, 11n), bg_h(g, 6n), bg_ci(g), bg_rg(g), bg_h(g, 2n),
+    bg_dz(bg_rg(g), F64.sub(bg_ci(g), bg_h(g, 6n))), bg_v(g, 2n))], e, nd)
+
+def bg_outer(+g: String, +e: X.Env, +nd: U64) -> NR:
+  op_rev([bg_out_rg(bg_h(g, 7n), bg_v(g, 11n), bg_h(g, 1n), bg_co(g), bg_rg(g), bg_h(g, 2n),
+    bg_dz(bg_rg(g), F64.sub(bg_h(g, 7n), bg_co(g))), bg_v(g, 2n))], e, nd)
+
+def bg_at(r: NR, +g: String, +k: Nat, +e: X.Env, +nd: U64) -> NR:
+  match r:
+    case NR_ok{+b, fx}:
+      nr_kk(op_rot(nr_body(op_move(b, xk(bg_h(g, 5n)), xk(0.0f64), xk(bg_h(g, 2n)), 0u64, e, nd)), 2u64,
+        xk(F64.div(F64.mul(360.0f64, n2f(k)), bg_v(g, 3n))), e, nd), k)
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def bg_balls(+n: Nat, +g: String, +k: Nat, acc: NR, +r: F64, +e: X.Env, +nd: U64) -> NR:
+  match n:
+    case 0n: acc
+    case 1n+(+m): bg_balls(m, g, Nat.add(k, 1n), sc_bool(acc, bg_at(op_rev([sph_rg(xk(r))], e, nd), g, k, e, nd), B8.tag_union(), nd), r, e, nd)
+
+def bg_n(+g: String) -> Nat:
+  U64.to_nat(F64.to_u64(bg_v(g, 3n)))
+
+def bg_cage_rg(+g: String) -> F.Region:
+  +w = bg_v(g, 4n)
+  +x0 = F64.add(bg_h(g, 6n), F64.mul(0.1f64, w))
+  +x1 = F64.sub(bg_h(g, 7n), F64.mul(0.1f64, w))
+  +z0 = F64.sub(bg_h(g, 2n), F64.mul(0.25f64, w))
+  +z1 = F64.add(bg_h(g, 2n), F64.mul(0.675f64, w))
+  path_rg(xk(x0), xk(z0), [F.S_line{xk(x1), xk(z0)}, F.S_line{xk(x1), xk(z1)}, F.S_line{xk(x0), xk(z1)}])
+
+def bg_cage(+n: Nat, +g: String, +k: Nat, acc: NR, +e: X.Env, +nd: U64) -> NR:
+  match n:
+    case 0n: acc
+    case 1n+(+m): bg_cage(m, g, Nat.add(k, 1n), sc_bool(acc, bg_at(op_rev([sph_rg(xk(F64.mul(0.525f64, bg_v(g, 4n))))], e, nd), g, Nat.add(k, 1n), e, nd), B8.tag_diff(), nd), e, nd)
+
+def bg_fx(r: NR) -> NR:
+  match r:
+    case NR_ok{+b, fx}:
+      Fx{+mt, +fc, +fm, +sh, +ho} = fx
+      NR_ok{b, Fx{M_create{}, fc, fm, sh, ho}}
+    case NR_err{+fk, +d}: NR_err{fk, d}
+
+def bg_part(+g: String, +p: String, +e: X.Env, +nd: U64) -> NR:
+  Bool.pick(NR, String.eq(p, "inner"), bg_inner(g, e, nd),
+  Bool.pick(NR, String.eq(p, "outer"), bg_outer(g, e, nd),
+  Bool.pick(NR, String.eq(p, "balls"), bg_balls(Nat.sub(bg_n(g), 1n), g, 1n, bg_at(op_rev([sph_rg(xk(bg_h(g, 4n)))], e, nd), g, 0n, e, nd), bg_h(g, 4n), e, nd),
+    bg_cage(bg_n(g), g, 0n, op_rev([bg_cage_rg(g)], e, nd), e, nd))))
+
+def bg_code(+g: String, +p: String) -> U64:
+  Bool.pick(U64, Bool.not(SD.brg_ok(g)), 1u64,
+  Bool.pick(U64, Bool.not(Bool.or(String.eq(p, "inner"), Bool.or(String.eq(p, "outer"), Bool.or(String.eq(p, "balls"), String.eq(p, "cage"))))), 2u64,
+  Bool.pick(U64, Bool.not(SD.row_ok(SD.row("radial_clearance", bg_v(g, 0n)))), 3u64, 0u64)))
+
+def bg_go(c: U64, +g: String, +p: String, +e: X.Env, +nd: U64) -> NR:
+  match c:
+    case 0u64: bg_fx(bg_part(g, p, e, nd))
+    case 1u64: bad("bearing", "node " ++ U64.show(nd), "bearing-not-in-catalog: " ++ g, "bearings with full records: " ++ SD.brg_names())
+    case 2u64: bad("bearing", "node " ++ U64.show(nd), "bearing-part-unknown: " ++ p, "inner, outer, balls or cage")
+    case _: bad("bearing", "node " ++ U64.show(nd), "radial-clearance-not-held: bore " ++ NU.f_show(bg_v(g, 0n)), "radial_clearance holds bores over 2.5 up to 30 mm")
+
+def op_bearing(+g: String, +p: String, +e: X.Env, +nd: U64) -> NR:
+  bg_go(bg_code(g, p), g, p, e, nd)
+
 def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
@@ -5338,6 +5444,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_keyway{+base, f, side, l, z, thru}: op_keyway(b, f, side, l, z, thru, e, nd, nd_op(ns, base), base)
     case O_xthread{+base, f, sz, cls}: op_xthread(b, f, sz, cls, nd, base)
     case O_screw{std, sz, l, thr}: op_screw(std, sz, l, thr, e, nd)
+    case O_bearing{g, part}: op_bearing(g, part, e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
     case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import")

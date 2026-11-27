@@ -457,9 +457,14 @@ def tap_r3(+what: String, +k: F64, +ok: Bool, +d: F64, +l: F64) -> Rl:
       Rl{1n, what ++ " why=deeper than the held taps' rated " ++ fs(k) ++ "xD = " ++ fs(F64.mul(k, d)) ++ "; shorten the thread or tap it from both ends"}),
     Rl{1n, what ++ " why=no held tap for this size and hole type"})
 
+def tap_lg(+a: Rl, +r: List<&2, F64>, +thr: Bool, +d: F64, +l: F64, +what: String) -> Rl:
+  +k = SD.fv_go(r, 2n)
+  Bool.pick(Rl, Bool.and(Nat.is_lt(0n, rl_st(a)), Bool.and(Bool.and(thr, SD.row_ok(r)), F64.is_le(l, F64.add(F64.mul(k, d), 1.0e-9f64)))),
+    Rl{0n, what ++ " tool=\"tap M" ++ fs(d) ++ " extra long rated " ++ fs(k) ++ "xD through (GARANT 131115, aluminium and non-ferrous N only)\""}, a)
+
 def tap_rl(+r: List<&2, F64>, +thr: Bool, +d: F64, +l: F64, +nm: String) -> Rl:
-  tap_r3("helicoid thread M" ++ fs(d) ++ Bool.pick(String, thr, " through", " blind") ++ " length=" ++ fs(l) ++ " setup=" ++ nm,
-    Bool.pick(F64, thr, SD.fv_go(r, 2n), SD.fv_go(r, 3n)), SD.row_ok(r), d, l)
+  +what = "helicoid thread M" ++ fs(d) ++ Bool.pick(String, thr, " through", " blind") ++ " length=" ++ fs(l) ++ " setup=" ++ nm
+  tap_lg(tap_r3(what, Bool.pick(F64, thr, SD.fv_go(r, 2n), SD.fv_go(r, 3n)), SD.row_ok(r), d, l), SD.row("tap_long", d), thr, d, l, what)
 
 def hx_rule(+ax: F64, +fi: Fi, +xo: Fx, +nm: String) -> Rl:
   Bool.pick(Rl, Bool.and(near1(ax), fi_cc(fi)), tap_rl(SD.row("tap", fi_td(fi)), fx_acc(xo), fi_td(fi), fi_tl(fi), nm),

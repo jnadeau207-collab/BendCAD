@@ -318,9 +318,9 @@ B9 = dict(
 RB = THR.d1(3.0, 0.5) / 2
 B10 = dict(
     id='B10', sentence='M3 x 10 hex standoff with a tapped through hole, thread modelled', process='lathe', parts=[1001],
-    notes='Hex AF 5.5 x 10 (ISO 4032 M3 record) with a tapped M3 6H through hole from the kernel record (ISO 2306 tap drill 2.5, callout bound by the feature), its ISO 68-1 thread modelled as four exact helicoid faces by the hole feature itself.',
+    notes='Hex AF 5.5 x 10 (ISO 4032 M3 record) with a tapped M3 6H through hole from the kernel record (ISO 2306 tap drill 2.5, callout bound by the feature), its ISO 68-1 thread modelled as four exact helicoid faces by the hole feature itself. Aluminium 6082-T6, as aluminium hex standoffs are made: the 10 mm through thread is deeper than the 3 x D = 9 rating of a standard tap and is cut by an extra-long non-ferrous tap rated 4 x D.',
     edits=['(node 1000 (prism 0 10 (region (path 3.1754264805429417 0 (line 1.5877132402714709 2.75) (line -1.5877132402714709 2.75) (line -3.1754264805429417 0) (line -1.5877132402714709 -2.75) (line 1.5877132402714709 -2.75)))) (intent create any 0 1 0))',
-           '(node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))'],
+           '(node 1001 (holes 1000 (face 1000 0 top) through (tapped M3 0 0 modelled)) (intent remove any any 1 1))', '(material 1001 6082-T6 2700 23.4e-6)'],
     checks=[C('valid solid', ['check', '1001'], ('check_ok',)),
             C('M3 6H callout certified', ['threads', '1001'], ('contains', 'M3x0.5 6H', 'modelled', 'status=certified')),
             C('thread modelled (helical flank faces present)', ['faces', '1001', '-f'], ('contains', 'helicoid', 'flank half-angle=30')),
@@ -380,24 +380,34 @@ B12 = dict(
     edit=dict(label='countersunk screws M5 -> M4', edit='(node 1208 (holes 1203 (face 1201 0 top) through (countersink M4 6 6) (countersink M4 74 6) (countersink M4 6 44) (countersink M4 74 44)) (intent remove any any 1 4))'),
     probes=[])
 
-BEARING = ['(node 401 (revolve (region (path 4 0 (line 11 0) (line 11 7) (line 4 7)))) (intent create any 0 1 1))',
-           '(material 401 100Cr6 7810 11.5e-6)', '(material 103 6082-T6 2700 23.4e-6)', '(material 204 C45 7850 11.5e-6)', '(material 313 6082-T6 2700 23.4e-6)']
-ASM13 = ('(assembly (inst housing 103 0 0 0 0) (inst bearing 401 0 0 0 0) (inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) '
-         '(coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5))')
-ASM13P = ASM13[:-1] + ' (press inner bearing n401.c0.wall.3.0 shaft n201.c0.wall.6.0))'
+BEARING = ['(node 401 (bearing 608 outer) (intent create any any 1 1))', '(node 402 (bearing 608 inner) (intent create any any 1 1))',
+           '(node 403 (bearing 608 balls) (intent create any any 7 0))', '(node 404 (bearing 608 cage) (intent create any any 1 1))',
+           '(material 401 100Cr6 7810 11.5e-6)', '(material 402 100Cr6 7810 11.5e-6)', '(material 403 100Cr6 7810 11.5e-6)', '(material 404 PEEK-GF30 1510 18e-6)',
+           '(material 103 6082-T6 2700 23.4e-6)', '(material 204 C45 7850 11.5e-6)', '(material 313 C45 7850 11.5e-6)']
+ASM13 = ('(assembly (inst housing 103 0 0 0 0) (inst bearing 401 0 0 0 0) (inst inner 402 0 0 0 0) (inst balls 403 0 0 0 0) (inst cage 404 0 0 0 0) '
+         '(inst shaft 204 0 0 0 0) (inst collar 313 0 0 0 0) (fix 1 housing) '
+         '(coinc 2 bearing 0 0 0 housing 0 0 6.9) (coinc 3 shaft 0 0 8.9 bearing 0 0 0) (coinc 4 collar 0 0 0 shaft 0 0 47.5) '
+         '(coinc 5 inner 0 0 0 bearing 0 0 0) (coinc 6 balls 0 0 0 bearing 0 0 0) (coinc 7 cage 0 0 0 bearing 0 0 0))')
+ASM13P = ASM13[:-1] + ' (press inner inner n402.c0.wall.7.0 shaft n201.c0.wall.6.0))'
+ASM608 = ('(assembly (inst outer 401 0 0 0 0) (inst inner 402 0 0 0 0) (inst balls 403 0 0 0 0) (inst cage 404 0 0 0 0) (fix 1 outer) '
+          '(coinc 2 inner 0 0 0 outer 0 0 0) (coinc 3 balls 0 0 0 outer 0 0 0) (coinc 4 cage 0 0 0 outer 0 0 0))')
 
 B13 = dict(
-    id='B13', sentence='Assembly of B3, B4, B5 and a 608 bearing: fits, clearances and interference certified', process='-', parts=[103, 204, 313, 401],
-    notes='The B3, B4 and B5 edits verbatim in one design, a 608 bearing as a plain 8 x 22 x 7 ring (no balls: no bearing catalog part), materials on all four, and one assembly form mated by coincident points.',
+    id='B13', sentence='Assembly of B3, B4, B5 and a 608 bearing: fits, clearances and interference certified', process='-', parts=[103, 204, 313, 401, 402, 403, 404],
+    notes='The B3, B4 and B5 edits verbatim in one design, a 608 bearing as four parts built by the bearing feature from the kernel catalog record (SKF 608 boundary dimensions and ratings, NSK ball set, GMN pitch and land diameters; balls at the mean CN radial clearance of JTEKT Table 10-2; groove conformity 0.52 assumed; crown cage in PEEK-GF30 at design proportions), materials on all seven, and one assembly form mated by coincident points.',
     edits=HOUSING + SHAFT + COLLAR + BEARING,
     checks=[C('assembly solves (fully constrained)', ['asm', 'solve', ASM13], ('regex', r'dof 0|dof=0')),
             C('no interference between any pair except the declared inner-ring press fit', ['asm', 'interf', ASM13P], ('absent_interference',)),
             C('pairwise clearances certified', ['asm', 'clear', ASM13], ('regex', r'status=certified')),
-            C('housing seat H7 on bearing OD (h5 = ISO 492 normal for 22 mm)', ['pmi', 'fits', '(pmi (node 103) (temp cold 20) (temp hot 60) (fit seat 103 n101.c0.wall.9.0 401 n401.c0.wall.1.0 H7/h5 clearance))'], ('fits',)),
-            NA('bearing bore on k5 shaft seat', 'ISO 492 bearing bore tolerance (0/-8 um) is not an ISO 286 hole class and pmi fits admits holes D-H and JS only; the inner-ring fit cannot be evaluated'),
+            C('housing seat H7 on bearing OD (h5 = ISO 492 normal for 22 mm)', ['pmi', 'fits', '(pmi (node 103) (temp cold 20) (temp hot 60) (fit seat 103 n101.c0.wall.9.0 401 n401.c0.wall.2.0 H7/h5 clearance))'], ('fits',)),
+            C('bearing bore (ISO 492 Normal, L0) on the k5 shaft seat: interference at 20 and 60 C', ['pmi', 'fits', '(pmi (node 402) (temp cold 20) (temp hot 60) (fit bore 402 n402.c0.wall.7.0 204 n201.c0.wall.6.0 L0/k5 press))'], ('fits',)),
             C('assembly mass', ['asm', 'mass', ASM13], ('regex', r'total')),
             NA('collar clamping on the shaft', 'no clamp/preload or screw-torque check'),
-            NA('608 bearing from a catalog', 'no bearing catalog; the bearing is a plain ring with nominal envelope only'),
+            C('608 outer ring from the catalog record', ['std', '401'], ('std', 1, 'bearing')),
+            C('608 inner ring from the catalog record', ['std', '402'], ('std', 1, 'bearing')),
+            C('608 ball set from the catalog record (count, diameter, pitch circle)', ['std', '403'], ('std', 1, 'bearing')),
+            C('608 cage between the ring lands', ['std', '404'], ('std', 1, 'bearing')),
+            C('608 mass against the catalog 0.012 kg (given to the gram)', ['asm', 'mass', ASM608], ('mass_in', 0.0115, 0.0125)),
             DRAWING],
     edit=dict(label='housing seat nominal 22 -> 22.01', edit='(param DS 22.01 22 22.021)'),
     probes=[dict(name='asm solve with the press declaration in the assembly form', at='end', edits=[], then=[['asm', 'solve', ASM13P]]),

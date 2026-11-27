@@ -193,6 +193,16 @@ def judge(spec, out):
             return 'not-analyzed', '; '.join(unc)[:800]
         dec = sum(1 for a, b, r in blocks if 'declared press-fit' in r)
         return 'pass', f'{len(blocks)} pairs certified, {dec} declared press fits'
+    if k == 'mass_in':
+        m = re.search(r'total=\[([^,\]]+), ([^\]]+)\] kg', out)
+        if not m:
+            return 'not-analyzed', 'no total mass interval'
+        lo, hi = float(m.group(1)), float(m.group(2))
+        if a[0] <= lo and hi <= a[1]:
+            return 'pass', f'total [{lo}, {hi}] kg within [{a[0]}, {a[1]}]'
+        if hi < a[0] or lo > a[1]:
+            return 'fail', f'total [{lo}, {hi}] kg outside [{a[0]}, {a[1]}]'
+        return 'not-analyzed', f'total [{lo}, {hi}] kg not decided against [{a[0]}, {a[1]}]'
     if k == 'fits':
         bad = re.findall(r'fit-not-\S+|refused|error', out)
         return ('fail' if bad else 'pass'), clip(out.strip(), 600)

@@ -311,6 +311,14 @@ HSS metal slitting saw, fine teeth (DIN 1837, tooth form A): diameter d, thickne
 | 80.0 | 1.0 | 22.0 | 23.0 |
 | 100.0 | 1.0 | 22.0 | 30.25 |
 
+## tap_long
+
+HSS-E-PM machine tap, extra long, for through holes in aluminium and non-ferrous alloys only (ISO 513 group N): nominal band [d_lo, d_hi] and rated thread depth as a multiple of the nominal diameter for through holes (kt); the core hole is the standard tap drill; source: Hoffmann Group GARANT Master Tap Alu machine tap extra long, DLC, 131115 (M3 to M20, through hole, to depth 4 x D, machining group N; M3: core hole 2.5, usable length L1 12 mm), hoffmann-group.com/US/en/hus/p/131115-M3 (read 2026-11-27)
+
+| d_lo | d_hi | kt |
+|---|---|---|
+| 2.95 | 20.05 | 4.0 |
+
 ## nema_flange
 
 NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame, bolt circle M of the C flange (tapped holes), pilot diameter N max and its lower deviation, maximum flange P, pilot depth T min and max, and the major diameter of the C flange's tapped thread (UNC 4-40 for frame 17, 8-32 for frame 23), in inches; four holes on M at 45 degrees to the flats; source: engineersedge.com/motors/stepper_motor_size_dimensions_table_14794.htm (NEMA ICS 16 Table 4); pilot depth T from aspina-group.com/en/learning-zone/columns/what-is/034 (NEMA ICS 16-2001 Tables 2 and 4); UNC #4 and #8 major diameters 0.112 and 0.164 in (ASME B1.1)
@@ -319,6 +327,26 @@ NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame,
 |---|---|---|---|---|---|---|---|
 | 17.0 | 1.725 | 0.8661 | -0.002 | 2.36 | 0.03 | 0.09 | 0.112 |
 | 23.0 | 2.625 | 1.5 | -0.002 | 3.21 | 0.06 | 0.13 | 0.164 |
+
+## iso492_bore
+
+ISO 492 tolerance class Normal, radial bearings: mean bore diameter deviation (upper, lower) in micrometres, held for the bands read; source: SKF rolling bearings catalogue, table 'Normal tolerances for radial bearings, except tapered roller bearings', inner ring (scribd.com/document/456880483/SKF-Tolerances, read 2026-11-27)
+
+| d_lo | d_hi | dmp_hi_um | dmp_lo_um |
+|---|---|---|---|
+| 2.5 | 10.0 | 0.0 | -8.0 |
+
+## radial_clearance
+
+Radial internal clearance of deep groove ball bearings with a cylindrical bore before mounting, clearance class CN (Normal): nominal bore band (d_lo, d_hi] and clearance min and max in micrometres; source: JTEKT (Koyo) Basic Bearing Knowledge, Table 10-2 'Radial internal clearance of deep groove ball bearings (cylindrical bore)', jtekt.co.jp/products/bearing/en/support/bearing-knowledge/10-2000.html (read 2026-11-27)
+
+| d_lo | d_hi | cn_lo_um | cn_hi_um |
+|---|---|---|---|
+| 2.5 | 6.0 | 2.0 | 13.0 |
+| 6.0 | 10.0 | 2.0 | 13.0 |
+| 10.0 | 18.0 | 3.0 | 18.0 |
+| 18.0 | 24.0 | 5.0 | 20.0 |
+| 24.0 | 30.0 | 5.0 | 20.0 |
 
 ## materials
 
@@ -337,3 +365,9 @@ MIL-HDBK-5J, Metallic Materials and Elements for Aerospace Vehicle Structures, 3
 | AISI304-ANN | AISI 304 stainless steel sheet, annealed (properties of AISI 301 annealed per footnote b) | AMS 5513 | 2.7.1.0(b) (277) | 73 | 26 | 29.0 | 0.27 | 0.286 | 200: 8.9 400: 9.3 600: 9.65 800: 9.95 1000: 10.25 1200: 10.5 1400: 10.7 1600: 10.9, 2.7.1.0 (annealed) (278) |
 | TI-6AL-4V-ANN | Ti-6Al-4V bar, annealed | AMS 4928 | 5.4.1.0(c1) (946) | 125 | 114 | 16.9 | 0.31 | 0.16 | 200: 5.05 400: 5.2 600: 5.35 800: 5.55 1000: 5.7, 5.4.1.0 (952) |
 | WASPALOY-AMS5704 | Waspaloy forging, solution, stabilization and precipitation heat treated | AMS 5704 | 6.3.8.0(b) (1131) | 175 | 120 | 30.6 | 0.3 | 0.298 | 200: 6.75 400: 7.15 600: 7.5 800: 7.75 1000: 7.9 1200: 8.15 1400: 8.55 1600: 9.2, 6.3.8.0 (1132) |
+
+## bearings
+
+Rolling bearing catalog records: boundary dimensions, load ratings and attainable speeds as published by the maker for the exact designation; ISO 15 boundary dimensions. Kernel record columns: d, D, B, balls, ball_d, pitch_d, inner_land_d, outer_land_d, groove_conformity, C_kN, C0_kN, r_max, d1_min, D2_max, mass_kg.
+
+- `608`: d 8.0, D 22.0, B 7.0, balls 7, ball_d 3.969, pitch_d 14.7, inner_land_d 11.8, outer_land_d 17.6, groove_conformity 0.52, C_kN 3.45, C0_kN 1.37, r_max 0.3, d1_min 10.0, D2_max 20.0, mass_kg 0.012; SKF 608 product listing via RS Components 286-7530 (read 2026-11-27): 8 x 22 x 7 mm, C 3.45 kN, C0 1.37 kN; Schaeffler 608 data sheet via RS Components (docs.rs-online.com/4e0c/A700000009419801.pdf, read 2026-11-27): d1 min 10, D2 max 20, r max 0.3, 0.012 kg; NSK 608 product pages (oss.nsk.com/608mc5-apn.html, read 2026-11-27): 7 balls of 3.969 mm; GMN 608 data sheet (gmnbt.com/assets/pdf/Radial/608.pdf, read 2026-11-27): pitch circle 14.7, inner ring outside diameter 11.8, outer ring inside diameter 17.6; groove_conformity (groove radius / ball diameter) is not published by the makers; 0.52 is assumed, as for the G6 bearings, and labelled so; r_max is the abutment fillet limit of the data sheet and is used as the ring corner radius (the ring chamfer r_s min equals it); the kernel puts the balls at the mean CN clearance of radial_clearance

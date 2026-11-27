@@ -76,5 +76,11 @@
     "source": "Hoffmann Group (Re-Bo) metal circular saw blade fine, uncoated, family 175000 (DIN 1837), hoffmann-group.com/US/en/hus/p/175000-<d>X<t>: Diameter of mounting hole D3 and Maximum cutting depth read from the 40X1, 50X1, 63X1, 63X2,5, 80X1 and 100X1 product pages; only those six are held",
     "columns": ["d", "t", "bore", "cut"],
     "rows": [[40, 1, 10, 10.25], [50, 1, 13, 12.75], [63, 1, 16, 19.25], [63, 2.5, 16, 19.25], [80, 1, 22, 23], [100, 1, 22, 30.25]]
+  },
+  "tap_long": {
+    "standard": "HSS-E-PM machine tap, extra long, for through holes in aluminium and non-ferrous alloys only (ISO 513 group N): nominal band [d_lo, d_hi] and rated thread depth as a multiple of the nominal diameter for through holes (kt); the core hole is the standard tap drill",
+    "source": "Hoffmann Group GARANT Master Tap Alu machine tap extra long, DLC, 131115 (M3 to M20, through hole, to depth 4 x D, machining group N; M3: core hole 2.5, usable length L1 12 mm), hoffmann-group.com/US/en/hus/p/131115-M3 (read 2026-11-27)",
+    "columns": ["d_lo", "d_hi", "kt"],
+    "rows": [[2.95, 20.05, 4]]
   }
 }

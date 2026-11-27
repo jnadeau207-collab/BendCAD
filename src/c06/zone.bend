@@ -155,6 +155,7 @@ def z_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +z: ZE) -> ZR:
             case M.O_skin{secs}: Z_err{"topology-not-certified-over-zone"}
             case M.O_xthread{base, f, sz, cls}: Z_err{"topology-not-certified-over-zone"}
             case M.O_screw{std, sz, l, thr}: Z_err{"topology-not-certified-over-zone"}
+            case M.O_bearing{g, part}: Z_err{"topology-not-certified-over-zone"}
             case _: Z_err{"profile-node"}
 
 def z_bool_go(n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>) -> Bool:
@@ -639,6 +640,7 @@ def prof_ok(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +id
             case M.O_keyway{base, f, side, l, zg, thru}: False{}
             case M.O_xthread{base, f, sz, cls}: False{}
             case M.O_screw{std, sz, l, thr}: False{}
+            case M.O_bearing{g, part}: False{}
             case _:
               +cs = M.bd_cells(b)
               +ds = BD.cds_of(cs)
@@ -690,6 +692,7 @@ def prof_dz(+n: Nat, mo: Maybe<&2, M.Op>, +ns: List<&2, M.Node>, +b: M.Body, +z:
             case M.O_keyway{base, f, side, l, zg, thru}: dz_zero(ZT.zd_n(z))
             case M.O_xthread{base, f, sz, cls}: dz_zero(ZT.zd_n(z))
             case M.O_screw{std, sz, l, thr}: dz_zero(ZT.zd_n(z))
+            case M.O_bearing{g, part}: dz_zero(ZT.zd_n(z))
             case _:
               +ds = BD.cds_of(M.bd_cells(b))
               cells_md(ds, B.tb_of(BD.Cd, ds, BD.cd_pad()), ns, z, n)

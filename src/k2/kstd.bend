@@ -11,6 +11,7 @@ import ../c06/sx.bend as S
 import ../k1/sf.bend as KS
 import ./std.bend as SD
 import ./thr.bend as KT
+import ../c06/iv.bend as I
 
 type Ax is Data:
   Ax{ p: V.Point, n: V.Dir }
@@ -113,6 +114,9 @@ def ent_sc(+n: U64, +sz: String, +l: F64, +acc: List<&2, Ent>) -> List<&2, Ent>:
   Ent{n, 0n, 13u64, M.Hs{13u64, sz, "6g", X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, a, l, "ISO 4762", []} <>
     Ent{n, 0n, 12u64, M.Hs{12u64, sz, "6g", X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, a, M.sc_rc(SD.fv(SD.fa(sz), 0n), SD.fv(SD.fa(sz), 1n)), "", []} <> acc
 
+def ent_bg(+n: U64, +g: String, +p: String, +acc: List<&2, Ent>) -> List<&2, Ent>:
+  Ent{n, 0n, 14u64, M.Hs{14u64, g, p, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, z_ax(), 0.0f64, "bearing", []} <> acc
+
 def ent_kw(+bb: M.Body, +f: M.Sel, +side: U64, +l: F64, +z: F64, +thru: Bool, +nd: U64) -> Ent:
   +br = M.bd_brep(bb)
   +fa = M.fa_nth(Ty.brep_fas(br), M.name_idx(M.bd_fns(bb), M.sel_nm(f), 0n))
@@ -158,6 +162,7 @@ def step(o: M.Op, +n: U64, +cs: List<&2, M.CE>, +e: X.Env, +acc: List<&2, Ent>) 
       St{True{}, base, ent_kw(bbody(cs, base), f, side, X.xp_ev(l, e), X.xp_ev(z, e), thru, n) <> acc}
     case M.O_xthread{+base, +f, +sz, +cls}: St{True{}, base, ent_xt(bbody(cs, base), f, sz, cls, n) <> acc}
     case M.O_screw{std, +sz, +l, thr}: St{False{}, 0u64, ent_sc(n, sz, X.xp_ev(l, e), acc)}
+    case M.O_bearing{+g, +part}: St{False{}, 0u64, ent_bg(n, g, part, acc)}
     case M.O_move{base, tx, ty, tz, q}: St{False{}, 0u64, acc}
     case M.O_rot{base, ax, deg}: St{False{}, 0u64, acc}
     case _: step_d(o, acc)
@@ -438,6 +443,40 @@ def vr_s(+v: Vr) -> String:
 def vr_and(+a: Vr, +b: Vr) -> Vr:
   Vr{Bool.and(vr_ok(a), vr_ok(b)), vr_s(a) ++ vr_s(b)}
 
+def bg_cyl(+cs: List<&2, Cf>, +r: F64, +nm: String) -> Vr:
+  +m = cf_find(cs, False{}, r)
+  Vr{cf_some(m), " " ++ nm ++ "=" ++ S.f_show(F64.mul(2.0f64, r)) ++
+    Bool.pick(String, cf_some(m), " found length=" ++ n_s(F64.abs(F64.sub(cf_hi(cf_get(m)), cf_lo(cf_get(m))))), " missing")}
+
+def bg_ring(+b: M.Body, +a: Ax, +r0: F64, +r1: F64, +n0: String, +n1: String) -> Vr:
+  +cs = cfs(b, a)
+  vr_and(bg_cyl(cs, r0, n0), bg_cyl(cs, r1, n1))
+
+def bg_bvol(+g: String) -> F64:
+  +r = M.bg_h(g, 4n)
+  F64.mul(M.bg_v(g, 3n), F64.mul(F64.div(4.0f64, 3.0f64), F64.mul(3.141592653589793f64, F64.mul(r, F64.mul(r, r)))))
+
+def bg_balls_vr(+m: M.Ms, +g: String) -> Vr:
+  +vi = M.ms_vol(m)
+  +v = bg_bvol(g)
+  +ns = M.ms_ns(m)
+  Vr{Bool.and(Nat.is_eq(ns, M.bg_n(g)), Bool.and(F64.is_le(I.i_lo(vi), F64.add(v, tol(v))), F64.is_le(F64.sub(v, tol(v)), I.i_hi(vi)))),
+    " balls=" ++ Nat.show(ns) ++ " want=" ++ Nat.show(M.bg_n(g)) ++ " Dw=" ++ S.f_show(M.bg_v(g, 4n)) ++ " pitch-d=" ++ S.f_show(M.bg_v(g, 5n)) ++
+    " volume=[" ++ S.f_show(I.i_lo(vi)) ++ ", " ++ S.f_show(I.i_hi(vi)) ++ "] want=" ++ S.f_show(v)}
+
+def bg_note(+g: String, +p: String) -> String:
+  Bool.pick(String, String.eq(p, "cage"), " (crown cage at design proportions of Dw; the catalog cage is not dimensioned by the maker)",
+    Bool.pick(String, String.eq(p, "balls"), " (balls at the mean CN radial clearance " ++ S.f_show(F64.mul(1000.0f64, M.bg_cl(g))) ++ " um)",
+      " (groove radius " ++ S.f_show(M.bg_rg(g)) ++ " = conformity " ++ S.f_show(M.bg_v(g, 8n)) ++ " x Dw, assumed; corner radius " ++ S.f_show(M.bg_v(g, 11n)) ++ ")"))
+
+def v_bearing(+b: M.Body, +a: Ax, +g: String, +p: String) -> Vr:
+  +v = Bool.pick(Vr, String.eq(p, "inner"), bg_ring(b, a, M.bg_h(g, 0n), M.bg_h(g, 6n), "bore-d", "land-d"),
+    Bool.pick(Vr, String.eq(p, "outer"), bg_ring(b, a, M.bg_h(g, 1n), M.bg_h(g, 7n), "outside-d", "land-d"),
+      Bool.pick(Vr, String.eq(p, "balls"), bg_balls_vr(M.body_ms(b), g),
+        bg_ring(b, a, F64.add(M.bg_h(g, 6n), F64.mul(0.1f64, M.bg_v(g, 4n))), F64.sub(M.bg_h(g, 7n), F64.mul(0.1f64, M.bg_v(g, 4n))), "cage-inner-d", "cage-outer-d"))))
+  Vr{vr_ok(v), ": d=" ++ S.f_show(M.bg_v(g, 0n)) ++ " D=" ++ S.f_show(M.bg_v(g, 1n)) ++ " B=" ++ S.f_show(M.bg_v(g, 2n)) ++ vr_s(v) ++ bg_note(g, p) ++
+    " C=" ++ S.f_show(M.bg_v(g, 9n)) ++ " kN C0=" ++ S.f_show(M.bg_v(g, 10n)) ++ " kN | data: " ++ SD.brg_cite(g) ++ "; " ++ SD.cite("radial_clearance")}
+
 def v_clear(+cs: List<&2, Cf>, +b: M.Body, +a: Ax, +rb: F64, +cls: String) -> Vr:
   vr_and(bore_vr(cs, b, a, rb, rb), Vr{True{}, " (ISO 273 " ++ M.hs_series(cls) ++ ")"})
 
@@ -616,6 +655,10 @@ def ent_go(k: U64, +nd: U64, +i: Nat, +h: M.Hs, +a: Ax, +rb: F64, +std: String, 
       M.Hs{kk, +sz, cls, x, y, r} = h
       +v = v_screw(b, a, sz, rb)
       Vr{vr_ok(v), "std screw " ++ U64.show(nd) ++ " ISO 4762 " ++ sz ++ "x" ++ S.f_show(rb) ++ " at=" ++ pt_s(ax_p(a)) ++ " n=" ++ dir_s(ax_n(a)) ++ st_s(v)}
+    case 14u64:
+      M.Hs{kk, +sz, +cls, x, y, r} = h
+      +v = v_bearing(b, a, sz, cls)
+      Vr{vr_ok(v), "std bearing " ++ U64.show(nd) ++ " " ++ sz ++ " " ++ cls ++ st_s(v)}
     case 11u64:
       +v = v_key(b, a, std, g)
       Vr{vr_ok(v), "std keyway " ++ U64.show(nd) ++ " DIN 6885-1" ++ st_s(v)}

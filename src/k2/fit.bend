@@ -9,6 +9,7 @@ import ../c06/sx.bend as S
 import ../k1/fb.bend as FB
 import ./mat.bend as KM
 import ./thr.bend as KT
+import ./std.bend as SD
 
 type FC is Data:
   FC{ ok: Bool, hl: String, hg: Nat, sl: String, sg: Nat }
@@ -105,7 +106,7 @@ def fc_of(+c: String) -> FC:
   +sl = s_letters(s, "")
   +hg = nat_of(s_digits(h))
   +sg = nat_of(s_digits(s))
-  FC{Bool.and(Nat.is_eq(List.length(&2, String, ps), 2n), Bool.and(Bool.and(hole_ok(hl), shaft_ok(sl)), Bool.and(grade_ok(hg), grade_ok(sg)))),
+  FC{Bool.and(Nat.is_eq(List.length(&2, String, ps), 2n), Bool.and(Bool.or(String.eq(h, "L0"), Bool.and(hole_ok(hl), grade_ok(hg))), Bool.and(shaft_ok(sl), grade_ok(sg)))),
     hl, hg, sl, sg}
 
 def lower(+l: String) -> String:
@@ -125,11 +126,17 @@ def shaft_dev(+l: String, +g: Nat, +d: F64) -> V.Vec2:
     Bool.pick(V.Vec2, String.eq(l, "js"), V.V2{F64.neg(F64.mul(0.5f64, it)), F64.mul(0.5f64, it)},
       Bool.pick(V.Vec2, up, V.V2{F64.sub(es, it), es}, V.V2{ei, F64.add(ei, it)})))
 
-def hole_dev(+l: String, +g: Nat, +d: F64) -> V.Vec2:
+def l0_dev(+r: List<&2, F64>) -> V.Vec2:
+  V.V2{SD.fv_go(r, 3n), SD.fv_go(r, 2n)}
+
+def hole_dev0(+l: String, +g: Nat, +d: F64) -> V.Vec2:
   +ri = rng_go(tops(), d, 0n)
   +it = KT.f_at(it_tab(g), ri)
   +ei = Bool.pick(F64, String.eq(l, "H"), 0.0f64, KT.f_at(es_up(lower(l)), ri))
   Bool.pick(V.Vec2, String.eq(l, "JS"), V.V2{F64.neg(F64.mul(0.5f64, it)), F64.mul(0.5f64, it)}, V.V2{ei, F64.add(ei, it)})
+
+def hole_dev(+l: String, +g: Nat, +d: F64) -> V.Vec2:
+  Bool.pick(V.Vec2, String.eq(l, "L"), l0_dev(SD.row("iso492_bore", d)), hole_dev0(l, g, d))
 
 def mm_of(+d: F64, +um: F64) -> F64:
   F64.add(d, F64.div(um, 1000.0f64))
@@ -299,21 +306,24 @@ def fit_code(+f: FE, +fc: FC, +cs: List<&2, M.CE>) -> U64:
   FC{+ok, +hl, +hg, +sl, +sg} = fc
   +th = tg_at(cs, a, hs)
   +ts = tg_at(cs, b, ss)
-  +dh = F64.mul(2.0f64, KT.tg_r(th))
-  +ds = F64.mul(2.0f64, KT.tg_r(ts))
+  +dh = M.d_nom(F64.mul(2.0f64, KT.tg_r(th)))
+  +ds = M.d_nom(F64.mul(2.0f64, KT.tg_r(ts)))
   Bool.pick(U64, Bool.not(ok), 1u64,
     Bool.pick(U64, Bool.not(Bool.and(face_known(cs, a, hs), face_known(cs, b, ss))), 2u64,
       Bool.pick(U64, Bool.not(Bool.and(KT.tg_ok(th), KT.tg_ok(ts))), 3u64,
         Bool.pick(U64, F64.is_lt(1.0e-6f64, F64.abs(F64.sub(dh, ds))), 4u64,
-          Bool.pick(U64, Bool.or(F64.is_le(dh, 0.0f64), F64.is_lt(500.0f64, dh)), 5u64, 0u64)))))
+          Bool.pick(U64, Bool.or(F64.is_le(dh, 0.0f64), F64.is_lt(500.0f64, dh)), 5u64,
+            Bool.pick(U64, Bool.and(String.eq(hl, "L"), Bool.not(SD.row_ok(SD.row("iso492_bore", dh)))), 6u64, 0u64))))))
 
 def fit_err(+code: U64, +f: FE) -> String:
   FE{+nm, +a, +hs, +b, +ss, +c, +k} = f
   "error invalid-input | pmi fits | why: " ++ Bool.pick(String, U64.is_eq(code, 1u64), "unknown-fit-class " ++ c,
     Bool.pick(String, U64.is_eq(code, 2u64), "face-not-found for fit " ++ nm,
       Bool.pick(String, U64.is_eq(code, 3u64), "fit-face-not-cylindrical for fit " ++ nm,
-        Bool.pick(String, U64.is_eq(code, 4u64), "fit-nominal-mismatch for fit " ++ nm, "fit-size-outside-table for fit " ++ nm)))) ++
-    " | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6\n"
+        Bool.pick(String, U64.is_eq(code, 4u64), "fit-nominal-mismatch for fit " ++ nm,
+          Bool.pick(String, U64.is_eq(code, 5u64), "fit-size-outside-table for fit " ++ nm,
+            "iso492-bore-band-not-held for fit " ++ nm ++ " (bands held: " ++ SD.row_keys("iso492_bore") ++ ")"))))) ++
+    " | fix: write (fit NAME HOLE_NODE HOLE_FACE SHAFT_NODE SHAFT_FACE CLASS KIND) on cylinders of one nominal size up to 500 mm with ISO 286 classes such as H7/g6, or L0 (ISO 492 Normal bearing bore) as the hole class\n"
 
 def fe_a(+f: FE) -> U64:
   FE{+nm, +a, +hs, +b, +ss, +c, +k} = f
@@ -329,7 +339,7 @@ def fe_c(+f: FE) -> String:
 
 def fit_k(+code: U64, +f: FE, +fc: FC, +cs: List<&2, M.CE>, +ms: List<&2, M.Grade>, +tes: List<&2, TE>) -> String:
   match code:
-    case 0u64: fit_ok(f, fc, ms, tes, F64.mul(2.0f64, KT.tg_r(tg_at(cs, fe_a(f), fe_hs(f)))))
+    case 0u64: fit_ok(f, fc, ms, tes, M.d_nom(F64.mul(2.0f64, KT.tg_r(tg_at(cs, fe_a(f), fe_hs(f))))))
     case _: fit_err(code, f)
 
 def fits_go(fs: List<&2, FE>, +cs: List<&2, M.CE>, +ms: List<&2, M.Grade>, +tes: List<&2, TE>) -> String:
