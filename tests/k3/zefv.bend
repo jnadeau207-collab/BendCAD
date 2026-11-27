@@ -23,6 +23,8 @@ import ../../src/c07/emb.bend as EM
 import ../../src/c07/mem.bend as Mm
 import ../../src/c07/xs.bend as XS
 import ../../src/c07/rb.bend as R
+import ../../src/c07/eng.bend as N
+import ../../src/base/ex.bend as E
 
 law read_go:
   for m: File & Result<&1, &1, (U32 & String), String>
@@ -102,10 +104,66 @@ def hit_s(h: XS.Hit, +c: R.Cv, +lo: F64, +hi: F64, +mode: U64, +fd: SO.Fd, +sv: 
     case XS.H_no{+w}: "  H_no " ++ w ++ "
 "
 
+def pv_s(+pb: N.Pb, +a: F64, +b: F64) -> String:
+  " P[" ++ F64.show(a) ++ "," ++ F64.show(b) ++ "]=" ++ iv_s(X.vn(N.pb_f(pb, [I.I{a, b}]), 0n))
+
+def un_dbg(+g: G.GVal, +d: G.Dom, +sf: G.GVal, +s: I.I) -> String:
+  +es = XS.comp_go(XS.gv_xc(g), XS.gv_xs(sf))
+  +lo = XS.dlo(d)
+  +hi = XS.dhi(d)
+  +pb = XS.mk_h(XS.bern(es, lo, hi), es, lo, hi)
+  +m = F64.mul(0.5f64, F64.add(I.i_lo(s), I.i_hi(s)))
+  +w = F64.sub(I.i_hi(s), I.i_lo(s))
+  "   deg=" ++ Nat.show(List.length(&2, E.Ex, es)) ++ pv_s(pb, I.i_lo(s), m) ++ pv_s(pb, m, I.i_hi(s)) ++ pv_s(pb, F64.sub(I.i_lo(s), w), I.i_lo(s)) ++ " Pend=" ++ iv_s(X.vn(N.pb_f(pb, [I.ipt(hi)]), 0n)) ++ "
+"
+
 def hits_s(hs: List<&2, XS.Hit>, +c: R.Cv, +lo: F64, +hi: F64, +mode: U64, +fd: SO.Fd, +sv: List<&2, List<&2, I.I>>, +tol: F64, +ofds: List<&2, SO.Fd>) -> String:
   match hs:
     case []: ""
     case +h <> +t: hit_s(h, c, lo, hi, mode, fd, sv, tol, ofds) ++ hits_s(t, c, lo, hi, mode, fd, sv, tol, ofds)
+
+def vd_go(vs: List<&2, Nat>, +tv: B.Tb<&2, Ty.Vertex>, +p: V.Point) -> String:
+  match vs:
+    case []: ""
+    case +i <> +t:
+      +q = Ty.vx_p(B.tb_get(Ty.Vertex, tv, U32.from_nat(i)))
+      +dx = F64.sub(V.pt_x(q), V.pt_x(p))
+      +dy = F64.sub(V.pt_y(q), V.pt_y(p))
+      +dz = F64.sub(V.pt_z(q), V.pt_z(p))
+      +d = F64.sqrt(F64.add(F64.mul(dx, dx), F64.add(F64.mul(dy, dy), F64.mul(dz, dz))))
+      Bool.pick(String, F64.is_lt(d, 1.0e-3f64), " v" ++ Nat.show(i) ++ "@" ++ F64.show(d), "") ++ vd_go(t, tv, p)
+
+def eg_ab(+x: EM.Eg) -> String:
+  EM.Eg{g, d, +a0, +a1, pa0, pa1, c, bx, u, so} = x
+  "a0=v" ++ Nat.show(a0) ++ " a1=v" ++ Nat.show(a1)
+
+def vpt(+tv: B.Tb<&2, Ty.Vertex>, +i: Nat) -> V.Point:
+  Ty.vx_p(B.tb_get(Ty.Vertex, tv, U32.from_nat(i)))
+
+def eg_a1(+x: EM.Eg) -> Nat:
+  EM.Eg{g, d, a0, +a1, pa0, pa1, c, bx, u, so} = x
+  a1
+
+def eg_a0(+x: EM.Eg) -> Nat:
+  EM.Eg{g, d, +a0, a1, pa0, pa1, c, bx, u, so} = x
+  a0
+
+def vinfo(+cx: EM.Cx, +tv: B.Tb<&2, Ty.Vertex>, +nv: Nat, +ia: Nat, +jb: Nat) -> String:
+  EM.Cx{+te, +tf, tef, tol, ns, sfs, sbx} = cx
+  +x = B.tb_get(EM.Eg, te, U32.from_nat(ia))
+  +f = B.tb_get(EM.Fg, tf, U32.from_nat(jb))
+  " " ++ eg_ab(x) ++ " face-vs-near-a0:" ++ vd_go(EM.fg_vs(f), tv, vpt(tv, eg_a0(x))) ++ " face-vs-near-a1:" ++ vd_go(EM.fg_vs(f), tv, vpt(tv, eg_a1(x))) ++ " all-vs-near-a1:" ++ vd_go(L.nat_range(nv), tv, vpt(tv, eg_a1(x))) ++ "
+"
+
+def un_one(h: XS.Hit, +g: G.GVal, +d: G.Dom, +sf: G.GVal) -> String:
+  match h:
+    case XS.H_un{+s, t, p}: un_dbg(g, d, sf, s)
+    case _: ""
+
+def un_all(hs: List<&2, XS.Hit>, +g: G.GVal, +d: G.Dom, +sf: G.GVal) -> String:
+  match hs:
+    case []: ""
+    case +h <> +t: un_one(h, g, d, sf) ++ un_all(t, g, d, sf)
 
 def pair2(x: EM.Eg, +f: EM.Fg, +fd: SO.Fd, +fe: List<&2, Nat>, +cross: Bool, +ofds: List<&2, SO.Fd>, +tf: B.Tb<&2, EM.Fg>, +tol: F64, +ia: Nat, +jb: Nat) -> String:
   EM.Eg{+g, +d, +a0, +a1, +pa0, +pa1, +c, +bx, +u, +so} = x
@@ -117,6 +175,7 @@ def pair2(x: EM.Eg, +f: EM.Fg, +fd: SO.Fd, +fe: List<&2, Nat>, +cross: Bool, +of
     " fbx=" ++ bx_s(SO.fd_bx(fd)) ++ "
 " ++
     hits_s(SO.hits_any(SO.g1(g), d, SO.fd_g(fd), SO.fd_im(fd)), c, XS.dlo(d), XS.dhi(d), EM.ef_mode(ofds, pa0, pa1, cross), fd, sv, tol, ofds) ++
+    un_all(SO.hits_any(SO.g1(g), d, SO.fd_g(fd), SO.fd_im(fd)), SO.g1(g), d, SO.fd_g(fd)) ++
     " result=" ++ fis_s(EM.ef(xe, f, fe, tf, ia, jb, tol, cross, ofds))
 
 def pair_s(+cx: EM.Cx, +ia: Nat, +jb: Nat) -> String:
@@ -143,7 +202,7 @@ def run(+src: String, +op: String, +nb: U64, +ia: Nat, +jb: Nat) -> String:
   +cx = EM.mk_cx(egs, fgs, EM.tol_of(SO.bbox(fds, [])), List.length(&2, Ty.Solid, Ty.brep_sos(bc)))
   "k1 ok=" ++ b_s(K1.kr_ok(kr)) ++ " why=" ++ U64.show(K1.kr_why(kr)) ++ "
 emb:
-" ++ fis_s(EM.emb_fi(bc, fds)) ++ pair_s(cx, ia, jb)
+" ++ fis_s(EM.emb_fi(bc, fds)) ++ pair_s(cx, ia, jb) ++ vinfo(cx, Ty.ix_tv(xx), List.length(&2, Ty.Vertex, Ty.brep_vs(bc)), ia, jb)
 
 law go2:
   for a: String
