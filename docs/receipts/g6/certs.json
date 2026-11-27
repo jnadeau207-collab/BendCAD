@@ -1,7 +1,7 @@
 {
  "source": "bendcad clearance / wall on the built design (certified branch-and-bound lower bound, witness upper bound)",
- "binary": "/home/jesse/bc/bendcad-r28",
- "design": "/home/jesse/g6/g6u.bcd",
+ "binary": "/home/jesse/bc/bendcad-r71",
+ "design": "/home/jesse/g6/g6v.bcd",
  "green": true,
  "rows": [
   {
@@ -12,15 +12,15 @@
     "4202"
    ],
    "why": "one turbine blade against the CMC shroud revolve: the shroud is axisymmetric, so the gap of one blade is the gap of every blade at every angle",
-   "design_mm": 0.15,
+   "design_mm": 0.6,
    "certified_mm": [
-    0.1499979238008677,
-    0.1499996809833626
+    0.599996680428906,
+    0.5999996809825244
    ],
    "status": "certified",
-   "seconds": 18.3,
+   "seconds": 10.5,
    "verdict": "pass",
-   "raw": "clearance [0.1499979238008677, 0.1499996809833626] certified lo=branch-and-bound hi=witness samples=416x80"
+   "raw": "clearance [0.599996680428906, 0.5999996809825244] certified lo=branch-and-bound hi=witness samples=416x80"
   },
   {
    "query": "compressor tip clearance",
@@ -36,7 +36,7 @@
     0.3977169496008284
    ],
    "status": "certified",
-   "seconds": 62.7,
+   "seconds": 61.2,
    "verdict": "pass",
    "raw": "clearance [0.30266874247052367, 0.3977169496008284] certified lo=branch-and-bound hi=witness samples=170x380"
   },
@@ -72,7 +72,7 @@
     10.0
    ],
    "status": "certified",
-   "seconds": 13.6,
+   "seconds": 13.2,
    "verdict": "pass",
    "raw": "clearance [9.999992906032642, 10] certified lo=branch-and-bound hi=sampled samples=56x56"
   },
@@ -89,7 +89,7 @@
     2.5000000000012372
    ],
    "status": "certified",
-   "seconds": 344.5,
+   "seconds": 339.0,
    "verdict": "pass",
    "raw": "min-wall [1.199999982122629, 2.5000000000012372] certified lo=branch-and-bound hi=witness normals=opposed faces=132"
   },

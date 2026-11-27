@@ -1,24 +1,24 @@
 {
  "source": "bendcad pmi check / stack / fits on the built HUMPHREY-1 parts (ISO GPS semantics; fits per ISO 286 with each part grown by its own material)",
- "binary": "/home/jesse/bc/bendcad-r28",
- "design": "/home/jesse/g6/g6u.bcd",
+ "binary": "/home/jesse/bc/bendcad-r71",
+ "design": "/home/jesse/g6/g6v.bcd",
  "green": true,
  "rows": [
   {
    "name": "stator",
    "verb": "check",
-   "form": "(pmi (node 4202) (datum A n4202.c0.wall.0.0) (tol fl flatness 0.01 n4202.c0.wall.0.0 rfs) (dim shroud 87.29240248939433 87.28740248939434 87.29740248939433) (dim rdc_ro 119.0 118.995 119.005) (state cold 1))",
+   "form": "(pmi (node 4202) (datum A n4202.c0.wall.0.0) (tol fl flatness 0.01 n4202.c0.wall.0.0 rfs) (dim shroud 87.74240248939432 87.73740248939433 87.74740248939432) (dim rdc_ro 119.0 118.995 119.005) (state cold 1))",
    "seconds": 0.0,
    "verdict": "pass",
-   "out": "pmi node 4202 items 5\ndatum A ok n4202.c0.wall.0.0 plane\ntol fl flatness conforms actual 0 certified\ndim shroud nominal 87.29240248939433 zone [87.28740248939434, 87.29740248939433]\ndim rdc_ro nominal 119 zone [118.995, 119.005]\nstate cold grow 1\npmi ok 5 items"
+   "out": "pmi node 4202 items 5\ndatum A ok n4202.c0.wall.0.0 plane\ntol fl flatness conforms actual 0 certified\ndim shroud nominal 87.74240248939432 zone [87.73740248939433, 87.74740248939432]\ndim rdc_ro nominal 119 zone [118.995, 119.005]\nstate cold grow 1\npmi ok 5 items"
   },
   {
    "name": "turbine tip clearance stack",
    "verb": "stack",
-   "form": "(pmi (node 4202) (dim shroud 87.29240248939433 87.28740248939434 87.29740248939433) (dim tip -87.14240248939433 -87.14740248939432 -87.13740248939433) (state cold 1) (stack gtt shroud tip))",
+   "form": "(pmi (node 4202) (dim shroud 87.74240248939432 87.73740248939433 87.74740248939432) (dim tip -87.14240248939433 -87.14740248939432 -87.13740248939433) (state cold 1) (stack gtt shroud tip))",
    "seconds": 0.0,
    "verdict": "pass",
-   "out": "pmi node 4202 stacks 1 states 1\nstack gtt nominal 0.15000000000000568 envelope [0.14000000000000054, 0.16000000000001083] certified\nstate cold grow 1 [0.1400000000000005, 0.16000000000001086]"
+   "out": "pmi node 4202 stacks 1 states 1\nstack gtt nominal 0.5999999999999943 envelope [0.5899999999999891, 0.6099999999999995] certified\nstate cold grow 1 [0.589999999999989, 0.6099999999999997]"
   },
   {
    "name": "RDC channel height stack",
@@ -32,7 +32,7 @@
    "name": "compressor tip clearance stack",
    "verb": "stack",
    "form": "(pmi (node 23) (dim offset 0.4 0.395 0.405) (dim blade 0.0 -0.005 0.005) (state cold 1) (stack gtip offset blade))",
-   "seconds": 0.3,
+   "seconds": 0.2,
    "verdict": "pass",
    "out": "pmi node 23 stacks 1 states 1\nstack gtip nominal 0.4 envelope [0.3899999999999999, 0.41000000000000014] certified\nstate cold grow 1 [0.38999999999999985, 0.4100000000000002]"
   },
@@ -40,7 +40,7 @@
    "name": "RDC injector face and orifices",
    "verb": "check",
    "form": "(pmi (node 40) (datum A n4005.c0.wall.2.0) (tol fl flatness 0.01 n4005.c0.wall.2.0 rfs) (dim orifice 1.2 1.19 1.21) (dim pcd 228.0 227.99 228.01) (state cold 1))",
-   "seconds": 8.8,
+   "seconds": 5.9,
    "verdict": "pass",
    "out": "pmi node 40 items 5\ndatum A ok n4005.c0.wall.2.0 plane\ntol fl flatness conforms actual 0 certified\ndim orifice nominal 1.2 zone [1.19, 1.21]\ndim pcd nominal 228 zone [227.99, 228.01]\nstate cold grow 1\npmi ok 5 items"
   },

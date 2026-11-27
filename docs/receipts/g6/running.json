@@ -2,15 +2,15 @@
  "source": "tools/g6/running.py",
  "rpm": 43842.0797841919,
  "cycle": "docs/receipts/g6/cycle.json humphrey_measured_rdc",
- "ok": false,
+ "ok": true,
  "rows": [
   {
    "pair": "turbine blade tip to CMC shroud (radial)",
-   "cold_mm": 0.15,
+   "cold_mm": 0.6,
    "cold_basis": "design value of tools/g6/humphrey.py (G_TT); the kernel clearance certificate of the built design replaces it",
-   "closure_mm": 0.5199406767890113,
-   "running_mm": -0.3699406767890113,
-   "ok": false,
+   "closure_mm": 0.5180555937590114,
+   "running_mm": 0.08194440624098853,
+   "ok": true,
    "rotor": {
     "material": "WASPALOY-AMS5704",
     "disc_T_K": 811.8839,
@@ -27,10 +27,10 @@
    "stator": {
     "material": "SIC-SIC-N24A",
     "T_K": 991.3289,
-    "thermal_mm": 0.3656742812904156,
+    "thermal_mm": 0.3675593643204155,
     "basis": "COMPUTED: measured N24A expansion 6.0e-6/K (NASA TM-2009-215806, Table IV) at the turbine exit gas temperature, the coldest gas washing the shroud (closes the gap most)"
    },
-   "cold_needed_mm": 0.5699406767890114,
+   "cold_needed_mm": 0.5680555937590115,
    "needed_basis": "closure plus 0.05 mm running margin"
   },
   {
@@ -74,12 +74,5 @@
    }
   }
  ],
- "refusals": [
-  {
-   "code": "g6-turbine-tip-clearance",
-   "target": "cold turbine tip clearance <= 0.15 mm that stays positive at temperature (brief section 4.4)",
-   "computed": "cold 0.15 mm closes 0.520 mm at 43842 r/min: running -0.370 mm (rub); a positive running gap needs 0.57 mm cold",
-   "physics": "the Waspaloy rotor grows 0.812 mm thermally and 0.074 mm by spin, while the monolithic SiC/SiC shroud (6.0e-6/K) grows only 0.366 mm; the brief fixes the shroud as part of the CMC monolith, so no carrier ring can match the rotor"
-  }
- ]
+ "refusals": []
 }

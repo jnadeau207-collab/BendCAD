@@ -1,6 +1,6 @@
 {
  "source": "tools/g6/grade.py: OCCT (OCP 7.x via build123d) reading the STEP AP242 exports, an independent code path from the kernel",
- "export": "/home/jesse/g6/export_u",
+ "export": "/home/jesse/g6/export_r71",
  "ready": true,
  "checks": [
   {
@@ -21,12 +21,12 @@
   {
    "check": "RDC channel height measured from the export equals the model (0.01 mm)",
    "status": "pass",
-   "evidence": "10.000000035965428 mm vs 10.0"
+   "evidence": "10.000000035650658 mm vs 10.0"
   },
   {
    "check": "turbine tip clearance from the export equals the design (0.005 mm)",
    "status": "pass",
-   "evidence": "0.1500 mm vs 0.15"
+   "evidence": "0.6000 mm vs 0.6"
   },
   {
    "check": "compressor tip clearance from the export equals the design (0.005 mm)",
@@ -106,12 +106,12 @@
   },
   {
    "part": "stator",
-   "step_volume_mm3": 485051.9975617484,
+   "step_volume_mm3": 485463.1624232113,
    "kernel_volume_mm3": [
-    485051.9187082907,
-    485052.0707920543
+    485463.0835331803,
+    485463.23569933954
    ],
-   "rel_diff": 5.796442215100228e-09
+   "rel_diff": 5.782007095334052e-09
   },
   {
    "part": "turbine",

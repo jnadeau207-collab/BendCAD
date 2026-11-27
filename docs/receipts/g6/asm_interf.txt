@@ -389,7 +389,7 @@ relation disjoint status=certified method=exact-intersection
 pair bearing_front_outer bearing_rear_balls
 relation disjoint status=certified
 pair bearing_front_outer bearing_front_inner
-relation disjoint status=certified method=certified-clearance lo=2.4427937312779333
+relation disjoint status=certified method=exact-intersection
 pair bearing_front_outer bearing_rear_inner
 relation disjoint status=certified
 pair bearing_front_outer bearing_front_cage
@@ -432,7 +432,7 @@ relation disjoint status=certified method=exact-intersection
 pair bearing_rear_outer bearing_front_inner
 relation disjoint status=certified
 pair bearing_rear_outer bearing_rear_inner
-relation disjoint status=certified method=certified-clearance lo=2.4427937313078365
+relation disjoint status=certified method=exact-intersection
 pair bearing_rear_outer bearing_front_cage
 relation disjoint status=certified
 pair bearing_rear_outer bearing_rear_cage
@@ -673,7 +673,7 @@ relation disjoint status=certified
 pair bearing_front2_outer bearing_front2_balls
 relation disjoint status=certified method=exact-intersection
 pair bearing_front2_outer bearing_front2_inner
-relation disjoint status=certified method=certified-clearance lo=2.442793731275713
+relation disjoint status=certified method=exact-intersection
 pair bearing_front2_outer bearing_front2_cage
 relation disjoint status=certified method=exact-intersection
 pair bearing_front2_outer shaft
