@@ -2886,9 +2886,9 @@ def gen_at(f: Nat, ok: Bool, skip: Bool, +keep: Bool, +ts: List<&2, Tri>, +ng: N
               +ch2 = ct_ch(fq_ct(fq))
               +cs2 = ct_mc(fq_ct(fq))
               +chk = Bool.and(dk, F64.is_le(ch2, tl_ch(tol)))
-              +acc = Bool.and(chk, Bool.or(Nat.is_eq(m, 0n), F64.is_le(tl_c2(tol), cs2)))
+              +acc = Bool.and(chk, Bool.or(U64.is_eq(k, 5u64), F64.is_le(tl_c2(tol), cs2)))
               +old = Bool.and(keep, Bool.or(Bool.not(chk), Bool.and(Bool.not(acc), F64.is_lt(cs2, cs))))
-              gen_at(m, Bool.or(acc, Bool.and(old, Nat.is_eq(m, 0n))), U64.is_eq(k, 1u64), Bool.or(chk, keep), Bool.pick(List<&2, Tri>, old, ts, ts2), Bool.pick(Nat, old, ng, List.length(&2, VX, vs)),
+              gen_at(m, Bool.or(acc, Bool.and(Bool.or(chk, keep), Nat.is_eq(m, 0n))), U64.is_eq(k, 1u64), Bool.or(chk, keep), Bool.pick(List<&2, Tri>, old, ts, ts2), Bool.pick(Nat, old, ng, List.length(&2, VX, vs)),
                 Bool.pick(Bool, old, dok, dk), Bool.pick(B.Tb<&2, VX>, old, vt, vt2), Bool.pick(F64, old, ch, ch2), Bool.pick(F64, old, cs, cs2), rs, g, qs, vxs, sf, same, base, tol)
 
 def gen_dir(an: Bool, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
