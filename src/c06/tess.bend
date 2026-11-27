@@ -2250,7 +2250,7 @@ def ct_sph(+r: F64, +a: V.Point, +b: V.Point, +c: V.Point) -> F64:
 
 def tl_c2(+tol: TL) -> F64:
   TL{ch, +ca} = tol
-  F64.min(F64.sub(F64.mul(2.0f64, F64.mul(ca, ca)), 1.0f64), 0.9950041652780258f64)
+  ca
 
 def ct_tri(+k: U64, +sf: KS.SF, +a: VX, +b: VX, +c: VX) -> F64:
   +du = IV.isub(IV.ipt(F64.max(vx_u(a), F64.max(vx_u(b), vx_u(c)))), IV.ipt(F64.min(vx_u(a), F64.min(vx_u(b), vx_u(c)))))

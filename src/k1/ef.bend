@@ -6,6 +6,7 @@ import ../c03/ops.bend as GO
 import ../c04/types.bend as Ty
 import ../c04/ops.bend as B4
 import ./sf.bend as S
+import ./dd.bend as DD
 import ./ls.bend as L
 import ../c06/iv.bend as I
 import ../c07/isect.bend as Y
@@ -496,11 +497,27 @@ def nx_go(xs: List<&2, F64>, hit: Bool, +r: CT, +gs: List<&2, G.GVal>, +x: F64, 
           +q = ny_go(nudges(), False{}, CT{False{}, 0.0f64, S.pt(x, y, z)}, gs, F64.add(x, F64.mul(h, ux)), y, z, uy, uz)
           nx_go(t, ct_ok(q), q, gs, x, y, z, ux, uy, uz)
 
-def cert_gs(+gs: List<&2, G.GVal>, +p: V.Point) -> CT:
+def cert_nx(+gs: List<&2, G.GVal>, +p: V.Point) -> CT:
   +x = S.px(p)
   +y = S.py(p)
   +z = S.pz(p)
   nx_go(nudges(), False{}, CT{False{}, 0.0f64, S.pt(x, y, z)}, gs, x, y, z, ulp_of(x), ulp_of(y), ulp_of(z))
+
+def cert_q2(ok: Bool, +gs: List<&2, G.GVal>, +q: V.Point) -> CT:
+  match ok:
+    case True{}: CT{True{}, 0.0f64, q}
+    case False{}: cert_nx(gs, q)
+
+def cert_q1(+gs: List<&2, G.GVal>, +q: V.Point) -> CT:
+  cert_q2(on_all_c(gs, q), gs, q)
+
+def cert_p(ok: Bool, +gs: List<&2, G.GVal>, +p: V.Point) -> CT:
+  match ok:
+    case True{}: CT{True{}, 0.0f64, S.pt(F64.add(S.px(p), 0.0f64), F64.add(S.py(p), 0.0f64), F64.add(S.pz(p), 0.0f64))}
+    case False{}: cert_q1(gs, DD.refine(gs, p))
+
+def cert_gs(+gs: List<&2, G.GVal>, +p: V.Point) -> CT:
+  cert_p(on_all_c(gs, p), gs, p)
 
 def g_at(gs: List<&2, G.GVal>, +i: Nat) -> G.GVal:
   match gs:
@@ -545,10 +562,18 @@ def cert_fb(+r: CT, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64) -> CT:
         case True{}: CT{True{}, tt, p}
         case False{}: cert_snap(c, gs, t)
 
+def cert_dq(ok: Bool, +q: V.Point, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
+  match ok:
+    case True{}: CT{True{}, t, q}
+    case False{}: cert_fb(cert_go(128n, 0u64, c, gs, t, ulp_of(t), 1.0f64, lo, hi), c, gs, t)
+
+def cert_dt(+q: V.Point, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
+  cert_dq(on_all(gs, q), q, c, gs, t, lo, hi)
+
 def cert_t0(+ok: Bool, +c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
   match ok:
     case True{}: CT{True{}, t, ev(c, t)}
-    case False{}: cert_fb(cert_go(128n, 0u64, c, gs, t, ulp_of(t), 1.0f64, lo, hi), c, gs, t)
+    case False{}: cert_dt(DD.refine(gs, ev(c, t)), c, gs, t, lo, hi)
 
 def cert_t(+c: G.GVal, +gs: List<&2, G.GVal>, +t: F64, +lo: F64, +hi: F64) -> CT:
   cert_t0(on_all(gs, ev(c, t)), c, gs, t, lo, hi)
