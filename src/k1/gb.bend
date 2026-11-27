@@ -670,9 +670,23 @@ def pl_near(+s: S.SF, +p: V.Point) -> Bool:
   +d = F64.abs(S.dot(S.psub(p, S.sf_o(s)), S.sf_a(s)))
   F64.is_le(d, F64.mul(1.0e-9f64, F64.add(1.0f64, F64.max(F64.abs(S.px(p)), F64.max(F64.abs(S.py(p)), F64.abs(S.pz(p)))))))
 
+def tk_pt(on: Bool, +s: S.SF, +p: V.Point) -> Bool:
+  match on:
+    case True{}: True{}
+    case False{}: pl_near(s, p)
+
+def tk_b(a: Bool, +g: G.GVal, +s: S.SF, +pb: V.Point) -> Bool:
+  match a:
+    case False{}: False{}
+    case True{}: tk_pt(EF.on_g(g, pb), s, pb)
+
+def tk_pl(pl: Bool, +g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> Bool:
+  match pl:
+    case False{}: True{}
+    case True{}: tk_b(tk_pt(EF.on_g(g, pa), s, pa), g, s, pb)
+
 def trim_ok(+g: G.GVal, +s: S.SF, +pa: V.Point, +pb: V.Point) -> Bool:
-  Bool.or(Bool.not(U64.is_eq(S.sf_kind(s), S.k_plane())),
-    Bool.and(Bool.or(EF.on_g(g, pa), pl_near(s, pa)), Bool.or(EF.on_g(g, pb), pl_near(s, pb))))
+  tk_pl(U64.is_eq(S.sf_kind(s), S.k_plane()), g, s, pa, pb)
 
 def mk_ed(+va: Nat, +vb: Nat, +e: W.ER) -> Ty.Edge:
   Ty.Ed{0u64, K1.hv(va), K1.hv(vb), W.er_k(e)}

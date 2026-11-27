@@ -2794,7 +2794,9 @@ def dx_try(+qs: List<&2, List<&2, QP>>, +nb: Nat, +g: GS, +sf: KS.SF, +tol: TL, 
   +nh = Bool.pick(List<&2, List<&2, QP>>, ccw, hs, qrevs(hs))
   +bb = qs_bb(qs, [f_inf(), F64.neg(f_inf()), f_inf(), F64.neg(f_inf())])
   +ks = KS.sf_kind(sf)
-  +gd = gd_of(bb, Bool.pick(V.Vec2, Nat.is_eq(lvl, 0n), dx_steps(sf, g, tol), dx_steps2(sf, g, tol, bb, Bool.not(Nat.is_eq(List.length(&2, List<&2, QP>, hs), 0n)))), Bool.pick(F64, Bool.or(U64.is_eq(ks, 2u64), U64.is_eq(ks, 3u64)), 0.5f64, 1.0f64))
+  +sc = Bool.pick(F64, Nat.is_le(lvl, 1n), 1.0f64, Bool.pick(F64, Nat.is_eq(lvl, 2n), 0.5f64, 0.25f64))
+  +st = dx_steps2(sf, g, tol, bb, Bool.not(Nat.is_eq(List.length(&2, List<&2, QP>, hs), 0n)))
+  +gd = gd_of(bb, Bool.pick(V.Vec2, Nat.is_eq(lvl, 0n), dx_steps(sf, g, tol), V.V2{F64.mul(sc, V.v2_x(st)), F64.mul(sc, V.v2_y(st))}), Bool.pick(F64, Bool.or(U64.is_eq(ks, 2u64), U64.is_eq(ks, 3u64)), 0.5f64, 1.0f64))
   dx_grid(Bool.and(Nat.is_le(3n, gd_nu(gd)), Nat.is_le(3n, gd_nv(gd))), no, nh, gd, g, nb, dx_wq(sf))
 
 def gen_ref(+rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
@@ -2869,7 +2871,7 @@ def gen_at(f: Nat, ok: Bool, skip: Bool, +keep: Bool, +ts: List<&2, Tri>, +ng: N
           match skip:
             case True{}: gen_end(False{}, ts, ng, dok, vt, ch, cs, rs, g, qs, vxs, sf, same, base, tol)
             case False{}:
-              +d = dx_try(qs, List.length(&2, VX, vxs), g, sf, tol, Nat.sub(1n, m))
+              +d = dx_try(qs, List.length(&2, VX, vxs), g, sf, tol, Nat.sub(3n, m))
               +vs = dr_vs(d)
               +dk = dr_ok(d)
               +vt2 = B.tb_of(VX, List.append(&2, VX, vxs, vs), vx0())
@@ -2884,15 +2886,15 @@ def gen_at(f: Nat, ok: Bool, skip: Bool, +keep: Bool, +ts: List<&2, Tri>, +ng: N
               +ch2 = ct_ch(fq_ct(fq))
               +cs2 = ct_mc(fq_ct(fq))
               +chk = Bool.and(dk, F64.is_le(ch2, tl_ch(tol)))
-              +acc = Bool.and(chk, Bool.or(Bool.or(Nat.is_eq(m, 0n), U64.is_le(4u64, k)), F64.is_le(tl_c2(tol), cs2)))
-              +old = Bool.and(keep, Bool.or(Bool.not(acc), F64.is_lt(cs2, cs)))
-              gen_at(m, Bool.or(acc, old), Bool.and(Nat.is_eq(m, 1n), U64.is_eq(k, 1u64)), chk, Bool.pick(List<&2, Tri>, old, ts, ts2), Bool.pick(Nat, old, ng, List.length(&2, VX, vs)),
+              +acc = Bool.and(chk, Bool.or(Nat.is_eq(m, 0n), F64.is_le(tl_c2(tol), cs2)))
+              +old = Bool.and(keep, Bool.or(Bool.not(chk), Bool.and(Bool.not(acc), F64.is_lt(cs2, cs))))
+              gen_at(m, Bool.or(acc, Bool.and(old, Nat.is_eq(m, 0n))), U64.is_eq(k, 1u64), Bool.or(chk, keep), Bool.pick(List<&2, Tri>, old, ts, ts2), Bool.pick(Nat, old, ng, List.length(&2, VX, vs)),
                 Bool.pick(Bool, old, dok, dk), Bool.pick(B.Tb<&2, VX>, old, vt, vt2), Bool.pick(F64, old, ch, ch2), Bool.pick(F64, old, cs, cs2), rs, g, qs, vxs, sf, same, base, tol)
 
 def gen_dir(an: Bool, +rs: List<&2, List<&2, TP>>, +g: GS, +qs: List<&2, List<&2, QP>>, +vxs: List<&2, VX>, +sf: KS.SF, +same: Bool, +base: Nat, +tol: TL) -> TGO:
   match an:
     case False{}: tg_st(gen_ref(rs, g, qs, vxs, sf, same, base, tol), FS{0.0f64, 1.0f64, 0n, 0n, 1n, [FW{0n, F64.neg(1.0f64), False{}}]})
-    case True{}: gen_at(2n, False{}, False{}, False{}, [], 0n, False{}, B.tb_of(VX, [], vx0()), 0.0f64, 1.0f64, rs, g, qs, vxs, sf, same, base, tol)
+    case True{}: gen_at(4n, False{}, False{}, False{}, [], 0n, False{}, B.tb_of(VX, [], vx0()), 0.0f64, 1.0f64, rs, g, qs, vxs, sf, same, base, tol)
 
 def ax_e1(+c: V.Dir) -> V.Dir:
   +x = F64.abs(V.dr_x(c))

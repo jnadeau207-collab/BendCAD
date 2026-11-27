@@ -914,13 +914,28 @@ def p_near_s(+a: V.Point, +b: V.Point, +e: F64) -> Bool:
   +sc = F64.max(F64.max(p_scale(a), p_scale(b)), e)
   Bool.and(f_near(V.pt_x(a), V.pt_x(b), sc), Bool.and(f_near(V.pt_y(a), V.pt_y(b), sc), f_near(V.pt_z(a), V.pt_z(b), sc)))
 
+def ce_near(n: Bool, +ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
+  match n:
+    case False{}: False{}
+    case True{}: coinc_on(ss, ps, pe)
+
+def ce_ex(e: Bool, +n: Bool, +ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
+  match e:
+    case True{}: True{}
+    case False{}: ce_near(n, ss, ps, pe)
+
+def ce_fin(ok: Bool, +exact: Bool, +near: Bool, +ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
+  match ok:
+    case False{}: False{}
+    case True{}: ce_ex(exact, near, ss, ps, pe)
+
 def coinc_ex(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
   +rs = surf_at(g_of(ss), V.v2_x(ts), V.v2_y(ts))
   +re = surf_at(g_of(ss), V.v2_x(te), V.v2_y(te))
   +ok = Bool.and(G.gres_ok(rs), G.gres_ok(re))
   +exact = Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))
   +near = Bool.and(p_near_s(G.gres_p(rs), ps, ev_sc(g_of(ss), ts)), p_near_s(G.gres_p(re), pe, ev_sc(g_of(ss), te)))
-  Bool.and(ok, Bool.or(exact, Bool.and(near, coinc_on(ss, ps, pe))))
+  ce_fin(ok, exact, near, ss, ps, pe)
 
 def coinc_bp(+g: G.GVal, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:
   match g:
@@ -965,16 +980,38 @@ def vx_surf_tol(+x: Ty.Ix, +hv: Ty.HVertex, +surf: G.GVal, +tol: F64) -> Bool:
   +p = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, hv)))
   GO.q_on_h(surf, p, to_tol(surf, p, tol))
 
+def hc_c(coinc: Bool, +h: Ty.HCoedge, +x: Ty.Ix, +surf: G.GVal, +tol: F64) -> Bool:
+  match coinc:
+    case False{}: True{}
+    case True{}:
+      +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+      ce_coinc_ok(ce, Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce))), x, surf, tol)
+
+def hc_v(+h: Ty.HCoedge, +x: Ty.Ix, +end: Bool) -> Ty.HVertex:
+  +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+  +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
+  Bool.pick(Ty.HVertex, end, o_v_end(ed, Ty.ce_fwd(ce)), o_v_start(ed, Ty.ce_fwd(ce)))
+
+def hc_m2(a: Bool, +h: Ty.HCoedge, +x: Ty.Ix, +surf: G.GVal, +tol: F64) -> Bool:
+  match a:
+    case False{}: False{}
+    case True{}: vx_surf_tol(x, hc_v(h, x, True{}), surf, tol)
+
+def hc_m(memb: Bool, +h: Ty.HCoedge, +x: Ty.Ix, +surf: G.GVal, +tol: F64) -> Bool:
+  match memb:
+    case False{}: True{}
+    case True{}: hc_m2(vx_surf_tol(x, hc_v(h, x, False{}), surf, tol), h, x, surf, tol)
+
+def hc_and(a: Bool, +h: Ty.HCoedge, +x: Ty.Ix, +surf: G.GVal, +memb: Bool, +tol: F64) -> Bool:
+  match a:
+    case False{}: False{}
+    case True{}: hc_m(memb, h, x, surf, tol)
+
 def hcs_face_ok(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
     case Nil{}: True{}
-    case h <> t:
-      +ce = Ty.tres_ce(Ty.ix_ce(x, h))
-      +ed = Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce)))
-      +fw = Ty.ce_fwd(ce)
-      +c = Bool.or(Bool.not(coinc), ce_coinc_ok(ce, ed, x, surf, tol))
-      +m = Bool.or(Bool.not(memb), Bool.and(vx_surf_tol(x, o_v_start(ed, fw), surf, tol), vx_surf_tol(x, o_v_end(ed, fw), surf, tol)))
-      Bool.and(Bool.and(c, m), hcs_face_ok(t, x, surf, coinc, memb, tol))
+    case +h <> t:
+      Bool.and(hc_and(hc_c(coinc, h, x, surf, tol), h, x, surf, memb, tol), hcs_face_ok(t, x, surf, coinc, memb, tol))
 
 def hls_face_ok_zz(xs: List<&2, Ty.HLoop>, zz: Bool, +x: Ty.Ix, +surf: G.GVal, +coinc: Bool, +memb: Bool, +tol: F64) -> Bool:
   match xs:
