@@ -285,13 +285,13 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 2.405,
+   "measured_s": 0.85,
    "budget_s": 5.0,
-   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+   "note": "apply, check and tess through a warm `bendcad serve`, the default path of the MCP server and the live viewer, with output identical to the cold CLI; cold one-shot CLI 2.521 s (timed_edit_serial)"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 0.749,
+   "measured_s": 0.809,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -316,13 +316,21 @@
  "pass": true,
  "timed_edit_serial": {
   "label": "countersunk screws M5 -> M4",
-  "build_s": 0.749,
-  "apply_s": 0.805,
+  "build_s": 0.809,
+  "apply_s": 0.831,
   "apply_status": "committed",
-  "check_s": 0.826,
-  "tess_s": 0.774,
+  "check_s": 0.848,
+  "tess_s": 0.842,
   "tess_out": "wrote /var/tmp/briefs-r71/B12-retime/edit.obj nverts 696 ntris 1404 est 1936 chord 0.07710628438352932 ang 0.1963495408493621 nsamp 716 profile display (sampled, not certified) faces direct=30 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.14831930375889044\n",
-  "visible_rechecked_s": 2.405
+  "visible_rechecked_s": 2.521,
+  "warm": {
+   "apply_s": 0.749,
+   "status": "committed",
+   "check_s": 0.065,
+   "tess_s": 0.036,
+   "visible_rechecked_s": 0.85,
+   "same_as_cold": true
+  }
  },
- "build_oneshot_serial_s": 0.749
+ "build_oneshot_serial_s": 0.809
 }

@@ -11,7 +11,7 @@ const BIN = process.env.BENDCAD_BIN || '/home/jesse/bc/bendcad';
 const LOG = process.env.BENDCAD_LOG || '';
 const TIMEOUT = Number(process.env.BENDCAD_TIMEOUT_MS) || 600000;
 const MAXN = process.env.BENDCAD_MAX_NODES || '';
-const PORT = Number(process.env.BENDCAD_PORT) || 0;
+const PORT = process.env.BENDCAD_PORT === undefined ? 7790 : Number(process.env.BENDCAD_PORT) || 0;
 const REQ = PORT ? mkdtempSync(join(tmpdir(), 'bendcad-')) : '';
 const [WSL, PRE] = process.platform === 'win32' ? ['wsl.exe', ['-e', BIN]] : [BIN, []];
 const REF = readFileSync(join(here, 'language.md'), 'utf8');

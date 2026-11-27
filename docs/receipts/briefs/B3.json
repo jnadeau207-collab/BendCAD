@@ -420,13 +420,13 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 0.91,
+   "measured_s": 0.377,
    "budget_s": 5.0,
-   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+   "note": "apply, check and tess through a warm `bendcad serve`, the default path of the MCP server and the live viewer, with output identical to the cold CLI; cold one-shot CLI 0.854 s (timed_edit_serial)"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 0.282,
+   "measured_s": 0.236,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -451,13 +451,21 @@
  "pass": true,
  "timed_edit_serial": {
   "label": "bolt holes M5 -> M6 clearance (5.5 -> 6.6 mm)",
-  "build_s": 0.282,
-  "apply_s": 0.255,
+  "build_s": 0.236,
+  "apply_s": 0.259,
   "apply_status": "committed",
-  "check_s": 0.375,
-  "tess_s": 0.28,
+  "check_s": 0.345,
+  "tess_s": 0.25,
   "tess_out": "wrote /var/tmp/briefs-r71/B3-retime/edit.obj nverts 640 ntris 1296 est 2032 chord 0.15421256876705725 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified) faces direct=28 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042468732\n",
-  "visible_rechecked_s": 0.91
+  "visible_rechecked_s": 0.854,
+  "warm": {
+   "apply_s": 0.233,
+   "status": "committed",
+   "check_s": 0.117,
+   "tess_s": 0.027,
+   "visible_rechecked_s": 0.377,
+   "same_as_cold": true
+  }
  },
- "build_oneshot_serial_s": 0.282
+ "build_oneshot_serial_s": 0.236
 }

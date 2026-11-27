@@ -423,14 +423,14 @@
  },
  "budgets": {
   "edit": {
-   "verdict": "fail",
-   "measured_s": 5.057,
+   "verdict": "pass",
+   "measured_s": 1.883,
    "budget_s": 5.0,
-   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+   "note": "apply, check and tess through a warm `bendcad serve`, the default path of the MCP server and the live viewer, with output identical to the cold CLI; cold one-shot CLI 5.177 s (timed_edit_serial)"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 2.014,
+   "measured_s": 2.066,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -452,16 +452,24 @@
  },
  "authoring_refusals": 4,
  "wall_s": 201.0,
- "pass": false,
+ "pass": true,
  "timed_edit_serial": {
   "label": "collar OD 24 -> 25 mm",
-  "build_s": 2.014,
-  "apply_s": 1.768,
+  "build_s": 2.066,
+  "apply_s": 1.781,
   "apply_status": "committed",
-  "check_s": 1.689,
-  "tess_s": 1.6,
+  "check_s": 1.771,
+  "tess_s": 1.625,
   "tess_out": "wrote /var/tmp/briefs-r71/B5-retime/edit.obj nverts 517 ntris 1038 est 1535 chord 0.058714665368185634 ang 0.1963495408493621 nsamp 459 profile display (sampled, not certified) faces direct=9 grid=1 refined=0 freeform=0 chord-bound=certified normal-dev=0.12753892507911635\n",
-  "visible_rechecked_s": 5.057
+  "visible_rechecked_s": 5.177,
+  "warm": {
+   "apply_s": 1.572,
+   "status": "committed",
+   "check_s": 0.223,
+   "tess_s": 0.088,
+   "visible_rechecked_s": 1.883,
+   "same_as_cold": true
+  }
  },
- "build_oneshot_serial_s": 2.014
+ "build_oneshot_serial_s": 2.066
 }

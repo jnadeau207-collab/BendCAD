@@ -73,16 +73,64 @@ def g6():
             f'dry mass {kg[0]:.3f} kg certified{"" if m.get("complete") else " (partial)"} against {m["limit_kg"]} kg (`mass.json`)')
 
 
-ROWS = [('G1', 'Parameterized mounting bracket with curved edges and holes', g1),
-        ('G2', 'Flanged pump housing: bolt pattern, gasket groove, fits certified over tolerances', g2),
-        ('G3', 'Two-stage gearbox: gears, shafts, bearings, housing, seals', g3),
-        ('G4', 'Centrifugal blower with modal analysis and machining checks', g4),
-        ('G5', 'A ~100 N micro turbojet, with drawings a shop can build from', g5),
-        ('G6', 'A bespoke jet engine from a performance brief', g6)]
+def bn(x):
+    return os.path.basename(x or '?')
+
+
+def briefs():
+    s = load('briefs', 'summary.json')
+    rows = s['rows']
+    ok = sum(1 for r in rows if r.get('passed'))
+    return (f'{"✅ done" if ok == len(rows) else "open"}', f'{ok}/{len(rows)} pass on {bn(s.get("binary"))} (`docs/receipts/briefs/summary.md`)')
+
+
+def g5_row():
+    r = load('g5', 'review', 'readiness.json')
+    n = sum(1 for x in r['checks'] if x['status'] == 'pass')
+    bad = [x['check'] for x in r['checks'] if x['status'] != 'pass']
+    return (f'{"✅ done" if not bad else "open"}', f'{n}/{len(r["checks"])} pass on {bn(r.get("binary"))}; open: {"; ".join(bad) or "none"} (`docs/receipts/g5/review/readiness.json`)')
+
+
+def g6_row():
+    g = load('g6', 'grading.json')
+    rn = load('g6', 'running.json')
+    green = g6().startswith('✅') and rn.get('ok')
+    fresh = g.get('grader') == 'fresh-session'
+    state = '✅ done' if green and fresh else 'self-graded' if green else 'open'
+    run = 'running clearances pass' if rn.get('ok') else 'running clearances fail: ' + '; '.join(x['pair'] for x in rn['rows'] if not x['ok'])
+    return (state, g6().split(': ', 1)[1] + f'; {run} (`running.json`)')
+
+
+def g6a_row():
+    g = load('gates', 'g6a.json')
+    sm = g['summary']
+    n = sum(1 for c in g['checks'] if c['status'] == 'pass')
+    p95 = next((c['evidence'] for c in g['checks'] if c['check'].startswith('p95')), '')
+    return (f'{"✅ done" if g.get("ready") else "open"}', f'{n}/{len(g["checks"])} checks on {bn(g.get("binary"))}: commit {sm["committed"]}/{sm["ops"]} = {100 * sm["commit_rate"]:.1f}%, {p95} (`docs/receipts/gates/g6a.json`)')
+
+
+def speed_row():
+    s = load('briefs', 'summary.json')
+    t = load('g6', 'tess.json')
+    bud = ('budget_edit', 'budget_part', 'budget_export')
+    miss = [f'{r["id"]} {k[7:]}' for r in s['rows'] for k in bud if r.get(k) != 'pass']
+    slow = [f'{r["part"]} {r["seconds"]:.0f} s' for r in t['rows'] if r['seconds'] > s['budgets']['export_s']]
+    ok = not miss and not slow
+    return (f'{"✅ done" if ok else "open"}', f'briefs missing a budget: {", ".join(miss) or "none"}; G6 manufacturing meshes over 5 min: {", ".join(slow) or "none"} (`summary.md`, `g6/tess.json`)')
+
+
+def earlier_row():
+    rs = [g1(), g2(), g3(), g4()]
+    ok = all(r.startswith('✅') for r in rs)
+    return (f'{"✅ done" if ok else "open"}', 'G1 bracket, G2 pump housing, G3 gearbox, G4 blower: ' + '; '.join(r.split(': ', 1)[1] for r in rs))
+
+
+ROWS = [('Brief ladder B1-B14', briefs), ('G5 micro turbojet readiness', g5_row), ('G6 HUMPHREY-1 (graded by a fresh session)', g6_row),
+        ('G6a robustness', g6a_row), ('Speed budgets', speed_row), ('Earlier gates', earlier_row)]
 
 
 def table():
-    rows = ['| | Challenge | Status |', '|---|---|---|'] + [f'| {g} | {c} | {f()} |' for g, c, f in ROWS]
+    rows = ['| Measure (`docs/finish.md`) | State | Evidence |', '|---|---|---|'] + [f'| {g} | {a} | {b} |' for g, f in ROWS for a, b in [f()]]
     return '\n'.join([BEGIN] + rows + [END])
 
 

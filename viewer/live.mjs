@@ -4,6 +4,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import net from 'node:net';
+import os from 'node:os';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -32,7 +34,37 @@ function run(argv, stdin) {
 }
 let chain = Promise.resolve(), gen = 0;
 const queue = f => (chain = chain.then(f, f));
-const kernel = (...a) => queue(async () => { const t0 = Date.now(); const r = await run([BIN, DESIGN, ...a]); r.ms = Date.now() - t0; return r; });
+const KPORT = +opt('--kport', process.env.BCL_KPORT || PORT + 1000);
+const REQD = fs.mkdtempSync(path.join(os.tmpdir(), 'bcl-'));
+let srv = null, seq = 0;
+function ask(file) {
+  return new Promise(res => {
+    const s = net.connect(KPORT, '127.0.0.1');
+    let out = '', up = false;
+    s.setEncoding('utf8');
+    s.on('connect', () => { up = true; s.write(toWsl(file) + '\n'); });
+    s.on('data', d => { out += d; });
+    s.on('error', () => {});
+    s.on('close', () => res({ up, out }));
+  });
+}
+async function served(a) {
+  if (!srv) {
+    srv = spawn(onWin ? 'wsl.exe' : BIN, onWin ? ['-e', BIN, 'serve', String(KPORT)] : ['serve', String(KPORT)], { stdio: 'ignore' });
+    srv.on('exit', () => { srv = null; });
+  }
+  const file = path.join(REQD, `${++seq}.req`);
+  fs.writeFileSync(file, [DESIGN, ...a, '<<end>>'].join('\n') + '\n');
+  for (let i = 0; i < 600; i++) {
+    const r = await ask(file);
+    if (r.up) return { code: r.out === '' ? 1 : 0, out: r.out };
+    if (!srv) break;
+    await new Promise(z => setTimeout(z, 100));
+  }
+  return run([BIN, DESIGN, ...a]);
+}
+process.on('exit', () => { if (srv) srv.kill(); });
+const kernel = (...a) => queue(async () => { const t0 = Date.now(); const r = await served(a); r.ms = Date.now() - t0; return r; });
 const NEAR = 1, CAP = 20;
 const kernelIf = (g, ...a) => queue(async () => {
   if (g !== gen) return { skipped: true, out: '', ms: 0 };

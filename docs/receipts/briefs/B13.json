@@ -644,13 +644,13 @@
  "budgets": {
   "edit": {
    "verdict": "pass",
-   "measured_s": 3.433,
+   "measured_s": 0.405,
    "budget_s": 5.0,
-   "note": "serial re-time on an otherwise idle machine (timed_edit_serial); timed_edit holds the run under parallel load"
+   "note": "apply, check and tess through a warm `bendcad serve`, the default path of the MCP server and the live viewer, with output identical to the cold CLI; cold one-shot CLI 3.585 s (timed_edit_serial)"
   },
   "part": {
    "verdict": "pass",
-   "measured_s": 2.923,
+   "measured_s": 2.815,
    "budget_s": 60.0,
    "note": "serial re-time of the one-shot build"
   },
@@ -675,13 +675,21 @@
  "pass": false,
  "timed_edit_serial": {
   "label": "housing seat nominal 22 -> 22.01",
-  "build_s": 2.923,
-  "apply_s": 2.755,
+  "build_s": 2.815,
+  "apply_s": 2.921,
   "apply_status": "committed",
-  "check_s": 0.387,
-  "tess_s": 0.291,
+  "check_s": 0.388,
+  "tess_s": 0.276,
   "tess_out": "wrote /var/tmp/briefs-r71/B13-retime/edit.obj nverts 640 ntris 1296 est 2032 chord 0.15421256876705725 ang 0.1963495408493621 nsamp 664 profile display (sampled, not certified) faces direct=28 grid=0 refined=0 freeform=0 chord-bound=certified normal-dev=0.09817477042468847\n",
-  "visible_rechecked_s": 3.433
+  "visible_rechecked_s": 3.585,
+  "warm": {
+   "apply_s": 0.255,
+   "status": "committed",
+   "check_s": 0.119,
+   "tess_s": 0.031,
+   "visible_rechecked_s": 0.405,
+   "same_as_cold": true
+  }
  },
- "build_oneshot_serial_s": 2.923
+ "build_oneshot_serial_s": 2.815
 }
