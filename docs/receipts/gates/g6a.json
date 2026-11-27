@@ -1,11 +1,11 @@
 {
  "gate": "G6a robustness",
- "binary": "/home/jesse/bc/bendcad-r50",
+ "binary": "/home/jesse/bc/bendcad-r58",
  "seeds": [
   1,
   150
  ],
- "seconds": 5537.1,
+ "seconds": 5541.6,
  "ready": false,
  "checks": [
   {
@@ -16,12 +16,12 @@
   {
    "check": "commit rate >= 99% overall",
    "status": "fail",
-   "evidence": "327/429 = 0.762"
+   "evidence": "382/429 = 0.890"
   },
   {
    "check": "commit rate >= 99% in every pair and mode",
    "status": "fail",
-   "evidence": "26 groups below: {'box x cone / coaxial': '6/9', 'box x cone / general': '9/12', 'box x cylinder / general': '0/6', 'box x revolve / coplanar': '0/3', 'box x revolve / nearmiss': '3/6', 'box x sphere / coaxial': '1/3', 'box x torus / general': '3/6', 'box x torus / tangent': '1/3', 'cone x cone / general': '0/6', 'cone x cylinder / general': '5/6', 'cone x prism / coaxial': '0/3', 'cone x revolve / general': '0/3', 'cone x torus / general': '9/21', 'cylinder x cylinder / general': '3/6', 'cylinder x revolve / axis': '0/6', 'cylinder x revolve / general': '1/6', 'cylinder x revolve / tangent': '0/3', 'cylinder x torus / general': '5/12', 'prism x prism / general': '6/9', 'prism x sphere / coplanar': '3/6', 'prism x sphere / general': '0/3', 'prism x torus / general': '2/9', 'revolve x revolve / general': '0/3', 'revolve x sphere / general': '6/9', 'revolve x torus / general': '1/6', 'sphere x torus / axis': '2/3'}"
+   "evidence": "19 groups below: {'box x cone / coaxial': '6/9', 'box x revolve / coplanar': '0/3', 'box x revolve / nearmiss': '3/6', 'box x torus / general': '4/6', 'cone x cylinder / general': '5/6', 'cone x prism / coaxial': '0/3', 'cone x torus / general': '17/21', 'cylinder x cylinder / general': '5/6', 'cylinder x revolve / axis': '4/6', 'cylinder x revolve / general': '5/6', 'cylinder x revolve / tangent': '0/3', 'cylinder x torus / general': '11/12', 'prism x prism / general': '6/9', 'prism x sphere / coplanar': '3/6', 'prism x sphere / general': '0/3', 'prism x torus / general': '6/9', 'revolve x sphere / general': '6/9', 'revolve x torus / general': '2/6', 'sphere x torus / axis': '2/3'}"
   },
   {
    "check": "0 wrong answers against OCCT",
@@ -36,7 +36,7 @@
   {
    "check": "p95 operation time < 10.0 s",
    "status": "fail",
-   "evidence": "p95 13.44 s over 429 operations"
+   "evidence": "p95 11.71 s over 429 operations"
   }
  ],
  "summary": {
@@ -45,37 +45,23 @@
   "base_refused_valid": [],
   "base_committed_invalid": [],
   "ops": 429,
-  "committed": 327,
-  "commit_rate": 0.7622,
+  "committed": 382,
+  "commit_rate": 0.8904,
   "refusals": {
-   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]": 9,
-   "TIMEOUT": 6,
    "validation-rejected: c04-embedding": 6,
-   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]": 5,
-   "boundaries-cross-or-overlap: edge-face-penetration 9 2 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 0 7 between nodes 1 and 13 [k1 reason 8 [k1 82]": 3,
-   "boundaries-cross-or-overlap: face-penetration 4 12 between nodes 1 and 11 [k1 reason 82] [k1 82]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 8 8 between nodes 1 and 13 [k1 reason 8 [k1 82]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 20 7 between nodes 1 and 13 [k1 reason  [k1 82]": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 21 7 between nodes 1 and 13 [k1 reason  [k1 72]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 2 9 between nodes 1 and 13 [k1 reason 8 [k1 82]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 8 9 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]": 3,
-   "intersect-rejected: c04-embedding on the combined boundary [k1 reason 82] [k1 82]": 3,
    "boundaries-cross-or-overlap: face-penetration 2 10 between nodes 1 and 10 [k1 reason 93] [k1 93]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 0 4 between nodes 1 and 13 [k1 reason 8 [k1 82]": 3,
-   "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 16 2 between nodes 1 and 10 [k1 reason  [k1 42]": 3,
+   "TIMEOUT": 3,
    "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]": 3,
-   "validation-rejected: c04-loop-closure-or-trim": 2,
-   "validation-rejected: edge-overlap 4 6": 2,
    "intersect-rejected: c04-embedding on the combined boundary [k1 reason 40] [k1 40]": 2,
+   "validation-rejected: edge-face-uncertain 52 4": 2,
    "validation-rejected: edge-face-uncertain 6 1": 2,
-   "validation-rejected: edge-face-uncertain 58 8": 1,
-   "validation-rejected: edge-face-uncertain 52 4": 1,
+   "validation-rejected: edge-face-uncertain 4 2": 1,
+   "validation-rejected: edge-face-uncertain 1 1": 1,
+   "validation-rejected: edge-face-uncertain 4 1": 1,
    "validation-rejected: edge-face-uncertain 18 4": 1,
+   "validation-rejected: edge-face-uncertain 18 7": 1,
    "validation-rejected: face-face-uncertain 0 6": 1,
    "validation-rejected: face-face-uncertain 0 3": 1,
    "validation-rejected: edge-face-uncertain 11 1": 1,
@@ -85,7 +71,8 @@
    "validation-rejected: edge-crossing-uncertain 30 122": 1,
    "validation-rejected: edge-crossing-uncertain 66 134": 1,
    "validation-rejected: edge-face-uncertain 374 10": 1,
-   "validation-rejected: edge-face-penetration 8 0": 1,
+   "boundaries-cross-or-overlap: edge-face-penetration 0 6 between nodes 1 and 13 [k1 reason 4 [k1 42]": 1,
+   "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 4 [k1 42]": 1,
    "validation-rejected: inverted-shell 0 0": 1,
    "validation-rejected: edge-face-uncertain 40 1": 1,
    "validation-rejected: edge-face-uncertain 47 6": 1,
@@ -94,7 +81,7 @@
   "by_mode": {
    "general": {
     "ops": 144,
-    "committed": 71
+    "committed": 118
    },
    "nearmiss": {
     "ops": 69,
@@ -102,11 +89,11 @@
    },
    "tangent": {
     "ops": 33,
-    "committed": 28
+    "committed": 30
    },
    "coaxial": {
     "ops": 63,
-    "committed": 55
+    "committed": 57
    },
    "seam": {
     "ops": 42,
@@ -118,16 +105,16 @@
    },
    "axis": {
     "ops": 39,
-    "committed": 32
+    "committed": 36
    }
   },
-  "identity_checked": 108,
+  "identity_checked": 125,
   "identity_violations": [],
-  "occt_checked": 104,
+  "occt_checked": 125,
   "occt_mismatch": [],
-  "seconds_median": 0.75,
-  "seconds_p95": 13.44,
-  "seconds_max": 1800.11,
+  "seconds_median": 0.65,
+  "seconds_p95": 11.71,
+  "seconds_max": 1800.13,
   "intent_mismatches": 38
  },
  "cases": [
@@ -148,24 +135,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 6.36,
+     "ok": true,
+     "s": 4.0,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 9 2 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      6638.408191353473,
+      6638.41292168595
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 7.94,
+     "ok": true,
+     "s": 7.97,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 9 2 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      48.409967185723815,
+      48.41219300088608
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 8.05,
+     "ok": true,
+     "s": 4.99,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 9 2 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      1450.2678571180002,
+      1450.2723557322045
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 6638.410537135751,
+   "occt_ok": true
   },
   {
    "seed": 2,
@@ -185,7 +185,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.58,
+     "s": 0.65,
      "intent_mismatch": false,
      "v": [
       10305.760592601195,
@@ -194,7 +194,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.01,
+     "s": 1.19,
      "intent_mismatch": false,
      "v": [
       496.2023806508409,
@@ -203,7 +203,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.3,
+     "s": 1.66,
      "intent_mismatch": false,
      "v": [
       250.22691389761502,
@@ -234,7 +234,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       5850.523369167036,
@@ -243,7 +243,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.16,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -252,7 +252,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.48,
+     "s": 0.52,
      "intent_mismatch": true,
      "v": [
       1193.3496270806963,
@@ -283,7 +283,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.12,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       6735.662354417448,
@@ -292,7 +292,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.12,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -301,7 +301,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.42,
      "intent_mismatch": true,
      "v": [
       6688.108511852261,
@@ -332,7 +332,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.95,
+     "s": 1.09,
      "intent_mismatch": false,
      "v": [
       26975.621452960724,
@@ -350,7 +350,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.71,
+     "s": 3.48,
      "intent_mismatch": false,
      "v": [
       23020.161401673668,
@@ -380,14 +380,17 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 7.0,
+     "ok": true,
+     "s": 53.18,
      "intent_mismatch": false,
-     "why": "validation-rejected: c04-loop-closure-or-trim"
+     "v": [
+      9933.246003625261,
+      9933.253174728974
+     ]
     },
     "intersection": {
      "ok": true,
-     "s": 3.21,
+     "s": 27.34,
      "intent_mismatch": false,
      "v": [
       802.6836054232507,
@@ -396,7 +399,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 4.7,
+     "s": 47.64,
      "intent_mismatch": false,
      "v": [
       1873.8241914879702,
@@ -404,7 +407,10 @@
      ]
     }
    },
-   "id_di": true
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 9933.249589423305,
+   "occt_ok": true
   },
   {
    "seed": 7,
@@ -424,7 +430,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.3,
      "intent_mismatch": false,
      "v": [
       3449.184619923818,
@@ -433,7 +439,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.5,
+     "s": 0.36,
      "intent_mismatch": false,
      "v": [
       636.9572030548622,
@@ -442,7 +448,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.55,
+     "s": 0.35,
      "intent_mismatch": false,
      "v": [
       37.40706579799805,
@@ -473,7 +479,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.49,
+     "s": 0.6,
      "intent_mismatch": true,
      "v": [
       930.460278574927,
@@ -482,7 +488,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.39,
+     "s": 0.4,
      "intent_mismatch": false,
      "v": [
       105.5003502018338,
@@ -491,7 +497,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.54,
+     "s": 0.55,
      "intent_mismatch": false,
      "v": [
       824.9599283730875,
@@ -522,7 +528,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.15,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       2871.066573938751,
@@ -540,7 +546,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.32,
      "intent_mismatch": true,
      "v": [
       686.6016432841927,
@@ -571,7 +577,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       3291.6835180176668,
@@ -580,7 +586,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.1,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -589,7 +595,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.44,
      "intent_mismatch": true,
      "v": [
       276.5684152022392,
@@ -620,7 +626,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.3,
+     "s": 0.29,
      "intent_mismatch": false,
      "v": [
       12391.172504132166,
@@ -629,7 +635,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.54,
+     "s": 0.43,
      "intent_mismatch": false,
      "v": [
       48.196154233284346,
@@ -638,7 +644,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.5,
+     "s": 0.74,
      "intent_mismatch": false,
      "v": [
       9453.415401232356,
@@ -678,7 +684,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.08,
+     "s": 0.07,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -687,7 +693,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.16,
      "intent_mismatch": true,
      "v": [
       5078.879470024292,
@@ -717,24 +723,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 3.0,
+     "ok": true,
+     "s": 0.79,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 7 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      5688.453142595585,
+      5688.459678963698
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 3.51,
+     "ok": true,
+     "s": 1.49,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 7 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      589.8649387914468,
+      589.8687263389188
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 3.78,
+     "ok": true,
+     "s": 1.51,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 7 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      1860.5138717044579,
+      1860.5196734234723
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 5688.45626296139,
+   "occt_ok": true
   },
   {
    "seed": 14,
@@ -754,7 +773,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.95,
+     "s": 1.15,
      "intent_mismatch": false,
      "v": [
       13637.196314584138,
@@ -763,7 +782,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 3.12,
+     "s": 2.22,
      "intent_mismatch": false,
      "v": [
       918.1168563456717,
@@ -772,7 +791,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.64,
+     "s": 2.78,
      "intent_mismatch": false,
      "v": [
       2429.589505954235,
@@ -803,7 +822,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.09,
+     "s": 0.08,
      "intent_mismatch": false,
      "v": [
       6944.114798139898,
@@ -821,7 +840,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.3,
      "intent_mismatch": true,
      "v": [
       3408.7073214934635,
@@ -852,7 +871,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.05,
+     "s": 0.1,
      "intent_mismatch": false,
      "v": [
       374.5570912933659,
@@ -861,7 +880,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.05,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -870,7 +889,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.12,
      "intent_mismatch": true,
      "v": [
       337.0743525148911,
@@ -901,7 +920,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.26,
+     "s": 1.45,
      "intent_mismatch": false,
      "v": [
       11748.75448887479,
@@ -910,7 +929,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 2.19,
+     "s": 2.3,
      "intent_mismatch": false,
      "v": [
       296.5803533092459,
@@ -919,7 +938,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.68,
+     "s": 3.6,
      "intent_mismatch": false,
      "v": [
       4583.750946297805,
@@ -950,7 +969,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.09,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       5267.574160059646,
@@ -959,7 +978,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.17,
      "intent_mismatch": false,
      "v": [
       532.7288757827439,
@@ -968,7 +987,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.36,
+     "s": 0.23,
      "intent_mismatch": false,
      "v": [
       625.6480691808001,
@@ -999,7 +1018,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.54,
+     "s": 0.42,
      "intent_mismatch": false,
      "v": [
       6965.671388384641,
@@ -1008,7 +1027,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.66,
+     "s": 0.65,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1017,7 +1036,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.98,
+     "s": 2.05,
      "intent_mismatch": true,
      "v": [
       4423.59526886348,
@@ -1047,24 +1066,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 3.39,
+     "ok": true,
+     "s": 4.96,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      26059.539826252283,
+      26059.598475628114
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 3.97,
+     "ok": true,
+     "s": 10.43,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      4540.351719720235,
+      4540.403869573199
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 3.07,
+     "ok": true,
+     "s": 19.39,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      18516.28937298398,
+      18516.351757807915
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 26059.566122849723,
+   "occt_ok": true
   },
   {
    "seed": 21,
@@ -1084,7 +1116,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.15,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       5437.265965971471,
@@ -1093,7 +1125,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.34,
      "intent_mismatch": false,
      "v": [
       465.38305197577426,
@@ -1102,7 +1134,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.52,
+     "s": 0.74,
      "intent_mismatch": false,
      "v": [
       4971.644997673078,
@@ -1133,29 +1165,29 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.6,
+     "s": 1.59,
      "intent_mismatch": false,
      "v": [
-      9740.716203400563,
-      9740.752448740877
+      9740.716203400565,
+      9740.752448740875
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 2.44,
+     "s": 2.0,
      "intent_mismatch": false,
      "v": [
       4171.594892311131,
-      4171.631023626293
+      4171.631023626292
      ]
     },
     "difference": {
      "ok": true,
-     "s": 3.67,
+     "s": 2.06,
      "intent_mismatch": false,
      "v": [
-      707.9723620024234,
-      708.0087145244623
+      707.9723620024237,
+      708.0087145244621
      ]
     }
    },
@@ -1182,7 +1214,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       2053.137120101353,
@@ -1191,7 +1223,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.17,
+     "s": 0.1,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1200,7 +1232,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.41,
+     "s": 0.26,
      "intent_mismatch": true,
      "v": [
       2017.9617326668254,
@@ -1231,35 +1263,35 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.7,
+     "s": 1.38,
      "intent_mismatch": false,
      "v": [
-      8060.3811297296415,
-      8060.388176981818
+      8060.381129726047,
+      8060.388176985418
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 2.19,
+     "s": 4.03,
      "intent_mismatch": false,
      "v": [
-      1137.7763744372876,
-      1137.7813691831595
+      1137.7763744372864,
+      1137.7813691831648
      ]
     },
     "difference": {
      "ok": true,
-     "s": 3.82,
+     "s": 2.09,
      "intent_mismatch": false,
      "v": [
-      2212.3852131255867,
-      2212.3924749501134
+      2212.385213123942,
+      2212.3924749517646
      ]
     }
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 8060.384855012109,
+   "occt_v": 8060.384855012113,
    "occt_ok": true
   },
   {
@@ -1280,21 +1312,21 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1800.11,
+     "s": 12.56,
      "intent_mismatch": false,
-     "why": "TIMEOUT"
+     "why": "validation-rejected: edge-face-uncertain 4 2"
     },
     "intersection": {
      "ok": false,
-     "s": 1800.1,
+     "s": 9.65,
      "intent_mismatch": false,
-     "why": "TIMEOUT"
+     "why": "validation-rejected: edge-face-uncertain 1 1"
     },
     "difference": {
      "ok": false,
-     "s": 1800.1,
+     "s": 11.71,
      "intent_mismatch": false,
-     "why": "TIMEOUT"
+     "why": "validation-rejected: edge-face-uncertain 4 1"
     }
    }
   },
@@ -1315,24 +1347,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 4.23,
+     "ok": true,
+     "s": 3.45,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: face-penetration 4 12 between nodes 1 and 11 [k1 reason 82] [k1 82]"
+     "v": [
+      10695.500451390666,
+      10695.500860110866
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 4.68,
+     "ok": true,
+     "s": 5.18,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: face-penetration 4 12 between nodes 1 and 11 [k1 reason 82] [k1 82]"
+     "v": [
+      1173.744489916403,
+      1173.7448121878879
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 6.4,
+     "ok": true,
+     "s": 10.18,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: face-penetration 4 12 between nodes 1 and 11 [k1 reason 82] [k1 82]"
+     "v": [
+      5835.1553018159875,
+      5835.155663869752
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 10695.501133322508,
+   "occt_ok": true
   },
   {
    "seed": 27,
@@ -1352,7 +1397,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.89,
+     "s": 1.44,
      "intent_mismatch": false,
      "v": [
       3646.376535894583,
@@ -1361,20 +1406,20 @@
     },
     "intersection": {
      "ok": true,
-     "s": 2.09,
+     "s": 1.81,
      "intent_mismatch": false,
      "v": [
-      361.837590010903,
-      361.8399781372573
+      361.83749444474984,
+      361.8400710746889
      ]
     },
     "difference": {
      "ok": true,
-     "s": 4.01,
+     "s": 3.13,
      "intent_mismatch": false,
      "v": [
-      2584.015082815955,
-      2584.0185389679773
+      2584.0149209849233,
+      2584.0187034277305
      ]
     }
    },
@@ -1398,7 +1443,7 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.02,
+     "s": 0.01,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     },
@@ -1433,27 +1478,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 3.12,
+     "ok": true,
+     "s": 0.9,
      "intent_mismatch": false,
-     "why": "validation-rejected: edge-face-uncertain 58 8"
+     "v": [
+      9218.419912890507,
+      9218.42076998588
+     ]
     },
     "intersection": {
      "ok": true,
-     "s": 0.6,
+     "s": 0.75,
      "intent_mismatch": false,
      "v": [
-      277.39346562818247,
-      277.39404707991827
+      277.3934656281824,
+      277.3940470799182
      ]
     },
     "difference": {
-     "ok": false,
-     "s": 7.19,
+     "ok": true,
+     "s": 1.38,
      "intent_mismatch": false,
-     "why": "validation-rejected: edge-face-uncertain 52 4"
+     "v": [
+      6718.979785773104,
+      6718.980616791202
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 9218.420341307798,
+   "occt_ok": true
   },
   {
    "seed": 30,
@@ -1473,7 +1528,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 3.22,
+     "s": 3.06,
      "intent_mismatch": false,
      "v": [
       16959.833365799725,
@@ -1482,7 +1537,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 6.36,
+     "s": 6.43,
      "intent_mismatch": false,
      "v": [
       1117.6718454208574,
@@ -1491,7 +1546,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 8.82,
+     "s": 7.31,
      "intent_mismatch": false,
      "v": [
       6422.191917735313,
@@ -1522,7 +1577,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.16,
      "intent_mismatch": false,
      "v": [
       13146.87045451026,
@@ -1531,7 +1586,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.23,
      "intent_mismatch": false,
      "v": [
       177.04029175049905,
@@ -1540,7 +1595,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       760.0457199768077,
@@ -1570,24 +1625,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 0.45,
+     "ok": true,
+     "s": 0.35,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 8 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      8183.414686173359,
+      8183.414687341086
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 0.53,
+     "ok": true,
+     "s": 0.49,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 8 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      0.044094829817244545,
+      0.04409489897311326
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 0.58,
+     "ok": true,
+     "s": 0.66,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 8 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      5503.678408237428,
+      5503.678410079682
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 8183.41468675251,
+   "occt_ok": true
   },
   {
    "seed": 33,
@@ -1607,7 +1675,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       12866.672335238907,
@@ -1616,7 +1684,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1625,7 +1693,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.65,
+     "s": 0.74,
      "intent_mismatch": true,
      "v": [
       3505.3539441443145,
@@ -1655,24 +1723,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 24.39,
+     "ok": true,
+     "s": 1.78,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 20 7 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      26376.5280736701,
+      26376.79947966606
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 21.98,
+     "ok": true,
+     "s": 2.16,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 20 7 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      786.1233191168275,
+      786.2461499999864
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 20.77,
+     "ok": true,
+     "s": 5.62,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 20 7 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      23815.462454321078,
+      23815.745936530995
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 26376.6608527656,
+   "occt_ok": true
   },
   {
    "seed": 35,
@@ -1692,19 +1773,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 3.16,
+     "s": 2.59,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 21 7 between nodes 1 and 13 [k1 reason  [k1 72]"
     },
     "intersection": {
      "ok": false,
-     "s": 3.14,
+     "s": 2.14,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 21 7 between nodes 1 and 13 [k1 reason  [k1 72]"
     },
     "difference": {
      "ok": false,
-     "s": 3.69,
+     "s": 3.31,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 21 7 between nodes 1 and 13 [k1 reason  [k1 72]"
     }
@@ -1728,29 +1809,29 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.61,
      "intent_mismatch": false,
      "v": [
-      8662.44259598742,
-      8662.443208961064
+      8662.442595987422,
+      8662.443208961065
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 0.62,
+     "s": 0.42,
      "intent_mismatch": false,
      "v": [
-      82.5782068071875,
-      82.57849396323887
+      82.5782068071871,
+      82.57849396323847
      ]
     },
     "difference": {
      "ok": true,
-     "s": 0.84,
+     "s": 0.7,
      "intent_mismatch": false,
      "v": [
-      6029.880922964683,
-      6029.881624314457
+      6029.880922964684,
+      6029.881624314458
      ]
     }
    },
@@ -1777,21 +1858,24 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 23.86,
+     "s": 16.94,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 18 4"
     },
     "intersection": {
-     "ok": false,
-     "s": 6.23,
+     "ok": true,
+     "s": 4.54,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
+     "v": [
+      1563.4431893484089,
+      1563.45262023543
+     ]
     },
     "difference": {
      "ok": false,
-     "s": 6.21,
+     "s": 74.08,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
+     "why": "validation-rejected: edge-face-uncertain 18 7"
     }
    }
   },
@@ -1813,7 +1897,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.19,
+     "s": 0.77,
      "intent_mismatch": false,
      "v": [
       3681.154598376983,
@@ -1822,7 +1906,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.73,
+     "s": 1.29,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1831,7 +1915,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.95,
+     "s": 3.48,
      "intent_mismatch": true,
      "v": [
       3610.2298412385203,
@@ -1862,7 +1946,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.24,
      "intent_mismatch": false,
      "v": [
       676.3001202718234,
@@ -1871,7 +1955,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.48,
+     "s": 0.41,
      "intent_mismatch": false,
      "v": [
       61.376880546272695,
@@ -1880,7 +1964,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.77,
+     "s": 0.69,
      "intent_mismatch": false,
      "v": [
       105.67057747588336,
@@ -1911,7 +1995,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.16,
      "intent_mismatch": false,
      "v": [
       5576.793778763814,
@@ -1920,7 +2004,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -1929,7 +2013,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.55,
+     "s": 0.25,
      "intent_mismatch": true,
      "v": [
       58.925421513765535,
@@ -1960,7 +2044,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.23,
+     "s": 0.63,
      "intent_mismatch": false,
      "v": [
       13881.403402314185,
@@ -1969,26 +2053,26 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.13,
+     "s": 1.47,
      "intent_mismatch": false,
      "v": [
-      2752.894866018547,
-      2752.895988608683
+      2752.8948660185474,
+      2752.8959886086836
      ]
     },
     "difference": {
      "ok": true,
-     "s": 1.93,
+     "s": 2.24,
      "intent_mismatch": false,
      "v": [
-      11114.037113870074,
-      11114.03904976964
+      11114.037113870076,
+      11114.039049769639
      ]
     }
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 13881.404057666037,
+   "occt_v": 13881.404057666039,
    "occt_ok": true
   },
   {
@@ -2012,7 +2096,7 @@
     },
     "intersection": {
      "ok": false,
-     "s": 0.02,
+     "s": 0.01,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     },
@@ -2042,7 +2126,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.25,
      "intent_mismatch": false,
      "v": [
       8950.421751219765,
@@ -2051,7 +2135,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.32,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -2060,7 +2144,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.75,
+     "s": 0.86,
      "intent_mismatch": true,
      "v": [
       8733.74234010429,
@@ -2091,7 +2175,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.43,
+     "s": 1.19,
      "intent_mismatch": false,
      "v": [
       6531.318610340145,
@@ -2100,16 +2184,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.73,
+     "s": 1.29,
      "intent_mismatch": false,
      "v": [
       6.474831527225148,
-      6.475354611764016
+      6.4753546117640175
      ]
     },
     "difference": {
      "ok": true,
-     "s": 2.27,
+     "s": 1.85,
      "intent_mismatch": false,
      "v": [
       5754.7955032272175,
@@ -2140,7 +2224,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.06,
+     "s": 0.09,
      "intent_mismatch": false,
      "v": [
       405.81253732065846,
@@ -2158,7 +2242,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.18,
      "intent_mismatch": true,
      "v": [
       356.1190543089812,
@@ -2189,7 +2273,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.09,
+     "s": 0.08,
      "intent_mismatch": false,
      "v": [
       7820.445302328832,
@@ -2198,7 +2282,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.06,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -2207,7 +2291,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.18,
      "intent_mismatch": true,
      "v": [
       5057.998916028569,
@@ -2238,13 +2322,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 48.6,
+     "s": 40.36,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 0 6"
     },
     "intersection": {
      "ok": true,
-     "s": 24.21,
+     "s": 20.96,
      "intent_mismatch": false,
      "v": [
       175.60509238637047,
@@ -2253,7 +2337,7 @@
     },
     "difference": {
      "ok": false,
-     "s": 59.9,
+     "s": 61.32,
      "intent_mismatch": false,
      "why": "validation-rejected: face-face-uncertain 0 3"
     }
@@ -2277,7 +2361,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 2.96,
+     "s": 1.73,
      "intent_mismatch": false,
      "v": [
       7388.029961351638,
@@ -2286,20 +2370,20 @@
     },
     "intersection": {
      "ok": true,
-     "s": 6.82,
+     "s": 5.03,
      "intent_mismatch": false,
      "v": [
-      480.2816774997002,
-      480.3591353604236
+      480.2816774997001,
+      480.35913536042347
      ]
     },
     "difference": {
      "ok": true,
-     "s": 9.5,
+     "s": 6.67,
      "intent_mismatch": false,
      "v": [
-      4667.918597150244,
-      4668.037293842211
+      4667.918597150243,
+      4668.03729384221
      ]
     }
    },
@@ -2326,13 +2410,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.87,
+     "s": 0.74,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 11 1"
     },
     "intersection": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.19,
      "intent_mismatch": false,
      "v": [
       851.5455267153374,
@@ -2341,7 +2425,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.25,
      "intent_mismatch": false,
      "v": [
       5608.010456054711,
@@ -2369,7 +2453,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       3809.1294174090413,
@@ -2378,7 +2462,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.51,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       639.346735303794,
@@ -2387,7 +2471,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.29,
      "intent_mismatch": false,
      "v": [
       639.3467353037942,
@@ -2418,7 +2502,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.64,
+     "s": 0.43,
      "intent_mismatch": false,
      "v": [
       6968.655838314599,
@@ -2427,7 +2511,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.72,
+     "s": 1.27,
      "intent_mismatch": false,
      "v": [
       60.59989605258656,
@@ -2436,7 +2520,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.07,
+     "s": 2.12,
      "intent_mismatch": false,
      "v": [
       2692.141533200781,
@@ -2467,7 +2551,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.08,
      "intent_mismatch": false,
      "v": [
       5360.047124089325,
@@ -2476,7 +2560,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.12,
+     "s": 0.04,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -2485,7 +2569,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.17,
      "intent_mismatch": true,
      "v": [
       2050.086350686778,
@@ -2516,7 +2600,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 2.83,
+     "s": 2.26,
      "intent_mismatch": false,
      "v": [
       9527.74639730628,
@@ -2525,7 +2609,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 3.62,
+     "s": 3.16,
      "intent_mismatch": false,
      "v": [
       489.03916348806655,
@@ -2534,7 +2618,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 8.94,
+     "s": 7.08,
      "intent_mismatch": false,
      "v": [
       5608.60126534003,
@@ -2565,7 +2649,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.09,
      "intent_mismatch": false,
      "v": [
       5368.560521288986,
@@ -2574,7 +2658,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.08,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -2583,7 +2667,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.44,
+     "s": 0.45,
      "intent_mismatch": true,
      "v": [
       2940.4725065901666,
@@ -2613,24 +2697,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 1.07,
+     "ok": true,
+     "s": 0.58,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      2541.1925475240278,
+      2541.192547529112
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 1.34,
+     "ok": true,
+     "s": 0.65,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      0.014337999829976258,
+      0.014337999832004934
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 0.85,
+     "ok": true,
+     "s": 0.67,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 4 7 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      2159.8569564703566,
+      2159.8569564746786
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 2541.192547527924,
+   "occt_ok": true
   },
   {
    "seed": 56,
@@ -2649,24 +2746,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 4.21,
+     "ok": true,
+     "s": 2.18,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 2 9 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      7013.598336704629,
+      7013.5995220756295
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 2.98,
+     "ok": true,
+     "s": 3.07,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 2 9 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      53.296142452573605,
+      53.29689809013631
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 4.05,
+     "ok": true,
+     "s": 8.88,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 2 9 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      5231.099010792278,
+      5231.10070319896
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 7013.598929500293,
+   "occt_ok": true
   },
   {
    "seed": 57,
@@ -2685,24 +2795,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 1.75,
+     "ok": true,
+     "s": 0.77,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 9 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      4501.075053330717,
+      4501.078311911976
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 2.11,
+     "ok": true,
+     "s": 1.78,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 9 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      1015.8027842696756,
+      1015.8052938933124
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 1.94,
+     "ok": true,
+     "s": 1.91,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 8 9 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      980.1136774153691,
+      980.1161870389345
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 4501.076683823278,
+   "occt_ok": true
   },
   {
    "seed": 58,
@@ -2722,25 +2845,25 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.27,
+     "s": 1.04,
      "intent_mismatch": false,
      "v": [
-      22826.7003779618,
-      22826.70328512207
+      22826.700377961803,
+      22826.703285122065
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 1.68,
+     "s": 1.24,
      "intent_mismatch": false,
      "v": [
-      372.36788956948817,
-      372.36947396600306
+      372.3678895694882,
+      372.369473966003
      ]
     },
     "difference": {
      "ok": true,
-     "s": 2.17,
+     "s": 2.0,
      "intent_mismatch": false,
      "v": [
       22224.274344955076,
@@ -2771,7 +2894,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.15,
      "intent_mismatch": false,
      "v": [
       2518.3579564945344,
@@ -2780,7 +2903,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       4.39662116138034,
@@ -2789,7 +2912,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.36,
+     "s": 0.22,
      "intent_mismatch": false,
      "v": [
       426.47298731340965,
@@ -2819,24 +2942,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 1.58,
+     "ok": true,
+     "s": 0.47,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      1607.5358943175518,
+      1607.5398642744883
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 1.65,
+     "ok": true,
+     "s": 0.64,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      34.32637687126153,
+      34.32804577505189
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 1.91,
+     "ok": true,
+     "s": 1.05,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 6 3 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      744.3113095368858,
+      744.3157564177191
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 1607.53787720903,
+   "occt_ok": true
   },
   {
    "seed": 61,
@@ -2856,7 +2992,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       7415.8291541107355,
@@ -2865,7 +3001,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.08,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -2874,7 +3010,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.26,
      "intent_mismatch": true,
      "v": [
       468.4921931805104,
@@ -2905,35 +3041,35 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 3.37,
+     "s": 2.9,
      "intent_mismatch": false,
      "v": [
-      8921.762215745577,
-      8921.765451099476
+      8921.762215745575,
+      8921.765451099478
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 4.89,
+     "s": 3.67,
      "intent_mismatch": false,
      "v": [
-      387.98615316242103,
-      387.9888424843226
+      387.98615316242086,
+      387.9888424843227
      ]
     },
     "difference": {
      "ok": true,
-     "s": 6.73,
+     "s": 5.13,
      "intent_mismatch": false,
      "v": [
-      3366.8013066132626,
-      3366.804141789933
+      3366.8013066132603,
+      3366.8041417899353
      ]
     }
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 8921.763843716584,
+   "occt_v": 8921.763843734192,
    "occt_ok": true
   },
   {
@@ -2954,7 +3090,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.35,
+     "s": 0.24,
      "intent_mismatch": true,
      "v": [
       11733.146253492088,
@@ -2963,7 +3099,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       619.4266820957984,
@@ -2972,7 +3108,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.42,
+     "s": 0.44,
      "intent_mismatch": false,
      "v": [
       11113.719571394306,
@@ -3002,27 +3138,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 0.79,
+     "ok": true,
+     "s": 0.21,
      "intent_mismatch": false,
-     "why": "validation-rejected: edge-overlap 4 6"
+     "v": [
+      5218.183809150512,
+      5218.183809165646
+     ]
     },
     "intersection": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
-      35.99969385262054,
-      35.99969385295164
+      35.9996938526202,
+      35.99969385295201
      ]
     },
     "difference": {
-     "ok": false,
-     "s": 0.78,
+     "ok": true,
+     "s": 0.4,
      "intent_mismatch": false,
-     "why": "validation-rejected: edge-overlap 4 6"
+     "v": [
+      2987.242905309339,
+      2987.2429053200103
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 5218.183809158869,
+   "occt_ok": true
   },
   {
    "seed": 65,
@@ -3042,7 +3188,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.53,
+     "s": 0.59,
      "intent_mismatch": false,
      "v": [
       2888.3346343249887,
@@ -3051,7 +3197,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.91,
+     "s": 0.92,
      "intent_mismatch": false,
      "v": [
       249.51035008808407,
@@ -3060,7 +3206,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.4,
+     "s": 0.94,
      "intent_mismatch": false,
      "v": [
       2494.679218241954,
@@ -3070,7 +3216,7 @@
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 2888.335880142262,
+   "occt_v": 2888.3358801422623,
    "occt_ok": true
   },
   {
@@ -3091,7 +3237,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       12985.763069494009,
@@ -3100,7 +3246,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.3,
+     "s": 0.39,
      "intent_mismatch": false,
      "v": [
       523.6946889059811,
@@ -3140,7 +3286,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.1,
      "intent_mismatch": false,
      "v": [
       15708.9621993559,
@@ -3149,7 +3295,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.22,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       5198.945808087768,
@@ -3158,7 +3304,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       7175.95591425166,
@@ -3222,7 +3368,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.6,
+     "s": 0.35,
      "intent_mismatch": false,
      "v": [
       17085.783167508474,
@@ -3231,7 +3377,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.89,
+     "s": 0.61,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -3240,7 +3386,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.52,
+     "s": 2.01,
      "intent_mismatch": true,
      "v": [
       5048.505114495246,
@@ -3271,7 +3417,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.21,
      "intent_mismatch": false,
      "v": [
       4217.625430839901,
@@ -3280,7 +3426,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.3,
      "intent_mismatch": false,
      "v": [
       716.7329854474483,
@@ -3289,7 +3435,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.44,
+     "s": 0.32,
      "intent_mismatch": false,
      "v": [
       600.7966277762158,
@@ -3319,27 +3465,32 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 8.4,
+     "ok": true,
+     "s": 5.21,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
+     "v": [
+      2267.0217373535656,
+      2267.0217373663722
+     ]
     },
     "intersection": {
      "ok": false,
-     "s": 5.12,
+     "s": 4.54,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 40] [k1 40]"
     },
     "difference": {
      "ok": true,
-     "s": 5.03,
+     "s": 4.66,
      "intent_mismatch": false,
      "v": [
       249.05482303003117,
       249.05482303053128
      ]
     }
-   }
+   },
+   "occt_v": 2267.021737359855,
+   "occt_ok": true
   },
   {
    "seed": 72,
@@ -3359,7 +3510,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       4273.911139388558,
@@ -3368,7 +3519,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.07,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -3377,7 +3528,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.3,
+     "s": 0.15,
      "intent_mismatch": true,
      "v": [
       3225.020169393684,
@@ -3408,7 +3559,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.1,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       1630.9175548416506,
@@ -3417,7 +3568,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.12,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -3426,7 +3577,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.2,
      "intent_mismatch": true,
      "v": [
       623.4048170392432,
@@ -3457,7 +3608,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       2081.603337757744,
@@ -3466,7 +3617,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.17,
+     "s": 0.22,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -3475,7 +3626,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.41,
+     "s": 0.36,
      "intent_mismatch": true,
      "v": [
       1493.86497311635,
@@ -3506,7 +3657,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.25,
      "intent_mismatch": false,
      "v": [
       9446.317173787837,
@@ -3515,7 +3666,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.46,
+     "s": 0.34,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -3524,7 +3675,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.03,
+     "s": 1.04,
      "intent_mismatch": true,
      "v": [
       2070.448855632806,
@@ -3555,7 +3706,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.49,
      "intent_mismatch": false,
      "v": [
       1837.5170235044893,
@@ -3564,7 +3715,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.73,
+     "s": 0.52,
      "intent_mismatch": false,
      "v": [
       144.27866566257725,
@@ -3573,7 +3724,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.79,
+     "s": 0.67,
      "intent_mismatch": false,
      "v": [
       115.51892488005426,
@@ -3604,7 +3755,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       2382.1796418528975,
@@ -3613,7 +3764,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.37,
      "intent_mismatch": false,
      "v": [
       167.27694411020948,
@@ -3622,7 +3773,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.4,
+     "s": 0.5,
      "intent_mismatch": false,
      "v": [
       2212.474222291578,
@@ -3653,7 +3804,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.75,
+     "s": 0.74,
      "intent_mismatch": false,
      "v": [
       11866.049339425697,
@@ -3662,16 +3813,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.17,
+     "s": 0.8,
      "intent_mismatch": false,
      "v": [
-      102.75706542463354,
-      102.75706542484104
+      102.75706542463355,
+      102.75706542484106
      ]
     },
     "difference": {
      "ok": true,
-     "s": 1.11,
+     "s": 0.77,
      "intent_mismatch": false,
      "v": [
       6619.751889455825,
@@ -3702,7 +3853,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.14,
+     "s": 1.35,
      "intent_mismatch": false,
      "v": [
       6598.725603519202,
@@ -3711,7 +3862,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 2.99,
+     "s": 2.05,
      "intent_mismatch": false,
      "v": [
       2683.567659818108,
@@ -3720,7 +3871,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.87,
+     "s": 2.92,
      "intent_mismatch": false,
      "v": [
       379.2232739765546,
@@ -3751,7 +3902,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.42,
+     "s": 0.44,
      "intent_mismatch": false,
      "v": [
       6924.111995463342,
@@ -3760,7 +3911,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.7,
+     "s": 0.48,
      "intent_mismatch": false,
      "v": [
       3.948230133214292,
@@ -3769,7 +3920,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.98,
+     "s": 0.86,
      "intent_mismatch": false,
      "v": [
       5177.858021388949,
@@ -3800,7 +3951,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 2.42,
+     "s": 1.46,
      "intent_mismatch": false,
      "v": [
       10322.343649630904,
@@ -3809,7 +3960,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 3.4,
+     "s": 2.27,
      "intent_mismatch": false,
      "v": [
       25.261705932841302,
@@ -3818,7 +3969,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 3.64,
+     "s": 5.06,
      "intent_mismatch": false,
      "v": [
       2657.094323879606,
@@ -3849,7 +4000,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.8,
+     "s": 0.58,
      "intent_mismatch": true,
      "v": [
       7962.459626143254,
@@ -3858,7 +4009,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.53,
+     "s": 0.44,
      "intent_mismatch": false,
      "v": [
       2172.0852972425923,
@@ -3867,7 +4018,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.15,
+     "s": 1.05,
      "intent_mismatch": false,
      "v": [
       5790.374328896652,
@@ -3898,7 +4049,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.64,
+     "s": 0.45,
      "intent_mismatch": false,
      "v": [
       1712.2805023669223,
@@ -3907,7 +4058,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.91,
+     "s": 0.81,
      "intent_mismatch": false,
      "v": [
       40.14458367702958,
@@ -3916,7 +4067,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.11,
+     "s": 0.97,
      "intent_mismatch": false,
      "v": [
       91.15725613086006,
@@ -3946,24 +4097,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 2.59,
+     "ok": true,
+     "s": 1.57,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      15223.589564468855,
+      15223.609890462458
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 2.68,
+     "ok": true,
+     "s": 2.42,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      1191.1735017118494,
+      1191.1887181628263
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 2.62,
+     "ok": true,
+     "s": 3.61,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 25 4 between nodes 1 and 13 [k1 reason  [k1 82]"
+     "v": [
+      13474.109143195908,
+      13474.134767599508
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 15223.600520644886,
+   "occt_ok": true
   },
   {
    "seed": 85,
@@ -3982,27 +4146,32 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 0.39,
+     "ok": true,
+     "s": 1.34,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
+     "v": [
+      20055.21126221517,
+      20055.211262277524
+     ]
     },
     "intersection": {
      "ok": false,
-     "s": 0.25,
+     "s": 1.36,
      "intent_mismatch": false,
      "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 40] [k1 40]"
     },
     "difference": {
      "ok": true,
-     "s": 0.24,
+     "s": 1.33,
      "intent_mismatch": false,
      "v": [
       3420.032389509041,
       3420.032389515883
      ]
     }
-   }
+   },
+   "occt_v": 20055.211207241373,
+   "occt_ok": true
   },
   {
    "seed": 86,
@@ -4022,19 +4191,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.41,
+     "s": 1.99,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 25 1"
     },
     "intersection": {
      "ok": false,
-     "s": 2.18,
+     "s": 1.51,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 5 0"
     },
     "difference": {
      "ok": false,
-     "s": 2.23,
+     "s": 1.27,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 25 0"
     }
@@ -4058,21 +4227,24 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.92,
+     "s": 8.89,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "why": "validation-rejected: edge-face-uncertain 52 4"
     },
     "intersection": {
-     "ok": false,
-     "s": 2.88,
+     "ok": true,
+     "s": 5.94,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      8067.851822236361,
+      8067.874561240703
+     ]
     },
     "difference": {
      "ok": false,
-     "s": 3.22,
+     "s": 18.75,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "why": "validation-rejected: edge-face-uncertain 52 4"
     }
    }
   },
@@ -4094,7 +4266,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.24,
+     "s": 0.69,
      "intent_mismatch": false,
      "v": [
       12796.691381491484,
@@ -4103,7 +4275,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 2.25,
+     "s": 0.86,
      "intent_mismatch": false,
      "v": [
       3755.399323242144,
@@ -4112,7 +4284,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.21,
+     "s": 2.04,
      "intent_mismatch": false,
      "v": [
       7090.425566174892,
@@ -4143,7 +4315,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.17,
+     "s": 0.09,
      "intent_mismatch": false,
      "v": [
       2193.443473015372,
@@ -4152,7 +4324,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       285.283234767409,
@@ -4161,7 +4333,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       1294.5238219562357,
@@ -4191,24 +4363,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 5.65,
+     "ok": true,
+     "s": 3.83,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 82] [k1 82]"
+     "v": [
+      20960.076693694416,
+      20960.091077337613
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 5.12,
+     "ok": true,
+     "s": 4.79,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 82] [k1 82]"
+     "v": [
+      3520.093563298319,
+      3520.102247524229
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 5.53,
+     "ok": true,
+     "s": 10.2,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 82] [k1 82]"
+     "v": [
+      532.9900839909924,
+      532.9987682109281
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 20960.0838646937,
+   "occt_ok": true
   },
   {
    "seed": 91,
@@ -4227,24 +4412,29 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 5.57,
+     "ok": true,
+     "s": 4.54,
      "intent_mismatch": false,
-     "why": "validation-rejected: c04-loop-closure-or-trim"
+     "v": [
+      14887.4944887593,
+      14887.497847665743
+     ]
     },
     "intersection": {
      "ok": false,
-     "s": 13.44,
+     "s": 20.51,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-crossing-uncertain 30 122"
     },
     "difference": {
      "ok": false,
-     "s": 16.54,
+     "s": 20.87,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-crossing-uncertain 66 134"
     }
-   }
+   },
+   "occt_v": 14887.496169091637,
+   "occt_ok": true
   },
   {
    "seed": 92,
@@ -4264,35 +4454,35 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.41,
+     "s": 1.39,
      "intent_mismatch": false,
      "v": [
-      13167.238628448327,
-      13167.265224167555
+      13167.238628448169,
+      13167.265224167713
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 1.92,
+     "s": 1.31,
      "intent_mismatch": false,
      "v": [
-      974.6390793899918,
-      974.655233945412
+      974.6388916524406,
+      974.6556410995806
      ]
     },
     "difference": {
      "ok": true,
-     "s": 2.08,
+     "s": 2.17,
      "intent_mismatch": false,
      "v": [
-      2346.841705433004,
-      2346.861937356608
+      2346.841705432847,
+      2346.861937356765
      ]
     }
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 13167.25178559498,
+   "occt_v": 13167.251785594977,
    "occt_ok": true
   },
   {
@@ -4313,7 +4503,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.23,
      "intent_mismatch": true,
      "v": [
       8914.902647125302,
@@ -4322,7 +4512,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.16,
      "intent_mismatch": false,
      "v": [
       865.0809120729111,
@@ -4331,7 +4521,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.39,
+     "s": 0.31,
      "intent_mismatch": true,
      "v": [
       0.0,
@@ -4362,26 +4552,26 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 14.39,
+     "s": 12.56,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 374 10"
     },
     "intersection": {
      "ok": true,
-     "s": 4.53,
+     "s": 2.53,
      "intent_mismatch": false,
      "v": [
-      698.4046216055449,
-      698.441904502281
+      698.4046215706295,
+      698.441904537197
      ]
     },
     "difference": {
      "ok": true,
-     "s": 6.76,
+     "s": 4.39,
      "intent_mismatch": false,
      "v": [
-      3321.6796816091796,
-      3321.7152746661327
+      3321.6796816091783,
+      3321.7152746661322
      ]
     }
    },
@@ -4405,7 +4595,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.53,
+     "s": 0.87,
      "intent_mismatch": false,
      "v": [
       6378.096355499022,
@@ -4414,7 +4604,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.75,
+     "s": 1.37,
      "intent_mismatch": false,
      "v": [
       31.530158847690924,
@@ -4423,7 +4613,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.04,
+     "s": 2.74,
      "intent_mismatch": false,
      "v": [
       5355.034002828691,
@@ -4454,7 +4644,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       1561.2965735192308,
@@ -4463,7 +4653,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       0.1443902052106631,
@@ -4472,7 +4662,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.31,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       1336.1159623299884,
@@ -4503,7 +4693,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.16,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       15401.24214052295,
@@ -4512,7 +4702,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.33,
      "intent_mismatch": false,
      "v": [
       39.52063630424315,
@@ -4521,7 +4711,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.46,
+     "s": 0.35,
      "intent_mismatch": false,
      "v": [
       15322.200867913642,
@@ -4551,24 +4741,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 5.23,
+     "ok": true,
+     "s": 2.6,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      6802.689425778734,
+      6802.701329139773
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 5.94,
+     "ok": true,
+     "s": 5.11,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      108.53839577188565,
+      108.54159671281421
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 6.85,
+     "ok": true,
+     "s": 3.48,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 72] [k1 72]"
+     "v": [
+      142.11495505708058,
+      142.11859432735002
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 6802.695278155999,
+   "occt_ok": true
   },
   {
    "seed": 99,
@@ -4588,7 +4791,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       4252.072286092539,
@@ -4597,16 +4800,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.41,
+     "s": 0.21,
      "intent_mismatch": false,
      "v": [
-      203.12284474106355,
-      203.12284474960308
+      203.12284474158017,
+      203.1228447490864
      ]
     },
     "difference": {
      "ok": true,
-     "s": 0.44,
+     "s": 0.38,
      "intent_mismatch": false,
      "v": [
       3730.5393789238465,
@@ -4616,7 +4819,7 @@
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 4252.072255706928,
+   "occt_v": 4252.072255706929,
    "occt_ok": true
   },
   {
@@ -4637,7 +4840,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.35,
      "intent_mismatch": false,
      "v": [
       5868.12633301745,
@@ -4646,7 +4849,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.34,
      "intent_mismatch": false,
      "v": [
       1181.2469485211068,
@@ -4655,7 +4858,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.44,
+     "s": 0.29,
      "intent_mismatch": false,
      "v": [
       4362.925930914528,
@@ -4686,7 +4889,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.51,
+     "s": 1.53,
      "intent_mismatch": false,
      "v": [
       14995.519051188465,
@@ -4695,16 +4898,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 2.41,
+     "s": 2.01,
      "intent_mismatch": false,
      "v": [
       1065.0106655709742,
-      1065.01587767699
+      1065.0158776769895
      ]
     },
     "difference": {
      "ok": true,
-     "s": 4.48,
+     "s": 2.89,
      "intent_mismatch": false,
      "v": [
       10660.999897526724,
@@ -4735,19 +4938,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.73,
+     "s": 0.95,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 2 10 between nodes 1 and 10 [k1 reason 93] [k1 93]"
     },
     "intersection": {
      "ok": false,
-     "s": 1.36,
+     "s": 0.86,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 2 10 between nodes 1 and 10 [k1 reason 93] [k1 93]"
     },
     "difference": {
      "ok": false,
-     "s": 0.68,
+     "s": 0.7,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: face-penetration 2 10 between nodes 1 and 10 [k1 reason 93] [k1 93]"
     }
@@ -4771,7 +4974,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.42,
+     "s": 1.39,
      "intent_mismatch": false,
      "v": [
       21897.05998254612,
@@ -4780,7 +4983,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.97,
+     "s": 1.82,
      "intent_mismatch": false,
      "v": [
       779.3760852886408,
@@ -4789,7 +4992,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 4.89,
+     "s": 3.37,
      "intent_mismatch": false,
      "v": [
       19756.27280909038,
@@ -4820,7 +5023,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       7352.47909108598,
@@ -4829,7 +5032,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.17,
      "intent_mismatch": false,
      "v": [
       883.5699624051002,
@@ -4838,7 +5041,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.19,
      "intent_mismatch": false,
      "v": [
       1993.6570117291378,
@@ -4869,35 +5072,35 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 3.5,
+     "s": 1.3,
      "intent_mismatch": false,
      "v": [
-      7035.737946180669,
-      7035.744284369979
+      7035.7379461806595,
+      7035.744284369988
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 6.51,
+     "s": 1.94,
      "intent_mismatch": false,
      "v": [
-      243.146327007043,
-      243.15225073412785
+      243.14632700704104,
+      243.15225073412986
      ]
     },
     "difference": {
      "ok": true,
-     "s": 8.02,
+     "s": 3.05,
      "intent_mismatch": false,
      "v": [
-      5124.066222509128,
-      5124.072627157891
+      5124.066222509118,
+      5124.072627157901
      ]
     }
    },
    "id_ui": true,
    "id_di": true,
-   "occt_v": 7035.74116775461,
+   "occt_v": 7035.7411677546115,
    "occt_ok": true
   },
   {
@@ -4918,7 +5121,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.06,
+     "s": 0.56,
      "intent_mismatch": false,
      "v": [
       13570.07755220589,
@@ -4927,7 +5130,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.71,
+     "s": 0.76,
      "intent_mismatch": false,
      "v": [
       0.03359022538687056,
@@ -4936,7 +5139,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.67,
+     "s": 1.54,
      "intent_mismatch": false,
      "v": [
       12921.557783386908,
@@ -4967,7 +5170,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.85,
+     "s": 0.77,
      "intent_mismatch": false,
      "v": [
       4345.932766448347,
@@ -4979,17 +5182,17 @@
      "s": 2.1,
      "intent_mismatch": false,
      "v": [
-      1421.2122959267456,
-      1421.2122959365372
+      1421.2122959267454,
+      1421.212295936537
      ]
     },
     "difference": {
      "ok": true,
-     "s": 4.98,
+     "s": 2.65,
      "intent_mismatch": false,
      "v": [
-      1166.0823424961768,
-      1166.082342505411
+      1166.082342496177,
+      1166.0823425054107
      ]
     }
    },
@@ -5013,13 +5216,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.01,
+     "s": 0.0,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     },
     "intersection": {
      "ok": false,
-     "s": 0.01,
+     "s": 0.0,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     },
@@ -5049,7 +5252,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.43,
      "intent_mismatch": false,
      "v": [
       1439.3140806845818,
@@ -5058,7 +5261,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.05,
+     "s": 1.15,
      "intent_mismatch": false,
      "v": [
       225.50951855732595,
@@ -5067,7 +5270,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.84,
+     "s": 1.29,
      "intent_mismatch": false,
      "v": [
       129.58218707578928,
@@ -5098,7 +5301,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.37,
      "intent_mismatch": false,
      "v": [
       8125.6830289890995,
@@ -5107,16 +5310,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.31,
+     "s": 0.46,
      "intent_mismatch": false,
      "v": [
-      549.3270783777173,
-      549.3270783848975
+      549.3270783777172,
+      549.3270783848976
      ]
     },
     "difference": {
      "ok": true,
-     "s": 0.55,
+     "s": 0.49,
      "intent_mismatch": false,
      "v": [
       1113.1720563743024,
@@ -5147,7 +5350,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.14,
+     "s": 0.39,
      "intent_mismatch": false,
      "v": [
       3048.442918491738,
@@ -5156,7 +5359,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.16,
+     "s": 0.54,
      "intent_mismatch": false,
      "v": [
       615.5038178375272,
@@ -5165,7 +5368,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.43,
+     "s": 0.65,
      "intent_mismatch": false,
      "v": [
       1945.2990253416292,
@@ -5196,19 +5399,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.68,
+     "s": 0.35,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": false,
-     "s": 0.69,
+     "s": 0.34,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "difference": {
      "ok": false,
-     "s": 0.6,
+     "s": 0.35,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     }
@@ -5232,19 +5435,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 2.61,
+     "s": 1.77,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "intersection": {
      "ok": false,
-     "s": 2.03,
+     "s": 1.64,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     },
     "difference": {
      "ok": false,
-     "s": 2.61,
+     "s": 2.0,
      "intent_mismatch": false,
      "why": "validation-rejected: c04-embedding"
     }
@@ -5267,24 +5470,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 72.68,
+     "ok": true,
+     "s": 6.97,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 4 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      4159.065751995957,
+      4159.0660366039065
+     ]
     },
     "intersection": {
-     "ok": false,
-     "s": 54.34,
+     "ok": true,
+     "s": 16.49,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 4 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      23.956383799943286,
+      23.956506364114308
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 51.63,
+     "ok": true,
+     "s": 11.71,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 4 between nodes 1 and 13 [k1 reason 8 [k1 82]"
+     "v": [
+      3680.5400835418745,
+      3680.5406473760945
+     ]
     }
-   }
+   },
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 4159.065920730718,
+   "occt_ok": true
   },
   {
    "seed": 115,
@@ -5304,13 +5520,13 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1.25,
+     "s": 1.07,
      "intent_mismatch": false,
-     "why": "validation-rejected: edge-face-penetration 8 0"
+     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 6 between nodes 1 and 13 [k1 reason 4 [k1 42]"
     },
     "intersection": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       33.48301925920296,
@@ -5319,7 +5535,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.58,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       1040.0605226954096,
@@ -5347,7 +5563,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.54,
+     "s": 0.53,
      "intent_mismatch": false,
      "v": [
       3338.8195663357747,
@@ -5356,7 +5572,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.49,
+     "s": 0.36,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -5365,7 +5581,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.94,
+     "s": 0.7,
      "intent_mismatch": true,
      "v": [
       660.2905137775571,
@@ -5396,23 +5612,30 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.49,
+     "s": 0.66,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 4 [k1 42]"
     },
     "intersection": {
-     "ok": false,
-     "s": 0.45,
+     "ok": true,
+     "s": 0.27,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      102.72653013573873,
+      102.72775223493787
+     ]
     },
     "difference": {
-     "ok": false,
-     "s": 0.53,
+     "ok": true,
+     "s": 0.36,
      "intent_mismatch": false,
-     "why": "boundaries-cross-or-overlap: edge-face-penetration 0 5 between nodes 1 and 13 [k1 reason 7 [k1 72]"
+     "v": [
+      1716.982370569865,
+      1716.9852346672237
+     ]
     }
-   }
+   },
+   "id_di": true
   },
   {
    "seed": 118,
@@ -5441,7 +5664,7 @@
     },
     "difference": {
      "ok": false,
-     "s": 0.02,
+     "s": 0.01,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     }
@@ -5465,7 +5688,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.77,
+     "s": 0.34,
      "intent_mismatch": false,
      "v": [
       5763.300645642437,
@@ -5474,7 +5697,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.78,
+     "s": 0.42,
      "intent_mismatch": false,
      "v": [
       36.89083627465399,
@@ -5483,7 +5706,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.01,
+     "s": 0.49,
      "intent_mismatch": false,
      "v": [
       2767.3358452104712,
@@ -5514,7 +5737,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.27,
+     "s": 0.86,
      "intent_mismatch": false,
      "v": [
       34255.62344202366,
@@ -5523,16 +5746,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.91,
+     "s": 2.02,
      "intent_mismatch": false,
      "v": [
-      5096.344399565675,
-      5096.462636082603
+      5096.344399565674,
+      5096.462636082604
      ]
     },
     "difference": {
      "ok": true,
-     "s": 3.03,
+     "s": 2.23,
      "intent_mismatch": false,
      "v": [
       25283.542862030165,
@@ -5563,7 +5786,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.12,
      "intent_mismatch": false,
      "v": [
       4935.794797562518,
@@ -5572,7 +5795,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.3,
+     "s": 0.33,
      "intent_mismatch": false,
      "v": [
       109.84600983032094,
@@ -5581,7 +5804,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.37,
      "intent_mismatch": false,
      "v": [
       4202.636697401475,
@@ -5612,7 +5835,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.39,
      "intent_mismatch": false,
      "v": [
       2306.6720346648117,
@@ -5621,7 +5844,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.39,
+     "s": 0.5,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -5630,7 +5853,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.17,
+     "s": 1.13,
      "intent_mismatch": true,
      "v": [
       908.3395430461952,
@@ -5661,7 +5884,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.26,
+     "s": 0.15,
      "intent_mismatch": false,
      "v": [
       9361.426704028374,
@@ -5670,7 +5893,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -5679,7 +5902,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.56,
+     "s": 0.55,
      "intent_mismatch": true,
      "v": [
       6766.377577991465,
@@ -5709,31 +5932,37 @@
    ],
    "ops": {
     "union": {
-     "ok": false,
-     "s": 6.67,
+     "ok": true,
+     "s": 3.28,
      "intent_mismatch": false,
-     "why": "intersect-rejected: c04-embedding on the combined boundary [k1 reason 42] [k1 42]"
+     "v": [
+      6727.826567179364,
+      6727.83371073692
+     ]
     },
     "intersection": {
      "ok": true,
-     "s": 2.96,
+     "s": 5.48,
      "intent_mismatch": false,
      "v": [
       182.0253442237781,
-      182.03144032503988
+      182.03144032503994
      ]
     },
     "difference": {
      "ok": true,
-     "s": 3.69,
+     "s": 5.25,
      "intent_mismatch": false,
      "v": [
-      382.00231321118497,
-      382.02146137701266
+      382.0023132111848,
+      382.0214613770128
      ]
     }
    },
-   "id_di": true
+   "id_ui": true,
+   "id_di": true,
+   "occt_v": 6727.8304378030925,
+   "occt_ok": true
   },
   {
    "seed": 125,
@@ -5753,7 +5982,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.23,
+     "s": 0.22,
      "intent_mismatch": false,
      "v": [
       2565.4082776826444,
@@ -5762,7 +5991,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.34,
+     "s": 0.21,
      "intent_mismatch": false,
      "v": [
       429.41368256855844,
@@ -5771,7 +6000,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.58,
+     "s": 0.45,
      "intent_mismatch": false,
      "v": [
       1976.2780491787776,
@@ -5802,7 +6031,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.14,
      "intent_mismatch": false,
      "v": [
       6336.735244094476,
@@ -5811,7 +6040,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -5820,7 +6049,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.58,
+     "s": 0.41,
      "intent_mismatch": true,
      "v": [
       553.4521494464482,
@@ -5851,7 +6080,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.6,
+     "s": 0.43,
      "intent_mismatch": false,
      "v": [
       3028.9296427722315,
@@ -5860,7 +6089,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.85,
+     "s": 0.77,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -5869,7 +6098,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 1.79,
+     "s": 2.3,
      "intent_mismatch": true,
      "v": [
       469.6679160800644,
@@ -5900,7 +6129,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.72,
+     "s": 0.64,
      "intent_mismatch": false,
      "v": [
       13364.633031420755,
@@ -5909,7 +6138,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.96,
+     "s": 1.03,
      "intent_mismatch": false,
      "v": [
       3066.9235279836166,
@@ -5918,7 +6147,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.55,
+     "s": 0.83,
      "intent_mismatch": false,
      "v": [
       1587.071399714743,
@@ -5949,7 +6178,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 1.09,
+     "s": 0.96,
      "intent_mismatch": false,
      "v": [
       6627.644037236488,
@@ -5958,7 +6187,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 1.74,
+     "s": 1.65,
      "intent_mismatch": false,
      "v": [
       143.08290651014377,
@@ -5967,7 +6196,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 2.72,
+     "s": 3.4,
      "intent_mismatch": false,
      "v": [
       4482.359335135028,
@@ -5998,29 +6227,29 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.86,
+     "s": 0.68,
      "intent_mismatch": false,
      "v": [
-      14267.072177123158,
-      14267.103394374986
+      14267.072177123155,
+      14267.103394374983
      ]
     },
     "intersection": {
      "ok": true,
-     "s": 1.01,
+     "s": 0.94,
      "intent_mismatch": false,
      "v": [
-      302.70980118442105,
-      302.73511490775707
+      302.7098011844213,
+      302.7351149077573
      ]
     },
     "difference": {
      "ok": true,
-     "s": 2.38,
+     "s": 2.65,
      "intent_mismatch": false,
      "v": [
-      12338.353246262412,
-      12338.384587919163
+      12338.353246262408,
+      12338.38458791916
      ]
     }
    },
@@ -6047,7 +6276,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.07,
+     "s": 0.06,
      "intent_mismatch": false,
      "v": [
       1549.0253995515147,
@@ -6056,7 +6285,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.09,
+     "s": 0.08,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -6065,7 +6294,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.29,
+     "s": 0.26,
      "intent_mismatch": true,
      "v": [
       118.19418826814956,
@@ -6096,7 +6325,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.26,
      "intent_mismatch": false,
      "v": [
       353.8635232320941,
@@ -6114,7 +6343,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.45,
+     "s": 0.69,
      "intent_mismatch": false,
      "v": [
       69.32357626486551,
@@ -6145,7 +6374,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.16,
+     "s": 0.33,
      "intent_mismatch": false,
      "v": [
       3342.4511625415457,
@@ -6154,7 +6383,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.29,
+     "s": 0.42,
      "intent_mismatch": false,
      "v": [
       172.69979960394417,
@@ -6163,7 +6392,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.33,
+     "s": 0.63,
      "intent_mismatch": false,
      "v": [
       820.9136617165981,
@@ -6194,7 +6423,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 2.16,
+     "s": 3.44,
      "intent_mismatch": false,
      "v": [
       13631.856005995254,
@@ -6203,13 +6432,13 @@
     },
     "intersection": {
      "ok": false,
-     "s": 5.51,
+     "s": 6.11,
      "intent_mismatch": false,
      "why": "validation-rejected: inverted-shell 0 0"
     },
     "difference": {
      "ok": true,
-     "s": 4.17,
+     "s": 4.34,
      "intent_mismatch": false,
      "v": [
       5298.469999182671,
@@ -6271,7 +6500,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.12,
+     "s": 0.23,
      "intent_mismatch": false,
      "v": [
       1246.0765806148665,
@@ -6280,7 +6509,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.13,
+     "s": 0.16,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -6289,7 +6518,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.4,
+     "s": 0.58,
      "intent_mismatch": true,
      "v": [
       832.6311603936406,
@@ -6320,7 +6549,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.25,
+     "s": 0.29,
      "intent_mismatch": false,
      "v": [
       2042.8115956472363,
@@ -6329,7 +6558,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.29,
      "intent_mismatch": false,
      "v": [
       38.644155420830586,
@@ -6338,7 +6567,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.38,
+     "s": 0.27,
      "intent_mismatch": false,
      "v": [
       1835.5201912528673,
@@ -6369,7 +6598,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.22,
      "intent_mismatch": false,
      "v": [
       9988.661189964068,
@@ -6378,7 +6607,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.23,
+     "s": 0.3,
      "intent_mismatch": false,
      "v": [
       472.1464499723134,
@@ -6387,7 +6616,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.32,
+     "s": 0.51,
      "intent_mismatch": false,
      "v": [
       7143.76164204021,
@@ -6418,19 +6647,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 5.6,
+     "s": 2.59,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 16 2 between nodes 1 and 10 [k1 reason  [k1 42]"
     },
     "intersection": {
      "ok": false,
-     "s": 5.11,
+     "s": 3.24,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 16 2 between nodes 1 and 10 [k1 reason  [k1 42]"
     },
     "difference": {
      "ok": false,
-     "s": 6.04,
+     "s": 2.84,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 16 2 between nodes 1 and 10 [k1 reason  [k1 42]"
     }
@@ -6454,7 +6683,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.16,
+     "s": 0.18,
      "intent_mismatch": false,
      "v": [
       4460.4780271831305,
@@ -6463,7 +6692,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.21,
+     "s": 0.3,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -6472,7 +6701,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.75,
+     "s": 0.6,
      "intent_mismatch": true,
      "v": [
       1872.1401109816777,
@@ -6503,19 +6732,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 6.05,
+     "s": 6.62,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 6 1"
     },
     "intersection": {
      "ok": false,
-     "s": 7.26,
+     "s": 7.34,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 40 1"
     },
     "difference": {
      "ok": false,
-     "s": 5.81,
+     "s": 5.51,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 6 1"
     }
@@ -6536,7 +6765,7 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 0.01,
+     "s": 0.0,
      "intent_mismatch": false,
      "why": "input-node-missing-or-failed"
     },
@@ -6572,7 +6801,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.14,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       3181.7855782375677,
@@ -6581,7 +6810,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -6590,7 +6819,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.28,
+     "s": 0.67,
      "intent_mismatch": true,
      "v": [
       117.5213268014924,
@@ -6621,7 +6850,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.18,
+     "s": 0.13,
      "intent_mismatch": false,
      "v": [
       3246.7334193198403,
@@ -6630,16 +6859,16 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.27,
+     "s": 0.19,
      "intent_mismatch": false,
      "v": [
-      3.2721713585891243,
-      3.2721713586063195
+      3.2721713585891217,
+      3.2721713586063177
      ]
     },
     "difference": {
      "ok": true,
-     "s": 0.22,
+     "s": 0.41,
      "intent_mismatch": false,
      "v": [
       116.70436727932515,
@@ -6670,7 +6899,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.16,
+     "s": 0.2,
      "intent_mismatch": false,
      "v": [
       10144.273381327932,
@@ -6679,7 +6908,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.24,
+     "s": 0.28,
      "intent_mismatch": false,
      "v": [
       498.09116253626263,
@@ -6688,7 +6917,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.27,
      "intent_mismatch": false,
      "v": [
       181.15650031602436,
@@ -6728,7 +6957,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.19,
+     "s": 0.17,
      "intent_mismatch": false,
      "v": [
       0.0,
@@ -6737,7 +6966,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.4,
+     "s": 0.34,
      "intent_mismatch": true,
      "v": [
       2594.970796309244,
@@ -6768,22 +6997,22 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 15.53,
+     "s": 12.92,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 47 6"
     },
     "intersection": {
      "ok": true,
-     "s": 24.8,
+     "s": 22.05,
      "intent_mismatch": false,
      "v": [
-      2044.332612065447,
-      2044.3802285301635
+      2044.3326120653621,
+      2044.3802285302493
      ]
     },
     "difference": {
      "ok": false,
-     "s": 32.02,
+     "s": 27.16,
      "intent_mismatch": false,
      "why": "validation-rejected: edge-face-uncertain 47 13"
     }
@@ -6807,19 +7036,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1800.01,
+     "s": 1800.11,
      "intent_mismatch": false,
      "why": "TIMEOUT"
     },
     "intersection": {
      "ok": false,
-     "s": 1800.11,
+     "s": 1800.13,
      "intent_mismatch": false,
      "why": "TIMEOUT"
     },
     "difference": {
      "ok": false,
-     "s": 1800.11,
+     "s": 1800.12,
      "intent_mismatch": false,
      "why": "TIMEOUT"
     }
@@ -6843,7 +7072,7 @@
    "ops": {
     "union": {
      "ok": true,
-     "s": 0.17,
+     "s": 0.1,
      "intent_mismatch": false,
      "v": [
       502.1144744948542,
@@ -6852,7 +7081,7 @@
     },
     "intersection": {
      "ok": true,
-     "s": 0.22,
+     "s": 0.1,
      "intent_mismatch": false,
      "v": [
       197.32256366449255,
@@ -6861,7 +7090,7 @@
     },
     "difference": {
      "ok": true,
-     "s": 0.2,
+     "s": 0.11,
      "intent_mismatch": false,
      "v": [
       276.06896187350804,
@@ -6892,19 +7121,19 @@
    "ops": {
     "union": {
      "ok": false,
-     "s": 1.05,
+     "s": 1.15,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     },
     "intersection": {
      "ok": false,
-     "s": 0.93,
+     "s": 1.09,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     },
     "difference": {
      "ok": false,
-     "s": 1.12,
+     "s": 1.36,
      "intent_mismatch": false,
      "why": "boundaries-cross-or-overlap: edge-face-penetration 12 3 between nodes 1 and 10 [k1 reason  [k1 82]"
     }

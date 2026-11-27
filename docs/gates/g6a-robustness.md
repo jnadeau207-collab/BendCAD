@@ -24,21 +24,23 @@ G5 passed only by steering around refusals. A kernel an agent can trust must ans
 
 ## Measured state
 
-Judged on r50 (`docs/receipts/gates/g6a.json`, 2026-11-26, 150 seeds, 8 jobs). Seven seeds draw a revolve profile that `fuzz.py` itself marks invalid (28, 42, 68, 108, 118, 135, 142); the kernel refuses each of them, and the judge now checks that and leaves them out of the rates:
+Judged on r58 (`docs/receipts/gates/g6a.json`, 2026-11-27, 150 seeds, 8 jobs). Seven seeds draw a revolve profile that `fuzz.py` itself marks invalid (28, 42, 68, 108, 118, 135, 142); the kernel refuses each of them, and the judge checks that and leaves them out of the rates:
 
 | check | status | evidence |
 |---|---|---|
 | invalid inputs refused, valid inputs accepted | pass | 7 invalid refused, 0 invalid committed, 0 valid refused |
-| commit rate overall | fail | 327/429 = 76.2% (k5w: 55.6%) |
-| every pair and mode | fail | 26 groups below 99% |
+| commit rate overall | fail | 382/429 = 89.0% (r50: 76.2%, k5w: 55.6%) |
+| every pair and mode | fail | 19 groups below 99% |
 | OCCT | pass | 0 mismatches |
 | identity | pass | 0 violations |
-| p95 | fail | 13.4 s (k5w: 338.8 s); the tail is the validator's near-curve bisection on sphere circles (`near_go` under `circ_fi`) |
+| p95 | fail | 11.7 s (r50: 13.4 s) |
 
-Refusals on r50: c04 embedding on the combined boundary 19, edge-face penetration with K1 reasons 7x/8x 39, face penetration 82/93 6, c04 embedding 6, validator uncertain (edge-face, face-face, edge-crossing) 13, timeouts 6.
+What moved r50 to r58: intersection and edge-hit points refined in double-double before certification (reasons 72 and 82), untouched half-circle arcs split before rebuild (reason 42), the plane trim check bounding its own rounding (c04 embedding), and torus membership falling back to (u,v) parity when the surface path is tangent to the face boundary (edge-face-uncertain).
+
+Refusals on r58 (47): validator edge-face-uncertain 17 (seeds 25, 37, 49, 86, 87, 94, 141, 147), c04 embedding 6 (coplanar seeds 112, 113), K1 42 5 (115, 117, 139), K1 72 3 (35), K1 93 3 (102, tangent), K1 82 3 (150, coaxial), timeouts 3 (148), face-face-uncertain 2 (47), K1 40 2 (71, 85 intersections), edge-crossing-uncertain 2 (91), inverted shell 1 (134).
 
 ## What closes it
 
 1. General surface-surface intersection in K1 for every quadric pair, torus and revolve, including tangent, seam and coaxial-coincident degeneracies. The refusal reasons are 72, 42, 82 and 97.
-2. A fresh 150-seed judge run on the current kernel, to replace the k5w figures above.
+2. Coplanar faces left overlapping by K1 (seed 86: two prisms with bases on one plane) and the tangent, coaxial and near-miss positions (93, 82, 42 on seeds 102, 150, 139).
 3. Bring the speed tail under 10 s. Measured causes so far: the depth-4 certified octree in `mass` on patch faces (fixed in r1j) and whole-part rotor/stator clearance pairs (use blade-versus-revolve queries).
