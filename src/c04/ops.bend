@@ -900,12 +900,26 @@ def s_on(+s: G.GVal, +p: V.Point) -> Bool:
 def coinc_on(+ss: List<&2, G.GVal>, +ps: V.Point, +pe: V.Point) -> Bool:
   Bool.and(s_on(g_of(ss), ps), s_on(g_of(ss), pe))
 
+def d_scale(+d: V.Dir) -> F64:
+  F64.max(F64.abs(V.dr_x(d)), F64.max(F64.abs(V.dr_y(d)), F64.abs(V.dr_z(d))))
+
+def ev_sc(s: G.GVal, +t: V.Vec2) -> F64:
+  match s:
+    case G.GV_pl{w}:
+      G.Pl{+o, +u, +v} = w
+      F64.mul(2.0f64, F64.add(p_scale(o), F64.add(F64.mul(F64.abs(V.v2_x(t)), d_scale(u)), F64.mul(F64.abs(V.v2_y(t)), d_scale(v)))))
+    case _: 0.0f64
+
+def p_near_s(+a: V.Point, +b: V.Point, +e: F64) -> Bool:
+  +sc = F64.max(F64.max(p_scale(a), p_scale(b)), e)
+  Bool.and(f_near(V.pt_x(a), V.pt_x(b), sc), Bool.and(f_near(V.pt_y(a), V.pt_y(b), sc), f_near(V.pt_z(a), V.pt_z(b), sc)))
+
 def coinc_ex(+ss: List<&2, G.GVal>, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point) -> Bool:
   +rs = surf_at(g_of(ss), V.v2_x(ts), V.v2_y(ts))
   +re = surf_at(g_of(ss), V.v2_x(te), V.v2_y(te))
   +ok = Bool.and(G.gres_ok(rs), G.gres_ok(re))
   +exact = Bool.and(pt_eq(G.gres_p(rs), ps), pt_eq(G.gres_p(re), pe))
-  +near = Bool.and(p_near(G.gres_p(rs), ps), p_near(G.gres_p(re), pe))
+  +near = Bool.and(p_near_s(G.gres_p(rs), ps, ev_sc(g_of(ss), ts)), p_near_s(G.gres_p(re), pe, ev_sc(g_of(ss), te)))
   Bool.and(ok, Bool.or(exact, Bool.and(near, coinc_on(ss, ps, pe))))
 
 def coinc_bp(+g: G.GVal, +ts: V.Vec2, +te: V.Vec2, +ps: V.Point, +pe: V.Point, +tol: F64) -> Bool:

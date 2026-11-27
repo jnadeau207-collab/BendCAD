@@ -959,6 +959,13 @@ def mid_hx(+side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List<&2, G.GVal>, +a: F64,
 def cc_ang(+a: F64, +b: F64) -> F64:
   F64.mul(4.0f64, F64.sub(S.fatan2(b, 1.0f64), S.fatan2(a, 1.0f64)))
 
+def mid_if(big: Bool, +side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List<&2, G.GVal>, +a: F64, +b: F64, +g: PX.GV, +acc: List<&2, PX.HX>) -> PX.HXG:
+  match big:
+    case False{}: PX.HXG{acc, g}
+    case True{}:
+      +m = mid_hx(side, e, k, gs, a, b, g)
+      PX.HXG{List.append(&2, PX.HX, PX.hxg_hs(m), acc), PX.hxg_g(m)}
+
 def mids_go(bs: List<&2, PX.BP>, +side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List<&2, G.GVal>, +prev: F64, +pp: V.Point, +g: PX.GV,
     +acc: List<&2, PX.HX>) -> PX.HXG:
   match bs:
@@ -966,15 +973,14 @@ def mids_go(bs: List<&2, PX.BP>, +side: U64, +e: Nat, +k: Ty.EdgeKind, +gs: List
     case +h <> +t:
       +q = PX.gv_pt(g, PX.bp_v(h))
       +big = Bool.and(F64.is_le(2.9f64, cc_ang(prev, PX.bp_s(h))), Bool.not(Bool.and(PX.peq(EF.ev(EF.ek_curve(k), prev), pp), PX.peq(EF.ev(EF.ek_curve(k), PX.bp_s(h)), q))))
-      +m = mid_hx(side, e, k, gs, prev, PX.bp_s(h), g)
-      mids_go(t, side, e, k, gs, PX.bp_s(h), q, Bool.pick(PX.GV, big, PX.hxg_g(m), g),
-        Bool.pick(List<&2, PX.HX>, big, List.append(&2, PX.HX, PX.hxg_hs(m), acc), acc))
+      +m = mid_if(big, side, e, k, gs, prev, PX.bp_s(h), g, acc)
+      mids_go(t, side, e, k, gs, PX.bp_s(h), q, PX.hxg_g(m), PX.hxg_hs(m))
 
 def edge_mids(+side: U64, +b: FB.KB, +e: Nat, +hs: List<&2, PX.HX>, +g: PX.GV, +vmap: List<&2, Nat>, +acc: List<&2, PX.HX>) -> PX.HXG:
   +ed = FB.edge_at(b, e)
   +k = Ty.ed_kind(ed)
   +mid = PX.dedup_bp(PX.bp_sort(edge_bks(hs, side, e)))
-  +go = Bool.and(is_cc(k), Nat.is_lt(0n, List.length(&2, PX.BP, mid)))
+  +go = is_cc(k)
   +i0 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v0(ed)))
   +i1 = L.nth_n(vmap, Ty.hv_idx(Ty.ed_v1(ed)))
   +bs = List.append(&2, PX.BP, mid, [PX.BP{EF.ek_hi(k), i1, PX.gv_pt(g, i1)}])

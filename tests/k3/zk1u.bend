@@ -186,8 +186,19 @@ def cq_ed(+ed: Ty.Edge, +fw: Bool, +x: Ty.Ix, +sf: G.GVal, +tol: F64) -> String:
 def cq_c(+ce: Ty.Coedge, +x: Ty.Ix, +sf: G.GVal, +tol: F64) -> String:
   "   ce e=" ++ Nat.show(Ty.he_idx(Ty.ce_edge(ce))) ++ cq_ed(Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce))), Ty.ce_fwd(ce), x, sf, tol)
 
+def cx_s(+ce: Ty.Coedge, +ed: Ty.Edge, +x: Ty.Ix, +sf: G.GVal) -> String:
+  +fwd = Ty.ce_fwd(ce)
+  +ts = C4.trim_o_start(Ty.ce_trim(ce), fwd)
+  +te = C4.trim_o_end(Ty.ce_trim(ce), fwd)
+  +ps = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, C4.o_v_start(ed, fwd))))
+  +pe = Ty.vx_p(Ty.tres_vx(Ty.ix_vx(x, C4.o_v_end(ed, fwd))))
+  +rs = G.gres_p(C4.surf_at(sf, V.v2_x(ts), V.v2_y(ts)))
+  +re = G.gres_p(C4.surf_at(sf, V.v2_x(te), V.v2_y(te)))
+  " eq=" ++ b_s(C4.pt_eq(rs, ps)) ++ b_s(C4.pt_eq(re, pe)) ++ " near=" ++ b_s(C4.p_near(rs, ps)) ++ b_s(C4.p_near(re, pe)) ++ " on=" ++ b_s(C4.s_on(sf, ps)) ++ b_s(C4.s_on(sf, pe)) ++ " rs=" ++ pt_s(rs) ++ " re=" ++ pt_s(re) ++ " pe=" ++ pt_s(pe)
+
 def cq_ce(+h: Ty.HCoedge, +x: Ty.Ix, +sf: G.GVal, +tol: F64) -> String:
-  cq_c(Ty.tres_ce(Ty.ix_ce(x, h)), x, sf, tol) ++ " one=" ++ b_s(C4.hcs_face_ok([h], x, sf, False{}, True{}, tol))
+  +ce = Ty.tres_ce(Ty.ix_ce(x, h))
+  cq_c(ce, x, sf, tol) ++ " one=" ++ b_s(C4.hcs_face_ok([h], x, sf, False{}, True{}, tol)) ++ " coinc=" ++ b_s(C4.hcs_face_ok([h], x, sf, True{}, False{}, tol)) ++ cx_s(ce, Ty.tres_ed(Ty.ix_ed(x, Ty.ce_edge(ce))), x, sf)
 
 def cq_s(xs: List<&2, Ty.HCoedge>, +x: Ty.Ix, +sf: G.GVal, +tol: F64) -> String:
   match xs:
@@ -210,11 +221,11 @@ def emb_s(+bc: Ty.Brep) -> String:
   "trim_ok=" ++ Bool.pick(String, C4.ces_trim_ok(Ty.brep_ces(bc)), "1", "0") ++ " surf_ok=" ++ Bool.pick(String, C4.fas_surf_ok(Ty.brep_fas(bc)), "1", "0") ++ "\n" ++
     es_bad(Ty.brep_es(bc), x, B8.fuel_of(bc), 0n) ++ fa_bad(Ty.brep_fas(bc), x, 0n)
 
-def run(+src: String, +op: String) -> String:
+def run(+src: String, +op: String, +nb: U64) -> String:
   +cs = M.ev_part(S.part_of(S.ps_xs(S.parse(src))), [])
   +ba = placed(cs, 1u64)
-  +bb = placed(cs, 12u64)
-  +tg = Bool.pick(U64, String.eq(op, "i"), B8.tag_inter(), B8.tag_union())
+  +bb = placed(cs, nb)
+  +tg = Bool.pick(U64, String.eq(op, "i"), B8.tag_inter(), Bool.pick(U64, String.eq(op, "d"), B8.tag_diff(), B8.tag_union()))
   +kr = GB.gbrun(tg, ba, bb)
   +kb = FB.kb_of(K1.kr_brep(kr))
   +bc = B8.restamp(K1.kr_brep(kr))
@@ -223,15 +234,16 @@ def run(+src: String, +op: String) -> String:
 law go2:
   for a: String
   for o: String
+  for n: String
   IO(String)
 
-def go2(a, o):
+def go2(a, o, n):
   do IO<String>:
     src : String <- read_file(a)
-    return run(src, o)
+    return run(src, o, S.u64_of(S.Sx_a{n}))
 
 def go(+xs: List<&2, String>) -> IO(String):
-  go2(S.arg_at(xs, 1n), S.arg_at(xs, 2n))
+  go2(S.arg_at(xs, 1n), S.arg_at(xs, 2n), S.arg_at(xs, 3n))
 
 def main() -> IO(Unit):
   do IO<Unit>:
