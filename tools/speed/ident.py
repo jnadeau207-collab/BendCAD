@@ -2,6 +2,7 @@ import concurrent.futures
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -46,8 +47,10 @@ def run_one(binp, out, item):
     args = [last_node(design) if a == 'LAST' else a for a in args]
     fp = os.path.join(out, fout) if fout else None
     args = [fp if a == 'OUT' else a for a in args]
+    dp = os.path.join(out, name + '.bcd')
+    shutil.copyfile(os.path.join(ROOT, design), dp)
     t0 = time.time()
-    p = subprocess.run([binp, os.path.join(ROOT, design)] + args, capture_output=True, text=True, cwd=out)
+    p = subprocess.run([binp, dp] + args, capture_output=True, text=True, cwd=out)
     dt = time.time() - t0
     text = p.stdout.replace(out, 'OUT')
     open(os.path.join(out, name + '.out'), 'w').write(text)

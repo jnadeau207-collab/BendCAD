@@ -1,0 +1,37 @@
+# Finishing BendCAD
+
+Written 2026-11-27 after a review of the whole build history (U64/F64 for Bend 2 through G6a). This is the one definition of done. The README's status table is generated from the receipts this file names, and nothing is marked done ahead of its receipt.
+
+## Done means
+
+All of these, measured on one binary:
+
+| Measure | Target | Receipt |
+|---|---|---|
+| Brief ladder (B1-B14) | 14 of 14 pass | `docs/receipts/briefs/summary.md` |
+| G5 readiness | 10 of 10 pass | `docs/receipts/g5/review/readiness.json` |
+| G6 HUMPHREY-1 | §7 of `docs/gates/g6-humphrey-1.md`, graded by a fresh session that did not build it | `docs/receipts/g6/` |
+| G6a robustness | every check of `tests/gates/g6a.py` passes (99% commit, p95 under 10 s) | `docs/receipts/gates/g6a.json` |
+| Speed budgets | edit 5 s, part 60 s, 25-part scene 60 s, manufacturing export 5 min | the brief ladder and the G6 tess receipt |
+
+Then G6b (maglev) and G6c (raised jet) run on that kernel.
+
+## Steps
+
+1. **Re-baseline.** Run the brief ladder, G5 readiness, G6a and the G6 receipts on one current binary. Regenerate the README from them. G6 reads "self-graded" until a fresh session grades it.
+2. **Robustness: the rest of K5.** The G6a refusals: tangent contacts at shared vertices (exact evaluation of the rational curve), coplanar faces K1 leaves overlapping, tangent, coaxial and near-miss positions, and the sphere-face membership cost behind the seed 148 timeouts.
+3. **Function.** The failing briefs' not-analyzed checks; G5 blade modes and compressor CFD.
+4. **Speed as a gate.** A lint for strict `Bool.pick`/`Bool.and`/`Bool.or` with costly arms; the warm cache as the CLI's default path so edits meet 5 s; every manufacturing export under 5 minutes.
+5. **Close.** Fresh-session grading of G5 and G6, then G6b and G6c.
+
+## How the work runs
+
+- One scoreboard, from receipts on one binary.
+- Probe before building: no speculative 10-minute build cycles.
+- A bug class seen twice gets a tool or a lint, not another one-off fix.
+- `tools/precommit.sh` before every kernel commit; no source edits while a build or gate reads the tree.
+- Work stops when this table is green or a decision is the owner's.
+
+## Baseline
+
+Filled in by step 1.
