@@ -9,6 +9,8 @@ import ../c06/sx.bend as S
 import ../k1/sf.bend as KS
 import ../k1/fb.bend as FB
 import ../k1/ef.bend as EF
+import ../c07/sol.bend as SO
+import ../c11/qinterf.bend as QI
 
 type TR is Data:
   TR{ k: U64, ax: F64, ay: F64, bx: F64, by: F64, r: F64, t0: F64, t1: F64, z0: F64, z1: F64, ex: Bool }
@@ -815,3 +817,112 @@ def mesh_s(+na: String, +nb: String, +ta: TL, +tb: TL, +za: F64, +zb: F64, +pa: 
   +bad = Bool.or(Bool.not(F64.is_lt(0.0f64, za)), Bool.not(F64.is_lt(0.0f64, zb)))
   mesh_k(Bool.pick(U64, Bool.not(tl_ok(ta)), 1u64, Bool.pick(U64, Bool.not(tl_ok(tb)), 2u64, Bool.pick(U64, bad, 3u64, 0u64))),
     na, nb, ta, tb, za, zb, pa, pb)
+
+def vx_hd(vs: List<&2, Ty.Vertex>) -> V.Point:
+  match vs:
+    case []: V.Pt{F64.nan(), F64.nan(), F64.nan()}
+    case +v <> t: Ty.vx_p(v)
+
+def out_of(+p: V.Point, +b: M.Body) -> Bool:
+  U64.is_eq(SO.classify(SO.fds_of(M.bd_brep(b)), QI.loc_pt(M.bd_pl(b), V.pt_x(p), V.pt_y(p), V.pt_z(p))), 0u64)
+
+def wvx(+b: M.Body) -> V.Point:
+  M.pl_pt(vx_hd(Ty.brep_vs(M.bd_brep(b))), M.bd_pl(b))
+
+def ln_x(+ax: F64, +ay: F64, +bx: F64, +by: F64, +px: F64, +py: F64) -> Nat:
+  +cr = Bool.not(Bool.xor(F64.is_lt(py, ay), F64.is_lt(py, by)))
+  Bool.pick(Nat, Bool.or(cr, F64.is_eq(ay, by)), 0n,
+    Bool.pick(Nat, F64.is_lt(px, F64.add(ax, F64.div(F64.mul(F64.sub(py, ay), F64.sub(bx, ax)), F64.sub(by, ay)))), 1n, 0n))
+
+def arc_x1(+cx: F64, +cy: F64, +x: F64, +py: F64, +t0: F64, +t1: F64, +px: F64) -> Nat:
+  Bool.pick(Nat, Bool.and(F64.is_lt(px, x), in_rng(KS.fatan2(F64.sub(py, cy), F64.sub(x, cx)), t0, t1, 0.0f64)), 1n, 0n)
+
+def arc_x(+cx: F64, +cy: F64, +r: F64, +t0: F64, +t1: F64, +px: F64, +py: F64) -> Nat:
+  +dy = F64.sub(py, cy)
+  +h2 = F64.sub(F64.mul(r, r), F64.mul(dy, dy))
+  +h = F64.sqrt(F64.max(h2, 0.0f64))
+  Bool.pick(Nat, F64.is_le(h2, 0.0f64), 0n, Nat.add(arc_x1(cx, cy, F64.add(cx, h), py, t0, t1, px), arc_x1(cx, cy, F64.sub(cx, h), py, t0, t1, px)))
+
+def tr_x(+t: TR, +px: F64, +py: F64) -> Nat:
+  TR{+k, +ax, +ay, +bx, +by, +r, +t0, +t1, +z0, +z1, +xe} = t
+  Bool.pick(Nat, U64.is_eq(k, 1u64), ln_x(ax, ay, bx, by, px, py), arc_x(ax, ay, r, t0, t1, px, py))
+
+def xs_go(ts: List<&2, TR>, +px: F64, +py: F64, +acc: Nat) -> Nat:
+  match ts:
+    case []: acc
+    case +h <> +t: xs_go(t, px, py, Nat.add(acc, tr_x(h, px, py)))
+
+def out2(+ts: List<&2, TR>, +p: V.Point) -> Bool:
+  Nat.is_eq(Nat.mod(xs_go(ts, V.pt_x(p), V.pt_y(p), 0n), 2n), 0n)
+
+def tr_d2(+a: TR, +b: TR) -> DI:
+  +ka = tr_k(a)
+  +kb = tr_k(b)
+  +d = tr_dk(Bool.pick(U64, Bool.and(U64.is_eq(ka, 1u64), U64.is_eq(kb, 1u64)), 1u64,
+    Bool.pick(U64, U64.is_eq(ka, 1u64), 2u64, Bool.pick(U64, U64.is_eq(kb, 1u64), 3u64, 4u64))), a, b)
+  DI{di_lo(d), Bool.pick(F64, Bool.and(tr_ex(a), tr_ex(b)), di_hi(d), inf())}
+
+def d_pair2(+far: Bool, +a: TR, +h: TR, +acc: DI) -> DI:
+  match far:
+    case True{}: acc
+    case False{}: di_min(acc, tr_d2(a, h))
+
+def d_one2(+a: TR, +ba: List<&2, F64>, bs: List<&2, TR>, +acc: DI) -> DI:
+  match bs:
+    case []: acc
+    case +h <> +t: d_one2(a, ba, t, d_pair2(F64.is_lt(di_hi(acc), box_gap(ba, tr_box(h))), a, h, acc))
+
+def d_all2(as: List<&2, TR>, +bs: List<&2, TR>, +acc: DI) -> DI:
+  match as:
+    case []: acc
+    case +h <> +t: d_all2(t, bs, d_one2(h, tr_box(h), bs, acc))
+
+def zx_v2(+d: DI, +ta: List<&2, TR>, +tb: List<&2, TR>, +a: M.Body, +b: M.Body) -> String:
+  Bool.pick(String, Bool.and(F64.is_lt(0.0f64, di_lo(d)), Bool.and(out2(tb, wvx(a)), out2(ta, wvx(b)))),
+    "relation disjoint status=certified method=z-prism-sections (plan sections apart by gap=[" ++ S.f_show(di_lo(d)) ++ ", " ++ S.f_show(di_hi(d)) ++ "])", "")
+
+def zr_tol(+z0: F64, +z1: F64) -> F64:
+  F64.mul(1.0e-6f64, F64.add(1.0f64, F64.max(F64.abs(z0), F64.abs(z1))))
+
+def zr_go(ts: List<&2, TR>, +z0: F64, +z1: F64) -> Bool:
+  match ts:
+    case []: True{}
+    case +h <> +t: Bool.and(Bool.and(F64.is_le(F64.abs(F64.sub(tr_z0(h), z0)), zr_tol(z0, z1)), F64.is_le(F64.abs(F64.sub(tr_z1(h), z1)), zr_tol(z0, z1))), zr_go(t, z0, z1))
+
+def tr_hd(ts: List<&2, TR>) -> V.Vec2:
+  match ts:
+    case []: V.V2{F64.nan(), F64.nan()}
+    case +h <> t: V.V2{tr_z0(h), tr_z1(h)}
+
+def zx_one(+ts: List<&2, TR>, +z: V.Vec2) -> Bool:
+  Bool.and(F64.is_lt(V.v2_x(z), V.v2_y(z)), zr_go(ts, V.v2_x(z), V.v2_y(z)))
+
+def zx_d(ok: Bool, +ta: TL, +tb: TL, +a: M.Body, +b: M.Body, +z: V.Vec2) -> String:
+  match ok:
+    case False{}: ""
+    case True{}: zx_v2(d_all2(tl_ts(ta), tl_ts(tb), DI{inf(), inf()}), tl_ts(ta), tl_ts(tb), a, b)
+
+def zx_ok(+ta: TL, +tb: TL) -> Bool:
+  Bool.and(Bool.and(tl_ok(ta), tl_ok(tb)), Bool.and(zx_one(tl_ts(ta), tr_hd(tl_ts(ta))), zx_one(tl_ts(tb), tr_hd(tl_ts(tb)))))
+
+def zx_rel(+a: M.Body, +b: M.Body) -> String:
+  +ta = traces(a, [])
+  +tb = traces(b, [])
+  zx_d(zx_ok(ta, tb), ta, tb, a, b, tr_hd(tl_ts(ta)))
+
+def rel_pick(e: Bool, +z: String, +a: M.NR, +b: M.NR) -> String:
+  match e:
+    case True{}: QI.rel_s(a, b)
+    case False{}: z
+
+def nr_okb(+r: M.NR) -> Bool:
+  M.nr_ok(r)
+
+def rel_zx(ok: Bool, +a: M.NR, +b: M.NR) -> String:
+  match ok:
+    case False{}: ""
+    case True{}: zx_rel(M.nr_body(a), M.nr_body(b))
+
+def rel_fast(+a: M.NR, +b: M.NR) -> String:
+  +z = rel_zx(Bool.and(nr_okb(a), nr_okb(b)), a, b)
+  rel_pick(String.is_empty(z), z, a, b)

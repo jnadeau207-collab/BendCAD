@@ -12,6 +12,7 @@ import ../k1/sf.bend as KS
 import ./std.bend as SD
 import ./thr.bend as KT
 import ../c06/iv.bend as I
+import ../c06/gear.bend as GR
 
 type Ax is Data:
   Ax{ p: V.Point, n: V.Dir }
@@ -117,6 +118,9 @@ def ent_sc(+n: U64, +sz: String, +l: F64, +acc: List<&2, Ent>) -> List<&2, Ent>:
 def ent_bg(+n: U64, +g: String, +p: String, +acc: List<&2, Ent>) -> List<&2, Ent>:
   Ent{n, 0n, 14u64, M.Hs{14u64, g, p, X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, z_ax(), 0.0f64, "bearing", []} <> acc
 
+def ent_gr(+n: U64, +m: F64, +z: F64, +ds: F64, +bore: F64, +acc: List<&2, Ent>) -> List<&2, Ent>:
+  Ent{n, 0n, 15u64, M.Hs{15u64, "", "", X.X_k{0.0f64}, X.X_k{0.0f64}, X.X_k{0.0f64}}, z_ax(), 0.0f64, "gear", [m, z, ds, bore]} <> acc
+
 def ent_kw(+bb: M.Body, +f: M.Sel, +side: U64, +l: F64, +z: F64, +thru: Bool, +nd: U64) -> Ent:
   +br = M.bd_brep(bb)
   +fa = M.fa_nth(Ty.brep_fas(br), M.name_idx(M.bd_fns(bb), M.sel_nm(f), 0n))
@@ -163,6 +167,7 @@ def step(o: M.Op, +n: U64, +cs: List<&2, M.CE>, +e: X.Env, +acc: List<&2, Ent>) 
     case M.O_xthread{+base, +f, +sz, +cls}: St{True{}, base, ent_xt(bbody(cs, base), f, sz, cls, n) <> acc}
     case M.O_screw{std, +sz, +l, thr}: St{False{}, 0u64, ent_sc(n, sz, X.xp_ev(l, e), acc)}
     case M.O_bearing{+g, +part}: St{False{}, 0u64, ent_bg(n, g, part, acc)}
+    case M.O_gear{+gm, +gz, gb, +gds, +gbo}: St{False{}, 0u64, ent_gr(n, X.xp_ev(gm, e), U64.to_f64(gz), X.xp_ev(gds, e), X.xp_ev(gbo, e), acc)}
     case M.O_move{base, tx, ty, tz, q}: St{False{}, 0u64, acc}
     case M.O_rot{base, ax, deg}: St{False{}, 0u64, acc}
     case _: step_d(o, acc)
@@ -469,6 +474,21 @@ def bg_note(+g: String, +p: String) -> String:
     Bool.pick(String, String.eq(p, "balls"), " (balls at the mean CN radial clearance " ++ S.f_show(F64.mul(1000.0f64, M.bg_cl(g))) ++ " um)",
       " (groove radius " ++ S.f_show(M.bg_rg(g)) ++ " = conformity " ++ S.f_show(M.bg_v(g, 8n)) ++ " x Dw, assumed; corner radius " ++ S.f_show(M.bg_v(g, 11n)) ++ ")"))
 
+def gr_vr(+b: M.Body, +a: Ax, +g: GR.Gp, +nf: F64, +dev: F64, +bore: F64) -> Vr:
+  +cs = cfs(b, a)
+  +cyl = vr_and(bg_cyl(cs, GR.gp_ra(g), "tip-d"), vr_and(bg_cyl(cs, GR.gp_rf(g), "root-d"), bg_cyl(cs, bore, "bore-d")))
+  Vr{Bool.and(vr_ok(cyl), F64.is_le(dev, 1.0e-3f64)),
+    ": m=" ++ S.f_show(GR.gp_m(g)) ++ " z=" ++ S.f_show(GR.gp_z(g)) ++ " alpha=20 deg, ISO 53 basic rack profile A (ha=1 m, hf=1.25 m, rho_f=0.38 m; rho_f used " ++ n_s(GR.gp_rho(g)) ++
+    ") d=" ++ n_s(F64.mul(GR.gp_m(g), GR.gp_z(g))) ++ " db=" ++ n_s(F64.mul(2.0f64, GR.gp_rb(g))) ++ " da=" ++ n_s(F64.mul(2.0f64, GR.gp_ra(g))) ++ " df=" ++ n_s(F64.mul(2.0f64, GR.gp_rf(g))) ++
+    " s=" ++ n_s(F64.sub(F64.mul(1.5707963267948966f64, GR.gp_m(g)), GR.gp_ds(g))) ++ " (thickness reduction " ++ n_s(GR.gp_ds(g)) ++ ") pb=" ++ n_s(F64.mul(F64.mul(3.141592653589793f64, GR.gp_m(g)), F64.mul(GR.gp_rb(g), F64.div(2.0f64, F64.mul(GR.gp_m(g), GR.gp_z(g)))))) ++
+    " | involute flanks as " ++ S.f_show(nf) ++ " circular arcs each, certified deviation from the true involute <= " ++ n_s(F64.mul(1000.0f64, dev)) ++ " um (limit 1 um) |" ++ vr_s(cyl) ++
+    " | " ++ GR.root_s(g)}
+
+def v_gear(+b: M.Body, +a: Ax, +gv: List<&2, F64>) -> Vr:
+  +g = GR.gp_of(SD.fv_go(gv, 0n), SD.fv_go(gv, 1n), SD.fv_go(gv, 2n))
+  +nd = GR.nf_dev(g)
+  gr_vr(b, a, g, GR.nd_nf(nd), GR.nd_dev(nd), SD.fv_go(gv, 3n))
+
 def v_bearing(+b: M.Body, +a: Ax, +g: String, +p: String) -> Vr:
   +v = Bool.pick(Vr, String.eq(p, "inner"), bg_ring(b, a, M.bg_h(g, 0n), M.bg_h(g, 6n), "bore-d", "land-d"),
     Bool.pick(Vr, String.eq(p, "outer"), bg_ring(b, a, M.bg_h(g, 1n), M.bg_h(g, 7n), "outside-d", "land-d"),
@@ -655,6 +675,9 @@ def ent_go(k: U64, +nd: U64, +i: Nat, +h: M.Hs, +a: Ax, +rb: F64, +std: String, 
       M.Hs{kk, +sz, cls, x, y, r} = h
       +v = v_screw(b, a, sz, rb)
       Vr{vr_ok(v), "std screw " ++ U64.show(nd) ++ " ISO 4762 " ++ sz ++ "x" ++ S.f_show(rb) ++ " at=" ++ pt_s(ax_p(a)) ++ " n=" ++ dir_s(ax_n(a)) ++ st_s(v)}
+    case 15u64:
+      +v = v_gear(b, a, g)
+      Vr{vr_ok(v), "std gear " ++ U64.show(nd) ++ st_s(v)}
     case 14u64:
       M.Hs{kk, +sz, +cls, x, y, r} = h
       +v = v_bearing(b, a, sz, cls)

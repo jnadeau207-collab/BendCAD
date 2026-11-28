@@ -402,6 +402,9 @@ def wall_rep(ps: List<&2, Wp>, +x: Wx) -> String:
     case []: "min-wall none status=certified reason=all-faces-adjacent"
     case Wp{+lo, +i, +j} <> t: wall_fin(lo, wall_scan(Wp{lo, i, j} <> t, x, Wr{V.dbl_max(), 0n, 0n}), x)
 
+def clear_loc(+sm: Bool, +a: M.Body, +b: M.Body, +tol: F64) -> String:
+  clear_go(QI.loc_a(sm, a), QI.loc_a(sm, b), tol)
+
 def clear_s_t(ra: M.NR, rb: M.NR, +tol: F64) -> String:
   match ra:
     case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
@@ -410,7 +413,7 @@ def clear_s_t(ra: M.NR, rb: M.NR, +tol: F64) -> String:
         case M.NR_err{k, d}: "error: node failed; nothing measured" ++ M.nr_why(k, d)
         case M.NR_ok{+b, fb}:
           Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
-            "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_go(a, b, tol))
+            "refused clearance-needs-solid | clearance | fix: thicken-open the shell to a solid first", clear_loc(QI.same_pl(a, b), a, b, tol))
 
 def clear_s(ra: M.NR, rb: M.NR) -> String:
   clear_s_t(ra, rb, 0.0f64)

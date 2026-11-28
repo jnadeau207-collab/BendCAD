@@ -10,13 +10,13 @@ Refusals are authoring refusals from `friction.json` plus refused probe steps. C
 | B2 | bendcad-r71 | yes | 0.033 | 0+0 | 9/0/0 | yes | yes | 1176 | 0.15 | 0.104, 0.159 | pass | pass | pass | yes |
 | B3 | bendcad-r71 | yes | 0.236 | 4+1 | 11/0/0 | yes | yes | 1296 | 0.48 | 0.377, 0.854 | pass | pass | pass | yes |
 | B4 | bendcad-r71 | yes | 0.334 | 1+0 | 9/0/0 | yes | yes | 1184 | 0.55 | 0.524, 1.183 | pass | pass | pass | yes |
-| B5 | bendcad-r71 | yes | 2.066 | 4+2 | 7/0/0 | yes | yes | 892 | 2.77 | 1.883, 5.177 | pass | pass | pass | yes |
-| B6 | bendcad-r71 | yes | 0.653 | 0+0 | 9/0/1 | yes | yes | 3304 | 1.77 | 0.493, 1.265 | pass | pass | pass | no |
+| B5 | bendcad-r76 | yes | 1.973 | 4+2 | 7/0/0 | yes | yes | 892 | 1.85 | 1.906, 5.451 | pass | pass | pass | yes |
+| B6 | bendcad-r84 | yes | 33.559 | 0+0 | 11/0/0 | yes | yes | 12652 | 32.39 | 13.993, 52.567 | fail | pass | pass | no |
 | B7 | bendcad-r71 | yes | 1.06 | 3+2 | 10/0/2 | yes | yes | 2956 | 2.63 | 0.566, 1.884 | pass | pass | pass | no |
 | B8 | bendcad-r71 | yes | 0.31 | 0+0 | 7/0/2 | yes | yes | 5008 | 0.64 | 0.506, 1.073 | pass | pass | pass | no |
 | B9 | bendcad-r71 | yes | 0.424 | 1+0 | 10/0/1 | yes | yes | 1518 | 0.92 | 0.061, 1.032 | pass | pass | pass | no |
-| B10 | bendcad-r71 | yes | 0.108 | 1+1 | 7/0/1 | yes | yes | 5184 | 0.21 | 0.227, 0.448 | pass | pass | pass | no |
+| B10 | bendcad-r73 | yes | 0.116 | 1+1 | 8/0/0 | yes | yes | 5184 | 0.21 | 0.46, 0.46 | pass | pass | pass | yes |
 | B11 | bendcad-r71 | yes | 3.829 | 0+0 | 5/0/1 | yes | yes | 4558 | 5.67 | 4.617, 12.189 | pass | pass | pass | no |
 | B12 | bendcad-r71 | yes | 0.809 | 1+0 | 7/0/0 | yes | yes | 1404 | 1.12 | 0.85, 2.521 | pass | pass | pass | yes |
-| B13 | bendcad-r71 | yes | 2.815 | 2+0 | 6/0/3 | yes | yes | 3628 | 2.8 | 0.405, 3.585 | pass | pass | pass | no |
+| B13 | bendcad-r76 | yes | 37.284 | 2+0 | 13/0/0 | yes | yes | 35128 | 26.59 | 0.411, 16.457 | pass | pass | pass | yes |
 | B14 | bendcad-r71 | yes | 0.335 | 2+2 | 6/0/1 | yes | yes | 900 | 0.48 | 0.442, 1.162 | pass | pass | pass | no |

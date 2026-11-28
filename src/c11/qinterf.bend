@@ -485,6 +485,38 @@ def rel_pair(+a: M.Body, +b: M.Body) -> String:
   +dis = QA.ab_disjoint(wa, wb)
   rel_pair_go(dis, a, b, wa, wb)
 
+def f_eqs(xs: List<&2, F64>, ys: List<&2, F64>) -> Bool:
+  match xs:
+    case []:
+      match ys:
+        case []: True{}
+        case y <> t: False{}
+    case +x <> xt:
+      match ys:
+        case []: False{}
+        case +y <> yt: Bool.and(F64.is_eq(x, y), f_eqs(xt, yt))
+
+def iv_fs(xs: List<&2, I.I>) -> List<&2, F64>:
+  match xs:
+    case []: []
+    case +x <> t: I.i_lo(x) <> I.i_hi(x) <> iv_fs(t)
+
+def pl_same(+p: M.Pl, +q: M.Pl) -> Bool:
+  Bool.and(Bool.and(f_eqs(M.m3_l(M.pl_m(p)), M.m3_l(M.pl_m(q))), f_eqs(iv_fs(M.pl_mi(p)), iv_fs(M.pl_mi(q)))),
+    Bool.and(f_eqs(iv_fs(M.pl_ti(p)), iv_fs(M.pl_ti(q))),
+      Bool.and(F64.is_eq(M.pl_tx(p), M.pl_tx(q)), Bool.and(F64.is_eq(M.pl_ty(p), M.pl_ty(q)), F64.is_eq(M.pl_tz(p), M.pl_tz(q))))))
+
+def loc_a(sm: Bool, +a: M.Body) -> M.Body:
+  match sm:
+    case True{}: M.Bd{M.bd_cells(a), M.bd_brep(a), M.bd_fns(a), M.pl_id(), M.bd_rv(a), M.bd_xb(a)}
+    case False{}: a
+
+def same_pl(+a: M.Body, +b: M.Body) -> Bool:
+  pl_same(M.bd_pl(a), M.bd_pl(b))
+
+def rel_loc(+sm: Bool, +a: M.Body, +b: M.Body) -> String:
+  rel_pair(loc_a(sm, a), loc_a(sm, b))
+
 def rel_s(ra: M.NR, rb: M.NR) -> String:
   match ra:
     case M.NR_err{k, d}: "error: node failed; nothing compared" ++ M.nr_why(k, d)
@@ -494,4 +526,4 @@ def rel_s(ra: M.NR, rb: M.NR) -> String:
         case M.NR_ok{+b, fb}:
           Bool.pick(String, Bool.or(M.bd_open(a), M.bd_open(b)),
             "refused interf-needs-solid | interf | fix: thicken-open the shell to a solid first",
-            cav_exact(a) ++ cav_exact(b) ++ rel_pair(a, b))
+            cav_exact(a) ++ cav_exact(b) ++ rel_loc(same_pl(a, b), a, b))

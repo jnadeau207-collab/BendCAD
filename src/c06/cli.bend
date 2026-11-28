@@ -21,6 +21,7 @@ import ../c11/qdist.bend as QD
 import ../c11/qmass.bend as QM
 import ../c11/qsect.bend as QN
 import ../c11/qinterf.bend as QI
+import ../k2/kgap.bend as KG
 import ../c12/blob.bend as BL
 import ../c12/stepw.bend as SW
 import ../c12/stepr.bend as SR
@@ -1514,7 +1515,7 @@ def surf_go(+p: M.Part, +xs: List<&2, String>) -> String:
 
 def pair_go(rel: Bool, +a: M.NR, +b: M.NR, +tol: F64) -> String:
   match rel:
-    case True{}: QI.rel_s(a, b)
+    case True{}: KG.rel_fast(a, b)
     case False{}: QD.clear_s_t(a, b, tol)
 
 def pair_q(+rel: Bool, +p: M.Part, +a: U64, +b: U64, +old: List<&2, M.CE>, +tol: F64) -> String:

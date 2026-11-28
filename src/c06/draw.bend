@@ -745,6 +745,36 @@ def eds_segs(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +i: Nat, +s
         case []: acc
         case +s <> u: eds_segs(t, u, Nat.add(i, 1n), sm_pop(sm, i), sm_pop(tn, i), tv, v, pl, o, ed_add(sm_is(sm, i), sm_is(tn, i), e, s, tv, v, pl, o, acc))
 
+type Ei is Data:
+  Ei{ e: Ty.Edge, s: List<&2, V.Point>, a: Bool, b: Bool }
+
+type Ectx is Data:
+  Ectx{ tv: B.Tb<&2, V.Point>, v: Vw, pl: M.Pl, o: Oc }
+
+def ei_list(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +i: Nat, +sm: List<&2, Nat>, +tn: List<&2, Nat>) -> List<&2, Ei>:
+  match es:
+    case []: []
+    case +e <> t:
+      match ss:
+        case []: []
+        case +s <> u: Ei{e, s, sm_is(sm, i), sm_is(tn, i)} <> ei_list(t, u, Nat.add(i, 1n), sm_pop(sm, i), sm_pop(tn, i))
+
+def ei_one2(+c: Ectx, +x: Ei) -> Tl:
+  Ectx{+tv, +v, +pl, +o} = c
+  Ei{+e, +s, +a, +b} = x
+  ed_add(a, b, e, s, tv, v, pl, o, Tl{[], []})
+
+def ei_one(c: Ectx, x: Ei) -> Tl:
+  ei_one2(c, x)
+
+def tl_cat(xs: List<&2, Tl>, +acc: Tl) -> Tl:
+  match xs:
+    case []: acc
+    case +t <> u: tl_cat(u, Tl{List.append(&2, Sg, tl_m(t), tl_m(acc)), List.append(&2, Sg, tl_n(t), tl_n(acc))})
+
+def eds_par(es: List<&2, Ty.Edge>, ss: List<&2, List<&2, V.Point>>, +sm: List<&2, Nat>, +tn: List<&2, Nat>, +tv: B.Tb<&2, V.Point>, +v: Vw, +pl: M.Pl, +o: Oc, +acc: Tl) -> Tl:
+  tl_cat(B.pmap_g(~Ei, ~Ectx, ~Tl, ~ei_one, 8, Ectx{tv, v, pl, o}, ei_list(es, ss, 0n, sm, tn)), acc)
+
 type Ek is Data:
   Ek{ k: U64, t: Nat }
 
@@ -1132,7 +1162,7 @@ def view_g5(+el: Tl, +o: Oc, +pt: B.Tb<&2, V.Point>, +q: Vq, +x: Sx, +ks: List<&
   view_fin(sil_go(Nat.add(List.length(&2, Ek, ks), 1n), ks, x, vq_v(q), pt, o, em), en, bx_ps(prjs(sx_bc(x), vq_v(q)), bx0()), q)
 
 def view_g4(+tl: Tl, +o: Oc, +pt: B.Tb<&2, V.Point>, +b: Bx, +q: Vq, +m: TS.Mp, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl) -> Vr:
-  view_g5(eds_segs(TS.mp_es(m), TS.mp_ss(m), 0n, sx_sm(x), sx_tn(x), tv, vq_v(q), pl, o, tl), o, pt, q, x, ks)
+  view_g5(eds_par(TS.mp_es(m), TS.mp_ss(m), sx_sm(x), sx_tn(x), tv, vq_v(q), pl, o, tl), o, pt, q, x, ks)
 
 def view_g3(+o: Oc, +pt: B.Tb<&2, V.Point>, +b: Bx, +q: Vq, +m: TS.Mp, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl) -> Vr:
   view_g4(ths_view(sx_th(x), vq_v(q), oc_sk(o), Tl{[], []}), o, pt, b, q, m, x, ks, tv, pl)
@@ -1216,11 +1246,27 @@ def draw4(+fr: Vr, +tq: Vr, +lf: Vr, +tl: String, +nt: Nat) -> Dw:
   Dw{True{}, dx_head() ++ vr_s(fr) ++ vr_s(tq) ++ vr_s(lf) ++ tl ++ dx_tail(), "",
     Nat.add(vr_nv(fr), Nat.add(vr_nv(tq), vr_nv(lf))), Nat.add(vr_nh(fr), Nat.add(vr_nh(tq), vr_nh(lf))), nt}
 
+type Vp is Data:
+  Vp{ a: Vr, b: Vr }
+
+def vp_a(+p: Vp) -> Vr:
+  Vp{+a, b} = p
+  a
+
+def vp_b(+p: Vp) -> Vr:
+  Vp{a, +b} = p
+  b
+
+def views2(+qa: Vq, +qb: Vq, +m: TS.Mp, +wp: List<&2, V.Point>, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl, +eps: F64) -> Vp:
+  ra rb = view_go(qa, m, wp, x, ks, tv, pl, eps) view_go(qb, m, wp, x, ks, tv, pl, eps)
+  Vp{ra, rb}
+
+def draw3p(+fr: Vr, +tl: Vp, +wx: F64, +wy: F64, +g: F64, +x: Sx, +nd: U64) -> Dw:
+  draw4(fr, vp_a(tl), vp_b(tl), title(nd, F64.add(wx, g), F64.sub(wy, 4.0f64), List.length(&2, Th, sx_th(x))), List.length(&2, Th, sx_th(x)))
+
 def draw3g(+wx: F64, +wy: F64, +wz: F64, +g: F64, +m: TS.Mp, +wp: List<&2, V.Point>, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl, +eps: F64, +nd: U64) -> Dw:
-  draw4(view_go(Vq{vw_front(), "FRONT", 0.0f64, F64.add(wy, g), wx, wz}, m, wp, x, ks, tv, pl, eps),
-    view_go(Vq{vw_top(), "TOP", 0.0f64, 0.0f64, wx, wy}, m, wp, x, ks, tv, pl, eps),
-    view_go(Vq{vw_left(), "LEFT", F64.add(wx, g), F64.add(wy, g), wy, wz}, m, wp, x, ks, tv, pl, eps),
-    title(nd, F64.add(wx, g), F64.sub(wy, 4.0f64), List.length(&2, Th, sx_th(x))), List.length(&2, Th, sx_th(x)))
+  fr tl = view_go(Vq{vw_front(), "FRONT", 0.0f64, F64.add(wy, g), wx, wz}, m, wp, x, ks, tv, pl, eps) views2(Vq{vw_top(), "TOP", 0.0f64, 0.0f64, wx, wy}, Vq{vw_left(), "LEFT", F64.add(wx, g), F64.add(wy, g), wy, wz}, m, wp, x, ks, tv, pl, eps)
+  draw3p(fr, tl, wx, wy, g, x, nd)
 
 def draw3(+ex: Ex, +m: TS.Mp, +wp: List<&2, V.Point>, +x: Sx, +ks: List<&2, Ek>, +tv: B.Tb<&2, V.Point>, +pl: M.Pl, +eps: F64, +nd: U64) -> Dw:
   Ex{+wx, +wy, +wz} = ex

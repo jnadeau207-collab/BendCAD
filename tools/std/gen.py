@@ -9,9 +9,10 @@ TLS = ROOT / 'data' / 'std' / 'tools.json'
 MOT = ROOT / 'data' / 'std' / 'motors.json'
 MAT = ROOT / 'data' / 'std' / 'materials.json'
 BRG = ROOT / 'data' / 'std' / 'bearings.json'
+JNT = ROOT / 'data' / 'std' / 'joints.json'
 BCOL = ('d', 'D', 'B', 'balls', 'ball_d', 'pitch_d', 'inner_land_d', 'outer_land_d', 'groove_conformity', 'C_kN', 'C0_kN', 'r_max', 'd1_min', 'D2_max', 'mass_kg')
 KSI, LBIN3 = 6.894757293168361, 27679.904710203125
-RANGE = ('key', 'drill', 'tap', 'tap_long', 'iso492_bore', 'radial_clearance')
+RANGE = ('key', 'drill', 'tap', 'tap_long', 'iso492_bore', 'radial_clearance', 'c45_normalized')
 OUT = ROOT / 'src' / 'k2' / 'std.bend'
 DOC = ROOT / 'docs' / 'std.md'
 
@@ -69,6 +70,7 @@ def main():
     g = json.loads(GRV.read_text(encoding='utf-8'))
     g.update(json.loads(TLS.read_text(encoding='utf-8')))
     g.update(json.loads(MOT.read_text(encoding='utf-8')))
+    g.update(json.loads(JNT.read_text(encoding='utf-8')))
     bj = json.loads(BRG.read_text(encoding='utf-8'))
     g['iso492_bore'] = bj['iso492_bore']
     g['radial_clearance'] = bj['radial_clearance']

@@ -328,6 +328,33 @@ NEMA ICS 16-2001 Table 4, mounting flanges of inch-dimension step motors: frame,
 | 17.0 | 1.725 | 0.8661 | -0.002 | 2.36 | 0.03 | 0.09 | 0.112 |
 | 23.0 | 2.625 | 1.5 | -0.002 | 3.21 | 0.06 | 0.13 | 0.164 |
 
+## iso898_1
+
+ISO 898-1 property classes of steel bolts and screws: class, minimum tensile strength Rm and minimum 0.2 % proof strength Rp0.2 in MPa (8.8 for d up to 16 mm); source: TR Fastenings knowledge base, 'Steel screws and bolts ISO 898-1 EN 20898-1, mechanical properties', trfastenings.com/knowledge-base/metric-screws/screws-and-bolts-mechanical-properties (read 2026-11-27)
+
+| cls | rm | rp02 |
+|---|---|---|
+| 8.8 | 800.0 | 640.0 |
+| 10.9 | 1040.0 | 940.0 |
+| 12.9 | 1220.0 | 1100.0 |
+
+## c45_normalized
+
+C45 (1.0503) normalized (+N) to EN 10083-2: section band (t_lo, t_hi] in mm, minimum tensile strength Rm and minimum yield ReH in MPa; source: Applus Laboratories materials portal, datasheet C45 / 1.0503 (citing DIN EN 10083-2:1996), appluslaboratories.com/materials-portal/datasheet/c45-1-0503 (read 2026-11-27); the 2006 edition was not read
+
+| t_lo | t_hi | rm | reh |
+|---|---|---|---|
+| 0.0 | 16.0 | 620.0 | 340.0 |
+| 16.0 | 100.0 | 580.0 | 305.0 |
+
+## clamp_basis
+
+ASSUMED clamp-joint factors, not read from a standard: thread friction mu_G 0.12 and head friction mu_K 0.12 (lightly oiled steel screws), clamp-to-shaft friction mu 0.10 (low end for steel on steel), torque-wrench scatter alpha_A 1.6, assembly utilisation nu 0.9 of the proof strength; source: assumed values, labelled in every result; the preload and torque formulas are the textbook combined-stress and thread-torque relations
+
+| mu_g | mu_k | mu_c | alpha_a | nu |
+|---|---|---|---|---|
+| 0.12 | 0.12 | 0.1 | 1.6 | 0.9 |
+
 ## iso492_bore
 
 ISO 492 tolerance class Normal, radial bearings: mean bore diameter deviation (upper, lower) in micrometres, held for the bands read; source: SKF rolling bearings catalogue, table 'Normal tolerances for radial bearings, except tapered roller bearings', inner ring (scribd.com/document/456880483/SKF-Tolerances, read 2026-11-27)

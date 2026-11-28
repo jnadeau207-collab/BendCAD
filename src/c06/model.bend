@@ -30,6 +30,7 @@ import ../k2/std.bend as SD
 import ../base/num.bend as NU
 import ../k1/sf.bend as KSF
 import ../c09/hx.bend as HX
+import ./gear.bend as GR
 
 type Sel is Data:
   Sel{ nd: U64, k: Nat, side: U64, nm: String }
@@ -56,6 +57,7 @@ type Op is Data:
   O_xthread{ base: U64, f: Sel, sz: String, cls: String }
   O_screw{ std: String, sz: String, l: X.Xp, thr: Bool }
   O_bearing{ g: String, part: String }
+  O_gear{ m: X.Xp, z: U64, b: X.Xp, ds: X.Xp, bore: X.Xp }
   O_move{ base: U64, tx: X.Xp, ty: X.Xp, tz: X.Xp, q: U64 }
   O_rot{ base: U64, ax: U64, deg: X.Xp }
   O_unk{ name: String }
@@ -1281,6 +1283,7 @@ def op_w(o: Op, +e: X.Env) -> List<&2, U64>:
     case O_xthread{base, f, +sz, +cls}: 50u64 <> base <> sel_w(f, str_w(sz, str_w(cls, [])))
     case O_screw{+std, +sz, l, thr}: 51u64 <> Bool.pick(U64, thr, 1u64, 0u64) <> str_w(std, str_w(sz, X.xp_w(l, e, [])))
     case O_bearing{+g, +part}: 53u64 <> str_w(g, str_w(part, []))
+    case O_gear{m, z, b, ds, bore}: 54u64 <> z <> X.xp_w(m, e, X.xp_w(b, e, X.xp_w(ds, e, X.xp_w(bore, e, []))))
     case O_keyway{base, f, side, l, z, thru}: 49u64 <> base <> side <> Bool.pick(U64, thru, 1u64, 0u64) <> sel_w(f, X.xp_w(l, e, X.xp_w(z, e, [])))
     case O_move{base, tx, ty, tz, q}: 7u64 <> base <> q <> X.xp_w(tx, e, X.xp_w(ty, e, X.xp_w(tz, e, [])))
     case O_rot{base, ax, deg}: 12u64 <> base <> ax <> X.xp_w(deg, e, [])
@@ -1419,6 +1422,7 @@ def op_name(o: Op) -> String:
     case O_xthread{base, f, sz, cls}: "xthread"
     case O_screw{std, sz, l, thr}: "screw"
     case O_bearing{g, part}: "bearing"
+    case O_gear{m, z, b, ds, bore}: "gear"
     case O_move{base, tx, ty, tz, q}: "move"
     case O_rot{base, ax, deg}: "rotate"
     case O_unk{name}: "unknown"
@@ -5431,6 +5435,31 @@ def bg_go(c: U64, +g: String, +p: String, +e: X.Env, +nd: U64) -> NR:
 def op_bearing(+g: String, +p: String, +e: X.Env, +nd: U64) -> NR:
   bg_go(bg_code(g, p), g, p, e, nd)
 
+def gr_code(+m: F64, +z: F64, +b: F64, +ds: F64, +bore: F64) -> U64:
+  Bool.pick(U64, Bool.not(Bool.and(T.is_finite(m), F64.is_lt(0.0f64, m))), 1u64,
+  Bool.pick(U64, Bool.or(F64.is_lt(z, 17.0f64), F64.is_lt(41.0f64, z)), 2u64,
+  Bool.pick(U64, Bool.not(Bool.and(T.is_finite(b), F64.is_lt(0.0f64, b))), 3u64,
+  Bool.pick(U64, Bool.not(Bool.and(F64.is_le(0.0f64, ds), F64.is_le(ds, F64.mul(0.2f64, m)))), 4u64,
+  Bool.pick(U64, Bool.not(Bool.and(F64.is_lt(0.0f64, bore), F64.is_lt(bore, F64.sub(F64.mul(0.5f64, F64.mul(m, z)), F64.mul(2.25f64, m))))), 5u64, 0u64)))))
+
+def gr_mk(r: GR.Gr, +b: F64, +e: X.Env, +nd: U64) -> NR:
+  GR.Gr{+ok, +rg, nf, dev} = r
+  Bool.pick(NR, ok, op_prism([rg], xk(0.0f64), xk(b), e, nd),
+    bad("gear", "node " ++ U64.show(nd), "gear-arc-not-representable", "report the design: no representable arc centre puts both ends of a flank arc on its circle"))
+
+def gr_go(c: U64, +m: F64, +z: F64, +b: F64, +ds: F64, +bore: F64, +e: X.Env, +nd: U64) -> NR:
+  match c:
+    case 0u64: gr_mk(GR.gear_rg(GR.gp_of(m, z, ds), bore), b, e, nd)
+    case 1u64: bad("gear", "node " ++ U64.show(nd), "gear-module-not-positive", "give a module above 0")
+    case 2u64: bad("gear", "node " ++ U64.show(nd), "gear-teeth-not-modelled: z=" ++ NU.f_show(z),
+      "the generator builds standard spur gears (no profile shift, ISO 53 profile A) from 17 teeth (fewer are undercut) to 41 teeth (more put the root circle below the base circle); other counts need profile shift or a generated root, which it does not build yet")
+    case 3u64: bad("gear", "node " ++ U64.show(nd), "gear-face-width-not-positive", "give a face width above 0")
+    case 4u64: bad("gear", "node " ++ U64.show(nd), "gear-thickness-reduction-out-of-range: ds=" ++ NU.f_show(ds), "give a tooth thickness reduction from 0 to 0.2 m (half the circular backlash of the pair)")
+    case _: bad("gear", "node " ++ U64.show(nd), "gear-bore-out-of-range: bore radius " ++ NU.f_show(bore), "give a bore radius above 0 and below the root radius less one module")
+
+def op_gear(+m: F64, +z: F64, +b: F64, +ds: F64, +bore: F64, +e: X.Env, +nd: U64) -> NR:
+  gr_go(gr_code(m, z, b, ds, bore), m, z, b, ds, bore, e, nd)
+
 def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node>) -> NR:
   match o:
     case O_prism{rs, z0, z1}: op_prism(rs, z0, z1, e, nd)
@@ -5445,6 +5474,7 @@ def op_build(o: Op, +b: Body, +b2: Body, +e: X.Env, +nd: U64, +ns: List<&2, Node
     case O_xthread{+base, f, sz, cls}: op_xthread(b, f, sz, cls, nd, base)
     case O_screw{std, sz, l, thr}: op_screw(std, sz, l, thr, e, nd)
     case O_bearing{g, part}: op_bearing(g, part, e, nd)
+    case O_gear{m, z, b, ds, bore}: op_gear(X.xp_ev(m, e), U64.to_f64(z), X.xp_ev(b, e), X.xp_ev(ds, e), X.xp_ev(bore, e), e, nd)
     case O_move{base, tx, ty, tz, q}: op_move(b, tx, ty, tz, q, e, nd)
     case O_rot{base, ax, deg}: op_rot(b, ax, deg, e, nd)
     case O_unk{name}: bad(name, "node " ++ U64.show(nd), "unknown-op", "use box, cylinder, prism, pad, pocket, holes, move, rotate, revolve, cone, sphere, torus, sweep, loft, chamfer, fillet, draft, offset, shell, thicken, pattern, pattern-holes, flat, bend, hem, loft-open, sweep-open, patch, thicken-open, naca4, blade or import")

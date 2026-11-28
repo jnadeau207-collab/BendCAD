@@ -1,0 +1,20 @@
+{
+  "iso898_1": {
+    "standard": "ISO 898-1 property classes of steel bolts and screws: class, minimum tensile strength Rm and minimum 0.2 % proof strength Rp0.2 in MPa (8.8 for d up to 16 mm)",
+    "source": "TR Fastenings knowledge base, 'Steel screws and bolts ISO 898-1 EN 20898-1, mechanical properties', trfastenings.com/knowledge-base/metric-screws/screws-and-bolts-mechanical-properties (read 2026-11-27)",
+    "columns": ["cls", "rm", "rp02"],
+    "rows": [[8.8, 800, 640], [10.9, 1040, 940], [12.9, 1220, 1100]]
+  },
+  "c45_normalized": {
+    "standard": "C45 (1.0503) normalized (+N) to EN 10083-2: section band (t_lo, t_hi] in mm, minimum tensile strength Rm and minimum yield ReH in MPa",
+    "source": "Applus Laboratories materials portal, datasheet C45 / 1.0503 (citing DIN EN 10083-2:1996), appluslaboratories.com/materials-portal/datasheet/c45-1-0503 (read 2026-11-27); the 2006 edition was not read",
+    "columns": ["t_lo", "t_hi", "rm", "reh"],
+    "rows": [[0, 16, 620, 340], [16, 100, 580, 305]]
+  },
+  "clamp_basis": {
+    "standard": "ASSUMED clamp-joint factors, not read from a standard: thread friction mu_G 0.12 and head friction mu_K 0.12 (lightly oiled steel screws), clamp-to-shaft friction mu 0.10 (low end for steel on steel), torque-wrench scatter alpha_A 1.6, assembly utilisation nu 0.9 of the proof strength",
+    "source": "assumed values, labelled in every result; the preload and torque formulas are the textbook combined-stress and thread-torque relations",
+    "columns": ["mu_g", "mu_k", "mu_c", "alpha_a", "nu"],
+    "rows": [[0.12, 0.12, 0.10, 1.6, 0.9]]
+  }
+}

@@ -425,7 +425,7 @@ def clear_pair(pr: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
 def pp_k(cl: Bool, +d: PD, +x: A4.IN, +y: A4.IN) -> String:
   match cl:
     case True{}: clear_pair(Bool.not(String.eq(pd_name(d), "")), d, x, y)
-    case False{}: pair_s(d, QI.rel_s(A4.in_nr(x), A4.in_nr(y)), x, y)
+    case False{}: pair_s(d, KG.rel_fast(A4.in_nr(x), A4.in_nr(y)), x, y)
 
 def px_cl(+c: PX) -> Bool:
   PX{+ds, +cl} = c

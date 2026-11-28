@@ -14,6 +14,7 @@ import ../c07/xs.bend as Q
 import ../c03/types.bend as G
 import ../k1/sf.bend as KS
 import ../c07/bp.bend as BP
+import ../base/par.bend as B
 
 type Bd is Data:
   Bd{ p: I.I, h: I.I }
@@ -514,9 +515,16 @@ def rr_ax(so: Im.Im, +f: SO.Fd) -> I.I:
     case Im.M_to{+o, +a, bigr, r}: mr_rho(SO.fd_im(f), o, a, f)
     case _: rr_all()
 
+type Sk is Data:
+  Sk_pl{ o: V.Point, n: V.Dir }
+  Sk_cy{ c: V.Point, a: V.Dir, r: F64 }
+  Sk_sp{ c: V.Point, r: F64 }
+  Sk_to{ c: V.Point, a: V.Dir, bigr: F64, r: F64 }
+  Sk_no{}
+
 type En is Data:
   En_f{ f: SO.Fd }
-  En_e{ c: R.Cv, s: Im.Im }
+  En_e{ c: R.Cv, s: Im.Im, k: List<&2, Sk> }
   En_v{}
   En_p{ f: SO.Fd, q: BP.Bq, v: I.I }
 
@@ -554,7 +562,7 @@ def cl_st(c: Cl) -> U64:
 def en_im(e: En) -> Im.Im:
   match e:
     case En_f{f}: SO.fd_im(f)
-    case En_e{c, s}: s
+    case En_e{c, s, ek}: s
     case En_v{}: Im.M_no{}
     case En_p{f, q, v}: Im.M_no{}
 
@@ -636,7 +644,7 @@ def near_e(+c: R.Cv, +bx: List<&2, I.I>, +t: I.I, +sb: Im.Im) -> I.I:
 def near_iv(e: En, +bx: List<&2, I.I>, +t: I.I, +sb: Im.Im) -> I.I:
   match e:
     case En_f{+f}: iabs(near_f(f, bx, sb))
-    case En_e{+c, s}: iabs(near_e(c, bx, t, sb))
+    case En_e{+c, s, ek}: iabs(near_e(c, bx, t, sb))
     case En_v{}: iabs(sd_iv(sb, bx))
     case En_p{f, q, v}: iabs(sd_iv(sb, bx))
 
@@ -773,7 +781,7 @@ def crit_p(+q: BP.Bq, +u: I.I, +v: I.I, +d: List<&2, I.I>) -> Bool:
 def crit(e: En, +bx: List<&2, I.I>, +t: I.I, +d: List<&2, I.I>) -> Bool:
   match e:
     case En_f{f}: Bool.not(X.vany0_not(Im.cross(d, tgrad(SO.fd_im(f), bx))))
-    case En_e{c, s}: X.has0(X.vdot(d, R.cv_der(c, t)))
+    case En_e{c, s, ek}: X.has0(X.vdot(d, R.cv_der(c, t)))
     case En_v{}: True{}
     case En_p{f, +q, +v}: crit_p(q, t, v, d)
 
@@ -785,7 +793,7 @@ def crit_pair(+x: Cb) -> Bool:
 def fac(e: En, +bx: List<&2, I.I>, +d: List<&2, I.I>) -> Bool:
   match e:
     case En_f{+f}: Bool.not(F64.is_le(I.i_hi(X.vdot(inw(f, bx), d)), 0.0f64))
-    case En_e{c, s}: True{}
+    case En_e{c, s, ek}: True{}
     case En_v{}: True{}
     case En_p{f, q, v}: True{}
 
@@ -800,21 +808,21 @@ def dir_ef(+c: R.Cv, +t: I.I, +f: SO.Fd, +xf: List<&2, I.I>) -> Bool:
 def dir_b(eb: En, +xb: List<&2, I.I>, +tb: I.I, +fa: SO.Fd, +xa: List<&2, I.I>) -> Bool:
   match eb:
     case En_f{+fb}: dir_ff(fa, xa, fb, xb)
-    case En_e{+c, s}: dir_ef(c, tb, fa, xa)
+    case En_e{+c, s, ek}: dir_ef(c, tb, fa, xa)
     case En_v{}: True{}
     case En_p{f, q, v}: True{}
 
 def dir_e(eb: En, +xb: List<&2, I.I>, +c: R.Cv, +ta: I.I) -> Bool:
   match eb:
     case En_f{+fb}: dir_ef(c, ta, fb, xb)
-    case En_e{c2, s}: True{}
+    case En_e{c2, s, ek}: True{}
     case En_v{}: True{}
     case En_p{f, q, v}: True{}
 
 def dir_ok(ea: En, +eb: En, +xa: List<&2, I.I>, +ta: I.I, +xb: List<&2, I.I>, +tb: I.I) -> Bool:
   match ea:
     case En_f{+fa}: dir_b(eb, xb, tb, fa, xa)
-    case En_e{+c, s}: dir_e(eb, xb, c, ta)
+    case En_e{+c, s, ek}: dir_e(eb, xb, c, ta)
     case En_v{}: True{}
     case En_p{f, q, v}: True{}
 
@@ -962,7 +970,7 @@ def cl_rf(far: Bool, +f: SO.Fd, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List
 def cl_rs(e: En, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List<&2, Mm.Er>) -> Cl:
   match e:
     case En_f{+f}: cl_rf(F64.is_lt(0.0f64, sdist(SO.fd_im(f), bx)), f, bx, t, st, es)
-    case En_e{+c, +s}: Cl{En_e{c, s}, bx, t, st, es}
+    case En_e{+c, +s, +ek}: Cl{En_e{c, s, ek}, bx, t, st, es}
     case En_v{}: Cl{En_v{}, bx, t, st, es}
     case En_p{+f, +q, +v}: Cl{En_p{f, q, v}, bx, t, st, es}
 
@@ -995,7 +1003,7 @@ def p_cut(+f: SO.Fd, +q: BP.Bq, +u: I.I, +v: I.I, +up: Bool) -> Cl:
 def cl_cut(e: En, +bx: List<&2, I.I>, +t: I.I, +st: U64, +es: List<&2, Mm.Er>, +up: Bool) -> Cl:
   match e:
     case En_f{+f}: Cl{En_f{f}, cut(bx, axis_of(bx), up), t, Bool.pick(U64, U64.is_eq(st, 1u64), 1u64, 3u64), es}
-    case En_e{+c, +s}: Cl{En_e{c, s}, R.cv_box(c, half(t, up)), half(t, up), 1u64, []}
+    case En_e{+c, +s, +ek}: Cl{En_e{c, s, ek}, R.cv_box(c, half(t, up)), half(t, up), 1u64, []}
     case En_v{}: Cl{En_v{}, bx, t, 1u64, []}
     case En_p{+f, +q, +v}: p_cut(f, q, t, v, up)
 
@@ -1057,7 +1065,7 @@ def wp_e(+q: List<&2, I.I>) -> Wp:
 def wp_of(e: En, +bx: List<&2, I.I>, +t: I.I, +c: List<&2, I.I>) -> Wp:
   match e:
     case En_f{+f}: wp_f(f, c)
-    case En_e{cv, s}: wp_e(R.cv_box(cv, I.ipt(I.imid(t))))
+    case En_e{cv, s, ek}: wp_e(R.cv_box(cv, I.ipt(I.imid(t))))
     case En_v{}: Wp{True{}, bx, 0.0f64}
     case En_p{f, q, v}: Wp{False{}, bx, 0.0f64}
 
@@ -1071,7 +1079,7 @@ def wp_p(w: Wp) -> List<&2, I.I>:
 def on_e(e: En, +p: List<&2, I.I>) -> Bool:
   match e:
     case En_f{+f}: on_pt(True{}, f, p)
-    case En_e{c, s}: True{}
+    case En_e{c, s, ek}: True{}
     case En_v{}: True{}
     case En_p{f, q, v}: False{}
 
@@ -1098,7 +1106,7 @@ def sig(e: En, +p: List<&2, I.I>, +t: I.I, +d: List<&2, I.I>) -> F64:
   match e:
     case En_f{+f}:
       Bool.pick(F64, F64.is_lt(0.0f64, I.i_lo(X.vdot(inw(f, p), d))), F64.div(vlen_hi(Im.cross(d, inw(f, p))), F64.mul(vlen_lo(d), vlen_lo(inw(f, p)))), 2.0f64)
-    case En_e{+c, s}: F64.div(X.imag(X.vdot(d, R.cv_der(c, I.ipt(I.imid(t))))), F64.mul(vlen_lo(d), vlen_lo(R.cv_der(c, I.ipt(I.imid(t))))))
+    case En_e{+c, s, ek}: F64.div(X.imag(X.vdot(d, R.cv_der(c, I.ipt(I.imid(t))))), F64.mul(vlen_lo(d), vlen_lo(R.cv_der(c, I.ipt(I.imid(t))))))
     case En_v{}: 0.0f64
     case En_p{f, q, v}: 2.0f64
 
@@ -1136,7 +1144,7 @@ def ray_t(s: Im.Im, +p: List<&2, I.I>, +n: List<&2, I.I>, +far: Bool) -> F64:
 def en_n(e: En, +p: List<&2, I.I>) -> List<&2, I.I>:
   match e:
     case En_f{+f}: SO.unit(inw(f, p))
-    case En_e{c, s}: [Im.i_all(), Im.i_all(), Im.i_all()]
+    case En_e{c, s, ek}: [Im.i_all(), Im.i_all(), Im.i_all()]
     case En_v{}: [Im.i_all(), Im.i_all(), Im.i_all()]
     case En_p{f, q, v}: [Im.i_all(), Im.i_all(), Im.i_all()]
 
@@ -1164,14 +1172,14 @@ def pull_e(+c: R.Cv, +x: Pp, +q: List<&2, I.I>) -> Pp:
 def pull(e: En, +bx: List<&2, I.I>, +x: Pp, +q: List<&2, I.I>) -> Pp:
   match e:
     case En_f{+f}: Pp{SO.snap(SO.proj(SO.fd_im(f), q)), 0.0f64}
-    case En_e{+c, s}: pull_e(c, x, q)
+    case En_e{+c, s, ek}: pull_e(c, x, q)
     case En_v{}: Pp{bx, 0.0f64}
     case En_p{f, w, v}: x
 
 def pp_wp(e: En, +x: Pp) -> Wp:
   match e:
     case En_f{+f}: Wp{X.vfin(pp_p(x)), pp_p(x), SO.dist(SO.fd_im(f), pp_p(x))}
-    case En_e{c, s}: Wp{X.vfin(pp_p(x)), pp_p(x), X.vwid(pp_p(x))}
+    case En_e{c, s, ek}: Wp{X.vfin(pp_p(x)), pp_p(x), X.vwid(pp_p(x))}
     case En_v{}: Wp{X.vfin(pp_p(x)), pp_p(x), X.vwid(pp_p(x))}
     case En_p{f, q, v}: Wp{False{}, pp_p(x), 0.0f64}
 
@@ -1188,7 +1196,7 @@ def pp_go(n: Nat, +a: Cl, +b: Cl, +xa: Pp, +xb: Pp) -> Pq:
 def pp_init(e: En, +bx: List<&2, I.I>, +t: I.I) -> Pp:
   match e:
     case En_f{+f}: Pp{SO.snap(SO.proj(SO.fd_im(f), mid(bx))), 0.0f64}
-    case En_e{+c, s}: Pp{R.cv_box(c, I.ipt(I.imid(t))), I.imid(t)}
+    case En_e{+c, s, ek}: Pp{R.cv_box(c, I.ipt(I.imid(t))), I.imid(t)}
     case En_v{}: Pp{bx, 0.0f64}
     case En_p{f, q, v}: Pp{bx, 0.0f64}
 
@@ -1278,15 +1286,9 @@ def best_lo(+h: Ph, +w: Bool, +hi: F64, +tol: F64) -> I.I:
 def rr_f(e: En, +so: Im.Im) -> I.I:
   match e:
     case En_f{+f}: rr_ax(so, f)
-    case En_e{c, s}: rr_all()
+    case En_e{c, s, ek}: rr_all()
     case En_v{}: rr_all()
     case En_p{f, q, v}: rr_all()
-
-type Sk is Data:
-  Sk_pl{ o: V.Point, n: V.Dir }
-  Sk_cy{ c: V.Point, a: V.Dir, r: F64 }
-  Sk_sp{ c: V.Point, r: F64 }
-  Sk_no{}
 
 def gd(+a: V.Dir, +b: V.Dir) -> F64:
   F64.add(F64.add(F64.mul(V.dr_x(a), V.dr_x(b)), F64.mul(V.dr_y(a), V.dr_y(b))), F64.mul(V.dr_z(a), V.dr_z(b)))
@@ -1335,6 +1337,9 @@ def sk_of(g: G.GVal) -> Sk:
     case G.GV_sp{w}:
       G.Sp{+c, +r} = w
       Sk_sp{c, F64.abs(r)}
+    case G.GV_to{w}:
+      G.To{+o, +a, +bigr, +r} = w
+      Sk_to{o, gu(a), F64.abs(bigr), F64.abs(r)}
     case G.GV_bp{w}: sk_bp(KS.sf_of(G.GV_bp{w}))
     case _: Sk_no{}
 
@@ -1399,11 +1404,31 @@ def lb_ss(+c1: V.Point, +r1: F64, +c2: V.Point, +r2: F64) -> F64:
   +d = gl(gs(c1, c2))
   F64.max(F64.sub(d, F64.add(r1, r2)), F64.sub(F64.abs(F64.sub(r1, r2)), d))
 
+def to_dc(+c: V.Point, +a: V.Dir, +bigr: F64, +q: V.Point) -> F64:
+  +w = gs(q, c)
+  +h = gd(w, a)
+  +u = F64.sub(gl(gx(w, a)), bigr)
+  F64.sqrt(F64.add(F64.mul(u, u), F64.mul(h, h)))
+
+def to_df(+c: V.Point, +a: V.Dir, +bigr: F64, +q: V.Point) -> F64:
+  +w = gs(q, c)
+  +h = gd(w, a)
+  +u = F64.add(gl(gx(w, a)), bigr)
+  F64.sqrt(F64.add(F64.mul(u, u), F64.mul(h, h)))
+
+def lb_ts(+c: V.Point, +a: V.Dir, +bigr: F64, +r: F64, +q: V.Point, +rs: F64) -> F64:
+  F64.max(F64.sub(F64.abs(F64.sub(to_dc(c, a, bigr, q), r)), rs), F64.sub(rs, F64.add(to_df(c, a, bigr, q), r)))
+
+def lb_tc(+c: V.Point, +ax: V.Dir, +bigr: F64, +r: F64, +c2: V.Point, +a2: V.Dir, +r2: F64) -> F64:
+  +e = gl(gx(gs(c, c2), a2))
+  Bool.pick(F64, F64.is_eq(gl(gx(ax, a2)), 0.0f64), F64.sub(F64.sub(F64.abs(F64.sub(bigr, r2)), r), e), 0.0f64)
+
 def lb_pl(a: Sk, +o: V.Point, +n: V.Dir, +ba: List<&2, I.I>, +bo: List<&2, I.I>) -> F64:
   match a:
     case Sk_pl{+o2, +n2}: lb_pp(o, n, o2, n2, bo, ba)
     case Sk_cy{+c, +ax, +r}: lb_pc(o, n, c, ax, r, ba)
     case Sk_sp{+c, +r}: F64.sub(F64.abs(gd(gs(c, o), n)), r)
+    case Sk_to{c, ax, bigr, r}: 0.0f64
     case Sk_no{}: 0.0f64
 
 def lb_cy(a: Sk, +c: V.Point, +ax: V.Dir, +r: F64, +ba: List<&2, I.I>, +bo: List<&2, I.I>) -> F64:
@@ -1411,6 +1436,7 @@ def lb_cy(a: Sk, +c: V.Point, +ax: V.Dir, +r: F64, +ba: List<&2, I.I>, +bo: List
     case Sk_pl{+o, +n}: lb_pc(o, n, c, ax, r, bo)
     case Sk_cy{+c2, +a2, +r2}: lb_cc(c, ax, r, bo, c2, a2, r2, ba)
     case Sk_sp{+q, +rs}: lb_cs(c, ax, r, q, rs)
+    case Sk_to{+c2, +a2, +bigr, +r2}: lb_tc(c2, a2, bigr, r2, c, ax, r)
     case Sk_no{}: 0.0f64
 
 def lb_sp(a: Sk, +c: V.Point, +r: F64) -> F64:
@@ -1418,26 +1444,49 @@ def lb_sp(a: Sk, +c: V.Point, +r: F64) -> F64:
     case Sk_pl{+o, +n}: F64.sub(F64.abs(gd(gs(c, o), n)), r)
     case Sk_cy{+c2, +a2, +r2}: lb_cs(c2, a2, r2, c, r)
     case Sk_sp{+c2, +r2}: lb_ss(c, r, c2, r2)
+    case Sk_to{+c2, +a2, +bigr, +r2}: lb_ts(c2, a2, bigr, r2, c, r)
     case Sk_no{}: 0.0f64
+
+def lb_to(a: Sk, +c: V.Point, +ax: V.Dir, +bigr: F64, +r: F64) -> F64:
+  match a:
+    case Sk_sp{+q, +rs}: lb_ts(c, ax, bigr, r, q, rs)
+    case Sk_cy{+c2, +a2, +r2}: lb_tc(c, ax, bigr, r, c2, a2, r2)
+    case _: 0.0f64
 
 def sk_lb(a: Sk, b: Sk, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
   match a:
     case Sk_pl{+o, +n}: lb_pl(b, o, n, bb, ba)
     case Sk_cy{+c, +ax, +r}: lb_cy(b, c, ax, r, bb, ba)
     case Sk_sp{+c, +r}: lb_sp(b, c, r)
+    case Sk_to{+c, +ax, +bigr, +r}: lb_to(b, c, ax, bigr, r)
     case Sk_no{}: 0.0f64
 
 def lb_safe(+x: F64, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
   +s = F64.add(F64.add(gl(gs(bxc(ba), V.Pt{0.0f64, 0.0f64, 0.0f64})), gl(gs(bxc(bb), V.Pt{0.0f64, 0.0f64, 0.0f64}))), F64.add(diag(ba), diag(bb)))
   Bool.pick(F64, F64.is_eq(x, x), F64.max(0.0f64, F64.sub(x, F64.mul(1.0e-11f64, F64.add(1.0f64, s)))), 0.0f64)
 
+def sk_one(+a: Sk, ys: List<&2, Sk>, +ba: List<&2, I.I>, +bb: List<&2, I.I>, +acc: F64) -> F64:
+  match ys:
+    case []: acc
+    case +b <> t: sk_one(a, t, ba, bb, F64.max(acc, sk_lb(a, b, ba, bb)))
+
+def sks_lb(xs: List<&2, Sk>, +ys: List<&2, Sk>, +ba: List<&2, I.I>, +bb: List<&2, I.I>, +acc: F64) -> F64:
+  match xs:
+    case []: acc
+    case +a <> t: sks_lb(t, ys, ba, bb, sk_one(a, ys, ba, bb, acc))
+
+def pt_sks(+bx: List<&2, I.I>) -> List<&2, Sk>:
+  Bool.pick(List<&2, Sk>, F64.is_eq(gl(bxh(bx)), 0.0f64), [Sk_sp{bxc(bx), 0.0f64}], [])
+
+def en_sks(e: En, +bx: List<&2, I.I>) -> List<&2, Sk>:
+  match e:
+    case En_f{+f}: [fd_sk(f)]
+    case En_e{c, s, +ek}: ek
+    case En_v{}: pt_sks(bx)
+    case _: []
+
 def slb_e(ea: En, eb: En, +ba: List<&2, I.I>, +bb: List<&2, I.I>) -> F64:
-  match ea:
-    case En_f{+fa}:
-      match eb:
-        case En_f{+fb}: lb_safe(sk_lb(fd_sk(fa), fd_sk(fb), ba, bb), ba, bb)
-        case _: 0.0f64
-    case _: 0.0f64
+  lb_safe(sks_lb(en_sks(ea, ba), en_sks(eb, bb), ba, bb, 0.0f64), ba, bb)
 
 def slb(+a: Cl, +b: Cl) -> F64:
   slb_e(cl_e(a), cl_e(b), cl_bx(a), cl_bx(b))
@@ -1553,23 +1602,113 @@ def en_vs(vs: List<&2, Ty.Vertex>, +acc: List<&2, Cl>) -> List<&2, Cl>:
     case []: acc
     case v <> t: en_vs(t, Cl{En_v{}, Im.p3(Ty.vx_p(v)), unit_t(), 1u64, []} <> acc)
 
-def el_cv(m: Maybe<&2, R.Cv>, +s: Im.Im, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
+def el_cv(m: Maybe<&2, R.Cv>, +s: Im.Im, +ks: List<&2, Sk>, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
   match m:
     case None{}: El{cs, False{}, bb}
-    case Some{+c}: El{Cl{En_e{c, s}, R.cv_box(c, unit_t()), unit_t(), 1u64, []} <> cs, ok, bb}
+    case Some{+c}: El{Cl{En_e{c, s, ks}, R.cv_box(c, unit_t()), unit_t(), 1u64, []} <> cs, ok, bb}
 
-def el_k(k: Ty.EdgeKind, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
+def ed_sk(g: G.GVal) -> Sk:
+  match g:
+    case G.GV_cc{c}:
+      G.Cc{+o, +u, +v, +r} = c
+      Sk_to{o, gu(gx(u, v)), F64.abs(r), 0.0f64}
+    case G.GV_ln{l}:
+      G.Ln{+p, +d} = l
+      Sk_cy{p, gu(d), 0.0f64}
+    case _: Sk_no{}
+
+def el_k(k: Ty.EdgeKind, +ks: List<&2, Sk>, +cs: List<&2, Cl>, +ok: Bool, +bb: List<&2, I.I>) -> El:
   match k:
     case Ty.EK_degenerate{}: El{cs, ok, bb}
-    case Ty.EK_curve{+g, +d}: el_cv(Q.gv_cv(g, d), ed_im(g), cs, ok, bb)
+    case Ty.EK_curve{+g, +d}: el_cv(Q.gv_cv(g, d), ed_im(g), ed_sk(g) <> ks, cs, ok, bb)
 
-def el_es(es: List<&2, Ty.Edge>, +acc: El) -> El:
-  match es:
+type Ek is Data:
+  Ek{ i: Nat, k: Sk }
+
+def ek_i(e: Ek) -> Nat:
+  Ek{+i, k} = e
+  i
+
+def ek_cmp(a: Ek, b: Ek) -> B.Sgn:
+  +x = ek_i(a)
+  +y = ek_i(b)
+  B.sgn_pick(Nat.is_lt(x, y), Nat.is_lt(y, x))
+
+def sk_has(k: Sk) -> Bool:
+  match k:
+    case Sk_no{}: False{}
+    case _: True{}
+
+def ce_ei(c: Ty.Coedge) -> Nat:
+  Ty.Ce{gen, e, fwd, trim} = c
+  Ty.HE{+i, g} = e
+  i
+
+def ek_ces(hs: List<&2, Ty.HCoedge>, +tc: B.Tb<&2, Ty.Coedge>, +k: Sk, +acc: List<&2, Ek>) -> List<&2, Ek>:
+  match hs:
     case []: acc
-    case e <> t:
-      Ty.Ed{g, h0, h1, k} = e
-      El{+cs, +ok, +bb} = acc
-      el_es(t, el_k(k, cs, ok, bb))
+    case h <> t:
+      Ty.HC{+ci, cg} = h
+      ek_ces(t, tc, k, Ek{ce_ei(B.tb_get(Ty.Coedge, tc, U32.from_nat(ci))), k} <> acc)
+
+def lp_ces(l: Ty.Loop) -> List<&2, Ty.HCoedge>:
+  Ty.Lp{gen, +ces, kind} = l
+  ces
+
+def ek_lps(hs: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +k: Sk, +acc: List<&2, Ek>) -> List<&2, Ek>:
+  match hs:
+    case []: acc
+    case h <> t:
+      Ty.HL{+li, lg} = h
+      ek_lps(t, tl, tc, k, ek_ces(lp_ces(B.tb_get(Ty.Loop, tl, U32.from_nat(li))), tc, k, acc))
+
+def ek_fa(+g: G.GVal, +ls: List<&2, Ty.HLoop>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +acc: List<&2, Ek>) -> List<&2, Ek>:
+  +k = sk_of(g)
+  Bool.pick(List<&2, Ek>, sk_has(k), ek_lps(ls, tl, tc, k, acc), acc)
+
+def ek_fas(fs: List<&2, Ty.Face>, +tl: B.Tb<&2, Ty.Loop>, +tc: B.Tb<&2, Ty.Coedge>, +acc: List<&2, Ek>) -> List<&2, Ek>:
+  match fs:
+    case []: acc
+    case f <> t:
+      Ty.Fa{gen, +g, +ls, same, slv, sla} = f
+      ek_fas(t, tl, tc, ek_fa(g, ls, tl, tc, acc))
+
+def ek_hit(xs: List<&2, Ek>, +i: Nat) -> Bool:
+  match xs:
+    case []: False{}
+    case +h <> t: Nat.is_eq(ek_i(h), i)
+
+def el_ed(e: Ty.Edge, +ks: List<&2, Sk>, +acc: El) -> El:
+  Ty.Ed{g, h0, h1, +k} = e
+  El{+cs, +ok, +bb} = acc
+  el_k(k, ks, cs, ok, bb)
+
+def el_go(fuel: Nat, hit: Bool, es: List<&2, Ty.Edge>, +xs: List<&2, Ek>, +i: Nat, +cur: List<&2, Sk>, +acc: El) -> El:
+  match fuel:
+    case 0n: acc
+    case 1n+(+f):
+      match hit:
+        case True{}:
+          match xs:
+            case []: acc
+            case +h <> +t:
+              Ek{j, +k} = h
+              el_go(f, ek_hit(t, i), es, t, i, k <> cur, acc)
+        case False{}:
+          match es:
+            case []: acc
+            case +e <> et:
+              el_go(f, ek_hit(xs, Nat.add(i, 1n)), et, xs, Nat.add(i, 1n), [], el_ed(e, cur, acc))
+
+def ek_srt(s: B.So<&2, Ek>) -> List<&2, Ek>:
+  B.So{ok, xs} = s
+  xs
+
+def el_es(+wb: Ty.Brep, +acc: El) -> El:
+  +es = Ty.brep_es(wb)
+  +xs = ek_srt(B.msort(~Ek, ~ek_cmp, ek_fas(Ty.brep_fas(wb), B.tb_of(Ty.Loop, Ty.brep_lps(wb), Ty.Lp{0u64, [], Ty.LK_outer{}}),
+    B.tb_of(Ty.Coedge, Ty.brep_ces(wb), Ty.Ce{0u64, Ty.HE{0n, 0u64}, True{}, G.GV_f{0.0f64}}), [])))
+  el_go(Nat.add(Nat.add(List.length(&2, Ty.Edge, es), List.length(&2, Ek, xs)), 1n), ek_hit(xs, 0n), es, xs, 0n, [], acc)
 
 def el_cs(x: El) -> List<&2, Cl>:
   El{cs, ok, bb} = x
@@ -1584,7 +1723,7 @@ def el_bb(x: El) -> List<&2, I.I>:
   bb
 
 def ents_w(+wb: Ty.Brep, +fs: List<&2, SO.Fd>) -> El:
-  el_es(Ty.brep_es(wb), El{en_vs(Ty.brep_vs(wb), en_fsp(fs)), QA.fd_allok(fs), SO.bbox(fs, [])})
+  el_es(wb, El{en_vs(Ty.brep_vs(wb), en_fsp(fs)), QA.fd_allok(fs), SO.bbox(fs, [])})
 
 def ents_b(+wb: Ty.Brep) -> El:
   ents_w(wb, SO.fds_of(wb))

@@ -295,9 +295,164 @@ def lst_hd(cs: List<&2, Ck>, +i: Nat) -> Ck:
         case 0n: c
         case 1n+j: lst_hd(t, j)
 
-def fz_out(+cks: List<&2, Ck>, +head: String, +s: U64) -> String:
-  head ++ ck_s(ck_add(lst_hd(cks, 0n), ck_add(lst_hd(cks, 1n), ck_add(lst_hd(cks, 2n), lst_hd(cks, 3n))))) ++
-    "fasten node " ++ U64.show(s) ++ ": 4 checks, " ++ Nat.show(cnt_go(cks, 0n, 0n)) ++ " pass, " ++ Nat.show(cnt_go(cks, 2n, 0n)) ++ " fail, " ++ Nat.show(cnt_go(cks, 1n, 0n)) ++ " not-analyzed\n" ++
+type Gp is Data:
+  Gp{ ok: Bool, g0: Nat, g1: Nat }
+
+def gp_ph(+ph: Nat, +solid: Bool, +void: Bool) -> Nat:
+  Bool.pick(Nat, Nat.is_eq(ph, 0n), Bool.pick(Nat, solid, 1n, 0n),
+    Bool.pick(Nat, Nat.is_eq(ph, 1n), Bool.pick(Nat, void, 2n, 1n),
+      Bool.pick(Nat, Nat.is_eq(ph, 2n), Bool.pick(Nat, solid, 3n, Bool.pick(Nat, void, 2n, 1n)), 3n)))
+
+def gp_go(xs: List<&2, Nat>, +k: Nat, +ph: Nat, +g0: Nat, +g1: Nat) -> Gp:
+  match xs:
+    case []: Gp{Nat.is_eq(ph, 3n), g0, g1}
+    case +c <> t:
+      +void = Nat.is_eq(c, 0n)
+      +start = Bool.and(Nat.is_eq(ph, 1n), void)
+      +more = Bool.and(Nat.is_eq(ph, 2n), void)
+      gp_go(t, Nat.add(k, 1n), gp_ph(ph, Nat.is_eq(c, 12n), void), Bool.pick(Nat, start, k, g0), Bool.pick(Nat, Bool.or(start, more), k, g1))
+
+def st_cnts(n: Nat, +k: Nat, +t0: F64, +dt: F64, +o: V.Point, +d: V.Dir, +r: F64, +fs: List<&2, SO.Fd>, +pl: M.Pl) -> List<&2, Nat>:
+  match n:
+    case 0n: []
+    case 1n+(+m): in_go(ring_at(o, d, r, F64.add(t0, F64.mul(dt, M.n2f(k))), []), fs, pl, 0n) <> st_cnts(m, Nat.add(k, 1n), t0, dt, o, d, r, fs, pl)
+
+type Cz is Data:
+  Cz{ ok: Bool, o: V.Point, a: V.Dir, r: F64 }
+
+def cz_no() -> Cz:
+  Cz{False{}, V.Pt{0.0f64, 0.0f64, 0.0f64}, V.Dr{0.0f64, 0.0f64, 1.0f64}, 0.0f64}
+
+def cz_ok(+c: Cz) -> Bool:
+  Cz{+ok, o, a, r} = c
+  ok
+
+def cz_o(+c: Cz) -> V.Point:
+  Cz{ok, +o, a, r} = c
+  o
+
+def cz_a(+c: Cz) -> V.Dir:
+  Cz{ok, o, +a, r} = c
+  a
+
+def cz_r(+c: Cz) -> F64:
+  Cz{ok, o, a, +r} = c
+  r
+
+def cz_coax(+ax: Cz, +ow: V.Point, +aw: V.Dir) -> Bool:
+  Bool.or(Bool.not(cz_ok(ax)), Bool.and(F64.is_lt(KS.dlen(KS.cross(aw, cz_a(ax))), 1.0e-6f64), F64.is_lt(KS.dlen(KS.cross(KS.psub(ow, cz_o(ax)), cz_a(ax))), 1.0e-6f64)))
+
+def cz_take(+ok: Bool, +ow: V.Point, +aw: V.Dir, +r: F64, +acc: Cz) -> Cz:
+  Bool.pick(Cz, Bool.and(ok, Bool.or(Bool.not(cz_ok(acc)), F64.is_lt(cz_r(acc), r))), Cz{True{}, ow, aw, r}, acc)
+
+def cz_sf(s: G.GVal, +want: Bool, +pl: M.Pl, +d: V.Dir, +ax: Cz, +acc: Cz) -> Cz:
+  match s:
+    case G.GV_cy{w}:
+      G.Cy{+o, +a, +r} = w
+      +ow = M.pl_pt(o, pl)
+      +aw = KS.dunit(M.pl_dir(a, pl))
+      cz_take(Bool.and(Bool.and(want, F64.is_lt(F64.abs(KS.dot(aw, d)), 1.0e-6f64)), cz_coax(ax, ow, aw)), ow, aw, F64.abs(r), acc)
+    case _: acc
+
+def cz_go(fas: List<&2, Ty.Face>, +inner: Bool, +pl: M.Pl, +d: V.Dir, +ax: Cz, +acc: Cz) -> Cz:
+  match fas:
+    case []: acc
+    case +fa <> u:
+      Ty.Fa{g, +sf, ls, +same, slv, sla} = fa
+      cz_go(u, inner, pl, d, ax, cz_sf(sf, Bool.pick(Bool, inner, Bool.not(same), same), pl, d, ax, acc))
+
+def th_d2(+d: F64, +p: F64) -> F64:
+  F64.sub(d, F64.mul(0.649519052838329f64, p))
+
+def th_d0(+d: F64, +p: F64) -> F64:
+  F64.mul(0.5f64, F64.add(th_d2(d, p), F64.sub(d, F64.mul(1.226869322027955f64, p))))
+
+def fm_k(+d2: F64, +d0: F64, +p: F64, +mug: F64) -> F64:
+  F64.mul(F64.mul(1.5f64, F64.div(d2, d0)), F64.add(F64.div(p, F64.mul(3.141592653589793f64, d2)), F64.mul(1.155f64, mug)))
+
+def fm_go(+a0: F64, +k: F64, +nu: F64, +rp: F64) -> F64:
+  F64.div(F64.mul(F64.mul(a0, nu), rp), F64.sqrt(F64.add(1.0f64, F64.mul(3.0f64, F64.mul(k, k)))))
+
+def fm_zul(+d: F64, +p: F64, +rp: F64, +mug: F64, +nu: F64) -> F64:
+  fm_go(F64.mul(0.7853981633974483f64, F64.mul(th_d0(d, p), th_d0(d, p))), fm_k(th_d2(d, p), th_d0(d, p), p, mug), nu, rp)
+
+def ma_of(+fm: F64, +d: F64, +p: F64, +mug: F64, +muk: F64, +dkm: F64) -> F64:
+  F64.mul(fm, F64.add(F64.add(F64.mul(0.16f64, p), F64.mul(F64.mul(0.58f64, th_d2(d, p)), mug)), F64.mul(muk, F64.mul(0.5f64, dkm))))
+
+def row0(rs: List<&2, List<&2, F64>>) -> List<&2, F64>:
+  match rs:
+    case []: []
+    case +r <> t: r
+
+def kn_s(+f: F64) -> String:
+  KSD.n_s(F64.div(KS.f_round(F64.mul(f, 100.0f64)), 100000.0f64))
+
+def nm_s(+t: F64) -> String:
+  KSD.n_s(F64.div(KS.f_round(F64.mul(t, 100.0f64)), 100000.0f64))
+
+def mpa_s(+x: F64) -> String:
+  KSD.n_s(KS.f_round(x))
+
+def cl_pr(+fm: F64, +dk: F64, +dh: F64) -> F64:
+  F64.div(fm, F64.mul(0.7853981633974483f64, F64.sub(F64.mul(dk, dk), F64.mul(dh, dh))))
+
+def cl_txt(+g: String, +bore: Cz, +out: Cz, +xs: F64, +g0: F64, +g1: F64, +sz: String, +rp: F64, +fm: F64, +ma: F64, +fmin: F64, +pr: F64, +reh: F64,
+    +jaw: F64, +fax: F64, +b: List<&2, F64>) -> String:
+  "fasten clamp split part: bore d=" ++ KSD.n_s(F64.mul(2.0f64, cz_r(bore))) ++ " outer d=" ++ KSD.n_s(F64.mul(2.0f64, cz_r(out))) ++ " screw offset=" ++ KSD.n_s(xs) ++
+    " gap along the screw=[" ++ KSD.n_s(g0) ++ ", " ++ KSD.n_s(g1) ++ "] | screw ISO 4762 " ++ sz ++ " class 8.8 (the lowest class ISO 4762 admits) Rp0.2=" ++ mpa_s(rp) ++
+    " MPa (ISO 898-1); assembly preload FM=" ++ kn_s(fm) ++ " kN at " ++ KSD.n_s(SD.fv_go(b, 4n)) ++ " of Rp0.2 in combined stress (mu_G=" ++ KSD.n_s(SD.fv_go(b, 0n)) ++
+    " assumed), tightening torque MA=" ++ nm_s(ma) ++ " N m (mu_K=" ++ KSD.n_s(SD.fv_go(b, 1n)) ++ " assumed); FM,min=" ++ kn_s(fmin) ++ " kN (alpha_A=" ++ KSD.n_s(SD.fv_go(b, 3n)) ++
+    " assumed, torque wrench) | head pressure " ++ mpa_s(pr) ++ " MPa against ReH " ++ Bool.pick(String, F64.is_lt(0.0f64, reh), mpa_s(reh) ++ " MPa (" ++ g ++ " +N, EN 10083-2)", "unknown: no strength record for " ++ g) ++
+    " | rigid-lever clamp, hinge at the far outer edge: jaw force " ++ kn_s(jaw) ++ " kN, holding axial >= " ++ kn_s(fax) ++ " kN, torque >= " ++ nm_s(F64.mul(fax, cz_r(bore))) ++
+    " N m (clamp friction mu=" ++ KSD.n_s(SD.fv_go(b, 2n)) ++ " assumed)"
+
+def cl_ck(+g: String, +bore: Cz, +out: Cz, +xs: F64, +g0: F64, +g1: F64, +sz: String, +dk: F64, +dh: F64) -> Ck:
+  +f = SD.fa(sz)
+  +b = row0(SD.tab("clamp_basis"))
+  +rp = SD.fv_go(SD.row("iso898_1", 8.8f64), 2n)
+  +fm = fm_zul(SD.fv(f, 0n), SD.fv(f, 1n), rp, SD.fv_go(b, 0n), SD.fv_go(b, 4n))
+  +fmin = F64.div(fm, SD.fv_go(b, 3n))
+  +jaw = F64.div(F64.mul(fmin, F64.add(xs, cz_r(out))), cz_r(out))
+  +fax = F64.mul(SD.fv_go(b, 2n), F64.mul(2.0f64, jaw))
+  +rr = SD.row("c45_normalized", F64.sub(cz_r(out), cz_r(bore)))
+  +reh = Bool.pick(F64, Bool.and(String.starts_with(g, "C45"), SD.row_ok(rr)), SD.fv_go(rr, 3n), 0.0f64)
+  +pr = cl_pr(fm, dk, dh)
+  +st = Bool.pick(Nat, F64.is_le(reh, 0.0f64), 1n, Bool.pick(Nat, F64.is_le(pr, reh), 0n, 2n))
+  Ck{st, cl_txt(g, bore, out, xs, g0, g1, sz, rp, fm, ma_of(fm, SD.fv(f, 0n), SD.fv(f, 1n), SD.fv_go(b, 0n), SD.fv_go(b, 1n), F64.mul(0.5f64, F64.add(dk, dh))),
+    fmin, pr, reh, jaw, fax, b) ++ " status=" ++ st_s(st) ++ "\n"}
+
+def cl_xs(+o: V.Point, +d: V.Dir, +bore: Cz) -> F64:
+  F64.abs(KS.dot(KS.psub(o, cz_o(bore)), KS.dunit(KS.cross(d, cz_a(bore)))))
+
+def cl_gap(+gp: Gp, +g: String, +bore: Cz, +out: Cz, +o: V.Point, +d: V.Dir, +t0: F64, +dt: F64, +sz: String, +dk: F64, +dh: F64) -> List<&2, Ck>:
+  Gp{+ok, +g0, +g1} = gp
+  Bool.pick(List<&2, Ck>, Bool.and(ok, Bool.and(cz_ok(bore), cz_ok(out))),
+    [cl_ck(g, bore, out, cl_xs(o, d, bore), F64.add(t0, F64.mul(dt, M.n2f(g0))), F64.add(t0, F64.mul(dt, M.n2f(g1))), sz, dk, dh)], [])
+
+def cl_body(+b: M.Body, +g: String, +o: V.Point, +d: V.Dir, +t0: F64, +t1: F64, +r: F64, +sz: String, +dk: F64, +dh: F64) -> List<&2, Ck>:
+  +n = Nat.add(U64.to_nat(F64.to_u64(F64.div(F64.sub(t1, t0), 0.05f64))), 1n)
+  +dt = F64.div(F64.sub(t1, t0), M.n2f(Nat.max(n, 1n)))
+  +pl = M.bd_pl(b)
+  +fas = Ty.brep_fas(M.bd_brep(b))
+  +bore = cz_go(fas, True{}, pl, d, cz_no(), cz_no())
+  cl_gap(gp_go(st_cnts(Nat.add(n, 1n), 0n, t0, dt, o, d, r, SO.fds_of(M.bd_brep(b)), pl), 0n, 0n, 0n, 0n), g, bore,
+    cz_go(fas, False{}, pl, d, bore, cz_no()), o, d, t0, dt, sz, dk, dh)
+
+def cl_of(+t: It, +p: M.Part, +cs: List<&2, M.CE>, +o: V.Point, +d: V.Dir, +te: F64, +l: F64, +rs: F64, +sz: String, +dk: F64) -> List<&2, Ck>:
+  M.Pt{ps, nds, +ms, ts} = p
+  Bool.pick(List<&2, Ck>, Bool.and(it_ok(t), F64.is_lt(rs, 1.0e299f64)),
+    cl_body(M.nr_body(M.ce_r(M.ce_find(cs, it_nd(t)))), mat_g(KM.mat_find(ms, it_nd(t))), o, d, F64.max(0.0f64, F64.sub(te, 1.0f64)), l,
+      F64.mul(0.5f64, F64.add(rs, F64.mul(0.5f64, dk))), sz, dk, F64.mul(2.0f64, rs)), [])
+
+def ck_more(xs: List<&2, Ck>, +acc: Ck) -> Ck:
+  match xs:
+    case []: acc
+    case +c <> t: ck_more(t, ck_add(c, acc))
+
+def fz_out(+cks0: List<&2, Ck>, +more: List<&2, Ck>, +head: String, +s: U64) -> String:
+  +cks = List.append(&2, Ck, cks0, more)
+  head ++ ck_s(ck_more(more, ck_add(lst_hd(cks0, 0n), ck_add(lst_hd(cks0, 1n), ck_add(lst_hd(cks0, 2n), lst_hd(cks0, 3n)))))) ++
+    "fasten node " ++ U64.show(s) ++ ": " ++ Nat.show(List.length(&2, Ck, cks)) ++ " checks, " ++ Nat.show(cnt_go(cks, 0n, 0n)) ++ " pass, " ++ Nat.show(cnt_go(cks, 2n, 0n)) ++ " fail, " ++ Nat.show(cnt_go(cks, 1n, 0n)) ++ " not-analyzed\n" ++
     "verdict " ++ Bool.pick(String, Nat.is_lt(0n, cnt_go(cks, 2n, 0n)), "fail", Bool.pick(String, Nat.is_lt(0n, cnt_go(cks, 1n, 0n)), "not-analyzed", "pass"))
 
 def fz_it(ns: List<&2, U64>, +p: M.Part, +cs: List<&2, M.CE>, +o: V.Point, +d: V.Dir, +sz: String, +l: F64, +acc: It) -> It:
@@ -327,7 +482,7 @@ def fz_go(+p: M.Part, +cs: List<&2, M.CE>, +s: U64, +ns: List<&2, U64>, +sz: Str
   fz_out([hl_ck(rh, rs, sz), hd_ck(p2, rh, dk, k, l,
         pts_in(ns, cs, rings(o, d, F64.mul(0.49f64, dk), l, F64.add(l, k)), 0n)),
       sh_ck(rs, rc, te, l, pts_in(ns, cs, sp, 0n), List.length(&2, V.Point, sp)),
-      th_ck(th, ms, SD.fv(f, 0n), l, sz)],
+      th_ck(th, ms, SD.fv(f, 0n), l, sz)], cl_of(th, p, cs, o, d, te, l, rs, sz, dk),
     "fasten screw " ++ U64.show(s) ++ " ISO 4762 " ++ sz ++ "x" ++ KSD.n_s(l) ++ " tip=(" ++ KSD.n_s(V.pt_x(o)) ++ "," ++ KSD.n_s(V.pt_y(o)) ++ "," ++ KSD.n_s(V.pt_z(o)) ++ ")" ++
       " along=" ++ KSD.dir_s(d) ++ " parts" ++ ids_s(ns) ++ "\n", s)
 
